@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block maintitle %}
+<h1>Welcome to A+ <small>{% trans "the interoperable e-learning platform" %}</small></h1>
+{% endblock %}
+
+{% block content %}
+<div class="hero-unit">
+    {% blocktrans %}
+    <p>
+        A+ is a service for managing the learning activities on courses at 
+        <a href='http://www.aalto.fi'>Aalto University</a>. The system is designed for 
+        improving the interoperability of various e-learning systems by connecting them
+        with a service-oriented approach. 
+    </p>
+    <p>
+        This <strong>prototype version</strong> of A+ supports grading of exercises through <a href="https://greengoblin.cs.hut.fi/">Goblin</a>
+        and <a href="https://trakla.cs.hut.fi/">TRAKLA2</a>.
+    </p>
+    {% endblocktrans %}
+</div>
+
+{% for instance in open_instances %}
+    {# Output a beginning row on every third instance #}
+    {% if forloop.counter0|divisibleby:3 %}
+    <div class="row">
+    
+    {% endif %}
+    <div class="span4">
+        <h3><a href="{{ instance.get_absolute_url }}">{{ instance.course.name }}</a></h3>
+        <p>
+            Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.
+        </p>
+        <p>
+            <a href="{{ instance.get_absolute_url }}" class="btn">{{ instance.instance_name }} &raquo;</a>
+        </p>
+    </div>
+    
+    {# Output an ending row element after every three instances, and at the end of the loop #}
+    {% if forloop.counter|divisibleby:3 or forloop.last %}
+    </div><!-- .row -->
+    {% endif %}
+{% endfor %}
+<hr />
+<div class="row">
+    <div class="span12">
+        <p>
+            {% trans "Old courses can be found at the" %}
+            <a href="{% url course.views.course_archive %}">{% trans "course archive" %}</a>.
+        </p>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block "footer" %}
+{% endblock %}

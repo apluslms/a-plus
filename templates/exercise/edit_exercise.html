@@ -1,0 +1,71 @@
+{% extends "course/course_base.html" %}
+{% load sanitizer %}
+{% load i18n %}
+
+{% block coursecontent %}
+
+<h2>{% trans "Edit exercise" %}</h2>
+
+<form method="post" action="" class="form-horizontal well">
+    {% csrf_token %}
+    
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+
+    <fieldset>
+        <legend>{% trans "Exercise service" %}</legend>
+
+        <div class="control-group {% if form.service_url.errors %}error{% endif %}">
+            <label class="control-label" for="id_{{ form.service_url.html_name }}">{{ form.service_url.label }}</label>
+            <div class="controls">
+                {{ form.service_url }}
+                <a id="fetch-metadata" title="Download metadata" class="btn btn-primary"><i class="icon-download icon-white"></i></a>
+                    <div id="metadata-progress" class="progress progress-striped active" style="width: 218px; display: none;">
+                        <div class="bar" style="width: 100%;"></div>
+                    </div>
+                <p class="help-block">{% trans "Fill in the URL and click the button to automatically download exercise details" %}</p>
+            </div>
+        </div>
+    </fieldset>
+    
+    {% for fieldset in form.get_fieldsets %}
+        <fieldset>
+            <legend>{{ fieldset.legend }}</legend>
+            {% for field in fieldset.fields %}
+                <div class="control-group {% if field.errors %}error{% endif %}">
+                    {% if field.errors %}
+                        {{ field.errors }}
+                    {% endif %}
+                    <label class="control-label" for="id_{{ field.html_name }}">{{ field.label }}</label>
+                    <div class="controls">{{ field }}</div>
+                </div>
+            {% endfor %}
+        </fieldset>
+    {% endfor %}
+    <div class="form-actions">
+        <input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
+    </div>
+    
+</form>
+
+
+<script type="text/javascript">
+    $("#fetch-metadata").click(function() {
+        $("#metadata-progress").show();
+        $.getJSON("/exercise/fetch_metadata/", {
+                exercise_url: $("#id_service_url").val()
+            }, function(data) {
+                if (data.success) {
+                    $("#id_name").val(data.name);
+                    $("#id_description").val(data.description);
+                    console.log(data);
+                } else {
+                    alert(data.message);
+                }
+                $("#metadata-progress").hide();
+            })
+    });
+</script>
+
+{% endblock %}

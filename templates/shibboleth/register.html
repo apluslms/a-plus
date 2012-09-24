@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block content %}
+
+<h2>Register for ARCS Services</h2>
+<form method="post" action=".">
+  <div>
+      <p>By registering for this ARCS service:</p>
+      <ul>
+        <li>I confirm that I will comply with the <a href="http://www.arcs.org.au/about/policies/acceptable-use-policy">ARCS Acceptable Use Policy</a>.</li>
+        <li>I consent my Identity Provider to release the following attributes to ARCS:
+          <ul>
+            {% for name,value in shib_attrs.items %}
+            <li>{{ name }}:     {{ value }}</li>
+            {% endfor %}
+          </ul>
+        </li>
+        </ul>
+
+  </div>
+  <input type="hidden" name="next" value="{{ next }}" />
+  <div class="submit-row">
+    <input type="submit" value="Submit" class="default" />
+  </div>
+</form>
+{% endblock %}

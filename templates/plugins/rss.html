@@ -1,0 +1,14 @@
+<h3>{{ title }} <small><a href="{{ feed.link }}">[www]</a> <a href="{{ plugin.feed_url }}">[rss]</a></small></h3>
+<ul class="rss-feed">
+    {% for entry in entries %}
+        <li>
+            <a href="{{ entry.link }}" 
+               data-original-title="{{ entry.title }}"
+               data-content="{{ entry.description|striptags|truncatewords:40 }}"
+               rel="popover">
+                {{ entry.title }}
+            </a> 
+            <span class="entry-date">{{ entry.django_timestamp }}</span>
+        </li>
+    {% endfor %}
+</ul>

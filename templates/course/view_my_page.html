@@ -1,0 +1,43 @@
+{% extends "course/course_base.html" %}
+{% load sanitizer %}
+{% load i18n %}
+
+{% block coursecontent %}
+<div class="row">
+    <div class="span5">
+        <h2>{{ user.first_name }} {{ user.last_name }} <small>{{ user.username }}</small></h2>
+        <p><img src="{{ user.get_profile.avatar_url }}" alt="avatar" /></p>
+        <p>
+            {% blocktrans with email=user.email %}
+            You can change your avatar icon at <a href="http://gravatar.com">gravatar.com</a>.
+            Use your e-mail address <strong>{{ email }}</strong> when registering your account.
+            {% endblocktrans %}
+        </p>
+        <div class="alert alert-info">
+            {% blocktrans %}
+                To change your settings, such as <strong>e-mail</strong> address or <strong>password</strong>,
+                you must update them on your identity provider.
+                In this prototype, the Shibboleth system has not been configured,
+                and settings can only be changed by administrators.
+            {% endblocktrans %}
+        </div>
+    </div>
+    <div class="span5">
+        <h3>{{ course.name }}</h3>
+        <p>
+            {% trans "You currently have" %}
+            <span class="label label-info">{{ course_summary.get_total_points }} / {{ course_summary.get_maximum_points }}</span>
+            {% trans "exercise points on this course" %}.
+        </p>
+        
+        <h3>{% trans "Your latest submissions" %}</h3>
+        <ul>
+            {% for submission in submissions %}
+            <li><a href="{{ submission.get_absolute_url }}">{{ submission.exercise.name }}</a>, {{ submission.grade }}/{{ submission.exercise.max_points }}</li>
+            {% empty %}
+            <li>{% trans "No submissions for this course." %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

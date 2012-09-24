@@ -1,0 +1,41 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load sanitizer %}
+
+{% block maintitle %}
+<h1>
+    <small>{{ exercise.course_module.name }}</small>
+    <br />
+    {{ exercise.name }}
+</h1>
+
+{% endblock %}
+
+{% block secondnav %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="span2">
+        <ul class="nav nav-list">
+            {% include "exercise/_exercise_menu.html" with instance=instance exercise=exercise %}
+        </ul>
+    </div>
+    <div class="span10">
+        <div>
+            {% include "exercise/_exercise_tabs.html" with exercise=exercise submissions=submissions %}
+        </div>
+        <div class="row">
+            <div id="exercise" class="span8">
+                {% block exercisecontent %}
+                {% endblock %}
+            </div>
+            <div class="span2">
+                {% include "exercise/_exercise_statistics.html" with exercise=exercise summary=exercise_summary %}
+                
+                {% include "exercise/_exercise_info.html" with exercise=exercise %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

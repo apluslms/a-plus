@@ -1,0 +1,97 @@
+{% extends "course/course_base.html" %}
+{% load sanitizer %}
+{% load i18n %}
+
+{% block coursecontent %}
+<div class="row">
+    <div class="span7">
+        <h2>{% trans "Schedule" %}</h2>
+        <ul class="exercise_rounds">
+        {% for round_summary in course_summary.round_summaries %}
+            <li class="exercise_round {{ round_summary.get_classes }}">
+                <div class="exercise-icons">
+                    <div class="btn-group">
+                    {% for exercise_summary in round_summary.exercise_summaries %}
+                        <a href="{{ exercise_summary.exercise.get_absolute_url }}"
+                            class="btn 
+                                {% if exercise_summary.is_full_points %}
+                                    btn-success
+                                {% else %}
+                                    {% if exercise_summary.is_passed %}
+                                        btn-info
+                                    {% endif %}
+                                {% endif %}"
+                                {# Django 1.3 does not support elif #}
+                            rel="tooltip"
+                            data-html="true"
+                            data-placement="bottom"
+                            title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
+                            {{ forloop.counter }}
+                        </a>
+                    {% endfor %}
+                    </div>
+                </div>
+                <a href="#" class="collapse_toggle">
+                    <h3>
+                        <i class="icon-chevron-right"></i>
+                        <i class="icon-chevron-down"></i>
+                        {{ forloop.counter }}. {{ round_summary.exercise_round.name }}
+                        <small>
+                            {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }}
+                        </small>
+                    </h3>
+                </a>
+                <p><span class="dates">{{ round_summary.exercise_round.opening_time }} &ndash; {{ round_summary.exercise_round.closing_time }}</span></p>
+                 
+                <div class="table-container">
+                    {% if round_summary.exercise_summaries %}
+                    <table class="table table-striped table-bordered table-condensed exercise_units">
+                        <thead>
+                            <th>{% trans "Exercise" %}</th>
+                            <th style="width: 80px;">{% trans "Points" %}</th>
+                        </thead>
+                        <tbody>
+                        {% for exercise_summary in round_summary.exercise_summaries %}
+                            <tr>
+                                <td><a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.name }}</a></td>
+                                <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <div class="alert alert-info">
+                            {% trans "No learning objects defined for this module." %}
+                        </div>
+                    {% endif %}
+                </div>
+            </li>
+        {% empty %}
+            <li class="alert alert-info">
+                {% trans "No learning modules defined." %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="span3">
+            <div class="well my-score-box">
+            <h2>{{ course_summary.get_total_points }} <small>/ {{ course_summary.get_maximum_points }}</small></h2>
+            <div 
+                class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+                style="position: relative">
+                <div class="bar" style="width: {{ course_summary.get_completed_percentage }}%;"
+                    data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
+                </div>
+            </div>
+
+        {% if instance.plugins.all %}
+            {% for plugin in instance.plugins.all %}
+                
+                {# TODO: Plugins should not be rendered as safe #}
+                {{ plugin.render|safe }}
+                
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

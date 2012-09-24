@@ -1,0 +1,88 @@
+{% extends "course/course_base.html" %}
+{% load sanitizer %}
+{% load i18n %}
+
+
+{% block coursecontent %}
+<div class="row">
+    <div class="span10">
+        <ul class="breadcrumb">
+            {% if is_teacher %}
+            <li>
+                <a href="{% url course.views.teachers_view course_url=instance.course.url instance_url=instance.url %}">{% trans "Teachers' view" %}</a><span class="divider">/</span>
+            </li>
+            {% else %}
+            <li>
+                <a href="{% url course.views.assistants_view course_url=instance.course.url instance_url=instance.url %}">{% trans "Assistants' view" %}</a><span class="divider">/</span>
+            </li>
+            {% endif %}
+            <li class="active">
+                <a href="{% url exercise.staff_views.list_exercise_submissions exercise_id=exercise.id %}">{{ exercise.name }}</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span10">
+        <h2>{{ exercise.name }} <small>{{ submissions.count }} {% trans "submissions" %}</small></h2>
+        <table class="table table-bordered" id="submission-table">
+            <thead>
+                <tr>
+                    <th>
+                        ID
+                    </th>
+                    <th>
+                        {% trans "Submitters" %}
+                    </th>
+                    <th>
+                        {% trans "Time" %}
+                    </th>
+                    <th>
+                        {% trans "Status" %}
+                    </th>
+                    <th>
+                        {% trans "Grade" %}
+                    </th>
+                    <th>
+                        {% trans "Inspect" %}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    <tr>
+                        <td>
+                            {{ submission.id }}
+                        </td>
+                        <td>
+                            {{ submission.submitter_string }}
+                        </td>
+                        <td>
+                            {{ submission.submission_time }}
+                            {% if submission.is_submitted_late %}
+                                <span class="label label-warning">{% trans "Late" %}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ submission.status }}
+                        </td>
+                        <td>
+                            {{ submission.grade }}
+                        </td>
+                        <td>
+                            <a href="{% url exercise.staff_views.inspect_exercise_submission submission_id=submission.id %}">{% trans "Inspect" %}</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/picnet.table.filter.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#submission-table').tableFilter();
+        });
+    </script>
+{% endblock %}

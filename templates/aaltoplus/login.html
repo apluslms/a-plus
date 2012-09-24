@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block maintitle %}
+    <h1>{% trans "Login" %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<form method="post" action="">
+{% csrf_token %}
+
+<div class="clearfix">
+    {{ form.username.label_tag }}
+    {{ form.username.errors }}
+    <div class="input">{{ form.username }}</div>
+</div>
+<div class="clearfix">
+    {{ form.password.label_tag }}
+    {{ form.password.errors }}
+    <div class="input">{{ form.password }}</div>
+</div>
+
+<div class="actions">
+<input type="submit" value="{% trans "Login" %}" class="btn btn-primary" />
+<input type="hidden" name="next" value="{{ next }}" />
+</div>
+
+{% endblock %}

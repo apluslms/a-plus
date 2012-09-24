@@ -1,0 +1,108 @@
+{% extends "course/course_base.html" %}
+{% load sanitizer %}
+{% load i18n %}
+
+
+{% block coursecontent %}
+<div class="row">
+    <div class="span10">
+        <ul class="breadcrumb">
+            {% if is_teacher %}
+            <li>
+                <a href="{% url course.views.teachers_view course_url=instance.course.url instance_url=instance.url %}">{% trans "Teachers' view" %}</a><span class="divider">/</span>
+            </li>
+            {% else %}
+            <li>
+                <a href="{% url course.views.assistants_view course_url=instance.course.url instance_url=instance.url %}">{% trans "Assistants' view" %}</a><span class="divider">/</span>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{% url exercise.staff_views.list_exercise_submissions exercise_id=submission.exercise.id %}">{{ submission.exercise.name }}</a><span class="divider">/</span>
+            </li>
+            <li class="active">
+                {% trans "Submission" %} {{ submission.id }}
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span4" id="student-submission">
+        <h2>{% trans "Submission" %}</h2>
+        
+        <div class="well">
+            
+            {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
+                <p>
+                    <a href="{% url exercise.staff_views.submission_assessment submission_id=submission.id %}" class="btn btn-primary">{% trans "Assess this submission" %}</a>
+                </p>
+            {% endif %}
+            
+            <h3>{% trans "General information" %}</h3>
+            <dl>
+                <dt>{% trans "Submitters" %}</dt>
+                <dd>{{ submission.submitter_string }}</dd>
+            </dl>
+            <dl>
+                <dt>{% trans "Status" %}</dt>
+                <dd>{{ submission.status }}</dd>
+            </dl>
+            <dl>
+                <dt>{% trans "Submission time" %}</dt>
+                <dd>{{ submission.submission_time }}</dd>
+            </dl>
+            <dl>
+                <dt>{% trans "Grade" %}</dt>
+                <dd>{{ submission.grade }} / {{ submission.exercise.max_points }}</dd>
+            </dl>
+            
+            <hr />
+            
+            <h3>{% trans "Submitted files" %}</h3>
+            <ul class="unstyled">
+                {% for file in submission.files.all %}
+                    <li><i class="icon-file"></i>
+                        <a href="{{ file.get_absolute_url }}">{{ file.filename }}</a> ({{ file.file_object.size|filesizeformat }})
+                    </li>
+                {% empty %}
+                    <li>
+                        {% trans "No files" %}
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <hr />
+            <h3>{% trans "Submitted values" %}</h3>
+            <dl>
+            {% for item in submission.submission_data %}
+                <dt>{{ item.0 }}</dt>
+                <dd>{{ item.1 }}</dd>
+            {% empty %}
+                <dt>
+                    {% trans "No values" %}
+                </dt>
+            {% endfor %}
+            </dl>
+            <hr />
+            <h3>{% trans "Grading data" %}</h3>
+            <dl>
+            {% for item in submission.grading_data.items %}
+                <dt>{{ item.0 }}</dt>
+                <dd>{{ item.1 }}</dd>
+            {% empty %}
+                <dt>
+                    {% trans "No values" %}
+                </dt>
+            {% endfor %}
+            </dl>
+        </div>
+    </div>
+    <div class="span6" id="generated-feedback">
+        <h2>{% trans "Feedback" %}</h2>
+        <div class="well">
+            {{ submission.feedback|sanitize }}
+            &nbsp;{# This prevents the div being completely empty and being not rendered #}
+        </div>
+    </div>
+</div>
+{% endblock %}

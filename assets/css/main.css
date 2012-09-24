@@ -1,0 +1,159 @@
+.brand sup small {
+    font-size: 11px;
+}
+
+span.helptext {
+    display: block;
+    font-size: 80%;
+}
+
+.hidden {
+    display: none;
+}
+.exercise-icons {
+    float: right;
+}
+
+#exercise iframe {
+    border: none;
+    box-shadow: 1px 1px 6px silver;
+}
+
+body {
+    background: url(/static/images/square_bg.png) top left repeat transparent;
+    margin-bottom: 30px;
+}
+
+.rss-feed .entry-date {
+    display: block;
+    font-size: 80%;
+}
+
+.rss-feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rss-feed li {
+    padding: 0 0 8px 0;
+    margin: 0;
+}
+
+.footer p {
+    color: #555555;
+}
+
+#submission_list .active {
+    font-weight: bold;
+    color: black;
+}
+
+.groups-list {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.mini-layout {
+    /* height: 240px; */
+    margin-bottom: 20px;
+    padding: 9px;
+}
+
+.mini-layout {
+    border: 1px solid #DDDDDD;
+    border-radius: 6px 6px 6px 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.075);
+}
+
+ul.exercise_rounds {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+ul.exercise_rounds li.exercise_round {
+    margin: 0;
+    padding: 10px;
+    list-style: none;
+    border: solid #eeeeee 1px;
+    border-left-width: 2px; 
+    border-bottom-width: 0px;
+}
+
+li.exercise_round .dates {
+    font-size: 11px;
+    color: gray;
+}
+li.exercise_round.open .dates {
+    color: #0088CC;
+}
+
+ul.exercise_rounds li.collapsed .icon-chevron-down {
+    display: none;
+}
+
+ul.exercise_rounds li.collapsed .icon-chevron-right {
+    display: inline-block;
+}
+
+ul.exercise_rounds li .icon-chevron-right {
+    display: none;
+}
+ul.exercise_rounds li h3 i {
+    vertical-align: middle;
+    padding-bottom: 3px;
+}
+ul.exercise_rounds li.open {
+    border-left-color: #0088CC;
+    border-left-width: 3px;
+    background-color: white;
+}
+
+ul.exercise_rounds li.upcoming {
+    background-color: #fafafa;
+}
+
+ul.exercise_rounds li.upcoming h3 {
+    color: gray;
+}
+
+ul.exercise_rounds li.exercise_round:last-child {
+    border-bottom-width: 1px;
+}
+
+.exercise_units {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.my-score-box {
+    text-align: center;
+    font-family: georgia, serif;
+}
+
+.exercise-icons .my-score-box {
+    text-align: right;
+}
+
+.exercise-icons .btn-group {
+    float: right;
+}
+
+.progress .score-barrier {
+    width: 2px; 
+    position: absolute; 
+    height: 100%; 
+    top: 0;
+    cursor: default;
+}
+
+.progress .course-average {
+    background-color: #0088CC;
+}
+
+.progress .required-score {
+    background-color: red;
+}

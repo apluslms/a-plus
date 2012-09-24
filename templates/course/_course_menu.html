@@ -1,0 +1,50 @@
+{% load i18n %}
+
+    <li class="nav-header">
+        {% trans "Course" %}
+    </li>
+    <li><a href="{{ instance.get_absolute_url }}">
+        <i class="icon-home"></i>
+        {% trans "Home" %}
+    </a></li>
+    <li><a href="{% url course.views.view_instance_calendar course_url=instance.course.url instance_url=instance.url %}">
+        <i class="icon-calendar"></i>
+        {% trans "Calendar feed" %} (ics)
+    </a></li>
+    <li><a href="{{ instance.get_results_url }}">
+        <i class="icon-list-alt"></i>
+        {% trans "Results" %}
+    </a></li>
+    {% for tab in instance.get_tabs %}
+        <li>
+            <a href="{{ tab.get_absolute_url }}">
+                <i class="icon-star-empty"></i>
+                {{ tab.get_label }}
+            </a>
+        </li>
+    {% endfor %}
+    <li>
+        <a href="{{ instance.get_absolute_url }}me/">
+            <i class="icon-user"></i>
+            {{ user.get_profile.get_shortname }}
+        </a>
+    </li>
+    {% if is_teacher or is_assistant %}
+        <li class="nav-header">
+            {% trans "Staff" %}
+        </li>
+        {% if is_teacher %}
+            <li>
+                <a href="{% url course.views.teachers_view course_url=instance.course.url instance_url=instance.url %}">
+                    <i class="icon-pencil"></i>
+                    {% trans "Teacher's view" %}
+                </a>
+            </li>
+        {% endif %}
+       <li>
+            <a href="{% url course.views.assistants_view course_url=instance.course.url instance_url=instance.url %}">
+                <i class="icon-pencil"></i>
+                {% trans "Assistant's view" %}
+            </a>
+        </li>
+    {% endif %}
