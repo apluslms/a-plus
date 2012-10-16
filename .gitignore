@@ -4,3 +4,7 @@
 local_settings.py
 .svn
 .DS_Store
+
+static/*
+
+test.db
