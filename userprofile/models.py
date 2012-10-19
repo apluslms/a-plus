@@ -49,7 +49,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     @param created: a boolean whether the object was created and not just updated
     '''
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.objects.get_or_create(user=instance)
 
 post_save.connect(create_user_profile, sender=User)
 
