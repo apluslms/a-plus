@@ -15,7 +15,7 @@ TEMPLATE_DEBUG = DEBUG
 
 # This URL is used when building absolute URLs to this service
 # Must be overridden in local_settings.py for deployment
-BASE_URL = "https://localhost:8000"
+BASE_URL = "http://localhost:8000"
 
 # Make this unique, and don't share it with anybody.
 # Must be overridden in local_settings.py for deployment
