@@ -9,5 +9,3 @@ local_settings.py
 static/*
 
 test.db
-
-settings.py

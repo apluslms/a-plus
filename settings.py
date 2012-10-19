@@ -1,4 +1,5 @@
-# Django settings for aaltoplus project.
+# Default settings for a-plus Django project.
+# You should create local_settings.py in the same directory to override necessary settings
 import os
 
 # Lines for Celery. Disabled until actually needed
@@ -9,28 +10,33 @@ import os
 def get_path(filename):
     return os.path.join(os.path.dirname(__file__), filename)
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 # This URL is used when building absolute URLs to this service
+# Must be overridden in local_settings.py for deployment
 BASE_URL = "https://localhost:8000"
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
-MANAGERS = ADMINS
+# Make this unique, and don't share it with anybody.
+# Must be overridden in local_settings.py for deployment
+SECRET_KEY = ''
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': get_path('test.db'),            # Or path to database file if using sqlite3.
+        'NAME': get_path('aplus.db'),            # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+ADMINS = (
+    # ('Your Name', 'your_email@domain.com'),
+)
+
+MANAGERS = ADMINS
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -70,6 +76,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
+    get_path('assets'),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -87,9 +94,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'hf7nbgeuz8(y+&9&(7fy62aiw-5djxhfm+n4#f38*)^_-*#6e%'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -135,24 +139,25 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-STATICFILES_DIRS = (
-    get_path("assets"),
-)
-
 INSTALLED_APPS = (
-    'oauth_provider',
+    # Django applications
     'django.contrib.auth',
     'django.contrib.staticfiles',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
+
+    # Third party applications
+    'oauth_provider',
     'django_shibboleth', #for shibboleth logins
+    'tastypie',
+    #'south', # South disabled due to refactoring of the database
+
+    # First party applications
     'exercise',
     'course',
-    #'south', # South disabled due to refactoring of the database 
     'inheritance',
-    'tastypie',
     'userprofile',
     'apps',
 )
@@ -165,20 +170,29 @@ LOGIN_REDIRECT_URL = "/"
 AUTH_PROFILE_MODULE = 'userprofile.UserProfile'
 
 FILE_UPLOAD_HANDLERS = (
-                        #"django.core.files.uploadhandler.MemoryFileUploadHandler",
-                        "django.core.files.uploadhandler.TemporaryFileUploadHandler",
-                        )
+    #"django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
 
 
 # Shibboleth settings
 SHIB_ATTRIBUTE_MAP = {
     "HTTP_SHIB_IDENTITY_PROVIDER": (True, "idp"),
-    "HTTP_SHIB_SHARED_TOKEN": (False, "shared_token"),
     "HTTP_EPPN": (True, "eppn"),
     "HTTP_SHIB_CN": (False, "cn"),
     "HTTP_REMOTE_USER": (False, "email"),
-    "HTTP_SHIB_GIVENNAME": (False, "first_name"),
+    "HTTP_SHIB_DISPLAYNAME": (False, "first_name"),
     "HTTP_SHIB_SN": (False, "last_name"),
+    "HTTP_SHIB_AALTOID": (False, "student_id"),
 }
 SHIB_USERNAME = "eppn"
 SHIB_EMAIL = "email"
+SHIB_FIRST_NAME = "first_name"
+SHIB_LAST_NAME = "last_name"
+
+
+# Overrides and appends settings defined in local_settings.py
+try:
+    from local_settings import *
+except ImportError:
+    pass

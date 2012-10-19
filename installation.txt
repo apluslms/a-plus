@@ -10,6 +10,9 @@ $ python venv_bootstrap.py /path/to/virtualenv
 Alternatively, you can install the required libraries without virtualenv or in a pre-existing virtualenv:
 $ pip install -r requirements.txt
 
+Create local_settings.py in the same directory with settings.py and override necessary Django settings. At least
+BASE_URL and SECRET_KEY must be set in case of deployment.
+
 If using SQLite, make sure that the file itself and the aaltoplus
 folder are writeable by the Apache user (www-data?).
 
