@@ -8,6 +8,7 @@ from django.db.models import Q
 class UserProfile(models.Model):
     user        = models.OneToOneField(User)
     lang        = models.CharField(max_length=5, default="en_US")
+    student_id  = models.CharField(max_length=25, null=True, blank=True)
     
     def __unicode__(self):
         return self.user.username
@@ -48,7 +49,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     @param created: a boolean whether the object was created and not just updated
     '''
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.objects.get_or_create(user=instance)
 
 post_save.connect(create_user_profile, sender=User)
 

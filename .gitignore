@@ -4,3 +4,10 @@
 local_settings.py
 .svn
 .DS_Store
+.idea
+
+static/*
+
+test.db
+
+aplus.db
