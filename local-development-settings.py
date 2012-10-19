@@ -165,9 +165,9 @@ LOGIN_REDIRECT_URL = "/"
 AUTH_PROFILE_MODULE = 'userprofile.UserProfile'
 
 FILE_UPLOAD_HANDLERS = (
-                        #"django.core.files.uploadhandler.MemoryFileUploadHandler",
-                        "django.core.files.uploadhandler.TemporaryFileUploadHandler",
-                        )
+    #"django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+)
 
 
 # Shibboleth settings
