@@ -3,13 +3,11 @@ THIS INSTALLATION GUIDE IS WRITTEN FOR SETTING UP A+ IN UBUNTU, APACHE AND MOD_W
 
 Python 2.7 is required
 
-It is recommended to use virtualenv (http://www.virtualenv.org/en/latest/) and pip
-(http://www.pip-installer.org/en/latest/installing.html) for easy installation of python libraries.
-
-Run the venv_bootstrap.py script to create a virtualenv and bootstrap it with all the required python libraries:
+It is recommended to use virtualenv (http://www.virtualenv.org/en/latest/). Run the venv_bootstrap.py script to
+create a virtualenv and bootstrap it with all the required python libraries:
 $ python venv_bootstrap.py /path/to/virtualenv
 
-Alternatively, you can install the required libraries without virtualenv:
+Alternatively, you can install the required libraries without virtualenv or in a pre-existing virtualenv:
 $ pip install -r requirements.txt
 
 If using SQLite, make sure that the file itself and the aaltoplus
