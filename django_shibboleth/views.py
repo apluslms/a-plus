@@ -67,6 +67,13 @@ def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name
         pass
     user.save()
 
+    profile = user.get_profile()
+    if attr["student_id"] and attr["student_id"] != "":
+        # This is because a student might previously have had a student id. In that case, we don't want to erase it.
+        profile.student_id = attr["student_id"]
+    profile.idp = attr["idp"]
+    profile.save()
+
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
     shib_logon_done.send(sender=shib_register, user=user, shib_attrs=attr)

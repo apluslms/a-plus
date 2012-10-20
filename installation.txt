@@ -1,20 +1,20 @@
 THIS INSTALLATION GUIDE IS WRITTEN FOR SETTING UP A+ IN UBUNTU, APACHE AND MOD_WSGI
 ===================================================================================
 
-Install Django. Version 1.3.1 is verified working.
+Python 2.7 is required
+
+It is recommended to use virtualenv (http://www.virtualenv.org/en/latest/). Run the venv_bootstrap.py script to
+create a virtualenv and bootstrap it with all the required python libraries:
+$ python venv_bootstrap.py /path/to/virtualenv
+
+Alternatively, you can install the required libraries without virtualenv or in a pre-existing virtualenv:
+$ pip install -r requirements.txt
+
+Create local_settings.py in the same directory with settings.py and override necessary Django settings. At least
+BASE_URL and SECRET_KEY must be set in case of deployment.
+
 If using SQLite, make sure that the file itself and the aaltoplus
 folder are writeable by the Apache user (www-data?).
-
-Install required libraries. "Setuptools"/easy_install is recommended for easy installation:
-Run as root:
-
-apt-get install python-setuptools
-easy_install feedparser
-easy_install oauth2
-easy_install mimeparse
-easy_install python-dateutil
-easy_install icalendar
-easy_install html5lib
 
 APACHE CONFIGURATION
 === httpd.conf begins ===
