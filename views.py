@@ -52,3 +52,4 @@ def privacy(request):
 def verify_credentials(request):
     json_str = simplejson.dumps({"screen_name": request.user.username})
     return HttpResponse(json_str, content_type="text/plain")
+
