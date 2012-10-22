@@ -44,7 +44,12 @@ def home(request):
     context = RequestContext(request, {"open_instances": open_instances})
     return render_to_response("aaltoplus/home.html", context)
 
+def privacy(request):
+    context = RequestContext(request)
+    return render_to_response("aaltoplus/privacy.html", context)
+
 @oauth_required
 def verify_credentials(request):
     json_str = simplejson.dumps({"screen_name": request.user.username})
     return HttpResponse(json_str, content_type="text/plain")
+
