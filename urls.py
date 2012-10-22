@@ -1,5 +1,5 @@
 # A+
-from views import login, home, verify_credentials
+from views import login, home, privacy, verify_credentials
 from oauth_provider.views import protected_resource_example
 
 # Django
@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     
     # A+
     (r'^$', home),
+    (r'^privacy-policy(?:.html)?$', privacy),
     
     (r'^exercise/', include('exercise.urls')),
     (r'^course/', include('course.urls')),
