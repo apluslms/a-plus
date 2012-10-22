@@ -20,19 +20,17 @@
         <li>I follow <a href="https://into.aalto.fi/display/enregulations/Aalto+University+Code+of+Academic+Integrity+and+Handling+Violations+Thereof#AaltoUniversityCodeofAcademicIntegrityandHandlingViolationsThereof-3.3Fraudulentmeansinstudying" target="_blank">Aalto University Code of Academic Integrity</a>.</li>
       </ul>
 
-        A+ stores some personal information as explained in the <a href="privacy-policy.html">privacy policy</a>.
-        <!--
+      A+ stores some personal information as explained in the <a href="privacy-policy.html">privacy policy</a>.
         
-        I consent my Identity Provider to release the following attributes to A+:
-          <ul>
-            {% for name,value in shib_attrs.items %}
-            <li>{{ name }}:     {{ value }}</li>
-            {% endfor %}
-          </ul>
-        </li>
-        
-        -->
-
+      {% comment %}
+      I consent my Identity Provider to release the following attributes to A+:
+      <ul>
+        {% for name,value in shib_attrs.items %}
+          <li>{{ name }}:     {{ value }}</li>
+        {% endfor %}
+      </ul>
+      {% endcomment %}   
+     
   </div>
   <input type="hidden" name="next" value="{{ next }}" />
   <div class="submit-row">
