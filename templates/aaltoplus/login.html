@@ -7,23 +7,34 @@
 
 {% block content %}
 
-<form method="post" action="">
-{% csrf_token %}
-
-<div class="clearfix">
-    {{ form.username.label_tag }}
-    {{ form.username.errors }}
-    <div class="input">{{ form.username }}</div>
-</div>
-<div class="clearfix">
-    {{ form.password.label_tag }}
-    {{ form.password.errors }}
-    <div class="input">{{ form.password }}</div>
+<div class="hero-unit">
+	<h2>Log in with Aalto WebLogin</h2>
+	<p>Click the button below to log in with Aalto University's Shibboleth service. You may want to read our privacy
+		policy
+		<a href="{% url privacy %}">here</a>.
+	</p>
+	<p>
+		<a class="btn btn-primary" href="{% url shib_login %}">Aalto WebLogin</a>
+	</p>
 </div>
 
-<div class="actions">
-<input type="submit" value="{% trans "Login" %}" class="btn btn-primary" />
-<input type="hidden" name="next" value="{{ next }}" />
-</div>
+<h3>Alternativle, you can log in with your A+ specific account</h3>
+<form method="post" action="">{% csrf_token %}
+	<div class="clearfix">
+		{{ form.username.label_tag }}
+		{{ form.username.errors }}
+		<div class="input">{{ form.username }}</div>
+	</div>
+	<div class="clearfix">
+		{{ form.password.label_tag }}
+		{{ form.password.errors }}
+		<div class="input">{{ form.password }}</div>
+	</div>
+
+	<div class="actions">
+		<input type="submit" value="{% trans "Login" %}" class="btn btn-primary" />
+		<input type="hidden" name="next" value="{{ next }}" />
+	</div>
+</form>
 
 {% endblock %}

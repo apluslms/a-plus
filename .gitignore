@@ -11,3 +11,7 @@ static/*
 test.db
 
 aplus.db
+
+aplus.db.old
+
+dump.json
