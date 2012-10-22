@@ -178,7 +178,7 @@ FILE_UPLOAD_HANDLERS = (
 # Shibboleth settings
 SHIB_ATTRIBUTE_MAP = {
     "HTTP_SHIB_IDENTITY_PROVIDER": (True, "idp"),
-    "SHIB_eppn": (False, "eppn"),
+    "SHIB_eppn": (True, "eppn"),
     "HTTP_SHIB_CN": (False, "cn"),
     "HTTP_SHIB_DISPLAYNAME": (False, "first_name"),
     "HTTP_SHIB_SN": (False, "last_name"),
