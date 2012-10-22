@@ -2,10 +2,10 @@ import urlparse
 
 from django.shortcuts import render_to_response, redirect
 from django.template.context import RequestContext
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import login as django_login
+from django.contrib.auth.views import login as django_login, logout as django_logout
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
@@ -38,6 +38,13 @@ def login(request):
         return redirect(redirect_to)
     
     return django_login(request, template_name="aaltoplus/login.html")
+
+def logout(request):
+    if request.user.is_authenticated() and request.user.get_profile().sso_logout_url and request.user.get_profile()\
+            .sso_logout_url != "":
+        return HttpResponseRedirect(request.user.get_profile().sso_logout_url)
+    else:
+        return django_logout(request)
 
 def home(request):
     open_instances = CourseInstance.objects.filter(ending_time__gte=datetime.now())

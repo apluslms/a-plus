@@ -183,7 +183,8 @@ SHIB_ATTRIBUTE_MAP = {
     "HTTP_SHIB_DISPLAYNAME": (False, "first_name"),
     "HTTP_SHIB_SN": (False, "last_name"),
     "HTTP_SHIB_AALTOID": (False, "student_id"),
-    "HTTP_SHIB_MAIL": (False, "email")
+    "HTTP_SHIB_MAIL": (False, "email"),
+    "HTTP_SHIB_LOGOUTURL": (True, "logout_url"),
 }
 SHIB_USERNAME = "eppn"
 SHIB_EMAIL = "email"
