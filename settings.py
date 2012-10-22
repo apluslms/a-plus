@@ -178,19 +178,17 @@ FILE_UPLOAD_HANDLERS = (
 # Shibboleth settings
 SHIB_ATTRIBUTE_MAP = {
     "HTTP_SHIB_IDENTITY_PROVIDER": (True, "idp"),
-    "HTTP_EPPN": (False, "eppn"),
+    "SHIB_eppn": (False, "eppn"),
     "HTTP_SHIB_CN": (False, "cn"),
-    #"HTTP_REMOTE_USER": (False, "email"),
     "HTTP_SHIB_DISPLAYNAME": (False, "first_name"),
     "HTTP_SHIB_SN": (False, "last_name"),
     "HTTP_SHIB_AALTOID": (False, "student_id"),
     "HTTP_SHIB_MAIL": (False, "email")
 }
-SHIB_USERNAME = "student_id"
+SHIB_USERNAME = "eppn"
 SHIB_EMAIL = "email"
 SHIB_FIRST_NAME = "first_name"
 SHIB_LAST_NAME = "last_name"
-
 
 # Overrides and appends settings defined in local_settings.py
 try:
