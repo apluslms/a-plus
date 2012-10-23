@@ -130,7 +130,7 @@ def view_instance_calendar(request, course_url, instance_url):
         
         cal.add_component(event)
     
-    response = HttpResponse(cal.as_string(), content_type="text/calendar; charset=utf-8")
+    response = HttpResponse(cal.to_ical(), content_type="text/calendar; charset=utf-8")
     return response
 
 
