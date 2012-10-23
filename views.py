@@ -42,7 +42,21 @@ def login(request):
 def logout(request):
     if request.user.is_authenticated() and request.user.get_profile().sso_logout_url and request.user.get_profile()\
             .sso_logout_url != "":
-        return HttpResponseRedirect(request.user.get_profile().sso_logout_url)
+
+        response = HttpResponseRedirect(request.user.get_profile().sso_logout_url)
+
+        # TODO: This is ugly because this doesn't consider that there might be other single sign-on services
+        # TODO: Also, this might not be the right way to do shibboleth logout.
+        # Finds and deletes a cookie set by mod_shibboleth. Not deleting this cookie results in not asking for user's
+        # shibboleth credentials when he logs in again after a logout.
+        for key, value in request.COOKIES:
+            if key.startswith("_shibsession"):
+                shib_cookie_key = key
+        if shib_cookie_key:
+            # TODO: Remove deployment spcific information
+            response.delete_cookie(shib_cookie_key, path="/", domain="plus.cs.hut.fi")
+
+        return response
     else:
         return django_logout(request)
 
