@@ -102,7 +102,16 @@
                 {% endblock %}
             </div>
             {% block footer %}
-                {% include "footer.html" %}
+            <footer class="footer">
+
+                <div class="container">
+                <small>
+                    {% block footercontent %}{% endblock %}
+                    <p><a href="{% url views.privacy %}">Privacy</a></p>
+                </small>
+                </div>
+
+            </footer>
             {% endblock %}
         </div>
     </body>
