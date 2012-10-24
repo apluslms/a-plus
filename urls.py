@@ -37,7 +37,8 @@ urlpatterns = patterns('',
     # Django:
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/login/$', login),
-    url(r'^accounts/logout/$', logout, {"template_name": "aaltoplus/logout.html"}, name="logout"),
+    url(r'^accounts/logout/$', "django.contrib.auth.views.logout", {"template_name": "aaltoplus/logout.html"},
+        name="logout"),
 )
 
 urlpatterns += patterns('',

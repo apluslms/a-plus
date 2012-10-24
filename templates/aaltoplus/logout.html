@@ -11,8 +11,4 @@
     {% trans "Please close the browser if you were using a public computer to clear your remaining sessions." %}
 </div>
 
-{% if sso_logout_url %}
-<iframe src="{{ sso_logout_url }}" style="display: none;"></iframe>
-{% endif %}
-
 {% endblock %}
