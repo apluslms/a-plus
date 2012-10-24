@@ -42,8 +42,15 @@ def login(request):
 @login_required
 def logout(request, template_name=None):
     sso_logout_url = request.user.get_profile().sso_logout_url
-    return django_logout_view(request, extra_context={"sso_logout_url": sso_logout_url},
+    response = django_logout_view(request, extra_context={"sso_logout_url": sso_logout_url},
         template_name=template_name)
+    for key in request.COOKIES.keys():
+        if key.startswith("_shibsession"):
+            shib_cookie_key = key
+    if shib_cookie_key:
+        # TODO: Remove deployment spcific information
+        response.delete_cookie(shib_cookie_key, path="/", domain="plus.cs.hut.fi")
+    return response
     """
         # TODO: This is ugly because this doesn't consider that there might be other single sign-on services
         # TODO: Also, this might not be the right way to do shibboleth logout.
