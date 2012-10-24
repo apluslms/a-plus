@@ -77,7 +77,7 @@ class CourseInstance(models.Model):
     
     # Basic information
     instance_name           = models.CharField(max_length=30)
-    website                 = models.URLField(max_length=30, blank=True)
+    website                 = models.URLField(max_length=200, blank=True)
     
     url                     = models.CharField(unique=False, max_length=16, blank=False, 
                                                validators=[RegexValidator(regex="^[\w\-\.]*$")],
