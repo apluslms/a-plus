@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     
     # A+
     (r'^$', home),
-    (r'^privacy-policy(?:.html)?$', privacy),
+    url(r'^privacy-policy(?:.html)?$', privacy, name="privacy"),
     
     (r'^exercise/', include('exercise.urls')),
     (r'^course/', include('course.urls')),
@@ -37,7 +37,8 @@ urlpatterns = patterns('',
     # Django:
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/login/$', login),
-    (r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'template_name': 'aaltoplus/logout.html'}),
+    url(r'^accounts/logout/$', "django.contrib.auth.views.logout", {"template_name": "aaltoplus/logout.html"},
+        name="logout"),
 )
 
 urlpatterns += patterns('',
