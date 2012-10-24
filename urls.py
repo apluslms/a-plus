@@ -1,5 +1,5 @@
 # A+
-from views import login, home, privacy, verify_credentials
+from views import login, logout, home, privacy, verify_credentials
 from oauth_provider.views import protected_resource_example
 
 # Django
@@ -37,7 +37,7 @@ urlpatterns = patterns('',
     # Django:
     (r'^admin/', include(admin.site.urls)),
     (r'^accounts/login/$', login),
-    (r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'template_name': 'aaltoplus/logout.html'}),
+    url(r'^accounts/logout/$', logout, {"template_name": "aaltoplus/logout.html"}, name="logout"),
 )
 
 urlpatterns += patterns('',

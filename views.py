@@ -1,13 +1,13 @@
 import urlparse
 
 from django.shortcuts import render_to_response, redirect
-from django.template.context import RequestContext
+from django.template.context import Context, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import login as django_login, logout as django_logout
+from django.contrib.auth.views import login as django_login, logout as django_logout_view
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, logout as django_logout
 
 from course.models import Course, CourseInstance
 from oauth_provider.decorators import oauth_required
@@ -39,12 +39,12 @@ def login(request):
     
     return django_login(request, template_name="aaltoplus/login.html")
 
-def logout(request):
-    if request.user.is_authenticated() and request.user.get_profile().sso_logout_url and request.user.get_profile()\
-            .sso_logout_url != "":
-
-        response = HttpResponseRedirect(request.user.get_profile().sso_logout_url)
-
+@login_required
+def logout(request, template_name=None):
+    sso_logout_url = request.user.get_profile().sso_logout_url
+    return django_logout_view(request, extra_context={"sso_logout_url": sso_logout_url},
+        template_name=template_name)
+    """
         # TODO: This is ugly because this doesn't consider that there might be other single sign-on services
         # TODO: Also, this might not be the right way to do shibboleth logout.
         # Finds and deletes a cookie set by mod_shibboleth. Not deleting this cookie results in not asking for user's
@@ -55,10 +55,7 @@ def logout(request):
         if shib_cookie_key:
             # TODO: Remove deployment spcific information
             response.delete_cookie(shib_cookie_key, path="/", domain="plus.cs.hut.fi")
-
-        return response
-    else:
-        return django_logout(request)
+    """
 
 def home(request):
     open_instances = CourseInstance.objects.filter(ending_time__gte=datetime.now())
