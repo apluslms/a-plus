@@ -1,13 +1,13 @@
 import urlparse
 
 from django.shortcuts import render_to_response, redirect
-from django.template.context import Context, RequestContext
-from django.http import HttpResponse, HttpResponseRedirect
+from django.template.context import RequestContext
+from django.http import HttpResponse
 from django.utils import simplejson
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import login as django_login, logout as django_logout_view
+from django.contrib.auth.views import login as django_login
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME, logout as django_logout
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from course.models import Course, CourseInstance
 from oauth_provider.decorators import oauth_required

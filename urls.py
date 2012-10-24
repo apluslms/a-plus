@@ -1,5 +1,5 @@
 # A+
-from views import login, logout, home, privacy, verify_credentials
+from views import login, home, privacy, verify_credentials
 from oauth_provider.views import protected_resource_example
 
 # Django
