@@ -152,7 +152,7 @@ INSTALLED_APPS = (
     'oauth_provider',
     'django_shibboleth', #for shibboleth logins
     'tastypie',
-    #'south', # South disabled due to refactoring of the database
+    'south', 
 
     # First party applications
     'exercise',
