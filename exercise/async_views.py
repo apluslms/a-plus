@@ -74,7 +74,7 @@ def grade_async_submission(request, submission_id, hash):
     @param submission_id: id for the submission to grade
     @param hash: a hash that is random and must match the one saved for the submission
     """
-    submission              = get_object_or_404(Submission, id=ids, hash=hash)
+    submission              = get_object_or_404(Submission, id=submission_id, hash=hash)
     exercise                = submission.exercise
     students                = submission.submitters.all()
     
