@@ -90,6 +90,10 @@ li.exercise_round.open .dates {
     color: #0088CC;
 }
 
+li.exercise_round .exercise_round_introduction {
+	padding-bottom: 10px;
+}
+
 ul.exercise_rounds li.collapsed .icon-chevron-down {
     display: none;
 }
