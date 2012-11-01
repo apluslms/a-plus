@@ -100,7 +100,7 @@
     <div class="span6" id="generated-feedback">
         <h2>{% trans "Feedback" %}</h2>
         <div class="well">
-            {{ submission.feedback }}
+            {{ submission.feedback|sanitize }}
             &nbsp;{# This prevents the div being completely empty and being not rendered #}
         </div>
     </div>
