@@ -16,7 +16,7 @@
     {% endif %}
     
     {% if submission.feedback %}
-        {{ submission.feedback|sanitize }}
+        {{ submission.feedback }}
     {% else %}
         <div class="alert alert-info">
             {% trans "No verbal feedback available for this submission." %}
