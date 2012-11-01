@@ -3,7 +3,7 @@
 {% load i18n %}
 
 
-{% block exercisecontent|sanitize %}
+{% block exercisecontent %}
     {% if submission.files.all %}
         <h3>{% trans "Files in this submission" %}</h3>
         <ul class="unstyled">
@@ -16,7 +16,7 @@
     {% endif %}
     
     {% if submission.feedback %}
-        {{ submission.feedback }}
+        {{ submission.feedback|sanitize }}
     {% else %}
         <div class="alert alert-info">
             {% trans "No verbal feedback available for this submission." %}
