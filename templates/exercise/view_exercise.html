@@ -2,7 +2,7 @@
 {% load sanitizer %}
 {% load i18n %}
 
-{% block exercisecontent %}
+{% block exercisecontent|sanitize %}
     {{ page.content }}
     {% if form %}
     <div>
