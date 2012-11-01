@@ -3,7 +3,7 @@
 {% load i18n %}
 
 
-{% block exercisecontent %}
+{% block exercisecontent|sanitize %}
     {% if submission.files.all %}
         <h3>{% trans "Files in this submission" %}</h3>
         <ul class="unstyled">
