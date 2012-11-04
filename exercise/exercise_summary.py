@@ -127,6 +127,19 @@ class ExerciseRoundSummary:
         
         return " ".join(classes)
 
+    def get_completed_percentage(self):
+        max_points = self.get_maximum_points()
+        if max_points == 0:
+            return 0
+        else:
+            return int(round(100.0 * self.get_total_points() / max_points))
+
+    def get_required_percentage(self):
+        if self.get_maximum_points() == 0:
+            return 0
+        else:
+            return int(round(100.0 * self.exercise_round.points_to_pass / self.get_maximum_points()))
+
 
 class CourseSummary:
     """ 
