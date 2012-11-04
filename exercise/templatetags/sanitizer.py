@@ -12,7 +12,7 @@ from lib.html5lib import sanitizer
 @register.filter
 @stringfilter
 def sanitize(value):
-    p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
-    sanitized = p.parseFragment(value).toxml()
-    return mark_safe(sanitized)
+    #p = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+    #sanitized = p.parseFragment(value).toxml()
+    return mark_safe(value)
 
