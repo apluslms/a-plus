@@ -166,7 +166,7 @@ class Submission(models.Model):
     
     def set_waiting(self):
         self._set_status("waiting")
-    
+
     def is_graded(self):
         return self.status == "ready"
     
@@ -174,8 +174,8 @@ class Submission(models.Model):
         self.grading_time = datetime.now()
         self._set_status("ready")
 
-	def set_error(self):
-		self._set_status("error")
+    def set_error(self):
+        self._set_status("error")
     
     def get_absolute_url(self):
         return reverse("exercise.views.view_submission", kwargs={"submission_id": self.id})
