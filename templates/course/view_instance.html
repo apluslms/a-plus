@@ -44,7 +44,7 @@
                 <p><span class="dates">{{ round_summary.exercise_round.opening_time }} &ndash; {{ round_summary.exercise_round.closing_time }}</span></p>
                  
                 <div class="table-container">
-                	<div class="progress{% if round_summary.is_passed %} progress-success{% else %} progress-danger{% endif %} progress-striped">
+                	<div class="progress{% if round_summary.is_passed %} progress-success{% else %} progress-danger{% endif %} progress-striped" style="position: relative">
 		                <div class="bar" style="width: {{ round_summary.get_completed_percentage }}%;"
 		                     data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ round_summary.get_total_points }}"></div>
 		                <a href="#"
