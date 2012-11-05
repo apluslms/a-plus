@@ -66,7 +66,13 @@
                         <tbody>
                         {% for exercise_summary in round_summary.exercise_summaries %}
                             <tr>
-                                <td><a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.name }}</a></td>
+                                <td>
+                                {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
+                                    <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.name }}</a>
+                                {% else %}
+                                    {{exercise_summary.exercise.name}}
+                                {% endif %}
+                                </td>
                                 <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
                             </tr>
                         {% endfor %}

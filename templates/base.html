@@ -26,11 +26,14 @@
         <div id="page">
 
 {% block navbar %}
+{% comment %}
+TODO: implement groups
 <form method="POST" id="group-change-form" class="hidden">
     {% csrf_token %}
     <input name="change_to_group" id="change_to_group" />
     <input type="submit" />
 </form>
+{% endcomment %}
 
 <div class="navbar">
     <div class="navbar-inner">
@@ -50,6 +53,8 @@
                 <ul class="nav pull-right">
                     {% if user.is_authenticated %}
                         <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
+                        {% comment %}
+                        TODO: implement groups
                         <li class="dropdown" id="group-menu">
                             <a href="#group-menu" class="dropdown-toggle" data-toggle="dropdown">
                                 {% if active_group %}
@@ -72,6 +77,7 @@
                                 <li><a href="{% url userprofile.views.view_groups %}">{% trans "Join or create a group"%}</a></li>
                             </ul>
                         </li>
+                        {% endcomment %}
                         <li><a href="{% url logout %}">{% trans "Log out"%}.</a></li>
                     {% endif %}
                 </ul>
