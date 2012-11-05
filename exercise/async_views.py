@@ -174,22 +174,25 @@ def _post_async_submission(request, exercise, submission, students):
             errors.append(field + ": " + err)
             # Contains errors, so submission is not allowed
             is_valid = False
-    
+
     print errors
     
     # If there are no errors, proceed with creating a new submission:
     if is_valid:
         try:
             # Set the given grade
-            submission.set_points(form.cleaned_data["points"], 
-                                  form.cleaned_data["max_points"])
-            
+            submission.set_points(form.cleaned_data["points"], form.cleaned_data["max_points"])
+
             submission.feedback         = form.cleaned_data["feedback"]
             
             # Save all given POST parameters
             submission.set_grading_data(request.POST)
-            
-            submission.set_ready()
+
+            if form.cleaned_data["error"]:
+                submission.set_error()
+            else:
+                submission.set_ready()
+
             submission.save()
             
             submission.add_submitters(students)

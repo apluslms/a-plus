@@ -28,11 +28,12 @@ class SubmissionCallbackForm(forms.Form):
     
     feedback        = forms.CharField(required=False)
     grading_payload = forms.CharField(required=False)
+    error           = forms.BooleanField(required=False)
     
     def clean(self):
         points      = self.cleaned_data.get("points")
         max_points  = self.cleaned_data.get("max_points")
-        
+
         if points and max_points:
             if points > max_points:
                 raise forms.ValidationError("Points greater than maximum points are not allowed.")
