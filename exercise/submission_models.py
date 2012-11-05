@@ -25,7 +25,8 @@ from exercise.exercise_models import SynchronousExercise, AsynchronousExercise
 class Submission(models.Model):
     _status_choices         = (("initialized", _(u"Initialized")),
                                ("waiting", _(u"Waiting")),
-                               ("ready", _(u"Ready")))
+                               ("ready", _(u"Ready")),
+	                           ("error", _(u"Error")))
     
     submission_time         = models.DateTimeField(auto_now_add=True)
     hash                    = models.CharField(max_length=32, default=get_random_string)
@@ -165,13 +166,16 @@ class Submission(models.Model):
     
     def set_waiting(self):
         self._set_status("waiting")
-    
+
     def is_graded(self):
         return self.status == "ready"
     
     def set_ready(self):
         self.grading_time = datetime.now()
         self._set_status("ready")
+
+    def set_error(self):
+        self._set_status("error")
     
     def get_absolute_url(self):
         return reverse("exercise.views.view_submission", kwargs={"submission_id": self.id})
