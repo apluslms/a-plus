@@ -22,7 +22,7 @@
         {% trans "Submitted on" %}
     </dt>
     <dd>
-        {{ submission.timestamp }}
+        {{ submission.submission_time }}
     </dd>
     
     <dt>
@@ -41,6 +41,9 @@
         </dd>
     {% endif %}
     
+    {% comment %}
+    <!-- groups are not active, so only one submitter is possible. -->
+    TODO: group functionality
     <dt>
         {% trans "Submitters" %}
     </dt>
@@ -51,4 +54,5 @@
             </a>
         {% endfor %}
     </dd>
+    {% endcomment %}
 </ul>
