@@ -70,6 +70,12 @@ class CourseModule(models.Model):
     def is_open(self):
         return self.opening_time <= datetime.now() <= self.closing_time
     
+    def is_after_open(self):
+        """
+        Returns True if current time is past the round opening time.
+        """
+        return self.opening_time <= datetime.now()
+
     def __unicode__(self):
         return self.name
     

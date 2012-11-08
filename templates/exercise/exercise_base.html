@@ -31,9 +31,11 @@
                 {% endblock %}
             </div>
             <div class="span2">
-                {% include "exercise/_exercise_statistics.html" with exercise=exercise summary=exercise_summary %}
-                
+                {% block exerciseinfo %}
                 {% include "exercise/_exercise_info.html" with exercise=exercise %}
+
+                {% include "exercise/_exercise_statistics.html" with exercise=exercise summary=exercise_summary %}
+                {% endblock %}
             </div>
         </div>
     </div>
