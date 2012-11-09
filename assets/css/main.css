@@ -25,6 +25,7 @@ html {
 
 body {
     background: url(/static/images/square_bg.png) top left repeat transparent;
+    /* margin-bottom: 30px; */
     height: 100%;
 }
 
@@ -33,7 +34,7 @@ div#page {
     position: relative;
 }
 
-div#page > footer {
+div#page>footer {
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -53,7 +54,7 @@ div#page > footer {
 }
 
 /* This one is for the fixed footer. */
-div#page > div#main_content {
+div#page>div#main_content {
     padding-bottom: 60px;
 }
 
