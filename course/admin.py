@@ -11,6 +11,8 @@ class CourseAdmin(admin.ModelAdmin):
     
     list_editable       = ["name",
                            "code"]
+
+    filter_horizontal   = ["teachers"]
     
     def queryset(self, request):
         if not request.user.is_superuser:
@@ -42,6 +44,8 @@ class CourseInstanceAdmin(admin.ModelAdmin):
     list_filter = ["course", 
                    "starting_time", 
                    "ending_time"]
+
+    filter_horizontal = ["assistants"]
     
     def queryset(self, request):
         if not request.user.is_superuser:
