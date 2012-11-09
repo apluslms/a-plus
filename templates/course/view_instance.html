@@ -9,7 +9,6 @@
         <ul class="exercise_rounds">
         {% for round_summary in course_summary.round_summaries %}
             <li class="exercise_round {{ round_summary.get_classes }}">
-                {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
                 <div class="exercise-icons">
                     <div class="btn-group">
                     {% for exercise_summary in round_summary.exercise_summaries %}
@@ -32,7 +31,6 @@
                     {% endfor %}
                     </div>
                 </div>
-                {% endif %}
                 <a href="#" class="collapse_toggle">
                     <h3>
                         <i class="icon-chevron-right"></i>
