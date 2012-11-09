@@ -194,3 +194,7 @@ ul.exercise_rounds li.exercise_round:last-child {
 .progress .required-score {
     background-color: red;
 }
+
+.nowrap {
+    white-space: nowrap;
+}
