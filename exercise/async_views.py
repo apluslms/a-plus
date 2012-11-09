@@ -99,7 +99,7 @@ def _async_submission_handler(request, exercise, students, submission=None):
     
     if request.method == "GET":
         response_dict       = _get_async_submission_info(exercise, students)
-    elif request.method == "POST":
+    else:
         # Create a new submission if one is not provided
         if submission == None:
             submission      = Submission(exercise=exercise)
