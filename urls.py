@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     
     # A+
     (r'^$', home),
-    url(r'^privacy-policy(?:.html)?$', privacy, name="privacy"),
+    url(r'^privacy-policy(?:.html)?$', privacy, name="privacy_policy"),
     
     (r'^exercise/', include('exercise.urls')),
     (r'^course/', include('course.urls')),
