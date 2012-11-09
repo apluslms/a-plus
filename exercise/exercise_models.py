@@ -217,8 +217,13 @@ class BaseExercise(LearningObject):
                 errors.append( 'You have already submitted this exercise %d times.' % submissions.count())
             else:
                 errors.append( 'This group has already submitted this exercise %d times.' % submissions.count())
-        
-        if not self.is_open():
+
+        # Check if the exercise is open.
+        # Submissions by superusers, staff, course teachers and course instance assistants are still allowed.
+        if not self.is_open() and not (students.count() == 1 and (students[0].user.is_superuser
+                    or students[0].user.is_staff
+                    or self.course_module.course_instance.course.is_teacher(students[0])
+                    or self.course_module.course_instance.is_assistant(students[0]))):
             errors.append('This exercise is not open for submissions.')
         
         if not allowed_group_size:
