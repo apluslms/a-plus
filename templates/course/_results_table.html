@@ -11,7 +11,7 @@
     <tbody>
     {% for row in result_table.results %}
         <tr>
-            <th>{{ row.student.user.username }}</th>
+            <th>{{ row.student.user.get_profile.student_id }}</th>
             {% for grade in row.grades %}
                 <td>{% if grade != None %}{{ grade }}{% endif %}</td>
             {% endfor %}
