@@ -3,7 +3,7 @@
         <tr>
             <th scope="col">Student (N={{result_table.results|length}})</th>
             {% for exercise in result_table.exercises %}
-                <th scope="col"><a href="{{ exercise.get_absolute_url }}">{{ exercise.name }}</a></th>
+                <th scope="col">{{ exercise.name }}</th>
             {% endfor %}
             <th>Sum</th>
         </tr>
