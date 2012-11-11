@@ -38,8 +38,9 @@
                         <i class="icon-chevron-right"></i>
                         <i class="icon-chevron-down"></i>
                         {{ forloop.counter }}. {{ round_summary.exercise_round.name }}
-                        <small>
+                        <small class="nowrap">
                             {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }}
+                            {% if round_summary.exercise_round.points_to_pass > 0 %}(required to pass: {{ round_summary.exercise_round.points_to_pass }}){% endif %}
                         </small>
                     </h3>
                 </a>
