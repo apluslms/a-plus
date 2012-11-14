@@ -15,11 +15,14 @@
                     {% for exercise_summary in round_summary.exercise_summaries %}
                         <a href="{{ exercise_summary.exercise.get_absolute_url }}"
                             class="btn 
-                                {% if exercise_summary.is_full_points %}
-                                    btn-success
+                                {% if not exercise_summary.is_passed %}
+                                    btn-danger
                                 {% else %}
-                                    {% if exercise_summary.is_passed %}
-                                        btn-info
+                                    {% if exercise_summary.is_full_points %}
+                                        btn-success
+                                    {% endif %}
+                                    {% if not exercise_summary.is_full_points and exercise_summary.is_submitted%}
+                                        btn-warning
                                     {% endif %}
                                 {% endif %}"
                                 {# Django 1.3 does not support elif #}
