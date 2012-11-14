@@ -42,7 +42,7 @@
                         <i class="icon-chevron-down"></i>
                         {{ forloop.counter }}. {{ round_summary.exercise_round.name }}
                         <small class="nowrap">
-                            {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }}
+                            {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }} {% trans "points" %}
                             {% if round_summary.exercise_round.points_to_pass > 0 %}(required to pass: {{ round_summary.exercise_round.points_to_pass }}){% endif %}
                         </small>
                     </h3>
@@ -100,6 +100,7 @@
     </div>
     <div class="span3">
             <div class="well my-score-box">
+            <h4>{%trans "Total points:" %}</h4>
             <h2>{{ course_summary.get_total_points }} <small>/ {{ course_summary.get_maximum_points }}</small></h2>
             <div 
                 class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
