@@ -32,6 +32,7 @@ $(function() {
     var path = location.pathname.substring(1);
     if(path)
         $('li a[href$="' + path + '"]').parent("li").addClass('active');
+        $('li.active a i[class^="icon-"]').addClass('icon-white');
 });
 
 

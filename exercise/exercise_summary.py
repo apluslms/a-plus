@@ -60,6 +60,9 @@ class ExerciseSummary:
     def is_passed(self):
         return self.get_points() >= self.exercise.points_to_pass
 
+    def is_submitted(self):
+        return self.submission_count > 0
+
 class ExerciseRoundSummary:
     def __init__(self, exercise_round, user):
         self.exercise_round     = exercise_round
