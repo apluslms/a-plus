@@ -9,22 +9,23 @@
         </tr>
     </thead>
     <tbody>
-    {% for row in result_table.results %}
+    {% for student, grades, grade_sum in result_table.results_for_template %}
         <tr>
-            <th scope="row">{{ row.student.user.username }}</th>
-            {% for grade in row.grades %}
-                <td>{% if grade != None %}{{ grade }}{% endif %}</td>
+            <th scope="row">{{ student.student_id }}</th>
+            {% for grade in grades %}
+                <td>{% if grade != None %}{{ grade }}{% else %}&nbsp;{% endif %}</td>
             {% endfor %}
-            <td>{{ row.grade_sum }}</td>
+            <td>{{ grade_sum }}</td>
         </tr>
     {% endfor %}
     </tbody>
     <tfoot>
         <tr>
             <td>Maximum points</td>
-            {% for max_points in result_table.max_points %}
-                <td>{{ max_points }}</td>
+            {% for exercise in result_table.exercises %}
+                <td>{{ exercise.max_points }}</td>
             {% endfor %}
+            <td>{{ result_table.max_sum }}</td>
         </tr>
     </tfoot>
 </table>
