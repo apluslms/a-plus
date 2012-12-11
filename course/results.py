@@ -28,7 +28,7 @@ class ResultTable:
         # "submissions__exercise" and "submissions__grade".
         # Note that the "submitters" key does not contain a list but an id of a
         # single UserProfile model instance.
-        self.best_submissios = Submission.objects.filter(
+        self.best_submissions = Submission.objects.filter(
             exercise__course_module__course_instance=course_instance).values(
             "submitters", "exercise").annotate(best=Max("grade"))\
             .order_by()
@@ -62,7 +62,7 @@ class ResultTable:
         Helper for the __init__.
         This method puts the data from the database in to the results table.
         """
-        for submission in self.best_submissios:
+        for submission in self.best_submissions:
             student = self.students.get(id=submission["submitters"])
             exercise = self.exercises.get(id=submission["exercise"])
             # Create empty dict for this student if he already isn't in the
@@ -86,10 +86,8 @@ class ResultTable:
             grades = []
             sum = 0
             for ex in self.exercises:
-                grade = None
-                if ex in grades_d.keys():
-                    grade = grades_d[ex]
-                    sum += grade
+                grade = grades_d[ex]
+                if grade: sum += grade
                 grades.append(grade)
             for_template.append((student, grades, sum, ))
         return for_template
