@@ -90,6 +90,13 @@ class CourseModule(models.Model):
         app_label           = 'exercise'
         ordering            = ['closing_time', 'id']
 
+"""
+class LearningObjectCategory(models.Model):
+    name = models.CharField(max_length=35)
+    description = models.TextField(blank=True)
+    course_instance = models.ForeignKey(CourseInstance,
+        related_name=u"categories")
+"""
 
 class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round
@@ -108,6 +115,8 @@ class LearningObject(ModelWithInheritance):
     
     # Relations
     course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")
+#    category               = models.ForeignKey(LearningObjectCategory,
+#        related_name="learning_objects")
 
 
 class BaseExercise(LearningObject):
