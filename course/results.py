@@ -4,7 +4,7 @@ from exercise.exercise_models import BaseExercise, CourseModule
 from exercise.submission_models import Submission
 
 # Django
-from django.db.models import Q, Max
+from django.db.models import Max
 
 class ResultTable:
     """ 
@@ -22,44 +22,82 @@ class ResultTable:
         """
         
         self.course_instance    = course_instance
+
+        # Find the best submissions for each user-exercise combination.
+        # This generates a list of dicts with the keys "student_id",
+        # "submissions__exercise" and "submissions__grade".
+        # Note that the "submitters" key does not contain a list but an id of a
+        # single UserProfile model instance.
+        self.best_submissions = Submission.objects.filter(
+            exercise__course_module__course_instance=course_instance).values(
+            "submitters", "exercise").annotate(best=Max("grade"))\
+            .order_by()
+
+        # self.best_submissions elements only contain the id of the exercise.
+        # We need other exercise data too so we fetch the related BaseExercise
+        # instances too.
+        # Note that these are ordered.
+        self.exercises = BaseExercise.objects.filter(
+            course_module__course_instance=course_instance).order_by(
+            "course_module__closing_time", "course_module", "order")
+
+        # self.best_submissions elements only contain the id of the user
+        # profile.
+        # We need other user data too so we fetch the related UserProfiles
+        # instances too.
+        self.students = UserProfile.objects.filter(
+            submissions__exercise__course_module__course_instance\
+            =course_instance).distinct()
         
-        # Find all users (students) who have submitted anything to any of the exercises on this
-        # course instance.
-        user_query              = Q(submissions__exercise__course_module__course_instance=self.course_instance)
-        self.students           = UserProfile.objects.distinct().filter(user_query)
-        
-        # Get modules and exercises
-        self.modules            = CourseModule.objects.filter(course_instance=course_instance)
-        self.exercises          = BaseExercise.objects.filter(course_module__in=self.modules)
-        
-        # Collect results for students and maximum points for each exercise on these lists
-        self.results            = []
-        self.max_points         = []
-        
-        # Fill the lists with data from database
+        # The data is converted to a dictionary of dictionaries where the outer
+        # dictionaries have UserProfile model instances as keys and the
+        # sub-dictionaries have BaseExercise model instances as keys.
+        self.results = {}
+        # Fill the results with the data from the database.
         self.__collect_student_grades()
-        self.__collect_maximum_points()
-    
+
+
     def __collect_student_grades(self):
-        """ 
-        This method iterates through all students on the course and adds their scores 
-        to the result table. 
         """
-        
-        for student in self.students:
-            grades              = []
-            
-            for exercise in self.exercises:
-                grade_query     = student.submissions.filter(exercise=exercise).aggregate(Max("grade"))
-                grades.append(grade_query["grade__max"])
-            
-            # Count the total sum of grades. First filter None values from the list.
-            grade_sum           = sum(filter(None, grades))
-            self.results.append({ "student": student, "grades": grades, "grade_sum": grade_sum })
-    
-    def __collect_maximum_points(self):
-        for exercise in self.exercises:
-            self.max_points.append(exercise.max_points)
-        
-        # Add the sum of maximum points to the max points list
-        self.max_points.append(sum(self.max_points))
+        Helper for the __init__.
+        This method puts the data from the database in to the results table.
+        """
+        for submission in self.best_submissions:
+            student = self.students.get(id=submission["submitters"])
+            exercise = self.exercises.get(id=submission["exercise"])
+            # Create empty dict for this student if he already isn't in the
+            # results table.
+            if not student in self.results:
+                self.results[student] = {ex: None for ex in self.exercises}
+
+            # Put the best submission record to the results table.
+            self.results[student][exercise] = submission["best"]
+
+
+    def results_for_template(self):
+        """
+        Converts the results data into a form that is convenient for to use in a
+        template. The columns of the table ordered according to the order of the
+        exercises in self.exercises.
+        @return: the template-friendly data structure of the ResultTable data
+        """
+        for_template = []
+        for student, grades_d in self.results.items():
+            grades = []
+            sum = 0
+            for ex in self.exercises:
+                grade = grades_d[ex]
+                if grade: sum += grade
+                grades.append(grade)
+            for_template.append((student, grades, sum, ))
+        return for_template
+
+
+    def max_sum(self):
+        """
+        @return: returns the sum of maximum points of all the exercises
+        """
+        sum = 0
+        for ex in self.exercises:
+            sum += ex.max_points
+        return sum

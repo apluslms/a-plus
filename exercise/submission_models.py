@@ -185,6 +185,10 @@ class Submission(models.Model):
         return reverse("exercise.async_views.grade_async_submission", 
                        kwargs={"submission_id": self.id,
                                "hash": self.hash})
+
+    def get_staff_url(self):
+        return reverse("exercise.staff_views.inspect_exercise_submission",
+            kwargs={"submission_id": self.id})
     
     def submit_to_service(self, files=None):
         # Get the exercise as an instance of its real leaf class
