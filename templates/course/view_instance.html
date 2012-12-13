@@ -70,17 +70,23 @@
                             <th style="width: 80px;">{% trans "Points" %}</th>
                         </thead>
                         <tbody>
-                        {% for exercise_summary in round_summary.exercise_summaries %}
+                        {% for category, exercise_summaries in round_summary.categorized_exercise_summaries %}
                             <tr>
-                                <td>
-                                {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
-                                    <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ forloop.counter }}. {{ exercise_summary.exercise.name }}</a>
-                                {% else %}
-                                    {{ forloop.counter }}. {{exercise_summary.exercise.name}}
-                                {% endif %}
-                                </td>
-                                <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                                <td>{{ category.name }}</td>
+                                <td>Points</td>
                             </tr>
+                            {% for exercise_summary in exercise_summaries %}
+                                <tr>
+                                    <td>
+                                    {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
+                                        <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.name }}</a>
+                                    {% else %}
+                                        {{ forloop.counter }}. {{exercise_summary.exercise.name}}
+                                    {% endif %}
+                                    </td>
+                                    <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                                </tr>
+                            {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>

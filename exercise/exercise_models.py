@@ -11,6 +11,7 @@ from django.db import models
 from django.db.models.aggregates import Avg, Max, Count
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django import forms
 from django.conf import settings
@@ -92,10 +93,15 @@ class CourseModule(models.Model):
 
 
 class LearningObjectCategory(models.Model):
+    order = models.IntegerField(default=0)
+    # TODO: unique_together: name, course_instance
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
     course_instance = models.ForeignKey(CourseInstance,
         related_name=u"categories")
+
+    def __unicode__(self):
+        return self.name
 
 
 class LearningObject(ModelWithInheritance):
@@ -117,6 +123,11 @@ class LearningObject(ModelWithInheritance):
     course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")
     category               = models.ForeignKey(LearningObjectCategory,
         related_name="learning_objects")
+
+    def clean(self):
+        if self.course_module.course_instance != self.category.course_instance:
+            raise ValidationError("course_module and category must relate to "
+                                  "the same CourseInstance object")
 
 
 class BaseExercise(LearningObject):

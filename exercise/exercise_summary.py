@@ -71,12 +71,21 @@ class ExerciseRoundSummary:
         self.points_available   = 0
         self.exercises_passed   = 0
         self.exercise_summaries = []
+        self.categorized_exercise_summaries = []
         
         self._generate_summary()
     
     def _generate_summary(self):
         for exercise in self.exercises:
-            self.exercise_summaries.append( ExerciseSummary(exercise, self.user) ) 
+            ex_summary = ExerciseSummary(exercise, self.user)
+            self.exercise_summaries.append(ex_summary)
+
+            d = {} # Dict that helps us construct categorized_exercise_summaries
+            if not exercise.category in d:
+                d[exercise.category] = []
+            d[exercise.category].append(ex_summary)
+            self.categorized_exercise_summaries = sorted(sorted(d.items(),
+                key=lambda t: t[0].id), key=lambda t: t[0].order)
     
     def get_total_points(self):
         total                   = 0
