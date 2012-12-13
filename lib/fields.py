@@ -105,6 +105,9 @@ class JSONField(models.TextField):
 
 try:
     from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ["^jsonfield\.fields\.JSONField"])
+    add_introspection_rules([([JSONField], [], {
+        "dump_kwargs": ("dump_kwargs", {"default": {'cls': DjangoJSONEncoder}}),
+        "load_kwargs": ("load_kwargs", {"default": {}})
+    })], ["^lib\.fields\.JSONField"])
 except:
     pass
