@@ -187,7 +187,7 @@ class BaseExercise(LearningObject):
     
     def modify_post_params(self, post_params):
         """
-        Allows to modify POST parameter before they are sent to the grader.
+        Allows to modify POST parameters before they are sent to the grader.
         @param post_params: original POST parameters    
         """
         pass
@@ -435,14 +435,15 @@ def build_upload_dir(instance, filename):
 
 class ExerciseWithAttachment(BaseExercise):
     """
-    ExerciseWithAttachment is an exercise type where the exercise instructions are stored
-    locally and the exercise will be graded by sending the attachment to the grader with
-    the other files. This exercise type renders a file submit form after the instructions
-    containing fields for the files that the user should submit. The names of the files
-    are also stored locally.
+    ExerciseWithAttachment is an exercise type where the exercise instructions
+    are stored locally and the exercise will be graded by sending an additional
+    attachment to the grader together with other POST data. The exercise page
+    will contain a submission form for the files the user should submit if the
+    files to be submitted are defined. Otherwise the instructions must contain
+    the submission form.
     """
 
-    files_to_submit = models.CharField(max_length=200,
+    files_to_submit = models.CharField(max_length=200, blank=True,
       help_text=_("File names that user should submit, use pipe character to separate files"))
     attachment     = models.FileField(upload_to=build_upload_dir)
 
@@ -453,20 +454,23 @@ class ExerciseWithAttachment(BaseExercise):
         """
         Returns a list of the file names that user should submit with this exercise.
         """
-        files = self.files_to_submit.split("|")
-        return [filename.strip() for filename in files]
+        if len(self.files_to_submit.strip()) == 0:
+            return []
+        else:
+            files = self.files_to_submit.split("|")
+            return [filename.strip() for filename in files]
 
     def modify_post_params(self, post_params):
         """
-        Adds the attachment of this exercise to POST request. It will be added before
-        the first original file using the same field name or if no files are found
-        it will be added as first parameter using name file[].
+        Adds the attachment to POST request. It will be added before the first original
+        item of the file array with the same field name or if no files are found it
+        will be added as first parameter using name file[].
         @param post_params: original POST parameters, assumed to be a list
         """
 
         found = False
         for i in range(len(post_params)):
-            if type(post_params[i][1]) == file:
+            if type(post_params[i][1]) == file and post_params[i][0].endswith("[]"):
                 handle = open(self.attachment.path, "rb")
                 post_params.insert(i, (post_params[i][0], handle))
                 found = True
@@ -478,18 +482,17 @@ class ExerciseWithAttachment(BaseExercise):
     def get_page(self, submission_url=None):
         """
         @param submission_url: the submission url where the service may return submissions
-        @return: an ExercisePage object created from data retrieved from exercise service 
+        @return: an ExercisePage containing the exercise instructions and possibly a submit form 
         """
         page            = ExercisePage(self)
         page.content    = self.instructions
 
-        # Add the submission form to the content. A template is used to avoid
-        # hard-coded HTML here.
-        template = loader.get_template('exercise/_file_submit_form.html')
-        context = Context({'files' : self.get_files_to_submit()})
-
-        page.content += template.render(context)
+        # Adds the submission form to the content if there are files to be submitted.
+        # A template is used to avoid hard-coded HTML here.
+        if self.get_files_to_submit():
+            template = loader.get_template('exercise/_file_submit_form.html')
+            context = Context({'files' : self.get_files_to_submit()})
+            page.content += template.render(context)
 
         return page
-
 
