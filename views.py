@@ -41,7 +41,18 @@ def login(request):
 
 def home(request):
     open_instances = CourseInstance.objects.filter(ending_time__gte=datetime.now())
-    context = RequestContext(request, {"open_instances": open_instances})
+
+    if request.user.is_authenticated and (request.user.is_staff
+                                          or request.user.is_superuser):
+        visible_open_instances = list(open_instances)
+    else:
+        visible_open_instances = []
+        for i in open_instances:
+            if i.visible_to_students or (request.user.is_authenticated() and
+                                        i.is_staff(request.user.get_profile())):
+                visible_open_instances.append(i)
+
+    context = RequestContext(request, {"open_instances": visible_open_instances})
     return render_to_response("aaltoplus/home.html", context)
 
 def privacy(request):

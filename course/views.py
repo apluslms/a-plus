@@ -46,11 +46,20 @@ def view_course(request, course_url):
     course instances for the course. 
     
     @param request: the Django HttpRequest object
-    @param course_url: the url value of a Course object 
+    @param course_url: the url value of a Course object
     """
     
-    course  = get_object_or_404(Course, url=course_url)
-    context = CourseContext(request, course=course)
+    course      = get_object_or_404(Course, url=course_url)
+
+    if request.user.is_staff or request.user.is_superuser:
+        instances = list(course.instances.all())
+    else:
+        instances = []
+        for i in course.instances.all():
+            if i.visible_to_students or i.is_staff(request.user.get_profile()):
+                instances.append(i)
+
+    context = CourseContext(request, course=course, instances=instances)
     return render_to_response("course/view.html", context)
 
 @login_required
@@ -65,6 +74,12 @@ def view_instance(request, course_url, instance_url):
         @param instance_url: the url value of a CourseInstance object """
     
     course_instance = _get_course_instance(course_url, instance_url)
+
+    if not course_instance.visible_to_students and not (request.user.is_staff or
+            request.user.is_superuser or course_instance.is_staff(
+            request.user.get_profile())):
+        return HttpResponseForbidden("You are not allowed to access this view.")
+
     course_summary  = CourseSummary(course_instance, request.user)
     course_instance.plugins.all()
     
@@ -87,6 +102,12 @@ def view_my_page(request, course_url, instance_url):
     """
     
     course_instance = _get_course_instance(course_url, instance_url)
+
+    if not course_instance.visible_to_students and not (request.user.is_staff or
+            request.user.is_superuser or course_instance.is_staff(
+            request.user.get_profile())):
+        return HttpResponseForbidden("You are not allowed to access this view.")
+
     course_summary  = CourseSummary(course_instance, request.user)
     submissions     = request.user.get_profile().submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
     
@@ -109,6 +130,11 @@ def view_instance_calendar(request, course_url, instance_url):
     """
     
     course_instance = _get_course_instance(course_url, instance_url)
+
+    if not course_instance.visible_to_students and not (request.user.is_staff or
+           request.user.is_superuser or course_instance.is_staff(
+           request.user.get_profile())):
+        return HttpResponseForbidden("You are not allowed to access this view.")
     
     cal = Calendar()
     
@@ -146,6 +172,12 @@ def view_instance_results(request, course_url, instance_url):
     """
     
     course_instance = _get_course_instance(course_url, instance_url)
+
+    if not course_instance.visible_to_students and not (request.user.is_staff or
+            request.user.is_superuser or course_instance.is_staff(
+            request.user.get_profile())):
+        return HttpResponseForbidden("You are not allowed to access this view.")
+
     table           = ResultTable(course_instance)
     
     table_html = loader.render_to_string("course/_results_table.html", {"result_table": table})

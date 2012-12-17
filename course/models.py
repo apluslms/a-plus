@@ -67,6 +67,7 @@ class Course(models.Model):
         '''
         return self.code + u" " + self.name
 
+
 class CourseInstance(models.Model):
     """ 
     CourseInstance class represent an instance of a course. A single course may have 
