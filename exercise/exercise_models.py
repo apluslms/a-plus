@@ -93,15 +93,17 @@ class CourseModule(models.Model):
 
 
 class LearningObjectCategory(models.Model):
-    order = models.IntegerField(default=0)
     # TODO: unique_together: name, course_instance
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
     course_instance = models.ForeignKey(CourseInstance,
         related_name=u"categories")
 
+    class Meta:
+        unique_together = ("name", "course_instance")
+
     def __unicode__(self):
-        return self.name
+        return self.name + u" -- " + unicode(self.course_instance)
 
 
 class LearningObject(ModelWithInheritance):

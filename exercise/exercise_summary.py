@@ -67,10 +67,15 @@ class ExerciseRoundSummary:
     def __init__(self, exercise_round, user):
         self.exercise_round     = exercise_round
         self.user               = user
-        self.exercises          = BaseExercise.objects.filter(course_module=exercise_round)
+        self.exercises          = BaseExercise.objects.filter(
+            course_module=exercise_round).order_by("order", "category", "id")
         self.points_available   = 0
         self.exercises_passed   = 0
         self.exercise_summaries = []
+
+        # This is a list of tuples where the first item is a
+        # LearningObjectCategory object and the second item is a list of
+        # exercises.
         self.categorized_exercise_summaries = []
         
         self._generate_summary()
@@ -80,12 +85,11 @@ class ExerciseRoundSummary:
             ex_summary = ExerciseSummary(exercise, self.user)
             self.exercise_summaries.append(ex_summary)
 
-            d = {} # Dict that helps us construct categorized_exercise_summaries
-            if not exercise.category in d:
-                d[exercise.category] = []
-            d[exercise.category].append(ex_summary)
-            self.categorized_exercise_summaries = sorted(sorted(d.items(),
-                key=lambda t: t[0].id), key=lambda t: t[0].order)
+            if len(self.categorized_exercise_summaries) == 0 or \
+                exercise.category != self.categorized_exercise_summaries[-1][0]:
+                self.categorized_exercise_summaries.append(
+                    (exercise.category, []))
+            self.categorized_exercise_summaries[-1][1].append(ex_summary)
     
     def get_total_points(self):
         total                   = 0

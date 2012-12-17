@@ -64,16 +64,12 @@
 	                <div class="exercise_round_introduction">{{ round_summary.exercise_round.introduction }}</div>
                 	{% endautoescape %}
                     {% if round_summary.exercise_summaries %}
-                    <table class="table table-striped table-bordered table-condensed exercise_units">
-                        <thead>
-                            <th>{% trans "Exercise" %}</th>
-                            <th style="width: 80px;">{% trans "Points" %}</th>
-                        </thead>
+                    <table class="table table-bordered table-condensed exercise-table">
                         <tbody>
                         {% for category, exercise_summaries in round_summary.categorized_exercise_summaries %}
-                            <tr>
+                            <tr class="category-row">
                                 <td>{{ category.name }}</td>
-                                <td>Points</td>
+                                <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
                             </tr>
                             {% for exercise_summary in exercise_summaries %}
                                 <tr>
