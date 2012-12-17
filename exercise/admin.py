@@ -25,7 +25,7 @@ class LearningObjectCategoryAdmin(admin.ModelAdmin):
     # TODO: Django 1.3 only considers the first item of this list. Fixed in 1.4.
     """https://docs.djangoproject.com/en/1.3/ref/contrib/admin/#django.contrib.a
     dmin.ModelAdmin.ordering"""
-    ordering = ["course_instance", "order", "id"]
+    ordering = ["course_instance", "id"]
 
 
 class BaseExerciseAdmin(admin.ModelAdmin):

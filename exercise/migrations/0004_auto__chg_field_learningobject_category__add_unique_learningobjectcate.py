@@ -8,16 +8,20 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'LearningObjectCategory.order'
-        db.add_column('exercise_learningobjectcategory', 'order',
-                      self.gf('django.db.models.fields.IntegerField')(default=0),
-                      keep_default=False)
+
+        # Changing field 'LearningObject.category'
+        db.alter_column('exercise_learningobject', 'category_id', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['exercise.LearningObjectCategory']))
+        # Adding unique constraint on 'LearningObjectCategory', fields ['course_instance', 'name']
+        db.create_unique('exercise_learningobjectcategory', ['course_instance_id', 'name'])
 
 
     def backwards(self, orm):
-        # Deleting field 'LearningObjectCategory.order'
-        db.delete_column('exercise_learningobjectcategory', 'order')
+        # Removing unique constraint on 'LearningObjectCategory', fields ['course_instance', 'name']
+        db.delete_unique('exercise_learningobjectcategory', ['course_instance_id', 'name'])
 
+
+        # Changing field 'LearningObject.category'
+        db.alter_column('exercise_learningobject', 'category_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['exercise.LearningObjectCategory']))
 
     models = {
         'apps.baseplugin': {
@@ -122,12 +126,11 @@ class Migration(SchemaMigration):
             'service_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'})
         },
         'exercise.learningobjectcategory': {
-            'Meta': {'object_name': 'LearningObjectCategory'},
+            'Meta': {'unique_together': "(('name', 'course_instance'),)", 'object_name': 'LearningObjectCategory'},
             'course_instance': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'categories'", 'to': "orm['course.CourseInstance']"}),
             'description': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '35'}),
-            'order': ('django.db.models.fields.IntegerField', [], {'default': '0'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '35'})
         },
         'exercise.staticexercise': {
             'Meta': {'ordering': "['course_module__closing_time', 'course_module', 'order', 'id']", 'object_name': 'StaticExercise', '_ormbases': ['exercise.BaseExercise']},
@@ -143,7 +146,7 @@ class Migration(SchemaMigration):
             'grader': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'graded_submissions'", 'null': 'True', 'to': "orm['userprofile.UserProfile']"}),
             'grading_data': ('lib.fields.JSONField', [], {'blank': 'True'}),
             'grading_time': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'hash': ('django.db.models.fields.CharField', [], {'default': "'WEjz2GzTGfWCVoCxWEQX9yQjd4QWxbKb'", 'max_length': '32'}),
+            'hash': ('django.db.models.fields.CharField', [], {'default': "'lov5VnEIwP7NbJXyLVzmmIWvi1hK39It'", 'max_length': '32'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'service_max_points': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'service_points': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
