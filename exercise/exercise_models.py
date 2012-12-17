@@ -176,7 +176,7 @@ class BaseExercise(LearningObject):
         url                     = self.build_service_url( submission.get_callback_url() )
         
         opener                  = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler)
-        response_body           = opener.open(url, post_params, timeout=50).read()
+        response_body           = opener.open(url.encode('ascii'), post_params, timeout=50).read()
         
         # Close all opened file handles
         for (key, value) in post_params:
@@ -477,7 +477,7 @@ class ExerciseWithAttachment(BaseExercise):
                 break
 
         if not found:
-            post_params.insert(0, (u'file[]', open(self.attachment.path, "rb")))
+            post_params.insert(0, ('file[]', open(self.attachment.path, "rb")))
 
     def get_page(self, submission_url=None):
         """
