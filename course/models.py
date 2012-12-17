@@ -85,6 +85,8 @@ class CourseInstance(models.Model):
     
     starting_time           = models.DateTimeField()
     ending_time             = models.DateTimeField()
+
+    visible_to_students     = models.BooleanField(default=True)
     
     # Relations
     assistants              = models.ManyToManyField(UserProfile,
