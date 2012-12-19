@@ -50,11 +50,7 @@ def view_course(request, course_url):
     """
     
     course      = get_object_or_404(Course, url=course_url)
-
-    instances = []
-    for i in course.instances.all():
-        if i.is_visible_to(request.user.get_profile()):
-            instances.append(i)
+    instances = course.get_visible_open_instances(request.user.get_profile())
 
     context = CourseContext(request, course=course, instances=instances)
     return render_to_response("course/view.html", context)
