@@ -136,6 +136,10 @@ class CourseInstance(models.Model):
         Returns True if this course instance is currently open. Otherwise False. 
         """
         return self.starting_time <= datetime.now() <= self.ending_time
+
+    def is_visible_to(self, profile):
+        return self.visible_to_students or self.is_staff(profile) or \
+            profile.is_staff()
     
     def get_absolute_url(self):
         '''
