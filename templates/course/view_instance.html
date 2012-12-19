@@ -30,7 +30,7 @@
                             data-html="true"
                             data-placement="bottom"
                             title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
-                            {{ forloop.counter }}
+                            {{ exercise_summary.exercise.order }}
                         </a>
                     {% endfor %}
                     </div>
