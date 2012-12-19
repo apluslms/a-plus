@@ -1,4 +1,4 @@
-import json
+from django.utils import simplejson as json
 from urlparse import urlparse, urlunparse
 from django.core.urlresolvers import resolve
 from django.http import HttpResponse, HttpResponseBadRequest
