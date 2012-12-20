@@ -56,7 +56,8 @@ class BaseExerciseForm(forms.ModelForm):
     
     def get_exercise_fields(self):
         return (self["name"], 
-                self["description"])
+                self["description"],
+                self["category"])
     
     def get_grading_fields(self):
         return (self["max_submissions"],

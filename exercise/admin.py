@@ -17,6 +17,17 @@ def real_class(obj):
     return obj.as_leaf_class().__class__.__name__
 real_class.short_description = _('Real class')
 
+
+class LearningObjectCategoryAdmin(admin.ModelAdmin):
+    list_display = ["name", "course_instance"]
+    list_filter = ["course_instance"]
+
+    # TODO: Django 1.3 only considers the first item of this list. Fixed in 1.4.
+    """https://docs.djangoproject.com/en/1.3/ref/contrib/admin/#django.contrib.a
+    dmin.ModelAdmin.ordering"""
+    ordering = ["course_instance", "id"]
+
+
 class BaseExerciseAdmin(admin.ModelAdmin):
     list_display_links = ["name"]
     list_display = ["name", "course_module", "max_points", real_class]
@@ -40,6 +51,7 @@ class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(CourseModule, CourseModuleAdmin)
+admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(AsynchronousExercise, AsynchronousExerciseAdmin)
 admin.site.register(SynchronousExercise, SynchronousExerciseAdmin)

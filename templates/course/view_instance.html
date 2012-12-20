@@ -30,7 +30,7 @@
                             data-html="true"
                             data-placement="bottom"
                             title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
-                            {{ forloop.counter }}
+                            {{ exercise_summary.exercise.order }}
                         </a>
                     {% endfor %}
                     </div>
@@ -64,23 +64,25 @@
 	                <div class="exercise_round_introduction">{{ round_summary.exercise_round.introduction }}</div>
                 	{% endautoescape %}
                     {% if round_summary.exercise_summaries %}
-                    <table class="table table-striped table-bordered table-condensed exercise_units">
-                        <thead>
-                            <th>{% trans "Exercise" %}</th>
-                            <th style="width: 80px;">{% trans "Points" %}</th>
-                        </thead>
+                    <table class="table table-bordered table-condensed exercise-table">
                         <tbody>
-                        {% for exercise_summary in round_summary.exercise_summaries %}
-                            <tr>
-                                <td>
-                                {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
-                                    <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ forloop.counter }}. {{ exercise_summary.exercise.name }}</a>
-                                {% else %}
-                                    {{ forloop.counter }}. {{exercise_summary.exercise.name}}
-                                {% endif %}
-                                </td>
-                                <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                        {% for category, exercise_summaries in round_summary.categorized_exercise_summaries %}
+                            <tr class="category-row">
+                                <td>{{ category.name }}</td>
+                                <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
                             </tr>
+                            {% for exercise_summary in exercise_summaries %}
+                                <tr>
+                                    <td>
+                                    {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
+                                        <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.order }}. {{ exercise_summary.exercise.name }}</a>
+                                    {% else %}
+                                        {{ exercise_summary.exercise.order }}. {{exercise_summary.exercise.name}}
+                                    {% endif %}
+                                    </td>
+                                    <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                                </tr>
+                            {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>
