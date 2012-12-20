@@ -52,9 +52,9 @@ def _jsonresponse(request, data):
   respjson = json.dumps(data)
   if 'callback' in request.GET:
     respjson = '%s(%s);' % (request.GET['callback'], respjson)
-  return HttpResponse(respjson, mimetype="text/plain")
+  return HttpResponse(respjson, mimetype="application/json")
 
 
 def _xmlresponse(request, data):
   from django.template.defaultfilters import escape
-  return HttpResponse(render_to_string("oembed/xmlresponse.xml", {"data": data}), mimetype="text/plain")
+  return HttpResponse(render_to_string("oembed/xmlresponse.xml", {"data": data}), mimetype="text/xml")
