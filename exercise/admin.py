@@ -47,6 +47,8 @@ class SynchronousExerciseAdmin(admin.ModelAdmin):
 class StaticExerciseAdmin(admin.ModelAdmin):
     pass
 
+class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
+    pass
 
 admin.site.register(CourseModule, CourseModuleAdmin)
 admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)
@@ -54,6 +56,7 @@ admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(AsynchronousExercise, AsynchronousExerciseAdmin)
 admin.site.register(SynchronousExercise, SynchronousExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
+admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
 
 def course_wrapper(obj):
     return obj.get_course_instance()
