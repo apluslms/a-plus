@@ -94,7 +94,6 @@ class CourseModule(models.Model):
 
 
 class LearningObjectCategory(models.Model):
-    # TODO: unique_together: name, course_instance
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
     course_instance = models.ForeignKey(CourseInstance,
