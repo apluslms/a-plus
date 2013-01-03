@@ -60,20 +60,36 @@ class ExerciseSummary:
     def is_passed(self):
         return self.get_points() >= self.exercise.points_to_pass
 
+    def is_submitted(self):
+        return self.submission_count > 0
+
 class ExerciseRoundSummary:
     def __init__(self, exercise_round, user):
         self.exercise_round     = exercise_round
         self.user               = user
-        self.exercises          = BaseExercise.objects.filter(course_module=exercise_round)
+        self.exercises          = BaseExercise.objects.filter(
+            course_module=exercise_round).order_by("order", "category", "id")
         self.points_available   = 0
         self.exercises_passed   = 0
         self.exercise_summaries = []
+
+        # This is a list of tuples where the first item is a
+        # LearningObjectCategory object and the second item is a list of
+        # exercises.
+        self.categorized_exercise_summaries = []
         
         self._generate_summary()
     
     def _generate_summary(self):
         for exercise in self.exercises:
-            self.exercise_summaries.append( ExerciseSummary(exercise, self.user) ) 
+            ex_summary = ExerciseSummary(exercise, self.user)
+            self.exercise_summaries.append(ex_summary)
+
+            if len(self.categorized_exercise_summaries) == 0 or \
+                exercise.category != self.categorized_exercise_summaries[-1][0]:
+                self.categorized_exercise_summaries.append(
+                    (exercise.category, []))
+            self.categorized_exercise_summaries[-1][1].append(ex_summary)
     
     def get_total_points(self):
         total                   = 0

@@ -11,11 +11,13 @@ from django.db import models
 from django.db.models.aggregates import Avg, Max, Count
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django import forms
 from django.conf import settings
 from django.utils.functional import curry
 from django.utils.translation import ugettext_lazy as _
+from django.template import loader, Context
 
 # A+
 from inheritance.models import ModelWithInheritance
@@ -91,6 +93,19 @@ class CourseModule(models.Model):
         ordering            = ['closing_time', 'id']
 
 
+class LearningObjectCategory(models.Model):
+    name = models.CharField(max_length=35)
+    description = models.TextField(blank=True)
+    course_instance = models.ForeignKey(CourseInstance,
+        related_name=u"categories")
+
+    class Meta:
+        unique_together = ("name", "course_instance")
+
+    def __unicode__(self):
+        return self.name + u" -- " + unicode(self.course_instance)
+
+
 class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round
     order                   = models.IntegerField(default=0)
@@ -108,6 +123,13 @@ class LearningObject(ModelWithInheritance):
     
     # Relations
     course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")
+    category               = models.ForeignKey(LearningObjectCategory,
+        related_name="learning_objects")
+
+    def clean(self):
+        if self.course_module.course_instance != self.category.course_instance:
+            raise ValidationError("course_module and category must relate to "
+                                  "the same CourseInstance object")
 
 
 class BaseExercise(LearningObject):
@@ -161,29 +183,36 @@ class BaseExercise(LearningObject):
         for (key, value) in submission.submission_data:
             post_params.append( (key, value) )
         
-        # Collect file handles to a list, so that they can be closed after being used
-        handles                 = []
-        
         # Then the files are appended as key, file handle tuples
         for submitted_file in submission.files.all():
             param_name          = submitted_file.param_name
             file_handle         = open(submitted_file.file_object.path, "rb")
             post_params.append( (param_name, file_handle) )
-            handles.append(file_handle)
         
+        # Allow to make necessary modifications to POST parameters
+        self.modify_post_params(post_params)
+
         # Build the service URL, which contains maximum points for this exercise
         # and a callback URL to which the service may return the grading
         url                     = self.build_service_url( submission.get_callback_url() )
         
         opener                  = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler)
-        response_body           = opener.open(url, post_params, timeout=50).read()
+        response_body           = opener.open(url.encode('ascii'), post_params, timeout=50).read()
         
         # Close all opened file handles
-        for file_handle in handles:
-            file_handle.close()
+        for (key, value) in post_params:
+            if type(value) == file:
+                value.close()
         
         return ExercisePage(self, response_body)
     
+    def modify_post_params(self, post_params):
+        """
+        Allows to modify POST parameters before they are sent to the grader.
+        @param post_params: original POST parameters    
+        """
+        pass
+
     def is_open(self):
         """ 
         Returns True if submissions are allowed for this exercise. 
@@ -413,3 +442,78 @@ class StaticExercise(BaseExercise):
         page.content    = self.submission_page_content
         page.is_accepted= True
         return page
+
+def build_upload_dir(instance, filename):
+    """ 
+    Returns the path where the attachement should be saved.    
+    
+    @param instance: the ExerciseWithAttachment object
+    @param filename: the actual name of the submitted file
+    @return: a path where the file should be stored, relative to MEDIA_ROOT directory 
+    """
+
+    return "exercise_attachments/exercise_%d/%s" % (instance.id, filename)
+
+class ExerciseWithAttachment(BaseExercise):
+    """
+    ExerciseWithAttachment is an exercise type where the exercise instructions
+    are stored locally and the exercise will be graded by sending an additional
+    attachment to the grader together with other POST data. The exercise page
+    will contain a submission form for the files the user should submit if the
+    files to be submitted are defined. Otherwise the instructions must contain
+    the submission form.
+    """
+
+    files_to_submit = models.CharField(max_length=200, blank=True,
+      help_text=_("File names that user should submit, use pipe character to separate files"))
+    attachment     = models.FileField(upload_to=build_upload_dir)
+
+    class Meta:
+        verbose_name_plural = "exercises with attachment"
+
+    def get_files_to_submit(self):
+        """
+        Returns a list of the file names that user should submit with this exercise.
+        """
+        if len(self.files_to_submit.strip()) == 0:
+            return []
+        else:
+            files = self.files_to_submit.split("|")
+            return [filename.strip() for filename in files]
+
+    def modify_post_params(self, post_params):
+        """
+        Adds the attachment to POST request. It will be added before the first original
+        item of the file array with the same field name or if no files are found it
+        will be added as first parameter using name file[].
+        @param post_params: original POST parameters, assumed to be a list
+        """
+
+        found = False
+        for i in range(len(post_params)):
+            if type(post_params[i][1]) == file and post_params[i][0].endswith("[]"):
+                handle = open(self.attachment.path, "rb")
+                post_params.insert(i, (post_params[i][0], handle))
+                found = True
+                break
+
+        if not found:
+            post_params.insert(0, ('file[]', open(self.attachment.path, "rb")))
+
+    def get_page(self, submission_url=None):
+        """
+        @param submission_url: the submission url where the service may return submissions
+        @return: an ExercisePage containing the exercise instructions and possibly a submit form 
+        """
+        page            = ExercisePage(self)
+        page.content    = self.instructions
+
+        # Adds the submission form to the content if there are files to be submitted.
+        # A template is used to avoid hard-coded HTML here.
+        if self.get_files_to_submit():
+            template = loader.get_template('exercise/_file_submit_form.html')
+            context = Context({'files' : self.get_files_to_submit()})
+            page.content += template.render(context)
+
+        return page
+

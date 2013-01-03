@@ -15,11 +15,14 @@
                     {% for exercise_summary in round_summary.exercise_summaries %}
                         <a href="{{ exercise_summary.exercise.get_absolute_url }}"
                             class="btn 
-                                {% if exercise_summary.is_full_points %}
-                                    btn-success
+                                {% if not exercise_summary.is_passed %}
+                                    btn-danger
                                 {% else %}
-                                    {% if exercise_summary.is_passed %}
-                                        btn-info
+                                    {% if exercise_summary.is_full_points %}
+                                        btn-success
+                                    {% endif %}
+                                    {% if not exercise_summary.is_full_points and exercise_summary.is_submitted%}
+                                        btn-warning
                                     {% endif %}
                                 {% endif %}"
                                 {# Django 1.3 does not support elif #}
@@ -27,7 +30,7 @@
                             data-html="true"
                             data-placement="bottom"
                             title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
-                            {{ forloop.counter }}
+                            {{ exercise_summary.exercise.order }}
                         </a>
                     {% endfor %}
                     </div>
@@ -38,8 +41,9 @@
                         <i class="icon-chevron-right"></i>
                         <i class="icon-chevron-down"></i>
                         {{ forloop.counter }}. {{ round_summary.exercise_round.name }}
-                        <small>
-                            {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }}
+                        <small class="nowrap">
+                            {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }} {% trans "points" %}
+                            {% if round_summary.exercise_round.points_to_pass > 0 %}(required to pass: {{ round_summary.exercise_round.points_to_pass }}){% endif %}
                         </small>
                     </h3>
                 </a>
@@ -60,23 +64,25 @@
 	                <div class="exercise_round_introduction">{{ round_summary.exercise_round.introduction }}</div>
                 	{% endautoescape %}
                     {% if round_summary.exercise_summaries %}
-                    <table class="table table-striped table-bordered table-condensed exercise_units">
-                        <thead>
-                            <th>{% trans "Exercise" %}</th>
-                            <th style="width: 80px;">{% trans "Points" %}</th>
-                        </thead>
+                    <table class="table table-bordered table-condensed exercise-table">
                         <tbody>
-                        {% for exercise_summary in round_summary.exercise_summaries %}
-                            <tr>
-                                <td>
-                                {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
-                                    <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.name }}</a>
-                                {% else %}
-                                    {{exercise_summary.exercise.name}}
-                                {% endif %}
-                                </td>
-                                <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                        {% for category, exercise_summaries in round_summary.categorized_exercise_summaries %}
+                            <tr class="category-row">
+                                <td>{{ category.name }}</td>
+                                <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
                             </tr>
+                            {% for exercise_summary in exercise_summaries %}
+                                <tr>
+                                    <td>
+                                    {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
+                                        <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.order }}. {{ exercise_summary.exercise.name }}</a>
+                                    {% else %}
+                                        {{ exercise_summary.exercise.order }}. {{exercise_summary.exercise.name}}
+                                    {% endif %}
+                                    </td>
+                                    <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                                </tr>
+                            {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>
@@ -96,6 +102,7 @@
     </div>
     <div class="span3">
             <div class="well my-score-box">
+            <h4>{%trans "Total points:" %}</h4>
             <h2>{{ course_summary.get_total_points }} <small>/ {{ course_summary.get_maximum_points }}</small></h2>
             <div 
                 class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"

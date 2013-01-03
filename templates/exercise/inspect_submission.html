@@ -95,6 +95,12 @@
                 </dt>
             {% endfor %}
             </dl>
+            <hr />
+            <h3>Re-Submit to Service</h3>
+            <p>
+                {% trans "Click this button to re-submit this submission to the assessment service. This is meant to be used only in situations where the assessment service has behaved incorrectly so that the grading data is incorrect or the status of the submission never became ready. Caution! Re-submitting overwrites the current grading data." %}
+                <br /><a href="{% url exercise.staff_views.resubmit_to_service submission_id=submission.id %}" class="btn btn-primary">{% trans "Re-Submit to Service" %}</a>
+            </p>
         </div>
     </div>
     <div class="span6" id="generated-feedback">

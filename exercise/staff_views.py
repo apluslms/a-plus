@@ -34,6 +34,7 @@ def list_exercise_submissions(request, exercise_id):
     has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile()) 
     
     if not has_permission:
+        # TODO: Missing translation.
         return HttpResponseForbidden("You are not allowed to access this view.")
     
     submissions     = exercise.submissions.all()
@@ -76,7 +77,8 @@ def add_or_edit_exercise(request, module_id, exercise_id=None):
     module          = get_object_or_404(CourseModule, id=module_id)
     course_instance = module.course_instance
     
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) 
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+        request.user.is_superuser or request.user.is_staff
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")
@@ -169,3 +171,69 @@ def fetch_exercise_metadata(request):
     
     return HttpResponse(simplejson.dumps(metadata), content_type="application/json")
 
+
+@login_required
+def resubmit_to_service(request, submission_id):
+    """
+    This view implements the staff-only re-submission feature. It is meant to be
+    used in situations where the assessment service behaved incorrectly so that
+    the grading_data is incorrect or the state of the submission never became
+    ready.
+
+    This view overwrites the grading_data, service_points, service_max_points,
+    grade and grading_time of the Submission instance and there is no way to see
+    the old data.
+
+    @param request: HttpRequest from Django
+    @param submission_id: id of the Submission instance that needs to be
+    re-submitted
+    @return: HttpResponseRedirect redirecting to the staff's submission
+    inspection page
+    """
+    submission = Submission.objects.get(id=submission_id)
+
+    has_permission = submission.exercise.get_course_instance().is_staff(
+        request.user.get_profile())
+
+    if not has_permission:
+        return HttpResponseForbidden(
+            _("You are not allowed to access this view."))
+
+    try:
+        # Try submitting the submission to the exercise service. The submission
+        # is done with a multipart POST request that contains all the files and
+        # POST parameters that were originally submitted.
+        response_page = submission.submit_to_service()
+    except Exception, e:
+        messages.error(request,
+            _('Connecting to the assessment server failed! (%s)') % str(e))
+
+    if response_page and response_page.is_accepted:
+        submission.feedback = response_page.content
+        submission.set_waiting()
+
+        if response_page.is_graded:
+            submission.set_points(response_page.points,
+                response_page.max_points)
+            submission.set_ready()
+
+            # Add a success message and redirect the staff user to view the
+            # submission
+            messages.success(request,
+                _(
+                    'The exercise was re-submitted and re-graded successfully'
+                    '. Submission points: %d/%d.') %\
+                (submission.grade, submission.exercise.max_points))
+        else:
+            messages.success(request, _(
+                'The exercise was re-submitted successfully and is now '
+                'waiting to be graded.'))
+
+        submission.save()
+
+    else:
+        messages.warning(request,
+            _('The exercise could not be re-graded. Please check the page below'
+              'for errors.'))
+
+    return redirect(submission.get_staff_url())
