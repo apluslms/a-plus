@@ -33,8 +33,8 @@ class ResultTable:
         # that do no have any submitters (ManyToMany relation enables deletion
         # without cascading).
         self.best_submissions = Submission.objects.filter(
-            exercise__course_module__course_instance=course_instance,
-            submitters__gt=0).values("submitters", "exercise").annotate(
+            exercise__course_module__course_instance=course_instance).exclude(
+            submitters=None).values("submitters", "exercise").annotate(
             best=Max("grade")) .order_by()
 
         # self.best_submissions elements only contain the id of the exercise.
