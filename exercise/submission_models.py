@@ -119,7 +119,7 @@ class Submission(models.Model):
     
     def set_points(self, points, max_points):
         """ 
-        Sets the points an maximum points for this submissions. If the given maximum points 
+        Sets the points an maximum points for this submissions. If the given maximum points
         are different than the ones for the exercise this submission is for, the points will 
         be scaled.
         
@@ -129,20 +129,29 @@ class Submission(models.Model):
         
         # The given points must be between zero and max points
         assert 0 <= points <= max_points
+        # If service max points is zero, then exercise max points must be zero
+        # too because otherwise adjusted_grade would be ambiguous.
+        assert not (max_points == 0 and self.exercise.max_points != 0)
+
         
         self.service_points     = points
         self.service_max_points = max_points
         
         # Scale the given points to the maximum points for the exercise
-        adjusted_grade          = 1.0 * self.exercise.max_points * points / max_points
+        adjusted_grade = 1.0 * self.exercise.max_points * points / max_points\
+                if max_points > 0 else 0
         
         # Check if this submission was done late. If it was, reduce the points with 
         # late submission penalty. No less than 0 points are given.
         if self.exercise.is_late_submission_allowed() and self.is_submitted_late():
-            penalty             -= adjusted_grade * self.exercise.get_late_submission_penalty()
-            adjusted_grade      = min(0, adjusted_grade - penalty)
+            adjusted_grade -=\
+                    adjusted_grade * self.exercise.get_late_submission_penalty()
         
         self.grade              = round(adjusted_grade)
+
+        # Finally check that the grade is in bounds after all the hardcore math!
+        assert 0 <= self.grade <= self.exercise.max_points
+
     
     def is_submitted_late(self):
         return self.submission_time > self.exercise.course_module.closing_time

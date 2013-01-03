@@ -143,7 +143,8 @@ class BaseExercise(LearningObject):
     max_points              = models.PositiveIntegerField(default=100)
     points_to_pass          = models.PositiveIntegerField(default=40)
     
-    
+
+    # TODO: why is this not method of the LearningObject?
     def get_course_instance(self):
         return self.course_module.course_instance
     
