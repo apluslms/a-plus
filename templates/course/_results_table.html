@@ -3,7 +3,7 @@
         <tr>
             <th scope="col">Student (N={{result_table.results|length}})</th>
             {% for exercise in result_table.exercises %}
-                <th scope="col">{{ exercise.name }}</th>
+                <th scope="col"><a href="{{ exercise.get_absolute_url }}">{{ exercise.name }}</a></th>
             {% endfor %}
             <th>Sum</th>
         </tr>
@@ -11,9 +11,9 @@
     <tbody>
     {% for student, grades, grade_sum in result_table.results_for_template %}
         <tr>
-            <th scope="row">{{ row.student.user.get_profile.student_id }}</th>
-            {% for grade in row.grades %}
-                <td>{% if grade != None %}{{ grade }}{% endif %}</td>
+            <th scope="row">{{ student.student_id }}</th>
+            {% for grade in grades %}
+                <td>{% if grade != None %}{{ grade }}{% else %}&nbsp;{% endif %}</td>
             {% endfor %}
             <td>{{ grade_sum }}</td>
         </tr>
