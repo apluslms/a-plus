@@ -160,10 +160,15 @@ ul.exercise_rounds li.exercise_round:last-child {
     border-bottom-width: 1px;
 }
 
-.exercise_units {
+.exercise-table {
     list-style: none;
     margin: 0;
     padding: 0;
+}
+
+.exercise-table tr.category-row {
+    background-color: rgb(249, 249, 249);
+    font-weight: bold;
 }
 
 .my-score-box {
@@ -193,4 +198,8 @@ ul.exercise_rounds li.exercise_round:last-child {
 
 .progress .required-score {
     background-color: red;
+}
+
+.nowrap {
+    white-space: nowrap;
 }
