@@ -15,7 +15,7 @@ class ResultTable:
     
     def __init__(self, course_instance):
         """ 
-        Instantiates a new ResutTable for the given course instance. 
+        Instantiates a new ResultTable for the given course instance.
         After initialization the table is filled with grades from the database.
         
         @param course_instance: The CourseInstance model that we wish to get grades from 
