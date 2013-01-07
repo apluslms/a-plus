@@ -26,7 +26,7 @@ from django.utils import simplejson
 
 @login_required
 @csrf_exempt
-def view_exercise(request, exercise_id):
+def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     """ 
     Displays a particular exercise. If the exercise is requested with a HTTP POST request, 
     the view will try to submit the exercise to the exercise service. 
@@ -66,7 +66,7 @@ def view_exercise(request, exercise_id):
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
     
-    return render_to_response("exercise/view_exercise.html", 
+    return render_to_response(template,
                               CourseContext(request,
                                             exercise=exercise,
                                             course_instance=exercise.course_module.course_instance,
