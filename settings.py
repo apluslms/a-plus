@@ -160,6 +160,7 @@ INSTALLED_APPS = (
     'inheritance',
     'userprofile',
     'apps',
+    'oembed',
 )
 
 # OAuth settings
