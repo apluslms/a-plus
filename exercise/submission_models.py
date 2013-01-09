@@ -119,7 +119,7 @@ class Submission(models.Model):
     
     def set_points(self, points, max_points):
         """ 
-        Sets the points an maximum points for this submissions. If the given maximum points
+        Sets the points and maximum points for this submissions. If the given maximum points
         are different than the ones for the exercise this submission is for, the points will 
         be scaled.
         
@@ -138,14 +138,17 @@ class Submission(models.Model):
         self.service_max_points = max_points
         
         # Scale the given points to the maximum points for the exercise
-        adjusted_grade = 1.0 * self.exercise.max_points * points / max_points\
-                if max_points > 0 else 0
+        if max_points > 0:
+            adjusted_grade = (1.0 * self.exercise.max_points
+                              * points / max_points)
+        else:
+            adjusted_grade = 0.0
         
         # Check if this submission was done late. If it was, reduce the points with 
         # late submission penalty. No less than 0 points are given.
         if self.exercise.is_late_submission_allowed() and self.is_submitted_late():
-            adjusted_grade -=\
-                    adjusted_grade * self.exercise.get_late_submission_penalty()
+            adjusted_grade -= (adjusted_grade
+                               * self.exercise.get_late_submission_penalty())
         
         self.grade              = round(adjusted_grade)
 
