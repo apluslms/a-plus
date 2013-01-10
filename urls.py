@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     (r'^api/', include('api_urls')),
     (r'^userprofile/', include('userprofile.urls')),
     (r'^apps/', include('apps.urls')),
+    (r'^oembed/', include('oembed.urls')),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs'
     # to INSTALLED_APPS to enable admin documentation:
