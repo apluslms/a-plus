@@ -20,6 +20,10 @@ from exercise.exercise_summary import CourseSummary
 from exercise.submission_models import Submission
 from exercise.exercise_models import CourseModule
 
+# TODO: The string constant "You are not allowed to access this view." is
+# repeated a lot in this file. Giving this error message should be somehow
+# unified.
+
 def _get_course_instance(course_url, instance_url):
     '''
     Returns a CourseInstance or raises an HttpResponse with code 404 (not found) based on the 
