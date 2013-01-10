@@ -69,7 +69,8 @@ def view_instance(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
 
     if not course_instance.is_visible_to(request.user.get_profile()):
-        return HttpResponseForbidden("You are not allowed to access this view.")
+        return HttpResponseForbidden("You are not allowed "
+                                     "to access this view.")
 
     course_summary  = CourseSummary(course_instance, request.user)
     course_instance.plugins.all()
@@ -95,7 +96,8 @@ def view_my_page(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
 
     if not course_instance.is_visible_to(request.user.get_profile()):
-        return HttpResponseForbidden("You are not allowed to access this view.")
+        return HttpResponseForbidden("You are not allowed "
+                                     "to access this view.")
 
     course_summary  = CourseSummary(course_instance, request.user)
     submissions     = request.user.get_profile().submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
@@ -121,7 +123,8 @@ def view_instance_calendar(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
 
     if not course_instance.is_visible_to(request.user.get_profile()):
-        return HttpResponseForbidden("You are not allowed to access this view.")
+        return HttpResponseForbidden("You are not allowed "
+                                     "to access this view.")
     
     cal = Calendar()
     
@@ -161,7 +164,8 @@ def view_instance_results(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
 
     if not course_instance.is_visible_to(request.user.get_profile()):
-        return HttpResponseForbidden("You are not allowed to access this view.")
+        return HttpResponseForbidden("You are not allowed "
+                                     "to access this view.")
 
     table           = ResultTable(course_instance)
     
@@ -184,11 +188,13 @@ def teachers_view(request, course_url, instance_url):
     @param instance_url: the url value of a CourseInstance object 
     """
     course_instance = _get_course_instance(course_url, instance_url)
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
-        request.user.is_superuser or request.user.is_staff
+    has_permission  = (course_instance.is_teacher(request.user.get_profile())
+            or request.user.is_superuser
+            or request.user.is_staff)
     
     if not has_permission:
-        return HttpResponseForbidden("You are not allowed to access this view.")
+        return HttpResponseForbidden("You are not allowed "
+                                     "to access this view.")
     
     return render_to_response("course/teachers_view.html", 
                               CourseContext(request, course_instance=course_instance)
@@ -208,7 +214,8 @@ def assistants_view(request, course_url, instance_url):
     
     has_permission  = course_instance.is_staff(request.user.get_profile()) 
     if not has_permission:
-        return HttpResponseForbidden(_("You are not allowed to access this view."))
+        return HttpResponseForbidden(_("You are not allowed "
+                                       "to access this view."))
     
     return render_to_response("course/assistants_view.html", 
                               CourseContext(request, course_instance=course_instance)
@@ -229,7 +236,8 @@ def add_or_edit_module(request, course_url, instance_url, module_id=None):
     has_permission  = course_instance.is_teacher(request.user.get_profile()) 
     
     if not has_permission:
-        return HttpResponseForbidden("You are not allowed to access this view.")
+        return HttpResponseForbidden("You are not allowed "
+                                     "to access this view.")
     
     if module_id != None:
         module = get_object_or_404(CourseModule, id=module_id, course_instance=course_instance)
