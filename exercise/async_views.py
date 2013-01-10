@@ -179,7 +179,8 @@ def _post_async_submission(request, exercise, submission, students):
     if is_valid:
         try:
             # Set the given grade
-            submission.set_points(form.cleaned_data["points"], form.cleaned_data["max_points"])
+            submission.set_points(form.cleaned_data["points"],
+                                  form.cleaned_data["max_points"])
 
             submission.feedback         = form.cleaned_data["feedback"]
             
