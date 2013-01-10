@@ -33,7 +33,7 @@ class CourseModule(models.Model):
     course instances. They also contain information about the opening times and 
     deadlines for exercises. 
     """
-    name                    = models.CharField(max_length=30)
+    name                    = models.CharField(max_length=255)
     points_to_pass          = models.PositiveIntegerField(default=0)
     
     # A textual introduction to this exercise round
