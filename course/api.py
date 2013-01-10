@@ -30,7 +30,11 @@ class CourseInstanceResource(ModelResource):
         return bundle
     
     class Meta:
-        queryset        = CourseInstance.objects.all()
+        # TODO: In this version, those course instances that have
+        # visible_to_students == False are not accessible through the api.
+        # However, they should be accessible through proper authorization.
+        queryset        = CourseInstance.objects.filter(
+            visible_to_students=True)
         resource_name   = 'courseinstance'
         excludes        = []
         

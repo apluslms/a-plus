@@ -33,7 +33,7 @@ class CourseModule(models.Model):
     course instances. They also contain information about the opening times and 
     deadlines for exercises. 
     """
-    name                    = models.CharField(max_length=30)
+    name                    = models.CharField(max_length=255)
     points_to_pass          = models.PositiveIntegerField(default=0)
     
     # A textual introduction to this exercise round
@@ -131,6 +131,10 @@ class LearningObject(ModelWithInheritance):
             raise ValidationError("course_module and category must relate to "
                                   "the same CourseInstance object")
 
+    def get_course_instance(self):
+        return self.course_module.course_instance
+    course_instance = property(get_course_instance)
+
 
 class BaseExercise(LearningObject):
     # Switch for giving assistants permission to grade this exercise
@@ -142,12 +146,7 @@ class BaseExercise(LearningObject):
     max_submissions         = models.PositiveIntegerField(default=10)
     max_points              = models.PositiveIntegerField(default=100)
     points_to_pass          = models.PositiveIntegerField(default=40)
-    
-    
-    def get_course_instance(self):
-        return self.course_module.course_instance
-    
-    course_instance = property(get_course_instance)
+
     
     def get_page(self, submission_url):
         """ 

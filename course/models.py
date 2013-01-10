@@ -52,6 +52,18 @@ class Course(models.Model):
     
     def is_teacher(self, profile):
         return profile in self.teachers.all()
+
+    def get_visible_open_instances(self, profile=None):
+        if profile:
+            visible_open_instances = []
+            for i in self.instances.filter(ending_time__gte=datetime.now()):
+                if i.is_visible_to(profile):
+                    visible_open_instances.append(i)
+        else:
+            visible_open_instances = list(self.instances.filter(
+                ending_time__gte=datetime.now(), visible_to_students=True))
+
+        return visible_open_instances
     
     def get_breadcrumb(self):
         """
@@ -66,6 +78,7 @@ class Course(models.Model):
         Returns a short representation of the course as an unicode string.
         '''
         return self.code + u" " + self.name
+
 
 class CourseInstance(models.Model):
     """ 
@@ -85,6 +98,8 @@ class CourseInstance(models.Model):
     
     starting_time           = models.DateTimeField()
     ending_time             = models.DateTimeField()
+
+    visible_to_students     = models.BooleanField(default=True)
     
     # Relations
     assistants              = models.ManyToManyField(UserProfile,
@@ -93,7 +108,7 @@ class CourseInstance(models.Model):
     course                  = models.ForeignKey(Course, related_name=u"instances")
     
     plugins                 = generic.GenericRelation(BasePlugin, object_id_field="container_pk", content_type_field="container_type")
-    
+
     def is_assistant(self, profile):
         """
         Returns True if the given profile belongs to an assistant on this course instance.
@@ -133,6 +148,11 @@ class CourseInstance(models.Model):
         Returns True if this course instance is currently open. Otherwise False. 
         """
         return self.starting_time <= datetime.now() <= self.ending_time
+
+    def is_visible_to(self, profile):
+        return (self.visible_to_students
+                or self.is_staff(profile)
+                or profile.is_staff())
     
     def get_absolute_url(self):
         '''
@@ -170,3 +190,16 @@ class CourseInstance(models.Model):
     
     class Meta:
         unique_together = ("course", "url")
+
+
+def get_visible_open_course_instances(profile=None):
+    if profile:
+        visible_open_instances = []
+        for i in CourseInstance.objects.filter(ending_time__gte=datetime.now()):
+            if i.is_visible_to(profile):
+                visible_open_instances.append(i)
+    else:
+        visible_open_instances = list(CourseInstance.objects.filter(
+            ending_time__gte=datetime.now(), visible_to_students=True))
+
+    return visible_open_instances
