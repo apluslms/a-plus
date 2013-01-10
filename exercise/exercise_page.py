@@ -52,6 +52,7 @@ class ExercisePage:
         self.instructions   = exercise.instructions
         self.meta           = {"title": exercise.name,
                                "description": exercise.description}
+        self.errors         = []
         if response != None:
             self.parse_response()
     
@@ -60,7 +61,10 @@ class ExercisePage:
         
         head                = soup.find("head")
         
-        self.max_points     = int(_get_value_from_soup(head, "meta", "value", {"name": "max-points"}, 0))
+        self.max_points     = _get_value_from_soup(
+                                head, "meta", "value", {"name": "max-points"})
+        if self.max_points != None:
+            self.max_points = int(self.max_points)
         
         if _get_value_from_soup(head, "meta", "value", {"name": "status"}) == "accepted":
             self.is_accepted= True
@@ -76,7 +80,8 @@ class ExercisePage:
         self.meta["description"] = _get_value_from_soup(head, "meta", "content", {"name": "DC.Description"}, "")
         
         points              = _get_value_from_soup(head, "meta", "value", {"name": "points"})
-        if points != None:
+
+        if (points != None):
             self.points     = int(points)
             self.is_graded  = True
             self.is_accepted= True
@@ -87,3 +92,4 @@ class ExercisePage:
             self.content    = exercise_div.renderContents()
         else:
             self.content    = soup.body.renderContents()
+
