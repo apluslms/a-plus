@@ -96,6 +96,8 @@ class CourseModule(models.Model):
 class LearningObjectCategory(models.Model):
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
+    points_to_pass = models.PositiveIntegerField(default=0)
+
     course_instance = models.ForeignKey(CourseInstance,
         related_name=u"categories")
 
