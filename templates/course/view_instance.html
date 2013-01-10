@@ -101,16 +101,28 @@
         </ul>
     </div>
     <div class="span3">
-            <div class="well my-score-box">
+        <div class="well my-score-box">
             <h4>{%trans "Total points:" %}</h4>
             <h2>{{ course_summary.get_total_points }} <small>/ {{ course_summary.get_maximum_points }}</small></h2>
-            <div 
-                class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+            <div
+                    class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+                    style="position: relative">
+                <div class="bar" style="width: {{ course_summary.get_completed_percentage }}%;"
+                     data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
+            </div>
+        </div>
+        {% for category_summary in course_summary.category_summaries %}
+            <div class="well my-score-box">
+                <h4>{{ category_summary.category.name }} {%trans "total points:" %}</h4>
+                <h2>{{ category_summary.get_total_points }} <small>/ {{ category_summary.get_maximum_points }}</small></h2>
+                <div
+                class="progress {% if category_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
                 style="position: relative">
                 <div class="bar" style="width: {{ course_summary.get_completed_percentage }}%;"
-                    data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
+                    data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ category_summary.get_total_points }}"></div>
                 </div>
             </div>
+        {% endfor %}
 
         {% if instance.plugins.all %}
             {% for plugin in instance.plugins.all %}
