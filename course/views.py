@@ -184,7 +184,8 @@ def teachers_view(request, course_url, instance_url):
     @param instance_url: the url value of a CourseInstance object 
     """
     course_instance = _get_course_instance(course_url, instance_url)
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) 
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+        request.user.is_superuser or request.user.is_staff
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")

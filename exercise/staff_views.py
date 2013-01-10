@@ -77,7 +77,8 @@ def add_or_edit_exercise(request, module_id, exercise_id=None):
     module          = get_object_or_404(CourseModule, id=module_id)
     course_instance = module.course_instance
     
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) 
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+        request.user.is_superuser or request.user.is_staff
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")

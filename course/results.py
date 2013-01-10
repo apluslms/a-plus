@@ -28,10 +28,14 @@ class ResultTable:
         # "submissions__exercise" and "submissions__grade".
         # Note that the "submitters" key does not contain a list but an id of a
         # single UserProfile model instance.
+        #
+        # The submitters__gt=0 in the filter is for filtering out submissions
+        # that do no have any submitters (ManyToMany relation enables deletion
+        # without cascading).
         self.best_submissions = Submission.objects.filter(
-            exercise__course_module__course_instance=course_instance).values(
-            "submitters", "exercise").annotate(best=Max("grade"))\
-            .order_by()
+            exercise__course_module__course_instance=course_instance).exclude(
+            submitters=None).values("submitters", "exercise").annotate(
+            best=Max("grade")).order_by()
 
         # self.best_submissions elements only contain the id of the exercise.
         # We need other exercise data too so we fetch the related BaseExercise
@@ -62,9 +66,15 @@ class ResultTable:
         Helper for the __init__.
         This method puts the data from the database in to the results table.
         """
+
+        # Lets force the QuerySets to evaluate
+        students_by_id = {student.id: student for student in self.students}
+        exercises_by_id =\
+                {exercise.id: exercise for exercise in self.exercises}
+
         for submission in self.best_submissions:
-            student = self.students.get(id=submission["submitters"])
-            exercise = self.exercises.get(id=submission["exercise"])
+            student = students_by_id[submission["submitters"]]
+            exercise = exercises_by_id[submission["exercise"]]
             # Create empty dict for this student if he already isn't in the
             # results table.
             if not student in self.results:
