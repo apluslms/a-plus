@@ -123,12 +123,17 @@ def _handle_submission(request, exercise, students, form, submissions):
                 and not (exercise.max_points != 0
                          and response_page.max_points == 0)
                 and response_page.points <= response_page.max_points):
-                new_submission.set_points(response_page.points, response_page.max_points)
+                new_submission.set_points(response_page.points,
+                                          response_page.max_points)
                 new_submission.set_ready()
 
-                # Add a success message and redirect the user to view the submission
-                messages.success(request, _('The exercise was submitted and graded successfully. Your points: %d/%d.') %\
-                        (new_submission.grade, new_submission.exercise.max_points))
+                # Add a success message and redirect the user to view the
+                # submission
+                messages.success(request,
+                        _('The exercise was submitted and graded '
+                          'successfully. Your points: %d/%d.')
+                        % (new_submission.grade,
+                           new_submission.exercise.max_points))
             else:
                 new_submission.set_error()
                 messages.error(request, _("The response from the assessment "

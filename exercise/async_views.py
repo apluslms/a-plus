@@ -203,8 +203,8 @@ def _post_async_submission(request, exercise, submission, students):
             return {"success": False, 
                     "errors": [str(e)]}
     else:
-        submission.feedback =\
-            unicode(_("<div class=\"alert alert-error\">\n"
+        submission.feedback = unicode(
+                    _("<div class=\"alert alert-error\">\n"
                       "    <p>The assessment service communicated the "
                       "assessment results in an invalid format and "
                       "thus the results of the assessment could not "
