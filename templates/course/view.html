@@ -9,7 +9,7 @@
 
 {% block content %}
 <ul>
-{% for instance in course.instances.all %}
+{% for instance in instances %}
     <li>
         <a href="{{ instance.get_absolute_url }}">{{ instance.instance_name }}</a>
         {% if instance.is_open %}

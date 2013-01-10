@@ -35,6 +35,9 @@ class UserProfile(models.Model):
     def get_courseinstance_staff_queryset(self):
         from course.models import CourseInstance
         return CourseInstance.objects.filter( Q(assistants__id=self.id) | Q(course__teachers__id=self.id) )
+
+    def is_staff(self):
+        return self.user.is_staff or self.user.is_superuser
     
     class Meta:
         ordering            = ['id']

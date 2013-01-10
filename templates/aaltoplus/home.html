@@ -19,7 +19,7 @@
     {% endblocktrans %}
 </div>
 
-{% for instance in open_instances %}
+{% for instance in instances %}
     {# Output a beginning row on every third instance #}
     {% if forloop.counter0|divisibleby:3 %}
     <div class="row">
