@@ -188,6 +188,14 @@ class CategorySummary:
             total += ex_summary.get_max_points()
         return total
 
+    def get_required_percentage(self):
+        if self.get_maximum_points() == 0:
+            return 0
+        else:
+            return int(round(
+                100.0 * self.category.points_to_pass
+                / self.get_maximum_points()))
+
     def get_total_points(self):
         total                   = 0
         for ex_summary in self.exercise_summaries:
