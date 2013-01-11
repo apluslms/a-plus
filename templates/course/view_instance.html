@@ -111,10 +111,11 @@
                      data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
             </div>
         </div>
-        {% for category_summary in course_summary.category_summaries %}
-            <div class="well my-score-box">
-                <h4>{{ category_summary.category.name }} {%trans "total points:" %}</h4>
-                <h2>{{ category_summary.get_total_points }} <small>/ {{ category_summary.get_maximum_points }}</small></h2>
+        {% if course_summary.category_summaries|length > 1 %}
+        <div class="well my-score-box">
+            {% for category_summary in course_summary.category_summaries %}
+                <h4>{{ category_summary.category.name }}</h4>
+                <h4>{{ category_summary.get_total_points }} <small>/ {{ category_summary.get_maximum_points }}</small></h4>
                 <div
                 class="progress {% if category_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
                 style="position: relative">
@@ -129,8 +130,9 @@
                            title="{% trans "Points required to pass" %}: {{ category_summary.category.points_to_pass }}"></a>
                     {% endif %}
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% if instance.plugins.all %}
             {% for plugin in instance.plugins.all %}
