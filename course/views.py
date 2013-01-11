@@ -126,7 +126,12 @@ def view_instance_calendar(request, course_url, instance_url):
     
     course_instance = _get_course_instance(course_url, instance_url)
 
-    if not course_instance.is_visible_to(request.user.get_profile()):
+    if request.user.is_authenticated():
+        profile = request.user.get_profile()
+    else:
+        profile = None
+
+    if not course_instance.is_visible_to(profile):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
     
