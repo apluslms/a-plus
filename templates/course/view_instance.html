@@ -101,16 +101,38 @@
         </ul>
     </div>
     <div class="span3">
-            <div class="well my-score-box">
+        <div class="well my-score-box">
             <h4>{%trans "Total points:" %}</h4>
             <h2>{{ course_summary.get_total_points }} <small>/ {{ course_summary.get_maximum_points }}</small></h2>
-            <div 
-                class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
-                style="position: relative">
+            <div
+                    class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+                    style="position: relative">
                 <div class="bar" style="width: {{ course_summary.get_completed_percentage }}%;"
-                    data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
-                </div>
+                     data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
             </div>
+        </div>
+        {% if course_summary.category_summaries|length > 1 %}
+        <div class="well my-score-box">
+            {% for category_summary in course_summary.category_summaries %}
+                <h4>{{ category_summary.category.name }}</h4>
+                <h4>{{ category_summary.get_total_points }} <small>/ {{ category_summary.get_maximum_points }}</small></h4>
+                <div
+                class="progress {% if category_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+                style="position: relative">
+                    <div class="bar" style="width: {{ category_summary.get_completed_percentage }}%;"
+                        data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ category_summary.get_total_points }}"></div>
+                    {% if category_summary.category.points_to_pass > 0 %}
+                        <a href="#"
+                           class="score-barrier required-score"
+                           style="left: {{ category_summary.get_required_percentage }}%"
+                           rel="tooltip"
+                           data-placement="bottom"
+                           title="{% trans "Points required to pass" %}: {{ category_summary.category.points_to_pass }}"></a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% if instance.plugins.all %}
             {% for plugin in instance.plugins.all %}
