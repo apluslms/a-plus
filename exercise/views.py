@@ -26,7 +26,7 @@ from django.utils import simplejson
 
 @login_required
 @csrf_exempt
-def view_exercise(request, exercise_id):
+def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     """ 
     Displays a particular exercise. If the exercise is requested with a HTTP POST request, 
     the view will try to submit the exercise to the exercise service. 
@@ -34,7 +34,7 @@ def view_exercise(request, exercise_id):
     @param request: HttpRequest from Django
     @param exercise_id: the id of the exercise model to display 
     """
-    
+
     # Load the exercise as an instance of its leaf class
     exercise            = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
     students            = StudentGroup.get_students_from_request(request)
@@ -66,7 +66,7 @@ def view_exercise(request, exercise_id):
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
     
-    return render_to_response("exercise/view_exercise.html", 
+    return render_to_response(template,
                               CourseContext(request,
                                             exercise=exercise,
                                             course_instance=exercise.course_module.course_instance,
@@ -88,7 +88,7 @@ def _handle_submission(request, exercise, students, form, submissions):
     @param form: an instance of a Form class or None if there are no questions for the exercise
     @param submissions: previous submissions for the submitting user to the same exercise
     """
-    
+
     new_submission                  = Submission.objects.create(exercise=exercise)
     new_submission.submitters       = students
     
@@ -118,12 +118,27 @@ def _handle_submission(request, exercise, students, form, submissions):
         new_submission.set_waiting()
         
         if response_page.is_graded:
-            new_submission.set_points(response_page.points, response_page.max_points)
-            new_submission.set_ready()
-            
-            # Add a success message and redirect the user to view the submission
-            messages.success(request, _('The exercise was submitted and graded successfully. Your points: %d/%d.') % \
-                             (new_submission.grade, new_submission.exercise.max_points))
+            # Check if service gave max_points and if it's sane.
+            if (response_page.max_points != None
+                and not (exercise.max_points != 0
+                         and response_page.max_points == 0)
+                and response_page.points <= response_page.max_points):
+                new_submission.set_points(response_page.points,
+                                          response_page.max_points)
+                new_submission.set_ready()
+
+                # Add a success message and redirect the user to view the
+                # submission
+                messages.success(request,
+                        _('The exercise was submitted and graded '
+                          'successfully. Your points: %d/%d.')
+                        % (new_submission.grade,
+                           new_submission.exercise.max_points))
+            else:
+                new_submission.set_error()
+                messages.error(request, _("The response from the assessment "
+                                          "service was erroneous."))
+
         else:
             messages.success(request, _('The exercise was submitted successfully and is now waiting to be graded.'))
         

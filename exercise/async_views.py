@@ -174,14 +174,13 @@ def _post_async_submission(request, exercise, submission, students):
             errors.append(field + ": " + err)
             # Contains errors, so submission is not allowed
             is_valid = False
-
-    print errors
     
     # If there are no errors, proceed with creating a new submission:
     if is_valid:
         try:
             # Set the given grade
-            submission.set_points(form.cleaned_data["points"], form.cleaned_data["max_points"])
+            submission.set_points(form.cleaned_data["points"],
+                                  form.cleaned_data["max_points"])
 
             submission.feedback         = form.cleaned_data["feedback"]
             
@@ -203,7 +202,21 @@ def _post_async_submission(request, exercise, submission, students):
         except Exception, e:
             return {"success": False, 
                     "errors": [str(e)]}
-    
+    else:
+        submission.feedback = unicode(
+                    _("<div class=\"alert alert-error\">\n"
+                      "    <p>The assessment service communicated the "
+                      "assessment results in an invalid format and "
+                      "thus the results of the assessment could not "
+                      "be displayed. Please contact the course staff.</p>"
+                      "\n"
+                      "    <p>This submission is now marked as erroneous."
+                      "</p>\n"
+                      "</div>"))
+        submission.set_error()
+        submission.add_submitters(students)
+        submission.save()
+
     return {"success": False, 
             "errors": errors}
 

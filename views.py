@@ -9,7 +9,8 @@ from django.contrib.auth.views import login as django_login
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 
-from course.models import Course, CourseInstance
+from course.models import Course, CourseInstance,\
+    get_visible_open_course_instances
 from oauth_provider.decorators import oauth_required
 from django.utils.datetime_safe import datetime
 
@@ -41,7 +42,14 @@ def login(request):
 
 def home(request):
     open_instances = CourseInstance.objects.filter(ending_time__gte=datetime.now())
-    context = RequestContext(request, {"open_instances": open_instances})
+
+    if request.user.is_authenticated():
+        instances = get_visible_open_course_instances(
+            request.user.get_profile())
+    else:
+        instances = get_visible_open_course_instances()
+
+    context = RequestContext(request, {"instances": instances})
     return render_to_response("aaltoplus/home.html", context)
 
 def privacy(request):
