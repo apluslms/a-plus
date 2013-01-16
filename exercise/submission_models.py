@@ -157,6 +157,11 @@ class Submission(models.Model):
 
 
     def is_submitted_late(self):
+        if not self.id and not self.submission_time:
+            # The submission is not saved and the submission_time field is not
+            # set yet so this method takes the liberty to set it.
+            self.submission_time = datetime.now()
+            
         return self.submission_time > self.exercise.course_module.closing_time
 
     def set_grading_data(self, grading_dict):
