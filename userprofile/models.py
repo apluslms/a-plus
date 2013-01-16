@@ -17,9 +17,15 @@ class UserProfile(models.Model):
         import hashlib
         hash    = hashlib.md5(self.user.email).hexdigest()
         return "http://www.gravatar.com/avatar/" + hash +"?d=identicon"
-    
     avatar_url = property(_generate_gravatar_url)
-    
+
+    def decode_id(self, enc_id):
+        return enc_id
+
+    def encode_id(self):
+        # TODO: encode with settings.SECRET_KEY
+        return self.id
+
     def get_shortname(self):
         """
         Returns a short version of the user's name, with the first name and the first letter 
@@ -35,7 +41,7 @@ class UserProfile(models.Model):
     def get_courseinstance_staff_queryset(self):
         from course.models import CourseInstance
         return CourseInstance.objects.filter( Q(assistants__id=self.id) | Q(course__teachers__id=self.id) )
-    
+
     class Meta:
         ordering            = ['id']
 

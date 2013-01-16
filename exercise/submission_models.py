@@ -110,7 +110,14 @@ class Submission(models.Model):
             return True
         
         return False
-    
+
+    def decode_id(self, enc_id):
+        return enc_id
+
+    def encode_id(self):
+        # TODO: encode with settings.SECRET_KEY
+        return self.id
+
     def get_course(self):
         return self.get_course_instance().course
     

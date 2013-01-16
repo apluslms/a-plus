@@ -66,6 +66,7 @@ def view_instance(request, course_url, instance_url):
     
     course_instance = _get_course_instance(course_url, instance_url)
     course_summary  = CourseSummary(course_instance, request.user)
+    # TODO: what is the following line supposed to do?
     course_instance.plugins.all()
     
     return render_to_response("course/view_instance.html", 
