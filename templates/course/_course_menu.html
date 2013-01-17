@@ -29,6 +29,39 @@
             {{ user.get_profile.get_shortname }}
         </a>
     </li>
+
+    {# Categories #}
+    {% if instance.categories.count > 1 %}
+        <li class="nav-header">
+            {% trans "Categories" %}
+        </li>
+
+        {# Visible categories #}
+        {% for category in instance.categories.all %}
+            {% if not user.get_profile in category.hidden_to.all %}
+            <li>
+                <a href="{% url exercise.views.toggle_category_visibility category_id=category.id %}">
+                    <i class="icon-check"></i>
+                    {{ category.name }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {# Hidden categories #}
+        {% for category in user.get_profile.hidden_categories.all %}
+            {% if category in instance.categories.all %}
+                <li>
+                    <a class="muted" href="{% url exercise.views.toggle_category_visibility category_id=category.id %}">
+                        <i class="icon-remove-circle"></i>
+                        {{ category.name }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+
     {% if is_teacher or is_assistant %}
         <li class="nav-header">
             {% trans "Staff" %}

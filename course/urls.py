@@ -15,5 +15,6 @@ urlpatterns = patterns('',
     (INSTANCE_URL_PREFIX + r'teachers/$', teachers_view),
     (INSTANCE_URL_PREFIX + r'assistants/$', assistants_view),
     (INSTANCE_URL_PREFIX + r'modules/$', add_or_edit_module),
-    (INSTANCE_URL_PREFIX + r'modules/(?P<module_id>\d+)/$', add_or_edit_module),
+    (INSTANCE_URL_PREFIX + r'modules/(?P<module_id>\d+)/$',
+     add_or_edit_module),
 )
