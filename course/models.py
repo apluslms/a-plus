@@ -22,18 +22,21 @@ class Course(models.Model):
     '''
     
     # Basic information
-    name                = models.CharField(max_length=30)
-    code                = models.CharField(max_length=30)
+    name        = models.CharField(max_length=255)
+    code        = models.CharField(max_length=255)
     
     # A portion that is included in the addresses under this course
-    url                 = models.CharField(unique=True, max_length=16, blank=False, 
-                                           validators=[RegexValidator(regex="^[\w\-\.]*$")],
-                                           help_text="Input an identifier for this course's URL.")
+    url         = models.CharField(
+                       unique=True,
+                       max_length=255,
+                       blank=False,
+                       validators=[RegexValidator(regex="^[\w\-\.]*$")],
+                       help_text="Input an identifier for this course's URL.")
     
     # Relations
-    teachers            = models.ManyToManyField(UserProfile, 
-                                                 related_name=u"teaching_courses", 
-                                                 blank=True)
+    teachers    = models.ManyToManyField(UserProfile,
+                                            related_name=u"teaching_courses",
+                                            blank=True)
     
     def get_absolute_url(self):
         '''
@@ -89,12 +92,15 @@ class CourseInstance(models.Model):
     """
     
     # Basic information
-    instance_name           = models.CharField(max_length=30)
-    website                 = models.URLField(max_length=200, blank=True)
+    instance_name           = models.CharField(max_length=255)
+    website                 = models.URLField(max_length=255, blank=True)
     
-    url                     = models.CharField(unique=False, max_length=16, blank=False, 
-                                               validators=[RegexValidator(regex="^[\w\-\.]*$")],
-                                               help_text="Input an URL identifier for this course.")
+    url = models.CharField(
+            unique=False,
+            max_length=255,
+            blank=False,
+            validators=[RegexValidator(regex="^[\w\-\.]*$")],
+            help_text="Input an URL identifier for this course.")
     
     starting_time           = models.DateTimeField()
     ending_time             = models.DateTimeField()
