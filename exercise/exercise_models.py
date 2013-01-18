@@ -113,7 +113,7 @@ class LearningObject(ModelWithInheritance):
     order                   = models.IntegerField(default=0)
     
     # Instruction related fields
-    name                    = models.CharField(max_length=35)
+    name                    = models.CharField(max_length=255)
     description             = models.TextField(blank=True)
     instructions            = models.TextField(blank=True)
 
