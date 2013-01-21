@@ -213,17 +213,24 @@ def resubmit_to_service(request, submission_id):
         submission.set_waiting()
 
         if response_page.is_graded:
-            submission.set_points(response_page.points,
-                response_page.max_points)
-            submission.set_ready()
+            if (response_page.max_points != None
+                and not (response_page.exercise.max_points != 0
+                         and response_page.max_points == 0)
+                and response_page.points <= response_page.max_points):
+                submission.set_points(response_page.points,
+                    response_page.max_points)
+                submission.set_ready()
 
-            # Add a success message and redirect the staff user to view the
-            # submission
-            messages.success(request,
-                _(
-                    'The exercise was re-submitted and re-graded successfully'
-                    '. Submission points: %d/%d.') %\
-                (submission.grade, submission.exercise.max_points))
+                # Add a success message and redirect the staff user to view the
+                # submission
+                messages.success(request,
+                    _('The exercise was re-submitted and re-graded '
+                      'successfully. Submission points: %d/%d.')
+                      % (submission.grade, submission.exercise.max_points))
+            else:
+                submission.set_error()
+                messages.error(request, _("The response from the assessment "
+                                          "service was erroneous."))
         else:
             messages.success(request, _(
                 'The exercise was re-submitted successfully and is now '

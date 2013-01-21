@@ -1,0 +1,10 @@
+{% load sanitizer %}
+{% load i18n %}
+
+    {{ page.content|sanitize }}
+    {% if form %}
+    <div>
+        {% include "exercise/_submission_form.html" with form=form %}
+    </div>
+    {% endif %}
+    &nbsp;{# This prevents the div being completely empty #}

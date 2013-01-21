@@ -33,7 +33,7 @@ class CourseModule(models.Model):
     course instances. They also contain information about the opening times and 
     deadlines for exercises. 
     """
-    name                    = models.CharField(max_length=30)
+    name                    = models.CharField(max_length=255)
     points_to_pass          = models.PositiveIntegerField(default=0)
     
     # A textual introduction to this exercise round
@@ -96,8 +96,16 @@ class CourseModule(models.Model):
 class LearningObjectCategory(models.Model):
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
+    points_to_pass = models.PositiveIntegerField(default=0)
+
     course_instance = models.ForeignKey(CourseInstance,
         related_name=u"categories")
+
+    hidden_to = models.ManyToManyField(
+            UserProfile,
+            related_name="hidden_categories",
+            blank=True,
+            null=True)
 
     class Meta:
         unique_together = ("name", "course_instance")
@@ -105,13 +113,22 @@ class LearningObjectCategory(models.Model):
     def __unicode__(self):
         return self.name + u" -- " + unicode(self.course_instance)
 
+    def is_hidden_to(self, profile):
+        return profile in self.hidden_to.all()
+
+    def set_hidden_to(self, profile, hide=True):
+        if hide and not self.is_hidden_to(profile):
+            self.hidden_to.add(profile)
+        elif not hide and self.is_hidden_to(profile):
+            self.hidden_to.remove(profile)
+
 
 class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round
     order                   = models.IntegerField(default=0)
     
     # Instruction related fields
-    name                    = models.CharField(max_length=35)
+    name                    = models.CharField(max_length=255)
     description             = models.TextField(blank=True)
     instructions            = models.TextField(blank=True)
 
@@ -131,6 +148,10 @@ class LearningObject(ModelWithInheritance):
             raise ValidationError("course_module and category must relate to "
                                   "the same CourseInstance object")
 
+    def get_course_instance(self):
+        return self.course_module.course_instance
+    course_instance = property(get_course_instance)
+
 
 class BaseExercise(LearningObject):
     # Switch for giving assistants permission to grade this exercise
@@ -142,13 +163,7 @@ class BaseExercise(LearningObject):
     max_submissions         = models.PositiveIntegerField(default=10)
     max_points              = models.PositiveIntegerField(default=100)
     points_to_pass          = models.PositiveIntegerField(default=40)
-    
 
-    # TODO: why is this not method of the LearningObject?
-    def get_course_instance(self):
-        return self.course_module.course_instance
-    
-    course_instance = property(get_course_instance)
     
     def get_page(self, submission_url):
         """ 

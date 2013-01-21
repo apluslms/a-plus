@@ -2,12 +2,31 @@
 {% load sanitizer %}
 {% load i18n %}
 
+{# TODO: This file is huge. Make it use more sub-templates or use blocking commenting. #}
+
 {% block coursecontent %}
 <div class="row">
     <div class="span7">
+        {# Settings collapse button. This needs to be here because we want it to float to the right of the header. #}
+        <a id="schedule-filters-btn" class="btn btn-link" data-toggle="collapse" data-target="#filters-collapse">Filter Categories</a>
+
         <h2>{% trans "Schedule" %}</h2>
+
+        {# Settings collapse #}
+        <div id="filters-collapse" class="collapse in">
+            <div class="well">
+                <form action="{% url course.views.set_schedule_filters course_url=instance.course.url instance_url=instance.url %}?next={{ request.path }}" method="POST">{% csrf_token %}
+                    <legend>Visible categories</legend>
+                    {% for category_summary in course_summary.category_summaries %}
+                        <label class="checkbox" for="category_filter_{{ category_summary.category.id }}"><input id="category_filter_{{ category_summary.category.id }}" type="checkbox" name="category_filters" value="{{ category_summary.category.id }}" {% if not category_summary.is_hidden %}checked="checked"{% endif %} /> {{ category_summary.category.name }}</label>
+                    {% endfor %}
+                    <input type="submit" class="btn" value="Update filters" />
+                </form>
+            </div>
+        </div>
+
         <ul class="exercise_rounds">
-        {% for round_summary in course_summary.round_summaries %}
+        {% for round_summary in course_summary.visible_round_summaries %}
             <li class="exercise_round {{ round_summary.get_classes }}">
                 {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
                 <div class="exercise-icons">
@@ -40,7 +59,7 @@
                     <h3>
                         <i class="icon-chevron-right"></i>
                         <i class="icon-chevron-down"></i>
-                        {{ forloop.counter }}. {{ round_summary.exercise_round.name }}
+                        {{ round_summary.exercise_round.name }}
                         <small class="nowrap">
                             {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }} {% trans "points" %}
                             {% if round_summary.exercise_round.points_to_pass > 0 %}(required to pass: {{ round_summary.exercise_round.points_to_pass }}){% endif %}
@@ -67,22 +86,24 @@
                     <table class="table table-bordered table-condensed exercise-table">
                         <tbody>
                         {% for category, exercise_summaries in round_summary.categorized_exercise_summaries %}
-                            <tr class="category-row">
-                                <td>{{ category.name }}</td>
-                                <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
-                            </tr>
-                            {% for exercise_summary in exercise_summaries %}
-                                <tr>
-                                    <td>
-                                    {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
-                                        <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.order }}. {{ exercise_summary.exercise.name }}</a>
-                                    {% else %}
-                                        {{ exercise_summary.exercise.order }}. {{exercise_summary.exercise.name}}
-                                    {% endif %}
-                                    </td>
-                                    <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                            {% if not category in user.get_profile.hidden_categories.all %}
+                                <tr class="category-row">
+                                    <td>{{ category.name }}</td>
+                                    <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
                                 </tr>
-                            {% endfor %}
+                                {% for exercise_summary in exercise_summaries %}
+                                    <tr>
+                                        <td>
+                                        {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
+                                            <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.order }}. {{ exercise_summary.exercise.name }}</a>
+                                        {% else %}
+                                            {{ exercise_summary.exercise.order }}. {{exercise_summary.exercise.name}}
+                                        {% endif %}
+                                        </td>
+                                        <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
                         {% endfor %}
                         </tbody>
                     </table>
@@ -94,30 +115,77 @@
                 </div>
             </li>
         {% empty %}
-            <li class="alert alert-info">
-                {% trans "No learning modules defined." %}
-            </li>
+            {% if course_summary.round_summaries|length > 0 %}
+                <li class="alert alert-info">
+                    {% trans "You have hidden all the categories." %}
+                </li>
+            {% else %}
+                <li class="alert alert-info">
+                    {% trans "No learning modules defined." %}
+                </li>
+            {% endif %}
         {% endfor %}
         </ul>
     </div>
     <div class="span3">
-            <div class="well my-score-box">
+
+        {# Disabled total points score-box for now #}
+        {% if False %}
+        <div class="well my-score-box">
             <h4>{%trans "Total points:" %}</h4>
             <h2>{{ course_summary.get_total_points }} <small>/ {{ course_summary.get_maximum_points }}</small></h2>
-            <div 
-                class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
-                style="position: relative">
+            <div
+                    class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+                    style="position: relative">
                 <div class="bar" style="width: {{ course_summary.get_completed_percentage }}%;"
-                    data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
-                </div>
+                     data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.get_total_points }}"></div>
             </div>
+        </div>
+        {% endif %}
+
+        {# Score-boxes for each category #}
+        {% if course_summary.visible_category_summaries|length > 0 %}
+            {% if course_summary.visible_category_summaries|length > 1 %}
+                <div class="well my-score-box">
+                    {% for category_summary in course_summary.visible_category_summaries %}
+                        <h4>{{ category_summary.category.name }}</h4>
+                        <h4>{{ category_summary.get_total_points }} <small>/ {{ category_summary.get_maximum_points }}</small></h4>
+                        <div
+                        class="progress {% if category_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+                        style="position: relative">
+                            <div class="bar" style="width: {{ category_summary.get_completed_percentage }}%;"
+                                data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ category_summary.get_total_points }}"></div>
+                            {% if category_summary.category.points_to_pass > 0 %}
+                                <a href="#"
+                                   class="score-barrier required-score"
+                                   style="left: {{ category_summary.get_required_percentage }}%"
+                                   rel="tooltip"
+                                   data-placement="bottom"
+                                   title="{% trans "Points required to pass" %}: {{ category_summary.category.points_to_pass }}"></a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="well my-score-box">
+                    <h4>{{ course_summary.visible_category_summaries.0.category.name }}</h4>
+                    <h2>{{ course_summary.visible_category_summaries.0.get_total_points }} <small>/ {{ course_summary.visible_category_summaries.0.get_maximum_points }}</small></h2>
+                    <div
+                            class="progress {% if course_summary.visible_category_summaries.0.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
+                            style="position: relative">
+                        <div class="bar" style="width: {{ course_summary.visible_category_summaries.0.get_completed_percentage }}%;"
+                             data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ course_summary.visible_category_summaries.0.get_total_points }}"></div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
 
         {% if instance.plugins.all %}
             {% for plugin in instance.plugins.all %}
-                
+
                 {# TODO: Plugins should not be rendered as safe #}
                 {{ plugin.render|safe }}
-                
+
             {% endfor %}
         {% endif %}
     </div>

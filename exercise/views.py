@@ -1,7 +1,8 @@
 from lib.BeautifulSoup import BeautifulSoup
 
 # Django
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, \
+    HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.static import serve
@@ -11,13 +12,14 @@ from django.utils import simplejson
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 
 # A+
 from apps.models import *
 from userprofile.models import UserProfile, StudentGroup
-from exercise.exercise_models import BaseExercise, CourseModule
+from exercise.exercise_models import BaseExercise, CourseModule, \
+    LearningObjectCategory
 from exercise.submission_models import Submission, SubmittedFile
 from exercise.exercise_page import ExercisePage
 from exercise.exercise_summary import ExerciseSummary
@@ -28,7 +30,7 @@ from course.context import CourseContext
 
 @login_required
 @csrf_exempt
-def view_exercise(request, exercise_id):
+def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     """ 
     Displays a particular exercise. If the exercise is requested with a HTTP POST request, 
     the view will try to submit the exercise to the exercise service. 
@@ -36,7 +38,7 @@ def view_exercise(request, exercise_id):
     @param request: HttpRequest from Django
     @param exercise_id: the id of the exercise model to display 
     """
-    
+
     # Load the exercise as an instance of its leaf class
     exercise            = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
     students            = StudentGroup.get_students_from_request(request)
@@ -68,7 +70,7 @@ def view_exercise(request, exercise_id):
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
     
-    return render_to_response("exercise/view_exercise.html", 
+    return render_to_response(template,
                               CourseContext(request,
                                             exercise=exercise,
                                             course_instance=exercise.course_module.course_instance,
@@ -90,7 +92,7 @@ def _handle_submission(request, exercise, students, form, submissions):
     @param form: an instance of a Form class or None if there are no questions for the exercise
     @param submissions: previous submissions for the submitting user to the same exercise
     """
-    
+
     new_submission                  = Submission.objects.create(exercise=exercise)
     new_submission.submitters       = students
     
@@ -120,12 +122,27 @@ def _handle_submission(request, exercise, students, form, submissions):
         new_submission.set_waiting()
         
         if response_page.is_graded:
-            new_submission.set_points(response_page.points, response_page.max_points)
-            new_submission.set_ready()
-            
-            # Add a success message and redirect the user to view the submission
-            messages.success(request, _('The exercise was submitted and graded successfully. Your points: %d/%d.') % \
-                             (new_submission.grade, new_submission.exercise.max_points))
+            # Check if service gave max_points and if it's sane.
+            if (response_page.max_points != None
+                and not (exercise.max_points != 0
+                         and response_page.max_points == 0)
+                and response_page.points <= response_page.max_points):
+                new_submission.set_points(response_page.points,
+                                          response_page.max_points)
+                new_submission.set_ready()
+
+                # Add a success message and redirect the user to view the
+                # submission
+                messages.success(request,
+                        _('The exercise was submitted and graded '
+                          'successfully. Your points: %d/%d.')
+                        % (new_submission.grade,
+                           new_submission.exercise.max_points))
+            else:
+                new_submission.set_error()
+                messages.error(request, _("The response from the assessment "
+                                          "service was erroneous."))
+
         else:
             messages.success(request, _('The exercise was submitted successfully and is now waiting to be graded.'))
         
@@ -184,6 +201,24 @@ def view_submission(request, submission_id):
                        ))
 
 
+@login_required
+def toggle_category_visibility(request, category_id):
+    category_id = int(category_id)
+    category = get_object_or_404(LearningObjectCategory, id=category_id)
+    profile = request.user.get_profile()
+
+    if profile in category.hidden_to.all():
+        category.hidden_to.remove(profile)
+    else:
+        category.hidden_to.add(profile)
+
+    if request.GET.has_key("next"):
+        next = request.GET["next"]
+    else:
+        next = category.course_instance.get_absolute_url()
+
+    return HttpResponseRedirect(next)
+
 
 ######################################################################
 # Functions for handling submitted files for exercises
@@ -204,5 +239,4 @@ def view_submitted_file(request, submitted_file_id):
         return serve(request, file.file_object.name, settings.MEDIA_ROOT)
     
     return HttpResponseForbidden(_("Your are not allowed to access this file."))
-
 
