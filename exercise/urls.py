@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
-from exercise.views import view_submission, view_exercise, view_submitted_file
+from exercise.views import view_submission, view_exercise, \
+    view_submitted_file, toggle_category_visibility
 from exercise.staff_views import list_exercise_submissions, \
     inspect_exercise_submission, add_or_edit_exercise, \
     fetch_exercise_metadata, submission_assessment, resubmit_to_service
@@ -23,4 +24,6 @@ urlpatterns = patterns('',
      grade_async_submission),
     (r'^submissions/re-submit-to-service/(?P<submission_id>\d+)/$',
      resubmit_to_service),
+    (r'^categories/(?P<category_id>\d+)/toggle_visibility/$',
+     toggle_category_visibility),
 )

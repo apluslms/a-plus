@@ -3,7 +3,8 @@ from icalendar import Calendar, Event
 
 # Django
 from django.shortcuts import get_object_or_404, render_to_response
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, \
+    HttpResponseRedirect
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -185,6 +186,38 @@ def view_instance_results(request, course_url, instance_url):
                                                      result_table=table,
                                                      table_html=table_html
                                              ))
+
+
+@login_required
+def set_schedule_filters(request, course_url, instance_url):
+    if request.method != "POST":
+        return HttpResponseForbidden(_("This view should only be accessed "
+                                       "with HTTP POST."))
+
+    course_instance = _get_course_instance(course_url, instance_url)
+    profile = request.user.get_profile()
+
+    if not request.POST.has_key("category_filters"):
+        return HttpResponseForbidden("You are trying to hide all categories. "
+                                     "Select at least one category to be "
+                                     "visible!")
+
+    visible_category_ids = [int(cat_id) for cat_id
+                            in request.POST.getlist("category_filters")]
+
+    for category in course_instance.categories.all():
+        if category.id in visible_category_ids:
+            category.set_hidden_to(profile, False)
+        else:
+            category.set_hidden_to(profile, True)
+
+
+    if request.GET.has_key("next"):
+        next = request.GET["next"]
+    else:
+        next = course_instance.get_absolute_url()
+
+    return HttpResponseRedirect(next)
 
 
 @login_required

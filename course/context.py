@@ -7,8 +7,8 @@ class CourseContext(RequestContext):
     the processors defined in TEMPLATE_CONTEXT_PROCESSORS.
     """
     def __init__(self, request, course=None, course_instance=None, **dict):
-        RequestContext.__init__(self, 
-                                request, 
+        RequestContext.__init__(self,
+                                request,
                                 dict)
         
         # Initially the user is neither an assistant nor a teacher
@@ -37,3 +37,9 @@ class CourseContext(RequestContext):
                            }
         
         self.update(course_info)
+
+        # TODO:
+        # For some reason, request is not available in this context even though
+        # it should be. Thus temporarily adding it manually.
+        self.update({"request": request})
+
