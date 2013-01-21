@@ -1,7 +1,8 @@
 from lib.BeautifulSoup import BeautifulSoup
 
 # Django
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, \
+    HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.static import serve
@@ -10,12 +11,13 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 
 # A+
 from userprofile.models import UserProfile, StudentGroup
-from exercise.exercise_models import BaseExercise, CourseModule
+from exercise.exercise_models import BaseExercise, CourseModule, \
+    LearningObjectCategory
 from exercise.submission_models import Submission, SubmittedFile
 from exercise.exercise_page import ExercisePage
 from exercise.exercise_summary import ExerciseSummary
@@ -189,6 +191,24 @@ def view_submission(request, submission_id):
                                            ))
 
 
+@login_required
+def toggle_category_visibility(request, category_id):
+    category_id = int(category_id)
+    category = get_object_or_404(LearningObjectCategory, id=category_id)
+    profile = request.user.get_profile()
+
+    if profile in category.hidden_to.all():
+        category.hidden_to.remove(profile)
+    else:
+        category.hidden_to.add(profile)
+
+    if request.GET.has_key("next"):
+        next = request.GET["next"]
+    else:
+        next = category.course_instance.get_absolute_url()
+
+    return HttpResponseRedirect(next)
+
 
 ######################################################################
 # Functions for handling submitted files for exercises
@@ -209,5 +229,4 @@ def view_submitted_file(request, submitted_file_id):
         return serve(request, file.file_object.name, settings.MEDIA_ROOT)
     
     return HttpResponseForbidden(_("Your are not allowed to access this file."))
-
 
