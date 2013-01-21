@@ -72,6 +72,8 @@ class ExerciseRoundSummary:
         self.points_available   = 0
         self.exercises_passed   = 0
         self.exercise_summaries = []
+        self.categories         = []
+        self.visible_categories = []
 
         # This is a list of tuples where the first item is a
         # LearningObjectCategory object and the second item is a list of
@@ -90,7 +92,15 @@ class ExerciseRoundSummary:
                 self.categorized_exercise_summaries.append(
                     (exercise.category, []))
             self.categorized_exercise_summaries[-1][1].append(ex_summary)
-    
+
+            if not exercise.category in self.categories:
+                self.categories.append(exercise.category)
+
+        for category in self.categories:
+            if (not category.is_hidden_to(self.user.get_profile())
+                    and not category in self.visible_categories):
+                self.visible_categories.append(category)
+
     def get_total_points(self):
         total                   = 0
         for ex_summary in self.exercise_summaries:
@@ -105,7 +115,10 @@ class ExerciseRoundSummary:
     
     def get_average_total_grade(self):
         return sum([exercise.summary["average_grade"] for exercise in self.exercises])
-    
+
+    def has_visible_categories(self):
+        return len(self.visible_categories) > 0
+
     def is_passed(self):
         """
         Returns True or False based on if the student has passed the exercise round
@@ -202,6 +215,9 @@ class CategorySummary:
             total += ex_summary.get_points()
         return total
 
+    def is_hidden(self):
+        return self.category.is_hidden_to(self.user.get_profile())
+
     def is_passed(self):
         # TODO: Implement
         return False
@@ -213,12 +229,14 @@ class CourseSummary:
     existing and completed on a given course. 
     """
     def __init__(self, course_instance, user):
-        self.course_instance        = course_instance
-        self.user                   = user
-        self.exercise_rounds        = course_instance.course_modules.all()
-        self.categories             = course_instance.categories.all()
-        self.round_summaries        = []
-        self.category_summaries     = []
+        self.course_instance            = course_instance
+        self.user                       = user
+        self.exercise_rounds            = course_instance.course_modules.all()
+        self.categories                 = course_instance.categories.all()
+        self.round_summaries            = []
+        self.visible_round_summaries    = []
+        self.category_summaries         = []
+        self.visible_category_summaries = []
         
         self._generate_summary()
     
@@ -277,3 +295,15 @@ class CourseSummary:
         # Generate a summary for each category
         for cat in self.categories:
             self.category_summaries.append(CategorySummary(cat, self.user))
+
+        # Separate list for visible category summaries only
+        for cat_sum in self.category_summaries:
+            if (not cat_sum.category in self.user.get_profile()
+                    .hidden_categories.all()):
+                self.visible_category_summaries.append(cat_sum)
+
+        # Separate list for round summaries that have visible categories
+        for rnd_sum in self.round_summaries:
+            if rnd_sum.has_visible_categories():
+                self.visible_round_summaries.append(rnd_sum)
+

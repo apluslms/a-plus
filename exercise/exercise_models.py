@@ -101,11 +101,26 @@ class LearningObjectCategory(models.Model):
     course_instance = models.ForeignKey(CourseInstance,
         related_name=u"categories")
 
+    hidden_to = models.ManyToManyField(
+            UserProfile,
+            related_name="hidden_categories",
+            blank=True,
+            null=True)
+
     class Meta:
         unique_together = ("name", "course_instance")
 
     def __unicode__(self):
         return self.name + u" -- " + unicode(self.course_instance)
+
+    def is_hidden_to(self, profile):
+        return profile in self.hidden_to.all()
+
+    def set_hidden_to(self, profile, hide=True):
+        if hide and not self.is_hidden_to(profile):
+            self.hidden_to.add(profile)
+        elif not hide and self.is_hidden_to(profile):
+            self.hidden_to.remove(profile)
 
 
 class LearningObject(ModelWithInheritance):
