@@ -116,6 +116,12 @@ class LearningObjectCategory(models.Model):
     def is_hidden_to(self, profile):
         return profile in self.hidden_to.all()
 
+    def set_hidden_to(self, profile, hide=True):
+        if hide and not self.is_hidden_to(profile):
+            self.hidden_to.add(profile)
+        elif not hide and self.is_hidden_to(profile):
+            self.hidden_to.remove(profile)
+
 
 class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round

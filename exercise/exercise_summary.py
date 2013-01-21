@@ -215,6 +215,9 @@ class CategorySummary:
             total += ex_summary.get_points()
         return total
 
+    def is_hidden(self):
+        return self.category.is_hidden_to(self.user.get_profile())
+
     def is_passed(self):
         # TODO: Implement
         return False

@@ -7,7 +7,24 @@
 {% block coursecontent %}
 <div class="row">
     <div class="span7">
+        {# Settings collapse button. This needs to be here because we want it to float to the right of the header. #}
+        <a id="schedule-filters-btn" class="btn btn-link" data-toggle="collapse" data-target="#filters-collapse">Filter Categories</a>
+
         <h2>{% trans "Schedule" %}</h2>
+
+        {# Settings collapse #}
+        <div id="filters-collapse" class="collapse in">
+            <div class="well">
+                <form action="{% url course.views.set_schedule_filters course_url=instance.course.url instance_url=instance.url %}?next={{ request.path }}" method="POST">{% csrf_token %}
+                    <legend>Visible categories</legend>
+                    {% for category_summary in course_summary.category_summaries %}
+                        <label class="checkbox" for="category_filter_{{ category_summary.category.id }}"><input id="category_filter_{{ category_summary.category.id }}" type="checkbox" name="category_filters" value="{{ category_summary.category.id }}" {% if not category_summary.is_hidden %}checked="checked"{% endif %} /> {{ category_summary.category.name }}</label>
+                    {% endfor %}
+                    <input type="submit" class="btn" value="Update filters" />
+                </form>
+            </div>
+        </div>
+
         <ul class="exercise_rounds">
         {% for round_summary in course_summary.visible_round_summaries %}
             <li class="exercise_round {{ round_summary.get_classes }}">

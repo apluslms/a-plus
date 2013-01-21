@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import *
-from course.views import view_course, view_instance, view_instance_results, view_instance_calendar,\
-    view_my_page, add_or_edit_module, teachers_view, course_archive, assistants_view
+from course.views import *
 
 COURSE_URL_PREFIX = r'^(?P<course_url>[\w\d\-\.]+)/'
 INSTANCE_URL_PREFIX = COURSE_URL_PREFIX + r'(?P<instance_url>[\w\d\-\.]+)/'
@@ -17,4 +16,5 @@ urlpatterns = patterns('',
     (INSTANCE_URL_PREFIX + r'modules/$', add_or_edit_module),
     (INSTANCE_URL_PREFIX + r'modules/(?P<module_id>\d+)/$',
      add_or_edit_module),
+    (INSTANCE_URL_PREFIX + r'set_schedule_filters/$', set_schedule_filters),
 )
