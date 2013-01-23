@@ -171,12 +171,23 @@ def _handle_submission(request, exercise, students, form, submissions):
 def view_submission(request, submission_id):
     # Find all submissions for this user
     submission      = get_object_or_404(Submission, id=submission_id)
+
+    if not request.user.get_profile() in submission.submitters.all():
+        # Note that we do not want to use submission.check_user_permission here
+        # because that would allow staff-like users access this view. However
+        # staff-like users should use the
+        # staff_views.inspect_exercise_submission instead because some of the
+        # stuff in this view wouldn't make sense to a staff-like user.
+
+        # TODO: Yet another repeation of this error (most of them are in
+        # course.views)
+        return HttpResponseForbidden("You are not allowed "
+                                     "to access this view.")
+
     exercise        = submission.exercise
-    submissions     = exercise.get_submissions_for_student(request.user.get_profile())
+    submissions     = exercise.get_submissions_for_student(
+                                                    request.user.get_profile())
     index           = 1 + list(submissions).index(submission)
-    
-    # TODO: Check the user's permission to view this submission more elegantly
-    assert submission.check_user_permission(request.user.get_profile())
     
     exercise_summary= ExerciseSummary(exercise, request.user)
     

@@ -90,22 +90,23 @@ class Submission(models.Model):
 
     def check_user_permission(self, profile):
         """ 
-        Checks if the given user is allowed to access this submission. 
-        Super users are allowed to access all submissions, course personnel is allowed to 
-        access submissions for that course and students are allowed to access their own submissions.
+        Checks if the given user is allowed to access this submission.
+        Superusers and staff are allowed to access all submissions, course
+        personnel is allowed to access submissions for that course and students
+        are allowed to access their own submissions.
 
         @param profile: UserProfile model 
         """
 
-        # Super users are allowed to view all submissions
-        if profile.user.is_superuser:
+        # Superusers and staff are allowed to view all submissions
+        if profile.user.is_superuser or profile.user.is_staff:
             return True
 
-        # Check if the user has submitted him/herself
+        # Check if the user has submitted this submission him/herself
         if profile in self.submitters.all():
             return True
 
-        # Check if the user belongs to course staff
+        # Check if the user belongs to the course staff
         if self.get_course_instance().is_staff(profile):
             return True
 
