@@ -141,12 +141,20 @@ class LearningObject(ModelWithInheritance):
     # Relations
     course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")
     category               = models.ForeignKey(LearningObjectCategory,
-        related_name="learning_objects")
+                             related_name="learning_objects")
 
     def clean(self):
-        if self.course_module.course_instance != self.category.course_instance:
-            raise ValidationError("course_module and category must relate to "
-                                  "the same CourseInstance object")
+        course_instance_error = ValidationError("course_module and category "
+                                                "must relate to the same "
+                                                "CourseInstance object")
+
+        try:
+            if (self.course_module.course_instance
+                != self.category.course_instance):
+                raise course_instance_error
+        except (LearningObjectCategory.DoesNotExist,
+                CourseModule.DoesNotExist):
+            raise course_instance_error
 
     def get_course_instance(self):
         return self.course_module.course_instance
