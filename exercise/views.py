@@ -1,3 +1,6 @@
+# Python
+import logging
+
 from lib.BeautifulSoup import BeautifulSoup
 
 # Django
@@ -64,7 +67,9 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
         # Retrieving page failed, create an empty page and display an error
         # TODO: an error report should be sent or logged
         page            = ExercisePage(exercise=exercise)
-        messages.error( request, _('Connecting to the exercise service failed: %s.') % str(e) )
+        messages.error( request, _('Connecting to the exercise service '
+                                   'failed!'))
+        logging.exception(e)
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
     
@@ -109,7 +114,9 @@ def _handle_submission(request, exercise, students, form, submissions):
     except DatabaseError as e:
         messages.error(request, _("The submitted files could not be saved for "
                                   "some reason. This might be caused by too "
-                                  "long file name."))
+                                  "long file name. The submission was not "
+                                  "registered."))
+        logging.exception(e)
         error = True
 
     if not error:
@@ -122,7 +129,10 @@ def _handle_submission(request, exercise, students, form, submissions):
             # TODO: pokemon error handling
             # TODO: Retrieving the grading failed. An error report should be sent
             # to administrators
-            messages.error(request, _('Connecting to the assessment server failed! (%s)') % str(e) )
+            messages.error(request, _('Connecting to the assessment server '
+                                      'failed! The submission was not '
+                                      'registered.'))
+            logging.exception(e)
     
     if response_page.is_accepted:
         new_submission.feedback     = response_page.content
