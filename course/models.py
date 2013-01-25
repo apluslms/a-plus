@@ -114,6 +114,7 @@ class CourseInstance(models.Model):
     course                  = models.ForeignKey(Course, related_name=u"instances")
     
     plugins                 = generic.GenericRelation(BasePlugin, object_id_field="container_pk", content_type_field="container_type")
+    tabs                    = generic.GenericRelation(BaseTab, object_id_field="container_pk", content_type_field="container_type")
 
     def encode_id(self):
         # TODO: Encode using settings.SECRET_KEY
