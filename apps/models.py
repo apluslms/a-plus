@@ -168,6 +168,7 @@ class ChatPlugin(BasePlugin):
     pass
 
 
+# TODO: Rename to ExternalIFramePlugin
 class IFrameToServicePlugin(BasePlugin):
     """
 
