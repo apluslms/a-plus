@@ -1,3 +1,5 @@
+# TODO: rename this file to app_renderers.py
+
 # Python
 import urllib
 import urlparse
@@ -75,4 +77,34 @@ class IFrameToServicePluginRenderer(object):
             "view_name": self.view_name
         }))
 
+
+class ExternalIFrameTabRenderer(object):
+    def __init__(self, tab, user_profile, course_instance):
+        self.tab = tab
+        self.user_profile = user_profile
+        self.course_instance = course_instance
+
+    def _build_src(self):
+        params = {
+            "course_instance_id": self.course_instance.encode_id(),
+            "user_profile_id": self.user_profile.encode_id()
+        }
+
+        url = self.tab.content_url
+
+        url_parts = list(urlparse.urlparse(url))
+        query = dict(urlparse.parse_qs(url_parts[4]))
+        query.update(params)
+
+        url_parts[4] = urllib.urlencode(query)
+
+        return urlparse.urlunparse(url_parts)
+
+    def render(self):
+        t = get_template("plugins/external_iframe_tab.html")
+        return t.render(Context({
+            "height": self.tab.height,
+            "width": self.tab.width,
+            "src": self._build_src(),
+        }))
 

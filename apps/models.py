@@ -119,6 +119,17 @@ class EmbeddedTab(BaseTab):
         return html
 
 
+class ExternalIFrameTab(BaseTab):
+    # TODO: verify_exist can be removed when updated to Django 1.4+
+    content_url = models.URLField(max_length=255, verify_exists=False)
+    # Desired width and height
+    width = models.IntegerField()
+    height = models.IntegerField()
+
+    def get_renderer_class(self):
+        return ExternalIFrameTabRenderer
+
+
 class BasePlugin(AbstractApp):
     title               = models.CharField(max_length=64)
     views               = models.CharField(max_length=255, blank=True)
