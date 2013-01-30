@@ -10,6 +10,7 @@ from django.template.loader import get_template
 
 # A+
 from apps.models import *
+from lib.BeautifulSoup import BeautifulSoup
 
 
 def build_plugin_renderers(plugins, view_name,
@@ -53,7 +54,7 @@ class IFrameToServicePluginRenderer(object):
     def _build_src(self):
         params = {
             "submission_id": self.context["submission"].encode_id(),
-            "user_profile": self.context["user_profile"].encode_id(),
+            "user_profile_id": self.context["user_profile"].encode_id(),
             "view_name": self.view_name
         }
 
@@ -107,4 +108,50 @@ class ExternalIFrameTabRenderer(object):
             "width": self.tab.width,
             "src": self._build_src(),
         }))
+
+
+class TabRenderer(object):
+    def __init__(self, tab, user_profile, course_instance):
+        self.tab = tab
+        self.user_profile = user_profile
+        self.course_instance = course_instance
+
+    def _build_src(self):
+        params = {
+            "course_instance_id": self.course_instance.encode_id(),
+            "user_profile_id": self.user_profile.encode_id()
+        }
+
+        url = self.tab.content_url
+
+        url_parts = list(urlparse.urlparse(url))
+        query = dict(urlparse.parse_qs(url_parts[4]))
+        query.update(params)
+
+        url_parts[4] = urllib.urlencode(query)
+
+        return urlparse.urlunparse(url_parts)
+
+    def render(self):
+        opener      = urllib2.build_opener()
+        content     = opener.open(self._build_src(), timeout=5).read()
+
+        # Save the page in cache
+        # cache.set(self.content_url, content)
+
+        soup            = BeautifulSoup(content)
+
+        # TODO: Disabled. Add GET parameter support and enable.
+        # Make links absolute, quoted from http://stackoverflow.com/a/4468467:
+        #for tag in soup.findAll('a', href=True):
+        #    tag['href'] = urlparse.urljoin(self.content_url, tag['href'])
+
+        # If there's no element specified, use the BODY.
+        # Otherwise find the element with given id.
+        if self.tab.element_id == "":
+            html        = soup.find("body").renderContents()
+        else:
+            html        = str(soup.find(id=self.element_id))
+
+        return html
 

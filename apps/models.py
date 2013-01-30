@@ -74,7 +74,7 @@ class BaseTab(AbstractApp):
         return self.label
     
     def get_container(self):
-        return self.container.as_leaf_class()
+        return self.container
     
     class Meta:
         ordering        = ['order', 'id']
@@ -88,26 +88,32 @@ class HTMLTab(BaseTab):
 class ExternalTab(BaseTab):
     content_url         = models.URLField(max_length=128)
 
+# TODO: This should be called ExternalEmbeddedTab
 class EmbeddedTab(BaseTab):
     content_url         = models.URLField(max_length=128)
     element_id          = models.CharField(max_length=32, blank=True)
     
     def render(self):
-        content         =  cache.get(self.content_url) 
-        
+        # TODO: fix and enable caching
+        # content         =  cache.get(self.content_url)
+        content = None
+
+        url = self.content_url
+
         # If the page is not cached, retrieve it
         if content == None:
             opener      = urllib2.build_opener()
-            content     = opener.open(self.content_url, timeout=5).read()
+            content     = opener.open(url, timeout=5).read()
             
             # Save the page in cache
-            cache.set(self.content_url, content)
+            # cache.set(self.content_url, content)
         
         soup            = BeautifulSoup(content)
-        
+
+        # TODO: Disabled. Add GET parameter support and enable.
         # Make links absolute, quoted from http://stackoverflow.com/a/4468467:
-        for tag in soup.findAll('a', href=True):
-            tag['href'] = urlparse.urljoin(self.content_url, tag['href'])
+        #for tag in soup.findAll('a', href=True):
+        #    tag['href'] = urlparse.urljoin(self.content_url, tag['href'])
         
         # If there's no element specified, use the BODY. 
         # Otherwise find the element with given id.
