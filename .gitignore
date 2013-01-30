@@ -15,3 +15,5 @@ aplus.db
 aplus.db.old
 
 dump.json
+media
+*.orig

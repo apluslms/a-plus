@@ -220,6 +220,7 @@ def view_submission(request, submission_id):
                                            ))
 
 
+# TODO: This is not used anymore and should be removed.
 @login_required
 def toggle_category_visibility(request, category_id):
     category_id = int(category_id)
