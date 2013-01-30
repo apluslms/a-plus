@@ -214,8 +214,8 @@ def _post_async_submission(request, exercise, submission, students):
                       "</p>\n"
                       "</div>"))
         submission.set_error()
-        submission.add_submitters(students)
         submission.save()
+        submission.add_submitters(students)
 
     return {"success": False, 
             "errors": errors}
