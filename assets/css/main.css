@@ -229,6 +229,6 @@ ul.exercise_rounds li.exercise_round:last-child {
 ** APPS ***********************************************************************
 ******************************************************************************/
 
-iframe.iframe-plugin {
+iframe.iframe-plugin, iframe.iframe-tab {
     border: none;
 }
