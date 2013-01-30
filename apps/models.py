@@ -124,6 +124,9 @@ class EmbeddedTab(BaseTab):
         
         return html
 
+    def get_renderer_class(self):
+        return TabRenderer
+
 
 class ExternalIFrameTab(BaseTab):
     # TODO: verify_exist can be removed when updated to Django 1.4+
