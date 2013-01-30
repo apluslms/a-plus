@@ -124,6 +124,9 @@ class EmbeddedTab(BaseTab):
         
         return html
 
+    def get_renderer_class(self):
+        return TabRenderer
+
 
 class BasePlugin(AbstractApp):
     title               = models.CharField(max_length=64)
