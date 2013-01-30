@@ -88,6 +88,7 @@ class HTMLTab(BaseTab):
 class ExternalTab(BaseTab):
     content_url         = models.URLField(max_length=128)
 
+# TODO: This should be called ExternalEmbeddedTab
 class EmbeddedTab(BaseTab):
     content_url         = models.URLField(max_length=128)
     element_id          = models.CharField(max_length=32, blank=True)
