@@ -16,7 +16,7 @@ from apps.models import BaseTab, BasePlugin
 # Course class
 class Course(models.Model):
     '''
-    Course model represents a course in an university. A course has a name and an 
+    Course model represents a course in a university. A course has a name and an
     identification number. It also has a URL which is included in the addresses
     of pages under the course. 
     '''

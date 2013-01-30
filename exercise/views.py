@@ -12,12 +12,14 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.static import serve
 from django.template.context import RequestContext
 from django.contrib import messages
+from django.utils import simplejson
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.core.validators import URLValidator
 
 # A+
+from apps.models import *
 from userprofile.models import UserProfile, StudentGroup
 from exercise.exercise_models import BaseExercise, CourseModule, \
     LearningObjectCategory
@@ -27,7 +29,7 @@ from exercise.exercise_summary import ExerciseSummary
 from exercise.forms import BaseExerciseForm
 from lib import helpers
 from course.context import CourseContext
-from django.utils import simplejson
+
 
 @login_required
 @csrf_exempt
@@ -208,16 +210,24 @@ def view_submission(request, submission_id):
     index           = 1 + list(submissions).index(submission)
     
     exercise_summary= ExerciseSummary(exercise, request.user)
+
+    plugins = build_plugin_renderers(
+        exercise.course_module.course_instance.plugins,
+        "submission",
+        submission=submission,
+        user_profile=request.user.get_profile()
+    )
     
     return render_to_response("exercise/view_submission.html", 
-                              CourseContext(request,
-                                            submission=submission,
-                                            exercise=submission.exercise,
-                                            course_instance=exercise.course_module.course_instance,
-                                            submissions=submissions,
-                                            submission_number=index,
-                                            exercise_summary=exercise_summary
-                                           ))
+            CourseContext(request,
+                        submission=submission,
+                        exercise=submission.exercise,
+                        course_instance=exercise.course_module.course_instance,
+                        submissions=submissions,
+                        submission_number=index,
+                        exercise_summary=exercise_summary,
+                        plugins=plugins
+                       ))
 
 
 @login_required

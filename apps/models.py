@@ -21,7 +21,7 @@ import datetime
 # Django
 from django.db import models
 from django.core.cache import cache
-from django.template import loader
+from django.template import loader, Template
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes import generic
@@ -29,6 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 # A+
+from apps.plugin_renderers import *
 from inheritance.models import ModelWithInheritance
 from oauth_provider.models import Consumer
 from lib.BeautifulSoup import BeautifulSoup
@@ -120,6 +121,7 @@ class EmbeddedTab(BaseTab):
 
 class BasePlugin(AbstractApp):
     title               = models.CharField(max_length=64)
+    views               = models.CharField(max_length=255, blank=True)
     
     def render(self):
         leaf = self.as_leaf_class()
@@ -164,3 +166,40 @@ class HTMLPlugin(BasePlugin):
 
 class ChatPlugin(BasePlugin):
     pass
+
+
+class IFrameToServicePlugin(BasePlugin):
+    """
+
+    """
+    service_url = models.URLField(max_length=255)
+
+    # Desired width and height
+    width = models.IntegerField()
+    height = models.IntegerField()
+
+    def get_renderer_class(self):
+        return IFrameToServicePluginRenderer
+
+    def get_template(self):
+        pass
+
+    def get_url_template(self):
+        """
+        The following variables are available for the service_url_template:
+        always: user_hash, course_instance_hash
+        in exercise view: exercise_hash
+        in submission view: submission_hash
+        @return:
+        """
+        return Template(self.service_url)
+
+    def render(self):
+        return loader.render_to_string(
+            "plugins/iframe_to_service_plugin.html",
+            {"plugin": self})
+
+    def build_src(self):
+        src = self.service_url
+        #src += "/" if self.service_url[-1] != "/" else ""
+        return src
