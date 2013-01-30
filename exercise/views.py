@@ -65,7 +65,6 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     
     except Exception as e:
         # Retrieving page failed, create an empty page and display an error
-        # TODO: an error report should be sent or logged
         page            = ExercisePage(exercise=exercise)
         messages.error( request, _('Connecting to the exercise service '
                                    'failed!'))
