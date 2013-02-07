@@ -1,12 +1,16 @@
+# Django
+from django.contrib.auth.models import User
+
 # Tastypie
-from tastypie.resources import ModelResource, ALL
+from tastypie.resources import ModelResource, Resource, ALL
 from api_permissions import *
 from tastypie.authentication import OAuthAuthentication, OAuthAuthentication
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
 
 # A+
-from exercise_models import LearningObject, BaseExercise, CourseModule
+from exercise_models import LearningObject, BaseExercise, CourseModule, CourseInstance
+from exercise_summary import CourseSummary
 from submission_models import Submission, SubmittedFile
 
 from api_permissions import SuperuserAuthorization
@@ -51,6 +55,45 @@ class CourseModuleResource(ModelResource):
         allowed_methods = ['get']
         authentication  = Authentication()
         authorization   = ReadOnlyAuthorization()
+class CourseInstanceSummaryResource(Resource):
+    
+    class Meta:
+        resource_name   = 'course_summary'
+        object_class    = CourseSummary                
+        allowed_methods = ['get']
+        #authentication  = OAuthAuthentication()
+        #authorization   = SuperuserAuthorization()  
+
+    def obj_get(self, request=None, **kwargs): 
+        results         = []
+        course_instance = CourseInstance.objects.get(pk=kwargs["pk"])
+        user            = User.objects.get(pk=request.GET['user_id'])
+        course_summary  = CourseSummary(course_instance, user)
+
+        for rnd in course_summary.round_summaries:
+            exercise_summaries = []
+            for ex_summary in rnd.exercise_summaries:
+                tmp = {}
+                tmp["exercise_id"] = ex_summary.exercise.id
+                tmp["submission_count"] = ex_summary.submission_count
+                tmp["completed_percentage"] = ex_summary.get_completed_percentage()
+                exercise_summaries.append(tmp)
+            results.append( { "exercise_round_id":rnd.exercise_round.id, 
+                              "completed_percentage":rnd.get_completed_percentage(),
+                              "closing_time": rnd.exercise_round.closing_time,
+                              "exercise_summaries": exercise_summaries
+                            } )                
+        return results
+
+    def obj_get_list(self,request, **kwargs):
+        #TODO
+        return []
+
+    def dehydrate(self, bundle):        
+        bundle.data["exercise_rounds"] = []
+        for rnd in bundle.obj:
+            bundle.data["exercise_rounds"].append(rnd)
+        return bundle
 
 class SubmissionResource(ModelResource):
     exercise            = fields.ToOneField('exercise.api.ExerciseResource', 'exercise')

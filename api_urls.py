@@ -3,7 +3,7 @@ from tastypie.api import Api
 from course.api import CourseResource, CourseInstanceResource
 from userprofile.api import UserProfileResource
 from exercise.api import ExerciseResource, CourseModuleResource, SubmissionResource, \
-    LearningObjectResource
+    LearningObjectResource, CourseInstanceSummaryResource
 
 api = Api(api_name='v1')
 api.register(CourseResource())
@@ -13,6 +13,8 @@ api.register(ExerciseResource())
 api.register(CourseModuleResource())
 api.register(SubmissionResource())
 api.register(LearningObjectResource())
+api.register(CourseInstanceSummaryResource())
+
 
 urlpatterns = patterns('',
     (r'^', include(api.urls)),
