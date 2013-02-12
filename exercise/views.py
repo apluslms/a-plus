@@ -73,7 +73,12 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
         logging.exception(e)
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
-    
+
+    plugins = build_plugin_renderers(
+        plugins=exercise.course_module.course_instance.plugins.all(),
+        view_name="exercise", user_profile=request.user.get_profile(),
+        exercise=exercise)
+
     return render_to_response(template,
                               CourseContext(request,
                                             exercise=exercise,
@@ -81,7 +86,8 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
                                             page=page,
                                             form=form, 
                                             submissions=submissions,
-                                            exercise_summary=exercise_summary
+                                            exercise_summary=exercise_summary,
+                                            plugins=plugins
                                             ))
 
 
@@ -217,17 +223,17 @@ def view_submission(request, submission_id):
         submission=submission,
         user_profile=request.user.get_profile()
     )
-    
-    return render_to_response("exercise/view_submission.html", 
-            CourseContext(request,
-                        submission=submission,
-                        exercise=submission.exercise,
-                        course_instance=exercise.course_module.course_instance,
-                        submissions=submissions,
-                        submission_number=index,
-                        exercise_summary=exercise_summary,
-                        plugins=plugins
-                       ))
+
+    return render_to_response("exercise/view_submission.html",
+                              CourseContext(request,
+                                            submission=submission,
+                                            exercise=submission.exercise,
+                                            course_instance=exercise
+                                            .course_module.course_instance,
+                                            submissions=submissions,
+                                            submission_number=index,
+                                            exercise_summary=exercise_summary,
+                                            plugins=plugins))
 
 
 @login_required

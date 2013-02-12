@@ -9,9 +9,10 @@ from apps.plugin_renderers import TabRenderer
 
 @login_required
 def view_tab(request, tab_id):
-    tab_object      = get_object_or_404(BaseTab, id=tab_id).as_leaf_class()
-    tab_renderer    = tab_object.get_renderer_class()(tab_object, request.user.get_profile(),
-                                  tab_object.get_container())
+    tab_object = get_object_or_404(BaseTab, id=tab_id).as_leaf_class()
+    tab_renderer = tab_object.get_renderer_class()(tab_object,
+                                                   request.user.get_profile(),
+                                                   tab_object.get_container())
 
     return render_to_response("plugins/view_tab.html", 
                               RequestContext(request, 

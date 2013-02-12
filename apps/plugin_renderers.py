@@ -13,7 +13,8 @@ from apps.models import *
 from lib.BeautifulSoup import BeautifulSoup
 
 
-def build_plugin_renderers(plugins, view_name,
+def build_plugin_renderers(plugins,
+                           view_name,
                            user_profile=None,
                            submission=None,
                            exercise=None,
@@ -21,10 +22,21 @@ def build_plugin_renderers(plugins, view_name,
                            course=None,
                            course_module=None,
                            category=None):
+
     if view_name == "submission":
         context = {
             "user_profile": user_profile,
-            "submission": submission
+            "submission": submission,
+        }
+    elif view_name == "exercise":
+        context = {
+            "user_profile": user_profile,
+            "exercise": exercise,
+        }
+    elif view_name == "course_instance":
+        context = {
+            "user_profile": user_profile,
+            "course_instance": course_instance,
         }
     else:
         raise ValueError(view_name + " is not supported for plugins.")
@@ -33,7 +45,6 @@ def build_plugin_renderers(plugins, view_name,
 
     renderers = []
     for p in plugins:
-        # TODO: as_leaf_class in for loop causes database call on each cycle
         p = p.as_leaf_class()
         if hasattr(p, "get_renderer_class"):
             renderers.append(p.get_renderer_class()(p, view_name, context))
@@ -53,10 +64,11 @@ class IFrameToServicePluginRenderer(object):
 
     def _build_src(self):
         params = {
-            "submission_id": self.context["submission"].encode_id(),
-            "user_profile_id": self.context["user_profile"].encode_id(),
             "view_name": self.view_name
         }
+
+        for k, v in self.context.items():
+            params[k + "_id"] = v.encode_id()
 
         url = self.plugin.service_url
 

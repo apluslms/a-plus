@@ -180,14 +180,12 @@
             {% endif %}
         {% endif %}
 
-        {% if instance.plugins.all %}
-            {% for plugin in instance.plugins.all %}
+        {% for plugin in plugins %}
 
-                {# TODO: Plugins should not be rendered as safe #}
-                {{ plugin.render|safe }}
+            {# TODO: Plugins should not be rendered as safe #}
+            {{ plugin.render|safe }}
 
-            {% endfor %}
-        {% endif %}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

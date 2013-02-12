@@ -13,6 +13,7 @@ from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 # A+
+from apps.plugin_renderers import build_plugin_renderers
 from course.models import Course, CourseInstance
 from course.context import CourseContext
 from course.results import ResultTable
@@ -78,13 +79,19 @@ def view_instance(request, course_url, instance_url):
                                      "to access this view.")
 
     course_summary  = CourseSummary(course_instance, request.user)
-    # TODO: what is the following line supposed to do?
-    course_instance.plugins.all()
+
+    plugins = build_plugin_renderers(
+        plugins = course_instance.plugins.all(),
+        view_name = "course_instance",
+        user_profile = request.user.get_profile(),
+        course_instance = course_instance
+    )
     
     return render_to_response("course/view_instance.html", 
                               CourseContext(request, 
                                             course_instance=course_instance, 
-                                            course_summary=course_summary
+                                            course_summary=course_summary,
+                                            plugins=plugins,
                                             ))
 
 
