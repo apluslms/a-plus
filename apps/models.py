@@ -131,6 +131,7 @@ class EmbeddedTab(BaseTab):
 class ExternalIFrameTab(BaseTab):
     # TODO: verify_exist can be removed when updated to Django 1.4+
     content_url = models.URLField(max_length=255, verify_exists=False)
+    
     # Desired width and height
     width = models.IntegerField()
     height = models.IntegerField()
@@ -190,10 +191,8 @@ class ChatPlugin(BasePlugin):
 
 # TODO: Rename to ExternalIFramePlugin
 class IFrameToServicePlugin(BasePlugin):
-    """
-
-    """
-    service_url = models.URLField(max_length=255)
+    # TODO: verify_exist can be removed when updated to Django 1.4+
+    service_url = models.URLField(max_length=255, verify_exists=False)
 
     # Desired width and height
     width = models.IntegerField()
@@ -201,26 +200,3 @@ class IFrameToServicePlugin(BasePlugin):
 
     def get_renderer_class(self):
         return IFrameToServicePluginRenderer
-
-    def get_template(self):
-        pass
-
-    def get_url_template(self):
-        """
-        The following variables are available for the service_url_template:
-        always: user_hash, course_instance_hash
-        in exercise view: exercise_hash
-        in submission view: submission_hash
-        @return:
-        """
-        return Template(self.service_url)
-
-    def render(self):
-        return loader.render_to_string(
-            "plugins/iframe_to_service_plugin.html",
-            {"plugin": self})
-
-    def build_src(self):
-        src = self.service_url
-        #src += "/" if self.service_url[-1] != "/" else ""
-        return src
