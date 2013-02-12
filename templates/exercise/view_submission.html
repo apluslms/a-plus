@@ -30,6 +30,6 @@
     {% include 'exercise/_submission_info.html' %}
 
     {% for plugin in plugins %}
-        {{ plugin.render|safe }}
+        {{ plugin.render|safe|sanitize }}
     {% endfor %}
 {% endblock %}

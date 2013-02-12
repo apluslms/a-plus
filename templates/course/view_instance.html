@@ -182,7 +182,7 @@
         {% endif %}
 
         {% for plugin in plugins %}
-            {{ plugin.render|safe }}
+            {{ plugin.render|safe|sanitize }}
         {% endfor %}
     </div>
 </div>
