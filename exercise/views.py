@@ -220,26 +220,6 @@ def view_submission(request, submission_id):
                                            ))
 
 
-# TODO: This is not used anymore and should be removed.
-@login_required
-def toggle_category_visibility(request, category_id):
-    category_id = int(category_id)
-    category = get_object_or_404(LearningObjectCategory, id=category_id)
-    profile = request.user.get_profile()
-
-    if profile in category.hidden_to.all():
-        category.hidden_to.remove(profile)
-    else:
-        category.hidden_to.add(profile)
-
-    if request.GET.has_key("next"):
-        next = request.GET["next"]
-    else:
-        next = category.course_instance.get_absolute_url()
-
-    return HttpResponseRedirect(next)
-
-
 ######################################################################
 # Functions for handling submitted files for exercises
 ######################################################################
