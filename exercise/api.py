@@ -1,5 +1,6 @@
 # Django
 from django.contrib.auth.models import User
+from django.conf.urls.defaults import url
 
 # Tastypie
 from tastypie.resources import ModelResource, Resource, ALL
@@ -9,10 +10,11 @@ from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
 
 # A+
+from userprofile.models import UserProfile
 from exercise_models import LearningObject, BaseExercise, CourseModule, CourseInstance
 from exercise_summary import CourseSummary
 from submission_models import Submission, SubmittedFile
-
+from course.api import CourseInstanceResource
 from api_permissions import SuperuserAuthorization
 
 class LearningObjectResource(ModelResource):
@@ -55,21 +57,60 @@ class CourseModuleResource(ModelResource):
         allowed_methods = ['get']
         authentication  = Authentication()
         authorization   = ReadOnlyAuthorization()
-class CourseInstanceSummaryResource(Resource):
-    
-    class Meta:
-        resource_name   = 'course_summary'
-        object_class    = CourseSummary                
+
+class CourseInstanceOverallSummaryResource(Resource):
+
+    class Meta:        
+        object_class    = object
         allowed_methods = ['get']
-        #authentication  = OAuthAuthentication()
-        #authorization   = SuperuserAuthorization()  
+
+    def obj_get(self, request=None, **kwargs):
+        # TODO  return  summary containing scores from all users and for each
+        #       user URI to the user specific results
+        pass
+
+
+class CourseInstanceSummaryResource(Resource):
+
+    class Meta:
+        resource_name           = 'course_results'
+        object_class            = CourseSummary                
+        allowed_methods         = ['get']
+        include_resource_uri    = False
+    
+    #From: http://www.maykinmedia.nl/blog/2012/oct/2/nested-resources-tastypie/
+    def override_urls(self):
+        return [
+            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/user/(?P<user>\w[\w/-]*)/$' % 
+                (self._meta.resource_name ),
+                self.wrap_view('dispatch_user_results'),
+                name='api_course_user'),
+            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/$' % 
+                (self._meta.resource_name ),
+                self.wrap_view('dispatch_overall'),
+                name='api_course_overall'),
+            url(r'^(?P<resource_name>%s)/$' % 
+                (self._meta.resource_name ),
+                self.wrap_view('dispatch_course_instances'),
+                name='api_course_instances')            
+        ]
+    def dispatch_overall(self, request, **kwargs):
+        return CourseInstanceOverallSummaryResource().dispatch(
+            'detail', request, **kwargs)
+
+    def dispatch_user_results(self, request, **kwargs):
+        return CourseInstanceSummaryResource().dispatch(
+            'detail', request, **kwargs)
+    
+    def dispatch_course_instances(self, request, **kwargs):
+        return CourseInstanceResource().dispatch(
+            'list', request, **kwargs)
 
     def obj_get(self, request=None, **kwargs): 
         results         = []
         course_instance = CourseInstance.objects.get(pk=kwargs["pk"])
-        user            = User.objects.get(pk=request.GET['user_id'])
+        user            = User.objects.get(pk=kwargs["user"])
         course_summary  = CourseSummary(course_instance, user)
-
         for rnd in course_summary.round_summaries:
             exercise_summaries = []
             for ex_summary in rnd.exercise_summaries:
@@ -84,10 +125,6 @@ class CourseInstanceSummaryResource(Resource):
                               "exercise_summaries": exercise_summaries
                             } )                
         return results
-
-    def obj_get_list(self,request, **kwargs):
-        #TODO
-        return []
 
     def dehydrate(self, bundle):        
         bundle.data["exercise_rounds"] = []

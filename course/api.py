@@ -27,6 +27,7 @@ class CourseInstanceResource(ModelResource):
     def dehydrate(self, bundle):
         bundle.data.update({"is_open": bundle.obj.is_open()})
         bundle.data.update({"browser_url": bundle.obj.get_absolute_url()})
+        # TODO add results_uri
         return bundle
     
     class Meta:
