@@ -29,7 +29,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 # A+
-from apps.plugin_renderers import *
+from apps.app_renderers import ExternalIFramePluginRenderer,\
+    ExternalIFrameTabRenderer, TabRenderer
 from inheritance.models import ModelWithInheritance
 from oauth_provider.models import Consumer
 from lib.BeautifulSoup import BeautifulSoup

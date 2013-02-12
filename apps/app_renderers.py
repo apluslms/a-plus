@@ -10,7 +10,7 @@ from lib.BeautifulSoup import BeautifulSoup
 from lib.helpers import update_url_params
 
 
-def build_plugin_renderers(plugins,
+def build_app_renderers(plugins,
                            view_name,
                            user_profile=None,
                            submission=None,
@@ -92,7 +92,7 @@ class ExternalIFrameTabRenderer(object):
             "user_profile_id": self.user_profile.encode_id()
         }
 
-        return update_url_params(self.plugin.service_url, params)
+        return update_url_params(self.tab.content_url, params)
 
     def render(self):
         t = get_template("plugins/external_iframe_tab.html")
@@ -115,7 +115,7 @@ class TabRenderer(object):
             "user_profile_id": self.user_profile.encode_id()
         }
 
-        return update_url_params(self.plugin.service_url, params)
+        return update_url_params(self.tab.content_url, params)
 
     def render(self):
         opener      = urllib2.build_opener()

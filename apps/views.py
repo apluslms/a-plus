@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 
 # A+
 from apps.models import BaseTab
-from apps.plugin_renderers import TabRenderer
 
 @login_required
 def view_tab(request, tab_id):

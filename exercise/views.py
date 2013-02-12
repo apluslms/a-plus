@@ -19,7 +19,7 @@ from django.conf import settings
 from django.core.validators import URLValidator
 
 # A+
-from apps.models import *
+from apps.app_renderers import build_app_renderers
 from userprofile.models import UserProfile, StudentGroup
 from exercise.exercise_models import BaseExercise, CourseModule, \
     LearningObjectCategory
@@ -74,7 +74,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
 
-    plugins = build_plugin_renderers(
+    plugins = build_app_renderers(
         plugins=exercise.course_module.course_instance.plugins.all(),
         view_name="exercise", user_profile=request.user.get_profile(),
         exercise=exercise)
@@ -217,7 +217,7 @@ def view_submission(request, submission_id):
     
     exercise_summary= ExerciseSummary(exercise, request.user)
 
-    plugins = build_plugin_renderers(
+    plugins = build_app_renderers(
         exercise.course_module.course_instance.plugins,
         "submission",
         submission=submission,
