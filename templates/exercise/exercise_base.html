@@ -38,7 +38,7 @@
                 {% endblock %}
 
                 {% for plugin in plugins %}
-                    {{ plugin.render }}
+                    {{ plugin.render|safe }}
                 {% endfor %}
             </div>
         </div>

@@ -28,5 +28,8 @@
 {% block exerciseinfo %}
     {{block.super}}
     {% include 'exercise/_submission_info.html' %}
-    {% include 'plugins/submission_view_plugins.html' %}
+
+    {% for plugin in plugins %}
+        {{ plugin.render|safe }}
+    {% endfor %}
 {% endblock %}
