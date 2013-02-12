@@ -56,7 +56,7 @@ def build_plugin_renderers(plugins,
     return renderers
 
 
-class IFrameToServicePluginRenderer(object):
+class ExternalIFramePluginRenderer(object):
     def __init__(self, plugin, view_name, context):
         self.plugin = plugin
         self.view_name = view_name

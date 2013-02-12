@@ -17,7 +17,7 @@ class RSSPluginAdmin(admin.ModelAdmin):
 admin.site.register(RSSPlugin, RSSPluginAdmin)
 
 
-class IFrameToServicePluginAdmin(admin.ModelAdmin):
+class ExternalIFramePluginAdmin(admin.ModelAdmin):
     pass
-admin.site.register(IFrameToServicePlugin, IFrameToServicePluginAdmin)
+admin.site.register(ExternalIFramePlugin, ExternalIFramePluginAdmin)
 
