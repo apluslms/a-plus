@@ -1,5 +1,3 @@
-# TODO: rename this file to app_renderers.py
-
 # Django
 from django.template import Context
 from django.template.loader import get_template
