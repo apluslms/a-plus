@@ -13,7 +13,8 @@
         <h2>{% trans "Schedule" %}</h2>
 
         {# Settings collapse #}
-        <div id="filters-collapse" class="collapse in">
+        {# TODO: The class should be called settings-collapse since this will later be used for other kinds of settings too. #}
+        <div id="filters-collapse" class="collapse">
             <div class="well">
                 <form action="{% url course.views.set_schedule_filters course_url=instance.course.url instance_url=instance.url %}?next={{ request.path }}" method="POST">{% csrf_token %}
                     <legend>Visible categories</legend>
