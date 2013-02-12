@@ -1,9 +1,5 @@
 # TODO: rename this file to app_renderers.py
 
-# Python
-import urllib
-import urlparse
-
 # Django
 from django.template import Context
 from django.template.loader import get_template
@@ -11,6 +7,7 @@ from django.template.loader import get_template
 # A+
 from apps.models import *
 from lib.BeautifulSoup import BeautifulSoup
+from lib.helpers import update_url_params
 
 
 def build_plugin_renderers(plugins,
@@ -70,15 +67,7 @@ class ExternalIFramePluginRenderer(object):
         for k, v in self.context.items():
             params[k + "_id"] = v.encode_id()
 
-        url = self.plugin.service_url
-
-        url_parts = list(urlparse.urlparse(url))
-        query = dict(urlparse.parse_qs(url_parts[4]))
-        query.update(params)
-
-        url_parts[4] = urllib.urlencode(query)
-
-        return urlparse.urlunparse(url_parts)
+        return update_url_params(self.plugin.service_url, params)
 
     def render(self):
         t = get_template("plugins/iframe_to_service_plugin.html")
@@ -103,15 +92,7 @@ class ExternalIFrameTabRenderer(object):
             "user_profile_id": self.user_profile.encode_id()
         }
 
-        url = self.tab.content_url
-
-        url_parts = list(urlparse.urlparse(url))
-        query = dict(urlparse.parse_qs(url_parts[4]))
-        query.update(params)
-
-        url_parts[4] = urllib.urlencode(query)
-
-        return urlparse.urlunparse(url_parts)
+        return update_url_params(self.plugin.service_url, params)
 
     def render(self):
         t = get_template("plugins/external_iframe_tab.html")
@@ -134,15 +115,7 @@ class TabRenderer(object):
             "user_profile_id": self.user_profile.encode_id()
         }
 
-        url = self.tab.content_url
-
-        url_parts = list(urlparse.urlparse(url))
-        query = dict(urlparse.parse_qs(url_parts[4]))
-        query.update(params)
-
-        url_parts[4] = urllib.urlencode(query)
-
-        return urlparse.urlunparse(url_parts)
+        return update_url_params(self.plugin.service_url, params)
 
     def render(self):
         opener      = urllib2.build_opener()
