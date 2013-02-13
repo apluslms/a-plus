@@ -21,11 +21,14 @@ def build_app_renderers(plugins,
     if view_name == "submission":
         context = {
             "user_profile": user_profile,
+            "course_instance": course_instance,
+            "exercise": exercise,
             "submission": submission,
         }
     elif view_name == "exercise":
         context = {
             "user_profile": user_profile,
+            "course_instance": course_instance,
             "exercise": exercise,
         }
     elif view_name == "course_instance":

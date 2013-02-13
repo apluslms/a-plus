@@ -76,8 +76,10 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
 
     plugins = build_app_renderers(
         plugins=exercise.course_module.course_instance.plugins.all(),
-        view_name="exercise", user_profile=request.user.get_profile(),
-        exercise=exercise)
+        view_name="exercise",
+        user_profile=request.user.get_profile(),
+        exercise=exercise,
+        course_instance=exercise.course_instance)
 
     return render_to_response(template,
                               CourseContext(request,
@@ -221,6 +223,8 @@ def view_submission(request, submission_id):
         exercise.course_module.course_instance.plugins,
         "submission",
         submission=submission,
+        exercise=exercise,
+        course_instance=exercise.course_instance,
         user_profile=request.user.get_profile()
     )
 
