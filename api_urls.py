@@ -2,8 +2,9 @@ from django.conf.urls.defaults import *
 from tastypie.api import Api
 from course.api import CourseResource, CourseInstanceResource
 from userprofile.api import UserProfileResource
+from course.api import CourseInstanceSummaryResource
 from exercise.api import ExerciseResource, CourseModuleResource, SubmissionResource, \
-    LearningObjectResource, CourseInstanceSummaryResource
+    LearningObjectResource
 
 api = Api(api_name='v1')
 api.register(CourseResource())
