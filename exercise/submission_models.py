@@ -9,7 +9,7 @@ from django.db.models.signals import post_delete
 
 # A+
 from course.models import *
-from exercise_models import BaseExercise
+from exercise_models import BaseExercise, DeadlineRuleDeviation
 from exercise import exercise_models
 from lib import MultipartPostHandler
 from lib.fields import JSONField
@@ -17,7 +17,7 @@ from lib.helpers import get_random_string
 from userprofile.models import UserProfile
 
 # Python 2.6+
-from datetime import datetime
+from datetime import datetime, timedelta
 import simplejson, os
 from exercise.exercise_models import SynchronousExercise, AsynchronousExercise
 
@@ -162,8 +162,44 @@ class Submission(models.Model):
             # The submission is not saved and the submission_time field is not
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
-            
-        return self.submission_time > self.exercise.course_module.closing_time
+
+        if self.submission_time > self.exercise.course_module.closing_time:
+            # Lets check if there are DeadlineExceptions
+            submitters = self.submitters.all()
+            dl_deviation = DeadlineRuleDeviation.objects.filter(
+                exercise=self.exercise,
+                submitter__in=submitters).distinct()
+
+            if len(dl_deviation) > 0:
+                # Now we need to check if there are enough extra time given for
+                # each of the submitters.
+                base_dl = self.exercise.course_module.closing_time
+                # Initialise with Trues meaning that submissions is late for
+                # each of the submitters.
+                lates_by_submitters = {s: True for s in submitters}
+
+                for e in dl_deviation:
+                    if self.submission_time <= base_dl + timedelta(
+                            minutes=e.extra_minutes):
+                        assert (e.submitter in lates_by_submitters)
+                        lates_by_submitters[e.submitter] = False
+
+                if True in lates_by_submitters.values():
+                    # Not all the submitters had enough extra time given.
+                    return True
+                else:
+                    # All the submitters had enough extra time given.
+                    return False
+
+            else:
+                # No exceptions for any of the submitters.
+                return True
+
+        else:
+            # The submission time is within the normal open time of the
+            # exercise module.
+            return False
+
 
     def set_grading_data(self, grading_dict):
         self.grading_data = grading_dict
