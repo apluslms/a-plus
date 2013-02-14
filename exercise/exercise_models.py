@@ -551,3 +551,36 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
+
+class SubmissionRuleDeviation(models.Model):
+    """
+    An abstract model binding a user to an exercise stating that there is some
+    kind of deviation from the normal submission boundaries, that is, special
+    treatment related to the submissions of that particular user to that
+    particular exercise.
+
+    If there are many submitters submitting an exercise out of bounds of the
+    default bounds, all of the submitters must have an allowing instance of
+    SubmissionRuleDeviation subclass in order for the submission to be allowed.
+    """
+    exercise = models.ForeignKey(BaseExercise)
+    submitter = models.ForeignKey(UserProfile)
+
+    class Meta:
+        abstract = True
+        unique_together = ["exercise", "submitter"]
+        app_label = 'exercise'
+
+
+class DeadlineRuleDeviation(SubmissionRuleDeviation):
+    extra_minutes = models.IntegerField()
+
+    class Meta(SubmissionRuleDeviation.Meta):
+        pass
+
+
+class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
+    extra_submissions = models.IntegerField()
+
+    class Meta(SubmissionRuleDeviation.Meta):
+        pass
