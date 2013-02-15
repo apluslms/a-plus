@@ -55,7 +55,7 @@ class CourseInstanceResource(ModelResource):
 
 class CourseInstanceOverallSummaryResource(Resource):
 
-    class Meta:        
+    class Meta:
         object_class    = object
         allowed_methods = ['get']
 
@@ -68,10 +68,10 @@ class CourseInstanceOverallSummaryResource(Resource):
 class CourseInstanceSummaryResource(Resource):
 
     class Meta:
-        resource_name           = 'course_result'
-        object_class            = CourseSummary                
-        allowed_methods         = ['get']
-        api_name                = 'v1'
+        resource_name   = 'course_result'
+        object_class    = CourseSummary
+        allowed_methods = ['get']
+        api_name        = 'v1'
     
     #From: http://www.maykinmedia.nl/blog/2012/oct/2/nested-resources-tastypie/
     def override_urls(self):
@@ -82,14 +82,14 @@ class CourseInstanceSummaryResource(Resource):
                 (self._meta.resource_name ),
                 self.wrap_view('dispatch_detail'),
                 name='api_dispatch_detail'),
-            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/$' % 
+            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/$' %
                 (self._meta.resource_name ),
                 self.wrap_view('dispatch_overall'),
                 name='api_dispatch_list'),
-            url(r'^(?P<resource_name>%s)/$' % 
-                (self._meta.resource_name ),
+            url(r'^(?P<resource_name>%s)/$' %
+                (self._meta.resource_name),
                 self.wrap_view('dispatch_course_instances'),
-                name='api_course_instances')            
+                name='api_course_instances')
         ]
     
     def get_resource_uri(self, bundle_or_obj):
@@ -116,7 +116,7 @@ class CourseInstanceSummaryResource(Resource):
         return CourseInstanceResource().dispatch(
             'list', request, **kwargs)
 
-    def obj_get_list(self, request=None, **kwargs):        
+    def obj_get_list(self, request=None, **kwargs):
         #TODO
         return []
 
@@ -135,15 +135,15 @@ class CourseInstanceSummaryResource(Resource):
                 tmp["exercise_id"] = ex_summary.exercise.id
                 tmp["submission_count"] = ex_summary.submission_count
                 tmp["completed_percentage"] = ex_summary.get_completed_percentage()
-                exercise_summaries.append(tmp)            
-            summary.append( { "exercise_round_id":rnd.exercise_round.id, 
-                              "completed_percentage":rnd.get_completed_percentage(),
+                exercise_summaries.append(tmp)
+            summary.append({"exercise_round_id": rnd.exercise_round.id, 
+                              "completed_percentage": rnd.get_completed_percentage(),
                               "closing_time": rnd.exercise_round.closing_time,
                               "exercise_summaries": exercise_summaries
                             })
         results["summary"] = summary
         return results
 
-    def dehydrate(self, bundle):        
+    def dehydrate(self, bundle):
         bundle.data.update(bundle.obj)
-        return bundle        
+        return bundle
