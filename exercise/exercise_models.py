@@ -4,7 +4,7 @@ import urllib
 import urllib2
 import hmac
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Django 
 from django.db import models
@@ -172,6 +172,8 @@ class BaseExercise(LearningObject):
     max_points              = models.PositiveIntegerField(default=100)
     points_to_pass          = models.PositiveIntegerField(default=40)
 
+    def get_deadline(self):
+        return self.course_module.closing_time
     
     def get_page(self, submission_url):
         """ 
@@ -563,7 +565,8 @@ class SubmissionRuleDeviation(models.Model):
     default bounds, all of the submitters must have an allowing instance of
     SubmissionRuleDeviation subclass in order for the submission to be allowed.
     """
-    exercise = models.ForeignKey(BaseExercise)
+    exercise = models.ForeignKey(BaseExercise,
+                                 related_name="%(class)ss")
     submitter = models.ForeignKey(UserProfile)
 
     class Meta:
@@ -577,6 +580,15 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
 
     class Meta(SubmissionRuleDeviation.Meta):
         pass
+
+    def get_extra_time(self):
+        return timedelta(minutes=self.extra_minutes)
+
+    def get_new_deadline(self):
+        return self.get_normal_deadline() + self.get_extra_time()
+
+    def get_normal_deadline(self):
+        return self.exercise.get_deadline()
 
 
 class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
