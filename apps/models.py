@@ -35,6 +35,7 @@ from inheritance.models import ModelWithInheritance
 from oauth_provider.models import Consumer
 from lib.BeautifulSoup import BeautifulSoup
 
+
 class AbstractApp(ModelWithInheritance):
     
     # Generic foreign key implementation from Django commenting framework
@@ -83,14 +84,13 @@ class BaseTab(AbstractApp):
     class Meta:
         ordering        = ['order', 'id']
 
+
 class HTMLTab(BaseTab):
     content             = models.TextField()
     
     def render(self):
         return self.content
 
-class ExternalTab(BaseTab):
-    content_url         = models.URLField(max_length=128)
 
 # TODO: This should be called ExternalEmbeddedTab
 class EmbeddedTab(BaseTab):
@@ -133,6 +133,19 @@ class EmbeddedTab(BaseTab):
 
 
 class ExternalIFrameTab(BaseTab):
+    """
+    An ExternalIFrameTab gets its content from an external url resource through
+    an iframe which has the content_url as its src, possibly with additional
+    url parameters.
+
+    ExternalIFrameTab uses ExternalIFrameTabRenderer for rendering. Refer to
+    its documentation for more information about the available url parameters.
+
+    Iframes' width and height are fixed in the html document flow and thus they
+    should be given explicitly and they should be the size of the expected
+    content html.
+    """
+
     # TODO: verify_exist can be removed when updated to Django 1.4+
     content_url = models.URLField(max_length=255, verify_exists=False)
 
@@ -154,6 +167,7 @@ class BasePlugin(AbstractApp):
             return leaf.render()
         else:
             return "<strong>Base plug-in does not have a render-method.</strong>"
+
 
 class RSSPlugin(BasePlugin):
     feed_url                = models.URLField(max_length=256, blank=False)
@@ -177,11 +191,6 @@ class RSSPlugin(BasePlugin):
                                                    "plugin": self})
         return out
 
-class IFramePlugin(BasePlugin):
-    pass
-
-class EmbeddedPlugin(BasePlugin):
-    pass
 
 class HTMLPlugin(BasePlugin):
     content = models.TextField(blank=False)
@@ -189,12 +198,25 @@ class HTMLPlugin(BasePlugin):
     def render(self):
         return mark_safe(self.content)
 
-class ChatPlugin(BasePlugin):
-    pass
 
-
-# TODO: Rename to ExternalIFramePlugin
 class ExternalIFramePlugin(BasePlugin):
+    """
+    An ExternalIFramePlugin gets its content from an external url resource
+    through an iframe which has the content_url as its src, possibly with
+    additional url parameters.
+
+    ExternalIFramePlugin uses ExternalIFramePluginRenderer for rendering. Refer
+    to its documentation for more information about the available url
+    parameters and its view behaviour.
+
+    Iframes' width and height are fixed in the html document flow and thus they
+    should be given explicitly and they should be at least the size of the
+    expected content html but at maximum the size available for the plugin in
+    each view which varies among the views. The size of the rendered iframe
+    will thus be the given width and height but at maximum the width and height
+    available in the view.
+    """
+
     # TODO: verify_exist can be removed when updated to Django 1.4+
     service_url = models.URLField(max_length=255, verify_exists=False)
 
