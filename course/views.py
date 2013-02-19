@@ -80,7 +80,7 @@ def view_instance(request, course_url, instance_url):
 
     course_summary  = CourseSummary(course_instance, request.user)
 
-    plugins = build_plugin_renderers(
+    plugin_renderers = build_plugin_renderers(
         plugins = course_instance.plugins.all(),
         view_name = "course_instance",
         user_profile = request.user.get_profile(),
@@ -91,7 +91,7 @@ def view_instance(request, course_url, instance_url):
                               CourseContext(request, 
                                             course_instance=course_instance, 
                                             course_summary=course_summary,
-                                            plugins=plugins,
+                                            plugin_renderers=plugin_renderers,
                                             ))
 
 

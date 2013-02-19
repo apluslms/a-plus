@@ -74,7 +74,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
 
-    plugins = build_plugin_renderers(
+    plugin_renderers = build_plugin_renderers(
         plugins=exercise.course_module.course_instance.plugins.all(),
         view_name="exercise",
         user_profile=request.user.get_profile(),
@@ -89,7 +89,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
                                             form=form, 
                                             submissions=submissions,
                                             exercise_summary=exercise_summary,
-                                            plugins=plugins
+                                            plugin_renderers=plugin_renderers
                                             ))
 
 
@@ -219,7 +219,7 @@ def view_submission(request, submission_id):
     
     exercise_summary= ExerciseSummary(exercise, request.user)
 
-    plugins = build_plugin_renderers(
+    plugin_renderers = build_plugin_renderers(
         exercise.course_module.course_instance.plugins,
         "submission",
         submission=submission,
@@ -237,7 +237,7 @@ def view_submission(request, submission_id):
                                             submissions=submissions,
                                             submission_number=index,
                                             exercise_summary=exercise_summary,
-                                            plugins=plugins))
+                                            plugin_renderers=plugin_renderers))
 
 
 @login_required

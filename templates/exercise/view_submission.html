@@ -29,7 +29,7 @@
     {{block.super}}
     {% include 'exercise/_submission_info.html' %}
 
-    {% for plugin in plugins %}
-        {{ plugin.render|safe|sanitize }}
+    {% for plugin_renderer in plugin_renderers %}
+        {{ plugin_renderer.render|safe|sanitize }}
     {% endfor %}
 {% endblock %}
