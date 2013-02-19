@@ -1,5 +1,8 @@
+# Python
 import string
 from random import choice
+import urllib
+import urlparse
 
 def get_random_string(length=32):
     """ This function creates a random string with a given length. 
@@ -28,3 +31,12 @@ def query_dict_to_list_of_tuples(query_dict):
         for val in query_dict.getlist(key):
             list_of_tuples.append( (key, val) )
     return list_of_tuples
+
+def update_url_params(url, params):
+    url_parts = list(urlparse.urlparse(url))
+    query = dict(urlparse.parse_qs(url_parts[4]))
+    query.update(params)
+
+    url_parts[4] = urllib.urlencode(query)
+
+    return urlparse.urlunparse(url_parts)
