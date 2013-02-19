@@ -12,12 +12,14 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.static import serve
 from django.template.context import RequestContext
 from django.contrib import messages
+from django.utils import simplejson
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.core.validators import URLValidator
 
 # A+
+from apps.app_renderers import build_plugin_renderers
 from userprofile.models import UserProfile, StudentGroup
 from exercise.exercise_models import BaseExercise, CourseModule, \
     LearningObjectCategory
@@ -27,7 +29,7 @@ from exercise.exercise_summary import ExerciseSummary
 from exercise.forms import BaseExerciseForm
 from lib import helpers
 from course.context import CourseContext
-from django.utils import simplejson
+
 
 @login_required
 @csrf_exempt
@@ -71,7 +73,14 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
         logging.exception(e)
     
     exercise_summary    = ExerciseSummary(exercise, request.user)
-    
+
+    plugin_renderers = build_plugin_renderers(
+        plugins=exercise.course_module.course_instance.plugins.all(),
+        view_name="exercise",
+        user_profile=request.user.get_profile(),
+        exercise=exercise,
+        course_instance=exercise.course_instance)
+
     return render_to_response(template,
                               CourseContext(request,
                                             exercise=exercise,
@@ -79,7 +88,8 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
                                             page=page,
                                             form=form, 
                                             submissions=submissions,
-                                            exercise_summary=exercise_summary
+                                            exercise_summary=exercise_summary,
+                                            plugin_renderers=plugin_renderers
                                             ))
 
 
@@ -208,16 +218,26 @@ def view_submission(request, submission_id):
     index           = 1 + list(submissions).index(submission)
     
     exercise_summary= ExerciseSummary(exercise, request.user)
-    
-    return render_to_response("exercise/view_submission.html", 
+
+    plugin_renderers = build_plugin_renderers(
+        exercise.course_module.course_instance.plugins,
+        "submission",
+        submission=submission,
+        exercise=exercise,
+        course_instance=exercise.course_instance,
+        user_profile=request.user.get_profile()
+    )
+
+    return render_to_response("exercise/view_submission.html",
                               CourseContext(request,
                                             submission=submission,
                                             exercise=submission.exercise,
-                                            course_instance=exercise.course_module.course_instance,
+                                            course_instance=exercise
+                                            .course_module.course_instance,
                                             submissions=submissions,
                                             submission_number=index,
-                                            exercise_summary=exercise_summary
-                                           ))
+                                            exercise_summary=exercise_summary,
+                                            plugin_renderers=plugin_renderers))
 
 
 ######################################################################

@@ -174,6 +174,13 @@ class BaseExercise(LearningObject):
 
     def get_deadline(self):
         return self.course_module.closing_time
+
+    def decode_id(self, enc_id):
+        return enc_id
+
+    def encode_id(self):
+        # TODO: encode with settings.SECRET_KEY
+        return self.id
     
     def get_page(self, submission_url):
         """ 

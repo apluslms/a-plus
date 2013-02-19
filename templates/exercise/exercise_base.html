@@ -36,6 +36,10 @@
 
                 {% include "exercise/_exercise_statistics.html" with exercise=exercise summary=exercise_summary %}
                 {% endblock %}
+
+                {% for plugin_renderer in plugin_renderers %}
+                    {{ plugin_renderer.render|safe|sanitize }}
+                {% endfor %}
             </div>
         </div>
     </div>

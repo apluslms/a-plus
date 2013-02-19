@@ -182,14 +182,9 @@
             {% endif %}
         {% endif %}
 
-        {% if instance.plugins.all %}
-            {% for plugin in instance.plugins.all %}
-
-                {# TODO: Plugins should not be rendered as safe #}
-                {{ plugin.render|safe }}
-
-            {% endfor %}
-        {% endif %}
+        {% for plugin_renderer in plugin_renderers %}
+            {{ plugin_renderer.render|safe|sanitize }}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
