@@ -1,14 +1,15 @@
 # Tastypie
-from tastypie.resources import ModelResource, ALL
+from tastypie.resources import ModelResource, Resource, ALL
 from api_permissions import *
 from tastypie.authentication import OAuthAuthentication, OAuthAuthentication
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
 
 # A+
-from exercise_models import LearningObject, BaseExercise, CourseModule
+from userprofile.models import UserProfile
+from exercise_models import LearningObject, BaseExercise, CourseModule, CourseInstance
+from exercise_summary import CourseSummary
 from submission_models import Submission, SubmittedFile
-
 from api_permissions import SuperuserAuthorization
 
 class LearningObjectResource(ModelResource):
