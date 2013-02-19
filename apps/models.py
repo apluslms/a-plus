@@ -21,7 +21,7 @@ import datetime
 # Django
 from django.db import models
 from django.core.cache import cache
-from django.template import loader
+from django.template import loader, Template
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes import generic
@@ -29,9 +29,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 # A+
+from apps.app_renderers import ExternalIFramePluginRenderer,\
+    ExternalIFrameTabRenderer, TabRenderer
 from inheritance.models import ModelWithInheritance
 from oauth_provider.models import Consumer
 from lib.BeautifulSoup import BeautifulSoup
+
 
 class AbstractApp(ModelWithInheritance):
     
@@ -73,10 +76,14 @@ class BaseTab(AbstractApp):
         return self.label
     
     def get_container(self):
-        return self.container.as_leaf_class()
+        if isinstance(self.container, ModelWithInheritance):
+            return self.container.as_leaf_class()
+        else:
+            return self.container
     
     class Meta:
         ordering        = ['order', 'id']
+
 
 class HTMLTab(BaseTab):
     content             = models.TextField()
@@ -84,29 +91,33 @@ class HTMLTab(BaseTab):
     def render(self):
         return self.content
 
-class ExternalTab(BaseTab):
-    content_url         = models.URLField(max_length=128)
 
+# TODO: This should be called ExternalEmbeddedTab
 class EmbeddedTab(BaseTab):
     content_url         = models.URLField(max_length=128)
     element_id          = models.CharField(max_length=32, blank=True)
     
     def render(self):
-        content         =  cache.get(self.content_url) 
-        
+        # TODO: fix and enable caching
+        # content         =  cache.get(self.content_url)
+        content = None
+
+        url = self.content_url
+
         # If the page is not cached, retrieve it
         if content == None:
             opener      = urllib2.build_opener()
-            content     = opener.open(self.content_url, timeout=5).read()
+            content     = opener.open(url, timeout=5).read()
             
             # Save the page in cache
-            cache.set(self.content_url, content)
+            # cache.set(self.content_url, content)
         
         soup            = BeautifulSoup(content)
-        
+
+        # TODO: Disabled. Add GET parameter support and enable.
         # Make links absolute, quoted from http://stackoverflow.com/a/4468467:
-        for tag in soup.findAll('a', href=True):
-            tag['href'] = urlparse.urljoin(self.content_url, tag['href'])
+        #for tag in soup.findAll('a', href=True):
+        #    tag['href'] = urlparse.urljoin(self.content_url, tag['href'])
         
         # If there's no element specified, use the BODY. 
         # Otherwise find the element with given id.
@@ -117,9 +128,38 @@ class EmbeddedTab(BaseTab):
         
         return html
 
+    def get_renderer_class(self):
+        return TabRenderer
+
+
+class ExternalIFrameTab(BaseTab):
+    """
+    An ExternalIFrameTab gets its content from an external url resource through
+    an iframe which has the content_url as its src, possibly with additional
+    url parameters.
+
+    ExternalIFrameTab uses ExternalIFrameTabRenderer for rendering. Refer to
+    its documentation for more information about the available url parameters.
+
+    Iframes' width and height are fixed in the html document flow and thus they
+    should be given explicitly and they should be the size of the expected
+    content html.
+    """
+
+    # TODO: verify_exist can be removed when updated to Django 1.4+
+    content_url = models.URLField(max_length=255, verify_exists=False)
+
+    # Desired width and height
+    width = models.IntegerField()
+    height = models.IntegerField()
+
+    def get_renderer_class(self):
+        return ExternalIFrameTabRenderer
+
 
 class BasePlugin(AbstractApp):
     title               = models.CharField(max_length=64)
+    views               = models.CharField(max_length=255, blank=True)
     
     def render(self):
         leaf = self.as_leaf_class()
@@ -127,6 +167,7 @@ class BasePlugin(AbstractApp):
             return leaf.render()
         else:
             return "<strong>Base plug-in does not have a render-method.</strong>"
+
 
 class RSSPlugin(BasePlugin):
     feed_url                = models.URLField(max_length=256, blank=False)
@@ -150,11 +191,6 @@ class RSSPlugin(BasePlugin):
                                                    "plugin": self})
         return out
 
-class IFramePlugin(BasePlugin):
-    pass
-
-class EmbeddedPlugin(BasePlugin):
-    pass
 
 class HTMLPlugin(BasePlugin):
     content = models.TextField(blank=False)
@@ -162,5 +198,31 @@ class HTMLPlugin(BasePlugin):
     def render(self):
         return mark_safe(self.content)
 
-class ChatPlugin(BasePlugin):
-    pass
+
+class ExternalIFramePlugin(BasePlugin):
+    """
+    An ExternalIFramePlugin gets its content from an external url resource
+    through an iframe which has the content_url as its src, possibly with
+    additional url parameters.
+
+    ExternalIFramePlugin uses ExternalIFramePluginRenderer for rendering. Refer
+    to its documentation for more information about the available url
+    parameters and its view behaviour.
+
+    Iframes' width and height are fixed in the html document flow and thus they
+    should be given explicitly and they should be at least the size of the
+    expected content html but at maximum the size available for the plugin in
+    each view which varies among the views. The size of the rendered iframe
+    will thus be the given width and height but at maximum the width and height
+    available in the view.
+    """
+
+    # TODO: verify_exist can be removed when updated to Django 1.4+
+    service_url = models.URLField(max_length=255, verify_exists=False)
+
+    # Desired width and height
+    width = models.IntegerField()
+    height = models.IntegerField()
+
+    def get_renderer_class(self):
+        return ExternalIFramePluginRenderer

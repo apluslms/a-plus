@@ -16,7 +16,7 @@ from apps.models import BaseTab, BasePlugin
 # Course class
 class Course(models.Model):
     '''
-    Course model represents a course in an university. A course has a name and an 
+    Course model represents a course in a university. A course has a name and an
     identification number. It also has a URL which is included in the addresses
     of pages under the course. 
     '''
@@ -114,6 +114,11 @@ class CourseInstance(models.Model):
     course                  = models.ForeignKey(Course, related_name=u"instances")
     
     plugins                 = generic.GenericRelation(BasePlugin, object_id_field="container_pk", content_type_field="container_type")
+    tabs                    = generic.GenericRelation(BaseTab, object_id_field="container_pk", content_type_field="container_type")
+
+    def encode_id(self):
+        # TODO: Encode using settings.SECRET_KEY
+        return self.id
 
     def is_assistant(self, profile):
         """
