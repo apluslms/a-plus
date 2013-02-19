@@ -75,7 +75,10 @@ class BaseTab(AbstractApp):
         return self.label
     
     def get_container(self):
-        return self.container
+        if isinstance(self.container, ModelWithInheritance):
+            return self.container.as_leaf_class()
+        else:
+            return self.container
     
     class Meta:
         ordering        = ['order', 'id']
