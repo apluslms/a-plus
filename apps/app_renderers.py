@@ -27,6 +27,9 @@ code that calls the build_plugin_renderers is responsible of giving the
 data required by the plugin view.
 """
 
+# Python
+import logging
+
 # Django
 from django.template import Context
 from django.template.loader import get_template
@@ -47,40 +50,47 @@ def build_plugin_renderers(plugins,
                            course_module=None,
                            category=None):
 
-    if view_name == "submission":
-        context = {
-            "user_profile": user_profile,
-            "course_instance": course_instance,
-            "exercise": exercise,
-            "submission": submission,
-        }
-    elif view_name == "exercise":
-        context = {
-            "user_profile": user_profile,
-            "course_instance": course_instance,
-            "exercise": exercise,
-        }
-    elif view_name == "course_instance":
-        context = {
-            "user_profile": user_profile,
-            "course_instance": course_instance,
-        }
-    else:
-        raise ValueError(view_name + " is not supported for plugins.")
-
-    plugins = plugins.filter(views__contains=view_name)
-
-    renderers = []
-    for p in plugins:
-        p = p.as_leaf_class()
-        if hasattr(p, "get_renderer_class"):
-            renderers.append(p.get_renderer_class()(p, view_name, context))
+    try:
+        if view_name == "submission":
+            context = {
+                "user_profile": user_profile,
+                "course_instance": course_instance,
+                "exercise": exercise,
+                "submission": submission,
+            }
+        elif view_name == "exercise":
+            context = {
+                "user_profile": user_profile,
+                "course_instance": course_instance,
+                "exercise": exercise,
+            }
+        elif view_name == "course_instance":
+            context = {
+                "user_profile": user_profile,
+                "course_instance": course_instance,
+            }
         else:
-            # TODO: use some general renderer instead which supports the old
-            # rendering style where plugin's render method is called
-            renderers.append(p)
+            raise ValueError(view_name + " is not supported for plugins.")
 
-    return renderers
+        plugins = plugins.filter(views__contains=view_name)
+
+        renderers = []
+        for p in plugins:
+            p = p.as_leaf_class()
+            if hasattr(p, "get_renderer_class"):
+                renderers.append(p.get_renderer_class()(p, view_name, context))
+            else:
+                # TODO: use some general renderer instead which supports the old
+                # rendering style where plugin's render method is called
+                renderers.append(p)
+
+        return renderers
+    except Exception as e:
+        # TODO: Better error handling.
+        # If anything goes wrong, just return an empty list so that this isn't
+        # a show-stopper for the A+ core functionality.
+        logging.exception(e)
+        return []
 
 
 class ExternalIFramePluginRenderer(object):
@@ -100,14 +110,21 @@ class ExternalIFramePluginRenderer(object):
         return update_url_params(self.plugin.service_url, params)
 
     def render(self):
-        t = get_template("plugins/iframe_to_service_plugin.html")
-        return t.render(Context({
-            "height": self.plugin.height,
-            "width": self.plugin.width,
-            "src": self._build_src(),
-            "title": self.plugin.title,
-            "view_name": self.view_name
-        }))
+        try:
+            t = get_template("plugins/iframe_to_service_plugin.html")
+            return t.render(Context({
+                "height": self.plugin.height,
+                "width": self.plugin.width,
+                "src": self._build_src(),
+                "title": self.plugin.title,
+                "view_name": self.view_name
+            }))
+        except Exception as e:
+            # TODO: Better error handling.
+            # If anything goes wrong, just return an empty string so that this
+            # isn't a show-stopper for the A+ core functionality.
+            logging.exception(e)
+            return ""
 
 
 class ExternalIFrameTabRenderer(object):
@@ -125,12 +142,19 @@ class ExternalIFrameTabRenderer(object):
         return update_url_params(self.tab.content_url, params)
 
     def render(self):
-        t = get_template("plugins/external_iframe_tab.html")
-        return t.render(Context({
-            "height": self.tab.height,
-            "width": self.tab.width,
-            "src": self._build_src(),
-        }))
+        try:
+            t = get_template("plugins/external_iframe_tab.html")
+            return t.render(Context({
+                "height": self.tab.height,
+                "width": self.tab.width,
+                "src": self._build_src(),
+            }))
+        except Exception as e:
+            # TODO: Better error handling.
+            # If anything goes wrong, just return an empty string so that this
+            # isn't a show-stopper for the A+ core functionality.
+            logging.exception(e)
+            return ""
 
 
 class TabRenderer(object):
