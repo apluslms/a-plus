@@ -163,50 +163,14 @@ class Submission(models.Model):
         # Finally check that the grade is in bounds after all the hardcore math!
         assert 0 <= self.grade <= self.exercise.max_points
 
-
     def is_submitted_late(self):
         if not self.id and not self.submission_time:
             # The submission is not saved and the submission_time field is not
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
 
-        if self.submission_time > self.exercise.course_module.closing_time:
-            # Lets check if there are DeadlineExceptions
-            submitters = self.submitters.all()
-            dl_deviation = DeadlineRuleDeviation.objects.filter(
-                exercise=self.exercise,
-                submitter__in=submitters).distinct()
-
-            if len(dl_deviation) > 0:
-                # Now we need to check if there are enough extra time given for
-                # each of the submitters.
-                base_dl = self.exercise.course_module.closing_time
-                # Initialise with Trues meaning that submissions is late for
-                # each of the submitters.
-                lates_by_submitters = {s: True for s in submitters}
-
-                for e in dl_deviation:
-                    if self.submission_time <= base_dl + timedelta(
-                            minutes=e.extra_minutes):
-                        assert (e.submitter in lates_by_submitters)
-                        lates_by_submitters[e.submitter] = False
-
-                if True in lates_by_submitters.values():
-                    # Not all the submitters had enough extra time given.
-                    return True
-                else:
-                    # All the submitters had enough extra time given.
-                    return False
-
-            else:
-                # No exceptions for any of the submitters.
-                return True
-
-        else:
-            # The submission time is within the normal open time of the
-            # exercise module.
-            return False
-
+        return not self.exercise.is_open_for(students=self.submitters.all(),
+                                             when=self.submission_time)
 
     def set_grading_data(self, grading_dict):
         self.grading_data = grading_dict
@@ -220,8 +184,8 @@ class Submission(models.Model):
     def __unicode__(self):
         return str(self.id)
 
-    # Status methods. The status indicates whether this submission is just created, 
-    # waiting for grading or ready.
+    # Status methods. The status indicates whether this submission is just
+    # created, waiting for grading, ready or erroneous.
     def _set_status(self, new_status):
         self.status = new_status
 

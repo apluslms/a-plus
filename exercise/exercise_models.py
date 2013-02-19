@@ -69,14 +69,14 @@ class CourseModule(models.Model):
         return self.late_submissions_allowed and \
             self.closing_time <= datetime.now() <= self.late_submission_deadline
     
-    def is_open(self):
-        return self.opening_time <= datetime.now() <= self.closing_time
+    def is_open(self, when=datetime.now()):
+        return self.opening_time <= when <= self.closing_time
     
-    def is_after_open(self):
+    def is_after_open(self, when=datetime.now()):
         """
         Returns True if current time is past the round opening time.
         """
-        return self.opening_time <= datetime.now()
+        return self.opening_time <= when
 
     def __unicode__(self):
         return self.name
@@ -246,11 +246,54 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def is_open(self):
+    def is_open(self, when=datetime.now()):
         """ 
         Returns True if submissions are allowed for this exercise. 
         """
-        return self.course_module.is_open()
+        return self.course_module.is_open(when=when)
+
+    def is_open_for(self, students, when=datetime.now()):
+        """
+        Considers the is_open and the DeadlineRuleDeviations.
+        @param students: An iterable of UserProfiles
+        @return: boolean
+        """
+
+        if not self.is_open(when=when):
+            # Lets check if there are DeadlineExceptions for the given
+            # students.
+            dlr_deviations = DeadlineRuleDeviation.objects.filter(
+                exercise=self,
+                submitter__in=students).distinct()
+
+            if len(dlr_deviations) > 0:
+                # Now we need to check if there are enough extra time given for
+                # each of the students.
+                base_dl = self.get_deadline()
+                # Initialise the dict with Falses meaning that the exercise is
+                # closed for each of the students.
+                is_open_booleans_by_submitters = {s: False for s in students}
+
+                for dlrd in dlr_deviations:
+                    if when <= base_dl + timedelta(
+                            minutes=dlrd.extra_minutes):
+                        assert(
+                            dlrd.submitter in is_open_booleans_by_submitters)
+                        is_open_booleans_by_submitters[dlrd.submitter] = True
+
+                if False in is_open_booleans_by_submitters.values():
+                    # Not all the submitters had enough extra time given.
+                    return False
+                else:
+                    # All the submitters had enough extra time given.
+                    return True
+            else:
+                # No exceptions for any of the submitters.
+                return False
+
+        else:
+            # The exercise is open for given students in given time.
+            return True
     
     def is_submission_allowed(self, students):
         """
@@ -280,10 +323,10 @@ class BaseExercise(LearningObject):
             else:
                 errors.append( 'This group has already submitted this exercise %d times.' % submissions.count())
 
-        # Check if the exercise is open.
+        # Check if the exercise is open for the given students.
         # Submissions by superusers, staff, course teachers and course instance
         # assistants are still allowed.
-        if (not self.is_open()
+        if (not self.is_open_for(students)
             and not self.is_late_submission_allowed()
             and not (
                 students.count() == 1 and (
@@ -294,17 +337,18 @@ class BaseExercise(LearningObject):
                     )
                     or self.course_module.course_instance.is_assistant(
                         students[0]
-                    ))
-                )):
+                    )))):
             errors.append('This exercise is not open for submissions.')
         
         if not allowed_group_size:
-            errors.append(_('This exercise can be submitted in groups of %d to %d students.') \
-                          % (self.min_group_size, self.max_group_size) + " " + \
-                          _('The size of your current group is %d.') \
+            errors.append(_('This exercise can be submitted in groups of %d to'
+                            ' %d students.') % (self.min_group_size,
+                                                self.max_group_size)
+                          + " "
+                          + _('The size of your current group is %d.')
                           % students.count())
         
-        success             = len(errors) == 0
+        success = len(errors) == 0
         return success, errors
     
     def is_late_submission_allowed(self):
