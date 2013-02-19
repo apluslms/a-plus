@@ -1,3 +1,32 @@
+"""
+App renderers are objects that wrap an instance of an AbstractApp and the
+the context where the app will be rendered into a single object. App renderers
+can then passed to templates where their render method should be called to
+render the html of the app.
+
+App renderers are most useful with BasePlugin apps since they can be rendered
+in many different views with different contexts. A helper function
+build_plugin_renderers is provided for consistent and simple renderer building
+in views.
+
+Plugin view is a term that is used as an abstraction of the apps architecture
+of A+. It consists of a name and definition of the context in that view. For
+example, a in the course_instance view, plugins have the UserProfile of the
+user logged in and the CourseInstance being viewed available for the plugin
+renderer to use while rendering the plugin for the course_instance view. If the
+plugin would for example just render a greeting for the user, it could use the
+user's name in the greeting as it is available through the UserProfile object.
+
+The available plugin views are
+- submission
+- exercise
+- course_instance
+
+The definition of the context of each plugin view can read from the code. The
+code that calls the build_plugin_renderers is responsible of giving the
+data required by the plugin view.
+"""
+
 # Django
 from django.template import Context
 from django.template.loader import get_template
@@ -8,7 +37,7 @@ from lib.BeautifulSoup import BeautifulSoup
 from lib.helpers import update_url_params
 
 
-def build_app_renderers(plugins,
+def build_plugin_renderers(plugins,
                            view_name,
                            user_profile=None,
                            submission=None,
@@ -119,13 +148,13 @@ class TabRenderer(object):
         return update_url_params(self.tab.content_url, params)
 
     def render(self):
-        opener      = urllib2.build_opener()
-        content     = opener.open(self._build_src(), timeout=5).read()
+        opener = urllib2.build_opener()
+        content = opener.open(self._build_src(), timeout=5).read()
 
         # Save the page in cache
         # cache.set(self.content_url, content)
 
-        soup            = BeautifulSoup(content)
+        soup = BeautifulSoup(content)
 
         # TODO: Disabled. Add GET parameter support and enable.
         # Make links absolute, quoted from http://stackoverflow.com/a/4468467:
@@ -135,9 +164,9 @@ class TabRenderer(object):
         # If there's no element specified, use the BODY.
         # Otherwise find the element with given id.
         if self.tab.element_id == "":
-            html        = soup.find("body").renderContents()
+            html = soup.find("body").renderContents()
         else:
-            html        = str(soup.find(id=self.element_id))
+            html = str(soup.find(id=self.element_id))
 
         return html
 

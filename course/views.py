@@ -13,7 +13,7 @@ from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 # A+
-from apps.app_renderers import build_app_renderers
+from apps.app_renderers import build_plugin_renderers
 from course.models import Course, CourseInstance
 from course.context import CourseContext
 from course.results import ResultTable
@@ -80,7 +80,7 @@ def view_instance(request, course_url, instance_url):
 
     course_summary  = CourseSummary(course_instance, request.user)
 
-    plugins = build_app_renderers(
+    plugins = build_plugin_renderers(
         plugins = course_instance.plugins.all(),
         view_name = "course_instance",
         user_profile = request.user.get_profile(),
