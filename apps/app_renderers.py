@@ -142,19 +142,12 @@ class ExternalIFrameTabRenderer(object):
         return update_url_params(self.tab.content_url, params)
 
     def render(self):
-        try:
-            t = get_template("plugins/external_iframe_tab.html")
-            return t.render(Context({
-                "height": self.tab.height,
-                "width": self.tab.width,
-                "src": self._build_src(),
-            }))
-        except Exception as e:
-            # TODO: Better error handling.
-            # If anything goes wrong, just return an empty string so that this
-            # isn't a show-stopper for the A+ core functionality.
-            logging.exception(e)
-            return ""
+        t = get_template("plugins/external_iframe_tab.html")
+        return t.render(Context({
+            "height": self.tab.height,
+            "width": self.tab.width,
+            "src": self._build_src(),
+        }))
 
 
 class TabRenderer(object):
