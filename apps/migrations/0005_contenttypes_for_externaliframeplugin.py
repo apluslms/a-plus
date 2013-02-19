@@ -5,18 +5,31 @@ from south.v2 import DataMigration
 from django.db import models
 
 class Migration(DataMigration):
+    # TODO: This datamigration did not work as intended in case there was no
+    # IFrameToServicePlugin objects in the database at all while the model was
+    # called that. That is, if the database hops from 0001 to this migration
+    # without being in between them at all, this datamigration does not work.
+    # So this data migration should be edited to handle both situations but it
+    # will most likely never get done and no one probably will ever have the
+    # need to stay in any of 0002-0006 anyway.
 
     def forwards(self, orm):
+        """
         ct = orm["contenttypes.ContentType"].objects.get(model="iframetoserviceplugin")
         ct.model = "externaliframeplugin"
         ct.name = "external i frame plugin"
         ct.save()
+        """
+        pass
 
     def backwards(self, orm):
+        """
         ct = orm["contenttypes.ContentType"].objects.get(model="externaliframeplugin")
         ct.model = "iframetoserviceplugin"
         ct.name = "i frame to service plugin"
         ct.save()
+        """
+        pass
 
     models = {
         'apps.baseplugin': {
