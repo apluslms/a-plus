@@ -123,9 +123,9 @@ class CourseInstanceSummaryResource(Resource):
     def obj_get(self, request=None, **kwargs): 
         results         = {}
         course_instance = CourseInstance.objects.get(pk=kwargs["pk"])
-        user            = User.objects.get(pk=kwargs["user"])
-        course_summary  = CourseSummary(course_instance, user)
-        results["user"] = user.id
+        user_profile    = UserProfile.objects.get(pk=kwargs["user"])
+        course_summary  = CourseSummary(course_instance, user_profile.user)
+        results["user"] = user_profile.id
         results["course_instance"] = kwargs["pk"]
         summary = []
         for rnd in course_summary.round_summaries:
