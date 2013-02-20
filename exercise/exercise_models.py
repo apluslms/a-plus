@@ -197,7 +197,71 @@ class BaseExercise(LearningObject):
         page_content    = opener.open(url, timeout=20).read()
         
         return ExercisePage(self, page_content)
-    
+
+    def has_submissions_left(self, student):
+        """
+        Figures if the given student has submissions left for this exercise.
+        Considers the possible MaxSubmissionsRuleDeviation for the student.
+        @param student: UserProfile object
+        @return: True or False
+        """
+        if self.max_submissions == 0:
+            return True
+
+        return self.submissions_left(student) > 0
+
+    def have_submissions_left(self, students):
+        """
+        Figures if all the students in the given set have submissions left for
+        this exercise. Considers the possible MaxSubmissionsRuleDeviations for
+        each student.
+        @param students: an iterable of UserProfile objects
+        @return: True if everyone has submissions left or False if anyone has
+        exceeded the maximum amount of submissions allowed for him.
+        """
+        if self.max_submissions == 0:
+            return True
+
+        # Different group members might have different amount of submissions to
+        # this exercise. Thus, we count the submissions separately for each
+        # student.
+        for student in students:
+            if not self.has_submissions_left(student):
+                return False
+
+        # All had submissions left.
+        return True
+
+    def max_submissions_for(self, student):
+        """
+        Calculates student specific max_submissions considering the possible
+        MaxSubmissionsRuleDeviation for this student.
+        @param student: UserProfile object
+        @return: max_submissions
+        """
+        try:
+            msr_deviation = MaxSubmissionsRuleDeviation.objects.get(
+                exercise=self,
+                submitter=student)
+            if self.max_submissions == 0:
+                return self.max_submissions
+            else:
+                return msr_deviation.extra_submissions + self.max_submissions
+        except MaxSubmissionsRuleDeviation.DoesNotExist:
+            return self.max_submissions
+
+    def submissions_left(self, student):
+        """
+        Calculates submissions left for the given student considering the
+        possible MaxSubmissionsRuleDeviation for this student.
+        @param student: UserProfile object
+        @return: submissions left or None if there is no submission limit
+        """
+        if self.max_submissions == 0:
+            return None
+
+        count = self.submissions.filter(students=student).count()
+        return self.max_submissions - count
     
     def submit(self, submission):
         """ 
@@ -304,24 +368,22 @@ class BaseExercise(LearningObject):
         @return: boolean indicating if submissions should be accepted
         @return: errors as a list of strings
         """
-        from exercise.submission_models import Submission
         
-        errors              = []
-        submissions         = Submission.objects.distinct().filter(exercise=self,
-                                                                   submitters__in=students)
-        
-        # Check if the submissions are restricted or if the students have used too many of them
-        submissions_left    = self.max_submissions == 0 or \
-                                submissions.count() < self.max_submissions
-        
+        errors = []
+
         # Check if the number of students is allowed for this exercise
-        allowed_group_size  = self.min_group_size <= students.count() <= self.max_group_size
+        allowed_group_size = (self.min_group_size
+                              <= students.count() <=
+                              self.max_group_size)
         
-        if not submissions_left:
+        if not self.have_submissions_left(students):
             if students.count() == 1:
-                errors.append( 'You have already submitted this exercise %d times.' % submissions.count())
+                errors.append(_('You already have the maximum amount of '
+                                'submissions allowed to this exercise.'))
             else:
-                errors.append( 'This group has already submitted this exercise %d times.' % submissions.count())
+                errors.append(_('One of the group members already has the '
+                                'maximum amount of submissions allowed to '
+                                'this exercise.'))
 
         # Check if the exercise is open for the given students.
         # Submissions by superusers, staff, course teachers and course instance

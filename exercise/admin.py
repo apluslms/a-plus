@@ -58,6 +58,11 @@ class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
 class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
     pass
 
+
+class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(CourseModule, CourseModuleAdmin)
 admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
@@ -66,6 +71,8 @@ admin.site.register(SynchronousExercise, SynchronousExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
 admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
 admin.site.register(DeadlineRuleDeviation, DeadlineRuleDeviationAdmin)
+admin.site.register(MaxSubmissionsRuleDeviation,
+                    MaxSubmissionsRuleDeviationAdmin)
 
 
 def course_wrapper(obj):

@@ -8,8 +8,6 @@ from django.core.files.storage import default_storage
 from django.db.models.signals import post_delete
 
 # A+
-from course.models import *
-from exercise_models import BaseExercise, DeadlineRuleDeviation
 from exercise import exercise_models
 from lib import MultipartPostHandler
 from lib.fields import JSONField
@@ -19,7 +17,6 @@ from userprofile.models import UserProfile
 # Python 2.6+
 from datetime import datetime, timedelta
 import simplejson, os
-from exercise.exercise_models import SynchronousExercise, AsynchronousExercise
 
 
 class Submission(models.Model):
