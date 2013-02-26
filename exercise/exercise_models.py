@@ -198,18 +198,6 @@ class BaseExercise(LearningObject):
         
         return ExercisePage(self, page_content)
 
-    def has_submissions_left(self, student):
-        """
-        Figures if the given student has submissions left for this exercise.
-        Considers the possible MaxSubmissionsRuleDeviation for the student.
-        @param student: UserProfile object
-        @return: True or False
-        """
-        if self.max_submissions == 0:
-            return True
-
-        return self.submissions_left(student) > 0
-
     def have_submissions_left(self, students):
         """
         Figures if all the students in the given set have submissions left for
@@ -226,7 +214,7 @@ class BaseExercise(LearningObject):
         # this exercise. Thus, we count the submissions separately for each
         # student.
         for student in students:
-            if not self.has_submissions_left(student):
+            if not self.submissions_left(student) > 0:
                 return False
 
         # All had submissions left.
@@ -378,11 +366,11 @@ class BaseExercise(LearningObject):
         
         if not self.have_submissions_left(students):
             if students.count() == 1:
-                errors.append(_('You already have the maximum amount of '
+                errors.append(_('You already have used the maximum amount of '
                                 'submissions allowed to this exercise.'))
             else:
-                errors.append(_('One of the group members already has the '
-                                'maximum amount of submissions allowed to '
+                errors.append(_('One of the group members already has used '
+                                'the maximum amount of submissions allowed to '
                                 'this exercise.'))
 
         # Check if the exercise is open for the given students.
