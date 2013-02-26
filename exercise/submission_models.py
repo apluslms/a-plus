@@ -176,10 +176,23 @@ class Submission(models.Model):
         self.grading_data = grading_dict
 
     def submitter_string(self):
+        # TODO: Write a version of this method that has the names wrapped in
+        # html anchors pointing to the profile page of the user.
         """
-        Returns a comma separated string containing the shortnames of all submitters.
+        Returns a comma separated string containing full names and possibly the
+        student ids of all the submitters of this submission.
         """
-        return ", ".join([profile.get_shortname() for profile in self.submitters.all()])
+
+        submitter_strs = []
+        for profile in self.submitters.all():
+            if profile.student_id:
+                student_id_str = " (%s)" % profile.student_id
+            else:
+                student_id_str = ""
+            submitter_strs.append(profile.user.get_full_name()
+                                  + student_id_str)
+
+        return ", ".join(submitter_strs)
 
     def __unicode__(self):
         return str(self.id)
