@@ -58,18 +58,31 @@ admin.site.register(SynchronousExercise, SynchronousExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
 admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
 
+
 def course_wrapper(obj):
     return obj.get_course_instance()
 course_wrapper.short_description = _('Course instance')
 
-def submitter_wrapper(obj):
-    return ", ".join([profile.get_shortname() for profile in obj.submitters.all()])
-submitter_wrapper.short_description = _('Submitters')
+
+def submitters_wrapper(obj):
+    return obj.submitter_string()
+submitters_wrapper.short_description = _('Submitters')
+
 
 class SubmissionAdmin(admin.ModelAdmin):
     list_display_links = ("id",)
-    list_display = ("id", "exercise", course_wrapper, submitter_wrapper, "status", "grade", "submission_time")
-    list_filter = ["exercise", "status", "grade", "submission_time", "exercise__course_module__course_instance", "exercise__course_module", "submitters__user__username"]
+    list_display = ("id", "exercise", course_wrapper, submitters_wrapper,
+                    "status", "grade", "submission_time")
+    list_filter = ["exercise", "status", "grade", "submission_time",
+                   "exercise__course_module__course_instance",
+                   "exercise__course_module", "submitters__user__username"]
+    search_fields = ["id", "exercise__name",
+                     "exercise__course_module__course_instance__instance_name",
+                     "submitters__student_id", "submitters__user__username",
+                     "submitters__user__first_name",
+                     "submitters__user__last_name", "submitters__user__email"]
+    list_per_page = 500
+
 
 class SubmittedFileAdmin(admin.ModelAdmin):
     pass
