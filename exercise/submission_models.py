@@ -125,14 +125,21 @@ class Submission(models.Model):
     def get_course_instance(self):
         return self.exercise.course_module.course_instance
 
-    def set_points(self, points, max_points):
+    def set_points(self, points, max_points, no_penalties=False):
         """ 
-        Sets the points and maximum points for this submissions. If the given maximum points
-        are different than the ones for the exercise this submission is for, the points will 
-        be scaled.
+        Sets the points and maximum points for this submissions. If the given
+        maximum points are different than the ones for the exercise this
+        submission is for, the points will be scaled.
+
+        The method also checks if the submission is late and if it is, by
+        default applies the late_submission_penalty set for the
+        exercise.course_module. If no_penalties is True, the penalty is not
+        applied.
 
         @param points: the amount of points received from assessment
-        @param max_points: the total amount of points available in assessment 
+        @param max_points: the total amount of points available in assessment
+        @param no_penalties: If True, the possible late_submission_penalty is
+        not applied.
         """
 
         # The given points must be between zero and max points
@@ -141,8 +148,7 @@ class Submission(models.Model):
         # too because otherwise adjusted_grade would be ambiguous.
         assert not (max_points == 0 and self.exercise.max_points != 0)
 
-
-        self.service_points     = points
+        self.service_points = points
         self.service_max_points = max_points
 
         # Scale the given points to the maximum points for the exercise
@@ -152,17 +158,18 @@ class Submission(models.Model):
         else:
             adjusted_grade = 0.0
 
-        # Check if this submission was done late. If it was, reduce the points with 
-        # late submission penalty. No less than 0 points are given.
-        if self.exercise.is_late_submission_allowed() and self.is_submitted_late():
+        # Check if this submission was done late. If it was, reduce the points
+        # with late submission penalty. No less than 0 points are given. This
+        # is not done if no_penalties is True.
+        if not no_penalties and self.is_submitted_late():
             adjusted_grade -= (adjusted_grade
                                * self.exercise.get_late_submission_penalty())
 
-        self.grade              = round(adjusted_grade)
+        self.grade = round(adjusted_grade)
 
-        # Finally check that the grade is in bounds after all the hardcore math!
+        # Finally check that the grade is in bounds after all the hardcore
+        # math!
         assert 0 <= self.grade <= self.exercise.max_points
-
 
     def is_submitted_late(self):
         if not self.id and not self.submission_time:
