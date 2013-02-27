@@ -248,7 +248,7 @@ class BaseExercise(LearningObject):
         if self.max_submissions == 0:
             return None
 
-        count = self.submissions.filter(students=student).count()
+        count = self.submissions.filter(submitters=student).count()
         return self.max_submissions - count
     
     def submit(self, submission):
