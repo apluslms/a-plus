@@ -32,7 +32,7 @@
             </div>
             <div class="span2">
                 {% block exerciseinfo %}
-                {% include "exercise/_exercise_info.html" with exercise=exercise %}
+                {% include "exercise/_exercise_info.html" with exercise=exercise user_profile=request.user.get_profile %}
 
                 {% include "exercise/_exercise_statistics.html" with exercise=exercise summary=exercise_summary %}
                 {% endblock %}
