@@ -105,7 +105,7 @@ class ExternalIFramePluginRenderer(object):
         }
 
         for k, v in self.context.items():
-            params[k + "_id"] = v.encode_id()
+            params[k + "_id"] = v.id
 
         return update_url_params(self.plugin.service_url, params)
 
@@ -135,8 +135,8 @@ class ExternalIFrameTabRenderer(object):
 
     def _build_src(self):
         params = {
-            "course_instance_id": self.course_instance.encode_id(),
-            "user_profile_id": self.user_profile.encode_id()
+            "course_instance_id": self.course_instance.id,
+            "user_profile_id": self.user_profile.id
         }
 
         return update_url_params(self.tab.content_url, params)
@@ -158,8 +158,8 @@ class TabRenderer(object):
 
     def _build_src(self):
         params = {
-            "course_instance_id": self.course_instance.encode_id(),
-            "user_profile_id": self.user_profile.encode_id()
+            "course_instance_id": self.course_instance.id,
+            "user_profile_id": self.user_profile.id
         }
 
         return update_url_params(self.tab.content_url, params)
