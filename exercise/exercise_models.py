@@ -171,14 +171,6 @@ class BaseExercise(LearningObject):
     max_submissions         = models.PositiveIntegerField(default=10)
     max_points              = models.PositiveIntegerField(default=100)
     points_to_pass          = models.PositiveIntegerField(default=40)
-
-
-    def decode_id(self, enc_id):
-        return enc_id
-
-    def encode_id(self):
-        # TODO: encode with settings.SECRET_KEY
-        return self.id
     
     def get_page(self, submission_url):
         """ 

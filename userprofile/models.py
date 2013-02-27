@@ -19,13 +19,6 @@ class UserProfile(models.Model):
         return "http://www.gravatar.com/avatar/" + hash +"?d=identicon"
     avatar_url = property(_generate_gravatar_url)
 
-    def decode_id(self, enc_id):
-        return enc_id
-
-    def encode_id(self):
-        # TODO: encode with settings.SECRET_KEY
-        return self.id
-
     def get_shortname(self):
         """
         Returns a short version of the user's name, with the first name and the first letter 
