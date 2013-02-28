@@ -8,8 +8,6 @@ from django.core.files.storage import default_storage
 from django.db.models.signals import post_delete
 
 # A+
-from course.models import *
-from exercise_models import BaseExercise
 from exercise import exercise_models
 from lib import MultipartPostHandler
 from lib.fields import JSONField
@@ -17,9 +15,8 @@ from lib.helpers import get_random_string
 from userprofile.models import UserProfile
 
 # Python 2.6+
-from datetime import datetime
+from datetime import datetime, timedelta
 import simplejson, os
-from exercise.exercise_models import SynchronousExercise, AsynchronousExercise
 
 
 class Submission(models.Model):
@@ -156,14 +153,14 @@ class Submission(models.Model):
         # Finally check that the grade is in bounds after all the hardcore math!
         assert 0 <= self.grade <= self.exercise.max_points
 
-
     def is_submitted_late(self):
         if not self.id and not self.submission_time:
             # The submission is not saved and the submission_time field is not
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
-            
-        return self.submission_time > self.exercise.course_module.closing_time
+
+        return not self.exercise.is_open_for(students=self.submitters.all(),
+                                             when=self.submission_time)
 
     def set_grading_data(self, grading_dict):
         self.grading_data = grading_dict
@@ -177,8 +174,8 @@ class Submission(models.Model):
     def __unicode__(self):
         return str(self.id)
 
-    # Status methods. The status indicates whether this submission is just created, 
-    # waiting for grading or ready.
+    # Status methods. The status indicates whether this submission is just
+    # created, waiting for grading, ready or erroneous.
     def _set_status(self, new_status):
         self.status = new_status
 
