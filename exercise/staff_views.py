@@ -106,47 +106,51 @@ def add_or_edit_exercise(request, module_id, exercise_id=None):
 @login_required
 def submission_assessment(request, submission_id):
     """
-    This view is used for assessing the given exercise submission. When assessing,
-    the teacher or assistant may write verbal feedback and give a numeric grade for
-    the submission.
+    This view is used for assessing the given exercise submission. When
+    assessing, the teacher or assistant may write verbal feedback and give a
+    numeric grade for the submission. Late submission penalty is not applied to
+    the grade.
     
     @param submission_id: the ID of the submission to assess
     """
-    submission      = get_object_or_404(Submission, id=submission_id)
-    exercise        = submission.exercise
+    submission = get_object_or_404(Submission, id=submission_id)
+    exercise = submission.exercise
     
     if exercise.allow_assistant_grading:
         # Both the teachers and assistants are allowed to assess
-        has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile()) 
+        has_permission = exercise.get_course_instance().is_staff(
+            request.user.get_profile())
     else:
         # Only teacher is allowed to assess
-        has_permission  = exercise.get_course_instance().is_teacher(request.user.get_profile()) 
+        has_permission = exercise.get_course_instance().is_teacher(
+            request.user.get_profile())
     
     if not has_permission:
-        return HttpResponseForbidden(_("You are not allowed to access this view."))
+        return HttpResponseForbidden(_("You are not allowed to access this "
+                                       "view."))
     
-    form            = SubmissionReviewForm()
+    form = SubmissionReviewForm()
     if request.method == "POST":
-        form        = SubmissionReviewForm(request.POST)
+        form = SubmissionReviewForm(request.POST)
         if form.is_valid():
-            try:
-                submission.set_points(form.cleaned_data["points"], exercise.max_points)
-                submission.grader   = request.user.get_profile()
-                submission.feedback = form.cleaned_data["feedback"]
-                submission.set_ready()
-                submission.save()
-                messages.success(request, _("The review was saved successfully."))
-                return redirect(inspect_exercise_submission, submission_id=submission.id)
-            except:
-                messages.error(request, _("Saving review failed. Check that the grade is within allowed boundaries."))
+            submission.set_points(form.cleaned_data["points"],
+                                  exercise.max_points, no_penalties=True)
+            submission.grader = request.user.get_profile()
+            submission.feedback = form.cleaned_data["feedback"]
+            submission.set_ready()
+            submission.save()
+            messages.success(request, _("The review was saved "
+                                        "successfully."))
+            return redirect(inspect_exercise_submission,
+                            submission_id=submission.id)
     
     return render_to_response("exercise/submission_assessment.html", 
                               CourseContext(request, 
-                                            course_instance=exercise.get_course_instance(),
+                                            course_instance=exercise
+                                            .get_course_instance(),
                                             exercise=exercise,
                                             submission=submission,
-                                            form=form)
-                              )
+                                            form=form))
 
 
 @login_required
