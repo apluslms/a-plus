@@ -30,9 +30,6 @@
             <thead>
                 <tr>
                     <th>
-                        ID
-                    </th>
-                    <th>
                         {% trans "Submitters" %}
                     </th>
                     <th>
@@ -52,9 +49,6 @@
             <tbody>
                 {% for submission in submissions %}
                     <tr>
-                        <td>
-                            {{ submission.id }}
-                        </td>
                         <td>
                             {{ submission.submitter_string }}
                         </td>
