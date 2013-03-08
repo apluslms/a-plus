@@ -102,7 +102,7 @@ def _async_submission_handler(request, exercise, students, submission=None):
     else:
         # Create a new submission if one is not provided
         if submission == None:
-            submission      = Submission(exercise=exercise)
+            submission      = Submission.objects.create(exercise=exercise)
         response_dict       = _post_async_submission(request, exercise, submission, students)
     
     json_response       = simplejson.dumps(response_dict, indent=4)
