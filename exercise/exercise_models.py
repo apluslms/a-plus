@@ -4,7 +4,7 @@ import urllib
 import urllib2
 import hmac
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Django 
 from django.db import models
@@ -69,14 +69,14 @@ class CourseModule(models.Model):
         return self.late_submissions_allowed and \
             self.closing_time <= datetime.now() <= self.late_submission_deadline
     
-    def is_open(self):
-        return self.opening_time <= datetime.now() <= self.closing_time
+    def is_open(self, when=datetime.now()):
+        return self.opening_time <= when <= self.closing_time
     
-    def is_after_open(self):
+    def is_after_open(self, when=datetime.now()):
         """
         Returns True if current time is past the round opening time.
         """
-        return self.opening_time <= datetime.now()
+        return self.opening_time <= when
 
     def __unicode__(self):
         return self.name
@@ -171,15 +171,9 @@ class BaseExercise(LearningObject):
     max_submissions         = models.PositiveIntegerField(default=10)
     max_points              = models.PositiveIntegerField(default=100)
     points_to_pass          = models.PositiveIntegerField(default=40)
-
-
-    def decode_id(self, enc_id):
-        return enc_id
-
-    def encode_id(self):
-        # TODO: encode with settings.SECRET_KEY
-        return self.id
     
+    def get_deadline(self):
+        return self.course_module.closing_time
     def get_page(self, submission_url):
         """ 
         Retrieves the page for this exercise from the exercise service. 
@@ -195,7 +189,59 @@ class BaseExercise(LearningObject):
         page_content    = opener.open(url, timeout=20).read()
         
         return ExercisePage(self, page_content)
-    
+
+    def have_submissions_left(self, students):
+        """
+        Figures if all the students in the given set have submissions left for
+        this exercise. Considers the possible MaxSubmissionsRuleDeviations for
+        each student.
+        @param students: an iterable of UserProfile objects
+        @return: True if everyone has submissions left or False if anyone has
+        exceeded the maximum amount of submissions allowed for him.
+        """
+        if self.max_submissions == 0:
+            return True
+
+        # Different group members might have different amount of submissions to
+        # this exercise. Thus, we count the submissions separately for each
+        # student.
+        for student in students:
+            if not self.submissions_left(student) > 0:
+                return False
+
+        # All had submissions left.
+        return True
+
+    def max_submissions_for(self, student):
+        """
+        Calculates student specific max_submissions considering the possible
+        MaxSubmissionsRuleDeviation for this student.
+        @param student: UserProfile object
+        @return: max_submissions
+        """
+        try:
+            msr_deviation = MaxSubmissionsRuleDeviation.objects.get(
+                exercise=self,
+                submitter=student)
+            if self.max_submissions == 0:
+                return self.max_submissions
+            else:
+                return msr_deviation.extra_submissions + self.max_submissions
+        except MaxSubmissionsRuleDeviation.DoesNotExist:
+            return self.max_submissions
+
+    def submissions_left(self, student):
+        """
+        Calculates submissions left for the given student considering the
+        possible MaxSubmissionsRuleDeviation for this student.
+        @param student: UserProfile object
+        @return: submissions left or None if there is no submission limit
+        """
+        if self.max_submissions == 0:
+            return None
+
+        count = self.submissions.filter(submitters=student).count()
+        return self.max_submissions - count
     
     def submit(self, submission):
         """ 
@@ -244,11 +290,54 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def is_open(self):
+    def is_open(self, when=datetime.now()):
         """ 
         Returns True if submissions are allowed for this exercise. 
         """
-        return self.course_module.is_open()
+        return self.course_module.is_open(when=when)
+
+    def is_open_for(self, students, when=datetime.now()):
+        """
+        Considers the is_open and the DeadlineRuleDeviations.
+        @param students: An iterable of UserProfiles
+        @return: boolean
+        """
+
+        if not self.is_open(when=when):
+            # Lets check if there are DeadlineExceptions for the given
+            # students.
+            dlr_deviations = DeadlineRuleDeviation.objects.filter(
+                exercise=self,
+                submitter__in=students).distinct()
+
+            if len(dlr_deviations) > 0:
+                # Now we need to check if there are enough extra time given for
+                # each of the students.
+                base_dl = self.get_deadline()
+                # Initialise the dict with Falses meaning that the exercise is
+                # closed for each of the students.
+                is_open_booleans_by_submitters = {s: False for s in students}
+
+                for dlrd in dlr_deviations:
+                    if when <= base_dl + timedelta(
+                            minutes=dlrd.extra_minutes):
+                        assert(
+                            dlrd.submitter in is_open_booleans_by_submitters)
+                        is_open_booleans_by_submitters[dlrd.submitter] = True
+
+                if False in is_open_booleans_by_submitters.values():
+                    # Not all the submitters had enough extra time given.
+                    return False
+                else:
+                    # All the submitters had enough extra time given.
+                    return True
+            else:
+                # No exceptions for any of the submitters.
+                return False
+
+        else:
+            # The exercise is open for given students in given time.
+            return True
     
     def is_submission_allowed(self, students):
         """
@@ -259,29 +348,27 @@ class BaseExercise(LearningObject):
         @return: boolean indicating if submissions should be accepted
         @return: errors as a list of strings
         """
-        from exercise.submission_models import Submission
         
-        errors              = []
-        submissions         = Submission.objects.distinct().filter(exercise=self,
-                                                                   submitters__in=students)
-        
-        # Check if the submissions are restricted or if the students have used too many of them
-        submissions_left    = self.max_submissions == 0 or \
-                                submissions.count() < self.max_submissions
-        
-        # Check if the number of students is allowed for this exercise
-        allowed_group_size  = self.min_group_size <= students.count() <= self.max_group_size
-        
-        if not submissions_left:
-            if students.count() == 1:
-                errors.append( 'You have already submitted this exercise %d times.' % submissions.count())
-            else:
-                errors.append( 'This group has already submitted this exercise %d times.' % submissions.count())
+        errors = []
 
-        # Check if the exercise is open.
+        # Check if the number of students is allowed for this exercise
+        allowed_group_size = (self.min_group_size
+                              <= students.count() <=
+                              self.max_group_size)
+        
+        if not self.have_submissions_left(students):
+            if students.count() == 1:
+                errors.append(_('You already have used the maximum amount of '
+                                'submissions allowed to this exercise.'))
+            else:
+                errors.append(_('One of the group members already has used '
+                                'the maximum amount of submissions allowed to '
+                                'this exercise.'))
+
+        # Check if the exercise is open for the given students.
         # Submissions by superusers, staff, course teachers and course instance
         # assistants are still allowed.
-        if (not self.is_open()
+        if (not self.is_open_for(students)
             and not self.is_late_submission_allowed()
             and not (
                 students.count() == 1 and (
@@ -292,17 +379,18 @@ class BaseExercise(LearningObject):
                     )
                     or self.course_module.course_instance.is_assistant(
                         students[0]
-                    ))
-                )):
+                    )))):
             errors.append('This exercise is not open for submissions.')
         
         if not allowed_group_size:
-            errors.append(_('This exercise can be submitted in groups of %d to %d students.') \
-                          % (self.min_group_size, self.max_group_size) + " " + \
-                          _('The size of your current group is %d.') \
+            errors.append(_('This exercise can be submitted in groups of %d to'
+                            ' %d students.') % (self.min_group_size,
+                                                self.max_group_size)
+                          + " "
+                          + _('The size of your current group is %d.')
                           % students.count())
         
-        success             = len(errors) == 0
+        success = len(errors) == 0
         return success, errors
     
     def is_late_submission_allowed(self):
@@ -558,3 +646,46 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
+
+class SubmissionRuleDeviation(models.Model):
+    """
+    An abstract model binding a user to an exercise stating that there is some
+    kind of deviation from the normal submission boundaries, that is, special
+    treatment related to the submissions of that particular user to that
+    particular exercise.
+
+    If there are many submitters submitting an exercise out of bounds of the
+    default bounds, all of the submitters must have an allowing instance of
+    SubmissionRuleDeviation subclass in order for the submission to be allowed.
+    """
+    exercise = models.ForeignKey(BaseExercise,
+                                 related_name="%(class)ss")
+    submitter = models.ForeignKey(UserProfile)
+
+    class Meta:
+        abstract = True
+        unique_together = ["exercise", "submitter"]
+        app_label = 'exercise'
+
+
+class DeadlineRuleDeviation(SubmissionRuleDeviation):
+    extra_minutes = models.IntegerField()
+
+    class Meta(SubmissionRuleDeviation.Meta):
+        pass
+
+    def get_extra_time(self):
+        return timedelta(minutes=self.extra_minutes)
+
+    def get_new_deadline(self):
+        return self.get_normal_deadline() + self.get_extra_time()
+
+    def get_normal_deadline(self):
+        return self.exercise.get_deadline()
+
+
+class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
+    extra_submissions = models.IntegerField()
+
+    class Meta(SubmissionRuleDeviation.Meta):
+        pass

@@ -8,8 +8,6 @@ from django.core.files.storage import default_storage
 from django.db.models.signals import post_delete
 
 # A+
-from course.models import *
-from exercise_models import BaseExercise
 from exercise import exercise_models
 from lib import MultipartPostHandler
 from lib.fields import JSONField
@@ -17,9 +15,8 @@ from lib.helpers import get_random_string
 from userprofile.models import UserProfile
 
 # Python 2.6+
-from datetime import datetime
+from datetime import datetime, timedelta
 import simplejson, os
-from exercise.exercise_models import SynchronousExercise, AsynchronousExercise
 
 
 class Submission(models.Model):
@@ -112,27 +109,27 @@ class Submission(models.Model):
 
         return False
 
-    def decode_id(self, enc_id):
-        return enc_id
-
-    def encode_id(self):
-        # TODO: encode with settings.SECRET_KEY
-        return self.id
-
     def get_course(self):
         return self.get_course_instance().course
 
     def get_course_instance(self):
         return self.exercise.course_module.course_instance
 
-    def set_points(self, points, max_points):
+    def set_points(self, points, max_points, no_penalties=False):
         """ 
-        Sets the points and maximum points for this submissions. If the given maximum points
-        are different than the ones for the exercise this submission is for, the points will 
-        be scaled.
+        Sets the points and maximum points for this submissions. If the given
+        maximum points are different than the ones for the exercise this
+        submission is for, the points will be scaled.
+
+        The method also checks if the submission is late and if it is, by
+        default applies the late_submission_penalty set for the
+        exercise.course_module. If no_penalties is True, the penalty is not
+        applied.
 
         @param points: the amount of points received from assessment
-        @param max_points: the total amount of points available in assessment 
+        @param max_points: the total amount of points available in assessment
+        @param no_penalties: If True, the possible late_submission_penalty is
+        not applied.
         """
 
         # The given points must be between zero and max points
@@ -141,8 +138,7 @@ class Submission(models.Model):
         # too because otherwise adjusted_grade would be ambiguous.
         assert not (max_points == 0 and self.exercise.max_points != 0)
 
-
-        self.service_points     = points
+        self.service_points = points
         self.service_max_points = max_points
 
         # Scale the given points to the maximum points for the exercise
@@ -152,40 +148,55 @@ class Submission(models.Model):
         else:
             adjusted_grade = 0.0
 
-        # Check if this submission was done late. If it was, reduce the points with 
-        # late submission penalty. No less than 0 points are given.
-        if self.exercise.is_late_submission_allowed() and self.is_submitted_late():
+        # Check if this submission was done late. If it was, reduce the points
+        # with late submission penalty. No less than 0 points are given. This
+        # is not done if no_penalties is True.
+        if not no_penalties and self.is_submitted_late():
             adjusted_grade -= (adjusted_grade
                                * self.exercise.get_late_submission_penalty())
 
-        self.grade              = round(adjusted_grade)
+        self.grade = round(adjusted_grade)
 
-        # Finally check that the grade is in bounds after all the hardcore math!
+        # Finally check that the grade is in bounds after all the hardcore
+        # math!
         assert 0 <= self.grade <= self.exercise.max_points
-
 
     def is_submitted_late(self):
         if not self.id and not self.submission_time:
             # The submission is not saved and the submission_time field is not
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
-            
-        return self.submission_time > self.exercise.course_module.closing_time
+
+        return not self.exercise.is_open_for(students=self.submitters.all(),
+                                             when=self.submission_time)
 
     def set_grading_data(self, grading_dict):
         self.grading_data = grading_dict
 
     def submitter_string(self):
+        # TODO: Write a version of this method that has the names wrapped in
+        # html anchors pointing to the profile page of the user.
         """
-        Returns a comma separated string containing the shortnames of all submitters.
+        Returns a comma separated string containing full names and possibly the
+        student ids of all the submitters of this submission.
         """
-        return ", ".join([profile.get_shortname() for profile in self.submitters.all()])
+
+        submitter_strs = []
+        for profile in self.submitters.all():
+            if profile.student_id:
+                student_id_str = " (%s)" % profile.student_id
+            else:
+                student_id_str = ""
+            submitter_strs.append(profile.user.get_full_name()
+                                  + student_id_str)
+
+        return ", ".join(submitter_strs)
 
     def __unicode__(self):
         return str(self.id)
 
-    # Status methods. The status indicates whether this submission is just created, 
-    # waiting for grading or ready.
+    # Status methods. The status indicates whether this submission is just
+    # created, waiting for grading, ready or erroneous.
     def _set_status(self, new_status):
         self.status = new_status
 

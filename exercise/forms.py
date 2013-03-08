@@ -3,24 +3,16 @@ from exercise.submission_models import Submission
 from exercise.exercise_models import BaseExercise
 from django.utils.translation import ugettext_lazy as _
 
+
 class SubmissionReviewForm(forms.Form):
-    points          = forms.IntegerField(min_value=0)
-    feedback        = forms.CharField(required=False, 
-                                      widget=forms.Textarea,
-                                      help_text=_("HTML formatting is allowed"))
-    
-    def clean(self):
-        points      = self.cleaned_data.get("points")
-        max_points  = self.cleaned_data.get("max_points")
-        
-        if points and max_points:
-            if points > max_points:
-                raise forms.ValidationError("Points greater than maximum points are not allowed.")
-        
-            if points < 0:
-                raise forms.ValidationError("Points lower than zero are not allowed.")
-        
-        return self.cleaned_data
+    points = forms.IntegerField(min_value=0,
+                                help_text=_("Possible penalties are not "
+                                            "applied - the points are set "
+                                            "exactly as given."))
+    feedback = forms.CharField(required=False,
+                               widget=forms.Textarea,
+                               help_text=_("HTML formatting is allowed"))
+
 
 class SubmissionCallbackForm(forms.Form):
     points          = forms.IntegerField(min_value=0)
