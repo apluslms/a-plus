@@ -99,9 +99,11 @@ class Submission(models.Model):
         if profile.user.is_superuser or profile.user.is_staff:
             return True
 
+        # TODO: The following check does not work if the Submission is not
+        # saved.
         # Check if the user has submitted this submission him/herself
-        if profile in self.submitters.all():
-            return True
+        #if profile in self.submitters.all():
+        #    return True
 
         # Check if the user belongs to the course staff
         if self.get_course_instance().is_staff(profile):
@@ -167,8 +169,11 @@ class Submission(models.Model):
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
 
-        return not self.exercise.is_open_for(students=self.submitters.all(),
-                                             when=self.submission_time)
+        return self.submission_time > self.exercise.course_module.closing_time
+
+        # TODO: The following fails if Submission is not saved yet.
+        #return not self.exercise.is_open_for(students=self.submitters.all(),
+        #                                     when=self.submission_time)
 
     def set_grading_data(self, grading_dict):
         self.grading_data = grading_dict
