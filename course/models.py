@@ -142,7 +142,10 @@ class CourseInstance(models.Model):
         assistants for this course instance. 
         """
         query = Q(teaching_courses=self.course) | Q(assisting_courses=self)
-        return UserProfile.objects.filter(query)
+        return UserProfile.objects.filter(query).distinct()
+
+    def get_students(self):
+        return UserProfile.objects.filter(submissions__exercise__course_module__course_instance=self).distinct()
     
     def add_assistant(self, user):
         """ 
