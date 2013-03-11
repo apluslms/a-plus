@@ -34,7 +34,7 @@
             
             {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
                 <p>
-                    <a href="{% url exercise.staff_views.submission_assessment submission_id=submission.id %}" class="btn btn-primary">{% trans "Assess this submission" %}</a>
+                    <a href="{% url exercise.staff_views.assess_submission submission_id=submission.id %}" class="btn btn-primary">{% trans "Assess this submission" %}</a>
                 </p>
             {% endif %}
             
