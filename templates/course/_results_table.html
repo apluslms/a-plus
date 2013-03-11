@@ -11,9 +11,9 @@
     <tbody>
     {% for student, grades, grade_sum in result_table.results_for_template %}
         <tr>
-            <th scope="row">{{ row.student.user.get_profile.student_id }}</th>
-            {% for grade in row.grades %}
-                <td>{% if grade != None %}{{ grade }}{% endif %}</td>
+            <th scope="row">{{ student.student_id }}</th>
+            {% for grade in grades %}
+                <td>{% if grade != None %}{{ grade }}{% else %}&nbsp;{% endif %}</td>
             {% endfor %}
             <td>{{ grade_sum }}</td>
         </tr>
