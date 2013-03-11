@@ -1,5 +1,10 @@
+# Python
+import simplejson as json
+from datetime import datetime
+
 # Django
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden,\
+    HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.static import serve
@@ -12,12 +17,12 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 
 # A+
+from course.models import CourseInstance
 from userprofile.models import UserProfile, StudentGroup
 from exercise.exercise_models import BaseExercise, CourseModule
 from exercise.submission_models import Submission, SubmittedFile
-from exercise.exercise_page import ExercisePage
-from exercise.exercise_summary import ExerciseSummary
-from exercise.forms import BaseExerciseForm, SubmissionReviewForm
+from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
+    StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm
 from lib import helpers
 from course.context import CourseContext
 from django.utils import simplejson
@@ -104,7 +109,7 @@ def add_or_edit_exercise(request, module_id, exercise_id=None):
 
 
 @login_required
-def submission_assessment(request, submission_id):
+def assess_submission(request, submission_id):
     """
     This view is used for assessing the given exercise submission. When
     assessing, the teacher or assistant may write verbal feedback and give a
@@ -115,11 +120,11 @@ def submission_assessment(request, submission_id):
     """
     submission = get_object_or_404(Submission, id=submission_id)
     exercise = submission.exercise
+    grader = request.user.get_profile()
     
     if exercise.allow_assistant_grading:
         # Both the teachers and assistants are allowed to assess
-        has_permission = exercise.get_course_instance().is_staff(
-            request.user.get_profile())
+        has_permission = exercise.get_course_instance().is_staff(grader)
     else:
         # Only teacher is allowed to assess
         has_permission = exercise.get_course_instance().is_teacher(
@@ -128,14 +133,14 @@ def submission_assessment(request, submission_id):
     if not has_permission:
         return HttpResponseForbidden(_("You are not allowed to access this "
                                        "view."))
-    
-    form = SubmissionReviewForm()
+
+    form = SubmissionReviewForm(exercise=exercise)
     if request.method == "POST":
-        form = SubmissionReviewForm(request.POST)
+        form = SubmissionReviewForm(request.POST, exercise=exercise)
         if form.is_valid():
             submission.set_points(form.cleaned_data["points"],
                                   exercise.max_points, no_penalties=True)
-            submission.grader = request.user.get_profile()
+            submission.grader = grader
             submission.feedback = form.cleaned_data["feedback"]
             submission.set_ready()
             submission.save()
@@ -248,3 +253,98 @@ def resubmit_to_service(request, submission_id):
               'for errors.'))
 
     return redirect(submission.get_staff_url())
+
+
+@login_required
+def create_and_assess_submission(request, exercise_id):
+    exercise = get_object_or_404(BaseExercise, id=exercise_id)
+    grader = request.user.get_profile()
+
+    if exercise.allow_assistant_grading:
+        # Both the teachers and assistants are allowed to submit for students
+        has_permission = exercise.get_course_instance().is_staff(grader)
+    else:
+        # Only teachers are allowed to submit for students
+        has_permission = exercise.get_course_instance().is_teacher(
+            request.user.get_profile())
+
+    if not has_permission:
+        return HttpResponseForbidden(
+            _("You are not allowed to access this view."))
+
+    if not request.method == "POST":
+        return HttpResponseForbidden(_("Only HTTP POST allowed."))
+
+    student_choices = UserProfile.objects.filter(
+        submissions__in=Submission.objects.filter(
+            exercise__course_module__course_instance=exercise.course_instance))
+    form = StaffSubmissionForStudentForm(request.POST, exercise=exercise,
+                                         students_choices=student_choices)
+
+    if form.is_valid():
+        new_submission = Submission.objects.create(exercise=exercise)
+        new_submission.submitters = form.cleaned_data.get("students")
+        new_submission.feedback = form.cleaned_data.get("feedback")
+        new_submission.set_points(form.cleaned_data.get("points"),
+                                  exercise.max_points, no_penalties=True)
+        new_submission.submission_time = form.cleaned_data.get(
+            "submission_time")
+        new_submission.grading_time = datetime.now()
+        new_submission.set_ready()
+        new_submission.save()
+
+        return HttpResponse("New submission created successfully.")
+    else:
+        return HttpResponseBadRequest("Invalid POST data.")
+
+
+@login_required
+def create_and_assess_submission_batch(request, course_instance_id):
+    course_instance = get_object_or_404(CourseInstance, id=course_instance_id)
+    teacher = request.user.get_profile()
+
+    has_permission = course_instance.is_teacher(teacher)
+    if not has_permission:
+        return HttpResponseForbidden(
+            _("You are not allowed to access this view."))
+
+    if not request.method == "POST":
+        return HttpResponseForbidden(_("Only HTTP POST allowed."))
+
+    # Parse the JSON string.
+    try:
+        submissions_json = json.loads(request.POST.get("submissions_json"))["objects"]
+    except:
+        # TODO: Pokemon error handling
+        return HttpResponseBadRequest(_("Invalid JSON"))
+
+    validated_forms = []
+    # Validate all the data before saving anything.
+    for submission_json in submissions_json:
+        exercise = get_object_or_404(BaseExercise,
+                                     id=submission_json["exercise_id"])
+        form = TeacherCreateAndAssessSubmissionForm(submission_json,
+                                                    exercise=exercise)
+
+        if form.is_valid():
+            validated_forms.append(form)
+        else:
+            return HttpResponseBadRequest(_("The data did not validate. No "
+                                            "submissions were saved."))
+
+    # The data validated. Now lets save it.
+    for form in validated_forms:
+        new_submission = Submission.objects.create(exercise=form.exercise)
+        new_submission.submitters = form.cleaned_data.get("students") or form.cleaned_data.get("students_by_student_id")
+        new_submission.feedback = form.cleaned_data.get("feedback")
+        new_submission.set_points(form.cleaned_data.get("points"),
+                                  new_submission.exercise.max_points,
+                                  no_penalties=True)
+        new_submission.submission_time = form.cleaned_data.get(
+            "submission_time")
+        new_submission.grading_time = datetime.now()
+        new_submission.grader = form.cleaned_data.get("grader") or teacher
+        new_submission.set_ready()
+        new_submission.save()
+
+    return HttpResponse("Submissions created successfully.")

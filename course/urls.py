@@ -1,10 +1,13 @@
 from django.conf.urls.defaults import *
 from course.views import *
+from exercise.staff_views import create_and_assess_submission_batch
 
 COURSE_URL_PREFIX = r'^(?P<course_url>[\w\d\-\.]+)/'
 INSTANCE_URL_PREFIX = COURSE_URL_PREFIX + r'(?P<instance_url>[\w\d\-\.]+)/'
 
 urlpatterns = patterns('',
+    (r'^(?P<course_instance_id>\d+)/create_and_assess_submission_batch/$',
+    create_and_assess_submission_batch),
     (r'archive/$', course_archive),
     (COURSE_URL_PREFIX + r'$', view_course),
     (INSTANCE_URL_PREFIX + r'$', view_instance),
