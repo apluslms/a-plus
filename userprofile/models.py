@@ -9,6 +9,10 @@ class UserProfile(models.Model):
     user        = models.OneToOneField(User)
     lang        = models.CharField(max_length=5, default="en_US")
     student_id  = models.CharField(max_length=25, null=True, blank=True)
+
+    @classmethod
+    def get_by_student_id(cls, student_id):
+        return cls.objects.get(student_id=student_id)
     
     def __unicode__(self):
         return self.user.username

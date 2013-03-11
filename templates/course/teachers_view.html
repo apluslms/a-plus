@@ -76,4 +76,9 @@
         class="btn btn-primary btn-mini">
     <i class="icon-plus-sign icon-white"></i> {% trans "Add new module" %}
 </a>
+
+<form action="/course/{{ instance.id }}/create_and_assess_submission_batch/" method="post">{% csrf_token %}
+    <textarea name="submissions_json"></textarea>
+    <input type="submit" value="{% trans "Submit" %}" />
+</form>
 {% endblock %}
