@@ -120,8 +120,9 @@ class ExerciseRoundSummary:
                                          self.user)
             self.exercise_summaries.append(ex_summary)
 
-            if len(self.categorized_exercise_summaries) == 0 or \
-                            exercise.category != self.categorized_exercise_summaries[-1][0]:
+            if (len(self.categorized_exercise_summaries) == 0
+                or exercise.category
+                    != self.categorized_exercise_summaries[-1][0]):
                 self.categorized_exercise_summaries.append(
                     (exercise.category, []))
             self.categorized_exercise_summaries[-1][1].append(ex_summary)
@@ -324,9 +325,6 @@ class CourseSummary:
             return int(round(100.0 * self.get_total_points() / max_points))
 
     def _generate_summary(self):
-        # TODO: This method causes unnecessarily high amount of database
-        # queries.
-        start = datetime.now()
         # Generate a summary of each exercise round
         submissions_by_exercise_id = {exercise.id: {"obj": exercise,
                                                     "count": 0,
@@ -338,7 +336,6 @@ class CourseSummary:
             d["count"] += 1
             if not d["best"] or submission.grade > d["best"].grade:
                 d["best"] = submission
-        print datetime.now() - start
 
         exercise_summaries_by_course_modules = {course_module: []
                                                 for course_module
@@ -359,19 +356,18 @@ class CourseSummary:
 
             (exercise_summaries_by_categories[d["obj"].category]
              .append(exercise_summary))
-        print datetime.now() - start
 
         # Generate a summary for each round
-        for rnd, exercise_summaries in exercise_summaries_by_course_modules.items():
+        for rnd, exercise_summaries in (exercise_summaries_by_course_modules
+                                        .items()):
             self.round_summaries.append(ExerciseRoundSummary(
                 rnd, self.user, exercise_summaries, generate=False))
-        print datetime.now() - start
 
         # Generate a summary for each category
-        for cat, exercise_summaries in exercise_summaries_by_categories.items():
+        for cat, exercise_summaries in (exercise_summaries_by_categories
+                                        .items()):
             self.category_summaries.append(CategorySummary(
                 cat, self.user, exercise_summaries, generate=False))
-        print datetime.now() - start
 
         # Separate list for visible category summaries only
         user_hidden_categories = (self.user.get_profile()
@@ -384,4 +380,3 @@ class CourseSummary:
         for rnd_sum in self.round_summaries:
             if rnd_sum.has_visible_categories():
                 self.visible_round_summaries.append(rnd_sum)
-        print datetime.now() - start
