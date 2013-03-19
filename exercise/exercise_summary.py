@@ -132,32 +132,34 @@ class ExerciseRoundSummary:
 
         for category in self.categories:
             if (not category.is_hidden_to(self.user.get_profile())
-                and not category in self.visible_categories):
+                    and not category in self.visible_categories):
                 self.visible_categories.append(category)
 
     def get_total_points(self):
-        total                   = 0
+        total = 0
         for ex_summary in self.exercise_summaries:
             total += ex_summary.get_points()
         return total
 
     def get_maximum_points(self):
-        total                   = 0
+        total = 0
         for ex_summary in self.exercise_summaries:
             total += ex_summary.get_max_points()
         return total
 
     def get_average_total_grade(self):
-        return sum([exercise.summary["average_grade"] for exercise in self.exercises])
+        return sum([exercise.summary["average_grade"] for exercise
+                    in self.exercises])
 
     def has_visible_categories(self):
         return len(self.visible_categories) > 0
 
     def is_passed(self):
         """
-        Returns True or False based on if the student has passed the exercise round
-        or not. The round is passed if the total points are equal to or higher than
-        minimum for the round and if each individual exercise in the round is passed.
+        Returns True or False based on if the student has passed the exercise
+        round or not. The round is passed if the total points are equal to or
+        higher than minimum for the round and if each individual exercise in
+        the round is passed.
         """
         if self.get_total_points() < self.exercise_round.points_to_pass:
             return False
@@ -314,11 +316,10 @@ class CourseSummary:
     def get_json_by_rounds(self):
         round_list = []
         for round_summary in self.round_summaries:
-            round_list.append( [round_summary.exercise_round.name,
-                                round_summary.get_total_points(),
-                                round_summary.get_average_total_grade(),
-                                round_summary.get_maximum_points(),
-                                ])
+            round_list.append([round_summary.exercise_round.name,
+                               round_summary.get_total_points(),
+                               round_summary.get_average_total_grade(),
+                               round_summary.get_maximum_points()])
         return simplejson.dumps(round_list)
 
     def get_completed_percentage(self):
