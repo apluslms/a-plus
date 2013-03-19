@@ -268,10 +268,12 @@ class CourseSummary:
         self.user = user
         self.exercise_rounds = course_instance.course_modules.all()
         self.categories = course_instance.categories.all()
-        self.exercises = BaseExercise.objects.filter(
-            course_module__course_instance=self.course_instance).select_related("course_module", "category")
-        self.submissions = user.get_profile().submissions.filter(
-            exercise__course_module__course_instance=self.course_instance).defer("feedback")
+        self.exercises = (BaseExercise.objects.filter(
+            course_module__course_instance=self.course_instance)
+            .select_related("course_module", "category"))
+        self.submissions = (user.get_profile().submissions.filter(
+            exercise__course_module__course_instance=self
+            .course_instance).defer("feedback"))
 
         self.round_summaries = []
         self.visible_round_summaries = []
@@ -297,8 +299,10 @@ class CourseSummary:
         Returns the maximum points for the whole course instance, ie. the sum of 
         maximum points for all exercises.
         """
-        all_exercises   = BaseExercise.objects.filter(course_module__course_instance=self.course_instance)
-        max_points      = all_exercises.aggregate(max_points=Sum('max_points'))['max_points']
+        all_exercises = BaseExercise.objects.filter(
+            course_module__course_instance=self.course_instance)
+        max_points = all_exercises.aggregate(
+            max_points=Sum('max_points'))['max_points']
         return max_points or 0
 
     def get_total_points(self):
