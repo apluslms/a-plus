@@ -28,7 +28,7 @@
         <a href="#" id="toggleOldModules" data-show-text="{% trans "Show old assignments" %}"
                     data-hide-text="{% trans "Hide old assignments" %}" class="hide">{% trans "Show old assignments" %}</a>
         <ul class="exercise_rounds">
-        {% for round_summary in course_summary.visible_round_summaries %}
+        {% for round_summary in course_summary.get_ordered_visible_round_summaries %}
             <li class="exercise_round {{ round_summary.get_classes }}">
                 {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
                 <div class="exercise-icons">
