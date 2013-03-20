@@ -91,18 +91,33 @@ class ExerciseRoundSummary:
             course_module=self.exercise_round)
         self.exercise_summaries = exercise_summaries
 
-        self.points_available = 0
-        self.exercises_passed = 0
+        if generate:
+            self._generate_summary()
+
         self.categories = []
         self.visible_categories = []
 
         # This is a list of tuples where the first item is a
         # LearningObjectCategory object and the second item is a list of
-        # exercises.
+        # exercise summaries.
         self.categorized_exercise_summaries = []
 
-        if generate:
-            self._generate_summary()
+        for ex_summary in sorted(self.exercise_summaries,
+                                 key=lambda summ: summ.exercise.order):
+            if (len(self.categorized_exercise_summaries) == 0
+                or ex_summary.exercise.category
+                    != self.categorized_exercise_summaries[-1][0]):
+                self.categorized_exercise_summaries.append(
+                    (ex_summary.exercise.category, []))
+            self.categorized_exercise_summaries[-1][1].append(ex_summary)
+
+            if not ex_summary.exercise.category in self.categories:
+                self.categories.append(ex_summary.exercise.category)
+
+        for category in self.categories:
+            if (not category.is_hidden_to(self.user.get_profile())
+                and not category in self.visible_categories):
+                self.visible_categories.append(category)
 
     def _generate_summary(self):
         submissions = Submission.objects.filter(
@@ -119,21 +134,6 @@ class ExerciseRoundSummary:
             ex_summary = ExerciseSummary(exercise,
                                          self.user)
             self.exercise_summaries.append(ex_summary)
-
-            if (len(self.categorized_exercise_summaries) == 0
-                or exercise.category
-                    != self.categorized_exercise_summaries[-1][0]):
-                self.categorized_exercise_summaries.append(
-                    (exercise.category, []))
-            self.categorized_exercise_summaries[-1][1].append(ex_summary)
-
-            if not exercise.category in self.categories:
-                self.categories.append(exercise.category)
-
-        for category in self.categories:
-            if (not category.is_hidden_to(self.user.get_profile())
-                    and not category in self.visible_categories):
-                self.visible_categories.append(category)
 
     def get_total_points(self):
         total = 0
@@ -283,6 +283,17 @@ class CourseSummary:
         self.visible_category_summaries = []
 
         self._generate_summary()
+
+    def get_ordered_visible_round_summaries(self):
+        """
+        The visible round summaries are returned in ascending order primarily
+        by its closing date and secondarily by its opening date.
+        """
+        ordered = sorted(self.visible_round_summaries,
+                         key=lambda summ: summ.exercise_round.opening_time)
+        ordered = sorted(ordered,
+                         key=lambda summ: summ.exercise_round.closing_time)
+        return ordered
 
     def is_passed(self):
         for round_summary in self.round_summaries:
