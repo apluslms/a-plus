@@ -203,7 +203,9 @@ class ExerciseRoundSummary:
         if self.get_maximum_points() == 0:
             return 0
         else:
-            return int(round(100.0 * self.exercise_round.points_to_pass / self.get_maximum_points()))
+            return int(round(100.0
+                             * self.exercise_round.points_to_pass
+                             / self.get_maximum_points()))
 
 
 class CategorySummary:
@@ -309,8 +311,8 @@ class CourseSummary:
 
     def get_maximum_points(self):
         """
-        Returns the maximum points for the whole course instance, ie. the sum of 
-        maximum points for all exercises.
+        Returns the maximum points for the whole course instance, ie. the sum
+        of maximum points for all exercises.
         """
         all_exercises = BaseExercise.objects.filter(
             course_module__course_instance=self.course_instance)
