@@ -4,7 +4,7 @@ from operator import attrgetter
 
 # Django
 from django.utils import simplejson
-from django.db.models.aggregates import Avg, Max, Sum
+from django.db.models.aggregates import Sum
 
 # A+
 from exercise.exercise_models import *
@@ -116,7 +116,7 @@ class ExerciseRoundSummary:
 
         for category in self.categories:
             if (not category.is_hidden_to(self.user.get_profile())
-                and not category in self.visible_categories):
+                    and not category in self.visible_categories):
                 self.visible_categories.append(category)
 
     def _generate_summary(self):
