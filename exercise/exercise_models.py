@@ -171,6 +171,20 @@ class BaseExercise(LearningObject):
     max_submissions = models.PositiveIntegerField(default=10)
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
+
+    def get_average_percentage(self):
+        """
+        Rounds to closest int.
+
+        @return: 0..100 as int
+        """
+        if self.max_points == 0:
+            return 0
+        else:
+            return int(round(100.0
+                             # TODO: Slow?
+                             * self.summary["average_grade"]
+                             / self.max_points))
     
     def get_deadline(self):
         return self.course_module.closing_time
@@ -190,6 +204,19 @@ class BaseExercise(LearningObject):
         page_content    = opener.open(url, timeout=20).read()
         
         return ExercisePage(self, page_content)
+
+    def get_percentage_to_pass(self):
+        """
+        Rounds to closest int.
+
+        @return: 0..100 as int
+        """
+        if self.max_points == 0:
+            return 0
+        else:
+            return int(round(100.0
+                             * self.points_to_pass
+                             / self.max_points))
 
     def have_submissions_left(self, students):
         """

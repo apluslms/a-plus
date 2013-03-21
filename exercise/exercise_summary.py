@@ -7,17 +7,14 @@ from django.utils import simplejson
 from django.db.models.aggregates import Sum
 
 # A+
-from exercise.exercise_models import *
+from exercise.exercise_models import BaseExercise
 from exercise.submission_models import Submission
 
 
 class ExerciseSummary:
     """
     ExerciseSummary is a class that summarises the submissions of a certain
-    exercise. Some methods give summaries related to everyone's submissions and
-    some are specific to a certain user.
-
-
+    user and exercise.
     """
     def __init__(self, exercise, user, submission_count=0,
                  best_submission=None, generate=True):
@@ -46,12 +43,12 @@ class ExerciseSummary:
         if self.submission_count != 0:
             self.best_submission = submissions[0]
 
-    def get_points(self):
-        if self.best_submission == None:
-            return 0
-        return self.best_submission.grade
-
     def get_completed_percentage(self):
+        """
+        Rounds to closest int.
+
+        @return: 0..100 as int
+        """
         if self.exercise.max_points == 0:
             return 0
         else:
@@ -59,22 +56,16 @@ class ExerciseSummary:
                              * self.get_points()
                              / self.exercise.max_points))
 
-    def get_required_percentage(self):
-        if self.exercise.max_points == 0:
-            return 0
-        else:
-            return int(round(100.0
-                             * self.exercise.points_to_pass
-                             / self.exercise.max_points))
+    def get_points(self):
+        """
+        Gives the points of the best submission of the user or 0 if there are
+        no submissions for the user.
 
-    def get_average_percentage(self):
-        if self.exercise.max_points == 0:
+        @return: best points as an int
+        """
+        if not self.best_submission:
             return 0
-        else:
-            return int(round(100.0
-                             # TODO: Slow?
-                             * self.exercise.summary["average_grade"]
-                             / self.exercise.max_points))
+        return self.best_submission.grade
 
     def is_full_points(self):
         return self.get_points() == self.exercise.max_points
