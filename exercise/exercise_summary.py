@@ -13,22 +13,21 @@ from exercise.submission_models import Submission
 
 class UserExerciseSummary(object):
     """
-    UserExerciseSummary is a class that summarises the submissions of a certain
-    user and exercise.
+    Summarises the submissions of a certain user and exercise.
     """
     def __init__(self, exercise, user, **kwargs):
         """
         @param exercise: instance of BaseExercise
-        @param user: instance of User
+        @param user: instance of Django User
         """
         self.exercise = exercise
         self.user = user
         self.submission_count = getattr(kwargs, "submission_count", 0)
         self.best_submission = getattr(kwargs, "best_submission", None)
 
-        # The caller of the constructor may give submission_count and
-        # best submission in advance together with generate=False in which case
-        # the constructor will not query the Submission model at all.
+        # The caller of the __init__ may give kwargs submission_count and
+        # best_submission in advance together with generate=False in which case
+        # the __init__ will not query the Submission model at all.
         if getattr(kwargs, "generate", True):
             self._generate_summary()
 
@@ -84,15 +83,21 @@ class UserExerciseSummary(object):
 
 
 class UserExerciseRoundSummary(object):
-    def __init__(self, exercise_round, user, exercise_summaries=[],
-                 generate=True):
+    """
+    Summarises the submissions of a certain user and exercise round.
+    """
+    def __init__(self, exercise_round, user, **kwargs):
+        """
+        @param exercise_round: instance of CourseModule
+        @param user: instance of Django User
+        """
         self.exercise_round = exercise_round
         self.user = user
         self.exercises = BaseExercise.objects.filter(
             course_module=self.exercise_round)
-        self.exercise_summaries = exercise_summaries
+        self.exercise_summaries = getattr(kwargs, "exercise_summaries", [])
 
-        if generate:
+        if getattr(kwargs, "generate", True):
             self._generate_summary()
 
         self.categories = []
