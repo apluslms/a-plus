@@ -25,8 +25,7 @@ from exercise.exercise_models import BaseExercise, CourseModule, \
     LearningObjectCategory
 from exercise.submission_models import Submission, SubmittedFile
 from exercise.exercise_page import ExercisePage
-from exercise.exercise_summary import ExerciseSummary
-from exercise.forms import BaseExerciseForm
+from exercise.exercise_summary import UserExerciseSummary
 from lib import helpers
 from course.context import CourseContext
 
@@ -72,7 +71,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
                                    'failed!'))
         logging.exception(e)
     
-    exercise_summary    = ExerciseSummary(exercise, request.user)
+    exercise_summary = UserExerciseSummary(exercise, request.user)
 
     plugin_renderers = build_plugin_renderers(
         plugins=exercise.course_module.course_instance.plugins.all(),
@@ -179,8 +178,8 @@ def _handle_submission(request, exercise, students, form, submissions):
         # Delete the unsuccessful submission
         new_submission.delete()
         
-        exercise_summary    = ExerciseSummary(exercise, request.user)
-        instance            = exercise.course_module.course_instance
+        exercise_summary = UserExerciseSummary(exercise, request.user)
+        instance = exercise.course_module.course_instance
         
         # Add a message to the user's message queue
         messages.warning(request, _('The exercise could not be graded. Please check the page below for errors.'))
@@ -217,7 +216,7 @@ def view_submission(request, submission_id):
                                                     request.user.get_profile())
     index           = 1 + list(submissions).index(submission)
     
-    exercise_summary= ExerciseSummary(exercise, request.user)
+    exercise_summary = UserExerciseSummary(exercise, request.user)
 
     plugin_renderers = build_plugin_renderers(
         exercise.course_module.course_instance.plugins,

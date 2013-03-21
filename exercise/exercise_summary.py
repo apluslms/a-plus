@@ -11,9 +11,9 @@ from exercise.exercise_models import BaseExercise
 from exercise.submission_models import Submission
 
 
-class ExerciseSummary:
+class UserExerciseSummary:
     """
-    ExerciseSummary is a class that summarises the submissions of a certain
+    UserExerciseSummary is a class that summarises the submissions of a certain
     user and exercise.
     """
     def __init__(self, exercise, user, submission_count=0,
@@ -126,7 +126,7 @@ class ExerciseRoundSummary:
             submissions_by_exercises[submission.exercise].append(submission)
 
         for exercise, submissions in submissions_by_exercises.items():
-            ex_summary = ExerciseSummary(exercise,
+            ex_summary = UserExerciseSummary(exercise,
                                          self.user)
             self.exercise_summaries.append(ex_summary)
 
@@ -216,7 +216,7 @@ class CategorySummary:
 
     def _generate_summary(self):
         for ex in self.exercises:
-            self.exercise_summaries.append(ExerciseSummary(ex, self.user))
+            self.exercise_summaries.append(UserExerciseSummary(ex, self.user))
 
     def get_average_total_grade(self):
         return sum([exercise.summary["average_grade"]
@@ -360,7 +360,7 @@ class CourseSummary:
         for exercise_id, d in submissions_by_exercise_id.items():
             best_submission = d["best"]
             submission_count = d["count"]
-            exercise_summary = ExerciseSummary(
+            exercise_summary = UserExerciseSummary(
                 d["obj"], self.user, submission_count=submission_count,
                 best_submission=best_submission, generate=False)
 
