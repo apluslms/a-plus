@@ -385,7 +385,8 @@ class UserCourseSummary(object):
         for rnd, exercise_summaries in (exercise_summaries_by_course_modules
                                         .items()):
             self.round_summaries.append(UserExerciseRoundSummary(
-                rnd, self.user, exercise_summaries, generate=False))
+                rnd, self.user, exercise_summaries=exercise_summaries,
+                generate=False))
 
         # Generate a summary for each category
         for cat, exercise_summaries in (exercise_summaries_by_categories
