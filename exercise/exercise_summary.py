@@ -11,7 +11,7 @@ from exercise.exercise_models import BaseExercise
 from exercise.submission_models import Submission
 
 
-class UserExerciseSummary:
+class UserExerciseSummary(object):
     """
     UserExerciseSummary is a class that summarises the submissions of a certain
     user and exercise.
@@ -83,7 +83,7 @@ class UserExerciseSummary:
         return self.submission_count > 0
 
 
-class UserExerciseRoundSummary:
+class UserExerciseRoundSummary(object):
     def __init__(self, exercise_round, user, exercise_summaries=[],
                  generate=True):
         self.exercise_round = exercise_round
@@ -209,7 +209,7 @@ class UserExerciseRoundSummary:
                              / self.get_maximum_points()))
 
 
-class UserCategorySummary:
+class UserCategorySummary(object):
     def __init__(self, category, user, exercise_summaries=[], generate=True):
         self.category = category
         self.user = user
@@ -263,7 +263,7 @@ class UserCategorySummary:
         return False
 
 
-class UserCourseSummary:
+class UserCourseSummary(object):
     """ 
     Course summary generates a personal summary for a user of the exercises
     existing and completed on a given course. 
