@@ -166,14 +166,15 @@ class BaseExercise(LearningObject):
     allow_assistant_grading = models.BooleanField(default=False)
     
     # Submission related fields
-    min_group_size          = models.PositiveIntegerField(default=1)
-    max_group_size          = models.PositiveIntegerField(default=1)
-    max_submissions         = models.PositiveIntegerField(default=10)
-    max_points              = models.PositiveIntegerField(default=100)
-    points_to_pass          = models.PositiveIntegerField(default=40)
+    min_group_size = models.PositiveIntegerField(default=1)
+    max_group_size = models.PositiveIntegerField(default=1)
+    max_submissions = models.PositiveIntegerField(default=10)
+    max_points = models.PositiveIntegerField(default=100)
+    points_to_pass = models.PositiveIntegerField(default=40)
     
     def get_deadline(self):
         return self.course_module.closing_time
+
     def get_page(self, submission_url):
         """ 
         Retrieves the page for this exercise from the exercise service. 
@@ -319,8 +320,7 @@ class BaseExercise(LearningObject):
                 is_open_booleans_by_submitters = {s: False for s in students}
 
                 for dlrd in dlr_deviations:
-                    if when <= base_dl + timedelta(
-                            minutes=dlrd.extra_minutes):
+                    if when <= base_dl + dlrd.get_extra_time():
                         assert(
                             dlrd.submitter in is_open_booleans_by_submitters)
                         is_open_booleans_by_submitters[dlrd.submitter] = True
@@ -647,6 +647,7 @@ class ExerciseWithAttachment(BaseExercise):
         return page
 
 
+# TODO: Move this to submission_models module
 class SubmissionRuleDeviation(models.Model):
     """
     An abstract model binding a user to an exercise stating that there is some
@@ -668,7 +669,9 @@ class SubmissionRuleDeviation(models.Model):
         app_label = 'exercise'
 
 
+# TODO: Move this to submission_models module
 class DeadlineRuleDeviation(SubmissionRuleDeviation):
+    # TODO: Check that it doesn't overflow when converting to timedelta
     extra_minutes = models.IntegerField()
 
     class Meta(SubmissionRuleDeviation.Meta):
@@ -684,6 +687,7 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         return self.exercise.get_deadline()
 
 
+# TODO: Move this to submission_models module
 class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
     extra_submissions = models.IntegerField()
 

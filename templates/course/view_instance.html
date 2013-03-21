@@ -50,7 +50,7 @@
                             rel="tooltip"
                             data-html="true"
                             data-placement="bottom"
-                            title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
+                            title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.exercise.max_points }}">
                             {{ exercise_summary.exercise.order }}
                         </a>
                     {% endfor %}
@@ -102,7 +102,7 @@
                                             {{ exercise_summary.exercise.order }}. {{exercise_summary.exercise.name}}
                                         {% endif %}
                                         </td>
-                                        <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}</td>
+                                        <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.exercise.max_points }}</td>
                                     </tr>
                                 {% endfor %}
                             {% endif %}

@@ -12,6 +12,13 @@ from exercise.submission_models import Submission
 
 
 class ExerciseSummary:
+    """
+    ExerciseSummary is a class that summarises the submissions of a certain
+    exercise. Some methods give summaries related to everyone's submissions and
+    some are specific to a certain user.
+
+
+    """
     def __init__(self, exercise, user, submission_count=0,
                  best_submission=None, generate=True):
         self.exercise = exercise
@@ -39,38 +46,35 @@ class ExerciseSummary:
         if self.submission_count != 0:
             self.best_submission = submissions[0]
 
-    def get_max_points(self):
-        return self.exercise.max_points
-
     def get_points(self):
         if self.best_submission == None:
             return 0
         return self.best_submission.grade
 
     def get_completed_percentage(self):
-        if self.get_max_points() == 0:
+        if self.exercise.max_points == 0:
             return 0
         else:
             return int(round(100.0
                              * self.get_points()
-                             / self.get_max_points()))
+                             / self.exercise.max_points))
 
     def get_required_percentage(self):
-        if self.get_max_points() == 0:
+        if self.exercise.max_points == 0:
             return 0
         else:
             return int(round(100.0
                              * self.exercise.points_to_pass
-                             / self.get_max_points()))
+                             / self.exercise.max_points))
 
     def get_average_percentage(self):
-        if self.get_max_points() == 0:
+        if self.exercise.max_points == 0:
             return 0
         else:
             return int(round(100.0
                              # TODO: Slow?
                              * self.exercise.summary["average_grade"]
-                             / self.get_max_points()))
+                             / self.exercise.max_points))
 
     def is_full_points(self):
         return self.get_points() == self.exercise.max_points
@@ -144,7 +148,7 @@ class ExerciseRoundSummary:
     def get_maximum_points(self):
         total = 0
         for ex_summary in self.exercise_summaries:
-            total += ex_summary.get_max_points()
+            total += ex_summary.exercise.max_points
         return total
 
     def get_average_total_grade(self):
@@ -237,7 +241,7 @@ class CategorySummary:
     def get_maximum_points(self):
         total = 0
         for ex_summary in self.exercise_summaries:
-            total += ex_summary.get_max_points()
+            total += ex_summary.exercise.max_points
         return total
 
     def get_required_percentage(self):
