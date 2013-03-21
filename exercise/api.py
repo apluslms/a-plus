@@ -8,7 +8,6 @@ from tastypie import fields
 # A+
 from userprofile.models import UserProfile
 from exercise_models import LearningObject, BaseExercise, CourseModule, CourseInstance
-from exercise_summary import CourseSummary
 from submission_models import Submission, SubmittedFile
 from api_permissions import SuperuserAuthorization
 

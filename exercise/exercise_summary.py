@@ -16,14 +16,20 @@ class UserExerciseSummary:
     UserExerciseSummary is a class that summarises the submissions of a certain
     user and exercise.
     """
-    def __init__(self, exercise, user, submission_count=0,
-                 best_submission=None, generate=True):
+    def __init__(self, exercise, user, **kwargs):
+        """
+        @param exercise: instance of BaseExercise
+        @param user: instance of User
+        """
         self.exercise = exercise
         self.user = user
-        self.submission_count = submission_count
-        self.best_submission = best_submission
+        self.submission_count = getattr(kwargs, "submission_count", 0)
+        self.best_submission = getattr(kwargs, "best_submission", None)
 
-        if generate:
+        # The caller of the constructor may give submission_count and
+        # best submission in advance together with generate=False in which case
+        # the constructor will not query the Submission model at all.
+        if getattr(kwargs, "generate", True):
             self._generate_summary()
 
     def _generate_summary(self):
@@ -77,7 +83,7 @@ class UserExerciseSummary:
         return self.submission_count > 0
 
 
-class ExerciseRoundSummary:
+class UserExerciseRoundSummary:
     def __init__(self, exercise_round, user, exercise_summaries=[],
                  generate=True):
         self.exercise_round = exercise_round
@@ -203,7 +209,7 @@ class ExerciseRoundSummary:
                              / self.get_maximum_points()))
 
 
-class CategorySummary:
+class UserCategorySummary:
     def __init__(self, category, user, exercise_summaries=[], generate=True):
         self.category = category
         self.user = user
@@ -257,7 +263,7 @@ class CategorySummary:
         return False
 
 
-class CourseSummary:
+class UserCourseSummary:
     """ 
     Course summary generates a personal summary for a user of the exercises
     existing and completed on a given course. 
@@ -373,13 +379,13 @@ class CourseSummary:
         # Generate a summary for each round
         for rnd, exercise_summaries in (exercise_summaries_by_course_modules
                                         .items()):
-            self.round_summaries.append(ExerciseRoundSummary(
+            self.round_summaries.append(UserExerciseRoundSummary(
                 rnd, self.user, exercise_summaries, generate=False))
 
         # Generate a summary for each category
         for cat, exercise_summaries in (exercise_summaries_by_categories
                                         .items()):
-            self.category_summaries.append(CategorySummary(
+            self.category_summaries.append(UserCategorySummary(
                 cat, self.user, exercise_summaries, generate=False))
 
         # Separate list for visible category summaries only

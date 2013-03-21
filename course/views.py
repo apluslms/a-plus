@@ -18,7 +18,7 @@ from course.models import Course, CourseInstance
 from course.context import CourseContext
 from course.results import ResultTable
 from course.forms import CourseModuleForm
-from exercise.exercise_summary import CourseSummary
+from exercise.exercise_summary import UserCourseSummary
 from exercise.submission_models import Submission
 from exercise.exercise_models import CourseModule
 
@@ -78,7 +78,7 @@ def view_instance(request, course_url, instance_url):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
-    course_summary  = CourseSummary(course_instance, request.user)
+    course_summary  = UserCourseSummary(course_instance, request.user)
 
     plugin_renderers = build_plugin_renderers(
         plugins = course_instance.plugins.all(),
@@ -112,7 +112,7 @@ def view_my_page(request, course_url, instance_url):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
-    course_summary  = CourseSummary(course_instance, request.user)
+    course_summary  = UserCourseSummary(course_instance, request.user)
     submissions     = request.user.get_profile().submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
     
     return render_to_response("course/view_my_page.html", 
