@@ -305,15 +305,20 @@ class UserCourseSummary(object):
         self.category_summaries = []
         self.visible_category_summaries = []
 
+        # Generate all the summaries!
         self._generate_summary()
 
     def _generate_summary(self):
-        # Generate a summary of each exercise round
+        # This method is only called from __init__ and the purpose this code is
+        # separated to its own method is readability.
+
         submissions_by_exercise_id = {exercise.id: {"obj": exercise,
                                                     "count": 0,
                                                     "best": None}
                                       for exercise in self.exercises}
 
+        # Lets go through all the submissions and keep track of the best
+        # submission and the count of the submissions for each exercise.
         for submission in self.submissions:
             d = submissions_by_exercise_id[submission.exercise_id]
             d["count"] += 1
@@ -326,7 +331,11 @@ class UserCourseSummary(object):
         exercise_summaries_by_categories = {category: []
                                             for category in self.categories}
 
-        # Generate summary for each exercise
+        # Generate summary for each exercise. We have already found out the
+        # best submission and submission count for each UserExerciseSummary so
+        # we just pass those to the __init__ of each UserExerciseSummary and
+        # use the generate=False to tell the __init__ that it doesn't need to
+        # make any additional model queries.
         for exercise_id, d in submissions_by_exercise_id.items():
             best_submission = d["best"]
             submission_count = d["count"]
