@@ -270,12 +270,22 @@ class UserCategorySummary(object):
 
 class UserCourseSummary(object):
     """ 
-    Course summary generates a personal summary for a user of the exercises
-    existing and completed on a given course. 
+    UserCourseSummary generates a personal summary for a user of the exercises
+    existing and completed on a given course.
+
+    UserCourseSummary is designed so that it queries the Submission model only
+    once and builds the related UserExerciseRoundSummary objects,
+    UserCategorySummary objects and UserExerciseSummary objects so that the
+    generation of those related objects will not cause additional model
+    queries. This is crucial for performance as the UserCourseSummary is
+    generated for the most loaded pages of A+ and thus needs to be as fast as
+    possible.
     """
     def __init__(self, course_instance, user):
         self.course_instance = course_instance
         self.user = user
+
+        # QuerySets
         self.exercise_rounds = course_instance.course_modules.all()
         self.categories = course_instance.categories.all()
         self.exercises = (BaseExercise.objects.filter(
@@ -285,6 +295,11 @@ class UserCourseSummary(object):
             exercise__course_module__course_instance=self
             .course_instance).defer("feedback"))
 
+        # Lists for summaries to be generated. The visible_category_summaries
+        # will contain summaries for those categories that are not hidden to
+        # the self.user. The visible_round_summaries will contain summaries for
+        # those exercise rounds that have at least one exercise that is not in
+        # a hidden category.
         self.round_summaries = []
         self.visible_round_summaries = []
         self.category_summaries = []
