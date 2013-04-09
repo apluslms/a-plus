@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 # Django 
 from django.db import models
-from django.db.models.aggregates import Avg, Max, Count
+from django.db.models.aggregates import Avg, Max, Count, Sum
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -46,9 +46,6 @@ class CourseModule(models.Model):
     opening_time            = models.DateTimeField(default=datetime.now)
     closing_time            = models.DateTimeField(default=datetime.now)
     
-    def get_exercises(self):
-        return BaseExercise.objects.filter(course_module=self)
-    
     """
     Functionality related to early bonuses has been disabled. The following lines
     are commented out so that they can be restored later if necessary.
@@ -64,6 +61,24 @@ class CourseModule(models.Model):
     late_submission_deadline= models.DateTimeField(default=datetime.now)
     late_submission_penalty = PercentField(default=0.5, 
         help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+
+    def get_exercises(self):
+        return BaseExercise.objects.filter(course_module=self)
+
+    def get_maximum_points(self):
+        # TODO: This could be cached for example similarily to
+        # BaseExercise.__get_summary
+        max_points = self.get_exercises().aggregate(
+            max_points=Sum('max_points'))['max_points']
+        return max_points or 0
+
+    def get_required_percentage(self):
+        if self.get_maximum_points() == 0:
+            return 0
+        else:
+            return int(round(100.0
+                             * self.points_to_pass
+                             / self.get_maximum_points()))
     
     def is_late_submission_open(self):
         return self.late_submissions_allowed and \
@@ -104,10 +119,10 @@ class LearningObjectCategory(models.Model):
         related_name=u"categories")
 
     hidden_to = models.ManyToManyField(
-            UserProfile,
-            related_name="hidden_categories",
-            blank=True,
-            null=True)
+        UserProfile,
+        related_name="hidden_categories",
+        blank=True,
+        null=True)
 
     class Meta:
         unique_together = ("name", "course_instance")
@@ -127,6 +142,7 @@ class LearningObjectCategory(models.Model):
 
 class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round
+    # TODO: It would be better if this didn't have the default=0.
     order                   = models.IntegerField(default=0)
     
     # Instruction related fields
@@ -157,6 +173,10 @@ class LearningObject(ModelWithInheritance):
         except (LearningObjectCategory.DoesNotExist,
                 CourseModule.DoesNotExist):
             raise course_instance_error
+
+    def get_absolute_url(self):
+        # TODO: IMPLEMENT
+        return ""
 
     def get_course_instance(self):
         return self.course_module.course_instance
