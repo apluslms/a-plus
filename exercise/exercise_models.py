@@ -69,13 +69,15 @@ class CourseModule(models.Model):
         return self.late_submissions_allowed and \
             self.closing_time <= datetime.now() <= self.late_submission_deadline
     
-    def is_open(self, when=datetime.now()):
+    def is_open(self, when=None):
+        when = when or datetime.now()
         return self.opening_time <= when <= self.closing_time
     
-    def is_after_open(self, when=datetime.now()):
+    def is_after_open(self, when=None):
         """
         Returns True if current time is past the round opening time.
         """
+        when = when or datetime.now()
         return self.opening_time <= when
 
     def __unicode__(self):
@@ -318,18 +320,21 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def is_open(self, when=datetime.now()):
-        """ 
-        Returns True if submissions are allowed for this exercise. 
+    def is_open(self, when=None):
         """
+        Returns True if submissions are allowed for this exercise.
+        """
+        when = when or datetime.now()
         return self.course_module.is_open(when=when)
 
-    def is_open_for(self, students, when=datetime.now()):
+    def is_open_for(self, students, when=None):
         """
         Considers the is_open and the DeadlineRuleDeviations.
         @param students: An iterable of UserProfiles
         @return: boolean
         """
+
+        when = when or datetime.now()
 
         if not self.is_open(when=when):
             # Lets check if there are DeadlineExceptions for the given
