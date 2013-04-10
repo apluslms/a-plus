@@ -33,13 +33,13 @@ def course_module_classes(course_module):
     view_instance view.
     """
     classes = []
-    if not course_module.is_open() and not course_module.is_after_open():
-        classes.append("upcoming")
-        classes.append("collapsed")
+    if course_module.is_open():
+        classes.append("open")
     elif course_module.is_after_open():
         classes.append("closed")
         classes.append("collapsed")
-    elif course_module.is_open():
-        classes.append("open")
+    else:
+        classes.append("upcoming")
+        classes.append("collapsed")
 
     return " ".join(classes)
