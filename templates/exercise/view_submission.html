@@ -28,8 +28,4 @@
 {% block exerciseinfo %}
     {{block.super}}
     {% include 'exercise/_submission_info.html' %}
-
-    {% for plugin_renderer in plugin_renderers %}
-        {{ plugin_renderer.render|safe|sanitize }}
-    {% endfor %}
 {% endblock %}
