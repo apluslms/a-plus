@@ -13,7 +13,10 @@ from exercise.submission_models import Submission
 
 class UserExerciseSummary(object):
     """
-    Summarises the submissions of a certain user and exercise.
+    UserExerciseSummary summarises the submissions of a certain user and
+    exercise. It calculates some characterizing figures such as the number of
+    submissions and reference to the best submission. See the public methods
+    for more.
     """
     def __init__(self, exercise, user, **kwargs):
         """
@@ -27,18 +30,16 @@ class UserExerciseSummary(object):
 
         # The caller of the __init__ may give kwargs submission_count and
         # best_submission in advance together with generate=False in which case
-        # the __init__ will not query the Submission model at all.
+        # the __init__ will not query the Submission model at all. This is used
+        # by the UserCourseSummary which has to generate a UserExerciseSummary
+        # for every exercise.
         if getattr(kwargs, "generate", True):
             self._generate_summary()
 
     def _generate_summary(self):
         """
         Initializes the instance variables submission_count and
-        best_submission. The best submission is the submission with the highest
-        grade and latest id.
-
-        If submissions is given as an argument, the method is optimized so that
-        no database queries are used.
+        best_submission.
         """
         submissions = self.exercise.get_submissions_for_student(
             self.user.get_profile()).order_by('-grade', 'id')
@@ -47,6 +48,15 @@ class UserExerciseSummary(object):
 
         if self.submission_count != 0:
             self.best_submission = submissions[0]
+
+    def get_best_submission(self):
+        """
+        The best_submission is the submission with the highest
+        grade and latest id.
+
+        @return: Submission instance
+        """
+        return self.best_submission
 
     def get_completed_percentage(self):
         """
@@ -71,6 +81,14 @@ class UserExerciseSummary(object):
         if not self.best_submission:
             return 0
         return self.best_submission.grade
+
+    def get_submission_count(self):
+        """
+        Number of submissions to this exercise made by this user.
+
+        @return: int
+        """
+        return self.submission_count
 
     def is_full_points(self):
         return self.get_points() == self.exercise.max_points
@@ -147,12 +165,6 @@ class UserExerciseRoundSummary(object):
             total += ex_summary.get_points()
         return total
 
-    def get_maximum_points(self):
-        total = 0
-        for ex_summary in self.exercise_summaries:
-            total += ex_summary.exercise.max_points
-        return total
-
     def get_average_total_grade(self):
         return sum([exercise.summary["average_grade"] for exercise
                     in self.exercises])
@@ -179,39 +191,12 @@ class UserExerciseRoundSummary(object):
     def get_exercise_count(self):
         return self.exercises.count()
 
-    def get_classes(self):
-        """
-        Returns the CSS classes that should be used for 
-        this exercise round in the exercise view.
-        """
-        classes = []
-        if self.exercise_round.opening_time > datetime.now():
-            classes.append("upcoming")
-            classes.append("collapsed")
-
-        elif self.exercise_round.closing_time < datetime.now():
-            classes.append("closed")
-            classes.append("collapsed")
-
-        else:
-            classes.append("open")
-
-        return " ".join(classes)
-
     def get_completed_percentage(self):
-        max_points = self.get_maximum_points()
+        max_points = self.exercise_round.get_maximum_points()
         if max_points == 0:
             return 0
         else:
             return int(round(100.0 * self.get_total_points() / max_points))
-
-    def get_required_percentage(self):
-        if self.get_maximum_points() == 0:
-            return 0
-        else:
-            return int(round(100.0
-                             * self.exercise_round.points_to_pass
-                             / self.get_maximum_points()))
 
 
 class UserCategorySummary(object):
@@ -295,13 +280,9 @@ class UserCourseSummary(object):
             exercise__course_module__course_instance=self
             .course_instance).defer("feedback"))
 
-        # Lists for summaries to be generated. The visible_category_summaries
-        # will contain summaries for those categories that are not hidden to
-        # the self.user. The visible_round_summaries will contain summaries for
-        # those exercise rounds that have at least one exercise that is not in
-        # a hidden category.
+        # Summaries to be generated.
+        self.exercise_summaries = {}
         self.round_summaries = []
-        self.visible_round_summaries = []
         self.category_summaries = []
         self.visible_category_summaries = []
 
@@ -349,6 +330,8 @@ class UserCourseSummary(object):
             (exercise_summaries_by_categories[d["obj"].category]
              .append(exercise_summary))
 
+            self.exercise_summaries[d["obj"]] = exercise_summary
+
         # Generate a summary for each round
         for rnd, exercise_summaries in (exercise_summaries_by_course_modules
                                         .items()):
@@ -369,33 +352,43 @@ class UserCourseSummary(object):
             if not cat_sum.category in user_hidden_categories:
                 self.visible_category_summaries.append(cat_sum)
 
-        # Separate list for round summaries that have visible categories
-        for rnd_sum in self.round_summaries:
-            if rnd_sum.has_visible_categories():
-                self.visible_round_summaries.append(rnd_sum)
+    def get_category_summary(self, category):
+        # TODO: Could self.category_summaries be a dict?
+        for category_summary in self.category_summaries:
+            if category_summary.category == category:
+                return category_summary
 
-    def get_ordered_visible_round_summaries(self):
-        """
-        The visible round summaries are returned in ascending order primarily
-        by its closing date and secondarily by its opening date.
-        """
-        ordered = sorted(self.visible_round_summaries,
-                         key=lambda summ: summ.exercise_round.opening_time)
-        ordered = sorted(ordered,
-                         key=lambda summ: summ.exercise_round.closing_time)
-        return ordered
-
-    def is_passed(self):
-        for round_summary in self.round_summaries:
-            if round_summary.is_passed() == False:
-                return False
-        return True
+    def get_completed_percentage(self):
+        max_points = self.get_maximum_points()
+        if max_points == 0:
+            return 0
+        else:
+            return int(round(100.0 * self.get_total_points() / max_points))
 
     def get_exercise_count(self):
         exercise_count = 0
         for round_summary in self.round_summaries:
             exercise_count += round_summary.get_exercise_count()
         return exercise_count
+
+    def get_exercise_round_summary(self, course_module):
+        # TODO: Could self.round_summaries be a dict?
+        for round_summary in self.round_summaries:
+            if round_summary.exercise_round == course_module:
+                return round_summary
+
+    def get_exercise_summary(self, exercise):
+        return self.exercise_summaries[exercise]
+
+    def get_json_by_rounds(self):
+        round_list = []
+        for round_summary in self.round_summaries:
+            round_list.append([round_summary.exercise_round.name,
+                               round_summary.get_total_points(),
+                               round_summary.get_average_total_grade(),
+                               round_summary.exercise_round
+                               .get_maximum_points()])
+        return simplejson.dumps(round_list)
 
     def get_maximum_points(self):
         """
@@ -414,18 +407,8 @@ class UserCourseSummary(object):
             point_sum += ex_round.get_total_points()
         return point_sum
 
-    def get_json_by_rounds(self):
-        round_list = []
+    def is_passed(self):
         for round_summary in self.round_summaries:
-            round_list.append([round_summary.exercise_round.name,
-                               round_summary.get_total_points(),
-                               round_summary.get_average_total_grade(),
-                               round_summary.get_maximum_points()])
-        return simplejson.dumps(round_list)
-
-    def get_completed_percentage(self):
-        max_points = self.get_maximum_points()
-        if max_points == 0:
-            return 0
-        else:
-            return int(round(100.0 * self.get_total_points() / max_points))
+            if round_summary.is_passed() == False:
+                return False
+        return True

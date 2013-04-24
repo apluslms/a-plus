@@ -1,4 +1,5 @@
 # Python
+from collections import defaultdict
 from icalendar import Calendar, Event
 
 # Django
@@ -20,7 +21,8 @@ from course.results import ResultTable
 from course.forms import CourseModuleForm
 from exercise.exercise_summary import UserCourseSummary
 from exercise.submission_models import Submission
-from exercise.exercise_models import CourseModule
+from exercise.exercise_models import CourseModule, BaseExercise,\
+    LearningObjectCategory, LearningObject
 
 # TODO: The string constant "You are not allowed to access this view." is
 # repeated a lot in this file. Giving this error message should be somehow
@@ -73,25 +75,43 @@ def view_instance(request, course_url, instance_url):
         @param instance_url: the url value of a CourseInstance object """
     
     course_instance = _get_course_instance(course_url, instance_url)
+    user_profile = request.user.get_profile()
 
-    if not course_instance.is_visible_to(request.user.get_profile()):
+    if not course_instance.is_visible_to(user_profile):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
-    course_summary  = UserCourseSummary(course_instance, request.user)
+    course_summary = UserCourseSummary(course_instance, request.user)
+
+    visible_categories = LearningObjectCategory.objects.filter(course_instance=course_instance).exclude(hidden_to=user_profile)
+    visible_exercises = BaseExercise.objects.filter(course_module__course_instance=course_instance, category__in=visible_categories).select_related("course_module", "category").order_by("order")
+
+    visible_exercises_by_course_modules = defaultdict(list)
+    for exercise in visible_exercises:
+        visible_exercises_by_course_modules[exercise.course_module].append(exercise)
+
+    visible_exercises_by_course_modules = sorted(visible_exercises_by_course_modules.items(), key=lambda t: (t[0].closing_time, t[0].opening_time))
+
+    exercise_tree = [(course_module, course_summary.get_exercise_round_summary(course_module), [(exercise, course_summary.get_exercise_summary(exercise)) for exercise in exercises], []) for course_module, exercises in visible_exercises_by_course_modules]
+
+    for course_module, round_summary, exercises_and_summaries, exercise_tree_category_level in exercise_tree:
+        for exercise, exercise_summary in exercises_and_summaries:
+            if len(exercise_tree_category_level) == 0 or exercise_tree_category_level[-1][0] != exercise.category:
+                exercise_tree_category_level.append((exercise.category, []))
+            exercise_tree_category_level[-1][1].append((exercise, exercise_summary))
 
     plugin_renderers = build_plugin_renderers(
-        plugins = course_instance.plugins.all(),
-        view_name = "course_instance",
-        user_profile = request.user.get_profile(),
-        course_instance = course_instance
-    )
+        plugins=course_instance.plugins.all(),
+        view_name="course_instance",
+        user_profile=user_profile,
+        course_instance=course_instance)
     
     return render_to_response("course/view_instance.html", 
                               CourseContext(request, 
                                             course_instance=course_instance, 
                                             course_summary=course_summary,
                                             plugin_renderers=plugin_renderers,
+                                            exercise_tree=exercise_tree,
                                             ))
 
 

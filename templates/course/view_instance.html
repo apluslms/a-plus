@@ -1,6 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load sanitizer %}
 {% load i18n %}
+{% load course_menu %}
 
 {# TODO: This file is huge. Make it use more sub-templates or use blocking commenting. #}
 
@@ -28,12 +29,12 @@
         <a href="#" id="toggleOldModules" data-show-text="{% trans "Show old assignments" %}"
                     data-hide-text="{% trans "Hide old assignments" %}" class="hide">{% trans "Show old assignments" %}</a>
         <ul class="exercise_rounds">
-        {% for round_summary in course_summary.get_ordered_visible_round_summaries %}
-            <li class="exercise_round {{ round_summary.get_classes }}">
-                {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
+        {% for course_module, round_summary, exercises_and_summaries, exercise_tree_category_level in exercise_tree %}
+            <li class="exercise_round {{ course_module|course_module_classes }}">
+                {% if course_module.is_after_open or is_teacher or is_assistant %}
                 <div class="exercise-icons">
                     <div class="btn-group">
-                    {% for exercise_summary in round_summary.exercise_summaries %}
+                    {% for exercise, exercise_summary in exercises_and_summaries %}
                         <a href="{{ exercise_summary.exercise.get_absolute_url }}"
                             class="btn 
                                 {% if not exercise_summary.is_passed %}
@@ -61,14 +62,14 @@
                     <h3>
                         <i class="icon-chevron-right"></i>
                         <i class="icon-chevron-down"></i>
-                        {{ round_summary.exercise_round.name }}
+                        {{ course_module.name }}
                         <small class="nowrap">
-                            {{ round_summary.get_total_points }} / {{ round_summary.get_maximum_points }} {% trans "points" %}
-                            {% if round_summary.exercise_round.points_to_pass > 0 %}(required to pass: {{ round_summary.exercise_round.points_to_pass }}){% endif %}
+                            {{ round_summary.get_total_points }} / {{ course_module.get_maximum_points }} {% trans "points" %}
+                            {% if course_module.points_to_pass > 0 %}(required to pass: {{ course_module.points_to_pass }}){% endif %}
                         </small>
                     </h3>
                 </a>
-                <p><span class="dates">{{ round_summary.exercise_round.opening_time }} &ndash; {{ round_summary.exercise_round.closing_time }}</span></p>
+                <p><span class="dates">{{ course_module.opening_time }} &ndash; {{ course_module.closing_time }}</span></p>
                  
                 <div class="table-container">
                 	<div class="progress{% if round_summary.is_passed %} progress-success{% else %} progress-danger{% endif %} progress-striped" style="position: relative">
@@ -76,47 +77,40 @@
 		                     data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ round_summary.get_total_points }}"></div>
 		                <a href="#"
 		                   class="score-barrier required-score"
-		                   style="left: {{ round_summary.get_required_percentage }}%"
+		                   style="left: {{ course_module.get_required_percentage }}%"
 		                   rel="tooltip"
 		                   data-placement="bottom"
-		                   title="{% trans "Points required to pass" %}: {{ round_summary.exercise_round.points_to_pass }}"></a>
+		                   title="{% trans "Points required to pass" %}: {{ course_module.points_to_pass }}"></a>
 	                </div>
                 	{% autoescape off %}
-	                <div class="exercise_round_introduction">{{ round_summary.exercise_round.introduction }}</div>
+	                <div class="exercise_round_introduction">{{ course_module.introduction }}</div>
                 	{% endautoescape %}
-                    {% if round_summary.exercise_summaries %}
                     <table class="table table-bordered table-condensed exercise-table">
                         <tbody>
-                        {% for category, exercise_summaries in round_summary.categorized_exercise_summaries %}
-                            {% if not category in user.get_profile.hidden_categories.all %}
-                                <tr class="category-row">
-                                    <td>{{ category.name }}</td>
-                                    <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
+                        {% for category, exercise_tree_exercise_level in exercise_tree_category_level %}
+                            <tr class="category-row">
+                                <td>{{ category.name }}</td>
+                                <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
+                            </tr>
+                            {% for exercise, exercise_summary in exercise_tree_exercise_level %}
+                                <tr>
+                                    <td>
+                                    {% if course_module.is_after_open or is_teacher or is_assistant %}
+                                        <a href="{{ exercise.get_absolute_url }}">{{ exercise.order }}. {{ exercise.name }}</a>
+                                    {% else %}
+                                        {{ exercise.order }}. {{ exercise.name }}
+                                    {% endif %}
+                                    </td>
+                                    <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.exercise.max_points }}</td>
                                 </tr>
-                                {% for exercise_summary in exercise_summaries %}
-                                    <tr>
-                                        <td>
-                                        {% if round_summary.exercise_round.is_after_open or is_teacher or is_assistant %}
-                                            <a href="{{ exercise_summary.exercise.get_absolute_url }}">{{ exercise_summary.exercise.order }}. {{ exercise_summary.exercise.name }}</a>
-                                        {% else %}
-                                            {{ exercise_summary.exercise.order }}. {{exercise_summary.exercise.name}}
-                                        {% endif %}
-                                        </td>
-                                        <td style="text-align: right">{{ exercise_summary.get_points }} / {{ exercise_summary.exercise.max_points }}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% endif %}
+                            {% endfor %}
                         {% endfor %}
                         </tbody>
                     </table>
-                    {% else %}
-                        <div class="alert alert-info">
-                            {% trans "No learning objects defined for this module." %}
-                        </div>
-                    {% endif %}
                 </div>
             </li>
         {% empty %}
+            {# TODO: Rethink #}
             {% if course_summary.round_summaries|length > 0 %}
                 <li class="alert alert-info">
                     {% trans "You have hidden all the categories." %}
