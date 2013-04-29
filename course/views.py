@@ -65,14 +65,24 @@ def view_course(request, course_url):
 
 @login_required
 def view_instance(request, course_url, instance_url):
-    """ Renders a dashboard page for a course instance. A dashboard has a list
-        of exercise rounds and exercises and plugins that may have been 
-        installed on the course. Students also see a summary of their progress
-        on the course dashboard.
+    """
+    Renders the home page for a course instance showing the current student's
+    progress on the course.
+
+    On the page, all the exercises of the course instance are organized as a
+    schedule. They are primarily organized in a list of course modules which
+    are primarily ordered according to their closing times and secodarily to
+    their opening times. Inside the course modules the exercises are ordered
+    according to their order attribute but in the same time, they are also
+    grouped to their categories.
+
+    The home page also contains a summary of the student's progress for the
+    whole course instance, course modules, categories and each exercise.
         
-        @param request: the Django HttpRequest object
-        @param course_url: the url value of a Course object
-        @param instance_url: the url value of a CourseInstance object """
+    @param request: the Django HttpRequest object
+    @param course_url: the url value of a Course object
+    @param instance_url: the url value of a CourseInstance object
+    """
     
     course_instance = _get_course_instance(course_url, instance_url)
     user_profile = request.user.get_profile()
@@ -80,6 +90,24 @@ def view_instance(request, course_url, instance_url):
     if not course_instance.is_visible_to(user_profile):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
+
+    # Most of the data contained on the page is called in a special data
+    # structure which we call the exercise_tree. The root of the tree is the
+    # associated CourseInstance. On the second level of the tree, we have a
+    # list of CourseModule objects. The second level indeed is a list because
+    # the CourseModule objects are ordered chronologically. Now, the
+    # view_instance.html template renders the CourseModules objects so that in
+    # addition to the categorized exercise list, there is an additional small
+    # list of hotlinks for the exercises. For this reason, the
+    # exercise tree separates to two different third levels here--the list
+    # containing all the exercises of the CourseModule for the hotlinks and the list
+    # containing the LearningObjectCategory objects. The latter of these then has
+    # a fourth level which finally contains lists of exercises (grouped by the LearningObjectCategory objects of the previous level).
+    #
+    # All the nodes of the tree are implemented as tuples which contain the main object of the node and the list representing the reference to the next level of the tree
+    # as explained previously.
+    # In addition to those, the tuple also contains a summary object corresponding to the main object of the node.
+    # For example the tuple of a node on the second level contains UserRoundSummary objects corresponding to the CourseModule objects.
 
     course_summary = UserCourseSummary(course_instance, request.user)
 
