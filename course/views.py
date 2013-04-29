@@ -71,7 +71,7 @@ def view_instance(request, course_url, instance_url):
 
     On the page, all the exercises of the course instance are organized as a
     schedule. They are primarily organized in a list of course modules which
-    are primarily ordered according to their closing times and secodarily to
+    are primarily ordered according to their closing times and secondarily to
     their opening times. Inside the course modules the exercises are ordered
     according to their order attribute but in the same time, they are also
     grouped to their categories.
@@ -91,42 +91,103 @@ def view_instance(request, course_url, instance_url):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
-    # Most of the data contained on the page is called in a special data
-    # structure which we call the exercise_tree. The root of the tree is the
-    # associated CourseInstance. On the second level of the tree, we have a
-    # list of CourseModule objects. The second level indeed is a list because
-    # the CourseModule objects are ordered chronologically. Now, the
-    # view_instance.html template renders the CourseModules objects so that in
-    # addition to the categorized exercise list, there is an additional small
-    # list of hotlinks for the exercises. For this reason, the
-    # exercise tree separates to two different third levels here--the list
-    # containing all the exercises of the CourseModule for the hotlinks and the list
-    # containing the LearningObjectCategory objects. The latter of these then has
-    # a fourth level which finally contains lists of exercises (grouped by the LearningObjectCategory objects of the previous level).
+    # In the following code, we are going to construct a special data structure
+    # to be used in the view_instance.html. We refer to the structure as the
+    # exercise_tree. The main idea is to provide all the data for the template
+    # in a way that makes the template as simple as possible.
     #
-    # All the nodes of the tree are implemented as tuples which contain the main object of the node and the list representing the reference to the next level of the tree
-    # as explained previously.
-    # In addition to those, the tuple also contains a summary object corresponding to the main object of the node.
-    # For example the tuple of a node on the second level contains UserRoundSummary objects corresponding to the CourseModule objects.
+    # This is how the structure should be used in the template:
+    #
+    #   {% for course_module, round_summary, uncategorized_exercise_level, category_level in exercise_tree %}
+    #
+    #       ...
+    #
+    #       {% for exercise, exercise_summary in uncategorized_exercise_level %}
+    #           ...
+    #       {% endfor %}
+    #
+    #       ...
+    #
+    #       {% for category, category_summary, categorized_exercise_level in category_level %}
+    #
+    #           ...
+    #
+    #           {% for exercise, exercise_summary in categorized_exercise_level %}
+    #               ...
+    #           {% endfor %}
+    #
+    #           ...
+    #
+    #       {% endfor %}
+    #
+    #       ...
+    #
+    #   {% endfor %}
+    #
+    # Notice that all the nodes of the tree are tuples (all the lists contain
+    # tuples). The tuples are of course formatted the same way in a particular
+    # tree level (list).
+    #
+    # The CourseModule objects are ordered chronologically. The exercises are
+    # ordered by their order attribute. The order of the categories is
+    # determined by the order of the exercises. For example, if the first two
+    # exercises belong to category A and then the following two exercises
+    # belong to category B, our list of categories will begin like [A, B, ...].
+    # Note that the category A may be in the list later too if there is more
+    # exercises that belong to the category A. For example, if the fifth
+    # exercises would belong to category A, our list of categories would be
+    # [A, B, A, ...].
+    #
+    # The view_instance.html template renders the CourseModules objects so that
+    # in addition to the categorized exercise list, there is an additional
+    # small list of hotlinks for the exercises. For this reason, the exercise
+    # tree separates to two different list on the second level--the list
+    # containing all the exercises of the CourseModule (for the hotlinks) and
+    # the list containing the LearningObjectCategory objects. The latter of
+    # these then has a third level which finally contains lists of exercises
+    # (grouped by the LearningObjectCategory objects of their parent node that
+    # is).
+    #
+    # Also notice the summaries in the tuples. Those alway correspond to the
+    # main object of the tuple.
+    #
 
     course_summary = UserCourseSummary(course_instance, request.user)
 
-    visible_categories = LearningObjectCategory.objects.filter(course_instance=course_instance).exclude(hidden_to=user_profile)
-    visible_exercises = BaseExercise.objects.filter(course_module__course_instance=course_instance, category__in=visible_categories).select_related("course_module", "category").order_by("order")
+    visible_categories = LearningObjectCategory.objects.filter(
+        course_instance=course_instance).exclude(hidden_to=user_profile)
+    visible_exercises = (BaseExercise.objects.filter(
+        course_module__course_instance=course_instance,
+        category__in=visible_categories)
+        .select_related("course_module", "category").order_by("order"))
 
     visible_exercises_by_course_modules = defaultdict(list)
     for exercise in visible_exercises:
-        visible_exercises_by_course_modules[exercise.course_module].append(exercise)
+        (visible_exercises_by_course_modules[exercise.course_module]
+         .append(exercise))
 
-    visible_exercises_by_course_modules = sorted(visible_exercises_by_course_modules.items(), key=lambda t: (t[0].closing_time, t[0].opening_time))
+    visible_exercises_by_course_modules = sorted(
+        visible_exercises_by_course_modules.items(),
+        key=lambda t: (t[0].closing_time, t[0].opening_time))
 
-    exercise_tree = [(course_module, course_summary.get_exercise_round_summary(course_module), [(exercise, course_summary.get_exercise_summary(exercise)) for exercise in exercises], []) for course_module, exercises in visible_exercises_by_course_modules]
+    exercise_tree = [
+        (course_module,
+         course_summary.get_exercise_round_summary(course_module),
+         [(exercise, course_summary.get_exercise_summary(exercise))
+          for exercise in exercises], [])
+        for course_module, exercises in visible_exercises_by_course_modules]
 
-    for course_module, round_summary, exercises_and_summaries, exercise_tree_category_level in exercise_tree:
+    for course_module, round_summary, exercises_and_summaries,\
+            exercise_tree_category_level in exercise_tree:
         for exercise, exercise_summary in exercises_and_summaries:
-            if len(exercise_tree_category_level) == 0 or exercise_tree_category_level[-1][0] != exercise.category:
+            if (len(exercise_tree_category_level) == 0
+                    or exercise_tree_category_level[-1][0]
+                    != exercise.category):
                 exercise_tree_category_level.append((exercise.category, []))
-            exercise_tree_category_level[-1][1].append((exercise, exercise_summary))
+            exercise_tree_category_level[-1][1].append((exercise,
+                                                        exercise_summary))
+            
+    # Finished constructing the exercise_tree.
 
     plugin_renderers = build_plugin_renderers(
         plugins=course_instance.plugins.all(),
