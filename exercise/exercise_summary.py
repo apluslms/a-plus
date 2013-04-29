@@ -191,14 +191,14 @@ class UserExerciseRoundSummary(object):
 
 
 class UserCategorySummary(object):
-    def __init__(self, category, user, exercise_summaries=[], generate=True):
+    def __init__(self, category, user, **kwargs):
         self.category = category
         self.user = user
         self.exercises = BaseExercise.objects.filter(category=category)
 
-        self.exercise_summaries = exercise_summaries
+        self.exercise_summaries = getattr(kwargs, "exercise_summaries", [])
 
-        if generate:
+        if getattr(kwargs, "generate", True):
             self._generate_summary()
 
     def _generate_summary(self):
