@@ -144,19 +144,10 @@ class UserExerciseRoundSummary(object):
                 self.visible_categories.append(category)
 
     def _generate_summary(self):
-        submissions = Submission.objects.filter(
-            exercise__course_module=self.exercise_round,
-            submitters=self.user).select_related("exercise")
-
-        submissions_by_exercises = {exercise: []
-                                    for exercise in self.exercises}
-
-        for submission in submissions:
-            submissions_by_exercises[submission.exercise].append(submission)
-
-        for exercise, submissions in submissions_by_exercises.items():
-            ex_summary = UserExerciseSummary(exercise,
-                                         self.user)
+        # TODO: This could also use the optimisation technique for generating
+        # the ExerciseSummary objects.
+        for exercise in self.exercises:
+            ex_summary = UserExerciseSummary(exercise, self.user)
             self.exercise_summaries.append(ex_summary)
 
     def get_total_points(self):
