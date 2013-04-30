@@ -131,13 +131,15 @@ class LearningObjectCategory(models.Model):
         return self.name + u" -- " + unicode(self.course_instance)
 
     def is_hidden_to(self, profile):
-        return profile in self.hidden_to.all()
+        return self in profile.get_hidden_categories_cache()
 
     def set_hidden_to(self, profile, hide=True):
         if hide and not self.is_hidden_to(profile):
             self.hidden_to.add(profile)
         elif not hide and self.is_hidden_to(profile):
             self.hidden_to.remove(profile)
+
+        profile.reset_hidden_categories_cache()
 
 
 class LearningObject(ModelWithInheritance):
