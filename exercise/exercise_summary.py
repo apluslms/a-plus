@@ -25,15 +25,16 @@ class UserExerciseSummary(object):
         """
         self.exercise = exercise
         self.user = user
-        self.submission_count = getattr(kwargs, "submission_count", 0)
-        self.best_submission = getattr(kwargs, "best_submission", None)
+        self.submission_count = kwargs.pop("submission_count", 0)
+        self.best_submission = kwargs.pop("best_submission", None)
 
         # The caller of the __init__ may give kwargs submission_count and
         # best_submission in advance together with generate=False in which case
         # the __init__ will not query the Submission model at all. This is used
         # by the UserCourseSummary which has to generate a UserExerciseSummary
         # for every exercise.
-        if getattr(kwargs, "generate", True):
+        if kwargs.pop("generate", True):
+            print "heree"
             self._generate_summary()
 
     def _generate_summary(self):
@@ -113,9 +114,9 @@ class UserExerciseRoundSummary(object):
         self.user = user
         self.exercises = BaseExercise.objects.filter(
             course_module=self.exercise_round)
-        self.exercise_summaries = getattr(kwargs, "exercise_summaries", [])
+        self.exercise_summaries = kwargs.pop("exercise_summaries", [])
 
-        if getattr(kwargs, "generate", True):
+        if kwargs.pop("generate", True):
             self._generate_summary()
 
         self.categories = []
@@ -196,9 +197,9 @@ class UserCategorySummary(object):
         self.user = user
         self.exercises = BaseExercise.objects.filter(category=category)
 
-        self.exercise_summaries = getattr(kwargs, "exercise_summaries", [])
+        self.exercise_summaries = kwargs.pop("exercise_summaries", [])
 
-        if getattr(kwargs, "generate", True):
+        if kwargs.pop("generate", True):
             self._generate_summary()
 
     def _generate_summary(self):
