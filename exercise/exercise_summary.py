@@ -334,7 +334,8 @@ class UserCourseSummary(object):
         for cat, exercise_summaries in (exercise_summaries_by_categories
                                         .items()):
             self.category_summaries.append(UserCategorySummary(
-                cat, self.user, exercise_summaries, generate=False))
+                cat, self.user, exercise_summaries=exercise_summaries,
+                generate=False))
 
         # Separate list for visible category summaries only
         user_hidden_categories = (self.user.get_profile()
