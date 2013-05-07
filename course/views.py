@@ -193,6 +193,9 @@ def view_instance(request, course_url, instance_url):
 
     # Finished constructing the exercise_tree.
 
+    course_instance_max_points = BaseExercise.get_course_instance_max_points(
+        course_instance)
+
     plugin_renderers = build_plugin_renderers(
         plugins=course_instance.plugins.all(),
         view_name="course_instance",
@@ -205,6 +208,8 @@ def view_instance(request, course_url, instance_url):
                                             course_summary=course_summary,
                                             plugin_renderers=plugin_renderers,
                                             exercise_tree=exercise_tree,
+                                            course_instance_max_points=
+                                            course_instance_max_points,
                                             ))
 
 
@@ -227,12 +232,17 @@ def view_my_page(request, course_url, instance_url):
 
     course_summary  = UserCourseSummary(course_instance, request.user)
     submissions     = request.user.get_profile().submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
+
+    course_instance_max_points = BaseExercise.get_course_instance_max_points(
+        course_instance)
     
     return render_to_response("course/view_my_page.html", 
                               CourseContext(request, 
                                             course_instance=course_instance,
                                             course_summary=course_summary,
-                                            submissions=submissions
+                                            submissions=submissions,
+                                            course_instance_max_points=
+                                            course_instance_max_points,
                                             ))
 
 

@@ -73,12 +73,13 @@ class CourseModule(models.Model):
         return max_points or 0
 
     def get_required_percentage(self):
-        if self.get_maximum_points() == 0:
+        max_points = self.get_maximum_points()
+        if max_points == 0:
             return 0
         else:
             return int(round(100.0
                              * self.points_to_pass
-                             / self.get_maximum_points()))
+                             / max_points))
     
     def is_late_submission_open(self):
         return self.late_submissions_allowed and \
@@ -195,6 +196,19 @@ class BaseExercise(LearningObject):
     max_submissions = models.PositiveIntegerField(default=10)
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
+
+    @classmethod
+    def get_course_instance_max_points(cls, course_instance):
+        """
+        Returns the maximum points for the whole course instance, ie. the sum
+        of maximum points for all exercises.
+        """
+        all_exercises = BaseExercise.objects.filter(
+            course_module__course_instance=course_instance)
+        max_points = all_exercises.aggregate(
+            max_points=Sum('max_points'))['max_points']
+        return max_points or 0
+
 
     def get_average_percentage(self):
         """

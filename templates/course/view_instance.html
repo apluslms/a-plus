@@ -129,7 +129,7 @@
         {% if False %}
         <div class="well my-score-box">
             <h4>{%trans "Total points:" %}</h4>
-            <h2>{{ course_summary.get_total_points }} <small>/ {{ course_summary.get_maximum_points }}</small></h2>
+            <h2>{{ course_summary.get_total_points }} <small>/ {{ course_instance_max_points }}</small></h2>
             <div
                     class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
                     style="position: relative">

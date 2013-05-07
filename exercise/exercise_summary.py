@@ -352,7 +352,8 @@ class UserCourseSummary(object):
                 return category_summary
 
     def get_completed_percentage(self):
-        max_points = self.get_maximum_points()
+        max_points = BaseExercise.get_course_instance_max_points(
+            self.course_instance)
         if max_points == 0:
             return 0
         else:
@@ -382,17 +383,6 @@ class UserCourseSummary(object):
                                round_summary.exercise_round
                                .get_maximum_points()])
         return simplejson.dumps(round_list)
-
-    def get_maximum_points(self):
-        """
-        Returns the maximum points for the whole course instance, ie. the sum
-        of maximum points for all exercises.
-        """
-        all_exercises = BaseExercise.objects.filter(
-            course_module__course_instance=self.course_instance)
-        max_points = all_exercises.aggregate(
-            max_points=Sum('max_points'))['max_points']
-        return max_points or 0
 
     def get_total_points(self):
         point_sum = 0

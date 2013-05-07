@@ -30,7 +30,7 @@
         <h3>{{ course.name }}</h3>
         <p>
             {% trans "You currently have" %}
-            <span class="label label-info">{{ course_summary.get_total_points }} / {{ course_summary.get_maximum_points }}</span>
+            <span class="label label-info">{{ course_summary.get_total_points }} / {{ course_instance_max_points }}</span>
             {% trans "exercise points on this course" %}.
         </p>
         
