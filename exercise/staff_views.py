@@ -1,29 +1,24 @@
 # Python
 import simplejson as json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Django
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden,\
+from django.http import HttpResponse, HttpResponseForbidden,\
     HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404, render_to_response, redirect
-from django.views.static import serve
-from django.template.context import RequestContext
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 
 # A+
 from course.models import CourseInstance
-from userprofile.models import UserProfile, StudentGroup
+from userprofile.models import UserProfile
 from exercise.exercise_models import BaseExercise, CourseModule
-from exercise.submission_models import Submission, SubmittedFile
+from exercise.submission_models import Submission
 from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
     StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm
-from lib import helpers
 from course.context import CourseContext
 from django.utils import simplejson
 
