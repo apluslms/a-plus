@@ -183,10 +183,14 @@ def view_instance(request, course_url, instance_url):
             if (len(exercise_tree_category_level) == 0
                     or exercise_tree_category_level[-1][0]
                     != exercise.category):
-                exercise_tree_category_level.append((exercise.category, []))
-            exercise_tree_category_level[-1][1].append((exercise,
+                exercise_tree_category_level.append(
+                    (exercise.category,
+                     course_summary.get_exercise_round_summary(
+                         exercise.category),
+                     []))
+            exercise_tree_category_level[-1][2].append((exercise,
                                                         exercise_summary))
-            
+
     # Finished constructing the exercise_tree.
 
     plugin_renderers = build_plugin_renderers(

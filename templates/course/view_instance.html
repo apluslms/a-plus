@@ -29,12 +29,12 @@
         <a href="#" id="toggleOldModules" data-show-text="{% trans "Show old assignments" %}"
                     data-hide-text="{% trans "Hide old assignments" %}" class="hide">{% trans "Show old assignments" %}</a>
         <ul class="exercise_rounds">
-        {% for course_module, round_summary, exercises_and_summaries, exercise_tree_category_level in exercise_tree %}
+        {% for course_module, round_summary, uncategorized_exercise_level, category_level in exercise_tree %}
             <li class="exercise_round {{ course_module|course_module_classes }}">
                 {% if course_module.is_after_open or is_teacher or is_assistant %}
                 <div class="exercise-icons">
                     <div class="btn-group">
-                    {% for exercise, exercise_summary in exercises_and_summaries %}
+                    {% for exercise, exercise_summary in uncategorized_exercise_level %}
                         <a href="{{ exercise_summary.exercise.get_absolute_url }}"
                             class="btn 
                                 {% if not exercise_summary.is_passed %}
@@ -87,12 +87,12 @@
                 	{% endautoescape %}
                     <table class="table table-bordered table-condensed exercise-table">
                         <tbody>
-                        {% for category, exercise_tree_exercise_level in exercise_tree_category_level %}
+                        {% for category, category_summary, categorized_exercise_level in category_level %}
                             <tr class="category-row">
                                 <td>{{ category.name }}</td>
                                 <td style="width: 80px;">{% if forloop.first %}{% trans "Points" %}{% endif %}</td>
                             </tr>
-                            {% for exercise, exercise_summary in exercise_tree_exercise_level %}
+                            {% for exercise, exercise_summary in categorized_exercise_level %}
                                 <tr>
                                     <td>
                                     {% if course_module.is_after_open or is_teacher or is_assistant %}
