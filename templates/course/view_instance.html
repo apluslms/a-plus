@@ -145,7 +145,7 @@
                 <div class="well my-score-box">
                     {% for category_summary in course_summary.visible_category_summaries %}
                         <h4>{{ category_summary.category.name }}</h4>
-                        <h4>{{ category_summary.get_total_points }} <small>/ {{ category_summary.get_maximum_points }}</small></h4>
+                        <h4>{{ category_summary.get_total_points }} <small>/ {{ category_summary.category.get_maximum_points }}</small></h4>
                         <div
                         class="progress {% if category_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
                         style="position: relative">
@@ -165,7 +165,7 @@
             {% else %}
                 <div class="well my-score-box">
                     <h4>{{ course_summary.visible_category_summaries.0.category.name }}</h4>
-                    <h2>{{ course_summary.visible_category_summaries.0.get_total_points }} <small>/ {{ course_summary.visible_category_summaries.0.get_maximum_points }}</small></h2>
+                    <h2>{{ course_summary.visible_category_summaries.0.get_total_points }} <small>/ {{ course_summary.visible_category_summaries.0.category.get_maximum_points }}</small></h2>
                     <div
                             class="progress {% if course_summary.visible_category_summaries.0.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped"
                             style="position: relative">

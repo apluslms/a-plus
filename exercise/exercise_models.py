@@ -66,11 +66,12 @@ class CourseModule(models.Model):
         return BaseExercise.objects.filter(course_module=self)
 
     def get_maximum_points(self):
-        # TODO: This could be cached for example similarily to
-        # BaseExercise.__get_summary
-        max_points = self.get_exercises().aggregate(
-            max_points=Sum('max_points'))['max_points']
-        return max_points or 0
+        if not hasattr(self, "_cached_max_points"):
+            max_points = self.get_exercises().aggregate(
+                max_points=Sum('max_points'))['max_points']
+            self._cached_max_points = max_points or 0
+
+        return self._cached_max_points
 
     def get_required_percentage(self):
         max_points = self.get_maximum_points()
@@ -130,6 +131,26 @@ class LearningObjectCategory(models.Model):
 
     def __unicode__(self):
         return self.name + u" -- " + unicode(self.course_instance)
+
+    def get_exercises(self):
+        return BaseExercise.objects.filter(category=self)
+
+    def get_maximum_points(self):
+        if not hasattr(self, "_cached_max_points"):
+            max_points = self.get_exercises().aggregate(
+                max_points=Sum('max_points'))['max_points']
+            self._cached_max_points = max_points or 0
+
+        return self._cached_max_points
+
+    def get_required_percentage(self):
+        max_points = self.get_maximum_points()
+        if max_points == 0:
+            return 0
+        else:
+            return int(round(
+                100.0 * self.points_to_pass
+                / max_points))
 
     def is_hidden_to(self, profile):
         return self in profile.get_hidden_categories_cache()
