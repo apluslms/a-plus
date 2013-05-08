@@ -28,16 +28,44 @@ body {
     height: 100%;
 }
 
-div#page {
-    min-height: 100%;
-    position: relative;
+
+/*****************************************************************************
+ * MAIN NAVBAR ***************************************************************
+ *****************************************************************************/
+
+div#main-navbar .navbar-inner {
+    /* The following overrides .navbar-inner of Bootstrap for customized
+     * look.
+     */
+    background-color: #007abe;
+    background-image: -moz-linear-gradient(top, #0088cc, #0066aa);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0066aa));
+    background-image: -webkit-linear-gradient(top, #0088cc, #0066aa);
+    background-image: -o-linear-gradient(top, #0088cc, #0066aa);
+    background-image: linear-gradient(to bottom, #0088cc, #0066aa);
+    background-repeat: repeat-x;
+    border-bottom: none;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0066aa', GradientType=0);
+    *zoom: 1;
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
+
+div#main-navbar a {
+    /* The following overrides .navbar .brand of Bootstrap for customized
+     * look.
+     */
+    color: #ffffff;
+    text-shadow: none;
+}
+
 
 /*****************************************************************************
  * FOOTER ********************************************************************
  *****************************************************************************/
 
-div#page > footer {
+footer {
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -57,7 +85,7 @@ div#page > footer {
 }
 
 /* This one is for the fixed footer. */
-div#page > div#main_content {
+div#main_content {
     padding-bottom: 60px;
 }
 
