@@ -1,5 +1,7 @@
-from django.conf.urls.defaults import *
-from course.views import *
+from django.conf.urls.defaults import patterns
+from course.views import add_or_edit_module, assistants_view, course_archive,\
+    set_schedule_filters, teachers_view, view_course, view_instance,\
+    view_instance_calendar, view_instance_results, view_my_page
 from exercise.staff_views import create_and_assess_submission_batch
 
 COURSE_URL_PREFIX = r'^(?P<course_url>[\w\d\-\.]+)/'
