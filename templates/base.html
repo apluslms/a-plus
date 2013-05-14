@@ -6,18 +6,17 @@
         <meta charset="utf-8" />
         
         <title>{% block title %}A+{% endblock %}</title>
-        
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
-        
-        <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" type="text/css" media="screen, projection" />
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
+
+        <!-- This is for responsive bootstrap -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
         
         <link rel="stylesheet" href="{{ STATIC_URL }}css/submission.css" type="text/css" />
         
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css" />
-        <script type="text/javascript" src="{{ STATIC_URL }}js/aaltoplus.js"></script>
-        
-        <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
+
         <link rel="stylesheet" href="{{ STATIC_URL }}prettify/prettify.css" type="text/css" />
         
         {% block head %}{% endblock %}
@@ -107,6 +106,7 @@
                 </div>
             {% endblock %}
         </div>
+
         {% block footer %}
         <footer class="footer">
 
@@ -119,5 +119,17 @@
 
         </footer>
         {% endblock %}
+
+        <!-- When the scripts are at the end of the body, the rendering is not
+        blocked by the script loading and thus, the borwser shows the page
+        faster -->
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/aaltoplus.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
+        {% block scripts %}
+            {# Put all additional scripts inside this block. #}
+        {% endblock %}
+
     </body>
 </html>
