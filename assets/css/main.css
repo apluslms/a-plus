@@ -113,11 +113,11 @@ div#base-container {
 }
 
 /* This one is for the fixed footer. */
-div#base-container > div#main_content {
+div#main_content {
     padding-bottom: 60px;
 }
 
-div#base-container > footer {
+footer {
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -135,10 +135,13 @@ div#base-container > footer {
     background: rgb(245, 245, 245);
     /* The desired rule */
     background: rgba(0,0,0,0.05);
+
+    padding: 3px 0;
 }
 
 footer p {
     color: #555555;
+    margin: 0;
 }
 
 
