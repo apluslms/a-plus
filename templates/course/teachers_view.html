@@ -79,6 +79,6 @@
 
 <form action="/course/{{ instance.id }}/create_and_assess_submission_batch/" method="post">{% csrf_token %}
     <textarea name="submissions_json"></textarea>
-    <input type="submit" value="{% trans "Submit" %}" />
+    <button type="submit" class="btn">{% trans "Submit" %}</button>
 </form>
 {% endblock %}

@@ -10,9 +10,6 @@ span.helptext {
 .hidden {
     display: none;
 }
-.exercise-icons {
-    float: right;
-}
 
 #exercise iframe {
     border: none;
@@ -26,6 +23,50 @@ html {
 body {
     background: url(/static/images/square_bg.png) top left repeat transparent;
     height: 100%;
+}
+
+
+/*****************************************************************************
+ * HEADERS *******************************************************************
+ *****************************************************************************/
+
+/* The following overrides header sizes and their line heights of Bootstrap as
+ * they are overly large.
+ */
+
+h1 {
+    font-size: 30px;
+    line-height: 36px;
+}
+
+h1 small {
+  font-size: 18px;
+}
+
+h2 {
+    font-size: 24px;
+    line-height: 36px;
+}
+
+h2 small {
+  font-size: 18px;
+}
+
+h3 {
+    font-size: 18px;
+    line-height: 27px;
+}
+
+h3 small {
+  font-size: 14px;
+}
+
+.page-header {
+    /* The following overrides .page-header of Bootstrap for customized
+     * look.
+     */
+    margin-bottom: 16px;
+    padding-bottom: 5px;
 }
 
 
@@ -143,10 +184,13 @@ footer p {
 }
 
 
-
 /*****************************************************************************
  * SCHEDULE ******************************************************************
  *****************************************************************************/
+
+div#course-schedule-container h2 {
+    margin-top: 0;
+}
 
 ul.exercise_rounds {
     margin: 0;
@@ -186,10 +230,30 @@ ul.exercise_rounds li.collapsed .icon-chevron-right {
 ul.exercise_rounds li .icon-chevron-right {
     display: none;
 }
-ul.exercise_rounds li h3 i {
+
+ul.exercise_rounds li.exercise_round h3 {
+    font-size: 18px;
+    line-height: 27px;
+    margin: 0;
+}
+
+ul.exercise_rounds li.exercise_round h3 i {
     vertical-align: middle;
     padding-bottom: 3px;
 }
+
+ul.exercise_rounds li.exercise_round div.exercise-icons {
+    float: right;
+}
+
+ul.exercise_rounds li.exercise_round div.exercise-icons .btn-group {
+    float: right;
+}
+
+ul.exercise_rounds li.exercise_round div.exercise-icons .btn-group .btn {
+    padding: 4px 10px;
+}
+
 ul.exercise_rounds li.open {
     border-left-color: #0088CC;
     border-left-width: 3px;
@@ -225,14 +289,6 @@ ul.exercise_rounds li.exercise_round:last-child {
 .my-score-box {
     text-align: center;
     font-family: georgia, serif;
-}
-
-.exercise-icons .my-score-box {
-    text-align: right;
-}
-
-.exercise-icons .btn-group {
-    float: right;
 }
 
 .progress .score-barrier {
