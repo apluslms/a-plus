@@ -52,7 +52,7 @@ div#main-navbar .navbar-inner {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
-div#main-navbar a {
+div#main-navbar .brand, div#main-navbar #user-status a {
     /* The following overrides .navbar .brand of Bootstrap for customized
      * look.
      */

@@ -49,7 +49,7 @@
                         </ul>
                     </div>
                     <div class="nav-collapse">
-                        <ul class="nav pull-right">
+                        <ul id="user-status" class="nav pull-right">
                             {% if user.is_authenticated %}
                                 <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
                                 {% comment %}
