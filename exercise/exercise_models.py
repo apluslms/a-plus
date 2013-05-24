@@ -81,7 +81,7 @@ class CourseModule(models.Model):
         return self.opening_time <= when
 
     def __unicode__(self):
-        return self.name
+        return self.name + " -- " + str(self.course_instance)
     
     def get_breadcrumb(self):
         """ 
