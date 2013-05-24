@@ -34,7 +34,6 @@ class UserExerciseSummary(object):
         # by the UserCourseSummary which has to generate a UserExerciseSummary
         # for every exercise.
         if kwargs.pop("generate", True):
-            print "heree"
             self._generate_summary()
 
     def _generate_summary(self):
