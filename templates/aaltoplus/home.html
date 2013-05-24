@@ -23,15 +23,10 @@
     {# Output a beginning row on every third instance #}
     {% if forloop.counter0|divisibleby:3 %}
     <div class="row">
-    
     {% endif %}
+
     <div class="span4">
         <h3><a href="{{ instance.get_absolute_url }}">{{ instance.course.name }}</a></h3>
-        {% comment %}
-        <p>
-            Vestibulum id ligula porta felis euismod semper. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.
-        </p>
-        {% endcomment %}
         <p>
             <a href="{{ instance.get_absolute_url }}" class="btn">{{ instance.instance_name }} &raquo;</a>
         </p>
@@ -41,6 +36,7 @@
     {% if forloop.counter|divisibleby:3 or forloop.last %}
     </div><!-- .row -->
     {% endif %}
+
 {% endfor %}
 
 {% endblock %}

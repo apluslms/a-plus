@@ -6,86 +6,84 @@
         <meta charset="utf-8" />
         
         <title>{% block title %}A+{% endblock %}</title>
-        
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
-        
-        <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" type="text/css" media="screen, projection" />
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
+
+        <!-- This is for responsive bootstrap -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
         
         <link rel="stylesheet" href="{{ STATIC_URL }}css/submission.css" type="text/css" />
         
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css" />
-        <script type="text/javascript" src="{{ STATIC_URL }}js/aaltoplus.js"></script>
-        
-        <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
+
         <link rel="stylesheet" href="{{ STATIC_URL }}prettify/prettify.css" type="text/css" />
         
         {% block head %}{% endblock %}
     </head>
     <body>
-        <div id="page">
+        <div id="base-container">
+            {% block navbar %}
+            {% comment %}
+            TODO: implement groups
+            <form method="POST" id="group-change-form" class="hidden">
+                {% csrf_token %}
+                <input name="change_to_group" id="change_to_group" />
+                <input type="submit" />
+            </form>
+            {% endcomment %}
 
-{% block navbar %}
-{% comment %}
-TODO: implement groups
-<form method="POST" id="group-change-form" class="hidden">
-    {% csrf_token %}
-    <input name="change_to_group" id="change_to_group" />
-    <input type="submit" />
-</form>
-{% endcomment %}
-
-<div class="navbar">
-    <div class="navbar-inner">
-        <div class="container">
-            <a class="brand" href="/">A+<sup><small>prototype</small></sup></a>
-            <div class="nav dropdown nav-collapse" id="course-menu">
-                <a href="#course-menu" class="brand dropdown-toggle" data-toggle="dropdown">
-                    {% block pagetitle %}
-                        {% trans "Select course" %}
-                    {% endblock %}
-                <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    {% render_course_list %}
-                </ul>
-            </div>
-            <div class="nav-collapse">
-                <ul class="nav pull-right">
-                    {% if user.is_authenticated %}
-                        <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
-                        {% comment %}
-                        TODO: implement groups
-                        <li class="dropdown" id="group-menu">
-                            <a href="#group-menu" class="dropdown-toggle" data-toggle="dropdown">
-                                {% if active_group %}
-                                    {{ active_group.name }}
-                                {% else %}
-                                    {% trans "No group selected"%}
-                                {% endif %}
+            <div id="main-navbar" class="navbar navbar-static-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <a class="brand" href="/">A+<sup><small>prototype</small></sup></a>
+                        <div class="nav dropdown nav-collapse collapse">
+                            <a href="#" class="brand dropdown-toggle" data-toggle="dropdown">
+                                {% block pagetitle %}
+                                    {% trans "Select course" %}
+                                {% endblock %}
                             <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                {% if active_group %}
-                                    <li><a href="#" data-group-id="0" class="group_change_link">{% trans "No group" %}</a></li>
-                                    <li class="divider"></li>
-                                {% endif %}
-                                {% for group in user.get_profile.groups.all %}
-                                    <li><a href="#" data-group-id="{{ group.id }}" data-placement="left" rel="tooltip" title="{{ group.get_names }}" class="group_change_link">{{ group.name }}</a></li>
-                                {% empty %}
-                                    <li><a href="#">{% trans "No groups"%}</a></li>
-                                {% endfor %}
-                                <li class="divider"></li>
-                                <li><a href="{% url userprofile.views.view_groups %}">{% trans "Join or create a group"%}</a></li>
+                                {% render_course_list %}
                             </ul>
-                        </li>
-                        {% endcomment %}
-                        <li><a href="{% url logout %}">{% trans "Log out"%}</a></li>
-                    {% endif %}
-                </ul>
+                        </div>
+                        <div class="nav-collapse">
+                            <ul id="user-status" class="nav pull-right">
+                                {% if user.is_authenticated %}
+                                    <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
+                                    {% comment %}
+                                    TODO: implement groups
+                                    <li class="dropdown" id="group-menu">
+                                        <a href="#group-menu" class="dropdown-toggle" data-toggle="dropdown">
+                                            {% if active_group %}
+                                                {{ active_group.name }}
+                                            {% else %}
+                                                {% trans "No group selected"%}
+                                            {% endif %}
+                                        <b class="caret"></b></a>
+                                        <ul class="dropdown-menu">
+                                            {% if active_group %}
+                                                <li><a href="#" data-group-id="0" class="group_change_link">{% trans "No group" %}</a></li>
+                                                <li class="divider"></li>
+                                            {% endif %}
+                                            {% for group in user.get_profile.groups.all %}
+                                                <li><a href="#" data-group-id="{{ group.id }}" data-placement="left" rel="tooltip" title="{{ group.get_names }}" class="group_change_link">{{ group.name }}</a></li>
+                                            {% empty %}
+                                                <li><a href="#">{% trans "No groups"%}</a></li>
+                                            {% endfor %}
+                                            <li class="divider"></li>
+                                            <li><a href="{% url userprofile.views.view_groups %}">{% trans "Join or create a group"%}</a></li>
+                                        </ul>
+                                    </li>
+                                    {% endcomment %}
+                                    <li><a href="{% url logout %}">{% trans "Log out"%}</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+            {% endblock %}
+
             <div id="main_content" class="container">
                 <div class="row">
                     <div class="span12">
@@ -96,29 +94,38 @@ TODO: implement groups
                     </div>
                 </div>
                 {% block breadcrumb %}{% endblock %}
-                
+
                 {% block secondnav %}{% endblock %}
-                
+
                 {% include "widgets/messages.html" %}
-                
+
                 {% block content %}
                     <div class="error">
                         No content
                     </div>
                 {% endblock %}
             </div>
+
             {% block footer %}
-            <footer class="footer">
-
+            <footer>
                 <div class="container">
-                    <small>
-                        {% block footercontent %}{% endblock %}
-                        <p><a href="{% url privacy_policy %}">Privacy Policy</a></p>
-                    </small>
+                    {% block footercontent %}{% endblock %}
+                    <p><a href="{% url privacy_policy %}">Privacy Policy</a></p>
                 </div>
-
             </footer>
             {% endblock %}
-        </div>
+
+            <!-- When the scripts are at the end of the body, the rendering is not
+            blocked by the script loading and thus, the borwser shows the page
+            faster -->
+            <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}js/aaltoplus.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
+            {% block scripts %}
+                {# Put all additional scripts inside this block. #}
+            {% endblock %}
+
+        </div><!-- #base-container -->
     </body>
 </html>
