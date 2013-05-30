@@ -9,13 +9,13 @@
 
         <a href="#"
             class="score-barrier required-score" 
-            style="left: {{ summary.get_required_percentage }}%"
+            style="left: {{ summary.exercise.get_percentage_to_pass }}%"
             rel="tooltip"
             data-placement="bottom"
             title="{% trans "Points required to pass" %}: {{ exercise.points_to_pass }}"></a>
         <a href="#"
             class="score-barrier course-average" 
-            style="left: {{ summary.get_average_percentage }}%"
+            style="left: {{ summary.exercise.get_average_percentage }}%"
             rel="tooltip"
             data-placement="bottom"
             title="{% trans "Course average" %}: {{ exercise.summary.average_grade|floatformat:2 }}"></a>
