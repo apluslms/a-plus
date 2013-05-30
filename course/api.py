@@ -12,7 +12,7 @@ from tastypie.bundle import Bundle
 
 # A+
 from course.models import Course, CourseInstance
-from exercise.exercise_summary import CourseSummary
+from exercise.exercise_summary import UserCourseSummary
 from userprofile.models import UserProfile
 
 class CourseResource(ModelResource):
@@ -69,7 +69,7 @@ class CourseInstanceSummaryResource(Resource):
 
     class Meta:
         resource_name   = 'course_result'
-        object_class    = CourseSummary
+        object_class    = UserCourseSummary
         allowed_methods = ['get']
         api_name        = 'v1'
     
@@ -120,14 +120,15 @@ class CourseInstanceSummaryResource(Resource):
         #TODO
         return []
 
-    def obj_get(self, request=None, **kwargs): 
+    def obj_get(self, request=None, **kwargs):
         results         = {}
         course_instance = CourseInstance.objects.get(pk=kwargs["pk"])
         user_profile    = UserProfile.objects.get(pk=kwargs["user"])
-        course_summary  = CourseSummary(course_instance, user_profile.user)
+        course_summary  = UserCourseSummary(course_instance, user_profile.user)
         results["user"] = user_profile.id
         results["course_instance"] = kwargs["pk"]
         summary = []
+
         for rnd in course_summary.round_summaries:
             exercise_summaries = []
             for ex_summary in rnd.exercise_summaries:

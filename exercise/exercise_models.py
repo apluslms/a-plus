@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 # Django 
 from django.db import models
-from django.db.models.aggregates import Avg, Max, Count
+from django.db.models.aggregates import Avg, Max, Count, Sum
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -46,9 +46,6 @@ class CourseModule(models.Model):
     opening_time            = models.DateTimeField(default=datetime.now)
     closing_time            = models.DateTimeField(default=datetime.now)
     
-    def get_exercises(self):
-        return BaseExercise.objects.filter(course_module=self)
-    
     """
     Functionality related to early bonuses has been disabled. The following lines
     are commented out so that they can be restored later if necessary.
@@ -64,6 +61,26 @@ class CourseModule(models.Model):
     late_submission_deadline= models.DateTimeField(default=datetime.now)
     late_submission_penalty = PercentField(default=0.5, 
         help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+
+    def get_exercises(self):
+        return BaseExercise.objects.filter(course_module=self)
+
+    def get_maximum_points(self):
+        if not hasattr(self, "_cached_max_points"):
+            max_points = self.get_exercises().aggregate(
+                max_points=Sum('max_points'))['max_points']
+            self._cached_max_points = max_points or 0
+
+        return self._cached_max_points
+
+    def get_required_percentage(self):
+        max_points = self.get_maximum_points()
+        if max_points == 0:
+            return 0
+        else:
+            return int(round(100.0
+                             * self.points_to_pass
+                             / max_points))
     
     def is_late_submission_open(self):
         return self.late_submissions_allowed and \
@@ -104,10 +121,10 @@ class LearningObjectCategory(models.Model):
         related_name=u"categories")
 
     hidden_to = models.ManyToManyField(
-            UserProfile,
-            related_name="hidden_categories",
-            blank=True,
-            null=True)
+        UserProfile,
+        related_name="hidden_categories",
+        blank=True,
+        null=True)
 
     class Meta:
         unique_together = ("name", "course_instance")
@@ -115,8 +132,28 @@ class LearningObjectCategory(models.Model):
     def __unicode__(self):
         return self.name + u" -- " + unicode(self.course_instance)
 
+    def get_exercises(self):
+        return BaseExercise.objects.filter(category=self)
+
+    def get_maximum_points(self):
+        if not hasattr(self, "_cached_max_points"):
+            max_points = self.get_exercises().aggregate(
+                max_points=Sum('max_points'))['max_points']
+            self._cached_max_points = max_points or 0
+
+        return self._cached_max_points
+
+    def get_required_percentage(self):
+        max_points = self.get_maximum_points()
+        if max_points == 0:
+            return 0
+        else:
+            return int(round(
+                100.0 * self.points_to_pass
+                / max_points))
+
     def is_hidden_to(self, profile):
-        return profile in self.hidden_to.all()
+        return self in profile.get_hidden_categories_cache()
 
     def set_hidden_to(self, profile, hide=True):
         if hide and not self.is_hidden_to(profile):
@@ -124,9 +161,12 @@ class LearningObjectCategory(models.Model):
         elif not hide and self.is_hidden_to(profile):
             self.hidden_to.remove(profile)
 
+        profile.reset_hidden_categories_cache()
+
 
 class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round
+    # TODO: It would be better if this didn't have the default=0.
     order                   = models.IntegerField(default=0)
     
     # Instruction related fields
@@ -158,6 +198,10 @@ class LearningObject(ModelWithInheritance):
                 CourseModule.DoesNotExist):
             raise course_instance_error
 
+    def get_absolute_url(self):
+        # TODO: IMPLEMENT
+        return ""
+
     def get_course_instance(self):
         return self.course_module.course_instance
     course_instance = property(get_course_instance)
@@ -168,14 +212,42 @@ class BaseExercise(LearningObject):
     allow_assistant_grading = models.BooleanField(default=False)
     
     # Submission related fields
-    min_group_size          = models.PositiveIntegerField(default=1)
-    max_group_size          = models.PositiveIntegerField(default=1)
-    max_submissions         = models.PositiveIntegerField(default=10)
-    max_points              = models.PositiveIntegerField(default=100)
-    points_to_pass          = models.PositiveIntegerField(default=40)
+    min_group_size = models.PositiveIntegerField(default=1)
+    max_group_size = models.PositiveIntegerField(default=1)
+    max_submissions = models.PositiveIntegerField(default=10)
+    max_points = models.PositiveIntegerField(default=100)
+    points_to_pass = models.PositiveIntegerField(default=40)
+
+    @classmethod
+    def get_course_instance_max_points(cls, course_instance):
+        """
+        Returns the maximum points for the whole course instance, ie. the sum
+        of maximum points for all exercises.
+        """
+        all_exercises = BaseExercise.objects.filter(
+            course_module__course_instance=course_instance)
+        max_points = all_exercises.aggregate(
+            max_points=Sum('max_points'))['max_points']
+        return max_points or 0
+
+
+    def get_average_percentage(self):
+        """
+        Rounds to closest int.
+
+        @return: 0..100 as int
+        """
+        if self.max_points == 0:
+            return 0
+        else:
+            return int(round(100.0
+                             # TODO: Slow?
+                             * self.summary["average_grade"]
+                             / self.max_points))
     
     def get_deadline(self):
         return self.course_module.closing_time
+
     def get_page(self, submission_url):
         """ 
         Retrieves the page for this exercise from the exercise service. 
@@ -191,6 +263,19 @@ class BaseExercise(LearningObject):
         page_content    = opener.open(url, timeout=20).read()
         
         return ExercisePage(self, page_content)
+
+    def get_percentage_to_pass(self):
+        """
+        Rounds to closest int.
+
+        @return: 0..100 as int
+        """
+        if self.max_points == 0:
+            return 0
+        else:
+            return int(round(100.0
+                             * self.points_to_pass
+                             / self.max_points))
 
     def have_submissions_left(self, students):
         """
@@ -324,8 +409,7 @@ class BaseExercise(LearningObject):
                 is_open_booleans_by_submitters = {s: False for s in students}
 
                 for dlrd in dlr_deviations:
-                    if when <= base_dl + timedelta(
-                            minutes=dlrd.extra_minutes):
+                    if when <= base_dl + dlrd.get_extra_time():
                         assert(
                             dlrd.submitter in is_open_booleans_by_submitters)
                         is_open_booleans_by_submitters[dlrd.submitter] = True
@@ -652,6 +736,7 @@ class ExerciseWithAttachment(BaseExercise):
         return page
 
 
+# TODO: Move this to submission_models module
 class SubmissionRuleDeviation(models.Model):
     """
     An abstract model binding a user to an exercise stating that there is some
@@ -673,7 +758,9 @@ class SubmissionRuleDeviation(models.Model):
         app_label = 'exercise'
 
 
+# TODO: Move this to submission_models module
 class DeadlineRuleDeviation(SubmissionRuleDeviation):
+    # TODO: Check that it doesn't overflow when converting to timedelta
     extra_minutes = models.IntegerField()
 
     class Meta(SubmissionRuleDeviation.Meta):
@@ -689,6 +776,7 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         return self.exercise.get_deadline()
 
 
+# TODO: Move this to submission_models module
 class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
     extra_submissions = models.IntegerField()
 

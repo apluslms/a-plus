@@ -1,4 +1,5 @@
 # Python
+from collections import defaultdict
 from icalendar import Calendar, Event
 
 # Django
@@ -18,9 +19,10 @@ from course.models import Course, CourseInstance
 from course.context import CourseContext
 from course.results import ResultTable
 from course.forms import CourseModuleForm
-from exercise.exercise_summary import CourseSummary
+from exercise.exercise_summary import UserCourseSummary
 from exercise.submission_models import Submission
-from exercise.exercise_models import CourseModule
+from exercise.exercise_models import CourseModule, BaseExercise,\
+    LearningObjectCategory, LearningObject
 
 # TODO: The string constant "You are not allowed to access this view." is
 # repeated a lot in this file. Giving this error message should be somehow
@@ -63,35 +65,151 @@ def view_course(request, course_url):
 
 @login_required
 def view_instance(request, course_url, instance_url):
-    """ Renders a dashboard page for a course instance. A dashboard has a list
-        of exercise rounds and exercises and plugins that may have been 
-        installed on the course. Students also see a summary of their progress
-        on the course dashboard.
+    """
+    Renders the home page for a course instance showing the current student's
+    progress on the course.
+
+    On the page, all the exercises of the course instance are organized as a
+    schedule. They are primarily organized in a list of course modules which
+    are primarily ordered according to their closing times and secondarily to
+    their opening times. Inside the course modules the exercises are ordered
+    according to their order attribute but in the same time, they are also
+    grouped to their categories.
+
+    The home page also contains a summary of the student's progress for the
+    whole course instance, course modules, categories and each exercise.
         
-        @param request: the Django HttpRequest object
-        @param course_url: the url value of a Course object
-        @param instance_url: the url value of a CourseInstance object """
+    @param request: the Django HttpRequest object
+    @param course_url: the url value of a Course object
+    @param instance_url: the url value of a CourseInstance object
+    """
     
     course_instance = _get_course_instance(course_url, instance_url)
+    user_profile = request.user.get_profile()
 
-    if not course_instance.is_visible_to(request.user.get_profile()):
+    if not course_instance.is_visible_to(user_profile):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
-    course_summary  = CourseSummary(course_instance, request.user)
+    # In the following code, we are going to construct a special data structure
+    # to be used in the view_instance.html. We refer to the structure as the
+    # exercise_tree. The main idea is to provide all the data for the template
+    # in a way that makes the template as simple as possible.
+    #
+    # This is how the structure should be used in the template:
+    #
+    #   {% for course_module, round_summary, uncategorized_exercise_level, category_level in exercise_tree %}
+    #
+    #       ...
+    #
+    #       {% for exercise, exercise_summary in uncategorized_exercise_level %}
+    #           ...
+    #       {% endfor %}
+    #
+    #       ...
+    #
+    #       {% for category, category_summary, categorized_exercise_level in category_level %}
+    #
+    #           ...
+    #
+    #           {% for exercise, exercise_summary in categorized_exercise_level %}
+    #               ...
+    #           {% endfor %}
+    #
+    #           ...
+    #
+    #       {% endfor %}
+    #
+    #       ...
+    #
+    #   {% endfor %}
+    #
+    # Notice that all the nodes of the tree are tuples (all the lists contain
+    # tuples). The tuples are of course formatted the same way in a particular
+    # tree level (list).
+    #
+    # The CourseModule objects are ordered chronologically. The exercises are
+    # ordered by their order attribute. The order of the categories is
+    # determined by the order of the exercises. For example, if the first two
+    # exercises belong to category A and then the following two exercises
+    # belong to category B, our list of categories will begin like [A, B, ...].
+    # Note that the category A may be in the list later too if there is more
+    # exercises that belong to the category A. For example, if the fifth
+    # exercises would belong to category A, our list of categories would be
+    # [A, B, A, ...].
+    #
+    # The view_instance.html template renders the CourseModules objects so that
+    # in addition to the categorized exercise list, there is an additional
+    # small list of hotlinks for the exercises. For this reason, the exercise
+    # tree separates to two different list on the second level--the list
+    # containing all the exercises of the CourseModule (for the hotlinks) and
+    # the list containing the LearningObjectCategory objects. The latter of
+    # these then has a third level which finally contains lists of exercises
+    # (grouped by the LearningObjectCategory objects of their parent node that
+    # is).
+    #
+    # Also notice the summaries in the tuples. Those alway correspond to the
+    # main object of the tuple.
+    #
+
+    course_summary = UserCourseSummary(course_instance, request.user)
+
+    visible_categories = LearningObjectCategory.objects.filter(
+        course_instance=course_instance).exclude(hidden_to=user_profile)
+    visible_exercises = (BaseExercise.objects.filter(
+        course_module__course_instance=course_instance,
+        category__in=visible_categories)
+        .select_related("course_module", "category").order_by("order"))
+
+    visible_exercises_by_course_modules = defaultdict(list)
+    for exercise in visible_exercises:
+        (visible_exercises_by_course_modules[exercise.course_module]
+         .append(exercise))
+
+    visible_exercises_by_course_modules = sorted(
+        visible_exercises_by_course_modules.items(),
+        key=lambda t: (t[0].closing_time, t[0].opening_time))
+
+    exercise_tree = [
+        (course_module,
+         course_summary.get_exercise_round_summary(course_module),
+         [(exercise, course_summary.get_exercise_summary(exercise))
+          for exercise in exercises], [])
+        for course_module, exercises in visible_exercises_by_course_modules]
+
+    for course_module, round_summary, exercises_and_summaries,\
+            exercise_tree_category_level in exercise_tree:
+        for exercise, exercise_summary in exercises_and_summaries:
+            if (len(exercise_tree_category_level) == 0
+                    or exercise_tree_category_level[-1][0]
+                    != exercise.category):
+                exercise_tree_category_level.append(
+                    (exercise.category,
+                     course_summary.get_exercise_round_summary(
+                         exercise.category),
+                     []))
+            exercise_tree_category_level[-1][2].append((exercise,
+                                                        exercise_summary))
+
+    # Finished constructing the exercise_tree.
+
+    course_instance_max_points = BaseExercise.get_course_instance_max_points(
+        course_instance)
 
     plugin_renderers = build_plugin_renderers(
-        plugins = course_instance.plugins.all(),
-        view_name = "course_instance",
-        user_profile = request.user.get_profile(),
-        course_instance = course_instance
-    )
+        plugins=course_instance.plugins.all(),
+        view_name="course_instance",
+        user_profile=user_profile,
+        course_instance=course_instance)
     
     return render_to_response("course/view_instance.html", 
                               CourseContext(request, 
                                             course_instance=course_instance, 
                                             course_summary=course_summary,
                                             plugin_renderers=plugin_renderers,
+                                            exercise_tree=exercise_tree,
+                                            course_instance_max_points=
+                                            course_instance_max_points,
                                             ))
 
 
@@ -112,14 +230,19 @@ def view_my_page(request, course_url, instance_url):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
-    course_summary  = CourseSummary(course_instance, request.user)
+    course_summary  = UserCourseSummary(course_instance, request.user)
     submissions     = request.user.get_profile().submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
+
+    course_instance_max_points = BaseExercise.get_course_instance_max_points(
+        course_instance)
     
     return render_to_response("course/view_my_page.html", 
                               CourseContext(request, 
                                             course_instance=course_instance,
                                             course_summary=course_summary,
-                                            submissions=submissions
+                                            submissions=submissions,
+                                            course_instance_max_points=
+                                            course_instance_max_points,
                                             ))
 
 
