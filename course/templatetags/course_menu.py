@@ -25,3 +25,21 @@ class CourseListNode(Node):
 @register.tag
 def render_course_list(parser, token):
     return CourseListNode()
+
+@register.filter
+def course_module_classes(course_module):
+    """
+    Returns the CSS classes that should be used for this course_module in the
+    view_instance view.
+    """
+    classes = []
+    if course_module.is_open():
+        classes.append("open")
+    elif course_module.is_after_open():
+        classes.append("closed")
+        classes.append("collapsed")
+    else:
+        classes.append("upcoming")
+        classes.append("collapsed")
+
+    return " ".join(classes)

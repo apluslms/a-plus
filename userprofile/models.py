@@ -45,6 +45,20 @@ class UserProfile(models.Model):
     class Meta:
         ordering            = ['id']
 
+    # TODO: Remove this method and replace all usages with prefetch_related
+    # when updating to newer Django version.
+    def reset_hidden_categories_cache(self):
+        self.cached_hidden_categories = self.hidden_categories.all()
+
+    # TODO: Remove this method and replace all usages with prefetch_related
+    # when updating to newer Django version.
+    def get_hidden_categories_cache(self):
+        self.cached_hidden_categories = getattr(self,
+                                                "cached_hidden_categories",
+                                                self.hidden_categories.all())
+        return self.cached_hidden_categories
+
+
 def create_user_profile(sender, instance, created, **kwargs):
     '''
     This function automatically creates an user profile for all new User models. The profiles 
