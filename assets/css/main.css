@@ -101,6 +101,23 @@ div#main-navbar .brand, div#main-navbar #user-status a {
     text-shadow: none;
 }
 
+div#main-navbar .nav .dropdown-toggle .caret {
+    /* The following overrides .nav .dropdown-toggle .caret of Bootstrap for customized caret in the course selection
+     * dropdown.
+     */
+    border-top-color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+
+div#main-navbar .nav .dropdown-toggle:hover .caret,
+div#main-navbar .nav .dropdown-toggle:focus .caret {
+    /* The following overrides .nav .dropdown-toggle:hover .caret and .nav .dropdown-toggle:focus .caret of Bootstrap
+     * for customized caret in the course selection dropdown.
+     */
+    border-top-color: #b5e5ff;
+    border-bottom-color: #b5e5ff;
+}
+
 
 /*****************************************************************************
  * FOOTER ********************************************************************
