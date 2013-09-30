@@ -10,7 +10,7 @@ import os
 def get_path(filename):
     return os.path.join(os.path.dirname(__file__), filename)
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 # This URL is used when building absolute URLs to this service
