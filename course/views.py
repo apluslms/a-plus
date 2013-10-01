@@ -420,7 +420,8 @@ def add_or_edit_module(request, course_url, instance_url, module_id=None):
     if request.method == "POST":
         form = CourseModuleForm(request.POST)
         if form.is_valid():
-            module = form.save()
+            module = CourseModuleForm(request.POST, instance=module)
+            module.save()
             messages.success(request, _('The course module was saved successfully.'))
     else:
         form = CourseModuleForm(instance=module)
