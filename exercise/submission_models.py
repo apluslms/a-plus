@@ -167,8 +167,10 @@ class Submission(models.Model):
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
 
-        return not self.exercise.is_open_for(students=self.submitters.all(),
+        return self.exercise.course_module.is_expired() and \
+               not self.exercise.is_open_for(students=self.submitters.all(),
                                              when=self.submission_time)
+                 
 
     def set_grading_data(self, grading_dict):
         self.grading_data = grading_dict

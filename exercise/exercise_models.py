@@ -90,6 +90,9 @@ class CourseModule(models.Model):
         when = when or datetime.now()
         return self.opening_time <= when <= self.closing_time
     
+    def is_expired(self, when=None):        
+        return not self.is_open(when) and self.is_after_open(when)
+
     def is_after_open(self, when=None):
         """
         Returns True if current time is past the round opening time.
