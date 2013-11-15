@@ -15,7 +15,14 @@ class SubmissionReviewForm(forms.Form):
                                             "as given."))
     feedback = forms.CharField(required=False,
                                widget=forms.Textarea,
-                               help_text=_("HTML formatting is allowed"))
+                               help_text=_("HTML formatting is allowed."
+                                           "this WILL override machine"
+                                           "feedback"))
+    assistant_feedback = forms.CharField(required=False,
+                               widget=forms.Textarea,
+                               help_text=_("HTML formatting is allowed."
+                                           "this will not override machine"
+                                           "feedback"))
 
     def __init__(self, *args, **kwargs):
         self.exercise = kwargs.pop('exercise')

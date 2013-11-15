@@ -136,6 +136,8 @@ def assess_submission(request, submission_id):
             submission.set_points(form.cleaned_data["points"],
                                   exercise.max_points, no_penalties=True)
             submission.grader = grader
+            
+            submission.assistant_feedback = form.cleaned_data["assistant_feedback"]
             submission.feedback = form.cleaned_data["feedback"]
             submission.set_ready()
             submission.save()

@@ -106,7 +106,23 @@
     <div class="span6" id="generated-feedback">
         <h2>{% trans "Feedback" %}</h2>
         <div class="well">
+            {% if submission.assistant_feedback %}
+                <h2>Assitant feedback</h2>
+                {{ submission.assistant_feedback|sanitize }}
+            {% else %}
+                <div class="alert alert-info">
+                    {% trans "No assistant feedback available for this submission." %}
+                </div>
+            {% endif %}
+
+        {% if submission.feedback %}
+            <h2>Grader feedback</h2>
             {{ submission.feedback|sanitize }}
+        {% else %}
+            <div class="alert alert-info">
+                {% trans "No grader feedback available for this submission." %}
+            </div>
+        {% endif %}
             &nbsp;{# This prevents the div being completely empty and being not rendered #}
         </div>
     </div>
