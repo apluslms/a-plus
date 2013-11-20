@@ -22,7 +22,7 @@ class SubmissionReviewForm(forms.Form):
                                widget=forms.Textarea,
                                help_text=_("HTML formatting is allowed."
                                            "This will not override machine "
-                                           "feedback"))
+                                           "feedback."))
 
     def __init__(self, *args, **kwargs):
         self.exercise = kwargs.pop('exercise')
