@@ -15,12 +15,12 @@ class SubmissionReviewForm(forms.Form):
                                             "as given."))
     feedback = forms.CharField(required=False,
                                widget=forms.Textarea,
-                               help_text=_("HTML formatting is allowed."
+                               help_text=_("HTML formatting is allowed. "
                                            "This WILL override machine "
                                            "feedback."))
     assistant_feedback = forms.CharField(required=False,
                                widget=forms.Textarea,
-                               help_text=_("HTML formatting is allowed."
+                               help_text=_("HTML formatting is allowed. "
                                            "This will not override machine "
                                            "feedback."))
 
