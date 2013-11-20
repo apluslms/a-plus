@@ -16,12 +16,12 @@ class SubmissionReviewForm(forms.Form):
     feedback = forms.CharField(required=False,
                                widget=forms.Textarea,
                                help_text=_("HTML formatting is allowed."
-                                           "this WILL override machine"
-                                           "feedback"))
+                                           "This WILL override machine "
+                                           "feedback."))
     assistant_feedback = forms.CharField(required=False,
                                widget=forms.Textarea,
                                help_text=_("HTML formatting is allowed."
-                                           "this will not override machine"
+                                           "This will not override machine "
                                            "feedback"))
 
     def __init__(self, *args, **kwargs):
