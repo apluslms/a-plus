@@ -183,7 +183,8 @@ SHIB_ATTRIBUTE_MAP = {
     "HTTP_SHIB_CN": (False, "cn"),
     "HTTP_SHIB_DISPLAYNAME": (False, "first_name"),
     "HTTP_SHIB_SN": (False, "last_name"),
-    "HTTP_SHIB_AALTOID": (False, "student_id"),
+    #"HTTP_SHIB_AALTOID": (False, "student_id"),
+    "HTTP_SHIB_SCHACPERSONALUNIQUECODE": (False, "student_id"),
     "HTTP_SHIB_MAIL": (False, "email")
 }
 SHIB_USERNAME = "eppn"
