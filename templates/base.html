@@ -122,15 +122,7 @@
             <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}js/aaltoplus.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
-            <script type="text/javascript">
-                /* This script is for the User Voice */
-                var uvOptions = {};
-                (function() {
-                    var uv = document.createElement('script'); uv.type = 'text/javascript'; uv.async = true;
-                    uv.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'widget.uservoice.com/Hr8hbmtp1R4CQv7XTBS6Gg.js';
-                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(uv, s);
-                })();
-            </script>
+
             {% block scripts %}
                 {# Put all additional scripts inside this block. #}
             {% endblock %}
