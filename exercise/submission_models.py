@@ -40,6 +40,7 @@ class Submission(models.Model):
 
     # Grading specific
     feedback                = models.TextField(blank=True)
+    assistant_feedback      = models.TextField(blank=True)
     status                  = models.CharField(max_length=32, 
                                                default=_status_choices[0][0], 
                                                choices=_status_choices)
