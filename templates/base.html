@@ -49,6 +49,15 @@
                         <div class="nav-collapse">
                             <ul id="user-status" class="nav pull-right">
                                 {% if user.is_authenticated %}
+
+                                    {% if user.get_profile.get_unread_notification_count > 0 %}
+                                        <li><a href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i> 
+                                        {% blocktrans with count=user.get_profile.get_unread_notification_count count_p=user.get_profile.get_unread_notification_count|pluralize %}
+                                            {{ count }} new notification{{ count_p }}
+                                        {% endblocktrans %}
+                                        </a></li>
+                                    {% endif %}
+
                                     <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
                                     {% comment %}
                                     TODO: implement groups

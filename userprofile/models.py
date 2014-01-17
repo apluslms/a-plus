@@ -41,6 +41,9 @@ class UserProfile(models.Model):
 
     def is_staff(self):
         return self.user.is_staff or self.user.is_superuser
+
+    def get_unread_notification_count(self):
+        return len(self.received_notifications.filter(seen=False))
     
     class Meta:
         ordering            = ['id']
