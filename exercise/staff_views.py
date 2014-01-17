@@ -57,7 +57,7 @@ def inspect_exercise_submission(request, submission_id):
     """
     submission      = get_object_or_404(Submission, id=submission_id)
     exercise        = submission.exercise
-    has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile()) 
+    has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile())     
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")
@@ -129,13 +129,18 @@ def assess_submission(request, submission_id):
         return HttpResponseForbidden(_("You are not allowed to access this "
                                        "view."))
 
-    form = SubmissionReviewForm(exercise=exercise)
+    
+    form = SubmissionReviewForm(exercise=exercise, initial={"points": submission.grade, 
+                                                            "feedback": submission.feedback, 
+                                                            "assistant_feedback": submission.assistant_feedback})
     if request.method == "POST":
         form = SubmissionReviewForm(request.POST, exercise=exercise)
         if form.is_valid():
             submission.set_points(form.cleaned_data["points"],
                                   exercise.max_points, no_penalties=True)
             submission.grader = grader
+            
+            submission.assistant_feedback = form.cleaned_data["assistant_feedback"]
             submission.feedback = form.cleaned_data["feedback"]
             submission.set_ready()
             submission.save()

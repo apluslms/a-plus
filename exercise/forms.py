@@ -12,13 +12,23 @@ class SubmissionReviewForm(forms.Form):
     points = forms.IntegerField(min_value=0,
                                 help_text=_("Possible penalties are not "
                                             "applied - the points are set "
-                                            "as given."))
+                                            "as given. This will <em>"
+                                            "override</em> grader points!"))
+    assistant_feedback = forms.CharField(required=False,
+                               widget=forms.Textarea,
+                               help_text=_("HTML formatting is allowed. "
+                                           "This will not override machine "
+                                           "feedback."))
     feedback = forms.CharField(required=False,
                                widget=forms.Textarea,
-                               help_text=_("HTML formatting is allowed"))
+                               help_text=_("HTML formatting is allowed. "
+                                           "This WILL override machine "
+                                           "feedback."))
+
 
     def __init__(self, *args, **kwargs):
         self.exercise = kwargs.pop('exercise')
+
         super(SubmissionReviewForm, self).__init__(*args, **kwargs)
 
     def clean(self):
