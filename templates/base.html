@@ -51,11 +51,21 @@
                                 {% if user.is_authenticated %}
 
                                     {% if user.get_profile.get_unread_notification_count > 0 %}
-                                        <li><a href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i> 
+                                        <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i id="unread-notifications-icon" class="icon-white icon-envelope"></i> 
                                         {% blocktrans with count=user.get_profile.get_unread_notification_count count_p=user.get_profile.get_unread_notification_count|pluralize %}
                                             {{ count }} new notification{{ count_p }}
                                         {% endblocktrans %}
-                                        </a></li>
+                                        </a>                                        
+                                        <ul class="dropdown-menu" id="notification-menu">
+                                            {%for course_instance in user.get_profile.get_unread_notification_course_instances %}
+                                                <li><a href="{{ course_instance.get_absolute_url }}me/">{{course_instance.instance_name}}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                        </li>                                        
+                                    {% endif %}
+
+                                    {% if user.get_profile.get_unread_notification_count == 0 and instance %}
+                                        <li><a id="notification-icon" href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i></a></li>                                        
                                     {% endif %}
 
                                     <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
