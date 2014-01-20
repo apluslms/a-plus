@@ -44,6 +44,13 @@ class UserProfile(models.Model):
 
     def get_unread_notification_count(self):
         return len(self.received_notifications.filter(seen=False))
+
+    def get_unread_notification_course_instances(self):
+        notifications = self.received_notifications.filter(seen=False)
+        courses = set()
+        for notification in notifications:
+            courses.add(notification.course_instance)
+        return courses
     
     class Meta:
         ordering            = ['id']
