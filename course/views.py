@@ -235,7 +235,12 @@ def view_my_page(request, course_url, instance_url):
 
     course_instance_max_points = BaseExercise.get_course_instance_max_points(
         course_instance)
-    
+
+    unread_notifications = request.user.get_profile().received_notifications.filter(course_instance=course_instance, seen=False)
+    older_notifications = request.user.get_profile().received_notifications.filter(course_instance=course_instance, seen=True)
+    for notification in unread_notifications:
+        notification.mark_as_seen()
+
     return render_to_response("course/view_my_page.html", 
                               CourseContext(request, 
                                             course_instance=course_instance,
@@ -243,6 +248,8 @@ def view_my_page(request, course_url, instance_url):
                                             submissions=submissions,
                                             course_instance_max_points=
                                             course_instance_max_points,
+                                            unread_notifications=unread_notifications,
+                                            older_notifications=older_notifications,
                                             ))
 
 
