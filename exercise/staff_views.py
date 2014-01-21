@@ -109,8 +109,9 @@ def assess_submission(request, submission_id):
     """
     This view is used for assessing the given exercise submission. When
     assessing, the teacher or assistant may write verbal feedback and give a
-    numeric grade for the submission. WritingLate submission penalty is not applied to
-    the grade.
+    numeric grade for the submission. Changing the grade or writing feedback
+    will send a notification to the submitters.
+    Late submission penalty is not applied to the grade.
     
     @param submission_id: the ID of the submission to assess
     """
