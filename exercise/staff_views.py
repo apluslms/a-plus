@@ -21,6 +21,7 @@ from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
     StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm
 from course.context import CourseContext
 from django.utils import simplejson
+from notification.models import Notification
 
 @login_required
 def list_exercise_submissions(request, exercise_id):
@@ -108,7 +109,7 @@ def assess_submission(request, submission_id):
     """
     This view is used for assessing the given exercise submission. When
     assessing, the teacher or assistant may write verbal feedback and give a
-    numeric grade for the submission. Late submission penalty is not applied to
+    numeric grade for the submission. WritingLate submission penalty is not applied to
     the grade.
     
     @param submission_id: the ID of the submission to assess
@@ -144,6 +145,15 @@ def assess_submission(request, submission_id):
             submission.feedback = form.cleaned_data["feedback"]
             submission.set_ready()
             submission.save()
+            breadcrumb = exercise.get_breadcrumb()
+            for student in submission.submitters.all():
+                Notification.send(grader, 
+                                student, 
+                                exercise.get_course_instance(), 
+                                'New assistant feedback', 
+                                '<p>You have new assistant feedback to exercise <a href="'\
+                                + breadcrumb[2][1]+'">' + exercise.name +'</a>:</p>'\
+                                + submission.assistant_feedback)            
             messages.success(request, _("The review was saved "
                                         "successfully."))
             return redirect(inspect_exercise_submission,
