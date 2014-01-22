@@ -44,4 +44,35 @@
         </ul>
     </div>
 </div>
+<div class="row">
+    <div class="span10">
+        <h3>{% trans "Unread notifications" %}</h3>
+        {% if unread_notifications %}
+            <ul>
+            {% for notification in unread_notifications %}
+                <li class="notification"><b>{% trans "Sent by:" %}</b> {{notification.sender.user.get_full_name}} ({{notification.timestamp}})<br/>
+                    <b>{{ notification.subject }}</b><br/>
+                    {{ notification.notification|safe }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No unread notifications." %}</p>
+        {% endif %}
+
+        <h3>{% trans "Older notifications" %}</h3>
+        {% if older_notifications %}
+            <ul>
+            {% for notification in older_notifications %}
+                <li class="notification"><b>{% trans "Sent by:" %}</b> {{notification.sender.user.get_full_name}} ({{notification.timestamp}})<br/>
+                    <b>{{ notification.subject }}</b><br/>
+                    {{ notification.notification|safe }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans "No older notifications." %}</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

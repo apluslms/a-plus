@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     'userprofile',
     'apps',
     'oembed',
+    'notification',
 )
 
 # OAuth settings
