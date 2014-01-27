@@ -373,3 +373,15 @@ ul.exercise_rounds li.exercise_round:last-child {
 iframe.iframe-plugin, iframe.iframe-tab {
     border: none;
 }
+
+li.notification {
+    list-style-type: none;
+    border: 1px solid #CCC;
+    width: 460px;
+    padding: 5px;
+    margin-bottom: 14px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    margin-left: -23px;
+}

@@ -50,9 +50,9 @@
         {% if unread_notifications %}
             <ul>
             {% for notification in unread_notifications %}
-                <li><b>{% trans "Sent by:" %}</b> {{notification.sender.user.get_full_name}} ({{notification.timestamp}})<br/>
+                <li class="notification"><b>{% trans "Sent by:" %}</b> {{notification.sender.user.get_full_name}} ({{notification.timestamp}})<br/>
                     <b>{{ notification.subject }}</b><br/>
-                    {{ notification.notification }}
+                    {{ notification.notification|safe }}
                 </li>
             {% endfor %}
             </ul>
@@ -64,9 +64,9 @@
         {% if older_notifications %}
             <ul>
             {% for notification in older_notifications %}
-                <li><b>{% trans "Sent by:" %}</b> {{notification.sender.user.get_full_name}} ({{notification.timestamp}})<br/>
+                <li class="notification"><b>{% trans "Sent by:" %}</b> {{notification.sender.user.get_full_name}} ({{notification.timestamp}})<br/>
                     <b>{{ notification.subject }}</b><br/>
-                    {{ notification.notification }}
+                    {{ notification.notification|safe }}
                 </li>
             {% endfor %}
             </ul>
