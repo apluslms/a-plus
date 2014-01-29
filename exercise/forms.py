@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # A+
 from exercise.submission_models import Submission
-from exercise.exercise_models import BaseExercise
+from exercise.exercise_models import BaseExercise, CourseModule
 from userprofile.models import UserProfile
 
 
@@ -67,9 +67,16 @@ class SubmissionCallbackForm(forms.Form):
 
 
 class BaseExerciseForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.exercise = kwargs.get('instance')
+        super(BaseExerciseForm, self).__init__(*args, **kwargs)
+        self.fields["course_module"] = forms.ModelChoiceField(
+            queryset=CourseModule.objects.filter(course_instance=self.exercise.course_instance),
+            required=False)
+
     class Meta:
         model = BaseExercise
-        exclude = ("order", "course_module")
     
     def get_fieldsets(self):
         return [{"legend": _("Exercise"), "fields": self.get_exercise_fields()},
@@ -80,7 +87,9 @@ class BaseExerciseForm(forms.ModelForm):
     def get_exercise_fields(self):
         return (self["name"], 
                 self["description"],
-                self["category"])
+                self["category"],
+                self["course_module"],
+                self["order"])
     
     def get_grading_fields(self):
         return (self["max_submissions"],

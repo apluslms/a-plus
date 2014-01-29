@@ -25,26 +25,6 @@
                 your identity provider.</p>
             {% endblocktrans %}
         </div>
-    </div>
-    <div class="span5">
-        <h3>{{ course.name }}</h3>
-        <p>
-            {% trans "You currently have" %}
-            <span class="label label-info">{{ course_summary.get_total_points }} / {{ course_instance_max_points }}</span>
-            {% trans "exercise points on this course" %}.
-        </p>
-        
-        <h3>{% trans "Your latest submissions" %}</h3>
-        <ul>
-            {% for submission in submissions %}
-            <li><a href="{{ submission.get_absolute_url }}">{{ submission.exercise.name }}</a>, {{ submission.grade }}/{{ submission.exercise.max_points }}</li>
-            {% empty %}
-            <li>{% trans "No submissions for this course." %}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-<div class="row">
     <div class="span10">
         <h3>{% trans "Unread notifications" %}</h3>
         {% if unread_notifications %}
@@ -73,6 +53,24 @@
         {% else %}
             <p>{% trans "No older notifications." %}</p>
         {% endif %}
+    </div>
+    </div>
+    <div class="span5">
+        <h3>{{ course.name }}</h3>
+        <p>
+            {% trans "You currently have" %}
+            <span class="label label-info">{{ course_summary.get_total_points }} / {{ course_instance_max_points }}</span>
+            {% trans "exercise points on this course" %}.
+        </p>
+        
+        <h3>{% trans "Your latest submissions" %}</h3>
+        <ul>
+            {% for submission in submissions %}
+            <li><a href="{{ submission.get_absolute_url }}">{{ submission.exercise.name }}</a>, {{ submission.grade }}/{{ submission.exercise.max_points }}</li>
+            {% empty %}
+            <li>{% trans "No submissions for this course." %}</li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock %}
