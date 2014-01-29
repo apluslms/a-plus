@@ -21,6 +21,7 @@ from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
     StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm
 from course.context import CourseContext
 from django.utils import simplejson
+from notification.models import Notification
 
 @login_required
 def list_exercise_submissions(request, exercise_id):
@@ -57,7 +58,7 @@ def inspect_exercise_submission(request, submission_id):
     """
     submission      = get_object_or_404(Submission, id=submission_id)
     exercise        = submission.exercise
-    has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile()) 
+    has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile())     
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")
@@ -108,8 +109,9 @@ def assess_submission(request, submission_id):
     """
     This view is used for assessing the given exercise submission. When
     assessing, the teacher or assistant may write verbal feedback and give a
-    numeric grade for the submission. Late submission penalty is not applied to
-    the grade.
+    numeric grade for the submission. Changing the grade or writing feedback
+    will send a notification to the submitters.
+    Late submission penalty is not applied to the grade.
     
     @param submission_id: the ID of the submission to assess
     """
@@ -129,16 +131,30 @@ def assess_submission(request, submission_id):
         return HttpResponseForbidden(_("You are not allowed to access this "
                                        "view."))
 
-    form = SubmissionReviewForm(exercise=exercise)
+    
+    form = SubmissionReviewForm(exercise=exercise, initial={"points": submission.grade, 
+                                                            "feedback": submission.feedback, 
+                                                            "assistant_feedback": submission.assistant_feedback})
     if request.method == "POST":
         form = SubmissionReviewForm(request.POST, exercise=exercise)
         if form.is_valid():
             submission.set_points(form.cleaned_data["points"],
                                   exercise.max_points, no_penalties=True)
             submission.grader = grader
+            
+            submission.assistant_feedback = form.cleaned_data["assistant_feedback"]
             submission.feedback = form.cleaned_data["feedback"]
             submission.set_ready()
             submission.save()
+            breadcrumb = exercise.get_breadcrumb()
+            for student in submission.submitters.all():
+                Notification.send(grader, 
+                                student, 
+                                exercise.get_course_instance(), 
+                                'New assistant feedback', 
+                                '<p>You have new assistant feedback to exercise <a href="'\
+                                + breadcrumb[2][1]+'">' + exercise.name +'</a>:</p>'\
+                                + submission.assistant_feedback)            
             messages.success(request, _("The review was saved "
                                         "successfully."))
             return redirect(inspect_exercise_submission,

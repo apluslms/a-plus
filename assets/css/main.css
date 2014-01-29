@@ -118,6 +118,35 @@ div#main-navbar .nav .dropdown-toggle:focus .caret {
     border-bottom-color: #b5e5ff;
 }
 
+#notification-menu {
+    right: auto;
+}
+
+div#main-navbar #notification-menu a {
+    color: #333333;
+}
+
+div#main-navbar #notification-menu a:hover {
+    color: #FFFFFF;
+}
+
+.navbar .nav > li > .dropdown-menu:before {
+    left: 9px;
+    right: auto;
+}
+
+.navbar .nav > li > .dropdown-menu:after {
+    left: 10px;
+    right: auto;
+}
+
+div#main-navbar #unread-notifications-icon {
+    background-color: #AA0000;
+}
+
+div#main-navbar #notification-icon {
+    background-color: transparent;
+}
 
 /*****************************************************************************
  * FOOTER ********************************************************************
@@ -343,4 +372,16 @@ ul.exercise_rounds li.exercise_round:last-child {
 
 iframe.iframe-plugin, iframe.iframe-tab {
     border: none;
+}
+
+li.notification {
+    list-style-type: none;
+    border: 1px solid #CCC;
+    width: 430px;
+    padding: 5px;
+    margin-bottom: 14px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    margin-left: -23px;
 }

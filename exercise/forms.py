@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # A+
 from exercise.submission_models import Submission
-from exercise.exercise_models import BaseExercise
+from exercise.exercise_models import BaseExercise, CourseModule
 from userprofile.models import UserProfile
 
 
@@ -12,13 +12,23 @@ class SubmissionReviewForm(forms.Form):
     points = forms.IntegerField(min_value=0,
                                 help_text=_("Possible penalties are not "
                                             "applied - the points are set "
-                                            "as given."))
+                                            "as given. This will <em>"
+                                            "override</em> grader points!"))
+    assistant_feedback = forms.CharField(required=False,
+                               widget=forms.Textarea,
+                               help_text=_("HTML formatting is allowed. "
+                                           "This will not override machine "
+                                           "feedback."))
     feedback = forms.CharField(required=False,
                                widget=forms.Textarea,
-                               help_text=_("HTML formatting is allowed"))
+                               help_text=_("HTML formatting is allowed. "
+                                           "This WILL override machine "
+                                           "feedback."))
+
 
     def __init__(self, *args, **kwargs):
         self.exercise = kwargs.pop('exercise')
+
         super(SubmissionReviewForm, self).__init__(*args, **kwargs)
 
     def clean(self):
@@ -57,9 +67,16 @@ class SubmissionCallbackForm(forms.Form):
 
 
 class BaseExerciseForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.exercise = kwargs.get('instance')
+        super(BaseExerciseForm, self).__init__(*args, **kwargs)
+        self.fields["course_module"] = forms.ModelChoiceField(
+            queryset=CourseModule.objects.filter(course_instance=self.exercise.course_instance),
+            required=False)
+
     class Meta:
         model = BaseExercise
-        exclude = ("order", "course_module")
     
     def get_fieldsets(self):
         return [{"legend": _("Exercise"), "fields": self.get_exercise_fields()},
@@ -70,7 +87,9 @@ class BaseExerciseForm(forms.ModelForm):
     def get_exercise_fields(self):
         return (self["name"], 
                 self["description"],
-                self["category"])
+                self["category"],
+                self["course_module"],
+                self["order"])
     
     def get_grading_fields(self):
         return (self["max_submissions"],
