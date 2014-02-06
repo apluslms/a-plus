@@ -285,7 +285,7 @@ class SubmittedFile(models.Model):
 
     submission              = models.ForeignKey(Submission, related_name="files")
     param_name              = models.CharField(max_length=128)
-    file_object             = models.FileField(upload_to=build_upload_dir)
+    file_object             = models.FileField(upload_to=build_upload_dir, max_length=255)
 
     def _get_filename(self):
         """ Returns the actual name of the file on the disk. """
