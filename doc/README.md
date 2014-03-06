@@ -5,7 +5,7 @@ Installing Local Test Environment for A+
 
 This script is intended for Linux environments (and might work on OS X as well). You need to have python virtualenv and xml-related packages installed. Following command on Ubuntu should install everything you need:
 
-    sudo apt-get install python-virtualenv libxml2-dev libxslt-dev
+    sudo apt-get install python-virtualenv libxml2-dev libxslt-dev python-dev
     
 ## Creating and running a Local A+ Development Environment
 
