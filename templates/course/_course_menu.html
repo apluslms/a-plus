@@ -23,6 +23,17 @@
             </a>
         </li>
     {% endfor %}
+
+    {% load for_lti %}
+    {% for_lti instance.pk %}
+    <li>
+        <a href="{% url lti_login.views.lti_login url_key %}" target="_blank">
+        <i class="{{ menu_icon_class }}"></i>
+        {{ menu_label }}
+        </a>
+	</li>
+	{% endfor %}
+
     <li>
         <a href="{{ instance.get_absolute_url }}me/">
             <i class="icon-user"></i>
