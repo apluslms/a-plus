@@ -50,12 +50,29 @@ class LTIMenuItem(models.Model):
     class Meta:
         ordering = ["course_instance", "menu_weight", "menu_label"]
 
+    @property
+    def label(self):
+        '''
+        @rtype: C{str}
+        @return: menu label locally overwritten or from the service
+        '''
+        if self.menu_label:
+            return self.menu_label
+        return self.service.menu_label
+
+    @property
+    def icon_class(self):
+        '''
+        @rtype: C{str}
+        @return: menu icon class locally overwritten or from the service
+        '''
+        if self.menu_icon_class:
+            return self.menu_icon_class
+        return self.service.menu_icon_class
+
     def __unicode__(self):
         out = u"%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
-        if self.menu_label:
-            out += self.menu_label
-        else:
-            out += self.service.menu_label
+        
         if not self.enabled or not self.service.enabled:
             return u"[Disabled] " + out
         return out
