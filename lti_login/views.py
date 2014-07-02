@@ -68,7 +68,7 @@ def lti_login(request, lti_menu_id):
         "lis_person_contact_email_primary": user.email,
 
         # Selected course.
-        "context_id": "%s-%s" % (course.code, course_instance.url),
+        "context_id": request.get_host() + course_instance.get_absolute_url(),
         "context_title": course.name,
         "context_label": course.code,
 
