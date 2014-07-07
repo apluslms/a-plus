@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseForbidden, Http404
 from django.template.context import RequestContext
+from django.utils.translation import get_language
 from lti_login.models import LTIMenuItem
-
 import md5, datetime, oauth2, uuid
 
 
@@ -15,6 +15,8 @@ import md5, datetime, oauth2, uuid
 def lti_login(request, lti_menu_id):
     '''
     Generates an LTI POST form for a service.
+    Implements LTI 1.0 using required and most recommended parameters.
+    Tested for use with Piazza, https://piazza.com/product/lti
     
     @type request: C{django.http.HttpRequest}
     @param requet: an HTTP request
@@ -60,11 +62,14 @@ def lti_login(request, lti_menu_id):
         "lti_message_type": "basic-lti-launch-request",
 
         "resource_link_id": "aplus%d" % (service.pk),
+        "resource_link_title": menu_item.label,
 
         # User session.
         "user_id": student_id,
         "roles": role,
         "lis_person_name_full": "%s %s" % (user.first_name, user.last_name),
+        "lis_person_name_given": user.first_name,
+        "lis_person_name_family": user.last_name,
         "lis_person_contact_email_primary": user.email,
 
         # Selected course.
@@ -72,8 +77,10 @@ def lti_login(request, lti_menu_id):
         "context_title": course.name,
         "context_label": course.code,
 
-        "tool_consumer_instance_guid": "aplus",
-        "tool_consumer_instance_description": "Aalto Plus LMS",
+        "launch_presentation_locale": get_language(),
+
+        "tool_consumer_instance_guid": request.get_host() + "/aplus",
+        "tool_consumer_instance_name": "A+ LMS",
         
         "oauth_version": "1.0",
         "oauth_timestamp": str(datetime.datetime.now()),
