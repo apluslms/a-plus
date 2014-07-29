@@ -162,6 +162,7 @@ INSTALLED_APPS = (
     'apps',
     'oembed',
     'notification',
+    'lti_login',
 )
 
 # OAuth settings
