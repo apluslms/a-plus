@@ -1,0 +1,15 @@
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script>$(function() { $("form")[0].submit(); });</script>
+	</head>
+	<body>
+		<form id="lti_login_form" method="POST" action="{{ url }}">
+			{% for entry in parameters %}
+			<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
+			{% endfor %}
+			<input type="submit" value="Continue to service.." />
+		</form>
+	</body>
+</html>
