@@ -7,12 +7,12 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseForbidden, Http404
 from django.template.context import RequestContext
 from django.utils.translation import get_language
-from lti_login.models import LTIMenuItem
-import md5, datetime, oauth2, uuid
+from external_services.models import MenuItem
+import md5, datetime, calendar, oauth2, uuid
 
 
 @login_required
-def lti_login(request, lti_menu_id):
+def lti_login(request, menu_id):
     '''
     Generates an LTI POST form for a service.
     Implements LTI 1.0 using required and most recommended parameters.
@@ -20,13 +20,13 @@ def lti_login(request, lti_menu_id):
     
     @type request: C{django.http.HttpRequest}
     @param requet: an HTTP request
-    @type lti_menu_id: C{str}
-    @param lti_menu_id: an LTI menu item id
+    @type menu_id: C{str}
+    @param menu_id: an LTI menu item id
     @rtype: C{django.http.HttpResponse}
     @return: an HTTP response
     '''
-    menu_item = get_object_or_404(LTIMenuItem, pk=lti_menu_id)
-    service = menu_item.service
+    menu_item = get_object_or_404(MenuItem, pk=menu_id)
+    service = menu_item.service.as_leaf_class()
 
     # Check that service and menu item are enabled.
     if not menu_item.enabled or not service.enabled:
@@ -83,16 +83,16 @@ def lti_login(request, lti_menu_id):
         "tool_consumer_instance_name": "A+ LMS",
         
         "oauth_version": "1.0",
-        "oauth_timestamp": str(datetime.datetime.now()),
+        "oauth_timestamp": (calendar.timegm(datetime.datetime.utcnow().utctimetuple())),
         "oauth_nonce": str(uuid.uuid1())
     }
 
     # Sign the request using OAuth.
     consumer = oauth2.Consumer(key=service.consumer_key, secret=service.consumer_secret)
-    oauth_req = oauth2.Request(method="POST", url=service.lti_url, parameters=parameters)
+    oauth_req = oauth2.Request(method="POST", url=service.url, parameters=parameters)
     oauth_req.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, None)
 
-    return render_to_response("lti_login/form.html", RequestContext(request, {
-        "url": service.lti_url,
+    return render_to_response("external_services/lti_form.html", RequestContext(request, {
+        "url": service.url,
         "parameters": oauth_req.items(),
     }))
