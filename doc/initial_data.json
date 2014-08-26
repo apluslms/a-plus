@@ -33,8 +33,8 @@
       "description": "",
       "name": "First exercise: Hello A+",
       "course_module": 1,
-      "service_url": "http://localhost:8888/ex1",
-      "order": 0,
+      "service_url": "http://localhost:8888/first_exercise/",
+      "order": 1,
       "instructions": ""
     }
   },
@@ -50,6 +50,31 @@
       "max_group_size": 1
     }
   },
+  {
+    "pk": 2,
+    "model": "exercise.learningobject",
+    "fields": {
+      "category": 1,
+      "description": "",
+      "name": "Attachment Exercise (assistant graded)",
+      "course_module": 1,
+      "service_url": "http://localhost:8888/attachment_exercise/",
+      "order": 2,
+      "instructions": ""
+    }
+  },
+  {
+    "pk": 2,
+    "model": "exercise.baseexercise",
+    "fields": {
+      "allow_assistant_grading": true,
+      "max_points": 100,
+      "points_to_pass": 40,
+      "min_group_size": 1,
+      "max_submissions": 10,
+      "max_group_size": 1
+    }
+  },    
   {
     "pk": 1,
     "model": "course.course",
@@ -79,6 +104,13 @@
   {
     "pk": 1,
     "model": "inheritance.modelwithinheritance",
+    "fields": {
+      "content_type": 20
+    }
+  },
+  {
+    "pk": 2, 
+    "model": "inheritance.modelwithinheritance", 
     "fields": {
       "content_type": 20
     }
