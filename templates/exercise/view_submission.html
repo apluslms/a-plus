@@ -15,13 +15,15 @@
         </ul>
     {% endif %}
     
-    {% if submission.assistant_feedback %}
-        <h2>Assistant feedback</h2>
-        {{ submission.assistant_feedback|sanitize }}
-    {% else %}
-        <div class="alert alert-info">
-            {% trans "No assistant feedback available for this submission." %}
-        </div>
+    {% if submission.exercise.allow_assistant_grading %}
+        {% if submission.assistant_feedback %}
+            <h2>Assistant feedback</h2>
+            {{ submission.assistant_feedback|sanitize }}
+        {% else %}
+            <div class="alert alert-info">
+                {% trans "No assistant feedback available for this submission." %}
+            </div>
+        {% endif %}
     {% endif %}
 
     {% if submission.feedback %}
