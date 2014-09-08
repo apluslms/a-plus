@@ -15,10 +15,11 @@ from django.core.exceptions import ValidationError
 # A+
 from course.models import CourseInstance
 from userprofile.models import UserProfile
-from exercise.exercise_models import BaseExercise, CourseModule
+from exercise.exercise_models import BaseExercise, ExerciseWithAttachment, CourseModule
 from exercise.submission_models import Submission
 from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
-    StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm
+    StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm, \
+    ExerciseWithAttachmentForm
 from course.context import CourseContext
 from django.utils import simplejson
 from notification.models import Notification
@@ -71,7 +72,7 @@ def inspect_exercise_submission(request, submission_id):
                                            ))
 
 @login_required
-def add_or_edit_exercise(request, module_id, exercise_id=None):
+def add_or_edit_exercise(request, module_id, exercise_id=None, exercise_type=None):
     """ 
     This page can be used by teachers to add new exercises and edit existing ones.
     """
@@ -87,22 +88,31 @@ def add_or_edit_exercise(request, module_id, exercise_id=None):
     if exercise_id != None:
         exercise = get_object_or_404(module.learning_objects, id=exercise_id).as_leaf_class()
     else:
-        exercise = BaseExercise(course_module=module)
+        if exercise_type == "exercise_with_attachment":
+            exercise = ExerciseWithAttachment(course_module=module)
+        else:
+            exercise = BaseExercise(course_module=module)
     
     if request.method == "POST":
-        form = BaseExerciseForm(request.POST, instance=exercise)
+        if type(exercise) is BaseExercise:
+            form = BaseExerciseForm(request.POST, instance=exercise)
+        elif type(exercise) is ExerciseWithAttachment:
+            form = ExerciseWithAttachmentForm(request.POST, request.FILES, instance=exercise)
+
         if form.is_valid():
             exercise = form.save()
             messages.success(request, _('The exercise was saved successfully.'))
     else:
-        form = BaseExerciseForm(instance=exercise)
+        if type(exercise) is BaseExercise:
+            form = BaseExerciseForm(instance=exercise)
+        elif type(exercise) is ExerciseWithAttachment:
+            form = ExerciseWithAttachmentForm(instance=exercise)
     
     return render_to_response("exercise/edit_exercise.html", 
                               CourseContext(request, course_instance=course_instance,
                                                      exercise=exercise,
                                                      form=form
                                              ))
-
 
 @login_required
 def assess_submission(request, submission_id):

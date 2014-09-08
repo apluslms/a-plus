@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # A+
 from exercise.submission_models import Submission
-from exercise.exercise_models import BaseExercise, CourseModule
+from exercise.exercise_models import BaseExercise, CourseModule, ExerciseWithAttachment
 from userprofile.models import UserProfile
 
 
@@ -100,6 +100,28 @@ class BaseExerciseForm(forms.ModelForm):
     def get_group_fields(self):
         return (self["min_group_size"],
                 self["max_group_size"])
+
+
+class ExerciseWithAttachmentForm(BaseExerciseForm):
+
+    def __init__(self, *args, **kwargs):
+        self.exercise = kwargs.get('instance')
+        super(ExerciseWithAttachmentForm, self).__init__(*args, **kwargs)
+        self.fields["course_module"] = forms.ModelChoiceField(
+            queryset=CourseModule.objects.filter(course_instance=self.exercise.course_instance),
+            required=False)
+
+    class Meta:
+        model = ExerciseWithAttachment
+
+    def get_exercise_fields(self):
+        return (self["name"],
+                self["instructions"],
+                self["category"],
+                self["course_module"],
+                self["order"],
+                self["files_to_submit"],
+                self["attachment"])
 
 
 # TODO: Rename to CreateAndAssessSubmissionForm

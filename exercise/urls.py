@@ -19,6 +19,8 @@ urlpatterns = patterns('',
     (r'^submitted_file/(?P<submitted_file_id>\d+)/', view_submitted_file),
     (r'^manage/(?P<module_id>\d+)/$', add_or_edit_exercise),
     (r'^fetch_metadata/$', fetch_exercise_metadata),
+    (r'^manage/(?P<module_id>\d+)/exercise_type/(?P<exercise_type>\w+)$',
+     add_or_edit_exercise),
     (r'^manage/(?P<module_id>\d+)/(?P<exercise_id>\d+)/$',
      add_or_edit_exercise),
     (r'^rest/exercise/(?P<exercise_id>\d+)/students/(?P<student_ids>[\d\-]+)/(?'
