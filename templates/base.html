@@ -17,6 +17,24 @@
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css" />
 
         <link rel="stylesheet" href="{{ STATIC_URL }}prettify/prettify.css" type="text/css" />
+
+        <!-- Some favicons courtesy of http://realfavicongenerator.net/ -->
+        <link rel="apple-touch-icon" sizes="57x57" href="{{ STATIC_URL }}favicons/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="{{ STATIC_URL }}favicons/apple-touch-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="{{ STATIC_URL }}favicons/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="{{ STATIC_URL }}favicons/apple-touch-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="{{ STATIC_URL }}favicons/apple-touch-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="{{ STATIC_URL }}favicons/apple-touch-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="{{ STATIC_URL }}favicons/apple-touch-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="{{ STATIC_URL }}favicons/apple-touch-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ STATIC_URL }}favicons/apple-touch-icon-180x180.png">
+        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-192x192.png" sizes="192x192">
+        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-160x160.png" sizes="160x160">
+        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-96x96.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-16x16.png" sizes="16x16">
+        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-32x32.png" sizes="32x32">
+        <meta name="msapplication-TileColor" content="#2b5797">
+        <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
         
         {% block head %}{% endblock %}
     </head>
@@ -35,7 +53,7 @@
             <div id="main-navbar" class="navbar navbar-static-top">
                 <div class="navbar-inner">
                     <div class="container">
-                        <a class="brand" href="/">A+<sup><small>prototype</small></sup></a>
+                        <a class="brand" href="/">A+</a>
                         <div class="nav dropdown nav-collapse collapse">
                             <a href="#" class="brand dropdown-toggle" data-toggle="dropdown">
                                 {% block pagetitle %}

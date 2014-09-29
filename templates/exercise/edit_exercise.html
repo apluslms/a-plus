@@ -6,7 +6,7 @@
 
 <h2>{% trans "Edit exercise" %}</h2>
 
-<form method="post" action="" class="form-horizontal well">
+<form method="post" action="" enctype="multipart/form-data" class="form-horizontal well">
     {% csrf_token %}
     
     {% for hidden in form.hidden_fields %}
@@ -38,7 +38,11 @@
                         {{ field.errors }}
                     {% endif %}
                     <label class="control-label" for="id_{{ field.html_name }}">{{ field.label }}</label>
-                    <div class="controls">{{ field }}</div>
+                    <div class="controls">
+                        {{ field }}
+                        <p class="help-block">{{field.help_text}}</p>
+                    </div>
+
                 </div>
             {% endfor %}
         </fieldset>
@@ -49,7 +53,9 @@
     
 </form>
 
+{% endblock %}
 
+{% block scripts %}
 <script type="text/javascript">
     $("#fetch-metadata").click(function() {
         $("#metadata-progress").show();
@@ -67,5 +73,4 @@
             })
     });
 </script>
-
 {% endblock %}

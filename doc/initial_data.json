@@ -5,11 +5,11 @@
     "fields": {
       "name": "First Exercise Round",
       "introduction": "",
-      "late_submission_deadline": "2015-09-27 10:47:09",
+      "late_submission_deadline": "2025-09-27 10:47:09",
       "late_submissions_allowed": false,
       "course_instance": 1,
       "points_to_pass": 0,
-      "closing_time": "2014-09-27 10:47:09",
+      "closing_time": "2024-09-27 10:47:09",
       "opening_time": "2013-09-27 10:47:09",
       "late_submission_penalty": 0.5
     }
@@ -92,7 +92,7 @@
     "model": "course.courseinstance",
     "fields": {
       "website": "http://plus.cs.hut.fi/",
-      "ending_time": "2014-09-27 10:47:18",
+      "ending_time": "2024-09-27 10:47:18",
       "url": "asdfsa",
       "starting_time": "2013-09-27 10:47:17",
       "instance_name": "A+ Test Course Instance",

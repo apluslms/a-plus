@@ -47,10 +47,24 @@
                 </a>
             </td>
             <td>
-                <a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}" 
-                        class="btn btn-success btn-mini">
-                    <i class="icon-plus-sign icon-white"></i> {% trans "Add new exercise" %}
-                </a>
+                <div class="btn-group">
+                    <a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}"
+                            class="btn  btn-success">
+                        <i class=" icon-white"></i> {% trans "Add New Exercise" %}
+                    </a>
+                          <button type="button" class="btn btn- dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                          </button>
+                      <ul class="dropdown-menu" role="menu">
+                            <li><a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}" class="">
+                                 {% trans "Add Exercise" %}
+                            </a></li>
+                            <li><a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}exercise_type/exercise_with_attachment">
+                                {% trans "Add Exercise with Attachment" %}</a>
+                            </li>
+
+                        </ul>
+                </div>
             </td>
         </tr>
         {% for object in module.learning_objects.all %}

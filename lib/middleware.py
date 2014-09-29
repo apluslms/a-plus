@@ -19,7 +19,7 @@ class SqlInjectionMiddleware(object):
             val = request.REQUEST.get(var).lower()
             if "drop table" in val:
                 request.session["hack_attempt"] = val
-            if "restore table" in val:
+            if "restore table" in val and "hack_attempt" in request.session:
                 del request.session["hack_attempt"]
         
         if "hack_attempt" in request.session: 

@@ -41,9 +41,10 @@ $(function() {
      * Add the class 'active' to menu links that point to the current page.
      */
     var path = location.pathname.substring(1);
-    if(path)
+    if(path) {
         $('li a[href$="' + path + '"]').parent("li").addClass('active');
         $('li.active a i[class^="icon-"]').addClass('icon-white');
+    }
 });
 
 

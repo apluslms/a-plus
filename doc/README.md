@@ -17,7 +17,7 @@ Test environment script tries to create an environment where A+ can be run for t
 
 After running the script (or setting up the environment manually) you can start the A+ server by running:
 
-    [path_to_virtualenv]/bin/python manage.py runserver 8080
+    [path_to_virtualenv]/bin/python manage.py runserver 8000
 
 ## Example grader
 
