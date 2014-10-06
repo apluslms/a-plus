@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 # A+
 from exercise.submission_models import Submission
-from exercise.exercise_models import BaseExercise, CourseModule, ExerciseWithAttachment
+from exercise.exercise_models import BaseExercise, CourseModule, ExerciseWithAttachment, LearningObjectCategory
 from userprofile.models import UserProfile
 
 
@@ -74,6 +74,8 @@ class BaseExerciseForm(forms.ModelForm):
         self.fields["course_module"] = forms.ModelChoiceField(
             queryset=CourseModule.objects.filter(course_instance=self.exercise.course_instance),
             required=False)
+        categories = LearningObjectCategory.objects.filter(course_instance=self.exercise.course_instance)
+        self.fields["category"] = forms.ModelChoiceField(queryset=categories)
 
     class Meta:
         model = BaseExercise
