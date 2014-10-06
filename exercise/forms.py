@@ -4,7 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 
 # A+
 from exercise.submission_models import Submission
-from exercise.exercise_models import BaseExercise, CourseModule, ExerciseWithAttachment, LearningObjectCategory
+from exercise.exercise_models import BaseExercise, CourseModule,\
+    ExerciseWithAttachment, LearningObjectCategory, DeadlineRuleDeviation
 from userprofile.models import UserProfile
 
 
@@ -102,6 +103,24 @@ class BaseExerciseForm(forms.ModelForm):
     def get_group_fields(self):
         return (self["min_group_size"],
                 self["max_group_size"])
+
+
+class DeadlineRuleDeviationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        course_instance = kwargs.get('instance')
+        super(DeadlineRuleDeviationForm, self).__init__(*args, **kwargs)
+
+        exercises = BaseExercise.objects.filter(course_module__course_instance=course_instance)
+        submitters = UserProfile.objects.filter(
+            submissions__exercise__course_module__course_instance=course_instance).distinct()
+
+        self.fields["exercise"] = forms.ModelMultipleChoiceField(queryset=exercises)
+        self.fields["submitter"] = forms.ModelMultipleChoiceField(queryset=submitters)
+        self.fields["minutes"] = forms.IntegerField()
+
+        self.fields["exercise"].help_text = "Hold down 'Control', or 'Command' on a Mac, to select more than one exercise."
+        self.fields["submitter"].help_text = "Hold down 'Control', or 'Command' on a Mac, to select more than one student."
+        self.fields["minutes"].help_text = "Amount of extra time given in minutes."
 
 
 class ExerciseWithAttachmentForm(BaseExerciseForm):
