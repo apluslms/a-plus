@@ -4,7 +4,8 @@ from exercise.views import view_submission, view_exercise, \
 from exercise.staff_views import list_exercise_submissions, \
     inspect_exercise_submission, add_or_edit_exercise, \
     fetch_exercise_metadata, assess_submission, resubmit_to_service, \
-    create_and_assess_submission
+    create_and_assess_submission, add_deadline_rule_deviations, \
+    list_deadline_rule_deviations, remove_deadline_rule_deviation
 from exercise.async_views import new_async_submission, grade_async_submission
 
 urlpatterns = patterns('',
@@ -29,4 +30,10 @@ urlpatterns = patterns('',
      grade_async_submission),
     (r'^submissions/re-submit-to-service/(?P<submission_id>\d+)/$',
      resubmit_to_service),
+    url(r'^deadline_rule_deviation/remove/(?P<deadline_rule_deviation_id>\d+)$',
+        remove_deadline_rule_deviation, name="remove_dl_deviation"),
+    url(r'^deadline_rule_deviation/(?P<course_instance>\d+)/add/$',
+        add_deadline_rule_deviations, name="add_dl_deviations"),
+    url(r'^deadline_rule_deviation/(?P<course_instance>\d+)/list/$',
+        list_deadline_rule_deviations, name="list_dl_deviations"),
 )

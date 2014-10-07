@@ -91,8 +91,56 @@
     <i class="icon-plus-sign icon-white"></i> {% trans "Add new module" %}
 </a>
 
+
+<h3>Deadline Rule Deviations</h3>
+<p>Add or view personalized deadlinses for students for exercieses</p>
+<a href="{% url add_dl_deviations course.id %}" class="btn btn-primary btn-mini">
+    <i class="icon-plus-sign icon-white"></i> {% trans "Add Deadline Deviations" %}
+</a>
+<a href="{% url list_dl_deviations course.id %}" class="btn btn-primary btn-mini">
+    <i class="icon-plus-sign icon-white"></i> {% trans "List Deadline Deviations" %}
+</a>
+
+<div class="col-sm-10">
+
+
+    <h3>Batch Create and Assess Submissions</h3>
+    <p><em>Use only if you know what you are doing!</em></p>
+    <p>By submitting json to the form below you can try to create and assess multiple exercises for students automatically.</p>
+    <div>
+        <p>XXXXX1 and XXXXX2 are Aalto student ids</p>
+        <p>X1 (integer) is the A+ userprofile id of the desired grader</p>
+        <p>Z1 and Z2 (integers) are A+ exercise ids</p>
+
+        <pre>{
+  "objects": [
+    {
+      "students_by_student_id": [
+        "XXXXX1"
+      ],
+      "feedback": "Nicely solved exercise!",
+      "grader": X1,
+      "exercise_id": Z1,
+      "submission_time": "2014-09-24 11:50",
+      "points": 100
+    },
+    {
+      "students_by_student_id": [
+        "XXXXX2"
+      ],
+      "feedback": "You can do better!",
+      "grader": X1,
+      "exercise_id": Z2,
+      "submission_time": "2014-09-24 11:50",
+      "points": 20
+    }
+  ]
+}
+        </pre></div>
+</div>
 <form action="/course/{{ instance.id }}/create_and_assess_submission_batch/" method="post">{% csrf_token %}
     <textarea name="submissions_json"></textarea>
     <button type="submit" class="btn">{% trans "Submit" %}</button>
 </form>
+
 {% endblock %}
