@@ -385,3 +385,19 @@ li.notification {
     border-radius: 4px;
     margin-left: -23px;
 }
+
+/******************************************************************************
+** TEACHERS' VIEW *************************************************************
+******************************************************************************/
+
+#add_dl_deviations select {
+    min-height: 300px;
+    min-width: 280px;
+}
+#add_dl_deviations p {
+    float: left;
+    width: 290px;
+}
+#add_dl_deviations .form-actions {
+    clear: both;
+}
