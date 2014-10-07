@@ -383,7 +383,6 @@ def add_deadline_rule_deviations(request, course_instance):
 
     if request.method == "POST":
         minutes = request.POST["minutes"]
-        print "Minutes: " + minutes
         for user_id in request.POST.getlist("submitter"):
             for exercise_id in request.POST.getlist("exercise"):
                 exercise = BaseExercise.objects.get(id=exercise_id)
