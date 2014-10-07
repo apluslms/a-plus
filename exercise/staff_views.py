@@ -11,15 +11,16 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 
 # A+
 from course.models import CourseInstance
 from userprofile.models import UserProfile
-from exercise.exercise_models import BaseExercise, ExerciseWithAttachment, CourseModule
+from exercise.exercise_models import BaseExercise, ExerciseWithAttachment, CourseModule, DeadlineRuleDeviation
 from exercise.submission_models import Submission
 from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
     StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm, \
-    ExerciseWithAttachmentForm
+    ExerciseWithAttachmentForm, DeadlineRuleDeviationForm
 from course.context import CourseContext
 from django.utils import simplejson
 from notification.models import Notification
@@ -369,3 +370,67 @@ def create_and_assess_submission_batch(request, course_instance_id):
         new_submission.save()
 
     return HttpResponse("Submissions created successfully.")
+
+@login_required
+def add_deadline_rule_deviations(request, course_instance):
+    course_instance = CourseInstance.objects.get(id=course_instance)
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+        request.user.is_superuser or request.user.is_staff
+
+    if not has_permission:
+        # TODO: Missing translation.
+        return HttpResponseForbidden("You are not allowed to access this view.")
+
+    if request.method == "POST":
+        minutes = request.POST["minutes"]
+        for user_id in request.POST.getlist("submitter"):
+            for exercise_id in request.POST.getlist("exercise"):
+                exercise = BaseExercise.objects.get(id=exercise_id)
+                submitter = UserProfile.objects.get(id=user_id)
+                try:
+                    dl_rule_deviation = DeadlineRuleDeviation.objects.create(exercise=exercise, submitter=submitter, extra_minutes=minutes)
+                    dl_rule_deviation.save()
+                except IntegrityError:
+                    messages.warning(request, "DL deviation already exists for user: " +\
+                        str(submitter) + " in exercise: " + str(exercise) +\
+                        "! Remove it before trying to add a new one")
+        return redirect(list_deadline_rule_deviations, course_instance=course_instance.id)
+
+
+    form = DeadlineRuleDeviationForm(instance=course_instance)
+
+    return render_to_response("exercise/add_deadline_rule_deviations.html",
+                            CourseContext(request,
+                                            course_instance=course_instance,
+                                            form=form))
+@login_required
+def list_deadline_rule_deviations(request, course_instance):
+    course_instance = CourseInstance.objects.get(id=course_instance)
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+        request.user.is_superuser or request.user.is_staff
+
+    if not has_permission:
+        # TODO: Missing translation.
+        return HttpResponseForbidden("You are not allowed to access this view.")
+
+    deviations = DeadlineRuleDeviation.objects.filter(exercise__course_module__course_instance=course_instance)
+
+    return render_to_response("exercise/list_deadline_rule_deviations.html",
+                            CourseContext(request,
+                                            course_instance=course_instance,
+                                            deviations=deviations))
+
+@login_required
+def remove_deadline_rule_deviation(request, deadline_rule_deviation_id):
+    deviation = DeadlineRuleDeviation.objects.get(id=deadline_rule_deviation_id)
+    course_instance = deviation.exercise.get_course_instance()
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+        request.user.is_superuser or request.user.is_staff
+
+    if not has_permission:
+        # TODO: Missing translation.
+        return HttpResponseForbidden("You are not allowed to access this view.")
+
+    deviation.delete()
+
+    return redirect(list_deadline_rule_deviations, course_instance=course_instance.id)

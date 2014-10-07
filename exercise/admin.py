@@ -56,7 +56,8 @@ class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
 
 
 class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["submitter", "exercise", "extra_minutes",]
+    list_filter = ["exercise__course_module__course_instance"]
 
 
 class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
