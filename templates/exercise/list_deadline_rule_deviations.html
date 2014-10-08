@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block coursecontent %}
-<a href="{% url add_dl_deviations course.id %}" class="btn btn-success">Add new deadline rule deviations</a>
+<a href="{% url add_dl_deviations instance.id %}" class="btn btn-success">Add new deadline rule deviations</a>
 <h2>{% trans "Deadline Rule Deviations" %}</h2>
 <table class="table table-striped table-bordered table-condensed">
   <tr><th>Submitter</th><th>Exercise</th><th>Extra Minutes</th><th>Actions</th></tr>

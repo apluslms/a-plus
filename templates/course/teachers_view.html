@@ -94,10 +94,10 @@
 
 <h3>Deadline Rule Deviations</h3>
 <p>Add or view personalized deadlinses for students for exercieses</p>
-<a href="{% url add_dl_deviations course.id %}" class="btn btn-primary btn-mini">
+<a href="{% url add_dl_deviations instance.id %}" class="btn btn-primary btn-mini">
     <i class="icon-plus-sign icon-white"></i> {% trans "Add Deadline Deviations" %}
 </a>
-<a href="{% url list_dl_deviations course.id %}" class="btn btn-primary btn-mini">
+<a href="{% url list_dl_deviations instance.id %}" class="btn btn-primary btn-mini">
     <i class="icon-plus-sign icon-white"></i> {% trans "List Deadline Deviations" %}
 </a>
 
