@@ -21,6 +21,8 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
 <script type="text/javascript">
     $(function(){
         $.getJSON("/api/v1/course/", function(courseResponse) {
@@ -46,4 +48,6 @@
         });
     });
 </script>
+{% endblock %}
+
 {% endblock %}
