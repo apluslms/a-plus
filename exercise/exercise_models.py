@@ -351,7 +351,7 @@ class BaseExercise(LearningObject):
             post_params.append( (key, value) )
         
         # Then the files are appended as key, file handle tuples
-        for submitted_file in submission.files.all():
+        for submitted_file in submission.files.all().order_by("id"):
             param_name          = submitted_file.param_name
             file_handle         = open(submitted_file.file_object.path, "rb")
             post_params.append( (param_name, file_handle) )
