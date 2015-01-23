@@ -266,7 +266,7 @@ def view_update_stats(request, exercise_id):
     # Load the exercise as an instance of its leaf class
     exercise = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
     # Create the rest of the context variables
-    user_profile = request.user.get_profile
+    user_profile = request.user.get_profile()
     summary = UserExerciseSummary(exercise, request.user)
 
     return render_to_response("exercise/_exercise_info.html",
