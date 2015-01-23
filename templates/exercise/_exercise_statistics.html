@@ -24,13 +24,9 @@
 
 
 <dl>
-    <dt>
-        {% trans "Number of submitters" %}
-    </dt>
+    <dt>{% trans "Number of submitters" %}</dt>
     <dd>{{ exercise.summary.submitter_count }}</dd>
     
-    <dt>
-        {% trans "Average submissions per student" %}
-    </dt>
+    <dt>{% trans "Average submissions per student" %}</dt>
     <dd>{{ exercise.summary.average_submissions|floatformat:2 }}</dd>
 </dl>

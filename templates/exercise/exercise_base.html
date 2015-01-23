@@ -32,9 +32,9 @@
             </div>
             <div class="span2">
                 {% block exerciseinfo %}
-                {% include "exercise/_exercise_info.html" with exercise=exercise user_profile=request.user.get_profile %}
-
-                {% include "exercise/_exercise_statistics.html" with exercise=exercise summary=exercise_summary %}
+                <div id="exercise-info" data-url="{% url exercise.views.view_update_stats exercise_id=exercise.id %}">
+                    {% include "exercise/_exercise_info.html" with user_profile=request.user.get_profile summary=exercise_summary %}
+                </div>
                 {% endblock %}
 
                 {% for plugin_renderer in plugin_renderers %}

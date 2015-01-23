@@ -12,7 +12,7 @@ $(function() {
    // hide closed rounds by default
    if ($("ul.exercise_rounds li.closed").addClass("hide").size() > 0) {
       // show the toggle link and register a click handler
-      $("#toggleOldModules").removeClass("hide").click(function(e) { 
+      $("#toggleOldModules").removeClass("hide").click(function(e) {
          e.preventDefault();
          // toggle visibility of closed rounds
          var invisible = $("ul.exercise_rounds li.closed").toggleClass("hide").hasClass("hide");
@@ -41,10 +41,17 @@ $(function() {
      * Add the class 'active' to menu links that point to the current page.
      */
     var path = location.pathname.substring(1);
-    if(path) {
+    if (path) {
         $('li a[href$="' + path + '"]').parent("li").addClass('active');
         $('li.active a i[class^="icon-"]').addClass('icon-white');
     }
+
+    // Add an event listener to refresh the stats on the right side of the exercise page
+    window.addEventListener("message", function (event) {
+      if (event.data.type === "a-plus-refresh-stats") {
+        var $stats = $("#exercise-info"),
+            url = $stats.data("url");
+        $stats.load(url);
+      }
+    });
 });
-
-

@@ -58,7 +58,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     if is_post and is_allowed:
         # This is a successful submission, so we handle submitting the form
         return _handle_submission(request, exercise, students, form, submissions)
-    
+
     try:
         # Try retrieving the exercise page
         submission_url  = exercise.get_submission_url_for_students(students)
@@ -237,6 +237,43 @@ def view_submission(request, submission_id):
                                             submission_number=index,
                                             exercise_summary=exercise_summary,
                                             plugin_renderers=plugin_renderers))
+
+
+@login_required
+def view_update_stats(request, exercise_id):
+    """
+    This view is used to update the exercise statistics on the right side of
+    the exercise page. This view should only be requested with an Ajax request.
+    If not, an error will be returned.
+
+    The statistics are updated with a post message sent from the exercise. The
+    message should contain an object with the following key-value pair:
+        type: 'a-plus-refresh-stats'
+
+    For instance, an exercise inside an iframe could execute the following line
+    to update the statistics on the A+ exercise page:
+        parent.postMessage({type: "a-plus-refresh-stats"}, "*");
+
+    The event listener listening for these messages can be found in
+    aaltoplus.js.
+
+    @param request: HttpRequest object from Django
+    @param exercise_id: the id of the exercise model to display
+    """
+    if not request.is_ajax():
+        return HttpResponseForbidden(_("Your are not allowed to access this view."))
+
+    # Load the exercise as an instance of its leaf class
+    exercise = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
+    # Create the rest of the context variables
+    user_profile = request.user.get_profile
+    summary = UserExerciseSummary(exercise, request.user)
+
+    return render_to_response("exercise/_exercise_info.html",
+                              CourseContext(request,
+                                            exercise=exercise,
+                                            user_profile=user_profile,
+                                            summary=summary))
 
 
 ######################################################################
