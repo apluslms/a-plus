@@ -5,7 +5,7 @@ from exercise.staff_views import list_exercise_submissions, \
     inspect_exercise_submission, add_or_edit_exercise, \
     fetch_exercise_metadata, assess_submission, resubmit_to_service, \
     create_and_assess_submission, add_deadline_rule_deviations, \
-    list_deadline_rule_deviations, remove_deadline_rule_deviation
+    list_deadline_rule_deviations, remove_deadline_rule_deviation, remove_exercise
 from exercise.async_views import new_async_submission, grade_async_submission
 
 urlpatterns = patterns('',
@@ -24,6 +24,8 @@ urlpatterns = patterns('',
      add_or_edit_exercise),
     (r'^manage/(?P<module_id>\d+)/(?P<exercise_id>\d+)/$',
      add_or_edit_exercise),
+    (r'^remove/(?P<module_id>\d+)/(?P<exercise_id>\d+)/$',
+     remove_exercise),
     (r'^rest/exercise/(?P<exercise_id>\d+)/students/(?P<student_ids>[\d\-]+)/(?'
      'P<hash>\w+)/$', new_async_submission),
     (r'^rest/submission/(?P<submission_id>\d+)/(?P<hash>\w+)/$',

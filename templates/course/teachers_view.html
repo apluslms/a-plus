@@ -22,10 +22,12 @@
     </tbody>
 </table>
 
-<a href="/admin/exercise/learningobjectcategory/"
-   class="btn btn-primary btn-mini">
-    <i class="icon-plus-sign icon-white"></i> {% trans "Edit categories" %}
-</a> (You need to be a superuser)
+<p>
+    <a href="/admin/exercise/learningobjectcategory/"
+       class="btn btn-primary btn-mini">
+        <i class="icon-plus-sign icon-white"></i> {% trans "Edit categories" %}
+    </a> (You need to be a superuser)
+</p>
 
 
 <table class="table table-striped table-bordered table-condensed">
@@ -75,6 +77,9 @@
                 <td>
                     <a href="{% url exercise.staff_views.add_or_edit_exercise module.id object.id %}" class="btn btn-mini">
                         <i class="icon-edit"></i> {% trans "Edit" %}
+                    </a>
+                    <a href="{% url exercise.staff_views.remove_exercise module.id object.id %}" class="btn btn-mini">
+                        <i class="icon-remove"></i> {% trans "Remove" %}
                     </a>
                 </td>
                 <td>
