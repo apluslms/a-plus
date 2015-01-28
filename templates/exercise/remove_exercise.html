@@ -1,0 +1,20 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<h1>Confirm removing exercise</h1>
+
+<div class="alert alert-danger">
+    You are removing exercise <b>{{exercise.name}}</b>.
+    If you remove this exercise, all the submissions to the exercise will also be removed. Are you sure?
+</div>
+
+<form method="POST" action="#">
+    {% csrf_token %}
+    <input class="btn btn-danger" type="submit" value="Remove" />
+    <a class="btn btn-primary" href="{% url course.views.teachers_view course_url=instance.course.url instance_url=instance.url %}">
+    Cancel</a>
+</form>
+
+{% endblock %}
