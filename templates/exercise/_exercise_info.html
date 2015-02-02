@@ -18,3 +18,35 @@
     <!--<dt>{% trans "Maximum group size" %}</dt>
     <dd>{{ exercise.max_group_size }}</dd>-->
 </dl>
+
+<div class="well my-score-box">
+    <h2>{{ summary.get_points }} <small>/ {{ exercise.max_points }}</small></h2>
+    <div
+        class="progress {% if summary.is_passed %}progress-success{% else %}progress-danger{% endif %} progress-striped"
+        style="position: relative">
+        <div class="bar" style="width: {{ summary.get_completed_percentage }}%;"
+            data-placement="below" rel="tooltip" title="{% trans "Your points" %}: {{ summary.get_points }}"></div>
+
+        <a href="#"
+            class="score-barrier required-score"
+            style="left: {{ summary.exercise.get_percentage_to_pass }}%"
+            rel="tooltip"
+            data-placement="bottom"
+            title="{% trans "Points required to pass" %}: {{ exercise.points_to_pass }}"></a>
+        <a href="#"
+            class="score-barrier course-average"
+            style="left: {{ summary.exercise.get_average_percentage }}%"
+            rel="tooltip"
+            data-placement="bottom"
+            title="{% trans "Course average" %}: {{ exercise.summary.average_grade|floatformat:2 }}"></a>
+    </div>
+</div>
+
+
+<dl>
+    <dt>{% trans "Number of submitters" %}</dt>
+    <dd>{{ exercise.summary.submitter_count }}</dd>
+
+    <dt>{% trans "Average submissions per student" %}</dt>
+    <dd>{{ exercise.summary.average_submissions|floatformat:2 }}</dd>
+</dl>

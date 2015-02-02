@@ -74,7 +74,32 @@
       "max_submissions": 10,
       "max_group_size": 1
     }
-  },    
+  },
+  {
+    "pk": 3,
+    "model": "exercise.learningobject",
+    "fields": {
+      "category": 1,
+      "description": "",
+      "name": "AJAX Exercise",
+      "course_module": 1,
+      "service_url": "http://localhost:8888/ajax_exercise/",
+      "order": 3,
+      "instructions": ""
+    }
+  },
+  {
+    "pk": 3,
+    "model": "exercise.baseexercise",
+    "fields": {
+      "allow_assistant_grading": false,
+      "max_points": 100,
+      "points_to_pass": 40,
+      "min_group_size": 1,
+      "max_submissions": 10,
+      "max_group_size": 1
+    }
+  },
   {
     "pk": 1,
     "model": "course.course",
@@ -109,8 +134,15 @@
     }
   },
   {
-    "pk": 2, 
-    "model": "inheritance.modelwithinheritance", 
+    "pk": 2,
+    "model": "inheritance.modelwithinheritance",
+    "fields": {
+      "content_type": 20
+    }
+  },
+  {
+    "pk": 3,
+    "model": "inheritance.modelwithinheritance",
     "fields": {
       "content_type": 20
     }

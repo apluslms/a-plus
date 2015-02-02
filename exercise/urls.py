@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 from exercise.views import view_submission, view_exercise, \
-    view_submitted_file
+    view_submitted_file, view_update_stats
 from exercise.staff_views import list_exercise_submissions, \
     inspect_exercise_submission, add_or_edit_exercise, \
     fetch_exercise_metadata, assess_submission, resubmit_to_service, \
@@ -10,6 +10,7 @@ from exercise.async_views import new_async_submission, grade_async_submission
 
 urlpatterns = patterns('',
     (r'^(?P<exercise_id>\d+)/$', view_exercise),
+    (r'^stats/(?P<exercise_id>\d+)/$', view_update_stats),
     (r'^submission/(?P<submission_id>\d+)/$', view_submission),
     (r'^submissions/list/(?P<exercise_id>\d+)/$', list_exercise_submissions),
     (r'^submissions/inspect/(?P<submission_id>\d+)/$',
