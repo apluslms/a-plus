@@ -15,6 +15,7 @@ from django.db import IntegrityError
 
 # A+
 from course.models import CourseInstance
+from course.views import teachers_view
 from userprofile.models import UserProfile
 from exercise.exercise_models import BaseExercise, ExerciseWithAttachment, CourseModule, DeadlineRuleDeviation
 from exercise.submission_models import Submission
@@ -114,6 +115,29 @@ def add_or_edit_exercise(request, module_id, exercise_id=None, exercise_type=Non
                                                      exercise=exercise,
                                                      form=form
                                              ))
+
+@login_required
+def remove_exercise(request, module_id, exercise_id):
+    """ 
+    This page can be used by teachers to remove an existing exercise.
+    """
+    module          = get_object_or_404(CourseModule, id=module_id)
+    course_instance = module.course_instance
+    
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+        request.user.is_superuser or request.user.is_staff
+    
+    if not has_permission:
+        return HttpResponseForbidden("You are not allowed to access this view.")
+    
+    exercise = get_object_or_404(module.learning_objects, id=exercise_id).as_leaf_class()    
+
+    if request.method == "POST":
+        exercise.delete()
+        return redirect(teachers_view, course_instance.course.url, course_instance.url)
+
+    return render_to_response("exercise/remove_exercise.html", CourseContext(request, 
+                               course_instance=course_instance, exercise=exercise))
 
 @login_required
 def assess_submission(request, submission_id):
