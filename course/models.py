@@ -233,7 +233,7 @@ class CourseHook(models.Model):
         try:
             res = urllib2.urlopen(self.hook_url,
                 urllib.urlencode(data), timeout=10)
-            logger.info('%s postend to %s on %s with %s',
+            logger.info("%s posted to %s on %s with %s",
                 self.hook_type, self.hook_url, self.course_instance, data
                 )
         except:
