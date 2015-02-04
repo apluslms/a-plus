@@ -225,7 +225,7 @@ class CourseHook(models.Model):
         choices=HOOK_CHOICES,
         default="post-grading")
     course_instance = models.ForeignKey(CourseInstance,
-        related_name="course_hook")
+        related_name="course_hooks")
 
 
     def trigger(self, data):

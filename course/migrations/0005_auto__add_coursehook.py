@@ -13,7 +13,7 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('hook_url', self.gf('django.db.models.fields.URLField')(max_length=200)),
             ('hook_type', self.gf('django.db.models.fields.CharField')(default='post-grading', max_length=12)),
-            ('course_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='course_hook', to=orm['course.CourseInstance'])),
+            ('course_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='course_hooks', to=orm['course.CourseInstance'])),
         ))
         db.send_create_signal('course', ['CourseHook'])
 
@@ -90,7 +90,7 @@ class Migration(SchemaMigration):
         },
         'course.coursehook': {
             'Meta': {'object_name': 'CourseHook'},
-            'course_instance': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'course_hook'", 'to': "orm['course.CourseInstance']"}),
+            'course_instance': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'course_hooks'", 'to': "orm['course.CourseInstance']"}),
             'hook_type': ('django.db.models.fields.CharField', [], {'default': "'post-grading'", 'max_length': '12'}),
             'hook_url': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
