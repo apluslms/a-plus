@@ -1,4 +1,6 @@
 # Python
+import logging
+import urllib, urllib2
 from datetime import datetime
 
 # Django
@@ -204,6 +206,45 @@ class CourseInstance(models.Model):
     class Meta:
         unique_together = ("course", "url")
 
+class CourseHook(models.Model):
+    """
+    Provides a hook for a course instance, that is called after a certain
+    action. Currently only hook implemented is post-grading, i.e. after a
+    student submission has been succesfully graded by the external service.
+
+    When a hook is triggered it will do a HTTP POST to a defined URL
+    passing along data (e.g. submission id).
+    """
+
+    HOOK_CHOICES = (
+        ("post-grading", "Post grading"),
+    )
+
+    hook_url = models.URLField(verify_exists=False)
+    hook_type = models.CharField(max_length=12,
+        choices=HOOK_CHOICES,
+        default="post-grading")
+    course_instance = models.ForeignKey(CourseInstance,
+        related_name="course_hook")
+
+
+    def trigger(self, data):
+        logger = logging.getLogger("plus.hooks")
+        try:
+            res = urllib2.urlopen(self.hook_url,
+                urllib.urlencode(data), timeout=10)
+            logger.info('%s postend to %s on %s with %s',
+                self.hook_type, self.hook_url, self.course_instance, data
+                )
+        except:
+            logger.error(
+                "HTTP POST failed on %s hook to %s (%s)",
+                self.hook_type,
+                self.hook_url,
+                self.course_instance)
+
+    def __unicode__(self):
+        return "%s -> %s" % (self.course_instance, self.hook_url)
 
 def get_visible_open_course_instances(profile=None):
     if profile:

@@ -1,7 +1,10 @@
+# Python
+from base64 import b64encode
+
 # Tastypie
 from tastypie.resources import ModelResource, Resource, ALL
 from api_permissions import *
-from tastypie.authentication import OAuthAuthentication, OAuthAuthentication
+from tastypie.authentication import OAuthAuthentication, OAuthAuthentication, ApiKeyAuthentication
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
 
@@ -89,3 +92,50 @@ class SubmissionResource(ModelResource):
         authentication  = OAuthAuthentication()
         authorization   = SuperuserAuthorization()
 
+class SubmissionContentResource(ModelResource):
+    """
+    Otherwise similar to SubmissionResource, expect submitted files are
+    included (base64 encoded) and this resource can be read with
+    API key authentication.
+    """
+    exercise = fields.ToOneField('exercise.api.ExerciseResource', 'exercise')
+    grader = fields.ToOneField('userprofile.api.UserProfileResource',
+        'grader', null=True, blank=True)
+    submitters = fields.ToManyField('userprofile.api.UserProfileResource',
+        'submitters', null=True, blank=True)
+
+    def dehydrate(self, bundle):
+        """
+        Add the content of submitted files with base64 encoding, as well as,
+        the student ids of the submitters.
+        """
+        file_contents = {}
+        for file in bundle.obj.files.all():
+            file_contents[file.filename] = b64encode(file.file_object.read())
+        bundle.data.update({"files": file_contents})
+
+        student_ids = []
+        for submitter in bundle.obj.submitters.all():
+            student_ids.append(submitter.student_id)
+        bundle.data.update({"student_ids": student_ids})
+
+        return bundle
+
+    class Meta:
+        queryset        = Submission.objects.all()
+        resource_name   = 'submission_content'
+        excludes        = ['feedback']
+        allowed_methods = ['get']
+        include_absolute_url = True
+
+        # Rules that enable filtering based on exercise, grader, submitter and grade.
+        filtering = {
+            "exercise": ('exact',),
+            "grader": ('exact',),
+            "submitters": ('exact',),
+            "grade": ALL,
+            "id": ALL
+        }
+
+        authentication  = ApiKeyAuthentication()
+        authorization   = ReadOnlyAuthorization()

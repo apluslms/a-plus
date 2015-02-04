@@ -212,6 +212,8 @@ class Submission(models.Model):
     def set_ready(self):
         self.grading_time = datetime.now()
         self._set_status("ready")
+        for hook in self.exercise.course_instance.course_hook.filter(hook_type="post-grading"):
+            hook.trigger({"submission_id":self.id})
 
     def set_error(self):
         self._set_status("error")

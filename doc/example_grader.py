@@ -68,7 +68,7 @@ class ExerciseGrader(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.wfile.write(response)
 
         # Attachment exercise. Note that the file is only stored in A+
-        if '/attachment_exercise/' in self.path:
+        elif '/attachment_exercise/' in self.path:
             response = '<html><head>\n' +\
                        '<meta name="points" value="0" />\n' +\
                        '<meta name="max-points" value="100" />\n' +\
@@ -84,7 +84,7 @@ class ExerciseGrader(SimpleHTTPServer.SimpleHTTPRequestHandler):
         # AJAX exercise
         # NOTE: The AJAX request comes from the user's browser, not A+
         #       We will now send the score to A+ using the submission URL
-        if '/ajax_exercise/' in self.path:
+        elif '/ajax_exercise/' in self.path:
             points = post_data['points'][0]
             max_points = post_data['max_points'][0]
             submission_url = parse_qs(self.path.split('?')[1])['submission_url'][0]
@@ -105,6 +105,12 @@ class ExerciseGrader(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(response)
+
+        # Demonstrating hook functionality
+        elif "/hook/" in self.path:
+            print "POST Hook detected!", self.path
+            print "Data:", post_data
+            self.send_response(200)
 
 httpd = SocketServer.TCPServer(('', PORT), ExerciseGrader)
 print 'Serving at port:', PORT
