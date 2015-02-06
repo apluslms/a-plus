@@ -92,7 +92,7 @@ class CourseModule(models.Model):
         """
         point_worth = 100.0
         if self.late_submissions_allowed:
-            point_worth = int((1.0-self.late_submission_penalty)*100.0)
+            point_worth = int((1.0-self.late_submission_penalty) * 100.0)
         return point_worth
     
     def is_open(self, when=None):
@@ -485,7 +485,6 @@ class BaseExercise(LearningObject):
 
         # If late submission is open, notify the student about point reduction
         if self.course_module.is_late_submission_open():
-            print(self.course_module.get_late_submission_point_worth())
             late_message = 'Deadline for the exercise has passed.\
                 Late submission are allowed until {:%b. %d, %Y, %I:%M %p}\
                 but points are only worth {} %.'.format(

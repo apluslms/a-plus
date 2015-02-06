@@ -72,8 +72,8 @@
                 <p>
                     <span class="dates">{{ course_module.opening_time }} &ndash; {{ course_module.closing_time }}</span><br>
                     <span class="dates">
-                    {% if course_module.late_submissions_allowed %}
-                        <em>Late submission are allowed until {{course_module.late_submission_deadline}} but points are only worth {{course_module.get_late_submission_point_worth}} %</em>.
+                        {% if course_module.late_submissions_allowed %}
+                            <em>Late submission are allowed until {{course_module.late_submission_deadline}} but points are only worth {{course_module.get_late_submission_point_worth}} %</em>.
                         {% endif %}
                     </span>
                 </p>
