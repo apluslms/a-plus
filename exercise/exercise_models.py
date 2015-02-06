@@ -85,6 +85,15 @@ class CourseModule(models.Model):
     def is_late_submission_open(self):
         return self.late_submissions_allowed and \
             self.closing_time <= datetime.now() <= self.late_submission_deadline
+
+    def get_late_submission_point_worth(self):
+        """
+        Returns the percentage (0-100) that late submission points are worth.
+        """
+        point_worth = 100.0
+        if self.late_submissions_allowed:
+            point_worth = int((1.0-self.late_submission_penalty)*100.0)
+        return point_worth
     
     def is_open(self, when=None):
         when = when or datetime.now()
@@ -473,6 +482,16 @@ class BaseExercise(LearningObject):
                         students[0]
                     )))):
             errors.append('This exercise is not open for submissions.')
+
+        # If late submission is open, notify the student about point reduction
+        if self.course_module.is_late_submission_open():
+            print(self.course_module.get_late_submission_point_worth())
+            late_message = 'Deadline for the exercise has passed.\
+                Late submission are allowed until {:%b. %d, %Y, %I:%M %p}\
+                but points are only worth {} %.'.format(
+                    self.course_module.late_submission_deadline,
+                    self.course_module.get_late_submission_point_worth())
+            errors.append(late_message)
         
         if not allowed_group_size:
             errors.append(_('This exercise can be submitted in groups of %d to'
