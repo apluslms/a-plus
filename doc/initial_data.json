@@ -26,6 +26,32 @@
     }
   },
   {
+    "pk": 2,
+    "model": "exercise.coursemodule",
+    "fields": {
+      "name": "Exercises with Hook",
+      "introduction": "",
+      "late_submission_deadline": "2025-09-27 10:47:09",
+      "late_submissions_allowed": false,
+      "course_instance": 2,
+      "points_to_pass": 0,
+      "closing_time": "2024-09-27 10:47:09",
+      "opening_time": "2013-09-27 10:47:09",
+      "late_submission_penalty": 0.5
+    }
+  },
+  {
+    "pk": 2,
+    "model": "exercise.learningobjectcategory",
+    "fields": {
+      "hidden_to": [],
+      "points_to_pass": 0,
+      "course_instance": 2,
+      "name": "Online Exercises with Hooks",
+      "description": ""
+    }
+  },
+  {
     "pk": 1,
     "model": "exercise.learningobject",
     "fields": {
@@ -101,6 +127,31 @@
     }
   },
   {
+    "pk": 4,
+    "model": "exercise.learningobject",
+    "fields": {
+      "category": 2,
+      "description": "",
+      "name": "First exercise: Hello A+",
+      "course_module": 2,
+      "service_url": "http://localhost:8888/first_exercise/",
+      "order": 1,
+      "instructions": ""
+    }
+  },
+  {
+    "pk": 4,
+    "model": "exercise.baseexercise",
+    "fields": {
+      "allow_assistant_grading": false,
+      "max_points": 100,
+      "points_to_pass": 40,
+      "min_group_size": 1,
+      "max_submissions": 10,
+      "max_group_size": 1
+    }
+  },
+  {
     "pk": 1,
     "model": "course.course",
     "fields": {
@@ -118,9 +169,23 @@
     "fields": {
       "website": "http://plus.cs.hut.fi/",
       "ending_time": "2024-09-27 10:47:18",
-      "url": "asdfsa",
+      "url": "basic_instance",
       "starting_time": "2013-09-27 10:47:17",
       "instance_name": "A+ Test Course Instance",
+      "course": 1,
+      "assistants": [],
+      "visible_to_students": true
+    }
+  },
+  {
+    "pk": 2,
+    "model": "course.courseinstance",
+    "fields": {
+      "website": "http://plus.cs.hut.fi/",
+      "ending_time": "2024-09-27 10:47:18",
+      "url": "hook_instance",
+      "starting_time": "2013-09-27 10:47:17",
+      "instance_name": "Hook Example",
       "course": 1,
       "assistants": [],
       "visible_to_students": true
@@ -130,21 +195,37 @@
     "pk": 1,
     "model": "inheritance.modelwithinheritance",
     "fields": {
-      "content_type": 20
+      "content_type": ["exercise", "baseexercise"]
     }
   },
   {
     "pk": 2,
     "model": "inheritance.modelwithinheritance",
     "fields": {
-      "content_type": 20
+      "content_type": ["exercise", "baseexercise"]
     }
   },
   {
     "pk": 3,
     "model": "inheritance.modelwithinheritance",
     "fields": {
-      "content_type": 20
+      "content_type": ["exercise", "baseexercise"]
+    }
+  },
+  {
+    "pk": 4,
+    "model": "inheritance.modelwithinheritance",
+    "fields": {
+      "content_type": ["exercise", "baseexercise"]
+    }
+  },
+  {
+    "pk": 1,
+    "model": "course.coursehook",
+    "fields": {
+      "hook_type": "post-grading",
+      "hook_url": "http://localhost:8888/hook/",
+      "course_instance": 2
     }
   }
 ]

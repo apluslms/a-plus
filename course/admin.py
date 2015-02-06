@@ -1,5 +1,5 @@
 from django.contrib import admin
-from course.models import Course, CourseInstance
+from course.models import Course, CourseInstance, CourseHook
 from django.db.models import Q
 
 class CourseAdmin(admin.ModelAdmin):
@@ -57,3 +57,4 @@ class CourseInstanceAdmin(admin.ModelAdmin):
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(CourseInstance, CourseInstanceAdmin)
+admin.site.register(CourseHook)
