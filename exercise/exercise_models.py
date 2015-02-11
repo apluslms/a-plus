@@ -482,6 +482,17 @@ class BaseExercise(LearningObject):
                         students[0]
                     )))):
             errors.append('This exercise is not open for submissions.')
+       
+        if not allowed_group_size:
+            errors.append(_('This exercise can be submitted in groups of %d to'
+                            ' %d students.') % (self.min_group_size,
+                                                self.max_group_size)
+                          + " "
+                          + _('The size of your current group is %d.')
+                          % students.count())
+
+        # Only notifications are added below this line        
+        success = len(errors) == 0
 
         # If late submission is open, notify the student about point reduction
         if self.course_module.is_late_submission_open():
@@ -491,16 +502,8 @@ class BaseExercise(LearningObject):
                     self.course_module.late_submission_deadline,
                     self.course_module.get_late_submission_point_worth())
             errors.append(late_message)
-        
-        if not allowed_group_size:
-            errors.append(_('This exercise can be submitted in groups of %d to'
-                            ' %d students.') % (self.min_group_size,
-                                                self.max_group_size)
-                          + " "
-                          + _('The size of your current group is %d.')
-                          % students.count())
-        
-        success = len(errors) == 0
+
+
         return success, errors
     
     def is_late_submission_allowed(self):
