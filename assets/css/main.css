@@ -303,6 +303,10 @@ ul.exercise_rounds li.exercise_round div.exercise-icons .btn-group .btn {
     padding: 4px 10px;
 }
 
+ul.exercise_rounds li.exercise_round div.exercise-icons-tight .btn-group .btn {
+    padding: 4px 5px;
+}
+
 ul.exercise_rounds li.open {
     border-left-color: #0088CC;
     border-left-width: 3px;
