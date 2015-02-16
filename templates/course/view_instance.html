@@ -32,7 +32,13 @@
         {% for course_module, round_summary, uncategorized_exercise_level, category_level in exercise_tree %}
             <li class="exercise_round {{ course_module|course_module_classes }}">
                 {% if course_module.is_after_open or is_teacher or is_assistant %}
+
+               {% if uncategorized_exercise_level|length <= 10 %}
                 <div class="exercise-icons">
+               {% else %}
+                <div class="exercise-icons exercise-icons-tight">
+               {% endif %}
+
                     <div class="btn-group">
                     {% for exercise, exercise_summary in uncategorized_exercise_level %}
                         <a href="{{ exercise_summary.exercise.get_absolute_url }}"
