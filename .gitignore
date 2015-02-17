@@ -1,0 +1,3 @@
+*.pyc
+aplus.db
+course/fixtures/
