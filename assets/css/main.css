@@ -1,0 +1,407 @@
+.brand sup small {
+    font-size: 11px;
+}
+
+span.helptext {
+    display: block;
+    font-size: 80%;
+}
+
+.hidden {
+    display: none;
+}
+
+#exercise iframe {
+    border: none;
+    box-shadow: 1px 1px 6px silver;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    background: url(/static/images/square_bg.png) top left repeat transparent;
+    height: 100%;
+}
+
+
+/*****************************************************************************
+ * HEADERS *******************************************************************
+ *****************************************************************************/
+
+/* The following overrides header sizes and their line heights of Bootstrap as
+ * they are overly large.
+ */
+
+h1 {
+    font-size: 30px;
+    line-height: 36px;
+}
+
+h1 small {
+  font-size: 18px;
+}
+
+h2 {
+    font-size: 24px;
+    line-height: 36px;
+}
+
+h2 small {
+  font-size: 18px;
+}
+
+h3 {
+    font-size: 18px;
+    line-height: 27px;
+}
+
+h3 small {
+  font-size: 14px;
+}
+
+.page-header {
+    /* The following overrides .page-header of Bootstrap for customized
+     * look.
+     */
+    margin-bottom: 16px;
+    padding-bottom: 5px;
+}
+
+
+/*****************************************************************************
+ * MAIN NAVBAR ***************************************************************
+ *****************************************************************************/
+
+div#main-navbar .navbar-inner {
+    /* The following overrides .navbar-inner of Bootstrap for customized
+     * look.
+     */
+    background-color: #007abe;
+    background-image: -moz-linear-gradient(top, #0088cc, #0066aa);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0066aa));
+    background-image: -webkit-linear-gradient(top, #0088cc, #0066aa);
+    background-image: -o-linear-gradient(top, #0088cc, #0066aa);
+    background-image: linear-gradient(to bottom, #0088cc, #0066aa);
+    background-repeat: repeat-x;
+    border-bottom: none;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0066aa', GradientType=0);
+    *zoom: 1;
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+div#main-navbar .brand, div#main-navbar #user-status a {
+    /* The following overrides .navbar .brand of Bootstrap for customized
+     * look.
+     */
+    color: #ffffff;
+    text-shadow: none;
+}
+
+div#main-navbar .nav .dropdown-toggle .caret {
+    /* The following overrides .nav .dropdown-toggle .caret of Bootstrap for customized caret in the course selection
+     * dropdown.
+     */
+    border-top-color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+
+div#main-navbar .nav .dropdown-toggle:hover .caret,
+div#main-navbar .nav .dropdown-toggle:focus .caret {
+    /* The following overrides .nav .dropdown-toggle:hover .caret and .nav .dropdown-toggle:focus .caret of Bootstrap
+     * for customized caret in the course selection dropdown.
+     */
+    border-top-color: #b5e5ff;
+    border-bottom-color: #b5e5ff;
+}
+
+#notification-menu {
+    right: auto;
+}
+
+div#main-navbar #notification-menu a {
+    color: #333333;
+}
+
+div#main-navbar #notification-menu a:hover {
+    color: #FFFFFF;
+}
+
+.navbar .nav > li > .dropdown-menu:before {
+    left: 9px;
+    right: auto;
+}
+
+.navbar .nav > li > .dropdown-menu:after {
+    left: 10px;
+    right: auto;
+}
+
+div#main-navbar #unread-notifications-icon {
+    background-color: #AA0000;
+}
+
+div#main-navbar #notification-icon {
+    background-color: transparent;
+}
+
+/*****************************************************************************
+ * FOOTER ********************************************************************
+ *****************************************************************************/
+
+div#base-container {
+    /* These are related to the fixed footer. */
+    min-height: 100%;
+    position: relative;
+}
+
+/* This one is for the fixed footer. */
+div#main_content {
+    padding-bottom: 60px;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+
+    /**
+     * The maximum height in pixels because we need to add padding to the block
+     * above the footer so they won't overlap. This if for approximately two
+     * lines of text.
+     */
+    max-height: 60px;
+
+    border-top: 1px solid #E5E5E5;
+
+    /* Fallback for web browsers that don't support RGBa */
+    background: rgb(245, 245, 245);
+    /* The desired rule */
+    background: rgba(0,0,0,0.05);
+
+    padding: 3px 0;
+}
+
+footer p {
+    color: #555555;
+    margin: 0;
+}
+
+
+.rss-feed .entry-date {
+    display: block;
+    font-size: 80%;
+}
+
+.rss-feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rss-feed li {
+    padding: 0 0 8px 0;
+    margin: 0;
+}
+
+
+
+#submission_list .active {
+    font-weight: bold;
+    color: black;
+}
+
+.groups-list {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.mini-layout {
+    /* height: 240px; */
+    margin-bottom: 20px;
+    padding: 9px;
+}
+
+.mini-layout {
+    border: 1px solid #DDDDDD;
+    border-radius: 6px 6px 6px 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.075);
+}
+
+
+/*****************************************************************************
+ * SCHEDULE ******************************************************************
+ *****************************************************************************/
+
+div#course-schedule-container h2 {
+    margin-top: 0;
+}
+
+ul.exercise_rounds {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+ul.exercise_rounds li.exercise_round {
+    margin: 0;
+    padding: 10px;
+    list-style: none;
+    border: solid #eeeeee 1px;
+    border-left-width: 2px; 
+    border-bottom-width: 0px;
+}
+
+li.exercise_round .dates {
+    font-size: 11px;
+    color: gray;
+}
+li.exercise_round.open .dates {
+    color: #0088CC;
+}
+
+li.exercise_round .exercise_round_introduction {
+	padding-bottom: 10px;
+}
+
+ul.exercise_rounds li.collapsed .icon-chevron-down {
+    display: none;
+}
+
+ul.exercise_rounds li.collapsed .icon-chevron-right {
+    display: inline-block;
+}
+
+ul.exercise_rounds li .icon-chevron-right {
+    display: none;
+}
+
+ul.exercise_rounds li.exercise_round h3 {
+    font-size: 18px;
+    line-height: 27px;
+    margin: 0;
+}
+
+ul.exercise_rounds li.exercise_round h3 i {
+    vertical-align: middle;
+    padding-bottom: 3px;
+}
+
+ul.exercise_rounds li.exercise_round div.exercise-icons {
+    float: right;
+}
+
+ul.exercise_rounds li.exercise_round div.exercise-icons .btn-group {
+    float: right;
+}
+
+ul.exercise_rounds li.exercise_round div.exercise-icons .btn-group .btn {
+    padding: 4px 10px;
+}
+
+ul.exercise_rounds li.exercise_round div.exercise-icons-tight .btn-group .btn {
+    padding: 4px 5px;
+}
+
+ul.exercise_rounds li.open {
+    border-left-color: #0088CC;
+    border-left-width: 3px;
+    background-color: white;
+}
+
+ul.exercise_rounds li.upcoming {
+    background-color: #fafafa;
+}
+
+ul.exercise_rounds li.upcoming h3 {
+    color: gray;
+}
+
+ul.exercise_rounds li.exercise_round:last-child {
+    border-bottom-width: 1px;
+}
+
+.exercise-table {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.exercise-table tr.category-row {
+    background-color: rgb(249, 249, 249);
+    font-weight: bold;
+}
+
+
+/* Scores */
+
+.my-score-box {
+    text-align: center;
+    font-family: georgia, serif;
+}
+
+.progress .score-barrier {
+    width: 2px; 
+    position: absolute; 
+    height: 100%; 
+    top: 0;
+    cursor: default;
+}
+
+.progress .course-average {
+    background-color: #0088CC;
+}
+
+.progress .required-score {
+    background-color: red;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+
+/* Schedule filters */
+#schedule-filters-btn {
+    float: right;
+}
+
+/******************************************************************************
+** APPS ***********************************************************************
+******************************************************************************/
+
+iframe.iframe-plugin, iframe.iframe-tab {
+    border: none;
+}
+
+li.notification {
+    list-style-type: none;
+    border: 1px solid #CCC;
+    width: 430px;
+    padding: 5px;
+    margin-bottom: 14px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    margin-left: -23px;
+}
+
+/******************************************************************************
+** TEACHERS' VIEW *************************************************************
+******************************************************************************/
+
+#add_dl_deviations select {
+    min-height: 300px;
+    min-width: 280px;
+}
+#add_dl_deviations p {
+    float: left;
+    width: 290px;
+}
+#add_dl_deviations .form-actions {
+    clear: both;
+}

@@ -1,0 +1,151 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+
+{% block coursecontent %}
+
+<h2>{% trans "Teachers' view" %}</h2>
+
+<table class="table table-striped table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th><h3>{% trans "Categories" %}</h3></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for category in instance.categories.all %}
+        <tr>
+            <th>
+                <strong>{{ category.name }}</strong>
+            </th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<p>
+    <a href="/admin/exercise/learningobjectcategory/"
+       class="btn btn-primary btn-mini">
+        <i class="icon-plus-sign icon-white"></i> {% trans "Edit categories" %}
+    </a> (You need to be a superuser)
+</p>
+
+
+<table class="table table-striped table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th colspan="3"><h3>{% trans "Learning modules" %}</h3></th>
+        </tr>
+    </thead>
+    <tbody>
+
+    {% for module in instance.course_modules.all %}
+        <tr>
+            <th>
+                <strong>{{ module.name }}</strong>
+            </th>
+            <td>
+                <a href="{% url course.views.add_or_edit_module instance.course.url instance.url module.id %}" class="btn btn-mini">
+                    <i class="icon-edit"></i> {% trans "Edit module" %}
+                </a>
+            </td>
+            <td>
+                <div class="btn-group">
+                    <a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}"
+                            class="btn  btn-success">
+                        <i class=" icon-white"></i> {% trans "Add New Exercise" %}
+                    </a>
+                          <button type="button" class="btn btn- dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                          </button>
+                      <ul class="dropdown-menu" role="menu">
+                            <li><a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}" class="">
+                                 {% trans "Add Exercise" %}
+                            </a></li>
+                            <li><a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}exercise_type/exercise_with_attachment">
+                                {% trans "Add Exercise with Attachment" %}</a>
+                            </li>
+
+                        </ul>
+                </div>
+            </td>
+        </tr>
+        {% for object in module.learning_objects.all %}
+            <tr>
+                <td>
+                    {{ object.name }}
+                </td>
+                <td>
+                    <a href="{% url exercise.staff_views.add_or_edit_exercise module.id object.id %}" class="btn btn-mini">
+                        <i class="icon-edit"></i> {% trans "Edit" %}
+                    </a>
+                    <a href="{% url exercise.staff_views.remove_exercise module.id object.id %}" class="btn btn-mini">
+                        <i class="icon-remove"></i> {% trans "Remove" %}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url exercise.staff_views.list_exercise_submissions exercise_id=object.id %}">View submissions</a>
+                </td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url course.views.add_or_edit_module instance.course.url instance.url %}" 
+        class="btn btn-primary btn-mini">
+    <i class="icon-plus-sign icon-white"></i> {% trans "Add new module" %}
+</a>
+
+
+<h3>Deadline Rule Deviations</h3>
+<p>Add or view personalized deadlinses for students for exercieses</p>
+<a href="{% url add_dl_deviations instance.id %}" class="btn btn-primary btn-mini">
+    <i class="icon-plus-sign icon-white"></i> {% trans "Add Deadline Deviations" %}
+</a>
+<a href="{% url list_dl_deviations instance.id %}" class="btn btn-primary btn-mini">
+    <i class="icon-plus-sign icon-white"></i> {% trans "List Deadline Deviations" %}
+</a>
+
+<div class="col-sm-10">
+
+
+    <h3>Batch Create and Assess Submissions</h3>
+    <p><em>Use only if you know what you are doing!</em></p>
+    <p>By submitting json to the form below you can try to create and assess multiple exercises for students automatically.</p>
+    <div>
+        <p>XXXXX1 and XXXXX2 are Aalto student ids</p>
+        <p>X1 (integer) is the A+ userprofile id of the desired grader</p>
+        <p>Z1 and Z2 (integers) are A+ exercise ids</p>
+
+        <pre>{
+  "objects": [
+    {
+      "students_by_student_id": [
+        "XXXXX1"
+      ],
+      "feedback": "Nicely solved exercise!",
+      "grader": X1,
+      "exercise_id": Z1,
+      "submission_time": "2014-09-24 11:50",
+      "points": 100
+    },
+    {
+      "students_by_student_id": [
+        "XXXXX2"
+      ],
+      "feedback": "You can do better!",
+      "grader": X1,
+      "exercise_id": Z2,
+      "submission_time": "2014-09-24 11:50",
+      "points": 20
+    }
+  ]
+}
+        </pre></div>
+</div>
+<form action="/course/{{ instance.id }}/create_and_assess_submission_batch/" method="post">{% csrf_token %}
+    <textarea name="submissions_json"></textarea>
+    <button type="submit" class="btn">{% trans "Submit" %}</button>
+</form>
+
+{% endblock %}

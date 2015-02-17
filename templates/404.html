@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block maintitle %}
+<h1>Error 404 <small>{% trans "page not found" %}</small></h1>
+{% endblock %}
+
+{% block content %}
+<div class="hero-unit">
+    {% blocktrans %}
+    <p>
+        For an unknown reason you arrived somewhere that does not exist. 
+        Please try again.
+    </p>
+    {% endblocktrans %}
+</div>
+
+{% endblock %}
+
+{% block "footer" %}
+{% endblock %}

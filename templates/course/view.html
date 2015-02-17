@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+
+{% block maintitle %}
+    <h1>{{ course.name }}</h1>
+{% endblock %}
+
+
+{% block content %}
+<ul>
+{% for instance in instances %}
+    <li>
+        <a href="{{ instance.get_absolute_url }}">{{ instance.instance_name }}</a>
+        {% if instance.is_open %}
+            <span class="label label-success">{% trans "Open" %}</span>
+        {% else %}
+            <span class="label label-warning">{% trans "Closed" %}</span>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}
