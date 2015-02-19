@@ -18,7 +18,7 @@
                 <strong>{{ module.name }}</strong>
             </th>
         </tr>
-        {% for object in module.learning_objects.all %}
+        {% for object in module.get_exercises %}
             <tr>
                 <td>
                     {{ object.name }}
