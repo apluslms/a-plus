@@ -4,7 +4,10 @@
 local_settings.py
 .svn
 .DS_Store
+
 .idea
+.project
+.pydevproject
 
 static/*
 
@@ -17,3 +20,5 @@ aplus.db.old
 dump.json
 media
 *.orig
+
+course/fixtures/
