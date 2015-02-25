@@ -8,6 +8,8 @@ local_settings.py
 .idea
 .project
 .pydevproject
+*.sublime-project
+*.sublime-workspace
 
 static/*
 
