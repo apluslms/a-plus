@@ -31,6 +31,10 @@ def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name
 
     attr, error = parse_attributes(request.META)
 
+    # In some cases, user might have Shibboleth names set but no email
+    if attr[settings.SHIB_EMAIL] == None:
+        attr[settings.SHIB_EMAIL] = 'no-email@noemail.local'
+
     was_redirected = False
     if request.REQUEST.has_key('next'):
         was_redirected = True
