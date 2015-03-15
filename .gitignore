@@ -6,6 +6,7 @@ local_settings.py
 .DS_Store
 
 .idea
+.settings
 .project
 .pydevproject
 *.sublime-project
