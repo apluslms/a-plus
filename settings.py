@@ -194,6 +194,8 @@ SHIB_EMAIL = "email"
 SHIB_FIRST_NAME = "first_name"
 SHIB_LAST_NAME = "last_name"
 
+SOUTH_TESTS_MIGRATE = False
+
 # Overrides and appends settings defined in local_settings.py
 try:
     from local_settings import *

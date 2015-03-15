@@ -22,7 +22,6 @@ class CourseTest(TestCase):
         
         self.course_instance = CourseInstance.objects.create(instance_name="Fall 2011", 
                                                              website="http://www.example.com", 
-                                                             public_registration=True,
                                                              starting_time=now,
                                                              ending_time=tomorrow,
                                                              course=self.course,
@@ -36,7 +35,6 @@ class CourseTest(TestCase):
         
         future_instance = CourseInstance(instance_name="Fall 2011", 
                                          website="http://www.example.com", 
-                                         public_registration=True,
                                          starting_time=datetime.now()+timedelta(days=1),
                                          ending_time=datetime.now()+timedelta(days=365),
                                          )
