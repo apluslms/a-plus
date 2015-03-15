@@ -11,6 +11,9 @@ specific instructions below to install everything you need.
 
     sudo apt-get install python-virtualenv libxml2-dev libxslt-dev python-dev
 
+### Fedora
+    
+    sudo yum install python-virtualenv libxml2-devel libxslt-devel python-devel
 
 ### OS X (Yosemite)
 
@@ -46,6 +49,10 @@ After running the script (or setting up the environment manually) you can start
 the A+ server by running:
 
     [path_to_virtualenv]/bin/python manage.py runserver 8000
+
+Unit tests can be executed by running:
+
+    [path_to_virtualenv]/bin/python manage.py test
 
 ## Example grader
 
