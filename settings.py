@@ -194,7 +194,14 @@ SHIB_EMAIL = "email"
 SHIB_FIRST_NAME = "first_name"
 SHIB_LAST_NAME = "last_name"
 
+# Skip migrations when running unit tests
 SOUTH_TESTS_MIGRATE = False
+
+# Unit test XML-reporting
+TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+TEST_OUTPUT_VERBOSE = True
+TEST_OUTPUT_DESCRIPTIONS = True
+TEST_OUTPUT_DIR = "xmlrunner"
 
 # Overrides and appends settings defined in local_settings.py
 try:
