@@ -21,4 +21,5 @@ pytz==2012f
 simplejson==2.6.2
 six==1.2.0
 south==0.8.2
+unittest-xml-reporting==1.11.0
 wsgiref==0.1.2
