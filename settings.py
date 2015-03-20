@@ -19,7 +19,7 @@ BASE_URL = "http://localhost:8000"
 
 # Make this unique, and don't share it with anybody.
 # Must be overridden in local_settings.py for deployment
-SECRET_KEY = ''
+SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
 
 DATABASES = {
     'default': {
