@@ -19,7 +19,7 @@ class CIStaffAuthorization(Authorization):
         else:
             # Other users have access to course instances they are 
             # teachers or assistants at
-            userprofile = request.user.get_profile()
+            userprofile = request.user.userprofile
             return userprofile.get_courseinstance_staff_queryset.all()
 
 

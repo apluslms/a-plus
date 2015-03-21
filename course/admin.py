@@ -14,9 +14,9 @@ class CourseAdmin(admin.ModelAdmin):
 
     filter_horizontal   = ["teachers"]
     
-    def queryset(self, request):
+    def get_queryset(self, request):
         if not request.user.is_superuser:
-            return request.user.get_profile().teaching_courses
+            return request.user.userprofile.teaching_courses
         else:
             # TODO: test that the manager works
             # Previously: return self.model._default_manager.filter()
@@ -47,9 +47,9 @@ class CourseInstanceAdmin(admin.ModelAdmin):
 
     filter_horizontal = ["assistants"]
     
-    def queryset(self, request):
+    def get_queryset(self, request):
         if not request.user.is_superuser:
-            return request.user.get_profile().get_courseinstance_staff_queryset()
+            return request.user.userprofile.get_courseinstance_staff_queryset()
         else:
             # TODO: test that the manager works
             # Previously: return self.model._default_manager.filter()

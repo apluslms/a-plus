@@ -89,7 +89,7 @@ class StudentGroup(models.Model):
     name            = models.CharField(max_length=32, unique=True)
     description     = models.CharField(max_length=256)
     member_limit    = models.PositiveIntegerField()
-    is_public       = models.BooleanField()
+    is_public       = models.BooleanField(default=False)
     invitation_key  = models.CharField(max_length=10, blank=True)
     
     def get_names(self):
@@ -128,7 +128,7 @@ class StudentGroup(models.Model):
             students = student_group.members.all()
         else:
             # No group was found, so use just the current user
-            students = UserProfile.objects.filter(id=request.user.get_profile().id)
+            students = UserProfile.objects.filter(id=request.user.userprofile.id)
         
         return students
 

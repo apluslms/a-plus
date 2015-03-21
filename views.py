@@ -1,9 +1,9 @@
 import urlparse
+import json
 
 from django.shortcuts import render_to_response, redirect
 from django.template.context import RequestContext
 from django.http import HttpResponse
-from django.utils import simplejson
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login as django_login
 from django.conf import settings
@@ -45,7 +45,7 @@ def home(request):
 
     if request.user.is_authenticated():
         instances = get_visible_open_course_instances(
-            request.user.get_profile())
+            request.user.userprofile)
     else:
         instances = get_visible_open_course_instances()
 
@@ -58,6 +58,6 @@ def privacy(request):
 
 @oauth_required
 def verify_credentials(request):
-    json_str = simplejson.dumps({"screen_name": request.user.username})
+    json_str = json.dumps({"screen_name": request.user.username})
     return HttpResponse(json_str, content_type="text/plain")
 

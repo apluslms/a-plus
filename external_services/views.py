@@ -37,7 +37,7 @@ def lti_login(request, menu_id):
 
     # Get user and control access.
     user = request.user
-    user_profile = user.get_profile()
+    user_profile = user.userprofile
     if not course_instance.is_visible_to(user_profile):
         return HttpResponseForbidden("You are not allowed to access this view.")
 

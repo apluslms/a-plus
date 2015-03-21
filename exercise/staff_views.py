@@ -1,5 +1,5 @@
 # Python
-import simplejson as json
+import json
 from datetime import datetime, timedelta
 
 # Django
@@ -23,7 +23,6 @@ from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
     StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm, \
     ExerciseWithAttachmentForm, DeadlineRuleDeviationForm
 from course.context import CourseContext
-from django.utils import simplejson
 from notification.models import Notification
 
 @login_required
@@ -35,7 +34,7 @@ def list_exercise_submissions(request, exercise_id):
     @param exercise_id: the ID of the exercise which the submissions are for
     """
     exercise        = get_object_or_404(BaseExercise, id=exercise_id)
-    has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile()) 
+    has_permission  = exercise.get_course_instance().is_staff(request.user.userprofile) 
     
     if not has_permission:
         # TODO: Missing translation.
@@ -61,7 +60,7 @@ def inspect_exercise_submission(request, submission_id):
     """
     submission      = get_object_or_404(Submission, id=submission_id)
     exercise        = submission.exercise
-    has_permission  = exercise.get_course_instance().is_staff(request.user.get_profile())     
+    has_permission  = exercise.get_course_instance().is_staff(request.user.userprofile)     
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")
@@ -81,7 +80,7 @@ def add_or_edit_exercise(request, module_id, exercise_id=None, exercise_type=Non
     module          = get_object_or_404(CourseModule, id=module_id)
     course_instance = module.course_instance
     
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+    has_permission  = course_instance.is_teacher(request.user.userprofile) or\
         request.user.is_superuser or request.user.is_staff
     
     if not has_permission:
@@ -124,7 +123,7 @@ def remove_exercise(request, module_id, exercise_id):
     module          = get_object_or_404(CourseModule, id=module_id)
     course_instance = module.course_instance
     
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+    has_permission  = course_instance.is_teacher(request.user.userprofile) or\
         request.user.is_superuser or request.user.is_staff
     
     if not has_permission:
@@ -152,7 +151,7 @@ def assess_submission(request, submission_id):
     """
     submission = get_object_or_404(Submission, id=submission_id)
     exercise = submission.exercise
-    grader = request.user.get_profile()
+    grader = request.user.userprofile
     
     if exercise.allow_assistant_grading:
         # Both the teachers and assistants are allowed to assess
@@ -160,7 +159,7 @@ def assess_submission(request, submission_id):
     else:
         # Only teacher is allowed to assess
         has_permission = exercise.get_course_instance().is_teacher(
-            request.user.get_profile())
+            request.user.userprofile)
     
     if not has_permission:
         return HttpResponseForbidden(_("You are not allowed to access this "
@@ -224,7 +223,7 @@ def fetch_exercise_metadata(request):
     except Exception as e:
         metadata["message"] = "No metadata found."
     
-    return HttpResponse(simplejson.dumps(metadata), content_type="application/json")
+    return HttpResponse(json.dumps(metadata), content_type="application/json")
 
 
 @login_required
@@ -248,7 +247,7 @@ def resubmit_to_service(request, submission_id):
     submission = Submission.objects.get(id=submission_id)
 
     has_permission = submission.exercise.get_course_instance().is_staff(
-        request.user.get_profile())
+        request.user.userprofile)
 
     if not has_permission:
         return HttpResponseForbidden(
@@ -304,7 +303,7 @@ def resubmit_to_service(request, submission_id):
 @login_required
 def create_and_assess_submission(request, exercise_id):
     exercise = get_object_or_404(BaseExercise, id=exercise_id)
-    grader = request.user.get_profile()
+    grader = request.user.userprofile
 
     if exercise.allow_assistant_grading:
         # Both the teachers and assistants are allowed to submit for students
@@ -312,7 +311,7 @@ def create_and_assess_submission(request, exercise_id):
     else:
         # Only teachers are allowed to submit for students
         has_permission = exercise.get_course_instance().is_teacher(
-            request.user.get_profile())
+            request.user.userprofile)
 
     if not has_permission:
         return HttpResponseForbidden(
@@ -347,7 +346,7 @@ def create_and_assess_submission(request, exercise_id):
 @login_required
 def create_and_assess_submission_batch(request, course_instance_id):
     course_instance = get_object_or_404(CourseInstance, id=course_instance_id)
-    teacher = request.user.get_profile()
+    teacher = request.user.userprofile
 
     has_permission = course_instance.is_teacher(teacher)
     if not has_permission:
@@ -398,7 +397,7 @@ def create_and_assess_submission_batch(request, course_instance_id):
 @login_required
 def add_deadline_rule_deviations(request, course_instance):
     course_instance = CourseInstance.objects.get(id=course_instance)
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+    has_permission  = course_instance.is_teacher(request.user.userprofile) or\
         request.user.is_superuser or request.user.is_staff
 
     if not has_permission:
@@ -430,7 +429,7 @@ def add_deadline_rule_deviations(request, course_instance):
 @login_required
 def list_deadline_rule_deviations(request, course_instance):
     course_instance = CourseInstance.objects.get(id=course_instance)
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+    has_permission  = course_instance.is_teacher(request.user.userprofile) or\
         request.user.is_superuser or request.user.is_staff
 
     if not has_permission:
@@ -448,7 +447,7 @@ def list_deadline_rule_deviations(request, course_instance):
 def remove_deadline_rule_deviation(request, deadline_rule_deviation_id):
     deviation = DeadlineRuleDeviation.objects.get(id=deadline_rule_deviation_id)
     course_instance = deviation.exercise.get_course_instance()
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
+    has_permission  = course_instance.is_teacher(request.user.userprofile) or\
         request.user.is_superuser or request.user.is_staff
 
     if not has_permission:

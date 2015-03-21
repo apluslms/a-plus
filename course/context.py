@@ -21,7 +21,7 @@ class CourseContext(RequestContext):
         
         if request.user.is_authenticated():
             # If the user is authenticated, populate is_assistant and is_teacher fields
-            profile     = request.user.get_profile()
+            profile     = request.user.userprofile
             
             if course != None and course.is_teacher(profile):
                 # Teachers are also allowed to act as assistants

@@ -1,5 +1,4 @@
 # Python
-import simplejson
 import urllib
 import urllib2
 import hmac
@@ -186,11 +185,7 @@ class LearningObject(ModelWithInheritance):
     description             = models.TextField(blank=True)
     instructions            = models.TextField(blank=True)
 
-    # TODO: deprecated
-    # verify_exists is deprecated in Django 1.4 and removed in Django 1.5 because of security issues
-    # However, in Django 1.3.0, it defaults to True, which is undesired, so we must have verify_exists=False with
-    # this version of Django
-    service_url             = models.URLField(verify_exists=False, blank=True)
+    service_url             = models.URLField(blank=True)
     
     # Relations
     course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")

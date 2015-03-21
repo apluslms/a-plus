@@ -12,7 +12,6 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.static import serve
 from django.template.context import RequestContext
 from django.contrib import messages
-from django.utils import simplejson
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
@@ -44,7 +43,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     # Load the exercise as an instance of its leaf class
     exercise            = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
     students            = StudentGroup.get_students_from_request(request)
-    submissions         = exercise.get_submissions_for_student(request.user.get_profile())
+    submissions         = exercise.get_submissions_for_student(request.user.userprofile)
     is_post             = request.method == "POST"
     
     is_allowed, issues  = exercise.is_submission_allowed(students)
@@ -76,7 +75,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     plugin_renderers = build_plugin_renderers(
         plugins=exercise.course_module.course_instance.plugins.all(),
         view_name="exercise",
-        user_profile=request.user.get_profile(),
+        user_profile=request.user.userprofile,
         exercise=exercise,
         course_instance=exercise.course_instance)
 
@@ -199,7 +198,7 @@ def view_submission(request, submission_id):
     # Find all submissions for this user
     submission      = get_object_or_404(Submission, id=submission_id)
 
-    if not request.user.get_profile() in submission.submitters.all():
+    if not request.user.userprofile in submission.submitters.all():
         # Note that we do not want to use submission.check_user_permission here
         # because that would allow staff-like users access this view. However
         # staff-like users should use the
@@ -213,7 +212,7 @@ def view_submission(request, submission_id):
 
     exercise        = submission.exercise
     submissions     = exercise.get_submissions_for_student(
-                                                    request.user.get_profile())
+                                                    request.user.userprofile)
     index           = 1 + list(submissions).index(submission)
     
     exercise_summary = UserExerciseSummary(exercise, request.user)
@@ -224,7 +223,7 @@ def view_submission(request, submission_id):
         submission=submission,
         exercise=exercise,
         course_instance=exercise.course_instance,
-        user_profile=request.user.get_profile()
+        user_profile=request.user.userprofile
     )
 
     return render_to_response("exercise/view_submission.html",
@@ -266,7 +265,7 @@ def view_update_stats(request, exercise_id):
     # Load the exercise as an instance of its leaf class
     exercise = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
     # Create the rest of the context variables
-    user_profile = request.user.get_profile()
+    user_profile = request.user.userprofile
     summary = UserExerciseSummary(exercise, request.user)
 
     return render_to_response("exercise/_exercise_info.html",
@@ -291,7 +290,7 @@ def view_submitted_file(request, submitted_file_id):
     """
     file = get_object_or_404(SubmittedFile, id=submitted_file_id)
     
-    if file.submission.check_user_permission(request.user.get_profile()):
+    if file.submission.check_user_permission(request.user.userprofile):
         return serve(request, file.file_object.name, settings.MEDIA_ROOT)
     
     return HttpResponseForbidden(_("Your are not allowed to access this file."))

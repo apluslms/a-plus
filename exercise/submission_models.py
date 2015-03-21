@@ -16,7 +16,7 @@ from userprofile.models import UserProfile
 
 # Python 2.6+
 from datetime import datetime, timedelta
-import simplejson, os
+import os
 
 
 class Submission(models.Model):

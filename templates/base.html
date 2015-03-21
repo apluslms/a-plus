@@ -68,21 +68,21 @@
                             <ul id="user-status" class="nav pull-right">
                                 {% if user.is_authenticated %}
 
-                                    {% if user.get_profile.get_unread_notification_count > 0 %}
+                                    {% if user.userprofile.get_unread_notification_count > 0 %}
                                         <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i id="unread-notifications-icon" class="icon-white icon-envelope"></i> 
-                                        {% blocktrans with count=user.get_profile.get_unread_notification_count count_p=user.get_profile.get_unread_notification_count|pluralize %}
+                                        {% blocktrans with count=user.userprofile.get_unread_notification_count count_p=user.userprofile.get_unread_notification_count|pluralize %}
                                             {{ count }} new notification{{ count_p }}
                                         {% endblocktrans %}
                                         </a>                                        
                                         <ul class="dropdown-menu" id="notification-menu">
-                                            {%for course_instance in user.get_profile.get_unread_notification_course_instances %}
+                                            {%for course_instance in user.userprofile.get_unread_notification_course_instances %}
                                                 <li><a href="{{ course_instance.get_absolute_url }}me/">{{course_instance.instance_name}}</a></li>
                                             {% endfor %}
                                         </ul>
                                         </li>                                        
                                     {% endif %}
 
-                                    {% if user.get_profile.get_unread_notification_count == 0 and instance %}
+                                    {% if user.userprofile.get_unread_notification_count == 0 and instance %}
                                         <li><a id="notification-icon" href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i></a></li>                                        
                                     {% endif %}
 
@@ -102,17 +102,17 @@
                                                 <li><a href="#" data-group-id="0" class="group_change_link">{% trans "No group" %}</a></li>
                                                 <li class="divider"></li>
                                             {% endif %}
-                                            {% for group in user.get_profile.groups.all %}
+                                            {% for group in user.userprofile.groups.all %}
                                                 <li><a href="#" data-group-id="{{ group.id }}" data-placement="left" rel="tooltip" title="{{ group.get_names }}" class="group_change_link">{{ group.name }}</a></li>
                                             {% empty %}
                                                 <li><a href="#">{% trans "No groups"%}</a></li>
                                             {% endfor %}
                                             <li class="divider"></li>
-                                            <li><a href="{% url userprofile.views.view_groups %}">{% trans "Join or create a group"%}</a></li>
+                                            <li><a href="{% url 'userprofile.views.view_groups' %}">{% trans "Join or create a group"%}</a></li>
                                         </ul>
                                     </li>
                                     {% endcomment %}
-                                    <li><a href="{% url logout %}">{% trans "Log out"%}</a></li>
+                                    <li><a href="{% url 'logout' %}">{% trans "Log out"%}</a></li>
                                 {% endif %}
                             </ul>
                         </div>
@@ -147,7 +147,7 @@
             <footer>
                 <div class="container">
                     {% block footercontent %}{% endblock %}
-                    <p><a href="{% url privacy_policy %}">Privacy Policy</a></p>
+                    <p><a href="{% url 'privacy_policy' %}">Privacy Policy</a></p>
                 </div>
             </footer>
             {% endblock %}

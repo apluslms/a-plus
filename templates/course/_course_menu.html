@@ -7,7 +7,7 @@
         <i class="icon-home"></i>
         {% trans "Home" %}
     </a></li>
-    <li><a href="{% url course.views.view_instance_calendar course_url=instance.course.url instance_url=instance.url %}">
+    <li><a href="{% url 'course.views.view_instance_calendar' course_url=instance.course.url instance_url=instance.url %}">
         <i class="icon-calendar"></i>
         {% trans "Calendar feed" %} (ics)
     </a></li>
@@ -26,7 +26,7 @@
     <li>
         <a href="{{ instance.get_absolute_url }}me/">
             <i class="icon-user"></i>
-            {{ user.get_profile.get_shortname }}
+            {{ user.userprofile.get_shortname }}
         </a>
     </li>
 
@@ -54,7 +54,7 @@
         </li>
         {% for tab in instance.tabs.all %}
             <li>
-                <a href="{% url apps.views.view_tab tab_id=tab.id %}">
+                <a href="{% url 'apps.views.view_tab' tab_id=tab.id %}">
                     <i class="icon-th-large"></i>
                     {{ tab.label }}
                 </a>
@@ -68,14 +68,14 @@
         </li>
         {% if is_teacher %}
             <li>
-                <a href="{% url course.views.teachers_view course_url=instance.course.url instance_url=instance.url %}">
+                <a href="{% url 'course.views.teachers_view' course_url=instance.course.url instance_url=instance.url %}">
                     <i class="icon-pencil"></i>
                     {% trans "Teacher's view" %}
                 </a>
             </li>
         {% endif %}
        <li>
-            <a href="{% url course.views.assistants_view course_url=instance.course.url instance_url=instance.url %}">
+            <a href="{% url 'course.views.assistants_view' course_url=instance.course.url instance_url=instance.url %}">
                 <i class="icon-pencil"></i>
                 {% trans "Assistants' view" %}
             </a>

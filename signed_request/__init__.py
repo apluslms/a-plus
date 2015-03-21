@@ -7,8 +7,7 @@ later abandoned and the OAuth protocol was used instead.
 import base64
 import time
 import hmac
-
-from django.utils import simplejson
+import json
 
 def create_request(user, shared_secret, context="undefined"):
     """
@@ -38,6 +37,6 @@ def sign_request(params, shared_secret):
     """
     
     params["timestamp"] = int(time.time())
-    payload             = base64.b64encode(simplejson.dumps(params))
+    payload             = base64.b64encode(json.dumps(params))
     signature           = hmac.new(shared_secret, payload).hexdigest()
     return payload, signature

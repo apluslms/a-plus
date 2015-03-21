@@ -30,7 +30,7 @@ class StudentGroupMiddleware(object):
             
             if group_id != None:
                 try:
-                    group = request.user.get_profile().groups.get(id=group_id)
+                    group = request.user.userprofile.groups.get(id=group_id)
                     request.META[STUDENT_GROUP] = group
                 except:
                     # The group does not exist or the user is not a member in it

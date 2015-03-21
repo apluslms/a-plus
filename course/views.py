@@ -58,7 +58,7 @@ def view_course(request, course_url):
     """
     
     course      = get_object_or_404(Course, url=course_url)
-    instances = course.get_visible_open_instances(request.user.get_profile())
+    instances = course.get_visible_open_instances(request.user.userprofile)
 
     context = CourseContext(request, course=course, instances=instances)
     return render_to_response("course/view.html", context)
@@ -85,7 +85,7 @@ def view_instance(request, course_url, instance_url):
     """
     
     course_instance = _get_course_instance(course_url, instance_url)
-    user_profile = request.user.get_profile()
+    user_profile = request.user.userprofile
 
     if not course_instance.is_visible_to(user_profile):
         return HttpResponseForbidden("You are not allowed "
@@ -226,18 +226,18 @@ def view_my_page(request, course_url, instance_url):
     
     course_instance = _get_course_instance(course_url, instance_url)
 
-    if not course_instance.is_visible_to(request.user.get_profile()):
+    if not course_instance.is_visible_to(request.user.userprofile):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
     course_summary  = UserCourseSummary(course_instance, request.user)
-    submissions     = request.user.get_profile().submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
+    submissions     = request.user.userprofile.submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
 
     course_instance_max_points = BaseExercise.get_course_instance_max_points(
         course_instance)
 
-    unread_notifications = request.user.get_profile().received_notifications.filter(course_instance=course_instance, seen=False)
-    older_notifications = request.user.get_profile().received_notifications.filter(course_instance=course_instance, seen=True)
+    unread_notifications = request.user.userprofile.received_notifications.filter(course_instance=course_instance, seen=False)
+    older_notifications = request.user.userprofile.received_notifications.filter(course_instance=course_instance, seen=True)
     for notification in unread_notifications:
         notification.mark_as_seen()
 
@@ -266,7 +266,7 @@ def view_instance_calendar(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
 
     if request.user.is_authenticated():
-        profile = request.user.get_profile()
+        profile = request.user.userprofile
     else:
         profile = None
 
@@ -311,7 +311,7 @@ def view_instance_results(request, course_url, instance_url):
     
     course_instance = _get_course_instance(course_url, instance_url)
 
-    if not course_instance.is_visible_to(request.user.get_profile()):
+    if not course_instance.is_visible_to(request.user.userprofile):
         return HttpResponseForbidden("You are not allowed "
                                      "to access this view.")
 
@@ -333,7 +333,7 @@ def set_schedule_filters(request, course_url, instance_url):
                                        "with HTTP POST."))
 
     course_instance = _get_course_instance(course_url, instance_url)
-    profile = request.user.get_profile()
+    profile = request.user.userprofile
 
     if not request.POST.has_key("category_filters"):
         return HttpResponseForbidden("You are trying to hide all categories. "
@@ -368,7 +368,7 @@ def teachers_view(request, course_url, instance_url):
     @param instance_url: the url value of a CourseInstance object 
     """
     course_instance = _get_course_instance(course_url, instance_url)
-    has_permission  = (course_instance.is_teacher(request.user.get_profile())
+    has_permission  = (course_instance.is_teacher(request.user.userprofile)
             or request.user.is_superuser
             or request.user.is_staff)
     
@@ -392,7 +392,7 @@ def assistants_view(request, course_url, instance_url):
     """
     course_instance = _get_course_instance(course_url, instance_url)
     
-    has_permission  = course_instance.is_staff(request.user.get_profile()) 
+    has_permission  = course_instance.is_staff(request.user.userprofile) 
     if not has_permission:
         return HttpResponseForbidden(_("You are not allowed "
                                        "to access this view."))
@@ -413,7 +413,7 @@ def add_or_edit_module(request, course_url, instance_url, module_id=None):
     @param module_id: The id of the module to edit. If not given, a new module is created. 
     """
     course_instance = _get_course_instance(course_url, instance_url)
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) 
+    has_permission  = course_instance.is_teacher(request.user.userprofile) 
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed "

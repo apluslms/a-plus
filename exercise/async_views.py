@@ -5,6 +5,7 @@ through a submission URL.
 # Python
 import socket
 from urlparse import urlparse
+import json
 
 # Django
 from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
@@ -13,7 +14,6 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
-from django.utils import simplejson
 
 # A+
 from userprofile.models import UserProfile
@@ -105,7 +105,7 @@ def _async_submission_handler(request, exercise, students, submission=None):
             submission      = Submission.objects.create(exercise=exercise)
         response_dict       = _post_async_submission(request, exercise, submission, students)
     
-    json_response       = simplejson.dumps(response_dict, indent=4)
+    json_response       = json.dumps(response_dict, indent=4)
     return HttpResponse(json_response, content_type="application/json")
 
 

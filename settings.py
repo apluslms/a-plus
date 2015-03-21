@@ -1,6 +1,6 @@
 # Default settings for a-plus Django project.
 # You should create local_settings.py in the same directory to override necessary settings
-import os
+import os, sys
 
 # Lines for Celery. Disabled until actually needed
 # import djcelery
@@ -12,6 +12,8 @@ def get_path(filename):
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+ALLOWED_HOSTS = []
 
 # This URL is used when building absolute URLs to this service
 # Must be overridden in local_settings.py for deployment
@@ -43,6 +45,7 @@ MANAGERS = ADMINS
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
+# USE_TZ = True
 TIME_ZONE = 'Europe/Helsinki'
 
 # Language code for this installation. All choices can be found here:
@@ -54,6 +57,9 @@ SITE_ID = 1
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
+
+# TODO: Should this be used?
+# USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -97,8 +103,8 @@ STATICFILES_FINDERS = (
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.load_template_source',
 )
 
@@ -115,9 +121,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'userprofile.middleware.StudentGroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'lib.middleware.SqlInjectionMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -152,7 +160,6 @@ INSTALLED_APPS = (
     'oauth_provider',
     'django_shibboleth', #for shibboleth logins
     'tastypie',
-    'south', 
 
     # First party applications
     'exercise',
@@ -195,7 +202,18 @@ SHIB_FIRST_NAME = "first_name"
 SHIB_LAST_NAME = "last_name"
 
 # Skip migrations when running unit tests
-SOUTH_TESTS_MIGRATE = False
+class DisableMigrations(object):
+    def __contains__(self, item):
+        return True
+    def __getitem__(self, item):
+        return "notmigrations"
+
+TESTS_IN_PROGRESS = False
+if 'test' in sys.argv[1:]:
+    DEBUG = False
+    TEMPLATE_DEBUG = False
+    TESTS_IN_PROGRESS = True
+    MIGRATION_MODULES = DisableMigrations()
 
 # Unit test XML-reporting
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"

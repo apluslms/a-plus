@@ -8,7 +8,6 @@ from django.conf import settings
 from django.middleware.common import CommonMiddleware
 from django.shortcuts import redirect
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
-from django.utils import simplejson
 from django.contrib.auth import login
 
 from django.contrib.auth.models import User
@@ -17,6 +16,7 @@ import base64
 import urllib
 import time
 import hmac
+import json
 
 REQUIRED_PARAMETERS = ("username", "first_name", "last_name", "is_staff", "context", "timestamp")
 SHARED_SECRET       = "abcd1234"
@@ -37,7 +37,7 @@ class SignedRequestLoginMiddleware(object):
                 return HttpResponseForbidden('<h1>Forbidden</h1>')
             
             data            = base64.b64decode(data64)
-            user_dict       = simplejson.loads(data)
+            user_dict       = json.loads(data)
         except:
             return HttpResponseBadRequest("Reading signature failed.")
         

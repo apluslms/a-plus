@@ -13,7 +13,7 @@
 <form method="POST" action="#">
     {% csrf_token %}
     <input class="btn btn-danger" type="submit" value="Remove" />
-    <a class="btn btn-primary" href="{% url course.views.teachers_view course_url=instance.course.url instance_url=instance.url %}">
+    <a class="btn btn-primary" href="{% url 'course.views.teachers_view' course_url=instance.course.url instance_url=instance.url %}">
     Cancel</a>
 </form>
 

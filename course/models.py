@@ -153,7 +153,7 @@ class CourseInstance(models.Model):
         """ 
         Adds the given user as a course assistant to this instance. 
         """
-        self.assistants.add(user.get_profile())
+        self.assistants.add(user.userprofile)
     
     def is_open(self):
         """ 
@@ -220,7 +220,7 @@ class CourseHook(models.Model):
         ("post-grading", "Post grading"),
     )
 
-    hook_url = models.URLField(verify_exists=False)
+    hook_url = models.URLField()
     hook_type = models.CharField(max_length=12,
         choices=HOOK_CHOICES,
         default="post-grading")

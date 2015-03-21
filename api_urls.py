@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, include
 from tastypie.api import Api
 from course.api import CourseResource, CourseInstanceResource
 from userprofile.api import UserProfileResource

@@ -1,9 +1,9 @@
 # Python
 from datetime import datetime
 from operator import attrgetter
+import json
 
 # Django
-from django.utils import simplejson
 from django.db.models.aggregates import Sum
 
 # A+
@@ -42,7 +42,7 @@ class UserExerciseSummary(object):
         best_submission.
         """
         submissions = self.exercise.get_submissions_for_student(
-            self.user.get_profile()).order_by('-grade', 'id')
+            self.user.userprofile).order_by('-grade', 'id')
 
         self.submission_count = submissions.count()
 
@@ -139,7 +139,7 @@ class UserExerciseRoundSummary(object):
                 self.categories.append(ex_summary.exercise.category)
 
         for category in self.categories:
-            if (not category.is_hidden_to(self.user.get_profile())
+            if (not category.is_hidden_to(self.user.userprofile)
                     and not category in self.visible_categories):
                 self.visible_categories.append(category)
 
@@ -223,7 +223,7 @@ class UserCategorySummary(object):
         return total
 
     def is_hidden(self):
-        return self.category.is_hidden_to(self.user.get_profile())
+        return self.category.is_hidden_to(self.user.userprofile)
 
     def is_passed(self):
         # TODO: Implement
@@ -253,7 +253,7 @@ class UserCourseSummary(object):
         self.exercises = (BaseExercise.objects.filter(
             course_module__course_instance=self.course_instance)
             .select_related("course_module", "category"))
-        self.submissions = (user.get_profile().submissions.filter(
+        self.submissions = (user.userprofile.submissions.filter(
             exercise__course_module__course_instance=self
             .course_instance).defer("feedback"))
 
@@ -324,7 +324,7 @@ class UserCourseSummary(object):
                 generate=False))
 
         # Separate list for visible category summaries only
-        user_hidden_categories = (self.user.get_profile()
+        user_hidden_categories = (self.user.userprofile
                                   .hidden_categories.all())
         for cat_sum in self.category_summaries:
             if not cat_sum.category in user_hidden_categories:
@@ -367,7 +367,7 @@ class UserCourseSummary(object):
                                round_summary.get_average_total_grade(),
                                round_summary.exercise_round
                                .get_maximum_points()])
-        return simplejson.dumps(round_list)
+        return json.dumps(round_list)
 
     def get_total_points(self):
         point_sum = 0

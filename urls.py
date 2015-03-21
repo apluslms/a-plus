@@ -3,7 +3,7 @@ from views import login, home, privacy, verify_credentials
 from oauth_provider.views import protected_resource_example
 
 # Django
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 from django.contrib import admin
 from django.conf import settings
 

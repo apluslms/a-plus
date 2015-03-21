@@ -49,13 +49,13 @@ class CourseTest(TestCase):
         user.set_password("asdfgh1234")
         user.save()
         
-        self.assertFalse(user.get_profile() in self.course_instance.get_course_staff())
-        self.course_instance.assistants.add(user.get_profile())
-        self.assertTrue(user.get_profile() in self.course_instance.get_course_staff())
+        self.assertFalse(user.userprofile in self.course_instance.get_course_staff())
+        self.course_instance.assistants.add(user.userprofile)
+        self.assertTrue(user.userprofile in self.course_instance.get_course_staff())
         self.course_instance.assistants.clear()
-        self.assertFalse(user.get_profile() in self.course_instance.get_course_staff())
-        self.course.teachers.add(user.get_profile())
-        self.assertTrue(user.get_profile() in self.course_instance.get_course_staff())
+        self.assertFalse(user.userprofile in self.course_instance.get_course_staff())
+        self.course.teachers.add(user.userprofile)
+        self.assertTrue(user.userprofile in self.course_instance.get_course_staff())
     
     def test_course_views(self):
         # Test viewing a course without logging in

@@ -146,8 +146,7 @@ class ExternalIFrameTab(BaseTab):
     content html.
     """
 
-    # TODO: verify_exist can be removed when updated to Django 1.4+
-    content_url = models.URLField(max_length=255, verify_exists=False)
+    content_url = models.URLField(max_length=255)
 
     # Desired width and height
     width = models.IntegerField()
@@ -217,8 +216,7 @@ class ExternalIFramePlugin(BasePlugin):
     available in the view.
     """
 
-    # TODO: verify_exist can be removed when updated to Django 1.4+
-    service_url = models.URLField(max_length=255, verify_exists=False)
+    service_url = models.URLField(max_length=255)
 
     # Desired width and height
     width = models.IntegerField()
