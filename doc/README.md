@@ -1,11 +1,11 @@
 Installing Local Test Environment for A+
-=============
+========================================
 
 ## Prerequisites
 
-The script `create_test_environment.sh` is intended for Unix environments. You
-need to have python virtualenv and xml-related packages installed. Follow the OS
-specific instructions below to install everything you need.
+The script `create_test_environment.sh` is intended for Unix environments. You need to have python
+virtualenv and xml-related packages installed. Follow the OS specific instructions below to install
+everything you need.
 
 ### Ubuntu
 
@@ -17,8 +17,8 @@ specific instructions below to install everything you need.
 
 ### OS X (Yosemite)
 
-These instructions use the [Homebrew](http://brew.sh/) package manager to
-install the prerequisites. Other package managers/tools may also work.
+These instructions use the [Homebrew](http://brew.sh/) package manager to install the prerequisites.
+Other package managers/tools may also work.
 
     # install/update Xcode command line tools
     xcode-select --install
@@ -30,8 +30,8 @@ install the prerequisites. Other package managers/tools may also work.
 
 ## Creating and running a Local A+ Development Environment
 
-Test environment script tries to create an environment where A+ can be run for
-testing. Script will try to do the following things:
+Test environment script tries to create an environment where A+ can be run for testing. Script will try
+to do the following things:
 
   - Install virtualenv with all the dependencies of A+
   - Create a SQLite database with some initial data (from initial_data.json)
@@ -54,13 +54,29 @@ Unit tests can be executed by running:
 
     [path_to_virtualenv]/bin/python manage.py test
 
+### Troubleshooting (for Ubuntu)
+
+Error: ImportError: No module named _sysconfigdata_nd
+
+Solutions: 
+
+    sudo pip install --upgrade virtualenv
+
+    sudo ln -s /usr/lib/python2.7/plat-*/_sysconfigdata_nd.py /usr/lib/python2.7/
+
+Error: /usr/bin/ld: cannot find -lz
+
+Solutions:
+
+    sudo apt-get install zlib1g-dev
+
+    sudo apt-get install lib32z1-dev
+
 ## Example grader
 
-If you've loaded the initial data the example exercise relies on external grader
-server (example_grader.py) running on port 8888. This grader (found in this
-folder) can be started by running:
+If you've loaded the initial data the example exercise relies on you can use the external grader server
+(example_grader.py) running on port 8888. This grader (found in this folder) can be started by running:
 
     python example_grader.py
 
-Now the example exercise in A+ should work and you should get points from
-submissions accordingly.
+Now the example exercise in A+ should work and you should get points from submissions accordingly.
