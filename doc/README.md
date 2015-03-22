@@ -40,7 +40,7 @@ testing. Script will try to do the following things:
 Instructions for running the script:
 
     # enter this folder
-    cd docs
+    cd doc
     # run the script
     ./create_test_environment.sh
 
