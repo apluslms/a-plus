@@ -9,7 +9,8 @@ everything you need.
 
 ### Ubuntu
 
-    sudo apt-get install python-virtualenv libxml2-dev libxslt-dev python-dev
+    sudo apt-get install python-virtualenv libxml2-dev libxslt-dev python-dev libyaml-dev zlib1g-dev
+    sudo pip install pyyaml
 
 ### Fedora
     
@@ -67,8 +68,6 @@ Solutions:
 Error: /usr/bin/ld: cannot find -lz
 
 Solutions:
-
-    sudo apt-get install zlib1g-dev
 
     sudo apt-get install lib32z1-dev
 
