@@ -26,3 +26,4 @@ media
 
 course/fixtures/
 xmlrunner/
+test_results/
