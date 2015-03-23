@@ -201,7 +201,7 @@ SOUTH_TESTS_MIGRATE = False
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 TEST_OUTPUT_VERBOSE = True
 TEST_OUTPUT_DESCRIPTIONS = True
-TEST_OUTPUT_DIR = "xmlrunner"
+TEST_OUTPUT_DIR = "test_results"
 
 # Overrides and appends settings defined in local_settings.py
 try:
