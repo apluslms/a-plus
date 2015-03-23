@@ -38,20 +38,17 @@ to do the following things:
   - Create a SQLite database with some initial data (from initial_data.json)
   - Finally it will prompt you to create a super user account (that you can use to log in to the local A+)
 
-Instructions for running the script:
+Instructions for running the script (from this folder):
 
-    # enter this folder
-    cd doc
     # run the script
     ./create_test_environment.sh
 
-
 After running the script (or setting up the environment manually) you can start
-the A+ server by running:
+the A+ server by running (from the project root folder):
 
     [path_to_virtualenv]/bin/python manage.py runserver 8000
 
-Unit tests can be executed by running:
+Unit tests can be executed by running (from the project root folder):
 
     [path_to_virtualenv]/bin/python manage.py test
 
@@ -74,8 +71,8 @@ Solutions:
 ## Example grader
 
 If you've loaded the initial data the example exercise relies on you can use the external grader server
-(example_grader.py) running on port 8888. This grader (found in this folder) can be started by running:
-
+(example_grader.py) running on port 8888. This grader can be started by running (from this folder):
+    
     python example_grader.py
 
 Now the example exercise in A+ should work and you should get points from submissions accordingly.
