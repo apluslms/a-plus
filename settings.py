@@ -141,32 +141,39 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     # Django applications
-    'django.contrib.auth',
-    'django.contrib.staticfiles',
     'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
+    'django.contrib.auth',
 
     # Third party applications
-    'oauth_provider',
     'django_shibboleth', #for shibboleth logins
+    'oauth_provider',
     'tastypie',
     'south', 
 
     # First party applications
-    'exercise',
-    'course',
+    'external_services',
+    'notification',
     'inheritance',
     'userprofile',
-    'apps',
+    'exercise',
+    'course',
     'oembed',
-    'notification',
-    'external_services',
+    'apps',
 )
 
 TEST_EXCLUDE_APPS = (
-    'django',
+    'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.admin',
+    'django.contrib.auth',
+
+    'django_shibboleth',
     'oauth_provider',
     'tastypie',
     'south',
