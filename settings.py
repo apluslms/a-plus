@@ -165,6 +165,22 @@ INSTALLED_APPS = (
     'external_services',
 )
 
+TEST_EXCLUDE_APPS = (
+    'django.test',
+    'django.contrib.auth',
+    'django.contrib.staticfiles',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.admin',
+
+    # Third party applications
+    'oauth_provider',
+    'django_shibboleth', #for shibboleth logins
+    'tastypie',
+    'south',
+)
+
 # OAuth settings
 OAUTH_AUTHORIZE_VIEW = 'oauth_provider.custom_views.oauth_authorize'
 
@@ -198,7 +214,7 @@ SHIB_LAST_NAME = "last_name"
 SOUTH_TESTS_MIGRATE = False
 
 # Unit test XML-reporting
-TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+TEST_RUNNER = "test_runner.custom_xml_test_runner.ExcludeAppsXMLTestRunner"
 TEST_OUTPUT_VERBOSE = True
 TEST_OUTPUT_DESCRIPTIONS = True
 TEST_OUTPUT_DIR = "test_results"
