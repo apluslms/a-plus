@@ -61,12 +61,11 @@ class Course(models.Model):
     def get_visible_open_instances(self, profile=None):
         if profile:
             visible_open_instances = []
-            for i in self.instances.filter(ending_time__gte=datetime.now()):
-                if i.is_visible_to(profile):
-                    visible_open_instances.append(i)
+            for instance in self.instances.filter(ending_time__gte=datetime.now()):
+                if instance.is_visible_to(profile):
+                    visible_open_instances.append(instance)
         else:
-            visible_open_instances = list(self.instances.filter(
-                ending_time__gte=datetime.now(), visible_to_students=True))
+            visible_open_instances = list(self.instances.filter(ending_time__gte=datetime.now(), visible_to_students=True))
 
         return visible_open_instances
     
@@ -231,17 +230,10 @@ class CourseHook(models.Model):
     def trigger(self, data):
         logger = logging.getLogger("plus.hooks")
         try:
-            res = urllib2.urlopen(self.hook_url,
-                urllib.urlencode(data), timeout=10)
-            logger.info("%s posted to %s on %s with %s",
-                self.hook_type, self.hook_url, self.course_instance, data
-                )
+            urllib2.urlopen(self.hook_url, urllib.urlencode(data), timeout=10)
+            logger.info("%s posted to %s on %s with %s", self.hook_type, self.hook_url, self.course_instance, data)
         except:
-            logger.error(
-                "HTTP POST failed on %s hook to %s (%s)",
-                self.hook_type,
-                self.hook_url,
-                self.course_instance)
+            logger.error("HTTP POST failed on %s hook to %s (%s)", self.hook_type, self.hook_url, self.course_instance)
 
     def __unicode__(self):
         return "%s -> %s" % (self.course_instance, self.hook_url)
