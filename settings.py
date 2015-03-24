@@ -166,17 +166,8 @@ INSTALLED_APPS = (
 )
 
 TEST_EXCLUDE_APPS = (
-    'django.test',
-    'django.contrib.auth',
-    'django.contrib.staticfiles',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.admin',
-
-    # Third party applications
+    'django',
     'oauth_provider',
-    'django_shibboleth', #for shibboleth logins
     'tastypie',
     'south',
 )
