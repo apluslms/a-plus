@@ -12,6 +12,7 @@ mimeparse
 simplejson
 python-dateutil
 icalendar
+selenium
 
 = OAuth provider =
 django-oauthplus
