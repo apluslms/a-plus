@@ -57,8 +57,7 @@ class CourseModule(models.Model):
 
     def get_maximum_points(self):
         if not hasattr(self, "_cached_max_points"):
-            max_points = self.get_exercises().aggregate(
-                max_points=Sum('max_points'))['max_points']
+            max_points = self.get_exercises().aggregate(max_points=Sum('max_points'))['max_points']
             self._cached_max_points = max_points or 0
 
         return self._cached_max_points
@@ -136,8 +135,7 @@ class LearningObjectCategory(models.Model):
 
     def get_maximum_points(self):
         if not hasattr(self, "_cached_max_points"):
-            max_points = self.get_exercises().aggregate(
-                max_points=Sum('max_points'))['max_points']
+            max_points = self.get_exercises().aggregate(max_points=Sum('max_points'))['max_points']
             self._cached_max_points = max_points or 0
 
         return self._cached_max_points
@@ -147,9 +145,7 @@ class LearningObjectCategory(models.Model):
         if max_points == 0:
             return 0
         else:
-            return int(round(
-                100.0 * self.points_to_pass
-                / max_points))
+            return int(round(100.0 * self.points_to_pass / max_points))
 
     def is_hidden_to(self, profile):
         return self in profile.get_hidden_categories_cache()

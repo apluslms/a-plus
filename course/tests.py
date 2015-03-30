@@ -170,7 +170,7 @@ class CourseTest(TestCase):
         self.assertEqual("123456 test course", breadcrumb[0][0])
         self.assertEqual("/course/Course-Url/", breadcrumb[0][1])
 
-    def test_course__instance_breadcrumb(self):
+    def test_course_instance_breadcrumb(self):
         breadcrumb = self.current_course_instance.get_breadcrumb()
         self.assertEqual(2, len(breadcrumb))
         self.assertEqual(2, len(breadcrumb[0]))

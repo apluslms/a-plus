@@ -68,8 +68,15 @@ class ExerciseTest(TestCase):
 
         self.learning_object_category = LearningObjectCategory.objects.create(
             name="test category",
+            course_instance=self.course_instance,
+            points_to_pass=5
+        )
+
+        self.hidden_learning_object_category = LearningObjectCategory.objects.create(
+            name="hidden category",
             course_instance=self.course_instance
         )
+        self.hidden_learning_object_category.hidden_to.add(self.user.get_profile())
 
         self.base_exercise = BaseExercise.objects.create(
             name="test exercise",
@@ -137,11 +144,11 @@ class ExerciseTest(TestCase):
         self.assertEquals(1, len(exercises_with_late_submission_allowed))
         self.assertEquals("test exercise with late submissions allowed", exercises_with_late_submission_allowed[0].name)
 
-    def test_course_module_max_points(self):
+    def test_course_module_maximum_points(self):
         self.assertEquals(150, self.course_module.get_maximum_points())
         self.assertEquals(100, self.course_module_with_late_submissions_allowed.get_maximum_points())
 
-    def test_course_module_points_to_pass(self):
+    def test_course_module_required_percentage(self):
         self.assertEquals(10, self.course_module.get_required_percentage())
         self.assertEquals(50, self.course_module_with_late_submissions_allowed.get_required_percentage())
 
@@ -179,3 +186,37 @@ class ExerciseTest(TestCase):
         self.assertEqual("/course/Course-Url/", breadcrumb[0][1])
         self.assertEqual("Fall 2011 day 1", breadcrumb[1][0])
         self.assertEqual("/course/Course-Url/T-00.1000_d1/", breadcrumb[1][1])
+
+    def test_learning_object_category_unicode_string(self):
+        self.assertEqual("test category -- 123456: Fall 2011 day 1", str(self.learning_object_category))
+        self.assertEqual("hidden category -- 123456: Fall 2011 day 1", str(self.hidden_learning_object_category))
+
+    def test_learning_object_category_exercises(self):
+        self.assertEquals(3, len(self.learning_object_category.get_exercises()))
+        self.assertEquals(0, len(self.hidden_learning_object_category.get_exercises()))
+
+    def test_learning_object_category_max_points(self):
+        self.assertEquals(250, self.learning_object_category.get_maximum_points())
+        self.assertEquals(0, self.hidden_learning_object_category.get_maximum_points())
+
+    def test_learning_object_category_required_percentage(self):
+        self.assertEquals(2, self.learning_object_category.get_required_percentage())
+        self.assertEquals(0, self.hidden_learning_object_category.get_required_percentage())
+
+    def test_learning_object_category_hiding(self):
+        self.assertFalse(self.learning_object_category.is_hidden_to(self.user.get_profile()))
+        self.assertFalse(self.learning_object_category.is_hidden_to(self.grader.get_profile()))
+        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.user.get_profile()))
+        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.grader.get_profile()))
+
+        self.hidden_learning_object_category.set_hidden_to(self.user.get_profile(), False)
+        self.hidden_learning_object_category.set_hidden_to(self.grader.get_profile())
+
+        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.user.get_profile()))
+        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.grader.get_profile()))
+
+        self.hidden_learning_object_category.set_hidden_to(self.user.get_profile(), True)
+        self.hidden_learning_object_category.set_hidden_to(self.grader.get_profile(), False)
+
+        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.user.get_profile()))
+        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.grader.get_profile()))
