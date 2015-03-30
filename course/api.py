@@ -109,12 +109,10 @@ class CourseInstanceSummaryResource(Resource):
         return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
 
     def dispatch_overall(self, request, **kwargs):
-        return CourseInstanceSummaryResource().dispatch(
-            'list', request, **kwargs)
+        return CourseInstanceSummaryResource().dispatch('list', request, **kwargs)
 
     def dispatch_course_instances(self, request, **kwargs):
-        return CourseInstanceResource().dispatch(
-            'list', request, **kwargs)
+        return CourseInstanceResource().dispatch('list', request, **kwargs)
 
     def obj_get_list(self, request=None, **kwargs):
         #TODO

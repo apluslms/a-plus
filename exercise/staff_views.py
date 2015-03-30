@@ -3,8 +3,7 @@ import simplejson as json
 from datetime import datetime, timedelta
 
 # Django
-from django.http import HttpResponse, HttpResponseForbidden,\
-    HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
@@ -19,8 +18,7 @@ from course.views import teachers_view
 from userprofile.models import UserProfile
 from exercise.exercise_models import BaseExercise, ExerciseWithAttachment, CourseModule, DeadlineRuleDeviation
 from exercise.submission_models import Submission
-from exercise.forms import BaseExerciseForm, SubmissionReviewForm,\
-    StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm, \
+from exercise.forms import BaseExerciseForm, SubmissionReviewForm, StaffSubmissionForStudentForm, TeacherCreateAndAssessSubmissionForm, \
     ExerciseWithAttachmentForm, DeadlineRuleDeviationForm
 from course.context import CourseContext
 from django.utils import simplejson
@@ -43,12 +41,12 @@ def list_exercise_submissions(request, exercise_id):
     
     submissions     = exercise.submissions.all()
     
-    return render_to_response("exercise/exercise_submissions.html", 
-                              CourseContext(request,
-                                            submissions=submissions,
-                                            exercise=exercise,
-                                            course_instance=exercise.course_module.course_instance,
-                                           ))
+    return render_to_response("exercise/exercise_submissions.html", CourseContext(
+        request,
+        submissions=submissions,
+        exercise=exercise,
+        course_instance=exercise.course_module.course_instance,
+    ))
 
 @login_required
 def inspect_exercise_submission(request, submission_id):
@@ -66,12 +64,12 @@ def inspect_exercise_submission(request, submission_id):
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")
     
-    return render_to_response("exercise/inspect_submission.html", 
-                              CourseContext(request,
-                                            submission=submission,
-                                            exercise=exercise,
-                                            course_instance=exercise.get_course_instance()
-                                           ))
+    return render_to_response("exercise/inspect_submission.html", CourseContext(
+        request,
+        submission=submission,
+        exercise=exercise,
+        course_instance=exercise.get_course_instance()
+    ))
 
 @login_required
 def add_or_edit_exercise(request, module_id, exercise_id=None, exercise_type=None):
@@ -110,11 +108,12 @@ def add_or_edit_exercise(request, module_id, exercise_id=None, exercise_type=Non
         elif type(exercise) is ExerciseWithAttachment:
             form = ExerciseWithAttachmentForm(instance=exercise)
     
-    return render_to_response("exercise/edit_exercise.html", 
-                              CourseContext(request, course_instance=course_instance,
-                                                     exercise=exercise,
-                                                     form=form
-                                             ))
+    return render_to_response("exercise/edit_exercise.html", CourseContext(
+        request,
+        course_instance=course_instance,
+        exercise=exercise,
+        form=form
+    ))
 
 @login_required
 def remove_exercise(request, module_id, exercise_id):
@@ -124,8 +123,7 @@ def remove_exercise(request, module_id, exercise_id):
     module          = get_object_or_404(CourseModule, id=module_id)
     course_instance = module.course_instance
     
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
-        request.user.is_superuser or request.user.is_staff
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or request.user.is_superuser or request.user.is_staff
     
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")
@@ -136,8 +134,11 @@ def remove_exercise(request, module_id, exercise_id):
         exercise.delete()
         return redirect(teachers_view, course_instance.course.url, course_instance.url)
 
-    return render_to_response("exercise/remove_exercise.html", CourseContext(request, 
-                               course_instance=course_instance, exercise=exercise))
+    return render_to_response("exercise/remove_exercise.html", CourseContext(
+        request,
+        course_instance=course_instance,
+        exercise=exercise
+    ))
 
 @login_required
 def assess_submission(request, submission_id):
@@ -159,49 +160,49 @@ def assess_submission(request, submission_id):
         has_permission = exercise.get_course_instance().is_staff(grader)
     else:
         # Only teacher is allowed to assess
-        has_permission = exercise.get_course_instance().is_teacher(
-            request.user.get_profile())
+        has_permission = exercise.get_course_instance().is_teacher(request.user.get_profile())
     
     if not has_permission:
-        return HttpResponseForbidden(_("You are not allowed to access this "
-                                       "view."))
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     
-    form = SubmissionReviewForm(exercise=exercise, initial={"points": submission.grade, 
-                                                            "feedback": submission.feedback, 
-                                                            "assistant_feedback": submission.assistant_feedback})
+    form = SubmissionReviewForm(
+        exercise=exercise,
+        initial={
+            "points": submission.grade,
+            "feedback": submission.feedback,
+            "assistant_feedback": submission.assistant_feedback
+        }
+    )
     if request.method == "POST":
         form = SubmissionReviewForm(request.POST, exercise=exercise)
         if form.is_valid():
-            submission.set_points(form.cleaned_data["points"],
-                                  exercise.max_points, no_penalties=True)
+            submission.set_points(form.cleaned_data["points"], exercise.max_points, no_penalties=True)
             submission.grader = grader
-            
             submission.assistant_feedback = form.cleaned_data["assistant_feedback"]
             submission.feedback = form.cleaned_data["feedback"]
             submission.set_ready()
             submission.save()
             breadcrumb = exercise.get_breadcrumb()
             for student in submission.submitters.all():
-                Notification.send(grader, 
-                                student, 
-                                exercise.get_course_instance(), 
-                                'New assistant feedback', 
-                                '<p>You have new assistant feedback to exercise <a href="'\
-                                + breadcrumb[2][1]+'">' + exercise.name +'</a>:</p>'\
-                                + submission.assistant_feedback)            
-            messages.success(request, _("The review was saved "
-                                        "successfully."))
-            return redirect(inspect_exercise_submission,
-                            submission_id=submission.id)
+                Notification.send(
+                    grader,
+                    student,
+                    exercise.get_course_instance(),
+                    'New assistant feedback',
+                    '<p>You have new assistant feedback to exercise <a href="' + breadcrumb[2][1]+'">' + exercise.name +'</a>:</p>'\
+                        + submission.assistant_feedback
+                )
+            messages.success(request, _("The review was saved successfully."))
+            return redirect(inspect_exercise_submission, submission_id=submission.id)
     
-    return render_to_response("exercise/submission_assessment.html", 
-                              CourseContext(request, 
-                                            course_instance=exercise
-                                            .get_course_instance(),
-                                            exercise=exercise,
-                                            submission=submission,
-                                            form=form))
+    return render_to_response("exercise/submission_assessment.html", CourseContext(
+        request,
+        course_instance=exercise.get_course_instance(),
+        exercise=exercise,
+        submission=submission,
+        form=form)
+    )
 
 
 @login_required
@@ -268,35 +269,26 @@ def resubmit_to_service(request, submission_id):
         submission.set_waiting()
 
         if response_page.is_graded:
-            if (response_page.max_points != None
-                and not (response_page.exercise.max_points != 0
-                         and response_page.max_points == 0)
-                and response_page.points <= response_page.max_points):
-                submission.set_points(response_page.points,
-                    response_page.max_points)
+            if (response_page.max_points != None and not (response_page.exercise.max_points != 0 and response_page.max_points == 0)
+                    and response_page.points <= response_page.max_points):
+                submission.set_points(response_page.points, response_page.max_points)
                 submission.set_ready()
 
                 # Add a success message and redirect the staff user to view the
                 # submission
-                messages.success(request,
-                    _('The exercise was re-submitted and re-graded '
-                      'successfully. Submission points: %d/%d.')
-                      % (submission.grade, submission.exercise.max_points))
+                messages.success(request, _('The exercise was re-submitted and re-graded successfully. Submission points: %d/%d.')
+                    % (submission.grade, submission.exercise.max_points)
+                )
             else:
                 submission.set_error()
-                messages.error(request, _("The response from the assessment "
-                                          "service was erroneous."))
+                messages.error(request, _("The response from the assessment service was erroneous."))
         else:
-            messages.success(request, _(
-                'The exercise was re-submitted successfully and is now '
-                'waiting to be graded.'))
+            messages.success(request, _('The exercise was re-submitted successfully and is now waiting to be graded.'))
 
         submission.save()
 
     else:
-        messages.warning(request,
-            _('The exercise could not be re-graded. Please check the page below'
-              'for errors.'))
+        messages.warning(request, _('The exercise could not be re-graded. Please check the page below for errors.'))
 
     return redirect(submission.get_staff_url())
 
@@ -311,30 +303,28 @@ def create_and_assess_submission(request, exercise_id):
         has_permission = exercise.get_course_instance().is_staff(grader)
     else:
         # Only teachers are allowed to submit for students
-        has_permission = exercise.get_course_instance().is_teacher(
-            request.user.get_profile())
+        has_permission = exercise.get_course_instance().is_teacher(request.user.get_profile())
 
     if not has_permission:
-        return HttpResponseForbidden(
-            _("You are not allowed to access this view."))
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     if not request.method == "POST":
         return HttpResponseForbidden(_("Only HTTP POST allowed."))
 
     student_choices = UserProfile.objects.filter(
-        submissions__in=Submission.objects.filter(
-            exercise__course_module__course_instance=exercise.course_instance))
-    form = StaffSubmissionForStudentForm(request.POST, exercise=exercise,
-                                         students_choices=student_choices)
+        submissions__in=Submission.objects.filter(exercise__course_module__course_instance=exercise.course_instance)
+    )
+    form = StaffSubmissionForStudentForm(
+        request.POST,
+        exercise=exercise,
+        students_choices=student_choices)
 
     if form.is_valid():
         new_submission = Submission.objects.create(exercise=exercise)
         new_submission.submitters = form.cleaned_data.get("students")
         new_submission.feedback = form.cleaned_data.get("feedback")
-        new_submission.set_points(form.cleaned_data.get("points"),
-                                  exercise.max_points, no_penalties=True)
-        new_submission.submission_time = form.cleaned_data.get(
-            "submission_time")
+        new_submission.set_points(form.cleaned_data.get("points"), exercise.max_points, no_penalties=True)
+        new_submission.submission_time = form.cleaned_data.get("submission_time")
         new_submission.grading_time = datetime.now()
         new_submission.set_ready()
         new_submission.save()
@@ -351,8 +341,7 @@ def create_and_assess_submission_batch(request, course_instance_id):
 
     has_permission = course_instance.is_teacher(teacher)
     if not has_permission:
-        return HttpResponseForbidden(
-            _("You are not allowed to access this view."))
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     if not request.method == "POST":
         return HttpResponseForbidden(_("Only HTTP POST allowed."))
@@ -367,27 +356,21 @@ def create_and_assess_submission_batch(request, course_instance_id):
     validated_forms = []
     # Validate all the data before saving anything.
     for submission_json in submissions_json:
-        exercise = get_object_or_404(BaseExercise,
-                                     id=submission_json["exercise_id"])
-        form = TeacherCreateAndAssessSubmissionForm(submission_json,
-                                                    exercise=exercise)
+        exercise = get_object_or_404(BaseExercise, id=submission_json["exercise_id"])
+        form = TeacherCreateAndAssessSubmissionForm(submission_json, exercise=exercise)
 
         if form.is_valid():
             validated_forms.append(form)
         else:
-            return HttpResponseBadRequest(_("The data did not validate. No "
-                                            "submissions were saved."))
+            return HttpResponseBadRequest(_("The data did not validate. No submissions were saved."))
 
     # The data validated. Now lets save it.
     for form in validated_forms:
         new_submission = Submission.objects.create(exercise=form.exercise)
         new_submission.submitters = form.cleaned_data.get("students") or form.cleaned_data.get("students_by_student_id")
         new_submission.feedback = form.cleaned_data.get("feedback")
-        new_submission.set_points(form.cleaned_data.get("points"),
-                                  new_submission.exercise.max_points,
-                                  no_penalties=True)
-        new_submission.submission_time = form.cleaned_data.get(
-            "submission_time")
+        new_submission.set_points(form.cleaned_data.get("points"), new_submission.exercise.max_points, no_penalties=True)
+        new_submission.submission_time = form.cleaned_data.get("submission_time")
         new_submission.grading_time = datetime.now()
         new_submission.grader = form.cleaned_data.get("grader") or teacher
         new_submission.set_ready()
@@ -398,8 +381,7 @@ def create_and_assess_submission_batch(request, course_instance_id):
 @login_required
 def add_deadline_rule_deviations(request, course_instance):
     course_instance = CourseInstance.objects.get(id=course_instance)
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
-        request.user.is_superuser or request.user.is_staff
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or request.user.is_superuser or request.user.is_staff
 
     if not has_permission:
         # TODO: Missing translation.
@@ -423,15 +405,16 @@ def add_deadline_rule_deviations(request, course_instance):
 
     form = DeadlineRuleDeviationForm(instance=course_instance)
 
-    return render_to_response("exercise/add_deadline_rule_deviations.html",
-                            CourseContext(request,
-                                            course_instance=course_instance,
-                                            form=form))
+    return render_to_response("exercise/add_deadline_rule_deviations.html", CourseContext(
+        request,
+        course_instance=course_instance,
+        form=form)
+    )
+
 @login_required
 def list_deadline_rule_deviations(request, course_instance):
     course_instance = CourseInstance.objects.get(id=course_instance)
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
-        request.user.is_superuser or request.user.is_staff
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or request.user.is_superuser or request.user.is_staff
 
     if not has_permission:
         # TODO: Missing translation.
@@ -439,17 +422,17 @@ def list_deadline_rule_deviations(request, course_instance):
 
     deviations = DeadlineRuleDeviation.objects.filter(exercise__course_module__course_instance=course_instance)
 
-    return render_to_response("exercise/list_deadline_rule_deviations.html",
-                            CourseContext(request,
-                                            course_instance=course_instance,
-                                            deviations=deviations))
+    return render_to_response("exercise/list_deadline_rule_deviations.html", CourseContext(
+        request,
+        course_instance=course_instance,
+        deviations=deviations)
+    )
 
 @login_required
 def remove_deadline_rule_deviation(request, deadline_rule_deviation_id):
     deviation = DeadlineRuleDeviation.objects.get(id=deadline_rule_deviation_id)
     course_instance = deviation.exercise.get_course_instance()
-    has_permission  = course_instance.is_teacher(request.user.get_profile()) or\
-        request.user.is_superuser or request.user.is_staff
+    has_permission  = course_instance.is_teacher(request.user.get_profile()) or request.user.is_superuser or request.user.is_staff
 
     if not has_permission:
         # TODO: Missing translation.
