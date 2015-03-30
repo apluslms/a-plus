@@ -29,10 +29,8 @@ class Submission(models.Model):
     hash                    = models.CharField(max_length=32, default=get_random_string)
 
     # Relations
-    exercise                = models.ForeignKey(exercise_models.BaseExercise, 
-                                                related_name="submissions")
-    submitters              = models.ManyToManyField(UserProfile, 
-                                                     related_name="submissions")
+    exercise                = models.ForeignKey(exercise_models.BaseExercise, related_name="submissions")
+    submitters              = models.ManyToManyField(UserProfile, related_name="submissions")
     grader                  = models.ForeignKey(UserProfile, 
                                                 related_name="graded_submissions", 
                                                 blank=True, 

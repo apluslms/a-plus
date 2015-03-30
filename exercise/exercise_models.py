@@ -408,11 +408,11 @@ class BaseExercise(LearningObject):
         if not self.is_open(when=when):
             # Lets check if there are DeadlineExceptions for the given
             # students.
-            dlr_deviations = DeadlineRuleDeviation.objects.filter(
+            deadline_rule_deviations = DeadlineRuleDeviation.objects.filter(
                 exercise=self,
                 submitter__in=students).distinct()
 
-            if len(dlr_deviations) > 0:
+            if len(deadline_rule_deviations) > 0:
                 # Now we need to check if there are enough extra time given for
                 # each of the students.
                 base_dl = self.get_deadline()
@@ -420,11 +420,11 @@ class BaseExercise(LearningObject):
                 # closed for each of the students.
                 is_open_booleans_by_submitters = {s: False for s in students}
 
-                for dlrd in dlr_deviations:
-                    if when <= base_dl + dlrd.get_extra_time():
+                for deadline_rule_deviation in deadline_rule_deviations:
+                    if when <= base_dl + deadline_rule_deviation.get_extra_time():
                         assert(
-                            dlrd.submitter in is_open_booleans_by_submitters)
-                        is_open_booleans_by_submitters[dlrd.submitter] = True
+                            deadline_rule_deviation.submitter in is_open_booleans_by_submitters)
+                        is_open_booleans_by_submitters[deadline_rule_deviation.submitter] = True
 
                 if False in is_open_booleans_by_submitters.values():
                     # Not all the submitters had enough extra time given.

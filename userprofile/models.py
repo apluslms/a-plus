@@ -63,9 +63,7 @@ class UserProfile(models.Model):
     # TODO: Remove this method and replace all usages with prefetch_related
     # when updating to newer Django version.
     def get_hidden_categories_cache(self):
-        self.cached_hidden_categories = getattr(self,
-                                                "cached_hidden_categories",
-                                                self.hidden_categories.all())
+        self.cached_hidden_categories = getattr(self, "cached_hidden_categories", self.hidden_categories.all())
         return self.cached_hidden_categories
 
 
