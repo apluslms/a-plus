@@ -1,21 +1,12 @@
 # Python
-import simplejson
-import urllib
-import urllib2
 import hmac
 import hashlib
 from datetime import datetime, timedelta
 
 # Django 
-from django.db import models
 from django.db.models.aggregates import Avg, Max, Count, Sum
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
-from django import forms
 from django.conf import settings
-from django.utils.functional import curry
 from django.utils.translation import ugettext_lazy as _
 from django.template import loader, Context
 
@@ -59,8 +50,7 @@ class CourseModule(models.Model):
     # Settings that can be used to allow late submissions to exercises
     late_submissions_allowed= models.BooleanField(default=False)
     late_submission_deadline= models.DateTimeField(default=datetime.now)
-    late_submission_penalty = PercentField(default=0.5, 
-        help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+    late_submission_penalty = PercentField(default=0.5, help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
 
     def get_exercises(self):
         return BaseExercise.objects.filter(course_module=self)
@@ -78,13 +68,10 @@ class CourseModule(models.Model):
         if max_points == 0:
             return 0
         else:
-            return int(round(100.0
-                             * self.points_to_pass
-                             / max_points))
+            return int(round(100.0 * self.points_to_pass / max_points))
     
     def is_late_submission_open(self):
-        return self.late_submissions_allowed and \
-            self.closing_time <= datetime.now() <= self.late_submission_deadline
+        return self.late_submissions_allowed and self.closing_time <= datetime.now() <= self.late_submission_deadline
 
     def get_late_submission_point_worth(self):
         """

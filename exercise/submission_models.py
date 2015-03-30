@@ -9,14 +9,13 @@ from django.db.models.signals import post_delete
 
 # A+
 from exercise import exercise_models
-from lib import MultipartPostHandler
 from lib.fields import JSONField
 from lib.helpers import get_random_string
 from userprofile.models import UserProfile
 
 # Python 2.6+
-from datetime import datetime, timedelta
-import simplejson, os
+from datetime import datetime
+import os
 
 
 class Submission(models.Model):

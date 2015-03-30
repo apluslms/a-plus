@@ -1,7 +1,6 @@
 # Django
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.auth.models import User
 
 # Aalto+
 from exercise.exercise_models import *
@@ -15,17 +14,34 @@ class CourseTest(TestCase):
     def setUp(self):
         self.client = Client()
 
+        self.user = User(username="testUser")
+        self.user.set_password("testPassword")
+        self.user.save()
+
+        self.grader = User(username="grader")
+        self.grader.set_password("graderPassword")
+        self.grader.save()
+
+        self.staff_member = User(username="staff", is_staff=True)
+        self.staff_member.set_password("staffPassword")
+        self.staff_member.save()
+
         self.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
 
+        today = datetime.now()
+        tomorrow = today + timedelta(days=1)
+        after_tomorrow = tomorrow + timedelta(days=1)
+        yesterday = today - timedelta(days=1)
+
         self.past_course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 0",
             website="http://www.example.com",
-            starting_time=datetime.now() - timedelta(days=1),
-            ending_time=datetime.now(),
+            starting_time=yesterday,
+            ending_time=today,
             course=self.course,
             url="T-00.1000_d0"
         )
@@ -33,8 +49,8 @@ class CourseTest(TestCase):
         self.current_course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
             website="http://www.example.com",
-            starting_time=datetime.now(),
-            ending_time=datetime.now() + timedelta(days=1),
+            starting_time=today,
+            ending_time=tomorrow,
             course=self.course,
             url="T-00.1000_d1"
         )
@@ -42,8 +58,8 @@ class CourseTest(TestCase):
         self.future_course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 2",
             website="http://www.example.com",
-            starting_time=datetime.now()+timedelta(days=1),
-            ending_time=datetime.now()+timedelta(days=2),
+            starting_time=tomorrow,
+            ending_time=after_tomorrow,
             course=self.course,
             url="T-00.1000_d2"
         )
@@ -51,8 +67,8 @@ class CourseTest(TestCase):
         self.hidden_course_instance = CourseInstance.objects.create(
             instance_name="Secret super course",
             website="http://www.secret.com",
-            starting_time=datetime.now()+timedelta(days=1),
-            ending_time=datetime.now()+timedelta(days=2),
+            starting_time=tomorrow,
+            ending_time=after_tomorrow,
             course=self.course,
             url="T-00.1000_hidden",
             visible_to_students=False
@@ -62,8 +78,8 @@ class CourseTest(TestCase):
             name="test module",
             points_to_pass=10,
             course_instance=self.current_course_instance,
-            opening_time=datetime.now(),
-            closing_time=datetime.now() + timedelta(days=1)
+            opening_time=today,
+            closing_time=tomorrow
         )
 
         self.learning_object_category = LearningObjectCategory.objects.create(
@@ -77,18 +93,6 @@ class CourseTest(TestCase):
             category=self.learning_object_category
         )
 
-        self.user = User(username="testUser")
-        self.user.set_password("testPassword")
-        self.user.save()
-
-        self.grader = User(username="grader")
-        self.grader.set_password("graderPassword")
-        self.grader.save()
-
-        self.staff_member = User(username="staff", is_staff=True)
-        self.staff_member.set_password("staffPassword")
-        self.staff_member.save()
-
         self.submission = Submission.objects.create(
             exercise=self.base_exercise,
             grader=self.grader.get_profile()
@@ -101,7 +105,6 @@ class CourseTest(TestCase):
         )
 
     def test_course_instance_open(self):
-        print(self.course.get_breadcrumb())
         self.assertFalse(self.past_course_instance.is_open())
         self.assertTrue(self.current_course_instance.is_open())
         self.assertFalse(self.future_course_instance.is_open())
@@ -111,7 +114,7 @@ class CourseTest(TestCase):
         self.assertEqual("/course/Course-Url/T-00.1000_d1/", self.current_course_instance.get_absolute_url())
         self.assertEqual("/course/Course-Url/T-00.1000_hidden/", self.hidden_course_instance.get_absolute_url())
 
-    def test_results_url(self):
+    def test_course_instance_results_url(self):
         self.assertEqual("/course/Course-Url/T-00.1000_d1/results/", self.current_course_instance.get_results_url())
         self.assertEqual("/course/Course-Url/T-00.1000_hidden/results/", self.hidden_course_instance.get_results_url())
 
@@ -155,18 +158,27 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_staff(self.user.get_profile()))
         self.assertEquals(0, len(self.current_course_instance.get_course_staff()))
 
-    def test_visible_open_instances(self):
+    def test_course_instance_visible_open(self):
         self.assertFalse(self.past_course_instance in self.course.get_visible_open_instances(self.user.get_profile()))
         self.assertTrue(self.current_course_instance in self.course.get_visible_open_instances(self.user.get_profile()))
         self.assertTrue(self.future_course_instance in self.course.get_visible_open_instances(self.user.get_profile()))
         
-    def test_breadcrumb(self):
+    def test_course_breadcrumb(self):
         breadcrumb = self.course.get_breadcrumb()
         self.assertEqual(1, len(breadcrumb))
-        breadcrumb_tuple = breadcrumb[0]
-        self.assertEqual(2, len(breadcrumb_tuple))
-        self.assertEqual("123456 test course", breadcrumb_tuple[0])
-        self.assertEqual("/course/Course-Url/", breadcrumb_tuple[1])
+        self.assertEqual(2, len(breadcrumb[0]))
+        self.assertEqual("123456 test course", breadcrumb[0][0])
+        self.assertEqual("/course/Course-Url/", breadcrumb[0][1])
+
+    def test_course__instance_breadcrumb(self):
+        breadcrumb = self.current_course_instance.get_breadcrumb()
+        self.assertEqual(2, len(breadcrumb))
+        self.assertEqual(2, len(breadcrumb[0]))
+        self.assertEqual(2, len(breadcrumb[1]))
+        self.assertEqual("123456 test course", breadcrumb[0][0])
+        self.assertEqual("/course/Course-Url/", breadcrumb[0][1])
+        self.assertEqual("Fall 2011 day 1", breadcrumb[1][0])
+        self.assertEqual("/course/Course-Url/T-00.1000_d1/", breadcrumb[1][1])
 
     def test_course_views(self):
         # Test viewing a course without logging in
@@ -184,7 +196,7 @@ class CourseTest(TestCase):
         response = self.client.get(self.current_course_instance.get_absolute_url())
         self.assertEqual(200, response.status_code)
 
-    def test_students(self):
+    def test_course_instance_students(self):
         students = self.current_course_instance.get_students()
         self.assertEquals(1, len(students))
         self.assertEquals("testUser", students[0].get_shortname())
@@ -208,7 +220,7 @@ class CourseTest(TestCase):
         self.assertEquals("testUser", students[0].get_shortname())
         self.assertEquals("grader", students[1].get_shortname())
 
-    def test_instance_visibility(self):
+    def test_course_instance_visibility(self):
         self.assertTrue(self.current_course_instance.is_visible_to())
         self.assertFalse(self.hidden_course_instance.is_visible_to())
         self.assertTrue(self.current_course_instance.is_visible_to(self.user.get_profile()))
@@ -216,10 +228,10 @@ class CourseTest(TestCase):
         self.assertTrue(self.current_course_instance.is_visible_to(self.staff_member.get_profile()))
         self.assertTrue(self.hidden_course_instance.is_visible_to(self.staff_member.get_profile()))
 
-    def test_label(self):
+    def test_course_instance_label(self):
         self.assertEquals("Dashboard", self.current_course_instance.get_label())
 
-    def test_visible_open_course_instances(self):
+    def test_course_instance_visible_open_list(self):
         open_course_instances = get_visible_open_course_instances()
         print(open_course_instances[0].instance_name)
         print(open_course_instances[1].instance_name)
