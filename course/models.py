@@ -241,9 +241,9 @@ class CourseHook(models.Model):
 def get_visible_open_course_instances(profile=None):
     if profile:
         visible_open_instances = []
-        for i in CourseInstance.objects.filter(ending_time__gte=datetime.now()):
-            if i.is_visible_to(profile):
-                visible_open_instances.append(i)
+        for course_instance in CourseInstance.objects.filter(ending_time__gte=datetime.now()):
+            if course_instance.is_visible_to(profile):
+                visible_open_instances.append(course_instance)
     else:
         visible_open_instances = list(CourseInstance.objects.filter(
             ending_time__gte=datetime.now(), visible_to_students=True))

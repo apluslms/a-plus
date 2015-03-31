@@ -233,21 +233,17 @@ class CourseTest(TestCase):
 
     def test_course_instance_visible_open_list(self):
         open_course_instances = get_visible_open_course_instances()
-        print(open_course_instances[0].instance_name)
-        print(open_course_instances[1].instance_name)
-        print(open_course_instances[2].instance_name)
-        print(open_course_instances[3].instance_name)
-        self.assertLessEqual(2, len(open_course_instances))
+        self.assertEqual(2, len(open_course_instances))
         self.assertTrue(self.current_course_instance in open_course_instances)
         self.assertTrue(self.future_course_instance in open_course_instances)
 
         open_course_instances = get_visible_open_course_instances(self.user.get_profile())
-        self.assertLessEqual(2, len(open_course_instances))
+        self.assertEqual(2, len(open_course_instances))
         self.assertTrue(self.current_course_instance in open_course_instances)
         self.assertTrue(self.future_course_instance in open_course_instances)
 
         open_course_instances = get_visible_open_course_instances(self.staff_member.get_profile())
-        self.assertLessEqual(3, len(open_course_instances))
+        self.assertEqual(3, len(open_course_instances))
         self.assertTrue(self.current_course_instance in open_course_instances)
         self.assertTrue(self.future_course_instance in open_course_instances)
         self.assertTrue(self.hidden_course_instance in open_course_instances)
