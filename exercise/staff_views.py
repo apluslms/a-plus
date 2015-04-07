@@ -422,11 +422,7 @@ def list_deadline_rule_deviations(request, course_instance):
 
     deviations = DeadlineRuleDeviation.objects.filter(exercise__course_module__course_instance=course_instance)
 
-    return render_to_response("exercise/list_deadline_rule_deviations.html", CourseContext(
-        request,
-        course_instance=course_instance,
-        deviations=deviations)
-    )
+    return render_to_response("exercise/list_deadline_rule_deviations.html", CourseContext(request, course_instance=course_instance, deviations=deviations))
 
 @login_required
 def remove_deadline_rule_deviation(request, deadline_rule_deviation_id):

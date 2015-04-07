@@ -1,6 +1,7 @@
 # Django
 from django.test import TestCase
 from django.test.client import Client
+from django.utils.datastructures import MultiValueDict
 
 # Aalto+
 from exercise.exercise_models import *
@@ -14,7 +15,7 @@ class ExerciseTest(TestCase):
     def setUp(self):
         self.client = Client()
 
-        self.user = User(username="testUser")
+        self.user = User(username="testUser", first_name="First", last_name="Last")
         self.user.set_password("testPassword")
         self.user.save()
 
@@ -25,6 +26,10 @@ class ExerciseTest(TestCase):
         self.teacher = User(username="staff", is_staff=True)
         self.teacher.set_password("staffPassword")
         self.teacher.save()
+
+        self.user2 = User(username="testUser2", first_name="Strange", last_name="Fellow")
+        self.user2.set_password("testPassword2")
+        self.user2.save()
 
         self.course = Course.objects.create(
             name="test course",
@@ -47,6 +52,7 @@ class ExerciseTest(TestCase):
             course=self.course,
             url="T-00.1000_d1"
         )
+        self.course_instance.assistants.add(self.grader.get_profile())
 
         self.course_module = CourseModule.objects.create(
             name="test module",
@@ -147,11 +153,18 @@ class ExerciseTest(TestCase):
         )
         self.submission.submitters.add(self.user.get_profile())
 
+        self.submission_with_two_submitters = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.get_profile()
+        )
+        self.submission_with_two_submitters.submitters.add(self.user.get_profile())
+        self.submission_with_two_submitters.submitters.add(self.user2.get_profile())
+
         self.late_submission = Submission.objects.create(
             exercise=self.base_exercise,
-            grader=self.grader.get_profile(),
-            submission_time=self.two_days_from_now
+            grader=self.grader.get_profile()
         )
+        self.late_submission.submission_time=self.two_days_from_now
         self.late_submission.submitters.add(self.user.get_profile())
 
         self.submission_when_late_allowed = Submission.objects.create(
@@ -162,16 +175,16 @@ class ExerciseTest(TestCase):
 
         self.late_submission_when_late_allowed = Submission.objects.create(
             exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.get_profile(),
-            submission_time=self.two_days_from_now
+            grader=self.grader.get_profile()
         )
+        self.late_submission_when_late_allowed.submission_time=self.two_days_from_now
         self.late_submission_when_late_allowed.submitters.add(self.user.get_profile())
 
         self.late_late_submission_when_late_allowed = Submission.objects.create(
             exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.get_profile(),
-            submission_time=self.three_days_from_now
+            grader=self.grader.get_profile()
         )
+        self.late_late_submission_when_late_allowed.submission_time=self.three_days_from_now
         self.late_late_submission_when_late_allowed.submitters.add(self.user.get_profile())
 
         self.course_hook = CourseHook.objects.create(
@@ -183,6 +196,16 @@ class ExerciseTest(TestCase):
             exercise=self.exercise_with_attachment,
             submitter=self.user.get_profile(),
             extra_minutes=1440  # One day
+        )
+
+        self.submitted_file1 = SubmittedFile.objects.create(
+            submission=self.submission,
+            param_name="testParam"
+        )
+
+        self.submitted_file2 = SubmittedFile.objects.create(
+            submission=self.submission_with_two_submitters,
+            param_name="testParam2"
         )
 
     def test_course_module_exercises_list(self):
@@ -317,7 +340,7 @@ class ExerciseTest(TestCase):
         self.assertEqual(0, self.exercise_with_attachment.max_submissions_for(self.user))
 
     def test_base_exercise_submissions_left(self):
-        self.assertEqual(-1, self.base_exercise.submissions_left(self.user))
+        self.assertEqual(-2, self.base_exercise.submissions_left(self.user))
         self.assertEqual(10, self.static_exercise.submissions_left(self.user))
         self.assertEqual(None, self.exercise_with_attachment.submissions_left(self.user))
 
@@ -377,7 +400,7 @@ class ExerciseTest(TestCase):
 
     def test_base_exercise_submissions_for_student(self):
         submissions = self.base_exercise.get_submissions_for_student(self.user.get_profile())
-        self.assertEqual(2, len(submissions))
+        self.assertEqual(3, len(submissions))
         submissions = self.static_exercise.get_submissions_for_student(self.user.get_profile())
         self.assertEqual(0, len(submissions))
 
@@ -406,8 +429,8 @@ class ExerciseTest(TestCase):
 
     def test_base_exercise_summary(self):
         summary = self.base_exercise.summary
-        self.assertEqual(2, summary["submission_count"])
-        self.assertEqual(1, summary["submitter_count"])
+        self.assertEqual(3, summary["submission_count"])
+        self.assertEqual(2, summary["submitter_count"])
         self.assertEqual(0, summary["average_grade"])
         self.assertEqual(2, summary["average_submissions"])
 
@@ -467,3 +490,132 @@ class ExerciseTest(TestCase):
 
     def test_deadline_rule_deviation_normal_deadline(self):
         self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_normal_deadline())
+
+    def test_submission_submitters(self):
+        submitters = self.submission.submitters.all()
+        self.assertEqual(1, len(submitters))
+        self.assertEqual(self.user.get_profile(), submitters[0])
+
+        self.submission.add_submitter(self.grader.get_profile())
+        submitters = self.submission.submitters.all()
+        self.assertEqual(2, len(submitters))
+        self.assertEqual(self.user.get_profile(), submitters[0])
+        self.assertEqual(self.grader.get_profile(), submitters[1])
+
+        self.submission.submitters.clear()
+        submitters = self.submission.submitters.all()
+        self.assertEqual(0, len(submitters))
+        self.submission.add_submitters([self.user.get_profile(), self.grader.get_profile()])
+        submitters = self.submission.submitters.all()
+        self.assertEqual(self.user.get_profile(), submitters[0])
+        self.assertEqual(self.grader.get_profile(), submitters[1])
+
+        self.submission.submitters.clear()
+        self.submission.add_submitter(self.user.get_profile())
+        submitters = self.submission.submitters.all()
+        self.assertEqual(1, len(submitters))
+        self.assertEqual(self.user.get_profile(), submitters[0])
+
+    def test_submission_files(self):
+        self.assertEqual(1, len(self.submission.files.all()))
+        self.submission.add_files(MultiValueDict({
+            "key1": ["test_file1.txt", "test_file2.txt"],
+            "key2": ["test_image.png", "test_audio.wav", "test_pdf.pdf"]
+        }))
+        self.assertEqual(6, len(self.submission.files.all()))
+
+    def test_submission_user_permission(self):
+        self.assertTrue(self.submission.check_user_permission(self.user.get_profile()))
+        self.assertFalse(self.submission.check_user_permission(self.user2.get_profile()))
+        self.assertTrue(self.submission.check_user_permission(self.grader.get_profile()))
+        self.assertTrue(self.submission.check_user_permission(self.teacher.get_profile()))
+
+    def test_submission_course(self):
+        self.assertEqual(self.course, self.submission.get_course())
+
+    def test_submission_course_instance(self):
+        self.assertEqual(self.course_instance, self.submission.get_course_instance())
+
+    def test_submission_points(self):
+        try:
+            self.submission.set_points(10, 5)
+            self.fail("Should not be able to set points higher than max points!")
+        except AssertionError:
+            self.submission.set_points(5, 10)
+            self.assertEqual(50, self.submission.grade)
+            self.late_submission_when_late_allowed.set_points(10, 10)
+            self.assertEqual(80, self.late_submission_when_late_allowed.grade)
+
+    def test_submission_submitted_late(self):
+        self.assertFalse(self.submission.is_submitted_late())
+        self.assertTrue(self.late_submission.is_submitted_late())
+        self.assertFalse(self.submission_when_late_allowed.is_submitted_late())
+        self.assertTrue(self.late_submission_when_late_allowed.is_submitted_late())
+        self.assertTrue(self.late_late_submission_when_late_allowed.is_submitted_late())
+
+    def test_submission_grading_data(self):
+        self.assertEqual('', self.submission.grading_data)
+        self.submission.set_grading_data({"a": "test", "b": "test2"})
+        self.assertEqual({"a": "test", "b": "test2"}, self.submission.grading_data)
+
+    def test_submission_submitter_string(self):
+        self.assertEqual("First Last", self.submission.submitter_string())
+        self.assertEqual("First Last, Strange Fellow", self.submission_with_two_submitters.submitter_string())
+
+    def test_submission_unicode_string(self):
+        self.assertEqual("1", str(self.submission))
+        self.assertEqual("2", str(self.submission_with_two_submitters))
+        self.assertEqual("3", str(self.late_submission))
+        self.assertEqual("4", str(self.submission_when_late_allowed))
+        self.assertEqual("5", str(self.late_submission_when_late_allowed))
+        self.assertEqual("6", str(self.late_late_submission_when_late_allowed))
+
+    def test_submission_status(self):
+        self.assertEqual("initialized", self.submission.status)
+        self.assertFalse(self.submission.is_graded())
+        self.submission._set_status("error")
+        self.assertEqual("error", self.submission.status)
+        self.assertFalse(self.submission.is_graded())
+        self.submission.set_waiting()
+        self.assertEqual("waiting", self.submission.status)
+        self.assertFalse(self.submission.is_graded())
+        self.submission.set_error()
+        self.assertEqual("error", self.submission.status)
+        self.assertFalse(self.submission.is_graded())
+        self.assertEqual(None, self.submission.grading_time)
+        self.submission.set_ready()
+        self.assertIsInstance(self.submission.grading_time, datetime)
+        self.assertEqual("ready", self.submission.status)
+        self.assertTrue(self.submission.is_graded())
+
+    def test_submission_absolute_url(self):
+        self.assertEqual("/exercise/submission/1/", self.submission.get_absolute_url())
+        self.assertEqual("/exercise/submission/3/", self.late_submission.get_absolute_url())
+
+    def test_submission_callback_url(self):
+        self.assertEqual("/exercise/rest/submission/1/" + self.submission.hash + "/", self.submission.get_callback_url())
+        self.assertEqual("/exercise/rest/submission/3/" + self.late_submission.hash + "/", self.late_submission.get_callback_url())
+
+    def test_submission_staff_url(self):
+        self.assertEqual("/exercise/submissions/inspect/1/", self.submission.get_staff_url())
+        self.assertEqual("/exercise/submissions/inspect/3/", self.late_submission.get_staff_url())
+
+    def test_submission_breadcrumb(self):
+        breadcrumb = self.submission.get_breadcrumb()
+        self.assertEqual(4, len(breadcrumb))
+        self.assertEqual(('123456 test course', '/course/Course-Url/'), breadcrumb[0])
+        self.assertEqual(('Fall 2011 day 1', '/course/Course-Url/T-00.1000_d1/'), breadcrumb[1])
+        self.assertEqual(('test exercise', '/exercise/3/'), breadcrumb[2])
+        self.assertEqual(2, len(breadcrumb[3]))
+        self.assertEqual('/exercise/submission/1/', breadcrumb[3][1])
+        breadcrumb = self.late_submission.get_breadcrumb()
+        self.assertEqual(4, len(breadcrumb))
+        self.assertEqual(('123456 test course', '/course/Course-Url/'), breadcrumb[0])
+        self.assertEqual(('Fall 2011 day 1', '/course/Course-Url/T-00.1000_d1/'), breadcrumb[1])
+        self.assertEqual(('test exercise', '/exercise/3/'), breadcrumb[2])
+        self.assertEqual(2, len(breadcrumb[3]))
+        self.assertEqual('/exercise/submission/3/', breadcrumb[3][1])
+
+    def test_submission_upload_dir(self):
+        self.assertEqual("submissions/course_instance_1/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(self.submitted_file1, "test_file_name"))
+        self.assertEqual("submissions/course_instance_1/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(self.submitted_file2, "test_file_name"))

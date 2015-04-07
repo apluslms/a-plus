@@ -28,17 +28,12 @@ class Submission(models.Model):
     # Relations
     exercise                = models.ForeignKey(exercise_models.BaseExercise, related_name="submissions")
     submitters              = models.ManyToManyField(UserProfile, related_name="submissions")
-    grader                  = models.ForeignKey(UserProfile, 
-                                                related_name="graded_submissions", 
-                                                blank=True, 
-                                                null=True)
+    grader                  = models.ForeignKey(UserProfile, related_name="graded_submissions", blank=True, null=True)
 
     # Grading specific
     feedback                = models.TextField(blank=True)
     assistant_feedback      = models.TextField(blank=True)
-    status                  = models.CharField(max_length=32, 
-                                               default=_status_choices[0][0], 
-                                               choices=_status_choices)
+    status                  = models.CharField(max_length=32, default=_status_choices[0][0], choices=_status_choices)
     grade                   = models.IntegerField(default=0)
     grading_time            = models.DateTimeField(blank=True, null=True)
 
@@ -64,8 +59,8 @@ class Submission(models.Model):
 
         @param user_profiles: an iterable with UserProfile objects
         """
-        for u_p in user_profiles:
-            self.add_submitter(u_p)
+        for user_profile in user_profiles:
+            self.add_submitter(user_profile)
 
     def add_files(self, files):
         """ 
@@ -139,8 +134,7 @@ class Submission(models.Model):
 
         # Scale the given points to the maximum points for the exercise
         if max_points > 0:
-            adjusted_grade = (1.0 * self.exercise.max_points
-                              * points / max_points)
+            adjusted_grade = (1.0 * self.exercise.max_points * points / max_points)
         else:
             adjusted_grade = 0.0
 
@@ -148,8 +142,7 @@ class Submission(models.Model):
         # with late submission penalty. No less than 0 points are given. This
         # is not done if no_penalties is True.
         if not no_penalties and self.is_submitted_late():
-            adjusted_grade -= (adjusted_grade
-                               * self.exercise.get_late_submission_penalty())
+            adjusted_grade -= (adjusted_grade * self.exercise.get_late_submission_penalty())
 
         self.grade = round(adjusted_grade)
 
@@ -162,10 +155,7 @@ class Submission(models.Model):
             # The submission is not saved and the submission_time field is not
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
-
-        return self.exercise.course_module.is_expired() and \
-               not self.exercise.is_open_for(students=self.submitters.all(),
-                                             when=self.submission_time)
+        return self.exercise.course_module.is_expired(when=self.submission_time) and not self.exercise.is_open_for(students=self.submitters.all(), when=self.submission_time)
                  
 
     def set_grading_data(self, grading_dict):
@@ -185,8 +175,7 @@ class Submission(models.Model):
                 student_id_str = " (%s)" % profile.student_id
             else:
                 student_id_str = ""
-            submitter_strs.append(profile.user.get_full_name()
-                                  + student_id_str)
+            submitter_strs.append(profile.user.get_full_name() + student_id_str)
 
         return ", ".join(submitter_strs)
 
@@ -195,6 +184,7 @@ class Submission(models.Model):
 
     # Status methods. The status indicates whether this submission is just
     # created, waiting for grading, ready or erroneous.
+    # TODO: REFACTOR - _set_status allow faulty status values
     def _set_status(self, new_status):
         self.status = new_status
 
@@ -217,14 +207,12 @@ class Submission(models.Model):
         return reverse("exercise.views.view_submission", kwargs={"submission_id": self.id})
 
     def get_callback_url(self):
+        # TODO: REFACTOR - variable identifier is never used? Should it be used instead of self.id as submission_id?
         identifier = "s.%d.%d.%s" % (self.id, self.exercise.id, self.hash)
-        return reverse("exercise.async_views.grade_async_submission", 
-                       kwargs={"submission_id": self.id,
-                               "hash": self.hash})
+        return reverse("exercise.async_views.grade_async_submission", kwargs={"submission_id": self.id, "hash": self.hash})
 
     def get_staff_url(self):
-        return reverse("exercise.staff_views.inspect_exercise_submission",
-            kwargs={"submission_id": self.id})
+        return reverse("exercise.staff_views.inspect_exercise_submission", kwargs={"submission_id": self.id})
 
     def submit_to_service(self, files=None):
         # Get the exercise as an instance of its real leaf class
@@ -246,7 +234,7 @@ class Submission(models.Model):
         app_label       = 'exercise'
         ordering        = ['-submission_time']
 
-
+# TODO: REFACTOR - If this only accepts SubmittedFile objects it should be a method of that class instead (with one parameter less)
 def build_upload_dir(instance, filename):
     """ 
     Returns the path to a directory where the file should be saved. 
@@ -264,12 +252,7 @@ def build_upload_dir(instance, filename):
     # Collect submitter ids in a list of strings
     submitter_ids   = [str(profile.id) for profile in instance.submission.submitters.all()]
 
-    return "submissions/course_instance_%d/exercise_%d/users_%s/submission_%d/%s" % \
-        (course_instance.id,
-         exercise.id,
-         "-".join(submitter_ids), # Join submitter ids using dash as a separator
-         instance.submission.id,
-         filename)
+    return "submissions/course_instance_%d/exercise_%d/users_%s/submission_%d/%s" % (course_instance.id, exercise.id, "-".join(submitter_ids), instance.submission.id, filename)
 
 
 class SubmittedFile(models.Model):

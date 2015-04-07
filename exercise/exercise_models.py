@@ -634,7 +634,7 @@ class StaticExercise(BaseExercise):
         return page
 
 
-# TODO: REFACTOR - If this only accepts ExerciseWithAttachment objects it should be a method of that class instead (with one less parameters)
+# TODO: REFACTOR - If this only accepts ExerciseWithAttachment objects it should be a method of that class instead (with one parameter less)
 def build_upload_dir(instance, filename):
     """ 
     Returns the path where the attachement should be saved.    
