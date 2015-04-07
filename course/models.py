@@ -36,9 +36,7 @@ class Course(models.Model):
                        help_text="Input an identifier for this course's URL.")
     
     # Relations
-    teachers    = models.ManyToManyField(UserProfile,
-                                            related_name=u"teaching_courses",
-                                            blank=True)
+    teachers    = models.ManyToManyField(UserProfile, related_name=u"teaching_courses", blank=True)
     
     def get_absolute_url(self):
         '''

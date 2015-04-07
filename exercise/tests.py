@@ -22,15 +22,16 @@ class ExerciseTest(TestCase):
         self.grader.set_password("graderPassword")
         self.grader.save()
 
-        self.staff_member = User(username="staff", is_staff=True)
-        self.staff_member.set_password("staffPassword")
-        self.staff_member.save()
+        self.teacher = User(username="staff", is_staff=True)
+        self.teacher.set_password("staffPassword")
+        self.teacher.save()
 
         self.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
+        self.course.teachers.add(self.teacher.get_profile())
 
         self.today = datetime.now()
         self.yesterday = self.today - timedelta(days=1)
@@ -66,6 +67,14 @@ class ExerciseTest(TestCase):
             late_submission_penalty=0.2
         )
 
+        self.old_course_module = CourseModule.objects.create(
+            name="test module",
+            points_to_pass=15,
+            course_instance=self.course_instance,
+            opening_time=self.yesterday,
+            closing_time=self.today
+        )
+
         self.learning_object_category = LearningObjectCategory.objects.create(
             name="test category",
             course_instance=self.course_instance,
@@ -78,17 +87,52 @@ class ExerciseTest(TestCase):
         )
         self.hidden_learning_object_category.hidden_to.add(self.user.get_profile())
 
-        self.base_exercise = BaseExercise.objects.create(
-            name="test exercise",
+        self.learning_object = LearningObject.objects.create(
+            name="test learning object",
             course_module=self.course_module,
             category=self.learning_object_category
         )
 
-        self.base_exercise2 = BaseExercise.objects.create(
+        self.broken_learning_object = LearningObject.objects.create(
+            name="test learning object",
+            course_module=self.course_module_with_late_submissions_allowed,
+            category=self.learning_object_category
+        )
+
+        self.base_exercise = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            max_submissions=1
+        )
+
+        self.static_exercise = StaticExercise.objects.create(
             name="test exercise 2",
             course_module=self.course_module,
             category=self.learning_object_category,
-            max_points=50
+            max_points=50,
+            points_to_pass=50,
+            service_url="/testServiceURL",
+            exercise_page_content="test_page_content",
+            submission_page_content="test_submission_content"
+        )
+
+        self.exercise_with_attachment = ExerciseWithAttachment.objects.create(
+            name="test exercise 3",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            max_points=50,
+            points_to_pass=50,
+            max_submissions=0,
+            files_to_submit="test1.txt|test2.txt|img.png",
+            instructions="test_instructions"
+        )
+
+        self.old_base_exercise = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=self.old_course_module,
+            category=self.learning_object_category,
+            max_submissions=1
         )
 
         self.base_exercise_with_late_submission_allowed = BaseExercise.objects.create(
@@ -135,21 +179,28 @@ class ExerciseTest(TestCase):
             course_instance=self.course_instance
         )
 
+        self.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(
+            exercise=self.exercise_with_attachment,
+            submitter=self.user.get_profile(),
+            extra_minutes=1440  # One day
+        )
+
     def test_course_module_exercises_list(self):
         exercises = self.course_module.get_exercises()
         exercises_with_late_submission_allowed = self.course_module_with_late_submissions_allowed.get_exercises()
-        self.assertEquals(2, len(exercises))
+        self.assertEquals(3, len(exercises))
         self.assertEquals("test exercise", exercises[0].name)
         self.assertEquals("test exercise 2", exercises[1].name)
+        self.assertEquals("test exercise 3", exercises[2].name)
         self.assertEquals(1, len(exercises_with_late_submission_allowed))
         self.assertEquals("test exercise with late submissions allowed", exercises_with_late_submission_allowed[0].name)
 
     def test_course_module_maximum_points(self):
-        self.assertEquals(150, self.course_module.get_maximum_points())
+        self.assertEquals(200, self.course_module.get_maximum_points())
         self.assertEquals(100, self.course_module_with_late_submissions_allowed.get_maximum_points())
 
     def test_course_module_required_percentage(self):
-        self.assertEquals(10, self.course_module.get_required_percentage())
+        self.assertEquals(8, self.course_module.get_required_percentage())
         self.assertEquals(50, self.course_module_with_late_submissions_allowed.get_required_percentage())
 
     def test_course_module_late_submission_point_worth(self):
@@ -192,15 +243,15 @@ class ExerciseTest(TestCase):
         self.assertEqual("hidden category -- 123456: Fall 2011 day 1", str(self.hidden_learning_object_category))
 
     def test_learning_object_category_exercises(self):
-        self.assertEquals(3, len(self.learning_object_category.get_exercises()))
+        self.assertEquals(5, len(self.learning_object_category.get_exercises()))
         self.assertEquals(0, len(self.hidden_learning_object_category.get_exercises()))
 
     def test_learning_object_category_max_points(self):
-        self.assertEquals(250, self.learning_object_category.get_maximum_points())
+        self.assertEquals(400, self.learning_object_category.get_maximum_points())
         self.assertEquals(0, self.hidden_learning_object_category.get_maximum_points())
 
     def test_learning_object_category_required_percentage(self):
-        self.assertEquals(2, self.learning_object_category.get_required_percentage())
+        self.assertEquals(1, self.learning_object_category.get_required_percentage())
         self.assertEquals(0, self.hidden_learning_object_category.get_required_percentage())
 
     def test_learning_object_category_hiding(self):
@@ -220,3 +271,199 @@ class ExerciseTest(TestCase):
 
         self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.user.get_profile()))
         self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.grader.get_profile()))
+
+    def test_learning_object_clean(self):
+        try:
+            self.learning_object.clean()
+        except ValidationError:
+            self.fail()
+        self.assertRaises(ValidationError, self.broken_learning_object.clean())
+
+    def test_learning_object_absolute_url(self):
+        self.assertEqual("", self.learning_object.get_absolute_url())
+        self.assertEqual("", self.broken_learning_object.get_absolute_url())
+
+    def test_learning_object_course_instance(self):
+        self.assertEqual(self.course_instance, self.learning_object.get_course_instance())
+        self.assertEqual(self.course_instance, self.broken_learning_object.get_course_instance())
+
+    def test_base_exercise_course_instance_max_points(self):
+        self.assertEqual(400, self.base_exercise.get_course_instance_max_points(self.base_exercise.course_module.course_instance))
+
+    def test_base_exercise_average_percentage(self):
+        self.assertEqual(0, self.base_exercise.get_average_percentage())
+        self.base_exercise.summary["average_grade"] = 50
+        self.assertEqual(50, self.base_exercise.get_average_percentage())
+        self.base_exercise.summary["average_grade"] = 0
+        self.assertEqual(0, self.base_exercise.get_average_percentage())
+
+    def test_base_exercise_deadline(self):
+        self.assertEqual(self.tomorrow, self.base_exercise.get_deadline())
+        self.assertEqual(self.tomorrow, self.base_exercise_with_late_submission_allowed.get_deadline())
+
+    def test_base_exercise_percentage_to_pass(self):
+        self.assertEqual(40, self.base_exercise.get_percentage_to_pass())
+        self.assertEqual(100, self.static_exercise.get_percentage_to_pass())
+        self.assertEqual(100, self.exercise_with_attachment.get_percentage_to_pass())
+
+    def test_base_exercise_have_submissions_left(self):
+        self.assertFalse(self.base_exercise.have_submissions_left([self.user]))
+        self.assertTrue(self.static_exercise.have_submissions_left([self.user]))
+        self.assertTrue(self.exercise_with_attachment.have_submissions_left([self.user]))
+
+    def test_base_exercise_max_submissions(self):
+        self.assertEqual(1, self.base_exercise.max_submissions_for(self.user))
+        self.assertEqual(10, self.static_exercise.max_submissions_for(self.user))
+        self.assertEqual(0, self.exercise_with_attachment.max_submissions_for(self.user))
+
+    def test_base_exercise_submissions_left(self):
+        self.assertEqual(-1, self.base_exercise.submissions_left(self.user))
+        self.assertEqual(10, self.static_exercise.submissions_left(self.user))
+        self.assertEqual(None, self.exercise_with_attachment.submissions_left(self.user))
+
+    def test_base_exercise_is_open(self):
+        self.assertTrue(self.base_exercise.is_open())
+        self.assertTrue(self.static_exercise.is_open())
+        self.assertTrue(self.exercise_with_attachment.is_open())
+        self.assertFalse(self.old_base_exercise.is_open())
+        self.assertFalse(self.base_exercise.is_open(self.yesterday))
+        self.assertFalse(self.static_exercise.is_open(self.yesterday))
+        self.assertFalse(self.exercise_with_attachment.is_open(self.yesterday))
+        self.assertTrue(self.old_base_exercise.is_open(self.yesterday))
+        self.assertTrue(self.base_exercise.is_open(self.tomorrow))
+        self.assertTrue(self.static_exercise.is_open(self.tomorrow))
+        self.assertTrue(self.exercise_with_attachment.is_open(self.tomorrow))
+        self.assertFalse(self.old_base_exercise.is_open(self.tomorrow))
+
+    def test_base_exercise_is_open_for(self):
+        self.assertTrue(self.base_exercise.is_open_for([self.user.get_profile()]))
+        self.assertTrue(self.static_exercise.is_open_for([self.user.get_profile()]))
+        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.get_profile()]))
+        self.assertFalse(self.old_base_exercise.is_open_for([self.user.get_profile()]))
+        self.assertFalse(self.base_exercise.is_open_for([self.user.get_profile()], self.yesterday))
+        self.assertFalse(self.static_exercise.is_open_for([self.user.get_profile()], self.yesterday))
+        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.get_profile()], self.yesterday))
+        self.assertTrue(self.old_base_exercise.is_open_for([self.user.get_profile()], self.yesterday))
+        self.assertTrue(self.base_exercise.is_open_for([self.user.get_profile()], self.tomorrow))
+        self.assertTrue(self.static_exercise.is_open_for([self.user.get_profile()], self.tomorrow))
+        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.get_profile()], self.tomorrow))
+        self.assertFalse(self.old_base_exercise.is_open_for([self.user.get_profile()], self.tomorrow))
+
+    def test_base_exercise_submission_allowed(self):
+        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.get_profile()])[0])
+        self.assertTrue(self.static_exercise.is_submission_allowed([self.user.get_profile()])[0])
+        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.user.get_profile()])[0])
+        self.assertTrue(self.old_base_exercise.is_submission_allowed([self.user.get_profile()])[0])
+        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
+        self.assertFalse(self.static_exercise.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
+        self.assertFalse(self.exercise_with_attachment.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
+        self.assertFalse(self.old_base_exercise.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
+        self.assertTrue(self.base_exercise.is_submission_allowed([self.grader.get_profile()])[0])
+        self.assertTrue(self.static_exercise.is_submission_allowed([self.grader.get_profile()])[0])
+        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.grader.get_profile()])[0])
+        self.assertTrue(self.old_base_exercise.is_submission_allowed([self.grader.get_profile()])[0])
+
+    def test_base_exercise_late_submission_allowed(self):
+        self.assertFalse(self.base_exercise.is_late_submission_allowed())
+        self.assertTrue(self.base_exercise_with_late_submission_allowed.is_late_submission_allowed())
+
+    def test_base_exercise_late_submission_penalty(self):
+        self.assertEqual(0.5, self.base_exercise.get_late_submission_penalty())
+        self.assertEqual(0.2, self.base_exercise_with_late_submission_allowed.get_late_submission_penalty())
+
+    def test_base_exercise_service_url(self):
+        self.assertEqual("?submission_url=http%3A%2F%2Flocalhost%3A8000%2FtestSubmissionURL&max_points=100", self.base_exercise.build_service_url("/testSubmissionURL"))
+        self.assertEqual("/testServiceURL?submission_url=http%3A%2F%2Flocalhost%3A8000%2FtestSubmissionURL&max_points=50", self.static_exercise.build_service_url("/testSubmissionURL"))
+
+    def test_base_exercise_submissions_for_student(self):
+        submissions = self.base_exercise.get_submissions_for_student(self.user.get_profile())
+        self.assertEqual(2, len(submissions))
+        submissions = self.static_exercise.get_submissions_for_student(self.user.get_profile())
+        self.assertEqual(0, len(submissions))
+
+    def test_base_exercise_unicode_string(self):
+        self.assertEqual("test exercise", str(self.base_exercise))
+        self.assertEqual("test exercise 2", str(self.static_exercise))
+        self.assertEqual("test exercise 3", str(self.exercise_with_attachment))
+
+    def test_base_exercise_absolute_url(self):
+        self.assertEqual("/exercise/3/", self.base_exercise.get_absolute_url())
+        self.assertEqual("/exercise/4/", self.static_exercise.get_absolute_url())
+        self.assertEqual("/exercise/5/", self.exercise_with_attachment.get_absolute_url())
+
+    def test_base_exercise_submission_parameters_for_students(self):
+        parameters = self.base_exercise.get_submission_parameters_for_students([self.user.get_profile()])
+        self.assertEqual("1", parameters[0])
+        self.assertEqual("4bdcd7674311971e4886a8cb90a0d9d399a0b4f8c0ed32335fb520ed23945cfb", parameters[1])
+        parameters = self.base_exercise.get_submission_parameters_for_students([self.user.get_profile(), self.grader.get_profile()])
+        self.assertEqual("1-2", parameters[0])
+        self.assertEqual("feea43b6ce4c5bd53d4b063637144c449a0d9bd0bf773b901719390d68712304", parameters[1])
+
+    def test_base_exercise_submission_url_for_students(self):
+        self.assertEqual(('1', '4bdcd7674311971e4886a8cb90a0d9d399a0b4f8c0ed32335fb520ed23945cfb'), self.base_exercise.get_submission_parameters_for_students([self.user.get_profile()]))
+        self.assertEqual(('1-2', 'feea43b6ce4c5bd53d4b063637144c449a0d9bd0bf773b901719390d68712304'),
+                         self.base_exercise.get_submission_parameters_for_students([self.user.get_profile(), self.grader.get_profile()]))
+
+    def test_base_exercise_summary(self):
+        summary = self.base_exercise.summary
+        self.assertEqual(2, summary["submission_count"])
+        self.assertEqual(1, summary["submitter_count"])
+        self.assertEqual(0, summary["average_grade"])
+        self.assertEqual(2, summary["average_submissions"])
+
+    def test_base_exercise_get_exercise(self):
+        self.assertIsInstance(self.base_exercise.get_exercise(name='test exercise 2'), BaseExercise)
+        self.assertIsInstance(self.base_exercise.get_exercise(name='test exercise 3'), ExerciseWithAttachment)
+
+    def test_base_exercise_breadcrumb(self):
+        self.assertEqual([('123456 test course', '/course/Course-Url/'), ('Fall 2011 day 1', '/course/Course-Url/T-00.1000_d1/'), ('test exercise', '/exercise/3/')],
+                         self.base_exercise.get_breadcrumb())
+        self.assertEqual([('123456 test course', '/course/Course-Url/'), ('Fall 2011 day 1', '/course/Course-Url/T-00.1000_d1/'), ('test exercise 2', '/exercise/4/')],
+                         self.static_exercise.get_breadcrumb())
+        self.assertEqual([('123456 test course', '/course/Course-Url/'), ('Fall 2011 day 1', '/course/Course-Url/T-00.1000_d1/'), ('test exercise 3', '/exercise/5/')],
+                         self.exercise_with_attachment.get_breadcrumb())
+
+    def test_base_exercise_can_edit(self):
+        self.assertFalse(self.base_exercise.can_edit(self.user.get_profile()))
+        self.assertFalse(self.base_exercise.can_edit(self.grader.get_profile()))
+        self.assertTrue(self.base_exercise.can_edit(self.teacher.get_profile()))
+
+    def test_static_exercise_page(self):
+        static_exercise_page = self.static_exercise.get_page()
+        self.assertIsInstance(static_exercise_page, ExercisePage)
+        self.assertEqual("test_page_content", static_exercise_page.content)
+
+    def test_static_exercise_submit(self):
+        static_exercise_page = self.static_exercise.submit("Fake submission")
+        self.assertIsInstance(static_exercise_page, ExercisePage)
+        self.assertTrue(static_exercise_page.is_accepted)
+        self.assertEqual("test_submission_content", static_exercise_page.content)
+
+    def test_exercise_upload_dir(self):
+        self.assertEqual("exercise_attachments/exercise_5/test_file_name", exercise_models.build_upload_dir(self.exercise_with_attachment, "test_file_name"))
+
+    def test_exercise_with_attachment_files_to_submit(self):
+        files = self.exercise_with_attachment.get_files_to_submit()
+        self.assertEqual(3, len(files))
+        self.assertEqual("test1.txt", files[0])
+        self.assertEqual("test2.txt", files[1])
+        self.assertEqual("img.png", files[2])
+
+    def test_exercise_with_attachment_page(self):
+        exercise_with_attachment_page = self.exercise_with_attachment.get_page()
+        self.assertIsInstance(exercise_with_attachment_page, ExercisePage)
+        self.assertEqual('test_instructions\n<form enctype="multipart/form-data" method="post" class="form-stacked">\n  <fieldset>\n    <legend>Submit</legend>\n    \n    <div class=\'clearfix\'>\n  '
+                         + '    <label>test1.txt</label>\n      <input type="hidden" name="file_1" value="test1.txt" />\n      <div class=\'input\'><input name=\'file[]\' type=\'file\' /></div>\n    '
+                         + '</div>\n    \n    <div class=\'clearfix\'>\n      <label>test2.txt</label>\n      <input type="hidden" name="file_2" value="test2.txt" />\n      <div class=\'input\'><inpu'
+                         + 't name=\'file[]\' type=\'file\' /></div>\n    </div>\n    \n    <div class=\'clearfix\'>\n      <label>img.png</label>\n      <input type="hidden" name="file_3" value="img'
+                         + '.png" />\n      <div class=\'input\'><input name=\'file[]\' type=\'file\' /></div>\n    </div>\n    \n  </fieldset>\n  <div class="actions">\n    <input type="submit" valu'
+                         + 'e="Submit" class="btn primary" />\n  </div>\n</form>\n', exercise_with_attachment_page.content)
+
+    def test_deadline_rule_deviation_extra_time(self):
+        self.assertEqual(timedelta(days=1), self.deadline_rule_deviation.get_extra_time())
+
+    def test_deadline_rule_deviation_new_deadline(self):
+        self.assertEqual(self.two_days_from_now, self.deadline_rule_deviation.get_new_deadline())
+
+    def test_deadline_rule_deviation_normal_deadline(self):
+        self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_normal_deadline())
