@@ -25,7 +25,7 @@ SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': get_path('aplus.db'),            # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
@@ -201,19 +201,13 @@ SHIB_EMAIL = "email"
 SHIB_FIRST_NAME = "first_name"
 SHIB_LAST_NAME = "last_name"
 
-# Skip migrations when running unit tests
-class DisableMigrations(object):
-    def __contains__(self, item):
-        return True
-    def __getitem__(self, item):
-        return "notmigrations"
 
-TESTS_IN_PROGRESS = False
 if 'test' in sys.argv[1:]:
+    # TODO: Is it OK that USE_TZ is only True when running tests
+    USE_TZ = True
     DEBUG = False
     TEMPLATE_DEBUG = False
-    TESTS_IN_PROGRESS = True
-    MIGRATION_MODULES = DisableMigrations()
+
 
 # Unit test XML-reporting
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"

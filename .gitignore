@@ -25,3 +25,5 @@ media
 *.orig
 
 course/fixtures/
+xmlrunner/
+test_results/
