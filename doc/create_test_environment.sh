@@ -4,9 +4,9 @@
 
 cd ..
 
-python venv_bootstrap.py ../aplusenv              # create the virtualenv
+python3 venv_bootstrap.py ../aplusenv              # create the virtualenv
 
-../aplusenv/bin/python manage.py syncdb --noinput # create the sqlite database
+../aplusenv/bin/python manage.py syncdb --noinput # create the sqlite database TODO:syncdb is deprecated
 ../aplusenv/bin/python manage.py migrate course   # first do migrations to the course...
 ../aplusenv/bin/python manage.py migrate          # ...then for the rest
 mkdir course/fixtures
