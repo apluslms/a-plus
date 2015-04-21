@@ -25,7 +25,6 @@ class NotificationTest(TestCase):
 
         self.today = datetime.now()
         self.tomorrow = self.today + timedelta(days=1)
-        self.two_days_from_now = self.tomorrow + timedelta(days=1)
 
         self.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011",
