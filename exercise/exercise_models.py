@@ -124,7 +124,8 @@ class LearningObjectCategory(models.Model):
         UserProfile,
         related_name="hidden_categories",
         blank=True,
-        null=True)
+        null=True
+    )
 
     class Meta:
         unique_together = ("name", "course_instance")

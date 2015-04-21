@@ -1,6 +1,5 @@
 # Django
 from django.test import TestCase
-from django.test.client import Client
 from django.utils.datastructures import MultiValueDict
 
 # Aalto+
@@ -13,8 +12,6 @@ from datetime import datetime, timedelta
 
 class ExerciseTest(TestCase):
     def setUp(self):
-        self.client = Client()
-
         self.user = User(username="testUser", first_name="First", last_name="Last")
         self.user.set_password("testPassword")
         self.user.save()
