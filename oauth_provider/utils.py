@@ -1,10 +1,10 @@
-import oauth2 as oauth
-from urlparse import urlparse
+from requests_oauthlib import OAuth2Session as oauth
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 
-from consts import MAX_URL_LENGTH
+from .consts import MAX_URL_LENGTH
 
 OAUTH_REALM_KEY_NAME = getattr(settings, 'OAUTH_REALM_KEY_NAME', '')
 OAUTH_SIGNATURE_METHODS = getattr(settings, 'OAUTH_SIGNATURE_METHODS', ['plaintext', 'hmac-sha1'])
@@ -29,7 +29,7 @@ def initialize_server_request(request):
     if request.method == "POST" and \
         (request.META.get('CONTENT_TYPE') == "application/x-www-form-urlencoded" \
             or request.META.get('SERVER_NAME') == 'testserver'):
-        parameters = dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.iteritems())
+        parameters = dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items())
 
     oauth_request = oauth.Request.from_request(request.method, 
                                               request.build_absolute_uri(request.path), 
@@ -53,7 +53,7 @@ def send_oauth_error(err=None):
     response.status_code = 401
     # return the authenticate header
     header = oauth.build_authenticate_header(realm=OAUTH_REALM_KEY_NAME)
-    for k, v in header.iteritems():
+    for k, v in header.items():
         response[k] = v
     return response
 
@@ -65,11 +65,11 @@ def get_oauth_request(request):
     return oauth.Request.from_request(request.method, 
                                       request.build_absolute_uri(request.path), 
                                       headers, 
-                                      dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.iteritems()))
+                                      dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items()))
 
 def verify_oauth_request(request, oauth_request, consumer, token=None):
     """ Helper function to verify requests. """
-    from store import store
+    from .store import store
 
     # Check nonce
     if not store.check_nonce(request, oauth_request, oauth_request['oauth_nonce']):
@@ -87,7 +87,7 @@ def verify_oauth_request(request, oauth_request, consumer, token=None):
             token = oauth.Token(token.key.encode('ascii', 'ignore'), token.secret.encode('ascii', 'ignore'))
 
         oauth_server.verify_request(oauth_request, consumer, token)
-    except oauth.Error, err:
+    except oauth.Error as err:
         return False
 
     return True

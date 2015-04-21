@@ -1,10 +1,10 @@
 import datetime
 import json as simplejson
-from StringIO import StringIO
+from io import StringIO
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers import json
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from tastypie.bundle import Bundle
 from tastypie.exceptions import UnsupportedFormat
 from tastypie.utils import format_datetime, format_date, format_time, make_naive
@@ -41,7 +41,7 @@ if yaml is not None:
             except UnicodeEncodeError:
                 return value
 
-    TastypieConstructor.add_constructor(u'tag:yaml.org,2002:python/unicode', TastypieConstructor.construct_yaml_unicode_dammit)
+    TastypieConstructor.add_constructor('tag:yaml.org,2002:python/unicode', TastypieConstructor.construct_yaml_unicode_dammit)
 
     class TastypieLoader(Reader, Scanner, Parser, Composer, TastypieConstructor, Resolver):
         def __init__(self, stream):
@@ -161,7 +161,7 @@ class Serializer(object):
         """
         desired_format = None
 
-        for short_format, long_format in self.content_types.items():
+        for short_format, long_format in list(self.content_types.items()):
             if format == long_format:
                 if hasattr(self, "to_%s" % short_format):
                     desired_format = short_format
@@ -182,7 +182,7 @@ class Serializer(object):
 
         format = format.split(';')[0]
 
-        for short_format, long_format in self.content_types.items():
+        for short_format, long_format in list(self.content_types.items()):
             if format == long_format:
                 if hasattr(self, "from_%s" % short_format):
                     desired_format = short_format
@@ -205,9 +205,9 @@ class Serializer(object):
         if isinstance(data, (list, tuple)):
             return [self.to_simple(item, options) for item in data]
         if isinstance(data, dict):
-            return dict((key, self.to_simple(val, options)) for (key, val) in data.iteritems())
+            return dict((key, self.to_simple(val, options)) for (key, val) in data.items())
         elif isinstance(data, Bundle):
-            return dict((key, self.to_simple(val, options)) for (key, val) in data.data.iteritems())
+            return dict((key, self.to_simple(val, options)) for (key, val) in data.data.items())
         elif hasattr(data, 'dehydrated_type'):
             if getattr(data, 'dehydrated_type', None) == 'related' and data.is_m2m == False:
                 if data.full:
@@ -229,12 +229,12 @@ class Serializer(object):
             return self.format_time(data)
         elif isinstance(data, bool):
             return data
-        elif type(data) in (long, int, float):
+        elif type(data) in (int, int, float):
             return data
         elif data is None:
             return None
         else:
-            return force_unicode(data)
+            return force_text(data)
 
     def to_etree(self, data, options=None, name=None, depth=0):
         """
@@ -256,11 +256,11 @@ class Serializer(object):
             else:
                 element = Element(name or 'object')
                 element.set('type', 'hash')
-            for (key, value) in data.iteritems():
+            for (key, value) in data.items():
                 element.append(self.to_etree(value, options, name=key, depth=depth+1))
         elif isinstance(data, Bundle):
             element = Element(name or 'object')
-            for field_name, field_object in data.data.items():
+            for field_name, field_object in list(data.data.items()):
                 element.append(self.to_etree(field_object, options, name=field_name, depth=depth+1))
         elif hasattr(data, 'dehydrated_type'):
             if getattr(data, 'dehydrated_type', None) == 'related' and data.is_m2m == False:
@@ -288,10 +288,10 @@ class Serializer(object):
                 element.set('type', get_type_string(simple_data))
 
             if data_type != 'null':
-                if isinstance(simple_data, unicode):
+                if isinstance(simple_data, str):
                     element.text = simple_data
                 else:
-                    element.text = force_unicode(simple_data)
+                    element.text = force_text(simple_data)
 
         return element
 
@@ -438,7 +438,7 @@ def get_type_string(data):
     """
     data_type = type(data)
 
-    if data_type in (int, long):
+    if data_type in (int, int):
         return 'integer'
     elif data_type == float:
         return 'float'
@@ -450,5 +450,5 @@ def get_type_string(data):
         return 'hash'
     elif data is None:
         return 'null'
-    elif isinstance(data, basestring):
+    elif isinstance(data, str):
         return 'string'

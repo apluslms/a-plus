@@ -1,7 +1,7 @@
 from xml.dom.pulldom import START_ELEMENT, END_ELEMENT, \
     COMMENT, IGNORABLE_WHITESPACE, CHARACTERS
 
-import _base
+from . import _base
 
 from html5lib.constants import voidElements
 
@@ -33,11 +33,11 @@ class TreeWalker(_base.TreeWalker):
             if name in voidElements:
                 for token in self.emptyTag(namespace,
                                            name,
-                                           node.attributes.items(), 
+                                           list(node.attributes.items()), 
                                            not next or next[1] is not node):
                     yield token
             else:
-                yield self.startTag(namespace, name, node.attributes.items())
+                yield self.startTag(namespace, name, list(node.attributes.items()))
 
         elif type == END_ELEMENT:
             name = node.nodeName

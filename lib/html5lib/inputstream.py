@@ -3,8 +3,8 @@ import re
 import types
 import sys
 
-from constants import EOF, spaceCharacters, asciiLetters, asciiUppercase
-from constants import encodings, ReparseException
+from .constants import EOF, spaceCharacters, asciiLetters, asciiUppercase
+from .constants import encodings, ReparseException
 
 #Non-unicode versions of constants for use in the pre-parser
 spaceCharactersBytes = frozenset([str(item) for item in spaceCharacters])
@@ -12,7 +12,7 @@ asciiLettersBytes = frozenset([str(item) for item in asciiLetters])
 asciiUppercaseBytes = frozenset([str(item) for item in asciiUppercase])
 spacesAngleBrackets = spaceCharactersBytes | frozenset([">", "<"])
 
-invalid_unicode_re = re.compile(u"[\u0001-\u0008\u000B\u000E-\u001F\u007F-\u009F\uD800-\uDFFF\uFDD0-\uFDEF\uFFFE\uFFFF\U0001FFFE\U0001FFFF\U0002FFFE\U0002FFFF\U0003FFFE\U0003FFFF\U0004FFFE\U0004FFFF\U0005FFFE\U0005FFFF\U0006FFFE\U0006FFFF\U0007FFFE\U0007FFFF\U0008FFFE\U0008FFFF\U0009FFFE\U0009FFFF\U000AFFFE\U000AFFFF\U000BFFFE\U000BFFFF\U000CFFFE\U000CFFFF\U000DFFFE\U000DFFFF\U000EFFFE\U000EFFFF\U000FFFFE\U000FFFFF\U0010FFFE\U0010FFFF]")
+invalid_unicode_re = re.compile("[\u0001-\u0008\u000B\u000E-\u001F\u007F-\u009F\uD800-\uDFFF\uFDD0-\uFDEF\uFFFE\uFFFF\U0001FFFE\U0001FFFF\U0002FFFE\U0002FFFF\U0003FFFE\U0003FFFF\U0004FFFE\U0004FFFF\U0005FFFE\U0005FFFF\U0006FFFE\U0006FFFF\U0007FFFE\U0007FFFF\U0008FFFE\U0008FFFF\U0009FFFE\U0009FFFF\U000AFFFE\U000AFFFF\U000BFFFE\U000BFFFF\U000CFFFE\U000CFFFF\U000DFFFE\U000DFFFF\U000EFFFE\U000EFFFF\U000FFFFE\U000FFFFF\U0010FFFE\U0010FFFF]")
 
 non_bmp_invalid_codepoints = set([0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF, 0x3FFFE,
                                   0x3FFFF, 0x4FFFE, 0x4FFFF, 0x5FFFE, 0x5FFFF,
@@ -22,7 +22,7 @@ non_bmp_invalid_codepoints = set([0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF, 0x3FFFE,
                                   0xDFFFF, 0xEFFFE, 0xEFFFF, 0xFFFFE, 0xFFFFF,
                                   0x10FFFE, 0x10FFFF])
 
-ascii_punctuation_re = re.compile(ur"[\u0009-\u000D\u0020-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u007E]")
+ascii_punctuation_re = re.compile(r"[\u0009-\u000D\u0020-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u007E]")
 
 # Cache for charsUntil()
 charsUntilRegEx = {}
@@ -131,7 +131,7 @@ class HTMLInputStream:
         """
 
         #Craziness
-        if len(u"\U0010FFFF") == 1:
+        if len("\U0010FFFF") == 1:
             self.reportCharacterErrors = self.characterErrorsUCS4
         else:
             self.reportCharacterErrors = self.characterErrorsUCS2
@@ -165,7 +165,7 @@ class HTMLInputStream:
         self.dataStream = codecs.getreader(self.charEncoding[0])(self.rawStream,
                                                                  'replace')
 
-        self.chunk = u""
+        self.chunk = ""
         self.chunkSize = 0
         self.chunkOffset = 0
         self.errors = []
@@ -189,11 +189,11 @@ class HTMLInputStream:
             stream = source
         else:
             # Otherwise treat source as a string and convert to a file object
-            if isinstance(source, unicode):
+            if isinstance(source, str):
                 source = source.encode('utf-8')
                 self.charEncoding = ("utf-8", "certain")
-            import cStringIO
-            stream = cStringIO.StringIO(str(source))
+            import io
+            stream = io.StringIO(str(source))
 
         if (not(hasattr(stream, "tell") and hasattr(stream, "seek")) or
             stream is sys.stdin):
@@ -254,7 +254,7 @@ class HTMLInputStream:
             self.rawStream.seek(0)
             self.reset()
             self.charEncoding = (newEncoding, "certain")
-            raise ReparseException, "Encoding changed from %s to %s"%(self.charEncoding[0], newEncoding)
+            raise ReparseException("Encoding changed from %s to %s"%(self.charEncoding[0], newEncoding))
             
     def detectBOM(self):
         """Attempts to detect at BOM at the start of the stream. If
@@ -301,9 +301,9 @@ class HTMLInputStream:
 
     def _position(self, offset):
         chunk = self.chunk
-        nLines = chunk.count(u'\n', 0, offset)
+        nLines = chunk.count('\n', 0, offset)
         positionLine = self.prevNumLines + nLines
-        lastLinePos = chunk.rfind(u'\n', 0, offset)
+        lastLinePos = chunk.rfind('\n', 0, offset)
         if lastLinePos == -1:
             positionColumn = self.prevNumCols + offset
         else:
@@ -336,7 +336,7 @@ class HTMLInputStream:
 
         self.prevNumLines, self.prevNumCols = self._position(self.chunkSize)
 
-        self.chunk = u""
+        self.chunk = ""
         self.chunkSize = 0
         self.chunkOffset = 0
 
@@ -347,16 +347,16 @@ class HTMLInputStream:
         
         self.reportCharacterErrors(data)
 
-        data = data.replace(u"\u0000", u"\ufffd")
+        data = data.replace("\u0000", "\ufffd")
         #Check for CR LF broken across chunks
-        if (self._lastChunkEndsWithCR and data[0] == u"\n"):
+        if (self._lastChunkEndsWithCR and data[0] == "\n"):
             data = data[1:]
             # Stop if the chunk is now empty
             if not data:
                 return False
-        self._lastChunkEndsWithCR = data[-1] == u"\r"
-        data = data.replace(u"\r\n", u"\n")
-        data = data.replace(u"\r", u"\n")
+        self._lastChunkEndsWithCR = data[-1] == "\r"
+        data = data.replace("\r\n", "\n")
+        data = data.replace("\r", "\n")
 
         self.chunk = data
         self.chunkSize = len(data)
@@ -364,15 +364,15 @@ class HTMLInputStream:
         return True
 
     def characterErrorsUCS4(self, data):
-        for i in xrange(data.count(u"\u0000")):
+        for i in range(data.count("\u0000")):
             self.errors.append("null-character")
-        for i in xrange(len(invalid_unicode_re.findall(data))):
+        for i in range(len(invalid_unicode_re.findall(data))):
             self.errors.append("invalid-codepoint")
 
     def characterErrorsUCS2(self, data):
         #Someone picked the wrong compile option
         #You lose
-        for i in xrange(data.count(u"\u0000")):
+        for i in range(data.count("\u0000")):
             self.errors.append("null-character")
         skip = False
         import sys
@@ -416,10 +416,10 @@ class HTMLInputStream:
             if __debug__:
                 for c in characters: 
                     assert(ord(c) < 128)
-            regex = u"".join([u"\\x%02x" % ord(c) for c in characters])
+            regex = "".join(["\\x%02x" % ord(c) for c in characters])
             if not opposite:
-                regex = u"^%s" % regex
-            chars = charsUntilRegEx[(characters, opposite)] = re.compile(u"[%s]+" % regex)
+                regex = "^%s" % regex
+            chars = charsUntilRegEx[(characters, opposite)] = re.compile("[%s]+" % regex)
 
         rv = []
 
@@ -446,7 +446,7 @@ class HTMLInputStream:
                 # Reached EOF
                 break
 
-        r = u"".join(rv)
+        r = "".join(rv)
         return r
 
     def charsUntilEOF(self):
@@ -460,7 +460,7 @@ class HTMLInputStream:
                 # Reached EOF
                 break
 
-        r = u"".join(rv)
+        r = "".join(rv)
         return r
 
     def unget(self, char):
@@ -493,7 +493,7 @@ class EncodingBytes(str):
     def __iter__(self):
         return self
     
-    def next(self):
+    def __next__(self):
         p = self._position = self._position + 1
         if p >= len(self):
             raise StopIteration
@@ -641,7 +641,7 @@ class EncodingParser(object):
         return self.handlePossibleTag(False)
 
     def handlePossibleEndTag(self):
-        self.data.next()
+        next(self.data)
         return self.handlePossibleTag(True)
 
     def handlePossibleTag(self, endTag):
@@ -689,7 +689,7 @@ class EncodingParser(object):
             elif c in spaceCharactersBytes:
                 #Step 6!
                 c = data.skip()
-                c = data.next()
+                c = next(data)
                 break
             elif c in ("/", ">"):
                 return "".join(attrName), ""
@@ -700,13 +700,13 @@ class EncodingParser(object):
             else:
                 attrName.append(c)
             #Step 5
-            c = data.next()
+            c = next(data)
         #Step 7
         if c != "=":
             data.previous()
             return "".join(attrName), ""
         #Step 8
-        data.next()
+        next(data)
         #Step 9
         c = data.skip()
         #Step 10
@@ -715,10 +715,10 @@ class EncodingParser(object):
             quoteChar = c
             while True:
                 #10.2
-                c = data.next()
+                c = next(data)
                 #10.3
                 if c == quoteChar:
-                    data.next()
+                    next(data)
                     return "".join(attrName), "".join(attrValue)
                 #10.4
                 elif c in asciiUppercaseBytes:
@@ -736,7 +736,7 @@ class EncodingParser(object):
             attrValue.append(c)
         # Step 11
         while True:
-            c = data.next()
+            c = next(data)
             if c in spacesAngleBrackets:
                 return "".join(attrName), "".join(attrValue)
             elif c in asciiUppercaseBytes:
@@ -787,7 +787,7 @@ class ContentAttrParser(object):
 def codecName(encoding):
     """Return the python codec name corresponding to an encoding or None if the
     string doesn't correspond to a valid encoding."""
-    if (encoding is not None and type(encoding) in types.StringTypes):
+    if (encoding is not None and type(encoding) in str):
         canonicalName = ascii_punctuation_re.sub("", encoding).lower()
         return encodings.get(canonicalName, None)
     else:

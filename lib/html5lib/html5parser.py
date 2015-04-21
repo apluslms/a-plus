@@ -17,19 +17,19 @@ except:
 
 import sys
 
-import inputstream
-import tokenizer
+from . import inputstream
+from . import tokenizer
 
-import treebuilders
-from treebuilders._base import Marker
-from treebuilders import simpletree
+from . import treebuilders
+from .treebuilders._base import Marker
+from .treebuilders import simpletree
 
-import utils
-from constants import spaceCharacters, asciiUpper2Lower
-from constants import scopingElements, formattingElements, specialElements
-from constants import headingElements, tableInsertModeElements
-from constants import cdataElements, rcdataElements, voidElements
-from constants import tokenTypes, ReparseException, namespaces
+from . import utils
+from .constants import spaceCharacters, asciiUpper2Lower
+from .constants import scopingElements, formattingElements, specialElements
+from .constants import headingElements, tableInsertModeElements
+from .constants import cdataElements, rcdataElements, voidElements
+from .constants import tokenTypes, ReparseException, namespaces
 
 def parse(doc, treebuilder="simpletree", encoding=None, 
           namespaceHTMLElements=True):
@@ -110,7 +110,7 @@ class HTMLParser(object):
             try:
                 self.mainLoop()
                 break
-            except ReparseException, e:
+            except ReparseException as e:
                 self.reset()
 
     def reset(self):
@@ -244,7 +244,7 @@ class HTMLParser(object):
 
     def adjustMathMLAttributes(self, token):
         replacements = {"definitionurl":"definitionURL"}
-        for k,v in replacements.iteritems():
+        for k,v in replacements.items():
             if k in token["data"]:
                 token["data"][v] = token["data"][k]
                 del token["data"][k]
@@ -314,7 +314,7 @@ class HTMLParser(object):
             "ychannelselector" : "yChannelSelector",
             "zoomandpan" : "zoomAndPan"
             }
-        for originalName in token["data"].keys():
+        for originalName in list(token["data"].keys()):
             if originalName in replacements:
                 svgName = replacements[originalName]
                 token["data"][svgName] = token["data"][originalName]
@@ -336,7 +336,7 @@ class HTMLParser(object):
             "xmlns:xlink":("xmlns", "xlink", namespaces["xmlns"])
             }
 
-        for originalName in token["data"].iterkeys():
+        for originalName in token["data"].keys():
             if originalName in replacements:
                 foreignName = replacements[originalName]
                 token["data"][foreignName] = token["data"][originalName]
@@ -451,7 +451,7 @@ class Phase(object):
            self.parser.parseError("non-html-root")
         # XXX Need a check here to see if the first start tag token emitted is
         # this token... If it's not, invoke self.parser.parseError().
-        for attr, value in token["data"].iteritems():
+        for attr, value in token["data"].items():
             if attr not in self.tree.openElements[0].attributes:
                 self.tree.openElements[0].attributes[attr] = value
         self.parser.firstStartTag = False
@@ -961,7 +961,7 @@ class InBodyPhase(Phase):
             or self.tree.openElements[1].name != "body"):
             assert self.parser.innerHTML
         else:
-            for attr, value in token["data"].iteritems():
+            for attr, value in token["data"].items():
                 if attr not in self.tree.openElements[1].attributes:
                     self.tree.openElements[1].attributes[attr] = value
 
@@ -993,7 +993,7 @@ class InBodyPhase(Phase):
 
     def startTagForm(self, token):
         if self.tree.formPointer:
-            self.parser.parseError(u"unexpected-start-tag", {"name": "form"})
+            self.parser.parseError("unexpected-start-tag", {"name": "form"})
         else:
             if self.tree.elementInScope("p"):
                 self.endTagP("p")

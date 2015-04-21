@@ -7,9 +7,9 @@ except ImportError:
 
 from django.utils.translation import ugettext as _
 
-from utils import initialize_server_request, send_oauth_error, get_oauth_request
-from consts import OAUTH_PARAMETERS_NAMES
-from store import store, InvalidTokenError
+from .utils import initialize_server_request, send_oauth_error, get_oauth_request
+from .consts import OAUTH_PARAMETERS_NAMES
+from .store import store, InvalidTokenError
 
 def oauth_required(view_func=None, resource_name=None):
     return CheckOAuth(view_func, resource_name)
@@ -45,7 +45,7 @@ class CheckOAuth(object):
                 return send_oauth_error(Error(_('Invalid access token: %s') % oauth_request.get_parameter('oauth_token')))
             try:
                 parameters = self.validate_token(request, consumer, token)
-            except Error, e:
+            except Error as e:
                 return send_oauth_error(e)
             
             if self.resource_name and token.resource.name != self.resource_name:

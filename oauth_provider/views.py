@@ -1,4 +1,4 @@
-from urllib import urlencode
+from urllib.parse import urlencode
 
 import oauth2 as oauth
 from django.conf import settings
@@ -8,11 +8,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import get_callable
 
-from decorators import oauth_required
-from forms import AuthorizeRequestTokenForm
-from store import store, InvalidConsumerError, InvalidTokenError
-from utils import verify_oauth_request, get_oauth_request, require_params, send_oauth_error
-from consts import OUT_OF_BAND
+from .decorators import oauth_required
+from .forms import AuthorizeRequestTokenForm
+from .store import store, InvalidConsumerError, InvalidTokenError
+from .utils import verify_oauth_request, get_oauth_request, require_params, send_oauth_error
+from .consts import OUT_OF_BAND
 
 OAUTH_AUTHORIZE_VIEW = 'OAUTH_AUTHORIZE_VIEW'
 OAUTH_CALLBACK_VIEW = 'OAUTH_CALLBACK_VIEW'
@@ -38,7 +38,7 @@ def request_token(request):
 
     try:
         request_token = store.create_request_token(request, oauth_request, consumer, oauth_request['oauth_callback'])
-    except oauth.Error, err:
+    except oauth.Error as err:
         return send_oauth_error(err)
 
     ret = urlencode({
@@ -82,7 +82,7 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
                 try:
                     callback_view = get_callable(callback_view_str)
                 except AttributeError:
-                    raise Exception, "%s view doesn't exist." % callback_view_str
+                    raise Exception("%s view doesn't exist." % callback_view_str)
                 response = callback_view(request, **args)
         else:
             response = send_oauth_error(oauth.Error(_('Action not allowed.')))
@@ -93,7 +93,7 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
         try:
             authorize_view = get_callable(authorize_view_str)
         except AttributeError:
-            raise Exception, "%s view doesn't exist." % authorize_view_str
+            raise Exception("%s view doesn't exist." % authorize_view_str)
         params = oauth_request.get_normalized_parameters()
         # set the oauth flag
         request.session['oauth'] = request_token.key

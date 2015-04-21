@@ -1,16 +1,16 @@
 import uuid
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 from time import time
-import oauth2 as oauth
+from requests_oauthlib import OAuth2Session as oauth
 
 from django.db import models
 from django.contrib.auth.models import User
 
-from managers import TokenManager
-from consts import KEY_SIZE, SECRET_SIZE, CONSUMER_KEY_SIZE, CONSUMER_STATES,\
+from .managers import TokenManager
+from .consts import KEY_SIZE, SECRET_SIZE, CONSUMER_KEY_SIZE, CONSUMER_STATES,\
                    PENDING, VERIFIER_SIZE, MAX_URL_LENGTH, OUT_OF_BAND
-from utils import check_valid_callback
+from .utils import check_valid_callback
 
 generate_random = User.objects.make_random_password
 
@@ -20,7 +20,7 @@ class Nonce(models.Model):
     key = models.CharField(max_length=255)
     
     def __unicode__(self):
-        return u"Nonce %s for %s" % (self.key, self.consumer_key)
+        return "Nonce %s for %s" % (self.key, self.consumer_key)
 
 
 class Resource(models.Model):
@@ -29,7 +29,7 @@ class Resource(models.Model):
     is_readonly = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return u"Resource %s with url %s" % (self.name, self.url)
+        return "Resource %s with url %s" % (self.name, self.url)
 
 
 class Consumer(models.Model):
@@ -43,7 +43,7 @@ class Consumer(models.Model):
     user = models.ForeignKey(User, null=True, blank=True)
         
     def __unicode__(self):
-        return u"Consumer %s with key %s" % (self.name, self.key)
+        return "Consumer %s with key %s" % (self.name, self.key)
 
     def generate_random_codes(self):
         """
@@ -58,12 +58,12 @@ class Consumer(models.Model):
 class Token(models.Model):
     REQUEST = 1
     ACCESS = 2
-    TOKEN_TYPES = ((REQUEST, u'Request'), (ACCESS, u'Access'))
+    TOKEN_TYPES = ((REQUEST, 'Request'), (ACCESS, 'Access'))
     
     key = models.CharField(max_length=KEY_SIZE, null=True, blank=True)
     secret = models.CharField(max_length=SECRET_SIZE, null=True, blank=True)
     token_type = models.SmallIntegerField(choices=TOKEN_TYPES)
-    timestamp = models.IntegerField(default=long(time()))
+    timestamp = models.IntegerField(default=int(time()))
     is_approved = models.BooleanField(default=False)
     
     user = models.ForeignKey(User, null=True, blank=True, related_name='tokens')
@@ -78,7 +78,7 @@ class Token(models.Model):
     objects = TokenManager()
     
     def __unicode__(self):
-        return u"%s Token %s for %s" % (self.get_token_type_display(), self.key, self.consumer)
+        return "%s Token %s for %s" % (self.get_token_type_display(), self.key, self.consumer)
 
     def to_string(self, only_key=False):
         token_dict = {
@@ -93,7 +93,7 @@ class Token(models.Model):
             del token_dict['oauth_token_secret']
             del token_dict['oauth_callback_confirmed']
 
-        return urllib.urlencode(token_dict)
+        return urllib.parse.urlencode(token_dict)
 
     def generate_random_codes(self):
         """
@@ -109,17 +109,17 @@ class Token(models.Model):
         OAuth 1.0a, append the oauth_verifier.
         """
         if self.callback and self.verifier:
-            parts = urlparse.urlparse(self.callback)
+            parts = urllib.parse.urlparse(self.callback)
             scheme, netloc, path, params, query, fragment = parts[:6]
             if query:
                 query = '%s&oauth_verifier=%s' % (query, self.verifier)
             else:
                 query = 'oauth_verifier=%s' % self.verifier
             if args is not None:
-                query += "&%s" % urllib.urlencode(args)
-            return urlparse.urlunparse((scheme, netloc, path, params,
+                query += "&%s" % urllib.parse.urlencode(args)
+            return urllib.parse.urlunparse((scheme, netloc, path, params,
                 query, fragment))
-        args = args is not None and "?%s" % urllib.urlencode(args) or ""
+        args = args is not None and "?%s" % urllib.parse.urlencode(args) or ""
         return args
         # This caused errors when callback is not set
         # return self.callback + args

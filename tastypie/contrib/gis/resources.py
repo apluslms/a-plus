@@ -3,7 +3,7 @@
 
 import json
 
-from urllib import unquote
+from urllib.parse import unquote
 
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.gis.geos import GEOSGeometry

@@ -1,6 +1,6 @@
 from django.conf import settings
 from tastypie.exceptions import BadRequest
-from urllib import urlencode
+from urllib.parse import urlencode
 
 
 class Paginator(object):
@@ -147,7 +147,7 @@ class Paginator(object):
         if self.resource_uri is None:
             return None
 
-        request_params = dict([k, v.encode('utf-8')] for k, v in self.request_data.items())
+        request_params = dict([k, v.encode('utf-8')] for k, v in list(self.request_data.items()))
         request_params.update({'limit': limit, 'offset': offset})
         return '%s?%s' % (
             self.resource_uri,

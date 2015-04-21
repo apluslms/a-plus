@@ -6,7 +6,7 @@ def dict_strip_unicode_keys(uni_dict):
     """
     data = {}
     
-    for key, value in uni_dict.items():
+    for key, value in list(uni_dict.items()):
         data[str(key)] = value
     
     return data

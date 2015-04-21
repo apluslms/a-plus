@@ -7,6 +7,7 @@ from django.utils import datetime_safe, importlib
 from tastypie.bundle import Bundle
 from tastypie.exceptions import ApiFieldError, NotFound
 from tastypie.utils import dict_strip_unicode_keys, make_aware
+import collections
 
 
 class NOT_PROVIDED:
@@ -82,7 +83,7 @@ class ApiField(object):
     @property
     def default(self):
         """Returns the default value for the field."""
-        if callable(self._default):
+        if isinstance(self._default, collections.Callable):
             return self._default()
 
         return self._default
@@ -115,7 +116,7 @@ class ApiField(object):
                     else:
                         raise ApiFieldError("The object '%r' has an empty attribute '%s' and doesn't allow a default or null value." % (previous_object, attr))
 
-            if callable(current_object):
+            if isinstance(current_object, collections.Callable):
                 current_object = current_object()
 
             return self.convert(current_object)
@@ -141,7 +142,7 @@ class ApiField(object):
         """
         if self.readonly:
             return None
-        if not bundle.data.has_key(self.instance_name):
+        if self.instance_name not in bundle.data:
             if getattr(self, 'is_related', False) and not getattr(self, 'is_m2m', False):
                 # We've got an FK (or alike field) & a possible parent object.
                 # Check for it.
@@ -154,7 +155,7 @@ class ApiField(object):
             elif self.instance_name and hasattr(bundle.obj, self.instance_name):
                 return getattr(bundle.obj, self.instance_name)
             elif self.has_default():
-                if callable(self._default):
+                if isinstance(self._default, collections.Callable):
                     return self._default()
 
                 return self._default
@@ -179,7 +180,7 @@ class CharField(ApiField):
         if value is None:
             return None
 
-        return unicode(value)
+        return str(value)
 
 
 class FileField(ApiField):
@@ -303,7 +304,7 @@ class DateField(ApiField):
         if value is None:
             return None
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             match = DATE_REGEX.search(value)
 
             if match:
@@ -341,7 +342,7 @@ class DateTimeField(ApiField):
         if value is None:
             return None
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             match = DATETIME_REGEX.search(value)
 
             if match:
@@ -476,7 +477,7 @@ class RelatedField(ApiField):
         if self._to_class:
             return self._to_class
 
-        if not isinstance(self.to, basestring):
+        if not isinstance(self.to, str):
             self._to_class = self.to
             return self._to_class
 
@@ -547,7 +548,7 @@ class RelatedField(ApiField):
         except NotFound:
             try:
                 # Attempt lookup by primary key
-                lookup_kwargs = dict((k, v) for k, v in data.iteritems() if getattr(fk_resource, k).unique)
+                lookup_kwargs = dict((k, v) for k, v in data.items() if getattr(fk_resource, k).unique)
 
                 if not lookup_kwargs:
                     raise NotFound()
@@ -582,7 +583,7 @@ class RelatedField(ApiField):
             'related_name': related_name,
         }
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             # We got a URI. Load the object and assign it.
             return self.resource_from_uri(self.fk_resource, value, **kwargs)
         elif isinstance(value, Bundle):
@@ -695,7 +696,7 @@ class ToManyField(RelatedField):
         previous_obj = bundle.obj
         attr = self.attribute
 
-        if isinstance(self.attribute, basestring):
+        if isinstance(self.attribute, str):
             attrs = self.attribute.split('__')
             the_m2ms = bundle.obj
 
@@ -709,7 +710,7 @@ class ToManyField(RelatedField):
                 if not the_m2ms:
                     break
 
-        elif callable(self.attribute):
+        elif isinstance(self.attribute, collections.Callable):
             the_m2ms = self.attribute(bundle)
 
         if not the_m2ms:
@@ -787,14 +788,14 @@ class TimeField(ApiField):
         return self.convert(super(TimeField, self).dehydrate(obj))
 
     def convert(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             return self.to_time(value)
         return value
 
     def to_time(self, s):
         try:
             dt = parse(s)
-        except ValueError, e:
+        except ValueError as e:
             raise ApiFieldError(str(e))
         else:
             return datetime.time(dt.hour, dt.minute, dt.second)

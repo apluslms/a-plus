@@ -19,9 +19,9 @@ class Command(NoArgsCommand):
                     api_key.save()
                     
                     if self.verbosity >= 1:
-                        print u"Generated a new key for '%s'" % user.username
+                        print("Generated a new key for '%s'" % user.username)
             except ApiKey.DoesNotExist:
                 api_key = ApiKey.objects.create(user=user)
                 
                 if self.verbosity >= 1:
-                    print u"Created a new key for '%s'" % user.username
+                    print("Created a new key for '%s'" % user.username)

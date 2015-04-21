@@ -1,5 +1,5 @@
 import time
-from urlparse import urlparse
+from urllib.parse import urlparse
 from django.conf import settings
 from django.test import TestCase
 from django.test.client import FakePayload, Client
@@ -301,7 +301,7 @@ class ResourceTestCase(TestCase):
             'oauth_timestamp': str(int(time.time())),
             'oauth_token': 'foo',
         }
-        return 'OAuth %s' % ','.join([key+'='+value for key, value in oauth_data.items()])
+        return 'OAuth %s' % ','.join([key+'='+value for key, value in list(oauth_data.items())])
 
     def assertHttpOK(self, resp):
         """

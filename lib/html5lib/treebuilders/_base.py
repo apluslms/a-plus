@@ -33,7 +33,7 @@ class Node(object):
     def __unicode__(self):
         attributesStr =  " ".join(["%s=\"%s\""%(name, value) 
                                    for name, value in 
-                                   self.attributes.iteritems()])
+                                   self.attributes.items()])
         if attributesStr:
             return "<%s %s>"%(self.name,attributesStr)
         else:

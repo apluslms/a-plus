@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 import logging
 import warnings
 import django
@@ -117,12 +117,12 @@ class DeclarativeMetaclass(type):
             for p in parents:
                 parent_fields = getattr(p, 'base_fields', {})
 
-                for field_name, field_object in parent_fields.items():
+                for field_name, field_object in list(parent_fields.items()):
                     attrs['base_fields'][field_name] = deepcopy(field_object)
         except NameError:
             pass
 
-        for field_name, obj in attrs.items():
+        for field_name, obj in list(attrs.items()):
             # Look for ``dehydrated_type`` instead of doing ``isinstance``,
             # which can break down if Tastypie is re-namespaced as something
             # else.
@@ -149,14 +149,14 @@ class DeclarativeMetaclass(type):
         elif 'resource_uri' in new_class.base_fields and not 'resource_uri' in attrs:
             del(new_class.base_fields['resource_uri'])
 
-        for field_name, field_object in new_class.base_fields.items():
+        for field_name, field_object in list(new_class.base_fields.items()):
             if hasattr(field_object, 'contribute_to_class'):
                 field_object.contribute_to_class(new_class, field_name)
 
         return new_class
 
 
-class Resource(object):
+class Resource(object, metaclass=DeclarativeMetaclass):
     """
     Handles the data, request dispatch and responding to requests.
 
@@ -167,7 +167,6 @@ class Resource(object):
     This class tries to be non-model specific, so it can be hooked up to other
     data sources, such as search results, files, other data, etc.
     """
-    __metaclass__ = DeclarativeMetaclass
 
     def __init__(self, api_name=None):
         self.fields = deepcopy(self.base_fields)
@@ -203,11 +202,11 @@ class Resource(object):
                     patch_cache_control(response, no_cache=True)
 
                 return response
-            except (BadRequest, fields.ApiFieldError), e:
+            except (BadRequest, fields.ApiFieldError) as e:
                 return http.HttpBadRequest(e.args[0])
-            except ValidationError, e:
+            except ValidationError as e:
                 return http.HttpBadRequest(', '.join(e.messages))
-            except Exception, e:
+            except Exception as e:
                 if hasattr(e, 'response'):
                     return e.response
 
@@ -242,7 +241,7 @@ class Resource(object):
 
         if settings.DEBUG:
             data = {
-                "error_message": unicode(exception),
+                "error_message": str(exception),
                 "traceback": the_trace,
             }
             desired_format = self.determine_format(request)
@@ -667,7 +666,7 @@ class Resource(object):
         to populate the resource.
         """
         # Dehydrate each field.
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             # A touch leaky but it makes URI resolution work.
             if getattr(field_object, 'dehydrated_type', None) == 'related':
                 field_object.api_name = self._meta.api_name
@@ -704,7 +703,7 @@ class Resource(object):
         if bundle.obj is None:
             bundle.obj = self._meta.object_class()
         bundle = self.hydrate(bundle)
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             if field_object.readonly is True:
                 continue
 
@@ -754,7 +753,7 @@ class Resource(object):
         if bundle.obj is None:
             raise HydrationError("You must call 'full_hydrate' before attempting to run 'hydrate_m2m' on %r." % self)
 
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             if not getattr(field_object, 'is_m2m', False):
                 continue
 
@@ -765,7 +764,7 @@ class Resource(object):
                 # in this regard.
                 bundle.data[field_name] = field_object.hydrate_m2m(bundle)
 
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             if not getattr(field_object, 'is_m2m', False):
                 continue
 
@@ -797,7 +796,7 @@ class Resource(object):
         if self._meta.filtering:
             data['filtering'] = self._meta.filtering
 
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             data['fields'][field_name] = {
                 'default': field_object.default,
                 'type': field_object.dehydrated_type,
@@ -838,7 +837,7 @@ class Resource(object):
         """
         smooshed = []
 
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             smooshed.append("%s=%s" % (key, value))
 
         # Use a list plus a ``.join()`` because it's faster than concatenation.
@@ -1441,7 +1440,7 @@ class ModelDeclarativeMetaclass(DeclarativeMetaclass):
         new_class = super(ModelDeclarativeMetaclass, cls).__new__(cls, name, bases, attrs)
         include_fields = getattr(new_class._meta, 'fields', [])
         excludes = getattr(new_class._meta, 'excludes', [])
-        field_names = new_class.base_fields.keys()
+        field_names = list(new_class.base_fields.keys())
 
         for field_name in field_names:
             if field_name == 'resource_uri':
@@ -1465,7 +1464,7 @@ class ModelDeclarativeMetaclass(DeclarativeMetaclass):
         return new_class
 
 
-class ModelResource(Resource):
+class ModelResource(Resource, metaclass=ModelDeclarativeMetaclass):
     """
     A subclass of ``Resource`` designed to work with Django's ``Models``.
 
@@ -1475,7 +1474,6 @@ class ModelResource(Resource):
     Given that it is aware of Django's ORM, it also handles the CRUD data
     operations of the resource.
     """
-    __metaclass__ = ModelDeclarativeMetaclass
 
     @classmethod
     def should_skip_field(cls, field):
@@ -1676,11 +1674,11 @@ class ModelResource(Resource):
 
         if hasattr(self._meta, 'queryset'):
             # Get the possible query terms from the current QuerySet.
-            query_terms = self._meta.queryset.query.query_terms.keys()
+            query_terms = list(self._meta.queryset.query.query_terms.keys())
         else:
-            query_terms = QUERY_TERMS.keys()
+            query_terms = list(QUERY_TERMS.keys())
 
-        for filter_expr, value in filters.items():
+        for filter_expr, value in list(filters.items()):
             filter_bits = filter_expr.split(LOOKUP_SEP)
             field_name = filter_bits.pop(0)
             filter_type = 'exact'
@@ -1808,7 +1806,7 @@ class ModelResource(Resource):
         try:
             base_object_list = self.get_object_list(request).filter(**kwargs)
             object_list = self.apply_authorization_limits(request, base_object_list)
-            stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in kwargs.items()])
+            stringified_kwargs = ', '.join(["%s=%s" % (k, v) for k, v in list(kwargs.items())])
 
             if len(object_list) <= 0:
                 raise self._meta.object_class.DoesNotExist("Couldn't find an instance of '%s' which matched '%s'." % (self._meta.object_class.__name__, stringified_kwargs))
@@ -1826,7 +1824,7 @@ class ModelResource(Resource):
 
         bundle.obj = self._meta.object_class()
 
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             setattr(bundle.obj, key, value)
         bundle = self.full_hydrate(bundle)
         self.is_valid(bundle,request)
@@ -1858,7 +1856,7 @@ class ModelResource(Resource):
                 bundle = self.full_hydrate(bundle)
                 lookup_kwargs = kwargs.copy()
 
-                for key in kwargs.keys():
+                for key in list(kwargs.keys()):
                     if key == 'pk':
                         continue
                     elif getattr(bundle.obj, key, NOT_AVAILABLE) is not NOT_AVAILABLE:
@@ -1959,7 +1957,7 @@ class ModelResource(Resource):
         call ``save`` on them if they have related, non-M2M data.
         M2M data is handled by the ``ModelResource.save_m2m`` method.
         """
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             if not getattr(field_object, 'is_related', False):
                 continue
 
@@ -1969,7 +1967,7 @@ class ModelResource(Resource):
             if not field_object.attribute:
                 continue
 
-            if field_object.blank and not bundle.data.has_key(field_name):
+            if field_object.blank and field_name not in bundle.data:
                 continue
 
             # Get the object.
@@ -1998,7 +1996,7 @@ class ModelResource(Resource):
         Currently slightly inefficient in that it will clear out the whole
         relation and recreate the related data as needed.
         """
-        for field_name, field_object in self.fields.items():
+        for field_name, field_object in list(self.fields.items()):
             if not getattr(field_object, 'is_m2m', False):
                 continue
 
