@@ -89,7 +89,7 @@ class SubmissionResource(ModelResource):
         
         # In this version only superusers are allowed to access
         # submissions after being authenticated with OAuth
-        authentication  = OAuthAuthentication()
+       # authentication  = OAuthAuthentication()
         authorization   = SuperuserAuthorization()
 
 class SubmissionContentResource(ModelResource):

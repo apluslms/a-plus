@@ -1,10 +1,10 @@
 # Tastypie
 from tastypie.resources import ModelResource
-from tastypie.authentication import OAuthAuthentication
+#from tastypie.authentication import OAuthAuthentication #TODO FIX
 
 # A+
 from userprofile.models import UserProfile
-from api_permissions import SuperuserAuthorization
+#from api_permissions import SuperuserAuthorization #TODO FIX
 
 
 class UserProfileResource(ModelResource):
@@ -29,5 +29,5 @@ class UserProfileResource(ModelResource):
         # In this version of the API only superusers are allowed to access 
         # userprofile objects
         allowed_methods = ['get']
-        authentication  = OAuthAuthentication()
-        authorization   = SuperuserAuthorization()
+        #authentication  = OAuthAuthentication()  #TODO fix
+        #authorization   = SuperuserAuthorization()

@@ -1,4 +1,4 @@
-import oauth2 as oauth
+import requests_oauthlib as oauth
 
 from oauth_provider.store import InvalidConsumerError, InvalidTokenError, Store
 from oauth_provider.models import Nonce, Token, Consumer, Resource, VERIFIER_SIZE

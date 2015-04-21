@@ -49,10 +49,10 @@ def initialize_server_request(request):
 def send_oauth_error(err=None):
     """Shortcut for sending an error."""
     # send a 401 error
-    response = HttpResponse(err.message.encode('utf-8'), content_type="text/plain")
+    response = HttpResponse(err.description.encode('utf-8'), content_type="text/plain")
     response.status_code = 401
     # return the authenticate header
-    header = oauth.build_authenticate_header(realm=OAUTH_REALM_KEY_NAME)
+    header = build_authenticate_header(realm=OAUTH_REALM_KEY_NAME)
     for k, v in header.items():
         response[k] = v
     return response
@@ -119,3 +119,9 @@ def check_valid_callback(callback):
     return (callback_url.scheme
             and callback_url.hostname not in OAUTH_BLACKLISTED_HOSTNAMES
             and len(callback) < MAX_URL_LENGTH)
+
+def build_authenticate_header(realm):
+    """
+    Builds a WWW-Authenticate header for 401 error
+    """
+    return {'WWW-Authenticate': 'OAuth realm="%s"' % realm}

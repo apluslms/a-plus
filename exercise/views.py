@@ -1,7 +1,7 @@
 # Python
 import logging
 
-from lib.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 # Django
 from django.db import DatabaseError

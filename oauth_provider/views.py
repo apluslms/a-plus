@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-import oauth2 as oauth
+import oauthlib.oauth2 as oauth
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
@@ -16,7 +16,7 @@ from .consts import OUT_OF_BAND
 
 OAUTH_AUTHORIZE_VIEW = 'OAUTH_AUTHORIZE_VIEW'
 OAUTH_CALLBACK_VIEW = 'OAUTH_CALLBACK_VIEW'
-INVALID_PARAMS_RESPONSE = send_oauth_error( oauth.Error( _('Invalid request parameters.') ) )
+INVALID_PARAMS_RESPONSE = send_oauth_error( oauth.OAuth2Error( _('Invalid request parameters.') ) )
 
 @csrf_exempt
 def request_token(request):
@@ -38,8 +38,8 @@ def request_token(request):
 
     try:
         request_token = store.create_request_token(request, oauth_request, consumer, oauth_request['oauth_callback'])
-    except oauth.Error as err:
-        return send_oauth_error(err)
+    except oauth.OAuth2Error as err:
+        return send_oauth_error(err(_('Error while creating request token')))
 
     ret = urlencode({
         'oauth_token': request_token.key,
@@ -85,7 +85,7 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
                     raise Exception("%s view doesn't exist." % callback_view_str)
                 response = callback_view(request, **args)
         else:
-            response = send_oauth_error(oauth.Error(_('Action not allowed.')))
+            response = send_oauth_error(oauth.OAuth2Error(_('Action not allowed.')))
     else:
         # try to get custom authorize view
         authorize_view_str = getattr(settings, OAUTH_AUTHORIZE_VIEW, 

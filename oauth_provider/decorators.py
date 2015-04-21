@@ -1,4 +1,4 @@
-from oauth2 import Error
+from oauthlib.oauth2 import OAuth2Error #todo: use specific error types?
 
 try:
     from functools import update_wrapper
@@ -42,20 +42,20 @@ class CheckOAuth(object):
                 token = store.get_access_token(request, oauth_request, 
                                 consumer, oauth_request.get_parameter('oauth_token'))
             except InvalidTokenError:
-                return send_oauth_error(Error(_('Invalid access token: %s') % oauth_request.get_parameter('oauth_token')))
+                return send_oauth_error(OAuth2Error(_('Invalid access token: %s') % oauth_request.get_parameter('oauth_token')))
             try:
                 parameters = self.validate_token(request, consumer, token)
-            except Error as e:
+            except OAuth2Error as e:
                 return send_oauth_error(e)
             
             if self.resource_name and token.resource.name != self.resource_name:
-                return send_oauth_error(Error(_('You are not allowed to access this resource.')))
+                return send_oauth_error(OAuth2Error(_('You are not allowed to access this resource.')))
             elif consumer and token:
                 # Hack
                 request.user = token.user
                 return self.view_func(request, *args, **kwargs)
         
-        return send_oauth_error(Error(_('Invalid request parameters.')))
+        return send_oauth_error(OAuth2Error(_('Invalid request parameters.')))
 
     @staticmethod
     def is_valid_request(request):

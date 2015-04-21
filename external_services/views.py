@@ -2,16 +2,17 @@
 Provides LTI access to external services with current course and user identity.
  
 '''
-from django.contrib.auth.decorators import login_required
+#from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseForbidden, Http404
 from django.template.context import RequestContext
 from django.utils.translation import get_language
-from external_services.models import MenuItem
-import md5, datetime, calendar, oauth2, uuid
+from .models import MenuItem
+import requests_oauthlib as oath2
+import hashlib, datetime, calendar, uuid
 
 
-@login_required
+#@login_required
 def lti_login(request, menu_id):
     '''
     Generates an LTI POST form for a service.
@@ -47,7 +48,7 @@ def lti_login(request, menu_id):
         student_id = user_profile.student_id
 
     # MD5 the user id so that the real student id and names or emails are not linked.
-    student_id = md5.new(student_id).hexdigest()
+    student_id = hashlib.md5(student_id).hexdigest()
 
     # Determine user role.
     role = "Student"

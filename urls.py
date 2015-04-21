@@ -1,6 +1,6 @@
 # A+
 from views import login, home, privacy, verify_credentials
-from .oauth_provider.views import protected_resource_example
+from oauth_provider.views import protected_resource_example
 
 # Django
 from django.conf.urls import patterns, url, include

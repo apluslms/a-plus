@@ -1,7 +1,7 @@
 # Tastypie
-from .tastypie.resources import ModelResource
-from .tastypie.authentication import Authentication
-from .tastypie.authorization import Authorization
+from tastypie.resources import ModelResource
+from tastypie.authentication import Authentication
+from tastypie.authorization import Authorization
 
 
 class CIStaffAuthorization(Authorization):
