@@ -13,9 +13,9 @@ should be displayed. This method should be defined in each subclass.
 
 # Python
 import feedparser
-import urlparse
-import urllib2
-import cookielib
+import urllib.parse
+import urllib.request, urllib.error, urllib.parse
+import http.cookiejar
 import datetime
 
 # Django
@@ -33,7 +33,7 @@ from apps.app_renderers import ExternalIFramePluginRenderer,\
     ExternalIFrameTabRenderer, TabRenderer
 from inheritance.models import ModelWithInheritance
 from oauth_provider.models import Consumer
-from lib.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 
 class AbstractApp(ModelWithInheritance):
@@ -106,7 +106,7 @@ class EmbeddedTab(BaseTab):
 
         # If the page is not cached, retrieve it
         if content == None:
-            opener      = urllib2.build_opener()
+            opener      = urllib.request.build_opener()
             content     = opener.open(url, timeout=5).read()
             
             # Save the page in cache

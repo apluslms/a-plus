@@ -1,6 +1,6 @@
 # Python
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import hmac
 import hashlib
 from datetime import datetime, timedelta
@@ -39,7 +39,7 @@ class CourseModule(models.Model):
     introduction            = models.TextField(blank=True)
     
     # Relations
-    course_instance         = models.ForeignKey(CourseInstance, related_name=u"course_modules")
+    course_instance         = models.ForeignKey(CourseInstance, related_name="course_modules")
     
     # Fields related to the opening of the rounds
     opening_time            = models.DateTimeField(default=datetime.now)
@@ -129,7 +129,7 @@ class LearningObjectCategory(models.Model):
     points_to_pass = models.PositiveIntegerField(default=0)
 
     course_instance = models.ForeignKey(CourseInstance,
-        related_name=u"categories")
+        related_name="categories")
 
     hidden_to = models.ManyToManyField(
         UserProfile,
@@ -141,7 +141,7 @@ class LearningObjectCategory(models.Model):
         unique_together = ("name", "course_instance")
 
     def __unicode__(self):
-        return self.name + u" -- " + unicode(self.course_instance)
+        return self.name + " -- " + str(self.course_instance)
 
     def get_exercises(self):
         return BaseExercise.objects.filter(category=self)
@@ -266,7 +266,7 @@ class BaseExercise(LearningObject):
         # Build the URL with a callback address, max points etc.
         url             = self.build_service_url(submission_url)
         
-        opener          = urllib2.build_opener()
+        opener          = urllib.request.build_opener()
         page_content    = opener.open(url, timeout=20).read()
         
         return ExercisePage(self, page_content)
@@ -367,7 +367,7 @@ class BaseExercise(LearningObject):
         # and a callback URL to which the service may return the grading
         url                     = self.build_service_url( submission.get_callback_url() )
         
-        opener                  = urllib2.build_opener(MultipartPostHandler.MultipartPostHandler)
+        opener                  = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
         response_body           = opener.open(url.encode('ascii'), post_params, timeout=50).read()
         
         # Close all opened file handles
@@ -421,7 +421,7 @@ class BaseExercise(LearningObject):
                             dlrd.submitter in is_open_booleans_by_submitters)
                         is_open_booleans_by_submitters[dlrd.submitter] = True
 
-                if False in is_open_booleans_by_submitters.values():
+                if False in list(is_open_booleans_by_submitters.values()):
                     # Not all the submitters had enough extra time given.
                     return False
                 else:
@@ -523,7 +523,7 @@ class BaseExercise(LearningObject):
         # use question mark.
         delimiter       = ("?", "&")["?" in self.service_url]
         
-        url             = self.service_url + delimiter + urllib.urlencode(params)
+        url             = self.service_url + delimiter + urllib.parse.urlencode(params)
         return url
     
     def get_submissions_for_student(self, userprofile):

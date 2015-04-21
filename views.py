@@ -1,4 +1,4 @@
-import urlparse
+import urllib.parse
 import json
 
 from django.shortcuts import render_to_response, redirect
@@ -26,7 +26,7 @@ def login(request):
         # User is authenticated so we'll just redirect. The following checks for the redirect url 
         # are borrowed from django.contrib.auth.views.login.
         redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
-        netloc = urlparse.urlparse(redirect_to)[1]
+        netloc = urllib.parse.urlparse(redirect_to)[1]
         
         # Use default setting if redirect_to is empty
         if not redirect_to:

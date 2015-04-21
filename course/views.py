@@ -167,7 +167,7 @@ def view_instance(request, course_url, instance_url):
          .append(exercise))
 
     visible_exercises_by_course_modules = sorted(
-        visible_exercises_by_course_modules.items(),
+        list(visible_exercises_by_course_modules.items()),
         key=lambda t: (t[0].closing_time, t[0].opening_time))
 
     exercise_tree = [
@@ -335,7 +335,7 @@ def set_schedule_filters(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
     profile = request.user.userprofile
 
-    if not request.POST.has_key("category_filters"):
+    if "category_filters" not in request.POST:
         return HttpResponseForbidden("You are trying to hide all categories. "
                                      "Select at least one category to be "
                                      "visible!")
@@ -350,7 +350,7 @@ def set_schedule_filters(request, course_url, instance_url):
             category.set_hidden_to(profile, True)
 
 
-    if request.GET.has_key("next"):
+    if "next" in request.GET:
         next = request.GET["next"]
     else:
         next = course_instance.get_absolute_url()

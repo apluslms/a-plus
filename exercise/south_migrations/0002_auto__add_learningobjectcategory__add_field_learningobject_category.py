@@ -13,7 +13,7 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=35)),
             ('description', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('course_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'categories', to=orm['course.CourseInstance'])),
+            ('course_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='categories', to=orm['course.CourseInstance'])),
         ))
         db.send_create_signal('exercise', ['LearningObjectCategory'])
 

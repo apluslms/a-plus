@@ -1,5 +1,5 @@
 import json
-from urlparse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 from django.core.urlresolvers import resolve
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.template.loader import render_to_string

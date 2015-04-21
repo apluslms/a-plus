@@ -13,7 +13,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 
 import base64
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import time
 import hmac
 import json
@@ -71,5 +71,5 @@ class SignedRequestLoginMiddleware(object):
         del get_params["signed_request_payload"]
         del get_params["signed_request_signature"]
         
-        return redirect(request.path + "?" + urllib.urlencode(get_params))
+        return redirect(request.path + "?" + urllib.parse.urlencode(get_params))
 

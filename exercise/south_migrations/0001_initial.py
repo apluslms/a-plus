@@ -14,7 +14,7 @@ class Migration(SchemaMigration):
             ('name', self.gf('django.db.models.fields.CharField')(max_length=30)),
             ('points_to_pass', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
             ('introduction', self.gf('django.db.models.fields.TextField')(blank=True)),
-            ('course_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'course_modules', to=orm['course.CourseInstance'])),
+            ('course_instance', self.gf('django.db.models.fields.related.ForeignKey')(related_name='course_modules', to=orm['course.CourseInstance'])),
             ('opening_time', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('closing_time', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('late_submissions_allowed', self.gf('django.db.models.fields.BooleanField')(default=False)),

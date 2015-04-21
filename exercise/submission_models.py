@@ -20,10 +20,10 @@ import os
 
 
 class Submission(models.Model):
-    _status_choices         = (("initialized", _(u"Initialized")),
-                               ("waiting", _(u"Waiting")),
-                               ("ready", _(u"Ready")),
-                               ("error", _(u"Error")))
+    _status_choices         = (("initialized", _("Initialized")),
+                               ("waiting", _("Waiting")),
+                               ("ready", _("Ready")),
+                               ("error", _("Error")))
 
     submission_time         = models.DateTimeField(auto_now_add=True)
     hash                    = models.CharField(max_length=32, default=get_random_string)

@@ -10,8 +10,8 @@ from tastypie import fields
 
 # A+
 from userprofile.models import UserProfile
-from exercise_models import LearningObject, BaseExercise, CourseModule, CourseInstance
-from submission_models import Submission, SubmittedFile
+from .exercise_models import LearningObject, BaseExercise, CourseModule, CourseInstance
+from .submission_models import Submission, SubmittedFile
 from api_permissions import SuperuserAuthorization
 
 class LearningObjectResource(ModelResource):

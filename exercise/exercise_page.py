@@ -1,6 +1,6 @@
-from lib.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from django.core.validators import URLValidator
-import urllib, urllib2
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
 from django.conf import settings
 
 def _get_value_from_soup(soup, tag_name, attribute, parameters={}, default=None):

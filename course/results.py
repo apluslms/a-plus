@@ -88,7 +88,7 @@ class ResultTable:
         @return: the template-friendly data structure of the ResultTable data
         """
         for_template = []
-        for student, grades_d in self.results.items():
+        for student, grades_d in list(self.results.items()):
             grades = []
             sum = 0
             for ex in self.exercises:

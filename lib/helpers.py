@@ -1,8 +1,8 @@
 # Python
 import string
 from random import choice
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 def get_random_string(length=32):
     """ This function creates a random string with a given length. 
@@ -12,10 +12,10 @@ def get_random_string(length=32):
         """
     
     # Use all letters and numbers in the identifier
-    choices = string.letters + string.digits
+    choices = string.ascii_letters + string.digits
     
     # Return a joined string of 'length' random characters
-    return ''.join([choice(choices) for i in xrange(length)])
+    return ''.join([choice(choices) for i in range(length)])
 
 def query_dict_to_list_of_tuples(query_dict):
     """ This helper function creates a list of tuples with the values
@@ -33,10 +33,10 @@ def query_dict_to_list_of_tuples(query_dict):
     return list_of_tuples
 
 def update_url_params(url, params):
-    url_parts = list(urlparse.urlparse(url))
-    query = dict(urlparse.parse_qs(url_parts[4]))
+    url_parts = list(urllib.parse.urlparse(url))
+    query = dict(urllib.parse.parse_qs(url_parts[4]))
     query.update(params)
 
-    url_parts[4] = urllib.urlencode(query)
+    url_parts[4] = urllib.parse.urlencode(query)
 
-    return urlparse.urlunparse(url_parts)
+    return urllib.parse.urlunparse(url_parts)

@@ -1,6 +1,6 @@
 # Python
 import logging
-import urllib, urllib2
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
 from datetime import datetime
 
 # Django
@@ -37,7 +37,7 @@ class Course(models.Model):
     
     # Relations
     teachers    = models.ManyToManyField(UserProfile,
-                                            related_name=u"teaching_courses",
+                                            related_name="teaching_courses",
                                             blank=True)
     
     def get_absolute_url(self):
@@ -82,7 +82,7 @@ class Course(models.Model):
         '''
         Returns a short representation of the course as an unicode string.
         '''
-        return self.code + u" " + self.name
+        return self.code + " " + self.name
 
 
 class CourseInstance(models.Model):
@@ -111,9 +111,9 @@ class CourseInstance(models.Model):
     
     # Relations
     assistants              = models.ManyToManyField(UserProfile,
-                                                     related_name=u"assisting_courses", 
+                                                     related_name="assisting_courses", 
                                                      blank=True)
-    course                  = models.ForeignKey(Course, related_name=u"instances")
+    course                  = models.ForeignKey(Course, related_name="instances")
     
     plugins                 = generic.GenericRelation(BasePlugin, object_id_field="container_pk", content_type_field="container_type")
     tabs                    = generic.GenericRelation(BaseTab, object_id_field="container_pk", content_type_field="container_type")
@@ -201,7 +201,7 @@ class CourseInstance(models.Model):
         return _("Dashboard")
     
     def __unicode__(self):
-        return self.course.code + u": " + self.instance_name
+        return self.course.code + ": " + self.instance_name
     
     class Meta:
         unique_together = ("course", "url")
@@ -231,8 +231,8 @@ class CourseHook(models.Model):
     def trigger(self, data):
         logger = logging.getLogger("plus.hooks")
         try:
-            res = urllib2.urlopen(self.hook_url,
-                urllib.urlencode(data), timeout=10)
+            res = urllib.request.urlopen(self.hook_url,
+                urllib.parse.urlencode(data), timeout=10)
             logger.info("%s posted to %s on %s with %s",
                 self.hook_type, self.hook_url, self.course_instance, data
                 )

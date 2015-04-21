@@ -58,11 +58,8 @@ class JSONFormField(Field):
             raise FormValidationError(_("Enter valid JSON"))
         return value
 
-class JSONField(models.TextField):
+class JSONField(models.TextField, metaclass=models.SubfieldBase):
     """JSONField is a generic textfield that serializes/unserializes JSON objects"""
-    
-    # Used so to_python() is called
-    __metaclass__ = models.SubfieldBase
     
     def __init__(self, *args, **kwargs):
         self.dump_kwargs = kwargs.pop('dump_kwargs', {'cls': DjangoJSONEncoder})
@@ -72,7 +69,7 @@ class JSONField(models.TextField):
     
     def to_python(self, value):
         """Convert string value to JSON"""
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             try:
                 return json.loads(value, **self.load_kwargs)
             except ValueError:
@@ -82,7 +79,7 @@ class JSONField(models.TextField):
     def get_db_prep_value(self, value, connection, prepared=False):
         """Convert JSON object to a string"""
         
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             return value
         return json.dumps(value, **self.dump_kwargs)
     

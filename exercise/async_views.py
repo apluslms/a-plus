@@ -4,7 +4,7 @@ through a submission URL.
 """
 # Python
 import socket
-from urlparse import urlparse
+from urllib.parse import urlparse
 import json
 
 # Django
@@ -199,11 +199,11 @@ def _post_async_submission(request, exercise, submission, students):
             # Return a dict after successful save
             return {"success": True,
                     "errors": []}
-        except Exception, e:
+        except Exception as e:
             return {"success": False, 
                     "errors": [str(e)]}
     else:
-        submission.feedback = unicode(
+        submission.feedback = str(
                     _("<div class=\"alert alert-error\">\n"
                       "    <p>The assessment service communicated the "
                       "assessment results in an invalid format and "

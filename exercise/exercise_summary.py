@@ -294,7 +294,7 @@ class UserCourseSummary(object):
         # we just pass those to the __init__ of each UserExerciseSummary and
         # use the generate=False to tell the __init__ that it doesn't need to
         # make any additional model queries.
-        for exercise_id, d in submissions_by_exercise_id.items():
+        for exercise_id, d in list(submissions_by_exercise_id.items()):
             best_submission = d["best"]
             submission_count = d["count"]
             exercise_summary = UserExerciseSummary(
@@ -310,15 +310,13 @@ class UserCourseSummary(object):
             self.exercise_summaries[d["obj"]] = exercise_summary
 
         # Generate a summary for each round
-        for rnd, exercise_summaries in (exercise_summaries_by_course_modules
-                                        .items()):
+        for rnd, exercise_summaries in (list(exercise_summaries_by_course_modules.items())):
             self.round_summaries.append(UserExerciseRoundSummary(
                 rnd, self.user, exercise_summaries=exercise_summaries,
                 generate=False))
 
         # Generate a summary for each category
-        for cat, exercise_summaries in (exercise_summaries_by_categories
-                                        .items()):
+        for cat, exercise_summaries in (list(exercise_summaries_by_categories.items())):
             self.category_summaries.append(UserCategorySummary(
                 cat, self.user, exercise_summaries=exercise_summaries,
                 generate=False))

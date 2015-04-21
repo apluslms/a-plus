@@ -36,7 +36,7 @@ from django.template.loader import get_template
 
 # A+
 from apps.models import *
-from lib.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from lib.helpers import update_url_params
 
 
@@ -104,7 +104,7 @@ class ExternalIFramePluginRenderer(object):
             "view_name": self.view_name
         }
 
-        for k, v in self.context.items():
+        for k, v in list(self.context.items()):
             params[k + "_id"] = v.id
 
         return update_url_params(self.plugin.service_url, params)
@@ -165,7 +165,7 @@ class TabRenderer(object):
         return update_url_params(self.tab.content_url, params)
 
     def render(self):
-        opener = urllib2.build_opener()
+        opener = urllib.request.build_opener()
         content = opener.open(self._build_src(), timeout=5).read()
 
         # Save the page in cache

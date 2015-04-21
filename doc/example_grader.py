@@ -1,7 +1,7 @@
-import SimpleHTTPServer, SocketServer
-from urlparse import parse_qs
-import urllib
-import urllib2
+import http.server, socketserver
+from urllib.parse import parse_qs
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 PORT = 8888
 
@@ -14,7 +14,7 @@ def grade_first_ex(submission):
         points += 1
     return (points,max_points)
 
-class ExerciseGrader(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
 
     # On GET-request return the exercise
     def do_GET(self):
@@ -95,8 +95,8 @@ class ExerciseGrader(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 'grading_payload': '{}'
             }
             # Submit the score to A+
-            opener = urllib2.build_opener()
-            request_data = urllib.urlencode(request_dict)
+            opener = urllib.request.build_opener()
+            request_data = urllib.parse.urlencode(request_dict)
             response = opener.open(submission_url, request_data, timeout=10).read()
             # Create the response
             self.send_response(200)
@@ -108,10 +108,10 @@ class ExerciseGrader(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         # Demonstrating hook functionality
         elif "/hook/" in self.path:
-            print "POST Hook detected!", self.path
-            print "Data:", post_data
+            print("POST Hook detected!", self.path)
+            print("Data:", post_data)
             self.send_response(200)
 
-httpd = SocketServer.TCPServer(('', PORT), ExerciseGrader)
-print 'Serving at port:', PORT
+httpd = socketserver.TCPServer(('', PORT), ExerciseGrader)
+print('Serving at port:', PORT)
 httpd.serve_forever()

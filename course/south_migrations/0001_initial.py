@@ -33,7 +33,7 @@ class Migration(SchemaMigration):
             ('url', self.gf('django.db.models.fields.CharField')(max_length=16)),
             ('starting_time', self.gf('django.db.models.fields.DateTimeField')()),
             ('ending_time', self.gf('django.db.models.fields.DateTimeField')()),
-            ('course', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'instances', to=orm['course.Course'])),
+            ('course', self.gf('django.db.models.fields.related.ForeignKey')(related_name='instances', to=orm['course.Course'])),
         ))
         db.send_create_signal('course', ['CourseInstance'])
 

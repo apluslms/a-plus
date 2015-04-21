@@ -23,9 +23,9 @@ class LinkService(ModelWithInheritance):
         ordering = ["menu_label"]
 
     def __unicode__(self):
-        out = u"%s: %s" % (self.menu_label, self.url)
+        out = "%s: %s" % (self.menu_label, self.url)
         if not self.enabled:
-            return u"[Disabled] " + out
+            return "[Disabled] " + out
         return out
 
 
@@ -91,7 +91,7 @@ class MenuItem(models.Model):
         return self.service.url
 
     def __unicode__(self):
-        out = u"%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
+        out = "%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
         if not self.enabled or not self.service.enabled:
-            return u"[Disabled] " + out
+            return "[Disabled] " + out
         return out

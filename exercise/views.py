@@ -132,7 +132,7 @@ def _handle_submission(request, exercise, students, form, submissions):
             # is done with a multipart POST request that contains all the files and
             # POST parameters sent by the user.
             response_page               = new_submission.submit_to_service()
-        except Exception, e:
+        except Exception as e:
             # TODO: pokemon error handling
             # TODO: Retrieving the grading failed. An error report should be sent
             # to administrators

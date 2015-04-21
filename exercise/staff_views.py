@@ -258,7 +258,7 @@ def resubmit_to_service(request, submission_id):
         # is done with a multipart POST request that contains all the files and
         # POST parameters that were originally submitted.
         response_page = submission.submit_to_service()
-    except Exception, e:
+    except Exception as e:
         messages.error(request,
             _('Connecting to the assessment server failed! (%s)') % str(e))
 

@@ -94,5 +94,5 @@ def lti_login(request, menu_id):
 
     return render_to_response("external_services/lti_form.html", RequestContext(request, {
         "url": service.url,
-        "parameters": oauth_req.items(),
+        "parameters": list(oauth_req.items()),
     }))
