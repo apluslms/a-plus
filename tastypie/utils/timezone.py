@@ -17,7 +17,10 @@ try:
         return value
 
     def now():
-        return timezone.localtime(timezone.now())
+        # now() is used as default value for a DateTimeField, which can not
+        # accept aware datetimes when USE_TZ is set to False in settings.
+        # timezone.now() will be timezone-aware when USE_TZ is set to True.
+        return timezone.now()
 
 except ImportError:
     now = datetime.datetime.now
