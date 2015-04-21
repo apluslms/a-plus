@@ -5,6 +5,9 @@ class CourseLocators(object):
     APLUS_TEST_COURSE_INSTANCE_BANNER = (By.XPATH, "//h1/small[contains(text(), 'A+ Test Course Instance')]")
     HOOK_EXAMPLE_BUTTON = (By.XPATH, "//a[contains(text(),'Hook Example')]")
     HOOK_EXAMPLE_BANNER = (By.XPATH, "//h1/small[contains(text(), 'Hook Example')]")
+    LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']/li[2]/a")
+    LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']/li[3]/a")
+    LOGOUT_BANNER = "//div[@class='alert alert-success']"
 
 class LoginPageLocators(object):
     USERNAME_INPUT = (By.XPATH, "//input[@id='id_username']")
