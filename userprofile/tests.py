@@ -67,10 +67,8 @@ class UserProfileTest(TestCase):
         self.course.teachers.add(self.teacher.get_profile())
 
         self.today = datetime.now()
-        self.yesterday = self.today - timedelta(days=1)
         self.tomorrow = self.today + timedelta(days=1)
         self.two_days_from_now = self.tomorrow + timedelta(days=1)
-        self.three_days_from_now = self.two_days_from_now + timedelta(days=1)
 
         self.course_instance1 = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
