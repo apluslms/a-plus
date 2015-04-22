@@ -63,6 +63,9 @@
                         </td>
                         <td>
                             {{ submission.grade }}
+                            {% if submission.assistant_feedback %}
+                            	<span class="label">{% trans "Assistant feedback" %}</span> 
+                            {% endif %}
                         </td>
                         <td>
                             <a href="{% url exercise.staff_views.inspect_exercise_submission submission_id=submission.id %}">{% trans "Inspect" %}</a>

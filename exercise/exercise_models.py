@@ -470,7 +470,7 @@ class BaseExercise(LearningObject):
         # Submissions by superusers, staff, course teachers and course instance
         # assistants are still allowed.
         if (not self.is_open_for(students)
-            and not self.is_late_submission_allowed()
+            and not self.course_module.is_late_submission_open()
             and not (
                 students.count() == 1 and (
                     students[0].user.is_superuser
@@ -507,6 +507,8 @@ class BaseExercise(LearningObject):
         return success, errors
     
     def is_late_submission_allowed(self):
+        # TODO: REFACTOR one probably wants to check "is open",
+        # this will remain true after late deadline
         return self.course_module.late_submissions_allowed
     
     def get_late_submission_penalty(self):
