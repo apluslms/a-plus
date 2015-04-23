@@ -1,12 +1,11 @@
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.remote.webelement import WebElement
 
 from locators import LoginPageLocators, MainPageLocators, CourseLocators
 
 class AbstractPage(object):
-    def __init__(self, driver, base_url="http://plustest.niksula.hut.fi"):
+    def __init__(self, driver, base_url="http://localhost:8001"):
         self.driver = driver
         self.base_url = base_url
         self.wait_timeout = 2
@@ -39,11 +38,7 @@ class AbstractPage(object):
         return self.driver.find_element(*locator)
 
     def logout(self):
-        logoutLink = self.getElement(CourseLocators.LOGOUT_LINK)
-        if(logoutLink):
-            logoutLink.click()
-        else:
-            raise Exception("Logout not possible from " + self.base_url)
+        self.getElement(CourseLocators.LOGOUT_LINK).click()
 
 
 class LoginPage(AbstractPage):
