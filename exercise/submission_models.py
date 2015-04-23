@@ -207,7 +207,7 @@ class Submission(models.Model):
         return reverse("exercise.views.view_submission", kwargs={"submission_id": self.id})
 
     def get_callback_url(self):
-        # TODO: REFACTOR - variable identifier is never used? Should it be used instead of self.id as submission_id?
+        # TODO: REFACTOR - variable identifier is never used
         identifier = "s.%d.%d.%s" % (self.id, self.exercise.id, self.hash)
         return reverse("exercise.async_views.grade_async_submission", kwargs={"submission_id": self.id, "hash": self.hash})
 

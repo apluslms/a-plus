@@ -182,11 +182,12 @@ class LearningObject(ModelWithInheritance):
     course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")
     category               = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
 
-    # TODO: REFACTOR - Should this method be called 'validate'? Or is it just broken in terms of functionality?
     def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        
+        """
         course_instance_error = ValidationError("course_module and category must relate to the same CourseInstance object")
-
-    # TODO: REFACTOR - It's better to check for the existence of all the objects instead of throwing exceptions for some
         try:
             if (self.course_module.course_instance != self.category.course_instance):
                 raise course_instance_error
@@ -360,10 +361,11 @@ class BaseExercise(LearningObject):
         
         return ExercisePage(self, response_body)
 
-    # TODO: REFACTOR - Why do methods that do nothing exist?
     def modify_post_params(self, post_params):
         """
         Allows to modify POST parameters before they are sent to the grader.
+        Extending classes may implement this function.
+        
         @param post_params: original POST parameters    
         """
         pass
@@ -427,15 +429,14 @@ class BaseExercise(LearningObject):
 
         # Check if the exercise is open for the given students. Submissions by superusers, staff, course teachers and course instance assistants are still allowed.
         # TODO: REFACTOR - This check is broken. It fails (method returns True and no errors) at least if:
-        # TODO: REFACTOR - is_open_for(students) is False and len(students) is 1
-        # TODO: REFACTOR - is_late_submission_allowed() is True, but we're past the late submission deadline
-        # TODO: REFACTOR - len(students) > 1 (multiple students or even multiple staff members)
-        # TODO: REFACTOR -
-        # TODO: REFACTOR - Also:
-        # TODO: REFACTOR - Should check if all users are staff members or superusers (not only the first)
-        # TODO: REFACTOR - There is probably also an existing (shortcut) method for checking if a user is staff/admin
+        #                - is_open_for(students) is False and len(students) is 1
+        #                - len(students) > 1 (multiple students or even multiple staff members)
+        #                -
+        #                - Also:
+        #                - Should check if all users are staff members or superusers (not only the first)
+        #                - There is probably also an existing (shortcut) method for checking if a user is staff/admin
         if (not self.is_open_for(students)
-            and not self.is_late_submission_allowed()
+            and not self.course_module.is_late_submission_open()
             and len(students) != 1
             and (students[0].user.is_superuser
                 or students[0].user.is_staff
