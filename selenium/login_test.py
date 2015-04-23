@@ -6,8 +6,8 @@ from page_objects import LoginPage
 from locators import CourseLocators
 
 class LoginTest(unittest.TestCase):
-    username = "root"
-    password = "maesh3Reem"
+    username = "jenkins"
+    password = "jenkins"
 
     def setUp(self):
         # Set up browser logging
