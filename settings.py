@@ -45,8 +45,9 @@ MANAGERS = ADMINS
 # although not all choices may be available on all operating systems.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-# USE_TZ = True
 TIME_ZONE = 'Europe/Helsinki'
+# Datetimes will be unaware of timezone
+USE_TZ = False
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -202,18 +203,13 @@ SHIB_FIRST_NAME = "first_name"
 SHIB_LAST_NAME = "last_name"
 
 
-if 'test' in sys.argv[1:]:
-    # TODO: Is it OK that USE_TZ is only True when running tests
-    USE_TZ = True
-    DEBUG = False
-    TEMPLATE_DEBUG = False
-
-
-# Unit test XML-reporting #TODO fix with python3
+#TODO fix with python3
+# Unit test XML-reporting
 #TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 #TEST_OUTPUT_VERBOSE = True
 #TEST_OUTPUT_DESCRIPTIONS = True
 #TEST_OUTPUT_DIR = "xmlrunner"
+
 
 # Overrides and appends settings defined in local_settings.py
 try:
