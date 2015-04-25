@@ -33,7 +33,7 @@ class ExerciseTest(TestCase):
             code="123456",
             url="Course-Url"
         )
-        self.course.teachers.add(self.teacher.get_profile())
+        self.course.teachers.add(self.teacher.userprofile)
 
         self.today = datetime.now()
         self.yesterday = self.today - timedelta(days=1)
@@ -49,7 +49,7 @@ class ExerciseTest(TestCase):
             course=self.course,
             url="T-00.1000_d1"
         )
-        self.course_instance.assistants.add(self.grader.get_profile())
+        self.course_instance.assistants.add(self.grader.userprofile)
 
         self.course_module = CourseModule.objects.create(
             name="test module",
@@ -88,7 +88,7 @@ class ExerciseTest(TestCase):
             name="hidden category",
             course_instance=self.course_instance
         )
-        self.hidden_learning_object_category.hidden_to.add(self.user.get_profile())
+        self.hidden_learning_object_category.hidden_to.add(self.user.userprofile)
 
         self.learning_object = LearningObject.objects.create(
             name="test learning object",
@@ -146,43 +146,43 @@ class ExerciseTest(TestCase):
 
         self.submission = Submission.objects.create(
             exercise=self.base_exercise,
-            grader=self.grader.get_profile()
+            grader=self.grader.userprofile
         )
-        self.submission.submitters.add(self.user.get_profile())
+        self.submission.submitters.add(self.user.userprofile)
 
         self.submission_with_two_submitters = Submission.objects.create(
             exercise=self.base_exercise,
-            grader=self.grader.get_profile()
+            grader=self.grader.userprofile
         )
-        self.submission_with_two_submitters.submitters.add(self.user.get_profile())
-        self.submission_with_two_submitters.submitters.add(self.user2.get_profile())
+        self.submission_with_two_submitters.submitters.add(self.user.userprofile)
+        self.submission_with_two_submitters.submitters.add(self.user2.userprofile)
 
         self.late_submission = Submission.objects.create(
             exercise=self.base_exercise,
-            grader=self.grader.get_profile()
+            grader=self.grader.userprofile
         )
         self.late_submission.submission_time=self.two_days_from_now
-        self.late_submission.submitters.add(self.user.get_profile())
+        self.late_submission.submitters.add(self.user.userprofile)
 
         self.submission_when_late_allowed = Submission.objects.create(
             exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.get_profile()
+            grader=self.grader.userprofile
         )
-        self.submission_when_late_allowed.submitters.add(self.user.get_profile())
+        self.submission_when_late_allowed.submitters.add(self.user.userprofile)
 
         self.late_submission_when_late_allowed = Submission.objects.create(
             exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.get_profile()
+            grader=self.grader.userprofile
         )
         self.late_submission_when_late_allowed.submission_time=self.two_days_from_now
-        self.late_submission_when_late_allowed.submitters.add(self.user.get_profile())
+        self.late_submission_when_late_allowed.submitters.add(self.user.userprofile)
 
         self.late_late_submission_when_late_allowed = Submission.objects.create(
             exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.get_profile()
+            grader=self.grader.userprofile
         )
         self.late_late_submission_when_late_allowed.submission_time=self.three_days_from_now
-        self.late_late_submission_when_late_allowed.submitters.add(self.user.get_profile())
+        self.late_late_submission_when_late_allowed.submitters.add(self.user.userprofile)
 
         self.course_hook = CourseHook.objects.create(
             hook_url="test_hook_url",
@@ -191,7 +191,7 @@ class ExerciseTest(TestCase):
 
         self.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment,
-            submitter=self.user.get_profile(),
+            submitter=self.user.userprofile,
             extra_minutes=1440  # One day
         )
 
@@ -275,22 +275,22 @@ class ExerciseTest(TestCase):
         self.assertEquals(0, self.hidden_learning_object_category.get_required_percentage())
 
     def test_learning_object_category_hiding(self):
-        self.assertFalse(self.learning_object_category.is_hidden_to(self.user.get_profile()))
-        self.assertFalse(self.learning_object_category.is_hidden_to(self.grader.get_profile()))
-        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.user.get_profile()))
-        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.grader.get_profile()))
+        self.assertFalse(self.learning_object_category.is_hidden_to(self.user.userprofile))
+        self.assertFalse(self.learning_object_category.is_hidden_to(self.grader.userprofile))
+        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.user.userprofile))
+        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.grader.userprofile))
 
-        self.hidden_learning_object_category.set_hidden_to(self.user.get_profile(), False)
-        self.hidden_learning_object_category.set_hidden_to(self.grader.get_profile())
+        self.hidden_learning_object_category.set_hidden_to(self.user.userprofile, False)
+        self.hidden_learning_object_category.set_hidden_to(self.grader.userprofile)
 
-        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.user.get_profile()))
-        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.grader.get_profile()))
+        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.user.userprofile))
+        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.grader.userprofile))
 
-        self.hidden_learning_object_category.set_hidden_to(self.user.get_profile(), True)
-        self.hidden_learning_object_category.set_hidden_to(self.grader.get_profile(), False)
+        self.hidden_learning_object_category.set_hidden_to(self.user.userprofile, True)
+        self.hidden_learning_object_category.set_hidden_to(self.grader.userprofile, False)
 
-        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.user.get_profile()))
-        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.grader.get_profile()))
+        self.assertTrue(self.hidden_learning_object_category.is_hidden_to(self.user.userprofile))
+        self.assertFalse(self.hidden_learning_object_category.is_hidden_to(self.grader.userprofile))
 
     def test_learning_object_clean(self):
         try:
@@ -356,32 +356,32 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.old_base_exercise.is_open(self.tomorrow))
 
     def test_base_exercise_is_open_for(self):
-        self.assertTrue(self.base_exercise.is_open_for([self.user.get_profile()]))
-        self.assertTrue(self.static_exercise.is_open_for([self.user.get_profile()]))
-        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.get_profile()]))
-        self.assertFalse(self.old_base_exercise.is_open_for([self.user.get_profile()]))
-        self.assertFalse(self.base_exercise.is_open_for([self.user.get_profile()], self.yesterday))
-        self.assertFalse(self.static_exercise.is_open_for([self.user.get_profile()], self.yesterday))
-        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.get_profile()], self.yesterday))
-        self.assertTrue(self.old_base_exercise.is_open_for([self.user.get_profile()], self.yesterday))
-        self.assertTrue(self.base_exercise.is_open_for([self.user.get_profile()], self.tomorrow))
-        self.assertTrue(self.static_exercise.is_open_for([self.user.get_profile()], self.tomorrow))
-        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.get_profile()], self.tomorrow))
-        self.assertFalse(self.old_base_exercise.is_open_for([self.user.get_profile()], self.tomorrow))
+        self.assertTrue(self.base_exercise.is_open_for([self.user.userprofile]))
+        self.assertTrue(self.static_exercise.is_open_for([self.user.userprofile]))
+        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.userprofile]))
+        self.assertFalse(self.old_base_exercise.is_open_for([self.user.userprofile]))
+        self.assertFalse(self.base_exercise.is_open_for([self.user.userprofile], self.yesterday))
+        self.assertFalse(self.static_exercise.is_open_for([self.user.userprofile], self.yesterday))
+        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.userprofile], self.yesterday))
+        self.assertTrue(self.old_base_exercise.is_open_for([self.user.userprofile], self.yesterday))
+        self.assertTrue(self.base_exercise.is_open_for([self.user.userprofile], self.tomorrow))
+        self.assertTrue(self.static_exercise.is_open_for([self.user.userprofile], self.tomorrow))
+        self.assertTrue(self.exercise_with_attachment.is_open_for([self.user.userprofile], self.tomorrow))
+        self.assertFalse(self.old_base_exercise.is_open_for([self.user.userprofile], self.tomorrow))
 
     def test_base_exercise_submission_allowed(self):
-        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.get_profile()])[0])
-        self.assertTrue(self.static_exercise.is_submission_allowed([self.user.get_profile()])[0])
-        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.user.get_profile()])[0])
-        self.assertTrue(self.old_base_exercise.is_submission_allowed([self.user.get_profile()])[0])
-        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
-        self.assertFalse(self.static_exercise.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
-        self.assertFalse(self.exercise_with_attachment.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
-        self.assertFalse(self.old_base_exercise.is_submission_allowed([self.user.get_profile(), self.grader.get_profile()])[0])
-        self.assertTrue(self.base_exercise.is_submission_allowed([self.grader.get_profile()])[0])
-        self.assertTrue(self.static_exercise.is_submission_allowed([self.grader.get_profile()])[0])
-        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.grader.get_profile()])[0])
-        self.assertTrue(self.old_base_exercise.is_submission_allowed([self.grader.get_profile()])[0])
+        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.userprofile])[0])
+        self.assertTrue(self.static_exercise.is_submission_allowed([self.user.userprofile])[0])
+        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.user.userprofile])[0])
+        self.assertTrue(self.old_base_exercise.is_submission_allowed([self.user.userprofile])[0])
+        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
+        self.assertFalse(self.static_exercise.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
+        self.assertFalse(self.exercise_with_attachment.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
+        self.assertFalse(self.old_base_exercise.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
+        self.assertTrue(self.base_exercise.is_submission_allowed([self.grader.userprofile])[0])
+        self.assertTrue(self.static_exercise.is_submission_allowed([self.grader.userprofile])[0])
+        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.grader.userprofile])[0])
+        self.assertTrue(self.old_base_exercise.is_submission_allowed([self.grader.userprofile])[0])
 
     def test_base_exercise_late_submission_allowed(self):
         self.assertFalse(self.base_exercise.is_late_submission_allowed())
@@ -396,9 +396,9 @@ class ExerciseTest(TestCase):
         self.assertEqual("/testServiceURL?submission_url=http%3A%2F%2Flocalhost%3A8000%2FtestSubmissionURL&max_points=50", self.static_exercise.build_service_url("/testSubmissionURL"))
 
     def test_base_exercise_submissions_for_student(self):
-        submissions = self.base_exercise.get_submissions_for_student(self.user.get_profile())
+        submissions = self.base_exercise.get_submissions_for_student(self.user.userprofile)
         self.assertEqual(3, len(submissions))
-        submissions = self.static_exercise.get_submissions_for_student(self.user.get_profile())
+        submissions = self.static_exercise.get_submissions_for_student(self.user.userprofile)
         self.assertEqual(0, len(submissions))
 
     def test_base_exercise_unicode_string(self):
@@ -412,17 +412,17 @@ class ExerciseTest(TestCase):
         self.assertEqual("/exercise/5/", self.exercise_with_attachment.get_absolute_url())
 
     def test_base_exercise_submission_parameters_for_students(self):
-        parameters = self.base_exercise.get_submission_parameters_for_students([self.user.get_profile()])
+        parameters = self.base_exercise.get_submission_parameters_for_students([self.user.userprofile])
         self.assertEqual("1", parameters[0])
         self.assertEqual("4bdcd7674311971e4886a8cb90a0d9d399a0b4f8c0ed32335fb520ed23945cfb", parameters[1])
-        parameters = self.base_exercise.get_submission_parameters_for_students([self.user.get_profile(), self.grader.get_profile()])
+        parameters = self.base_exercise.get_submission_parameters_for_students([self.user.userprofile, self.grader.userprofile])
         self.assertEqual("1-2", parameters[0])
         self.assertEqual("feea43b6ce4c5bd53d4b063637144c449a0d9bd0bf773b901719390d68712304", parameters[1])
 
     def test_base_exercise_submission_url_for_students(self):
-        self.assertEqual(('1', '4bdcd7674311971e4886a8cb90a0d9d399a0b4f8c0ed32335fb520ed23945cfb'), self.base_exercise.get_submission_parameters_for_students([self.user.get_profile()]))
+        self.assertEqual(('1', '4bdcd7674311971e4886a8cb90a0d9d399a0b4f8c0ed32335fb520ed23945cfb'), self.base_exercise.get_submission_parameters_for_students([self.user.userprofile]))
         self.assertEqual(('1-2', 'feea43b6ce4c5bd53d4b063637144c449a0d9bd0bf773b901719390d68712304'),
-                         self.base_exercise.get_submission_parameters_for_students([self.user.get_profile(), self.grader.get_profile()]))
+                         self.base_exercise.get_submission_parameters_for_students([self.user.userprofile, self.grader.userprofile]))
 
     def test_base_exercise_summary(self):
         summary = self.base_exercise.summary
@@ -444,9 +444,9 @@ class ExerciseTest(TestCase):
                          self.exercise_with_attachment.get_breadcrumb())
 
     def test_base_exercise_can_edit(self):
-        self.assertFalse(self.base_exercise.can_edit(self.user.get_profile()))
-        self.assertFalse(self.base_exercise.can_edit(self.grader.get_profile()))
-        self.assertTrue(self.base_exercise.can_edit(self.teacher.get_profile()))
+        self.assertFalse(self.base_exercise.can_edit(self.user.userprofile))
+        self.assertFalse(self.base_exercise.can_edit(self.grader.userprofile))
+        self.assertTrue(self.base_exercise.can_edit(self.teacher.userprofile))
 
     def test_static_exercise_page(self):
         static_exercise_page = self.static_exercise.get_page()
@@ -491,27 +491,27 @@ class ExerciseTest(TestCase):
     def test_submission_submitters(self):
         submitters = self.submission.submitters.all()
         self.assertEqual(1, len(submitters))
-        self.assertEqual(self.user.get_profile(), submitters[0])
+        self.assertEqual(self.user.userprofile, submitters[0])
 
-        self.submission.add_submitter(self.grader.get_profile())
+        self.submission.add_submitter(self.grader.userprofile)
         submitters = self.submission.submitters.all()
         self.assertEqual(2, len(submitters))
-        self.assertEqual(self.user.get_profile(), submitters[0])
-        self.assertEqual(self.grader.get_profile(), submitters[1])
+        self.assertEqual(self.user.userprofile, submitters[0])
+        self.assertEqual(self.grader.userprofile, submitters[1])
 
         self.submission.submitters.clear()
         submitters = self.submission.submitters.all()
         self.assertEqual(0, len(submitters))
-        self.submission.add_submitters([self.user.get_profile(), self.grader.get_profile()])
+        self.submission.add_submitters([self.user.userprofile, self.grader.userprofile])
         submitters = self.submission.submitters.all()
-        self.assertEqual(self.user.get_profile(), submitters[0])
-        self.assertEqual(self.grader.get_profile(), submitters[1])
+        self.assertEqual(self.user.userprofile, submitters[0])
+        self.assertEqual(self.grader.userprofile, submitters[1])
 
         self.submission.submitters.clear()
-        self.submission.add_submitter(self.user.get_profile())
+        self.submission.add_submitter(self.user.userprofile)
         submitters = self.submission.submitters.all()
         self.assertEqual(1, len(submitters))
-        self.assertEqual(self.user.get_profile(), submitters[0])
+        self.assertEqual(self.user.userprofile, submitters[0])
 
     def test_submission_files(self):
         self.assertEqual(1, len(self.submission.files.all()))
@@ -522,10 +522,10 @@ class ExerciseTest(TestCase):
         self.assertEqual(6, len(self.submission.files.all()))
 
     def test_submission_user_permission(self):
-        self.assertTrue(self.submission.check_user_permission(self.user.get_profile()))
-        self.assertFalse(self.submission.check_user_permission(self.user2.get_profile()))
-        self.assertTrue(self.submission.check_user_permission(self.grader.get_profile()))
-        self.assertTrue(self.submission.check_user_permission(self.teacher.get_profile()))
+        self.assertTrue(self.submission.check_user_permission(self.user.userprofile))
+        self.assertFalse(self.submission.check_user_permission(self.user2.userprofile))
+        self.assertTrue(self.submission.check_user_permission(self.grader.userprofile))
+        self.assertTrue(self.submission.check_user_permission(self.teacher.userprofile))
 
     def test_submission_course(self):
         self.assertEqual(self.course, self.submission.get_course())

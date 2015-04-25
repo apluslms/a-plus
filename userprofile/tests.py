@@ -12,26 +12,26 @@ class UserProfileTest(TestCase):
         self.student = User(username="testUser", first_name="Superb", last_name="Student", email="test@aplus.com")
         self.student.set_password("testPassword")
         self.student.save()
-        self.student_profile = self.student.get_profile()
+        self.student_profile = self.student.userprofile
         self.student_profile.student_id = "12345X"
         self.student_profile.save()
 
         self.grader = User(username="grader", first_name="Grumpy", last_name="Grader", email="grader@aplus.com")
         self.grader.set_password("graderPassword")
         self.grader.save()
-        self.grader_profile = self.grader.get_profile()
+        self.grader_profile = self.grader.userprofile
         self.grader_profile.student_id = "67890Y"
         self.grader_profile.save()
 
         self.teacher = User(username="teacher", first_name="Tedious", last_name="Teacher", email="teacher@aplus.com", is_staff=True)
         self.teacher.set_password("teacherPassword")
         self.teacher.save()
-        self.teacher_profile = self.teacher.get_profile()
+        self.teacher_profile = self.teacher.userprofile
 
         self.superuser = User(username="superuser", first_name="Super", last_name="User", email="superuser@aplus.com", is_superuser=True)
         self.superuser.set_password("superuserPassword")
         self.superuser.save()
-        self.superuser_profile = self.superuser.get_profile()
+        self.superuser_profile = self.superuser.userprofile
 
         self.student_group1 = StudentGroup.objects.create(
             name="group1",
@@ -64,7 +64,7 @@ class UserProfileTest(TestCase):
             code="123456",
             url="Course-Url"
         )
-        self.course.teachers.add(self.teacher.get_profile())
+        self.course.teachers.add(self.teacher.userprofile)
 
         self.today = datetime.now()
         self.tomorrow = self.today + timedelta(days=1)
@@ -78,7 +78,7 @@ class UserProfileTest(TestCase):
             course=self.course,
             url="T-00.1000_d1"
         )
-        self.course_instance1.assistants.add(self.grader.get_profile())
+        self.course_instance1.assistants.add(self.grader.userprofile)
 
         self.course_instance2 = CourseInstance.objects.create(
             instance_name="Fall 2011 day 2",
