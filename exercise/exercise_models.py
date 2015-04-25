@@ -41,11 +41,11 @@ class CourseModule(models.Model):
     """
     Functionality related to early bonuses has been disabled. The following lines
     are commented out so that they can be restored later if necessary.
-    
+
     # Settings related to early submission bonuses
     early_submissions_allowed= models.BooleanField(default=False)
     early_submissions_start = models.DateTimeField(default=datetime.now, blank=True, null=True)
-    early_submission_bonus  = PercentField(default=0.1, 
+    early_submission_bonus  = PercentField(default=0.1,
         help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
     """
     # Settings that can be used to allow late submissions to exercises
@@ -69,7 +69,7 @@ class CourseModule(models.Model):
             return 0
         else:
             return int(round(100.0 * self.points_to_pass / max_points))
-    
+
     def is_late_submission_open(self):
         return self.late_submissions_allowed and self.closing_time <= datetime.now() <= self.late_submission_deadline
 
@@ -82,13 +82,13 @@ class CourseModule(models.Model):
         if self.late_submissions_allowed:
             point_worth = int((1.0-self.late_submission_penalty) * 100.0)
         return point_worth
-    
+
     def is_open(self, when=None):
         when = when or datetime.now()
         return self.opening_time <= when <= self.closing_time
 
     # TODO: REFACTOR - More simple to check if after closing time instead of two checks
-    def is_expired(self, when=None):        
+    def is_expired(self, when=None):
         return not self.is_open(when) and self.is_after_open(when)
 
     def is_after_open(self, when=None):
@@ -346,10 +346,10 @@ class BaseExercise(LearningObject):
 
         # Build the service URL, which contains maximum points for this exercise
         # and a callback URL to which the service may return the grading
-        url                     = self.build_service_url( submission.get_callback_url() )
+        url                     = self.build_service_url( submission.get_callback_url())
         
         opener                  = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
-        response_body           = opener.open(url.encode('ascii'), post_params, timeout=50).read()
+        response_body           = opener.open(url, post_params, timeout=50).read()
         
         # Close all opened file handles
         for (key, value) in post_params:
@@ -506,7 +506,7 @@ class BaseExercise(LearningObject):
         '''
         student_str     = "-".join(str(userprofile.id) for userprofile in students)
         identifier      = "%s.%d" % (student_str, self.id)
-        hash            = hmac.new(settings.SECRET_KEY, msg=identifier, digestmod=hashlib.sha256).hexdigest()
+        hash            = hmac.new(settings.SECRET_KEY.encode('utf-8'), msg=identifier.encode('utf-8'), digestmod=hashlib.sha256).hexdigest()
         return student_str, hash
 
     # TODO: REFACTOR - This doesn't really return an URL, but (student_ids, hash). Is this correct behavior?

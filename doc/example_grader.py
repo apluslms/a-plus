@@ -26,7 +26,7 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type','text/html')
             self.send_header('Content-Length', len(response))
             self.end_headers()
-            self.wfile.write(response)
+            self.wfile.write(response.encode('utf-8'))
         # Attachment exercise
         elif '/attachment_exercise/' in self.path:
             response = open('attachment_exercise.html','r').read()
@@ -34,7 +34,7 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type','text/html')
             self.send_header('Content-Length', len(response))
             self.end_headers()
-            self.wfile.write(response)
+            self.wfile.write(response.encode('utf-8'))
         elif '/ajax_exercise/' in self.path:
             response = open('ajax_exercise.html','r').read()
             url = 'http://localhost:' + str(PORT) + self.path
@@ -43,7 +43,7 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type','text/html')
             self.send_header('Content-Length', len(response))
             self.end_headers()
-            self.wfile.write(response)
+            self.wfile.write(response.encode('utf-8'))
 
     # On POSTs get the answer, grade it and return the results
     def do_POST(self):
@@ -65,7 +65,7 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type','text/html')
             self.send_header('Content-Length', len(response))
             self.end_headers()
-            self.wfile.write(response)
+            self.wfile.write(response.encode('utf-8'))
 
         # Attachment exercise. Note that the file is only stored in A+
         elif '/attachment_exercise/' in self.path:
@@ -79,7 +79,7 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type','text/html')
             self.send_header('Content-Length', len(response))
             self.end_headers()
-            self.wfile.write(response)
+            self.wfile.write(response.encode('utf-8'))
 
         # AJAX exercise
         # NOTE: The AJAX request comes from the user's browser, not A+
@@ -104,7 +104,7 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Length', len(response))
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-            self.wfile.write(response)
+            self.wfile.write(response.encode('utf-8'))
 
         # Demonstrating hook functionality
         elif "/hook/" in self.path:
