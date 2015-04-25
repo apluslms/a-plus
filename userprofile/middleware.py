@@ -1,7 +1,4 @@
-from django.middleware.common import CommonMiddleware
 from django.shortcuts import redirect
-from django.http import HttpResponseForbidden, HttpResponseBadRequest
-from django.contrib.auth.models import User
 
 from userprofile import STUDENT_GROUP, STUDENT_GROUP_ID
 

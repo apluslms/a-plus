@@ -4,15 +4,38 @@
 
 cd ..
 
-python3 venv_bootstrap.py ../aplusenv              # create the virtualenv
+VENV_DIR=../aplusenv
+VENV_PYTHON=$VENV_DIR/bin/python
 
-../aplusenv/bin/python manage.py syncdb --noinput # create the sqlite database TODO:syncdb is deprecated
-../aplusenv/bin/python manage.py migrate course   # first do migrations to the course...
-../aplusenv/bin/python manage.py migrate          # ...then for the rest
-mkdir course/fixtures
-cp doc/initial_data.json course/fixtures/         # copy initial course data...
-../aplusenv/bin/python manage.py migrate course   # ...and get it do db
 
-../aplusenv/bin/python manage.py createsuperuser  # finally create a super user
+# (re)create test environment
+if [ -d $VENV_DIR ]; then
+    rm -R $VENV_DIR
+fi
+python3 venv_bootstrap.py $VENV_DIR
+
+# (re)create the database
+if [ -f aplus.db ]; then
+    while true; do
+        read -p "Do you wish to reset the database as well (Y/N)?" yn
+        case $yn in
+            [Yy]*)
+                rm aplus.db
+                $VENV_PYTHON manage.py syncdb --noinput
+                $VENV_PYTHON manage.py migrate
+                $VENV_PYTHON manage.py loaddata doc/initial_data.json
+                $VENV_PYTHON manage.py createsuperuser
+                break
+                ;;
+            [Nn]*)
+                exit
+                ;;
+            *)
+                echo "Invalid option! Please answer Y (yes) or N (no)"
+                ;;
+        esac
+    done
+fi
+
 
 

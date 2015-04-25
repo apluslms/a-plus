@@ -1,5 +1,3 @@
-from django.db import models
-from userprofile.models import UserProfile
 from course.models import *
 
 class Notification(models.Model):

@@ -1,8 +1,8 @@
 # Django
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
 from django.db.models import Q
+from django.db.models.signals import post_save
 
 
 class UserProfile(models.Model):
@@ -34,7 +34,9 @@ class UserProfile(models.Model):
             return self.user.username
     
     shortname = property(get_shortname)
-    
+
+    # TODO: REFACTOR - Why is an import within the method? Is it there on purpose (instead of at the top of the file as usual)
+    # TODO: REFACTOR - Also, the method name is misleading. One could assume it returns a set of users (staff)
     def get_courseinstance_staff_queryset(self):
         from course.models import CourseInstance
         return CourseInstance.objects.filter( Q(assistants__id=self.id) | Q(course__teachers__id=self.id) )
@@ -55,17 +57,13 @@ class UserProfile(models.Model):
     class Meta:
         ordering            = ['id']
 
-    # TODO: Remove this method and replace all usages with prefetch_related
-    # when updating to newer Django version.
+    # TODO: Remove this method and replace all usages with prefetch_related when updating to newer Django version.
     def reset_hidden_categories_cache(self):
         self.cached_hidden_categories = self.hidden_categories.all()
 
-    # TODO: Remove this method and replace all usages with prefetch_related
-    # when updating to newer Django version.
+    # TODO: Remove this method and replace all usages with prefetch_related when updating to newer Django version.
     def get_hidden_categories_cache(self):
-        self.cached_hidden_categories = getattr(self,
-                                                "cached_hidden_categories",
-                                                self.hidden_categories.all())
+        self.cached_hidden_categories = getattr(self, "cached_hidden_categories", self.hidden_categories.all())
         return self.cached_hidden_categories
 
 
@@ -97,7 +95,8 @@ class StudentGroup(models.Model):
     
     def has_space_left(self):
         return self.members.count() < self.member_limit
-    
+
+    # TODO: REFACTOR - Should this method return True if the member already is in the group? Currently it does, but the member count does not increase
     def add_member(self, new_member):
         if self.members.count() >= self.member_limit:
             return False
@@ -122,8 +121,7 @@ class StudentGroup(models.Model):
         """
         # Get the group of the student, if one is set in the request's META
         student_group       = request.META.get("STUDENT_GROUP", None)
-        students            = None
-        
+
         if student_group:
             students = student_group.members.all()
         else:

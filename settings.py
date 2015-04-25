@@ -150,27 +150,41 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     # Django applications
-    'django.contrib.auth',
-    'django.contrib.staticfiles',
     'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
+    'django.contrib.auth',
 
     # Third party applications
-    'oauth_provider',
     'django_shibboleth', #for shibboleth logins
+    'oauth_provider',
     'tastypie',
 
     # First party applications
-    'exercise',
-    'course',
+    'external_services',
+    'notification',
     'inheritance',
     'userprofile',
-    'apps',
+    'exercise',
+    'course',
     'oembed',
-    'notification',
-    'external_services',
+    'apps',
+)
+
+TEST_EXCLUDE_APPS = (
+    'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.admin',
+    'django.contrib.auth',
+
+    'django_shibboleth',
+    'oauth_provider',
+    'tastypie',
+    'south',
 )
 
 # OAuth settings
@@ -205,11 +219,10 @@ SHIB_LAST_NAME = "last_name"
 
 #TODO fix with python3
 # Unit test XML-reporting
-#TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
-#TEST_OUTPUT_VERBOSE = True
-#TEST_OUTPUT_DESCRIPTIONS = True
-#TEST_OUTPUT_DIR = "xmlrunner"
-
+# TEST_RUNNER = "test_runner.custom_xml_test_runner.ExcludeAppsXMLTestRunner"
+# TEST_OUTPUT_VERBOSE = True
+# TEST_OUTPUT_DESCRIPTIONS = True
+# TEST_OUTPUT_DIR = "test_results"
 
 # Overrides and appends settings defined in local_settings.py
 try:

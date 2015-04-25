@@ -11,6 +11,7 @@ oauth2
 mimeparse
 python-dateutil
 icalendar
+selenium
 
 = OAuth provider =
 django-oauthplus
