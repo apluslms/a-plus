@@ -1,17 +1,12 @@
 import unittest
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-
+from test_initializer import TestInitializer
 from page_objects import BasePage, LoginPage, CourseName
 
 class MainNavigationTest(unittest.TestCase):
     baseUrl = BasePage.base_url + "/course/aplus1/basic_instance/"
 
     def setUp(self):
-        # Set up browser logging
-        firefoxCapabilities =  DesiredCapabilities.FIREFOX
-        firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
-        self.driver = webdriver.Firefox(capabilities=firefoxCapabilities)
+        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
 
     def testNavigateToResults(self):

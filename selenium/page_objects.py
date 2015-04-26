@@ -45,6 +45,9 @@ class AbstractPage(object):
     def getElement(self, locator):
         return self.driver.find_element(*locator)
 
+    def getElements(self, locator):
+        return self.driver.find_elements(*locator)
+
     def logout(self):
         self.getElement(BasePageLocators.LOGOUT_LINK).click()
 
@@ -133,6 +136,9 @@ class ExercisePage(BasePage):
 
     def getAverageSubmissionsPerStudent(self):
         return str(self.getElement(ExercisePageLocators.AVERAGE_SUBMISSIONS_PER_STUDENT).text)
+
+    def getMySubmissionsList(self):
+        return self.getElements(ExercisePageLocators.MY_SUBMISSIONS_LIST)
 
 class MyFirstExerciseGrader(ExercisePage):
     def __init__(self, driver):

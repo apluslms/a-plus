@@ -1,10 +1,10 @@
 import unittest
-from test_helper import TestHelper
+from test_initializer import TestInitializer
 from page_objects import CourseName, LoginPage, HomePage
 
 class HomePageTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestHelper().getFirefoxDriverWithLoggingEnabled()
+        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
 
     def testInitialScoreShouldBeZero(self):

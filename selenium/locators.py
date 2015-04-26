@@ -32,6 +32,7 @@ class ExercisePageLocators(object):
     NUMBER_OF_SUBMITTERS = (By.XPATH, "//*[@id='exercise-info']/dl[2]/dd[1]")
     AVERAGE_SUBMISSIONS_PER_STUDENT = (By.XPATH, "//*[@id='exercise-info']/dl[2]/dd[2]")
     ALLOWED_SUBMISSIONS = (By.XPATH, "//*[@id='exercise-info']/dl[1]/dd")
+    MY_SUBMISSIONS_LIST = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/div[1]/ul/li[2]/ul/li")
 
 class MyFirstExerciseLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title']")

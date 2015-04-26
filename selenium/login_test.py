@@ -1,18 +1,17 @@
 import unittest
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-from test_helper import TestHelper
+from test_initializer import TestInitializer
 from page_objects import CourseName, LoginPage
 
 class LoginTest(unittest.TestCase):
     logoutPageURI = '/accounts/logout'
 
     def setUp(self):
-       self.driver = TestHelper().getFirefoxDriverWithLoggingEnabled()
+       self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
 
     def testLoginToTestCourseInstance(self):
         loginPage = LoginPage(self.driver)
         loginPage.loginToCourse(CourseName.APLUS)
+        print LoginPage.defaultUsername + " - " + loginPage.getLoggedInUsername()
         self.assertTrue(LoginPage.defaultUsername in loginPage.getLoggedInUsername())
         loginPage.logout()
         self.assertTrue(self.logoutPageURI in self.driver.current_url)
