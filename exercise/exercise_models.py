@@ -18,6 +18,7 @@ from lib import MultipartPostHandler
 from lib.fields import PercentField
 from exercise.exercise_page import ExercisePage
 from userprofile.models import UserProfile
+from io import IOBase
 
 class CourseModule(models.Model):
     """
@@ -353,7 +354,7 @@ class BaseExercise(LearningObject):
 
         # Close all opened file handles
         for (key, value) in post_params:
-            if type(value) == file:
+            if type(value) == IOBase:
                 value.close()
 
         return ExercisePage(self, response_body)

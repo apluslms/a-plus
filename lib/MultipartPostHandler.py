@@ -42,10 +42,9 @@ Further Example:
 """
 
 import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import email, 	mimetypes
 import os, stat
-from io import StringIO
+from io import StringIO, IOBase
 
 class Callable:
     def __init__(self, anycallable):
@@ -59,13 +58,13 @@ class MultipartPostHandler(urllib.request.BaseHandler):
     handler_order = urllib.request.HTTPHandler.handler_order - 10 # needs to run first
 
     def http_request(self, request):
-        data = request.get_data()
+        data = request.data
         if data is not None and type(data) != str:
             v_files = []
             v_vars = []
             try:
                  for(key, value) in data:
-                     if type(value) == file:
+                     if type(value) == IOBase:
                          v_files.append((key, value))
                      else:
                          v_vars.append((key, value))
@@ -84,7 +83,7 @@ class MultipartPostHandler(urllib.request.BaseHandler):
                     print("Replacing %s with %s" % (request.get_header('content-type'), 'multipart/form-data'))
                 request.add_unredirected_header('Content-Type', contenttype)
 
-            request.add_data(data)
+            request.data = data.encode('utf-8')
 
         return request
 
