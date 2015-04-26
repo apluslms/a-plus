@@ -39,7 +39,7 @@ class LinkService(ModelWithInheritance):
 class LTIService(LinkService):
     '''
     Configures an external LTI service. Extends LinkService.
-    
+
     '''
     consumer_key = models.CharField(
         max_length=128,
@@ -54,7 +54,7 @@ class LTIService(LinkService):
 class MenuItem(models.Model):
     '''
     Attaches LTI service to course instance menu.
-    
+
     '''
     service = models.ForeignKey(LinkService)
 
@@ -80,7 +80,7 @@ class MenuItem(models.Model):
         help_text="Heavier menu entries are placed after lighter ones."
     )
     enabled = models.BooleanField(default=True)
-    
+
     class Meta:
         ordering = ["course_instance", "menu_weight", "menu_label"]
 

@@ -39,7 +39,7 @@ def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name
     if 'next' in request.REQUEST:
         was_redirected = True
     redirect_url = request.REQUEST.get('next', settings.LOGIN_REDIRECT_URL)
-    context = {'shib_attrs': attr, 
+    context = {'shib_attrs': attr,
                'was_redirected': was_redirected}
     if error:
         return render_to_response('shibboleth/attribute_error.html', context, context_instance=RequestContext(request))
@@ -88,7 +88,7 @@ def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name
 
 
 def shib_meta(request):
-    
+
     meta_data = list(request.META.items())
 
     return render_to_response('shibboleth/meta.html', {'meta_data': meta_data}, context_instance=RequestContext(request))

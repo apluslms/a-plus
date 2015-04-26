@@ -231,7 +231,7 @@ class UserCategorySummary(object):
 
 
 class UserCourseSummary(object):
-    """ 
+    """
     UserCourseSummary generates a personal summary for a user of the exercises
     existing and completed on a given course.
 

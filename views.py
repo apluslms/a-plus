@@ -17,27 +17,27 @@ from django.utils.datetime_safe import datetime
 def login(request):
     """
     This login view is a wrapper for the default login view in Django. This view checks if the user
-    is already authenticated and if so, it redirects the user straight to the page he/she was 
+    is already authenticated and if so, it redirects the user straight to the page he/she was
     trying to access. If no page is accessed, the user is redirected to default address.
-    
+
     If the user has not yet been authenticated, this view will call the default view in Django.
     """
     if request.user.is_authenticated():
-        # User is authenticated so we'll just redirect. The following checks for the redirect url 
+        # User is authenticated so we'll just redirect. The following checks for the redirect url
         # are borrowed from django.contrib.auth.views.login.
         redirect_to = request.REQUEST.get(REDIRECT_FIELD_NAME, '')
         netloc = urllib.parse.urlparse(redirect_to)[1]
-        
+
         # Use default setting if redirect_to is empty
         if not redirect_to:
             redirect_to = settings.LOGIN_REDIRECT_URL
-        
+
         # Security check -- don't allow redirection to a different host.
         elif netloc and netloc != request.get_host():
             redirect_to = settings.LOGIN_REDIRECT_URL
-        
+
         return redirect(redirect_to)
-    
+
     return django_login(request, template_name="aaltoplus/login.html")
 
 def home(request):

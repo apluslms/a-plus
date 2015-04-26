@@ -2,20 +2,20 @@
 
 ####
 # 02/2006 Will Holcomb <wholcomb@gmail.com>
-# 
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 #
-# 7/26/07 Slightly modified by Brian Schneider  
+# 7/26/07 Slightly modified by Brian Schneider
 # in order to support unicode files ( multipart_encode function )
-# 
+#
 """
 Usage:
   Enables the use of multipart/form-data for posting forms
@@ -85,7 +85,7 @@ class MultipartPostHandler(urllib.request.BaseHandler):
                 request.add_unredirected_header('Content-Type', contenttype)
 
             request.add_data(data)
-        
+
         return request
 
     def multipart_encode(vars, files, boundary = None, buf = None):

@@ -13,7 +13,7 @@ def view_tab(request, tab_id):
                                                    request.user.userprofile,
                                                    tab_object.get_container())
 
-    return render_to_response("plugins/view_tab.html", 
-                              RequestContext(request, 
+    return render_to_response("plugins/view_tab.html",
+                              RequestContext(request,
                                      {"tab": tab_renderer,
                                       "instance": tab_object.get_container()}))

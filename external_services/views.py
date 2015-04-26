@@ -1,6 +1,6 @@
 '''
 Provides LTI access to external services with current course and user identity.
- 
+
 '''
 #from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render_to_response
@@ -18,7 +18,7 @@ def lti_login(request, menu_id):
     Generates an LTI POST form for a service.
     Implements LTI 1.0 using required and most recommended parameters.
     Tested for use with Piazza, https://piazza.com/product/lti
-    
+
     @type request: C{django.http.HttpRequest}
     @param requet: an HTTP request
     @type menu_id: C{str}
@@ -82,7 +82,7 @@ def lti_login(request, menu_id):
 
         "tool_consumer_instance_guid": request.get_host() + "/aplus",
         "tool_consumer_instance_name": "A+ LMS",
-        
+
         "oauth_version": "1.0",
         "oauth_timestamp": (calendar.timegm(datetime.datetime.utcnow().utctimetuple())),
         "oauth_nonce": str(uuid.uuid1())

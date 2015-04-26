@@ -19,9 +19,9 @@ def initialize_server_request(request):
         auth_header = {'Authorization': request.META['Authorization']}
     elif 'HTTP_AUTHORIZATION' in request.META:
         auth_header =  {'Authorization': request.META['HTTP_AUTHORIZATION']}
-   
-    # Don't include extra parameters when request.method is POST and 
-    # request.MIME['CONTENT_TYPE'] is "application/x-www-form-urlencoded" 
+
+    # Don't include extra parameters when request.method is POST and
+    # request.MIME['CONTENT_TYPE'] is "application/x-www-form-urlencoded"
     # (See http://oauth.net/core/1.0a/#consumer_req_param).
     # But there is an issue with Django's test Client and custom content types
     # so an ugly test is made here, if you find a better solution...
@@ -31,8 +31,8 @@ def initialize_server_request(request):
             or request.META.get('SERVER_NAME') == 'testserver'):
         parameters = dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items())
 
-    oauth_request = oauth.Request.from_request(request.method, 
-                                              request.build_absolute_uri(request.path), 
+    oauth_request = oauth.Request.from_request(request.method,
+                                              request.build_absolute_uri(request.path),
                                               headers=auth_header,
                                               parameters=parameters,
                                               query_string=request.META.get('QUERY_STRING', ''))
@@ -62,9 +62,9 @@ def get_oauth_request(request):
     headers = {}
     if 'HTTP_AUTHORIZATION' in request.META:
         headers['Authorization'] = request.META['HTTP_AUTHORIZATION']
-    return oauth.Request.from_request(request.method, 
-                                      request.build_absolute_uri(request.path), 
-                                      headers, 
+    return oauth.Request.from_request(request.method,
+                                      request.build_absolute_uri(request.path),
+                                      headers,
                                       dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items()))
 
 def verify_oauth_request(request, oauth_request, consumer, token=None):
