@@ -219,6 +219,7 @@ SHIB_LAST_NAME = "last_name"
 
 #TODO fix with python3
 # Unit test XML-reporting
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # TEST_RUNNER = "test_runner.custom_xml_test_runner.ExcludeAppsXMLTestRunner"
 # TEST_OUTPUT_VERBOSE = True
 # TEST_OUTPUT_DESCRIPTIONS = True
