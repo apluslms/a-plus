@@ -19,7 +19,7 @@ class UserProfile(models.Model):
     
     def _generate_gravatar_url(self):
         import hashlib
-        hash    = hashlib.md5(self.user.email).hexdigest()
+        hash    = hashlib.md5(self.user.email.encode('utf-8')).hexdigest()
         return "http://www.gravatar.com/avatar/" + hash +"?d=identicon"
     avatar_url = property(_generate_gravatar_url)
 
