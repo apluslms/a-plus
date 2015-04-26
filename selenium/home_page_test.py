@@ -1,16 +1,10 @@
 import unittest
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-
+from test_helper import TestHelper
 from page_objects import CourseName, LoginPage, HomePage
-from locators import CourseLocators
 
 class HomePageTest(unittest.TestCase):
     def setUp(self):
-        # Set up browser logging
-        firefoxCapabilities =  DesiredCapabilities.FIREFOX
-        firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
-        self.driver = webdriver.Firefox(capabilities=firefoxCapabilities)
+        self.driver = TestHelper().getFirefoxDriverWithLoggingEnabled()
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
 
     def testInitialScoreShouldBeZero(self):

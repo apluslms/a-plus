@@ -1,16 +1,14 @@
 import unittest
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
+from test_helper import TestHelper
 from page_objects import CourseName, LoginPage
 
 class LoginTest(unittest.TestCase):
     logoutPageURI = '/accounts/logout'
 
     def setUp(self):
-        # Set up browser logging
-        firefoxCapabilities =  DesiredCapabilities.FIREFOX
-        firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
-        self.driver = webdriver.Firefox(capabilities=firefoxCapabilities)
+       self.driver = TestHelper().getFirefoxDriverWithLoggingEnabled()
 
     def testLoginToTestCourseInstance(self):
         loginPage = LoginPage(self.driver)

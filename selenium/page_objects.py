@@ -103,7 +103,8 @@ class HomePage(BasePage):
         BasePage.__init__(self, driver)
         self.load("/course/aplus1/basic_instance", HomePageLocators.MAIN_SCORE)
 
-        return self.getElement(HomePageLocators.MAIN_SCORE).text;
+    def getMainScore(self):
+        return str(self.getElement(HomePageLocators.MAIN_SCORE).text);
 
     def clickFilterCategories(self):
         self.getElement(HomePageLocators.FILTER_CATEGORIES_BUTTON).click()
