@@ -72,7 +72,7 @@ class BaseTab(AbstractApp):
     def get_label(self):
         return self.label
     
-    def __unicode__(self):
+    def __str__(self):
         return self.label
     
     def get_container(self):

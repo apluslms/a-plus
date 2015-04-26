@@ -75,7 +75,7 @@ class Course(models.Model):
         crumb_tuple = (str(self), self.get_absolute_url())
         return [crumb_tuple]
 
-    def __unicode__(self):
+    def __str__(self):
         '''
         Returns a short representation of the course as an unicode string.
         '''
@@ -197,7 +197,7 @@ class CourseInstance(models.Model):
         '''
         return _("Dashboard")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.course.code + ": " + self.instance_name
 
     class Meta:
@@ -233,7 +233,7 @@ class CourseHook(models.Model):
         except:
             logger.error("HTTP POST failed on %s hook to %s (%s)", self.hook_type, self.hook_url, self.course_instance)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s -> %s" % (self.course_instance, self.hook_url)
 
 def get_visible_open_course_instances(profile=None):

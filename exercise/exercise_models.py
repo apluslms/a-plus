@@ -98,7 +98,7 @@ class CourseModule(models.Model):
         when = when or datetime.now()
         return self.opening_time <= when
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name + " -- " + str(self.course_instance)
     
     def get_breadcrumb(self):
@@ -131,7 +131,7 @@ class LearningObjectCategory(models.Model):
     class Meta:
         unique_together = ("name", "course_instance")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name + " -- " + str(self.course_instance)
 
     def get_exercises(self):
@@ -492,7 +492,7 @@ class BaseExercise(LearningObject):
         """
         return userprofile.submissions.filter(exercise=self)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     
     def get_absolute_url(self):

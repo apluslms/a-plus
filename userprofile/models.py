@@ -14,7 +14,7 @@ class UserProfile(models.Model):
     def get_by_student_id(cls, student_id):
         return cls.objects.get(student_id=student_id)
     
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
     
     def _generate_gravatar_url(self):
@@ -104,7 +104,7 @@ class StudentGroup(models.Model):
         self.members.add(new_member)
         return True
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     
     class Meta:

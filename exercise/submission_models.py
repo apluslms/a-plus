@@ -179,7 +179,7 @@ class Submission(models.Model):
 
         return ", ".join(submitter_strs)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.id)
 
     # Status methods. The status indicates whether this submission is just

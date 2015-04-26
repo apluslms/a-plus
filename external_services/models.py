@@ -29,7 +29,7 @@ class LinkService(ModelWithInheritance):
     class Meta:
         ordering = ["menu_label"]
 
-    def __unicode__(self):
+    def __str__(self):
         out = "%s: %s" % (self.menu_label, self.url)
         if not self.enabled:
             return "[Disabled] " + out
@@ -114,7 +114,7 @@ class MenuItem(models.Model):
             return reverse('external_services.views.lti_login', args=[self.id])
         return self.service.url
 
-    def __unicode__(self):
+    def __str__(self):
         out = "%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
         if not self.enabled or not self.service.enabled:
             return "[Disabled] " + out
