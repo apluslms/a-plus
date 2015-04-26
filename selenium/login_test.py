@@ -1,4 +1,5 @@
 import unittest
+import xmlrunner
 from test_initializer import TestInitializer
 from page_objects import CourseName, LoginPage, HomePage
 
@@ -21,8 +22,19 @@ class LoginTest(unittest.TestCase):
         homePage = HomePage(self.driver, CourseName.HOOK)
         self.assertEqual(homePage.getCourseBanner(), 'Hook Example')
 
+    def testShouldThrowTimoutExceptionOnWrongCredentials(self):
+        loginPage = LoginPage(self.driver)
+        try:
+            loginPage.loginToCourse(CourseName.APLUS, 'fake', 'password')
+        except Exception:
+            pass
+
     def tearDown(self):
         self.driver.close()
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    unittest.main(
+        testRunner=xmlrunner.XMLTestRunner(output='test-reports'),
+        # these make sure that some options that are not applicable
+        # remain hidden from the help menu.
+        failfast=False, buffer=False, catchbreak=False)

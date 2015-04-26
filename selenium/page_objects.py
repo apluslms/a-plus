@@ -2,7 +2,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, HomePageLocators, ExercisePageLocators, MyFirstExerciseLocators
+from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, HomePageLocators, ExercisePageLocators, MyFirstExerciseLocators, FileUploadGraderLocators, MyAjaxExerciseGraderLocators
 
 
 class CourseName:
@@ -160,4 +160,23 @@ class MyFirstExerciseGrader(ExercisePage):
     def submit(self):
         self.getElement(MyFirstExerciseLocators.SUBMIT_BUTTON).click()
 
+class FileUploadGrader(ExercisePage):
+    def __init__(self, driver):
+        ExercisePage.__init__(self, driver)
+        self.load("/exercise/2/", FileUploadGraderLocators.MAIN_TITLE)
+
+    def submit(self):
+        self.getElement(FileUploadGraderLocators.SUBMIT_BUTTON).click()
+
+
+class MyAjaxExerciseGrader(ExercisePage):
+    def __init__(self, driver):
+        ExercisePage.__init__(self, driver)
+        self.load("/exercise/3/", MyAjaxExerciseGraderLocators.MAIN_TITLE)
+
+    def setText(self, text):
+        self.getElement(MyAjaxExerciseGraderLocators.TEXT_INPUT).send_keys(text)
+
+    def submit(self):
+        self.getElement(MyAjaxExerciseGraderLocators.SUBMIT_BUTTON).click()
 

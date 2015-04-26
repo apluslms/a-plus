@@ -29,6 +29,7 @@ class HomePageLocators(object):
     UPDATE_FILTERS_BUTTON = (By.XPATH, "//*[@id='filters-collapse']/div/form/input")
 
 class ExercisePageLocators(object):
+    MAIN_TITLE = (By.XPATH, "//*[@id='title']")
     EXERCISE_SCORE = (By.XPATH, "//*[@id='exercise-info']/div/h2")
     NUMBER_OF_SUBMITTERS = (By.XPATH, "//*[@id='exercise-info']/dl[2]/dd[1]")
     AVERAGE_SUBMISSIONS_PER_STUDENT = (By.XPATH, "//*[@id='exercise-info']/dl[2]/dd[2]")
@@ -36,6 +37,16 @@ class ExercisePageLocators(object):
     MY_SUBMISSIONS_LIST = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/div[1]/ul/li[2]/ul/li")
 
 class MyFirstExerciseLocators(object):
-    MAIN_TITLE = (By.XPATH, "//*[@id='title']")
+    MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My first exercise')]")
     TEXT_INPUT = (By.XPATH, "//*[@id='exercise']/form/textarea")
+    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form/input")
+
+class FileUploadGraderLocators(object):
+    MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'Attachment exercise')]")
+    BROWSE_BUTTON = (By.XPATH, "//*[@id='file[]_id']")
+    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form/input")
+
+class MyAjaxExerciseGraderLocators(object):
+    MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My AJAX exercise')]")
+    TEXT_INPUT = (By.XPATH, "//*[@id='form']/input[1]")
     SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form/input")
