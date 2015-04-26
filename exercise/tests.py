@@ -414,14 +414,14 @@ class ExerciseTest(TestCase):
     def test_base_exercise_submission_parameters_for_students(self):
         parameters = self.base_exercise.get_submission_parameters_for_students([self.user.userprofile])
         self.assertEqual("1", parameters[0])
-        self.assertEqual("4bdcd7674311971e4886a8cb90a0d9d399a0b4f8c0ed32335fb520ed23945cfb", parameters[1])
+        self.assertEqual("a377e9bfc4603b44d6f8b00899f781920cfa4cbfa9e01c9b77f6a86d42e693ba", parameters[1])
         parameters = self.base_exercise.get_submission_parameters_for_students([self.user.userprofile, self.grader.userprofile])
         self.assertEqual("1-2", parameters[0])
-        self.assertEqual("feea43b6ce4c5bd53d4b063637144c449a0d9bd0bf773b901719390d68712304", parameters[1])
+        self.assertEqual("6c1b5566cb18d6eb9164f60b62a97603fbe146e9bf0788347107ed56cdc07e34", parameters[1])
 
     def test_base_exercise_submission_url_for_students(self):
-        self.assertEqual(('1', '4bdcd7674311971e4886a8cb90a0d9d399a0b4f8c0ed32335fb520ed23945cfb'), self.base_exercise.get_submission_parameters_for_students([self.user.userprofile]))
-        self.assertEqual(('1-2', 'feea43b6ce4c5bd53d4b063637144c449a0d9bd0bf773b901719390d68712304'),
+        self.assertEqual(('1', 'a377e9bfc4603b44d6f8b00899f781920cfa4cbfa9e01c9b77f6a86d42e693ba'), self.base_exercise.get_submission_parameters_for_students([self.user.userprofile]))
+        self.assertEqual(('1-2', '6c1b5566cb18d6eb9164f60b62a97603fbe146e9bf0788347107ed56cdc07e34'),
                          self.base_exercise.get_submission_parameters_for_students([self.user.userprofile, self.grader.userprofile]))
 
     def test_base_exercise_summary(self):
