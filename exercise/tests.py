@@ -392,8 +392,21 @@ class ExerciseTest(TestCase):
         self.assertEqual(0.2, self.base_exercise_with_late_submission_allowed.get_late_submission_penalty())
 
     def test_base_exercise_service_url(self):
-        self.assertEqual("?submission_url=http%3A%2F%2Flocalhost%3A8000%2FtestSubmissionURL&max_points=100", self.base_exercise.build_service_url("/testSubmissionURL"))
-        self.assertEqual("/testServiceURL?submission_url=http%3A%2F%2Flocalhost%3A8000%2FtestSubmissionURL&max_points=50", self.static_exercise.build_service_url("/testSubmissionURL"))
+        # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
+        split_base_exercise_service_url = self.base_exercise.build_service_url("/testSubmissionURL").split("?")
+        split_static_exercise_service_url = self.static_exercise.build_service_url("/testSubmissionURL").split("?")
+        self.assertEqual("", split_base_exercise_service_url[0])
+        self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
+        # a quick hack to check whether the parameters are URL encoded
+        self.assertFalse("/" in split_base_exercise_service_url[1] or ":" in split_base_exercise_service_url[1])
+        self.assertFalse("/" in split_static_exercise_service_url[1] or ":" in split_static_exercise_service_url[1])
+        # create dictionaries from the parameters and check each value. Note: parse_qs changes encoding back to regular utf-8
+        base_exercise_url_params = urllib.parse.parse_qs(split_base_exercise_service_url[1])
+        static_exercise_url_params = urllib.parse.parse_qs(split_static_exercise_service_url[1])
+        self.assertEqual(['100'], base_exercise_url_params['max_points'])
+        self.assertEqual(['http://localhost:8000/testSubmissionURL'], base_exercise_url_params['submission_url'])
+        self.assertEqual(['50'], static_exercise_url_params['max_points'])
+        self.assertEqual(['http://localhost:8000/testSubmissionURL'], static_exercise_url_params['submission_url'])
 
     def test_base_exercise_submissions_for_student(self):
         submissions = self.base_exercise.get_submissions_for_student(self.user.userprofile)
