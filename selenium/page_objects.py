@@ -2,7 +2,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, HomePageLocators, CourseLocators, ExercisePageLocators, MyFirstExerciseLocators
+from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, HomePageLocators, ExercisePageLocators, MyFirstExerciseLocators
 
 
 class CourseName:
@@ -46,7 +46,7 @@ class AbstractPage(object):
         return self.driver.find_element(*locator)
 
     def logout(self):
-        self.getElement(CourseLocators.LOGOUT_LINK).click()
+        self.getElement(BasePageLocators.LOGOUT_LINK).click()
 
 
 class LoginPage(AbstractPage):
@@ -59,13 +59,16 @@ class LoginPage(AbstractPage):
 
     def loginToCourse(self, course, username=defaultUsername, password=defaultPassword):
         if (course == CourseName.APLUS):
-            self.getElement(CourseLocators.APLUS_TEST_COURSE_INSTANCE_BUTTON).click()
+            self.getElement(FirstPageLocators.APLUS_TEST_COURSE_INSTANCE_BUTTON).click()
             self.signIn(username, password)
-            self.waitForElement(CourseLocators.LOGGED_USER_LINK)
+            self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
         elif (course == CourseName.HOOK):
-            self.getElement(CourseLocators.HOOK_EXAMPLE_BUTTON).click()
+            self.getElement(FirstPageLocators.HOOK_EXAMPLE_BUTTON).click()
             self.signIn(username, password)
-            self.waitForElement(CourseLocators.LOGGED_USER_LINK)
+            self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
+
+    def getLoggedInUsername(self):
+        return str(self.getElement(BasePageLocators.LOGGED_USER_LINK).text)
 
     def signIn(self, username, password):
         self.getElement(LoginPageLocators.USERNAME_INPUT).send_keys(username)
@@ -100,7 +103,6 @@ class HomePage(BasePage):
         BasePage.__init__(self, driver)
         self.load("/course/aplus1/basic_instance", HomePageLocators.MAIN_SCORE)
 
-    def getMainScore(self):
         return self.getElement(HomePageLocators.MAIN_SCORE).text;
 
     def clickFilterCategories(self):
@@ -120,16 +122,16 @@ class ExercisePage(BasePage):
         BasePage.__init__(self, driver)
 
     def getAllowedSubmissions(self):
-        return self.getElement(ExercisePageLocators.ALLOWED_SUBMISSIONS).text
+        return str(self.getElement(ExercisePageLocators.ALLOWED_SUBMISSIONS).text)
 
     def getExerciseScore(self):
-        return self.getElement(ExercisePageLocators.EXERCISE_SCORE).text
+        return str(self.getElement(ExercisePageLocators.EXERCISE_SCORE).text)
 
     def getNumberOfSubmitters(self):
-        return self.getElement(ExercisePageLocators.NUMBER_OF_SUBMITTERS).text
+        return str(self.getElement(ExercisePageLocators.NUMBER_OF_SUBMITTERS).text)
 
     def getAverageSubmissionsPerStudent(self):
-        return self.getElement(ExercisePageLocators.AVERAGE_SUBMISSIONS_PER_STUDENT).text
+        return str(self.getElement(ExercisePageLocators.AVERAGE_SUBMISSIONS_PER_STUDENT).text)
 
 class MyFirstExerciseGrader(ExercisePage):
     def __init__(self, driver):

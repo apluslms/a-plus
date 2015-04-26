@@ -1,9 +1,7 @@
 import unittest
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
-
-from page_objects import CourseName, LoginPage, HomePage
-from locators import CourseLocators
+from page_objects import CourseName, LoginPage
 
 class LoginTest(unittest.TestCase):
     logoutPageURI = '/accounts/logout'
@@ -17,22 +15,17 @@ class LoginTest(unittest.TestCase):
     def testLoginToTestCourseInstance(self):
         loginPage = LoginPage(self.driver)
         loginPage.loginToCourse(CourseName.APLUS)
-        assert LoginPage.defaultUsername in loginPage.getElement(CourseLocators.LOGGED_USER_LINK).text
+        self.assertTrue(LoginPage.defaultUsername in loginPage.getLoggedInUsername())
         loginPage.logout()
-        assert self.logoutPageURI in self.driver.current_url
+        self.assertTrue(self.logoutPageURI in self.driver.current_url)
 
 
     def testLoginToExampleHookCourseInstance(self):
         loginPage = LoginPage(self.driver)
         loginPage.loginToCourse(CourseName.HOOK)
-        assert LoginPage.defaultUsername in loginPage.getElement(CourseLocators.LOGGED_USER_LINK).text
+        self.assertTrue(LoginPage.defaultUsername in loginPage.getLoggedInUsername())
         loginPage.logout()
-        assert self.logoutPageURI in self.driver.current_url
-
-    def testInitialScoreShouldBeZero(self):
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
-        mainPage = HomePage(self.driver)
-        assert "0 / 300" == mainPage.getMainScore().text
+        self.assertTrue(self.logoutPageURI in self.driver.current_url)
 
     def tearDown(self):
         self.driver.close()

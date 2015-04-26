@@ -3,7 +3,6 @@ from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 
 from page_objects import CourseName, LoginPage, MyFirstExerciseGrader
-from locators import CourseLocators
 
 class MyFirstExerciseTest(unittest.TestCase):
     def setUp(self):
@@ -18,10 +17,10 @@ class MyFirstExerciseTest(unittest.TestCase):
         exercisePage.setText("")
         exercisePage.submit()
 
-        self.assertEqual(exercisePage.getAllowedSubmissions(), u'4/10')
+        self.assertEqual(exercisePage.getAllowedSubmissions(), '1/10')
         self.assertEqual(exercisePage.getExerciseScore(), '0 / 100')
         self.assertEqual(exercisePage.getNumberOfSubmitters(), '1')
-        self.assertEqual(exercisePage.getAverageSubmissionsPerStudent(), u'4.00')
+        self.assertEqual(exercisePage.getAverageSubmissionsPerStudent(), '1.00')
 
     def tearDown(self):
         self.driver.close()

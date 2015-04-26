@@ -1,14 +1,5 @@
 from selenium.webdriver.common.by import By
 
-class CourseLocators(object):
-    APLUS_TEST_COURSE_INSTANCE_BUTTON = (By.XPATH, "//a[contains(text(),'A+ Test Course Instance')]")
-    APLUS_TEST_COURSE_INSTANCE_BANNER = (By.XPATH, "//h1/small[contains(text(), 'A+ Test Course Instance')]")
-    HOOK_EXAMPLE_BUTTON = (By.XPATH, "//a[contains(text(),'Hook Example')]")
-    HOOK_EXAMPLE_BANNER = (By.XPATH, "//h1/small[contains(text(), 'Hook Example')]")
-    LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']/li[2]/a")
-    LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']/li[3]/a")
-    LOGOUT_BANNER = "//div[@class='alert alert-success']"
-
 class LoginPageLocators(object):
     USERNAME_INPUT = (By.XPATH, "//input[@id='id_username']")
     PASSWORD_INPUT = (By.XPATH, "//input[@id='id_password']")
@@ -16,6 +7,8 @@ class LoginPageLocators(object):
 
 class FirstPageLocators(object):
     BANNER = (By.XPATH, "//h1/small[contains(text(), 'the interoperable e-learning platform')]")
+    APLUS_TEST_COURSE_INSTANCE_BUTTON = (By.XPATH, "//a[contains(text(),'A+ Test Course Instance')]")
+    HOOK_EXAMPLE_BUTTON = (By.XPATH, "//a[contains(text(),'Hook Example')]")
 
 class BasePageLocators(object):
     HOME_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[2]/a")
@@ -24,6 +17,9 @@ class BasePageLocators(object):
     USER_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[5]/a")
     TEACHERS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[7]/a")
     ASSISTANTS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[8]/a")
+    LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']/li[2]/a")
+    LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']/li[3]/a")
+    LOGOUT_BANNER = "//div[@class='alert alert-success']"
 
 class HomePageLocators(object):
     MAIN_SCORE = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/div/div[2]/div/h2")
