@@ -1,6 +1,6 @@
 import unittest
 from test_initializer import TestInitializer
-from page_objects import CourseName, LoginPage
+from page_objects import CourseName, LoginPage, HomePage
 
 class LoginTest(unittest.TestCase):
     logoutPageURI = '/accounts/logout'
@@ -11,18 +11,15 @@ class LoginTest(unittest.TestCase):
     def testLoginToTestCourseInstance(self):
         loginPage = LoginPage(self.driver)
         loginPage.loginToCourse(CourseName.APLUS)
-        print LoginPage.defaultUsername + " - " + loginPage.getLoggedInUsername()
-        self.assertTrue(LoginPage.defaultUsername in loginPage.getLoggedInUsername())
-        loginPage.logout()
-        self.assertTrue(self.logoutPageURI in self.driver.current_url)
+        homePage = HomePage(self.driver, CourseName.APLUS)
+        self.assertEqual(homePage.getCourseBanner(), 'A+ Test Course Instance')
 
 
     def testLoginToExampleHookCourseInstance(self):
         loginPage = LoginPage(self.driver)
         loginPage.loginToCourse(CourseName.HOOK)
-        self.assertTrue(LoginPage.defaultUsername in loginPage.getLoggedInUsername())
-        loginPage.logout()
-        self.assertTrue(self.logoutPageURI in self.driver.current_url)
+        homePage = HomePage(self.driver, CourseName.HOOK)
+        self.assertEqual(homePage.getCourseBanner(), 'Hook Example')
 
     def tearDown(self):
         self.driver.close()

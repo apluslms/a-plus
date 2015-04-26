@@ -27,3 +27,5 @@ media
 course/fixtures/
 xmlrunner/
 test_results/
+
+selenium/local_test.cfg

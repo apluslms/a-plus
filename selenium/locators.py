@@ -11,6 +11,7 @@ class FirstPageLocators(object):
     HOOK_EXAMPLE_BUTTON = (By.XPATH, "//a[contains(text(),'Hook Example')]")
 
 class BasePageLocators(object):
+    COURSE_BANNER = (By.XPATH, "//*[@id='main_content']/div[1]/div/div/h1/small")
     HOME_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[2]/a")
     CALENDAR_FEED_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[3]/a")
     RESULTS_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[4]/a")

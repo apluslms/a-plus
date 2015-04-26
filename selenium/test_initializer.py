@@ -1,4 +1,5 @@
 import os
+import shutil
 import ConfigParser
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
@@ -19,7 +20,10 @@ class TestInitializer(object):
             print "Test environment is not properly configured. Exiting..."
             raise Exception
 
-        os.system("cp " + APLUS_HOME + "aplus.db_copy" + " " + APLUS_HOME + "aplus.db")
+        if(not os.path.exists(APLUS_HOME + "/aplus.db_copy")):
+            shutil(APLUS_HOME + "/aplus.db", APLUS_HOME + "/aplus.db_copy")
+
+        os.system("cp " + APLUS_HOME + "/aplus.db_copy" + " " + APLUS_HOME + "/aplus.db")
 
     def getLocalConfigHomePath(self):
         try:

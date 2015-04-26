@@ -48,8 +48,6 @@ class AbstractPage(object):
     def getElements(self, locator):
         return self.driver.find_elements(*locator)
 
-    def logout(self):
-        self.getElement(BasePageLocators.LOGOUT_LINK).click()
 
 
 class LoginPage(AbstractPage):
@@ -70,9 +68,6 @@ class LoginPage(AbstractPage):
             self.signIn(username, password)
             self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
 
-    def getLoggedInUsername(self):
-        return str(self.getElement(BasePageLocators.LOGGED_USER_LINK).text)
-
     def signIn(self, username, password):
         self.getElement(LoginPageLocators.USERNAME_INPUT).send_keys(username)
         self.getElement(LoginPageLocators.PASSWORD_INPUT).send_keys(password)
@@ -82,6 +77,15 @@ class LoginPage(AbstractPage):
 class BasePage(AbstractPage):
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
+
+    def getCourseBanner(self):
+        return str(self.getElement(BasePageLocators.COURSE_BANNER).text)
+
+    def getLoggedInText(self):
+        return str(self.getElement(BasePageLocators.LOGGED_USER_LINK).text)
+
+    def logout(self):
+        self.getElement(BasePageLocators.LOGOUT_LINK).click()
 
     def clickHomeLink(self):
         self.getElement(BasePageLocators.HOME_LINK).click()
@@ -102,9 +106,14 @@ class BasePage(AbstractPage):
         self.getElement(BasePageLocators.ASSISTANTS_VIEW_LINK).click()
 
 class HomePage(BasePage):
-    def __init__(self, driver):
+    def __init__(self, driver, course=CourseName.APLUS):
         BasePage.__init__(self, driver)
-        self.load("/course/aplus1/basic_instance", HomePageLocators.MAIN_SCORE)
+        if(course == CourseName.APLUS):
+            path = "/course/aplus1/basic_instance"
+        elif(course == CourseName.HOOK):
+            path = "/course/aplus1/hook_instance"
+
+        self.load(path, HomePageLocators.MAIN_SCORE)
 
     def getMainScore(self):
         return str(self.getElement(HomePageLocators.MAIN_SCORE).text);
