@@ -4,7 +4,7 @@ from tastypie.resources import ModelResource
 
 # A+
 from userprofile.models import UserProfile
-#from api_permissions import SuperuserAuthorization #TODO FIX
+from api_permissions import SuperuserAuthorization #TODO FIX
 
 
 class UserProfileResource(ModelResource):
@@ -30,4 +30,4 @@ class UserProfileResource(ModelResource):
         # userprofile objects
         allowed_methods = ['get']
         #authentication  = OAuthAuthentication()  #TODO fix
-        #authorization   = SuperuserAuthorization()
+        authorization   = SuperuserAuthorization()
