@@ -112,6 +112,10 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
             print("POST Hook detected!", self.path)
             print("Data:", post_data)
             self.send_response(200)
+            self.send_header('Content-type','example')
+            self.send_header('Content-Length', 0)
+            self.end_headers()
+            self.wfile.write(b'')
 
 httpd = socketserver.TCPServer(('', PORT), ExerciseGrader)
 print('Serving at port:', PORT)

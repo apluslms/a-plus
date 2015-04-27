@@ -228,7 +228,7 @@ class CourseHook(models.Model):
     def trigger(self, data):
         logger = logging.getLogger("plus.hooks")
         try:
-            urllib.request.urlopen(self.hook_url, urllib.parse.urlencode(data), timeout=10)
+            urllib.request.urlopen(self.hook_url, urllib.parse.urlencode(data).encode('utf-8'), timeout=10)
             logger.info("%s posted to %s on %s with %s", self.hook_type, self.hook_url, self.course_instance, data)
         except:
             logger.error("HTTP POST failed on %s hook to %s (%s)", self.hook_type, self.hook_url, self.course_instance)
