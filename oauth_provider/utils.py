@@ -30,12 +30,12 @@ def initialize_server_request(request):
         (request.META.get('CONTENT_TYPE') == "application/x-www-form-urlencoded" \
             or request.META.get('SERVER_NAME') == 'testserver'):
         parameters = dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items())
-
-    oauth_request = oauth.Request.from_request(request.method, 
-                                              request.build_absolute_uri(request.path), 
-                                              headers=auth_header,
-                                              parameters=parameters,
-                                              query_string=request.META.get('QUERY_STRING', ''))
+    print("abs_url (init_server): %s" % request.build_absolute_uri(request.path))
+    oauth_request = oauth.request(request.method, 
+                                  request.build_absolute_uri(request.path), 
+                                  parameters=parameters,
+                                  headers=auth_header,
+                                  query_string=request.META.get('QUERY_STRING', ''))
     if oauth_request:
         oauth_server = oauth.Server()
         if 'plaintext' in OAUTH_SIGNATURE_METHODS:
@@ -62,10 +62,11 @@ def get_oauth_request(request):
     headers = {}
     if 'HTTP_AUTHORIZATION' in request.META:
         headers['Authorization'] = request.META['HTTP_AUTHORIZATION']
-    return oauth.Request.from_request(request.method, 
-                                      request.build_absolute_uri(request.path), 
-                                      headers, 
-                                      dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items()))
+    print("abs_url (get_oath_req): %s" % request.build_absolute_uri(request.path))
+    return oauth.request(request.method, 
+                          url=request.build_absolute_uri(request.path),
+                          headers=headers,
+                          parameters=dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items()))
 
 def verify_oauth_request(request, oauth_request, consumer, token=None):
     """ Helper function to verify requests. """
