@@ -7,9 +7,10 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseForbidden, Http404
 from django.template.context import RequestContext
 from django.utils.translation import get_language
+from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY
+from oauthlib.common import urldecode
 from .models import MenuItem
-import requests_oauthlib as oauth2
-import hashlib, datetime, calendar, uuid
+import hashlib
 
 
 @login_required
@@ -82,18 +83,17 @@ def lti_login(request, menu_id):
 
         "tool_consumer_instance_guid": request.get_host() + "/aplus",
         "tool_consumer_instance_name": "A+ LMS",
-
-        "oauth_version": "1.0",
-        "oauth_timestamp": (calendar.timegm(datetime.datetime.utcnow().utctimetuple())),
-        "oauth_nonce": str(uuid.uuid1())
+    }
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
     }
 
     # Sign the request using OAuth.
-    consumer = oauth2.Consumer(key=service.consumer_key, secret=service.consumer_secret)
-    oauth_req = oauth2.Request(method="POST", url=service.url, parameters=parameters)
-    oauth_req.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, None)
+    client = Client(service.consumer_key, client_secret=service.consumer_secret,
+                    signature_method=SIGNATURE_HMAC, signature_type=SIGNATURE_TYPE_BODY)
+    uri, headers, body = client.sign(service.url, http_method="POST", body=parameters, headers=headers)
 
     return render_to_response("external_services/lti_form.html", RequestContext(request, {
-        "url": service.url,
-        "parameters": list(oauth_req.items()),
+        "url": uri,
+        "parameters": urldecode(body),
     }))
