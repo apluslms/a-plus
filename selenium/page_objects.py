@@ -16,7 +16,8 @@ class AbstractPage(object):
     def __init__(self, driver, base_url=base_url):
         self.driver = driver
         self.base_url = base_url
-        self.wait_timeout = 2
+        self.wait_timeout = 3
+        self.condition_wait_timeout = 10
 
     def load(self, url, loaded_check):
         url = self.base_url + url
@@ -30,6 +31,12 @@ class AbstractPage(object):
         except TimeoutException:
             print "Wait for element failed: " + str(element)
             raise
+
+    def waitForCondition(self, condition):
+        try:
+            WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
+        except TimeoutException:
+            print "Wait for condition failed: " + str(condition)
 
     def checkBrowserErrors(self):
         errors = []
@@ -47,6 +54,10 @@ class AbstractPage(object):
 
     def getElements(self, locator):
         return self.driver.find_elements(*locator)
+
+    def getAlert(self):
+        self.waitForCondition(EC.alert_is_present())
+        return self.driver.switch_to_alert()
 
 
 
@@ -179,4 +190,6 @@ class MyAjaxExerciseGrader(ExercisePage):
 
     def submit(self):
         self.getElement(MyAjaxExerciseGraderLocators.SUBMIT_BUTTON).click()
+        alert = self.getAlert()
+        alert.accept()
 

@@ -18,6 +18,27 @@ class MyAjaxExerciseGraderTest(unittest.TestCase):
         self.assertEqual(myAjaxExercisePage.getNumberOfSubmitters(), '1')
         self.assertEqual(myAjaxExercisePage.getAverageSubmissionsPerStudent(), '1.00')
 
+    def testShouldGiveGivenPoints(self):
+        myAjaxExercisePage = MyAjaxExerciseGrader(self.driver)
+        myAjaxExercisePage.setText("50")
+        myAjaxExercisePage.submit()
+
+        self.assertEqual(myAjaxExercisePage.getAllowedSubmissions(), '1/10')
+        self.assertEqual(myAjaxExercisePage.getExerciseScore(), '50 / 100')
+        self.assertEqual(myAjaxExercisePage.getNumberOfSubmitters(), '1')
+        self.assertEqual(myAjaxExercisePage.getAverageSubmissionsPerStudent(), '1.00')
+
+    def testShouldGiveZeroPointsOnOverTheLimitSubmit(self):
+        myAjaxExercisePage = MyAjaxExerciseGrader(self.driver)
+        myAjaxExercisePage.setText("101")
+        myAjaxExercisePage.submit()
+
+        self.assertEqual(myAjaxExercisePage.getAllowedSubmissions(), '1/10')
+        self.assertEqual(myAjaxExercisePage.getExerciseScore(), '0 / 100')
+        self.assertEqual(myAjaxExercisePage.getNumberOfSubmitters(), '1')
+        self.assertEqual(myAjaxExercisePage.getAverageSubmissionsPerStudent(), '1.00')
+
+
     def tearDown(self):
         self.driver.close()
 

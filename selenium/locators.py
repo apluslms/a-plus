@@ -49,4 +49,4 @@ class FileUploadGraderLocators(object):
 class MyAjaxExerciseGraderLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My AJAX exercise')]")
     TEXT_INPUT = (By.XPATH, "//*[@id='form']/input[1]")
-    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form/input")
+    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form/input[@type='submit']")

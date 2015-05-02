@@ -27,7 +27,9 @@ class LoginTest(unittest.TestCase):
         try:
             loginPage.loginToCourse(CourseName.APLUS, 'fake', 'password')
         except Exception:
-            pass
+            return
+
+        self.fail("There should have been an exception")
 
     def tearDown(self):
         self.driver.close()
