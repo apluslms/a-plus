@@ -159,7 +159,8 @@
       "code": "aplus-001",
       "name": "My test course",
       "teachers": [
-        1
+        1,
+        2
       ]
     }
   },
@@ -173,7 +174,7 @@
       "starting_time": "2013-09-27 10:47:17",
       "instance_name": "A+ Test Course Instance",
       "course": 1,
-      "assistants": [],
+      "assistants": [3],
       "visible_to_students": true
     }
   },
@@ -226,6 +227,60 @@
       "hook_type": "post-grading",
       "hook_url": "http://localhost:8889/hook/",
       "course_instance": 2
+    }
+  },
+  {
+    "pk": 2,
+    "model": "auth.user",
+    "fields": {
+     "username": "teacher_user",
+     "first_name": "Admin",
+     "last_name": "User",
+     "is_active": true,
+     "is_superuser": false,
+     "is_staff": false,
+     "last_login": "2015-05-02 19:05:20",
+     "groups": [],
+     "user_permissions": [],
+     "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
+     "email": "admin@selenium.test",
+     "date_joined": "2015-05-02 18:56:18"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "auth.user",
+    "fields": {
+     "username": "assistant_user",
+     "first_name": "Admin",
+     "last_name": "User",
+     "is_active": true,
+     "is_superuser": false,
+     "is_staff": false,
+     "last_login": "2015-05-02 19:05:20",
+     "groups": [],
+     "user_permissions": [],
+     "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
+     "email": "admin@selenium.test",
+     "date_joined": "2015-05-02 18:56:18"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "auth.user",
+    "fields": {
+     "username": "student_user",
+     "first_name": "Admin",
+     "last_name": "User",
+     "is_active": true,
+     "is_superuser": false,
+     "is_staff": false,
+     "last_login": "2015-05-02 19:05:20",
+     "groups": [],
+     "user_permissions": [],
+     "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
+     "email": "admin@selenium.test",
+     "date_joined": "2015-05-02 18:56:18"
     }
   }
 ]

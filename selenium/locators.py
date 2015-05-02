@@ -16,8 +16,8 @@ class BasePageLocators(object):
     CALENDAR_FEED_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[3]/a")
     RESULTS_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[4]/a")
     USER_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[5]/a")
-    TEACHERS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[7]/a")
-    ASSISTANTS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[8]/a")
+    TEACHERS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li/a[contains(@href, 'teachers')]")
+    ASSISTANTS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li/a[contains(@href, 'assistants')]")
     LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']/li[2]/a")
     LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']/li[3]/a")
     LOGOUT_BANNER = "//div[@class='alert alert-success']"
@@ -35,6 +35,26 @@ class ExercisePageLocators(object):
     AVERAGE_SUBMISSIONS_PER_STUDENT = (By.XPATH, "//*[@id='exercise-info']/dl[2]/dd[2]")
     ALLOWED_SUBMISSIONS = (By.XPATH, "//*[@id='exercise-info']/dl[1]/dd")
     MY_SUBMISSIONS_LIST = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/div[1]/ul/li[2]/ul/li")
+
+class CourseArchiveLocators(object):
+    COURSE_ID_TITLE = (By.XPATH, "//*[@id='course1']/h3/small")
+    APLUS_LINK = (By.XPATH, "//*[@id='course1']/li/a[contains(@href, '/course/aplus1/basic_instance/')]")
+    HOOK_LINK = (By.XPATH, "//*[@id='course1']/li/a[contains(@href, '/course/aplus1/hook_instance/')]")
+
+class StaffPageLocators(object):
+    SUBMISSION_LINKS = (By.XPATH, "//a[contains(@href,'/exercise/submissions/list/')]")
+
+class TeachersPageLocators(object):
+    TEACHERS_VIEW_BANNER = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/h2[contains(text(), 'Teacher')]")
+    EDIT_LEARNING_MODULE_LINKS = (By.XPATH, "//a[contains(@href,'/exercise/manage/1/')]")
+    REMOVE_LEARNING_MODULE_LINKS = (By.XPATH, "//a[contains(@href,'/exercise/remove/1/')]")
+
+class AssistantsPageLocators(object):
+    ASSISTANTS_VIEW_BANNER = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/h2[contains(text(), 'Assistant')]")
+
+class SubmissionPageLocators(object):
+    TABLE_FIRST_HEADER = (By.XPATH, "//*[@id='submission-table']/thead/tr[1]/th[1]")
+    INSPECTION_LINKS = (By.XPATH, "//*[@id='submission-table']//a[contains(@href, '/exercise/submissions/inspect/')]")
 
 class MyFirstExerciseLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My first exercise')]")

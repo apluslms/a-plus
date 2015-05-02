@@ -1,14 +1,17 @@
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, HomePageLocators, ExercisePageLocators, MyFirstExerciseLocators, FileUploadGraderLocators, MyAjaxExerciseGraderLocators
-
+from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, CourseArchiveLocators, HomePageLocators, StaffPageLocators, TeachersPageLocators, AssistantsPageLocators, \
+    SubmissionPageLocators, \
+    ExercisePageLocators, \
+    MyFirstExerciseLocators, \
+    FileUploadGraderLocators, \
+    MyAjaxExerciseGraderLocators
 
 class CourseName:
     APLUS = 1
     HOOK = 2
-
 
 class AbstractPage(object):
     base_url = "http://localhost:8001"
@@ -59,6 +62,12 @@ class AbstractPage(object):
         self.waitForCondition(EC.alert_is_present())
         return self.driver.switch_to_alert()
 
+    def isElementVisible(self, locator):
+        try:
+            element = self.driver.find_element(*locator)
+            return element.is_displayed()
+        except NoSuchElementException:
+            return False
 
 
 class LoginPage(AbstractPage):
@@ -116,12 +125,13 @@ class BasePage(AbstractPage):
     def clickAssistantsViewLink(self):
         self.getElement(BasePageLocators.ASSISTANTS_VIEW_LINK).click()
 
+
 class HomePage(BasePage):
     def __init__(self, driver, course=CourseName.APLUS):
         BasePage.__init__(self, driver)
-        if(course == CourseName.APLUS):
+        if (course == CourseName.APLUS):
             path = "/course/aplus1/basic_instance"
-        elif(course == CourseName.HOOK):
+        elif (course == CourseName.HOOK):
             path = "/course/aplus1/hook_instance"
 
         self.load(path, HomePageLocators.MAIN_SCORE)
@@ -140,6 +150,7 @@ class HomePage(BasePage):
 
     def clickUpdateFilters(self):
         self.getElement(HomePageLocators.UPDATE_FILTERS_BUTTON).click()
+
 
 class ExercisePage(BasePage):
     def __init__(self, driver):
@@ -160,6 +171,51 @@ class ExercisePage(BasePage):
     def getMySubmissionsList(self):
         return self.getElements(ExercisePageLocators.MY_SUBMISSIONS_LIST)
 
+
+class StaffPage(BasePage):
+    def __init__(self, driver):
+        BasePage.__init__(self, driver)
+
+    def getSubmissionLinks(self):
+        return self.getElements(StaffPageLocators.SUBMISSION_LINKS)
+
+    def clickSubmissionLink(self, number):
+        submissionLinks = self.getSubmissionLinks()
+        if(number <= len(submissionLinks)):
+            submissionLinks[number].click()
+        else:
+            raise Exception("Tried to click submission link number " + number + "but there are only " + len(submissionLinks) + " elements.")
+
+class TeachersPage(StaffPage):
+    def __init__(self, driver):
+        StaffPage.__init__(self, driver)
+        self.load("/course/aplus1/basic_instance/teachers/", TeachersPageLocators.TEACHERS_VIEW_BANNER)
+
+class AssistantsPage(StaffPage):
+    def __init__(self, driver):
+        StaffPage.__init__(self, driver)
+        self.load("/course/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
+
+class SubmissionPage(BasePage):
+    def __init__(self, driver):
+        BasePage.__init__(self, driver)
+
+    def getInspectionLinks(self):
+        return self.driver.find_elements(SubmissionPageLocators.INSPECTION_LINKS)
+
+    def clickInspectionLink(self, number):
+        inspectionLinks = self.getInspectionLinks()
+        if(len(inspectionLinks) >= number):
+            inspectionLinks.get(number).click()
+        else:
+            raise Exception("Tried to click inspection link number " + number + "but there are only " + len(inspectionLinks) + " elements.")
+
+class CourseArchivePage(AbstractPage):
+    def __init__(self, driver):
+        AbstractPage.__init__(self, driver)
+        self.load("/course/archive/", CourseArchiveLocators.COURSE_ID_TITLE)
+
+
 class MyFirstExerciseGrader(ExercisePage):
     def __init__(self, driver):
         ExercisePage.__init__(self, driver)
@@ -170,6 +226,7 @@ class MyFirstExerciseGrader(ExercisePage):
 
     def submit(self):
         self.getElement(MyFirstExerciseLocators.SUBMIT_BUTTON).click()
+
 
 class FileUploadGrader(ExercisePage):
     def __init__(self, driver):
