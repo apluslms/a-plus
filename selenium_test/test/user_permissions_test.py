@@ -1,6 +1,6 @@
 import unittest
 
-from selenium_test.test_initializer import TestInitializer
+from test_initializer import TestInitializer
 from selenium_test.page_objects.page_objects import BasePage, LoginPage, CourseName
 from selenium_test.locators.locators import BasePageLocators
 

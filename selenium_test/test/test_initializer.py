@@ -28,7 +28,7 @@ class TestInitializer(object):
     def getLocalConfigHomePath(self):
         try:
             config = ConfigParser.RawConfigParser()
-            config.read('local_test.cfg')
+            config.read('selenium_test/local_test.cfg')
             return config.get('Selenium Local Environment', 'APLUS_HOME')
         except ConfigParser.NoSectionError:
             print 'local_test.cfg not found.'

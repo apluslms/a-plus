@@ -1,6 +1,8 @@
 import unittest
-from selenium_test.test_initializer import TestInitializer
+
+from test_initializer import TestInitializer
 from selenium_test.page_objects.page_objects import CourseName, LoginPage, MyAjaxExerciseGrader
+
 
 class MyAjaxExerciseGraderTest(unittest.TestCase):
     def setUp(self):

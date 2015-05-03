@@ -1,6 +1,8 @@
 import unittest
-from selenium_test.test_initializer import TestInitializer
+
+from test_initializer import TestInitializer
 from selenium_test.page_objects.page_objects import BasePage, LoginPage, CourseName
+
 
 class MainNavigationTest(unittest.TestCase):
     baseUrl = BasePage.base_url + "/course/aplus1/basic_instance/"
