@@ -13,8 +13,6 @@ class StaffPageTest(unittest.TestCase):
         for x in range(0, linkCount):
             teachersPage = TeachersPage(self.driver)
             teachersPage.clickSubmissionLink(x)
-            print str('/exercise/submissions/list/' + str(x + 1) + "/")
-            print str(self.driver.current_url)
             self.assertTrue('/exercise/submissions/list/' + str(x + 1) + "/" in str(self.driver.current_url))
 
     def testShouldOpenAllAssistantsViewSubmissionPages(self):
@@ -23,8 +21,6 @@ class StaffPageTest(unittest.TestCase):
         for x in range(0, linkCount):
             assistantsPage = AssistantsPage(self.driver)
             assistantsPage.clickSubmissionLink(x)
-            print str('/exercise/submissions/list/' + str(x + 1) + "/")
-            print str(self.driver.current_url)
             self.assertTrue('/exercise/submissions/list/' + str(x + 1) + "/" in str(self.driver.current_url))
 
 

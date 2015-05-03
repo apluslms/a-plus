@@ -52,6 +52,16 @@ class TeachersPageLocators(object):
 class AssistantsPageLocators(object):
     ASSISTANTS_VIEW_BANNER = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/h2[contains(text(), 'Assistant')]")
 
+class EditModulePageLocators(object):
+    EDIT_MODULE_PAGE_BANNER = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/h2[contains(text(), 'Edit module')]")
+    COURSE_NAME_INPUT = (By.XPATH, "//*[@id='id_name']")
+    POINTS_TO_PASS_INPUT = (By.XPATH, "//*[@id='id_points_to_pass']")
+    OPENING_TIME_INPUT = (By.XPATH, "//*[@id='id_opening_time']")
+    CLOSING_TIME_INPUT = (By.XPATH, "//*[@id='id_closing_time']")
+    SUBMIT_BUTTON = (By.XPATH, "//form//input[@type='submit']")
+    SUCCESSFUL_SAVE_BANNER = (By.XPATH, "//*[@id='main_content']/div[@class='alert alert-success']")
+
+
 class SubmissionPageLocators(object):
     TABLE_FIRST_HEADER = (By.XPATH, "//*[@id='submission-table']/thead/tr[1]/th[1]")
     INSPECTION_LINKS = (By.XPATH, "//*[@id='submission-table']//a[contains(@href, '/exercise/submissions/inspect/')]")

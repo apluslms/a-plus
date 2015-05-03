@@ -2,7 +2,8 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, CourseArchiveLocators, HomePageLocators, StaffPageLocators, TeachersPageLocators, AssistantsPageLocators, \
+from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, EditModulePageLocators, CourseArchiveLocators, HomePageLocators, StaffPageLocators, TeachersPageLocators, \
+    AssistantsPageLocators, \
     SubmissionPageLocators, \
     ExercisePageLocators, \
     MyFirstExerciseLocators, \
@@ -64,10 +65,15 @@ class AbstractPage(object):
 
     def isElementVisible(self, locator):
         try:
-            element = self.driver.find_element(*locator)
+            element = self.getElement(locator)
             return element.is_displayed()
         except NoSuchElementException:
             return False
+
+    def clearAndSendKeys(self, locator, text):
+        element = self.getElement(locator)
+        element.clear()
+        element.send_keys(text)
 
 
 class LoginPage(AbstractPage):
@@ -195,6 +201,42 @@ class AssistantsPage(StaffPage):
     def __init__(self, driver):
         StaffPage.__init__(self, driver)
         self.load("/course/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
+
+class EditModulePage(BasePage):
+    def __init__(self, driver, moduleNumber=1):
+        BasePage.__init__(self, driver)
+        self.load("/course/aplus1/basic_instance/modules/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+
+    def getCourseName(self):
+        return str(self.getElement(EditModulePageLocators.COURSE_NAME_INPUT).text)
+
+    def getPointsToPass(self):
+        return str(self.getElement(EditModulePageLocators.POINTS_TO_PASS_INPUT).text)
+
+    def getOpeningTime(self):
+        return str(self.getElement(EditModulePageLocators.OPENING_TIME_INPUT).text)
+
+    def getClosingTime(self):
+        return str(self.getElement(EditModulePageLocators.CLOSING_TIME_INPUT).text)
+
+    def setCourseName(self, text=""):
+        self.clearAndSendKeys(EditModulePageLocators.COURSE_NAME_INPUT, text)
+
+    def setPointsToPass(self, points=0):
+        self.clearAndSendKeys(EditModulePageLocators.POINTS_TO_PASS_INPUT, points)
+
+    def setOpeningTime(self, timestamp="2015-01-01 00:00:00"):
+        self.clearAndSendKeys(EditModulePageLocators.OPENING_TIME_INPUT, timestamp)
+
+    def setClosingTime(self, timestamp="2024-01-01 00:00:00"):
+        self.clearAndSendKeys(EditModulePageLocators.CLOSING_TIME_INPUT, timestamp)
+
+    def submit(self):
+        self.getElement(EditModulePageLocators.SUBMIT_BUTTON).click()
+
+    def isSuccessfulSave(self):
+        return self.isElementVisible(EditModulePageLocators.SUCCESSFUL_SAVE_BANNER)
+
 
 class SubmissionPage(BasePage):
     def __init__(self, driver):

@@ -10,6 +10,7 @@ class TestInitializer(object):
         firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
         return webdriver.Firefox(capabilities=firefoxCapabilities)
 
+    # This just replaces the current database with a copy. We could improve this by dropping all db rows and inserting them again.
     def recreateDatabase(self):
         if('APLUS_HOME' not in os.environ):
             APLUS_HOME = self.getLocalConfigHomePath()
@@ -17,8 +18,7 @@ class TestInitializer(object):
             APLUS_HOME = os.environ['APLUS_HOME']
 
         if(not APLUS_HOME):
-            print "Test environment is not properly configured. Exiting..."
-            raise Exception
+            raise Exception("Test environment is not properly configured. Exiting...")
 
         if(not os.path.exists(APLUS_HOME + "/aplus.db_copy")):
             shutil(APLUS_HOME + "/aplus.db", APLUS_HOME + "/aplus.db_copy")
