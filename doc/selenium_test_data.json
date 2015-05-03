@@ -230,11 +230,29 @@
     }
   },
   {
+    "pk": 1,
+    "model": "auth.user",
+    "fields": {
+     "username": "jenkins",
+     "first_name": "jenkins",
+     "last_name": "jenkins",
+     "is_active": true,
+     "is_superuser": true,
+     "is_staff": true,
+     "last_login": "2015-05-02 19:05:20",
+     "groups": [],
+     "user_permissions": [],
+     "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
+     "email": "admin@selenium.test",
+     "date_joined": "2015-05-02 18:56:18"
+    }
+  },
+  {
     "pk": 2,
     "model": "auth.user",
     "fields": {
      "username": "teacher_user",
-     "first_name": "Admin",
+     "first_name": "Teacher",
      "last_name": "User",
      "is_active": true,
      "is_superuser": false,
@@ -252,7 +270,7 @@
     "model": "auth.user",
     "fields": {
      "username": "assistant_user",
-     "first_name": "Admin",
+     "first_name": "Assistant",
      "last_name": "User",
      "is_active": true,
      "is_superuser": false,
@@ -270,7 +288,7 @@
     "model": "auth.user",
     "fields": {
      "username": "student_user",
-     "first_name": "Admin",
+     "first_name": "Student",
      "last_name": "User",
      "is_active": true,
      "is_superuser": false,

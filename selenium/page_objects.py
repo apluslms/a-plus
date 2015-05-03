@@ -78,7 +78,7 @@ class AbstractPage(object):
 
 class LoginPage(AbstractPage):
     defaultUsername = "jenkins"
-    defaultPassword = "jenkins"
+    defaultPassword = "admin"
 
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
