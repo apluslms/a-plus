@@ -30,7 +30,6 @@ class EditModulePageTest(unittest.TestCase):
         self.assertEqual(editModulePage.getOpeningTime(), openingTime)
         self.assertEqual(editModulePage.getClosingTime(), closingTime)
 
-
     def tearDown(self):
         self.driver.close()
 

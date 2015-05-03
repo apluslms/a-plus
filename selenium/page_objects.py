@@ -2,7 +2,8 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, EditModulePageLocators, CourseArchiveLocators, HomePageLocators, StaffPageLocators, TeachersPageLocators, \
+from locators import FirstPageLocators, LoginPageLocators, BasePageLocators, EditModulePageLocators, EditExercisePageLocators, CourseArchiveLocators, HomePageLocators, StaffPageLocators, \
+    TeachersPageLocators, \
     AssistantsPageLocators, \
     SubmissionPageLocators, \
     ExercisePageLocators, \
@@ -33,14 +34,13 @@ class AbstractPage(object):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(EC.presence_of_element_located(element))
         except TimeoutException:
-            print "Wait for element failed: " + str(element)
-            raise
+            raise("Wait for element failed: " + str(element))
 
     def waitForCondition(self, condition):
         try:
             WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
         except TimeoutException:
-            print "Wait for condition failed: " + str(condition)
+            raise("Wait for condition failed: " + str(condition))
 
     def checkBrowserErrors(self):
         errors = []
@@ -208,27 +208,27 @@ class EditModulePage(BasePage):
         self.load("/course/aplus1/basic_instance/modules/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
 
     def getCourseName(self):
-        return str(self.getElement(EditModulePageLocators.COURSE_NAME_INPUT).text)
+        return str(self.getElement(EditModulePageLocators.COURSE_NAME_INPUT).get_attribute('value'))
 
     def getPointsToPass(self):
-        return str(self.getElement(EditModulePageLocators.POINTS_TO_PASS_INPUT).text)
+        return str(self.getElement(EditModulePageLocators.POINTS_TO_PASS_INPUT).get_attribute('value'))
 
     def getOpeningTime(self):
-        return str(self.getElement(EditModulePageLocators.OPENING_TIME_INPUT).text)
+        return str(self.getElement(EditModulePageLocators.OPENING_TIME_INPUT).get_attribute('value'))
 
     def getClosingTime(self):
-        return str(self.getElement(EditModulePageLocators.CLOSING_TIME_INPUT).text)
+        return str(self.getElement(EditModulePageLocators.CLOSING_TIME_INPUT).get_attribute('value'))
 
-    def setCourseName(self, text=""):
+    def setCourseName(self, text):
         self.clearAndSendKeys(EditModulePageLocators.COURSE_NAME_INPUT, text)
 
-    def setPointsToPass(self, points=0):
+    def setPointsToPass(self, points):
         self.clearAndSendKeys(EditModulePageLocators.POINTS_TO_PASS_INPUT, points)
 
-    def setOpeningTime(self, timestamp="2015-01-01 00:00:00"):
+    def setOpeningTime(self, timestamp):
         self.clearAndSendKeys(EditModulePageLocators.OPENING_TIME_INPUT, timestamp)
 
-    def setClosingTime(self, timestamp="2024-01-01 00:00:00"):
+    def setClosingTime(self, timestamp):
         self.clearAndSendKeys(EditModulePageLocators.CLOSING_TIME_INPUT, timestamp)
 
     def submit(self):
@@ -236,6 +236,41 @@ class EditModulePage(BasePage):
 
     def isSuccessfulSave(self):
         return self.isElementVisible(EditModulePageLocators.SUCCESSFUL_SAVE_BANNER)
+
+class EditExercisePage(BasePage):
+    def __init__(self, driver, moduleNumber=1, exerciseNumber=1):
+        BasePage.__init__(self, driver)
+        self.load("/exercise/manage/" + str(moduleNumber) + "/" + str(exerciseNumber) + "/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
+
+    def getExerciseName(self):
+        return str(self.getElement(EditExercisePageLocators.EXERCISE_NAME_INPUT).get_attribute('value'))
+
+    def getMaxSubmissions(self):
+        return str(self.getElement(EditExercisePageLocators.MAX_SUBMISSIONS_INPUT).get_attribute('value'))
+
+    def getMaxPoints(self):
+        return str(self.getElement(EditExercisePageLocators.MAX_POINTS_INPUT).get_attribute('value'))
+
+    def getPointsToPass(self):
+        return str(self.getElement(EditExercisePageLocators.POINTS_TO_PASS_INPUT).get_attribute('value'))
+
+    def setExerciseName(self, text):
+        self.clearAndSendKeys(EditExercisePageLocators.EXERCISE_NAME_INPUT, text)
+
+    def setMaxSubmissions(self, points):
+        self.clearAndSendKeys(EditExercisePageLocators.MAX_SUBMISSIONS_INPUT, points)
+
+    def setMaxPoints(self, timestamp):
+        self.clearAndSendKeys(EditExercisePageLocators.MAX_POINTS_INPUT, timestamp)
+
+    def setPointsToPass(self, timestamp):
+        self.clearAndSendKeys(EditExercisePageLocators.POINTS_TO_PASS_INPUT, timestamp)
+
+    def submit(self):
+        self.getElement(EditExercisePageLocators.SUBMIT_BUTTON).click()
+
+    def isSuccessfulSave(self):
+        return self.isElementVisible(EditExercisePageLocators.SUCCESSFUL_SAVE_BANNER)
 
 
 class SubmissionPage(BasePage):

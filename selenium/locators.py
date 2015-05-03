@@ -61,6 +61,14 @@ class EditModulePageLocators(object):
     SUBMIT_BUTTON = (By.XPATH, "//form//input[@type='submit']")
     SUCCESSFUL_SAVE_BANNER = (By.XPATH, "//*[@id='main_content']/div[@class='alert alert-success']")
 
+class EditExercisePageLocators(object):
+    EDIT_EXERCISE_PAGE_BANNER = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/h2[contains(text(), 'Edit exercise')]")
+    EXERCISE_NAME_INPUT = (By.XPATH, "//*[@id='id_name']")
+    MAX_SUBMISSIONS_INPUT = (By.XPATH, "//*[@id='id_max_submissions']")
+    MAX_POINTS_INPUT = (By.XPATH, "//*[@id='id_max_points']")
+    POINTS_TO_PASS_INPUT = (By.XPATH, "//*[@id='id_points_to_pass']")
+    SUBMIT_BUTTON = (By.XPATH, "//form//input[@type='submit']")
+    SUCCESSFUL_SAVE_BANNER = (By.XPATH, "//*[@id='main_content']/div[@class='alert alert-success']")
 
 class SubmissionPageLocators(object):
     TABLE_FIRST_HEADER = (By.XPATH, "//*[@id='submission-table']/thead/tr[1]/th[1]")
