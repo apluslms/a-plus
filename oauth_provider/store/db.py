@@ -29,7 +29,7 @@ class ModelStore(Store):
             resource = Resource.objects.get(name=scope)
         except Resource.DoesNotExist:
             raise oauth.Error('Resource %s does not exist.' % oauth.escape(scope))
-        
+
         token = Token.objects.create_token(
             token_type=Token.REQUEST,
             consumer=Consumer.objects.get(key=oauth_request['oauth_consumer_key']),

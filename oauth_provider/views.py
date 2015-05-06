@@ -72,12 +72,12 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
                 args = { 'oauth_token': request_token }
             else:
                 args = { 'error': _('Access not granted by user.') }
-            
+
             if request_token.callback is not None and request_token.callback != OUT_OF_BAND:
                 response = HttpResponseRedirect(request_token.get_callback_url(args))
             else:
                 # try to get custom callback view
-                callback_view_str = getattr(settings, OAUTH_CALLBACK_VIEW, 
+                callback_view_str = getattr(settings, OAUTH_CALLBACK_VIEW,
                                     'oauth_provider.views.fake_callback_view')
                 try:
                     callback_view = get_callable(callback_view_str)
@@ -88,7 +88,7 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
             response = send_oauth_error(oauth.OAuth2Error(_('Action not allowed.')))
     else:
         # try to get custom authorize view
-        authorize_view_str = getattr(settings, OAUTH_AUTHORIZE_VIEW, 
+        authorize_view_str = getattr(settings, OAUTH_AUTHORIZE_VIEW,
                                     'oauth_provider.views.fake_authorize_view')
         try:
             authorize_view = get_callable(authorize_view_str)
@@ -98,7 +98,7 @@ def user_authorization(request, form_class=AuthorizeRequestTokenForm):
         # set the oauth flag
         request.session['oauth'] = request_token.key
         response = authorize_view(request, request_token, request_token.get_callback_url(), params)
-        
+
     return response
 
 
@@ -149,7 +149,7 @@ def protected_resource_example(request):
 def fake_authorize_view(request, token, callback, params):
     """
     Fake view for tests. It must return an ``HttpResponse``.
-    
+
     You need to define your own in ``settings.OAUTH_AUTHORIZE_VIEW``.
     """
     return HttpResponse('Fake authorize view for %s with params: %s.' % (token.consumer.name, params))
@@ -157,7 +157,7 @@ def fake_authorize_view(request, token, callback, params):
 def fake_callback_view(request, **args):
     """
     Fake view for tests. It must return an ``HttpResponse``.
-    
+
     You can define your own in ``settings.OAUTH_CALLBACK_VIEW``.
     """
     if "oauth_token" in args:

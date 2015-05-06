@@ -32,7 +32,7 @@ def list_exercise_submissions(request, exercise_id):
     @param exercise_id: the ID of the exercise which the submissions are for
     """
     exercise        = get_object_or_404(BaseExercise, id=exercise_id)
-    has_permission  = exercise.get_course_instance().is_staff(request.user.userprofile) 
+    has_permission  = exercise.get_course_instance().is_staff(request.user.userprofile)
 
     if not has_permission:
         # TODO: Missing translation.
@@ -58,7 +58,7 @@ def inspect_exercise_submission(request, submission_id):
     """
     submission      = get_object_or_404(Submission, id=submission_id)
     exercise        = submission.exercise
-    has_permission  = exercise.get_course_instance().is_staff(request.user.userprofile)     
+    has_permission  = exercise.get_course_instance().is_staff(request.user.userprofile)
 
     if not has_permission:
         return HttpResponseForbidden("You are not allowed to access this view.")

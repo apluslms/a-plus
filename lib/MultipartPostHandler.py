@@ -2,20 +2,20 @@
 
 ####
 # 02/2006 Will Holcomb <wholcomb@gmail.com>
-# 
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
 #
-# 7/26/07 Slightly modified by Brian Schneider  
+# 7/26/07 Slightly modified by Brian Schneider
 # in order to support unicode files ( multipart_encode function )
-# 
+#
 """
 Usage:
   Enables the use of multipart/form-data for posting forms
@@ -42,10 +42,9 @@ Further Example:
 """
 
 import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import email, 	mimetypes
 import os, stat
-from io import StringIO
+from io import StringIO, IOBase
 
 class Callable:
     def __init__(self, anycallable):
@@ -59,13 +58,13 @@ class MultipartPostHandler(urllib.request.BaseHandler):
     handler_order = urllib.request.HTTPHandler.handler_order - 10 # needs to run first
 
     def http_request(self, request):
-        data = request.get_data()
+        data = request.data
         if data is not None and type(data) != str:
             v_files = []
             v_vars = []
             try:
                  for(key, value) in data:
-                     if type(value) == file:
+                     if type(value) == IOBase:
                          v_files.append((key, value))
                      else:
                          v_vars.append((key, value))
@@ -84,8 +83,8 @@ class MultipartPostHandler(urllib.request.BaseHandler):
                     print("Replacing %s with %s" % (request.get_header('content-type'), 'multipart/form-data'))
                 request.add_unredirected_header('Content-Type', contenttype)
 
-            request.add_data(data)
-        
+            request.data = data.encode('utf-8')
+
         return request
 
     def multipart_encode(vars, files, boundary = None, buf = None):

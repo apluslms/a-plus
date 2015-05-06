@@ -23,13 +23,13 @@ class PercentField(models.FloatField):
         Returns a float
         """
         value = super(PercentField, self).clean(value, model_instance)
-        
+
         if value is None:
             return None
-        
+
         if (0.0 <= value <= 1.0):
             return value
-        
+
         raise exceptions.ValidationError(self.error_messages['range'])
 
 try:
@@ -42,16 +42,16 @@ except:
     pass
 
 ########################################################################
-# Django-JSONField by Brad Jasper 
+# Django-JSONField by Brad Jasper
 # https://github.com/bradjasper/django-jsonfield
 ########################################################################
 class JSONFormField(Field):
     def clean(self, value):
         if not value and not self.required:
             return None
-        
+
         value = super(JSONFormField, self).clean(value)
-        
+
         try:
             json.loads(value)
         except ValueError:
@@ -60,13 +60,13 @@ class JSONFormField(Field):
 
 class JSONField(models.TextField, metaclass=models.SubfieldBase):
     """JSONField is a generic textfield that serializes/unserializes JSON objects"""
-    
+
     def __init__(self, *args, **kwargs):
         self.dump_kwargs = kwargs.pop('dump_kwargs', {'cls': DjangoJSONEncoder})
         self.load_kwargs = kwargs.pop('load_kwargs', {})
-        
+
         super(JSONField, self).__init__(*args, **kwargs)
-    
+
     def to_python(self, value):
         """Convert string value to JSON"""
         if isinstance(value, str):
@@ -75,30 +75,30 @@ class JSONField(models.TextField, metaclass=models.SubfieldBase):
             except ValueError:
                 pass
         return value
-    
+
     def get_db_prep_value(self, value, connection, prepared=False):
         """Convert JSON object to a string"""
-        
+
         if isinstance(value, str):
             return value
         return json.dumps(value, **self.dump_kwargs)
-    
+
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
         return self.get_prep_value(value)
-    
+
     def value_from_object(self, obj):
         return json.dumps(super(JSONField, self).value_from_object(obj))
-    
+
     def formfield(self, **kwargs):
         if "form_class" not in kwargs:
             kwargs["form_class"] = JSONFormField
-        
+
         field = super(JSONField, self).formfield(**kwargs)
-        
+
         if not field.help_text:
             field.help_text = "Enter valid JSON"
-        
+
         return field
 
 try:

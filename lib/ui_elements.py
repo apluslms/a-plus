@@ -6,11 +6,11 @@ class Tab:
         else:
             self.url    = url
             self.label  = label
-        
+
         self.active = False
-    
+
     def get_absolute_url(self):
         return self.url
-    
+
     def get_label(self):
         return self.label

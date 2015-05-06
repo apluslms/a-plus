@@ -4,14 +4,14 @@ from tastypie.resources import ModelResource
 
 # A+
 from userprofile.models import UserProfile
-#from api_permissions import SuperuserAuthorization #TODO FIX
+from api_permissions import SuperuserAuthorization #TODO FIX
 
 
 class UserProfileResource(ModelResource):
     def dehydrate(self, bundle):
-        """ 
+        """
         This method adds fields from the corresponding User
-        object to the response. 
+        object to the response.
         """
         user = bundle.obj.user
         extra_fields = {"username":     user.username,
@@ -21,13 +21,13 @@ class UserProfileResource(ModelResource):
                         }
         bundle.data.update(extra_fields)
         return bundle
-    
+
     class Meta:
         queryset        = UserProfile.objects.all()
         resource_name   = 'userprofile'
-        
-        # In this version of the API only superusers are allowed to access 
+
+        # In this version of the API only superusers are allowed to access
         # userprofile objects
         allowed_methods = ['get']
         #authentication  = OAuthAuthentication()  #TODO fix
-        #authorization   = SuperuserAuthorization()
+        authorization   = SuperuserAuthorization()

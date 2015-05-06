@@ -28,18 +28,18 @@ class CheckOAuth(object):
         self.view_func = view_func
         self.resource_name = resource_name
         update_wrapper(self, view_func)
-        
+
     def __get__(self, obj, cls=None):
         view_func = self.view_func.__get__(obj, cls)
         return CheckOAuth(view_func, self.resource_name)
-    
+
     def __call__(self, request, *args, **kwargs):
         if self.is_valid_request(request):
             oauth_request = get_oauth_request(request)
-            consumer = store.get_consumer(request, oauth_request, 
+            consumer = store.get_consumer(request, oauth_request,
                             oauth_request.get_parameter('oauth_consumer_key'))
             try:
-                token = store.get_access_token(request, oauth_request, 
+                token = store.get_access_token(request, oauth_request,
                                 consumer, oauth_request.get_parameter('oauth_token'))
             except InvalidTokenError:
                 return send_oauth_error(OAuth2Error(_('Invalid access token: %s') % oauth_request.get_parameter('oauth_token')))
@@ -47,14 +47,14 @@ class CheckOAuth(object):
                 parameters = self.validate_token(request, consumer, token)
             except OAuth2Error as e:
                 return send_oauth_error(e)
-            
+
             if self.resource_name and token.resource.name != self.resource_name:
                 return send_oauth_error(OAuth2Error(_('You are not allowed to access this resource.')))
             elif consumer and token:
                 # Hack
                 request.user = token.user
                 return self.view_func(request, *args, **kwargs)
-        
+
         return send_oauth_error(OAuth2Error(_('Invalid request parameters.')))
 
     @staticmethod

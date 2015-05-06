@@ -13,10 +13,10 @@ class UserProfile(models.Model):
     @classmethod
     def get_by_student_id(cls, student_id):
         return cls.objects.get(student_id=student_id)
-    
+
     def __str__(self):
         return self.user.username
-    
+
     def _generate_gravatar_url(self):
         import hashlib
         hash    = hashlib.md5(self.user.email.encode('utf-8')).hexdigest()
@@ -25,14 +25,14 @@ class UserProfile(models.Model):
 
     def get_shortname(self):
         """
-        Returns a short version of the user's name, with the first name and the first letter 
+        Returns a short version of the user's name, with the first name and the first letter
         of the last name.
         """
         try:
             return self.user.first_name + " " + self.user.last_name[0] + "."
         except:
             return self.user.username
-    
+
     shortname = property(get_shortname)
 
     # TODO: REFACTOR - Why is an import within the method? Is it there on purpose (instead of at the top of the file as usual)
@@ -53,7 +53,7 @@ class UserProfile(models.Model):
         for notification in notifications:
             courses.add(notification.course_instance)
         return courses
-    
+
     class Meta:
         ordering            = ['id']
 
@@ -69,9 +69,9 @@ class UserProfile(models.Model):
 
 def create_user_profile(sender, instance, created, **kwargs):
     '''
-    This function automatically creates an user profile for all new User models. The profiles 
+    This function automatically creates an user profile for all new User models. The profiles
     are used for extending the User models with domain specific attributes and behavior.
-    
+
     @param sender: the signal(?) that invoked the function
     @param instance: the User object that was just created
     @param created: a boolean whether the object was created and not just updated
@@ -89,10 +89,10 @@ class StudentGroup(models.Model):
     member_limit    = models.PositiveIntegerField()
     is_public       = models.BooleanField(default=False)
     invitation_key  = models.CharField(max_length=10, blank=True)
-    
+
     def get_names(self):
         return ", ".join(x.shortname for x in self.members.all())
-    
+
     def has_space_left(self):
         return self.members.count() < self.member_limit
 
@@ -100,22 +100,22 @@ class StudentGroup(models.Model):
     def add_member(self, new_member):
         if self.members.count() >= self.member_limit:
             return False
-        
+
         self.members.add(new_member)
         return True
-    
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         ordering            = ['name']
-    
+
     @classmethod
     def get_students_from_request(cls, request):
         """
         Returns a QuerySet of students that belong to the group currently in session.
         If there is no group set, only the current user will be in the returned set.
-        
+
         @param request: an HttpRequest object from Django
         @return: QuerySet of students that belong to the group currently in session
         """
@@ -127,6 +127,6 @@ class StudentGroup(models.Model):
         else:
             # No group was found, so use just the current user
             students = UserProfile.objects.filter(id=request.user.userprofile.id)
-        
+
         return students
 

@@ -18,6 +18,7 @@ from lib import MultipartPostHandler
 from lib.fields import PercentField
 from exercise.exercise_page import ExercisePage
 from userprofile.models import UserProfile
+from io import IOBase
 
 class CourseModule(models.Model):
     """
@@ -100,14 +101,14 @@ class CourseModule(models.Model):
 
     def __str__(self):
         return self.name + " -- " + str(self.course_instance)
-    
+
     def get_breadcrumb(self):
-        """ 
-        Returns a list of tuples containing the names and URL 
-        addresses of parent objects and self. 
+        """
+        Returns a list of tuples containing the names and URL
+        addresses of parent objects and self.
         """
         return self.course_instance.get_breadcrumb()
-    
+
     class Meta:
         app_label           = 'exercise'
         ordering            = ['closing_time', 'id']
@@ -167,14 +168,14 @@ class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round
     # TODO: It would be better if this didn't have the default=0.
     order                   = models.IntegerField(default=0)
-    
+
     # Instruction related fields
     name                    = models.CharField(max_length=255)
     description             = models.TextField(blank=True)
     instructions            = models.TextField(blank=True)
 
     service_url             = models.URLField(blank=True)
-    
+
     # Relations
     course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")
     category               = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
@@ -182,7 +183,7 @@ class LearningObject(ModelWithInheritance):
     def clean(self):
         """
         Validates the model before saving (standard method used in Django admin).
-        
+
         """
         course_instance_error = ValidationError("course_module and category must relate to the same CourseInstance object")
         try:
@@ -204,7 +205,7 @@ class LearningObject(ModelWithInheritance):
 class BaseExercise(LearningObject):
     # Switch for giving assistants permission to grade this exercise
     allow_assistant_grading = models.BooleanField(default=False)
-    
+
     # Submission related fields
     min_group_size = models.PositiveIntegerField(default=1)
     max_group_size = models.PositiveIntegerField(default=1)
@@ -235,24 +236,24 @@ class BaseExercise(LearningObject):
         else:
             # TODO: Slow?
             return int(round(100.0 * self.summary["average_grade"] / self.max_points))
-    
+
     def get_deadline(self):
         return self.course_module.closing_time
 
     def get_page(self, submission_url):
-        """ 
-        Retrieves the page for this exercise from the exercise service. 
-        
-        @param submission_url: the submission url where the service may return submissions
-        @return: an ExercisePage object created from data retrieved from exercise service 
         """
-        
+        Retrieves the page for this exercise from the exercise service.
+
+        @param submission_url: the submission url where the service may return submissions
+        @return: an ExercisePage object created from data retrieved from exercise service
+        """
+
         # Build the URL with a callback address, max points etc.
         url             = self.build_service_url(submission_url)
-        
+
         opener          = urllib.request.build_opener()
         page_content    = opener.open(url, timeout=20).read()
-        
+
         return ExercisePage(self, page_content)
 
     def get_percentage_to_pass(self):
@@ -317,53 +318,53 @@ class BaseExercise(LearningObject):
 
         count = self.submissions.filter(submitters=student).count()
         return self.max_submissions - count
-    
+
     def submit(self, submission):
-        """ 
-        This method sends the given submission to the exercise service 
-        along with the files related to the submission. 
         """
-        
+        This method sends the given submission to the exercise service
+        along with the files related to the submission.
+        """
+
         # Make sure that this is the correct exercise for the submission
         assert self.id == submission.exercise.id
-        
+
         # Create an empty list for HTTP request parameters
         post_params             = []
-        
-        # Parameters are appended to the list as key, value tuples. 
+
+        # Parameters are appended to the list as key, value tuples.
         # Using tuples makes it possible to add two values for the same key.
         for (key, value) in submission.submission_data:
             post_params.append( (key, value) )
-        
+
         # Then the files are appended as key, file handle tuples
         for submitted_file in submission.files.all().order_by("id"):
             param_name          = submitted_file.param_name
             file_handle         = open(submitted_file.file_object.path, "rb")
             post_params.append( (param_name, file_handle) )
-        
+
         # Allow to make necessary modifications to POST parameters
         self.modify_post_params(post_params)
 
         # Build the service URL, which contains maximum points for this exercise
         # and a callback URL to which the service may return the grading
         url                     = self.build_service_url( submission.get_callback_url())
-        
+
         opener                  = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
         response_body           = opener.open(url, post_params, timeout=50).read()
-        
+
         # Close all opened file handles
         for (key, value) in post_params:
-            if type(value) == file:
+            if type(value) == IOBase:
                 value.close()
-        
+
         return ExercisePage(self, response_body)
 
     def modify_post_params(self, post_params):
         """
         Allows to modify POST parameters before they are sent to the grader.
         Extending classes may implement this function.
-        
-        @param post_params: original POST parameters    
+
+        @param post_params: original POST parameters
         """
         pass
 
@@ -417,7 +418,7 @@ class BaseExercise(LearningObject):
 
         # Check if the number of students is allowed for this exercise
         allowed_group_size = (self.min_group_size <= len(students) <= self.max_group_size)
-        
+
         if not self.have_submissions_left(students):
             if len(students) == 1:
                 errors.append(_('You already have used the maximum amount of submissions allowed to this exercise.'))
@@ -445,7 +446,7 @@ class BaseExercise(LearningObject):
             errors.append(_('This exercise can be submitted in groups of %d to %d students. ') % (self.min_group_size, self.max_group_size)
                         + _('The size of your current group is %d.') % len(students))
 
-        # Only notifications are added below this line        
+        # Only notifications are added below this line
         success = len(errors) == 0
 
         # If late submission is open, notify the student about point reduction
@@ -456,17 +457,17 @@ class BaseExercise(LearningObject):
 
 
         return success, errors
-    
+
     def is_late_submission_allowed(self):
         return self.course_module.late_submissions_allowed
-    
+
     def get_late_submission_penalty(self):
         return self.course_module.late_submission_penalty
-    
+
     def build_service_url(self, submission_url):
         """
         Generates and returns a complete URL with added parameters to the exercise service.
-        
+
         @param submission_url: the URL where the service may return grading details
         """
         full_url        = settings.BASE_URL + submission_url
@@ -476,25 +477,25 @@ class BaseExercise(LearningObject):
                             "submission_url" : full_url,
                           }
 
-        # If there is already a question mark in the url, use ampersand as delimiter. Otherwise 
+        # If there is already a question mark in the url, use ampersand as delimiter. Otherwise
         # use question mark.
         delimiter       = ("?", "&")["?" in self.service_url]
-        
+
         url             = self.service_url + delimiter + urllib.parse.urlencode(params)
         return url
 
     def get_submissions_for_student(self, userprofile):
-        """ 
+        """
         Returns all submissions for the given user profile for this exercise.
-        
+
         @param userprofile: the user's profile whose submissions to find
-        @return: a QuerySet of matching submissions 
+        @return: a QuerySet of matching submissions
         """
         return userprofile.submissions.filter(exercise=self)
 
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse("exercise.views.view_exercise", kwargs={"exercise_id": self.id})
 
@@ -513,12 +514,12 @@ class BaseExercise(LearningObject):
     def get_submission_url_for_students(self, students):
         '''
         Creates and returns an URL where a submission can be made for the given students
-        
+
         @param students: a QuerySet of UserProfile objects for the students submitting the exercise
         @return: an URL where submissions are accepted for the students
         '''
         student_str, hash = self.get_submission_parameters_for_students(students)
-        
+
         return reverse("exercise.async_views.new_async_submission", kwargs={
             "student_ids": student_str,
             "exercise_id": self.id,
@@ -530,54 +531,54 @@ class BaseExercise(LearningObject):
         Returns a dictionary which has summarized statistics of this exercise. The dictionary is
         generated only once and saved into a private field to improve performance with subsequent
         calls.
-        
+
         @return: a dictionary keys: submission_count, average_grade, average_submissions and
         submitter_count
         """
         if not hasattr(self, "temp_summary"):
             submission_count        = self.submissions.count()
             submitter_count         = UserProfile.objects.distinct().filter(submissions__exercise=self).count()
-            
+
             average_grade           = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(best_grade=Max('submissions__grade')).aggregate(average_grade=Avg('best_grade'))["average_grade"]
             average_submissions     = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(submission_count=Count('submissions')).aggregate(avg_submissions=Avg('submission_count'))["avg_submissions"]
-            
+
             if average_grade == None:
                 average_grade       = 0
             if average_submissions == None:
                 average_submissions = 0
-            
+
             self.temp_summary       = {"submission_count"   : submission_count,
                                        "average_grade"      : average_grade,
                                        "submitter_count"    : submitter_count,
                                        "average_submissions": average_submissions,
                                        }
         return self.temp_summary
-    
+
     summary = property(__get_summary)
-    
+
     @classmethod
     def get_exercise(cls, *args, **kwargs):
         """
-        Returns an object matching the given query parameters as an 
+        Returns an object matching the given query parameters as an
         instance of the exercise's actual class, not the super class.
         """
         return cls.objects.get(*args, **kwargs).as_leaf_class()
-    
+
     def get_breadcrumb(self):
-        """ 
-        Returns a list of tuples containing the names and url 
-        addresses of parent objects and self. 
+        """
+        Returns a list of tuples containing the names and url
+        addresses of parent objects and self.
         """
         crumb       = self.course_module.get_breadcrumb()
         crumb_tuple = (str(self), self.get_absolute_url())
         crumb.append(crumb_tuple)
         return crumb
-    
+
     def can_edit(self, userprofile):
         """
-        Returns a boolean value indicating if the given user profile is allowed to edit 
+        Returns a boolean value indicating if the given user profile is allowed to edit
         this exercise. Superusers and teachers are allowed to edit exercises.
-        
+
         @param userprofile: the user profile whose permissions are checked
         @return: True if is allowed, False otherwise
         """
@@ -590,42 +591,42 @@ class BaseExercise(LearningObject):
 
 # TODO: REFACTOR? - Would it be more simple to just have a 'type' variable in BaseExercise instead of having empty classes that needs to be checked?
 class AsynchronousExercise(BaseExercise):
-    """ 
-    Asynchronous exercises are used when the assessment service does not grade the 
-    exercises immediately after submission. Instead, the exercise system will call 
-    a submission URL after assessing and generating feedback. 
+    """
+    Asynchronous exercises are used when the assessment service does not grade the
+    exercises immediately after submission. Instead, the exercise system will call
+    a submission URL after assessing and generating feedback.
     """
     pass
 
 
 class SynchronousExercise(BaseExercise):
-    """ 
+    """
     Synchronous exercises are submitted and assessed during a single HTTP request.
-    The exercise service will respond to POST requests with a number of points and 
-    a feedback for the student. 
+    The exercise service will respond to POST requests with a number of points and
+    a feedback for the student.
     """
     pass
 
 
 class StaticExercise(BaseExercise):
-    """ 
-    Static exercises are used for storing submissions on the server, but not automatically 
-    assessing them. Static exercises may be retrieved by other services through the API. 
     """
-    
+    Static exercises are used for storing submissions on the server, but not automatically
+    assessing them. Static exercises may be retrieved by other services through the API.
+    """
+
     exercise_page_content   = models.TextField()
     submission_page_content = models.TextField()
-    
-    
+
+
     def get_page(self, submission_url=None):
         """
         @param submission_url: the submission url where the service may return submissions
-        @return: an ExercisePage object created from data retrieved from exercise service 
+        @return: an ExercisePage object created from data retrieved from exercise service
         """
         page            = ExercisePage(self)
         page.content    = self.exercise_page_content
         return page
-    
+
     def submit(self, submission):
         page            = ExercisePage(self)
         page.content    = self.submission_page_content
@@ -635,12 +636,12 @@ class StaticExercise(BaseExercise):
 
 # TODO: REFACTOR - If this only accepts ExerciseWithAttachment objects it should be a method of that class instead (with one parameter less)
 def build_upload_dir(instance, filename):
-    """ 
-    Returns the path where the attachement should be saved.    
-    
+    """
+    Returns the path where the attachement should be saved.
+
     @param instance: the ExerciseWithAttachment object
     @param filename: the actual name of the submitted file
-    @return: a path where the file should be stored, relative to MEDIA_ROOT directory 
+    @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
 
     return "exercise_attachments/exercise_%d/%s" % (instance.id, filename)
@@ -693,7 +694,7 @@ class ExerciseWithAttachment(BaseExercise):
     def get_page(self, submission_url=None):
         """
         @param submission_url: the submission url where the service may return submissions
-        @return: an ExercisePage containing the exercise instructions and possibly a submit form 
+        @return: an ExercisePage containing the exercise instructions and possibly a submit form
         """
         page            = ExercisePage(self)
         page.content    = self.instructions
