@@ -4,9 +4,10 @@ from base64 import b64encode
 # Tastypie
 from tastypie.resources import ModelResource, Resource, ALL
 from api_permissions import *
-from tastypie.authentication import OAuthAuthentication, OAuthAuthentication, ApiKeyAuthentication
+from tastypie.authentication import ApiKeyAuthentication
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
+from tastypie_oauth.authentication import OAuth20Authentication
 
 # A+
 from userprofile.models import UserProfile
@@ -89,7 +90,7 @@ class SubmissionResource(ModelResource):
         
         # In this version only superusers are allowed to access
         # submissions after being authenticated with OAuth
-       # authentication  = OAuthAuthentication()
+        authentication  = OAuth20Authentication()
         authorization   = SuperuserAuthorization()
 
 class SubmissionContentResource(ModelResource):

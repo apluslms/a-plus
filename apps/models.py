@@ -35,7 +35,6 @@ from inheritance.models import ModelWithInheritance
 from oauth_provider.models import Consumer
 from bs4 import BeautifulSoup
 
-
 class AbstractApp(ModelWithInheritance):
     
     # Generic foreign key implementation from Django commenting framework
@@ -46,7 +45,7 @@ class AbstractApp(ModelWithInheritance):
     
     # A Plugin can be tied to an OAuth consumer, which makes it possible to sign requests
     # with secret keys between this service and the consumer service.
-    oauth_consumer      = models.ForeignKey(Consumer, null=True, blank=True)
+    oauth_consumer      = models.ForeignKey(Consumer, null=True, blank=True) #TODO new consumer class?
     
     class Meta:
         abstract        = True

@@ -2,7 +2,7 @@ import uuid
 import urllib.request, urllib.parse, urllib.error
 import urllib.parse
 from time import time
-from requests_oauthlib import OAuth2Session as oauth
+import oauthlib.oauth2 as oauth
 
 from django.db import models
 from django.contrib.auth.models import User

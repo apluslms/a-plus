@@ -573,7 +573,7 @@ class OAuthTestsBug10(TestCase):
         # Service Provider:
 
         response = self.c.get("/oauth/request_token/", self.request_token_parameters)
-
+        print(response.reason_phrase)
         # The Service Provider checks the signature and replies with an unauthorized Request Token in the body of the HTTP response:
         self.assertEqual(
             response.status_code,

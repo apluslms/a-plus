@@ -159,8 +159,9 @@ INSTALLED_APPS = (
 
     # Third party applications
     'django_shibboleth', #for shibboleth logins
+    'tastypie_oauth',
     'oauth_provider',
-    'tastypie',
+    'oauth2_provider',
 
     # First party applications
     'external_services',
@@ -182,14 +183,15 @@ TEST_EXCLUDE_APPS = (
     'django.contrib.auth',
 
     'django_shibboleth',
+    'tastypie_oauth',
     'oauth_provider',
-    'tastypie',
+    'oauth2_provider',
     'south',
 )
 
 # OAuth settings
 OAUTH_AUTHORIZE_VIEW = 'oauth_provider.custom_views.oauth_authorize'
-
+OAUTH_ACCESS_TOKEN_MODEL = 'oauth2_provider.models.AccessToken'
 LOGIN_REDIRECT_URL = "/"
 
 AUTH_PROFILE_MODULE = 'userprofile.UserProfile'

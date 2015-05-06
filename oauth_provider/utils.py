@@ -1,4 +1,5 @@
-from requests_oauthlib import OAuth2Session as oauth
+import oauthlib.oauth2 as oauth
+from oauthlib.common import Request
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -30,12 +31,12 @@ def initialize_server_request(request):
         (request.META.get('CONTENT_TYPE') == "application/x-www-form-urlencoded" \
             or request.META.get('SERVER_NAME') == 'testserver'):
         parameters = dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items())
-    print("abs_url (init_server): %s" % request.build_absolute_uri(request.path))
-    oauth_request = oauth.request(request.method, 
-                                  request.build_absolute_uri(request.path), 
-                                  parameters=parameters,
-                                  headers=auth_header,
-                                  query_string=request.META.get('QUERY_STRING', ''))
+    body = parameters
+    body.put('query_string',  request.META.get('QUERY_STRING', ''))
+    oauth_request = Request(request.build_absolute_uri(request.path),
+                                  request.method, 
+                                  body=body,
+                                  headers=auth_header)
     if oauth_request:
         oauth_server = oauth.Server()
         if 'plaintext' in OAUTH_SIGNATURE_METHODS:
@@ -62,11 +63,10 @@ def get_oauth_request(request):
     headers = {}
     if 'HTTP_AUTHORIZATION' in request.META:
         headers['Authorization'] = request.META['HTTP_AUTHORIZATION']
-    print("abs_url (get_oath_req): %s" % request.build_absolute_uri(request.path))
-    return oauth.request(request.method, 
-                          url=request.build_absolute_uri(request.path),
-                          headers=headers,
-                          parameters=dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items()))
+    return Request(request.build_absolute_uri(request.path),
+                          request.method, 
+                          body=dict((k, v.encode('utf-8')) for (k, v) in request.REQUEST.items()),
+                          headers=headers)
 
 def verify_oauth_request(request, oauth_request, consumer, token=None):
     """ Helper function to verify requests. """
@@ -105,7 +105,7 @@ def require_params(oauth_request, parameters=[]):
     ]
     params.extend(parameters)
 
-    missing = list(param for param in params if param not in oauth_request)
+    missing = list(param for param in params if (oauth_request.param is None))
     if missing:
         return HttpResponseBadRequest('Missing OAuth parameters: %s' % (', '.join(missing)))
 
