@@ -2,11 +2,20 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from selenium_test.locators.locators import FirstPageLocators, LoginPageLocators, BasePageLocators, EditModulePageLocators, EditExercisePageLocators, CourseArchiveLocators, HomePageLocators, StaffPageLocators, \
+from selenium_test.locators.locators import FirstPageLocators, \
+    LoginPageLocators, \
+    BasePageLocators, \
+    EditModulePageLocators, \
+    EditExercisePageLocators, \
+    CourseArchiveLocators, \
+    HomePageLocators, \
+    StaffPageLocators, \
     TeachersPageLocators, \
     AssistantsPageLocators, \
     SubmissionPageLocators, \
     ExercisePageLocators, \
+    InspectionPageLocators, \
+    AssessmentPageLocators, \
     MyFirstExerciseLocators, \
     FileUploadGraderLocators, \
     MyAjaxExerciseGraderLocators
@@ -204,9 +213,13 @@ class AssistantsPage(StaffPage):
         self.load("/course/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
 
 class EditModulePage(BasePage):
-    def __init__(self, driver, moduleNumber=1):
+    def __init__(self, driver, moduleNumber):
         BasePage.__init__(self, driver)
-        self.load("/course/aplus1/basic_instance/modules/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+        if (moduleNumber):
+            self.load("/course/aplus1/basic_instance/modules/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+        else:
+            # Create new module
+            self.load("/course/aplus1/basic_instance/modules/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
 
     def getCourseName(self):
         return str(self.getElement(EditModulePageLocators.COURSE_NAME_INPUT).get_attribute('value'))
@@ -275,11 +288,15 @@ class EditExercisePage(BasePage):
 
 
 class SubmissionPage(BasePage):
-    def __init__(self, driver):
+    def __init__(self, driver, moduleNumber=1):
         BasePage.__init__(self, driver)
+        self.load("/exercise/submissions/list/" + str(moduleNumber) + "/", SubmissionPageLocators.TABLE_FIRST_HEADER)
 
     def getInspectionLinks(self):
-        return self.driver.find_elements(SubmissionPageLocators.INSPECTION_LINKS)
+        return self.getElements(SubmissionPageLocators.INSPECTION_LINKS)
+
+    def getSubmissionCount(self):
+        return len(self.getInspectionLinks())
 
     def clickInspectionLink(self, number):
         inspectionLinks = self.getInspectionLinks()
@@ -287,6 +304,41 @@ class SubmissionPage(BasePage):
             inspectionLinks.get(number).click()
         else:
             raise Exception("Tried to click inspection link number " + number + "but there are only " + len(inspectionLinks) + " elements.")
+
+class InspectionPage(BasePage):
+    def __init__(self, driver, submissionNumber=1):
+        BasePage.__init__(self, driver)
+        self.load("/exercise/submissions/inspect/" + str(submissionNumber) + "/", InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
+
+    def doesNotHaveFeedback(self):
+        return self.isElementVisible(InspectionPageLocators.NO_FEEDBACK_BANNER)
+
+    def clickAssessThisSubmissionLink(self):
+        self.getElement(InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK).click()
+
+    def getSubmitters(self):
+        return str(self.getElement(InspectionPageLocators.SUBMITTERS_TEXT).text)
+
+    def getGrade(self):
+        return str(self.getElement(InspectionPageLocators.GRADE_TEXT).text)
+
+class AssessmentPage(BasePage):
+    def __init__(self, driver, submissionNumber=1):
+        BasePage.__init__(self, driver)
+        self.load("/exercise/submissions/assess/" + str(submissionNumber) + "/", AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
+
+    def setPoints(self):
+        self.clearAndSendKeys(AssessmentPageLocators.POINTS_INPUT)
+
+    def setAssistantFeedback(self):
+        self.clearAndSendKeys(AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
+
+    def setFeedback(self):
+        self.clearAndSendKeys(AssessmentPageLocators.FEEDBACK_INPUT)
+
+    def submit(self):
+        self.getElement(AssessmentPageLocators.SAVE_BUTTON).click()
+
 
 class CourseArchivePage(AbstractPage):
     def __init__(self, driver):

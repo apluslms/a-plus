@@ -15,8 +15,10 @@ class EditExercisePageTest(unittest.TestCase):
         maxSubmissions = "5"
         maxPoints = "99"
         pointToPass = "50"
+        moduleNumber = 1
+        exerciseNumber = 1
 
-        editExercisePage = EditExercisePage(self.driver, 1, 1)
+        editExercisePage = EditExercisePage(self.driver, moduleNumber, exerciseNumber)
 
         editExercisePage.setExerciseName(exerciseName)
         editExercisePage.setMaxSubmissions(maxSubmissions)
@@ -26,7 +28,7 @@ class EditExercisePageTest(unittest.TestCase):
 
         self.assertTrue(editExercisePage.isSuccessfulSave())
 
-        editExercisePage = EditExercisePage(self.driver, 1, 1)
+        editExercisePage = EditExercisePage(self.driver, moduleNumber, exerciseNumber)
         self.assertEqual(editExercisePage.getExerciseName(), exerciseName)
         self.assertEqual(editExercisePage.getMaxSubmissions(), maxSubmissions)
         self.assertEqual(editExercisePage.getMaxPoints(), maxPoints)

@@ -56,7 +56,7 @@ class MyFirstExerciseTest(unittest.TestCase):
 
     def testShouldRejectAnswerIfMaxSubmissionsReached(self):
         i = 0
-        maxSubmissions = 10
+        maxSubmissions = 10;
         while (i <= maxSubmissions):
             exercisePage = MyFirstExerciseGrader(self.driver)
             exercisePage.submit()

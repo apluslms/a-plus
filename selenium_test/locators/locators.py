@@ -74,6 +74,18 @@ class SubmissionPageLocators(object):
     TABLE_FIRST_HEADER = (By.XPATH, "//*[@id='submission-table']/thead/tr[1]/th[1]")
     INSPECTION_LINKS = (By.XPATH, "//*[@id='submission-table']//a[contains(@href, '/exercise/submissions/inspect/')]")
 
+class InspectionPageLocators(object):
+    ASSESS_THIS_SUBMISSION_LINK = "//*[@id='student-submission']//a[contains(@href, '/exercise/submissions/assess/7/')]"
+    NO_FEEDBACK_BANNER = (By.XPATH, "//div[@class='alert alert-info']")
+    SUBMITTERS_TEXT = (By.XPATH, "//*[@id='student-submission']/div/dl[1]/dd")
+    GRADE_TEXT = (By.XPATH, "//*[@id='student-submission']/div/dl[4]/dd")
+
+class AssessmentPageLocators(object):
+    POINTS_INPUT = (By.XPATH, "//*[@id='id_points']")
+    ASSISTANT_FEEDBACK_INPUT = (By.XPATH, "//*[@id='id_assistant_feedback']")
+    FEEDBACK_INPUT = (By.XPATH, "//*[@id='id_feedback']")
+    SAVE_BUTTON = (By.XPATH, "//*[@id='generated-feedback']//input[@type='submit']")
+
 class MyFirstExerciseLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My first exercise')]")
     TEXT_INPUT = (By.XPATH, "//*[@id='exercise']/form/textarea")
