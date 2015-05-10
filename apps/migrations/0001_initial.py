@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import unicode_literals
 
 from django.db import models, migrations
 
@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0001_initial'),
         ('inheritance', '0001_initial'),
-        ('oauth_provider', '__first__'),
     ]
 
     operations = [
@@ -19,7 +18,7 @@ class Migration(migrations.Migration):
                 ('modelwithinheritance_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='inheritance.ModelWithInheritance')),
                 ('container_pk', models.TextField(verbose_name='object ID')),
                 ('title', models.CharField(max_length=64)),
-                ('views', models.CharField(max_length=255, blank=True)),
+                ('views', models.CharField(blank=True, max_length=255)),
             ],
             options={
                 'abstract': False,
@@ -34,7 +33,7 @@ class Migration(migrations.Migration):
                 ('label', models.CharField(max_length=12)),
                 ('title', models.CharField(max_length=64)),
                 ('order', models.IntegerField(default=100)),
-                ('opening_method', models.CharField(max_length=32, blank=True)),
+                ('opening_method', models.CharField(blank=True, max_length=32)),
             ],
             options={
                 'ordering': ['order', 'id'],
@@ -46,7 +45,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('basetab_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='apps.BaseTab')),
                 ('content_url', models.URLField(max_length=128)),
-                ('element_id', models.CharField(max_length=32, blank=True)),
+                ('element_id', models.CharField(blank=True, max_length=32)),
             ],
             options={
                 'abstract': False,
@@ -119,21 +118,9 @@ class Migration(migrations.Migration):
             preserve_default=True,
         ),
         migrations.AddField(
-            model_name='basetab',
-            name='oauth_consumer',
-            field=models.ForeignKey(blank=True, to='oauth_provider.Consumer', null=True),
-            preserve_default=True,
-        ),
-        migrations.AddField(
             model_name='baseplugin',
             name='container_type',
             field=models.ForeignKey(to='contenttypes.ContentType'),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='baseplugin',
-            name='oauth_consumer',
-            field=models.ForeignKey(blank=True, to='oauth_provider.Consumer', null=True),
             preserve_default=True,
         ),
     ]
