@@ -13,6 +13,7 @@ from selenium_test.locators.locators import FirstPageLocators, \
     TeachersPageLocators, \
     AssistantsPageLocators, \
     SubmissionPageLocators, \
+    StudentFeedbackPageLocators, \
     ExercisePageLocators, \
     InspectionPageLocators, \
     AssessmentPageLocators, \
@@ -80,6 +81,13 @@ class AbstractPage(object):
         except NoSuchElementException:
             return False
 
+    def isElementPresent(self, locator):
+        try:
+            element = self.getElement(locator)
+            return True
+        except NoSuchElementException:
+            return False
+
     def clearAndSendKeys(self, locator, text):
         element = self.getElement(locator)
         element.clear()
@@ -89,6 +97,8 @@ class AbstractPage(object):
 class LoginPage(AbstractPage):
     defaultUsername = "jenkins"
     defaultPassword = "admin"
+    studentUsername = "student_user"
+    teacherUsername = "teacher_user"
 
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
@@ -103,6 +113,12 @@ class LoginPage(AbstractPage):
             self.getElement(FirstPageLocators.HOOK_EXAMPLE_BUTTON).click()
             self.signIn(username, password)
             self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
+
+    def loginAsStudent(self, driver, course=CourseName.APLUS):
+        self.loginToCourse(course, self.studentUsername, self.defaultPassword)
+
+    def loginAsTeacher(self, driver, course=CourseName.APLUS):
+        self.loginToCourse(course, self.teacherUsername, self.defaultPassword)
 
     def signIn(self, username, password):
         self.getElement(LoginPageLocators.USERNAME_INPUT).send_keys(username)
@@ -141,6 +157,9 @@ class BasePage(AbstractPage):
     def clickAssistantsViewLink(self):
         self.getElement(BasePageLocators.ASSISTANTS_VIEW_LINK).click()
 
+    def hasNewNotifications(self):
+        return self.isElementPresent(BasePageLocators.NOTIFICATION_MENU)
+
 
 class HomePage(BasePage):
     def __init__(self, driver, course=CourseName.APLUS):
@@ -177,6 +196,12 @@ class ExercisePage(BasePage):
 
     def getExerciseScore(self):
         return str(self.getElement(ExercisePageLocators.EXERCISE_SCORE).text)
+
+    def getPoints(self):
+        return str(self.getElement(ExercisePageLocators.EXERCISE_SCORE).text).split(" / ", 1)[0]
+
+    def getMaxPoints(self):
+        return str(self.getElement(ExercisePageLocators.EXERCISE_SCORE).text).split(" / ", 1)[1]
 
     def getNumberOfSubmitters(self):
         return str(self.getElement(ExercisePageLocators.NUMBER_OF_SUBMITTERS).text)
@@ -305,6 +330,18 @@ class SubmissionPage(BasePage):
         else:
             raise Exception("Tried to click inspection link number " + number + "but there are only " + len(inspectionLinks) + " elements.")
 
+class StudentFeedbackPage(BasePage):
+    def __init__(self, driver, submissionNumber):
+        BasePage.__init__(self, driver)
+        self.load("/exercise/submission/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
+
+    # We have to use str.split because feedback texts aren't tagged
+    def getAssistantFeedbackText(self):
+        return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).split('\n', 3)[1]
+
+    def getFeedbackText(self):
+        return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).split('\n', 3)[3]
+
 class InspectionPage(BasePage):
     def __init__(self, driver, submissionNumber=1):
         BasePage.__init__(self, driver)
@@ -327,14 +364,14 @@ class AssessmentPage(BasePage):
         BasePage.__init__(self, driver)
         self.load("/exercise/submissions/assess/" + str(submissionNumber) + "/", AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
 
-    def setPoints(self):
-        self.clearAndSendKeys(AssessmentPageLocators.POINTS_INPUT)
+    def setPoints(self, points):
+        self.clearAndSendKeys(AssessmentPageLocators.POINTS_INPUT, points)
 
-    def setAssistantFeedback(self):
-        self.clearAndSendKeys(AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
+    def setAssistantFeedback(self, text):
+        self.clearAndSendKeys(AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT, text)
 
-    def setFeedback(self):
-        self.clearAndSendKeys(AssessmentPageLocators.FEEDBACK_INPUT)
+    def setFeedback(self, text):
+        self.clearAndSendKeys(AssessmentPageLocators.FEEDBACK_INPUT, text)
 
     def submit(self):
         self.getElement(AssessmentPageLocators.SAVE_BUTTON).click()

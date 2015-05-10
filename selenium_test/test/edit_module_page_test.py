@@ -11,27 +11,27 @@ class EditModulePageTest(unittest.TestCase):
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
 
     def testShouldSaveModule(self):
-        courseName = "Testikurssi"
-        pointsToPass = "10"
-        openingTime = "2014-01-01 00:00:00"
-        closingTime = "2016-01-01 00:00:00"
-        moduleNumber = 1
+        COURSE_NAME = "Testikurssi"
+        POINTS_TO_PASS = "10"
+        OPENING_TIME = "2014-01-01 00:00:00"
+        CLOSING_TIME = "2016-01-01 00:00:00"
+        MODULE_NUMBER = 1
 
-        editModulePage = EditModulePage(self.driver, moduleNumber)
+        editModulePage = EditModulePage(self.driver, MODULE_NUMBER)
 
-        editModulePage.setCourseName(courseName)
-        editModulePage.setPointsToPass(pointsToPass)
-        editModulePage.setOpeningTime(openingTime)
-        editModulePage.setClosingTime(closingTime)
+        editModulePage.setCourseName(COURSE_NAME)
+        editModulePage.setPointsToPass(POINTS_TO_PASS)
+        editModulePage.setOpeningTime(OPENING_TIME)
+        editModulePage.setClosingTime(CLOSING_TIME)
         editModulePage.submit()
 
         self.assertTrue(editModulePage.isSuccessfulSave())
 
-        editModulePage = EditModulePage(self.driver, moduleNumber)
-        self.assertEqual(editModulePage.getCourseName(), courseName)
-        self.assertEqual(editModulePage.getPointsToPass(), pointsToPass)
-        self.assertEqual(editModulePage.getOpeningTime(), openingTime)
-        self.assertEqual(editModulePage.getClosingTime(), closingTime)
+        editModulePage = EditModulePage(self.driver, MODULE_NUMBER)
+        self.assertEqual(editModulePage.getCourseName(), COURSE_NAME)
+        self.assertEqual(editModulePage.getPointsToPass(), POINTS_TO_PASS)
+        self.assertEqual(editModulePage.getOpeningTime(), OPENING_TIME)
+        self.assertEqual(editModulePage.getClosingTime(), CLOSING_TIME)
 
     def tearDown(self):
         self.driver.close()
