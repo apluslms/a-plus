@@ -11,17 +11,16 @@ class LoginTest(unittest.TestCase):
        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
 
     def testLoginToTestCourseInstance(self):
-        loginPage = LoginPage(self.driver)
-        loginPage.loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
         homePage = HomePage(self.driver, CourseName.APLUS)
         self.assertEqual(homePage.getCourseBanner(), 'A+ Test Course Instance')
-
+        self.assertTrue(LoginPage.defaultUsername in homePage.getLoggedInText())
 
     def testLoginToExampleHookCourseInstance(self):
-        loginPage = LoginPage(self.driver)
-        loginPage.loginToCourse(CourseName.HOOK)
+        LoginPage(self.driver).loginToCourse(CourseName.HOOK)
         homePage = HomePage(self.driver, CourseName.HOOK)
         self.assertEqual(homePage.getCourseBanner(), 'Hook Example')
+        self.assertTrue(LoginPage.defaultUsername in homePage.getLoggedInText())
 
     def testShouldThrowTimoutExceptionOnWrongCredentials(self):
         loginPage = LoginPage(self.driver)

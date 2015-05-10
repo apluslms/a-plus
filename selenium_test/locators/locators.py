@@ -18,8 +18,8 @@ class BasePageLocators(object):
     USER_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[5]/a")
     TEACHERS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li/a[contains(@href, 'teachers')]")
     ASSISTANTS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li/a[contains(@href, 'assistants')]")
-    LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']/li[2]/a")
-    LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']/li[3]/a")
+    LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']//a[contains(text(), 'Logged in as')]")
+    LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']//a[contains(@href, '/accounts/logout/')]")
     LOGOUT_BANNER = (By.XPATH, "//div[@class='alert alert-success']")
     NOTIFICATION_MENU = (By.XPATH, "//*[@id='notification-menu']")
 
