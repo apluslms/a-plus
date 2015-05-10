@@ -7,6 +7,7 @@ from selenium_test.page_objects.page_objects import CourseName, LoginPage, HomeP
 class HomePageTest(unittest.TestCase):
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
+        TestInitializer().recreateDatabase()
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
 
     def testInitialScoreShouldBeZero(self):
