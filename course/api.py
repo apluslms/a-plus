@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 # Tastypie
 from tastypie.resources import ModelResource, Resource
-from tastypie.authentication import Authentication
+from tastypie.authentication import Authentication #, OAuthAuthentication
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
 from tastypie.bundle import Bundle

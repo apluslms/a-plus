@@ -11,6 +11,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from course.models import Course, CourseInstance,\
     get_visible_open_course_instances
+# from oauth_provider.decorators import oauth_required
 from django.utils.datetime_safe import datetime
 
 def login(request):
@@ -55,8 +56,7 @@ def privacy(request):
     context = RequestContext(request)
     return render_to_response("aaltoplus/privacy.html", context)
 
-#TODO required oauth before
-def verify_credentials(request):
-    json_str = json.dumps({"screen_name": request.user.username})
-    return HttpResponse(json_str, content_type="text/plain")
-
+# @oauth_required
+# def verify_credentials(request):
+#     json_str = json.dumps({"screen_name": request.user.username})
+#     return HttpResponse(json_str, content_type="text/plain")

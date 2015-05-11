@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 from apps.app_renderers import ExternalIFramePluginRenderer,\
     ExternalIFrameTabRenderer, TabRenderer
 from inheritance.models import ModelWithInheritance
-#from oauth_provider.models import Consumer
+# from oauth_provider.models import Consumer
 from bs4 import BeautifulSoup
 
 class AbstractApp(ModelWithInheritance):
@@ -45,7 +45,9 @@ class AbstractApp(ModelWithInheritance):
 
     # A Plugin can be tied to an OAuth consumer, which makes it possible to sign requests
     # with secret keys between this service and the consumer service.
-    #oauth_consumer      = models.ForeignKey(Consumer, null=True, blank=True) #This class was considered unnecessary for the moment
+
+    # Removed with due to Python 3 incompatibility
+    # oauth_consumer      = models.ForeignKey(Consumer, null=True, blank=True)
 
     class Meta:
         abstract        = True

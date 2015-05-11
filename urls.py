@@ -1,5 +1,6 @@
 # A+
-from views import login, home, privacy, verify_credentials
+from views import login, home, privacy #, verify_credentials
+# from oauth_provider.views import protected_resource_example
 
 # Django
 from django.conf.urls import patterns, url, include
@@ -9,8 +10,12 @@ from django.conf import settings
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # A view for returning credentials through OAuth authentication. Unnecessary?
-    url(r'^account/verify_credentials.json$', verify_credentials),
+    # OAuth plus
+    # url(r'^oauth/', include('oauth_provider.urls')),
+    # url(r'^oauth/photo/$', protected_resource_example, name='oauth_example'),
+
+    # A view for returning credentials through OAuth authentication
+    # url(r'^account/verify_credentials.json$', verify_credentials),
 
     # A+
     (r'^$', home),
