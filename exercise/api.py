@@ -7,7 +7,6 @@ from api_permissions import *
 from tastypie.authentication import ApiKeyAuthentication #,OAuthAuthentication 
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
-from tastypie_oauth.authentication import OAuth20Authentication
 
 # A+
 from userprofile.models import UserProfile
