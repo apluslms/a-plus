@@ -404,9 +404,9 @@ class ExerciseTest(TestCase):
         base_exercise_url_params = urllib.parse.parse_qs(split_base_exercise_service_url[1])
         static_exercise_url_params = urllib.parse.parse_qs(split_static_exercise_service_url[1])
         self.assertEqual(['100'], base_exercise_url_params['max_points'])
-        self.assertEqual(['http://localhost:8000/testSubmissionURL'], base_exercise_url_params['submission_url'])
+        self.assertEqual(['http://localhost:8001/testSubmissionURL'], base_exercise_url_params['submission_url'])
         self.assertEqual(['50'], static_exercise_url_params['max_points'])
-        self.assertEqual(['http://localhost:8000/testSubmissionURL'], static_exercise_url_params['submission_url'])
+        self.assertEqual(['http://localhost:8001/testSubmissionURL'], static_exercise_url_params['submission_url'])
 
     def test_base_exercise_submissions_for_student(self):
         submissions = self.base_exercise.get_submissions_for_student(self.user.userprofile)
