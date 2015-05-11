@@ -9,7 +9,6 @@ html5lib
 #south
 oauth2
 mimeparse
-simplejson
 python-dateutil
 icalendar
 selenium

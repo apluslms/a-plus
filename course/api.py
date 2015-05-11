@@ -1,11 +1,11 @@
 # Django
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 # Tastypie
 from tastypie.resources import ModelResource, Resource
-from tastypie.authentication import Authentication, OAuthAuthentication
+from tastypie.authentication import Authentication #, OAuthAuthentication
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie import fields
 from tastypie.bundle import Bundle
@@ -17,13 +17,13 @@ from userprofile.models import UserProfile
 
 class CourseResource(ModelResource):
     instances           = fields.ToManyField('course.api.CourseInstanceResource', 'instances')
-    
+
     class Meta:
         queryset        = Course.objects.all()
         resource_name   = 'course'
         excludes        = []
-        
-        # TODO: In this version, only GET requests are accepted and no 
+
+        # TODO: In this version, only GET requests are accepted and no
         # permissions are checked.
         allowed_methods = ['get']
         authentication  = Authentication()
@@ -31,13 +31,13 @@ class CourseResource(ModelResource):
 
 class CourseInstanceResource(ModelResource):
     course_modules      = fields.ToManyField('exercise.api.CourseModuleResource', 'course_modules')
-    
+
     def dehydrate(self, bundle):
         bundle.data.update({"is_open": bundle.obj.is_open()})
         bundle.data.update({"browser_url": bundle.obj.get_absolute_url()})
         # TODO add results_uri
         return bundle
-    
+
     class Meta:
         # TODO: In this version, those course instances that have
         # visible_to_students == False are not accessible through the api.
@@ -46,8 +46,8 @@ class CourseInstanceResource(ModelResource):
             visible_to_students=True)
         resource_name   = 'courseinstance'
         excludes        = []
-        
-        # TODO: In this version, only GET requests are accepted and no 
+
+        # TODO: In this version, only GET requests are accepted and no
         # permissions are checked.
         allowed_methods = ['get']
         authentication  = Authentication()
@@ -72,13 +72,13 @@ class CourseInstanceSummaryResource(Resource):
         object_class    = UserCourseSummary
         allowed_methods = ['get']
         api_name        = 'v1'
-    
+
     #From: http://www.maykinmedia.nl/blog/2012/oct/2/nested-resources-tastypie/
     def override_urls(self):
         # TODO override_urls will be deprecated in Tastypie 1.0
         # http://django-tastypie.readthedocs.org/en/latest/api.html#override-urls
         return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/user/(?P<user>\w[\w/-]*)/$' % 
+            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/user/(?P<user>\w[\w/-]*)/$' %
                 (self._meta.resource_name ),
                 self.wrap_view('dispatch_detail'),
                 name='api_dispatch_detail'),
@@ -91,7 +91,7 @@ class CourseInstanceSummaryResource(Resource):
                 self.wrap_view('dispatch_course_instances'),
                 name='api_course_instances')
         ]
-    
+
     def get_resource_uri(self, bundle_or_obj):
         kwargs = {
             'resource_name': self._meta.resource_name,
@@ -102,7 +102,7 @@ class CourseInstanceSummaryResource(Resource):
             kwargs['user'] = bundle_or_obj.obj['user']
             kwargs['pk'] = bundle_or_obj.obj['course_instance']
         else:
-            print bundle_or_obj
+            print(bundle_or_obj)
             kwargs['user'] = bundle_or_obj['user']
             kwargs['pk'] = bundle_or_obj['course_instance']
 
@@ -135,7 +135,7 @@ class CourseInstanceSummaryResource(Resource):
                 tmp["submission_count"] = ex_summary.submission_count
                 tmp["completed_percentage"] = ex_summary.get_completed_percentage()
                 exercise_summaries.append(tmp)
-            summary.append({"exercise_round_id": rnd.exercise_round.id, 
+            summary.append({"exercise_round_id": rnd.exercise_round.id,
                               "completed_percentage": rnd.get_completed_percentage(),
                               "closing_time": rnd.exercise_round.closing_time,
                               "exercise_summaries": exercise_summaries

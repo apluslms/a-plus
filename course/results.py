@@ -7,20 +7,20 @@ from exercise.submission_models import Submission
 from django.db.models import Max
 
 class ResultTable:
-    """ 
-    ResultTable is a class that models the table displaying the grades for each student
-    on each exercise. ResultTables are generated dynamically when needed and not stored 
-    in a database. 
     """
-    
+    ResultTable is a class that models the table displaying the grades for each student
+    on each exercise. ResultTables are generated dynamically when needed and not stored
+    in a database.
+    """
+
     def __init__(self, course_instance):
-        """ 
+        """
         Instantiates a new ResultTable for the given course instance.
         After initialization the table is filled with grades from the database.
-        
-        @param course_instance: The CourseInstance model that we wish to get grades from 
+
+        @param course_instance: The CourseInstance model that we wish to get grades from
         """
-        
+
         self.course_instance    = course_instance
 
         # Find the best submissions for each user-exercise combination.
@@ -48,7 +48,7 @@ class ResultTable:
         self.students = UserProfile.objects.filter(
             submissions__exercise__course_module__course_instance\
             =course_instance).distinct()
-        
+
         # The data is converted to a dictionary of dictionaries where the outer
         # dictionaries have UserProfile model instances as keys and the
         # sub-dictionaries have BaseExercise model instances as keys.
@@ -88,7 +88,7 @@ class ResultTable:
         @return: the template-friendly data structure of the ResultTable data
         """
         for_template = []
-        for student, grades_d in self.results.items():
+        for student, grades_d in list(self.results.items()):
             grades = []
             sum = 0
             for ex in self.exercises:

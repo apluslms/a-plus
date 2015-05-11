@@ -44,13 +44,13 @@
                 <strong>{{ module.name }}</strong>
             </th>
             <td>
-                <a href="{% url course.views.add_or_edit_module instance.course.url instance.url module.id %}" class="btn btn-mini">
+                <a href="{% url 'course.views.add_or_edit_module' instance.course.url instance.url module.id %}" class="btn btn-mini">
                     <i class="icon-edit"></i> {% trans "Edit module" %}
                 </a>
             </td>
             <td>
                 <div class="btn-group">
-                    <a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}"
+                    <a href="{% url 'exercise.staff_views.add_or_edit_exercise' module.id %}"
                             class="btn  btn-success">
                         <i class=" icon-white"></i> {% trans "Add New Exercise" %}
                     </a>
@@ -58,10 +58,10 @@
                             <span class="caret"></span>
                           </button>
                       <ul class="dropdown-menu" role="menu">
-                            <li><a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}" class="">
+                            <li><a href="{% url 'exercise.staff_views.add_or_edit_exercise' module.id %}" class="">
                                  {% trans "Add Exercise" %}
                             </a></li>
-                            <li><a href="{% url exercise.staff_views.add_or_edit_exercise module.id %}exercise_type/exercise_with_attachment">
+                            <li><a href="{% url 'exercise.staff_views.add_or_edit_exercise' module.id %}exercise_type/exercise_with_attachment">
                                 {% trans "Add Exercise with Attachment" %}</a>
                             </li>
 
@@ -75,15 +75,15 @@
                     {{ object.name }}
                 </td>
                 <td>
-                    <a href="{% url exercise.staff_views.add_or_edit_exercise module.id object.id %}" class="btn btn-mini">
+                    <a href="{% url 'exercise.staff_views.add_or_edit_exercise' module.id object.id %}" class="btn btn-mini">
                         <i class="icon-edit"></i> {% trans "Edit" %}
                     </a>
-                    <a href="{% url exercise.staff_views.remove_exercise module.id object.id %}" class="btn btn-mini">
+                    <a href="{% url 'exercise.staff_views.remove_exercise' module.id object.id %}" class="btn btn-mini">
                         <i class="icon-remove"></i> {% trans "Remove" %}
                     </a>
                 </td>
                 <td>
-                    <a href="{% url exercise.staff_views.list_exercise_submissions exercise_id=object.id %}">View submissions</a>
+                    <a href="{% url 'exercise.staff_views.list_exercise_submissions' exercise_id=object.id %}">View submissions</a>
                 </td>
             </tr>
         {% endfor %}
@@ -91,7 +91,7 @@
     </tbody>
 </table>
 
-<a href="{% url course.views.add_or_edit_module instance.course.url instance.url %}" 
+<a href="{% url 'course.views.add_or_edit_module' instance.course.url instance.url %}" 
         class="btn btn-primary btn-mini">
     <i class="icon-plus-sign icon-white"></i> {% trans "Add new module" %}
 </a>
@@ -99,10 +99,10 @@
 
 <h3>Deadline Rule Deviations</h3>
 <p>Add or view personalized deadlinses for students for exercieses</p>
-<a href="{% url add_dl_deviations instance.id %}" class="btn btn-primary btn-mini">
+<a href="{% url 'add_dl_deviations' instance.id %}" class="btn btn-primary btn-mini">
     <i class="icon-plus-sign icon-white"></i> {% trans "Add Deadline Deviations" %}
 </a>
-<a href="{% url list_dl_deviations instance.id %}" class="btn btn-primary btn-mini">
+<a href="{% url 'list_dl_deviations' instance.id %}" class="btn btn-primary btn-mini">
     <i class="icon-list-alt icon-white"></i> {% trans "List Deadline Deviations" %}
 </a>
 

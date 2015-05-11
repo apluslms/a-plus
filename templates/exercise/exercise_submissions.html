@@ -9,15 +9,15 @@
         <ul class="breadcrumb">
             {% if is_teacher %}
             <li>
-                <a href="{% url course.views.teachers_view course_url=instance.course.url instance_url=instance.url %}">{% trans "Teachers' view" %}</a><span class="divider">/</span>
+                <a href="{% url 'course.views.teachers_view' course_url=instance.course.url instance_url=instance.url %}">{% trans "Teachers' view" %}</a><span class="divider">/</span>
             </li>
             {% else %}
             <li>
-                <a href="{% url course.views.assistants_view course_url=instance.course.url instance_url=instance.url %}">{% trans "Assistants' view" %}</a><span class="divider">/</span>
+                <a href="{% url 'course.views.assistants_view' course_url=instance.course.url instance_url=instance.url %}">{% trans "Assistants' view" %}</a><span class="divider">/</span>
             </li>
             {% endif %}
             <li class="active">
-                <a href="{% url exercise.staff_views.list_exercise_submissions exercise_id=exercise.id %}">{{ exercise.name }}</a>
+                <a href="{% url 'exercise.staff_views.list_exercise_submissions' exercise_id=exercise.id %}">{{ exercise.name }}</a>
             </li>
         </ul>
     </div>
@@ -65,7 +65,7 @@
                             {{ submission.grade }}
                         </td>
                         <td>
-                            <a href="{% url exercise.staff_views.inspect_exercise_submission submission_id=submission.id %}">{% trans "Inspect" %}</a>
+                            <a href="{% url 'exercise.staff_views.inspect_exercise_submission' submission_id=submission.id %}">{% trans "Inspect" %}</a>
                         </td>
                     </tr>
                 {% endfor %}

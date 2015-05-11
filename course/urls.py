@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 from course.views import add_or_edit_module, assistants_view, course_archive,\
     set_schedule_filters, teachers_view, view_course, view_instance,\
     view_instance_calendar, view_instance_results, view_my_page

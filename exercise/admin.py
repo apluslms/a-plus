@@ -33,7 +33,7 @@ class BaseExerciseAdmin(admin.ModelAdmin):
     list_display_links = ["name"]
     list_display = ["name", "course_module", "max_points", real_class]
     list_filter = ["course_module__course_instance", "course_module"]
-    
+
     class Media:
         js = ('/static/tiny_mce/tiny_mce.js',
               '/static/js/tiny_mce_textareas.js',)

@@ -1,6 +1,6 @@
 # Default settings for a-plus Django project.
 # You should create local_settings.py in the same directory to override necessary settings
-import os
+import os, sys
 
 # Lines for Celery. Disabled until actually needed
 # import djcelery
@@ -13,17 +13,19 @@ def get_path(filename):
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+ALLOWED_HOSTS = []
+
 # This URL is used when building absolute URLs to this service
 # Must be overridden in local_settings.py for deployment
 BASE_URL = "http://localhost:8001"
 
 # Make this unique, and don't share it with anybody.
 # Must be overridden in local_settings.py for deployment
-SECRET_KEY = ''
+SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': get_path('aplus.db'),            # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
@@ -44,6 +46,8 @@ MANAGERS = ADMINS
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
 TIME_ZONE = 'Europe/Helsinki'
+# Datetimes will be unaware of timezone
+USE_TZ = False
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -54,6 +58,9 @@ SITE_ID = 1
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
+
+# TODO: Should this be used?
+# USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
@@ -97,8 +104,8 @@ STATICFILES_FINDERS = (
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.load_template_source',
 )
 
@@ -115,9 +122,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'userprofile.middleware.StudentGroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'lib.middleware.SqlInjectionMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -150,9 +159,8 @@ INSTALLED_APPS = (
 
     # Third party applications
     'django_shibboleth', #for shibboleth logins
-    'oauth_provider',
+    # 'oauth_provider',
     'tastypie',
-    'south', 
 
     # First party applications
     'external_services',
@@ -174,14 +182,14 @@ TEST_EXCLUDE_APPS = (
     'django.contrib.auth',
 
     'django_shibboleth',
-    'oauth_provider',
+    # 'oauth_provider',
     'tastypie',
     'south',
 )
 
 # OAuth settings
-OAUTH_AUTHORIZE_VIEW = 'oauth_provider.custom_views.oauth_authorize'
-
+# OAUTH_AUTHORIZE_VIEW = 'oauth_provider.custom_views.oauth_authorize'
+# OAUTH_ACCESS_TOKEN_MODEL = 'oauth_provider.models.AccessToken'
 LOGIN_REDIRECT_URL = "/"
 
 AUTH_PROFILE_MODULE = 'userprofile.UserProfile'
@@ -208,14 +216,14 @@ SHIB_EMAIL = "email"
 SHIB_FIRST_NAME = "first_name"
 SHIB_LAST_NAME = "last_name"
 
-# Skip migrations when running unit tests
-SOUTH_TESTS_MIGRATE = False
 
+#TODO fix with python3
 # Unit test XML-reporting
-TEST_RUNNER = "test_runner.custom_xml_test_runner.ExcludeAppsXMLTestRunner"
-TEST_OUTPUT_VERBOSE = True
-TEST_OUTPUT_DESCRIPTIONS = True
-TEST_OUTPUT_DIR = "test_results"
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+# TEST_RUNNER = "test_runner.custom_xml_test_runner.ExcludeAppsXMLTestRunner"
+# TEST_OUTPUT_VERBOSE = True
+# TEST_OUTPUT_DESCRIPTIONS = True
+# TEST_OUTPUT_DIR = "test_results"
 
 # Overrides and appends settings defined in local_settings.py
 try:

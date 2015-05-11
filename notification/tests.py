@@ -21,7 +21,7 @@ class NotificationTest(TestCase):
             code="123456",
             url="Course-Url"
         )
-        self.course.teachers.add(self.teacher.get_profile())
+        self.course.teachers.add(self.teacher.userprofile)
 
         self.today = datetime.now()
         self.tomorrow = self.today + timedelta(days=1)
@@ -38,32 +38,32 @@ class NotificationTest(TestCase):
         self.notification = Notification.objects.create(
             subject="testSubject",
             notification="testNotification",
-            sender=self.student.get_profile(),
-            recipient=self.teacher.get_profile(),
+            sender=self.student.userprofile,
+            recipient=self.teacher.userprofile,
             course_instance=self.course_instance
         )
 
     def test_notification_send(self):
         notifications = Notification.objects.all()
         self.assertEqual(1, len(notifications))
-        self.assertEqual(self.student.get_profile(), notifications[0].sender)
-        self.assertEqual(self.teacher.get_profile(), notifications[0].recipient)
+        self.assertEqual(self.student.userprofile, notifications[0].sender)
+        self.assertEqual(self.teacher.userprofile, notifications[0].recipient)
         self.assertEqual(self.course_instance, notifications[0].course_instance)
         self.assertEqual("testSubject", notifications[0].subject)
         self.assertEqual("testNotification", notifications[0].notification)
         self.assertFalse(notifications[0].seen)
 
-        Notification.send(self.teacher.get_profile(), self.student.get_profile(), self.course_instance, "subject", "notification")
+        Notification.send(self.teacher.userprofile, self.student.userprofile, self.course_instance, "subject", "notification")
         notifications = Notification.objects.all()
         self.assertEqual(2, len(notifications))
-        self.assertEqual(self.teacher.get_profile(), notifications[0].sender)
-        self.assertEqual(self.student.get_profile(), notifications[0].recipient)
+        self.assertEqual(self.teacher.userprofile, notifications[0].sender)
+        self.assertEqual(self.student.userprofile, notifications[0].recipient)
         self.assertEqual(self.course_instance, notifications[0].course_instance)
         self.assertEqual("subject", notifications[0].subject)
         self.assertEqual("notification", notifications[0].notification)
         self.assertFalse(notifications[0].seen)
-        self.assertEqual(self.student.get_profile(), notifications[1].sender)
-        self.assertEqual(self.teacher.get_profile(), notifications[1].recipient)
+        self.assertEqual(self.student.userprofile, notifications[1].sender)
+        self.assertEqual(self.teacher.userprofile, notifications[1].recipient)
         self.assertEqual(self.course_instance, notifications[1].course_instance)
         self.assertEqual("testSubject", notifications[1].subject)
         self.assertEqual("testNotification", notifications[1].notification)

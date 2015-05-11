@@ -17,7 +17,7 @@
         {# TODO: The class should be called settings-collapse since this will later be used for other kinds of settings too. #}
         <div id="filters-collapse" class="collapse">
             <div class="well">
-                <form action="{% url course.views.set_schedule_filters course_url=instance.course.url instance_url=instance.url %}?next={{ request.path }}" method="POST">{% csrf_token %}
+                <form action="{% url 'course.views.set_schedule_filters' course_url=instance.course.url instance_url=instance.url %}?next={{ request.path }}" method="POST">{% csrf_token %}
                     <legend>Visible categories</legend>
                     {% for category_summary in course_summary.category_summaries %}
                         <label class="checkbox" for="category_filter_{{ category_summary.category.id }}"><input id="category_filter_{{ category_summary.category.id }}" type="checkbox" name="category_filters" value="{{ category_summary.category.id }}" {% if not category_summary.is_hidden %}checked="checked"{% endif %} /> {{ category_summary.category.name }}</label>

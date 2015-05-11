@@ -17,10 +17,10 @@ import os
 
 
 class Submission(models.Model):
-    _status_choices         = (("initialized", _(u"Initialized")),
-                               ("waiting", _(u"Waiting")),
-                               ("ready", _(u"Ready")),
-                               ("error", _(u"Error")))
+    _status_choices         = (("initialized", _("Initialized")),
+                               ("waiting", _("Waiting")),
+                               ("ready", _("Ready")),
+                               ("error", _("Error")))
 
     submission_time         = models.DateTimeField(auto_now_add=True)
     hash                    = models.CharField(max_length=32, default=get_random_string)
@@ -46,7 +46,7 @@ class Submission(models.Model):
     grading_data            = JSONField(blank=True)
 
     def add_submitter(self, user_profile):
-        """ 
+        """
         Adds a new student to the submitters of this exercise.
 
         @param user_profiles: a UserProfile that is submitting the exercise
@@ -63,9 +63,9 @@ class Submission(models.Model):
             self.add_submitter(user_profile)
 
     def add_files(self, files):
-        """ 
+        """
         Adds the given files to this submission as SubmittedFile objects.
-        @param files: a QueryDict containing files from a POST request 
+        @param files: a QueryDict containing files from a POST request
         """
         for key in files:
             for uploaded_file in files.getlist(key):
@@ -77,13 +77,13 @@ class Submission(models.Model):
                 self.files.add(userfile)
 
     def check_user_permission(self, profile):
-        """ 
+        """
         Checks if the given user is allowed to access this submission.
         Superusers and staff are allowed to access all submissions, course
         personnel is allowed to access submissions for that course and students
         are allowed to access their own submissions.
 
-        @param profile: UserProfile model 
+        @param profile: UserProfile model
         """
 
         # Superusers and staff are allowed to view all submissions
@@ -107,7 +107,7 @@ class Submission(models.Model):
         return self.exercise.course_module.course_instance
 
     def set_points(self, points, max_points, no_penalties=False):
-        """ 
+        """
         Sets the points and maximum points for this submissions. If the given
         maximum points are different than the ones for the exercise this
         submission is for, the points will be scaled.
@@ -156,7 +156,7 @@ class Submission(models.Model):
             # set yet so this method takes the liberty to set it.
             self.submission_time = datetime.now()
         return self.exercise.course_module.is_expired(when=self.submission_time) and not self.exercise.is_open_for(students=self.submitters.all(), when=self.submission_time)
-                 
+
 
     def set_grading_data(self, grading_dict):
         self.grading_data = grading_dict
@@ -179,7 +179,7 @@ class Submission(models.Model):
 
         return ", ".join(submitter_strs)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.id)
 
     # Status methods. The status indicates whether this submission is just
@@ -221,9 +221,9 @@ class Submission(models.Model):
         return exercise.submit(self)
 
     def get_breadcrumb(self):
-        """ 
-        Returns a list of tuples containing the names and url 
-        addresses of parent objects and self. 
+        """
+        Returns a list of tuples containing the names and url
+        addresses of parent objects and self.
         """
         crumb           = self.exercise.get_breadcrumb()
         crumb_tuple     = (_("Submission"), self.get_absolute_url())
@@ -236,15 +236,15 @@ class Submission(models.Model):
 
 # TODO: REFACTOR - If this only accepts SubmittedFile objects it should be a method of that class instead (with one parameter less)
 def build_upload_dir(instance, filename):
-    """ 
-    Returns the path to a directory where the file should be saved. 
+    """
+    Returns the path to a directory where the file should be saved.
     This is called every time a new SubmittedFile model is created.
-    The file paths include IDs for the course instance, the exercise, 
+    The file paths include IDs for the course instance, the exercise,
     the users who submitted the file and the submission the file belongs to.
 
     @param instance: the new SubmittedFile object
     @param filename: the actual name of the submitted file
-    @return: a path where the file should be stored, relative to MEDIA_ROOT directory 
+    @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
     exercise        = instance.submission.exercise
     course_instance = exercise.course_module.course_instance
@@ -256,11 +256,11 @@ def build_upload_dir(instance, filename):
 
 
 class SubmittedFile(models.Model):
-    """ 
-    Submitted file represents a file submitted by the student as a solution 
-    to an exercise. Submitted files are always linked to a certain submission 
-    through a foreign key relation. The files are stored on the disk while 
-    SubmittedFile models are stored in the database. 
+    """
+    Submitted file represents a file submitted by the student as a solution
+    to an exercise. Submitted files are always linked to a certain submission
+    through a foreign key relation. The files are stored on the disk while
+    SubmittedFile models are stored in the database.
     """
 
     submission              = models.ForeignKey(Submission, related_name="files")
@@ -275,10 +275,10 @@ class SubmittedFile(models.Model):
     filename = property(_get_filename)
 
     def get_absolute_url(self):
-        """ 
-        Returns the url for downloading this file. The url contains both the id of this model and the 
+        """
+        Returns the url for downloading this file. The url contains both the id of this model and the
         name of the file on the disk. Only the file id is used in the URL pattern and the view that returns
-        the file. 
+        the file.
         """
         view_url = reverse('exercise.views.view_submitted_file', kwargs={"submitted_file_id": self.id})
         return view_url + self.filename
@@ -288,9 +288,9 @@ class SubmittedFile(models.Model):
 
 
 def _delete_file(sender, instance, **kwargs):
-    """ 
+    """
     This function deletes the actual files referenced by SubmittedFile
-    objects after the objects are deleted from database. 
+    objects after the objects are deleted from database.
     """
     default_storage.delete(instance.file_object.path)
 

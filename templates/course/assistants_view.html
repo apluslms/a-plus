@@ -24,7 +24,7 @@
                     {{ object.name }}
                 </td>
                 <td>
-                    <a href="{% url exercise.staff_views.list_exercise_submissions exercise_id=object.id %}">View submissions</a>
+                    <a href="{% url 'exercise.staff_views.list_exercise_submissions' exercise_id=object.id %}">View submissions</a>
                 </td>
             </tr>
         {% endfor %}

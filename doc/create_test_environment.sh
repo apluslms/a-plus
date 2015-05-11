@@ -12,7 +12,7 @@ VENV_PYTHON=$VENV_DIR/bin/python
 if [ -d $VENV_DIR ]; then
     rm -R $VENV_DIR
 fi
-python venv_bootstrap.py $VENV_DIR
+python3 venv_bootstrap.py $VENV_DIR
 
 # (re)create the database
 if [ -f aplus.db ]; then

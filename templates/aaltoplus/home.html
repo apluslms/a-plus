@@ -43,7 +43,7 @@
 
 {% block footercontent %}        
     <p>
-        {% trans "Old courses can be found at the" %} <a href="{% url course.views.course_archive %}">
+        {% trans "Old courses can be found at the" %} <a href="{% url 'course.views.course_archive' %}">
         {% trans "course archive" %}</a>.
     </p>
 {% endblock %}

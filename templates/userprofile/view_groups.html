@@ -50,7 +50,7 @@
     <div id="submission_list" class="span6">
         <h2>{% trans "Your groups" %}</h2>
         <ul class="groups-list">
-        {% for group in user.get_profile.groups.all %}
+        {% for group in user.userprofile.groups.all %}
             <li class="mini-layout">
                 <h4>{{ group.name }}</h4>
                 <p>{{ group.get_names }}</p>

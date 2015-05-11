@@ -29,17 +29,17 @@ class LinkService(ModelWithInheritance):
     class Meta:
         ordering = ["menu_label"]
 
-    def __unicode__(self):
-        out = u"%s: %s" % (self.menu_label, self.url)
+    def __str__(self):
+        out = "%s: %s" % (self.menu_label, self.url)
         if not self.enabled:
-            return u"[Disabled] " + out
+            return "[Disabled] " + out
         return out
 
 
 class LTIService(LinkService):
     '''
     Configures an external LTI service. Extends LinkService.
-    
+
     '''
     consumer_key = models.CharField(
         max_length=128,
@@ -54,7 +54,7 @@ class LTIService(LinkService):
 class MenuItem(models.Model):
     '''
     Attaches LTI service to course instance menu.
-    
+
     '''
     service = models.ForeignKey(LinkService)
 
@@ -80,7 +80,7 @@ class MenuItem(models.Model):
         help_text="Heavier menu entries are placed after lighter ones."
     )
     enabled = models.BooleanField(default=True)
-    
+
     class Meta:
         ordering = ["course_instance", "menu_weight", "menu_label"]
 
@@ -114,8 +114,8 @@ class MenuItem(models.Model):
             return reverse('external_services.views.lti_login', args=[self.id])
         return self.service.url
 
-    def __unicode__(self):
-        out = u"%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
+    def __str__(self):
+        out = "%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
         if not self.enabled or not self.service.enabled:
-            return u"[Disabled] " + out
+            return "[Disabled] " + out
         return out

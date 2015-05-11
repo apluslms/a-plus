@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url
 from exercise.views import view_submission, view_exercise, \
     view_submitted_file, view_update_stats
 from exercise.staff_views import list_exercise_submissions, \

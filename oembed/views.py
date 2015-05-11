@@ -1,5 +1,5 @@
-from django.utils import simplejson as json
-from urlparse import urlparse, urlunparse
+import json
+from urllib.parse import urlparse, urlunparse
 from django.core.urlresolvers import resolve
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.template.loader import render_to_string
@@ -52,8 +52,8 @@ def _jsonresponse(request, data):
     respjson = json.dumps(data)
     if 'callback' in request.GET:
         respjson = '%s(%s);' % (request.GET['callback'], respjson)
-    return HttpResponse(respjson, mimetype="application/json")
+    return HttpResponse(respjson, content_type="application/json")
 
 
 def _xmlresponse(request, data):
-    return HttpResponse(render_to_string("oembed/xmlresponse.xml", {"data": data}), mimetype="text/xml")
+    return HttpResponse(render_to_string("oembed/xmlresponse.xml", {"data": data}), content_type="text/xml")

@@ -19,7 +19,7 @@ class Notification(models.Model):
         self.seen = True
         self.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return "To:" + self.recipient.user.username + ", " + self.subject + ", " + self.notification[:100]
 
     class Meta:

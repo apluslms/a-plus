@@ -8,14 +8,14 @@ Superclasses Tab and Plugin are related to ModelWithPlugin Models through foreig
 Other plugin and tab classes inherit the properties in the super classes.
 
 All tabs and plugins have a method 'render' which is called when the contents of that model
-should be displayed. This method should be defined in each subclass. 
+should be displayed. This method should be defined in each subclass.
 """
 
 # Python
 import feedparser
-import urlparse
-import urllib2
-import cookielib
+import urllib.parse
+import urllib.request, urllib.error, urllib.parse
+import http.cookiejar
 import datetime
 
 # Django
@@ -32,22 +32,23 @@ from django.utils.translation import ugettext_lazy as _
 from apps.app_renderers import ExternalIFramePluginRenderer,\
     ExternalIFrameTabRenderer, TabRenderer
 from inheritance.models import ModelWithInheritance
-from oauth_provider.models import Consumer
-from lib.BeautifulSoup import BeautifulSoup
-
+# from oauth_provider.models import Consumer
+from bs4 import BeautifulSoup
 
 class AbstractApp(ModelWithInheritance):
-    
+
     # Generic foreign key implementation from Django commenting framework
     container_type      = models.ForeignKey(ContentType)
     container_pk        = models.TextField(_('object ID'))
     container           = generic.GenericForeignKey(ct_field="container_type", fk_field="container_pk")
-    
-    
+
+
     # A Plugin can be tied to an OAuth consumer, which makes it possible to sign requests
     # with secret keys between this service and the consumer service.
-    oauth_consumer      = models.ForeignKey(Consumer, null=True, blank=True)
-    
+
+    # Removed with due to Python 3 incompatibility
+    # oauth_consumer      = models.ForeignKey(Consumer, null=True, blank=True)
+
     class Meta:
         abstract        = True
 
@@ -55,39 +56,39 @@ class AbstractApp(ModelWithInheritance):
 class BaseTab(AbstractApp):
     # Label is the word displayed on the tab
     label               = models.CharField(max_length=12)
-    
+
     # Title is displayed on the top of the tab page
     title               = models.CharField(max_length=64)
     order               = models.IntegerField(default=100)
-    
-    # A Tab can be opened in a new window, in the same window, 
+
+    # A Tab can be opened in a new window, in the same window,
     opening_method      = models.CharField(max_length=32, blank=True)
-    
+
     def render(self):
         return "No content for this tab..."
-    
+
     def get_absolute_url(self):
         return reverse("plugins.views.view_tab", kwargs={"tab_id": self.id})
-    
+
     def get_label(self):
         return self.label
-    
-    def __unicode__(self):
+
+    def __str__(self):
         return self.label
-    
+
     def get_container(self):
         if isinstance(self.container, ModelWithInheritance):
             return self.container.as_leaf_class()
         else:
             return self.container
-    
+
     class Meta:
         ordering        = ['order', 'id']
 
 
 class HTMLTab(BaseTab):
     content             = models.TextField()
-    
+
     def render(self):
         return self.content
 
@@ -96,7 +97,7 @@ class HTMLTab(BaseTab):
 class EmbeddedTab(BaseTab):
     content_url         = models.URLField(max_length=128)
     element_id          = models.CharField(max_length=32, blank=True)
-    
+
     def render(self):
         # TODO: fix and enable caching
         # content         =  cache.get(self.content_url)
@@ -106,26 +107,26 @@ class EmbeddedTab(BaseTab):
 
         # If the page is not cached, retrieve it
         if content == None:
-            opener      = urllib2.build_opener()
+            opener      = urllib.request.build_opener()
             content     = opener.open(url, timeout=5).read()
-            
+
             # Save the page in cache
             # cache.set(self.content_url, content)
-        
+
         soup            = BeautifulSoup(content)
 
         # TODO: Disabled. Add GET parameter support and enable.
         # Make links absolute, quoted from http://stackoverflow.com/a/4468467:
         #for tag in soup.findAll('a', href=True):
         #    tag['href'] = urlparse.urljoin(self.content_url, tag['href'])
-        
-        # If there's no element specified, use the BODY. 
+
+        # If there's no element specified, use the BODY.
         # Otherwise find the element with given id.
         if self.element_id == "":
             html        = soup.find("body").renderContents()
         else:
             html        = str(soup.find(id=self.element_id))
-        
+
         return html
 
     def get_renderer_class(self):
@@ -146,8 +147,7 @@ class ExternalIFrameTab(BaseTab):
     content html.
     """
 
-    # TODO: verify_exist can be removed when updated to Django 1.4+
-    content_url = models.URLField(max_length=255, verify_exists=False)
+    content_url = models.URLField(max_length=255)
 
     # Desired width and height
     width = models.IntegerField()
@@ -160,7 +160,7 @@ class ExternalIFrameTab(BaseTab):
 class BasePlugin(AbstractApp):
     title               = models.CharField(max_length=64)
     views               = models.CharField(max_length=255, blank=True)
-    
+
     def render(self):
         leaf = self.as_leaf_class()
         if leaf != self:
@@ -171,21 +171,21 @@ class BasePlugin(AbstractApp):
 
 class RSSPlugin(BasePlugin):
     feed_url                = models.URLField(max_length=256, blank=False)
-    
+
     def render(self):
         doc             = feedparser.parse(self.feed_url)
         feed            = doc.feed
-        
+
         sorted_entries  = sorted(doc["entries"], key=lambda entry: entry.date_parsed)
         sorted_entries.reverse()
         sorted_entries  = sorted_entries[:5]
-        
+
         # Set timestamps in a format that Django knows how to handle in templates
         for entry in sorted_entries:
             entry.django_timestamp = datetime.datetime(*entry.date_parsed[:7])
-        
-        out             = loader.render_to_string("plugins/rss.html", 
-                                                  {"entries": sorted_entries, 
+
+        out             = loader.render_to_string("plugins/rss.html",
+                                                  {"entries": sorted_entries,
                                                    "title": self.title,
                                                    "feed": feed,
                                                    "plugin": self})
@@ -194,7 +194,7 @@ class RSSPlugin(BasePlugin):
 
 class HTMLPlugin(BasePlugin):
     content = models.TextField(blank=False)
-    
+
     def render(self):
         return mark_safe(self.content)
 
@@ -217,8 +217,7 @@ class ExternalIFramePlugin(BasePlugin):
     available in the view.
     """
 
-    # TODO: verify_exist can be removed when updated to Django 1.4+
-    service_url = models.URLField(max_length=255, verify_exists=False)
+    service_url = models.URLField(max_length=255)
 
     # Desired width and height
     width = models.IntegerField()
