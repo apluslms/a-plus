@@ -392,8 +392,8 @@ class ExerciseTest(TestCase):
         self.assertEqual(0.2, self.base_exercise_with_late_submission_allowed.get_late_submission_penalty())
 
     def test_base_exercise_service_url(self):
-        self.assertEqual("?submission_url=http%3A%2F%2Flocalhost%3A8000%2FtestSubmissionURL&max_points=100", self.base_exercise.build_service_url("/testSubmissionURL"))
-        self.assertEqual("/testServiceURL?submission_url=http%3A%2F%2Flocalhost%3A8000%2FtestSubmissionURL&max_points=50", self.static_exercise.build_service_url("/testSubmissionURL"))
+        self.assertEqual("?submission_url=http%3A%2F%2Flocalhost%3A8001%2FtestSubmissionURL&max_points=100", self.base_exercise.build_service_url("/testSubmissionURL"))
+        self.assertEqual("/testServiceURL?submission_url=http%3A%2F%2Flocalhost%3A8001%2FtestSubmissionURL&max_points=50", self.static_exercise.build_service_url("/testSubmissionURL"))
 
     def test_base_exercise_submissions_for_student(self):
         submissions = self.base_exercise.get_submissions_for_student(self.user.get_profile())
