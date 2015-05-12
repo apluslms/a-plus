@@ -45,13 +45,13 @@ class AbstractPage(object):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(EC.presence_of_element_located(element))
         except TimeoutException:
-            raise "Wait for element failed: {0}".format(element)
+            raise TimeoutException("Wait for element failed: {0}".format(element))
 
     def waitForCondition(self, condition):
         try:
             WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
         except TimeoutException:
-            raise "Wait for condition failed: {0}".format(condition)
+            raise TimeoutException("Wait for condition failed: {0}".format(condition))
 
     def checkBrowserErrors(self):
         errors = []

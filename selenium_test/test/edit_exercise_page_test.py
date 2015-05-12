@@ -1,6 +1,6 @@
 import unittest
 
-from .test_initializer import TestInitializer
+from test_initializer import TestInitializer
 from selenium_test.page_objects.page_objects import LoginPage, EditExercisePage, CourseName
 
 
