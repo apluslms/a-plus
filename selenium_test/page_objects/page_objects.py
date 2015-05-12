@@ -137,7 +137,8 @@ class BasePage(AbstractPage):
         return str(self.getElement(BasePageLocators.LOGGED_USER_LINK).text)
 
     def logout(self):
-        self.getElement(BasePageLocators.LOGOUT_LINK).click()
+        self.driver.get(self.base_url + "/accounts/logout/")
+        # self.getElement(BasePageLocators.LOGOUT_LINK).click()
 
     def clickHomeLink(self):
         self.getElement(BasePageLocators.HOME_LINK).click()
