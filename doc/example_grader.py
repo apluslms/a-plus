@@ -2,7 +2,7 @@ import http.server, socketserver
 from urllib.parse import parse_qs
 import urllib.request, urllib.parse, urllib.error
 
-PORT = 8889
+PORT = 8888
 
 def grade_first_ex(submission):
     points = 0
