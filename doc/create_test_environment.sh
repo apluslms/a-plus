@@ -5,6 +5,7 @@
 cd ..
 
 VENV_DIR=../aplusenv
+VENV_PIP=$VENV_DIR/bin/pip
 VENV_PYTHON=$VENV_DIR/bin/python
 
 
@@ -12,7 +13,8 @@ VENV_PYTHON=$VENV_DIR/bin/python
 if [ -d $VENV_DIR ]; then
     rm -R $VENV_DIR
 fi
-python3 venv_bootstrap.py $VENV_DIR
+virtualenv --python=python3 $VENV_DIR
+$VENV_PIP install -r requirements.txt
 
 # (re)create the database
 if [ -f aplus.db ]; then
@@ -21,10 +23,6 @@ if [ -f aplus.db ]; then
         case $yn in
             [Yy]*)
                 rm aplus.db
-                $VENV_PYTHON manage.py syncdb --noinput
-                $VENV_PYTHON manage.py migrate
-                $VENV_PYTHON manage.py loaddata doc/initial_data.json
-                $VENV_PYTHON manage.py createsuperuser
                 break
                 ;;
             [Nn]*)
@@ -36,6 +34,6 @@ if [ -f aplus.db ]; then
         esac
     done
 fi
-
-
-
+$VENV_PYTHON manage.py migrate
+$VENV_PYTHON manage.py loaddata doc/initial_data.json
+$VENV_PYTHON manage.py createsuperuser
