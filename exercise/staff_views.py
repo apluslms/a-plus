@@ -209,7 +209,7 @@ def fetch_exercise_metadata(request):
     exercise_url    = request.GET.get("exercise_url", None)
     metadata = {"success": False}
 
-    validate        = URLValidator(verify_exists=True)
+    validate        = URLValidator()
 
     try:
         validate(exercise_url)
