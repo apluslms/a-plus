@@ -1,6 +1,6 @@
 import os
 import shutil
-import ConfigParser
+import configparser
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 
@@ -27,8 +27,8 @@ class TestInitializer(object):
 
     def getLocalConfigHomePath(self):
         try:
-            config = ConfigParser.RawConfigParser()
+            config = configparser.RawConfigParser()
             config.read('../local_test.cfg')
             return config.get('Selenium Local Environment', 'APLUS_HOME')
-        except ConfigParser.NoSectionError:
-            print 'local_test.cfg not found.'
+        except configparser.NoSectionError:
+            print('local_test.cfg not found.')

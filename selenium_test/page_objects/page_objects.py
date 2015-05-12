@@ -45,23 +45,23 @@ class AbstractPage(object):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(EC.presence_of_element_located(element))
         except TimeoutException:
-            raise("Wait for element failed: " + str(element))
+            raise "Wait for element failed: {0}".format(element)
 
     def waitForCondition(self, condition):
         try:
             WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
         except TimeoutException:
-            raise("Wait for condition failed: " + str(condition))
+            raise "Wait for condition failed: {0}".format(condition)
 
     def checkBrowserErrors(self):
         errors = []
         for entry in self.driver.get_log("browser"):
-            if (entry[u'level'] == "ERROR"):
-                errors.append(entry[u'message'])
+            if (entry['level'] == "ERROR"):
+                errors.append(entry['message'])
 
         if (len(errors) > 0):
             for error in errors:
-                print error
+                print(error)
             raise Exception("Browser errors found")
 
     def getElement(self, locator):
