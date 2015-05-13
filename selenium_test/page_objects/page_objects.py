@@ -72,7 +72,7 @@ class AbstractPage(object):
 
     def getAlert(self):
         self.waitForCondition(EC.alert_is_present())
-        return self.driver.switch_to_alert()
+        return self.driver.switch_to.alert
 
     def isElementVisible(self, locator):
         try:
