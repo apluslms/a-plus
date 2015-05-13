@@ -9,7 +9,7 @@ class TestInitializer(object):
         firefoxCapabilities =  DesiredCapabilities.FIREFOX
         firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
         firefoxDriver = webdriver.Firefox(capabilities=firefoxCapabilities)
-        #firefoxDriver.set_window_size(1024, 768)
+        firefoxDriver.set_window_size(1024, 768)
         return firefoxDriver
 
     # This just replaces the current database with a copy. We could improve this by dropping all db rows and inserting them again.
