@@ -1,7 +1,7 @@
 import unittest
 
 from test_initializer import TestInitializer
-from selenium_test.page_objects.page_objects import LoginPage, EditModulePage, CourseName
+from page_objects import LoginPage, EditModulePage, CourseName
 
 
 class EditModulePageTest(unittest.TestCase):
@@ -37,4 +37,4 @@ class EditModulePageTest(unittest.TestCase):
         self.driver.close()
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2, warnings='ignore')
+    unittest.main(verbosity=2)

@@ -2,7 +2,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from selenium_test.locators.locators import FirstPageLocators, \
+from locators import FirstPageLocators, \
     LoginPageLocators, \
     BasePageLocators, \
     EditModulePageLocators, \

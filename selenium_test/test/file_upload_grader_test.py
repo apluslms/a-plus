@@ -1,7 +1,7 @@
 import unittest
 
 from test_initializer import TestInitializer
-from selenium_test.page_objects.page_objects import CourseName, LoginPage, FileUploadGrader
+from page_objects import CourseName, LoginPage, FileUploadGrader
 
 
 class FileUploadGraderTest(unittest.TestCase):
@@ -24,4 +24,4 @@ class FileUploadGraderTest(unittest.TestCase):
         self.driver.close()
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2, warnings='ignore')
+    unittest.main(verbosity=2)

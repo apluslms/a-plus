@@ -1,7 +1,7 @@
 import unittest
 
 from test_initializer import TestInitializer
-from selenium_test.page_objects.page_objects import LoginPage, MyFirstExerciseGrader, MyAjaxExerciseGrader, SubmissionPage, CourseName
+from page_objects import LoginPage, MyFirstExerciseGrader, MyAjaxExerciseGrader, SubmissionPage, CourseName
 
 
 class SubmissionsPageTest(unittest.TestCase):
@@ -46,4 +46,4 @@ class SubmissionsPageTest(unittest.TestCase):
         self.driver.close()
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2, warnings='ignore')
+    unittest.main(verbosity=2)

@@ -1,8 +1,8 @@
 import unittest
 
 from test_initializer import TestInitializer
-from selenium_test.page_objects.page_objects import CourseArchivePage
-from selenium_test.locators.locators import CourseArchiveLocators
+from page_objects import CourseArchivePage
+from locators import CourseArchiveLocators
 
 
 class CourseArchivePageTest(unittest.TestCase):
@@ -18,4 +18,4 @@ class CourseArchivePageTest(unittest.TestCase):
         self.driver.close()
 
 if __name__ == '__main__':
-    unittest.main(verbosity=2, warnings='ignore')
+    unittest.main(verbosity=2)
