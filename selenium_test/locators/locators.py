@@ -24,10 +24,10 @@ class BasePageLocators(object):
     NOTIFICATION_MENU = (By.XPATH, "//*[@id='notification-menu']")
 
 class HomePageLocators(object):
-    MAIN_SCORE = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/div/div[2]/div/h2")
+    MAIN_SCORE = (By.XPATH, "//div[contains(@class, 'my-score-box')]/h2")
     FILTER_CATEGORIES_BUTTON = (By.XPATH, "//*[@id='schedule-filters-btn']")
     ONLINE_EXERCISES_CHECKBOX = (By.XPATH, "//*[@id='category_filter_1']")
-    UPDATE_FILTERS_BUTTON = (By.XPATH, "//*[@id='filters-collapse']/div/form/input")
+    UPDATE_FILTERS_BUTTON = (By.XPATH, "//input[contains(@value, 'Update filters')]")
 
 class ExercisePageLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title']")

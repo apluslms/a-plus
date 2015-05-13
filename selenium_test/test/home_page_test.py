@@ -25,6 +25,8 @@ class HomePageTest(unittest.TestCase):
 
         homePage.clickOnlineExercisesCheckbox()
         homePage.clickUpdateFilters()
+
+        # Assert weird error page
         self.assertEqual(HomePage.base_url + '/course/aplus1/basic_instance/set_schedule_filters/?next=/course/aplus1/basic_instance/', str(self.driver.current_url))
 
         homePage = HomePage(self.driver)
