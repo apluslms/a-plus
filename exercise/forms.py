@@ -80,6 +80,9 @@ class BaseExerciseForm(forms.ModelForm):
 
     class Meta:
         model = BaseExercise
+        fields = ['service_url', 'name', 'description', 'category', 'course_module', 'order',
+                  'max_submissions', 'max_points', 'points_to_pass', 'allow_assistant_grading',
+                  'min_group_size', 'max_group_size']
 
     def get_fieldsets(self):
         return [{"legend": _("Exercise"), "fields": self.get_exercise_fields()},
@@ -134,6 +137,10 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
 
     class Meta:
         model = ExerciseWithAttachment
+        fields = ['service_url', 'name', 'instructions', 'category', 'course_module', 'order',
+                  'files_to_submit', 'attachment',
+                  'max_submissions', 'max_points', 'points_to_pass', 'allow_assistant_grading',
+                  'min_group_size', 'max_group_size']
 
     def get_exercise_fields(self):
         return (self["name"],

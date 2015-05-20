@@ -43,9 +43,9 @@ urlpatterns = patterns('',
         name="logout"),
 )
 
-urlpatterns += patterns('',
-    (r'^comments/', include('django.contrib.comments.urls')),
-)
+#urlpatterns += patterns('',
+#    (r'^comments/', include('django.contrib.comments.urls')),
+#)
 
 if settings.DEBUG:
     urlpatterns += patterns('',

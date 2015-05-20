@@ -74,9 +74,7 @@ class CourseInstanceSummaryResource(Resource):
         api_name        = 'v1'
 
     #From: http://www.maykinmedia.nl/blog/2012/oct/2/nested-resources-tastypie/
-    def override_urls(self):
-        # TODO override_urls will be deprecated in Tastypie 1.0
-        # http://django-tastypie.readthedocs.org/en/latest/api.html#override-urls
+    def prepend_urls(self):
         return [
             url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/user/(?P<user>\w[\w/-]*)/$' %
                 (self._meta.resource_name ),
