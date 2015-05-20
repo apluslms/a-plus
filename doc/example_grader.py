@@ -1,8 +1,15 @@
+import sys
 import http.server, socketserver
 from urllib.parse import parse_qs
 import urllib.request, urllib.parse, urllib.error
 
 PORT = 8888
+
+if len(sys.argv) > 2:
+    print('Usage: %s [port-number]' % (sys.argv[0]))
+    exit(0)
+if len(sys.argv) == 2:
+    PORT = int(sys.argv[1])
 
 def grade_first_ex(submission):
     points = 0
