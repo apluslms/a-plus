@@ -23,7 +23,7 @@ class TestInitializer(object):
             raise Exception("Test environment is not properly configured. Exiting...")
 
         if(not os.path.exists(APLUS_HOME + "/aplus.db_copy")):
-            shutil(APLUS_HOME + "/aplus.db", APLUS_HOME + "/aplus.db_copy")
+            os.system("cp " + APLUS_HOME + "/aplus.db" + " " + APLUS_HOME + "/aplus.db_copy")
 
         os.system("cp " + APLUS_HOME + "/aplus.db_copy" + " " + APLUS_HOME + "/aplus.db")
 
