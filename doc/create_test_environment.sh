@@ -2,12 +2,15 @@
 
 # This script tries to set up A+ for testing. 
 
-cd ..
+CURRENT_DIR=`pwd`
+cd `dirname "$0"`/..
 
 VENV_DIR=../aplusenv
+if [ "$1" != "" ]; then
+	VENV_DIR="$CURRENT_DIR/$1"
+fi
 VENV_PIP=$VENV_DIR/bin/pip
 VENV_PYTHON=$VENV_DIR/bin/python
-
 
 # (re)create test environment
 if [ -d $VENV_DIR ]; then
