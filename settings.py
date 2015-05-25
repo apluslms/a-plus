@@ -2,10 +2,6 @@
 # You should create local_settings.py in the same directory to override necessary settings
 import os, sys
 
-# Lines for Celery. Disabled until actually needed
-# import djcelery
-# djcelery.setup_loader()
-
 # Returns the path to given filename
 def get_path(filename):
     return os.path.join(os.path.dirname(__file__), filename)
@@ -158,9 +154,8 @@ INSTALLED_APPS = (
     'django.contrib.auth',
 
     # Third party applications
-    'django_shibboleth', #for shibboleth logins
-    # 'oauth_provider',
-    'tastypie',
+    'django_shibboleth', # for shibboleth logins
+    'tastypie', # service api
 
     # First party applications
     'external_services',
@@ -169,7 +164,6 @@ INSTALLED_APPS = (
     'userprofile',
     'exercise',
     'course',
-    'oembed',
     'apps',
 )
 
@@ -182,14 +176,10 @@ TEST_EXCLUDE_APPS = (
     'django.contrib.auth',
 
     'django_shibboleth',
-    # 'oauth_provider',
     'tastypie',
     'south',
 )
 
-# OAuth settings
-# OAUTH_AUTHORIZE_VIEW = 'oauth_provider.custom_views.oauth_authorize'
-# OAUTH_ACCESS_TOKEN_MODEL = 'oauth_provider.models.AccessToken'
 LOGIN_REDIRECT_URL = "/"
 
 AUTH_PROFILE_MODULE = 'userprofile.UserProfile'
