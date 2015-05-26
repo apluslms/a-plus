@@ -61,7 +61,7 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     try:
         # Try retrieving the exercise page
         submission_url  = exercise.get_submission_url_for_students(students)
-        page            = exercise.get_page(submission_url)
+        page            = exercise.get_page(request, submission_url)
 
     except Exception as e:
         # Retrieving page failed, create an empty page and display an error
@@ -131,7 +131,7 @@ def _handle_submission(request, exercise, students, form, submissions):
             # Try submitting the submission to the exercise service. The submission
             # is done with a multipart POST request that contains all the files and
             # POST parameters sent by the user.
-            response_page               = new_submission.submit_to_service()
+            response_page               = new_submission.submit_to_service(request)
         except Exception as e:
             # TODO: pokemon error handling
             # TODO: Retrieving the grading failed. An error report should be sent

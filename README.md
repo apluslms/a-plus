@@ -12,7 +12,7 @@ The system has since been developed by various contributors at Aalto University,
 Requirements
 ------------
 
-A+ is a Django 1.7+ and Python 3 application which has been run in production using Postgresql database and Apache 2 with `mod_wsgi`. Consider using `virtualenv` and `pip3 install -r requirements.txt`. Create `local_settings.py` in the same directory with `settings.py` and override necessary Django settings. At least `BASE_URL` and `SECRET_KEY` must be set in case of deployment. The server process needs write access to the `media` directory.
+A+ is a Django 1.7+ and Python 3 application which has been run in production using Postgresql database, Apache 2 and uwsgi. Consider using `virtualenv` and `pip3 install -r requirements.txt`. Create `local_settings.py` in the same directory with `settings.py` and override necessary Django settings. At least `DEBUG`, `SECRET_KEY` and `DATABASES` must be set in case of deployment. The server process needs write access to the `media` directory.
 
 Testing environment
 -------------------

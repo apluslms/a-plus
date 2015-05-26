@@ -240,7 +240,7 @@ class BaseExercise(LearningObject):
     def get_deadline(self):
         return self.course_module.closing_time
 
-    def get_page(self, submission_url):
+    def get_page(self, request, submission_url):
         """
         Retrieves the page for this exercise from the exercise service.
 
@@ -249,7 +249,7 @@ class BaseExercise(LearningObject):
         """
 
         # Build the URL with a callback address, max points etc.
-        url             = self.build_service_url(submission_url)
+        url             = self.build_service_url(request, submission_url)
 
         opener          = urllib.request.build_opener()
         page_content    = opener.open(url, timeout=20).read()
@@ -319,7 +319,7 @@ class BaseExercise(LearningObject):
         count = self.submissions.filter(submitters=student).count()
         return self.max_submissions - count
 
-    def submit(self, submission):
+    def submit(self, request, submission):
         """
         This method sends the given submission to the exercise service
         along with the files related to the submission.
@@ -347,7 +347,7 @@ class BaseExercise(LearningObject):
 
         # Build the service URL, which contains maximum points for this exercise
         # and a callback URL to which the service may return the grading
-        url                     = self.build_service_url( submission.get_callback_url())
+        url                     = self.build_service_url(request, submission.get_callback_url())
 
         opener                  = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
         response_body           = opener.open(url, post_params, timeout=50).read()
@@ -464,17 +464,15 @@ class BaseExercise(LearningObject):
     def get_late_submission_penalty(self):
         return self.course_module.late_submission_penalty
 
-    def build_service_url(self, submission_url):
+    def build_service_url(self, request, submission_url):
         """
         Generates and returns a complete URL with added parameters to the exercise service.
 
         @param submission_url: the URL where the service may return grading details
         """
-        full_url        = settings.BASE_URL + submission_url
-
         params          = {
                             "max_points"     : self.max_points,
-                            "submission_url" : full_url,
+                            "submission_url" : request.build_absolute_uri(submission_url),
                           }
 
         # If there is already a question mark in the url, use ampersand as delimiter. Otherwise

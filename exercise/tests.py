@@ -1,6 +1,7 @@
 # Django
 from django.test import TestCase
 from django.utils.datastructures import MultiValueDict
+from django.test.client import RequestFactory
 
 # Aalto+
 from exercise.exercise_models import *
@@ -392,9 +393,10 @@ class ExerciseTest(TestCase):
         self.assertEqual(0.2, self.base_exercise_with_late_submission_allowed.get_late_submission_penalty())
 
     def test_base_exercise_service_url(self):
+        request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
         # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
-        split_base_exercise_service_url = self.base_exercise.build_service_url("/testSubmissionURL").split("?")
-        split_static_exercise_service_url = self.static_exercise.build_service_url("/testSubmissionURL").split("?")
+        split_base_exercise_service_url = self.base_exercise.build_service_url(request, "/testSubmissionURL").split("?")
+        split_static_exercise_service_url = self.static_exercise.build_service_url(request, "/testSubmissionURL").split("?")
         self.assertEqual("", split_base_exercise_service_url[0])
         self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
         # a quick hack to check whether the parameters are URL encoded

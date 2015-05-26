@@ -214,11 +214,11 @@ class Submission(models.Model):
     def get_staff_url(self):
         return reverse("exercise.staff_views.inspect_exercise_submission", kwargs={"submission_id": self.id})
 
-    def submit_to_service(self, files=None):
+    def submit_to_service(self, request, files=None):
         # Get the exercise as an instance of its real leaf class
         exercise = self.exercise.as_leaf_class()
 
-        return exercise.submit(self)
+        return exercise.submit(request, self)
 
     def get_breadcrumb(self):
         """
