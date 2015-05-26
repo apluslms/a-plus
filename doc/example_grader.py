@@ -126,4 +126,8 @@ class ExerciseGrader(http.server.SimpleHTTPRequestHandler):
 
 httpd = socketserver.TCPServer(('', PORT), ExerciseGrader)
 print('Serving at port:', PORT)
-httpd.serve_forever()
+try:
+    httpd.serve_forever()
+except Exception as e:
+    httpd.server_close()
+    raise e

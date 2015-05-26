@@ -15,10 +15,9 @@ local_settings.py
 static/*
 
 test.db
-
 aplus.db
-
 aplus.db.old
+aplus.db_copy
 
 dump.json
 media
@@ -28,4 +27,7 @@ course/fixtures/
 xmlrunner/
 test_results/
 
-selenium/local_test.cfg
+selenium_test/aplus.out
+selenium_test/example_grader.out
+selenium_test/server.ports
+

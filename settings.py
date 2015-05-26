@@ -90,10 +90,11 @@ LOGIN_REDIRECT_URL = "/"
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
+DATABASE_FILE = os.environ.get('APLUS_DB_FILE', default='aplus.db')
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_DIR, 'aplus.db'),            # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': os.path.join(BASE_DIR, DATABASE_FILE),  # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
