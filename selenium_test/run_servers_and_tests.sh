@@ -10,7 +10,7 @@ if [ -z "$WORKSPACE" ]; then
 fi
 
 if [ -n "$VENV_HOME" ]; then
-	TEST=$VENV_HOME/nosetests --verbosity=3 --with-xunit --xunit-file=$WORKSPACE/selenium_test_report.xml
+	TEST="$VENV_HOME/nosetests --verbosity=3 --with-xunit --xunit-file=$WORKSPACE/selenium_test_report.xml"
 fi
 
 trap '../kill_servers.sh' EXIT
