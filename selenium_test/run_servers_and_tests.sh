@@ -5,11 +5,11 @@ cd `dirname "$0"`/test
 TEST=nosetests
 XVFB=`which xvfb-run`
 
-if [ "$WORKSPACE" == "" ]; then
+if [ -z "$WORKSPACE" ]; then
 	WORKSPACE=.
 fi
 
-if [ "$VENV_HOME" != "" ]; then
+if [ -n "$VENV_HOME" ]; then
 	TEST=$VENV_HOME/nosetests --verbosity=3 --with-xunit --xunit-file=$WORKSPACE/selenium_test_report.xml
 fi
 
