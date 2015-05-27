@@ -53,27 +53,25 @@ Unit tests can be executed by running (from the project root folder):
     [path_to_virtualenv]/bin/python manage.py test
 
 
-### Troubleshooting (for Ubuntu)
-
-Error: ImportError: No module named _sysconfigdata_nd
-
-Solutions: 
-
-    sudo pip install --upgrade virtualenv
-
-    sudo ln -s /usr/lib/python2.7/plat-*/_sysconfigdata_nd.py /usr/lib/python2.7/
-
-Error: /usr/bin/ld: cannot find -lz
-
-Solutions:
-
-    sudo apt-get install lib32z1-dev
-
 ## Example grader
 
 If you've loaded the initial data the example exercise relies on you can use the external grader server
 (example_grader.py) running on port 8888. This grader can be started by running (from this folder):
     
-    python3 example_grader.py
+    [path_to_virtualenv]/bin/python example_grader.py
 
 Now the example exercise in A+ should work and you should get points from submissions accordingly.
+
+
+### Troubleshooting (for Ubuntu)
+
+* Error: ImportError: No module named _sysconfigdata_nd
+  Solutions: 
+
+    sudo pip install --upgrade virtualenv
+    sudo ln -s /usr/lib/python2.7/plat-*/_sysconfigdata_nd.py /usr/lib/python2.7/
+
+* Error: /usr/bin/ld: cannot find -lz
+  Solutions:
+
+    sudo apt-get install lib32z1-dev

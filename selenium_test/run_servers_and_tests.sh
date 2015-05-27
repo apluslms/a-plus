@@ -3,15 +3,21 @@
 cd `dirname "$0"`/test
 
 TEST=nosetests
+XVFB=`which xvfb-run`
 
 if [ "$WORKSPACE" == "" ]; then
 	WORKSPACE=.
 fi
 
 if [ "$VENV_HOME" != "" ]; then
-	TEST=xvfb-run $VENV_HOME/nosetests --verbosity=3 --with-xunit --xunit-file=$WORKSPACE/selenium_test_report.xml
+	TEST=$VENV_HOME/nosetests --verbosity=3 --with-xunit --xunit-file=$WORKSPACE/selenium_test_report.xml
 fi
 
 trap '../kill_servers.sh' EXIT
 ../run_servers.sh
-$TEST *_test.py
+
+if [ -x "$XVFB" ]; then
+	$XVFB $TEST *_test.py
+else
+	$TEST *_test.py
+fi
