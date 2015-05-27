@@ -18,3 +18,16 @@ Testing environment
 -------------------
 
 See [doc/README.md](doc/README.md) on how to create and run a test environment for development.
+
+Structure
+---------
+
+Included Django applications
+* `course` : The course instances
+* `exercise` : Learning modules and exercises for the course instances
+* `userprofile` : Additional user information and groups
+* `django_shibboleth` : Handles users for Apache Shibboleth headers
+* `notification` : User messaging framework
+* `inheritance` : Utilities for model class hierarchy
+* `external_services` : Linking to external services, optionally LTI authenticated
+* `apps` Provides plugins (tabs disabled) that integrate additional parts to main content

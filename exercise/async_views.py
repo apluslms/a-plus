@@ -2,24 +2,20 @@
 This module contains views for handling asynchronous exercise submissions
 through a submission URL.
 """
-# Python
+from django.db.models import Max
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
+import json
 import socket
 from urllib.parse import urlparse
-import json
 
-# Django
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404, render_to_response, redirect
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.decorators import login_required
-from django.db.models import Max
-
-# A+
-from userprofile.models import UserProfile
 from exercise.exercise_models import BaseExercise
-from exercise.submission_models import Submission
 from exercise.forms import SubmissionCallbackForm
+from exercise.submission_models import Submission
+from userprofile.models import UserProfile
+
 
 def _get_service_ip(exercise_url):
     """
@@ -32,7 +28,7 @@ def _get_service_ip(exercise_url):
 
 
 @csrf_exempt
-def new_async_submission(request, student_ids, exercise_id, hash):
+def new_async_submission(request, student_ids, exercise_id, hash_key):
     """
     This view can be called to create new submissions for student(s). The view has a student and
     exercise specific URL, which can be authenticated by verifying the hash included in the URL.
@@ -44,7 +40,7 @@ def new_async_submission(request, student_ids, exercise_id, hash):
     @param request: a HttpRequest from Django
     @param student_ids: student ids for the UserProfile objects, separated by dashes (-)
     @param exercise_id: the id of the exercise object the submission is for
-    @param hash: a hash that is constructed from a secret key, exercise id and student ids
+    @param hash_key: a hash that is constructed from a secret key, exercise id and student ids
     """
 
     exercise                = get_object_or_404(BaseExercise, id=exercise_id)
@@ -55,13 +51,13 @@ def new_async_submission(request, student_ids, exercise_id, hash):
     # Check that all students were found with their user ids (the counts should match)
     # TODO: These validations could be more elegant
     assert len(students) == len(user_ids)
-    assert hash == valid_hash
+    assert hash_key == valid_hash
     assert student_str == student_ids
 
     return _async_submission_handler(request, exercise, students)
 
 @csrf_exempt
-def grade_async_submission(request, submission_id, hash):
+def grade_async_submission(request, submission_id, hash_key):
     """
     This view can be called to grade a submissions asynchronously. The view has a submission
     specific URL, which can be authenticated by verifying the hash included in the URL.
@@ -72,9 +68,9 @@ def grade_async_submission(request, submission_id, hash):
 
     @param request: a HttpRequest from Django
     @param submission_id: id for the submission to grade
-    @param hash: a hash that is random and must match the one saved for the submission
+    @param hash_key: a hash that is random and must match the one saved for the submission
     """
-    submission              = get_object_or_404(Submission, id=submission_id, hash=hash)
+    submission              = get_object_or_404(Submission, id=submission_id, hash=hash_key)
     exercise                = submission.exercise
     students                = submission.submitters.all()
 

@@ -5,7 +5,7 @@ from south.v2 import DataMigration
 from django.db import models
 
 class Migration(DataMigration):
-    # TODO: This datamigration did not work as intended in case there was no
+    # This datamigration did not work as intended in case there was no
     # IFrameToServicePlugin objects in the database at all while the model was
     # called that. That is, if the database hops from 0001 to this migration
     # without being in between them at all, this datamigration does not work.

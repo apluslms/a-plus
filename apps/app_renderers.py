@@ -27,17 +27,16 @@ code that calls the build_plugin_renderers is responsible of giving the
 data required by the plugin view.
 """
 
-# Python
-import logging
-
-# Django
 from django.template import Context
 from django.template.loader import get_template
+import logging
+import urllib.request
 
-# A+
-from apps.models import *
 from bs4 import BeautifulSoup
 from lib.helpers import update_url_params
+
+
+logger = logging.getLogger("aplus.apps")
 
 
 def build_plugin_renderers(plugins,
@@ -80,20 +79,19 @@ def build_plugin_renderers(plugins,
             if hasattr(p, "get_renderer_class"):
                 renderers.append(p.get_renderer_class()(p, view_name, context))
             else:
-                # TODO: use some general renderer instead which supports the old
-                # rendering style where plugin's render method is called
                 renderers.append(p)
 
         return renderers
-    except Exception as e:
-        # TODO: Better error handling.
+    
+    except Exception:
         # If anything goes wrong, just return an empty list so that this isn't
         # a show-stopper for the A+ core functionality.
-        logging.exception(e)
+        logger.exception("Failed to create plugin renderers.")
         return []
 
 
 class ExternalIFramePluginRenderer(object):
+    
     def __init__(self, plugin, view_name, context):
         self.plugin = plugin
         self.view_name = view_name
@@ -103,10 +101,9 @@ class ExternalIFramePluginRenderer(object):
         params = {
             "view_name": self.view_name
         }
-
         for k, v in list(self.context.items()):
-            params[k + "_id"] = v.id
-
+            if v is not None:
+                params[k + "_id"] = v.id
         return update_url_params(self.plugin.service_url, params)
 
     def render(self):
@@ -119,15 +116,15 @@ class ExternalIFramePluginRenderer(object):
                 "title": self.plugin.title,
                 "view_name": self.view_name
             }))
-        except Exception as e:
-            # TODO: Better error handling.
+        except Exception:
             # If anything goes wrong, just return an empty string so that this
             # isn't a show-stopper for the A+ core functionality.
-            logging.exception(e)
+            logger.exception("Failed to render an external iframe plugin.")
             return ""
 
 
 class ExternalIFrameTabRenderer(object):
+    
     def __init__(self, tab, user_profile, course_instance):
         self.tab = tab
         self.user_profile = user_profile
@@ -138,7 +135,6 @@ class ExternalIFrameTabRenderer(object):
             "course_instance_id": self.course_instance.id,
             "user_profile_id": self.user_profile.id
         }
-
         return update_url_params(self.tab.content_url, params)
 
     def render(self):
@@ -151,6 +147,7 @@ class ExternalIFrameTabRenderer(object):
 
 
 class TabRenderer(object):
+    
     def __init__(self, tab, user_profile, course_instance):
         self.tab = tab
         self.user_profile = user_profile
@@ -161,29 +158,21 @@ class TabRenderer(object):
             "course_instance_id": self.course_instance.id,
             "user_profile_id": self.user_profile.id
         }
-
         return update_url_params(self.tab.content_url, params)
 
     def render(self):
+        url = self._build_src()
         opener = urllib.request.build_opener()
-        content = opener.open(self._build_src(), timeout=5).read()
-
-        # Save the page in cache
-        # cache.set(self.content_url, content)
+        content = opener.open(url, timeout=5).read()
 
         soup = BeautifulSoup(content)
 
-        # TODO: Disabled. Add GET parameter support and enable.
-        # Make links absolute, quoted from http://stackoverflow.com/a/4468467:
-        #for tag in soup.findAll('a', href=True):
-        #    tag['href'] = urlparse.urljoin(self.content_url, tag['href'])
-
         # If there's no element specified, use the BODY.
-        # Otherwise find the element with given id.
-        if self.tab.element_id == "":
+        if self.element_id == "":
             html = soup.find("body").renderContents()
         else:
             html = str(soup.find(id=self.element_id))
+        
+        # TODO: should make relative link addresses absolute
 
         return html
-

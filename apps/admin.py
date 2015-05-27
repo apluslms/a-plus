@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ExternalIFrameTab, EmbeddedTab, RSSPlugin,\
+from .models import ExternalIFrameTab, ExternalEmbeddedTab, RSSPlugin,\
     ExternalIFramePlugin
 
 
@@ -8,9 +8,9 @@ class ExternalIFrameTabAdmin(admin.ModelAdmin):
 admin.site.register(ExternalIFrameTab, ExternalIFrameTabAdmin)
 
 
-class EmbeddedTabAdmin(admin.ModelAdmin):
+class ExternalEmbeddedTabAdmin(admin.ModelAdmin):
     pass
-admin.site.register(EmbeddedTab, EmbeddedTabAdmin)
+admin.site.register(ExternalEmbeddedTab, ExternalEmbeddedTabAdmin)
 
 
 class RSSPluginAdmin(admin.ModelAdmin):

@@ -1,33 +1,26 @@
-# Python
 from collections import defaultdict
-from icalendar import Calendar, Event
-
-# Django
-from django.shortcuts import get_object_or_404, render_to_response
+import datetime
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden, \
     HttpResponseRedirect
-from django.template.context import RequestContext
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.core.cache import cache
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
-# A+
 from apps.app_renderers import build_plugin_renderers
-from course.models import Course, CourseInstance
 from course.context import CourseContext
-from course.results import ResultTable
 from course.forms import CourseModuleForm
+from course.models import Course, CourseInstance
+from course.results import ResultTable
+from exercise.exercise_models import CourseModule, BaseExercise, LearningObjectCategory
 from exercise.exercise_summary import UserCourseSummary
-from exercise.submission_models import Submission
-from exercise.exercise_models import CourseModule, BaseExercise,\
-    LearningObjectCategory, LearningObject
+from icalendar import Calendar, Event
+
 
 # TODO: The string constant "You are not allowed to access this view." is
 # repeated a lot in this file. Giving this error message should be somehow
 # unified.
-
 def _get_course_instance(course_url, instance_url):
     '''
     Returns a CourseInstance or raises an HttpResponse with code 404 (not found) based on the
@@ -57,7 +50,7 @@ def view_course(request, course_url):
     @param course_url: the url value of a Course object
     """
 
-    course      = get_object_or_404(Course, url=course_url)
+    course = get_object_or_404(Course, url=course_url)
     instances = course.get_visible_open_instances(request.user.userprofile)
 
     context = CourseContext(request, course=course, instances=instances)
@@ -88,8 +81,7 @@ def view_instance(request, course_url, instance_url):
     user_profile = request.user.userprofile
 
     if not course_instance.is_visible_to(user_profile):
-        return HttpResponseForbidden("You are not allowed "
-                                     "to access this view.")
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     # In the following code, we are going to construct a special data structure
     # to be used in the view_instance.html. We refer to the structure as the
@@ -177,7 +169,7 @@ def view_instance(request, course_url, instance_url):
           for exercise in exercises], [])
         for course_module, exercises in visible_exercises_by_course_modules]
 
-    for course_module, round_summary, exercises_and_summaries,\
+    for course_module, round_summary, exercises_and_summaries, \
             exercise_tree_category_level in exercise_tree:
         for exercise, exercise_summary in exercises_and_summaries:
             if (len(exercise_tree_category_level) == 0
@@ -227,11 +219,10 @@ def view_my_page(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
 
     if not course_instance.is_visible_to(request.user.userprofile):
-        return HttpResponseForbidden("You are not allowed "
-                                     "to access this view.")
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
-    course_summary  = UserCourseSummary(course_instance, request.user)
-    submissions     = request.user.userprofile.submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
+    course_summary = UserCourseSummary(course_instance, request.user)
+    submissions = request.user.userprofile.submissions.filter(exercise__course_module__course_instance=course_instance).order_by("-id")
 
     course_instance_max_points = BaseExercise.get_course_instance_max_points(
         course_instance)
@@ -271,8 +262,7 @@ def view_instance_calendar(request, course_url, instance_url):
         profile = None
 
     if not course_instance.is_visible_to(profile):
-        return HttpResponseForbidden("You are not allowed "
-                                     "to access this view.")
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     cal = Calendar()
 
@@ -283,10 +273,7 @@ def view_instance_calendar(request, course_url, instance_url):
         event = Event()
         event.add('summary', course_module.name)
 
-        # FIXME: Currently all times added are the closing time.
-        # The event will need to be longer than 0 seconds in order
-        # to be displayed clearly on calendar applications.
-        event.add('dtstart', course_module.closing_time)
+        event.add('dtstart', course_module.closing_time - datetime.timedelta(hours=1))
         event.add('dtend', course_module.closing_time)
         event.add('dtstamp', course_module.closing_time)
 
@@ -312,10 +299,9 @@ def view_instance_results(request, course_url, instance_url):
     course_instance = _get_course_instance(course_url, instance_url)
 
     if not course_instance.is_visible_to(request.user.userprofile):
-        return HttpResponseForbidden("You are not allowed "
-                                     "to access this view.")
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
-    table           = ResultTable(course_instance)
+    table = ResultTable(course_instance)
 
     table_html = loader.render_to_string("course/_results_table.html", {"result_table": table})
 
@@ -329,16 +315,13 @@ def view_instance_results(request, course_url, instance_url):
 @login_required
 def set_schedule_filters(request, course_url, instance_url):
     if request.method != "POST":
-        return HttpResponseForbidden(_("This view should only be accessed "
-                                       "with HTTP POST."))
+        return HttpResponseForbidden(_("This view should only be accessed with HTTP POST."))
 
     course_instance = _get_course_instance(course_url, instance_url)
     profile = request.user.userprofile
 
     if "category_filters" not in request.POST:
-        return HttpResponseForbidden("You are trying to hide all categories. "
-                                     "Select at least one category to be "
-                                     "visible!")
+        return HttpResponseForbidden(_("You are trying to hide all categories. Select at least one category to be visible!"))
 
     visible_category_ids = [int(cat_id) for cat_id
                             in request.POST.getlist("category_filters")]
@@ -351,11 +334,11 @@ def set_schedule_filters(request, course_url, instance_url):
 
 
     if "next" in request.GET:
-        next = request.GET["next"]
+        next_url = request.GET["next"]
     else:
-        next = course_instance.get_absolute_url()
+        next_url = course_instance.get_absolute_url()
 
-    return HttpResponseRedirect(next)
+    return HttpResponseRedirect(next_url)
 
 
 @login_required
@@ -368,13 +351,12 @@ def teachers_view(request, course_url, instance_url):
     @param instance_url: the url value of a CourseInstance object
     """
     course_instance = _get_course_instance(course_url, instance_url)
-    has_permission  = (course_instance.is_teacher(request.user.userprofile)
+    has_permission = (course_instance.is_teacher(request.user.userprofile)
             or request.user.is_superuser
             or request.user.is_staff)
 
     if not has_permission:
-        return HttpResponseForbidden("You are not allowed "
-                                     "to access this view.")
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     return render_to_response("course/teachers_view.html",
                               CourseContext(request, course_instance=course_instance)
@@ -392,10 +374,9 @@ def assistants_view(request, course_url, instance_url):
     """
     course_instance = _get_course_instance(course_url, instance_url)
 
-    has_permission  = course_instance.is_staff(request.user.userprofile)
+    has_permission = course_instance.is_staff(request.user.userprofile)
     if not has_permission:
-        return HttpResponseForbidden(_("You are not allowed "
-                                       "to access this view."))
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     return render_to_response("course/assistants_view.html",
                               CourseContext(request, course_instance=course_instance)
@@ -413,11 +394,10 @@ def add_or_edit_module(request, course_url, instance_url, module_id=None):
     @param module_id: The id of the module to edit. If not given, a new module is created.
     """
     course_instance = _get_course_instance(course_url, instance_url)
-    has_permission  = course_instance.is_teacher(request.user.userprofile)
+    has_permission = course_instance.is_teacher(request.user.userprofile)
 
     if not has_permission:
-        return HttpResponseForbidden("You are not allowed "
-                                     "to access this view.")
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
     if module_id != None:
         module = get_object_or_404(CourseModule, id=module_id, course_instance=course_instance)

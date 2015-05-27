@@ -38,8 +38,6 @@ class CourseContext(RequestContext):
 
         self.update(course_info)
 
-        # TODO:
         # For some reason, request is not available in this context even though
         # it should be. Thus temporarily adding it manually.
         self.update({"request": request})
-

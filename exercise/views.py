@@ -1,32 +1,22 @@
-# Python
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db import DatabaseError
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
+from django.views.static import serve
 import logging
 
-from bs4 import BeautifulSoup
-
-# Django
-from django.db import DatabaseError
-from django.http import HttpRequest, HttpResponse, HttpResponseForbidden, \
-    HttpResponseRedirect
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404, render_to_response, redirect
-from django.views.static import serve
-from django.template.context import RequestContext
-from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from django.core.validators import URLValidator
-
-# A+
 from apps.app_renderers import build_plugin_renderers
-from userprofile.models import UserProfile, StudentGroup
-from exercise.exercise_models import BaseExercise, CourseModule, \
-    LearningObjectCategory
-from exercise.submission_models import Submission, SubmittedFile
+from course.context import CourseContext
+from exercise.exercise_models import BaseExercise
 from exercise.exercise_page import ExercisePage
 from exercise.exercise_summary import UserExerciseSummary
+from exercise.submission_models import Submission, SubmittedFile
+from userprofile.models import StudentGroup
 from lib import helpers
-from course.context import CourseContext
 
 
 @login_required
@@ -41,32 +31,29 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
     """
 
     # Load the exercise as an instance of its leaf class
-    exercise            = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
-    students            = StudentGroup.get_students_from_request(request)
-    submissions         = exercise.get_submissions_for_student(request.user.userprofile)
-    is_post             = request.method == "POST"
+    exercise = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
+    students = StudentGroup.get_students_from_request(request)
+    submissions = exercise.get_submissions_for_student(request.user.userprofile)
+    is_post = request.method == "POST"
 
-    is_allowed, issues  = exercise.is_submission_allowed(students)
+    is_allowed, issues = exercise.is_submission_allowed(students)
 
     for error in issues:
-       messages.warning(request, error)
-
-    # FIXME: remove support for custom forms
-    form = None
+        messages.warning(request, error)
 
     if is_post and is_allowed:
         # This is a successful submission, so we handle submitting the form
-        return _handle_submission(request, exercise, students, form, submissions)
+        return _handle_submission(request, exercise, students, submissions)
 
     try:
         # Try retrieving the exercise page
-        submission_url  = exercise.get_submission_url_for_students(students)
-        page            = exercise.get_page(request, submission_url)
+        submission_url = exercise.get_submission_url_for_students(students)
+        page = exercise.get_page(request, submission_url)
 
     except Exception as e:
         # Retrieving page failed, create an empty page and display an error
-        page            = ExercisePage(exercise=exercise)
-        messages.error( request, _('Connecting to the exercise service '
+        page = ExercisePage(exercise=exercise)
+        messages.error(request, _('Connecting to the exercise service '
                                    'failed!'))
         logging.exception(e)
 
@@ -84,14 +71,13 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
                                             exercise=exercise,
                                             course_instance=exercise.course_module.course_instance,
                                             page=page,
-                                            form=form,
                                             submissions=submissions,
                                             exercise_summary=exercise_summary,
                                             plugin_renderers=plugin_renderers
                                             ))
 
 
-def _handle_submission(request, exercise, students, form, submissions):
+def _handle_submission(request, exercise, students, submissions):
     """
     This method takes care of saving a new_submission locally and
     sending it to an exercise service for assessment.
@@ -99,25 +85,24 @@ def _handle_submission(request, exercise, students, form, submissions):
     @param request: HttpRequest from Django
     @param exercise: an instance of an exercise class this submission is for
     @param students: a QuerySet of UserProfile objects that are submitting the exercise
-    @param form: an instance of a Form class or None if there are no questions for the exercise
     @param submissions: previous submissions for the submitting user to the same exercise
     """
     error = False
     response_page = ExercisePage(exercise)
 
-    new_submission                  = Submission.objects.create(exercise=exercise)
-    new_submission.submitters       = students
+    new_submission = Submission.objects.create(exercise=exercise)
+    new_submission.submitters = students
 
     # Save the POST parameters from the new_submission in
     # a list of tuples [(key1, value1), (key2, value2)].
     # By using tuples inside lists we allow two parameters
     # with the same name, which is not possible with dicts.
-    new_submission.submission_data  = helpers.query_dict_to_list_of_tuples(request.POST)
+    new_submission.submission_data = helpers.query_dict_to_list_of_tuples(request.POST)
 
     try:
         # Add all submitted files to the new submission as SubmittedFile
         # objects
-        new_submission.add_files( request.FILES )
+        new_submission.add_files(request.FILES)
     except DatabaseError as e:
         messages.error(request, _("The submitted files could not be saved for "
                                   "some reason. This might be caused by too "
@@ -131,7 +116,7 @@ def _handle_submission(request, exercise, students, form, submissions):
             # Try submitting the submission to the exercise service. The submission
             # is done with a multipart POST request that contains all the files and
             # POST parameters sent by the user.
-            response_page               = new_submission.submit_to_service(request)
+            response_page = new_submission.submit_to_service(request)
         except Exception as e:
             # TODO: pokemon error handling
             # TODO: Retrieving the grading failed. An error report should be sent
@@ -142,7 +127,7 @@ def _handle_submission(request, exercise, students, form, submissions):
             logging.exception(e)
 
     if response_page.is_accepted:
-        new_submission.feedback     = response_page.content
+        new_submission.feedback = response_page.content
         new_submission.set_waiting()
 
         if response_page.is_graded:
@@ -187,7 +172,6 @@ def _handle_submission(request, exercise, students, form, submissions):
                                                 exercise=exercise,
                                                 course_instance=instance,
                                                 page=response_page,
-                                                form=form,
                                                 submissions=submissions,
                                                 exercise_summary=exercise_summary
                                                ))
@@ -196,7 +180,7 @@ def _handle_submission(request, exercise, students, form, submissions):
 @login_required
 def view_submission(request, submission_id):
     # Find all submissions for this user
-    submission      = get_object_or_404(Submission, id=submission_id)
+    submission = get_object_or_404(Submission, id=submission_id)
 
     if not request.user.userprofile in submission.submitters.all():
         # Note that we do not want to use submission.check_user_permission here
@@ -204,16 +188,12 @@ def view_submission(request, submission_id):
         # staff-like users should use the
         # staff_views.inspect_exercise_submission instead because some of the
         # stuff in this view wouldn't make sense to a staff-like user.
+        return HttpResponseForbidden(_("You are not allowed to access this view."))
 
-        # TODO: Yet another repeation of this error (most of them are in
-        # course.views)
-        return HttpResponseForbidden("You are not allowed "
-                                     "to access this view.")
-
-    exercise        = submission.exercise
-    submissions     = exercise.get_submissions_for_student(
+    exercise = submission.exercise
+    submissions = exercise.get_submissions_for_student(
                                                     request.user.userprofile)
-    index           = 1 + list(submissions).index(submission)
+    index = 1 + list(submissions).index(submission)
 
     exercise_summary = UserExerciseSummary(exercise, request.user)
 
