@@ -1,49 +1,45 @@
-# Django
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
+from datetime import datetime
 from django.core.files.storage import default_storage
+from django.core.urlresolvers import reverse
+from django.db import models
 from django.db.models.signals import post_delete
+from django.utils.translation import ugettext_lazy as _
+import os
 
-# A+
 from exercise import exercise_models
 from lib.fields import JSONField
 from lib.helpers import get_random_string
 from userprofile.models import UserProfile
 
-# Python 2.6+
-from datetime import datetime
-import os
-
 
 class Submission(models.Model):
-    _status_choices         = (("initialized", _("Initialized")),
+    _status_choices = (("initialized", _("Initialized")),
                                ("waiting", _("Waiting")),
                                ("ready", _("Ready")),
                                ("error", _("Error")))
 
-    submission_time         = models.DateTimeField(auto_now_add=True)
-    hash                    = models.CharField(max_length=32, default=get_random_string)
+    submission_time = models.DateTimeField(auto_now_add=True)
+    hash = models.CharField(max_length=32, default=get_random_string)
 
     # Relations
-    exercise                = models.ForeignKey(exercise_models.BaseExercise, related_name="submissions")
-    submitters              = models.ManyToManyField(UserProfile, related_name="submissions")
-    grader                  = models.ForeignKey(UserProfile, related_name="graded_submissions", blank=True, null=True)
+    exercise = models.ForeignKey(exercise_models.BaseExercise, related_name="submissions")
+    submitters = models.ManyToManyField(UserProfile, related_name="submissions")
+    grader = models.ForeignKey(UserProfile, related_name="graded_submissions", blank=True, null=True)
 
     # Grading specific
-    feedback                = models.TextField(blank=True)
-    assistant_feedback      = models.TextField(blank=True)
-    status                  = models.CharField(max_length=32, default=_status_choices[0][0], choices=_status_choices)
-    grade                   = models.IntegerField(default=0)
-    grading_time            = models.DateTimeField(blank=True, null=True)
+    feedback = models.TextField(blank=True)
+    assistant_feedback = models.TextField(blank=True)
+    status = models.CharField(max_length=32, default=_status_choices[0][0], choices=_status_choices)
+    grade = models.IntegerField(default=0)
+    grading_time = models.DateTimeField(blank=True, null=True)
 
     # Points received from assessment, before scaled to grade
-    service_points          = models.IntegerField(default=0)
-    service_max_points      = models.IntegerField(default=0)
+    service_points = models.IntegerField(default=0)
+    service_max_points = models.IntegerField(default=0)
 
     # Additional submission and grading data
-    submission_data         = JSONField(blank=True)
-    grading_data            = JSONField(blank=True)
+    submission_data = JSONField(blank=True)
+    grading_data = JSONField(blank=True)
 
     def add_submitter(self, user_profile):
         """
@@ -69,9 +65,9 @@ class Submission(models.Model):
         """
         for key in files:
             for uploaded_file in files.getlist(key):
-                userfile                = SubmittedFile()
-                userfile.file_object    = uploaded_file
-                userfile.param_name     = key
+                userfile = SubmittedFile()
+                userfile.file_object = uploaded_file
+                userfile.param_name = key
 
                 # Add the SubmittedFile to the submission
                 self.files.add(userfile)
@@ -207,9 +203,7 @@ class Submission(models.Model):
         return reverse("exercise.views.view_submission", kwargs={"submission_id": self.id})
 
     def get_callback_url(self):
-        # TODO: REFACTOR - variable identifier is never used
-        identifier = "s.%d.%d.%s" % (self.id, self.exercise.id, self.hash)
-        return reverse("exercise.async_views.grade_async_submission", kwargs={"submission_id": self.id, "hash": self.hash})
+        return reverse("exercise.async_views.grade_async_submission", kwargs={"submission_id": self.id, "hash_key": self.hash})
 
     def get_staff_url(self):
         return reverse("exercise.staff_views.inspect_exercise_submission", kwargs={"submission_id": self.id})
@@ -225,14 +219,14 @@ class Submission(models.Model):
         Returns a list of tuples containing the names and url
         addresses of parent objects and self.
         """
-        crumb           = self.exercise.get_breadcrumb()
-        crumb_tuple     = (_("Submission"), self.get_absolute_url())
+        crumb = self.exercise.get_breadcrumb()
+        crumb_tuple = (_("Submission"), self.get_absolute_url())
         crumb.append(crumb_tuple)
         return crumb
 
     class Meta:
-        app_label       = 'exercise'
-        ordering        = ['-submission_time']
+        app_label = 'exercise'
+        ordering = ['-submission_time']
 
 # TODO: REFACTOR - If this only accepts SubmittedFile objects it should be a method of that class instead (with one parameter less)
 def build_upload_dir(instance, filename):
@@ -246,11 +240,11 @@ def build_upload_dir(instance, filename):
     @param filename: the actual name of the submitted file
     @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
-    exercise        = instance.submission.exercise
+    exercise = instance.submission.exercise
     course_instance = exercise.course_module.course_instance
 
     # Collect submitter ids in a list of strings
-    submitter_ids   = [str(profile.id) for profile in instance.submission.submitters.all()]
+    submitter_ids = [str(profile.id) for profile in instance.submission.submitters.all()]
 
     return "submissions/course_instance_%d/exercise_%d/users_%s/submission_%d/%s" % (course_instance.id, exercise.id, "-".join(submitter_ids), instance.submission.id, filename)
 
@@ -263,9 +257,9 @@ class SubmittedFile(models.Model):
     SubmittedFile models are stored in the database.
     """
 
-    submission              = models.ForeignKey(Submission, related_name="files")
-    param_name              = models.CharField(max_length=128)
-    file_object             = models.FileField(upload_to=build_upload_dir, max_length=255)
+    submission = models.ForeignKey(Submission, related_name="files")
+    param_name = models.CharField(max_length=128)
+    file_object = models.FileField(upload_to=build_upload_dir, max_length=255)
 
     def _get_filename(self):
         """ Returns the actual name of the file on the disk. """
@@ -284,7 +278,7 @@ class SubmittedFile(models.Model):
         return view_url + self.filename
 
     class Meta:
-        app_label           = 'exercise'
+        app_label = 'exercise'
 
 
 def _delete_file(sender, instance, **kwargs):

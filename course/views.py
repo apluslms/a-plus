@@ -1,4 +1,5 @@
 from collections import defaultdict
+import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden, \
@@ -6,7 +7,6 @@ from django.http import HttpResponse, HttpResponseForbidden, \
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import loader
 from django.template.context import RequestContext
-from django.utils.datetime_safe import datetime
 from django.utils.translation import ugettext_lazy as _
 
 from apps.app_renderers import build_plugin_renderers

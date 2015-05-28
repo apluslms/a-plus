@@ -1,15 +1,17 @@
-# Django
-from django.test import TestCase
-from django.utils.datastructures import MultiValueDict
-from django.test.client import RequestFactory
-
-# Aalto+
-from exercise.exercise_models import *
-from exercise.submission_models import *
-from userprofile.models import *
-
-# Python
 from datetime import datetime, timedelta
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.test import TestCase
+from django.test.client import RequestFactory
+from django.utils.datastructures import MultiValueDict
+import urllib
+
+from course.models import Course, CourseInstance, CourseHook
+from exercise.exercise_page import ExercisePage
+from exercise.models import CourseModule, LearningObjectCategory, LearningObject, \
+    BaseExercise, StaticExercise, ExerciseWithAttachment, Submission, SubmittedFile, \
+    DeadlineRuleDeviation
+
 
 class ExerciseTest(TestCase):
     def setUp(self):
@@ -162,7 +164,7 @@ class ExerciseTest(TestCase):
             exercise=self.base_exercise,
             grader=self.grader.userprofile
         )
-        self.late_submission.submission_time=self.two_days_from_now
+        self.late_submission.submission_time = self.two_days_from_now
         self.late_submission.submitters.add(self.user.userprofile)
 
         self.submission_when_late_allowed = Submission.objects.create(
@@ -175,14 +177,14 @@ class ExerciseTest(TestCase):
             exercise=self.base_exercise_with_late_submission_allowed,
             grader=self.grader.userprofile
         )
-        self.late_submission_when_late_allowed.submission_time=self.two_days_from_now
+        self.late_submission_when_late_allowed.submission_time = self.two_days_from_now
         self.late_submission_when_late_allowed.submitters.add(self.user.userprofile)
 
         self.late_late_submission_when_late_allowed = Submission.objects.create(
             exercise=self.base_exercise_with_late_submission_allowed,
             grader=self.grader.userprofile
         )
-        self.late_late_submission_when_late_allowed.submission_time=self.three_days_from_now
+        self.late_late_submission_when_late_allowed.submission_time = self.three_days_from_now
         self.late_late_submission_when_late_allowed.submitters.add(self.user.userprofile)
 
         self.course_hook = CourseHook.objects.create(
@@ -475,7 +477,9 @@ class ExerciseTest(TestCase):
         self.assertEqual("test_submission_content", static_exercise_page.content)
 
     def test_exercise_upload_dir(self):
-        self.assertEqual("exercise_attachments/exercise_5/test_file_name", exercise_models.build_upload_dir(self.exercise_with_attachment, "test_file_name"))
+        from exercise.exercise_models import build_upload_dir
+        self.assertEqual("exercise_attachments/exercise_5/test_file_name",
+                         build_upload_dir(self.exercise_with_attachment, "test_file_name"))
 
     def test_exercise_with_attachment_files_to_submit(self):
         files = self.exercise_with_attachment.get_files_to_submit()
@@ -629,5 +633,6 @@ class ExerciseTest(TestCase):
         self.assertEqual('/exercise/submission/3/', breadcrumb[3][1])
 
     def test_submission_upload_dir(self):
+        from exercise.submission_models import build_upload_dir
         self.assertEqual("submissions/course_instance_1/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(self.submitted_file1, "test_file_name"))
         self.assertEqual("submissions/course_instance_1/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(self.submitted_file2, "test_file_name"))

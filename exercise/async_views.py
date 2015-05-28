@@ -43,9 +43,9 @@ def new_async_submission(request, student_ids, exercise_id, hash_key):
     @param hash_key: a hash that is constructed from a secret key, exercise id and student ids
     """
 
-    exercise                = get_object_or_404(BaseExercise, id=exercise_id)
-    user_ids                = student_ids.split("-")
-    students                = UserProfile.objects.filter(id__in=user_ids)
+    exercise = get_object_or_404(BaseExercise, id=exercise_id)
+    user_ids = student_ids.split("-")
+    students = UserProfile.objects.filter(id__in=user_ids)
     student_str, valid_hash = exercise.get_submission_parameters_for_students(students)
 
     # Check that all students were found with their user ids (the counts should match)
@@ -70,9 +70,9 @@ def grade_async_submission(request, submission_id, hash_key):
     @param submission_id: id for the submission to grade
     @param hash_key: a hash that is random and must match the one saved for the submission
     """
-    submission              = get_object_or_404(Submission, id=submission_id, hash=hash_key)
-    exercise                = submission.exercise
-    students                = submission.submitters.all()
+    submission = get_object_or_404(Submission, id=submission_id, hash=hash_key)
+    exercise = submission.exercise
+    students = submission.submitters.all()
 
     return _async_submission_handler(request, exercise, students, submission)
 
@@ -89,19 +89,19 @@ def _async_submission_handler(request, exercise, students, submission=None):
     @param submission [optional]: the submission that is being created or updated
     """
 
-    # Security check. Only the machine which hosts the exercise is allowed to accessthis view.
+    # Security check. Only the machine which hosts the exercise is allowed to access this view.
     if request.META["REMOTE_ADDR"] != _get_service_ip(exercise.service_url):
-        return HttpResponseForbidden("Only the exercise service is allowed to access this URL.")
+        return HttpResponseForbidden(_("Only the exercise service is allowed to access this URL."))
 
     if request.method == "GET":
-        response_dict       = _get_async_submission_info(exercise, students)
+        response_dict = _get_async_submission_info(exercise, students)
     else:
         # Create a new submission if one is not provided
         if submission == None:
-            submission      = Submission.objects.create(exercise=exercise)
-        response_dict       = _post_async_submission(request, exercise, submission, students)
+            submission = Submission.objects.create(exercise=exercise)
+        response_dict = _post_async_submission(request, exercise, submission, students)
 
-    json_response       = json.dumps(response_dict, indent=4)
+    json_response = json.dumps(response_dict, indent=4)
     return HttpResponse(json_response, content_type="application/json")
 
 
@@ -117,15 +117,15 @@ def _get_async_submission_info(exercise, students):
     @return: a dictionary containing points and submissions
     """
 
-    submissions         = Submission.objects.distinct().filter(exercise=exercise,
+    submissions = Submission.objects.distinct().filter(exercise=exercise,
                                                                submitters__in=students)
 
-    submission_count    = submissions.count()
+    submission_count = submissions.count()
 
     if submission_count > 0:
-        current_points  = submissions.aggregate(Max('grade'))["grade__max"]
+        current_points = submissions.aggregate(Max('grade'))["grade__max"]
     else:
-        current_points  = 0
+        current_points = 0
 
     return {"max_points"            : exercise.max_points,
             "max_submissions"       : exercise.max_submissions,
@@ -154,15 +154,15 @@ def _post_async_submission(request, exercise, submission, students):
     if submission.pk == None:
         # New submissions are accepted only if the students are allowed
         # to submit to this exercise
-        is_valid, errors = exercise.is_submission_allowed( students )
+        is_valid, errors = exercise.is_submission_allowed(students)
     else:
-        is_valid    = True
-        errors      = []
+        is_valid = True
+        errors = []
 
     # Create submission form model and check if it contains errors
-    form            = SubmissionCallbackForm(request.POST)
+    form = SubmissionCallbackForm(request.POST)
 
-    is_valid        = form.is_valid() and is_valid
+    is_valid = form.is_valid() and is_valid
 
     # Collect form validation errors in error list
     for field in form.errors:
@@ -178,7 +178,7 @@ def _post_async_submission(request, exercise, submission, students):
             submission.set_points(form.cleaned_data["points"],
                                   form.cleaned_data["max_points"])
 
-            submission.feedback         = form.cleaned_data["feedback"]
+            submission.feedback = form.cleaned_data["feedback"]
 
             # Save all given POST parameters
             submission.set_grading_data(request.POST)

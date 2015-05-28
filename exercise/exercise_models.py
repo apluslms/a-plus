@@ -1,24 +1,23 @@
-# Python
-import urllib.request, urllib.parse, urllib.error
-import hmac
-import hashlib
 from datetime import datetime, timedelta
-
-# Django
-from django.db.models.aggregates import Avg, Max, Count, Sum
-from django.core.exceptions import ValidationError
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models.aggregates import Avg, Max, Count, Sum
 from django.template import loader, Context
+from django.utils.translation import ugettext_lazy as _
+import hashlib
+import hmac
+from io import IOBase
 
-# A+
+from course.models import CourseInstance
+from exercise.exercise_page import ExercisePage
 from inheritance.models import ModelWithInheritance
-from course.models import *
 from lib import MultipartPostHandler
 from lib.fields import PercentField
-from exercise.exercise_page import ExercisePage
 from userprofile.models import UserProfile
-from io import IOBase
+import urllib
+from django.core.urlresolvers import reverse
+
 
 class CourseModule(models.Model):
     """
@@ -26,18 +25,18 @@ class CourseModule(models.Model):
     course instances. They also contain information about the opening times and
     deadlines for exercises.
     """
-    name                    = models.CharField(max_length=255)
-    points_to_pass          = models.PositiveIntegerField(default=0)
+    name = models.CharField(max_length=255)
+    points_to_pass = models.PositiveIntegerField(default=0)
 
     # A textual introduction to this exercise round
-    introduction            = models.TextField(blank=True)
+    introduction = models.TextField(blank=True)
 
     # Relations
-    course_instance         = models.ForeignKey(CourseInstance, related_name="course_modules")
+    course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
 
     # Fields related to the opening of the rounds
-    opening_time            = models.DateTimeField(default=datetime.now)
-    closing_time            = models.DateTimeField(default=datetime.now)
+    opening_time = models.DateTimeField(default=datetime.now)
+    closing_time = models.DateTimeField(default=datetime.now)
 
     """
     Functionality related to early bonuses has been disabled. The following lines
@@ -50,8 +49,8 @@ class CourseModule(models.Model):
         help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
     """
     # Settings that can be used to allow late submissions to exercises
-    late_submissions_allowed= models.BooleanField(default=False)
-    late_submission_deadline= models.DateTimeField(default=datetime.now)
+    late_submissions_allowed = models.BooleanField(default=False)
+    late_submission_deadline = models.DateTimeField(default=datetime.now)
     late_submission_penalty = PercentField(default=0.5, help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
 
     def get_exercises(self):
@@ -81,7 +80,7 @@ class CourseModule(models.Model):
         """
         point_worth = 100.0
         if self.late_submissions_allowed:
-            point_worth = int((1.0-self.late_submission_penalty) * 100.0)
+            point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth
 
     def is_open(self, when=None):
@@ -110,8 +109,8 @@ class CourseModule(models.Model):
         return self.course_instance.get_breadcrumb()
 
     class Meta:
-        app_label           = 'exercise'
-        ordering            = ['closing_time', 'id']
+        app_label = 'exercise'
+        ordering = ['closing_time', 'id']
 
 
 class LearningObjectCategory(models.Model):
@@ -167,18 +166,18 @@ class LearningObjectCategory(models.Model):
 class LearningObject(ModelWithInheritance):
     # The order for sorting the exercises within an exercise round
     # TODO: It would be better if this didn't have the default=0.
-    order                   = models.IntegerField(default=0)
+    order = models.IntegerField(default=0)
 
     # Instruction related fields
-    name                    = models.CharField(max_length=255)
-    description             = models.TextField(blank=True)
-    instructions            = models.TextField(blank=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    instructions = models.TextField(blank=True)
 
-    service_url             = models.URLField(blank=True)
+    service_url = models.URLField(blank=True)
 
     # Relations
-    course_module          = models.ForeignKey(CourseModule, related_name="learning_objects")
-    category               = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
+    course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
+    category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
 
     def clean(self):
         """
@@ -249,10 +248,10 @@ class BaseExercise(LearningObject):
         """
 
         # Build the URL with a callback address, max points etc.
-        url             = self.build_service_url(request, submission_url)
+        url = self.build_service_url(request, submission_url)
 
-        opener          = urllib.request.build_opener()
-        page_content    = opener.open(url, timeout=20).read()
+        opener = urllib.request.build_opener()
+        page_content = opener.open(url, timeout=20).read()
 
         return ExercisePage(self, page_content)
 
@@ -329,28 +328,28 @@ class BaseExercise(LearningObject):
         assert self.id == submission.exercise.id
 
         # Create an empty list for HTTP request parameters
-        post_params             = []
+        post_params = []
 
         # Parameters are appended to the list as key, value tuples.
         # Using tuples makes it possible to add two values for the same key.
         for (key, value) in submission.submission_data:
-            post_params.append( (key, value) )
+            post_params.append((key, value))
 
         # Then the files are appended as key, file handle tuples
         for submitted_file in submission.files.all().order_by("id"):
-            param_name          = submitted_file.param_name
-            file_handle         = open(submitted_file.file_object.path, "rb")
-            post_params.append( (param_name, file_handle) )
+            param_name = submitted_file.param_name
+            file_handle = open(submitted_file.file_object.path, "rb")
+            post_params.append((param_name, file_handle))
 
         # Allow to make necessary modifications to POST parameters
         self.modify_post_params(post_params)
 
         # Build the service URL, which contains maximum points for this exercise
         # and a callback URL to which the service may return the grading
-        url                     = self.build_service_url(request, submission.get_callback_url())
+        url = self.build_service_url(request, submission.get_callback_url())
 
-        opener                  = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
-        response_body           = opener.open(url, post_params, timeout=50).read()
+        opener = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
+        response_body = opener.open(url, post_params, timeout=50).read()
 
         # Close all opened file handles
         for (key, value) in post_params:
@@ -470,16 +469,16 @@ class BaseExercise(LearningObject):
 
         @param submission_url: the URL where the service may return grading details
         """
-        params          = {
+        params = {
                             "max_points"     : self.max_points,
                             "submission_url" : request.build_absolute_uri(submission_url),
                           }
 
         # If there is already a question mark in the url, use ampersand as delimiter. Otherwise
         # use question mark.
-        delimiter       = ("?", "&")["?" in self.service_url]
+        delimiter = ("?", "&")["?" in self.service_url]
 
-        url             = self.service_url + delimiter + urllib.parse.urlencode(params)
+        url = self.service_url + delimiter + urllib.parse.urlencode(params)
         return url
 
     def get_submissions_for_student(self, userprofile):
@@ -503,10 +502,10 @@ class BaseExercise(LearningObject):
         @return: a string with UserProfile ids and a hash
         @return: a string with UserProfile ids and a hash
         '''
-        student_str     = "-".join(str(userprofile.id) for userprofile in students)
-        identifier      = "%s.%d" % (student_str, self.id)
-        hash            = hmac.new(settings.SECRET_KEY.encode('utf-8'), msg=identifier.encode('utf-8'), digestmod=hashlib.sha256).hexdigest()
-        return student_str, hash
+        student_str = "-".join(str(userprofile.id) for userprofile in students)
+        identifier = "%s.%d" % (student_str, self.id)
+        hash_key = hmac.new(settings.SECRET_KEY.encode('utf-8'), msg=identifier.encode('utf-8'), digestmod=hashlib.sha256).hexdigest()
+        return student_str, hash_key
 
     # TODO: REFACTOR - This doesn't really return an URL, but (student_ids, hash). Is this correct behavior?
     def get_submission_url_for_students(self, students):
@@ -516,12 +515,12 @@ class BaseExercise(LearningObject):
         @param students: a QuerySet of UserProfile objects for the students submitting the exercise
         @return: an URL where submissions are accepted for the students
         '''
-        student_str, hash = self.get_submission_parameters_for_students(students)
+        student_str, hash_key = self.get_submission_parameters_for_students(students)
 
         return reverse("exercise.async_views.new_async_submission", kwargs={
             "student_ids": student_str,
             "exercise_id": self.id,
-            "hash": hash}
+            "hash_key": hash_key }
         )
 
     def __get_summary(self):
@@ -534,18 +533,18 @@ class BaseExercise(LearningObject):
         submitter_count
         """
         if not hasattr(self, "temp_summary"):
-            submission_count        = self.submissions.count()
-            submitter_count         = UserProfile.objects.distinct().filter(submissions__exercise=self).count()
+            submission_count = self.submissions.count()
+            submitter_count = UserProfile.objects.distinct().filter(submissions__exercise=self).count()
 
-            average_grade           = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(best_grade=Max('submissions__grade')).aggregate(average_grade=Avg('best_grade'))["average_grade"]
-            average_submissions     = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(submission_count=Count('submissions')).aggregate(avg_submissions=Avg('submission_count'))["avg_submissions"]
+            average_grade = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(best_grade=Max('submissions__grade')).aggregate(average_grade=Avg('best_grade'))["average_grade"]
+            average_submissions = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(submission_count=Count('submissions')).aggregate(avg_submissions=Avg('submission_count'))["avg_submissions"]
 
             if average_grade == None:
-                average_grade       = 0
+                average_grade = 0
             if average_submissions == None:
                 average_submissions = 0
 
-            self.temp_summary       = {"submission_count"   : submission_count,
+            self.temp_summary = {"submission_count"   : submission_count,
                                        "average_grade"      : average_grade,
                                        "submitter_count"    : submitter_count,
                                        "average_submissions": average_submissions,
@@ -567,7 +566,7 @@ class BaseExercise(LearningObject):
         Returns a list of tuples containing the names and url
         addresses of parent objects and self.
         """
-        crumb       = self.course_module.get_breadcrumb()
+        crumb = self.course_module.get_breadcrumb()
         crumb_tuple = (str(self), self.get_absolute_url())
         crumb.append(crumb_tuple)
         return crumb
@@ -583,8 +582,8 @@ class BaseExercise(LearningObject):
         return userprofile.user.is_superuser or self.course_module.course_instance.course.is_teacher(userprofile)
 
     class Meta:
-        app_label   = 'exercise'
-        ordering    = ['course_module__closing_time', 'course_module', 'order', 'id']
+        app_label = 'exercise'
+        ordering = ['course_module__closing_time', 'course_module', 'order', 'id']
 
 
 # TODO: REFACTOR? - Would it be more simple to just have a 'type' variable in BaseExercise instead of having empty classes that needs to be checked?
@@ -612,7 +611,7 @@ class StaticExercise(BaseExercise):
     assessing them. Static exercises may be retrieved by other services through the API.
     """
 
-    exercise_page_content   = models.TextField()
+    exercise_page_content = models.TextField()
     submission_page_content = models.TextField()
 
 
@@ -621,14 +620,14 @@ class StaticExercise(BaseExercise):
         @param submission_url: the submission url where the service may return submissions
         @return: an ExercisePage object created from data retrieved from exercise service
         """
-        page            = ExercisePage(self)
-        page.content    = self.exercise_page_content
+        page = ExercisePage(self)
+        page.content = self.exercise_page_content
         return page
 
     def submit(self, submission):
-        page            = ExercisePage(self)
-        page.content    = self.submission_page_content
-        page.is_accepted= True
+        page = ExercisePage(self)
+        page.content = self.submission_page_content
+        page.is_accepted = True
         return page
 
 
@@ -655,7 +654,7 @@ class ExerciseWithAttachment(BaseExercise):
     """
 
     files_to_submit = models.CharField(max_length=200, blank=True, help_text=_("File names that user should submit, use pipe character to separate files"))
-    attachment      = models.FileField(upload_to=build_upload_dir)
+    attachment = models.FileField(upload_to=build_upload_dir)
 
     class Meta:
         verbose_name_plural = "exercises with attachment"
@@ -680,7 +679,7 @@ class ExerciseWithAttachment(BaseExercise):
 
         found = False
         for i in range(len(post_params)):
-            if type(post_params[i][1]) == file and post_params[i][0].endswith("[]"):
+            if isinstance(post_params[i][1], file) and post_params[i][0].endswith("[]"):
                 handle = open(self.attachment.path, "rb")
                 post_params.insert(i, (post_params[i][0], handle))
                 found = True
@@ -694,8 +693,8 @@ class ExerciseWithAttachment(BaseExercise):
         @param submission_url: the submission url where the service may return submissions
         @return: an ExercisePage containing the exercise instructions and possibly a submit form
         """
-        page            = ExercisePage(self)
-        page.content    = self.instructions
+        page = ExercisePage(self)
+        page.content = self.instructions
 
         # Adds the submission form to the content if there are files to be submitted.
         # A template is used to avoid hard-coded HTML here.

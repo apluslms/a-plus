@@ -1,14 +1,13 @@
-# Django
+from datetime import datetime, timedelta
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
 
-# Aalto+
-from exercise.exercise_models import *
-from exercise.submission_models import *
-from userprofile.models import *
+from course.models import Course, CourseInstance, CourseHook, \
+    get_visible_open_course_instances
+from exercise.models import CourseModule, LearningObjectCategory, \
+    BaseExercise, Submission
 
-# Python
-from datetime import datetime, timedelta
 
 class CourseTest(TestCase):
     def setUp(self):
