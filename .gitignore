@@ -23,8 +23,6 @@ dump.json
 media
 *.orig
 
-course/fixtures/
-xmlrunner/
 test_results/
 
 selenium_test/aplus.out

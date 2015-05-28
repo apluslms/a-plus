@@ -148,23 +148,10 @@ SHIB_LAST_NAME = "last_name"
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
 
-# Unit test XML-reporting (fix for Python 3)
-# TEST_RUNNER = "test_runner.custom_xml_test_runner.ExcludeAppsXMLTestRunner"
-# TEST_OUTPUT_VERBOSE = True
-# TEST_OUTPUT_DESCRIPTIONS = True
-# TEST_OUTPUT_DIR = "test_results"
-
-TEST_EXCLUDE_APPS = (
-    'django.contrib.contenttypes',
-    'django.contrib.staticfiles',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django_shibboleth',
-    'tastypie',
-    'south',
-)
+TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+TEST_OUTPUT_VERBOSE = True
+TEST_OUTPUT_DESCRIPTIONS = True
+TEST_OUTPUT_DIR = "test_results"
 
 # Overrides and appends settings defined in local_settings.py
 try:
