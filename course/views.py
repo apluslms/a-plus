@@ -1,21 +1,31 @@
 from collections import defaultdict
-import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden, \
     HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import loader
+from django.template.context import RequestContext
+from django.utils.datetime_safe import datetime
 from django.utils.translation import ugettext_lazy as _
 
 from apps.app_renderers import build_plugin_renderers
 from course.context import CourseContext
 from course.forms import CourseModuleForm
-from course.models import Course, CourseInstance
+from course.models import Course, CourseInstance, get_visible_open_course_instances
 from course.results import ResultTable
 from exercise.exercise_models import CourseModule, BaseExercise, LearningObjectCategory
 from exercise.exercise_summary import UserCourseSummary
 from icalendar import Calendar, Event
+
+
+def home(request):
+    if request.user.is_authenticated():
+        instances = get_visible_open_course_instances(request.user.userprofile)
+    else:
+        instances = get_visible_open_course_instances()
+    context = RequestContext(request, {"instances": instances})
+    return render_to_response("aaltoplus/home.html", context)
 
 
 # TODO: The string constant "You are not allowed to access this view." is

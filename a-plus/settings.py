@@ -7,7 +7,7 @@
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
 # Quick-start development settings - unsuitable for production
@@ -83,7 +83,7 @@ FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'a-plus.urls'
 
 LOGIN_REDIRECT_URL = "/"
 

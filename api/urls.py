@@ -17,7 +17,6 @@ api.register(SubmissionContentResource())
 api.register(LearningObjectResource())
 api.register(CourseInstanceSummaryResource())
 
-
 urlpatterns = patterns('',
     (r'^', include(api.urls)),
 )

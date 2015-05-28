@@ -17,17 +17,21 @@ A+ is a Django 1.7+ and Python 3 application which has been run in production us
 Testing environment
 -------------------
 
-See [doc/README.md](doc/README.md) on how to create and run a test environment for development.
+See [doc/](doc) on how to create and run a test environment for development.
 
-Structure
----------
+The [selenium_test/](selenium_test) offers an integration test suite run with Selenium Firefox driver.
 
-Included Django applications
-* `course` : The course instances
-* `exercise` : Learning modules and exercises for the course instances
-* `userprofile` : Additional user information and groups
-* `django_shibboleth` : Handles users for Apache Shibboleth headers
-* `notification` : User messaging framework
-* `inheritance` : Utilities for model class hierarchy
-* `external_services` : Linking to external services, optionally LTI authenticated
-* `apps` Provides plugins (tabs disabled) that integrate additional parts to main content
+Code Organization
+-----------------
+
+[a-plus/](a-plus) : Django main settings
+[course/](course) : The course instances
+[exercise/](exercise) : Learning modules and exercises for the course instances
+[userprofile/](userprofile) : Additional user information and groups
+[django_shibboleth/](django_shibboleth) : Handles users for Apache Shibboleth request headers
+[notification/](notification) : User messaging framework
+[inheritance/](inheritance) : Utilities for model class hierarchy
+[external_services/](external_services) : Linking to external services, optionally LTI authenticated
+[apps/](apps) : Provides plugins that can integrate additional content to course instances
+[api/](api) : An HTTP service API for accessing A+ data
+[lib/](lib) : More general libraries
