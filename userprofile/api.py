@@ -4,6 +4,7 @@ from userprofile.models import UserProfile
 
 
 class UserProfileResource(ModelResource):
+    
     def dehydrate(self, bundle):
         """
         This method adds fields from the corresponding User
@@ -19,10 +20,10 @@ class UserProfileResource(ModelResource):
         return bundle
 
     class Meta:
-        queryset        = UserProfile.objects.all()
-        resource_name   = 'userprofile'
+        queryset = UserProfile.objects.all()
+        resource_name = 'userprofile'
 
         # In this version of the API only superusers are allowed to access
         # userprofile objects
         allowed_methods = ['get']
-        authorization   = SuperuserAuthorization()
+        authorization = SuperuserAuthorization()

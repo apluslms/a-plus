@@ -1,26 +1,25 @@
 from django.contrib import admin
 from course.models import Course, CourseInstance, CourseHook
-from django.db.models import Q
+
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display_links  = ["id"]
+    list_display_links = ["id"]
 
-    list_display        = ["id",
+    list_display = ["id",
                            "name",
                            "code"]
 
-    list_editable       = ["name",
+    list_editable = ["name",
                            "code"]
 
-    filter_horizontal   = ["teachers"]
+    filter_horizontal = ["teachers"]
 
     def get_queryset(self, request):
         if not request.user.is_superuser:
             return request.user.userprofile.teaching_courses
         else:
-            # TODO: test that the manager works
-            # Previously: return self.model._default_manager.filter()
             return self.model.objects.filter()
+
 
 def instance_url(obj):
     """ This method returns the URL to the given object. This method is used as
@@ -49,11 +48,9 @@ class CourseInstanceAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         if not request.user.is_superuser:
-            return request.user.userprofile.get_courseinstance_staff_queryset()
+            return self.model.objects.where_staff_includes(request.user.userprofile)
         else:
-            # TODO: test that the manager works
-            # Previously: return self.model._default_manager.filter()
-            return self.model.objects.filter()
+            return self.model.objects.all()
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(CourseInstance, CourseInstanceAdmin)

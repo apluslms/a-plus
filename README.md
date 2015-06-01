@@ -12,7 +12,7 @@ The system has since been developed by various contributors at Aalto University,
 Requirements
 ------------
 
-A+ is a Django 1.7+ and Python 3 application which has been run in production using Postgresql database, Apache 2 and uwsgi. Consider using `virtualenv` and `pip3 install -r requirements.txt`. Create `local_settings.py` in the same directory with `settings.py` and override necessary Django settings. At least `DEBUG`, `SECRET_KEY` and `DATABASES` must be set in case of deployment. The server process needs write access to the `media` directory.
+A+ is a Django 1.7+ and Python 3 application which has been run in production using Postgresql database, Apache 2 and uwsgi. Consider using `virtualenv` and `pip3 install -r requirements.txt`. Create `local_settings.py` and override necessary Django settings from `a-plus/settings.py`. At least `DEBUG`, `SECRET_KEY` and `DATABASES` must be set in case of deployment. The server process needs write access to the `media` directory.
 
 Testing environment
 -------------------
@@ -25,7 +25,7 @@ Code Organization
 -----------------
 
 [a-plus/](a-plus) : Django main settings
-[course/](course) : The course instances
+[course/](course) : The courses and course instances
 [exercise/](exercise) : Learning modules and exercises for the course instances
 [userprofile/](userprofile) : Additional user information and groups
 [django_shibboleth/](django_shibboleth) : Handles users for Apache Shibboleth request headers
@@ -34,4 +34,4 @@ Code Organization
 [external_services/](external_services) : Linking to external services, optionally LTI authenticated
 [apps/](apps) : Provides plugins that can integrate additional content to course instances
 [api/](api) : An HTTP service API for accessing A+ data
-[lib/](lib) : More general libraries
+[lib/](lib) : More general library code

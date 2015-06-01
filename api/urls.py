@@ -1,10 +1,12 @@
 from django.conf.urls import patterns, include
-from tastypie.api import Api
-from course.api import CourseResource, CourseInstanceResource
-from userprofile.api import UserProfileResource
+
 from course.api import CourseInstanceSummaryResource
+from course.api import CourseResource, CourseInstanceResource
 from exercise.api import ExerciseResource, CourseModuleResource, \
   SubmissionResource, SubmissionContentResource, LearningObjectResource
+from tastypie.api import Api
+from userprofile.api import UserProfileResource
+
 
 api = Api(api_name='v1')
 api.register(CourseResource())

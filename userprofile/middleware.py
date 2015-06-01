@@ -6,6 +6,8 @@ class StudentGroupMiddleware(object):
 
     def process_request(self, request):
         """
+        Not such a good idea! Group selection should be in a view. Currently disabled.
+
         This function checks if the user is authenticated and if he/she has selected a student
         group which to use for submitting exercises. If there is a group selected (and stored
         in the session) this middleware will load the group from database and add it to the

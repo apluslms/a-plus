@@ -1,20 +1,27 @@
+from datetime import datetime, timedelta
+from django.contrib.auth.models import User
 from django.test import TestCase
 
-from notification.models import *
-from userprofile.models import *
-from course.models import *
+from course.models import Course, CourseInstance
+from notification.models import Notification
 
-from datetime import datetime, timedelta
 
 class NotificationTest(TestCase):
     def setUp(self):
         self.student = User(username="testUser", first_name="Superb", last_name="Student", email="test@aplus.com")
         self.student.set_password("testPassword")
         self.student.save()
+        self.student_profile = self.student.userprofile
 
         self.teacher = User(username="teacher", first_name="Tedious", last_name="Teacher", email="teacher@aplus.com", is_staff=True)
         self.teacher.set_password("teacherPassword")
         self.teacher.save()
+        self.teacher_profile = self.teacher.userprofile
+
+        self.superuser = User(username="superuser", first_name="Super", last_name="User", email="superuser@aplus.com", is_superuser=True)
+        self.superuser.set_password("superuserPassword")
+        self.superuser.save()
+        self.superuser_profile = self.superuser.userprofile
 
         self.course = Course.objects.create(
             name="test course",
@@ -25,6 +32,7 @@ class NotificationTest(TestCase):
 
         self.today = datetime.now()
         self.tomorrow = self.today + timedelta(days=1)
+        self.two_days_from_now = self.tomorrow + timedelta(days=1)
 
         self.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011",
@@ -33,6 +41,15 @@ class NotificationTest(TestCase):
             ending_time=self.tomorrow,
             course=self.course,
             url="T-00.1000_2011"
+        )
+
+        self.course_instance2 = CourseInstance.objects.create(
+            instance_name="Fall 2011 day 2",
+            website="http://www.example.com",
+            starting_time=self.tomorrow,
+            ending_time=self.two_days_from_now,
+            course=self.course,
+            url="T-00.1000_d2"
         )
 
         self.notification = Notification.objects.create(
@@ -76,3 +93,55 @@ class NotificationTest(TestCase):
 
     def test_notification_string(self):
         self.assertEqual("To:teacher, testSubject, testNotification", str(self.notification))
+
+    def test_notification_unread_count(self):
+        
+        self.notification1 = Notification.objects.create(
+            subject="test1",
+            notification="testNotification1",
+            sender=self.superuser_profile,
+            recipient=self.student_profile,
+            course_instance=self.course_instance
+        )
+
+        self.notification2 = Notification.objects.create(
+            subject="test2",
+            notification="testNotification2",
+            sender=self.superuser_profile,
+            recipient=self.teacher_profile,
+            course_instance=self.course_instance
+        )
+
+        self.notification3 = Notification.objects.create(
+            subject="test3",
+            notification="testNotification3",
+            sender=self.superuser_profile,
+            recipient=self.student_profile,
+            course_instance=self.course_instance2
+        )
+
+        self.notification4 = Notification.objects.create(
+            subject="test4",
+            notification="testNotification4",
+            sender=self.superuser_profile,
+            recipient=self.teacher_profile,
+            course_instance=self.course_instance
+        )
+
+        self.notification5 = Notification.objects.create(
+            subject="test5",
+            notification="testNotification5",
+            sender=self.superuser_profile,
+            recipient=self.student_profile,
+            course_instance=self.course_instance2
+        )
+        self.notification.mark_as_seen()
+        self.assertEqual(3, Notification.get_unread_count(self.student_profile))
+        self.assertEqual(2, Notification.get_unread_count(self.teacher_profile))
+        self.assertEqual(0, Notification.get_unread_count(self.superuser_profile))
+
+    def test_notification_unread_course_instances(self):
+        self.assertEqual(0, len(Notification.get_unread_course_instances(self.student_profile)))
+        self.assertEqual(1, len(Notification.get_unread_course_instances(self.teacher_profile)))
+        self.assertEqual(0, len(Notification.get_unread_course_instances(self.superuser_profile)))
+        self.assertTrue(self.course_instance in Notification.get_unread_course_instances(self.teacher_profile))

@@ -114,19 +114,13 @@ class CourseModule(models.Model):
 
 
 class LearningObjectCategory(models.Model):
+
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
-
-    course_instance = models.ForeignKey(CourseInstance,
-        related_name="categories")
-
-    hidden_to = models.ManyToManyField(
-        UserProfile,
-        related_name="hidden_categories",
-        blank=True,
-        null=True
-    )
+    course_instance = models.ForeignKey(CourseInstance, related_name="categories")
+    hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
+        blank=True, null=True)
 
     class Meta:
         unique_together = ("name", "course_instance")
@@ -152,15 +146,13 @@ class LearningObjectCategory(models.Model):
             return int(round(100.0 * self.points_to_pass / max_points))
 
     def is_hidden_to(self, profile):
-        return self in profile.get_hidden_categories_cache()
+        return self in profile.hidden_categories.all()
 
     def set_hidden_to(self, profile, hide=True):
         if hide and not self.is_hidden_to(profile):
             self.hidden_to.add(profile)
         elif not hide and self.is_hidden_to(profile):
             self.hidden_to.remove(profile)
-
-        profile.reset_hidden_categories_cache()
 
 
 class LearningObject(ModelWithInheritance):

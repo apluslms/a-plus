@@ -1,18 +1,15 @@
 from django.conf.urls import url
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 
 from course.models import Course, CourseInstance
 from exercise.exercise_summary import UserCourseSummary
 from tastypie import fields
-from tastypie.authentication import Authentication  # , OAuthAuthentication
+from tastypie.authentication import Authentication
 from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie.bundle import Bundle
 from tastypie.resources import ModelResource, Resource
 from userprofile.models import UserProfile
 
 
-# A+
 class CourseResource(ModelResource):
     instances           = fields.ToManyField('course.api.CourseInstanceResource', 'instances')
 

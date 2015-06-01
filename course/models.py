@@ -1,42 +1,29 @@
-# Python
-import logging
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse
 from datetime import datetime
-
-# Django
-from django.db import models
-from django.core.urlresolvers import reverse
-from django.db.models import Q
-from django.core.validators import RegexValidator
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
+from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+import logging
+import urllib.request, urllib.parse
 
-# A+
-from userprofile.models import UserProfile
 from apps.models import BaseTab, BasePlugin
+from userprofile.models import UserProfile
 
-# Course class
+
 class Course(models.Model):
     '''
     Course model represents a course in a university. A course has a name and an
     identification number. It also has a URL which is included in the addresses
     of pages under the course.
     '''
-
-    # Basic information
-    name        = models.CharField(max_length=255)
-    code        = models.CharField(max_length=255)
-
-    # A portion that is included in the addresses under this course
-    url         = models.CharField(
-                       unique=True,
-                       max_length=255,
-                       blank=False,
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255)
+    url = models.CharField(unique=True, max_length=255, blank=False,
                        validators=[RegexValidator(regex="^[\w\-\.]*$")],
                        help_text="Input an identifier for this course's URL.")
-
-    # Relations
-    teachers    = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)
+    teachers = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)    
 
     def get_absolute_url(self):
         '''
@@ -82,6 +69,12 @@ class Course(models.Model):
         return self.code + " " + self.name
 
 
+class CourseInstanceManager(models.Manager):
+    
+    def where_staff_includes(self, profile):
+        return self.filter(Q(assistants=profile) | Q(course__teachers=profile))
+
+
 class CourseInstance(models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have
@@ -89,31 +82,19 @@ class CourseInstance(models.Model):
     have the same teacher, but teaching assistants and students are connected to individual
     instances.
     """
-
-    # Basic information
-    instance_name           = models.CharField(max_length=255)
-    website                 = models.URLField(max_length=255, blank=True)
-
-    url = models.CharField(
-            unique=False,
-            max_length=255,
-            blank=False,
+    instance_name = models.CharField(max_length=255)
+    website = models.URLField(max_length=255, blank=True)
+    url = models.CharField(unique=False, max_length=255, blank=False,
             validators=[RegexValidator(regex="^[\w\-\.]*$")],
             help_text="Input an URL identifier for this course.")
-
-    starting_time           = models.DateTimeField()
-    ending_time             = models.DateTimeField()
-
-    visible_to_students     = models.BooleanField(default=True)
-
-    # Relations
-    assistants              = models.ManyToManyField(UserProfile,
-                                                     related_name="assisting_courses",
-                                                     blank=True)
-    course                  = models.ForeignKey(Course, related_name="instances")
-
-    plugins                 = generic.GenericRelation(BasePlugin, object_id_field="container_pk", content_type_field="container_type")
-    tabs                    = generic.GenericRelation(BaseTab, object_id_field="container_pk", content_type_field="container_type")
+    starting_time = models.DateTimeField()
+    ending_time = models.DateTimeField()
+    visible_to_students = models.BooleanField(default=True)
+    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
+    course = models.ForeignKey(Course, related_name="instances")
+    plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk", content_type_field="container_type")
+    tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk", content_type_field="container_type")
+    objects = CourseInstanceManager()
 
     def is_assistant(self, profile):
         """
@@ -159,12 +140,9 @@ class CourseInstance(models.Model):
         return self.starting_time <= datetime.now() <= self.ending_time
 
     def is_visible_to(self, profile=None):
-        if profile:
-            return (self.visible_to_students
-                    or self.is_staff(profile)
-                    or profile.is_staff())
-        else:
-            return self.visible_to_students
+        if self.visible_to_students:
+            return True
+        return profile and (self.is_staff(profile) or profile.user.is_superuser)
 
     def get_absolute_url(self):
         '''
@@ -185,7 +163,7 @@ class CourseInstance(models.Model):
         Returns a list of tuples containing the names and url
         addresses of parent objects and self.
         """
-        crumb       = self.course.get_breadcrumb()
+        crumb = self.course.get_breadcrumb()
         crumb_tuple = (self.instance_name, self.get_absolute_url())
         crumb.append(crumb_tuple)
         return crumb

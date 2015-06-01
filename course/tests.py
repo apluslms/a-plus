@@ -21,9 +21,9 @@ class CourseTest(TestCase):
         self.grader.set_password("graderPassword")
         self.grader.save()
 
-        self.staff_member = User(username="staff", is_staff=True)
-        self.staff_member.set_password("staffPassword")
-        self.staff_member.save()
+        self.superuser = User(username="staff", is_staff=True, is_superuser=True)
+        self.superuser.set_password("staffPassword")
+        self.superuser.save()
 
         self.course = Course.objects.create(
             name="test course",
@@ -139,7 +139,7 @@ class CourseTest(TestCase):
         self.assertTrue(self.current_course_instance.is_teacher(self.user.userprofile))
         self.assertTrue(self.current_course_instance.is_staff(self.user.userprofile))
         self.assertEquals(1, len(self.current_course_instance.get_course_staff()))
-        self.assertEquals("testUser", self.current_course_instance.get_course_staff()[0].get_shortname())
+        self.assertEquals("testUser", self.current_course_instance.get_course_staff()[0].shortname)
 
         self.current_course_instance.assistants.clear()
 
@@ -198,7 +198,7 @@ class CourseTest(TestCase):
     def test_course_instance_students(self):
         students = self.current_course_instance.get_students()
         self.assertEquals(1, len(students))
-        self.assertEquals("testUser", students[0].get_shortname())
+        self.assertEquals("testUser", students[0].shortname)
 
         submission2 = Submission.objects.create(
             exercise=self.base_exercise,
@@ -207,7 +207,7 @@ class CourseTest(TestCase):
 
         students = self.current_course_instance.get_students()
         self.assertEquals(1, len(students))
-        self.assertEquals("testUser", students[0].get_shortname())
+        self.assertEquals("testUser", students[0].shortname)
 
         submission3 = Submission.objects.create(
             exercise=self.base_exercise,
@@ -216,16 +216,16 @@ class CourseTest(TestCase):
 
         students = self.current_course_instance.get_students()
         self.assertEquals(2, len(students))
-        self.assertEquals("testUser", students[0].get_shortname())
-        self.assertEquals("grader", students[1].get_shortname())
+        self.assertEquals("testUser", students[0].shortname)
+        self.assertEquals("grader", students[1].shortname)
 
     def test_course_instance_visibility(self):
         self.assertTrue(self.current_course_instance.is_visible_to())
         self.assertFalse(self.hidden_course_instance.is_visible_to())
         self.assertTrue(self.current_course_instance.is_visible_to(self.user.userprofile))
         self.assertFalse(self.hidden_course_instance.is_visible_to(self.user.userprofile))
-        self.assertTrue(self.current_course_instance.is_visible_to(self.staff_member.userprofile))
-        self.assertTrue(self.hidden_course_instance.is_visible_to(self.staff_member.userprofile))
+        self.assertTrue(self.current_course_instance.is_visible_to(self.superuser.userprofile))
+        self.assertTrue(self.hidden_course_instance.is_visible_to(self.superuser.userprofile))
 
     def test_course_instance_label(self):
         self.assertEquals("Dashboard", self.current_course_instance.get_label())
@@ -241,7 +241,7 @@ class CourseTest(TestCase):
         self.assertTrue(self.current_course_instance in open_course_instances)
         self.assertTrue(self.future_course_instance in open_course_instances)
 
-        open_course_instances = get_visible_open_course_instances(self.staff_member.userprofile)
+        open_course_instances = get_visible_open_course_instances(self.superuser.userprofile)
         self.assertEqual(3, len(open_course_instances))
         self.assertTrue(self.current_course_instance in open_course_instances)
         self.assertTrue(self.future_course_instance in open_course_instances)
@@ -253,3 +253,16 @@ class CourseTest(TestCase):
 
     def test_course_hook_unicode_string(self):
         self.assertEquals("123456: Fall 2011 day 1 -> test_hook_url", str(self.course_hook))
+
+    def test_userprofile_courseinstance_staff_queryset(self):
+        self.course.teachers.add(self.grader.userprofile)
+        self.current_course_instance.assistants.add(self.superuser.userprofile)
+        student_staff_courseinstances = CourseInstance.objects.where_staff_includes(self.user.userprofile)
+        self.assertEqual(0, len(student_staff_courseinstances))
+        grader_staff_courseinstances = CourseInstance.objects.where_staff_includes(self.superuser.userprofile)
+        self.assertEqual(1, len(grader_staff_courseinstances))
+        self.assertEqual(self.current_course_instance, grader_staff_courseinstances[0])
+        teacher_staff_courseinstances = CourseInstance.objects.where_staff_includes(self.grader.userprofile)
+        self.assertEqual(4, len(teacher_staff_courseinstances))
+        self.assertTrue(self.past_course_instance in teacher_staff_courseinstances)
+        self.assertTrue(self.current_course_instance in teacher_staff_courseinstances)
