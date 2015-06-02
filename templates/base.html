@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load course_menu %}
+{% load notification %}
 <!DOCTYPE html>
     <html>
     <head>
@@ -41,14 +42,6 @@
     <body>
         <div id="base-container">
             {% block navbar %}
-            {% comment %}
-            TODO: implement groups
-            <form method="POST" id="group-change-form" class="hidden">
-                {% csrf_token %}
-                <input name="change_to_group" id="change_to_group" />
-                <input type="submit" />
-            </form>
-            {% endcomment %}
 
             <div id="main-navbar" class="navbar navbar-static-top">
                 <div class="navbar-inner">
@@ -68,50 +61,26 @@
                             <ul id="user-status" class="nav pull-right">
                                 {% if user.is_authenticated %}
 
-                                    {% if user.userprofile.get_unread_notification_count > 0 %}
+									{% unread_notifications user as unread %}
+                                    {% if unread.count > 0 %}
                                         <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i id="unread-notifications-icon" class="icon-white icon-envelope"></i> 
-                                        {% blocktrans with count=user.userprofile.get_unread_notification_count count_p=user.userprofile.get_unread_notification_count|pluralize %}
+                                        {% blocktrans with count=unread.count count_p=unread.count|pluralize %}
                                             {{ count }} new notification{{ count_p }}
                                         {% endblocktrans %}
                                         </a>                                        
                                         <ul class="dropdown-menu" id="notification-menu">
-                                            {%for course_instance in user.userprofile.get_unread_notification_course_instances %}
+                                            {% for course_instance in unread.course_instances %}
                                                 <li><a href="{{ course_instance.get_absolute_url }}me/">{{course_instance.instance_name}}</a></li>
                                             {% endfor %}
                                         </ul>
-                                        </li>                                        
+                                        </li>
                                     {% endif %}
 
-                                    {% if user.userprofile.get_unread_notification_count == 0 and instance %}
-                                        <li><a id="notification-icon" href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i></a></li>                                        
+                                    {% if unread.count == 0 and instance %}
+                                        <li><a id="notification-icon" href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i></a></li>
                                     {% endif %}
 
                                     <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
-                                    {% comment %}
-                                    TODO: implement groups
-                                    <li class="dropdown" id="group-menu">
-                                        <a href="#group-menu" class="dropdown-toggle" data-toggle="dropdown">
-                                            {% if active_group %}
-                                                {{ active_group.name }}
-                                            {% else %}
-                                                {% trans "No group selected"%}
-                                            {% endif %}
-                                        <b class="caret"></b></a>
-                                        <ul class="dropdown-menu">
-                                            {% if active_group %}
-                                                <li><a href="#" data-group-id="0" class="group_change_link">{% trans "No group" %}</a></li>
-                                                <li class="divider"></li>
-                                            {% endif %}
-                                            {% for group in user.userprofile.groups.all %}
-                                                <li><a href="#" data-group-id="{{ group.id }}" data-placement="left" rel="tooltip" title="{{ group.get_names }}" class="group_change_link">{{ group.name }}</a></li>
-                                            {% empty %}
-                                                <li><a href="#">{% trans "No groups"%}</a></li>
-                                            {% endfor %}
-                                            <li class="divider"></li>
-                                            <li><a href="{% url 'userprofile.views.view_groups' %}">{% trans "Join or create a group"%}</a></li>
-                                        </ul>
-                                    </li>
-                                    {% endcomment %}
                                     <li><a href="{% url 'logout' %}">{% trans "Log out"%}</a></li>
                                 {% endif %}
                             </ul>

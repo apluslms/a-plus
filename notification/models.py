@@ -4,24 +4,39 @@ from course.models import CourseInstance
 from userprofile.models import UserProfile
 
 
+class UnreadNotifications(object):
+    """
+    Represents the unread notifications for a user.
+    """
+
+    @classmethod
+    def get_for(cls, user):
+        return UnreadNotifications(user)
+    
+    def __init__(self, user):
+        self.notifications = list(user.userprofile.received_notifications.filter(seen=False))
+    
+    @property
+    def count(self):
+        return len(self.notifications)
+    
+    @property
+    def course_instances(self):
+        courses = set()
+        for notification in self.notifications:
+            courses.add(notification.course_instance)
+        return courses
+
+
 class Notification(models.Model):
+    """
+    A user notification of some event, for example manual assessment.
+    """
 
     @classmethod
     def send(cls, sender, recipient, course_instance, subject, notification):
         notification = Notification(notification=notification, subject=subject, sender=sender, recipient=recipient, course_instance=course_instance)
         notification.save()
-
-    @classmethod
-    def get_unread_count(cls, user_profile):
-        return len(user_profile.received_notifications.filter(seen=False))
-
-    @classmethod
-    def get_unread_course_instances(cls, user_profile):
-        notifications = user_profile.received_notifications.filter(seen=False)
-        courses = set()
-        for notification in notifications:
-            courses.add(notification.course_instance)
-        return courses
 
     subject = models.CharField(max_length=255)
     notification = models.TextField()
