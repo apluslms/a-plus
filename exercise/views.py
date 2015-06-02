@@ -15,7 +15,7 @@ from exercise.exercise_models import BaseExercise
 from exercise.exercise_page import ExercisePage
 from exercise.exercise_summary import UserExerciseSummary
 from exercise.submission_models import Submission, SubmittedFile
-from userprofile.models import StudentGroup
+from userprofile.models import StudentGroup, UserProfile
 from lib import helpers
 
 
@@ -32,7 +32,8 @@ def view_exercise(request, exercise_id, template="exercise/view_exercise.html"):
 
     # Load the exercise as an instance of its leaf class
     exercise = get_object_or_404(BaseExercise, id=exercise_id).as_leaf_class()
-    students = StudentGroup.get_students_from_request(request)
+    # TODO: ability to select a group
+    students = (UserProfile.get_by_request(request),)
     submissions = exercise.get_submissions_for_student(request.user.userprofile)
     is_post = request.method == "POST"
 
