@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import ExternalIFrameTab, ExternalEmbeddedTab, RSSPlugin,\
+
+from .models import ExternalIFrameTab, ExternalEmbeddedTab, RSSPlugin, \
     ExternalIFramePlugin
 
 

@@ -3,24 +3,22 @@ Plugins and tabs make it possible to customize the behavior and appearance of pa
 system. Plugins are rendered as small "boxes" on the side of a page, where tabs have their own
 pages which can be accessed through a tab-like user interface.
 
-NOTE: Tabs are not currently used.
-
 Any model can be related to a Plugin or Tab using a django.contrib.contenttypes.GenericRelation
 field and naming AbstractApp fields container_pk & container_type for the link.
 """
 
 import datetime
+
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.template import loader
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+import feedparser
 
 from apps.app_renderers import ExternalIFramePluginRenderer, \
     ExternalIFrameTabRenderer, TabRenderer
-import feedparser
 from inheritance.models import ModelWithInheritance
 
 
@@ -39,8 +37,10 @@ class AbstractApp(ModelWithInheritance):
 
 
 class BaseTab(AbstractApp):
-    label = models.CharField(max_length=12, help_text=_("Label is the word displayed on the tab."))
-    title = models.CharField(max_length=64, help_text=_("Title is displayed on the top of the tab page."))
+    label = models.CharField(max_length=12,
+        help_text=_("Label is the word displayed on the tab."))
+    title = models.CharField(max_length=64,
+        help_text=_("Title is displayed on the top of the tab page."))
     order = models.IntegerField(default=100)
 
     # A Tab can be opened in a new window, in the same window?
@@ -48,9 +48,6 @@ class BaseTab(AbstractApp):
 
     def render(self):
         return _("No content for this tab...")
-
-    def get_absolute_url(self):
-        return reverse("plugins.views.view_tab", kwargs={"tab_id": self.id})
 
     def get_label(self):
         return self.label
@@ -137,11 +134,12 @@ class RSSPlugin(BasePlugin):
         for entry in sorted_entries:
             entry.django_timestamp = datetime.datetime(*entry.date_parsed[:7])
 
-        out = loader.render_to_string("plugins/rss.html",
-                                                  {"entries": sorted_entries,
-                                                   "title": self.title,
-                                                   "feed": feed,
-                                                   "plugin": self})
+        out = loader.render_to_string("plugins/rss.html", {
+            "entries": sorted_entries,
+            "title": self.title,
+            "feed": feed,
+            "plugin": self
+        })
         return out
 
 

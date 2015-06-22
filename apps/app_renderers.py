@@ -27,12 +27,13 @@ code that calls the build_plugin_renderers is responsible of giving the
 data required by the plugin view.
 """
 
-from django.template import Context
-from django.template.loader import get_template
 import logging
 import urllib.request
 
 from bs4 import BeautifulSoup
+from django.template import Context
+from django.template.loader import get_template
+
 from lib.helpers import update_url_params
 
 

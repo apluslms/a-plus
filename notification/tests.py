@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
 from course.models import Course, CourseInstance
-from notification.models import Notification
+from notification.models import Notification, NotificationSet
 
 
 class NotificationTest(TestCase):
@@ -88,8 +89,14 @@ class NotificationTest(TestCase):
 
     def test_notification_mark_as_seen(self):
         self.assertFalse(self.notification.seen)
-        self.notification.mark_as_seen()
-        self.assertTrue(self.notification.seen)
+        ns = NotificationSet.get_unread(self.teacher)
+        self.assertEqual(ns.count, 1)
+        ns = NotificationSet.get_course_unread_and_mark(self.course_instance, self.teacher)
+        self.assertTrue(self.notification in ns.notifications)
+        ns = NotificationSet.get_unread(self.teacher)
+        self.assertEqual(ns.count, 0)
+        ns = NotificationSet.get_course_read(self.course_instance, self.teacher)
+        self.assertEqual(ns.count, 1)
 
     def test_notification_string(self):
         self.assertEqual("To:teacher, testSubject, testNotification", str(self.notification))
@@ -135,13 +142,16 @@ class NotificationTest(TestCase):
             recipient=self.student_profile,
             course_instance=self.course_instance2
         )
-        self.notification.mark_as_seen()
-        self.assertEqual(3, Notification.get_unread_count(self.student_profile))
-        self.assertEqual(2, Notification.get_unread_count(self.teacher_profile))
-        self.assertEqual(0, Notification.get_unread_count(self.superuser_profile))
+        self.notification.seen = True
+        self.notification.save()
+        unread = NotificationSet.get_unread(self.student)
+        self.assertEqual(3, unread.count)
+        unread = NotificationSet.get_unread(self.teacher)
+        self.assertEqual(2, unread.count)
+        unread = NotificationSet.get_unread(self.superuser)
+        self.assertEqual(0, unread.count)
 
     def test_notification_unread_course_instances(self):
-        self.assertEqual(0, len(Notification.get_unread_course_instances(self.student_profile)))
-        self.assertEqual(1, len(Notification.get_unread_course_instances(self.teacher_profile)))
-        self.assertEqual(0, len(Notification.get_unread_course_instances(self.superuser_profile)))
-        self.assertTrue(self.course_instance in Notification.get_unread_course_instances(self.teacher_profile))
+        unread = NotificationSet.get_unread(self.teacher)
+        self.assertEqual(1, unread.count)
+        self.assertTrue(self.course_instance in unread.course_instances)

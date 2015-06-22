@@ -1,0 +1,71 @@
+{% load i18n %}
+
+    <li class="nav-header">
+        {% trans "Course" %}
+    </li>
+    <li>
+    	<a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
+	        <i class="icon-home"></i>
+	        {% trans "Home" %}
+    	</a>
+    </li>
+    <li>
+    	<a href="{% url 'course.views.export_calendar' course_url=course.url instance_url=instance.url %}">
+	        <i class="icon-calendar"></i>
+	        {% trans "Calendar feed" %} (ics)
+    	</a>
+    </li>
+    <li>
+    	<a href="{% url 'user_score' course_url=course.url instance_url=instance.url %}">
+	        <i class="icon-list-alt"></i>
+	        {% trans "My results" %}
+	    </a>
+	</li>
+    <li>
+        <a href="{% url 'exercise.views.profile' course_url=course.url instance_url=instance.url %}">
+            <i class="icon-user"></i>
+            {{ user.userprofile.shortname }}
+        </a>
+    </li>
+
+    {% load external_services_tags %}
+    {% ext_service_entries instance.pk %}
+    {% if ext_menu_entries|length > 0 %}
+    <li class="nav-header">
+        {% trans "External" %}
+    </li>
+    {% for menu_entry in ext_menu_entries %}
+    <li>
+        <a href="{{ menu_entry.url }}" target="_blank">
+            <i class="{{ menu_entry.icon_class }}"></i>
+            {{ menu_entry.label }}
+        </a>
+    </li>
+    {% endfor %}
+    {% endif %}
+
+    {% if instance.tabs.all|length > 0 %}
+    <li class="nav-header">
+        {% trans "Apps" %}
+    </li>
+    {% for tab in instance.tabs.all %}
+    <li>
+        <a href="{% url 'apps.views.view_tab' tab_id=tab.id %}">
+            <i class="icon-th-large"></i>
+            {{ tab.label }}
+        </a>
+    </li>
+    {% endfor %}
+    {% endif %}
+
+    {% if is_teacher %}
+    <li class="nav-header">
+        {% trans "Teacher" %}
+    </li>
+    <li>
+        <a href="{% url 'course.teacher_views.edit_course' course_url=course.url instance_url=instance.url %}">
+            <i class="icon-pencil"></i>
+            {% trans "Edit course" %}
+        </a>
+    </li>
+    {% endif %}

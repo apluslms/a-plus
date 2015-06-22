@@ -12,23 +12,23 @@ class TeacherFeedbackTest(unittest.TestCase):
     def testStudentShouldGetTeacherFeedbackWithNotification(self):
         ASSISTANT_FEEDBACK_TEXT = "ASSISTANT_FEEDBACK"
         FEEDBACK_TEXT = "FEEDBACK"
-        MODULE_NUMBER = 2
+        EXERCISE_NUMBER = 2
         SUBMISSION_NUMBER = 1
         POINTS = "50"
 
         # Submit exercise
-        LoginPage(self.driver).loginAsStudent(self.driver)
+        LoginPage(self.driver).loginAsStudent()
         fileUploadGrader = FileUploadGrader(self.driver)
         fileUploadGrader.submit()
         fileUploadGrader.logout()
 
         # Check submissions
-        LoginPage(self.driver).loginAsTeacher(self.driver)
-        submissionPage = SubmissionPage(self.driver, MODULE_NUMBER)
+        LoginPage(self.driver).loginAsTeacher()
+        submissionPage = SubmissionPage(self.driver, EXERCISE_NUMBER)
         self.assertEqual(submissionPage.getSubmissionCount(), 1)
 
         # Assess exercise
-        assessmentPage = AssessmentPage(self.driver, SUBMISSION_NUMBER)
+        assessmentPage = AssessmentPage(self.driver, EXERCISE_NUMBER, SUBMISSION_NUMBER)
         assessmentPage.setAssistantFeedback(ASSISTANT_FEEDBACK_TEXT)
         assessmentPage.setFeedback(FEEDBACK_TEXT)
         assessmentPage.setPoints(POINTS)
@@ -36,8 +36,8 @@ class TeacherFeedbackTest(unittest.TestCase):
         assessmentPage.logout()
 
         # Check that student receives the correct assessment and a notification of it
-        LoginPage(self.driver).loginAsStudent(self.driver)
-        studentFeedbackPage = StudentFeedbackPage(self.driver, SUBMISSION_NUMBER)
+        LoginPage(self.driver).loginAsStudent()
+        studentFeedbackPage = StudentFeedbackPage(self.driver, EXERCISE_NUMBER, SUBMISSION_NUMBER)
 
         self.assertTrue(studentFeedbackPage.hasNewNotifications())
         self.assertEqual(studentFeedbackPage.getAssistantFeedbackText(), ASSISTANT_FEEDBACK_TEXT)

@@ -1,8 +1,18 @@
-# Python
-import string
 from random import choice
-import urllib.request, urllib.parse, urllib.error
-import urllib.parse
+import string
+import urllib
+
+
+def extract_form_errors(form):
+    """
+    Extracts Django form errors to a list of error messages.
+    """
+    errors = []
+    for field in form.errors:
+        for err in form.errors[field]:
+            errors.append("%s: %s" % (field, err))
+    return errors
+
 
 def get_random_string(length=32):
     """ This function creates a random string with a given length.
@@ -14,8 +24,8 @@ def get_random_string(length=32):
     # Use all letters and numbers in the identifier
     choices = string.ascii_letters + string.digits
 
-    # Return a joined string of 'length' random characters
-    return ''.join([choice(choices) for i in range(length)])
+    return ''.join([choice(choices) for _ in range(length)])
+
 
 def query_dict_to_list_of_tuples(query_dict):
     """ This helper function creates a list of tuples with the values
@@ -31,6 +41,7 @@ def query_dict_to_list_of_tuples(query_dict):
         for val in query_dict.getlist(key):
             list_of_tuples.append( (key, val) )
     return list_of_tuples
+
 
 def update_url_params(url, params):
     url_parts = list(urllib.parse.urlparse(url))

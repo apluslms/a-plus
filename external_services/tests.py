@@ -1,9 +1,10 @@
+from datetime import datetime, timedelta
+
 from django.test import TestCase
 
-from external_services.models import *
-from course.models import *
+from course.models import Course, CourseInstance
+from external_services.models import LinkService, LTIService, MenuItem
 
-from datetime import datetime, timedelta
 
 class ExternalServicesTest(TestCase):
     def setUp(self):

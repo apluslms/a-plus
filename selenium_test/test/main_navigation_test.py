@@ -5,7 +5,7 @@ from page_objects import BasePage, LoginPage, CourseName
 
 
 class MainNavigationTest(unittest.TestCase):
-    baseUrl = BasePage.base_url + "/course/aplus1/basic_instance/"
+    baseUrl = BasePage.base_url + "/aplus1/basic_instance/"
 
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
@@ -13,19 +13,19 @@ class MainNavigationTest(unittest.TestCase):
 
     def testNavigateToResults(self):
         BasePage(self.driver).clickResultsLink()
-        self.assertEqual(self.baseUrl + 'results/', str(self.driver.current_url))
+        self.assertEqual(self.baseUrl + 'user/results/', str(self.driver.current_url))
 
     def testNavigateToUserPage(self):
         BasePage(self.driver).clickUserLink()
-        self.assertEqual(self.baseUrl + 'me/', str(self.driver.current_url))
+        self.assertEqual(self.baseUrl + 'user/', str(self.driver.current_url))
 
     def testNavigateToTeachersView(self):
         BasePage(self.driver).clickTeachersViewLink()
         self.assertEqual(self.baseUrl + 'teachers/', str(self.driver.current_url))
 
-    def testNavigateToAssistantsView(self):
-        BasePage(self.driver).clickAssistantsViewLink()
-        self.assertEqual(self.baseUrl + 'assistants/', str(self.driver.current_url))
+    #def testNavigateToAssistantsView(self):
+    #    BasePage(self.driver).clickAssistantsViewLink()
+    #    self.assertEqual(self.baseUrl + 'assistants/', str(self.driver.current_url))
 
     def testDownloadCalendar(self):
         BasePage(self.driver).clickCalendarFeedLink()

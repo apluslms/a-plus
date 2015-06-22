@@ -4,17 +4,35 @@ from course.models import CourseInstance
 from userprofile.models import UserProfile
 
 
-class UnreadNotifications(object):
+class NotificationSet(object):
     """
-    Represents the unread notifications for a user.
+    A result set of notifications.
+    
     """
+    @classmethod
+    def get_unread(cls, user):
+        return NotificationSet(
+            user.userprofile.received_notifications.filter(
+                seen=False))
 
     @classmethod
-    def get_for(cls, user):
-        return UnreadNotifications(user)
-    
-    def __init__(self, user):
-        self.notifications = list(user.userprofile.received_notifications.filter(seen=False))
+    def get_course_unread_and_mark(cls, course_instance, user):
+        qs = user.userprofile.received_notifications.filter(
+            course_instance=course_instance,
+            seen=False)
+        notifications = list(qs)
+        qs.update(seen=True)
+        return NotificationSet(notifications)
+
+    @classmethod
+    def get_course_read(cls, course_instance, user):
+        return NotificationSet(
+            user.userprofile.received_notifications.filter(
+                course_instance=course_instance,
+                seen=True))
+
+    def __init__(self, queryset):
+        self.notifications = list(queryset)
     
     @property
     def count(self):
@@ -35,7 +53,13 @@ class Notification(models.Model):
 
     @classmethod
     def send(cls, sender, recipient, course_instance, subject, notification):
-        notification = Notification(notification=notification, subject=subject, sender=sender, recipient=recipient, course_instance=course_instance)
+        notification = Notification(
+            notification=notification,
+            subject=subject,
+            sender=sender,
+            recipient=recipient,
+            course_instance=course_instance
+        )
         notification.save()
 
     subject = models.CharField(max_length=255)
@@ -51,7 +75,3 @@ class Notification(models.Model):
 
     def __str__(self):
         return "To:" + self.recipient.user.username + ", " + self.subject + ", " + self.notification[:100]
-
-    def mark_as_seen(self):
-        self.seen = True
-        self.save()

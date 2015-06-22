@@ -4,6 +4,7 @@
     "model": "exercise.coursemodule",
     "fields": {
       "name": "First Exercise Round",
+      "url": "first-exercise-round",
       "introduction": "",
       "late_submission_deadline": "2025-09-27 10:47:09",
       "late_submissions_allowed": false,
@@ -30,6 +31,7 @@
     "model": "exercise.coursemodule",
     "fields": {
       "name": "Exercises with Hook",
+      "url": "exercises-with-hook",
       "introduction": "",
       "late_submission_deadline": "2025-09-27 10:47:09",
       "late_submissions_allowed": false,

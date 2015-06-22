@@ -1,14 +1,15 @@
 import unittest
 
 from test_initializer import TestInitializer
-from page_objects import CourseName, LoginPage, HomePage
+from page_objects import LoginPage, HomePage
+from locators import BasePageLocators
 
 
 class HomePageTest(unittest.TestCase):
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
         TestInitializer().recreateDatabase()
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginAsStudent()
 
     def testInitialScoreShouldBeZero(self):
         self.assertEqual("0 / 300", HomePage(self.driver).getMainScore())
@@ -25,11 +26,8 @@ class HomePageTest(unittest.TestCase):
 
         homePage.clickOnlineExercisesCheckbox()
         homePage.clickUpdateFilters()
+        homePage.isElementPresent(BasePageLocators.WARNING_BANNER)
 
-        # Assert weird error page
-        self.assertEqual(HomePage.base_url + '/course/aplus1/basic_instance/set_schedule_filters/?next=/course/aplus1/basic_instance/', str(self.driver.current_url))
-
-        homePage = HomePage(self.driver)
         homePage.clickFilterCategories()
         self.assertTrue(homePage.isOnlineExercisesCheckboxSelected(), 'Online exercises checkbox should have been checked')
 

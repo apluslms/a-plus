@@ -1,0 +1,161 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+
+{% block coursecontent %}
+
+<h2>{% trans "Teacher's view" %}</h2>
+
+<table class="table table-striped table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th><h3>{% trans "Categories" %}</h3></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for category in instance.categories.all %}
+        <tr>
+            <th>
+                <strong>{{ category.name }}</strong>
+            </th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<p>
+    <a href="/admin/exercise/learningobjectcategory/"
+       class="btn btn-primary btn-mini">
+        <i class="icon-edit icon-white"></i> {% trans "Edit categories" %}
+    </a> ({% trans "You need to be a superuser" %})
+</p>
+
+
+<table class="table table-striped table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th colspan="3"><h3>{% trans "Learning modules" %}</h3></th>
+        </tr>
+    </thead>
+    <tbody>
+
+    {% for module in instance.course_modules.all %}
+        <tr>
+            <th>
+                <strong>{{ module.name }}</strong>
+            </th>
+            <td>
+                <a class="btn btn-mini" href="{% url 'course.teacher_views.add_or_edit_module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                    <i class="icon-edit"></i> {% trans "Edit module" %}
+                </a>
+                {% if module.learning_objects.count == 0 %}
+                <a class="btn btn-mini" href="{% url 'course.teacher_views.remove_module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                	<i class="icon-remove"></i> {% trans "Remove" %}
+                </a>
+                {% endif %}
+            </td>
+            <td>
+                <div class="btn-group">
+                    <a class="btn btn-success" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                        <i class=" icon-white"></i> {% trans "Add New Exercise" %}
+                    </a>
+                    <button type="button" class="btn btn- dropdown-toggle" data-toggle="dropdown">
+                      <span class="caret"></span>
+                    </button>
+                  	<ul class="dropdown-menu" role="menu">
+                        <li>
+                        	<a class="" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                             {% trans "Add Exercise" %}
+                        </a></li>
+                        <li><a href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_url=module.url exercise_type='exercise_with_attachment' %}">
+                            {% trans "Add Exercise with Attachment" %}</a>
+                        </li>
+
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        {% for object in module.learning_objects.all %}
+            <tr>
+                <td>
+                    {{ object.name }}
+                </td>
+                <td>
+                    <a class="btn btn-mini" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                        <i class="icon-edit"></i> {% trans "Edit" %}
+                    </a>
+                    <a class="btn btn-mini" href="{% url 'course.teacher_views.remove_exercise' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                        <i class="icon-remove"></i> {% trans "Remove" %}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'exercise.staff_views.list_exercise_submissions' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                    	{% trans "View submissions" %}
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+
+<a class="btn btn-primary btn-mini" href="{% url 'course.teacher_views.add_or_edit_module' course_url=course.url instance_url=instance.url %}">
+    <i class="icon-plus-sign icon-white"></i> {% trans "Add new module" %}
+</a>
+
+
+<h3>{% trans "Deadline Rule Deviations" %}</h3>
+<p>{% trans "Add or view personalized deadlines for students for exercises." %}</p>
+<a class="btn btn-primary btn-mini" href="{% url 'course.teacher_views.add_deadline_rule_deviations' course_url=course.url instance_url=instance.url %}">
+    <i class="icon-plus-sign icon-white"></i> {% trans "Add Deadline Deviations" %}
+</a>
+<a class="btn btn-primary btn-mini" href="{% url 'course.teacher_views.list_deadline_rule_deviations' course_url=course.url instance_url=instance.url %}">
+    <i class="icon-list-alt icon-white"></i> {% trans "List Deadline Deviations" %}
+</a>
+
+<div class="col-sm-10">
+
+	{% blocktrans %}
+	<h3>Batch Create and Assess Submissions</h3>
+	<p><em>Use only if you know what you are doing!</em></p>
+	<p>By submitting json to the form below you can try to create and assess multiple exercises for students automatically.</p>
+	<div>
+		<p>XXXXX1 and XXXXX2 are the real student ids</p>
+		<p>X1 (integer) is the A+ userprofile id of the desired grader</p>
+		<p>Z1 and Z2 (integers) are A+ exercise ids</p>
+		
+		<pre>{
+  "objects": [
+    {
+      "students_by_student_id": [
+        "XXXXX1"
+      ],
+      "feedback": "Nicely solved exercise!",
+      "grader": X1,
+      "exercise_id": Z1,
+      "submission_time": "2014-09-24 11:50",
+      "points": 100
+    },
+    {
+      "students_by_student_id": [
+        "XXXXX2"
+      ],
+      "feedback": "You can do better!",
+      "grader": X1,
+      "exercise_id": Z2,
+      "submission_time": "2014-09-24 11:50",
+      "points": 20
+    }
+  ]
+}
+		</pre>
+	</div>
+   {% endblocktrans %}
+
+</div>
+<form method="post" action="{% url 'exercise.staff_views.batch_create_and_assess_submissions' course_url=course.url instance_url=instance.url %}">
+	{% csrf_token %}
+    <textarea name="submissions_json"></textarea>
+    <button type="submit" class="btn">{% trans "Submit" %}</button>
+</form>
+
+{% endblock %}

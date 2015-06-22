@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
 from course.models import Course, CourseInstance
-from exercise.exercise_models import LearningObjectCategory
+from exercise.models import LearningObjectCategory
 from userprofile.models import UserProfile, StudentGroup
 
 

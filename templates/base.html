@@ -50,9 +50,10 @@
                         <div class="nav dropdown nav-collapse collapse">
                             <a href="#" class="brand dropdown-toggle" data-toggle="dropdown">
                                 {% block pagetitle %}
-                                    {% trans "Select course" %}
+                                {% trans "Select course" %}
                                 {% endblock %}
-                            <b class="caret"></b></a>
+                            	<b class="caret"></b>
+                            </a>
                             <ul class="dropdown-menu">
                                 {% render_course_list %}
                             </ul>
@@ -61,27 +62,42 @@
                             <ul id="user-status" class="nav pull-right">
                                 {% if user.is_authenticated %}
 
-									{% unread_notifications user as unread %}
-                                    {% if unread.count > 0 %}
-                                        <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i id="unread-notifications-icon" class="icon-white icon-envelope"></i> 
-                                        {% blocktrans with count=unread.count count_p=unread.count|pluralize %}
-                                            {{ count }} new notification{{ count_p }}
-                                        {% endblocktrans %}
-                                        </a>                                        
-                                        <ul class="dropdown-menu" id="notification-menu">
-                                            {% for course_instance in unread.course_instances %}
-                                                <li><a href="{{ course_instance.get_absolute_url }}me/">{{course_instance.instance_name}}</a></li>
-                                            {% endfor %}
-                                        </ul>
-                                        </li>
-                                    {% endif %}
+								{% unread_notifications user as unread %}
+                                {% if unread.count > 0 %}
+                                <li>
+                                	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                		<i id="unread-notifications-icon" class="icon-white icon-envelope"></i> 
+                                		{% blocktrans with count=unread.count count_p=unread.count|pluralize %}
+                                    	{{ count }} new notification{{ count_p }}
+                                		{% endblocktrans %}
+                                	</a>                                        
+	                                <ul class="dropdown-menu" id="notification-menu">
+	                                    {% for course_instance in unread.course_instances %}
+	                                    <li>
+	                                    	<a href="{% url 'exercise.views.profile' course_url=course_instance.course.url instance_url=course_instance.url %}">
+	                                    		{{course_instance.instance_name}}
+	                                    	</a>
+	                                    </li>
+	                                    {% endfor %}
+	                                </ul>
+                                </li>
+                                {% endif %}
 
-                                    {% if unread.count == 0 and instance %}
-                                        <li><a id="notification-icon" href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i></a></li>
-                                    {% endif %}
+                                {% if unread.count == 0 and instance %}
+                                <li>
+									<a id="notification-icon" href="{% url 'exercise.views.profile' course_url=instance.course.url instance_url=instance.url %}">
+										<i class="icon-white icon-envelope"></i>
+									</a>
+                                </li>
+                                {% endif %}
 
-                                    <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
-                                    <li><a href="{% url 'logout' %}">{% trans "Log out"%}</a></li>
+                                <li>
+                                	<a>{% trans "Logged in as"%} {{ user.username }}.</a>
+                                </li>
+                                <li>
+                                	<a href="{% url 'logout' %}">{% trans "Log out"%}</a>
+                                </li>
+                                
                                 {% endif %}
                             </ul>
                         </div>
@@ -126,7 +142,7 @@
             faster -->
             <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}js/aaltoplus.js"></script>
+            <script type="text/javascript" src="{{ STATIC_URL }}js/aplus.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
 
             {% block scripts %}

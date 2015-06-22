@@ -1,10 +1,10 @@
-from django.conf.urls import patterns, include
+from django.conf.urls import patterns, include, url
+from tastypie.api import Api
 
 from course.api import CourseInstanceSummaryResource
 from course.api import CourseResource, CourseInstanceResource
 from exercise.api import ExerciseResource, CourseModuleResource, \
   SubmissionResource, SubmissionContentResource, LearningObjectResource
-from tastypie.api import Api
 from userprofile.api import UserProfileResource
 
 
@@ -20,5 +20,5 @@ api.register(LearningObjectResource())
 api.register(CourseInstanceSummaryResource())
 
 urlpatterns = patterns('',
-    (r'^', include(api.urls)),
+    url(r'^', include(api.urls)),
 )

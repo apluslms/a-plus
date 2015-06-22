@@ -21,6 +21,7 @@ class BasePageLocators(object):
     LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']//a[contains(text(), 'Logged in as')]")
     LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']//a[contains(@href, '/accounts/logout/')]")
     LOGOUT_BANNER = (By.XPATH, "//div[@class='alert alert-success']")
+    WARNING_BANNER = (By.XPATH, "//div[@class='alert alert-warning']")
     NOTIFICATION_MENU = (By.XPATH, "//*[@id='notification-menu']")
 
 class HomePageLocators(object):
@@ -39,16 +40,16 @@ class ExercisePageLocators(object):
 
 class CourseArchiveLocators(object):
     COURSE_ID_TITLE = (By.XPATH, "//*[@id='course1']/h3/small")
-    APLUS_LINK = (By.XPATH, "//*[@id='course1']/li/a[contains(@href, '/course/aplus1/basic_instance/')]")
-    HOOK_LINK = (By.XPATH, "//*[@id='course1']/li/a[contains(@href, '/course/aplus1/hook_instance/')]")
+    APLUS_LINK = (By.XPATH, "//*[@id='course1']/li/a[contains(@href, '/aplus1/basic_instance/')]")
+    HOOK_LINK = (By.XPATH, "//*[@id='course1']/li/a[contains(@href, '/aplus1/hook_instance/')]")
 
 class StaffPageLocators(object):
-    SUBMISSION_LINKS = (By.XPATH, "//a[contains(@href,'/exercise/submissions/list/')]")
+    SUBMISSION_LINKS = (By.XPATH, "//a[contains(@href,'/submissions/')]")
 
 class TeachersPageLocators(object):
     TEACHERS_VIEW_BANNER = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/h2[contains(text(), 'Teacher')]")
-    EDIT_LEARNING_MODULE_LINKS = (By.XPATH, "//a[contains(@href,'/exercise/manage/1/')]")
-    REMOVE_LEARNING_MODULE_LINKS = (By.XPATH, "//a[contains(@href,'/exercise/remove/1/')]")
+    EDIT_LEARNING_MODULE_LINKS = (By.XPATH, "//a[contains(@href,'/aplus1/basic_instance/exercises/1/edit/')]")
+    REMOVE_LEARNING_MODULE_LINKS = (By.XPATH, "//a[contains(@href,'/aplus1/basic_instance/exercises/1/delete/')]")
 
 class AssistantsPageLocators(object):
     ASSISTANTS_VIEW_BANNER = (By.XPATH, "//*[@id='main_content']/div[2]/div[2]/h2[contains(text(), 'Assistant')]")
@@ -73,7 +74,7 @@ class EditExercisePageLocators(object):
 
 class SubmissionPageLocators(object):
     TABLE_FIRST_HEADER = (By.XPATH, "//*[@id='submission-table']/thead/tr[1]/th[1]")
-    INSPECTION_LINKS = (By.XPATH, "//*[@id='submission-table']//a[contains(@href, '/exercise/submissions/inspect/')]")
+    INSPECTION_LINKS = (By.XPATH, "//*[@id='submission-table']//a[contains(@href, '/inspect/')]")
 
 class StudentFeedbackPageLocators(object):
     ASSISTANT_FEEDBACK_LABEL = (By.XPATH, "//*[@id='exercise']/h2[text()='Assistant feedback']")
@@ -81,7 +82,7 @@ class StudentFeedbackPageLocators(object):
     FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise']")
 
 class InspectionPageLocators(object):
-    ASSESS_THIS_SUBMISSION_LINK = (By.XPATH, "//*[@id='student-submission']//a[contains(@href, '/exercise/submissions/assess/7/')]")
+    ASSESS_THIS_SUBMISSION_LINK = (By.XPATH, "//*[@id='student-submission']//a[contains(@href, '/aplus1/basic_instance/exercises/1/submissions/7/assess/')]")
     NO_FEEDBACK_BANNER = (By.XPATH, "//div[@class='alert alert-info']")
     SUBMITTERS_TEXT = (By.XPATH, "//*[@id='student-submission']/div/dl[1]/dd")
     GRADE_TEXT = (By.XPATH, "//*[@id='student-submission']/div/dl[4]/dd")

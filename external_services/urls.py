@@ -1,6 +1,6 @@
-from django.conf.urls import patterns
-from .views import lti_login
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',
-    (r'^lti/(\d+)$', lti_login),
+
+urlpatterns = patterns('external_services.views',
+    url(r'^lti/(\d+)$', 'lti_login'),
 )

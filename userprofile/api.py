@@ -1,5 +1,6 @@
-from api.permissions import SuperuserAuthorization
 from tastypie.resources import ModelResource
+
+from api.permissions import SuperuserAuthorization
 from userprofile.models import UserProfile
 
 

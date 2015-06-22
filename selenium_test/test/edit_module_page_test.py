@@ -15,9 +15,9 @@ class EditModulePageTest(unittest.TestCase):
         POINTS_TO_PASS = "10"
         OPENING_TIME = "2014-01-01 00:00:00"
         CLOSING_TIME = "2016-01-01 00:00:00"
-        MODULE_NUMBER = 1
+        MODULE_URL = "first-exercise-round"
 
-        editModulePage = EditModulePage(self.driver, MODULE_NUMBER)
+        editModulePage = EditModulePage(self.driver, MODULE_URL)
 
         editModulePage.setCourseName(COURSE_NAME)
         editModulePage.setPointsToPass(POINTS_TO_PASS)
@@ -27,7 +27,7 @@ class EditModulePageTest(unittest.TestCase):
 
         self.assertTrue(editModulePage.isSuccessfulSave())
 
-        editModulePage = EditModulePage(self.driver, MODULE_NUMBER)
+        editModulePage = EditModulePage(self.driver, MODULE_URL)
         self.assertEqual(editModulePage.getCourseName(), COURSE_NAME)
         self.assertEqual(editModulePage.getPointsToPass(), POINTS_TO_PASS)
         self.assertEqual(editModulePage.getOpeningTime(), OPENING_TIME)

@@ -1,6 +1,8 @@
 from django.shortcuts import redirect
 
 from userprofile import STUDENT_GROUP, STUDENT_GROUP_ID
+from userprofile.models import UserProfile
+
 
 class StudentGroupMiddleware(object):
 
@@ -29,7 +31,8 @@ class StudentGroupMiddleware(object):
 
             if group_id != None:
                 try:
-                    group = request.user.userprofile.groups.get(id=group_id)
+                    profile = UserProfile.get_by_request(request)
+                    group = profile.groups.get(id=group_id)
                     request.META[STUDENT_GROUP] = group
                 except:
                     # The group does not exist or the user is not a member in it

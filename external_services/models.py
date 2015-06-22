@@ -1,5 +1,7 @@
-from django.db import models
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 from course.models import CourseInstance
 from inheritance.models import ModelWithInheritance
 
@@ -10,20 +12,20 @@ class LinkService(ModelWithInheritance):
     '''
     url = models.CharField(
         max_length=256,
-        help_text="The service URL"
+        help_text=_("The service URL")
     )
     menu_label = models.CharField(
         max_length=32,
-        help_text="A default label to show in the course menu."
+        help_text=_("A default label to show in the course menu.")
     )
     menu_icon_class = models.CharField(
         max_length=32,
         default="icon-globe",
-        help_text="A default menu icon style name, see http://getbootstrap.com/components/#glyphicons-glyphs"
+        help_text=_("A default menu icon style name, see http://getbootstrap.com/components/#glyphicons-glyphs")
     )
     enabled = models.BooleanField(
         default=True,
-        help_text="If not enabled, the service is disabled for all course instances."
+        help_text=_("If not enabled, the service is disabled for all course instances.")
     )
 
     class Meta:
@@ -43,11 +45,11 @@ class LTIService(LinkService):
     '''
     consumer_key = models.CharField(
         max_length=128,
-        help_text="The consumer key provided by the LTI service."
+        help_text=_("The consumer key provided by the LTI service.")
     )
     consumer_secret = models.CharField(
         max_length=128,
-        help_text="The consumer secret provided by the LTI service."
+        help_text=_("The consumer secret provided by the LTI service.")
     )
 
 
@@ -61,23 +63,23 @@ class MenuItem(models.Model):
     course_instance = models.ForeignKey(
         CourseInstance,
         related_name="ext_services",
-        help_text="A course instance where the service is used."
+        help_text=_("A course instance where the service is used.")
     )
     menu_label = models.CharField(
         max_length=32,
         null=True,
         blank=True,
-        help_text="Overrides service default label shown in the course menu."
+        help_text=_("Overrides service default label shown in the course menu.")
     )
     menu_icon_class = models.CharField(
         max_length=32,
         null=True,
         blank=True,
-        help_text="Overrides service default menu icon style, e.g. icon-star see http://getbootstrap.com/components/#glyphicons-glyphs"
+        help_text=_("Overrides service default menu icon style, e.g. icon-star see http://getbootstrap.com/components/#glyphicons-glyphs")
     )
     menu_weight = models.IntegerField(
         default=0,
-        help_text="Heavier menu entries are placed after lighter ones."
+        help_text=_("Heavier menu entries are placed after lighter ones.")
     )
     enabled = models.BooleanField(default=True)
 

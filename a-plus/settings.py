@@ -16,6 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
+#SERVER_EMAIL = 'root@'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
@@ -27,6 +28,9 @@ TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = []
 
+# Content
+
+WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
 
 # Application definition
 
@@ -43,13 +47,14 @@ INSTALLED_APPS = (
     'tastypie', # service api
 
     # First party applications
-    'external_services',
-    'notification',
     'inheritance',
     'userprofile',
-    'exercise',
     'course',
+    'exercise',
+    'notification',
+    'external_services',
     'apps',
+    'redirect_old_urls',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -115,6 +120,8 @@ USE_L10N = True
 
 USE_TZ = False
 
+#DATETIME_FORMAT = "Y-m-d H:i"
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
@@ -152,6 +159,43 @@ TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 TEST_OUTPUT_VERBOSE = True
 TEST_OUTPUT_DESCRIPTIONS = True
 TEST_OUTPUT_DIR = "test_results"
+
+# Logging
+# https://docs.djangoproject.com/en/1.7/topics/logging/
+
+LOGGING = {
+  'version': 1,
+  'disable_existing_loggers': True,
+  'formatters': {
+    'verbose': {
+      'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s'
+    },
+  },
+  'handlers': {
+    'console': {
+      'level': 'DEBUG',
+      'class': 'logging.StreamHandler',
+      'stream': 'ext://sys.stdout',
+      'formatter': 'verbose',
+    },
+    'email': {
+      'level': 'ERROR',
+      'class': 'django.utils.log.AdminEmailHandler',
+    },
+  },
+  'loggers': {
+    '': {
+      'level': 'DEBUG',
+      'handlers': ['email', 'console'],
+      'propagate': True
+    },
+    'django': {
+      'level': 'INFO',
+      'handlers': [],
+      'propagate': True
+    },
+  },
+}
 
 # Overrides and appends settings defined in local_settings.py
 try:

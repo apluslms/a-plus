@@ -1,9 +1,9 @@
 from django.test import TestCase
 from django.test.client import Client
 
+from apps.app_renderers import build_plugin_renderers
 from apps.models import HTMLPlugin, ExternalIFramePlugin, RSSPlugin
 from course.models import Course, CourseInstance
-from apps.app_renderers import build_plugin_renderers
 
 
 HTML_PLUGIN_CONTENT = "test_content1245123"

@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load exercise_info %}
+
+<h3>{% trans "Submission info" %}</h3>
+<dl>
+	{% comment %}
+	Disabled as unnecessary glutter.
+    <dt>
+        {% trans "Exercise" %}
+    </dt>
+    <dd>
+        <a href="{{ submission.exercise.get_absolute_url }}">{{ submission.exercise.name }}</a>
+    </dd>
+    {% endcomment %}
+
+    <dt>
+        {% trans "Status" %}
+    </dt>
+    <dd>
+        <span class="label{% if submission.is_graded %} success{% endif %}">
+            {{ submission.status }}
+        </span>
+    </dd>
+
+    <dt>
+        {% trans "Submitted on" %}
+    </dt>
+    <dd>
+        {{ submission.submission_time }}
+    </dd>
+
+    <dt>
+        {% trans "Grade" %}
+    </dt>
+    <dd>
+        {{ submission.grade }} / {{ submission.exercise.max_points }}
+    </dd>
+
+	{% if submission.late_penalty_applied %}
+    <dl>
+        <dt>{% trans "Includes late penalty" %}</dt>
+        <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
+    </dl>
+    {% endif %}
+
+    {% if submission.exercise.max_points != submission.service_max_points %}
+    <dt>
+        {% trans "Non-scaled grading" %}
+    </dt>
+    <dd>
+        {{ submission.service_points }} / {{ submission.service_max_points }}
+    </dd>
+    {% endif %}
+
+    {% comment %}
+    TODO: enable with group functionality
+    <dt>
+        {% trans "Submitters" %}
+    </dt>
+    <dd>
+    	{{ submission.submitters.all|students }}
+    </dd>
+    {% endcomment %}
+</ul>

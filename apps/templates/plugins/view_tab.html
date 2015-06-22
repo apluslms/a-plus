@@ -1,5 +1,4 @@
 {% extends "course/course_base.html" %}
-{% load sanitizer %}
 {% load i18n %}
 
 
@@ -8,7 +7,7 @@
     <div class="span10">
         <h2>{{ tab.title }}</h2>
         <div>
-            {{ tab.render|sanitize }}
+            {{ tab.render|safe }}
         </div>
     </div>
 </div>

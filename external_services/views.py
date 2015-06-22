@@ -2,15 +2,17 @@
 Provides LTI access to external services with current course and user identity.
 
 '''
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render_to_response
-from django.http import HttpResponseForbidden, Http404
-from django.template.context import RequestContext
-from django.utils.translation import get_language, ugettext_lazy as _
-from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY
-from oauthlib.common import urldecode
-from .models import MenuItem
 import hashlib
+
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden, Http404
+from django.shortcuts import get_object_or_404, render_to_response
+from django.template.context import RequestContext
+from django.utils.translation import get_language
+from oauthlib.common import urldecode
+from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY
+
+from .models import MenuItem
 
 
 @login_required
@@ -40,8 +42,8 @@ def lti_login(request, menu_id):
     # Get user and control access.
     user = request.user
     user_profile = user.userprofile
-    if not course_instance.is_visible_to(user_profile):
-        return HttpResponseForbidden(_("You are not allowed to access this view."))
+    if not course_instance.is_visible_to(user):
+        return HttpResponseForbidden()
 
     # Determine user ID.
     student_id = "aplusuid%d" % (user.pk)
@@ -56,7 +58,7 @@ def lti_login(request, menu_id):
     if course_instance.is_teacher(user_profile):
         role = "Instructor"
     elif course_instance.is_assistant(user_profile):
-        role = "TA"
+        role = "TA,TeachingAssistant"
 
     parameters = {
 

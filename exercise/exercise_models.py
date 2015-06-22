@@ -1,120 +1,112 @@
+from _io import TextIOWrapper
 from datetime import datetime, timedelta
-from django.conf import settings
+
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.aggregates import Avg, Max, Count, Sum
+from django.db.models.aggregates import Sum
 from django.template import loader, Context
+from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
-import hashlib
-import hmac
-from io import IOBase
 
 from course.models import CourseInstance
-from exercise.exercise_page import ExercisePage
+from exercise.remote.connection import load_exercise_page, load_feedback_page
+from exercise.remote.exercise_page import ExercisePage
 from inheritance.models import ModelWithInheritance
-from lib import MultipartPostHandler
 from lib.fields import PercentField
 from userprofile.models import UserProfile
-import urllib
-from django.core.urlresolvers import reverse
 
 
 class CourseModule(models.Model):
     """
-    CourseModule objects connect learning objects to logical sets of each other and
-    course instances. They also contain information about the opening times and
-    deadlines for exercises.
+    CourseModule objects connect learning objects to logical sets of each other
+    and course instances. They also contain information about the opening times
+    and deadlines for exercises. A module may also include a reference to
+    study content. 
     """
     name = models.CharField(max_length=255)
+    url = models.CharField(max_length=255,
+                       validators=[RegexValidator(regex="^(?!teachers$)(?!user$)[\w\-\.]*$")],
+                       help_text=_("Input an URL identifier for this module. Taken words include: teachers, user"))
+    chapter = models.IntegerField(default=1)
+    subchapter = models.IntegerField(default=1)
     points_to_pass = models.PositiveIntegerField(default=0)
-
-    # A textual introduction to this exercise round
     introduction = models.TextField(blank=True)
-
-    # Relations
     course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
-
-    # Fields related to the opening of the rounds
     opening_time = models.DateTimeField(default=datetime.now)
     closing_time = models.DateTimeField(default=datetime.now)
+    content_url = models.URLField(blank=True)
 
-    """
-    Functionality related to early bonuses has been disabled. The following lines
-    are commented out so that they can be restored later if necessary.
-
-    # Settings related to early submission bonuses
-    early_submissions_allowed= models.BooleanField(default=False)
-    early_submissions_start = models.DateTimeField(default=datetime.now, blank=True, null=True)
-    early_submission_bonus  = PercentField(default=0.1,
-        help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
-    """
-    # Settings that can be used to allow late submissions to exercises
+    # early_submissions_allowed= models.BooleanField(default=False)
+    # early_submissions_start = models.DateTimeField(default=datetime.now, blank=True, null=True)
+    # early_submission_bonus  = PercentField(default=0.1,
+    #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
+    
     late_submissions_allowed = models.BooleanField(default=False)
     late_submission_deadline = models.DateTimeField(default=datetime.now)
-    late_submission_penalty = PercentField(default=0.5, help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+    late_submission_penalty = PercentField(default=0.5,
+        help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+
+    class Meta:
+        app_label = 'exercise'
+        unique_together = ("course_instance", "url")
+        ordering = ['closing_time', 'id']
+
+    def __str__(self):
+        return self.name + " / " + str(self.course_instance)
 
     def get_exercises(self):
         return BaseExercise.objects.filter(course_module=self)
-
-    def get_maximum_points(self):
-        if not hasattr(self, "_cached_max_points"):
-            max_points = self.get_exercises().aggregate(max_points=Sum('max_points'))['max_points']
-            self._cached_max_points = max_points or 0
-
-        return self._cached_max_points
-
-    def get_required_percentage(self):
-        max_points = self.get_maximum_points()
-        if max_points == 0:
-            return 0
-        else:
-            return int(round(100.0 * self.points_to_pass / max_points))
-
-    def is_late_submission_open(self):
-        return self.late_submissions_allowed and self.closing_time <= datetime.now() <= self.late_submission_deadline
-
-    # TODO: REFACTOR - Point worth should not be 100% if late submissions are not allowed!
-    def get_late_submission_point_worth(self):
-        """
-        Returns the percentage (0-100) that late submission points are worth.
-        """
-        point_worth = 100.0
-        if self.late_submissions_allowed:
-            point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
-        return point_worth
 
     def is_open(self, when=None):
         when = when or datetime.now()
         return self.opening_time <= when <= self.closing_time
 
-    # TODO: REFACTOR - More simple to check if after closing time instead of two checks
-    def is_expired(self, when=None):
-        return not self.is_open(when) and self.is_after_open(when)
-
     def is_after_open(self, when=None):
         """
-        Returns True if current time is past the round opening time.
+        Checks if current time is past the round opening time.
         """
         when = when or datetime.now()
         return self.opening_time <= when
+    
+    def is_late_submission_open(self, when=None):
+        when = when or datetime.now()
+        return self.late_submissions_allowed \
+            and self.closing_time <= when <= self.late_submission_deadline
 
-    def __str__(self):
-        return self.name + " -- " + str(self.course_instance)
+    def get_late_submission_point_worth(self):
+        """
+        Returns the percentage (0-100) that late submission points are worth.
+        """
+        point_worth = 0
+        if self.late_submissions_allowed:
+            point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
+        return point_worth
+
+    def get_absolute_url(self):
+        instance = self.course_instance
+        return reverse('exercise.views.view_module', kwargs={
+            'course_url': instance.course.url,
+            'instance_url': instance.url,
+            'module_url': self.url
+        })
 
     def get_breadcrumb(self):
         """
         Returns a list of tuples containing the names and URL
         addresses of parent objects and self.
         """
+        crumb = self.course_instance.get_breadcrumb()
+        crumb.append((self.name, self.get_absolute_url()))
+        return crumb
         return self.course_instance.get_breadcrumb()
-
-    class Meta:
-        app_label = 'exercise'
-        ordering = ['closing_time', 'id']
 
 
 class LearningObjectCategory(models.Model):
-
+    """
+    Learning objects may be grouped to different categories.
+    """
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
@@ -123,10 +115,11 @@ class LearningObjectCategory(models.Model):
         blank=True, null=True)
 
     class Meta:
+        app_label = 'exercise'
         unique_together = ("name", "course_instance")
 
     def __str__(self):
-        return self.name + " -- " + str(self.course_instance)
+        return self.name + " / " + str(self.course_instance)
 
     def get_exercises(self):
         return BaseExercise.objects.filter(category=self)
@@ -135,7 +128,6 @@ class LearningObjectCategory(models.Model):
         if not hasattr(self, "_cached_max_points"):
             max_points = self.get_exercises().aggregate(max_points=Sum('max_points'))['max_points']
             self._cached_max_points = max_points or 0
-
         return self._cached_max_points
 
     def get_required_percentage(self):
@@ -145,219 +137,74 @@ class LearningObjectCategory(models.Model):
         else:
             return int(round(100.0 * self.points_to_pass / max_points))
 
-    def is_hidden_to(self, profile):
-        return self in profile.hidden_categories.all()
+    def is_hidden_to(self, user_profile):
+        return self.hidden_to.filter(id=user_profile.id).exists()
 
-    def set_hidden_to(self, profile, hide=True):
-        if hide and not self.is_hidden_to(profile):
-            self.hidden_to.add(profile)
-        elif not hide and self.is_hidden_to(profile):
-            self.hidden_to.remove(profile)
+    def set_hidden_to(self, user_profile, hide=True):
+        if hide and not self.is_hidden_to(user_profile):
+            self.hidden_to.add(user_profile)
+        elif not hide and self.is_hidden_to(user_profile):
+            self.hidden_to.remove(user_profile)
 
 
 class LearningObject(ModelWithInheritance):
-    # The order for sorting the exercises within an exercise round
-    # TODO: It would be better if this didn't have the default=0.
-    order = models.IntegerField(default=0)
-
-    # Instruction related fields
+    """
+    All learning objects e.g. exercises inherit this model.
+    """
+    order = models.IntegerField(default=1)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     instructions = models.TextField(blank=True)
-
     service_url = models.URLField(blank=True)
-
-    # Relations
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
+
+    class Meta:
+        app_label = 'exercise'
+        ordering = ['order', 'id']
 
     def clean(self):
         """
         Validates the model before saving (standard method used in Django admin).
-
         """
-        course_instance_error = ValidationError("course_module and category must relate to the same CourseInstance object")
+        course_instance_error = ValidationError(
+            _("Course_module and category must belong to the same course instance."))
         try:
             if (self.course_module.course_instance != self.category.course_instance):
                 raise course_instance_error
         except (LearningObjectCategory.DoesNotExist, CourseModule.DoesNotExist):
             raise course_instance_error
 
-    def get_absolute_url(self):
-        # TODO: IMPLEMENT
-        return ""
-
-    def get_course_instance(self):
+    @property
+    def course_instance(self):
         return self.course_module.course_instance
-
-    course_instance = property(get_course_instance)
 
 
 class BaseExercise(LearningObject):
-    # Switch for giving assistants permission to grade this exercise
+    """
+    The common parts for all exercises.
+    """
     allow_assistant_grading = models.BooleanField(default=False)
-
-    # Submission related fields
     min_group_size = models.PositiveIntegerField(default=1)
     max_group_size = models.PositiveIntegerField(default=1)
     max_submissions = models.PositiveIntegerField(default=10)
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
 
-    # TODO: REFACTOR - Why is this a @classmethod? Should only be callable for its own course_instance
-    @classmethod
-    def get_course_instance_max_points(cls, course_instance):
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'exercise'
+        ordering = ['course_module__closing_time', 'course_module', 'order', 'id']
+
+    def clean(self):
         """
-        Returns the maximum points for the whole course instance, ie. the sum
-        of maximum points for all exercises.
+        Validates the model before saving (standard method used in Django admin).
         """
-        all_exercises = BaseExercise.objects.filter(course_module__course_instance=course_instance)
-        max_points = all_exercises.aggregate(max_points=Sum('max_points'))['max_points']
-        return max_points or 0
-
-
-    def get_average_percentage(self):
-        """
-        Rounds to closest int.
-
-        @return: 0..100 as int
-        """
-        if self.max_points == 0:
-            return 0
-        else:
-            # TODO: Slow?
-            return int(round(100.0 * self.summary["average_grade"] / self.max_points))
-
-    def get_deadline(self):
-        return self.course_module.closing_time
-
-    def get_page(self, request, submission_url):
-        """
-        Retrieves the page for this exercise from the exercise service.
-
-        @param submission_url: the submission url where the service may return submissions
-        @return: an ExercisePage object created from data retrieved from exercise service
-        """
-
-        # Build the URL with a callback address, max points etc.
-        url = self.build_service_url(request, submission_url)
-
-        opener = urllib.request.build_opener()
-        page_content = opener.open(url, timeout=20).read()
-
-        return ExercisePage(self, page_content)
-
-    def get_percentage_to_pass(self):
-        """
-        Rounds to closest int.
-
-        @return: 0..100 as int
-        """
-        if self.max_points == 0:
-            return 0
-        else:
-            return int(round(100.0 * self.points_to_pass / self.max_points))
-
-    def have_submissions_left(self, students):
-        """
-        Figures if all the students in the given set have submissions left for
-        this exercise. Considers the possible MaxSubmissionsRuleDeviations for
-        each student.
-        @param students: an iterable of UserProfile objects
-        @return: True if everyone has submissions left or False if anyone has
-        exceeded the maximum amount of submissions allowed for him.
-        """
-        if self.max_submissions == 0:
-            return True
-
-        # Different group members might have different amount of submissions to
-        # this exercise. Thus, we count the submissions separately for each
-        # student.
-        for student in students:
-            if not self.submissions_left(student) > 0:
-                return False
-
-        # All had submissions left.
-        return True
-
-    def max_submissions_for(self, student):
-        """
-        Calculates student specific max_submissions considering the possible
-        MaxSubmissionsRuleDeviation for this student.
-        @param student: UserProfile object
-        @return: max_submissions
-        """
-        try:
-            max_submissions_rule_deviation = MaxSubmissionsRuleDeviation.objects.get(exercise=self, submitter=student)
-            if self.max_submissions == 0:
-                return self.max_submissions
-            else:
-                return max_submissions_rule_deviation.extra_submissions + self.max_submissions
-        except MaxSubmissionsRuleDeviation.DoesNotExist:
-            return self.max_submissions
-
-    def submissions_left(self, student):
-        """
-        Calculates submissions left for the given student considering the
-        possible MaxSubmissionsRuleDeviation for this student.
-        @param student: UserProfile object
-        @return: submissions left or None if there is no submission limit
-        """
-        # TODO: REFACTOR - Shouldn't there be unlimited (instead of None) submissions if max_submissions is 0?
-        if self.max_submissions == 0:
-            return None
-
-        count = self.submissions.filter(submitters=student).count()
-        return self.max_submissions - count
-
-    def submit(self, request, submission):
-        """
-        This method sends the given submission to the exercise service
-        along with the files related to the submission.
-        """
-
-        # Make sure that this is the correct exercise for the submission
-        assert self.id == submission.exercise.id
-
-        # Create an empty list for HTTP request parameters
-        post_params = []
-
-        # Parameters are appended to the list as key, value tuples.
-        # Using tuples makes it possible to add two values for the same key.
-        for (key, value) in submission.submission_data:
-            post_params.append((key, value))
-
-        # Then the files are appended as key, file handle tuples
-        for submitted_file in submission.files.all().order_by("id"):
-            param_name = submitted_file.param_name
-            file_handle = open(submitted_file.file_object.path, "rb")
-            post_params.append((param_name, file_handle))
-
-        # Allow to make necessary modifications to POST parameters
-        self.modify_post_params(post_params)
-
-        # Build the service URL, which contains maximum points for this exercise
-        # and a callback URL to which the service may return the grading
-        url = self.build_service_url(request, submission.get_callback_url())
-
-        opener = urllib.request.build_opener(MultipartPostHandler.MultipartPostHandler)
-        response_body = opener.open(url, post_params, timeout=50).read()
-
-        # Close all opened file handles
-        for (key, value) in post_params:
-            if type(value) == IOBase:
-                value.close()
-
-        return ExercisePage(self, response_body)
-
-    def modify_post_params(self, post_params):
-        """
-        Allows to modify POST parameters before they are sent to the grader.
-        Extending classes may implement this function.
-
-        @param post_params: original POST parameters
-        """
-        pass
+        if self.points_to_pass > self.max_points:
+            return ValidationError(
+                _("Points to pass cannot be greater than max_points."))
 
     def is_open(self, when=None):
         """
@@ -366,192 +213,102 @@ class BaseExercise(LearningObject):
         when = when or datetime.now()
         return self.course_module.is_open(when=when)
 
-    def is_open_for(self, students, when=None):
+    def one_has_access(self, students, when=None):
         """
-        Considers the is_open and the DeadlineRuleDeviations.
-        @param students: An iterable of UserProfiles
-        @return: boolean
+        Checks if any of the users can submit taking the granted extra time
+        in consideration.
         """
-
         when = when or datetime.now()
-
-        if self.is_open(when=when):
+        module = self.course_module
+        if module.is_open(when=when) \
+        or module.is_late_submission_open(when=when):
             return True
+        if self.course_module.is_after_open(when=when):
+            for profile in students:
+                deviation = DeadlineRuleDeviation.objects \
+                    .filter(exercise=self, submitter=profile).first()
+                if deviation and when <= deviation.get_new_deadline():
+                    return True
+        return False
 
-        # Lets check if there are DeadlineExceptions for the given students.
-        deadline_rule_deviations = DeadlineRuleDeviation.objects.filter(exercise=self, submitter__in=students).distinct()
-        if len(deadline_rule_deviations) < 1:
-            return False
+    def get_submissions_for_student(self, user_profile):
+        return user_profile.submissions.filter(exercise=self)
 
-        # Now we need to check if there are enough extra time given for each of the students.
-        base_deadline = self.get_deadline()
-        # Initialise the dict with Falses meaning that the exercise is closed for each of the students.
-        is_open_booleans_by_submitters = {s: False for s in students}
+    def max_submissions_for_student(self, user_profile):
+        """
+        Calculates student specific max_submissions considering the possible
+        MaxSubmissionsRuleDeviation for this student.
+        """
+        deviation = MaxSubmissionsRuleDeviation.objects \
+            .filter(exercise=self, submitter=user_profile).first()
+        if deviation:
+            return self.max_submissions + \
+                deviation.extra_submissions
+        return self.max_submissions
 
-        # TODO : REFACTOR - This should not allow for submission before the exercise is open, but it does!
-        for deadline_rule_deviation in deadline_rule_deviations:
-            if when <= base_deadline + deadline_rule_deviation.get_extra_time():
-                assert(deadline_rule_deviation.submitter in is_open_booleans_by_submitters)
-                is_open_booleans_by_submitters[deadline_rule_deviation.submitter] = True
-
-        return not False in is_open_booleans_by_submitters.values()
+    def one_has_submissions(self, students):
+        if self.max_submissions == 0:
+            return True
+        for profile in students:
+            if self.get_submissions_for_student(profile).count() \
+                < self.max_submissions_for_student(profile):
+                return True
+        return False
 
     def is_submission_allowed(self, students):
         """
-        Returns True or False based whether the submission to this exercise is allowed or not based on the parameters.
+        Checks whether the submission to this exercise is allowed for the given
+        users and generates list of warnings.
 
-        @param students: the userprofiles of the students who are submitting this exercise
-        @return: boolean indicating if submissions should be accepted
-        @return: errors as a list of strings
+        @return: (success_flag, warning_message_list)
         """
+        warnings = []
 
-        errors = []
+        if not self.one_has_access(students):
+            warnings.append(
+                _('This exercise is not open for submissions.'))
+        
+        if not (self.min_group_size <= len(students) <= self.max_group_size):
+            warnings.append(
+                _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
+                  'The size of your current group is %(size)d.') % {
+                    'min': self.min_group_size,
+                    'max': self.max_group_size,
+                    'size': len(students),
+                })
 
-        # Check if the number of students is allowed for this exercise
-        allowed_group_size = (self.min_group_size <= len(students) <= self.max_group_size)
+        if not self.one_has_submissions(students):
+            warnings.append(
+                _('You have used the allowed amount of submissions for this exercise.'))
 
-        if not self.have_submissions_left(students):
-            if len(students) == 1:
-                errors.append(_('You already have used the maximum amount of submissions allowed to this exercise.'))
-            else:
-                errors.append(_('One of the group members already has used the maximum amount of submissions allowed to this exercise.'))
+        # The above problems will prevent the submission if users are not in
+        # course staff. The problems below are always just notifications.
+        success = len(warnings) == 0 \
+            or all(self.course_instance.is_course_staff(p.user) for p in students)
 
-        # Check if the exercise is open for the given students. Submissions by superusers, staff, course teachers and course instance assistants are still allowed.
-        # TODO: REFACTOR - This check is broken. It fails (method returns True and no errors) at least if:
-        #                - is_open_for(students) is False and len(students) is 1
-        #                - len(students) > 1 (multiple students or even multiple staff members)
-        #                -
-        #                - Also:
-        #                - Should check if all users are staff members or superusers (not only the first)
-        #                - There is probably also an existing (shortcut) method for checking if a user is staff/admin
-        if (not self.is_open_for(students)
-            and not self.course_module.is_late_submission_open()
-            and len(students) != 1
-            and (students[0].user.is_superuser
-                or students[0].user.is_staff
-                or self.course_module.course_instance.course.is_teacher(students[0])
-                or self.course_module.course_instance.is_assistant(students[0]))):
-            errors.append('This exercise is not open for submissions.')
-
-        if not allowed_group_size:
-            errors.append(_('This exercise can be submitted in groups of %d to %d students. ') % (self.min_group_size, self.max_group_size)
-                        + _('The size of your current group is %d.') % len(students))
-
-        # Only notifications are added below this line
-        success = len(errors) == 0
-
-        # If late submission is open, notify the student about point reduction
-        # TODO: REFACTOR - Unclear to send non-error messages along with other errors
+        # If late submission is open, notify the student about point reduction.
         if self.course_module.is_late_submission_open():
-            errors.append('Deadline for the exercise has passed. Late submissions are allowed until {:%b. %d, %Y, %I:%M %p} but points are only worth {} %.'.format(
-                self.course_module.late_submission_deadline, self.course_module.get_late_submission_point_worth()))
+            warnings.append(
+                _('Deadline for the exercise has passed. Late submissions are allowed until'
+                  '{date} but points are only worth {percent:d}%.').format(
+                    date=date_format(self.course_module.late_submission_deadline),
+                    percent=self.course_module.get_late_submission_point_worth(),
+                ))
 
+        return success, warnings
 
-        return success, errors
-
-    def is_late_submission_allowed(self):
-        return self.course_module.late_submissions_allowed
-
-    def get_late_submission_penalty(self):
-        return self.course_module.late_submission_penalty
-
-    def build_service_url(self, request, submission_url):
-        """
-        Generates and returns a complete URL with added parameters to the exercise service.
-
-        @param submission_url: the URL where the service may return grading details
-        """
-        params = {
-                            "max_points"     : self.max_points,
-                            "submission_url" : request.build_absolute_uri(submission_url),
-                          }
-
-        # If there is already a question mark in the url, use ampersand as delimiter. Otherwise
-        # use question mark.
-        delimiter = ("?", "&")["?" in self.service_url]
-
-        url = self.service_url + delimiter + urllib.parse.urlencode(params)
-        return url
-
-    def get_submissions_for_student(self, userprofile):
-        """
-        Returns all submissions for the given user profile for this exercise.
-
-        @param userprofile: the user's profile whose submissions to find
-        @return: a QuerySet of matching submissions
-        """
-        return userprofile.submissions.filter(exercise=self)
-
-    def __str__(self):
-        return self.name
+    def get_total_submitter_count(self):
+        return UserProfile.objects \
+            .filter(submissions__exercise=self) \
+            .distinct().count()
 
     def get_absolute_url(self):
-        return reverse("exercise.views.view_exercise", kwargs={"exercise_id": self.id})
-
-    def get_submission_parameters_for_students(self, students):
-        '''
-        @param students: a QuerySet of UserProfiles
-        @return: a string with UserProfile ids and a hash
-        @return: a string with UserProfile ids and a hash
-        '''
-        student_str = "-".join(str(userprofile.id) for userprofile in students)
-        identifier = "%s.%d" % (student_str, self.id)
-        hash_key = hmac.new(settings.SECRET_KEY.encode('utf-8'), msg=identifier.encode('utf-8'), digestmod=hashlib.sha256).hexdigest()
-        return student_str, hash_key
-
-    # TODO: REFACTOR - This doesn't really return an URL, but (student_ids, hash). Is this correct behavior?
-    def get_submission_url_for_students(self, students):
-        '''
-        Creates and returns an URL where a submission can be made for the given students
-
-        @param students: a QuerySet of UserProfile objects for the students submitting the exercise
-        @return: an URL where submissions are accepted for the students
-        '''
-        student_str, hash_key = self.get_submission_parameters_for_students(students)
-
-        return reverse("exercise.async_views.new_async_submission", kwargs={
-            "student_ids": student_str,
-            "exercise_id": self.id,
-            "hash_key": hash_key }
-        )
-
-    def __get_summary(self):
-        """
-        Returns a dictionary which has summarized statistics of this exercise. The dictionary is
-        generated only once and saved into a private field to improve performance with subsequent
-        calls.
-
-        @return: a dictionary keys: submission_count, average_grade, average_submissions and
-        submitter_count
-        """
-        if not hasattr(self, "temp_summary"):
-            submission_count = self.submissions.count()
-            submitter_count = UserProfile.objects.distinct().filter(submissions__exercise=self).count()
-
-            average_grade = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(best_grade=Max('submissions__grade')).aggregate(average_grade=Avg('best_grade'))["average_grade"]
-            average_submissions = UserProfile.objects.distinct().filter(submissions__exercise=self).annotate(submission_count=Count('submissions')).aggregate(avg_submissions=Avg('submission_count'))["avg_submissions"]
-
-            if average_grade == None:
-                average_grade = 0
-            if average_submissions == None:
-                average_submissions = 0
-
-            self.temp_summary = {"submission_count"   : submission_count,
-                                       "average_grade"      : average_grade,
-                                       "submitter_count"    : submitter_count,
-                                       "average_submissions": average_submissions,
-                                       }
-        return self.temp_summary
-
-    summary = property(__get_summary)
-
-    @classmethod
-    def get_exercise(cls, *args, **kwargs):
-        """
-        Returns an object matching the given query parameters as an
-        instance of the exercise's actual class, not the super class.
-        """
-        return cls.objects.get(*args, **kwargs).as_leaf_class()
+        instance = self.course_module.course_instance
+        return reverse("exercise.views.view_exercise", kwargs={
+            "course_url": instance.course.url,
+            "instance_url": instance.url,
+            "exercise_id": self.id
+        })
 
     def get_breadcrumb(self):
         """
@@ -563,38 +320,25 @@ class BaseExercise(LearningObject):
         crumb.append(crumb_tuple)
         return crumb
 
-    def can_edit(self, userprofile):
+    def load(self, request, students):
         """
-        Returns a boolean value indicating if the given user profile is allowed to edit
-        this exercise. Superusers and teachers are allowed to edit exercises.
-
-        @param userprofile: the user profile whose permissions are checked
-        @return: True if is allowed, False otherwise
+        Loads the exercise page.
         """
-        return userprofile.user.is_superuser or self.course_module.course_instance.course.is_teacher(userprofile)
+        return load_exercise_page(request, self, students)
+    
+    def grade(self, request, submission, no_penalties=False):
+        """
+        Loads the exercise feedback page.
+        """
+        return load_feedback_page(request, self, submission,
+            no_penalties=no_penalties)
 
-    class Meta:
-        app_label = 'exercise'
-        ordering = ['course_module__closing_time', 'course_module', 'order', 'id']
-
-
-# TODO: REFACTOR? - Would it be more simple to just have a 'type' variable in BaseExercise instead of having empty classes that needs to be checked?
-class AsynchronousExercise(BaseExercise):
-    """
-    Asynchronous exercises are used when the assessment service does not grade the
-    exercises immediately after submission. Instead, the exercise system will call
-    a submission URL after assessing and generating feedback.
-    """
-    pass
-
-
-class SynchronousExercise(BaseExercise):
-    """
-    Synchronous exercises are submitted and assessed during a single HTTP request.
-    The exercise service will respond to POST requests with a number of points and
-    a feedback for the student.
-    """
-    pass
+    def modify_post_parameters(self, post_params):
+        """
+        Allows to modify submission POST parameters before they are sent to
+        the grader. Extending classes may implement this function.
+        """
+        pass
 
 
 class StaticExercise(BaseExercise):
@@ -602,38 +346,32 @@ class StaticExercise(BaseExercise):
     Static exercises are used for storing submissions on the server, but not automatically
     assessing them. Static exercises may be retrieved by other services through the API.
     """
-
     exercise_page_content = models.TextField()
     submission_page_content = models.TextField()
 
-
-    def get_page(self, submission_url=None):
-        """
-        @param submission_url: the submission url where the service may return submissions
-        @return: an ExercisePage object created from data retrieved from exercise service
-        """
+    def load(self, request, students):
         page = ExercisePage(self)
         page.content = self.exercise_page_content
         return page
 
-    def submit(self, submission):
+    def grade(self, request, submission, no_penalties=False):
         page = ExercisePage(self)
         page.content = self.submission_page_content
         page.is_accepted = True
         return page
 
 
-# TODO: REFACTOR - If this only accepts ExerciseWithAttachment objects it should be a method of that class instead (with one parameter less)
 def build_upload_dir(instance, filename):
     """
-    Returns the path where the attachement should be saved.
+    Returns the path to a directory where the attachment file should be saved.
+    This is called every time a new ExerciseWithAttachment model is created.
 
     @param instance: the ExerciseWithAttachment object
     @param filename: the actual name of the submitted file
     @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
+    return "exercise_attachments/exercise_{:d}/{}".format(instance.id, filename)
 
-    return "exercise_attachments/exercise_%d/%s" % (instance.id, filename)
 
 class ExerciseWithAttachment(BaseExercise):
     """
@@ -644,8 +382,8 @@ class ExerciseWithAttachment(BaseExercise):
     files to be submitted are defined. Otherwise the instructions must contain
     the submission form.
     """
-
-    files_to_submit = models.CharField(max_length=200, blank=True, help_text=_("File names that user should submit, use pipe character to separate files"))
+    files_to_submit = models.CharField(max_length=200, blank=True,
+        help_text=_("File names that user should submit, use pipe character to separate files"))
     attachment = models.FileField(upload_to=build_upload_dir)
 
     class Meta:
@@ -661,17 +399,29 @@ class ExerciseWithAttachment(BaseExercise):
             files = self.files_to_submit.split("|")
             return [filename.strip() for filename in files]
 
-    def modify_post_params(self, post_params):
+    def load(self, request, students):
+        page = ExercisePage(self)
+        page.content = self.instructions
+
+        # Adds the submission form to the content if there are files to be
+        # submitted. A template is used to avoid hard-coded HTML here.
+        if self.get_files_to_submit():
+            template = loader.get_template('exercise/model/_file_submit_form.html')
+            context = Context({'files' : self.get_files_to_submit()})
+            page.content += template.render(context)
+
+        return page
+
+    def modify_post_parameters(self, post_params):
         """
         Adds the attachment to POST request. It will be added before the first original
         item of the file array with the same field name or if no files are found it
         will be added as first parameter using name file[].
         @param post_params: original POST parameters, assumed to be a list
         """
-
         found = False
         for i in range(len(post_params)):
-            if isinstance(post_params[i][1], file) and post_params[i][0].endswith("[]"):
+            if isinstance(post_params[i][1], TextIOWrapper) and post_params[i][0].endswith("[]"):
                 handle = open(self.attachment.path, "rb")
                 post_params.insert(i, (post_params[i][0], handle))
                 found = True
@@ -680,25 +430,7 @@ class ExerciseWithAttachment(BaseExercise):
         if not found:
             post_params.insert(0, ('file[]', open(self.attachment.path, "rb")))
 
-    def get_page(self, submission_url=None):
-        """
-        @param submission_url: the submission url where the service may return submissions
-        @return: an ExercisePage containing the exercise instructions and possibly a submit form
-        """
-        page = ExercisePage(self)
-        page.content = self.instructions
 
-        # Adds the submission form to the content if there are files to be submitted.
-        # A template is used to avoid hard-coded HTML here.
-        if self.get_files_to_submit():
-            template = loader.get_template('exercise/_file_submit_form.html')
-            context = Context({'files' : self.get_files_to_submit()})
-            page.content += template.render(context)
-
-        return page
-
-
-# TODO: Move this to submission_models module
 class SubmissionRuleDeviation(models.Model):
     """
     An abstract model binding a user to an exercise stating that there is some
@@ -714,14 +446,12 @@ class SubmissionRuleDeviation(models.Model):
     submitter = models.ForeignKey(UserProfile)
 
     class Meta:
+        app_label = 'exercise'
         abstract = True
         unique_together = ["exercise", "submitter"]
-        app_label = 'exercise'
 
 
-# TODO: Move this to submission_models module
 class DeadlineRuleDeviation(SubmissionRuleDeviation):
-    # TODO: Check that it doesn't overflow when converting to timedelta
     extra_minutes = models.IntegerField()
 
     class Meta(SubmissionRuleDeviation.Meta):
@@ -734,10 +464,9 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         return self.get_normal_deadline() + self.get_extra_time()
 
     def get_normal_deadline(self):
-        return self.exercise.get_deadline()
+        return self.exercise.course_module.closing_time
 
 
-# TODO: Move this to submission_models module
 class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
     extra_submissions = models.IntegerField()
 

@@ -83,7 +83,7 @@ class AbstractPage(object):
 
     def isElementPresent(self, locator):
         try:
-            element = self.getElement(locator)
+            _ = self.getElement(locator)
             return True
         except NoSuchElementException:
             return False
@@ -114,10 +114,10 @@ class LoginPage(AbstractPage):
             self.signIn(username, password)
             self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
 
-    def loginAsStudent(self, driver, course=CourseName.APLUS):
+    def loginAsStudent(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.studentUsername, self.defaultPassword)
 
-    def loginAsTeacher(self, driver, course=CourseName.APLUS):
+    def loginAsTeacher(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.teacherUsername, self.defaultPassword)
 
     def signIn(self, username, password):
@@ -165,9 +165,9 @@ class HomePage(BasePage):
     def __init__(self, driver, course=CourseName.APLUS):
         BasePage.__init__(self, driver)
         if (course == CourseName.APLUS):
-            path = "/course/aplus1/basic_instance"
+            path = "/aplus1/basic_instance"
         elif (course == CourseName.HOOK):
-            path = "/course/aplus1/hook_instance"
+            path = "/aplus1/hook_instance"
 
         self.load(path, HomePageLocators.MAIN_SCORE)
 
@@ -230,21 +230,21 @@ class StaffPage(BasePage):
 class TeachersPage(StaffPage):
     def __init__(self, driver):
         StaffPage.__init__(self, driver)
-        self.load("/course/aplus1/basic_instance/teachers/", TeachersPageLocators.TEACHERS_VIEW_BANNER)
+        self.load("/aplus1/basic_instance/teachers/", TeachersPageLocators.TEACHERS_VIEW_BANNER)
 
 class AssistantsPage(StaffPage):
     def __init__(self, driver):
         StaffPage.__init__(self, driver)
-        self.load("/course/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
+        self.load("/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
 
 class EditModulePage(BasePage):
-    def __init__(self, driver, moduleNumber):
+    def __init__(self, driver, moduleUrl):
         BasePage.__init__(self, driver)
-        if (moduleNumber):
-            self.load("/course/aplus1/basic_instance/modules/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+        if (moduleUrl):
+            self.load("/aplus1/basic_instance/" + moduleUrl + "/edit/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
         else:
             # Create new module
-            self.load("/course/aplus1/basic_instance/modules/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+            self.load("/aplus1/basic_instance/teachers/add-module/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
 
     def getCourseName(self):
         return str(self.getElement(EditModulePageLocators.COURSE_NAME_INPUT).get_attribute('value'))
@@ -277,9 +277,9 @@ class EditModulePage(BasePage):
         return self.isElementVisible(EditModulePageLocators.SUCCESSFUL_SAVE_BANNER)
 
 class EditExercisePage(BasePage):
-    def __init__(self, driver, moduleNumber=1, exerciseNumber=1):
+    def __init__(self, driver, exerciseNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/exercise/manage/" + str(moduleNumber) + "/" + str(exerciseNumber) + "/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
+        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/edit/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
 
     def getExerciseName(self):
         return str(self.getElement(EditExercisePageLocators.EXERCISE_NAME_INPUT).get_attribute('value'))
@@ -313,9 +313,9 @@ class EditExercisePage(BasePage):
 
 
 class SubmissionPage(BasePage):
-    def __init__(self, driver, moduleNumber=1):
+    def __init__(self, driver, exerciseNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/exercise/submissions/list/" + str(moduleNumber) + "/", SubmissionPageLocators.TABLE_FIRST_HEADER)
+        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/submissions/", SubmissionPageLocators.TABLE_FIRST_HEADER)
 
     def getInspectionLinks(self):
         return self.getElements(SubmissionPageLocators.INSPECTION_LINKS)
@@ -331,21 +331,21 @@ class SubmissionPage(BasePage):
             raise Exception("Tried to click inspection link number " + number + "but there are only " + len(inspectionLinks) + " elements.")
 
 class StudentFeedbackPage(BasePage):
-    def __init__(self, driver, submissionNumber):
+    def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/exercise/submission/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
+        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
 
     # We have to use str.split because feedback texts aren't tagged
     def getAssistantFeedbackText(self):
-        return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).split('\n', 3)[1]
+        return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).split('\n', 3)[1].strip()
 
     def getFeedbackText(self):
-        return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).split('\n', 3)[3]
+        return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).split('\n', 3)[3].strip()
 
 class InspectionPage(BasePage):
-    def __init__(self, driver, submissionNumber=1):
+    def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/exercise/submissions/inspect/" + str(submissionNumber) + "/", InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
+        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/inspect/", InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
 
     def doesNotHaveFeedback(self):
         return self.isElementVisible(InspectionPageLocators.NO_FEEDBACK_BANNER)
@@ -360,9 +360,9 @@ class InspectionPage(BasePage):
         return str(self.getElement(InspectionPageLocators.GRADE_TEXT).text)
 
 class AssessmentPage(BasePage):
-    def __init__(self, driver, submissionNumber=1):
+    def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/exercise/submissions/assess/" + str(submissionNumber) + "/", AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
+        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/assess/", AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
 
     def setPoints(self, points):
         self.clearAndSendKeys(AssessmentPageLocators.POINTS_INPUT, points)
@@ -380,13 +380,13 @@ class AssessmentPage(BasePage):
 class CourseArchivePage(AbstractPage):
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
-        self.load("/course/archive/", CourseArchiveLocators.COURSE_ID_TITLE)
+        self.load("/archive/", CourseArchiveLocators.COURSE_ID_TITLE)
 
 
 class MyFirstExerciseGrader(ExercisePage):
     def __init__(self, driver):
         ExercisePage.__init__(self, driver)
-        self.load("/exercise/1/", MyFirstExerciseLocators.MAIN_TITLE)
+        self.load("/aplus1/basic_instance/exercises/1/", MyFirstExerciseLocators.MAIN_TITLE)
 
     def setText(self, text):
         self.getElement(MyFirstExerciseLocators.TEXT_INPUT).send_keys(text)
@@ -398,7 +398,7 @@ class MyFirstExerciseGrader(ExercisePage):
 class FileUploadGrader(ExercisePage):
     def __init__(self, driver):
         ExercisePage.__init__(self, driver)
-        self.load("/exercise/2/", FileUploadGraderLocators.MAIN_TITLE)
+        self.load("/aplus1/basic_instance/exercises/2/", FileUploadGraderLocators.MAIN_TITLE)
 
     def submit(self):
         self.getElement(FileUploadGraderLocators.SUBMIT_BUTTON).click()
@@ -407,7 +407,7 @@ class FileUploadGrader(ExercisePage):
 class MyAjaxExerciseGrader(ExercisePage):
     def __init__(self, driver):
         ExercisePage.__init__(self, driver)
-        self.load("/exercise/3/", MyAjaxExerciseGraderLocators.MAIN_TITLE)
+        self.load("/aplus1/basic_instance/exercises/3/", MyAjaxExerciseGraderLocators.MAIN_TITLE)
 
     def setText(self, text):
         self.getElement(MyAjaxExerciseGraderLocators.TEXT_INPUT).send_keys(text)

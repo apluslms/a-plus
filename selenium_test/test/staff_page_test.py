@@ -3,7 +3,6 @@ import unittest
 from test_initializer import TestInitializer
 from page_objects import TeachersPage, AssistantsPage, LoginPage, CourseName
 
-
 class StaffPageTest(unittest.TestCase):
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
@@ -15,8 +14,9 @@ class StaffPageTest(unittest.TestCase):
         for x in range(0, linkCount):
             teachersPage = TeachersPage(self.driver)
             teachersPage.clickSubmissionLink(x)
-            self.assertTrue('/exercise/submissions/list/' + str(x + 1) + "/" in str(self.driver.current_url))
+            self.assertTrue('/aplus1/basic_instance/exercises/' + str(x + 1) + "/submissions/" in str(self.driver.current_url))
 
+    @unittest.skip
     def testShouldOpenAllAssistantsViewSubmissionPages(self):
         linkCount = len(AssistantsPage(self.driver).getSubmissionLinks())
 
