@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load course_menu %}
+{% load course %}
 {% load notification %}
 <!DOCTYPE html>
     <html>
@@ -55,7 +55,7 @@
                             	<b class="caret"></b>
                             </a>
                             <ul class="dropdown-menu">
-                                {% render_course_list %}
+                                {% course_menu %}
                             </ul>
                         </div>
                         <div class="nav-collapse">

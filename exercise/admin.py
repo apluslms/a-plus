@@ -5,7 +5,7 @@ from exercise.models import CourseModule, LearningObjectCategory, \
     BaseExercise, StaticExercise, ExerciseWithAttachment, \
     DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, \
     Submission, SubmittedFile
-from exercise.templatetags import exercise_info
+from exercise.templatetags import exercise
 
 
 def real_class(obj):
@@ -26,7 +26,7 @@ def submitters_wrapper(obj):
     """
     Submitters as a string for a submission.
     """
-    return exercise_info.students(obj.submitters.all())
+    return exercise.students(obj.submitters.all())
 
 
 real_class.short_description = _('Real class')
