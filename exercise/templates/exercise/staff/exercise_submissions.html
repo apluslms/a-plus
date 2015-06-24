@@ -11,6 +11,7 @@
                 <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
                 	{{ course.name }}
                 </a>
+                <span class="divider">/</span>
             </li>
             <li class="active">
                 {{ exercise.name }}
@@ -46,7 +47,7 @@
                 {% for submission in submissions %}
                 <tr>
                     <td>
-                        {{ submission.submitter_string }}
+                        {{ submission.submitters.all|students }}
                     </td>
                     <td>
                         {{ submission.submission_time }}

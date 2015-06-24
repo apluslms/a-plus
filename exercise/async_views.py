@@ -13,7 +13,6 @@ from exercise.forms import SubmissionCallbackForm
 from exercise.submission_models import Submission
 from userprofile.models import UserProfile
 from lib.helpers import extract_form_errors
-from exercise.remote.connection import get_new_async_hash
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -35,7 +34,7 @@ def new_async_submission(request, student_ids, exercise_id, hash_key):
     exercise = get_object_or_404(BaseExercise, id=exercise_id)
     user_ids = student_ids.split("-")
     students = UserProfile.objects.filter(id__in=user_ids)
-    _, valid_hash = get_new_async_hash(exercise, students)
+    _, valid_hash = exercise.get_async_hash(students)
 
     if hash_key != valid_hash:
         return HttpResponseNotFound(_("Invalid hash key in URL."))

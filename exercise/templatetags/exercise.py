@@ -50,7 +50,8 @@ def percent(decimal):
 @register.filter
 def students(profiles):
     return ", ".join(
-        profile.user.get_full_name() + \
-            " ({})".format(profile.student_id) if profile.student_id else ""
-        for profile in profiles
+        "{} ({})".format(
+            profile.user.get_full_name(),
+            profile.student_id if profile.student_id else profile.user.username
+        ) for profile in profiles
     )

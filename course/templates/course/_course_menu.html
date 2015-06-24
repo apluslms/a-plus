@@ -58,14 +58,22 @@
     {% endfor %}
     {% endif %}
 
-    {% if is_teacher %}
+    {% if is_teacher or is_assistant %}
     <li class="nav-header">
-        {% trans "Teacher" %}
+        {% trans "Course staff" %}
     </li>
+    <li>
+    	<a href="{% url 'exercise.staff_views.results_table' course_url=course.url instance_url=instance.url %}">
+    		<i class="icon-list-alt"></i>
+    		{% trans "All results" %}
+    	</a>
+    </li>
+    {% if is_teacher %}
     <li>
         <a href="{% url 'course.teacher_views.edit_course' course_url=course.url instance_url=instance.url %}">
             <i class="icon-pencil"></i>
             {% trans "Edit course" %}
         </a>
     </li>
+    {% endif %}
     {% endif %}

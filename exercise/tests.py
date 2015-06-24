@@ -1,19 +1,19 @@
 from datetime import datetime, timedelta
+import urllib
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
-import urllib
 
 from course.models import Course, CourseInstance, CourseHook
 from exercise.models import CourseModule, LearningObjectCategory, LearningObject, \
     BaseExercise, StaticExercise, ExerciseWithAttachment, Submission, SubmittedFile, \
     DeadlineRuleDeviation
-from exercise.remote.exercise_page import ExercisePage
-from exercise.remote.connection import get_load_exercise_url,\
-    get_grade_exercise_url
 from exercise.presentation.summary import UserCourseSummary
+from exercise.protocol.exercise_page import ExercisePage
 
 
 class ExerciseTest(TestCase):
@@ -41,7 +41,7 @@ class ExerciseTest(TestCase):
         )
         self.course.teachers.add(self.teacher.userprofile)
 
-        self.today = datetime.now()
+        self.today = timezone.now()
         self.yesterday = self.today - timedelta(days=1)
         self.tomorrow = self.today + timedelta(days=1)
         self.two_days_from_now = self.tomorrow + timedelta(days=1)
@@ -377,8 +377,8 @@ class ExerciseTest(TestCase):
     def test_base_exercise_async_url(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
         # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
-        split_base_exercise_service_url = get_grade_exercise_url(request, self.base_exercise, self.submission).split("?")
-        split_static_exercise_service_url = get_load_exercise_url(request, self.static_exercise, [self.user.userprofile]).split("?")
+        split_base_exercise_service_url = self.base_exercise._build_service_url(request, 'service').split("?") 
+        split_static_exercise_service_url = self.static_exercise._build_service_url(request, 'service').split("?")
         self.assertEqual("", split_base_exercise_service_url[0])
         self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
         # a quick hack to check whether the parameters are URL encoded
@@ -388,9 +388,9 @@ class ExerciseTest(TestCase):
         base_exercise_url_params = urllib.parse.parse_qs(split_base_exercise_service_url[1])
         static_exercise_url_params = urllib.parse.parse_qs(split_static_exercise_service_url[1])
         self.assertEqual(['100'], base_exercise_url_params['max_points'])
-        self.assertEqual('http://localhost:8001/rest/submission/1/', base_exercise_url_params['submission_url'][0][:40])
+        self.assertEqual('http://localhost:8001/service', base_exercise_url_params['submission_url'][0][:40])
         self.assertEqual(['50'], static_exercise_url_params['max_points'])
-        self.assertEqual(['http://localhost:8001/rest/exercise/4/students/1/728b901865e86cb32cc322360d8e5242562c810b5fd8e8e71eba4c94289a4c26/'], static_exercise_url_params['submission_url'])
+        self.assertEqual(['http://localhost:8001/service'], static_exercise_url_params['submission_url'])
     
     def test_static_exercise_load(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')

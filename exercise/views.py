@@ -13,7 +13,7 @@ from course.decorators import access_resource
 from exercise.presentation.score import ScoreBoard
 from exercise.presentation.summary import UserCourseSummary, UserModuleSummary, \
     UserExerciseSummary
-from exercise.remote.exercise_page import ExercisePage
+from exercise.protocol.exercise_page import ExercisePage
 from exercise.submission_models import SubmittedFile, Submission
 from userprofile.models import UserProfile
 

@@ -11,11 +11,13 @@
                 <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
                 	{{ course.name }}
                 </a>
+                <span class="divider">/</span>
             </li>
             <li>
                 <a href="{% url 'exercise.staff_views.list_exercise_submissions' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
                 	{{ exercise.name }}
                 </a>
+                <span class="divider">/</span>
             </li>
             <li class="active">
                 {% trans "Submission" %} {{ submission.id }}

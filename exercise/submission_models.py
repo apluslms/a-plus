@@ -1,5 +1,4 @@
 from datetime import datetime
-from io import IOBase
 import logging
 import os
 
@@ -107,25 +106,31 @@ class Submission(models.Model):
 
     def get_post_parameters(self):
         """
-        Produces submission data as POST parameters.
+        Produces submission data for POST as (data_dict, files_dict).
         """
-        post_params = []
-        for (key, value) in self.submission_data:
-            post_params.append((key, value))
-
-        # Then the files are appended as key, file handle tuples
-        for submitted_file in self.files.all().order_by("id"):
-            param_name = submitted_file.param_name
-            file_handle = open(submitted_file.file_object.path, "rb")
-            post_params.append((param_name, file_handle))
+        self._data = {}
+        for (key, value) in self.submission_data or {}:
+            if key in self._data:
+                self._data[key].append(value)
+            else:
+                self._data[key] = [ value ]
         
-        self.exercise.modify_post_parameters(post_params)
-        return post_params
+        self._files = {}
+        for file in self.files.all().order_by("id"):
+            # Requests supports only one file per name in a multipart post. 
+            self._files[file.param_name] = (
+                file.filename,
+                open(file.file_object.path, "rb")
+            )
+        
+        self.exercise.as_leaf_class().modify_post_parameters(self._data, self._files)
+        return (self._data, self._files)
 
-    def clean_post_parameters(self, post_params):
-        for (_, value) in post_params:
-            if type(value) == IOBase:
-                value.close()
+    def clean_post_parameters(self):
+        for key in self._files.keys():
+            self._files[key][1].close()
+        del self._files
+        del self._data
 
     def set_points(self, points, max_points, no_penalties=False):
         """

@@ -1,5 +1,6 @@
 import json
 
+from django import forms
 from django.core import exceptions
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -28,32 +29,53 @@ class PercentField(models.FloatField):
         return value
 
 
-class JSONField(models.TextField):
+class JSONField(models.TextField, metaclass=models.SubfieldBase):
     """
     Stores JSON object in a text field.
     """
     def __init__(self, *args, **kwargs):
         super(JSONField, self).__init__(*args, **kwargs)
 
-    def to_python(self, value):
+    @classmethod
+    def parse_json(cls, value):
         if not value:
             return None
-        try:
-            return json.loads(value)
-        except (TypeError, ValueError):
-            raise exceptions.ValidationError(
-                _("Enter valid JSON.")
-            )
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except (TypeError, ValueError):
+                raise exceptions.ValidationError(_("Enter valid JSON."))
+        return value
 
-    def get_prep_value(self, value):
+    @classmethod
+    def print_json(cls, value):
         if not value:
             return ""
         if isinstance(value, str):
             return value
         return json.dumps(value)
 
+    def to_python(self, value):
+        return JSONField.parse_json(value)
+
+    def get_prep_value(self, value):
+        return JSONField.print_json(value)
+
     def formfield(self, **kwargs):
-        print(kwargs)
-        defaults = { 'help_text': _("Enter valid JSON.") }
+        defaults = {
+            'form_class': JSONFormField,
+            'help_text': _("Enter valid JSON.")
+        }
         defaults.update(kwargs)
         return super(JSONField, self).formfield(**defaults)
+
+
+class JSONFormField(forms.CharField):
+    """
+    A JSON text area.
+    """
+    def to_python(self, value):
+        return JSONField.parse_json(value)
+    
+    def prepare_value(self, value):
+        return JSONField.print_json(value)

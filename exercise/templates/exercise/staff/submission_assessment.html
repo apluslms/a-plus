@@ -11,16 +11,19 @@
                 <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
                 	{{ course.name }}
                 </a>
+                <span class="divider">/</span>
             </li>
             <li>
                 <a href="{% url 'exercise.staff_views.list_exercise_submissions' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
                 	{{ exercise.name }}
                 </a>
+                <span class="divider">/</span>
             </li>
             <li>
                 <a href="{% url 'exercise.staff_views.inspect_exercise_submission' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
 					{% trans "Submission" %} {{ submission.id }}
                 </a>
+                <span class="divider">/</span>
             </li>
             <li class="active">
                 {% trans "Manual assessment" %}
@@ -45,7 +48,7 @@
             
             <h3>{% trans "Submitted values" %}</h3>
             <dl>
-            	{% for item in submission.submission_data.items %}
+            	{% for item in submission.submission_data %}
                 <dt>{{ item.0 }}</dt>
                 <dd>{{ item.1 }}</dd>
             	{% empty %}

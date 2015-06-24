@@ -6,7 +6,7 @@
     <div class='clearfix'>
       <label>{{ file }}</label>
       <input type="hidden" name="file_{{ forloop.counter }}" value="{{ file }}" />
-      <div class='input'><input name='file[]' type='file' /></div>
+      <div class='input'><input name='content_{{ forloop.counter }}' type='file' /></div>
     </div>
     {% endfor %}
   </fieldset>

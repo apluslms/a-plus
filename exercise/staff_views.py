@@ -9,7 +9,7 @@ from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from course.context import CourseContext
-from course.decorators import access_teacher_resource, access_resource, \
+from course.decorators import access_teacher_resource, \
     access_assistant_resource, access_graded_resource
 from exercise.models import BaseExercise
 from exercise.forms import SubmissionReviewForm, SubmissionCreateAndReviewForm, \
@@ -24,8 +24,7 @@ from userprofile.models import UserProfile
 logger = logging.getLogger('aplus.exercise')
 
 
-# Note: This view is currently available for all users!
-@access_resource
+@access_assistant_resource
 def results_table(request, course_url=None, instance_url=None,
                   course=None, course_instance=None):
     """
@@ -97,6 +96,7 @@ def resubmit_to_service(request, course_url=None, instance_url=None,
         return HttpResponseForbidden(_("Only HTTP POST allowed."))
     
     # Sets feedback using Django messages.
+    print(type(exercise))
     _ = exercise.grade(request, submission)
      
     return redirect(inspect_exercise_submission,

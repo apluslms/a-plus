@@ -21,8 +21,8 @@ class Course(models.Model):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     url = models.CharField(unique=True, max_length=255, blank=False,
-                       validators=[RegexValidator(regex="^(?!course$)[\w\-\.]*$")],
-                       help_text="Input an URL identifier for this course. Taken words include: course")
+                       validators=[RegexValidator(regex="^(?!admin$)(?!course$)[\w\-\.]*$")],
+                       help_text="Input an URL identifier for this course. Taken words include: admin, course")
     teachers = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)    
 
     def __str__(self):

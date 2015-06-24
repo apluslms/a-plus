@@ -1,21 +1,26 @@
-from _io import TextIOWrapper
-from datetime import datetime, timedelta
+from datetime import timedelta
+import hashlib
+import hmac
+import urllib
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.aggregates import Sum
 from django.template import loader, Context
+from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseInstance
-from exercise.remote.connection import load_exercise_page, load_feedback_page
-from exercise.remote.exercise_page import ExercisePage
 from inheritance.models import ModelWithInheritance
 from lib.fields import PercentField
 from userprofile.models import UserProfile
+
+from .protocol.aplus import load_exercise_page, load_feedback_page
+from .protocol.exercise_page import ExercisePage
 
 
 class CourseModule(models.Model):
@@ -34,17 +39,17 @@ class CourseModule(models.Model):
     points_to_pass = models.PositiveIntegerField(default=0)
     introduction = models.TextField(blank=True)
     course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
-    opening_time = models.DateTimeField(default=datetime.now)
-    closing_time = models.DateTimeField(default=datetime.now)
+    opening_time = models.DateTimeField(default=timezone.now)
+    closing_time = models.DateTimeField(default=timezone.now)
     content_url = models.URLField(blank=True)
 
     # early_submissions_allowed= models.BooleanField(default=False)
-    # early_submissions_start = models.DateTimeField(default=datetime.now, blank=True, null=True)
+    # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)
     # early_submission_bonus  = PercentField(default=0.1,
     #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
     
     late_submissions_allowed = models.BooleanField(default=False)
-    late_submission_deadline = models.DateTimeField(default=datetime.now)
+    late_submission_deadline = models.DateTimeField(default=timezone.now)
     late_submission_penalty = PercentField(default=0.5,
         help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
 
@@ -60,18 +65,18 @@ class CourseModule(models.Model):
         return BaseExercise.objects.filter(course_module=self)
 
     def is_open(self, when=None):
-        when = when or datetime.now()
+        when = when or timezone.now()
         return self.opening_time <= when <= self.closing_time
 
     def is_after_open(self, when=None):
         """
         Checks if current time is past the round opening time.
         """
-        when = when or datetime.now()
+        when = when or timezone.now()
         return self.opening_time <= when
     
     def is_late_submission_open(self, when=None):
-        when = when or datetime.now()
+        when = when or timezone.now()
         return self.late_submissions_allowed \
             and self.closing_time <= when <= self.late_submission_deadline
 
@@ -210,7 +215,7 @@ class BaseExercise(LearningObject):
         """
         Returns True if submissions are allowed for this exercise.
         """
-        when = when or datetime.now()
+        when = when or timezone.now()
         return self.course_module.is_open(when=when)
 
     def one_has_access(self, students, when=None):
@@ -218,7 +223,7 @@ class BaseExercise(LearningObject):
         Checks if any of the users can submit taking the granted extra time
         in consideration.
         """
-        when = when or datetime.now()
+        when = when or timezone.now()
         module = self.course_module
         if module.is_open(when=when) \
         or module.is_late_submission_open(when=when):
@@ -320,25 +325,60 @@ class BaseExercise(LearningObject):
         crumb.append(crumb_tuple)
         return crumb
 
+    def get_async_hash(self, students):
+        student_str = "-".join(
+            sorted(str(userprofile.id) for userprofile in students)
+        )
+        identifier = "{}.{:d}".format(student_str, self.id)
+        hash_key = hmac.new(
+            settings.SECRET_KEY.encode('utf-8'),
+            msg=identifier.encode('utf-8'),
+            digestmod=hashlib.sha256
+        )
+        return student_str, hash_key.hexdigest()
+
     def load(self, request, students):
         """
         Loads the exercise page.
         """
-        return load_exercise_page(request, self, students)
+        student_str, hash_key = self.get_async_hash(students)
+        url = self._build_service_url(request, reverse(
+            "exercise.async_views.new_async_submission", kwargs={
+                "exercise_id": self.id,
+                "student_ids": student_str,
+                "hash_key": hash_key
+            }))
+        return load_exercise_page(request, url, self, students)
     
     def grade(self, request, submission, no_penalties=False):
         """
         Loads the exercise feedback page.
         """
-        return load_feedback_page(request, self, submission,
+        url = self._build_service_url(request, reverse(
+            "exercise.async_views.grade_async_submission", kwargs={
+                "submission_id": submission.id,
+                "hash_key": submission.hash
+            }))
+        return load_feedback_page(request, url, self, submission,
             no_penalties=no_penalties)
 
-    def modify_post_parameters(self, post_params):
+    def modify_post_parameters(self, data, files):
         """
         Allows to modify submission POST parameters before they are sent to
         the grader. Extending classes may implement this function.
         """
         pass
+
+    def _build_service_url(self, request, submission_url):
+        """
+        Generates complete URL with added parameters to the exercise service.
+        """
+        params = {
+            "max_points": self.max_points,
+            "submission_url": request.build_absolute_uri(submission_url),
+        }
+        delimiter = "&" if "?" in self.service_url else "?"
+        return self.service_url + delimiter + urllib.parse.urlencode(params)
 
 
 class StaticExercise(BaseExercise):
@@ -412,23 +452,15 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
-    def modify_post_parameters(self, post_params):
+    def modify_post_parameters(self, data, files):
         """
-        Adds the attachment to POST request. It will be added before the first original
-        item of the file array with the same field name or if no files are found it
-        will be added as first parameter using name file[].
-        @param post_params: original POST parameters, assumed to be a list
+        Adds the attachment file to post parameters.
         """
-        found = False
-        for i in range(len(post_params)):
-            if isinstance(post_params[i][1], TextIOWrapper) and post_params[i][0].endswith("[]"):
-                handle = open(self.attachment.path, "rb")
-                post_params.insert(i, (post_params[i][0], handle))
-                found = True
-                break
-
-        if not found:
-            post_params.insert(0, ('file[]', open(self.attachment.path, "rb")))
+        import os
+        files['content_0'] = (
+            os.path.basename(self.attachment.path),
+            open(self.attachment.path, "rb")
+        )
 
 
 class SubmissionRuleDeviation(models.Model):

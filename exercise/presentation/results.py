@@ -40,11 +40,13 @@ class ResultTable:
         """
         Helper for the __init__.
         This method puts the data from the database in to the results table.
-        """        
-        for submission in Submission.objects \
+        """
+        submissions = Submission.objects \
             .filter(exercise__course_module__course_instance=self.course_instance) \
             .values("submitters", "exercise") \
-            .annotate(best=Max("grade")):
+            .annotate(best=Max("grade")) \
+            .order_by()
+        for submission in submissions:
             student_id = submission["submitters"]
             exercise_id = submission["exercise"]
             if student_id:
@@ -57,6 +59,7 @@ class ResultTable:
         template. The columns of the table ordered according to the order of the
         exercises in self.exercises.
         """
+        print(self.results)
         for_template = []
         for student in self.students:
             grades = [ self.results[student.id][exercise.id] \
