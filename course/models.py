@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 import urllib.request, urllib.parse
 
@@ -7,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 from apps.models import BaseTab, BasePlugin
 from userprofile.models import UserProfile
@@ -44,7 +44,7 @@ class CourseInstanceManager(models.Manager):
     """
     
     def get_active(self, user=None):        
-        qs = self.filter(ending_time__gte=datetime.now())
+        qs = self.filter(ending_time__gte=timezone.now())
         if not user or not user.is_authenticated():
             qs = qs.filter(visible_to_students=True)        
         elif not user.is_superuser:
@@ -103,7 +103,7 @@ class CourseInstance(models.Model):
             .distinct()
 
     def is_open(self):
-        return self.starting_time <= datetime.now() <= self.ending_time
+        return self.starting_time <= timezone.now() <= self.ending_time
 
     def is_visible_to(self, user=None):
         if self.visible_to_students:

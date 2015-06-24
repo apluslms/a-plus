@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
+from django.utils import timezone
 
 from course.models import Course, CourseInstance, CourseHook
 from exercise.models import CourseModule, LearningObjectCategory, \
@@ -31,7 +32,7 @@ class CourseTest(TestCase):
             url="Course-Url"
         )
 
-        today = datetime.now()
+        today = timezone.now()
         tomorrow = today + timedelta(days=1)
         after_tomorrow = tomorrow + timedelta(days=1)
         yesterday = today - timedelta(days=1)
@@ -174,7 +175,7 @@ class CourseTest(TestCase):
         response = self.client.get(self.course.get_absolute_url())
         self.assertEqual(200, response.status_code)
 
-        #response = self.client.get(self.current_course_instance.get_absolute_url())
+        # response = self.client.get(self.current_course_instance.get_absolute_url())
         response = self.client.get('/Course-Url/T-00.1000_d1/user/')
         self.assertEqual(200, response.status_code)
 
