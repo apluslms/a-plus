@@ -1,4 +1,3 @@
-from datetime import timedelta
 import hashlib
 import hmac
 import urllib
@@ -6,150 +5,18 @@ import urllib
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.aggregates import Sum
 from django.template import loader, Context
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
-from course.models import CourseInstance
+from course.models import CourseModule, LearningObjectCategory
 from inheritance.models import ModelWithInheritance
-from lib.fields import PercentField
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
 from .protocol.exercise_page import ExercisePage
-
-
-class CourseModule(models.Model):
-    """
-    CourseModule objects connect learning objects to logical sets of each other
-    and course instances. They also contain information about the opening times
-    and deadlines for exercises. A module may also include a reference to
-    study content. 
-    """
-    name = models.CharField(max_length=255)
-    url = models.CharField(max_length=255,
-                       validators=[RegexValidator(regex="^(?!teachers$)(?!user$)[\w\-\.]*$")],
-                       help_text=_("Input an URL identifier for this module. Taken words include: teachers, user"))
-    chapter = models.IntegerField(default=1)
-    subchapter = models.IntegerField(default=1)
-    points_to_pass = models.PositiveIntegerField(default=0)
-    introduction = models.TextField(blank=True)
-    course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
-    opening_time = models.DateTimeField(default=timezone.now)
-    closing_time = models.DateTimeField(default=timezone.now)
-    content_url = models.URLField(blank=True)
-
-    # early_submissions_allowed= models.BooleanField(default=False)
-    # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)
-    # early_submission_bonus  = PercentField(default=0.1,
-    #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
-    
-    late_submissions_allowed = models.BooleanField(default=False)
-    late_submission_deadline = models.DateTimeField(default=timezone.now)
-    late_submission_penalty = PercentField(default=0.5,
-        help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
-
-    class Meta:
-        app_label = 'exercise'
-        unique_together = ("course_instance", "url")
-        ordering = ['closing_time', 'id']
-
-    def __str__(self):
-        return self.name + " / " + str(self.course_instance)
-
-    def get_exercises(self):
-        return BaseExercise.objects.filter(course_module=self)
-
-    def is_open(self, when=None):
-        when = when or timezone.now()
-        return self.opening_time <= when <= self.closing_time
-
-    def is_after_open(self, when=None):
-        """
-        Checks if current time is past the round opening time.
-        """
-        when = when or timezone.now()
-        return self.opening_time <= when
-    
-    def is_late_submission_open(self, when=None):
-        when = when or timezone.now()
-        return self.late_submissions_allowed \
-            and self.closing_time <= when <= self.late_submission_deadline
-
-    def get_late_submission_point_worth(self):
-        """
-        Returns the percentage (0-100) that late submission points are worth.
-        """
-        point_worth = 0
-        if self.late_submissions_allowed:
-            point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
-        return point_worth
-
-    def get_absolute_url(self):
-        instance = self.course_instance
-        return reverse('exercise.views.view_module', kwargs={
-            'course_url': instance.course.url,
-            'instance_url': instance.url,
-            'module_url': self.url
-        })
-
-    def get_breadcrumb(self):
-        """
-        Returns a list of tuples containing the names and URL
-        addresses of parent objects and self.
-        """
-        crumb = self.course_instance.get_breadcrumb()
-        crumb.append((self.name, self.get_absolute_url()))
-        return crumb
-        return self.course_instance.get_breadcrumb()
-
-
-class LearningObjectCategory(models.Model):
-    """
-    Learning objects may be grouped to different categories.
-    """
-    name = models.CharField(max_length=35)
-    description = models.TextField(blank=True)
-    points_to_pass = models.PositiveIntegerField(default=0)
-    course_instance = models.ForeignKey(CourseInstance, related_name="categories")
-    hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
-        blank=True, null=True)
-
-    class Meta:
-        app_label = 'exercise'
-        unique_together = ("name", "course_instance")
-
-    def __str__(self):
-        return self.name + " / " + str(self.course_instance)
-
-    def get_exercises(self):
-        return BaseExercise.objects.filter(category=self)
-
-    def get_maximum_points(self):
-        if not hasattr(self, "_cached_max_points"):
-            max_points = self.get_exercises().aggregate(max_points=Sum('max_points'))['max_points']
-            self._cached_max_points = max_points or 0
-        return self._cached_max_points
-
-    def get_required_percentage(self):
-        max_points = self.get_maximum_points()
-        if max_points == 0:
-            return 0
-        else:
-            return int(round(100.0 * self.points_to_pass / max_points))
-
-    def is_hidden_to(self, user_profile):
-        return self.hidden_to.filter(id=user_profile.id).exists()
-
-    def set_hidden_to(self, user_profile, hide=True):
-        if hide and not self.is_hidden_to(user_profile):
-            self.hidden_to.add(user_profile)
-        elif not hide and self.is_hidden_to(user_profile):
-            self.hidden_to.remove(user_profile)
 
 
 class LearningObject(ModelWithInheritance):
@@ -165,7 +32,6 @@ class LearningObject(ModelWithInheritance):
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
 
     class Meta:
-        app_label = 'exercise'
         ordering = ['order', 'id']
 
     def clean(self):
@@ -183,6 +49,14 @@ class LearningObject(ModelWithInheritance):
     @property
     def course_instance(self):
         return self.course_module.course_instance
+
+    def get_absolute_url(self):
+        instance = self.course_instance
+        return reverse("learning_object", kwargs={
+            "course_url": instance.course.url,
+            "instance_url": instance.url,
+            "exercise_id": self.id
+        })
 
 
 class BaseExercise(LearningObject):
@@ -230,8 +104,8 @@ class BaseExercise(LearningObject):
             return True
         if self.course_module.is_after_open(when=when):
             for profile in students:
-                deviation = DeadlineRuleDeviation.objects \
-                    .filter(exercise=self, submitter=profile).first()
+                deviation = self.deadlineruledeviation_set \
+                    .filter(submitter=profile).first()
                 if deviation and when <= deviation.get_new_deadline():
                     return True
         return False
@@ -244,11 +118,10 @@ class BaseExercise(LearningObject):
         Calculates student specific max_submissions considering the possible
         MaxSubmissionsRuleDeviation for this student.
         """
-        deviation = MaxSubmissionsRuleDeviation.objects \
-            .filter(exercise=self, submitter=user_profile).first()
+        deviation = self.maxsubmissionsruledeviation_set \
+            .filter(submitter=user_profile).first()
         if deviation:
-            return self.max_submissions + \
-                deviation.extra_submissions
+            return self.max_submissions + deviation.extra_submissions
         return self.max_submissions
 
     def one_has_submissions(self, students):
@@ -306,14 +179,6 @@ class BaseExercise(LearningObject):
         return UserProfile.objects \
             .filter(submissions__exercise=self) \
             .distinct().count()
-
-    def get_absolute_url(self):
-        instance = self.course_module.course_instance
-        return reverse("exercise.views.view_exercise", kwargs={
-            "course_url": instance.course.url,
-            "instance_url": instance.url,
-            "exercise_id": self.id
-        })
 
     def get_breadcrumb(self):
         """
@@ -461,46 +326,3 @@ class ExerciseWithAttachment(BaseExercise):
             os.path.basename(self.attachment.path),
             open(self.attachment.path, "rb")
         )
-
-
-class SubmissionRuleDeviation(models.Model):
-    """
-    An abstract model binding a user to an exercise stating that there is some
-    kind of deviation from the normal submission boundaries, that is, special
-    treatment related to the submissions of that particular user to that
-    particular exercise.
-
-    If there are many submitters submitting an exercise out of bounds of the
-    default bounds, all of the submitters must have an allowing instance of
-    SubmissionRuleDeviation subclass in order for the submission to be allowed.
-    """
-    exercise = models.ForeignKey(BaseExercise, related_name="%(class)ss")
-    submitter = models.ForeignKey(UserProfile)
-
-    class Meta:
-        app_label = 'exercise'
-        abstract = True
-        unique_together = ["exercise", "submitter"]
-
-
-class DeadlineRuleDeviation(SubmissionRuleDeviation):
-    extra_minutes = models.IntegerField()
-
-    class Meta(SubmissionRuleDeviation.Meta):
-        pass
-
-    def get_extra_time(self):
-        return timedelta(minutes=self.extra_minutes)
-
-    def get_new_deadline(self):
-        return self.get_normal_deadline() + self.get_extra_time()
-
-    def get_normal_deadline(self):
-        return self.exercise.course_module.closing_time
-
-
-class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
-    extra_submissions = models.IntegerField()
-
-    class Meta(SubmissionRuleDeviation.Meta):
-        pass

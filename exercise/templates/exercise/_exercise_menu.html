@@ -5,6 +5,6 @@
 <li class="nav-header">
     {{ exercise.course_module.name }}
 </li>
-{% for ex in exercise.course_module.get_exercises %}
-    <li><a href="{{ ex.get_absolute_url }}">{{ ex.name }}</a></li>
+{% for object in exercise.course_module.learning_objects.all %}
+    <li><a href="{{ object.get_absolute_url }}">{{ object.name }}</a></li>
 {% endfor %}

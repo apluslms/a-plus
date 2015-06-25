@@ -57,7 +57,7 @@
                         <i class="icon-chevron-down"></i>
                         {{ course_module.name }}
                         <small class="nowrap">
-                            {{ module_summary.get_total_points }} / {{ module_summary.get_maximum_points }} {% trans "points" %}
+                            {{ module_summary.get_total_points }} / {{ module_summary.get_max_points }} {% trans "points" %}
                             {% if course_module.points_to_pass > 0 %}
                             ({% trans "required to pass" %}: {{ course_module.points_to_pass }})
                             {% endif %}

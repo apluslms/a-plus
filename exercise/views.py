@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.contrib import messages
 from django.http.response import Http404
-from django.shortcuts import get_object_or_404, render_to_response, redirect
+from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 
@@ -11,8 +11,7 @@ from apps.app_renderers import build_plugin_renderers
 from course.context import CourseContext
 from course.decorators import access_resource
 from exercise.presentation.score import ScoreBoard
-from exercise.presentation.summary import UserCourseSummary, UserModuleSummary, \
-    UserExerciseSummary
+from exercise.presentation.summary import UserCourseSummary, UserExerciseSummary
 from exercise.protocol.exercise_page import ExercisePage
 from exercise.submission_models import SubmittedFile, Submission
 from userprofile.models import UserProfile
@@ -74,30 +73,6 @@ def user_score(request, course_url=None, instance_url=None,
         exercise_tree=score.collect_tree(summary),
         visible_categories=score.collect_categories(summary),
         plugin_renderers=plugin_renderers,
-    ))
-
-
-@access_resource
-def view_module(request, course_url=None, instance_url=None, module_url=None,
-                course=None, course_instance=None, module=None):
-    """
-    Displays module content if such exists and receives exercise submissions.
-    
-    """
-    if module.content_url == "":
-        return redirect('user_score',
-                        course_url=course.url,
-                        instance_url=course_instance.url)
-    
-    # TODO: fetch and cache from content_url, handle exercise submissions
-    
-    summary = UserModuleSummary(module, request.user)
-    return render_to_response("exercise/module.html", CourseContext(
-        request,
-        course=course,
-        course_instance=course_instance,
-        module=module,
-        module_summary=summary,
     ))
 
 
@@ -167,11 +142,15 @@ def view_submission(request, course_url=None, instance_url=None,
                   course=None, course_instance=None,
                   exercise=None, submission=None):
 
-    profile = UserProfile.get_by_request(request)
+    current_profile = UserProfile.get_by_request(request)
+    if submission.is_submitter(request.user):
+        profile = current_profile
+    else:
+        profile = submission.submitters.first()
     submissions = exercise.get_submissions_for_student(profile)
     index = 1 + list(submissions).index(submission)
 
-    exercise_summary = UserExerciseSummary(exercise, request.user)
+    exercise_summary = UserExerciseSummary(exercise, profile.user)
 
     plugin_renderers = build_plugin_renderers(
         course_instance.plugins.all(),
@@ -179,7 +158,7 @@ def view_submission(request, course_url=None, instance_url=None,
         submission=submission,
         exercise=exercise,
         course_instance=course_instance,
-        user_profile=profile)
+        user_profile=current_profile)
 
     return render_to_response("exercise/submission.html", CourseContext(
         request,

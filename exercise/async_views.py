@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 
 from exercise.models import BaseExercise
-from exercise.forms import SubmissionCallbackForm
+from exercise.submission_forms import SubmissionCallbackForm
 from exercise.submission_models import Submission
 from userprofile.models import UserProfile
 from lib.helpers import extract_form_errors

@@ -25,8 +25,9 @@ Code Organization
 -----------------
 
 [a-plus/](a-plus) : Django main settings
-[course/](course) : The courses and course instances
-[exercise/](exercise) : Learning modules and exercises for the course instances
+[course/](course) : The course elements and course editing
+[exercise/](exercise) : Exercises and submissions to them
+[deviations/](deviations) : Student deviations to submission rules
 [userprofile/](userprofile) : Additional user information and groups
 [django_shibboleth/](django_shibboleth) : Handles users for Apache Shibboleth request headers
 [notification/](notification) : User messaging framework
@@ -34,4 +35,8 @@ Code Organization
 [external_services/](external_services) : Linking to external services, optionally LTI authenticated
 [apps/](apps) : Provides plugins that can integrate additional content to course instances
 [api/](api) : An HTTP service API for accessing A+ data
-[lib/](lib) : More general library code
+[redirect_old_urls/](redirect_old_urls) : Redirections from the most important old URL targets
+[lib/](lib) : General library code
+[templates/](templates) : General site templates
+[assets/](assets) : Static web server assets e.g. javascript, styles and images
+[media/](media) : User uploaded files

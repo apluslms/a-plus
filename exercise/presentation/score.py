@@ -1,6 +1,7 @@
 from collections import defaultdict
 
-from exercise.models import BaseExercise, LearningObjectCategory
+from course.models import LearningObjectCategory
+from exercise.models import BaseExercise
 
 
 class ScoreBoard(object):

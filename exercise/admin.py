@@ -1,10 +1,8 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from exercise.models import CourseModule, LearningObjectCategory, \
-    BaseExercise, StaticExercise, ExerciseWithAttachment, \
-    DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, \
-    Submission, SubmittedFile
+from exercise.models import BaseExercise, StaticExercise, \
+    ExerciseWithAttachment, Submission, SubmittedFile
 from exercise.templatetags import exercise
 
 
@@ -35,18 +33,6 @@ course_wrapper.short_description = _('Course instance')
 submitters_wrapper.short_description = _('Submitters')
 
 
-class CourseModuleAdmin(admin.ModelAdmin):
-    list_display_links = ("name",)
-    list_display = ("name", "course_instance", "opening_time", "closing_time")
-    list_filter = ["course_instance", "opening_time", "closing_time"]
-
-
-class LearningObjectCategoryAdmin(admin.ModelAdmin):
-    list_display = ["name", "course_instance"]
-    list_filter = ["course_instance"]
-    ordering = ["course_instance", "id"]
-
-
 class BaseExerciseAdmin(admin.ModelAdmin):
     list_display_links = ["name"]
     list_display = ["name", "course_module", "max_points", real_class]
@@ -55,23 +41,6 @@ class BaseExerciseAdmin(admin.ModelAdmin):
     class Media:
         js = ('/static/tiny_mce/tiny_mce.js',
               '/static/js/tiny_mce_textareas.js',)
-
-
-class StaticExerciseAdmin(admin.ModelAdmin):
-    pass
-
-
-class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
-    pass
-
-
-class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
-    list_display = ["submitter", "exercise", "extra_minutes", ]
-    list_filter = ["exercise__course_module__course_instance"]
-
-
-class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
-    pass
 
 
 class SubmissionAdmin(admin.ModelAdmin):
@@ -89,17 +58,8 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_per_page = 500
 
 
-class SubmittedFileAdmin(admin.ModelAdmin):
-    pass
-
-
-admin.site.register(CourseModule, CourseModuleAdmin)
-admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
-admin.site.register(StaticExercise, StaticExerciseAdmin)
-admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
-admin.site.register(DeadlineRuleDeviation, DeadlineRuleDeviationAdmin)
-admin.site.register(MaxSubmissionsRuleDeviation,
-                    MaxSubmissionsRuleDeviationAdmin)
+admin.site.register(StaticExercise)
+admin.site.register(ExerciseWithAttachment)
 admin.site.register(Submission, SubmissionAdmin)
-admin.site.register(SubmittedFile, SubmittedFileAdmin)
+admin.site.register(SubmittedFile)

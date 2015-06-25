@@ -2,18 +2,20 @@ from datetime import datetime, timedelta
 import urllib
 
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 
-from course.models import Course, CourseInstance, CourseHook
-from exercise.models import CourseModule, LearningObjectCategory, LearningObject, \
-    BaseExercise, StaticExercise, ExerciseWithAttachment, Submission, SubmittedFile, \
-    DeadlineRuleDeviation
+from course.models import Course, CourseInstance, CourseHook, CourseModule, \
+    LearningObjectCategory
+from deviations.models import DeadlineRuleDeviation
+from exercise.models import BaseExercise, StaticExercise, \
+    ExerciseWithAttachment, Submission, SubmittedFile, LearningObject
 from exercise.presentation.summary import UserCourseSummary
 from exercise.protocol.exercise_page import ExercisePage
+from django.core.exceptions import ValidationError
 
 
 class ExerciseTest(TestCase):
@@ -204,66 +206,9 @@ class ExerciseTest(TestCase):
             extra_minutes=1440  # One day
         )
 
-        self.submitted_file1 = SubmittedFile.objects.create(
-            submission=self.submission,
-            param_name="testParam"
-        )
-
-        self.submitted_file2 = SubmittedFile.objects.create(
-            submission=self.submission_with_two_submitters,
-            param_name="testParam2"
-        )
-
-    def test_course_module_exercises_list(self):
-        exercises = self.course_module.get_exercises()
-        exercises_with_late_submission_allowed = self.course_module_with_late_submissions_allowed.get_exercises()
-        self.assertEquals(3, len(exercises))
-        self.assertEquals("test exercise", exercises[0].name)
-        self.assertEquals("test exercise 2", exercises[1].name)
-        self.assertEquals("test exercise 3", exercises[2].name)
-        self.assertEquals(1, len(exercises_with_late_submission_allowed))
-        self.assertEquals("test exercise with late submissions allowed", exercises_with_late_submission_allowed[0].name)
-
-    def test_course_module_late_submission_point_worth(self):
-        self.assertEquals(0, self.course_module.get_late_submission_point_worth())
-        self.assertEquals(80, self.course_module_with_late_submissions_allowed.get_late_submission_point_worth())
-
-    def test_course_module_open(self):
-        self.assertFalse(self.course_module.is_open(self.yesterday))
-        self.assertTrue(self.course_module.is_open(self.today))
-        self.assertTrue(self.course_module.is_open())
-        self.assertTrue(self.course_module.is_open(self.tomorrow))
-        self.assertFalse(self.course_module.is_open(self.two_days_from_now))
-
-    def test_course_module_after_open(self):
-        self.assertFalse(self.course_module.is_after_open(self.yesterday))
-        self.assertTrue(self.course_module.is_after_open(self.today))
-        self.assertTrue(self.course_module.is_after_open())
-        self.assertTrue(self.course_module.is_after_open(self.tomorrow))
-        self.assertTrue(self.course_module.is_after_open(self.two_days_from_now))
-
-    def test_course_module_breadcrumb(self):
-        breadcrumb = self.course_module.get_breadcrumb()
-        self.assertEqual(2, len(breadcrumb))
-        self.assertEqual(2, len(breadcrumb[1]))
-        self.assertEqual("test module", breadcrumb[1][0])
-        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/", breadcrumb[1][1])
-
     def test_learning_object_category_unicode_string(self):
         self.assertEqual("test category / 123456 test course: Fall 2011 day 1", str(self.learning_object_category))
         self.assertEqual("hidden category / 123456 test course: Fall 2011 day 1", str(self.hidden_learning_object_category))
-
-    def test_learning_object_category_exercises(self):
-        self.assertEquals(5, len(self.learning_object_category.get_exercises()))
-        self.assertEquals(0, len(self.hidden_learning_object_category.get_exercises()))
-
-    def test_learning_object_category_max_points(self):
-        self.assertEquals(400, self.learning_object_category.get_maximum_points())
-        self.assertEquals(0, self.hidden_learning_object_category.get_maximum_points())
-
-    def test_learning_object_category_required_percentage(self):
-        self.assertEquals(1, self.learning_object_category.get_required_percentage())
-        self.assertEquals(0, self.hidden_learning_object_category.get_required_percentage())
 
     def test_learning_object_category_hiding(self):
         self.assertFalse(self.learning_object_category.is_hidden_to(self.user.userprofile))
@@ -426,22 +371,13 @@ class ExerciseTest(TestCase):
         self.assertTrue('test_instructions' in c)
         self.assertTrue('test1.txt' in c and 'test2.txt' in c and "img.png" in c)
 
-    def test_deadline_rule_deviation_extra_time(self):
-        self.assertEqual(timedelta(days=1), self.deadline_rule_deviation.get_extra_time())
-
-    def test_deadline_rule_deviation_new_deadline(self):
-        self.assertEqual(self.two_days_from_now, self.deadline_rule_deviation.get_new_deadline())
-
-    def test_deadline_rule_deviation_normal_deadline(self):
-        self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_normal_deadline())
-
     def test_submission_files(self):
-        self.assertEqual(1, len(self.submission.files.all()))
+        self.assertEqual(0, len(self.submission.files.all()))
         self.submission.add_files(MultiValueDict({
             "key1": ["test_file1.txt", "test_file2.txt"],
             "key2": ["test_image.png", "test_audio.wav", "test_pdf.pdf"]
         }))
-        self.assertEqual(6, len(self.submission.files.all()))
+        self.assertEqual(5, len(self.submission.files.all()))
 
     def test_submission_points(self):
         try:
@@ -513,8 +449,17 @@ class ExerciseTest(TestCase):
 
     def test_submission_upload_dir(self):
         from exercise.submission_models import build_upload_dir
-        self.assertEqual("submissions/course_instance_1/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(self.submitted_file1, "test_file_name"))
-        self.assertEqual("submissions/course_instance_1/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(self.submitted_file2, "test_file_name"))
+        submitted_file1 = SubmittedFile.objects.create(
+            submission=self.submission,
+            param_name="testParam"
+        )
+
+        submitted_file2 = SubmittedFile.objects.create(
+            submission=self.submission_with_two_submitters,
+            param_name="testParam2"
+        )
+        self.assertEqual("submissions/course_instance_1/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(submitted_file1, "test_file_name"))
+        self.assertEqual("submissions/course_instance_1/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(submitted_file2, "test_file_name"))
 
     def test_presentation_summary_empty(self):
         summary = UserCourseSummary(self.course_instance, self.user)
@@ -548,3 +493,105 @@ class ExerciseTest(TestCase):
         self.assertEqual(csummary.get_completed_percentage(), 25)
         self.assertEqual(csummary.get_required_percentage(), 1)
         self.assertFalse(csummary.is_passed())
+
+    def test_exercise_views(self):
+        upcoming_module = CourseModule.objects.create(
+            name="upcoming module",
+            url="upcoming-module",
+            points_to_pass=15,
+            course_instance=self.course_instance,
+            opening_time=self.two_days_from_now,
+            closing_time=self.three_days_from_now
+        )
+        upcoming_static_exercise = StaticExercise.objects.create(
+            name="upcoming exercise",
+            course_module=upcoming_module,
+            category=self.learning_object_category,
+            max_points=50,
+            points_to_pass=50,
+            service_url="/testServiceURL",
+            exercise_page_content="test_page_content",
+            submission_page_content="test_submission_content"
+        )
+        self.submission_with_two_submitters.submitters.remove(self.user.userprofile)
+        response = self.client.get(self.static_exercise.get_absolute_url())
+        self.assertEqual(response.status_code, 302)
+        
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.get(self.static_exercise.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["exercise"], self.static_exercise)
+        response = self.client.get(upcoming_static_exercise.get_absolute_url())
+        self.assertEqual(response.status_code, 403)
+        response = self.client.get(self.submission.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["submission"], self.submission)
+        response = self.client.get(self.submission_with_two_submitters.get_absolute_url())
+        self.assertEqual(response.status_code, 403)
+        
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.get(upcoming_static_exercise.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(self.submission.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(self.submission_with_two_submitters.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        
+        self.client.login(username="grader", password="graderPassword")
+        response = self.client.get(upcoming_static_exercise.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(self.submission.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(self.submission_with_two_submitters.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+
+    def test_exercise_staff_views(self):
+        self.other_instance = CourseInstance.objects.create(
+            instance_name="Another",
+            website="http://www.example.com",
+            starting_time=self.today,
+            ending_time=self.tomorrow,
+            course=self.course,
+            url="another"
+        )
+        self.other_instance.assistants.add(self.grader.userprofile)
+        list_submissions_url = reverse('exercise.staff_views.list_exercise_submissions', kwargs={
+            'course_url': self.course.url,
+            'instance_url': self.course_instance.url,
+            'exercise_id': self.base_exercise.id
+        })
+        assess_submission_url = reverse('exercise.staff_views.assess_submission', kwargs={
+            'course_url': self.course.url,
+            'instance_url': self.course_instance.url,
+            'exercise_id': self.base_exercise.id,
+            'submission_id': self.submission.id
+        })
+        response = self.client.get(list_submissions_url)
+        self.assertEqual(response.status_code, 302)
+
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.get(list_submissions_url)
+        self.assertEqual(response.status_code, 403)
+        response = self.client.get(assess_submission_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.get(list_submissions_url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(assess_submission_url)
+        self.assertEqual(response.status_code, 200)
+
+        self.client.login(username="grader", password="graderPassword")
+        response = self.client.get(list_submissions_url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(assess_submission_url)
+        self.assertEqual(response.status_code, 403)
+        
+        self.base_exercise.allow_assistant_grading = True
+        self.base_exercise.save()
+        response = self.client.get(assess_submission_url)
+        self.assertEqual(response.status_code, 200)
+        
+        self.course_instance.assistants.clear()
+        response = self.client.get(list_submissions_url)
+        self.assertEqual(response.status_code, 403)

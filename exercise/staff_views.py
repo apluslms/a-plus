@@ -12,13 +12,16 @@ from course.context import CourseContext
 from course.decorators import access_teacher_resource, \
     access_assistant_resource, access_graded_resource
 from exercise.models import BaseExercise
-from exercise.forms import SubmissionReviewForm, SubmissionCreateAndReviewForm, \
-    BathSubmissionCreateAndReviewForm
+from exercise.submission_forms import SubmissionReviewForm, \
+    SubmissionCreateAndReviewForm, BathSubmissionCreateAndReviewForm
 from exercise.presentation.results import ResultTable
 from exercise.submission_models import Submission
 from lib.helpers import extract_form_errors
 from notification.models import Notification
 from userprofile.models import UserProfile
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+from django.http.response import JsonResponse
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -300,3 +303,31 @@ def batch_create_and_assess_submissions(request, course_url=None, instance_url=N
     return redirect('course.teacher_views.edit_course',
         course_url=course.url,
         instance_url=course_instance.url)
+
+
+@access_teacher_resource
+def fetch_exercise_metadata(request,
+                            course_url=None, instance_url=None,
+                            course=None, course_instance=None):
+    """
+    Fetches meta data from an exercise URL.
+    """
+    exercise_url = request.GET.get("exercise_url", None)
+    metadata = {"success": False}
+
+    validate = URLValidator()
+    try:
+        validate(exercise_url)
+
+        exercise = BaseExercise(service_url=exercise_url)
+        exercise_page = exercise.get_page("")
+        metadata["name"] = exercise_page.meta["title"]
+        metadata["description"] = exercise_page.meta["description"]
+        metadata["success"] = True
+        
+    except ValidationError as e:
+        metadata["message"] = " ".join(e.messages)
+    except Exception as e:
+        metadata["message"] = "No meta data found."
+
+    return JsonResponse(metadata)

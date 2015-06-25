@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'userprofile',
     'course',
     'exercise',
+    'deviations',
     'notification',
     'external_services',
     'apps',

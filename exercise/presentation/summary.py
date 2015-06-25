@@ -82,7 +82,7 @@ class UserModuleSummary(object):
             for summary in self.exercise_summaries)
     
     def _generate_summary(self):
-        for ex in self.module.get_exercises():
+        for ex in BaseExercise.objects.filter(course_module=self.module):
             self.exercise_summaries.append(UserExerciseSummary(ex, self.user))
 
     def get_exercise_count(self):
@@ -133,7 +133,7 @@ class UserCategorySummary(object):
             for summary in self.exercise_summaries)
 
     def _generate_summary(self):
-        for ex in self.category.get_exercises():
+        for ex in BaseExercise.objects.filter(category=self.category):
             self.exercise_summaries.append(UserExerciseSummary(ex, self.user))
 
     def get_exercise_count(self):

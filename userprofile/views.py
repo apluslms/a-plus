@@ -27,7 +27,7 @@ def login(request):
             redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
         return HttpResponseRedirect(redirect_to)
 
-    return django_login(request, template_name="aplus/login.html")
+    return django_login(request, template_name="userprofile/login.html")
 
 
 @login_required

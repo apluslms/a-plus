@@ -7,8 +7,10 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from apps.models import BaseTab, BasePlugin
+from lib.fields import PercentField
 from userprofile.models import UserProfile
 
 
@@ -22,7 +24,7 @@ class Course(models.Model):
     code = models.CharField(max_length=255)
     url = models.CharField(unique=True, max_length=255, blank=False,
                        validators=[RegexValidator(regex="^(?!admin$)(?!course$)[\w\-\.]*$")],
-                       help_text="Input an URL identifier for this course. Taken words include: admin, course")
+                       help_text=_("Input an URL identifier for this course. Taken words include: admin, course"))
     teachers = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)    
 
     def __str__(self):
@@ -151,3 +153,111 @@ class CourseHook(models.Model):
         except:
             logger.error("HTTP POST failed on %s hook to %s (%s)",
                          self.hook_type, self.hook_url, self.course_instance)
+
+
+class CourseModule(models.Model):
+    """
+    CourseModule objects connect learning objects to logical sets of each other
+    and course instances. They also contain information about the opening times
+    and deadlines for exercises. A module may also include a reference to
+    study content. 
+    """
+    name = models.CharField(max_length=255)
+    url = models.CharField(max_length=255,
+                       validators=[RegexValidator(regex="^(?!teachers$)(?!user$)[\w\-\.]*$")],
+                       help_text=_("Input an URL identifier for this module. Taken words include: teachers, user"))
+    chapter = models.IntegerField(default=1)
+    subchapter = models.IntegerField(default=1)
+    points_to_pass = models.PositiveIntegerField(default=0)
+    introduction = models.TextField(blank=True)
+    course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
+    opening_time = models.DateTimeField(default=timezone.now)
+    closing_time = models.DateTimeField(default=timezone.now)
+    content_url = models.URLField(blank=True)
+
+    # early_submissions_allowed= models.BooleanField(default=False)
+    # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    # early_submission_bonus  = PercentField(default=0.1,
+    #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
+    
+    late_submissions_allowed = models.BooleanField(default=False)
+    late_submission_deadline = models.DateTimeField(default=timezone.now)
+    late_submission_penalty = PercentField(default=0.5,
+        help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+
+    class Meta:
+        unique_together = ("course_instance", "url")
+        ordering = ['closing_time', 'id']
+
+    def __str__(self):
+        return self.name + " / " + str(self.course_instance)
+
+    def is_open(self, when=None):
+        when = when or timezone.now()
+        return self.opening_time <= when <= self.closing_time
+
+    def is_after_open(self, when=None):
+        """
+        Checks if current time is past the round opening time.
+        """
+        when = when or timezone.now()
+        return self.opening_time <= when
+    
+    def is_late_submission_open(self, when=None):
+        when = when or timezone.now()
+        return self.late_submissions_allowed \
+            and self.closing_time <= when <= self.late_submission_deadline
+
+    def get_late_submission_point_worth(self):
+        """
+        Returns the percentage (0-100) that late submission points are worth.
+        """
+        point_worth = 0
+        if self.late_submissions_allowed:
+            point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
+        return point_worth
+
+    def get_absolute_url(self):
+        instance = self.course_instance
+        return reverse('course.views.view_module', kwargs={
+            'course_url': instance.course.url,
+            'instance_url': instance.url,
+            'module_url': self.url
+        })
+
+    def get_breadcrumb(self):
+        """
+        Returns a list of tuples containing the names and URL
+        addresses of parent objects and self.
+        """
+        crumb = self.course_instance.get_breadcrumb()
+        crumb.append((self.name, self.get_absolute_url()))
+        return crumb
+        return self.course_instance.get_breadcrumb()
+
+
+class LearningObjectCategory(models.Model):
+    """
+    Learning objects may be grouped to different categories.
+    """
+    name = models.CharField(max_length=35)
+    description = models.TextField(blank=True)
+    points_to_pass = models.PositiveIntegerField(default=0)
+    course_instance = models.ForeignKey(CourseInstance, related_name="categories")
+    hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
+        blank=True, null=True)
+
+    class Meta:
+        unique_together = ("name", "course_instance")
+
+    def __str__(self):
+        return self.name + " / " + str(self.course_instance)
+
+    def is_hidden_to(self, user_profile):
+        return self.hidden_to.filter(id=user_profile.id).exists()
+
+    def set_hidden_to(self, user_profile, hide=True):
+        if hide and not self.is_hidden_to(user_profile):
+            self.hidden_to.add(user_profile)
+        elif not hide and self.is_hidden_to(user_profile):
+            self.hidden_to.remove(user_profile)

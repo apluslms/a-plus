@@ -105,10 +105,10 @@
 
 <h3>{% trans "Deadline Rule Deviations" %}</h3>
 <p>{% trans "Add or view personalized deadlines for students for exercises." %}</p>
-<a class="btn btn-primary btn-mini" href="{% url 'course.teacher_views.add_deadline_rule_deviations' course_url=course.url instance_url=instance.url %}">
+<a class="btn btn-primary btn-mini" href="{% url 'deviations.teacher_views.add_dl_deviations' course_url=course.url instance_url=instance.url %}">
     <i class="icon-plus-sign icon-white"></i> {% trans "Add Deadline Deviations" %}
 </a>
-<a class="btn btn-primary btn-mini" href="{% url 'course.teacher_views.list_deadline_rule_deviations' course_url=course.url instance_url=instance.url %}">
+<a class="btn btn-primary btn-mini" href="{% url 'deviations.teacher_views.list_dl_deviations' course_url=course.url instance_url=instance.url %}">
     <i class="icon-list-alt icon-white"></i> {% trans "List Deadline Deviations" %}
 </a>
 

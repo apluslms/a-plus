@@ -1,7 +1,7 @@
 [
   {
     "pk": 1,
-    "model": "exercise.coursemodule",
+    "model": "course.coursemodule",
     "fields": {
       "name": "First Exercise Round",
       "url": "first-exercise-round",
@@ -17,7 +17,7 @@
   },
   {
     "pk": 1,
-    "model": "exercise.learningobjectcategory",
+    "model": "course.learningobjectcategory",
     "fields": {
       "hidden_to": [],
       "points_to_pass": 0,
@@ -28,7 +28,7 @@
   },
   {
     "pk": 2,
-    "model": "exercise.coursemodule",
+    "model": "course.coursemodule",
     "fields": {
       "name": "Exercises with Hook",
       "url": "exercises-with-hook",
@@ -44,7 +44,7 @@
   },
   {
     "pk": 2,
-    "model": "exercise.learningobjectcategory",
+    "model": "course.learningobjectcategory",
     "fields": {
       "hidden_to": [],
       "points_to_pass": 0,

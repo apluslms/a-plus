@@ -5,9 +5,10 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.bundle import Bundle
 from tastypie.resources import ModelResource, Resource
 
-from course.models import Course, CourseInstance
 from exercise.presentation.summary import UserCourseSummary
 from userprofile.models import UserProfile
+
+from .models import Course, CourseInstance, CourseModule
 
 
 class CourseResource(ModelResource):
@@ -24,8 +25,9 @@ class CourseResource(ModelResource):
         authentication = Authentication()
         authorization = ReadOnlyAuthorization()
 
+
 class CourseInstanceResource(ModelResource):
-    course_modules = fields.ToManyField('exercise.api.CourseModuleResource', 'course_modules')
+    course_modules = fields.ToManyField('course.api.CourseModuleResource', 'course_modules')
 
     def dehydrate(self, bundle):
         bundle.data.update({
@@ -49,6 +51,7 @@ class CourseInstanceResource(ModelResource):
         allowed_methods = ['get']
         authentication = Authentication()
         authorization = ReadOnlyAuthorization()
+
 
 class CourseInstanceOverallSummaryResource(Resource):
 
@@ -142,3 +145,18 @@ class CourseInstanceSummaryResource(Resource):
     def dehydrate(self, bundle):
         bundle.data.update(bundle.obj)
         return bundle
+
+
+class CourseModuleResource(ModelResource):
+    learning_objects = fields.ToManyField('exercise.api.LearningObjectResource', 'learning_objects')
+
+    class Meta:
+        queryset = CourseModule.objects.all()
+        resource_name = 'coursemodule'
+        excludes = []
+
+        # In the first version GET (read only) requests are
+        # allowed and no authentication is required
+        allowed_methods = ['get']
+        authentication = Authentication()
+        authorization = ReadOnlyAuthorization()

@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, url
 
-from course.urls import INSTANCE_URL_PREFIX, MODULE_URL_PREFIX, \
-    EXERCISE_URL_PREFIX
+from course.urls import INSTANCE_URL_PREFIX, EXERCISE_URL_PREFIX
 
 
 SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX + r'submissions/(?P<submission_id>\d+)/'
@@ -9,8 +8,7 @@ SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX + r'submissions/(?P<submission_id>\d
 urlpatterns = patterns('exercise.views',
     url(INSTANCE_URL_PREFIX + r'user/$', 'profile'),
     url(INSTANCE_URL_PREFIX + r'user/results/$', 'user_score', name="user_score"),
-    url(MODULE_URL_PREFIX + r'$', 'view_module'),
-    url(EXERCISE_URL_PREFIX + r'$', 'view_exercise'),
+    url(EXERCISE_URL_PREFIX + r'$', 'view_exercise', name="learning_object"),
     url(SUBMISSION_URL_PREFIX + r'$', 'view_submission'),
     url(SUBMISSION_URL_PREFIX + r'file/(?P<file_id>\d+)/(?P<file_name>[\w\d\_\-\.]+)$',
         'view_submitted_file'),
@@ -30,5 +28,7 @@ urlpatterns += patterns('exercise.staff_views',
     url(EXERCISE_URL_PREFIX + r'submissions/create_and_assess/$',
         'create_and_assess_submission'),
     url(INSTANCE_URL_PREFIX + r'teachers/batch_create_and_assess',
-        'batch_create_and_assess_submissions'),
+        'batch_create_and_assess_submissions'),    
+    url(INSTANCE_URL_PREFIX + r'teachers/fetch-metadata/$',
+        'fetch_exercise_metadata', name="exercise_metadata"),
 )

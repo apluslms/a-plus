@@ -7,7 +7,7 @@ from tastypie.resources import ModelResource, ALL
 
 from api.permissions import SuperuserAuthorization
 
-from .models import LearningObject, BaseExercise, CourseModule, Submission
+from .models import LearningObject, BaseExercise, Submission
 
 
 class LearningObjectResource(ModelResource):
@@ -37,19 +37,6 @@ class ExerciseResource(ModelResource):
         authentication = Authentication()
         authorization = ReadOnlyAuthorization()
 
-class CourseModuleResource(ModelResource):
-    learning_objects = fields.ToManyField('exercise.api.LearningObjectResource', 'learning_objects')
-
-    class Meta:
-        queryset = CourseModule.objects.all()
-        resource_name = 'coursemodule'
-        excludes = []
-
-        # In the first version GET (read only) requests are
-        # allowed and no authentication is required
-        allowed_methods = ['get']
-        authentication = Authentication()
-        authorization = ReadOnlyAuthorization()
 
 class SubmissionResource(ModelResource):
     exercise = fields.ToOneField('exercise.api.ExerciseResource', 'exercise')
@@ -86,6 +73,7 @@ class SubmissionResource(ModelResource):
         # In this version only superusers are allowed to access
         # submissions.
         authorization = SuperuserAuthorization()
+
 
 class SubmissionContentResource(ModelResource):
     """

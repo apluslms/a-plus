@@ -28,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^', include('userprofile.urls')),
     url(r'^', include('course.urls')),
     url(r'^', include('exercise.urls')),
+    url(r'^', include('deviations.urls')),
 )
 
 if settings.DEBUG:

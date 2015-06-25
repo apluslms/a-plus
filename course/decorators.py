@@ -2,10 +2,10 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.utils.six import wraps
+from django.utils.translation import ugettext_lazy as _
 
-from course.models import Course, CourseInstance
-from exercise.exercise_models import CourseModule, BaseExercise
-from exercise.submission_models import Submission
+from course.models import Course, CourseInstance, CourseModule
+from exercise.models import LearningObject, Submission
 
 
 COURSE_KEY = "course_url"
@@ -13,6 +13,7 @@ INSTANCE_KEY = "instance_url"
 MODULE_KEY = "module_url"
 EXERCISE_KEY = "exercise_id"
 SUBMISSION_KEY = "submission_id"
+
 
 class Resources(object):
     """
@@ -39,7 +40,7 @@ class Resources(object):
                         url=kwargs[MODULE_KEY],
                         course_instance=self.instance)
                 if EXERCISE_KEY in kwargs:
-                    self.exercise = get_object_or_404(BaseExercise,
+                    self.exercise = get_object_or_404(LearningObject,
                         id=kwargs[EXERCISE_KEY],
                         course_module__course_instance=self.instance) \
                         .as_leaf_class()
@@ -142,4 +143,3 @@ def access_graded_resource(view_func):
         return view_func(request, *args, **res.kwargs())
 
     return login_required(_wrapped_view)
-    
