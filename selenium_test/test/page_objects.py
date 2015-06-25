@@ -154,9 +154,6 @@ class BasePage(AbstractPage):
     def clickTeachersViewLink(self):
         self.getElement(BasePageLocators.TEACHERS_VIEW_LINK).click()
 
-    def clickAssistantsViewLink(self):
-        self.getElement(BasePageLocators.ASSISTANTS_VIEW_LINK).click()
-
     def hasNewNotifications(self):
         return self.isElementPresent(BasePageLocators.NOTIFICATION_MENU)
 

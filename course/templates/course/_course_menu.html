@@ -22,7 +22,7 @@
 	    </a>
 	</li>
     <li>
-        <a href="{% url 'exercise.views.profile' course_url=course.url instance_url=instance.url %}">
+        <a href="{% url 'exercise.views.profile' course_url=course.url instance_url=instance.url %}" class="profile-link">
             <i class="icon-user"></i>
             {{ user.userprofile.shortname }}
         </a>
@@ -70,7 +70,7 @@
     </li>
     {% if is_teacher %}
     <li>
-        <a href="{% url 'course.teacher_views.edit_course' course_url=course.url instance_url=instance.url %}">
+        <a href="{% url 'course.teacher_views.edit_course' course_url=course.url instance_url=instance.url %}" class="teachers-link">
             <i class="icon-pencil"></i>
             {% trans "Edit course" %}
         </a>

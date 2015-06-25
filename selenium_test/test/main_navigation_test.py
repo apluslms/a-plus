@@ -23,10 +23,6 @@ class MainNavigationTest(unittest.TestCase):
         BasePage(self.driver).clickTeachersViewLink()
         self.assertEqual(self.baseUrl + 'teachers/', str(self.driver.current_url))
 
-    #def testNavigateToAssistantsView(self):
-    #    BasePage(self.driver).clickAssistantsViewLink()
-    #    self.assertEqual(self.baseUrl + 'assistants/', str(self.driver.current_url))
-
     def testDownloadCalendar(self):
         BasePage(self.driver).clickCalendarFeedLink()
         self.assertEqual("Calendar feed (ics)", str(self.driver.switch_to.active_element.text))

@@ -12,12 +12,11 @@ class FirstPageLocators(object):
 
 class BasePageLocators(object):
     COURSE_BANNER = (By.XPATH, "//*[@id='main_content']/div[1]/div/div/h1/small")
-    HOME_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[2]/a")
-    CALENDAR_FEED_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[3]/a")
-    RESULTS_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[4]/a")
-    USER_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li[5]/a")
-    TEACHERS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li/a[contains(@href, 'teachers')]")
-    ASSISTANTS_VIEW_LINK = (By.XPATH, "//*[@id='main_content']/div[2]/div[1]/ul/li/a[contains(@href, 'assistants')]")
+    HOME_LINK = (By.XPATH, "//*[@id='course-menu']/li[2]/a")
+    CALENDAR_FEED_LINK = (By.XPATH, "//*[@id='course-menu']/li/a[contains(@href, '/export-calendar/')]")
+    RESULTS_LINK = (By.XPATH, "//*[@id='course-menu']/li/a[contains(@href, '/user/results')]")
+    USER_LINK = (By.XPATH, "//*[@id='course-menu']/li/a[contains(@class, 'profile-link')]")
+    TEACHERS_VIEW_LINK = (By.XPATH, "//*[@id='course-menu']/li/a[contains(@class, 'teachers-link')]")
     LOGGED_USER_LINK = (By.XPATH, "//*[@id='user-status']//a[contains(text(), 'Logged in as')]")
     LOGOUT_LINK = (By.XPATH, "//*[@id='user-status']//a[contains(@href, '/accounts/logout/')]")
     LOGOUT_BANNER = (By.XPATH, "//div[@class='alert alert-success']")
