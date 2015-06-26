@@ -1,216 +1,132 @@
-# Python
 import logging
-import urllib, urllib2
-from datetime import datetime
+import urllib.request, urllib.parse
 
-# Django
-from django.db import models
-from django.core.urlresolvers import reverse
-from django.db.models import Q
-from django.core.validators import RegexValidator
-from django.utils.translation import ugettext_lazy as _ 
 from django.contrib.contenttypes import generic
+from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models import Q
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
-# A+
-from userprofile.models import UserProfile
 from apps.models import BaseTab, BasePlugin
+from lib.fields import PercentField
+from userprofile.models import UserProfile
 
-# Course class
+
 class Course(models.Model):
-    '''
+    """
     Course model represents a course in a university. A course has a name and an
     identification number. It also has a URL which is included in the addresses
-    of pages under the course. 
-    '''
-    
-    # Basic information
-    name        = models.CharField(max_length=255)
-    code        = models.CharField(max_length=255)
-    
-    # A portion that is included in the addresses under this course
-    url         = models.CharField(
-                       unique=True,
-                       max_length=255,
-                       blank=False,
-                       validators=[RegexValidator(regex="^[\w\-\.]*$")],
-                       help_text="Input an identifier for this course's URL.")
-    
-    # Relations
-    teachers    = models.ManyToManyField(UserProfile,
-                                            related_name=u"teaching_courses",
-                                            blank=True)
+    of pages under the course.
+    """
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255)
+    url = models.CharField(unique=True, max_length=255, blank=False,
+                       validators=[RegexValidator(regex="^(?!admin$)(?!course$)[\w\-\.]*$")],
+                       help_text=_("Input an URL identifier for this course. Taken words include: admin, course"))
+    teachers = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)    
+
+    def __str__(self):
+        return "{} {}".format(self.code, self.name)
+
+    def is_teacher(self, user):
+        return user and user.is_authenticated() and (user.is_superuser or \
+            self.teachers.filter(id=user.userprofile.id).exists())
     
     def get_absolute_url(self):
-        '''
-        Returns the relative URL to this course.
-        '''
-        return reverse("course.views.view_course", kwargs={"course_url": self.url})
-    
-    def add_teacher(self, userprofile):
-        """ 
-        Adds a new teacher to this course. Teachers are also teachers in all course 
-        instances that belong to this course. 
-        
-        @param userprofile: the user profile to add as a teacher
-        """
-        self.teachers.add(userprofile)
-    
-    def is_teacher(self, profile):
-        return profile in self.teachers.all()
+        return reverse('course.views.view_course', kwargs={
+            'course_url': self.url
+        })
 
-    def get_visible_open_instances(self, profile=None):
-        if profile:
-            visible_open_instances = []
-            for i in self.instances.filter(ending_time__gte=datetime.now()):
-                if i.is_visible_to(profile):
-                    visible_open_instances.append(i)
-        else:
-            visible_open_instances = list(self.instances.filter(
-                ending_time__gte=datetime.now(), visible_to_students=True))
 
-        return visible_open_instances
+class CourseInstanceManager(models.Manager):
+    """
+    Helpers in CourseInstance.objects
+    """
     
-    def get_breadcrumb(self):
-        """
-        Returns a list of tuples containing the names and url 
-        addresses of parent objects and self. 
-        """
-        crumb_tuple = (str(self), self.get_absolute_url())
-        return [crumb_tuple]
-    
-    def __unicode__(self):
-        '''
-        Returns a short representation of the course as an unicode string.
-        '''
-        return self.code + u" " + self.name
+    def get_active(self, user=None):        
+        qs = self.filter(ending_time__gte=timezone.now())
+        if not user or not user.is_authenticated():
+            qs = qs.filter(visible_to_students=True)        
+        elif not user.is_superuser:
+            qs = qs.filter(Q(visible_to_students=True)
+                           | Q(assistants=user.userprofile)
+                           | Q(course__teachers=user.userprofile))        
+        return qs
 
 
 class CourseInstance(models.Model):
-    """ 
-    CourseInstance class represent an instance of a course. A single course may have 
-    several instances either at the same time or during different years. All instances 
-    have the same teacher, but teaching assistants and students are connected to individual 
+    """
+    CourseInstance class represent an instance of a course. A single course may have
+    several instances either at the same time or during different years. All instances
+    have the same teacher, but teaching assistants and students are connected to individual
     instances.
     """
-    
-    # Basic information
-    instance_name           = models.CharField(max_length=255)
-    website                 = models.URLField(max_length=255, blank=True)
-    
-    url = models.CharField(
-            unique=False,
-            max_length=255,
-            blank=False,
+    instance_name = models.CharField(max_length=255)
+    website = models.URLField(max_length=255, blank=True)
+    url = models.CharField(max_length=255, blank=False,
             validators=[RegexValidator(regex="^[\w\-\.]*$")],
-            help_text="Input an URL identifier for this course.")
-    
-    starting_time           = models.DateTimeField()
-    ending_time             = models.DateTimeField()
+            help_text="Input an URL identifier for this course instance.")
+    starting_time = models.DateTimeField()
+    ending_time = models.DateTimeField()
+    visible_to_students = models.BooleanField(default=True)
+    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
+    course = models.ForeignKey(Course, related_name="instances")
+    plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk",
+                                      content_type_field="container_type")
+    tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",
+                                   content_type_field="container_type")
+    objects = CourseInstanceManager()
 
-    visible_to_students     = models.BooleanField(default=True)
-    
-    # Relations
-    assistants              = models.ManyToManyField(UserProfile,
-                                                     related_name=u"assisting_courses", 
-                                                     blank=True)
-    course                  = models.ForeignKey(Course, related_name=u"instances")
-    
-    plugins                 = generic.GenericRelation(BasePlugin, object_id_field="container_pk", content_type_field="container_type")
-    tabs                    = generic.GenericRelation(BaseTab, object_id_field="container_pk", content_type_field="container_type")
-
-    def is_assistant(self, profile):
-        """
-        Returns True if the given profile belongs to an assistant on this course instance.
-        Otherwise returns False.
-        """
-        return profile in self.assistants.all()
-    
-    def is_teacher(self, profile):
-        """
-        Returns True if the given profile belongs to a teacher of this course.
-        """
-        return self.course.is_teacher(profile)
-    
-    def is_staff(self, profile):
-        """
-        Returns True if the given profile belongs to an assistant of this course instance
-        or a teacher of this course. Otherwise returns False.
-        """
-        return self.is_assistant(profile) or self.is_teacher(profile)
-    
-    def get_course_staff(self):
-        """ 
-        Returns a QuerySet of UserProfile models of the teachers and 
-        assistants for this course instance. 
-        """
-        query = Q(teaching_courses=self.course) | Q(assisting_courses=self)
-        return UserProfile.objects.filter(query).distinct()
-
-    def get_students(self):
-        return UserProfile.objects.filter(submissions__exercise__course_module__course_instance=self).distinct()
-    
-    def add_assistant(self, user):
-        """ 
-        Adds the given user as a course assistant to this instance. 
-        """
-        self.assistants.add(user.get_profile())
-    
-    def is_open(self):
-        """ 
-        Returns True if this course instance is currently open. Otherwise False. 
-        """
-        return self.starting_time <= datetime.now() <= self.ending_time
-
-    def is_visible_to(self, profile=None):
-        if profile:
-            return (self.visible_to_students
-                    or self.is_staff(profile)
-                    or profile.is_staff())
-        else:
-            return self.visible_to_students
-    
-    def get_absolute_url(self):
-        '''
-        Returns the URL to this CourseInstance's dashboard.
-        '''
-        return reverse("course.views.view_instance", kwargs={"course_url": self.course.url, 
-                                                             "instance_url": self.url})
-    
-    def get_results_url(self):
-        '''
-        Returns the URL to this CourseInstance's results page.
-        '''
-        return reverse("course.views.view_instance_results", kwargs={"course_url": self.course.url, 
-                                                                     "instance_url": self.url})
-    
-    def get_breadcrumb(self):
-        """ 
-        Returns a list of tuples containing the names and url 
-        addresses of parent objects and self. 
-        """
-        crumb       = self.course.get_breadcrumb()
-        crumb_tuple = (self.instance_name, self.get_absolute_url())
-        crumb.append(crumb_tuple)
-        return crumb
-    
-    def get_label(self):
-        '''
-        Returns the label which to display on the dashboard tab.
-        @deprecated: the label behavior will be removed
-        '''
-        return _("Dashboard")
-    
-    def __unicode__(self):
-        return self.course.code + u": " + self.instance_name
-    
     class Meta:
         unique_together = ("course", "url")
+
+    def __str__(self):
+        return "{}: {}".format(str(self.course), self.instance_name)
+
+    def is_assistant(self, user):
+        return user and user.is_authenticated() \
+            and self.assistants.filter(id=user.userprofile.id).exists()
+
+    def is_teacher(self, user):
+        return self.course.is_teacher(user)
+
+    def is_course_staff(self, user):
+        return self.is_teacher(user) or self.is_assistant(user)
+
+    def get_course_staff_profiles(self):
+        return UserProfile.objects.filter(Q(teaching_courses=self.course) | Q(assisting_courses=self))\
+            .distinct()
+
+    def get_student_profiles(self):
+        # TODO: enrollment should be designed
+        return UserProfile.objects.filter(submissions__exercise__course_module__course_instance=self)\
+            .distinct()
+
+    def is_open(self):
+        return self.starting_time <= timezone.now() <= self.ending_time
+
+    def is_visible_to(self, user=None):
+        if self.visible_to_students:
+            return True
+        return user and self.is_course_staff(user)
+    
+    def get_absolute_url(self):
+        return reverse('course.views.view_instance', kwargs={
+            'course_url': self.course.url,
+            'instance_url': self.url
+        })
+    
+    def get_breadcrumb(self):
+        return [(str(self.course), self.get_absolute_url())]
+
 
 class CourseHook(models.Model):
     """
     Provides a hook for a course instance, that is called after a certain
     action. Currently only hook implemented is post-grading, i.e. after a
-    student submission has been succesfully graded by the external service.
+    student submission has been successfully graded by the external service.
 
     When a hook is triggered it will do a HTTP POST to a defined URL
     passing along data (e.g. submission id).
@@ -220,40 +136,128 @@ class CourseHook(models.Model):
         ("post-grading", "Post grading"),
     )
 
-    hook_url = models.URLField(verify_exists=False)
-    hook_type = models.CharField(max_length=12,
-        choices=HOOK_CHOICES,
-        default="post-grading")
-    course_instance = models.ForeignKey(CourseInstance,
-        related_name="course_hooks")
+    hook_url = models.URLField()
+    hook_type = models.CharField(max_length=12, choices=HOOK_CHOICES, default="post-grading")
+    course_instance = models.ForeignKey(CourseInstance, related_name="course_hooks")
 
+    def __str__(self):
+        return "{} -> {}".format(self.course_instance, self.hook_url)
 
     def trigger(self, data):
         logger = logging.getLogger("plus.hooks")
         try:
-            res = urllib2.urlopen(self.hook_url,
-                urllib.urlencode(data), timeout=10)
+            urllib.request.urlopen(self.hook_url,
+                urllib.parse.urlencode(data).encode('utf-8'), timeout=10)
             logger.info("%s posted to %s on %s with %s",
-                self.hook_type, self.hook_url, self.course_instance, data
-                )
+                        self.hook_type, self.hook_url, self.course_instance, data)
         except:
-            logger.error(
-                "HTTP POST failed on %s hook to %s (%s)",
-                self.hook_type,
-                self.hook_url,
-                self.course_instance)
+            logger.error("HTTP POST failed on %s hook to %s (%s)",
+                         self.hook_type, self.hook_url, self.course_instance)
 
-    def __unicode__(self):
-        return "%s -> %s" % (self.course_instance, self.hook_url)
 
-def get_visible_open_course_instances(profile=None):
-    if profile:
-        visible_open_instances = []
-        for i in CourseInstance.objects.filter(ending_time__gte=datetime.now()):
-            if i.is_visible_to(profile):
-                visible_open_instances.append(i)
-    else:
-        visible_open_instances = list(CourseInstance.objects.filter(
-            ending_time__gte=datetime.now(), visible_to_students=True))
+class CourseModule(models.Model):
+    """
+    CourseModule objects connect learning objects to logical sets of each other
+    and course instances. They also contain information about the opening times
+    and deadlines for exercises. A module may also include a reference to
+    study content. 
+    """
+    name = models.CharField(max_length=255)
+    url = models.CharField(max_length=255,
+                       validators=[RegexValidator(regex="^(?!teachers$)(?!user$)[\w\-\.]*$")],
+                       help_text=_("Input an URL identifier for this module. Taken words include: teachers, user"))
+    chapter = models.IntegerField(default=1)
+    subchapter = models.IntegerField(default=1)
+    points_to_pass = models.PositiveIntegerField(default=0)
+    introduction = models.TextField(blank=True)
+    course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
+    opening_time = models.DateTimeField(default=timezone.now)
+    closing_time = models.DateTimeField(default=timezone.now)
+    content_url = models.URLField(blank=True)
 
-    return visible_open_instances
+    # early_submissions_allowed= models.BooleanField(default=False)
+    # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    # early_submission_bonus  = PercentField(default=0.1,
+    #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
+    
+    late_submissions_allowed = models.BooleanField(default=False)
+    late_submission_deadline = models.DateTimeField(default=timezone.now)
+    late_submission_penalty = PercentField(default=0.5,
+        help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+
+    class Meta:
+        unique_together = ("course_instance", "url")
+        ordering = ['closing_time', 'id']
+
+    def __str__(self):
+        return self.name + " / " + str(self.course_instance)
+
+    def is_open(self, when=None):
+        when = when or timezone.now()
+        return self.opening_time <= when <= self.closing_time
+
+    def is_after_open(self, when=None):
+        """
+        Checks if current time is past the round opening time.
+        """
+        when = when or timezone.now()
+        return self.opening_time <= when
+    
+    def is_late_submission_open(self, when=None):
+        when = when or timezone.now()
+        return self.late_submissions_allowed \
+            and self.closing_time <= when <= self.late_submission_deadline
+
+    def get_late_submission_point_worth(self):
+        """
+        Returns the percentage (0-100) that late submission points are worth.
+        """
+        point_worth = 0
+        if self.late_submissions_allowed:
+            point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
+        return point_worth
+
+    def get_absolute_url(self):
+        instance = self.course_instance
+        return reverse('course.views.view_module', kwargs={
+            'course_url': instance.course.url,
+            'instance_url': instance.url,
+            'module_url': self.url
+        })
+
+    def get_breadcrumb(self):
+        """
+        Returns a list of tuples containing the names and URL
+        addresses of parent objects and self.
+        """
+        crumb = self.course_instance.get_breadcrumb()
+        crumb.append((self.name, self.get_absolute_url()))
+        return crumb
+        return self.course_instance.get_breadcrumb()
+
+
+class LearningObjectCategory(models.Model):
+    """
+    Learning objects may be grouped to different categories.
+    """
+    name = models.CharField(max_length=35)
+    description = models.TextField(blank=True)
+    points_to_pass = models.PositiveIntegerField(default=0)
+    course_instance = models.ForeignKey(CourseInstance, related_name="categories")
+    hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
+        blank=True, null=True)
+
+    class Meta:
+        unique_together = ("name", "course_instance")
+
+    def __str__(self):
+        return self.name + " / " + str(self.course_instance)
+
+    def is_hidden_to(self, user_profile):
+        return self.hidden_to.filter(id=user_profile.id).exists()
+
+    def set_hidden_to(self, user_profile, hide=True):
+        if hide and not self.is_hidden_to(user_profile):
+            self.hidden_to.add(user_profile)
+        elif not hide and self.is_hidden_to(user_profile):
+            self.hidden_to.remove(user_profile)

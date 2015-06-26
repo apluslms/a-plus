@@ -1,0 +1,16 @@
+{% load i18n %}
+<form enctype="multipart/form-data" method="post" class="form-stacked">
+  <fieldset>
+    <legend>{% trans "Submit" %}</legend>
+    {% for file in files %}
+    <div class='clearfix'>
+      <label>{{ file }}</label>
+      <input type="hidden" name="file_{{ forloop.counter }}" value="{{ file }}" />
+      <div class='input'><input name='content_{{ forloop.counter }}' type='file' /></div>
+    </div>
+    {% endfor %}
+  </fieldset>
+  <div class="actions">
+    <input class="btn btn-primary" type="submit" value="{% trans 'Submit' %}" />
+  </div>
+</form>

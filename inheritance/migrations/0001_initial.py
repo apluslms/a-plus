@@ -1,39 +1,25 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
 
 
-class Migration(SchemaMigration):
-
-    def forwards(self, orm):
-        # Adding model 'ModelWithInheritance'
-        db.create_table('inheritance_modelwithinheritance', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'], null=True)),
-        ))
-        db.send_create_signal('inheritance', ['ModelWithInheritance'])
+from django.db import models, migrations
 
 
-    def backwards(self, orm):
-        # Deleting model 'ModelWithInheritance'
-        db.delete_table('inheritance_modelwithinheritance')
+class Migration(migrations.Migration):
 
+    dependencies = [
+        ('contenttypes', '0001_initial'),
+    ]
 
-    models = {
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'inheritance.modelwithinheritance': {
-            'Meta': {'object_name': 'ModelWithInheritance'},
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        }
-    }
-
-    complete_apps = ['inheritance']
+    operations = [
+        migrations.CreateModel(
+            name='ModelWithInheritance',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('content_type', models.ForeignKey(editable=False, to='contenttypes.ContentType', null=True)),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+    ]

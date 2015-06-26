@@ -1,60 +1,64 @@
 from django.contrib import admin
-from course.models import Course, CourseInstance, CourseHook
-from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+
+from course.models import Course, CourseInstance, CourseHook, CourseModule, \
+    LearningObjectCategory
+from userprofile.models import UserProfile
+
+
+def instance_url(instance):
+    """
+    Returns the URL for the admin listing.
+    """
+    return instance.get_absolute_url()
+
+instance_url.short_description = _('URL')
+
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display_links  = ["id"]
     
-    list_display        = ["id",
-                           "name",
-                           "code"]
-    
-    list_editable       = ["name",
-                           "code"]
+    list_display_links = ["id"]
+    list_display = ["id", "name", "code"]
+    list_editable = ["name", "code"]
+    filter_horizontal = ["teachers"]
 
-    filter_horizontal   = ["teachers"]
-    
-    def queryset(self, request):
+    def get_queryset(self, request):
         if not request.user.is_superuser:
-            return request.user.get_profile().teaching_courses
+            profile = UserProfile.get_by_request(request)
+            return profile.teaching_courses
         else:
-            # TODO: test that the manager works
-            # Previously: return self.model._default_manager.filter()
             return self.model.objects.filter()
-
-def instance_url(obj):
-    """ This method returns the URL to the given object. This method is used as 
-        a callable that is included in the admin views. """
-    
-    return obj.get_absolute_url()
-
-# This gives the instance_url admin column the title "Url"
-instance_url.short_description = 'Url'
 
 
 class CourseInstanceAdmin(admin.ModelAdmin):
+    
     list_display_links = ["instance_name"]
-    
-    list_display = ["course", 
-                    "instance_name", 
-                    "starting_time", 
-                    "ending_time", 
-                    instance_url]
-    
-    list_filter = ["course", 
-                   "starting_time", 
-                   "ending_time"]
-
+    list_display = ["course", "instance_name", "starting_time", "ending_time", instance_url]
+    list_filter = ["course", "starting_time", "ending_time"]
     filter_horizontal = ["assistants"]
-    
-    def queryset(self, request):
+
+    def get_queryset(self, request):
         if not request.user.is_superuser:
-            return request.user.get_profile().get_courseinstance_staff_queryset()
+            profile = UserProfile.get_by_request(request)
+            return self.model.objects.where_staff_includes(profile)
         else:
-            # TODO: test that the manager works
-            # Previously: return self.model._default_manager.filter()
-            return self.model.objects.filter()
+            return self.model.objects.all()
+
+
+class CourseModuleAdmin(admin.ModelAdmin):
+    list_display_links = ("name",)
+    list_display = ("name", "course_instance", "opening_time", "closing_time")
+    list_filter = ["course_instance", "opening_time", "closing_time"]
+
+
+class LearningObjectCategoryAdmin(admin.ModelAdmin):
+    list_display = ["name", "course_instance"]
+    list_filter = ["course_instance"]
+    ordering = ["course_instance", "id"]
+
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(CourseInstance, CourseInstanceAdmin)
 admin.site.register(CourseHook)
+admin.site.register(CourseModule, CourseModuleAdmin)
+admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)

@@ -1,0 +1,14 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+
+
+{% block coursecontent %}
+<div class="row">
+    <div class="span10">
+        <h2>{{ tab.title }}</h2>
+        <div>
+            {{ tab.render|safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}

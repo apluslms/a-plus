@@ -23,7 +23,7 @@ from django.http import HttpResponseRedirect
 def parse_attributes(META):
     shib_attrs = {}
     error = False
-    for header, attr in settings.SHIB_ATTRIBUTE_MAP.items():
+    for header, attr in list(settings.SHIB_ATTRIBUTE_MAP.items()):
         required, name = attr
         values = META.get(header, None)
         value = None
@@ -33,7 +33,7 @@ def parse_attributes(META):
                 value = values.split(';')[0]
             except:
                 value = values
-                
+
         shib_attrs[name] = value
         if not value or value == '':
             if required:
@@ -55,15 +55,15 @@ def build_shib_url(request, target, entityid=None):
 
 def ensure_shib_session(request):
     if 'HTTP_SHIB_SESSION_ID' in request.META and request.META['HTTP_SHIB_SESSION_ID']:
-        
-    
+
+
         attr, error = parse_attributes(request.META)
         if error:
-            return render_to_response('shibboleth/attribute_error.html', 
-                                      {'shib_attrs': attr}, 
+            return render_to_response('shibboleth/attribute_error.html',
+                                      {'shib_attrs': attr},
                                       context_instance=RequestContext(request))
         return None
     else:
         return HttpResponseRedirect(build_shib_url(request, request.build_absolute_uri()))
-    
+
 
