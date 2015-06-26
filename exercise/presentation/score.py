@@ -99,8 +99,7 @@ class ScoreBoard(object):
                         or category_group[-1][0] != exercise.category):
                     category_group.append((
                         exercise.category,
-                        course_summary.get_module_summary(
-                            exercise.category),
+                        course_summary.get_category_summary(exercise.category),
                         []
                     ))
                 
