@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     # Shibboleth
     url(r'^shibboleth/', include('django_shibboleth.urls')),
 
-    # A+
+    # A+ - Pay attention to the order the URL patterns will be matched!
     url(r'^$', 'course.views.home'),
     url(r'^privacy-policy$', TemplateView.as_view(template_name='aplus/privacy.html'),
         name="privacy_policy"),
@@ -26,8 +26,8 @@ urlpatterns = patterns('',
     url(r'^external/', include('external_services.urls')),
     url(r'^', include('redirect_old_urls.urls')),
     url(r'^', include('userprofile.urls')),
-    url(r'^', include('course.urls')),
     url(r'^', include('exercise.urls')),
+    url(r'^', include('course.urls')),
     url(r'^', include('deviations.urls')),
 )
 
