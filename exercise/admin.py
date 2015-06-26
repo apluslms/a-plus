@@ -24,7 +24,6 @@ def submitters_wrapper(obj):
     """
     Submitters as a string for a submission.
     """
-    print(obj.submitters.all())
     return exercise.students(obj.submitters.all())
 
 

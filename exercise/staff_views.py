@@ -99,7 +99,6 @@ def resubmit_to_service(request, course_url=None, instance_url=None,
         return HttpResponseForbidden(_("Only HTTP POST allowed."))
     
     # Sets feedback using Django messages.
-    print(type(exercise))
     _ = exercise.grade(request, submission)
      
     return redirect(inspect_exercise_submission,

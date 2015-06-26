@@ -59,7 +59,6 @@ class ResultTable:
         template. The columns of the table ordered according to the order of the
         exercises in self.exercises.
         """
-        print(self.results)
         for_template = []
         for student in self.students:
             grades = [ self.results[student.id][exercise.id] \

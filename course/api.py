@@ -100,7 +100,6 @@ class CourseInstanceSummaryResource(Resource):
             kwargs['user'] = bundle_or_obj.obj['user']
             kwargs['pk'] = bundle_or_obj.obj['course_instance']
         else:
-            print(bundle_or_obj)
             kwargs['user'] = bundle_or_obj['user']
             kwargs['pk'] = bundle_or_obj['course_instance']
 
