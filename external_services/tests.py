@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.test import TestCase
+from django.utils import timezone
 
 from course.models import Course, CourseInstance
 from external_services.models import LinkService, LTIService, MenuItem
@@ -32,7 +33,7 @@ class ExternalServicesTest(TestCase):
             url="Course-Url"
         )
 
-        self.today = datetime.now()
+        self.today = timezone.now()
         self.tomorrow = self.today + timedelta(days=1)
 
         self.course_instance = CourseInstance.objects.create(

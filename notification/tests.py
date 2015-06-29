@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone
 
 from course.models import Course, CourseInstance
 from notification.models import Notification, NotificationSet
@@ -31,7 +32,7 @@ class NotificationTest(TestCase):
         )
         self.course.teachers.add(self.teacher.userprofile)
 
-        self.today = datetime.now()
+        self.today = timezone.now()
         self.tomorrow = self.today + timedelta(days=1)
         self.two_days_from_now = self.tomorrow + timedelta(days=1)
 

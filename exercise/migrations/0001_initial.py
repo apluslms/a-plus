@@ -2,6 +2,7 @@
 
 
 from django.db import models, migrations
+from django.utils import timezone
 import datetime
 import exercise.submission_models
 import lib.helpers
@@ -25,10 +26,10 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('points_to_pass', models.PositiveIntegerField(default=0)),
                 ('introduction', models.TextField(blank=True)),
-                ('opening_time', models.DateTimeField(default=datetime.datetime.now)),
-                ('closing_time', models.DateTimeField(default=datetime.datetime.now)),
+                ('opening_time', models.DateTimeField(default=timezone.now)),
+                ('closing_time', models.DateTimeField(default=timezone.now)),
                 ('late_submissions_allowed', models.BooleanField(default=False)),
-                ('late_submission_deadline', models.DateTimeField(default=datetime.datetime.now)),
+                ('late_submission_deadline', models.DateTimeField(default=timezone.now)),
                 ('late_submission_penalty', lib.fields.PercentField(default=0.5, help_text='Multiplier of points to reduce, as decimal. 0.1 = 10%')),
                 ('course_instance', models.ForeignKey(related_name='course_modules', to='course.CourseInstance')),
             ],

@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 import os
 
@@ -6,6 +5,7 @@ from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from exercise import exercise_models
@@ -179,7 +179,7 @@ class Submission(models.Model):
         self.status = self.STATUS_WAITING
 
     def set_ready(self):
-        self.grading_time = datetime.now()
+        self.grading_time = timezone.now()
         self.status = self.STATUS_READY
         
         # Fire set hooks.

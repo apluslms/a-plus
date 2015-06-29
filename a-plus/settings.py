@@ -166,7 +166,7 @@ TEST_OUTPUT_DIR = "test_results"
 
 LOGGING = {
   'version': 1,
-  'disable_existing_loggers': True,
+  'disable_existing_loggers': False,
   'formatters': {
     'verbose': {
       'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s'
@@ -186,13 +186,8 @@ LOGGING = {
   },
   'loggers': {
     '': {
-      'level': 'DEBUG',
-      'handlers': ['email', 'console'],
-      'propagate': True
-    },
-    'django': {
       'level': 'INFO',
-      'handlers': [],
+      'handlers': ['email', 'console'],
       'propagate': True
     },
   },

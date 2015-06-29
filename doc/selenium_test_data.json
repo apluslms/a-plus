@@ -6,12 +6,12 @@
       "name": "First Exercise Round",
       "url": "first-exercise-round",
       "introduction": "",
-      "late_submission_deadline": "2025-09-27 10:47:09",
+      "late_submission_deadline": "2025-09-27T10:47:09.000Z",
       "late_submissions_allowed": false,
       "course_instance": 1,
       "points_to_pass": 0,
-      "closing_time": "2024-09-27 10:47:09",
-      "opening_time": "2013-09-27 10:47:09",
+      "closing_time": "2024-09-27T10:47:09.000Z",
+      "opening_time": "2013-09-27T10:47:09.000Z",
       "late_submission_penalty": 0.5
     }
   },
@@ -33,12 +33,12 @@
       "name": "Exercises with Hook",
       "url": "exercises-with-hook",
       "introduction": "",
-      "late_submission_deadline": "2025-09-27 10:47:09",
+      "late_submission_deadline": "2025-09-27T10:47:09.000Z",
       "late_submissions_allowed": false,
       "course_instance": 2,
       "points_to_pass": 0,
-      "closing_time": "2024-09-27 10:47:09",
-      "opening_time": "2013-09-27 10:47:09",
+      "closing_time": "2024-09-27T10:47:09.000Z",
+      "opening_time": "2013-09-27T10:47:09.000Z",
       "late_submission_penalty": 0.5
     }
   },
@@ -84,9 +84,9 @@
     "fields": {
       "category": 1,
       "description": "",
-      "name": "Attachment Exercise (assistant graded)",
+      "name": "File exercise (assistant graded)",
       "course_module": 1,
-      "service_url": "http://localhost:8889/attachment_exercise/",
+      "service_url": "http://localhost:8889/file_exercise/",
       "order": 2,
       "instructions": ""
     }
@@ -109,7 +109,7 @@
     "fields": {
       "category": 1,
       "description": "",
-      "name": "AJAX Exercise",
+      "name": "AJAX exercise",
       "course_module": 1,
       "service_url": "http://localhost:8889/ajax_exercise/",
       "order": 3,
@@ -171,9 +171,9 @@
     "model": "course.courseinstance",
     "fields": {
       "website": "http://plus.cs.hut.fi/",
-      "ending_time": "2024-09-27 10:47:18",
+      "ending_time": "2024-09-27T10:47:18.000Z",
       "url": "basic_instance",
-      "starting_time": "2013-09-27 10:47:17",
+      "starting_time": "2013-09-27T10:47:17.000Z",
       "instance_name": "A+ Test Course Instance",
       "course": 1,
       "assistants": [3],
@@ -185,9 +185,9 @@
     "model": "course.courseinstance",
     "fields": {
       "website": "http://plus.cs.hut.fi/",
-      "ending_time": "2024-09-27 10:47:18",
+      "ending_time": "2024-09-27T10:47:18.000Z",
       "url": "hook_instance",
-      "starting_time": "2013-09-27 10:47:17",
+      "starting_time": "2013-09-27T10:47:17.000Z",
       "instance_name": "Hook Example",
       "course": 1,
       "assistants": [],
@@ -241,12 +241,12 @@
      "is_active": true,
      "is_superuser": true,
      "is_staff": true,
-     "last_login": "2015-05-02 19:05:20",
+     "last_login": "2015-05-02T19:05:20.000Z",
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
      "email": "admin@selenium.test",
-     "date_joined": "2015-05-02 18:56:18"
+     "date_joined": "2015-05-02T18:56:18.000Z"
     }
   },
   {
@@ -259,12 +259,12 @@
      "is_active": true,
      "is_superuser": false,
      "is_staff": false,
-     "last_login": "2015-05-02 19:05:20",
+     "last_login": "2015-05-02T19:05:20.000Z",
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
      "email": "admin@selenium.test",
-     "date_joined": "2015-05-02 18:56:18"
+     "date_joined": "2015-05-02T18:56:18.000Z"
     }
   },
   {
@@ -277,12 +277,12 @@
      "is_active": true,
      "is_superuser": false,
      "is_staff": false,
-     "last_login": "2015-05-02 19:05:20",
+     "last_login": "2015-05-02T19:05:20.000Z",
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
      "email": "admin@selenium.test",
-     "date_joined": "2015-05-02 18:56:18"
+     "date_joined": "2015-05-02T18:56:18.000Z"
     }
   },
   {
@@ -295,12 +295,12 @@
      "is_active": true,
      "is_superuser": false,
      "is_staff": false,
-     "last_login": "2015-05-02 19:05:20",
+     "last_login": "2015-05-02T19:05:20.000Z",
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
      "email": "admin@selenium.test",
-     "date_joined": "2015-05-02 18:56:18"
+     "date_joined": "2015-05-02T18:56:18.000Z"
     }
   }
 ]

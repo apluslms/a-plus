@@ -18,8 +18,8 @@ class AppsTest(TestCase):
         self.course = Course.objects.create(name="Test", code="test", url="test")
         self.instance = CourseInstance.objects.create(course=self.course,
                                                       instance_name="Ins",
-                                                      starting_time="2000-01-01",
-                                                      ending_time="2020-01-01")
+                                                      starting_time="2000-01-01T12:00:00.000Z",
+                                                      ending_time="2020-01-01T12:00:00.000Z")
 
         self.html_plugin = HTMLPlugin.objects.create(container=self.instance,
                                                      title="HTML Plugin",

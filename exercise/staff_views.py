@@ -22,6 +22,7 @@ from userprofile.models import UserProfile
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from django.http.response import JsonResponse
+from django.utils import timezone
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -205,7 +206,7 @@ def create_and_assess_submission(request, course_url=None, instance_url=None,
         exercise.max_points,
         no_penalties=True)
     new_submission.submission_time = form.cleaned_data.get("submission_time")
-    new_submission.grading_time = datetime.now()
+    new_submission.grading_time = timezone.now()
     new_submission.set_ready()
     new_submission.save()
     
@@ -293,7 +294,7 @@ def batch_create_and_assess_submissions(request, course_url=None, instance_url=N
                 new_submission.exercise.max_points,
                 no_penalties=True)
             new_submission.submission_time = form.cleaned_data.get("submission_time")
-            new_submission.grading_time = datetime.now()
+            new_submission.grading_time = timezone.now()
             new_submission.grader = form.cleaned_data.get("grader") or teacher
             new_submission.set_ready()
             new_submission.save()
