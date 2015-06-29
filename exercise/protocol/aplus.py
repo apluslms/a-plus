@@ -11,7 +11,7 @@ from .exercise_page import ExercisePage
 logger = logging.getLogger("aplus.protocol")
 
 
-def load_exercise_page(request, url, exercise, students):
+def load_exercise_page(request, url, exercise):
     """
     Loads the exercise page from the remote URL.
     

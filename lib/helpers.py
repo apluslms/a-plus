@@ -42,18 +42,10 @@ def query_dict_to_list_of_tuples(query_dict):
     list_of_tuples = []
     for key in query_dict:
         for val in query_dict.getlist(key):
-            list_of_tuples.append( (key, val) )
+            list_of_tuples.append((key, val))
     return list_of_tuples
 
 
 def update_url_params(url, params):
-    """
-    Updates query parameters in an URL.
-    """
-    url_parts = list(urllib.parse.urlparse(url))
-    query = dict(urllib.parse.parse_qs(url_parts[4]))
-    query.update(params)
-
-    url_parts[4] = urllib.parse.urlencode(query)
-
-    return urllib.parse.urlunparse(url_parts)
+    delimiter = "&" if "?" in url else "?"
+    return url + delimiter + urllib.parse.urlencode(params)

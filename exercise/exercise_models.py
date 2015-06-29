@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-import urllib
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -13,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
 from inheritance.models import ModelWithInheritance
+from lib.helpers import update_url_params
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
@@ -215,7 +215,7 @@ class BaseExercise(LearningObject):
                 "student_ids": student_str,
                 "hash_key": hash_key
             }))
-        return load_exercise_page(request, url, self, students)
+        return load_exercise_page(request, url, self)
     
     def grade(self, request, submission, no_penalties=False):
         """
@@ -243,9 +243,9 @@ class BaseExercise(LearningObject):
         params = {
             "max_points": self.max_points,
             "submission_url": request.build_absolute_uri(submission_url),
+            "post_url": request.build_absolute_uri(self.get_absolute_url()),
         }
-        delimiter = "&" if "?" in self.service_url else "?"
-        return self.service_url + delimiter + urllib.parse.urlencode(params)
+        return update_url_params(self.service_url, params)
 
 
 class StaticExercise(BaseExercise):
