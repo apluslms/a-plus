@@ -191,8 +191,6 @@ class BaseExercise(LearningObject):
         return crumb
 
     def get_async_hash(self, students):
-        if not students:
-            return "-", "none"
         student_str = "-".join(
             sorted(str(userprofile.id) for userprofile in students)
         )
@@ -208,15 +206,19 @@ class BaseExercise(LearningObject):
         """
         Loads the exercise page.
         """
-        student_str, hash_key = self.get_async_hash(students)
-        url = self._build_service_url(request, reverse(
-            "exercise.async_views.new_async_submission", kwargs={
-                "exercise_id": self.id if self.id else 0,
-                "student_ids": student_str,
-                "hash_key": hash_key
-            }))
+        if self.id:
+            student_str, hash_key = self.get_async_hash(students)
+            url = self._build_service_url(request, reverse(
+                "exercise.async_views.new_async_submission", kwargs={
+                    "exercise_id": self.id if self.id else 0,
+                    "student_ids": student_str,
+                    "hash_key": hash_key
+                }
+            ))
+        else:
+            url = self.service_url
         return load_exercise_page(request, url, self)
-    
+
     def grade(self, request, submission, no_penalties=False):
         """
         Loads the exercise feedback page.

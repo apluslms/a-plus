@@ -17,11 +17,10 @@ def get_form(course_module, exercise_type, exercise=None, request=None):
             exercise = BaseExercise(course_module=course_module)
         else:
             raise TypeError("Unknown exercise type key")
-    
-    if isinstance(exercise, BaseExercise):
-        form_cls = BaseExerciseForm
-    elif isinstance(exercise, ExerciseWithAttachment):
+    if isinstance(exercise, ExerciseWithAttachment):
         form_cls = ExerciseWithAttachmentForm
+    elif isinstance(exercise, BaseExercise):
+        form_cls = BaseExerciseForm
     else:
         logger.error("Tried to edit unexpected exercise type: %s", type(exercise))
         raise TypeError("Unknown exercise type instance")
