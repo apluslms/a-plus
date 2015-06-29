@@ -100,7 +100,7 @@ class MyFirstExerciseLocators(object):
     SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form/input")
 
 class FileUploadGraderLocators(object):
-    MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'Attachment exercise')]")
+    MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'File exercise')]")
     BROWSE_BUTTON = (By.XPATH, "//*[@id='file[]_id']")
     SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form/input")
 
