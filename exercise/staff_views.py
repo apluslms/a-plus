@@ -317,16 +317,15 @@ def fetch_exercise_metadata(request,
     validate = URLValidator()
     try:
         validate(exercise_url)
-
         exercise = BaseExercise(service_url=exercise_url)
-        exercise_page = exercise.get_page("")
-        metadata["name"] = exercise_page.meta["title"]
-        metadata["description"] = exercise_page.meta["description"]
-        metadata["success"] = True
-        
+        page = exercise.load(request, [])
+        if page.is_loaded:
+            metadata["name"] = page.meta["title"]
+            metadata["description"] = page.meta["description"]
+            metadata["success"] = True
+        else:
+            metadata["message"] = "Failed to load the resource."
     except ValidationError as e:
         metadata["message"] = " ".join(e.messages)
-    except Exception as e:
-        metadata["message"] = "No meta data found."
 
     return JsonResponse(metadata)
