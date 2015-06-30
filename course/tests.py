@@ -1,81 +1,347 @@
-# Django
+from datetime import timedelta
+
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.auth.models import User
+from django.utils import timezone
 
-# Aalto+
-from course.models import *
+from course.models import Course, CourseInstance, CourseHook, CourseModule, \
+    LearningObjectCategory
+from exercise.models import BaseExercise, Submission
+from exercise.exercise_models import LearningObject
 
-# Python
-from datetime import datetime, timedelta
 
 class CourseTest(TestCase):
     def setUp(self):
         self.client = Client()
+
+        self.user = User(username="testUser")
+        self.user.set_password("testPassword")
+        self.user.save()
+
+        self.grader = User(username="grader", is_staff=True)
+        self.grader.set_password("graderPassword")
+        self.grader.save()
+
+        self.superuser = User(username="staff", is_staff=False, is_superuser=True)
+        self.superuser.set_password("staffPassword")
+        self.superuser.save()
+
+        self.course = Course.objects.create(
+            name="test course",
+            code="123456",
+            url="Course-Url"
+        )
+
+        self.today = timezone.now()
+        self.tomorrow = self.today + timedelta(days=1)
+        self.two_days_from_now = self.tomorrow + timedelta(days=1)
+        self.yesterday = self.today - timedelta(days=1)
+
+        self.past_course_instance = CourseInstance.objects.create(
+            instance_name="Fall 2011 day 0",
+            website="http://www.example.com",
+            starting_time=self.yesterday,
+            ending_time=self.today,
+            course=self.course,
+            url="T-00.1000_d0"
+        )
+
+        self.current_course_instance = CourseInstance.objects.create(
+            instance_name="Fall 2011 day 1",
+            website="http://www.example.com",
+            starting_time=self.today,
+            ending_time=self.tomorrow,
+            course=self.course,
+            url="T-00.1000_d1"
+        )
+
+        self.future_course_instance = CourseInstance.objects.create(
+            instance_name="Fall 2011 day 2",
+            website="http://www.example.com",
+            starting_time=self.tomorrow,
+            ending_time=self.two_days_from_now,
+            course=self.course,
+            url="T-00.1000_d2"
+        )
+
+        self.hidden_course_instance = CourseInstance.objects.create(
+            instance_name="Secret super course",
+            website="http://www.secret.com",
+            starting_time=self.tomorrow,
+            ending_time=self.two_days_from_now,
+            course=self.course,
+            url="T-00.1000_hidden",
+            visible_to_students=False
+        )
+
+        self.course_module = CourseModule.objects.create(
+            name="test module",
+            url="test-module",
+            points_to_pass=10,
+            course_instance=self.current_course_instance,
+            opening_time=self.today,
+            closing_time=self.tomorrow
+        )
+
+        self.course_module_with_late_submissions_allowed = CourseModule.objects.create(
+            name="test module",
+            url="test-module-late",
+            points_to_pass=50,
+            course_instance=self.current_course_instance,
+            opening_time=self.today,
+            closing_time=self.tomorrow,
+            late_submissions_allowed=True,
+            late_submission_deadline=self.two_days_from_now,
+            late_submission_penalty=0.2
+        )
         
-        now = datetime.now()
-        tomorrow = now + timedelta(days=365)
-        
-        self.course = Course.objects.create(name="test course", 
-                                            code="123456",
-                                            url="Course-Url")
-        
-        self.course_instance = CourseInstance.objects.create(instance_name="Fall 2011", 
-                                                             website="http://www.example.com", 
-                                                             public_registration=True,
-                                                             starting_time=now,
-                                                             ending_time=tomorrow,
-                                                             course=self.course,
-                                                             url="T-00.1000"
-                                                             )
-    
-    def test_course_open(self):
-        # Get an old instance model
-        old_instance = CourseInstance.objects.get(pk=1)
-        self.assertTrue(self.course_instance.is_open())
-        
-        future_instance = CourseInstance(instance_name="Fall 2011", 
-                                         website="http://www.example.com", 
-                                         public_registration=True,
-                                         starting_time=datetime.now()+timedelta(days=1),
-                                         ending_time=datetime.now()+timedelta(days=365),
-                                         )
-        self.assertFalse(future_instance.is_open())
-    
+        self.learning_object_category = LearningObjectCategory.objects.create(
+            name="test category",
+            course_instance=self.current_course_instance,
+            points_to_pass=5
+        )
+
+        self.hidden_learning_object_category = LearningObjectCategory.objects.create(
+            name="hidden category",
+            course_instance=self.current_course_instance
+        )
+        self.hidden_learning_object_category.hidden_to.add(self.user.userprofile)
+
+        self.learning_object = LearningObject.objects.create(
+            name="test learning object",
+            course_module=self.course_module,
+            category=self.learning_object_category
+        )
+
+        self.broken_learning_object = LearningObject.objects.create(
+            name="test learning object",
+            course_module=self.course_module_with_late_submissions_allowed,
+            category=self.learning_object_category
+        )
+
+        self.base_exercise = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            service_url="http://localhost/",
+        )
+
+        self.submission = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.userprofile
+        )
+        self.submission.submitters.add(self.user.userprofile)
+
+        self.course_hook = CourseHook.objects.create(
+            hook_url="test_hook_url",
+            course_instance=self.current_course_instance
+        )
+
+    def test_course_instance_open(self):
+        self.assertFalse(self.past_course_instance.is_open())
+        self.assertTrue(self.current_course_instance.is_open())
+        self.assertFalse(self.future_course_instance.is_open())
+
     def test_course_url(self):
-        self.assertTrue(self.course_instance.url in self.course_instance.get_absolute_url())
-        self.assertTrue(self.course_instance.course.url in self.course_instance.get_absolute_url())
-    
+        self.assertEqual("/Course-Url/", self.course.get_absolute_url())
+        self.assertEqual("/Course-Url/T-00.1000_d1/", self.current_course_instance.get_absolute_url())
+        self.assertEqual("/Course-Url/T-00.1000_hidden/", self.hidden_course_instance.get_absolute_url())
+
     def test_course_staff(self):
-        user = User(username="test_abc")
-        user.set_password("asdfgh1234")
-        user.save()
-        
-        self.assertFalse(user.get_profile() in self.course_instance.get_course_staff())
-        self.course_instance.assistants.add(user.get_profile())
-        self.assertTrue(user.get_profile() in self.course_instance.get_course_staff())
-        self.course_instance.assistants.clear()
-        self.assertFalse(user.get_profile() in self.course_instance.get_course_staff())
-        self.course.teachers.add(user.get_profile())
-        self.assertTrue(user.get_profile() in self.course_instance.get_course_staff())
-    
+        self.assertFalse(self.course.is_teacher(self.user))
+        self.assertFalse(self.current_course_instance.is_assistant(self.user))
+        self.assertFalse(self.current_course_instance.is_teacher(self.user))
+        self.assertFalse(self.current_course_instance.is_course_staff(self.user))
+        self.assertEquals(0, len(self.current_course_instance.get_course_staff_profiles()))
+
+        self.current_course_instance.assistants.add(self.user.userprofile)
+
+        self.assertFalse(self.course.is_teacher(self.user))
+        self.assertTrue(self.current_course_instance.is_assistant(self.user))
+        self.assertFalse(self.current_course_instance.is_teacher(self.user))
+        self.assertTrue(self.current_course_instance.is_course_staff(self.user))
+        self.assertEquals(1, len(self.current_course_instance.get_course_staff_profiles()))
+
+        self.course.teachers.add(self.user.userprofile)
+
+        self.assertTrue(self.course.is_teacher(self.user))
+        self.assertTrue(self.current_course_instance.is_assistant(self.user))
+        self.assertTrue(self.current_course_instance.is_teacher(self.user))
+        self.assertTrue(self.current_course_instance.is_course_staff(self.user))
+        self.assertEquals(1, len(self.current_course_instance.get_course_staff_profiles()))
+        self.assertEquals("testUser", self.current_course_instance.get_course_staff_profiles()[0].shortname)
+
+        self.current_course_instance.assistants.clear()
+
+        self.assertTrue(self.course.is_teacher(self.user))
+        self.assertFalse(self.current_course_instance.is_assistant(self.user))
+        self.assertTrue(self.current_course_instance.is_teacher(self.user))
+        self.assertTrue(self.current_course_instance.is_course_staff(self.user))
+        self.assertEquals(1, len(self.current_course_instance.get_course_staff_profiles()))
+
+        self.course.teachers.clear()
+
+        self.assertFalse(self.course.is_teacher(self.user))
+        self.assertFalse(self.current_course_instance.is_assistant(self.user))
+        self.assertFalse(self.current_course_instance.is_teacher(self.user))
+        self.assertFalse(self.current_course_instance.is_course_staff(self.user))
+        self.assertEquals(0, len(self.current_course_instance.get_course_staff_profiles()))
+
+    def test_course_instance_breadcrumb(self):
+        breadcrumb = self.current_course_instance.get_breadcrumb()
+        self.assertEqual(1, len(breadcrumb))
+        self.assertEqual(2, len(breadcrumb[0]))
+        self.assertEqual("123456 test course", breadcrumb[0][0])
+        self.assertEqual("/Course-Url/T-00.1000_d1/", breadcrumb[0][1])
+
+    def test_course_instance_students(self):
+        students = self.current_course_instance.get_student_profiles()
+        self.assertEquals(1, len(students))
+        self.assertEquals("testUser", students[0].shortname)
+
+        submission2 = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.userprofile)
+        submission2.submitters.add(self.user.userprofile)
+
+        students = self.current_course_instance.get_student_profiles()
+        self.assertEquals(1, len(students))
+        self.assertEquals("testUser", students[0].shortname)
+
+        submission3 = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.user.userprofile)
+        submission3.submitters.add(self.grader.userprofile)
+
+        students = self.current_course_instance.get_student_profiles()
+        self.assertEquals(2, len(students))
+        self.assertEquals("testUser", students[0].shortname)
+        self.assertEquals("grader", students[1].shortname)
+
+    def test_course_instance_visibility(self):
+        self.assertTrue(self.current_course_instance.is_visible_to())
+        self.assertFalse(self.hidden_course_instance.is_visible_to())
+        self.assertTrue(self.current_course_instance.is_visible_to(self.user))
+        self.assertFalse(self.hidden_course_instance.is_visible_to(self.user))
+        self.assertTrue(self.current_course_instance.is_visible_to(self.superuser))
+        self.assertTrue(self.hidden_course_instance.is_visible_to(self.superuser))
+
+    def test_course_instance_get_active(self):
+        open_course_instances = CourseInstance.objects.get_active()
+        self.assertEqual(2, len(open_course_instances))
+        self.assertTrue(self.current_course_instance in open_course_instances)
+        self.assertTrue(self.future_course_instance in open_course_instances)
+
+        open_course_instances = CourseInstance.objects.get_active(self.user)
+        self.assertEqual(2, len(open_course_instances))
+        self.assertTrue(self.current_course_instance in open_course_instances)
+        self.assertTrue(self.future_course_instance in open_course_instances)
+
+        open_course_instances = CourseInstance.objects.get_active(self.superuser)
+        self.assertEqual(3, len(open_course_instances))
+        self.assertTrue(self.current_course_instance in open_course_instances)
+        self.assertTrue(self.future_course_instance in open_course_instances)
+        self.assertTrue(self.hidden_course_instance in open_course_instances)
+
+    def test_course_instance_unicode_string(self):
+        self.assertEquals("123456 test course: Fall 2011 day 1", str(self.current_course_instance))
+        self.assertEquals("123456 test course: Secret super course", str(self.hidden_course_instance))
+
+    def test_course_hook_unicode_string(self):
+        self.assertEquals("123456 test course: Fall 2011 day 1 -> test_hook_url", str(self.course_hook))
+
+    def test_course_module_late_submission_point_worth(self):
+        self.assertEquals(0, self.course_module.get_late_submission_point_worth())
+        self.assertEquals(80, self.course_module_with_late_submissions_allowed.get_late_submission_point_worth())
+
+    def test_course_module_open(self):
+        self.assertFalse(self.course_module.is_open(self.yesterday))
+        self.assertTrue(self.course_module.is_open(self.today))
+        self.assertTrue(self.course_module.is_open())
+        self.assertTrue(self.course_module.is_open(self.tomorrow))
+        self.assertFalse(self.course_module.is_open(self.two_days_from_now))
+
+    def test_course_module_after_open(self):
+        self.assertFalse(self.course_module.is_after_open(self.yesterday))
+        self.assertTrue(self.course_module.is_after_open(self.today))
+        self.assertTrue(self.course_module.is_after_open())
+        self.assertTrue(self.course_module.is_after_open(self.tomorrow))
+        self.assertTrue(self.course_module.is_after_open(self.two_days_from_now))
+
+    def test_course_module_breadcrumb(self):
+        breadcrumb = self.course_module.get_breadcrumb()
+        self.assertEqual(2, len(breadcrumb))
+        self.assertEqual(2, len(breadcrumb[1]))
+        self.assertEqual("test module", breadcrumb[1][0])
+        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/", breadcrumb[1][1])
+
     def test_course_views(self):
-        # Test viewing a course without logging in
-        response = self.client.get(self.course.get_absolute_url())
-        self.assertEqual(302, response.status_code)
+        response = self.client.get('/no_course/test', follow=True)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get(self.course.get_absolute_url(), follow=True)
+        self.assertTrue(response.redirect_chain)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'userprofile/login.html')
+        response = self.client.get(self.current_course_instance.get_absolute_url(), follow=True)
+        self.assertTrue(response.redirect_chain)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'userprofile/login.html')
+
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.get('/no_course/test', follow=True)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get(self.course.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'course/course.html')
+        response = self.client.get(self.current_course_instance.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context["course"], self.course)
+        self.assertEqual(response.context["instance"], self.current_course_instance)
+        self.assertFalse(response.context["is_assistant"])
+        self.assertFalse(response.context["is_teacher"])
         
-        response = self.client.get(self.course_instance.get_absolute_url())
-        self.assertEqual(302, response.status_code)
+        response = self.client.get(self.hidden_course_instance.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 403)
+
+    def test_course_teacher_views(self):
+        url = reverse('course.teacher_views.edit_course', kwargs={
+            'course_url': self.course.url,
+            'instance_url': self.current_course_instance.url
+        })
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
         
-        # Login
-        user = User(username="student")
-        user.set_password("student")
-        user.save()
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
         
-        self.client.login(username="student", password="student")
+        self.current_course_instance.assistants.add(self.grader.userprofile)
+        self.client.login(username="grader", password="graderPassword")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        response = self.client.get(self.current_course_instance.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["is_assistant"])
+        self.assertFalse(response.context["is_teacher"])
         
-        response = self.client.get(self.course.get_absolute_url())
-        self.assertEqual(200, response.status_code)
+        self.current_course_instance.assistants.clear()
+        self.course.teachers.add(self.grader.userprofile)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(self.current_course_instance.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["is_assistant"])
+        self.assertTrue(response.context["is_teacher"])
         
-        response = self.client.get(self.course_instance.get_absolute_url())
-        self.assertEqual(200, response.status_code)
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["is_assistant"])
+        self.assertTrue(response.context["is_teacher"])

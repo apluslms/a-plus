@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block maintitle %}
+    <h1>{% trans "Login" %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<div class="hero-unit">
+	<h2>Log in with Aalto WebLogin</h2>
+	<p>Click the button below to log in with Aalto University's Shibboleth service. You may want to read our privacy
+		policy
+		<a href="{% url 'privacy_policy' %}">here</a>.
+	</p>
+	<p>
+		<a class="btn btn-primary" href="{% url 'shib_login' %}">Aalto WebLogin</a>
+	</p>
+</div>
+
+<h3>Alternatively, you can log in with your A+ specific account</h3>
+<form method="post" action="">{% csrf_token %}
+	<div class="clearfix">
+		{{ form.username.label_tag }}
+		{{ form.username.errors }}
+		<div class="input">{{ form.username }}</div>
+	</div>
+	<div class="clearfix">
+		{{ form.password.label_tag }}
+		{{ form.password.errors }}
+		<div class="input">{{ form.password }}</div>
+	</div>
+
+	<div class="actions">
+		<input type="submit" value="{% trans "Login" %}" class="btn" />
+		<input type="hidden" name="next" value="{{ next }}" />
+	</div>
+</form>
+
+{% endblock %}

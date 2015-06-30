@@ -1,6 +1,8 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url
+
 from userprofile.views import view_groups
 
+
 urlpatterns = patterns('',
-    (r'groups/$', view_groups),
+    url(r'groups/$', view_groups),
 )

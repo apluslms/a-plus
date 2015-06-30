@@ -2,17 +2,41 @@
 
 # This script tries to set up A+ for testing. 
 
-cd ..
+CURRENT_DIR=`pwd`
+cd `dirname "$0"`/..
 
-python venv_bootstrap.py ../aplusenv              # create the virtualenv
+VENV_DIR=../aplusenv
+if [ "$1" != "" ]; then
+	VENV_DIR="$CURRENT_DIR/$1"
+fi
+VENV_PIP=$VENV_DIR/bin/pip
+VENV_PYTHON=$VENV_DIR/bin/python
 
-../aplusenv/bin/python manage.py syncdb --noinput # create the sqlite database
-../aplusenv/bin/python manage.py migrate course   # first do migrations to the course...
-../aplusenv/bin/python manage.py migrate          # ...then for the rest
-mkdir course/fixtures
-cp doc/initial_data.json course/fixtures/         # copy initial course data...
-../aplusenv/bin/python manage.py migrate course   # ...and get it do db
+# (re)create test environment
+if [ -d $VENV_DIR ]; then
+    rm -R $VENV_DIR
+fi
+virtualenv --python=python3 $VENV_DIR
+$VENV_PIP install -r requirements.txt
 
-../aplusenv/bin/python manage.py createsuperuser  # finally create a super user
-
-
+# (re)create the database
+if [ -f aplus.db ]; then
+    while true; do
+        read -p "Do you wish to reset the database as well (Y/N)?" yn
+        case $yn in
+            [Yy]*)
+                rm aplus.db
+                break
+                ;;
+            [Nn]*)
+                exit
+                ;;
+            *)
+                echo "Invalid option! Please answer Y (yes) or N (no)"
+                ;;
+        esac
+    done
+fi
+$VENV_PYTHON manage.py migrate
+$VENV_PYTHON manage.py loaddata doc/initial_data.json
+$VENV_PYTHON manage.py createsuperuser

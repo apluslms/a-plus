@@ -4,16 +4,28 @@
 local_settings.py
 .svn
 .DS_Store
+
 .idea
+.settings
+.project
+.pydevproject
+*.sublime-project
+*.sublime-workspace
 
 static/*
 
 test.db
-
 aplus.db
-
 aplus.db.old
+aplus.db_copy
 
 dump.json
 media
 *.orig
+
+test_results/
+
+selenium_test/aplus.out
+selenium_test/example_grader.out
+selenium_test/server.ports
+

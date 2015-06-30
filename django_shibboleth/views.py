@@ -22,9 +22,9 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from utils import parse_attributes
-from forms import BaseRegisterForm
-from signals import shib_logon_done
+from .utils import parse_attributes
+from .forms import BaseRegisterForm
+from .signals import shib_logon_done
 
 
 def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name='shibboleth/register.html'):
@@ -36,10 +36,10 @@ def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name
         attr[settings.SHIB_EMAIL] = 'no-email@noemail.local'
 
     was_redirected = False
-    if request.REQUEST.has_key('next'):
+    if 'next' in request.REQUEST:
         was_redirected = True
     redirect_url = request.REQUEST.get('next', settings.LOGIN_REDIRECT_URL)
-    context = {'shib_attrs': attr, 
+    context = {'shib_attrs': attr,
                'was_redirected': was_redirected}
     if error:
         return render_to_response('shibboleth/attribute_error.html', context, context_instance=RequestContext(request))
@@ -71,7 +71,7 @@ def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name
         pass
     user.save()
 
-    profile = user.get_profile()
+    profile = user.userprofile
     if attr["student_id"] and attr["student_id"] != "":
         # This is because a student might previously have had a student id. In that case, we don't want to erase it.
         profile.student_id = attr["student_id"].split(':')[-1]
@@ -88,7 +88,7 @@ def shib_register(request, RegisterForm=BaseRegisterForm, register_template_name
 
 
 def shib_meta(request):
-    
-    meta_data = request.META.items()
+
+    meta_data = list(request.META.items())
 
     return render_to_response('shibboleth/meta.html', {'meta_data': meta_data}, context_instance=RequestContext(request))

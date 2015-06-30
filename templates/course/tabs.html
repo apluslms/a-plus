@@ -1,8 +1,0 @@
-<div>
-    <ul class="nav nav-tabs">
-        {% for tab in tabs %}
-            <li><a href="{{ tab.get_absolute_url }}">{{ tab.get_label }}</a></li>
-        {% endfor %}
-        <li><a href="{{ instance.get_absolute_url }}me/">+{{ user.get_profile.get_shortname }}</a></li>
-    </ul>
-</div>

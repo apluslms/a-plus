@@ -1,6 +1,0 @@
-{% load i18n %}
-{% for ci in instances %}
-    <li><a href="{{ ci.get_absolute_url }}">{{ ci.course.code }} {{ ci.course.name }}</a></li>
-{% endfor %}
-<li class="divider"></li>
-<li><a href="{% url course.views.course_archive %}">{% trans "Course archive" %}</a></li>
