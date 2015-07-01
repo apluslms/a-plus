@@ -70,8 +70,7 @@ Walkthrough for Ubuntu on 6/2015
 		source venv/bin/activate
 		cd a-plus; ./manage.py migrate
 		
-	You may create local superuser for testing or manual user management.
-	
+		# You may create local superuser for testing or manual user management.
 		./manage.py createsuperuser
 
 7. Install uWSGI server, pip install for correct Python version.
@@ -81,12 +80,12 @@ Walkthrough for Ubuntu on 6/2015
 
 8. Configure uWSGI.
 
-	sudo mkdir /var/log/uwsgi
-	sudo mkdir -p /etc/uwsgi/apps-enabled
-	cd /etc/uwsgi/apps-enabled
-	sudo mkdir ../apps-available
-	sudo touch ../apps-available/aplus.ini
-	sudo ln -s ../apps-available/aplus.ini .
+		sudo mkdir /var/log/uwsgi
+		sudo mkdir -p /etc/uwsgi/apps-enabled
+		cd /etc/uwsgi/apps-enabled
+		sudo mkdir ../apps-available
+		sudo touch ../apps-available/aplus.ini
+		sudo ln -s ../apps-available/aplus.ini .
 	
 	Edit file `aplus.ini`:
 	
@@ -187,3 +186,9 @@ Walkthrough for Ubuntu on 6/2015
 		
 		</VirtualHost>
 		</IfModule>
+
+11. Run it all.
+
+		sudo /etc/init.d/shibd restart
+		sudo restart uwsgi
+		sudo /etc/init.d/apache2 restart
