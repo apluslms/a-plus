@@ -55,9 +55,9 @@ def lti_login(request, menu_id):
 
     # Determine user role.
     role = "Student"
-    if course_instance.is_teacher(user_profile):
+    if course_instance.is_teacher(user):
         role = "Instructor"
-    elif course_instance.is_assistant(user_profile):
+    elif course_instance.is_assistant(user):
         role = "TA,TeachingAssistant"
 
     parameters = {
