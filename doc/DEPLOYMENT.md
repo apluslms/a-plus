@@ -78,13 +78,17 @@ Walkthrough for Ubuntu on 6/2015
 
 		source venv/bin/activate
 		pip install uwsgi
-		
-		sudo mkdir /etc/uwsgi
-		sudo mkdir /var/log/uwsgi
 
 8. Configure uWSGI.
 
-	Add file `/etc/uwsgi/aplus.ini`:
+	sudo mkdir /var/log/uwsgi
+	sudo mkdir -p /etc/uwsgi/apps-enabled
+	cd /etc/uwsgi/apps-enabled
+	sudo mkdir ../apps-available
+	sudo touch ../apps-available/aplus.ini
+	sudo ln -s ../apps-available/aplus.ini .
+	
+	Edit file `aplus.ini`:
 	
 		[uwsgi]
 		chdir=/home/[shell-username]/a-plus
@@ -104,15 +108,14 @@ Walkthrough for Ubuntu on 6/2015
 		
 		respawn
 		
-		exec uwsgi --emperor /etc/uwsgi
+		exec uwsgi --emperor /etc/uwsgi/apps-enabled
 	
 	Operate with:
 	
 		sudo status uwsgi
 		sudo start uwsgi
 		
-	Force application reload with:
-	
+		# Force application reload with
 		sudo touch /etc/uwsgi/aplus.ini
 
 9. Install Apache and libraries.
@@ -131,7 +134,7 @@ Walkthrough for Ubuntu on 6/2015
 		cd /etc/apache2/sites-enabled
 		sudo ln -s ../sites-available/aplus-ssl 000-aplus-ssl
 		
-	Edit `000-plus-ssl`:
+	Edit `000-aplus-ssl`:
 	
 		<IfModule mod_ssl.c>
 		<VirtualHost _default_:443>
