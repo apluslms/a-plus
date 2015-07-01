@@ -12,14 +12,14 @@ The system has since been developed by various contributors at Aalto University,
 Requirements
 ------------
 
-A+ is a Django 1.7+ and Python 3 application which has been run in production using Postgresql database, Apache 2 and uwsgi. Consider using `virtualenv` and `pip3 install -r requirements.txt`. Create `local_settings.py` and override necessary Django settings from `a-plus/settings.py`. At least `DEBUG`, `SECRET_KEY` and `DATABASES` must be set in case of deployment. The server process needs write access to the `media` directory.
+A+ is a Django 1.7+ and Python 3.4+ application which has been run in production using Postgresql database, Apache 2 and uwsgi. See [doc/DEPLOYMENT.md](doc/DEPLOYMENT.md) for further deployment instructions. Consider using `virtualenv` and `pip3 install -r requirements.txt`. Create `local_settings.py` and override necessary Django settings from `a-plus/settings.py`. At least `DEBUG`, `SECRET_KEY` and `DATABASES` must be set in case of deployment. The server process needs write access to the `media` directory.
 
-Testing environment
--------------------
+Development
+-----------
 
-See [doc/](doc) on how to create and run a test environment for development.
+See [doc/README.md](doc/README.md) on how to create and run a test environment for development. The [doc/example_grader.py](doc/example_grader.py) is a minimal sample for implementing different kind of exercise graders.
 
-The [selenium_test/](selenium_test) offers an integration test suite run with Selenium Firefox driver.
+The [selenium_test/](selenium_test) offers an integration test suite using the Selenium Firefox driver.
 
 Code Organization
 -----------------
