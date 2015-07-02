@@ -46,12 +46,24 @@ class AbstractPage(object):
             WebDriverWait(self.driver, self.wait_timeout).until(EC.presence_of_element_located(element))
         except TimeoutException:
             raise TimeoutException("Wait for element failed: {0}".format(element))
+        
+    def waitForVisibleElement(self, element):
+        try:
+            WebDriverWait(self.driver, self.wait_timeout).until(EC.visibility_of_element_located(element))
+        except TimeoutException:
+            raise TimeoutException("Wait for element visibility failed: {0}".format(element))
 
     def waitForCondition(self, condition):
         try:
             WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
         except TimeoutException:
             raise TimeoutException("Wait for condition failed: {0}".format(condition))
+        
+    def waitForAjax(self):
+        try:
+            WebDriverWait(self.driver, self.wait_timeout).until(lambda driver: driver.execute_script("return jQuery.active") == 0)
+        except TimeoutException:
+            raise TimeoutException("Wait for Ajax timed out.")
 
     def checkBrowserErrors(self):
         errors = []
@@ -173,6 +185,7 @@ class HomePage(BasePage):
 
     def clickFilterCategories(self):
         self.getElement(HomePageLocators.FILTER_CATEGORIES_BUTTON).click()
+        self.waitForVisibleElement(HomePageLocators.UPDATE_FILTERS_BUTTON)
 
     def isOnlineExercisesCheckboxSelected(self):
         return self.getElement(HomePageLocators.ONLINE_EXERCISES_CHECKBOX).is_selected()
@@ -413,4 +426,3 @@ class MyAjaxExerciseGrader(ExercisePage):
         self.getElement(MyAjaxExerciseGraderLocators.SUBMIT_BUTTON).click()
         alert = self.getAlert()
         alert.accept()
-
