@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Content
 
 WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
+
+# To disable Shibboleth login, comment out 'shibboleth_login' in INSTALLED_APPS.
 LOGIN_TITLE_TEXT = 'Log in with Aalto WebLogin'
 LOGIN_BODY_TEXT = 'Click the button below to log in with Aalto University\'s Shibboleth service.'
 LOGIN_BUTTON_TEXT = 'Aalto WebLogin'
