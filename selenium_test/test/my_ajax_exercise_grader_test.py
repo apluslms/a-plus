@@ -9,12 +9,12 @@ class MyAjaxExerciseGraderTest(unittest.TestCase):
         testInitializer = TestInitializer()
         self.driver = testInitializer.getFirefoxDriverWithLoggingEnabled()
         testInitializer.recreateDatabase()
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginAsStudent()
 
     def testShouldGiveZeroPointsOnEmptySubmit(self):
         myAjaxExercisePage = MyAjaxExerciseGrader(self.driver)
         myAjaxExercisePage.submit()
-
+        myAjaxExercisePage.waitForAjax()
         self.assertEqual(myAjaxExercisePage.getAllowedSubmissions(), '1/10')
         self.assertEqual(myAjaxExercisePage.getExerciseScore(), '0 / 100')
         self.assertEqual(myAjaxExercisePage.getNumberOfSubmitters(), '1')
@@ -24,7 +24,7 @@ class MyAjaxExerciseGraderTest(unittest.TestCase):
         myAjaxExercisePage = MyAjaxExerciseGrader(self.driver)
         myAjaxExercisePage.setText("50")
         myAjaxExercisePage.submit()
-
+        myAjaxExercisePage.waitForAjax()
         self.assertEqual(myAjaxExercisePage.getAllowedSubmissions(), '1/10')
         self.assertEqual(myAjaxExercisePage.getExerciseScore(), '50 / 100')
         self.assertEqual(myAjaxExercisePage.getNumberOfSubmitters(), '1')
@@ -34,7 +34,7 @@ class MyAjaxExerciseGraderTest(unittest.TestCase):
         myAjaxExercisePage = MyAjaxExerciseGrader(self.driver)
         myAjaxExercisePage.setText("101")
         myAjaxExercisePage.submit()
-
+        myAjaxExercisePage.waitForAjax()
         self.assertEqual(myAjaxExercisePage.getAllowedSubmissions(), '1/10')
         self.assertEqual(myAjaxExercisePage.getExerciseScore(), '0 / 100')
         self.assertEqual(myAjaxExercisePage.getNumberOfSubmitters(), '1')

@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     # Shibboleth
-    url(r'^shibboleth/', include('django_shibboleth.urls')),
+    url(r'^shibboleth/', include('shibboleth_login.urls')),
 
     # A+ - Pay attention to the order the URL patterns will be matched!
     url(r'^$', 'course.views.home'),

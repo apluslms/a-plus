@@ -1,0 +1,18 @@
+{% load i18n %}
+<h2>
+	{{ login_title_text }}
+</h2>
+<p>
+	{{ login_body_text }}
+
+	{% if policy_url %}
+	{% blocktrans with url=policy_url %}
+	You may want to read our privacy policy <a href="{{ url }}">here</a>.
+	{% endblocktrans %}
+	{% endif %}
+</p>
+<p>
+	<a class="btn btn-primary" href="{% url 'shibboleth_login.views.login' %}?next={{ next|iriencode }}">
+		{{ login_button_text }}
+	</a>
+</p>

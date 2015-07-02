@@ -5,7 +5,7 @@ Installing Local Test Environment for A+
 
 The script `create_test_environment.sh` is intended for Unix environments. You need to have Python
 virtualenv and xml-related packages installed. Follow the OS specific instructions below to install
-everything you need.
+everything you need. 
 
 ### Ubuntu
 
@@ -31,26 +31,23 @@ Other package managers/tools may also work.
 
 ## Creating and running a Local A+ Development Environment
 
-Test environment script tries to create an environment where A+ can be run for testing. Script will try
-to do the following things:
+    # run the script
+    ./create_test_environment.sh [path_to_virtualenv]
+
+The script will try to do the following things:
 
   - Install virtualenv with all the dependencies of A+
   - Create a SQLite database with some initial data (from initial_data.json)
   - Finally it will prompt you to create a super user account (that you can use to log in to the local A+)
 
-Instructions for running the script (from this folder):
-
-    # run the script
-    ./create_test_environment.sh [path_to_virtualenv]
-
 After running the script (or setting up the environment manually) you can start
 the A+ server by running (from the project root folder):
 
-    [path_to_virtualenv]/bin/python manage.py runserver 8000
+    PATH_TO_VIRTUALENV/bin/python manage.py runserver 8000
 
 Unit tests can be executed by running (from the project root folder):
 
-    [path_to_virtualenv]/bin/python manage.py test
+    PATH_TO_VIRTUALENV/bin/python manage.py test
 
 
 ## Example grader
@@ -58,20 +55,25 @@ Unit tests can be executed by running (from the project root folder):
 If you've loaded the initial data the example exercise relies on you can use the external grader server
 (example_grader.py) running on port 8888. This grader can be started by running (from this folder):
     
-    [path_to_virtualenv]/bin/python example_grader.py
+    PATH_TO_VIRTUALENV/bin/python example_grader.py
 
 Now the example exercise in A+ should work and you should get points from submissions accordingly.
 
 
-### Troubleshooting (for Ubuntu)
+## Selenium integration tests
 
-* Error: ImportError: No module named _sysconfigdata_nd
-  Solutions: 
+Selenium tests are designed to run against a certain database state and service ports. The tests will open and direct Firefox browser windows.
 
-    sudo pip install --upgrade virtualenv
-    sudo ln -s /usr/lib/python2.7/plat-*/_sysconfigdata_nd.py /usr/lib/python2.7/
+### Prerequisites
 
-* Error: /usr/bin/ld: cannot find -lz
-  Solutions:
+- Firefox browser installed
+- Following packages in the virtualenv
 
-    sudo apt-get install lib32z1-dev
+	source PATH_TO_VIRTUALENV/bin/activate
+	pip install selenium nose
+
+### Running
+
+To setup the servers and run all the tests at one go (with virtualenv activated):
+
+	selenium_test/run_servers_and_tests.sh

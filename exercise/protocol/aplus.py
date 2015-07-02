@@ -52,10 +52,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
         else:
             submission.set_error()
             logger.error("No accept or points received: %s", exercise.service_url)
-            messages.error(request,
-                _("Assessment service gave erroneous response. "
-                  "<small>(No accept or points received)</small>"))
-        
+            messages.error(request, _("Assessment service responded with error."))
         if page.is_graded:
             if page.is_sane():
                 submission.set_points(
@@ -69,20 +66,26 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                     ))
             else:
                 submission.set_error()
-                logger.error("Insane grading %d/%d: %s",
-                    page.points, page.max_points, exercise.service_url)
+                logger.error("Insane grading %d/%d (exercise max %d): %s",
+                    page.points,
+                    page.max_points,
+                    exercise.max_points,
+                    exercise.service_url
+                )
                 messages.error(request,
-                    _("Assessment service gave erroneous response. "
-                      "<small>(Points: {points:d}/{max:d}, "
-                      "exercise max {exercise_max:d})</small>").format(
+                    _("Assessment service responded with invalid score. "
+                      "Points: {points:d}/{max:d} "
+                      "(exercise max {exercise_max:d})").format(
                         points=page.points,
                         max=page.max_points,
                         exercise_max=exercise.max_points
-                    ))
+                    )
+                )
         else:
             messages.success(request,
                 _("The exercise was submitted successfully "
-                  "and is now waiting to be graded."))
+                  "and is now waiting to be graded.")
+            )
         submission.save()
 
     return page

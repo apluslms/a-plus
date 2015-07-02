@@ -45,14 +45,15 @@ class CourseInstanceManager(models.Manager):
     Helpers in CourseInstance.objects
     """
     
-    def get_active(self, user=None):        
+    def get_active(self, user=None):
         qs = self.filter(ending_time__gte=timezone.now())
         if not user or not user.is_authenticated():
             qs = qs.filter(visible_to_students=True)        
         elif not user.is_superuser:
             qs = qs.filter(Q(visible_to_students=True)
                            | Q(assistants=user.userprofile)
-                           | Q(course__teachers=user.userprofile))        
+                           | Q(course__teachers=user.userprofile)
+                ).distinct()
         return qs
 
 

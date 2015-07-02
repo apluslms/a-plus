@@ -32,6 +32,11 @@ ALLOWED_HOSTS = []
 
 WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
 
+# To disable Shibboleth login, comment out 'shibboleth_login' in INSTALLED_APPS.
+LOGIN_TITLE_TEXT = 'Log in with Aalto WebLogin'
+LOGIN_BODY_TEXT = 'Click the button below to log in with Aalto University\'s Shibboleth service.'
+LOGIN_BUTTON_TEXT = 'Aalto WebLogin'
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -42,13 +47,13 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
 
-    # Third party applications
-    'django_shibboleth', # for shibboleth logins
-    'tastypie', # service api
+    # HTTP service API
+    'tastypie',
 
     # First party applications
     'inheritance',
     'userprofile',
+    'shibboleth_login',
     'course',
     'exercise',
     'deviations',
@@ -82,6 +87,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.contrib.messages.context_processors.messages",
     #"userprofile.context_processors.student_group",
+)
+
+AUTHENTICATION_BACKENDS = (
+    'shibboleth_login.auth_backend.ShibbolethAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 FILE_UPLOAD_HANDLERS = (
@@ -134,24 +144,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Shibboleth settings
-# https://github.com/sorrison/django-shibboleth 
-
-SHIB_ATTRIBUTE_MAP = {
-    "HTTP_SHIB_IDENTITY_PROVIDER": (True, "idp"),
-    "SHIB_eppn": (True, "eppn"),
-    "HTTP_SHIB_CN": (False, "cn"),
-    "HTTP_SHIB_DISPLAYNAME": (False, "first_name"),
-    "HTTP_SHIB_SN": (False, "last_name"),
-    #"HTTP_SHIB_AALTOID": (False, "student_id"),
-    "HTTP_SHIB_SCHACPERSONALUNIQUECODE": (False, "student_id"),
-    "HTTP_SHIB_MAIL": (False, "email")
-}
-SHIB_USERNAME = "eppn"
-SHIB_EMAIL = "email"
-SHIB_FIRST_NAME = "first_name"
-SHIB_LAST_NAME = "last_name"
 
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
