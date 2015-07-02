@@ -1,0 +1,16 @@
+<html>
+	<head>
+		<title>Shibboleth Debug</title>
+	</head>
+	<body>
+		<p>META</p>
+		<table>
+		  {% for name,value in meta_data %}
+		  <tr>
+		  	<td>{{ name }}</td>
+		  	<td>{{ value }}</td>
+		  </tr>
+		  {% endfor %}
+		</table>
+	</body>
+</html>

@@ -27,7 +27,16 @@ def login(request):
             redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
         return HttpResponseRedirect(redirect_to)
 
-    return django_login(request, template_name="userprofile/login.html")
+    return django_login(
+        request,
+        template_name="userprofile/login.html",
+        extra_context={
+            'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
+            'login_title_text': settings.LOGIN_TITLE_TEXT,
+            'login_body_text': settings.LOGIN_BODY_TEXT,
+            'login_button_text': settings.LOGIN_BUTTON_TEXT,
+        }
+    )
 
 
 @login_required
