@@ -79,7 +79,7 @@ class ShibbolethAuthBackend(ModelBackend):
     def _parse(self, shibd_meta, key_name, default_value=None):
         key = self._key(key_name)
         if key in shibd_meta:
-            return shibd_meta[key].decode('utf-8')
+            return shibd_meta[key]
         return default_value
 
     def _key(self, name):
