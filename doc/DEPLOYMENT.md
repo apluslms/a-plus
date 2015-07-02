@@ -164,6 +164,7 @@ Walkthrough for Ubuntu on 6/2015
 				Options FollowSymLinks
 				SetHandler uwsgi-handler
 				uWSGISocket 127.0.0.1:3031
+				uWSGIMaxVars 256
 			</Location>
 			<Location /static/>
 				SetHandler None
