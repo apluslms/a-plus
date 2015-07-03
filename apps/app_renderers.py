@@ -169,10 +169,10 @@ class TabRenderer(object):
         soup = BeautifulSoup(content)
 
         # If there's no element specified, use the BODY.
-        if self.element_id == "":
+        if self.tab.element_id == "":
             html = soup.find("body").renderContents()
         else:
-            html = str(soup.find(id=self.element_id))
+            html = str(soup.find(id=self.tab.element_id))
         
         # TODO: should make relative link addresses absolute
 

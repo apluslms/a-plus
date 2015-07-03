@@ -187,7 +187,7 @@
         </div>
         {% endif %}
         
-        {% plugin_renderers user course_instance as plugins %} 
+        {% plugin_renderers user instance as plugins %} 
         {% for plugin in plugins %}
             {{ plugin.render|safe }}
         {% endfor %}
