@@ -1,3 +1,6 @@
+import urllib.parse
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -43,13 +46,13 @@ class ShibbolethTest(TestCase):
     def test_invalid(self):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_eppn']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(User.objects.count(), 1)
     
     def test_valid_new(self):
         meta = DEF_SHIBD_META.copy()
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 2)
         user = User.objects.get(username='teekkarit@aalto.fi')
@@ -62,7 +65,7 @@ class ShibbolethTest(TestCase):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_mail']
         del meta['SHIB_displayName']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 2)
         user = User.objects.get(username='teekkarit@aalto.fi')
@@ -74,7 +77,7 @@ class ShibbolethTest(TestCase):
     def test_without_student_id(self):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_schacPersonalUniqueCode']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 2)
         user = User.objects.get(username='teekkarit@aalto.fi')
@@ -87,7 +90,7 @@ class ShibbolethTest(TestCase):
         meta = DEF_SHIBD_META.copy()
         meta['SHIB_eppn'] = self.user.username
         del meta['SHIB_sn']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 1)
         user = User.objects.first()
@@ -102,7 +105,7 @@ class ShibbolethTest(TestCase):
         del meta['SHIB_displayName']
         meta['SHIB_sn'] = 'Meikäläinen'
         del meta['SHIB_schacPersonalUniqueCode']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 1)
         user = User.objects.first()
@@ -116,6 +119,12 @@ class ShibbolethTest(TestCase):
         self.user.save()
         meta = DEF_SHIBD_META.copy()
         meta['SHIB_eppn'] = self.user.username.encode('utf-8')
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(User.objects.count(), 1)
+        
+    def _get(self, meta):
+        if settings.SHIBBOLETH_VARIABLES_URL_ENCODED:
+            for key in meta.keys():
+                meta[key] = urllib.parse.quote(meta[key])
+        return self.client.generic('GET', self.login_url, **meta)

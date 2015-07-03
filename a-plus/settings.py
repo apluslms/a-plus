@@ -110,11 +110,11 @@ DATABASE_FILE = os.environ.get('APLUS_DB_FILE', default='aplus.db')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_DIR, DATABASE_FILE),  # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'NAME': os.path.join(BASE_DIR, DATABASE_FILE), # Or path to database file if using sqlite3.
+        'USER': '', # Not used with sqlite3.
+        'PASSWORD': '', # Not used with sqlite3.
+        'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '', # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -132,6 +132,10 @@ USE_L10N = True
 USE_TZ = True
 
 #DATETIME_FORMAT = "Y-m-d H:i"
+
+# Apache module mod_uwsgi was unable to create UTF-8 environment variables.
+# Problem was avoided by URL encoding in Shibboleth: <RequestMap encoding="URL" /> 
+SHIBBOLETH_VARIABLES_URL_ENCODED = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
