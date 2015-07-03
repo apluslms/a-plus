@@ -1,6 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 {% load exercise %}
+{% load apps %}
 
 {% block coursecontent %}
 <div class="row">
@@ -186,8 +187,9 @@
         </div>
         {% endif %}
         
-        {% for plugin_renderer in plugin_renderers %}
-            {{ plugin_renderer.render|safe }}
+        {% plugin_renderers user course_instance as plugins %} 
+        {% for plugin in plugins %}
+            {{ plugin.render|safe }}
         {% endfor %}
 
     </div>
