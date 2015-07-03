@@ -1,51 +1,72 @@
 Installing Local Test Environment for A+
 ========================================
 
+
 ## Prerequisites
 
-The script `create_test_environment.sh` is intended for Unix environments. You need to have Python
-virtualenv and xml-related packages installed. Follow the OS specific instructions below to install
-everything you need. 
+You need to have Python 3.4+ and virtualenv installed.
+Follow the OS specific instructions below to install everything you need. 
 
 ### Ubuntu
 
-    sudo apt-get install python-virtualenv libxml2-dev libxslt-dev python-dev libyaml-dev zlib1g-dev
-    sudo pip install pyyaml
+The "python3" package of Ubuntu/Debian is still Python 3.2.
+Until the packaged version is upgraded it is necessary to compile from source.
+Other Linux flavors should follow the same pattern (e.g. replace apt-get with yum).
 
-### Fedora
+	sudo apt-get install libsqlite3-dev
+	wget https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz
+	tar xvf Python-3.4.3.tar.xz
+	cd Python-3.4.3
+	./configure
+	make
+	sudo make install
+	
+	sudo pip3 install --upgrade pip
+    sudo pip3 install virtualenv
     
-    sudo yum install python-virtualenv libxml2-devel libxslt-devel python-devel
+    cd [project_root]
+    ./create_test_environment.sh [optional_path_to_virtualenv]
 
-### OS X (Yosemite)
+### OS X
 
-These instructions use the [Homebrew](http://brew.sh/) package manager to install the prerequisites.
-Other package managers/tools may also work.
+These instructions use the [Homebrew](http://brew.sh/) package manager.
+To compile packages also the Xcode command line tool package is required.
 
-    # install/update Xcode command line tools
     xcode-select --install
-    # use brew to install prerequisites
-    brew install python libxml2 libxslt
-    # use pip to install virtualenv (pip came with brew's python)
-    pip install virtualenv
+    sudo brew install python3
+
+    sudo pip3 install --upgrade pip 
+    sudo pip3 install virtualenv
+
+	cd [project_root]
+	./create_test_environment.sh [optional_path_to_virtualenv]
+
+### Windows
+
+First install Python 3.4 from [python.org](https://www.python.org/downloads/).
+Then manually create Python virtualenv.
+
+	cd [project_root]
+	C:\Python34\python -m venv [path_to_virtualenv]
+	[path_to_virtualenv]/Scripts/activate.bat
+	pip install --upgrade pip
+	pip install -r requirements.txt
+
+Last manually create Django sqlite database for testing.
+
+	python manage.py migrate
+	python manage.py loaddata doc/initial_data.json
+	python manage.py createsuperuser
 
 
-## Creating and running a Local A+ Development Environment
+## Running a Local A+ Development Environment
 
-    # run the script
-    ./create_test_environment.sh [path_to_virtualenv]
-
-The script will try to do the following things:
-
-  - Install virtualenv with all the dependencies of A+
-  - Create a SQLite database with some initial data (from initial_data.json)
-  - Finally it will prompt you to create a super user account (that you can use to log in to the local A+)
-
-After running the script (or setting up the environment manually) you can start
-the A+ server by running (from the project root folder):
+After running the automatic script or setting up the environment manually
+you can start the A+ server by running (from the project root folder):
 
     PATH_TO_VIRTUALENV/bin/python manage.py runserver 8000
 
-Unit tests can be executed by running (from the project root folder):
+Unit tests can be executed by running:
 
     PATH_TO_VIRTUALENV/bin/python manage.py test
 
@@ -53,8 +74,9 @@ Unit tests can be executed by running (from the project root folder):
 ## Example grader
 
 If you've loaded the initial data the example exercise relies on you can use the external grader server
-(example_grader.py) running on port 8888. This grader can be started by running (from this folder):
+(example_grader.py) running on port 8888. This grader can be started by running:
     
+    cd [project_root]/doc
     PATH_TO_VIRTUALENV/bin/python example_grader.py
 
 Now the example exercise in A+ should work and you should get points from submissions accordingly.
@@ -62,18 +84,34 @@ Now the example exercise in A+ should work and you should get points from submis
 
 ## Selenium integration tests
 
-Selenium tests are designed to run against a certain database state and service ports. The tests will open and direct Firefox browser windows.
+Selenium tests are designed to run against a certain database state and service ports.
+The tests will automatically open and direct Firefox browser windows. Currently the tests
+are depended on unix type shell. All the following commands assume that the project
+virtualenv is activated:
+
+		cd [project_root]
+		source PATH_TO_VIRTUALENV/bin/activate
 
 ### Prerequisites
 
-- Firefox browser installed
-- Following packages in the virtualenv
+  - Firefox browser installed
+  - Following packages in the virtualenv
 
-	source PATH_TO_VIRTUALENV/bin/activate
-	pip install selenium nose
+		pip install selenium
+		pip install nose
 
 ### Running
 
-To setup the servers and run all the tests at one go (with virtualenv activated):
+To setup the servers and run all the tests at one go:
 
 	selenium_test/run_servers_and_tests.sh
+
+Running individual tests:
+
+	cd selenium_test/test/
+	../run_servers.sh
+	
+	python login_test.py
+	python home_page_test.py
+
+	../kill_servers.sh
