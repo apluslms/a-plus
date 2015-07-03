@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load external_services %}
 
     <li class="nav-header">
         {% trans "Course" %}
@@ -28,13 +29,12 @@
         </a>
     </li>
 
-    {% load external_services_tags %}
-    {% ext_service_entries instance.pk %}
-    {% if ext_menu_entries|length > 0 %}
+    {% external_menu_entries instance.pk as entries %}
+    {% if entries|length > 0 %}
     <li class="nav-header">
         {% trans "External" %}
     </li>
-    {% for menu_entry in ext_menu_entries %}
+    {% for menu_entry in entries %}
     <li>
         <a href="{{ menu_entry.url }}" target="_blank">
             <i class="{{ menu_entry.icon_class }}"></i>

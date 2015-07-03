@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 
-from apps.app_renderers import build_plugin_renderers
 from course.context import CourseContext
 from course.decorators import access_resource
 from exercise.presentation.score import ScoreBoard
@@ -56,15 +55,6 @@ def user_score(request, course_url=None, instance_url=None,
     """
     summary = UserCourseSummary(course_instance, request.user)
     score = ScoreBoard(course_instance, request.user)
-
-    # TODO: refactor all plugins to tags in plugins app
-    profile = UserProfile.get_by_request(request)
-    plugin_renderers = build_plugin_renderers(
-        plugins=course_instance.plugins.all(),
-        view_name="course_instance",
-        user_profile=profile,
-        course_instance=course_instance)
-
     return render_to_response("exercise/user_score.html", CourseContext(
         request,
         course=course,
@@ -72,7 +62,6 @@ def user_score(request, course_url=None, instance_url=None,
         course_summary=summary,
         exercise_tree=score.collect_tree(summary),
         visible_categories=score.collect_categories(summary),
-        plugin_renderers=plugin_renderers,
     ))
 
 
@@ -90,7 +79,7 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
             request,
             exercise=exercise,
             course_instance=course_instance,
-            exercise_summary=summary,                                  
+            exercise_summary=summary,
         ))
 
     # TODO: add ability to select a group
@@ -117,14 +106,6 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
     summary = UserExerciseSummary(exercise, request.user)
     profile = UserProfile.get_by_request(request)
     submissions = exercise.get_submissions_for_student(profile)
-
-    plugin_renderers = build_plugin_renderers(
-        plugins=course_instance.plugins.all(),
-        view_name="exercise",
-        user_profile=profile,
-        exercise=exercise,
-        course_instance=course_instance)
-
     return render_to_response('exercise/exercise.html', CourseContext(
         request,
         exercise=exercise,
@@ -132,44 +113,33 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
         page=page,
         submissions=submissions,
         exercise_summary=summary,
-        plugin_renderers=plugin_renderers
     ))
 
 
 @access_resource
 def view_submission(request, course_url=None, instance_url=None,
                     exercise_id=None, submission_id=None,
-                  course=None, course_instance=None,
-                  exercise=None, submission=None):
+                    course=None, course_instance=None,
+                    exercise=None, submission=None):
 
-    current_profile = UserProfile.get_by_request(request)
     if submission.is_submitter(request.user):
-        profile = current_profile
+        profile = UserProfile.get_by_request(request)
     else:
         profile = submission.submitters.first()
+    
     submissions = exercise.get_submissions_for_student(profile)
     index = 1 + list(submissions).index(submission)
 
-    exercise_summary = UserExerciseSummary(exercise, profile.user)
-
-    plugin_renderers = build_plugin_renderers(
-        course_instance.plugins.all(),
-        "submission",
-        submission=submission,
-        exercise=exercise,
-        course_instance=course_instance,
-        user_profile=current_profile)
+    summary = UserExerciseSummary(exercise, profile.user)
 
     return render_to_response("exercise/submission.html", CourseContext(
         request,
         submission=submission,
-        exercise=submission.exercise,
-        course_instance=exercise
-        .course_module.course_instance,
+        exercise=exercise,
+        course_instance=course_instance,
         submissions=submissions,
         submission_number=index,
-        exercise_summary=exercise_summary,
-        plugin_renderers=plugin_renderers
+        exercise_summary=summary,
     ))
 
 

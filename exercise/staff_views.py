@@ -1,28 +1,27 @@
-from datetime import datetime
 import json
 import logging
 
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.http import HttpResponseForbidden
+from django.http.response import JsonResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import loader
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from course.context import CourseContext
 from course.decorators import access_teacher_resource, \
     access_assistant_resource, access_graded_resource
 from exercise.models import BaseExercise
+from exercise.presentation.results import ResultTable
 from exercise.submission_forms import SubmissionReviewForm, \
     SubmissionCreateAndReviewForm, BathSubmissionCreateAndReviewForm
-from exercise.presentation.results import ResultTable
 from exercise.submission_models import Submission
 from lib.helpers import extract_form_errors
 from notification.models import Notification
 from userprofile.models import UserProfile
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
-from django.http.response import JsonResponse
-from django.utils import timezone
 
 
 logger = logging.getLogger('aplus.exercise')

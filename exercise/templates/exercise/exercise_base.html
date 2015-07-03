@@ -1,5 +1,6 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load apps %}
 
 {% block maintitle %}
 <h1>
@@ -40,8 +41,13 @@
                 </div>
                 {% endblock %}
 
-                {% for plugin_renderer in plugin_renderers %}
-                    {{ plugin_renderer.render|safe }}
+				{% if submission %}
+					{% plugin_renderers user submission as plugins %}
+				{% else %}
+					{% plugin_renderers user exercise as plugins %}
+				{% endif %}
+                {% for plugin in plugins %}
+                    {{ plugin.render|safe }}
                 {% endfor %}
             </div>
         </div>

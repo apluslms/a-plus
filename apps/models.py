@@ -126,13 +126,13 @@ class RSSPlugin(BasePlugin):
         doc = feedparser.parse(self.feed_url)
         feed = doc.feed
 
-        sorted_entries = sorted(doc["entries"], key=lambda entry: entry.date_parsed)
+        sorted_entries = sorted(doc["entries"], key=lambda entry: entry.published_parsed)
         sorted_entries.reverse()
         sorted_entries = sorted_entries[:5]
 
         # Set timestamps in a format that Django knows how to handle in templates
         for entry in sorted_entries:
-            entry.django_timestamp = datetime.datetime(*entry.date_parsed[:7])
+            entry.django_timestamp = datetime.datetime(*entry.published_parsed[:7])
 
         out = loader.render_to_string("plugins/rss.html", {
             "entries": sorted_entries,

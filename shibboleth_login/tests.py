@@ -1,3 +1,6 @@
+import urllib.parse
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -5,22 +8,22 @@ from django.utils import timezone
 
 
 DEF_SHIBD_META = {
-    'SHIB_cn': b'Teemu Teekkari',
-    'SHIB_mail': b'teemu.teekkari@aalto.fi',
-    'Shib-Authentication-Method': b'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport',
-    'Shib-Identity-Provider': b'https://locahost/idp/shibboleth',
-    'SHIB_displayName': b'Teemu',
-    'Shib-AuthnContext-Class': b'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport',
-    'SHIB_schacPersonalUniqueCode': b'urn:mace:terena.org:schac:personalUniqueCode:int:studentID:aalto.fi:123453',
-    'Shib-Session-Index': b'_941d95bafed0b1787c81541e627a8c8b',
-    'SHIB_sn': b'Teekkari',
-    'SHIB_givenName': b'Teemudemus',
-    'Shib-Application-ID': b'default',
-    'Shib-Authentication-Instant': str(timezone.now()).encode('utf-8'),
-    'Shib-Session-ID': b'_92d7c6a832b5c7dafea59ea12ca1289e',
-    'SHIB_preferredLanguage': b'fi',
-    'SHIB_logouturl': b'https://localhost/idp/aalto_logout.jsp',
-    'SHIB_eppn': b'teekkarit@aalto.fi',
+    'SHIB_cn': 'Teemu Teekkari',
+    'SHIB_mail': 'teemu.teekkari@aalto.fi',
+    'Shib-Authentication-Method': 'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport',
+    'Shib-Identity-Provider': 'https://locahost/idp/shibboleth',
+    'SHIB_displayName': 'Teemu',
+    'Shib-AuthnContext-Class': 'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport',
+    'SHIB_schacPersonalUniqueCode': 'urn:mace:terena.org:schac:personalUniqueCode:int:studentID:aalto.fi:123453',
+    'Shib-Session-Index': '_941d95bafed0b1787c81541e627a8c8b',
+    'SHIB_sn': 'Teekkari',
+    'SHIB_givenName': 'Teemudemus',
+    'Shib-Application-ID': 'default',
+    'Shib-Authentication-Instant': str(timezone.now()),
+    'Shib-Session-ID': '_92d7c6a832b5c7dafea59ea12ca1289e',
+    'SHIB_preferredLanguage': 'fi',
+    'SHIB_logouturl': 'https://localhost/idp/aalto_logout.jsp',
+    'SHIB_eppn': 'teekkarit@aalto.fi',
 }
 
 
@@ -43,13 +46,13 @@ class ShibbolethTest(TestCase):
     def test_invalid(self):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_eppn']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(User.objects.count(), 1)
     
     def test_valid_new(self):
         meta = DEF_SHIBD_META.copy()
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 2)
         user = User.objects.get(username='teekkarit@aalto.fi')
@@ -62,7 +65,7 @@ class ShibbolethTest(TestCase):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_mail']
         del meta['SHIB_displayName']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 2)
         user = User.objects.get(username='teekkarit@aalto.fi')
@@ -74,7 +77,7 @@ class ShibbolethTest(TestCase):
     def test_without_student_id(self):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_schacPersonalUniqueCode']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 2)
         user = User.objects.get(username='teekkarit@aalto.fi')
@@ -85,9 +88,9 @@ class ShibbolethTest(TestCase):
 
     def test_valid_old(self):
         meta = DEF_SHIBD_META.copy()
-        meta['SHIB_eppn'] = self.user.username.encode('utf-8')
+        meta['SHIB_eppn'] = self.user.username
         del meta['SHIB_sn']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 1)
         user = User.objects.first()
@@ -100,9 +103,9 @@ class ShibbolethTest(TestCase):
         meta = DEF_SHIBD_META.copy()
         meta['SHIB_eppn'] = self.user.username.encode('utf-8')
         del meta['SHIB_displayName']
-        meta['SHIB_sn'] = 'Meikäläinen'.encode('utf-8')
+        meta['SHIB_sn'] = 'Meikäläinen'
         del meta['SHIB_schacPersonalUniqueCode']
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 1)
         user = User.objects.first()
@@ -116,6 +119,12 @@ class ShibbolethTest(TestCase):
         self.user.save()
         meta = DEF_SHIBD_META.copy()
         meta['SHIB_eppn'] = self.user.username.encode('utf-8')
-        response = self.client.generic('GET', self.login_url, **meta)
+        response = self._get(meta)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(User.objects.count(), 1)
+        
+    def _get(self, meta):
+        if settings.SHIBBOLETH_VARIABLES_URL_ENCODED:
+            for key in meta.keys():
+                meta[key] = urllib.parse.quote(meta[key])
+        return self.client.generic('GET', self.login_url, **meta)

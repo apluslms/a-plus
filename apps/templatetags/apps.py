@@ -1,0 +1,48 @@
+import logging
+
+from django import template
+
+from apps.app_renderers import build_plugin_renderers
+from course.models import CourseInstance
+from exercise.exercise_models import BaseExercise
+from exercise.submission_models import Submission
+
+
+logger = logging.getLogger("aplus.apps")
+register = template.Library()
+
+
+@register.assignment_tag
+def plugin_renderers(user, some_model, view_name=None):
+    """
+    Builds the plugin renderers for a view.
+    """
+    if isinstance(some_model, CourseInstance):
+        return build_plugin_renderers(
+            some_model.plugins.all(),
+            view_name or "course_instance",
+            user_profile=user.userprofile,
+            course_instance=some_model,
+        )
+    if isinstance(some_model, BaseExercise):
+        course_instance = some_model.course_instance
+        return build_plugin_renderers(
+            course_instance.plugins.all(),
+            view_name or "exercise",
+            user_profile=user.userprofile,
+            exercise=some_model,
+            course_instance=course_instance,
+        )
+    if isinstance(some_model, Submission):
+        course_instance = some_model.exercise.course_instance
+        return build_plugin_renderers(
+            course_instance.plugins.all(),
+            view_name or "submission",
+            user_profile=user.userprofile,
+            submission=some_model,
+            exercise=some_model.exercise,
+            course_instance=course_instance,
+        )
+    logger.warn("Unrecognized model type received for plugin_renderers tag: {}" \
+                .format(str(type(some_model))))
+    return []
