@@ -173,6 +173,7 @@ class BaseExercise(LearningObject):
                     percent=self.course_module.get_late_submission_point_worth(),
                 ))
 
+        warnings = list(str(warning) for warning in warnings) 
         return success, warnings
 
     def get_total_submitter_count(self):

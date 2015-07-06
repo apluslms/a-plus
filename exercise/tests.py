@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
+import json
 import urllib
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -15,7 +17,6 @@ from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject
 from exercise.presentation.summary import UserCourseSummary
 from exercise.protocol.exercise_page import ExercisePage
-from django.core.exceptions import ValidationError
 
 
 class ExerciseTest(TestCase):
@@ -283,7 +284,10 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile], self.tomorrow))
 
     def test_base_exercise_submission_allowed(self):
-        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.userprofile])[0])
+        ok, errors = self.base_exercise.is_submission_allowed([self.user.userprofile])
+        self.assertFalse(ok)
+        self.assertEqual(len(errors), 1)
+        json.dumps(errors)
         self.assertTrue(self.static_exercise.is_submission_allowed([self.user.userprofile])[0])
         self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.user.userprofile])[0])
         self.assertFalse(self.old_base_exercise.is_submission_allowed([self.user.userprofile])[0])
