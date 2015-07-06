@@ -357,7 +357,7 @@ class ExerciseTest(TestCase):
 
     def test_exercise_upload_dir(self):
         from exercise.exercise_models import build_upload_dir
-        self.assertEqual("exercise_attachments/exercise_5/test_file_name",
+        self.assertEqual("exercise_attachments/course_instance_1/exercise_5/test_file_name",
                          build_upload_dir(self.exercise_with_attachment, "test_file_name"))
 
     def test_exercise_with_attachment_files_to_submit(self):
