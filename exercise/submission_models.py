@@ -10,7 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from exercise import exercise_models
 from lib.fields import JSONField, PercentField
-from lib.helpers import get_random_string, query_dict_to_list_of_tuples
+from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
+    safe_file_name
 from userprofile.models import UserProfile
 
 
@@ -223,19 +224,14 @@ def build_upload_dir(instance, filename):
     @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
     submission = instance.submission
-    exercise = submission.exercise
-    course_instance = exercise.course_module.course_instance
-    
-    submitter_ids = [str(profile.id) for profile in submission.submitters.all()]
-    
-    # TODO: convert filename to ASCII + only isalnum . _ -(not first)
-    
+    exercise = submission.exercise    
+    submitter_ids = [str(profile.id) for profile in submission.submitters.all().order_by("id")]
     return "submissions/course_instance_{:d}/exercise_{:d}/users_{}/submission_{:d}/{}".format(
-        course_instance.id,
+        exercise.course_instance.id,
         exercise.id,
         "-".join(submitter_ids),
         submission.id,
-        filename
+        safe_file_name(filename)
     )
 
 

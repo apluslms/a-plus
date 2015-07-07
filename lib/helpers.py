@@ -49,3 +49,12 @@ def query_dict_to_list_of_tuples(query_dict):
 def update_url_params(url, params):
     delimiter = "&" if "?" in url else "?"
     return url + delimiter + urllib.parse.urlencode(params)
+
+
+FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-"
+
+def safe_file_name(name):
+    safename = "".join(c for c in name if c in FILENAME_CHARS)
+    if safename[0] == "-":
+        return "_" + safename[1:]
+    return safename

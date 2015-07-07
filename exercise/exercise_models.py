@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
 from inheritance.models import ModelWithInheritance
-from lib.helpers import update_url_params
+from lib.helpers import update_url_params, safe_file_name
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
@@ -173,6 +173,7 @@ class BaseExercise(LearningObject):
                     percent=self.course_module.get_late_submission_point_worth(),
                 ))
 
+        warnings = list(str(warning) for warning in warnings) 
         return success, warnings
 
     def get_total_submitter_count(self):
@@ -279,7 +280,11 @@ def build_upload_dir(instance, filename):
     @param filename: the actual name of the submitted file
     @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
-    return "exercise_attachments/exercise_{:d}/{}".format(instance.id, filename)
+    return "exercise_attachments/course_instance_{:d}/exercise_{:d}/{}".format(
+        instance.course_instance.id,
+        instance.id,
+        safe_file_name(filename)
+    )
 
 
 class ExerciseWithAttachment(BaseExercise):
