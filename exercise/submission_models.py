@@ -197,7 +197,7 @@ class Submission(models.Model):
     def get_absolute_url(self):
         exercise = self.exercise
         instance = exercise.course_instance
-        return reverse("exercise.views.view_submission", kwargs={
+        return reverse("submission", kwargs={
             "course_url": instance.course.url,
             "instance_url": instance.url,
             "exercise_id": exercise.id,

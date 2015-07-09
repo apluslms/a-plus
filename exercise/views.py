@@ -2,8 +2,8 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.http.response import Http404
-from django.shortcuts import get_object_or_404, render_to_response
+from django.http.response import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 
@@ -68,12 +68,12 @@ def user_score(request, course_url=None, instance_url=None,
 @csrf_exempt
 @access_resource
 def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
-                  course=None, course_instance=None, exercise=None):
+                  course=None, course_instance=None, exercise=None, plain=False):
     """
     Displays exercise content and receives exercise submissions.
     
     """
-    if request.is_ajax():
+    if not plain and request.is_ajax():
         summary = UserExerciseSummary(exercise, request.user)
         return render_to_response('exercise/_exercise_info.html', CourseContext(
             request,
@@ -94,19 +94,28 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
         new_submission = Submission.objects.create_from_post(
             exercise, students, request)
         if new_submission:
-            page = exercise.grade(request, new_submission) 
+            page = exercise.grade(request, new_submission)
         else:
             messages.error(request,
                 _("The submission could not be saved for some reason. "
                   "This might be caused by too long file name. "
                   "The submission was not registered."))
+        
+        # Redirect back to module content page.
+        if not request.is_ajax() and "_rf" in request.GET:
+            return redirect("{}#{}".format(
+                exercise.course_module.get_absolute_url(),
+                request.GET["_rf"]
+            ));
     else:
         page = exercise.load(request, students)
 
     summary = UserExerciseSummary(exercise, request.user)
     profile = UserProfile.get_by_request(request)
     submissions = exercise.get_submissions_for_student(profile)
-    return render_to_response('exercise/exercise.html', CourseContext(
+    
+    template = "exercise/exercise_plain.html" if plain else "exercise/exercise.html"
+    return render_to_response(template, CourseContext(
         request,
         exercise=exercise,
         course_instance=course_instance,
@@ -121,6 +130,14 @@ def view_submission(request, course_url=None, instance_url=None,
                     exercise_id=None, submission_id=None,
                     course=None, course_instance=None,
                     exercise=None, submission=None):
+    if request.is_ajax():
+        return render_to_response("exercise/submission_plain.html", CourseContext(
+            request,
+            course=course,
+            course_instance=course_instance,
+            exercise=exercise,
+            submission=submission,
+        ))
 
     if submission.is_submitter(request.user):
         profile = UserProfile.get_by_request(request)
@@ -129,18 +146,27 @@ def view_submission(request, course_url=None, instance_url=None,
     
     submissions = exercise.get_submissions_for_student(profile)
     index = 1 + list(submissions).index(submission)
-
+    
     summary = UserExerciseSummary(exercise, profile.user)
 
     return render_to_response("exercise/submission.html", CourseContext(
         request,
-        submission=submission,
-        exercise=exercise,
+        course=course,
         course_instance=course_instance,
+        exercise=exercise,
+        submission=submission,
         submissions=submissions,
         submission_number=index,
         exercise_summary=summary,
     ))
+
+
+@access_resource
+def poll_submission(request, course_url=None, instance_url=None,
+                    exercise_id=None, submission_id=None,
+                    course=None, course_instance=None,
+                    exercise=None, submission=None):
+    return HttpResponse(submission.status, content_type="text/plain")
 
 
 @access_resource

@@ -110,7 +110,9 @@ def parse_page_content(page, html):
     
         if _get_value_from_soup(head, "meta", "value", {"name": "status"}) == "accepted":
             page.is_accepted = True
-    
+            if _get_value_from_soup(head, "meta", "value", {"name": "wait"}):
+                page.is_wait = True
+
         meta_title = _get_value_from_soup(head, "meta", "content", {"name": "DC.Title"})
         if meta_title:
             page.meta["title"] = meta_title
@@ -128,6 +130,7 @@ def parse_page_content(page, html):
             page.points = int(points)
             page.is_graded = True
             page.is_accepted = True
+            page.is_wait = False
 
     exercise_div = soup.body.find("div", {"id": "exercise"})
     if exercise_div != None:

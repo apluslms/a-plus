@@ -1,0 +1,51 @@
+{% extends "course/course_base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'exercise/poll.js' %}"></script>
+<script src="{% static 'course/module.js' %}"></script>
+{% endblock %}
+
+{% block title %}
+{{ course.name }}: {{ module.name }}
+{% endblock %}
+
+{% block maintitle %}
+<h1>
+	<small>{{ course.name }}</small>
+    <br />
+    {{ module.name }}
+</h1>
+{% endblock %}
+
+{% block coursecontent %}
+<div id="module" data-module-url="{% url 'course.views.view_module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+
+	<div id="loading-indicator" style="display:none;"
+		data-msg-load="{% trans 'Loading exercise...' %}"
+		data-msg-error="{% trans 'Communication error with the exercise.' %}"
+		data-msg-submit="{% trans 'Posting submission...' %}"
+		data-msg-grade="{% trans 'Grading submission...' %}"
+		data-msg-timeout="{% trans 'Grading takes longer than expected. Load the page later to see the result.' %}">
+		<div class="progress progress-striped active">
+			<div class="bar" style="width:100%;"></div>
+		</div>
+	</div>
+
+	<div id="embed-modal" class="modal hide">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-body"></div>
+				<div class="modal-footer">
+					<button type="button" class="btn" data-dismiss="modal">{% trans "Close" %}</button>
+				</div>				
+			</div>
+		</div>
+	</div>
+
+	{{ content|safe }}
+
+</div>
+{% endblock %}

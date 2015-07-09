@@ -174,7 +174,8 @@ class CourseModule(models.Model):
     course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
     opening_time = models.DateTimeField(default=timezone.now)
     closing_time = models.DateTimeField(default=timezone.now)
-    content_url = models.URLField(blank=True)
+    content_url = models.URLField(blank=True,
+                                  help_text=_("An URL to enable content view for this module."))
 
     # early_submissions_allowed= models.BooleanField(default=False)
     # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)

@@ -52,7 +52,7 @@ class LearningObject(ModelWithInheritance):
 
     def get_absolute_url(self):
         instance = self.course_instance
-        return reverse("learning_object", kwargs={
+        return reverse("exercise", kwargs={
             "course_url": instance.course.url,
             "instance_url": instance.url,
             "exercise_id": self.id

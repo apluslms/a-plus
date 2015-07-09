@@ -42,6 +42,7 @@ The FORM must use empty (or `post_url`) as ACTION.
 	Unique address for asynchronously *grading this submission*.
 
 * `post_url`
+
 	Unique address for posting a new submission form.
 
 * `max_points`

@@ -1,4 +1,3 @@
-
 import datetime
 
 from django.conf import settings
@@ -13,8 +12,8 @@ from icalendar import Calendar, Event
 from course.context import CourseContext
 from course.decorators import access_resource
 from course.models import CourseInstance
+from lib.remote_page import RemotePage, RemotePageException
 from userprofile.models import UserProfile
-from exercise.presentation.summary import UserModuleSummary
 
 
 def home(request):
@@ -65,20 +64,22 @@ def view_module(request, course_url=None, instance_url=None, module_url=None,
     Displays module content if such exists and receives exercise submissions.
     
     """
-    if module.content_url == "":
+    if not module.content_url:
         return redirect('user_score',
                         course_url=course.url,
                         instance_url=course_instance.url)
+    try:
+        page = RemotePage(module.content_url)
+        page.fix_relative_urls()
+    except RemotePageException:
+        messages.error(request, _("Connecting to the content service failed!"))
     
-    # TODO: fetch and cache from content_url, handle exercise submissions
-    
-    summary = UserModuleSummary(module, request.user)
-    return render_to_response("exercise/module.html", CourseContext(
+    return render_to_response("course/module.html", CourseContext(
         request,
         course=course,
         course_instance=course_instance,
         module=module,
-        module_summary=summary,
+        content=page.element_or_body("module"),
     ))
 
 

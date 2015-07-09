@@ -1,0 +1,63 @@
+{% load i18n %}
+{% load staticfiles %}
+{% load exercise %}
+<html>
+	<head>
+		<title>{{ exercise.name }}</title>
+		<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+		<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+		<script type="text/javascript" src="{% static 'exercise/poll.js' %}"></script>
+		<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}" />
+	</head>
+	<body>
+		<div id="exercise">
+			<ul class="exercise-summary nav nav-tabs">
+				<li>
+					<a href="{{ exercise_summary.get_best_submission.get_absolute_url }}">
+						{% trans "Points" %}
+						<span class="{% if exercise_summary.get_submission_count > 0 %}label{% if exercise_summary.is_passed %} label-success{% endif %}{% endif %}">
+						{{ exercise_summary.get_points }}
+						</span>
+						/ {{ exercise.max_points }}
+					</a>
+				</li>
+				<li class="dropdown">
+	    			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+						{% trans "Submissions" %}
+						{{ exercise_summary.get_submission_count }}
+		    			{% if exercise.max_submissions %}
+		    			/ {{ exercise|max_submissions:profile }}
+		    			{% endif %}
+	    				<b class="caret"></b>
+	    			</a>
+			        <ul class="dropdown-menu">
+			        	{% for submission in submissions %}
+			            <li>
+			                <a href="{{ submission.get_absolute_url }}">
+			                    {{ forloop.revcounter }}.
+			                    {{ submission.submission_time }}
+			                    {% if submission.is_graded %}
+			                    {{ submission.grade }} / {{ exercise.max_points }}
+			                    {% endif %}
+			                </a>
+			            </li>
+			        	{% empty %}
+			            <li>
+			                <a href="#">{% trans "No submissions yet" %}</a>
+			            </li>
+			        	{% endfor %}
+			        </ul>
+				</li>
+			</ul>
+			<div class="exercise-response">
+				{% include "widgets/messages.html" %}			
+			
+				{{ page.content|safe }}
+			
+				{% if page.is_wait %}
+				<div class="exercise-wait" data-poll-url="{% url 'exercise.views.poll_submission' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}"></div>
+				{% endif %}
+			</div>
+		</div>
+	</body>
+</html>

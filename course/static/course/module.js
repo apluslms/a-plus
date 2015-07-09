@@ -1,0 +1,262 @@
+/**
+ * Module element containing number of exercise elements.
+ *
+ */
+;(function($, window, document, undefined) {
+	"use strict";
+
+	var pluginName = "aplusModule";
+	var defaults = {
+		module_url_attr: "data-module-url",
+		exercise_url_attr: "data-exercise-url",
+		loading_selector: "#loading-indicator",
+		modal_selector: "#embed-modal",
+		modal_content_selector: ".modal-body"
+	};
+
+	function AplusModule(element, options) {
+		this.element = $(element);
+		this.settings = $.extend({}, defaults, options);
+		this.ajaxForms = false;
+		this.url = null;
+		this.modalElement = null;
+		this.init();
+	}
+
+	$.extend(AplusModule.prototype, {
+
+		/**
+		 * Constructs contained exercise elements.
+		 */
+		init: function() {
+			this.ajaxForms = window.FormData ? true : false;
+			this.url = this.element.attr(this.settings.module_url_attr);
+			this.modalElement = $(this.settings.modal_selector).modal({show: false});
+
+			this.element.find("[" + this.settings.exercise_url_attr + "]")
+				.each(function(index) {
+					$(this).attr("id", "module-exercise-" + (index + 1));
+				})
+				.aplusExercise(this);
+		},
+
+		cloneLoader: function(msgType) {
+			return this.element.find(this.settings.loading_selector)
+				.clone().removeAttr("id").removeAttr("style");
+		},
+
+		openModalURL: function(sourceURL) {
+			this.modalElement.find(this.settings.modal_content_selector)
+				.empty().load(sourceURL);
+			this.modalElement.modal("show");
+		},
+
+		openModal: function(content) {
+			this.modalElement.find(this.settings.modal_content_selector)
+				.empty().append(content);
+			this.modalElement.modal("show");
+		}
+	});
+
+	$.fn[pluginName] = function(options) {
+		return this.each(function() {
+			if (!$.data(this, "plugin_" + pluginName)) {
+				$.data(this, "plugin_" + pluginName, new AplusModule(this, options));
+			}
+		});
+	};
+
+})(jQuery, window, document);
+
+/**
+ * Exercise element inside module.
+ *
+ */
+;(function($, window, document, undefined) {
+	"use strict";
+
+	var pluginName = "aplusExercise";
+	var defaults = {
+		quiz_attr: "data-exercise-quiz",
+		message_selector: ".bar",
+		message_attr: {
+			load: "data-msg-load",
+			error: "data-msg-error",
+			submit: "data-msg-submit",
+			grade: "data-msg-grade",
+			timeout: "data-msg-timeout"
+		},
+		content_element: '<div class="exercise-content"></div>',
+		content_selector: '.exercise-content',
+		exercise_selector: '#exercise',
+		summary_selector: '.exercise-summary',
+		response_selector: '.exercise-response',
+		navigation_selector: 'ul.nav a[href!="#"]',
+		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
+	};
+
+	function AplusExercise(element, module, options) {
+		this.element = $(element);
+		this.module = module;
+		this.settings = $.extend({}, defaults, options);
+		this.url = null;
+		this.quiz = false;
+		this.loader = null;
+		this.init();
+	}
+
+	$.extend(AplusExercise.prototype, {
+
+		init: function() {
+			this.url = this.element.attr(this.module.settings.exercise_url_attr);
+			if (this.url[this.url.length - 1] !== "/") {
+				this.url = this.url + "/"
+			}
+			if (this.url.indexOf("/plain/", this.url.length - 7) === -1) {
+				this.url = this.url + "plain/";
+			}
+			this.url = this.url + "?_rf=" + this.element.attr("id");
+
+			// In quiz mode feedback replaces the exercise.
+			this.quiz = (this.element.attr(this.settings.quiz_attr) !== undefined);
+
+			this.loader = this.module.cloneLoader()
+			this.element.append(this.settings.content_element);
+			this.element.append(this.loader);
+			this.load();
+		},
+
+		load: function() {
+			this.showLoader("load");
+			var exercise = this;
+			$.ajax(this.url, {dataType: "html"})
+				.fail(function() {
+					exercise.showLoader("error");
+				})
+				.done(function(data) {
+					exercise.hideLoader();
+					exercise.update($(data));
+					if (exercise.quiz) {
+						exercise.loadLastSubmission($(data));
+					}
+				});
+		},
+
+		update: function(input) {
+			var content = this.element.find(this.settings.content_selector)
+				.empty().append(
+					input.filter(this.settings.exercise_selector).contents()
+				);
+			this.bindNavEvents();
+			this.bindFormEvents(content);
+		},
+
+		bindNavEvents: function() {
+			var module = this.module;
+			this.element.find(this.settings.navigation_selector)
+				.on("click", function(event) {
+					event.preventDefault();
+					module.openModalURL($(this).attr("href"));
+				});
+		},
+
+		bindFormEvents: function(content) {
+			var forms = content.find("form").attr("action", this.url);
+			var exercise = this;
+			if (this.module.ajaxForms) {
+				forms.on("submit", function(event) {
+					event.preventDefault();
+					exercise.submit(this);
+				});
+			}
+		},
+
+		submit: function(form_element) {
+			this.showLoader("submit");
+			var exercise = this;
+			$.ajax($(form_element).attr("action"), {
+				type: "POST",
+				data: new FormData(form_element),
+				contentType: false,
+				processData: false,
+				dataType: "html"
+			}).fail(function() {
+				exercise.showLoader("error");
+			}).done(function(data) {
+				exercise.hideLoader();
+				if (exercise.quiz) {
+					exercise.update($(data));
+				} else {
+					exercise.updateSubmission($(data));
+				}
+			});
+		},
+
+		updateSubmission: function(input) {
+
+			// Update exercise summary.
+			this.element.find(this.settings.summary_selector)
+				.empty().append(
+					input.find(this.settings.summary_selector).contents()
+				);
+			this.bindNavEvents();
+
+			// Open feedback modal.
+			this.module.openModal(
+				input.find(this.settings.response_selector).contents()
+			);
+			if (typeof($.aplusExerciseDetectWaits) == "function") {
+				$.aplusExerciseDetectWaits(this.submissionReady);
+			}
+		},
+
+		submissionReady: function(submissionURL) {
+			console.log("Wait ready", submissionURL);
+		},
+
+		loadLastSubmission: function(input) {
+			var link = input.find(this.settings.last_submission_selector);
+			if (link.size() > 0) {
+				this.showLoader("load");
+				var exercise = this;
+				$.ajax(link.attr("href"), {dataType: "html"})
+					.fail(function() {
+						exercise.showLoader("error");
+					})
+					.done(function(data) {
+						exercise.hideLoader();
+						var f = exercise.element.find(exercise.settings.response_selector)
+							.empty().append(data);
+						f.find("table.submission-info").remove();
+						exercise.bindFormEvents(f);
+					});
+			}
+		},
+
+		showLoader: function(messageType) {
+			var message = this.loader.show().find(this.settings.message_selector);
+			message.text(this.loader.attr(this.settings.message_attr[messageType]))
+			if (messageType == "error") {
+				message.parent().removeClass("active").addClass("progress-danger");
+			} else {
+				message.parent().addClass("active").removeClass("progress-danger");
+			}
+		},
+
+		hideLoader: function() {
+			this.loader.hide();
+		}
+	});
+
+	$.fn[pluginName] = function(module, options) {
+		return this.each(function() {
+			if (!$.data(this, "plugin_" + pluginName)) {
+				$.data(this, "plugin_" + pluginName, new AplusExercise(this, module, options));
+			}
+		});
+	};
+
+})(jQuery, window, document);
+
+// Construct the page module element.
+jQuery("#module").aplusModule();

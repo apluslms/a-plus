@@ -1,0 +1,62 @@
+{% load i18n %}
+{% load exercise %}
+<table class="submission-info table table-bordered table-condensed">
+	<tr>
+		<th>{% trans "Date" %}</th>
+		<th>{% trans "Status" %}</th>
+		<th>{% trans "Grade" %}</th>
+		{% if submission.files.all %}
+		<th>{% trans "Files" %}</th>
+		{% endif %}
+	</tr>
+	<tr>
+		<td>
+			{{ submission.submission_time }}
+			{% if submission.late_penalty_applied %}
+			<span class="label label-warning">
+				{% blocktrans with percent=submission.late_penalty_applied|percent %}
+				Late <small>-{{ percent }}%</small>
+				{% endblocktrans %}
+			</span>
+			{% endif %}
+		</td>
+		<td class="{% if submission.is_graded %}success{% endif %}">{{ submission.status }}</td>
+		<td>{{ submission.grade }} / {{ submission.exercise.max_points }}</td>
+		{% if submission.files.all %}
+		<td>
+			{% for file in submission.files.all %}
+			<i class="icon-file"></i>
+			{% include "exercise/_file_link.html" %}
+			{% endfor %}
+		</td>
+		{% endif %}
+	</tr>
+</table>
+
+{% if submission.exercise.allow_assistant_grading %}
+{% if submission.assistant_feedback %}
+
+<h4>{% trans "Assistant feedback" %}</h4>
+<div class="well">
+	{{ submission.assistant_feedback|safe }}
+</div>
+
+{% else %}
+<div class="alert alert-info">
+	{% trans "No assistant feedback available for this submission." %}
+</div>
+{% endif %}
+{% endif %}
+
+{% if submission.feedback %}
+
+<h4>{% trans "Grader feedback" %}</h4>
+<div class="well">
+	{{ submission.feedback|safe }}
+</div>
+
+{% else %}
+<div class="alert alert-info">
+	{% trans "No grader feedback available for this submission." %}
+</div>
+{% endif %}

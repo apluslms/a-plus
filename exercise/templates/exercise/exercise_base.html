@@ -36,7 +36,7 @@
             
             <div class="span2">
                 {% block exerciseinfo %}
-                <div id="exercise-info" data-url="{% url 'exercise.views.view_exercise' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                <div id="exercise-info" data-url="{% url 'exercise' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
                     {% include "exercise/_exercise_info.html" %}
                 </div>
                 {% endblock %}

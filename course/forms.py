@@ -11,6 +11,7 @@ class CourseModuleForm(forms.ModelForm):
             'url',
             'points_to_pass',
             'introduction',
+            'content_url',
             'opening_time',
             'closing_time',
             'late_submissions_allowed',
