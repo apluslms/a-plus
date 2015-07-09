@@ -17,7 +17,7 @@ A+ is a Django 1.7+ and Python 3.4+ application which has been run in production
 Development
 -----------
 
-See [doc/README.md](doc/README.md) on how to create and run a test environment for development. The [doc/example_grader.py](doc/example_grader.py) is a minimal sample for implementing different kind of exercise graders.
+See [doc/README.md](doc/README.md) on how to create and run a test environment for development. The [doc/GRADERS.md](doc/GRADERS.md) describes grader service protocols and [doc/example_grader.py](doc/example_grader.py) is a minimal sample for implementing different kind of exercise graders.
 
 The [selenium_test/](selenium_test) offers an integration test suite using the Selenium Firefox driver.
 

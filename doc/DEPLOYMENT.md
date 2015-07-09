@@ -6,20 +6,18 @@ Walkthrough for Ubuntu on 6/2015
 
 1. Python 3.4 was not yet a system package, compile from source.
 
-		# For being able to run unit tests.
 		sudo apt-get install libsqlite3-dev
-		
 		wget https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz
 		tar xvf Python-3.4.3.tar.xz
 		cd Python-3.4.3
 		./configure
 		make
 		sudo make install
-	
+
 2. Upgrade pip and get virtualenv.
 
-		sudo pip install --upgrade pip
-		sudo pip install virtualenv
+		sudo pip3 install --upgrade pip
+		sudo pip3 install virtualenv
 
 3. Create the Django application.
 
@@ -36,8 +34,6 @@ Walkthrough for Ubuntu on 6/2015
 		sudo apt-get install postgresql
 		sudo -u postgres psql
 			create database aplus;
-			\c aplus
-			create role aplus with superuser;
 			grant all privileges on database aplus to [shell-username]
 			\q
 		
@@ -126,6 +122,19 @@ Walkthrough for Ubuntu on 6/2015
 	
 		sudo apt-get install libshibsp5 libapache2-mod-shib2	
 		sudo a2enmod shib2
+
+	The `local_settings.py` supports following Shibboleth configuration.
+	
+		# Apache module mod_uwsgi was unable to create UTF-8 environment variables.
+		# Problem was avoided by URL encoding in Shibboleth: <RequestMap encoding="URL" /> 
+		SHIBBOLETH_VARIABLES_URL_ENCODED = True
+		
+		# Set the Shibboleth environment variable names (defaults given here).
+		SHIB_USER_ID_KEY = 'SHIB_eppn'
+		SHIB_FIRST_NAME_KEY = 'SHIB_displayName'
+		SHIB_LAST_NAME_KEY = 'SHIB_sn'
+		SHIB_MAIL_KEY = 'SHIB_mail'
+		SHIB_STUDENT_ID_KEY = 'SHIB_schacPersonalUniqueCode'
 
 10. Configure Apache.
 
