@@ -15,7 +15,7 @@ class FileUploadGraderTest(unittest.TestCase):
         fileUploadPage = FileUploadGrader(self.driver)
         fileUploadPage.submit()
 
-        self.assertEqual(fileUploadPage.getAllowedSubmissions(), '1/10')
+        self.assertEqual(fileUploadPage.getAllowedSubmissions(), '1 / 10')
         self.assertEqual(fileUploadPage.getExerciseScore(), '0 / 100')
         self.assertEqual(fileUploadPage.getNumberOfSubmitters(), '1')
         #self.assertEqual(fileUploadPage.getAverageSubmissionsPerStudent(), '1.00')

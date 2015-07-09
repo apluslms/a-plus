@@ -36,10 +36,7 @@ def exercise_summary_classes(exercise_summary):
 
 @register.filter
 def max_submissions(exercise, user_profile):
-    return "{:d}/{:d}".format(
-        exercise.get_submissions_for_student(user_profile).count(),
-        exercise.max_submissions_for_student(user_profile)
-    )
+    return exercise.max_submissions_for_student(user_profile)
 
 
 @register.filter

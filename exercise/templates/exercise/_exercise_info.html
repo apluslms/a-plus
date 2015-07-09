@@ -12,10 +12,13 @@
     <dt>{% trans "Points to pass" %}</dt>
     <dd>{{ exercise.points_to_pass }}</dd>-->
     
-    {% if exercise.max_submissions %}
-    <dt>{% trans "Allowed submissions" %}</dt>
-    <dd>{{ exercise|max_submissions:profile }}</dd>
-    {% endif %}
+    <dt>{% trans "Submissions" %}</dt>
+    <dd>
+    	{{ exercise_summary.get_submission_count }}
+    	{% if exercise.max_submissions %}
+    	/ {{ exercise|max_submissions:profile }}
+    	{% endif %}
+    </dd>
     
     <!--<dt>{% trans "Maximum group size" %}</dt>
     <dd>{{ exercise.max_group_size }}</dd>-->
@@ -40,7 +43,7 @@
 </div>
 
 <dl>
-    <dt>{% trans "Number of submitters" %}</dt>
+    <dt>{% trans "Total number of submitters" %}</dt>
     <dd>{{ exercise.get_total_submitter_count }}</dd>
 
 	{% comment "Disabled: If average is required implement more efficient query for it." %}

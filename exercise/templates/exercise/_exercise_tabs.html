@@ -16,7 +16,7 @@
             <li>
                 <a href="{{ submission.get_absolute_url }}">
                     {{ forloop.revcounter }}.
-                    {{ submission.submission_time }}.
+                    {{ submission.submission_time }}
                     {% if submission.is_graded %}
                     {{ submission.grade }} / {{ exercise.max_points }}
                     {% endif %}
