@@ -46,9 +46,11 @@
 		},
 
 		openModalURL: function(sourceURL) {
-			this.modalElement.find(this.settings.modal_content_selector)
-				.empty().load(sourceURL);
-			this.modalElement.modal("show");
+			if (sourceURL && sourceURL !== "#") {
+				this.modalElement.find(this.settings.modal_content_selector)
+					.empty().load(sourceURL);
+				this.modalElement.modal("show");
+			}
 		},
 
 		openModal: function(content) {
@@ -91,7 +93,7 @@
 		exercise_selector: '#exercise',
 		summary_selector: '.exercise-summary',
 		response_selector: '.exercise-response',
-		navigation_selector: 'ul.nav a[href!="#"]',
+		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
 		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
 	};
 
@@ -217,19 +219,22 @@
 		loadLastSubmission: function(input) {
 			var link = input.find(this.settings.last_submission_selector);
 			if (link.size() > 0) {
-				this.showLoader("load");
-				var exercise = this;
-				$.ajax(link.attr("href"), {dataType: "html"})
-					.fail(function() {
-						exercise.showLoader("error");
-					})
-					.done(function(data) {
-						exercise.hideLoader();
-						var f = exercise.element.find(exercise.settings.response_selector)
-							.empty().append(data);
-						f.find("table.submission-info").remove();
-						exercise.bindFormEvents(f);
-					});
+				var url = link.attr("href");
+				if (url && url !== "#") {
+					this.showLoader("load");
+					var exercise = this;
+					$.ajax(link.attr("href"), {dataType: "html"})
+						.fail(function() {
+							exercise.showLoader("error");
+						})
+						.done(function(data) {
+							exercise.hideLoader();
+							var f = exercise.element.find(exercise.settings.response_selector)
+								.empty().append(data);
+							f.find("table.submission-info").remove();
+							exercise.bindFormEvents(f);
+						});
+				}
 			}
 		},
 

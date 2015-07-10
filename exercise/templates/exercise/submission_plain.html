@@ -37,9 +37,7 @@
 {% if submission.assistant_feedback %}
 
 <h4>{% trans "Assistant feedback" %}</h4>
-<div class="well">
-	{{ submission.assistant_feedback|safe }}
-</div>
+{{ submission.assistant_feedback|safe }}
 
 {% else %}
 <div class="alert alert-info">
@@ -50,10 +48,7 @@
 
 {% if submission.feedback %}
 
-<h4>{% trans "Grader feedback" %}</h4>
-<div class="well">
-	{{ submission.feedback|safe }}
-</div>
+{{ submission.feedback|safe }}
 
 {% else %}
 <div class="alert alert-info">

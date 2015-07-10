@@ -13,7 +13,7 @@
 		<div id="exercise">
 			<ul class="exercise-summary nav nav-tabs">
 				<li>
-					<a href="{{ exercise_summary.get_best_submission.get_absolute_url }}">
+					<a href="{% if exercise_summary.get_best_submission %}{{ exercise_summary.get_best_submission.get_absolute_url }}{% else %}#{% endif %}">
 						{% trans "Points" %}
 						<span class="{% if exercise_summary.get_submission_count > 0 %}label{% if exercise_summary.is_passed %} label-success{% endif %}{% endif %}">
 						{{ exercise_summary.get_points }}
@@ -50,10 +50,10 @@
 				</li>
 			</ul>
 			<div class="exercise-response">
-				{% include "widgets/messages.html" %}			
-			
+				{% include "widgets/messages.html" %}
+
 				{{ page.content|safe }}
-			
+
 				{% if page.is_wait %}
 				<div class="exercise-wait" data-poll-url="{% url 'exercise.views.poll_submission' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}"></div>
 				{% endif %}
