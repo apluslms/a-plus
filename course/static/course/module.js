@@ -42,7 +42,7 @@
 
 		cloneLoader: function(msgType) {
 			return this.element.find(this.settings.loading_selector)
-				.clone().removeAttr("id").removeAttr("style");
+				.clone().removeAttr("id").removeClass("hide");
 		},
 
 		openModalURL: function(sourceURL) {
@@ -83,10 +83,8 @@
 		message_selector: ".bar",
 		message_attr: {
 			load: "data-msg-load",
-			error: "data-msg-error",
 			submit: "data-msg-submit",
-			grade: "data-msg-grade",
-			timeout: "data-msg-timeout"
+			error: "data-msg-error"
 		},
 		content_element: '<div class="exercise-content"></div>',
 		content_selector: '.exercise-content',
@@ -208,12 +206,11 @@
 				input.find(this.settings.response_selector).contents()
 			);
 			if (typeof($.aplusExerciseDetectWaits) == "function") {
-				$.aplusExerciseDetectWaits(this.submissionReady);
+				var exercise = this;
+				$.aplusExerciseDetectWaits(function(suburl) {
+					exercise.module.openModalURL(suburl);
+				});
 			}
-		},
-
-		submissionReady: function(submissionURL) {
-			console.log("Wait ready", submissionURL);
 		},
 
 		loadLastSubmission: function(input) {
@@ -239,12 +236,12 @@
 		},
 
 		showLoader: function(messageType) {
-			var message = this.loader.show().find(this.settings.message_selector);
-			message.text(this.loader.attr(this.settings.message_attr[messageType]))
+			this.loader.show().find(this.settings.message_selector)
+				.text(this.loader.attr(this.settings.message_attr[messageType]))
 			if (messageType == "error") {
-				message.parent().removeClass("active").addClass("progress-danger");
+				this.loader.removeClass("active").addClass("progress-danger");
 			} else {
-				message.parent().addClass("active").removeClass("progress-danger");
+				this.loader.addClass("active").removeClass("progress-danger");
 			}
 		},
 

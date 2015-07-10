@@ -7,7 +7,13 @@
 
 	var pluginName = "aplusExercisePoll";
 	var defaults = {
-    poll_url_attr: "data-poll-url"
+    poll_url_attr: "data-poll-url",
+		poll_delays: [2,3,5,5,5,10,10,10,10],
+		message_selector: ".bar",
+		message_attr: {
+			error: "data-msg-error",
+			timeout: "data-msg-timeout"
+		}
   };
 
 	function AplusExercisePoll(element, callback, options) {
@@ -15,6 +21,7 @@
     this.callback = callback;
 		this.settings = $.extend({}, defaults, options);
     this.url = null;
+		this.count = 0;
 		this.init();
 	}
 
@@ -25,16 +32,52 @@
 		 */
 		init: function() {
       this.url = this.element.attr(this.settings.poll_url_attr);
-      //TODO poll some times
+      this.schedule();
+		},
+
+		poll: function(firstTime) {
+			var poller = this;
+			$.ajax(this.url, {dataType: "html"})
+				.fail(function() {
+					poller.message("error");
+				})
+				.done(function(data) {
+					poller.count++;
+					if (data.trim() === "ready") {
+						poller.ready();
+					} else if (poller.element.is(":visible")) {
+						if (poller.count < poller.settings.poll_delays.length) {
+							poller.schedule();
+						} else {
+							poller.message("timeout");
+						}
+					}
+				});
+		},
+
+		schedule: function() {
+			var poller = this;
+			setTimeout(function() { poller.poll(); },
+				this.settings.poll_delays[this.count] * 1000);
 		},
 
     ready: function() {
+			this.element.hide();
+			this.suburl = this.url.substr(0, this.url.length - "poll/".length);
       if (this.callback) {
-        this.callback(this.url.substr(0, this.url.length - "poll/".length));
+        this.callback(this.suburl);
       } else {
-        location.reload();
+        location.href = this.suburl;
       }
-    }
+    },
+
+		message: function(messageType) {
+			this.element.removeClass("active").find(this.settings.message_selector)
+				.text(this.element.attr(this.settings.message_attr[messageType]))
+			if (messageType == "error") {
+				this.element.addClass("progress-danger");
+			}
+		},
 
 	});
 

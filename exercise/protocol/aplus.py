@@ -14,7 +14,7 @@ logger = logging.getLogger("aplus.protocol")
 def load_exercise_page(request, url, exercise):
     """
     Loads the exercise page from the remote URL.
-    
+
     """
     page = ExercisePage(exercise)
     try:
@@ -31,7 +31,7 @@ def load_exercise_page(request, url, exercise):
 def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     """
     Loads the feedback or accept page from the remote URL.
-    
+
     """
     page = ExercisePage(exercise)
     try:
@@ -94,11 +94,11 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
 def parse_page_content(page, html):
     """
     Parses page from HTML.
-    
+
     """
     page.is_loaded = True
     soup = BeautifulSoup(html)
-    
+
     head = soup.find("head")
     if head:
         max_points = _get_value_from_soup(head, "meta", "value", {"name": "max-points"})
@@ -107,7 +107,7 @@ def parse_page_content(page, html):
         max_points = _get_value_from_soup(head, "meta", "value", {"name": "max_points"})
         if max_points != None:
             page.max_points = int(max_points)
-    
+
         if _get_value_from_soup(head, "meta", "value", {"name": "status"}) == "accepted":
             page.is_accepted = True
             if _get_value_from_soup(head, "meta", "value", {"name": "wait"}):
@@ -120,11 +120,11 @@ def parse_page_content(page, html):
             title = soup.find("title")
             if title:
                 page.meta["title"] = title.contents
-    
+
         description = _get_value_from_soup(head, "meta", "content", {"name": "DC.Description"})
         if description:
             page.meta["description"] = description
-    
+
         points = _get_value_from_soup(head, "meta", "value", {"name": "points"})
         if points != None:
             page.points = int(points)

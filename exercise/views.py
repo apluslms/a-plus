@@ -71,7 +71,7 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
                   course=None, course_instance=None, exercise=None, plain=False):
     """
     Displays exercise content and receives exercise submissions.
-    
+
     """
     if not plain and request.is_ajax():
         summary = UserExerciseSummary(exercise, request.user)
@@ -90,6 +90,7 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
     for msg in issues:
         messages.warning(request, msg)
 
+    new_submission = None
     if request.method == "POST" and ok:
         new_submission = Submission.objects.create_from_post(
             exercise, students, request)
@@ -100,7 +101,7 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
                 _("The submission could not be saved for some reason. "
                   "This might be caused by too long file name. "
                   "The submission was not registered."))
-        
+
         # Redirect back to module content page.
         if not request.is_ajax() and "_rf" in request.GET:
             return redirect("{}#{}".format(
@@ -113,12 +114,14 @@ def view_exercise(request, course_url=None, instance_url=None, exercise_id=None,
     summary = UserExerciseSummary(exercise, request.user)
     profile = UserProfile.get_by_request(request)
     submissions = exercise.get_submissions_for_student(profile)
-    
+
     template = "exercise/exercise_plain.html" if plain else "exercise/exercise.html"
     return render_to_response(template, CourseContext(
         request,
-        exercise=exercise,
+        course=course,
         course_instance=course_instance,
+        exercise=exercise,
+        submission=new_submission,
         page=page,
         submissions=submissions,
         exercise_summary=summary,
@@ -143,10 +146,10 @@ def view_submission(request, course_url=None, instance_url=None,
         profile = UserProfile.get_by_request(request)
     else:
         profile = submission.submitters.first()
-    
+
     submissions = exercise.get_submissions_for_student(profile)
     index = 1 + list(submissions).index(submission)
-    
+
     summary = UserExerciseSummary(exercise, profile.user)
 
     return render_to_response("exercise/submission.html", CourseContext(
