@@ -12,9 +12,9 @@ may include following elements to inject A+ functionality in the page.
 
 ### Exercise
 
-  <div
-    data-exercise-url="http://aplus.domain.org/course/2015/exercises/1/"
-    data-exercise-quiz />
+    <div
+      data-exercise-url="http://aplus.domain.org/course/2015/exercises/1/"
+      data-exercise-quiz />
 
 Embeds a fully functioning exercise to the content including student
 submission status.
