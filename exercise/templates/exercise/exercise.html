@@ -1,5 +1,6 @@
 {% extends "exercise/exercise_base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 
 {% block scripts %}
 {{ block.super }}
@@ -7,9 +8,9 @@
 {% endblock %}
 
 {% block exercisecontent %}
-    
+
     {{ page.content|safe }}
-    
+
     {% if page.is_wait %}
 	<div class="exercise-wait" data-poll-url="{% url 'exercise.views.poll_submission' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}"></div>
 	{% endif %}
