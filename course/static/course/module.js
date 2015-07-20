@@ -110,7 +110,7 @@
 		init: function() {
 			this.url = this.element.attr(this.module.settings.exercise_url_attr);
 			if (this.url[this.url.length - 1] !== "/") {
-				this.url = this.url + "/"
+				this.url = this.url + "/";
 			}
 			if (this.url.indexOf("/plain/", this.url.length - 7) === -1) {
 				this.url = this.url + "plain/";
@@ -120,7 +120,7 @@
 			// In quiz mode feedback replaces the exercise.
 			this.quiz = (this.element.attr(this.settings.quiz_attr) !== undefined);
 
-			this.loader = this.module.cloneLoader()
+			this.loader = this.module.cloneLoader();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			this.load();
@@ -237,7 +237,7 @@
 
 		showLoader: function(messageType) {
 			this.loader.show().find(this.settings.message_selector)
-				.text(this.loader.attr(this.settings.message_attr[messageType]))
+				.text(this.loader.attr(this.settings.message_attr[messageType]));
 			if (messageType == "error") {
 				this.loader.removeClass("active").addClass("progress-danger");
 			} else {

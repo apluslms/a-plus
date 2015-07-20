@@ -73,7 +73,7 @@
 
 		message: function(messageType) {
 			this.element.removeClass("active").find(this.settings.message_selector)
-				.text(this.element.attr(this.settings.message_attr[messageType]))
+				.text(this.element.attr(this.settings.message_attr[messageType]));
 			if (messageType == "error") {
 				this.element.addClass("progress-danger");
 			}
