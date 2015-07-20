@@ -19,7 +19,7 @@ def instance(request, course_url=None, instance_url=None):
 
 def exercise(request, exercise_id=None):
     exercise = get_object_or_404(BaseExercise, id=exercise_id)
-    return redirect('exercise.views.view_exercise',
+    return redirect('exercise',
         course_url=exercise.course_instance.course.url,
         instance_url=exercise.course_instance.url,
         exercise_id=exercise.id,
