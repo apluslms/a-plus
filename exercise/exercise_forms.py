@@ -17,6 +17,7 @@ def get_form(course_module, exercise_type, exercise=None, request=None):
             exercise = BaseExercise(course_module=course_module)
         else:
             raise TypeError("Unknown exercise type key")
+        exercise.order = course_module.learning_objects.count() + 1
     if isinstance(exercise, ExerciseWithAttachment):
         form_cls = ExerciseWithAttachmentForm
     elif isinstance(exercise, BaseExercise):
@@ -24,19 +25,19 @@ def get_form(course_module, exercise_type, exercise=None, request=None):
     else:
         logger.error("Tried to edit unexpected exercise type: %s", type(exercise))
         raise TypeError("Unknown exercise type instance")
-    
+
     if request:
         return form_cls(request.POST, request.FILES, instance=exercise)
     return form_cls(instance=exercise)
 
 
 class BaseExerciseForm(forms.ModelForm):
-    
+
     def __init__(self, *args, **kwargs):
         super(BaseExerciseForm, self).__init__(*args, **kwargs)
-        
+
         self.exercise = kwargs.get('instance')
-        
+
         self.fields["course_module"].queryset = CourseModule.objects.filter(
             course_instance=self.exercise.course_instance)
         self.fields["category"].queryset = LearningObjectCategory.objects.filter(
