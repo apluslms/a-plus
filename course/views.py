@@ -20,19 +20,19 @@ def home(request):
     """
     Lists active courses for A+ home page.
     """
-    context = RequestContext(request, {
-        "welcome_text": settings.WELCOME_TEXT,
-        "instances": CourseInstance.objects.get_active(request.user)
-    })
-    return render_to_response("course/index.html", context)
+    return render_to_response("course/index.html", RequestContext(
+        request, {
+            "welcome_text": settings.WELCOME_TEXT,
+            "instances": CourseInstance.objects.get_active(request.user)
+        }
+    ))
 
 
 def course_archive(request):
     """
     Uses AJAX and API to produce a list of all courses.
     """
-    context = RequestContext(request)
-    return render_to_response("course/archive.html", context)
+    return render_to_response("course/archive.html", RequestContext(request))
 
 
 @access_resource
@@ -40,46 +40,50 @@ def view_course(request, course_url=None, course=None):
     """
     Lists course instances for a course.
     """
-    instances = course.instances.get_active(request.user)
-    context = CourseContext(request, course=course, instances=instances)
-    return render_to_response("course/course.html", context)
+    return render_to_response("course/course.html", CourseContext(
+        request,
+        course=course,
+        instances=course.instances.get_active(request.user)
+    ))
 
 
 @access_resource
 def view_instance(request, course_url=None, instance_url=None,
                   course=None, course_instance=None):
-    """
-    Creates a course instance main view.
-    """
-    # TODO: check if course has content modules for a content index
-    return redirect('user_score',
-                    course_url=course.url,
-                    instance_url=course_instance.url)
+    if course_instance.has_chapters():
+        return render_to_response("course/toc.html", CourseContext(
+            request,
+            course=course,
+            course_instance=course_instance
+        ))
+    import exercise.views
+    return exercise.views.user_score(
+        request, course_url=course_url, instance_url=instance_url)
 
 
 @access_resource
 def view_module(request, course_url=None, instance_url=None, module_url=None,
                 course=None, course_instance=None, module=None):
-    """
-    Displays module content if such exists and receives exercise submissions.
-    
-    """
-    if not module.content_url:
-        return redirect('user_score',
-                        course_url=course.url,
-                        instance_url=course_instance.url)
+    return HttpResponse("TODO")
+
+
+@access_resource
+def view_chapter(request, course_url=None, instance_url=None, module_url=None,
+                chapter_url=None,
+                course=None, course_instance=None, module=None,
+                chapter=None):
     try:
-        page = RemotePage(module.content_url)
+        page = RemotePage(chapter.content_url)
         page.fix_relative_urls()
     except RemotePageException:
         messages.error(request, _("Connecting to the content service failed!"))
-    
-    return render_to_response("course/module.html", CourseContext(
+    return render_to_response("course/chapter.html", CourseContext(
         request,
         course=course,
         course_instance=course_instance,
         module=module,
-        content=page.element_or_body("module"),
+        chapter=chapter,
+        content=page.element_or_body("chapter"),
     ))
 
 
@@ -124,7 +128,7 @@ def filter_categories(request, course_url=None, instance_url=None,
     if "category_filters" in request.POST:
         visible_category_ids = [int(cat_id) for cat_id
                                 in request.POST.getlist("category_filters")]
-    
+
         for category in course_instance.categories.all():
             if category.id in visible_category_ids:
                 category.set_hidden_to(profile, False)

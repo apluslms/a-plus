@@ -1,14 +1,16 @@
-A+ course module content
-========================
+A+ course chapter content
+=========================
 
-A+ can present study content as modules or chapters of a course.
-Similarly to the exercises the content is integrated from external
-sources.
+A+ can present course chapters that integrate page content from external
+source. The chapters can embed A+ learning objects from the course module.
 
 ## External HTML
 
-"Teacher" configures the `content_url` for the course module. The HTML
-may include following elements to inject A+ functionality in the page.
+"Teacher" creates chapter objects in the A+ and configures
+the `content_url` for them. On chapter view the URL is requested and
+the response BODY (or if `<div id="chapter">` exists) will be presented
+to the student. The HTML may include following elements to inject A+
+functionality in the page.
 
 ### Exercise
 
@@ -22,8 +24,8 @@ submission status.
 * `data-exercise-url`
 
   An URL address to an A+ exercise. There are no checks for the exercise
-  to belong to the same content module but this is strongly advised to
-  keep points and opening times coherent.
+  to belong to the same course module but this is strongly advised to
+  keep point sums and schedule times coherent.
 
 * `data-exercise-quiz`
 

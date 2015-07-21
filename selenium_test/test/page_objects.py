@@ -46,7 +46,7 @@ class AbstractPage(object):
             WebDriverWait(self.driver, self.wait_timeout).until(EC.presence_of_element_located(element))
         except TimeoutException:
             raise TimeoutException("Wait for element failed: {0}".format(element))
-        
+
     def waitForVisibleElement(self, element):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(EC.visibility_of_element_located(element))
@@ -58,7 +58,7 @@ class AbstractPage(object):
             WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
         except TimeoutException:
             raise TimeoutException("Wait for condition failed: {0}".format(condition))
-        
+
     def waitForAjax(self):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(lambda driver: driver.execute_script("return jQuery.active") == 0)
@@ -248,13 +248,13 @@ class AssistantsPage(StaffPage):
         self.load("/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
 
 class EditModulePage(BasePage):
-    def __init__(self, driver, moduleUrl):
+    def __init__(self, driver, moduleNumber):
         BasePage.__init__(self, driver)
-        if (moduleUrl):
-            self.load("/aplus1/basic_instance/" + moduleUrl + "/edit/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+        if (moduleNumber):
+            self.load("/aplus1/basic_instance/teachers/module/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
         else:
             # Create new module
-            self.load("/aplus1/basic_instance/teachers/add-module/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+            self.load("/aplus1/basic_instance/teachers/module/add/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
 
     def getCourseName(self):
         return str(self.getElement(EditModulePageLocators.COURSE_NAME_INPUT).get_attribute('value'))
@@ -289,7 +289,7 @@ class EditModulePage(BasePage):
 class EditExercisePage(BasePage):
     def __init__(self, driver, exerciseNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/edit/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
+        self.load("/aplus1/basic_instance/teachers/exercise/" + str(exerciseNumber) + "/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
 
     def getExerciseName(self):
         return str(self.getElement(EditExercisePageLocators.EXERCISE_NAME_INPUT).get_attribute('value'))

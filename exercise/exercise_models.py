@@ -32,7 +32,13 @@ class LearningObject(ModelWithInheritance):
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
 
     class Meta:
-        ordering = ['order', 'id']
+        app_label = "exercise"
+        ordering = ['course_module', 'order', 'id']
+
+    def __str__(self):
+        if self.order > 0:
+            return "{:d}. {}".format(self.order, self.name)
+        return self.name
 
     def clean(self):
         """
@@ -70,12 +76,8 @@ class BaseExercise(LearningObject):
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         app_label = 'exercise'
-        ordering = ['course_module__closing_time', 'course_module', 'order', 'id']
 
     def clean(self):
         """
@@ -145,7 +147,7 @@ class BaseExercise(LearningObject):
         if not self.one_has_access(students):
             warnings.append(
                 _('This exercise is not open for submissions.'))
-        
+
         if not (self.min_group_size <= len(students) <= self.max_group_size):
             warnings.append(
                 _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
@@ -173,7 +175,7 @@ class BaseExercise(LearningObject):
                     percent=self.course_module.get_late_submission_point_worth(),
                 ))
 
-        warnings = list(str(warning) for warning in warnings) 
+        warnings = list(str(warning) for warning in warnings)
         return success, warnings
 
     def get_total_submitter_count(self):
@@ -186,7 +188,7 @@ class BaseExercise(LearningObject):
         Returns a list of tuples containing the names and url
         addresses of parent objects and self.
         """
-        crumb = self.course_module.get_breadcrumb()
+        crumb = self.course_instance.get_breadcrumb()
         crumb_tuple = (str(self), self.get_absolute_url())
         crumb.append(crumb_tuple)
         return crumb

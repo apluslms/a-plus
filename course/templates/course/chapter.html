@@ -5,23 +5,23 @@
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'exercise/poll.js' %}"></script>
-<script src="{% static 'course/module.js' %}"></script>
+<script src="{% static 'course/chapter.js' %}"></script>
 {% endblock %}
 
 {% block title %}
-{{ course.name }}: {{ module.name }}
+{{ course.name }}: {{ chapter }}
 {% endblock %}
 
 {% block maintitle %}
 <h1>
-	<small>{{ course.name }}</small>
+	<small>{{ course }}</small>
     <br />
-    {{ module.name }}
+    {{ chapter }}
 </h1>
 {% endblock %}
 
 {% block coursecontent %}
-<div id="module" data-module-url="{% url 'course.views.view_module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+<div id="chapter" data-chapter-url="{% url 'chapter' course_url=course.url instance_url=instance.url module_url=module.url chapter_url=chapter.url %}">
 
 	<div id="loading-indicator" class="hide progress progress-striped active"
 		data-msg-load="{% trans 'Loading exercise...' %}"

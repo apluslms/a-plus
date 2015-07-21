@@ -33,8 +33,9 @@ submitters_wrapper.short_description = _('Submitters')
 
 
 class BaseExerciseAdmin(admin.ModelAdmin):
-    list_display_links = ["name"]
-    list_display = ["name", "course_module", "max_points", real_class]
+    list_display_links = ["__str__"]
+    list_display = ["__str__", "course_module", "course_instance",
+                    "max_points", real_class]
     list_filter = ["course_module__course_instance", "course_module"]
 
     class Media:

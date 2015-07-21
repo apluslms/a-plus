@@ -3,15 +3,15 @@ from course.models import CourseModule
 
 
 class CourseModuleForm(forms.ModelForm):
-    
+
     class Meta:
         model = CourseModule
         fields = [
+            'order',
             'name',
             'url',
             'points_to_pass',
             'introduction',
-            'content_url',
             'opening_time',
             'closing_time',
             'late_submissions_allowed',

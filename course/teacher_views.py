@@ -25,7 +25,7 @@ def edit_course(request,
 
 @access_teacher_resource
 def add_or_edit_module(request,
-                       course_url=None, instance_url=None, module_url=None,
+                       course_url=None, instance_url=None, module_id=None,
                        course=None, course_instance=None, module=None):
     """
     Edits and creates course modules.
@@ -44,7 +44,7 @@ def add_or_edit_module(request,
                 return redirect(add_or_edit_module,
                                 course_url=course.url,
                                 instance_url=course_instance.url,
-                                module_url=module.url)
+                                module_id=module.id)
     else:
         form = CourseModuleForm(instance=module)
 
@@ -58,12 +58,12 @@ def add_or_edit_module(request,
 
 @access_teacher_resource
 def remove_module(request,
-                  course_url=None, instance_url=None, module_url=None,
+                  course_url=None, instance_url=None, module_id=None,
                   course=None, course_instance=None, module=None):
     """
     Removes empty course modules.
     """
-    exercise_count = module.learning_objects.count() 
+    exercise_count = module.learning_objects.count()
     if request.method == "POST" and exercise_count == 0:
         module.delete()
         return redirect(edit_course,
@@ -80,7 +80,7 @@ def remove_module(request,
 
 @access_teacher_resource
 def add_or_edit_exercise(request,
-                         course_url=None, instance_url=None, module_url=None,
+                         course_url=None, instance_url=None, module_id=None,
                          exercise_id=None, exercise_type=None,
                          course=None, course_instance=None, module=None,
                          exercise=None):
@@ -117,10 +117,8 @@ def add_or_edit_exercise(request,
 
 @access_teacher_resource
 def remove_exercise(request,
-                    course_url=None, instance_url=None, module_url=None,
-                    exercise_id=None,
-                    course=None, course_instance=None, module=None,
-                    exercise=None):
+                    course_url=None, instance_url=None, exercise_id=None,
+                    course=None, course_instance=None, exercise=None):
     """
     Removes exercises.
     """

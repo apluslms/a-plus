@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.six import wraps
 from django.utils.translation import ugettext_lazy as _
 
-from course.models import Course, CourseInstance, CourseModule
+from course.models import Course, CourseInstance, CourseModule, CourseChapter
 from exercise.models import LearningObject, Submission
 
 
@@ -12,6 +12,7 @@ COURSE_KEY = "course_url"
 INSTANCE_KEY = "instance_url"
 MODULE_KEY = "module_url"
 MODULE_ID_KEY = "module_id"
+CHAPTER_KEY = "chapter_url"
 EXERCISE_KEY = "exercise_id"
 SUBMISSION_KEY = "submission_id"
 
@@ -33,9 +34,14 @@ def _resource(view_func):
                     url=kwargs[INSTANCE_KEY])
                 kwargs["course_instance"] = instance
                 if MODULE_KEY in kwargs:
-                    kwargs["module"] = get_object_or_404(CourseModule,
+                    module = get_object_or_404(CourseModule,
                         url=kwargs[MODULE_KEY],
                         course_instance=instance)
+                    kwargs["module"] = module
+                    if CHAPTER_KEY in kwargs:
+                        kwargs["chapter"] = get_object_or_404(CourseChapter,
+                            url=kwargs[CHAPTER_KEY],
+                            course_module=module)
                 elif MODULE_ID_KEY in kwargs:
                     kwargs["module"] = get_object_or_404(CourseModule,
                         id=kwargs[MODULE_ID_KEY],
@@ -68,6 +74,9 @@ def access_resource(view_func):
             if not instance.is_visible_to(request.user):
                 raise PermissionDenied()
             if not instance.is_course_staff(request.user):
+                chapter = kwargs.get("chapter", None)
+                if chapter and not chapter.course_module.is_after_open():
+                    raise PermissionDenied()
                 exercise = kwargs.get("exercise", None)
                 if exercise and not exercise.course_module.is_after_open():
                     raise PermissionDenied()

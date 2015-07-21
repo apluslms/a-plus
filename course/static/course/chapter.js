@@ -1,20 +1,20 @@
 /**
- * Module element containing number of exercise elements.
+ * Chapter element containing number of exercise elements.
  *
  */
 ;(function($, window, document, undefined) {
 	"use strict";
 
-	var pluginName = "aplusModule";
+	var pluginName = "aplusChapter";
 	var defaults = {
-		module_url_attr: "data-module-url",
+		chapter_url_attr: "data-chapter-url",
 		exercise_url_attr: "data-exercise-url",
 		loading_selector: "#loading-indicator",
 		modal_selector: "#embed-modal",
 		modal_content_selector: ".modal-body"
 	};
 
-	function AplusModule(element, options) {
+	function AplusChapter(element, options) {
 		this.element = $(element);
 		this.settings = $.extend({}, defaults, options);
 		this.ajaxForms = false;
@@ -23,19 +23,19 @@
 		this.init();
 	}
 
-	$.extend(AplusModule.prototype, {
+	$.extend(AplusChapter.prototype, {
 
 		/**
 		 * Constructs contained exercise elements.
 		 */
 		init: function() {
 			this.ajaxForms = window.FormData ? true : false;
-			this.url = this.element.attr(this.settings.module_url_attr);
+			this.url = this.element.attr(this.settings.chapter_url_attr);
 			this.modalElement = $(this.settings.modal_selector).modal({show: false});
 
 			this.element.find("[" + this.settings.exercise_url_attr + "]")
 				.each(function(index) {
-					$(this).attr("id", "module-exercise-" + (index + 1));
+					$(this).attr("id", "chapter-exercise-" + (index + 1));
 				})
 				.aplusExercise(this);
 		},
@@ -63,7 +63,7 @@
 	$.fn[pluginName] = function(options) {
 		return this.each(function() {
 			if (!$.data(this, "plugin_" + pluginName)) {
-				$.data(this, "plugin_" + pluginName, new AplusModule(this, options));
+				$.data(this, "plugin_" + pluginName, new AplusChapter(this, options));
 			}
 		});
 	};
@@ -71,7 +71,7 @@
 })(jQuery, window, document);
 
 /**
- * Exercise element inside module.
+ * Exercise element inside chapter.
  *
  */
 ;(function($, window, document, undefined) {
@@ -95,9 +95,9 @@
 		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
 	};
 
-	function AplusExercise(element, module, options) {
+	function AplusExercise(element, chapter, options) {
 		this.element = $(element);
-		this.module = module;
+		this.chapter = chapter;
 		this.settings = $.extend({}, defaults, options);
 		this.url = null;
 		this.quiz = false;
@@ -108,7 +108,7 @@
 	$.extend(AplusExercise.prototype, {
 
 		init: function() {
-			this.url = this.element.attr(this.module.settings.exercise_url_attr);
+			this.url = this.element.attr(this.chapter.settings.exercise_url_attr);
 			if (this.url[this.url.length - 1] !== "/") {
 				this.url = this.url + "/";
 			}
@@ -120,7 +120,7 @@
 			// In quiz mode feedback replaces the exercise.
 			this.quiz = (this.element.attr(this.settings.quiz_attr) !== undefined);
 
-			this.loader = this.module.cloneLoader();
+			this.loader = this.chapter.cloneLoader();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			this.load();
@@ -152,18 +152,18 @@
 		},
 
 		bindNavEvents: function() {
-			var module = this.module;
+			var chapter = this.chapter;
 			this.element.find(this.settings.navigation_selector)
 				.on("click", function(event) {
 					event.preventDefault();
-					module.openModalURL($(this).attr("href"));
+					chapter.openModalURL($(this).attr("href"));
 				});
 		},
 
 		bindFormEvents: function(content) {
 			var forms = content.find("form").attr("action", this.url);
 			var exercise = this;
-			if (this.module.ajaxForms) {
+			if (this.chapter.ajaxForms) {
 				forms.on("submit", function(event) {
 					event.preventDefault();
 					exercise.submit(this);
@@ -202,13 +202,13 @@
 			this.bindNavEvents();
 
 			// Open feedback modal.
-			this.module.openModal(
+			this.chapter.openModal(
 				input.find(this.settings.response_selector).contents()
 			);
 			if (typeof($.aplusExerciseDetectWaits) == "function") {
 				var exercise = this;
 				$.aplusExerciseDetectWaits(function(suburl) {
-					exercise.module.openModalURL(suburl);
+					exercise.chapter.openModalURL(suburl);
 				});
 			}
 		},
@@ -250,15 +250,15 @@
 		}
 	});
 
-	$.fn[pluginName] = function(module, options) {
+	$.fn[pluginName] = function(chapter, options) {
 		return this.each(function() {
 			if (!$.data(this, "plugin_" + pluginName)) {
-				$.data(this, "plugin_" + pluginName, new AplusExercise(this, module, options));
+				$.data(this, "plugin_" + pluginName, new AplusExercise(this, chapter, options));
 			}
 		});
 	};
 
 })(jQuery, window, document);
 
-// Construct the page module element.
-jQuery("#module").aplusModule();
+// Construct the page chapter element.
+jQuery("#chapter").aplusChapter();

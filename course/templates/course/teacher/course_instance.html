@@ -44,18 +44,18 @@
                 <strong>{{ module.name }}</strong>
             </th>
             <td>
-                <a class="btn btn-mini" href="{% url 'course.teacher_views.add_or_edit_module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                <a class="btn btn-mini" href="{% url 'course.teacher_views.add_or_edit_module' course_url=course.url instance_url=instance.url module_id=module.id %}">
                     <i class="icon-edit"></i> {% trans "Edit module" %}
                 </a>
                 {% if module.learning_objects.count == 0 %}
-                <a class="btn btn-mini" href="{% url 'course.teacher_views.remove_module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                <a class="btn btn-mini" href="{% url 'course.teacher_views.remove_module' course_url=course.url instance_url=instance.url module_id=module.id %}">
                 	<i class="icon-remove"></i> {% trans "Remove" %}
                 </a>
                 {% endif %}
             </td>
             <td>
                 <div class="btn-group">
-                    <a class="btn btn-success" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                    <a class="btn btn-success" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_id=module.id %}">
                         <i class=" icon-white"></i> {% trans "Add New Exercise" %}
                     </a>
                     <button type="button" class="btn btn- dropdown-toggle" data-toggle="dropdown">
@@ -63,10 +63,10 @@
                     </button>
                   	<ul class="dropdown-menu" role="menu">
                         <li>
-                        	<a class="" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                        	<a class="" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_id=module.id %}">
                              {% trans "Add Exercise" %}
                         </a></li>
-                        <li><a href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_url=module.url exercise_type='exercise_with_attachment' %}">
+                        <li><a href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url module_id=module.id exercise_type='exercise_with_attachment' %}">
                             {% trans "Add Exercise with Attachment" %}</a>
                         </li>
 
@@ -77,7 +77,7 @@
         {% for object in module.learning_objects.all %}
             <tr>
                 <td>
-                    {{ object.name }}
+                    {{ object.order }}. {{ object.name }}
                 </td>
                 <td>
                     <a class="btn btn-mini" href="{% url 'course.teacher_views.add_or_edit_exercise' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
@@ -122,7 +122,7 @@
 		<p>XXXXX1 and XXXXX2 are the real student ids</p>
 		<p>X1 (integer) is the A+ userprofile id of the desired grader</p>
 		<p>Z1 and Z2 (integers) are A+ exercise ids</p>
-		
+
 		<pre>{
   "objects": [
     {
