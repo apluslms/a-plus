@@ -3,7 +3,7 @@
 
 {% block coursecontent %}
 
-<a class="btn btn-success" href="{% url 'deviations.teacher_views.add_dl_deviations' course_url=course.url instance_url=instance.url %}">
+<a class="btn btn-success" href="{% url 'deviations-add-dl' course_url=course.url instance_url=instance.url %}">
 	{% trans "Add new deadline rule deviations" %}
 </a>
 
@@ -22,7 +22,7 @@
     <td>{{ deviation.exercise }}</td>
     <td>{{ deviation.extra_minutes }}</td>
     <td>
-   	  <form method="post" action="{% url 'deviations.teacher_views.remove_dl_deviation' course_url=course.url instance_url=instance.url deviation_id=deviation.id %}">
+   	  <form method="post" action="{% url 'deviations-remove-dl' course_url=course.url instance_url=instance.url deviation_id=deviation.id %}">
    	    {% csrf_token %}
    	    <input type="submit" value="{% trans 'Remove' %}" class="btn btn-warning" />
    	  </form>

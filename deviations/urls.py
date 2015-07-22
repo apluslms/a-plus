@@ -1,11 +1,14 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from course.urls import EDIT_URL_PREFIX
+from . import teacher_views
 
 
-urlpatterns = patterns('deviations.teacher_views',
-    url(EDIT_URL_PREFIX + r'deviations/$', 'list_dl_deviations'),
-    url(EDIT_URL_PREFIX + r'deviations/add/$', 'add_dl_deviations'),
+urlpatterns = [
+    url(EDIT_URL_PREFIX + r'deviations/$',
+        teacher_views.list_dl, name="deviations-list-dl"),
+    url(EDIT_URL_PREFIX + r'deviations/add/$',
+        teacher_views.add_dl, name="deviations-add-dl"),
     url(EDIT_URL_PREFIX + r'deviations/(?P<deviation_id>\d+)/remove/$',
-        'remove_dl_deviation'),
-)
+        teacher_views.remove_dl, name="deviations-remove-dl"),
+]

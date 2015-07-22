@@ -1,9 +1,65 @@
 {% extends "course/course_base.html" %}
-{% load staticfiles %}
 {% load i18n %}
+{% load apps %}
 
 {% block coursecontent %}
-
-<p>Here'll be stuff.</p>
-
+<div class="row">
+    <div class="span7">
+        <h2>{% trans "Table of contents" %}</h2>
+        <ul>
+            {% for module in instance.course_modules.all %}
+            {% if module.chapters.exists or module.learning_objects.exists %}
+            {% with open=module.is_after_open %}
+            <li>
+                <h3>
+                    {% if open %}
+                    <a href="{% url 'module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                    {% endif %}
+                        {{ module }}
+                        <small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</span>
+                    {% if open %}
+                    </a>
+                    {% endif %}
+                </h3>
+                <ul class="chapters">
+                    {% for chapter in module.chapters.all %}
+                    {% if open %}
+                    <li>
+                        <a href="{% url 'chapter' course_url=course.url instance_url=instance.url module_url=module.url chapter_url=chapter.url %}">
+                            {{ chapter }}
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>{{ chapter }}</li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                {% if not module.chapters.exists %}
+                <ul class="exercises">
+                    {% for exercise in module.learning_objects.all %}
+                    {% if open %}
+                    <li>
+                        <a href="{% url 'exercise' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                            {{ exercise }}
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>{{ exercise }}</li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </li>
+            {% endwith %}
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="span3">
+        {% plugin_renderers user instance as plugins %}
+        {% for plugin in plugins %}
+            {{ plugin.render|safe }}
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

@@ -66,7 +66,7 @@
                         {{ submission.grade }}
                     </td>
                     <td>
-                        <a href="{% url 'exercise.staff_views.inspect_exercise_submission' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+                        <a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
                         	{% trans "Inspect" %}
                         </a>
                     </td>

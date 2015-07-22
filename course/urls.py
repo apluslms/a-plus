@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from course import views, teacher_views
+from . import views, teacher_views
 
 
 COURSE_URL_PREFIX = r'^(?P<course_url>[\w\d\-\.]+)/'
@@ -19,28 +19,28 @@ urlpatterns = [
         views.filter_categories, name='filter-categories'),
 
     url(EDIT_URL_PREFIX + r'$',
-        teacher_views.edit_course, name='edit-course'),
+        teacher_views.edit_course, name='course-edit'),
 
     url(EDIT_URL_PREFIX + r'module/add/$',
-        teacher_views.add_or_edit_module, name='add-module'),
+        teacher_views.add_or_edit_module, name='module-add'),
     url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/$',
-        teacher_views.add_or_edit_module, name='edit-module'),
+        teacher_views.add_or_edit_module, name='module-edit'),
     url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/delete/$',
-        teacher_views.remove_module, name='remove-module'),
+        teacher_views.remove_module, name='module-remove'),
 
     url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/add-exercise/$',
-        teacher_views.add_or_edit_exercise, name='add-exercise'),
+        teacher_views.add_or_edit_exercise, name='exercise-add'),
     url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/add-exercise/'
             + r'(?P<exercise_type>[\w\d\-\_]+)/$',
-        teacher_views.add_or_edit_exercise, name='add-exercise-type'),
+        teacher_views.add_or_edit_exercise, name='exercise-add-type'),
     url(EDIT_URL_PREFIX + r'exercise/(?P<exercise_id>\d+)/$',
-        teacher_views.add_or_edit_exercise, name='edit-exercise'),
+        teacher_views.add_or_edit_exercise, name='exercise-edit'),
     url(EDIT_URL_PREFIX + r'exercise/(?P<exercise_id>\d+)/delete/$',
-        teacher_views.remove_exercise, name='remove-exercise'),
+        teacher_views.remove_exercise, name='exercise-remove'),
 
     url(INSTANCE_URL_PREFIX + r'(?P<module_url>[\w\d\-\.]+)/$',
         views.view_module, name="module"),
     url(INSTANCE_URL_PREFIX
-            + r'(?P<module_url>[\w\d\-\.]+)/(?P<chapter_url>[\w\d\-\.]+)$',
+            + r'(?P<module_url>[\w\d\-\.]+)/(?P<chapter_url>[\w\d\-\.]+)/$',
         views.view_chapter, name="chapter"),
 ]

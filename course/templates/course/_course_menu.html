@@ -11,19 +11,19 @@
     	</a>
     </li>
     <li>
-    	<a href="{% url 'course.views.export_calendar' course_url=course.url instance_url=instance.url %}">
+    	<a href="{% url 'export-calendar' course_url=course.url instance_url=instance.url %}">
 	        <i class="icon-calendar"></i>
 	        {% trans "Calendar feed" %} (ics)
     	</a>
     </li>
     <li>
-    	<a href="{% url 'user_score' course_url=course.url instance_url=instance.url %}">
+    	<a href="{% url 'results' course_url=course.url instance_url=instance.url %}">
 	        <i class="icon-list-alt"></i>
 	        {% trans "My results" %}
 	    </a>
 	</li>
     <li>
-        <a href="{% url 'exercise.views.profile' course_url=course.url instance_url=instance.url %}" class="profile-link">
+        <a href="{% url 'profile' course_url=course.url instance_url=instance.url %}" class="profile-link">
             <i class="icon-user"></i>
             {{ user.userprofile.shortname }}
         </a>
@@ -44,13 +44,13 @@
     {% endfor %}
     {% endif %}
 
-    {% if instance.tabs.all|length > 0 %}
+    {% if instance.tabs.exists %}
     <li class="nav-header">
         {% trans "Apps" %}
     </li>
     {% for tab in instance.tabs.all %}
     <li>
-        <a href="{% url 'apps.views.view_tab' tab_id=tab.id %}">
+        <a href="{% url 'apps-tab' tab_id=tab.id %}">
             <i class="icon-th-large"></i>
             {{ tab.label }}
         </a>
@@ -63,14 +63,14 @@
         {% trans "Course staff" %}
     </li>
     <li>
-    	<a href="{% url 'exercise.staff_views.results_table' course_url=course.url instance_url=instance.url %}">
+    	<a href="{% url 'all-results' course_url=course.url instance_url=instance.url %}">
     		<i class="icon-list-alt"></i>
     		{% trans "All results" %}
     	</a>
     </li>
     {% if is_teacher %}
     <li>
-        <a href="{% url 'course.teacher_views.edit_course' course_url=course.url instance_url=instance.url %}" class="teachers-link">
+        <a href="{% url 'course-edit' course_url=course.url instance_url=instance.url %}" class="teachers-link">
             <i class="icon-pencil"></i>
             {% trans "Edit course" %}
         </a>

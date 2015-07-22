@@ -113,7 +113,7 @@ class MenuItem(models.Model):
         @return: menu url
         '''
         if type(self.service.as_leaf_class()) == LTIService:
-            return reverse('external_services.views.lti_login', args=[self.id])
+            return reverse('lti-login', args=[self.id])
         return self.service.url
 
     def __str__(self):

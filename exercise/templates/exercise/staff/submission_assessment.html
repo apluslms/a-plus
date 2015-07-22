@@ -14,13 +14,13 @@
                 <span class="divider">/</span>
             </li>
             <li>
-                <a href="{% url 'exercise.staff_views.list_exercise_submissions' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                <a href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
                 	{{ exercise.name }}
                 </a>
                 <span class="divider">/</span>
             </li>
             <li>
-                <a href="{% url 'exercise.staff_views.inspect_exercise_submission' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+                <a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
 					{% trans "Submission" %} {{ submission.id }}
                 </a>
                 <span class="divider">/</span>
@@ -35,17 +35,17 @@
 <div class="row">
     <div class="span4" id="student-submission">
         <h2>{% trans "Submission" %}</h2>
-        
+
         <div class="well">
-        
+
             <h3>{% trans "General information" %}</h3>
             <dl>
                 <dt>{% trans "Submitters" %}</dt>
                 <dd>{{ submission.submitters.all|students }}</dd>
             </dl>
-            
+
             <hr />
-            
+
             <h3>{% trans "Submitted values" %}</h3>
             <dl>
             	{% for item in submission.submission_data %}
@@ -57,9 +57,9 @@
                 </dt>
             	{% endfor %}
             </dl>
-            
+
             <hr />
-            
+
             <h3>{% trans "Submitted files" %}</h3>
             <ul class="unstyled">
                 {% for file in submission.files.all %}

@@ -6,7 +6,7 @@
 {% block coursecontent %}
 <div class="row">
     <div id="course-schedule-container" class="span7">
-        
+
         {# Settings collapse button. This needs to be here because we want it to float to the right of the header. #}
         <a id="schedule-filters-btn" class="btn" data-toggle="collapse" data-target="#filters-collapse">
         	{% trans "Filter Categories" %}
@@ -19,7 +19,7 @@
         {# Settings collapse #}
         <div id="filters-collapse" class="collapse">
             <div class="well">
-                <form method="post" action="{% url 'course.views.filter_categories' course_url=course.url instance_url=instance.url %}?next={{ request.path }}">
+                <form method="post" action="{% url 'filter-categories' course_url=course.url instance_url=instance.url %}?next={{ request.path }}">
                 	{% csrf_token %}
                     <legend>{% trans "Visible categories" %}</legend>
                     {% for id, category_summary in course_summary.category_summaries.items %}
@@ -40,11 +40,11 @@
         <ul class="exercise_rounds">
         	{% for course_module, module_summary, uncategorized_exercise_level, category_level in exercise_tree %}
             <li class="exercise_round {{ course_module|course_module_classes }}">
-                {% if course_module.is_after_open or is_teacher or is_assistant %}               	
+                {% if course_module.is_after_open or is_teacher or is_assistant %}
                 <div class="exercise-icons {% if uncategorized_exercise_level|length > 10 %}exercise-icons-tight{% endif %}">
                 	<div class="btn-group">
                     	{% for exercise, exercise_summary in uncategorized_exercise_level %}
-                        <a class="btn {{ exercise_summary|exercise_summary_classes }}" rel="tooltip" href="{{ exercise_summary.exercise.get_absolute_url }}"
+                        <a class="btn {{ exercise_summary|exercise_summary_classes }}" rel="tooltip" href="{{ exercise.get_absolute_url }}"
                         	data-html="true" data-placement="bottom" title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
                             {{ exercise_summary.exercise.order }}
                         </a>
@@ -69,7 +69,7 @@
                     <span class="dates">
                     	{{ course_module.opening_time }} &ndash; {{ course_module.closing_time }}
                     </span>
-                    {% if course_module.late_submissions_allowed %}                    
+                    {% if course_module.late_submissions_allowed %}
                     <br />
                     <span class="dates">
                     	<em>
@@ -127,8 +127,8 @@
                                 </td>
                                 {% if is_teacher or is_assistant %}
                                 <td>
-                                	<a class="staff" href="{% url 'exercise.staff_views.list_exercise_submissions' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
-                                		submissions
+                                	<a class="staff" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                                		{% trans "View submissions" %}
                                 	</a>
                                 </td>
                                 {% endif %}
@@ -186,8 +186,8 @@
             {% endfor %}
         </div>
         {% endif %}
-        
-        {% plugin_renderers user instance as plugins %} 
+
+        {% plugin_renderers user instance as plugins %}
         {% for plugin in plugins %}
             {{ plugin.render|safe }}
         {% endfor %}

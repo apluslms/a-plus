@@ -97,10 +97,10 @@ def resubmit_to_service(request, course_url=None, instance_url=None,
     """
     if not request.method == "POST":
         return HttpResponseForbidden(_("Only HTTP POST allowed."))
-    
+
     # Sets feedback using Django messages.
     _ = exercise.grade(request, submission)
-     
+
     return redirect(inspect_exercise_submission,
         course_url=course.url,
         instance_url=course_instance.url,
@@ -130,7 +130,7 @@ def assess_submission(request, course_url=None, instance_url=None,
             submission.feedback = form.cleaned_data["feedback"]
             submission.set_ready()
             submission.save()
-            
+
             sub = _('New assistant feedback')
             msg = _('<p>You have new personal feedback to exercise '
                     '<a href="{url}">{name}</a>:</p>{message}').format(
@@ -140,7 +140,7 @@ def assess_submission(request, course_url=None, instance_url=None,
             )
             for student in submission.submitters.all():
                 Notification.send(grader, student, course_instance, sub, msg)
-            
+
             messages.success(request, _(
                 "The review was saved successfully and the submitters were notified."
             ))
@@ -175,7 +175,7 @@ def create_and_assess_submission(request, course_url=None, instance_url=None,
                                  exercise=None):
     """
     Creates a new assessed submission for a selected student.
-    
+
     Note: Does not notify the students.
     """
     if not request.method == "POST":
@@ -208,7 +208,7 @@ def create_and_assess_submission(request, course_url=None, instance_url=None,
     new_submission.grading_time = timezone.now()
     new_submission.set_ready()
     new_submission.save()
-    
+
     messages.success(request, _("New submission stored."))
     return redirect(inspect_exercise_submission,
         course_url=course.url,
@@ -222,12 +222,12 @@ def batch_create_and_assess_submissions(request, course_url=None, instance_url=N
                                         course=None, course_instance=None):
     """
     Creates new assessed submissions from posted JSON data.
-    
+
     Note: Does not notify the students.
     """
     if not request.method == "POST":
         return HttpResponseForbidden(_("Only HTTP POST allowed."))
-    
+
     error = False
     try:
         submissions_json = json.loads(request.POST.get("submissions_json", ""))
@@ -242,7 +242,7 @@ def batch_create_and_assess_submissions(request, course_url=None, instance_url=N
     if not error and not "objects" in submissions_json:
         messages.error(request, _('Missing JSON field: objects'))
         error = True
-    
+
     validated_forms = []
     if not error:
         count = 0
@@ -255,7 +255,7 @@ def batch_create_and_assess_submissions(request, course_url=None, instance_url=N
                     ))
                 error = True
                 continue
-            
+
             exercise = BaseExercise.objects \
                 .filter(id=submission_json["exercise_id"]) \
                 .first()
@@ -267,7 +267,7 @@ def batch_create_and_assess_submissions(request, course_url=None, instance_url=N
                     ))
                 error = True
                 continue
-            
+
             # Use form to parse and validate individual objects.
             form = BathSubmissionCreateAndReviewForm(
                 submission_json, exercise=exercise)
@@ -299,7 +299,7 @@ def batch_create_and_assess_submissions(request, course_url=None, instance_url=N
             new_submission.save()
         messages.success(request, _("New submissions stored."))
 
-    return redirect('course.teacher_views.edit_course',
+    return redirect('course-edit',
         course_url=course.url,
         instance_url=course_instance.url)
 

@@ -19,7 +19,7 @@ logger = logging.getLogger('aplus.exercise')
 
 
 class SubmissionManager(models.Manager):
-    
+
     def create_from_post(self, exercise, submitters, request):
         new_submission = Submission.objects.create(
             exercise=exercise,
@@ -50,7 +50,7 @@ class Submission(models.Model):
         (STATUS_READY, _("Ready")),
         (STATUS_ERROR, _("Error")),
     )
-    
+
     submission_time = models.DateTimeField(auto_now_add=True)
     hash = models.CharField(max_length=32, default=get_random_string)
 
@@ -95,7 +95,7 @@ class Submission(models.Model):
     def add_files(self, files):
         """
         Adds the given files to this submission as SubmittedFile objects.
-        
+
         @param files: a QueryDict containing files from a POST request
         """
         for key in files:
@@ -115,15 +115,15 @@ class Submission(models.Model):
                 self._data[key].append(value)
             else:
                 self._data[key] = [ value ]
-        
+
         self._files = {}
         for file in self.files.all().order_by("id"):
-            # Requests supports only one file per name in a multipart post. 
+            # Requests supports only one file per name in a multipart post.
             self._files[file.param_name] = (
                 file.filename,
                 open(file.file_object.path, "rb")
             )
-        
+
         self.exercise.as_leaf_class().modify_post_parameters(self._data, self._files)
         return (self._data, self._files)
 
@@ -144,7 +144,7 @@ class Submission(models.Model):
         exercise.course_module. If no_penalties is True, the penalty is not
         applied.
         """
-        
+
         # The given points must be between zero and max points
         assert 0 <= points <= max_points
 
@@ -182,7 +182,7 @@ class Submission(models.Model):
     def set_ready(self):
         self.grading_time = timezone.now()
         self.status = self.STATUS_READY
-        
+
         # Fire set hooks.
         for hook in self.exercise.course_module.course_instance \
                 .course_hooks.filter(hook_type="post-grading"):
@@ -218,13 +218,13 @@ def build_upload_dir(instance, filename):
     """
     Returns the path to a directory where a file should be saved.
     This is called every time a new SubmittedFile model is created.
-    
+
     @param instance: the new SubmittedFile object
     @param filename: the actual name of the submitted file
     @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
     submission = instance.submission
-    exercise = submission.exercise    
+    exercise = submission.exercise
     submitter_ids = [str(profile.id) for profile in submission.submitters.all().order_by("id")]
     return "submissions/course_instance_{:d}/exercise_{:d}/users_{}/submission_{:d}/{}".format(
         exercise.course_instance.id,
@@ -263,7 +263,7 @@ class SubmittedFile(models.Model):
         submission = self.submission
         exercise = submission.exercise
         instance = exercise.course_instance
-        return reverse('exercise.views.view_submitted_file', kwargs={
+        return reverse('submission-file', kwargs={
             "course_url": instance.course.url,
             "instance_url": instance.url,
             "exercise_id": exercise.id,
@@ -272,7 +272,7 @@ class SubmittedFile(models.Model):
             "file_name": self.filename
         })
 
- 
+
 def _delete_file(sender, instance, **kwargs):
     """
     This function deletes the actual files referenced by SubmittedFile

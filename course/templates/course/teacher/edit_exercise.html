@@ -55,7 +55,7 @@
     <div class="form-actions">
         <input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
     </div>
-    
+
 </form>
 
 {% endblock %}
@@ -64,7 +64,7 @@
 <script type="text/javascript">
     $("#fetch-metadata").click(function() {
         $("#metadata-progress").show();
-        $.getJSON("{% url 'exercise_metadata' course_url=course.url instance_url=instance.url %}",
+        $.getJSON("{% url 'exercise-metadata' course_url=course.url instance_url=instance.url %}",
         	{
                 exercise_url: $("#id_service_url").val()
             },

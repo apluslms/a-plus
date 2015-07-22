@@ -1,8 +1,13 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
+from . import views
 
 
-urlpatterns = patterns('redirect_old_urls.views',
-    url(r'^course/(?P<course_url>[\w\d\-\.]+)/$', 'course'),
-    url(r'^course/(?P<course_url>[\w\d\-\.]+)/(?P<instance_url>[\w\d\-\.]+)/$', 'instance'),
-    url(r'^exercise/(?P<exercise_id>\d+)/$', 'exercise'),
-)
+urlpatterns = [
+    url(r'^course/(?P<course_url>[\w\d\-\.]+)/$',
+        views.course),
+    url(r'^course/(?P<course_url>[\w\d\-\.]+)/(?P<instance_url>[\w\d\-\.]+)/$',
+        views.instance),
+    url(r'^exercise/(?P<exercise_id>\d+)/$',
+        views.exercise),
+]

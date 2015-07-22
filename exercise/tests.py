@@ -560,12 +560,12 @@ class ExerciseTest(TestCase):
             url="another"
         )
         self.other_instance.assistants.add(self.grader.userprofile)
-        list_submissions_url = reverse('exercise.staff_views.list_exercise_submissions', kwargs={
+        list_submissions_url = reverse('submission-list', kwargs={
             'course_url': self.course.url,
             'instance_url': self.course_instance.url,
             'exercise_id': self.base_exercise.id
         })
-        assess_submission_url = reverse('exercise.staff_views.assess_submission', kwargs={
+        assess_submission_url = reverse('submission-assess', kwargs={
             'course_url': self.course.url,
             'instance_url': self.course_instance.url,
             'exercise_id': self.base_exercise.id,

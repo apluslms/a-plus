@@ -15,7 +15,7 @@
 <form method="post">
     {% csrf_token %}
     <input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
-    <a class="btn btn-primary" href="{% url 'course.teacher_views.edit_course' course_url=course.url instance_url=instance.url %}">
+    <a class="btn btn-primary" href="{% url 'course-edit' course_url=course.url instance_url=instance.url %}">
     	{% trans "Cancel" %}
     </a>
 </form>

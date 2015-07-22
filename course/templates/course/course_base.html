@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block maintitle %}
-    <h1>{{ instance.course.name }} <small>{{ instance.instance_name }}</small></h1>
+    <h1>{{ instance.course }} <small>{{ instance.instance_name }}</small></h1>
 {% endblock %}
 
 
@@ -14,17 +14,17 @@
 
 {% block content %}
 <div class="row">
-    
+
     <div class="span2">
         <ul id="course-menu" class="nav nav-list">
         {% include "course/_course_menu.html" with instance=instance %}
         </ul>
     </div>
-    
+
     <div class="span10">
         {% block coursecontent %}
         {% endblock %}
     </div>
-    
+
 </div>
 {% endblock %}

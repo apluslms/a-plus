@@ -11,9 +11,8 @@ from userprofile.models import UserProfile
 
 
 @access_teacher_resource
-def list_dl_deviations(request,
-                                  course_url=None, instance_url=None,
-                                  course=None, course_instance=None):
+def list_dl(request, course_url=None, instance_url=None,
+        course=None, course_instance=None):
     """
     Lists deadline rule deviations for a course instance.
     """
@@ -29,9 +28,8 @@ def list_dl_deviations(request,
 
 
 @access_teacher_resource
-def add_dl_deviations(request,
-                                 course_url=None, instance_url=None,
-                                 course=None, course_instance=None):
+def add_dl(request, course_url=None, instance_url=None,
+        course=None, course_instance=None):
     """
     Adds a group of deadline rule deviations for a course instance.
     """
@@ -44,14 +42,14 @@ def add_dl_deviations(request,
                     try:
                         exercise = BaseExercise.objects.get(id=exercise_id,
                             course_module__course_instance=course_instance)
-                    
-                        dl_rule_deviation = DeadlineRuleDeviation.objects.create(
+
+                        deviation = DeadlineRuleDeviation.objects.create(
                             exercise=exercise,
                             submitter=submitter,
                             extra_minutes=minutes
                         )
-                        dl_rule_deviation.save()
-    
+                        deviation.save()
+
                     except BaseExercise.DoesNotExist:
                         messages.warning(request,
                             _("Selected exercise ({id:d}) does not exist in the course instance.") \
@@ -62,13 +60,13 @@ def add_dl_deviations(request,
                             _("Dead line deviation already exists for {user} in {exercise}! "
                               "Remove it before trying to add a new one.") \
                                 .format(user=str(submitter), exercise=str(exercise)))
-            
+
             except UserProfile.DoesNotExist:
                 messages.warning(request,
                     _("Selected user ({id:d}) does not exist.") \
                         .format(id=user_id))
 
-        return redirect(list_dl_deviations,
+        return redirect(list_dl,
             course_url=course.url,
             instance_url=course_instance.url
         )
@@ -84,10 +82,8 @@ def add_dl_deviations(request,
 
 
 @access_teacher_resource
-def remove_dl_deviation(request,
-                                   course_url=None, instance_url=None,
-                                   deviation_id=None,
-                                   course=None, course_instance=None):
+def remove_dl(request, course_url=None, instance_url=None, deviation_id=None,
+        course=None, course_instance=None):
     """
     Removes a deadline rule deviation.
     """
@@ -101,7 +97,7 @@ def remove_dl_deviation(request,
             messages.warning(request,
                 _("Dead line deviation ({id:d}) does not exist.") \
                     .format(id=deviation_id))
-    return redirect(list_dl_deviations,
+    return redirect(list_dl,
         course_url=course.url,
         instance_url=course_instance.url
     )

@@ -212,7 +212,7 @@ class BaseExercise(LearningObject):
         if self.id:
             student_str, hash_key = self.get_async_hash(students)
             url = self._build_service_url(request, reverse(
-                "exercise.async_views.new_async_submission", kwargs={
+                "async-new", kwargs={
                     "exercise_id": self.id if self.id else 0,
                     "student_ids": student_str,
                     "hash_key": hash_key
@@ -227,7 +227,7 @@ class BaseExercise(LearningObject):
         Loads the exercise feedback page.
         """
         url = self._build_service_url(request, reverse(
-            "exercise.async_views.grade_async_submission", kwargs={
+            "async-grade", kwargs={
                 "submission_id": submission.id,
                 "hash_key": submission.hash
             }))

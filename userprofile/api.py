@@ -5,7 +5,7 @@ from userprofile.models import UserProfile
 
 
 class UserProfileResource(ModelResource):
-    
+
     def dehydrate(self, bundle):
         """
         This method adds fields from the corresponding User

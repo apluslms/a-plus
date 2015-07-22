@@ -47,7 +47,7 @@ class Course(models.Model):
             self.teachers.filter(id=user.userprofile.id).exists())
 
     def get_absolute_url(self):
-        return reverse('course.views.view_course', kwargs={
+        return reverse('course-instances', kwargs={
             'course_url': self.url
         })
 
@@ -131,7 +131,7 @@ class CourseInstance(models.Model):
             .count() > 0
 
     def get_absolute_url(self):
-        return reverse('course.views.view_instance', kwargs={
+        return reverse('course', kwargs={
             'course_url': self.course.url,
             'instance_url': self.url
         })

@@ -31,8 +31,8 @@
     </li>
     {% if is_teacher or is_assistant %}
     <li>
-    	<a class="staff" href="{% url 'exercise.staff_views.list_exercise_submissions' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
-			All submissions
+    	<a class="staff" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+			{% trans "View all submissions" %}
 		</a>
 	</li>
 	{% endif %}

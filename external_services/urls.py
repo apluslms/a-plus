@@ -1,6 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
+from . import views
 
 
-urlpatterns = patterns('external_services.views',
-    url(r'^lti/(\d+)$', 'lti_login'),
-)
+urlpatterns = [
+    url(r'^lti/(\d+)/$', views.lti_login, name="lti-login"),
+]

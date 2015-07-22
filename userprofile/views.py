@@ -7,7 +7,7 @@ from django.shortcuts import render_to_response, resolve_url
 from django.template.context import RequestContext
 from django.utils.http import is_safe_url
 
-from userprofile.models import StudentGroup
+from .models import StudentGroup
 
 
 def login(request):

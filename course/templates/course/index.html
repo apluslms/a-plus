@@ -9,12 +9,12 @@
 <div class="hero-unit">
     {% blocktrans %}
     <p>
-        A+ is a service for managing the learning activities. The system is designed for 
+        A+ is a service for managing the learning activities. The system is designed for
         improving the interoperability of various e-learning systems by connecting them
         with a service-oriented approach.
 
         A+ is in <strong>beta</strong> and we need your help to move forward. Please
-        inform the course staff if you observe unexpected behavior. 
+        inform the course staff if you observe unexpected behavior.
     </p>
     {% endblocktrans %}
 </div>
@@ -39,7 +39,7 @@
             </a>
         </p>
     </div>
-    
+
 {# Output an ending row element after every three instances, and at the end of the loop #}
 {% if forloop.counter|divisibleby:3 or forloop.last %}
 </div>
@@ -49,9 +49,9 @@
 
 {% endblock %}
 
-{% block footercontent %}        
+{% block footercontent %}
 <p>
-	{% url 'course.views.course_archive' as archive_url %}
+	{% url 'archive' as archive_url %}
 	{% blocktrans with url=archive_url %}
     Old courses can be found at the <a href="{{ url }}">course archive</a>.
     {% endblocktrans %}
