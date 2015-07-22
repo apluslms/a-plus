@@ -1,0 +1,53 @@
+{% load i18n %}
+{% load exercise %}
+<table class="table table-bordered" id="submission-table">
+    <thead>
+        <tr>
+            <th>
+                {% trans "Submitters" %}
+            </th>
+            <th>
+                {% trans "Time" %}
+            </th>
+            <th>
+                {% trans "Status" %}
+            </th>
+            <th>
+                {% trans "Grade" %}
+            </th>
+            <th>
+                {% trans "Inspect" %}
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for submission in submissions %}
+        <tr>
+            <td>
+                {{ submission.submitters.all|students }}
+            </td>
+            <td>
+                {{ submission.submission_time }}
+                {% if submission.late_penalty_applied %}
+                <span class="label label-warning">
+                    {% blocktrans with percent=submission.late_penalty_applied|percent %}
+                    Late <small>-{{ percent }}%</small>
+                    {% endblocktrans %}
+                </span>
+                {% endif %}
+            </td>
+            <td>
+                {{ submission.status }}
+            </td>
+            <td>
+                {{ submission.grade }}
+            </td>
+            <td>
+                <a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+                    {% trans "Inspect" %}
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

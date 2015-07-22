@@ -99,7 +99,7 @@ class ExternalServicesTest(TestCase):
         self.assertEqual("http://www.external-service.com", self.menu_item2.url)
         self.assertEqual("http://www.disabled-external-service.com", self.menu_item3.url)
         self.assertEqual("http://www.disabled-external-service.com", self.menu_item4.url)
-        self.assertEqual("/external/lti/5", self.menu_item5.url)
+        self.assertEqual("/external/lti/5/", self.menu_item5.url)
 
     def test_menuitem_string(self):
         self.assertEqual("123456 Fall 2011: ", str(self.menu_item1))

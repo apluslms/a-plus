@@ -9,7 +9,7 @@
         {% trans "Exercise" %}
     </dt>
     <dd>
-        <a href="{{ submission.exercise.get_absolute_url }}">{{ submission.exercise.name }}</a>
+        <a href="{{ exercise.get_absolute_url }}">{{ exercise.name }}</a>
     </dd>
     {% endcomment %}
 
@@ -33,17 +33,15 @@
         {% trans "Grade" %}
     </dt>
     <dd>
-        {{ submission.grade }} / {{ submission.exercise.max_points }}
+        {{ submission.grade }} / {{ exercise.max_points }}
     </dd>
 
 	{% if submission.late_penalty_applied %}
-    <dl>
-        <dt>{% trans "Includes late penalty" %}</dt>
-        <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
-    </dl>
+    <dt>{% trans "Includes late penalty" %}</dt>
+    <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
     {% endif %}
 
-    {% if submission.exercise.max_points != submission.service_max_points %}
+    {% if exercise.max_points != submission.service_max_points %}
     <dt>
         {% trans "Non-scaled grading" %}
     </dt>
@@ -61,4 +59,15 @@
     	{{ submission.submitters.all|students }}
     </dd>
     {% endcomment %}
-</ul>
+
+    {% if is_teacher or is_assistant %}
+    <dt>
+        {% trans "Staff" %}
+    </dt>
+    <dd>
+        <a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+            {% trans "Inspect" %}
+        </a>
+    </dd>
+    {% endif %}
+</dl>

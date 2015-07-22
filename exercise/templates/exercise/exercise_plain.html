@@ -48,6 +48,13 @@
 			        	{% endfor %}
 			        </ul>
 				</li>
+				{% if is_teacher or is_assistant %}
+			    <li>
+			    	<a class="staff" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+						{% trans "View all submissions" %}
+					</a>
+				</li>
+				{% endif %}
 			</ul>
 			<div class="exercise-response">
 				{% include "widgets/messages.html" %}

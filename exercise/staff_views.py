@@ -55,7 +55,9 @@ def list_exercise_submissions(request, course_url=None, instance_url=None,
     Lists all submissions for a given exercise.
 
     """
-    return render_to_response("exercise/staff/exercise_submissions.html", CourseContext(
+    template = "_submissions_table.html" if request.is_ajax() \
+        else "list_submissions.html"
+    return render_to_response("exercise/staff/" + template, CourseContext(
         request,
         course=course,
         course_instance=course_instance,
@@ -158,7 +160,7 @@ def assess_submission(request, course_url=None, instance_url=None,
                 "assistant_feedback": submission.assistant_feedback
             }
         )
-    return render_to_response("exercise/staff/submission_assessment.html", CourseContext(
+    return render_to_response("exercise/staff/assess_submission.html", CourseContext(
         request,
         course=course,
         course_instance=course_instance,

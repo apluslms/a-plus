@@ -1,0 +1,37 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+
+{% block coursecontent %}
+
+<div class="row">
+    <div class="span10">
+        <ul class="breadcrumb">
+            <li>
+                <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
+                	{{ course.name }}
+                </a>
+                <span class="divider">/</span>
+            </li>
+            <li class="active">
+                {{ exercise.name }}
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span10">
+        <h2>{{ exercise.name }} <small>{{ submissions.count }} {% trans "submissions" %}</small></h2>
+        {% include 'exercise/staff/_submissions_table.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+            <script type="text/javascript" src="{{ STATIC_URL }}js/picnet.table.filter.min.js"></script>
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    $('#submission-table').tableFilter();
+                });
+            </script>
+{% endblock %}

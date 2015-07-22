@@ -5,8 +5,11 @@
 		<th>{% trans "Date" %}</th>
 		<th>{% trans "Status" %}</th>
 		<th>{% trans "Grade" %}</th>
-		{% if submission.files.all %}
+		{% if submission.files.exists %}
 		<th>{% trans "Files" %}</th>
+		{% endif %}
+		{% if is_teacher or is_assistant %}
+		<th>{% trans "Staff" %}</th>
 		{% endif %}
 	</tr>
 	<tr>
@@ -22,12 +25,19 @@
 		</td>
 		<td class="{% if submission.is_graded %}success{% endif %}">{{ submission.status }}</td>
 		<td>{{ submission.grade }} / {{ submission.exercise.max_points }}</td>
-		{% if submission.files.all %}
+		{% if submission.files.exists %}
 		<td>
 			{% for file in submission.files.all %}
 			<i class="icon-file"></i>
 			{% include "exercise/_file_link.html" %}
 			{% endfor %}
+		</td>
+		{% endif %}
+		{% if is_teacher or is_assistant %}
+		<td>
+			<a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+				{% trans "Inspect" %}
+			</a>
 		</td>
 		{% endif %}
 	</tr>
