@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.http.response import HttpResponse, HttpResponseForbidden
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from icalendar import Calendar, Event
@@ -54,7 +54,7 @@ def view_instance(request, course_url=None, instance_url=None,
         return render_to_response("course/toc.html", CourseContext(
             request,
             course=course,
-            course_instance=course_instance
+            course_instance=course_instance,
         ))
     import exercise.views
     return exercise.views.user_score(
@@ -64,7 +64,12 @@ def view_instance(request, course_url=None, instance_url=None,
 @access_resource
 def view_module(request, course_url=None, instance_url=None, module_url=None,
                 course=None, course_instance=None, module=None):
-    return HttpResponse("TODO")
+    return render_to_response("course/module.html", CourseContext(
+        request,
+        course=course,
+        course_instance=course_instance,
+        module=module,
+    ))
 
 
 @access_resource

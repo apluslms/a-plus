@@ -1,0 +1,74 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load apps %}
+
+{% block title %}
+{{ course.name }}: {{ module }}
+{% endblock %}
+
+{% block maintitle %}
+<h1>
+	<small>{{ course }}</small>
+    <br />
+    {{ module }}
+</h1>
+{% endblock %}
+
+{% block coursecontent %}
+<div class="row">
+    <div class="span7">
+        <p>
+            <span class="dates">
+                {{ module.opening_time }} &ndash; {{ module.closing_time }}
+            </span>
+            {% if module.late_submissions_allowed %}
+            <br />
+            <span class="dates">
+                <em>
+                    {% blocktrans with deadline=module.late_submission_deadline percent=module.get_late_submission_point_worth %}
+                    Late submission are allowed until {{ deadline }}
+                    but points are only worth {{ percent }} %.
+                    {% endblocktrans %}
+                </em>
+            </span>
+            {% endif %}
+        </p>
+        {% with open=module.is_after_open %}
+        <ul class="chapters">
+            {% for chapter in module.chapters.all %}
+            {% if open %}
+            <li>
+                <a href="{% url 'chapter' course_url=course.url instance_url=instance.url module_url=module.url chapter_url=chapter.url %}">
+                    {{ chapter }}
+                </a>
+            </li>
+            {% else %}
+            <li>{{ chapter }}</li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% if not module.chapters.exists %}
+        <ul class="exercises">
+            {% for exercise in module.learning_objects.all %}
+            {% if open %}
+            <li>
+                <a href="{% url 'exercise' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                    {{ exercise }}
+                </a>
+            </li>
+            {% else %}
+            <li>{{ exercise }}</li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+    <div class="span3">
+        {% plugin_renderers user instance as plugins %}
+        {% for plugin in plugins %}
+            {{ plugin.render|safe }}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
