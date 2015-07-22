@@ -28,6 +28,13 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/delete/$',
         teacher_views.remove_module, name='module-remove'),
 
+    url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/add-chapter/$',
+        teacher_views.add_or_edit_chapter, name='chapter-add'),
+    url(EDIT_URL_PREFIX + r'chapter/(?P<chapter_id>\d+)/$',
+        teacher_views.add_or_edit_chapter, name='chapter-edit'),
+    url(EDIT_URL_PREFIX + r'chapter/(?P<chapter_id>\d+)/delete/$',
+        teacher_views.remove_chapter, name='chapter-remove'),
+
     url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/add-exercise/$',
         teacher_views.add_or_edit_exercise, name='exercise-add'),
     url(EDIT_URL_PREFIX + r'module/(?P<module_id>\d+)/add-exercise/'

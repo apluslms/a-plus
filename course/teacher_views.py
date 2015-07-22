@@ -5,8 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.context import CourseContext
 from course.decorators import access_teacher_resource
-from course.forms import CourseModuleForm
-from course.models import CourseModule
+from course.forms import CourseModuleForm, CourseChapterForm
+from course.models import CourseModule, CourseChapter
 from exercise import exercise_forms
 
 
@@ -76,6 +76,57 @@ def remove_module(request,
         module=module,
         exercise_count=exercise_count
     ))
+
+
+@access_teacher_resource
+def add_or_edit_chapter(request,
+        course_url=None, instance_url=None, module_id=None, chapter_id=None,
+        course=None, course_instance=None, module=None, chapter=None):
+    add = chapter is None
+    if add:
+        chapter = CourseChapter(course_module=module)
+        chapter.order = module.chapters.count() + 1
+
+    if request.method == "POST":
+        form = CourseChapterForm(request.POST, instance=chapter)
+        if form.is_valid():
+            chapter = form.save()
+            messages.success(request,
+                _('The chapter was saved successfully.')
+            )
+            if add:
+                return redirect(add_or_edit_chapter,
+                                course_url=course.url,
+                                instance_url=course_instance.url,
+                                chapter_id=chapter.id)
+    else:
+        form = CourseChapterForm(instance=chapter)
+
+    return render_to_response("course/teacher/edit_chapter.html",
+        CourseContext(
+            request,
+            course=course,
+            course_instance=course_instance,
+            module=module,
+            chapter=chapter,
+            form=form))
+
+
+@access_teacher_resource
+def remove_chapter(request,
+        course_url=None, instance_url=None, chapter_id=None,
+        course=None, course_instance=None, chapter=None):
+    if request.method == "POST":
+        chapter.delete()
+        return redirect(edit_course,
+                        course_url=course.url,
+                        instance_url=course_instance.url)
+    return render_to_response("course/teacher/remove_chapter.html",
+        CourseContext(
+            request,
+            course=course,
+            course_instance=course_instance,
+            chapter=chapter))
 
 
 @access_teacher_resource

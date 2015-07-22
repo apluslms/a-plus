@@ -8,7 +8,7 @@
 <table class="table table-striped table-bordered table-condensed">
     <thead>
         <tr>
-            <th><h3>{% trans "Categories" %}</h3></th>
+            <th><h3>{% trans "Exercise categories" %}</h3></th>
         </tr>
     </thead>
     <tbody>
@@ -33,16 +33,14 @@
 <table class="table table-striped table-bordered table-condensed">
     <thead>
         <tr>
-            <th colspan="3"><h3>{% trans "Learning modules" %}</h3></th>
+            <th colspan="2"><h3>{% trans "Course modules" %}</h3></th>
         </tr>
     </thead>
     <tbody>
 
     {% for module in instance.course_modules.all %}
         <tr>
-            <th>
-                <strong>{{ module.name }}</strong>
-            </th>
+            <th><strong>{{ module }}</strong></th>
             <td>
                 <a class="btn btn-mini" href="{% url 'module-edit' course_url=course.url instance_url=instance.url module_id=module.id %}">
                     <i class="icon-edit"></i> {% trans "Edit module" %}
@@ -53,46 +51,69 @@
                 </a>
                 {% endif %}
             </td>
+
+        </tr>
+        {% for object in module.chapters.all %}
+        <tr>
             <td>
+                {{ object }}
+            </td>
+            <td>
+                <a class="btn btn-mini" href="{% url 'chapter-edit' course_url=course.url instance_url=instance.url chapter_id=object.id %}">
+                    <i class="icon-edit"></i> {% trans "Edit" %}
+                </a>
+                <a class="btn btn-mini" href="{% url 'chapter-remove' course_url=course.url instance_url=instance.url chapter_id=object.id %}">
+                    <i class="icon-remove"></i> {% trans "Remove" %}
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2">
+                <a class="btn btn-mini btn-primary" href="{% url 'chapter-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
+                    {% trans "Add new chapter" %}
+                </a>
+            </td>
+        </tr>
+        {% for object in module.learning_objects.all %}
+        <tr>
+            <td>
+                {{ object }}
+            </td>
+            <td>
+                <a class="btn btn-mini" href="{% url 'exercise-edit' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                    <i class="icon-edit"></i> {% trans "Edit" %}
+                </a>
+                <a class="btn btn-mini" href="{% url 'exercise-remove' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                    <i class="icon-remove"></i> {% trans "Remove" %}
+                </a>
+                <a class="btn btn-mini btn-link" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                	{% trans "View submissions" %}
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2">
                 <div class="btn-group">
-                    <a class="btn btn-success" href="{% url 'exercise-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
-                        <i class=" icon-white"></i> {% trans "Add New Exercise" %}
+                    <a class="btn btn-mini btn-success" href="{% url 'exercise-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
+                        {% trans "Add new exercise" %}
                     </a>
-                    <button type="button" class="btn btn- dropdown-toggle" data-toggle="dropdown">
+                    <button type="button" class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
                       <span class="caret"></span>
                     </button>
-                  	<ul class="dropdown-menu" role="menu">
+                    <ul class="dropdown-menu" role="menu">
                         <li>
-                        	<a class="" href="{% url 'exercise-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
-                             {% trans "Add Exercise" %}
+                            <a class="" href="{% url 'exercise-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
+                             {% trans "Add exercise" %}
                         </a></li>
                         <li><a href="{% url 'exercise-add-type' course_url=course.url instance_url=instance.url module_id=module.id exercise_type='exercise_with_attachment' %}">
-                            {% trans "Add Exercise with Attachment" %}</a>
+                            {% trans "Add exercise with attachment" %}</a>
                         </li>
                     </ul>
                 </div>
             </td>
         </tr>
-        {% for object in module.learning_objects.all %}
-            <tr>
-                <td>
-                    {{ object.order }}. {{ object.name }}
-                </td>
-                <td>
-                    <a class="btn btn-mini" href="{% url 'exercise-edit' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
-                        <i class="icon-edit"></i> {% trans "Edit" %}
-                    </a>
-                    <a class="btn btn-mini" href="{% url 'exercise-remove' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
-                        <i class="icon-remove"></i> {% trans "Remove" %}
-                    </a>
-                </td>
-                <td>
-                    <a href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
-                    	{% trans "View submissions" %}
-                    </a>
-                </td>
-            </tr>
-        {% endfor %}
     {% endfor %}
     </tbody>
 </table>

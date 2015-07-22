@@ -13,6 +13,7 @@ INSTANCE_KEY = "instance_url"
 MODULE_KEY = "module_url"
 MODULE_ID_KEY = "module_id"
 CHAPTER_KEY = "chapter_url"
+CHAPTER_ID_KEY = "chapter_id"
 EXERCISE_KEY = "exercise_id"
 SUBMISSION_KEY = "submission_id"
 
@@ -46,6 +47,10 @@ def _resource(view_func):
                     kwargs["module"] = get_object_or_404(CourseModule,
                         id=kwargs[MODULE_ID_KEY],
                         course_instance=instance)
+                if CHAPTER_ID_KEY in kwargs:
+                    kwargs["chapter"] = get_object_or_404(CourseChapter,
+                        id=kwargs[CHAPTER_ID_KEY],
+                        course_module__course_instance=instance)
                 if EXERCISE_KEY in kwargs:
                     exercise = get_object_or_404(LearningObject,
                         id=kwargs[EXERCISE_KEY],

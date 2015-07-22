@@ -33,6 +33,11 @@
             </span>
             {% endif %}
         </p>
+		{% if module.introduction %}
+		<p>
+			{{ module.introduction|safe }}
+		</p>
+		{% endif %}
         {% with open=module.is_after_open %}
         <ul class="chapters">
             {% for chapter in module.chapters.all %}
