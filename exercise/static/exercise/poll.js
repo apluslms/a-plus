@@ -18,9 +18,9 @@
 
 	function AplusExercisePoll(element, callback, options) {
 		this.element = $(element);
-    this.callback = callback;
+		this.callback = callback;
 		this.settings = $.extend({}, defaults, options);
-    this.url = null;
+		this.url = null;
 		this.count = 0;
 		this.init();
 	}
@@ -31,8 +31,9 @@
 		 * Constructs contained exercise elements.
 		 */
 		init: function() {
-      this.url = this.element.attr(this.settings.poll_url_attr);
-      this.schedule();
+			this.element.removeClass("hide");
+			this.url = this.element.attr(this.settings.poll_url_attr);
+			this.schedule();
 		},
 
 		poll: function(firstTime) {
@@ -61,15 +62,15 @@
 				this.settings.poll_delays[this.count] * 1000);
 		},
 
-    ready: function() {
+		ready: function() {
 			this.element.hide();
 			this.suburl = this.url.substr(0, this.url.length - "poll/".length);
-      if (this.callback) {
-        this.callback(this.suburl);
-      } else {
-        location.href = this.suburl;
-      }
-    },
+			if (this.callback) {
+				this.callback(this.suburl);
+			} else {
+				location.href = this.suburl;
+			}
+	    },
 
 		message: function(messageType) {
 			this.element.removeClass("active").find(this.settings.message_selector)

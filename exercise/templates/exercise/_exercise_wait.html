@@ -1,6 +1,6 @@
 {% load i18n %}
 {% if page.is_wait %}
-<div class="exercise-wait progress progress-striped active"
+<div class="exercise-wait hide progress progress-striped active"
   data-poll-url="{% url 'submission-poll' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}"
   data-msg-error="{% trans 'Communication error with the exercise.' %}"
   data-msg-timeout="{% trans 'Unfortunately grading takes longer than expected. Return later to see the result.' %}">
