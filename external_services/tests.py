@@ -4,11 +4,16 @@ from django.test import TestCase
 from django.utils import timezone
 
 from course.models import Course, CourseInstance
-from external_services.models import LinkService, LTIService, MenuItem
+from userprofile.models import User
+from .models import LinkService, LTIService, MenuItem
 
 
 class ExternalServicesTest(TestCase):
     def setUp(self):
+        self.user = User(username="testUser")
+        self.user.set_password("testPassword")
+        self.user.save()
+
         self.link_service = LinkService.objects.create(
             url="http://www.external-service.com",
             menu_label="External Service"
@@ -99,7 +104,7 @@ class ExternalServicesTest(TestCase):
         self.assertEqual("http://www.external-service.com", self.menu_item2.url)
         self.assertEqual("http://www.disabled-external-service.com", self.menu_item3.url)
         self.assertEqual("http://www.disabled-external-service.com", self.menu_item4.url)
-        self.assertEqual("/external/lti/5/", self.menu_item5.url)
+        self.assertEqual("/Course-Url/T-00.1000_2011/lti-login/5/", self.menu_item5.url)
 
     def test_menuitem_string(self):
         self.assertEqual("123456 Fall 2011: ", str(self.menu_item1))
@@ -107,3 +112,13 @@ class ExternalServicesTest(TestCase):
         self.assertEqual("[Disabled] 123456 Fall 2011: ", str(self.menu_item3))
         self.assertEqual("[Disabled] 123456 Fall 2011: ", str(self.menu_item4))
         self.assertEqual("123456 Fall 2011: ", str(self.menu_item5))
+
+    def test_view(self):
+        url = self.menu_item5.url
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue("oauth_signature" in response.content)

@@ -35,8 +35,8 @@ class Course(models.Model):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        RESERVED = ("admin", "accounts", "shibboleth", "api"
-            "archive", "course", "exercise", "external")
+        RESERVED = ("admin", "accounts", "shibboleth", "api",
+            "archive", "course", "exercise")
         if self.url in RESERVED:
             raise ValidationError(_("Taken words include: {}").format(
                 ", ".join(RESERVED)
@@ -219,7 +219,7 @@ class CourseModule(models.Model):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        RESERVED = ("teachers", "user", "exercises", "apps")
+        RESERVED = ("teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
             raise ValidationError(_("Taken words include: {}").format(
                 ", ".join(RESERVED)

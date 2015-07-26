@@ -99,7 +99,6 @@ class MenuItem(models.Model):
     @property
     def icon_class(self):
         '''
-        @rtype: C{str}
         @return: menu icon class locally overwritten or from the service
         '''
         if self.menu_icon_class:
@@ -109,11 +108,15 @@ class MenuItem(models.Model):
     @property
     def url(self):
         '''
-        @rtype: C{str}
         @return: menu url
         '''
         if type(self.service.as_leaf_class()) == LTIService:
-            return reverse('lti-login', args=[self.id])
+            instance = self.course_instance
+            return reverse('lti-login', kwargs={
+                "course": instance.course.url,
+                "instance": instance.url,
+                "menu_id": self.id,
+            })
         return self.service.url
 
     def __str__(self):
