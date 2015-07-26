@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load course %}
 
 {% include "course/_course_menu.html" with instance=instance %}
 
@@ -6,5 +7,5 @@
     {{ exercise.course_module.name }}
 </li>
 {% for object in exercise.course_module.learning_objects.all %}
-    <li><a href="{{ object.get_absolute_url }}">{{ object.name }}</a></li>
+    <li><a href="{{ object|url }}">{{ object.name }}</a></li>
 {% endfor %}

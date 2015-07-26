@@ -10,7 +10,7 @@ register = template.Library()
 
 
 class CourseListNode(Node):
-    
+
     def render(self, context):
         return render_to_string('course/_course_dropdown_menu.html', {
             "instances": CourseInstance.objects.get_active(context["user"]) })
@@ -19,3 +19,10 @@ class CourseListNode(Node):
 @register.tag
 def course_menu(parser, token):
     return CourseListNode()
+
+
+@register.filter
+def url(model_object, name=None):
+    if name:
+        return model_object.get_url(name)
+    return model_object.get_absolute_url()

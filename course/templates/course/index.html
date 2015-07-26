@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load course %}
 
 {% block maintitle %}
 <h1>{{ welcome_text|safe }}</h1>
@@ -20,7 +21,7 @@
 </div>
 
 {% for instance in instances %}
-{% url 'course' course_url=instance.course.url instance_url=instance.url as instance_url %}
+{% with instance_url=instance|url %}
 
 {# Output a beginning row on every third instance #}
 {% if forloop.counter0|divisibleby:3 %}
@@ -45,6 +46,7 @@
 </div>
 {% endif %}
 
+{% endwith %}
 {% endfor %}
 
 {% endblock %}

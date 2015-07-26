@@ -109,13 +109,8 @@
 
 		init: function() {
 			this.url = this.element.attr(this.chapter.settings.exercise_url_attr);
-			if (this.url[this.url.length - 1] !== "/") {
-				this.url = this.url + "/";
-			}
-			if (this.url.indexOf("/plain/", this.url.length - 7) === -1) {
-				this.url = this.url + "plain/";
-			}
-			this.url = this.url + "?_rf=" + this.element.attr("id");
+			this.url = this.url + "?__r=" + encodeURIComponent(
+				window.location.href + "#" + this.element.attr("id"));
 
 			// In quiz mode feedback replaces the exercise.
 			this.quiz = (this.element.attr(this.settings.quiz_attr) !== undefined);

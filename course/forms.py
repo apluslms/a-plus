@@ -1,8 +1,33 @@
 from django import forms
-from course.models import CourseModule, CourseChapter
+from course.models import LearningObjectCategory, CourseModule, CourseChapter
 
 
-class CourseModuleForm(forms.ModelForm):
+class FieldsetModelForm(forms.ModelForm):
+
+    class Meta:
+        fields = []
+
+    def get_fieldsets(self):
+        return [
+            {
+                "legend": "",
+                "fields": [self[kw] for kw in self.Meta.fields]
+            }
+        ]
+
+
+class LearningObjectCategoryForm(FieldsetModelForm):
+
+    class Meta:
+        model = LearningObjectCategory
+        fields = [
+            'name',
+            'points_to_pass',
+            'description'
+        ]
+
+
+class CourseModuleForm(FieldsetModelForm):
 
     class Meta:
         model = CourseModule
@@ -20,7 +45,7 @@ class CourseModuleForm(forms.ModelForm):
         ]
 
 
-class CourseChapterForm(forms.ModelForm):
+class CourseChapterForm(FieldsetModelForm):
 
     class Meta:
         model = CourseChapter

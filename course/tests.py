@@ -300,10 +300,7 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_course_teacher_views(self):
-        url = reverse('course-edit', kwargs={
-            'course_url': self.course.url,
-            'instance_url': self.current_course_instance.url
-        })
+        url = self.current_course_instance.get_edit_url()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 

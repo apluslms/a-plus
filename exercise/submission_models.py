@@ -194,15 +194,21 @@ class Submission(models.Model):
     def is_graded(self):
         return self.status == self.STATUS_READY
 
-    def get_absolute_url(self):
+    def get_url(self, name):
         exercise = self.exercise
         instance = exercise.course_instance
-        return reverse("submission", kwargs={
-            "course_url": instance.course.url,
-            "instance_url": instance.url,
+        return reverse(name, kwargs={
+            "course": instance.course.url,
+            "instance": instance.url,
             "exercise_id": exercise.id,
             "submission_id": self.id,
         })
+
+    def get_absolute_url(self):
+        return self.get_url("submission")
+
+    def get_inspect_url(self):
+        return self.get_url("submission-inspect")
 
     def get_breadcrumb(self):
         """

@@ -1,186 +1,210 @@
 from django.contrib import messages
 from django.http.response import Http404
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from course.context import CourseContext
-from course.decorators import access_teacher_resource
-from course.forms import CourseModuleForm, CourseChapterForm
-from course.models import CourseModule, CourseChapter
-from exercise import exercise_forms
+from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView
+from exercise.exercise_forms import BaseExerciseForm, \
+    ExerciseWithAttachmentForm
+from exercise.models import LearningObject, BaseExercise, StaticExercise, \
+    ExerciseWithAttachment
+from course.forms import CourseModuleForm, CourseChapterForm, \
+    LearningObjectCategoryForm
+from course.models import CourseModule, CourseChapter, LearningObjectCategory
+from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from userprofile.viewbase import ACCESS
 
 
-@access_teacher_resource
-def edit_course(request,
-                  course_url=None, instance_url=None,
-                  course=None, course_instance=None):
-    """
-    Presents course components for a teacher to edit.
-    """
-    context = CourseContext(request,
-                            course=course,
-                            course_instance=course_instance)
-    return render_to_response("course/teacher/course_instance.html", context)
+class EditCourseView(CourseInstanceBaseView):
+    access_mode = ACCESS.TEACHER
+    template_name = "course/teacher/course_instance.html"
 
 
-@access_teacher_resource
-def add_or_edit_module(request,
-                       course_url=None, instance_url=None, module_id=None,
-                       course=None, course_instance=None, module=None):
-    """
-    Edits and creates course modules.
-    """
-    add = module is None
-    if add:
-        module = CourseModule(course_instance=course_instance)
+class ModelBaseMixin(CourseInstanceMixin):
+    access_mode = ACCESS.TEACHER
+    model_kw = "model"
+    id_kw = "id"
 
-    if request.method == "POST":
-        form = CourseModuleForm(request.POST, instance=module)
-        if form.is_valid():
-            module = form.save()
-            messages.success(request,
-                             _('The course module was saved successfully.'))
-            if add:
-                return redirect(add_or_edit_module,
-                                course_url=course.url,
-                                instance_url=course_instance.url,
-                                module_id=module.id)
-    else:
-        form = CourseModuleForm(instance=module)
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        MANAGERS = {
+            "category": CategoryManager,
+            "module": ModuleManager,
+            "chapter": ChapterManager,
+            "exercise": ExerciseManager,
+        }
+        self.model = self._get_kwarg(self.model_kw)
+        if not self.model in MANAGERS:
+            raise Http404()
+        self.manager = MANAGERS[self.model]()
+        self.model_name = self.manager.name
+        self.note("model", "model_name")
 
-    return render_to_response("course/teacher/edit_module.html",
-                              CourseContext(request,
-                                            course=course,
-                                            course_instance=course_instance,
-                                            module=module,
-                                            form=form))
+    def get_success_url(self):
+        return self.instance.get_edit_url()
 
 
-@access_teacher_resource
-def remove_module(request,
-                  course_url=None, instance_url=None, module_id=None,
-                  course=None, course_instance=None, module=None):
-    """
-    Removes empty course modules.
-    """
-    exercise_count = module.learning_objects.count()
-    if request.method == "POST" and exercise_count == 0:
-        module.delete()
-        return redirect(edit_course,
-                    course_url=course.url,
-                    instance_url=course_instance.url)
-    return render_to_response("course/teacher/remove_module.html", CourseContext(
-        request,
-        course=course,
-        course_instance=course_instance,
-        module=module,
-        exercise_count=exercise_count
-    ))
+class ModelEditView(ModelBaseMixin, BaseFormView):
+    template_name = "course/teacher/edit_model.html"
+    parent_kw = "parent_id"
+    type_kw = "type"
 
-
-@access_teacher_resource
-def add_or_edit_chapter(request,
-        course_url=None, instance_url=None, module_id=None, chapter_id=None,
-        course=None, course_instance=None, module=None, chapter=None):
-    add = chapter is None
-    if add:
-        chapter = CourseChapter(course_module=module)
-        chapter.order = module.chapters.count() + 1
-
-    if request.method == "POST":
-        form = CourseChapterForm(request.POST, instance=chapter)
-        if form.is_valid():
-            chapter = form.save()
-            messages.success(request,
-                _('The chapter was saved successfully.')
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        object_id = self._get_kwarg(self.id_kw, default=None)
+        if object_id:
+            self.object = self.manager.get_object(
+                self.instance,
+                object_id
             )
-            if add:
-                return redirect(add_or_edit_chapter,
-                                course_url=course.url,
-                                instance_url=course_instance.url,
-                                chapter_id=chapter.id)
-    else:
-        form = CourseChapterForm(instance=chapter)
-
-    return render_to_response("course/teacher/edit_chapter.html",
-        CourseContext(
-            request,
-            course=course,
-            course_instance=course_instance,
-            module=module,
-            chapter=chapter,
-            form=form))
-
-
-@access_teacher_resource
-def remove_chapter(request,
-        course_url=None, instance_url=None, chapter_id=None,
-        course=None, course_instance=None, chapter=None):
-    if request.method == "POST":
-        chapter.delete()
-        return redirect(edit_course,
-                        course_url=course.url,
-                        instance_url=course_instance.url)
-    return render_to_response("course/teacher/remove_chapter.html",
-        CourseContext(
-            request,
-            course=course,
-            course_instance=course_instance,
-            chapter=chapter))
-
-
-@access_teacher_resource
-def add_or_edit_exercise(request,
-                         course_url=None, instance_url=None, module_id=None,
-                         exercise_id=None, exercise_type=None,
-                         course=None, course_instance=None, module=None,
-                         exercise=None):
-    """
-    Edits and creates exercises.
-    """
-    add = exercise is None
-    try:
-        if request.method == "POST":
-            form = exercise_forms.get_form(module, exercise_type, exercise, request)
-            if form.is_valid():
-                exercise = form.save()
-                messages.success(request,
-                                 _('The exercise was saved successfully.')
-                )
-                if add:
-                    return redirect(add_or_edit_exercise,
-                                    course_url=course.url,
-                                    instance_url=course_instance.url,
-                                    exercise_id=exercise.id)
         else:
-            form = exercise_forms.get_form(module, exercise_type, exercise)
-    except TypeError:
-        raise Http404()
+            self.object = self.manager.new_object(
+                self.instance,
+                self._get_kwarg(self.parent_kw, default=None),
+                self._get_kwarg(self.type_kw, default=None)
+            )
+        self.note("object")
 
-    return render_to_response("course/teacher/edit_exercise.html", CourseContext(
-        request,
-        course=course,
-        course_instance=course_instance,
-        exercise=exercise,
-        form=form
-    ))
+    def get_form_class(self):
+        return self.manager.get_form_class(self.object)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.object
+        return kwargs
+
+    def form_valid(self, form):
+        self.object = form.save()
+        messages.success(self.request,
+            _('The {name} was saved successfully.').format(
+                name=self.model_name))
+        return super().form_valid(form)
 
 
-@access_teacher_resource
-def remove_exercise(request,
-                    course_url=None, instance_url=None, exercise_id=None,
-                    course=None, course_instance=None, exercise=None):
-    """
-    Removes exercises.
-    """
-    if request.method == "POST":
-        exercise.delete()
-        return redirect(edit_course,
-                        course_url=course.url,
-                        instance_url=course_instance.url)
-    return render_to_response("course/teacher/remove_exercise.html", CourseContext(
-        request,
-        course=course,
-        course_instance=course_instance,
-        exercise=exercise
-    ))
+class ModelDeleteView(ModelBaseMixin, BaseRedirectMixin, BaseTemplateView):
+    template_name = "course/teacher/remove_model.html"
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        self.object = self.manager.get_object(
+            self.instance,
+            self._get_kwarg(self.id_kw)
+        )
+        self.note("object")
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.empty = self.manager.can_delete(self.object)
+        self.note("object", "empty")
+
+    def post(self, request, *args, **kwargs):
+        self.handle()
+        if self.empty:
+            self.object.delete()
+        return self.redirect(self.get_success_url())
+
+
+class ModelManager(object):
+    object_class = None
+    instance_field = "course_instance"
+    form_class = None
+    name = None
+
+    def get_object(self, instance, object_id):
+        fields = {
+            "id": object_id,
+            self.instance_field: instance,
+        }
+        return get_object_or_404(self.object_class, **fields)
+
+    def new_object(self, instance, parent_id, type):
+        return self.object_class(course_instance=instance)
+
+    def get_form_class(self, obj):
+        return self.form_class
+
+    def can_delete(self, obj):
+        return True
+
+
+class ExerciseContainerMixin(object):
+
+    def can_delete(self, obj):
+        return obj.learning_objects.count() == 0
+
+
+class CategoryManager(ExerciseContainerMixin, ModelManager):
+    object_class = LearningObjectCategory
+    form_class = LearningObjectCategoryForm
+    name = _("category")
+
+
+class ModuleManager(ExerciseContainerMixin, ModelManager):
+    object_class = CourseModule
+    form_class = CourseModuleForm
+    name = _("module")
+
+    def new_object(self, instance, parent_id, type):
+        return self.object_class(
+            course_instance=instance,
+            order=(instance.course_modules.count() + 1)
+        )
+
+
+class ChapterManager(ModelManager):
+    object_class = CourseChapter
+    instance_field = "course_module__course_instance"
+    form_class = CourseChapterForm
+    name = _("chapter")
+
+    def new_object(self, instance, parent_id, type):
+        module = get_object_or_404(
+            CourseModule,
+            id=parent_id,
+            course_instance=instance
+        )
+        return self.object_class(
+            course_module=module,
+            order=(module.chapters.count() + 1)
+        )
+
+
+class ExerciseManager(ModelManager):
+    object_class = LearningObject
+    instance_field = "course_module__course_instance"
+    name = _("exercise")
+
+    def get_object(self, instance, object_id):
+        obj = super().get_object(instance, object_id)
+        return obj.as_leaf_class()
+
+    def new_object(self, instance, parent_id, type):
+        CLASSES = {
+            None: BaseExercise,
+            "static": StaticExercise,
+            "attachment": ExerciseWithAttachment,
+        }
+        if not type in CLASSES:
+            raise Http404()
+        object_class = CLASSES[type]
+
+        module = get_object_or_404(
+            CourseModule,
+            id=parent_id,
+            course_instance=instance
+        )
+        return object_class(
+            course_module=module,
+            order=(module.learning_objects.count() + 1)
+        )
+
+    def get_form_class(self, obj):
+        FORMS = {
+            BaseExercise: BaseExerciseForm,
+            StaticExercise: BaseExerciseForm,
+            ExerciseWithAttachment: ExerciseWithAttachmentForm,
+        }
+        if obj.__class__ not in FORMS:
+            raise TypeError("No form known for the exercise type: %s",
+                obj.__class__)
+        return FORMS[obj.__class__]

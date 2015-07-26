@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load staticfiles %}
+{% load course %}
 {% load exercise %}
 <html>
 	<head>
@@ -13,10 +14,10 @@
 		<div id="exercise">
 			<ul class="exercise-summary nav nav-tabs">
 				<li>
-					<a href="{% if exercise_summary.get_best_submission %}{{ exercise_summary.get_best_submission.get_absolute_url }}{% else %}#{% endif %}">
+					<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url }}{% else %}#{% endif %}">
 						{% trans "Points" %}
-						<span class="{% if exercise_summary.get_submission_count > 0 %}label{% if exercise_summary.is_passed %} label-success{% endif %}{% endif %}">
-						{{ exercise_summary.get_points }}
+						<span class="{% if summary.get_submission_count > 0 %}label{% if summary.is_passed %} label-success{% endif %}{% endif %}">
+						{{ summary.get_points }}
 						</span>
 						/ {{ exercise.max_points }}
 					</a>
@@ -24,7 +25,7 @@
 				<li class="dropdown">
 	    			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 						{% trans "Submissions" %}
-						{{ exercise_summary.get_submission_count }}
+						{{ summary.get_submission_count }}
 		    			{% if exercise.max_submissions %}
 		    			/ {{ exercise|max_submissions:profile }}
 		    			{% endif %}
@@ -33,7 +34,7 @@
 			        <ul class="dropdown-menu">
 			        	{% for submission in submissions %}
 			            <li>
-			                <a href="{{ submission.get_absolute_url }}">
+			                <a href="{{ submission|url }}">
 			                    {{ forloop.revcounter }}.
 			                    {{ submission.submission_time }}
 			                    {% if submission.is_graded %}
@@ -48,9 +49,9 @@
 			        	{% endfor %}
 			        </ul>
 				</li>
-				{% if is_teacher or is_assistant %}
+				{% if is_course_staff %}
 			    <li>
-			    	<a class="staff" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+			    	<a class="staff" href="{{ exercise|url:'submission-list' }}">
 						{% trans "View all submissions" %}
 					</a>
 				</li>

@@ -28,7 +28,7 @@ class SubmissionCallbackForm(forms.Form):
 
 
 class SubmissionReviewForm(forms.Form):
-    
+
     points = forms.IntegerField(min_value=0,
         help_text=_("Possible penalties are not applied - the points are set "
                     "as given. This will <em>override</em> grader points!"))
@@ -44,9 +44,10 @@ class SubmissionReviewForm(forms.Form):
         super(SubmissionReviewForm, self).__init__(*args, **kwargs)
 
     def clean(self):
+        super().clean()
         points = self.cleaned_data.get("points")
         max_points = self.exercise.max_points
-        if points > max_points:
+        if not points is None and points > max_points:
             raise forms.ValidationError(
                 _("The maximum points for this exercise is {max:d} and the "
                   "given points is more than that.").format(
@@ -56,7 +57,7 @@ class SubmissionReviewForm(forms.Form):
 
 
 class SubmissionCreateAndReviewForm(SubmissionReviewForm):
-    
+
     submission_time = forms.DateTimeField()
     students = forms.ModelMultipleChoiceField(
         queryset=UserProfile.objects.none(), required=False)
@@ -69,10 +70,10 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
     def __init__(self, *args, **kwargs):
         super(SubmissionCreateAndReviewForm, self).__init__(*args, **kwargs)
         self.fields["students"].queryset = \
-            self.exercise.course_instance.get_students()
+            self.exercise.course_instance.get_student_profiles()
         self.fields["students_by_student_id"].choices = \
             [ (p.student_id, p.student_id)
-              for p in self.exercise.course_instance.get_students() ]
+              for p in self.exercise.course_instance.get_student_profiles() ]
 
     def clean(self):
         self.cleaned_data = super(SubmissionCreateAndReviewForm, self).clean()
@@ -90,12 +91,12 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
         return self.cleaned_data
 
 
-class BathSubmissionCreateAndReviewForm(SubmissionCreateAndReviewForm):
+class BatchSubmissionCreateAndReviewForm(SubmissionCreateAndReviewForm):
 
     grader = forms.ModelChoiceField(queryset=UserProfile.objects.none())
 
     def __init__(self, *args, **kwargs):
-        super(BathSubmissionCreateAndReviewForm, self) \
+        super(BatchSubmissionCreateAndReviewForm, self) \
             .__init__(*args, **kwargs)
         self.fields["grader"].queryset = \
-            self.exercise.course_instance.get_course_staff()
+            self.exercise.course_instance.get_course_staff_profiles()

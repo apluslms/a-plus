@@ -1,29 +1,30 @@
 {% load i18n %}
+{% load course %}
 {% load external_services %}
 
     <li class="nav-header">
         {% trans "Course" %}
     </li>
     <li>
-    	<a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
+    	<a href="{{ instance|url }}">
 	        <i class="icon-home"></i>
 	        {% trans "Home" %}
     	</a>
     </li>
     <li>
-    	<a href="{% url 'export-calendar' course_url=course.url instance_url=instance.url %}">
+    	<a href="{{ instance|url:'export-calendar' }}">
 	        <i class="icon-calendar"></i>
 	        {% trans "Calendar feed" %} (ics)
     	</a>
     </li>
     <li>
-    	<a href="{% url 'results' course_url=course.url instance_url=instance.url %}">
+    	<a href="{{ instance|url:'results' }}">
 	        <i class="icon-list-alt"></i>
 	        {% trans "My results" %}
 	    </a>
 	</li>
     <li>
-        <a href="{% url 'profile' course_url=course.url instance_url=instance.url %}" class="profile-link">
+        <a href="{{ instance|url:'profile' }}" class="profile-link">
             <i class="icon-user"></i>
             {{ user.userprofile.shortname }}
         </a>
@@ -50,7 +51,7 @@
     </li>
     {% for tab in instance.tabs.all %}
     <li>
-        <a href="{% url 'apps-tab' tab_id=tab.id %}">
+        <a href="{{ instance|url:'apps-tab' }}">
             <i class="icon-th-large"></i>
             {{ tab.label }}
         </a>
@@ -58,19 +59,19 @@
     {% endfor %}
     {% endif %}
 
-    {% if is_teacher or is_assistant %}
+    {% if is_course_staff %}
     <li class="nav-header">
         {% trans "Course staff" %}
     </li>
     <li>
-    	<a href="{% url 'all-results' course_url=course.url instance_url=instance.url %}">
+    	<a href="{{ instance|url:'all-results' }}">
     		<i class="icon-list-alt"></i>
     		{% trans "All results" %}
     	</a>
     </li>
     {% if is_teacher %}
     <li>
-        <a href="{% url 'course-edit' course_url=course.url instance_url=instance.url %}" class="teachers-link">
+        <a href="{{ instance|url:'course-edit' }}" class="teachers-link">
             <i class="icon-pencil"></i>
             {% trans "Edit course" %}
         </a>

@@ -1,103 +1,74 @@
 from django.contrib import messages
 from django.db import IntegrityError
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
-from course.context import CourseContext
-from course.decorators import access_teacher_resource
-from deviations.forms import DeadlineRuleDeviationForm
-from deviations.models import DeadlineRuleDeviation
-from exercise.exercise_models import BaseExercise
-from userprofile.models import UserProfile
-
-
-@access_teacher_resource
-def list_dl(request, course_url=None, instance_url=None,
-        course=None, course_instance=None):
-    """
-    Lists deadline rule deviations for a course instance.
-    """
-    deviations = DeadlineRuleDeviation.objects.filter(
-        exercise__course_module__course_instance=course_instance
-    )
-    return render_to_response("deviations/teacher/list_dl.html", CourseContext(
-        request,
-        course=course,
-        course_instance=course_instance,
-        deviations=deviations
-    ))
+from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from lib.viewbase import BaseFormView, BaseRedirectView
+from userprofile.viewbase import ACCESS
+from .forms import DeadlineRuleDeviationForm
+from .models import DeadlineRuleDeviation
 
 
-@access_teacher_resource
-def add_dl(request, course_url=None, instance_url=None,
-        course=None, course_instance=None):
-    """
-    Adds a group of deadline rule deviations for a course instance.
-    """
-    if request.method == "POST":
-        minutes = request.POST["minutes"]
-        for user_id in request.POST.getlist("submitter"):
-            try:
-                submitter = UserProfile.objects.get(id=user_id)
-                for exercise_id in request.POST.getlist("exercise"):
-                    try:
-                        exercise = BaseExercise.objects.get(id=exercise_id,
-                            course_module__course_instance=course_instance)
+class ListDeadlinesView(CourseInstanceBaseView):
+    access_mode = ACCESS.TEACHER
+    template_name = "deviations/teacher/list_dl.html"
 
-                        deviation = DeadlineRuleDeviation.objects.create(
-                            exercise=exercise,
-                            submitter=submitter,
-                            extra_minutes=minutes
-                        )
-                        deviation.save()
-
-                    except BaseExercise.DoesNotExist:
-                        messages.warning(request,
-                            _("Selected exercise ({id:d}) does not exist in the course instance.") \
-                                .format(id=exercise_id))
-
-                    except IntegrityError:
-                        messages.warning(request,
-                            _("Dead line deviation already exists for {user} in {exercise}! "
-                              "Remove it before trying to add a new one.") \
-                                .format(user=str(submitter), exercise=str(exercise)))
-
-            except UserProfile.DoesNotExist:
-                messages.warning(request,
-                    _("Selected user ({id:d}) does not exist.") \
-                        .format(id=user_id))
-
-        return redirect(list_dl,
-            course_url=course.url,
-            instance_url=course_instance.url
-        )
-
-    form = DeadlineRuleDeviationForm(instance=course_instance)
-
-    return render_to_response("deviations/teacher/add_dl.html", CourseContext(
-        request,
-        course=course,
-        course_instance=course_instance,
-        form=form
-    ))
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.deviations = DeadlineRuleDeviation.objects.filter(
+            exercise__course_module__course_instance=self.instance)
+        self.note("deviations")
 
 
-@access_teacher_resource
-def remove_dl(request, course_url=None, instance_url=None, deviation_id=None,
-        course=None, course_instance=None):
-    """
-    Removes a deadline rule deviation.
-    """
-    if request.method == "POST":
+class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "deviations/teacher/add_dl.html"
+    form_class = DeadlineRuleDeviationForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def get_success_url(self):
+        return self.instance.get_url("deviations-list-dl")
+
+    def form_valid(self, form):
+        minutes = form.cleaned_data["minutes"]
+        for profile in form.cleaned_data["submitter"]:
+            for exercise in form.cleaned_data["exercise"]:
+                self.add_deviation(exercise, profile, minutes)
+        return super().form_valid(form)
+
+    def add_deviation(self, exercise, profile, minutes):
         try:
-            deviation = DeadlineRuleDeviation.objects.get(
-                id=deviation_id,
-                exercise__course_module__course_instance=course_instance)
-            deviation.delete()
-        except DeadlineRuleDeviation.DoesNotExist:
-            messages.warning(request,
-                _("Dead line deviation ({id:d}) does not exist.") \
-                    .format(id=deviation_id))
-    return redirect(list_dl,
-        course_url=course.url,
-        instance_url=course_instance.url
-    )
+            deviation = DeadlineRuleDeviation.objects.create(
+                exercise=exercise,
+                submitter=profile,
+                extra_minutes=minutes
+            )
+        except IntegrityError:
+            messages.warning(self.request,
+                _("Deadline deviation already exists for {user} in {exercise}!"
+                  "Remove it before trying to add a new one.").format(
+                    user=str(profile), exercise=str(exercise)))
+
+
+class RemoveDeadlineView(CourseInstanceMixin, BaseRedirectView):
+    access_mode = ACCESS.TEACHER
+    deviation_kw = "deviation_id"
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        self.deviation = get_object_or_404(
+            DeadlineRuleDeviation,
+            id=self._get_kwarg(self.deviation_kw),
+            exercise__course_module__course_instance=self.instance,
+        )
+        self.note("deviation")
+
+    def post(self, request, *args, **kwargs):
+        self.handle()
+        self.deviation.delete()
+        return self.redirect(self.instance.get_url("deviations-list-dl"))

@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load course %}
 
 <table class="table table-striped table-bordered">
     <thead>
@@ -10,7 +11,7 @@
             </th>
             {% for exercise in result_table.exercises %}
             <th scope="col">
-            	<a href="{{ exercise.get_absolute_url }}">{{ exercise.name }}</a>
+            	<a href="{{ exercise|url }}">{{ exercise.name }}</a>
             </th>
             {% endfor %}
             <th>{% trans "Sum" %}</th>

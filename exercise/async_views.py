@@ -30,7 +30,6 @@ def new_async_submission(request, student_ids, exercise_id, hash_key):
     included. When a POST request is made, the view tries to create a new
     submission for the given students.
     """
-
     exercise = get_object_or_404(BaseExercise, id=exercise_id)
     user_ids = student_ids.split("-")
     students = UserProfile.objects.filter(id__in=user_ids)
@@ -172,7 +171,7 @@ def _post_async_submission(request, exercise, submission, students, errors):
             "success": True,
             "errors": []
         }
-        
+
     # Produce error if something goes wrong during saving the points.
     except Exception as e:
         return {

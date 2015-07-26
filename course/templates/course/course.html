@@ -1,17 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
-
+{% load course %}
 
 {% block maintitle %}
     <h1>{{ course.name }}</h1>
 {% endblock %}
 
-
 {% block content %}
 <ul>
 {% for instance in instances %}
     <li>
-        <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
+        <a href="{{ instance|url }}">
         	{{ instance.instance_name }}
         </a>
         {% if instance.is_open %}

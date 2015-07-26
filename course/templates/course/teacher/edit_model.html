@@ -1,26 +1,40 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 
 {% block coursecontent %}
-
-<h2>{% trans "Edit exercise" %}</h2>
-
-<form method="post" action="" enctype="multipart/form-data" class="form-horizontal well">
+<h2>
+    {% if object.id %}
+        {% blocktrans with model=model_name %}
+        Edit {{ model }}
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans with model=model_name %}
+        Add new {{ model }}
+        {% endblocktrans %}
+    {% endif %}
+</h2>
+<form method="post" class="form-horizontal well"{% if form.multipart %} enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
+
     {% for hidden in form.hidden_fields %}
         {{ hidden }}
     {% endfor %}
 
+    {% if form.service_url %}
     <fieldset>
         <legend>{% trans "Exercise service" %}</legend>
 
         <div class="control-group {% if form.service_url.errors %}error{% endif %}">
+            {% if field.errors %}
+                {{ field.errors }}
+            {% endif %}
             <label class="control-label" for="id_{{ form.service_url.html_name }}">
             	{{ form.service_url.label }}
             </label>
             <div class="controls">
                 {{ form.service_url }}
-                <a id="fetch-metadata" title="Download metadata" class="btn btn-primary">
+                <a id="fetch-metadata" title="{% trans 'Download metadata' %}" class="btn btn-primary">
                 	<i class="icon-download icon-white"></i>
                 </a>
                 <div id="metadata-progress" class="progress progress-striped active" style="width:218px; display:none;">
@@ -32,39 +46,43 @@
             </div>
         </div>
     </fieldset>
+    {% endif %}
 
     {% for fieldset in form.get_fieldsets %}
-        <fieldset>
-            <legend>{{ fieldset.legend }}</legend>
-            {% for field in fieldset.fields %}
-                <div class="control-group {% if field.errors %}error{% endif %}">
-                    {% if field.errors %}
-                        {{ field.errors }}
-                    {% endif %}
-                    <label class="control-label" for="id_{{ field.html_name }}">
-                    	{{ field.label }}
-                    </label>
-                    <div class="controls">
-                        {{ field }}
-                        <p class="help-block">{{field.help_text}}</p>
-                    </div>
-                </div>
-            {% endfor %}
-        </fieldset>
+    <fieldset>
+        {% if fieldset.legend %}
+        <legend>{{ fieldset.legend }}</legend>
+        {% endif %}
+        {% for field in fieldset.fields %}
+        <div class="control-group {% if field.errors %}error{% endif %}">
+            {% if field.errors %}
+                {{ field.errors }}
+            {% endif %}
+            <label class="control-label" for="id_{{ field.html_name }}">
+            	{{ field.label }}
+            </label>
+            <div class="controls">
+                {{ field }}
+                <p class="help-block">{{field.help_text}}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </fieldset>
     {% endfor %}
+
     <div class="form-actions">
         <input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
     </div>
-
 </form>
-
 {% endblock %}
 
 {% block scripts %}
+{% if form.service_url %}
 <script type="text/javascript">
-    $("#fetch-metadata").click(function() {
+    $("#fetch-metadata").click(function(event) {
+        event.preventDefault();
         $("#metadata-progress").show();
-        $.getJSON("{% url 'exercise-metadata' course_url=course.url instance_url=instance.url %}",
+        $.getJSON("{{ instance|url:'exercise-metadata' }}",
         	{
                 exercise_url: $("#id_service_url").val()
             },
@@ -80,4 +98,5 @@
             });
     });
 </script>
+{% endif %}
 {% endblock %}

@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 
 <h3>{% trans "Submission info" %}</h3>
@@ -9,7 +10,7 @@
         {% trans "Exercise" %}
     </dt>
     <dd>
-        <a href="{{ exercise.get_absolute_url }}">{{ exercise.name }}</a>
+        <a href="{{ exercise|url }}">{{ exercise.name }}</a>
     </dd>
     {% endcomment %}
 
@@ -65,7 +66,7 @@
         {% trans "Staff" %}
     </dt>
     <dd>
-        <a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+        <a href="{{ submission|url:'submission-inspect' }}">
             {% trans "Inspect" %}
         </a>
     </dd>

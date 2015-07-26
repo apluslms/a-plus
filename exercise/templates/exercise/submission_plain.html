@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 <table class="submission-info table table-bordered table-condensed">
 	<tr>
@@ -8,7 +9,7 @@
 		{% if submission.files.exists %}
 		<th>{% trans "Files" %}</th>
 		{% endif %}
-		{% if is_teacher or is_assistant %}
+		{% if is_course_staff %}
 		<th>{% trans "Staff" %}</th>
 		{% endif %}
 	</tr>
@@ -33,9 +34,9 @@
 			{% endfor %}
 		</td>
 		{% endif %}
-		{% if is_teacher or is_assistant %}
+		{% if is_course_staff %}
 		<td>
-			<a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+			<a href="{{ submission|url:'submission-inspect' }}">
 				{% trans "Inspect" %}
 			</a>
 		</td>

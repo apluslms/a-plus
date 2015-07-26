@@ -5,16 +5,16 @@
     <html>
     <head>
         <meta charset="utf-8" />
-        
+
         <title>{% block title %}A+{% endblock %}</title>
 
         <!-- This is for responsive bootstrap -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
-        
+
         <link rel="stylesheet" href="{{ STATIC_URL }}css/submission.css" type="text/css" />
-        
+
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css" />
 
         <link rel="stylesheet" href="{{ STATIC_URL }}prettify/prettify.css" type="text/css" />
@@ -36,7 +36,7 @@
         <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-32x32.png" sizes="32x32">
         <meta name="msapplication-TileColor" content="#2b5797">
         <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
-        
+
         {% block head %}{% endblock %}
     </head>
     <body>
@@ -66,15 +66,15 @@
                                 {% if unread.count > 0 %}
                                 <li>
                                 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                		<i id="unread-notifications-icon" class="icon-white icon-envelope"></i> 
+                                		<i id="unread-notifications-icon" class="icon-white icon-envelope"></i>
                                 		{% blocktrans with count=unread.count count_p=unread.count|pluralize %}
                                     	{{ count }} new notification{{ count_p }}
                                 		{% endblocktrans %}
-                                	</a>                                        
+                                	</a>
 	                                <ul class="dropdown-menu" id="notification-menu">
 	                                    {% for course_instance in unread.course_instances %}
 	                                    <li>
-	                                    	<a href="{% url 'exercise.views.profile' course_url=course_instance.course.url instance_url=course_instance.url %}">
+	                                    	<a href="{{ course_instance|url:'profile' }}">
 	                                    		{{course_instance.instance_name}}
 	                                    	</a>
 	                                    </li>
@@ -85,7 +85,7 @@
 
                                 {% if unread.count == 0 and instance %}
                                 <li>
-									<a id="notification-icon" href="{% url 'exercise.views.profile' course_url=instance.course.url instance_url=instance.url %}">
+									<a id="notification-icon" href="{{ instance|url:'profile' }}">
 										<i class="icon-white icon-envelope"></i>
 									</a>
                                 </li>
@@ -97,7 +97,7 @@
                                 <li>
                                 	<a href="{% url 'logout' %}">{% trans "Log out"%}</a>
                                 </li>
-                                
+
                                 {% endif %}
                             </ul>
                         </div>

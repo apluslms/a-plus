@@ -1,5 +1,6 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 {% load apps %}
 
@@ -19,10 +20,10 @@
         {# Settings collapse #}
         <div id="filters-collapse" class="collapse">
             <div class="well">
-                <form method="post" action="{% url 'filter-categories' course_url=course.url instance_url=instance.url %}?next={{ request.path }}">
+                <form method="post" action="{{ instance|url:'filter-categories' }}?next={{ request.path }}">
                 	{% csrf_token %}
                     <legend>{% trans "Visible categories" %}</legend>
-                    {% for id, category_summary in course_summary.category_summaries.items %}
+                    {% for id, category_summary in summary.category_summaries.items %}
                     <label class="checkbox" for="category_filter_{{ category_summary.category.id }}">
                     	<input id="category_filter_{{ category_summary.category.id }}" type="checkbox" name="category_filters" value="{{ category_summary.category.id }}" {% if not category_summary.is_hidden %}checked="checked"{% endif %} />
                     	{{ category_summary.category.name }}
@@ -44,7 +45,7 @@
                 <div class="exercise-icons {% if uncategorized_exercise_level|length > 10 %}exercise-icons-tight{% endif %}">
                 	<div class="btn-group">
                     	{% for exercise, exercise_summary in uncategorized_exercise_level %}
-                        <a class="btn {{ exercise_summary|exercise_summary_classes }}" rel="tooltip" href="{{ exercise.get_absolute_url }}"
+                        <a class="btn {{ exercise_summary|exercise_summary_classes }}" rel="tooltip" href="{{ exercise|url }}"
                         	data-html="true" data-placement="bottom" title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
                             {{ exercise_summary.exercise.order }}
                         </a>
@@ -105,7 +106,7 @@
                                 <td style="max-width:80px;">
                                 	{% if forloop.first %}{% trans "Points" %}{% endif %}
                                 </td>
-                                {% if is_teacher or is_assistant %}
+                                {% if is_course_staff %}
                                 <td>
                                 	{% trans "Staff" %}
                                 </td>
@@ -114,8 +115,8 @@
                             {% for exercise, exercise_summary in categorized_exercise_level %}
 							<tr>
                                 <td>
-                                	{% if course_module.is_after_open or is_teacher or is_assistant %}
-                                    <a href="{{ exercise.get_absolute_url }}">
+                                	{% if course_module.is_after_open or is_course_staff %}
+                                    <a href="{{ exercise|url }}">
                                     	{{ exercise.order }}. {{ exercise.name }}
                                     </a>
                                 	{% else %}
@@ -125,9 +126,9 @@
                                 <td style="text-align:right">
                                 	{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}
                                 </td>
-                                {% if is_teacher or is_assistant %}
+                                {% if is_course_staff %}
                                 <td>
-                                	<a class="staff" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                                	<a class="staff" href="{{ exercise|url:'submission-list' }}">
                                 		{% trans "View submissions" %}
                                 	</a>
                                 </td>
@@ -151,12 +152,12 @@
             	{% trans "Total points:" %}
             </h4>
             <h2>
-            	{{ course_summary.get_total_points }}
-            	<small>/ {{ course_summary.get_max_points }}</small>
+            	{{ summary.get_total_points }}
+            	<small>/ {{ summary.get_max_points }}</small>
             </h2>
-            <div class="progress {% if course_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped" style="position:relative">
-                <div class="bar" rel="tooltip" style="width:{{ course_summary.get_completed_percentage }}%;"
-                     data-placement="below" title="{% trans 'Your points' %}: {{ course_summary.get_total_points }}">
+            <div class="progress {% if summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped" style="position:relative">
+                <div class="bar" rel="tooltip" style="width:{{ summary.get_completed_percentage }}%;"
+                     data-placement="below" title="{% trans 'Your points' %}: {{ summary.get_total_points }}">
                 </div>
             </div>
         </div>

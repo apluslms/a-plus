@@ -36,7 +36,7 @@ class Course(models.Model):
         Validates the model before saving (standard method used in Django admin).
         """
         RESERVED = ("admin", "accounts", "shibboleth", "api"
-            "archive", "course", "exercise", "external", "apps")
+            "archive", "course", "exercise", "external")
         if self.url in RESERVED:
             raise ValidationError(_("Taken words include: {}").format(
                 ", ".join(RESERVED)
@@ -48,7 +48,7 @@ class Course(models.Model):
 
     def get_absolute_url(self):
         return reverse('course-instances', kwargs={
-            'course_url': self.url
+            'course': self.url
         })
 
 
@@ -130,11 +130,17 @@ class CourseInstance(models.Model):
             .filter(course_module__course_instance=self)\
             .count() > 0
 
-    def get_absolute_url(self):
-        return reverse('course', kwargs={
-            'course_url': self.course.url,
-            'instance_url': self.url
+    def get_url(self, name):
+        return reverse(name, kwargs={
+            "course": self.course.url,
+            "instance": self.url,
         })
+
+    def get_absolute_url(self):
+        return self.get_url("course")
+
+    def get_edit_url(self):
+        return self.get_url("course-edit")
 
     def get_breadcrumb(self):
         return [(str(self.course), self.get_absolute_url())]
@@ -213,7 +219,7 @@ class CourseModule(models.Model):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        RESERVED = ("teachers", "user", "exercises")
+        RESERVED = ("teachers", "user", "exercises", "apps")
         if self.url in RESERVED:
             raise ValidationError(_("Taken words include: {}").format(
                 ", ".join(RESERVED)
@@ -247,9 +253,9 @@ class CourseModule(models.Model):
     def get_absolute_url(self):
         instance = self.course_instance
         return reverse('module', kwargs={
-            'course_url': instance.course.url,
-            'instance_url': instance.url,
-            'module_url': self.url,
+            'course': instance.course.url,
+            'instance': instance.url,
+            'module': self.url,
         })
 
 
@@ -283,10 +289,10 @@ class CourseChapter(models.Model):
         module = self.course_module
         instance = module.course_instance
         return reverse('chapter', kwargs={
-            'course_url': instance.course.url,
-            'instance_url': instance.url,
-            'module_url': module.url,
-            'chapter_url': self.url,
+            'course': instance.course.url,
+            'instance': instance.url,
+            'module': module.url,
+            'chapter': self.url,
         })
 
 

@@ -1,6 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load staticfiles %}
 {% load i18n %}
+{% load course %}
 
 {% block scripts %}
 {{ block.super }}
@@ -21,7 +22,7 @@
 {% endblock %}
 
 {% block coursecontent %}
-<div id="chapter" data-chapter-url="{% url 'chapter' course_url=course.url instance_url=instance.url module_url=module.url chapter_url=chapter.url %}">
+<div id="chapter" data-chapter-url="{{ chapter|url }}">
 
 	<div id="loading-indicator" class="hide progress progress-striped active"
 		data-msg-load="{% trans 'Loading exercise...' %}"

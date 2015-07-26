@@ -560,17 +560,8 @@ class ExerciseTest(TestCase):
             url="another"
         )
         self.other_instance.assistants.add(self.grader.userprofile)
-        list_submissions_url = reverse('submission-list', kwargs={
-            'course_url': self.course.url,
-            'instance_url': self.course_instance.url,
-            'exercise_id': self.base_exercise.id
-        })
-        assess_submission_url = reverse('submission-assess', kwargs={
-            'course_url': self.course.url,
-            'instance_url': self.course_instance.url,
-            'exercise_id': self.base_exercise.id,
-            'submission_id': self.submission.id
-        })
+        list_submissions_url = self.base_exercise.get_submission_list_url()
+        assess_submission_url = self.submission.get_url('submission-assess')
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 302)
 

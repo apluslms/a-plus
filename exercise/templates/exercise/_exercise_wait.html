@@ -1,7 +1,8 @@
 {% load i18n %}
+{% load course %}
 {% if page.is_wait %}
 <div class="exercise-wait hide progress progress-striped active"
-  data-poll-url="{% url 'submission-poll' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}"
+  data-poll-url="{{ submission|url:'submission-poll' }}"
   data-msg-error="{% trans 'Communication error with the exercise.' %}"
   data-msg-timeout="{% trans 'Unfortunately grading takes longer than expected. Return later to see the result.' %}">
   <div class="bar" style="width:100%;">

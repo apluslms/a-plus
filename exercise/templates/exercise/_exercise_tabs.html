@@ -1,8 +1,9 @@
 {% load i18n %}
+{% load course %}
 
 <ul class="nav nav-tabs">
     <li>
-        <a href="{{ exercise.get_absolute_url }}">
+        <a href="{{ exercise|url }}">
             {% trans "Exercise description" %}
         </a>
     </li>
@@ -14,7 +15,7 @@
         <ul class="dropdown-menu">
         	{% for submission in submissions %}
             <li>
-                <a href="{{ submission.get_absolute_url }}">
+                <a href="{{ submission|url }}">
                     {{ forloop.revcounter }}.
                     {{ submission.submission_time }}
                     {% if submission.is_graded %}
@@ -31,7 +32,7 @@
     </li>
     {% if is_teacher or is_assistant %}
     <li>
-    	<a class="staff" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+    	<a class="staff" href="{{ exercise|url:'submission-list' }}">
 			{% trans "View all submissions" %}
 		</a>
 	</li>

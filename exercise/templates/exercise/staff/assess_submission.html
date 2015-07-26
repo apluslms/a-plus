@@ -1,5 +1,6 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 
 {% block coursecontent %}
@@ -8,19 +9,19 @@
     <div class="span10">
         <ul class="breadcrumb">
             <li>
-                <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
+                <a href="{{ instance|url }}">
                 	{{ course.name }}
                 </a>
                 <span class="divider">/</span>
             </li>
             <li>
-                <a href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                <a href="{{ exercise|url:'submission-list' }}">
                 	{{ exercise.name }}
                 </a>
                 <span class="divider">/</span>
             </li>
             <li>
-                <a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+                <a href="{% submission|url:'submission-inspect' }}">
 					{% trans "Submission" %} {{ submission.id }}
                 </a>
                 <span class="divider">/</span>
@@ -65,8 +66,7 @@
                 {% for file in submission.files.all %}
                 <li>
                 	<i class="icon-file"></i>
-                    <a href="{{ file.get_absolute_url }}">{{ file.filename }}</a>
-                    ({{ file.file_object.size|filesizeformat }})
+                    {% include 'exercise/_file_link.html' %}
                 </li>
                 {% empty %}
                 <li>

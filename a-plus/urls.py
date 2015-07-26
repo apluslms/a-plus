@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView
 import django.contrib.auth.views
 
-import userprofile.views, course.views
+import userprofile.views
 import shibboleth_login.urls, userprofile.urls, course.urls, exercise.urls, \
     deviations.urls, external_services.urls, apps.urls, api.urls, \
     redirect_old_urls.urls
@@ -24,7 +24,6 @@ urlpatterns = [
     url(r'^shibboleth/', include(shibboleth_login.urls)),
 
     # A+ - Pay attention to the order the URL patterns will be matched!
-    url(r'^$', course.views.home, name='home'),
     url(r'^privacy-policy/$',
         TemplateView.as_view(template_name='aplus/privacy.html'),
         name="privacy_policy"),

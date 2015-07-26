@@ -3,8 +3,10 @@ import hmac
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.signals import post_delete
 from django.template import loader, Context
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -56,13 +58,19 @@ class LearningObject(ModelWithInheritance):
     def course_instance(self):
         return self.course_module.course_instance
 
-    def get_absolute_url(self):
+    def get_url(self, name):
         instance = self.course_instance
-        return reverse("exercise", kwargs={
-            "course_url": instance.course.url,
-            "instance_url": instance.url,
+        return reverse(name, kwargs={
+            "course": instance.course.url,
+            "instance": instance.url,
             "exercise_id": self.id
         })
+
+    def get_absolute_url(self):
+        return self.get_url("exercise")
+
+    def get_submission_list_url(self):
+        return self.get_url("submission-list")
 
 
 class BaseExercise(LearningObject):
@@ -248,7 +256,8 @@ class BaseExercise(LearningObject):
         params = {
             "max_points": self.max_points,
             "submission_url": request.build_absolute_uri(submission_url),
-            "post_url": request.build_absolute_uri(self.get_absolute_url()),
+            "post_url": request.build_absolute_uri(
+                str(self.get_absolute_url())),
         }
         return update_url_params(self.service_url, params)
 
@@ -337,3 +346,9 @@ class ExerciseWithAttachment(BaseExercise):
             os.path.basename(self.attachment.path),
             open(self.attachment.path, "rb")
         )
+
+
+def _delete_file(sender, instance, **kwargs):
+    default_storage.delete(instance.attachment.path)
+
+post_delete.connect(_delete_file, ExerciseWithAttachment)

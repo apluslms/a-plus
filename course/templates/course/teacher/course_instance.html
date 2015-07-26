@@ -1,5 +1,6 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 
 {% block coursecontent %}
 
@@ -42,11 +43,11 @@
         <tr>
             <th><strong>{{ module }}</strong></th>
             <td>
-                <a class="btn btn-mini" href="{% url 'module-edit' course_url=course.url instance_url=instance.url module_id=module.id %}">
+                <a class="btn btn-mini" href="{% url 'model-edit' course=course.url instance=instance.url model='module' id=module.id %}">
                     <i class="icon-edit"></i> {% trans "Edit module" %}
                 </a>
                 {% if module.learning_objects.count == 0 %}
-                <a class="btn btn-mini" href="{% url 'module-remove' course_url=course.url instance_url=instance.url module_id=module.id %}">
+                <a class="btn btn-mini" href="{% url 'model-remove' course=course.url instance=instance.url model='module' id=module.id %}">
                 	<i class="icon-remove"></i> {% trans "Remove" %}
                 </a>
                 {% endif %}
@@ -59,10 +60,10 @@
                 {{ object }}
             </td>
             <td>
-                <a class="btn btn-mini" href="{% url 'chapter-edit' course_url=course.url instance_url=instance.url chapter_id=object.id %}">
-                    <i class="icon-edit"></i> {% trans "Edit" %}
+                <a class="btn btn-mini" href="{% url 'model-edit' course=course.url instance=instance.url model='chapter' id=object.id %}">
+                    <i class="icon-edit"></i> {% trans "Edit chapter" %}
                 </a>
-                <a class="btn btn-mini" href="{% url 'chapter-remove' course_url=course.url instance_url=instance.url chapter_id=object.id %}">
+                <a class="btn btn-mini" href="{% url 'model-remove' course=course.url instance=instance.url model='chapter' id=object.id %}">
                     <i class="icon-remove"></i> {% trans "Remove" %}
                 </a>
             </td>
@@ -70,7 +71,7 @@
         {% endfor %}
         <tr>
             <td colspan="2">
-                <a class="btn btn-mini btn-primary" href="{% url 'chapter-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
+                <a class="btn btn-mini btn-primary" href="{% url 'model-create-for' course=course.url instance=instance.url model='chapter' parent_id=module.id %}">
                     {% trans "Add new chapter" %}
                 </a>
             </td>
@@ -81,13 +82,13 @@
                 {{ object }}
             </td>
             <td>
-                <a class="btn btn-mini" href="{% url 'exercise-edit' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
-                    <i class="icon-edit"></i> {% trans "Edit" %}
+                <a class="btn btn-mini" href="{% url 'model-edit' course=course.url instance=instance.url model='exercise' id=object.id %}">
+                    <i class="icon-edit"></i> {% trans "Edit exercise" %}
                 </a>
-                <a class="btn btn-mini" href="{% url 'exercise-remove' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                <a class="btn btn-mini" href="{% url 'model-remove' course=course.url instance=instance.url model='exercise' id=object.id %}">
                     <i class="icon-remove"></i> {% trans "Remove" %}
                 </a>
-                <a class="btn btn-mini btn-link" href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=object.id %}">
+                <a class="btn btn-mini btn-link" href="{{ object|url:'submission-list' }}">
                 	{% trans "View submissions" %}
                 </a>
             </td>
@@ -96,7 +97,7 @@
         <tr>
             <td colspan="2">
                 <div class="btn-group">
-                    <a class="btn btn-mini btn-success" href="{% url 'exercise-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
+                    <a class="btn btn-mini btn-success" href="{% url 'model-create-for' course=course.url instance=instance.url model='exercise' parent_id=module.id %}">
                         {% trans "Add new exercise" %}
                     </a>
                     <button type="button" class="btn btn-mini dropdown-toggle" data-toggle="dropdown">
@@ -104,11 +105,19 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a class="" href="{% url 'exercise-add' course_url=course.url instance_url=instance.url module_id=module.id %}">
-                             {% trans "Add exercise" %}
-                        </a></li>
-                        <li><a href="{% url 'exercise-add-type' course_url=course.url instance_url=instance.url module_id=module.id exercise_type='exercise_with_attachment' %}">
-                            {% trans "Add exercise with attachment" %}</a>
+                            <a href="{% url 'model-create-for' course=course.url instance=instance.url model='exercise' parent_id=module.id %}">
+                                {% trans "Add exercise" %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'model-create-type-for' course=course.url instance=instance.url model='exercise' parent_id=module.id type='static' %}">
+                                {% trans "Add static exercise" %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'model-create-type-for' course=course.url instance=instance.url model='exercise' parent_id=module.id type='attachment' %}">
+                                {% trans "Add exercise with attachment" %}
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -118,17 +127,17 @@
     </tbody>
 </table>
 
-<a class="btn btn-primary btn-mini" href="{% url 'module-add' course_url=course.url instance_url=instance.url %}">
+<a class="btn btn-primary btn-mini" href="{% url 'model-create' course=course.url instance=instance.url model='module' %}">
     <i class="icon-plus-sign icon-white"></i> {% trans "Add new module" %}
 </a>
 
 
 <h3>{% trans "Deadline Rule Deviations" %}</h3>
 <p>{% trans "Add or view personalized deadlines for students for exercises." %}</p>
-<a class="btn btn-primary btn-mini" href="{% url 'deviations-add-dl' course_url=course.url instance_url=instance.url %}">
+<a class="btn btn-primary btn-mini" href="{{ instance|url:'deviations-add-dl' }}">
     <i class="icon-plus-sign icon-white"></i> {% trans "Add Deadline Deviations" %}
 </a>
-<a class="btn btn-primary btn-mini" href="{% url 'deviations-list-dl' course_url=course.url instance_url=instance.url %}">
+<a class="btn btn-primary btn-mini" href="{{ instance|url:'deviations-list-dl' }}">
     <i class="icon-list-alt icon-white"></i> {% trans "List Deadline Deviations" %}
 </a>
 
@@ -172,7 +181,7 @@
    {% endblocktrans %}
 
 </div>
-<form method="post" action="{% url 'batch-assess' course_url=course.url instance_url=instance.url %}">
+<form method="post" action="{{ instance|url:'batch-assess' }}">
 	{% csrf_token %}
     <textarea name="submissions_json"></textarea>
     <button type="submit" class="btn">{% trans "Submit" %}</button>

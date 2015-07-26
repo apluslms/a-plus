@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 <table class="table table-bordered" id="submission-table">
     <thead>
@@ -43,7 +44,7 @@
                 {{ submission.grade }}
             </td>
             <td>
-                <a href="{% url 'submission-inspect' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+                <a href="{{ submission|url:'submission-inspect' }}">
                     {% trans "Inspect" %}
                 </a>
             </td>

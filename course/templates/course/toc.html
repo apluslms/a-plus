@@ -1,5 +1,6 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 {% load apps %}
 
 {% block coursecontent %}
@@ -13,7 +14,7 @@
             <li>
                 <h3>
                     {% if open %}
-                    <a href="{% url 'module' course_url=course.url instance_url=instance.url module_url=module.url %}">
+                    <a href="{{ module|url }}">
                     {% endif %}
                         {{ module }}
                         <small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</span>
@@ -25,7 +26,7 @@
                     {% for chapter in module.chapters.all %}
                     {% if open %}
                     <li>
-                        <a href="{% url 'chapter' course_url=course.url instance_url=instance.url module_url=module.url chapter_url=chapter.url %}">
+                        <a href="{{ chapter|url }}">
                             {{ chapter }}
                         </a>
                     </li>
@@ -39,7 +40,7 @@
                     {% for exercise in module.learning_objects.all %}
                     {% if open %}
                     <li>
-                        <a href="{% url 'exercise' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                        <a href="{{ exercise|url }}">
                             {{ exercise }}
                         </a>
                     </li>

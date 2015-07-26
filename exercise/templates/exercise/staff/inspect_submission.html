@@ -1,5 +1,6 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 
 {% block coursecontent %}
@@ -8,13 +9,13 @@
     <div class="span10">
         <ul class="breadcrumb">
             <li>
-                <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
+                <a href="{{ instance|url }}">
                 	{{ course.name }}
                 </a>
                 <span class="divider">/</span>
             </li>
             <li>
-                <a href="{% url 'submission-list' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
+                <a href="{{ exercise|url:'submission-list' }}">
                 	{{ exercise.name }}
                 </a>
                 <span class="divider">/</span>
@@ -33,7 +34,7 @@
         <div class="well">
             {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
             <p>
-                <a class="btn btn-primary" href="{% url 'submission-assess' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+                <a class="btn btn-primary" href="{{ submission|url:'submission-assess' }}">
                 	{% trans "Assess this submission" %}
                 </a>
             </p>
@@ -106,7 +107,7 @@
                 {% endblocktrans %}
             </p>
             <p>
-            	<form method="post" action="{% url 'submission-re-submit' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
+            	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
             		{% csrf_token %}
             		<input class="btn btn-primary" type="submit" value="{% trans 'Re-submit to service' %}" />
             	</form>

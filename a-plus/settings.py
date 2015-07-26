@@ -69,7 +69,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    #'userprofile.middleware.StudentGroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'lib.middleware.SqlInjectionMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -86,7 +85,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.static",
     "django.contrib.messages.context_processors.messages",
-    #"userprofile.context_processors.student_group",
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -134,7 +132,7 @@ USE_TZ = True
 #DATETIME_FORMAT = "Y-m-d H:i"
 
 # Apache module mod_uwsgi was unable to create UTF-8 environment variables.
-# Problem was avoided by URL encoding in Shibboleth: <RequestMap encoding="URL" /> 
+# Problem was avoided by URL encoding in Shibboleth: <RequestMap encoding="URL" />
 SHIBBOLETH_VARIABLES_URL_ENCODED = True
 
 # Static files (CSS, JavaScript, Images)

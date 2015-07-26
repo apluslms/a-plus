@@ -1,21 +1,22 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 {% load notification %}
 
 {% block coursecontent %}
 <div class="row">
     <div class="span5">
-        <p class="pull-right"><img src="{{ user.userprofile.avatar_url }}" alt="avatar" /></p>
-        
+        <p class="pull-right"><img src="{{ profile.avatar_url }}" alt="avatar" /></p>
+
         <h2>{{ user.first_name }} {{ user.last_name }}</h2>
-        
+
         <dl class="dl-horizontal">
         	<dt>{% trans "student-id" %}</dt>
-            <dd>{{user.userprofile.student_id}}</dd>
+            <dd>{{ profile.student_id }}</dd>
             <dt>{% trans "email" %}</dt>
-            <dd>{{user.email}}</dd>
+            <dd>{{ user.email }}</dd>
             <dt>{% trans "username" %}</dt>
-            <dd>{{user.username}}</dd>
+            <dd>{{ user.username }}</dd>
         </dl>
 
         <div class="alert alert-info clearfix">
@@ -49,7 +50,7 @@
 	        {% else %}
             <p>{% trans "No unread notifications." %}</p>
 	        {% endif %}
-	
+
 	        <h3>{% trans "Older notifications" %}</h3>
 	        {% if read.count > 0 %}
             <ul>
@@ -68,23 +69,23 @@
 	    </div>
     </div>
     <div class="span5">
-        <h3>{{ course.name }}</h3>
+        <h3>{{ course }}</h3>
         <p>
-            {% blocktrans with points=course_summary.get_total_points max=course_summary.get_max_points %}
+            {% blocktrans with points=summary.get_total_points max=summary.get_max_points %}
             You currently have
             <span class="label label-info">{{ points }} / {{ max }}</span>
             exercise points on this course.
             {% endblocktrans %}
         </p>
-        
+
         <h3>{% trans "Your latest submissions" %}</h3>
         <ul>
             {% for submission in submissions %}
             <li>
-            	<a href="{{ submission.get_absolute_url }}">
+            	<a href="{{ submission|url }}">
             		{{ submission.exercise.name }}
             	</a>,
-            	{{ submission.grade }}/{{ submission.exercise.max_points }}
+            	{{ submission.grade }} / {{ submission.exercise.max_points }}
             </li>
             {% empty %}
             <li>

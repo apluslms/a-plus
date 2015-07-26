@@ -9,39 +9,8 @@ from exercise.models import BaseExercise, ExerciseWithAttachment
 
 logger = logging.getLogger("aplus.exercise")
 
-def get_form(course_module, exercise_type, exercise=None, request=None):
-    if not exercise:
-        if exercise_type == "exercise_with_attachment":
-            exercise = ExerciseWithAttachment(course_module=course_module)
-        elif exercise_type == None:
-            exercise = BaseExercise(course_module=course_module)
-        else:
-            raise TypeError("Unknown exercise type key")
-        exercise.order = course_module.learning_objects.count() + 1
-    if isinstance(exercise, ExerciseWithAttachment):
-        form_cls = ExerciseWithAttachmentForm
-    elif isinstance(exercise, BaseExercise):
-        form_cls = BaseExerciseForm
-    else:
-        logger.error("Tried to edit unexpected exercise type: %s", type(exercise))
-        raise TypeError("Unknown exercise type instance")
-
-    if request:
-        return form_cls(request.POST, request.FILES, instance=exercise)
-    return form_cls(instance=exercise)
-
 
 class BaseExerciseForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(BaseExerciseForm, self).__init__(*args, **kwargs)
-
-        self.exercise = kwargs.get('instance')
-
-        self.fields["course_module"].queryset = CourseModule.objects.filter(
-            course_instance=self.exercise.course_instance)
-        self.fields["category"].queryset = LearningObjectCategory.objects.filter(
-            course_instance=self.exercise.course_instance)
 
     class Meta:
         model = BaseExercise
@@ -59,6 +28,16 @@ class BaseExerciseForm(forms.ModelForm):
             'min_group_size',
             'max_group_size'
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(BaseExerciseForm, self).__init__(*args, **kwargs)
+
+        self.exercise = kwargs.get('instance')
+
+        self.fields["course_module"].queryset = CourseModule.objects.filter(
+            course_instance=self.exercise.course_instance)
+        self.fields["category"].queryset = LearningObjectCategory.objects.filter(
+            course_instance=self.exercise.course_instance)
 
     def get_fieldsets(self):
         return [
@@ -87,9 +66,6 @@ class BaseExerciseForm(forms.ModelForm):
 
 class ExerciseWithAttachmentForm(BaseExerciseForm):
 
-    def __init__(self, *args, **kwargs):
-        super(ExerciseWithAttachmentForm, self).__init__(*args, **kwargs)
-
     class Meta:
         model = ExerciseWithAttachment
         fields = [
@@ -108,6 +84,10 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
             'min_group_size',
             'max_group_size'
         ]
+
+    def __init__(self, *args, **kwargs):
+        super(ExerciseWithAttachmentForm, self).__init__(*args, **kwargs)
+        self.multipart = True
 
     def get_exercise_fields(self):
         return (self["name"],
