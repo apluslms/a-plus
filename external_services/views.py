@@ -3,7 +3,8 @@ Provides LTI access to external services with current course and user identity.
 """
 import hashlib
 
-from django.http import HttpResponseForbidden, Http404
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
 from oauthlib.common import urldecode
@@ -37,7 +38,12 @@ class LTILoginView(CourseInstanceBaseView):
 
     def access_control(self):
         super().access_control()
-        # TODO: implement menu access levels
+        if self.menu_item.access >= MenuItem.ACCESS_TEACHER:
+            if not self.is_teacher:
+                raise PermissionDenied()
+        elif self.menu_item.access >= MenuItem.ACCESS_ASSISTANT:
+            if not self.is_assistant:
+                raise PermissionDenied()
 
     def get_common_objects(self):
         super().get_common_objects()

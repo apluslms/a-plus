@@ -58,12 +58,23 @@ class MenuItem(models.Model):
     Attaches LTI service to course instance menu.
 
     '''
+    ACCESS_STUDENT = 0
+    ACCESS_ASSISTANT = 5
+    ACCESS_TEACHER = 10
+    ACCESS_CHOICES = (
+        (ACCESS_STUDENT, _("All students, assistants and teachers can access.")),
+        (ACCESS_ASSISTANT, _("Only assistants and teachers can access.")),
+        (ACCESS_TEACHER, _("Only teachers can access.")),
+    )
     service = models.ForeignKey(LinkService)
-
     course_instance = models.ForeignKey(
         CourseInstance,
         related_name="ext_services",
         help_text=_("A course instance where the service is used.")
+    )
+    access = models.IntegerField(
+        choices=ACCESS_CHOICES,
+        default=ACCESS_STUDENT,
     )
     menu_label = models.CharField(
         max_length=32,

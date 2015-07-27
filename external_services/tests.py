@@ -6,6 +6,7 @@ from django.utils import timezone
 from course.models import Course, CourseInstance
 from userprofile.models import User
 from .models import LinkService, LTIService, MenuItem
+from .templatetags import external_services as tags
 
 
 class ExternalServicesTest(TestCase):
@@ -53,31 +54,35 @@ class ExternalServicesTest(TestCase):
         self.menu_item1 = MenuItem.objects.create(
             service=self.link_service,
             course_instance=self.course_instance,
+            access=MenuItem.ACCESS_STUDENT,
             menu_label="Overriden Label",
-            menu_icon_class="icon-star",
-
+            menu_icon_class="icon-star"
         )
 
         self.menu_item2 = MenuItem.objects.create(
             service=self.link_service,
             course_instance=self.course_instance,
+            access=MenuItem.ACCESS_STUDENT,
             enabled=False
         )
 
         self.menu_item3 = MenuItem.objects.create(
             service=self.disabled_link_service,
-            course_instance=self.course_instance
+            course_instance=self.course_instance,
+            access=MenuItem.ACCESS_STUDENT
         )
 
         self.menu_item4 = MenuItem.objects.create(
             service=self.disabled_link_service,
             course_instance=self.course_instance,
+            access=MenuItem.ACCESS_STUDENT,
             enabled=False
         )
 
         self.menu_item5 = MenuItem.objects.create(
             service=self.lti_service,
-            course_instance=self.course_instance
+            course_instance=self.course_instance,
+            access=MenuItem.ACCESS_STUDENT
         )
 
     def test_linkservice_string(self):
@@ -121,4 +126,37 @@ class ExternalServicesTest(TestCase):
         self.client.login(username="testUser", password="testPassword")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("oauth_signature" in response.content)
+        self.assertTrue("oauth_signature" in str(response.content))
+
+        self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 2)
+        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 0)
+
+        self.menu_item5.access = MenuItem.ACCESS_ASSISTANT
+        self.menu_item5.save()
+        self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 1)
+        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 1)
+        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, False).count(), 1)
+        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, False, False).count(), 0)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        self.course_instance.assistants.add(self.user.userprofile)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.menu_item5.access = MenuItem.ACCESS_TEACHER
+        self.menu_item5.save()
+        self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 1)
+        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 1)
+        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, False).count(), 0)
+        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, False, False).count(), 0)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+        self.course.teachers.add(self.user.userprofile)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)

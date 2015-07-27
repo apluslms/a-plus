@@ -77,4 +77,13 @@
         </a>
     </li>
     {% endif %}
+    {% external_staff_menu_entries instance.pk is_assistant is_teacher as entries %}
+    {% for menu_entry in entries %}
+    <li>
+        <a href="{{ menu_entry.url }}" target="_blank">
+            <i class="{{ menu_entry.icon_class }}"></i>
+            {{ menu_entry.label }}
+        </a>
+    </li>
+    {% endfor %}
     {% endif %}
