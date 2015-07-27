@@ -49,7 +49,7 @@ class ExerciseInfoView(ExerciseBaseView):
         self.note("summary")
 
 
-class ExerciseView(BaseRedirectMixin, ExerciseInfoView):
+class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     template_name = "exercise/exercise.html"
     ajax_template_name = "exercise/exercise_plain.html"
 
@@ -58,17 +58,18 @@ class ExerciseView(BaseRedirectMixin, ExerciseInfoView):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get_common_objects(self):
-        super().get_common_objects()
+    def get_after_new_submission(self):
         self.submissions = self.exercise.get_submissions_for_student(
             self.profile)
-        self.note("submissions")
+        self.summary = UserExerciseSummary(self.exercise, self.request.user)
+        self.note("submissions", "summary")
 
     def get(self, request, *args, **kwargs):
         self.handle()
         students = self.get_students()
         self.submission_check(students)
         page = self.exercise.load(request, students)
+        self.get_after_new_submission()
         return self.response(page=page, students=students)
 
     def post(self, request, *args, **kwargs):
@@ -90,6 +91,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseInfoView):
             if not request.is_ajax() and "__r" in request.GET:
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
+        self.get_after_new_submission()
         return self.response(page=page, students=students,
             submission=new_submission)
 
