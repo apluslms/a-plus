@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from course.urls import INSTANCE_URL_PREFIX, EDIT_URL_PREFIX, USER_URL_PREFIX
+from course.urls import INSTANCE_URL_PREFIX, USER_URL_PREFIX, EDIT_URL_PREFIX
 from . import views, async_views, staff_views
 
 

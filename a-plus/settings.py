@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'shibboleth_login',
     'course',
     'exercise',
+    'edit_course',
     'deviations',
     'notification',
     'external_services',

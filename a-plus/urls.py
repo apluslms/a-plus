@@ -6,8 +6,8 @@ import django.contrib.auth.views
 
 import userprofile.views
 import shibboleth_login.urls, userprofile.urls, course.urls, exercise.urls, \
-    deviations.urls, external_services.urls, apps.urls, api.urls, \
-    redirect_old_urls.urls
+    edit_course.urls, deviations.urls, external_services.urls, apps.urls, \
+    api.urls, redirect_old_urls.urls
 
 
 admin.autodiscover()
@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^', include(userprofile.urls)),
     url(r'^', include(apps.urls)),
     url(r'^', include(external_services.urls)),
+    url(r'^', include(edit_course.urls)),
     url(r'^', include(deviations.urls)),
     url(r'^', include(exercise.urls)),
     url(r'^', include(course.urls)),

@@ -15,8 +15,8 @@ from notification.models import Notification
 from userprofile.viewbase import ACCESS
 from .models import BaseExercise
 from .presentation.results import ResultTable
-from .submission_forms import SubmissionReviewForm, \
-    SubmissionCreateAndReviewForm, BatchSubmissionCreateAndReviewForm
+from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm, \
+    BatchSubmissionCreateAndReviewForm
 from .submission_models import Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, \
     ExerciseMixin

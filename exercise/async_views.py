@@ -8,11 +8,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 
-from exercise.models import BaseExercise
-from exercise.submission_forms import SubmissionCallbackForm
-from exercise.submission_models import Submission
 from userprofile.models import UserProfile
 from lib.helpers import extract_form_errors
+from .forms import SubmissionCallbackForm
+from .models import BaseExercise
+from .submission_models import Submission
 
 
 logger = logging.getLogger('aplus.exercise')
