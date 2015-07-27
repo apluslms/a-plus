@@ -270,8 +270,8 @@ class SubmittedFile(models.Model):
         exercise = submission.exercise
         instance = exercise.course_instance
         return reverse('submission-file', kwargs={
-            "course_url": instance.course.url,
-            "instance_url": instance.url,
+            "course": instance.course.url,
+            "instance": instance.url,
             "exercise_id": exercise.id,
             "submission_id": submission.id,
             "file_id": self.id,
