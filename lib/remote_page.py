@@ -9,28 +9,31 @@ logger = logging.getLogger("aplus.remotepage")
 
 
 class RemotePageException(Exception):
-    
+
     def __init__(self, message):
         self.message = message
 
 
 class RemotePage:
     """
-    Represents a page that can be loaded over HTTP
-    for further processing.
-    
+    Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, timeout=20):
+    def __init__(self, url, timeout=20, data=None, files=None):
         self.url = urllib.parse.urlparse(url)
         try:
-            self.response = requests.get(url, timeout=timeout)
+            if data:
+                self.response = requests.post(url, data=data, files=files,
+                    timeout=timeout)
+            else:
+                self.response = requests.get(url, timeout=timeout)
             if self.response.status_code != 200:
                 self.response.raise_for_status()
             self.response.encoding = "utf-8"
             self.soup = BeautifulSoup(self.response.text)
         except requests.exceptions.RequestException:
-            logger.exception("Failed to load exercise: %s", url)
-            raise RemotePageException(_("Connecting to the exercise service failed!"))
+            logger.exception("Failed to load external page: %s", url)
+            raise RemotePageException(
+                _("Connecting to the course service failed!"))
 
     def base_url(self):
         return urllib.parse.urlunparse((
@@ -42,8 +45,13 @@ class RemotePage:
             self.url.fragment
         ))
 
+    def title(self):
+        if self.soup and self.soup.title:
+            return self.soup.title.contents
+        return ""
+
     def body(self):
-        if self.soup:
+        if self.soup and self.soup.body:
             return self.soup.body.renderContents()
         return ""
 
@@ -70,3 +78,11 @@ class RemotePage:
                     "/" if value[0] != "/" else "",
                     value
                 ))
+
+    def meta(self, name):
+        if self.soup:
+            element = self.soup.find("meta", {"name": name})
+            if element:
+                return element.get("value",
+                    default=element.get("content", default=None))
+        return None

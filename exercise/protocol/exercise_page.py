@@ -20,10 +20,10 @@ class ExercisePage:
             "description": exercise.description
         }
         self.errors = []
-    
+
     def is_sane(self):
         """
-        Checks that the values are sane/acceptable.    
+        Checks that the values are sane/acceptable.
         """
         return self.points <= self.max_points \
             and not (self.exercise.max_points != 0 \
