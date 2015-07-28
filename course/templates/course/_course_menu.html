@@ -51,7 +51,7 @@
     </li>
     {% for tab in instance.tabs.all %}
     <li>
-        <a href="{{ instance|url:'apps-tab' }}">
+        <a href="{% url 'apps-tab' course=course.url instance=instance.url tab_id=tab.id %}">
             <i class="icon-th-large"></i>
             {{ tab.label }}
         </a>
