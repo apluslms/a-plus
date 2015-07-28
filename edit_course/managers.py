@@ -5,7 +5,8 @@ from exercise.models import LearningObject, BaseExercise, StaticExercise, \
     ExerciseWithAttachment
 from course.models import LearningObjectCategory, CourseModule, \
     CourseChapter
-from .exercise_forms import BaseExerciseForm, ExerciseWithAttachmentForm
+from .exercise_forms import BaseExerciseForm, ExerciseWithAttachmentForm, \
+    StaticExerciseForm
 from .course_forms import LearningObjectCategoryForm, CourseModuleForm, \
     CourseChapterForm
 
@@ -107,7 +108,7 @@ class ExerciseManager(ModelManager):
     def get_form_class(self, obj):
         FORMS = {
             BaseExercise: BaseExerciseForm,
-            StaticExercise: BaseExerciseForm,
+            StaticExercise: StaticExerciseForm,
             ExerciseWithAttachment: ExerciseWithAttachmentForm,
         }
         if obj.__class__ not in FORMS:

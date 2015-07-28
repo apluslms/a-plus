@@ -4,7 +4,8 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
-from exercise.models import BaseExercise, ExerciseWithAttachment
+from exercise.models import BaseExercise, StaticExercise, \
+    ExerciseWithAttachment
 
 
 logger = logging.getLogger("aplus.exercise")
@@ -30,9 +31,8 @@ class BaseExerciseForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        super(BaseExerciseForm, self).__init__(*args, **kwargs)
-
-        self.exercise = kwargs.get('instance')
+        super().__init__(*args, **kwargs)
+        self.exercise = kwargs.get("instance")
 
         self.fields["course_module"].queryset = CourseModule.objects.filter(
             course_instance=self.exercise.course_instance)
@@ -65,16 +65,18 @@ class BaseExerciseForm(forms.ModelForm):
 
 
 class ExerciseWithAttachmentForm(BaseExerciseForm):
+    multipart = True
 
     class Meta:
         model = ExerciseWithAttachment
         fields = [
             'service_url',
             'name',
-            'instructions',
+            'description',
             'category',
             'course_module',
             'order',
+            'instructions',
             'files_to_submit',
             'attachment',
             'max_submissions',
@@ -85,15 +87,42 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
             'max_group_size'
         ]
 
-    def __init__(self, *args, **kwargs):
-        super(ExerciseWithAttachmentForm, self).__init__(*args, **kwargs)
-        self.multipart = True
-
     def get_exercise_fields(self):
         return (self["name"],
-                self["instructions"],
+                self["description"],
                 self["category"],
                 self["course_module"],
                 self["order"],
+                self["instructions"],
                 self["files_to_submit"],
                 self["attachment"])
+
+
+class StaticExerciseForm(BaseExerciseForm):
+
+    class Meta:
+        model = StaticExercise
+        fields = [
+            'name',
+            'description',
+            'category',
+            'course_module',
+            'order',
+            'exercise_page_content',
+            'submission_page_content',
+            'max_submissions',
+            'max_points',
+            'points_to_pass',
+            'allow_assistant_grading',
+            'min_group_size',
+            'max_group_size'
+        ]
+
+    def get_exercise_fields(self):
+        return (self["name"],
+                self["description"],
+                self["category"],
+                self["course_module"],
+                self["order"],
+                self["exercise_page_content"],
+                self["submission_page_content"])
