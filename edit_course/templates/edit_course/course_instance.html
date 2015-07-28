@@ -51,6 +51,9 @@
                 	<i class="icon-remove"></i> {% trans "Remove" %}
                 </a>
                 {% endif %}
+                <a class="btn btn-mini btn-link" href="{{ module|url }}">
+                    {% trans "Open module" %}
+                </a>
             </td>
         </tr>
         {% for object in module.chapters.all %}
@@ -64,6 +67,9 @@
                 </a>
                 <a class="btn btn-mini" href="{% url 'model-remove' course=course.url instance=instance.url model='chapter' id=object.id %}">
                     <i class="icon-remove"></i> {% trans "Remove" %}
+                </a>
+                <a class="btn btn-mini btn-link" href="{{ object|url }}">
+                    {% trans "Open chapter" %}
                 </a>
             </td>
         </tr>
@@ -86,6 +92,9 @@
                 </a>
                 <a class="btn btn-mini" href="{% url 'model-remove' course=course.url instance=instance.url model='exercise' id=object.id %}">
                     <i class="icon-remove"></i> {% trans "Remove" %}
+                </a>
+                <a class="btn btn-mini btn-link" href="{{ object|url }}">
+                	{% trans "Open exercise" %}
                 </a>
                 <a class="btn btn-mini btn-link" href="{{ object|url:'submission-list' }}">
                 	{% trans "View submissions" %}

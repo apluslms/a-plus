@@ -57,6 +57,10 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
                 self._get_kwarg(self.parent_kw, default=None),
                 self._get_kwarg(self.type_kw, default=None)
             )
+            if self.instance.categories.count() == 0:
+                messages.error(self.request,
+                    _("At least one exercise category must be created before "
+                      "creating exercises."))
         self.note("object")
 
     def get_form_class(self):

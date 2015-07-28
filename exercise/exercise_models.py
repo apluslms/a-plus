@@ -349,6 +349,8 @@ class ExerciseWithAttachment(BaseExercise):
 
 
 def _delete_file(sender, instance, **kwargs):
+    """
+    Deletes exercise attachment file after the exercise in database is removed.
+    """
     default_storage.delete(instance.attachment.path)
-
 post_delete.connect(_delete_file, ExerciseWithAttachment)

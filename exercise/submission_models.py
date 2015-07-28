@@ -281,10 +281,8 @@ class SubmittedFile(models.Model):
 
 def _delete_file(sender, instance, **kwargs):
     """
-    This function deletes the actual files referenced by SubmittedFile
-    objects after the objects are deleted from database.
+    Deletes the actual submission files after the submission in database is
+    removed.
     """
     default_storage.delete(instance.file_object.path)
-
-# Connect signal to deleting a SubmittedFile
 post_delete.connect(_delete_file, SubmittedFile)

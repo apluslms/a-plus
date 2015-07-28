@@ -100,10 +100,14 @@ class ExerciseManager(ModelManager):
             id=parent_id,
             course_instance=instance
         )
-        return object_class(
-            course_module=module,
-            order=(module.learning_objects.count() + 1)
-        )
+        kwargs = {
+            "course_module": module,
+            "order": module.learning_objects.count() + 1,
+        }
+        first_category = instance.categories.first()
+        if first_category:
+            kwargs["category"] = first_category
+        return object_class(**kwargs)
 
     def get_form_class(self, obj):
         FORMS = {
