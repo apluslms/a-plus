@@ -1,23 +1,29 @@
 {% load i18n %}
+{% load staticfiles %}
 {% load course %}
 {% load notification %}
 <!DOCTYPE html>
     <html>
     <head>
         <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{% block title %}A+{% endblock %}</title>
 
-        <!-- This is for responsive bootstrap -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-        <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/submission.css" type="text/css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
 
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css" />
+        <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/submission.css' %}" />
+        <script src="{% static 'js/aplus.js' %}"></script>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}prettify/prettify.css" type="text/css" />
+        {% block scripts %}
+            {# Put all additional scripts inside this block. #}
+        {% endblock %}
 
         <!-- Some favicons courtesy of http://realfavicongenerator.net/ -->
         <link rel="apple-touch-icon" sizes="57x57" href="{{ STATIC_URL }}favicons/apple-touch-icon-57x57.png">
@@ -36,91 +42,88 @@
         <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-32x32.png" sizes="32x32">
         <meta name="msapplication-TileColor" content="#2b5797">
         <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
-
-        {% block head %}{% endblock %}
     </head>
-    <body>
-        <div id="base-container">
-            {% block navbar %}
+    <body data-view-tag="{% block view_tag %}{% endblock %}">
+        <div class="page-wrap">
+            <nav class="navbar navbar-default navbar-static-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
+                            <span class="sr-only">{% trans "Toggle navigation" %}</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="/">A+</a>
+                        {% if instance %}
+                        <a class="navbar-brand visible-xs" href="{{ instance|url }}">{{ instance.course }}</a>
+                        {% endif %}
+                    </div>
 
-            <div id="main-navbar" class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container">
-                        <a class="brand" href="/">A+</a>
-                        <div class="nav dropdown nav-collapse collapse">
-                            <a href="#" class="brand dropdown-toggle" data-toggle="dropdown">
-                                {% block pagetitle %}
-                                {% trans "Select course" %}
-                                {% endblock %}
-                            	<b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                                {% course_menu %}
-                            </ul>
-                        </div>
-                        <div class="nav-collapse">
-                            <ul id="user-status" class="nav pull-right">
-                                {% if user.is_authenticated %}
+                    <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    {% if instance %}
+                                    {{ course }}
+                                    {% if not instance.visible_to_students %}
+                                    <span class="label label-danger">{% trans "Hidden" %}</span>
+                                    {% endif %}
+                                    {% else %}
+                                    {% trans "Select course" %}
+                                    {% endif %}
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {% course_menu %}
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            {% if user.is_authenticated %}
 
-								{% unread_notifications user as unread %}
-                                {% if unread.count > 0 %}
-                                <li>
-                                	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                		<i id="unread-notifications-icon" class="icon-white icon-envelope"></i>
-                                		{% blocktrans with count=unread.count count_p=unread.count|pluralize %}
-                                    	{{ count }} new notification{{ count_p }}
-                                		{% endblocktrans %}
-                                	</a>
-	                                <ul class="dropdown-menu" id="notification-menu">
-	                                    {% for course_instance in unread.course_instances %}
-	                                    <li>
-	                                    	<a href="{{ course_instance|url:'profile' }}">
-	                                    		{{course_instance.instance_name}}
-	                                    	</a>
-	                                    </li>
-	                                    {% endfor %}
-	                                </ul>
-                                </li>
-                                {% endif %}
+                            {% unread_notifications user as unread %}
+                            {% if unread.count > 0 %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-envelope text-danger" aria-hidden="true"></span>
+                                    {% blocktrans with count=unread.count count_p=unread.count|pluralize %}
+                                    {{ count }} new notification{{ count_p }}
+                                    {% endblocktrans %}
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {% for course_instance in unread.course_instances %}
+                                    <li>
+                                        <a href="{{ course_instance|url:'profile' }}">
+                                            {{course_instance.instance_name}}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% endif %}
 
-                                {% if unread.count == 0 and instance %}
-                                <li>
-									<a id="notification-icon" href="{{ instance|url:'profile' }}">
-										<i class="icon-white icon-envelope"></i>
-									</a>
-                                </li>
-                                {% endif %}
+                            <li>
+                                <a{% if instance %} href="{{ instance|url:'profile' }}"{% endif %}>
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                                    {{ user.username }}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'logout' %}">
+                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                                    {% trans "Log out"%}
+                                </a>
+                            </li>
 
-                                <li>
-                                	<a>{% trans "Logged in as"%} {{ user.username }}.</a>
-                                </li>
-                                <li>
-                                	<a href="{% url 'logout' %}">{% trans "Log out"%}</a>
-                                </li>
-
-                                {% endif %}
-                            </ul>
-                        </div>
+                            {% endif %}
+                        </ul>
                     </div>
                 </div>
-            </div>
-            {% endblock %}
+            </nav>
 
-            <div id="main_content" class="container">
-                <div class="row">
-                    <div class="span12">
-                        <div class="page-header">
-                            {% block maintitle %}
-                            {% endblock %}
-                        </div>
-                    </div>
-                </div>
-                {% block breadcrumb %}{% endblock %}
-
-                {% block secondnav %}{% endblock %}
-
-                {% include "widgets/messages.html" %}
-
+            <div class="site-content container">
+                {% include "_messages.html" %}
                 {% block content %}
                     <div class="error">
                         No content
@@ -129,26 +132,18 @@
             </div>
 
             {% block footer %}
-            <footer>
+            <nav class="site-footer navbar navbar-default navbar-fixed-bottom">
                 <div class="container">
-                    {% block footercontent %}{% endblock %}
-                    <p><a href="{% url 'privacy_policy' %}">Privacy Policy</a></p>
+                    <ul class="nav navbar-nav">
+                        {% block footercontent %}{% endblock %}
+                        {% url 'privacy_policy' as policy_url %}
+                        {% if policy_url %}
+                        <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+                        {% endif %}
+                    </ul>
                 </div>
-            </footer>
+            </nav>
             {% endblock %}
-
-            <!-- When the scripts are at the end of the body, the rendering is not
-            blocked by the script loading and thus, the borwser shows the page
-            faster -->
-            <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}js/aplus.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
-
-            {% block scripts %}
-                {# Put all additional scripts inside this block. #}
-            {% endblock %}
-
-        </div><!-- #base-container -->
+        </div>
     </body>
 </html>

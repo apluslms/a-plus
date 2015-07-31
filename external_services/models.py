@@ -20,7 +20,7 @@ class LinkService(ModelWithInheritance):
     )
     menu_icon_class = models.CharField(
         max_length=32,
-        default="icon-globe",
+        default="globe",
         help_text=_("A default menu icon style name, see http://getbootstrap.com/components/#glyphicons-glyphs")
     )
     enabled = models.BooleanField(
@@ -86,7 +86,7 @@ class MenuItem(models.Model):
         max_length=32,
         null=True,
         blank=True,
-        help_text=_("Overrides service default menu icon style, e.g. icon-star see http://getbootstrap.com/components/#glyphicons-glyphs")
+        help_text=_("Overrides service default menu icon style name, e.g. star see http://getbootstrap.com/components/#glyphicons-glyphs")
     )
     menu_weight = models.IntegerField(
         default=0,

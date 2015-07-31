@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% load course %}
 
-{% block maintitle %}
-<h1>{{ welcome_text|safe }}</h1>
-{% endblock %}
-
 {% block content %}
-<div class="hero-unit">
+
+<div class="page-header">
+    <h1>{{ welcome_text|safe }}</h1>
+</div>
+
+{% comment %}
+<div class="jumbotron">
     {% blocktrans %}
     <p>
         A+ is a service for managing the learning activities. The system is designed for
@@ -19,43 +22,50 @@
     </p>
     {% endblocktrans %}
 </div>
+{% endcomment %}
 
-{% for instance in instances %}
-{% with instance_url=instance|url %}
-
-{# Output a beginning row on every third instance #}
-{% if forloop.counter0|divisibleby:3 %}
 <div class="row">
-{% endif %}
-
-    <div class="span4">
-        <h3>
-        	<a href="{{ instance_url }}">
-        		{{ instance.course.name }}
-        	</a>
-        </h3>
-        <p>
-            <a class="btn" href="{{ instance_url }}">
-            	{{ instance.instance_name }} &raquo;
-            </a>
-        </p>
+    {% for instance in instances %}
+    {% with instance_url=instance|url %}
+    <div class="col-sm-6 col-md-4">
+        <div class="thumbnail course-thumbnail">
+            <div class="image">
+                <img src="{% static 'images/books.jpg' %}">
+            </div>
+            <div class="caption">
+                <h3>
+                	<a href="{{ instance_url }}">
+                        {{ instance.course.name }}<br />
+                    </a>
+                </h3>
+                <p>
+                    {{ instance.course.code }}
+                    {% if not instance.visible_to_students %}
+                    <span class="label label-danger">{% trans "Hidden from students" %}</span>
+                    {% endif %}
+                    <br />
+                    <!--{{ instance.instance_name }}<br />-->
+                    {{ instance.starting_time|date:"N j, Y" }} &ndash;
+                    {{ instance.ending_time|date:"N j, Y" }}
+                </p>
+                <div class="buttons caption">
+                    <a class="btn btn-primary btn-block" role="button" href="{{ instance_url }}">
+                        {% trans "Enter course" %}
+                        <span class="glyphicon glyphicon-hand-right pull-right" aria-hidden="true"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-
-{# Output an ending row element after every three instances, and at the end of the loop #}
-{% if forloop.counter|divisibleby:3 or forloop.last %}
+    {% endwith %}
+    {% endfor %}
 </div>
-{% endif %}
 
-{% endwith %}
-{% endfor %}
-
-{% endblock %}
-
-{% block footercontent %}
 <p>
-	{% url 'archive' as archive_url %}
-	{% blocktrans with url=archive_url %}
+    {% url 'archive' as url %}
+    {% blocktrans with url=url %}
     Old courses can be found at the <a href="{{ url }}">course archive</a>.
     {% endblocktrans %}
 </p>
+
 {% endblock %}

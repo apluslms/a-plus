@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load course %}
+<nav class="row siblings">
+
+    {% if next %}
+    {% if next.is_after_open %}
+    <a href="{{ next|url }}" class="pull-right btn btn-link">
+        {{ next }} &raquo;
+    </a>
+    {% else %}
+    <span class="pull-right btn btn-link disabled">
+        {{ next }}
+        {% if is_course_staff %}
+        <a href="{{ next|url }}">{% trans "Staff access" %}</a>
+        {% endif %}
+        &raquo;
+    </span>
+    {% endif %}
+    {% endif %}
+
+    {% if previous %}
+    <a href="{{ previous|url }}" class="btn btn-link">
+        &laquo; {{ previous }}
+    </a>
+    {% endif %}
+</nav>

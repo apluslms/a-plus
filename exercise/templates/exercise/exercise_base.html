@@ -3,56 +3,33 @@
 {% load course %}
 {% load apps %}
 
-{% block maintitle %}
-<h1>
-    <small>{{ exercise.course_module.name }}</small>
-    <br />
-    {{ exercise.name }}
-</h1>
-{% endblock %}
-
-{% block secondnav %}
-{% endblock %}
-
 {% block content %}
 <div class="row">
-
-    <div class="span2">
-        <ul class="nav nav-list">
-            {% include "exercise/_exercise_menu.html" %}
-        </ul>
+    <div class="col-md-2">
+        {% include "exercise/_exercise_menu.html" %}
     </div>
-
-    <div class="span10">
-        <div>
-            {% include "exercise/_exercise_tabs.html" %}
-        </div>
-        <div class="row">
-
-            <div id="exercise" class="span8">
-                {% block exercisecontent %}
-                {% endblock %}
-                &nbsp;{# This prevents the div being completely empty #}
-            </div>
-
-            <div class="span2">
-                {% block exerciseinfo %}
-                <div id="exercise-info" data-url="{{ exercise|url:'exercise-info' }}">
-                    {% include "exercise/_exercise_info.html" %}
-                </div>
-                {% endblock %}
-
-				{% if submission %}
-					{% plugin_renderers user submission as plugins %}
-				{% else %}
-					{% plugin_renderers user exercise as plugins %}
-				{% endif %}
-                {% for plugin in plugins %}
-                    {{ plugin.render|safe }}
-                {% endfor %}
-            </div>
-        </div>
+    {% block columns %}
+    <div class="col-md-8">
+        {% include "exercise/_exercise_tabs.html" %}
+        {% block exercisecontent %}
+        {% endblock %}
     </div>
+    <div class="col-md-2">
+        {% block exerciseinfo %}
+        <div id="exercise-info" data-url="{{ exercise|url:'exercise-info' }}">
+            {% include "exercise/_exercise_info.html" %}
+        </div>
+        {% endblock %}
 
+		{% if submission %}
+			{% plugin_renderers user submission as plugins %}
+		{% else %}
+			{% plugin_renderers user exercise as plugins %}
+		{% endif %}
+        {% for plugin in plugins %}
+            {{ plugin.render|safe }}
+        {% endfor %}
+    </div>
+    {% endblock %}
 </div>
 {% endblock %}

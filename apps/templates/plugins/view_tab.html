@@ -1,14 +1,13 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 
+{% block title %}{{ course.name }}: {{ tab.title }}{% endblock %}
+{% block view_tag %}tab{{ tab.id }}{% endblock %}
 
 {% block coursecontent %}
-<div class="row">
-    <div class="span10">
-        <h2>{{ tab.title }}</h2>
-        <div>
-            {{ tab.render|safe }}
-        </div>
-    </div>
+<div class="page-header">
+    <h1>{{ tab.title }}</h1>
 </div>
+
+{{ tab.render|safe }}
 {% endblock %}

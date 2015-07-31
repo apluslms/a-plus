@@ -5,6 +5,8 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.http import is_safe_url
 
+from .viewbase import UserProfileView, ACCESS
+
 
 def login(request):
     """
@@ -25,6 +27,18 @@ def login(request):
             'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
             'login_title_text': settings.LOGIN_TITLE_TEXT,
             'login_body_text': settings.LOGIN_BODY_TEXT,
-            'login_button_text': settings.LOGIN_BUTTON_TEXT,
+            'shibboleth_title_text': settings.SHIBBOLETH_TITLE_TEXT,
+            'shibboleth_body_text': settings.SHIBBOLETH_BODY_TEXT,
+            'shibboleth_button_text': settings.SHIBBOLETH_BUTTON_TEXT,
         }
     )
+
+
+class PrivacyPolicyView(UserProfileView):
+    access_mode=ACCESS.ANONYMOUS
+    template_name="userprofile/privacy.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.policy_text = settings.PRIVACY_POLICY_TEXT
+        self.note("policy_text")

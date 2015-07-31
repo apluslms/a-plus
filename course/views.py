@@ -52,12 +52,19 @@ class InstanceView(CourseInstanceBaseView):
 
         # Display alternative view content from exercise package.
         from exercise.views import ResultsView
-        view = ResultsView.as_view()
+        view = ResultsView.as_view(home_view=True)
         return view(request, *args, **kwargs)
 
 
 class ModuleView(CourseModuleBaseView):
     template_name = "course/module.html"
+
+    def get(self, request, *args, **kwargs):
+        self.handle()
+        if not self.module.is_after_open():
+            messages.warning(self.request,
+                _("Staff: The course module is not yet open for students."))
+        return self.response()
 
 
 class ChapterView(CourseChapterView):
@@ -65,6 +72,9 @@ class ChapterView(CourseChapterView):
 
     def get(self, request, *args, **kwargs):
         self.handle()
+        if not self.module.is_after_open():
+            messages.warning(self.request,
+                _("Staff: The course module is not yet open for students."))
         try:
             page = RemotePage(self.chapter.content_url)
             page.fix_relative_urls()

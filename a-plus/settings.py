@@ -26,16 +26,20 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Content
+# To disable Shibboleth login, comment out 'shibboleth_login' in
+# INSTALLED_APPS. Any templates can be overridden by copying into
+# local_templates/possible_path/template_name.html
 
 WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
-
-# To disable Shibboleth login, comment out 'shibboleth_login' in INSTALLED_APPS.
-LOGIN_TITLE_TEXT = 'Log in with Aalto WebLogin'
-LOGIN_BODY_TEXT = 'Click the button below to log in with Aalto University\'s Shibboleth service.'
-LOGIN_BUTTON_TEXT = 'Aalto WebLogin'
+LOGIN_TITLE_TEXT = 'Local A+ users'
+LOGIN_BODY_TEXT = ''
+SHIBBOLETH_TITLE_TEXT = 'Aalto university students'
+SHIBBOLETH_BODY_TEXT = 'Click the button below to log in with Aalto University\'s identity service.'
+SHIBBOLETH_BUTTON_TEXT = 'Aalto WebLogin'
+from .privacy_policy import PRIVACY_POLICY_TEXT
 
 # Application definition
 
@@ -46,8 +50,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.auth',
-
-    # HTTP service API
+    'bootstrapform',
     'tastypie',
 
     # First party applications
@@ -76,6 +79,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'local_templates'),
     os.path.join(BASE_DIR, 'templates'),
 )
 

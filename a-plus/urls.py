@@ -1,10 +1,6 @@
-from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.generic.base import TemplateView
-import django.contrib.auth.views
 
-import userprofile.views
 import shibboleth_login.urls, userprofile.urls, course.urls, exercise.urls, \
     edit_course.urls, deviations.urls, external_services.urls, apps.urls, \
     api.urls, redirect_old_urls.urls
@@ -12,24 +8,13 @@ import shibboleth_login.urls, userprofile.urls, course.urls, exercise.urls, \
 
 admin.autodiscover()
 
+#  Pay attention to the order the URL patterns will be matched!
 urlpatterns = [
-
-    # Django
-    url(r'^accounts/login/$', userprofile.views.login, name="login"),
-    url(r'^accounts/logout/$', django.contrib.auth.views.logout,
-        { "template_name": "aplus/logout.html" }, name="logout"),
     url(r'^admin/', include(admin.site.urls)),
-
-    # Shibboleth
     url(r'^shibboleth/', include(shibboleth_login.urls)),
-
-    # A+ - Pay attention to the order the URL patterns will be matched!
-    url(r'^privacy-policy/$',
-        TemplateView.as_view(template_name='aplus/privacy.html'),
-        name="privacy_policy"),
     url(r'^api/', include(api.urls)),
+    url(r'^accounts/', include(userprofile.urls)),
     url(r'^', include(redirect_old_urls.urls)),
-    url(r'^', include(userprofile.urls)),
     url(r'^', include(apps.urls)),
     url(r'^', include(external_services.urls)),
     url(r'^', include(edit_course.urls)),

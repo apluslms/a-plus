@@ -2,15 +2,16 @@
 {% load course %}
 
 <ul class="nav nav-tabs">
-    <li>
+    <li class="menu-exercise">
         <a href="{{ exercise|url }}">
             {% trans "Exercise description" %}
         </a>
     </li>
-    <li class="dropdown">
-    	<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+    <li class="dropdown menu-submission">
+    	<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+            aria-haspopup="true" aria-expanded="false">
     		{% trans "My submissions" %}
-    		<b class="caret"></b>
+    		<span class="caret"></span>
     	</a>
         <ul class="dropdown-menu">
         	{% for submission in submissions %}
@@ -31,7 +32,7 @@
         </ul>
     </li>
     {% if is_teacher or is_assistant %}
-    <li>
+    <li class="menu-all-submissions">
     	<a class="staff" href="{{ exercise|url:'submission-list' }}">
 			{% trans "View all submissions" %}
 		</a>

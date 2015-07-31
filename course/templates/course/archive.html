@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block maintitle %}
-    <h1>{% trans "Course Archive" %}</h1>
-{% endblock %}
+{% block title %}A+ {% trans "Course archive" %}{% endblock %}
+{% block view_tag %}archive{% endblock %}
 
 {% block content %}
 <div class="row">
-    <div class="span8">
-        <ul id="course-list" class="unstyled">
-        </ul>
+    <div class="col-md-8">
+
+        <div class="page-header">
+            <h1>{% trans "Course archive" %}
+        </div>
+
+        <ul id="course-list"></ul>
+
     </div>
-    <div class="span4">
+    <div class="col-md-4">
         <div class="alert alert-info">
             {% blocktrans %}
             <strong>Note:</strong>
@@ -29,13 +33,11 @@
         $.getJSON("/api/v1/course/", function(courseResponse) {
             $.each(courseResponse.objects, function(i, course) {
                 var $courseLI = $("<li />").attr('id', 'course'+course.id).appendTo("#course-list");
-                var $courseHeading = $("<h3 />").text(course.name + " ").appendTo($courseLI);
-                var $courseCode = $("<small />").text(course.code).appendTo($courseHeading);
+                var $courseHeading = $("<h3 />").text(course.code + " " + course.name).appendTo($courseLI);
                 $instanceUL = $("<ul />").appendTo($courseLI);
                 $.each(course.instances, function(j, courseInstance) {
-                    
                     $.getJSON(courseInstance, function(instanceResponse) {
-                        var $instanceLI = $("<li />").appendTo($("#course"+course.id));
+                        var $instanceLI = $("<li />").appendTo($("#course" + course.id + " > ul"));
                         var $instanceLink = $("<a />")
                             .text(instanceResponse.instance_name)
                             .attr("href", instanceResponse.browser_url)

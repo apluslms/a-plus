@@ -1,38 +1,71 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load bootstrap %}
 
-{% block maintitle %}
-    <h1>{% trans "Login" %}</h1>
-{% endblock %}
+{% block title %}A+ {% trans "Login" %}{% endblock %}
 
 {% block content %}
 
-{% if shibboleth_login %}
-<div class="hero-unit">
-	{% url 'privacy_policy' as policy_url %}
-	{% include 'shibboleth/login_link.html' %}
+<div class="page-header">
+    <h1>{% trans "Login" %}</h1>
 </div>
-<h3>
-	{% trans "Alternatively, you can log in with your A+ specific account" %}
-</h3>
-{% endif %}
 
-<form method="post" action="">{% csrf_token %}
-	<div class="clearfix">
-		{{ form.username.label_tag }}
-		{{ form.username.errors }}
-		<div class="input">{{ form.username }}</div>
-	</div>
-	<div class="clearfix">
-		{{ form.password.label_tag }}
-		{{ form.password.errors }}
-		<div class="input">{{ form.password }}</div>
-	</div>
+<div class="row">
 
-	<div class="actions">
-		<input type="submit" value="{% trans 'Login' %}" class="btn" />
-		<input type="hidden" name="next" value="{{ next }}" />
-	</div>
-</form>
+    {% if shibboleth_login %}
+    <div class="col-sm-6 col-md-4">
+        <div class="thumbnail">
+            <div class="caption">
+                {% if shibboleth_title_text %}
+                <h3>
+                	{{ shibboleth_title_text|safe }}
+                </h3>
+                {% endif %}
+                {% url 'privacy_policy' as policy_url %}
+                {% if shibboleth_body_text or policy_url %}
+                <p>
+                	{{ shibboleth_body_text|safe }}
+                	{% if policy_url %}
+                	{% blocktrans with url=policy_url %}
+                	You may want to read our privacy policy <a href="{{ url }}">here</a>.
+                	{% endblocktrans %}
+                	{% endif %}
+                </p>
+                {% endif %}
+                <p>
+                	<a class="btn btn-primary btn-block" role="button" href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
+                		{{ shibboleth_button_text|safe }}
+                		<span class="glyphicon glyphicon-log-in pull-right" aria-hidden="true"></span>
+                	</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
+    <div class="col-sm-6 col-md-4">
+        <div class="thumbnail">
+            <div class="caption">
+                {% if login_title_text %}
+                <h3>
+                	{{ login_title_text|safe }}
+                </h3>
+                {% endif %}
+                {% if login_body_text %}
+                <p>
+                    {{ login_body_text|safe }}
+                </p>
+                {% endif %}
+                <form method="post" role="form">
+                    {% csrf_token %}
+                    {{ form|bootstrap }}
+                	<div class="form-group">
+                		<button type="submit" class="btn btn-block">{% trans 'Login' %}</button>
+                	</div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

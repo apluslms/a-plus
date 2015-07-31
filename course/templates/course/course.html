@@ -2,23 +2,33 @@
 {% load i18n %}
 {% load course %}
 
-{% block maintitle %}
-    <h1>{{ course.name }}</h1>
-{% endblock %}
+{% block title %}{{ course.name }}{% endblock %}
 
 {% block content %}
+
+<div class="page-header">
+    <h1>
+        {% blocktrans with code=course.code name=course.name %}
+        Active instances of {{ code }} {{ name }}
+        {% endblocktrans %}
+    </h1>
+</div>
+
 <ul>
-{% for instance in instances %}
+    {% for instance in instances %}
     <li>
         <a href="{{ instance|url }}">
         	{{ instance.instance_name }}
         </a>
-        {% if instance.is_open %}
-            <span class="label label-success">{% trans "Open" %}</span>
-        {% else %}
-            <span class="label label-warning">{% trans "Closed" %}</span>
-        {% endif %}
     </li>
-{% endfor %}
+    {% endfor %}
 </ul>
+
+<p>
+    {% url 'archive' as url %}
+    {% blocktrans with url=url %}
+    Old courses can be found at the <a href="{{ url }}">course archive</a>.
+    {% endblocktrans %}
+</p>
+
 {% endblock %}

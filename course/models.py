@@ -142,9 +142,6 @@ class CourseInstance(models.Model):
     def get_edit_url(self):
         return self.get_url("course-edit")
 
-    def get_breadcrumb(self):
-        return [(str(self.course), self.get_absolute_url())]
-
 
 class CourseHook(models.Model):
     """
@@ -250,6 +247,23 @@ class CourseModule(models.Model):
             point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth
 
+    def next_module(self):
+        return self.course_instance.course_modules \
+            .exclude(id=self.id).filter(order__gt=self.order).first()
+
+    def previous_module(self):
+        return self.course_instance.course_modules \
+            .exclude(id=self.id).filter(order__lt=self.order).last()
+
+    def next(self):
+        chapter = self.chapters.first()
+        return chapter or self.next_module()
+
+    def previous(self):
+        module = self.previous_module()
+        chapter = module.chapters.last() if module else None
+        return chapter or module
+
     def get_absolute_url(self):
         instance = self.course_instance
         return reverse('module', kwargs={
@@ -285,6 +299,19 @@ class CourseChapter(models.Model):
     def course_instance(self):
         return self.course_module.course_instance
 
+    def is_after_open(self, when=None):
+        return self.course_module.is_after_open(when=when)
+
+    def next(self):
+        chapter = self.course_module.chapters \
+            .exclude(id=self.id).filter(order__gt=self.order).first()
+        return chapter or self.course_module.next_module()
+
+    def previous(self):
+        chapter = self.course_module.chapters \
+            .exclude(id=self.id).filter(order__lt=self.order).last()
+        return chapter or self.course_module
+
     def get_absolute_url(self):
         module = self.course_module
         instance = module.course_instance
@@ -311,7 +338,7 @@ class LearningObjectCategory(models.Model):
         unique_together = ("name", "course_instance")
 
     def __str__(self):
-        return self.name + " / " + str(self.course_instance)
+        return self.name
 
     def is_hidden_to(self, user_profile):
         return self.hidden_to.filter(id=user_profile.id).exists()

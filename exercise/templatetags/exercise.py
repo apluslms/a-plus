@@ -1,24 +1,8 @@
 from django import template
+from django.template.loader import render_to_string
+
 
 register = template.Library()
-
-
-@register.filter
-def course_module_classes(course_module):
-    """
-    Returns the CSS classes for the course module.
-    """
-    classes = []
-    if course_module.is_open():
-        classes.append("open")
-    elif course_module.is_after_open():
-        classes.append("closed")
-        classes.append("collapsed")
-    else:
-        classes.append("upcoming")
-        classes.append("collapsed")
-
-    return " ".join(classes)
 
 
 @register.filter
@@ -52,3 +36,34 @@ def students(profiles):
             profile.student_id if profile.student_id else profile.user.username
         ) for profile in profiles
     )
+
+
+def _progress_data(points, max_points, passed=False, required=None):
+    percentage = 100
+    required_percentage = None
+    if max_points > 0:
+        percentage = int(round(100.0 * points / max_points))
+        if required:
+            required_percentage = int(round(100.0 * required / max_points))
+    return {
+        "points": points,
+        "max": max_points,
+        "percentage": percentage,
+        "passed": passed,
+        "required": required,
+        "required_percentage": required_percentage,
+    }
+
+
+@register.inclusion_tag("exercise/_points_progress.html")
+def points_progress(points, max_points, passed=False, required=None):
+    return _progress_data(points, max_points, passed, required)
+
+
+@register.inclusion_tag("exercise/_points_progress.html")
+def summary_progress(summary):
+    return _progress_data(
+        summary.get_total_points(),
+        summary.get_max_points(),
+        summary.is_passed(),
+        summary.get_required_points())

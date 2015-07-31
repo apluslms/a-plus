@@ -3,78 +3,71 @@
 {% load course %}
 {% load apps %}
 
-{% block title %}
-{{ course.name }}: {{ module }}
-{% endblock %}
-
-{% block maintitle %}
-<h1>
-	<small>{{ course }}</small>
-    <br />
-    {{ module }}
-</h1>
-{% endblock %}
+{% block title_postfix %}: {{ module }}{% endblock %}
 
 {% block coursecontent %}
-<div class="row">
-    <div class="span7">
-        <p>
-            <span class="dates">
-                {{ module.opening_time }} &ndash; {{ module.closing_time }}
-            </span>
-            {% if module.late_submissions_allowed %}
-            <br />
-            <span class="dates">
-                <em>
-                    {% blocktrans with deadline=module.late_submission_deadline percent=module.get_late_submission_point_worth %}
-                    Late submission are allowed until {{ deadline }}
-                    but points are only worth {{ percent }} %.
-                    {% endblocktrans %}
-                </em>
-            </span>
-            {% endif %}
-        </p>
-		{% if module.introduction %}
-		<p>
-			{{ module.introduction|safe }}
-		</p>
-		{% endif %}
-        {% with open=module.is_after_open %}
-        <ul class="chapters">
-            {% for chapter in module.chapters.all %}
-            {% if open %}
-            <li>
-                <a href="{{ chapter|url }}">
-                    {{ chapter }}
-                </a>
-            </li>
-            {% else %}
-            <li>{{ chapter }}</li>
-            {% endif %}
-            {% endfor %}
-        </ul>
-        {% if not module.chapters.exists %}
-        <ul class="exercises">
-            {% for exercise in module.learning_objects.all %}
-            {% if open %}
-            <li>
-                <a href="{{ exercise|url }}">
-                    {{ exercise }}
-                </a>
-            </li>
-            {% else %}
-            <li>{{ exercise }}</li>
-            {% endif %}
-            {% endfor %}
-        </ul>
+
+    {% with next=module.next previous=module.previous %}
+    {% include "course/_siblings.html" %}
+    {% endwith %}
+
+    <ol class="breadcrumb">
+        <li><a href="{{ instance|url }}">{% trans "Home" %}</a></li>
+        <li class="active">
+            {{ module }}
+        </li>
+    </ol>
+
+    <p>
+        <span class="small">
+            {{ module.opening_time }}
+            &ndash; {{ module.closing_time }}
+        </span>
+        {% if module.late_submissions_allowed %}
+        <br />
+        <span class="dates">
+            <em>
+                {% blocktrans with deadline=module.late_submission_deadline percent=module.get_late_submission_point_worth %}
+                Late submission are allowed until {{ deadline }}
+                but points are only worth {{ percent }} %.
+                {% endblocktrans %}
+            </em>
+        </span>
         {% endif %}
-        {% endwith %}
-    </div>
-    <div class="span3">
-        {% plugin_renderers user instance as plugins %}
-        {% for plugin in plugins %}
-            {{ plugin.render|safe }}
+    </p>
+
+	{% if module.introduction %}
+	<p>
+		{{ module.introduction|safe }}
+	</p>
+	{% endif %}
+
+    <ul class="chapters">
+        {% for chapter in module.chapters.all %}
+        <li>
+            <a href="{{ chapter|url }}">
+                {{ chapter }}
+            </a>
+        </li>
         {% endfor %}
-    </div>
-</div>
+    </ul>
+
+    {% if not module.chapters.exists %}
+    <ul class="exercises">
+        {% for exercise in module.learning_objects.all %}
+        <li>
+            <a href="{{ exercise|url }}">
+                {{ exercise }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endblock %}
+
+{% block sidecontent %}
+    {% plugin_renderers user instance as plugins %}
+    {% for plugin in plugins %}
+        {{ plugin.render|safe }}
+    {% endfor %}
 {% endblock %}

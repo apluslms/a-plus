@@ -189,13 +189,6 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_course_staff(self.user))
         self.assertEquals(0, len(self.current_course_instance.get_course_staff_profiles()))
 
-    def test_course_instance_breadcrumb(self):
-        breadcrumb = self.current_course_instance.get_breadcrumb()
-        self.assertEqual(1, len(breadcrumb))
-        self.assertEqual(2, len(breadcrumb[0]))
-        self.assertEqual("123456 test course", breadcrumb[0][0])
-        self.assertEqual("/Course-Url/T-00.1000_d1/", breadcrumb[0][1])
-
     def test_course_instance_students(self):
         students = self.current_course_instance.get_student_profiles()
         self.assertEquals(1, len(students))

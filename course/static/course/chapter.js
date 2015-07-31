@@ -256,4 +256,4 @@
 })(jQuery, window, document);
 
 // Construct the page chapter element.
-jQuery("#chapter").aplusChapter();
+jQuery(function() { jQuery("#chapter").aplusChapter(); });

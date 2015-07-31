@@ -3,25 +3,29 @@
 {% load i18n %}
 {% load course %}
 
+{% block title_postfix %}: {{ chapter }}{% endblock %}
+
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'exercise/poll.js' %}"></script>
 <script src="{% static 'course/chapter.js' %}"></script>
 {% endblock %}
 
-{% block title %}
-{{ course.name }}: {{ chapter }}
-{% endblock %}
+{% block columns %}
+<div class="col-md-10">
 
-{% block maintitle %}
-<h1>
-	<small>{{ course }}</small>
-    <br />
-    {{ chapter }}
-</h1>
-{% endblock %}
+{% with next=chapter.next previous=chapter.previous %}
+{% include "course/_siblings.html" %}
+{% endwith %}
 
-{% block coursecontent %}
+<ol class="breadcrumb">
+	<li><a href="{{ instance|url }}">{% trans "Home" %}</a></li>
+	<li><a href="{{ module|url }}">{{ module }}</a></li>
+	<li class="active">
+		{{ chapter }}
+	</li>
+</ol>
+
 <div id="chapter" data-chapter-url="{{ chapter|url }}">
 
 	<div id="loading-indicator" class="hide progress progress-striped active"
@@ -44,5 +48,6 @@
 
 	{{ content|safe }}
 
+</div>
 </div>
 {% endblock %}

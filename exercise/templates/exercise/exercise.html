@@ -2,14 +2,27 @@
 {% load i18n %}
 {% load staticfiles %}
 
+{% block title_postfix %}: {% trans "Exercise" %} {{ module.order }}.{{ exercise.order }}{% endblock %}
+{% block view_tag %}exercise{% endblock %}
+
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'exercise/poll.js' %}"></script>
+<script>
+// Add an Ajax exercise event listener to refresh the info column.
+window.addEventListener("message", function (event) {
+    if (event.data.type === "a-plus-refresh-stats") {
+        var $stats = $("#exercise-info"),
+            url = $stats.data("url");
+        $stats.load(url);
+    }
+});
+</script>
 {% endblock %}
 
 {% block exercisecontent %}
 
-  {{ page.content|safe }}
+{{ page.content|safe }}
 
-  {% include "exercise/_exercise_wait.html" %}
+{% include "exercise/_exercise_wait.html" %}
 {% endblock %}

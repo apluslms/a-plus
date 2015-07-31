@@ -21,15 +21,15 @@ class ProfileView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.summary = UserCourseSummary(self.instance, self.request.user)
         self.submissions = self.profile.submissions \
             .filter(exercise__course_module__course_instance=self.instance) \
             .order_by("-id")[:10]
-        self.note("summary", "submissions")
+        self.note("submissions")
 
 
 class ResultsView(CourseInstanceBaseView):
     template_name = "exercise/results.html"
+    home_view = False
 
     def get_common_objects(self):
         super().get_common_objects()
@@ -37,7 +37,8 @@ class ResultsView(CourseInstanceBaseView):
         score = ScoreBoard(self.instance, self.request.user)
         self.exercise_tree=score.collect_tree(self.summary)
         self.visible_categories=score.collect_categories(self.summary)
-        self.note("summary", "exercise_tree", "visible_categories")
+        self.note("summary", "exercise_tree", "visible_categories",
+            "home_view")
 
 
 class ExerciseInfoView(ExerciseBaseView):

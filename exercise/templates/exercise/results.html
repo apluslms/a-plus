@@ -4,195 +4,192 @@
 {% load exercise %}
 {% load apps %}
 
+{% block title_postfix %}{% if not home_view %}: {% trans "Results" %}{% endif %}{% endblock %}
+{% block view_tag %}{% if home_view %}home{% else %}results{% endif %}{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+$(function() {
+	var limit = 5;
+	var expired = $(".module-expired");
+	if (expired.size() > limit) {
+		expired.slice(0, expired.size() - limit).hide();
+		$("#toggle-expired").removeClass("hide")
+			.find("a").on("click", function(event) {
+				event.preventDefault();
+				$(".module-expired:hidden").show();
+				$(this).parent().hide();
+			});
+	}
+});
+</script>
+{% endblock %}
+
 {% block coursecontent %}
-<div class="row">
-    <div id="course-schedule-container" class="span7">
 
-        {# Settings collapse button. This needs to be here because we want it to float to the right of the header. #}
-        <a id="schedule-filters-btn" class="btn" data-toggle="collapse" data-target="#filters-collapse">
-        	{% trans "Filter Categories" %}
-        </a>
-
-        <h2>
-        	{% trans "Schedule" %}
-        </h2>
-
-        {# Settings collapse #}
-        <div id="filters-collapse" class="collapse">
-            <div class="well">
-                <form method="post" action="{{ instance|url:'filter-categories' }}?next={{ request.path }}">
-                	{% csrf_token %}
-                    <legend>{% trans "Visible categories" %}</legend>
-                    {% for id, category_summary in summary.category_summaries.items %}
-                    <label class="checkbox" for="category_filter_{{ category_summary.category.id }}">
-                    	<input id="category_filter_{{ category_summary.category.id }}" type="checkbox" name="category_filters" value="{{ category_summary.category.id }}" {% if not category_summary.is_hidden %}checked="checked"{% endif %} />
-                    	{{ category_summary.category.name }}
-                    </label>
-                    {% endfor %}
-                    <input type="submit" class="btn" value="{% trans 'Update filters' %}" />
-                </form>
-            </div>
-        </div>
-
-        <a id="toggleOldModules" class="hide" data-show-text="{% trans 'Show old assignments' %}" data-hide-text="{% trans 'Hide old assignments' %}" href="#">
-        	{% trans "Show old assignments" %}
-        </a>
-
-        <ul class="exercise_rounds">
-        	{% for course_module, module_summary, uncategorized_exercise_level, category_level in exercise_tree %}
-            <li class="exercise_round {{ course_module|course_module_classes }}">
-                {% if course_module.is_after_open or is_teacher or is_assistant %}
-                <div class="exercise-icons {% if uncategorized_exercise_level|length > 10 %}exercise-icons-tight{% endif %}">
-                	<div class="btn-group">
-                    	{% for exercise, exercise_summary in uncategorized_exercise_level %}
-                        <a class="btn {{ exercise_summary|exercise_summary_classes }}" rel="tooltip" href="{{ exercise|url }}"
-                        	data-html="true" data-placement="bottom" title="&lt;strong&gt;{{ exercise_summary.exercise.name }}&lt;/strong&gt;&lt;br /&gt; {{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}">
-                            {{ exercise_summary.exercise.order }}
-                        </a>
-                    	{% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-                <a class="collapse_toggle" href="#">
-                    <h3>
-                        <i class="icon-chevron-right"></i>
-                        <i class="icon-chevron-down"></i>
-                        {{ course_module.name }}
-                        <small class="nowrap">
-                            {{ module_summary.get_total_points }} / {{ module_summary.get_max_points }} {% trans "points" %}
-                            {% if course_module.points_to_pass > 0 %}
-                            ({% trans "required to pass" %}: {{ course_module.points_to_pass }})
-                            {% endif %}
-                        </small>
-                    </h3>
-                </a>
-                <p>
-                    <span class="dates">
-                    	{{ course_module.opening_time }} &ndash; {{ course_module.closing_time }}
-                    </span>
-                    {% if course_module.late_submissions_allowed %}
-                    <br />
-                    <span class="dates">
-                    	<em>
-                    	{% blocktrans with deadline=course_module.late_submission_deadline percent=course_module.get_late_submission_point_worth %}
-                    	Late submission are allowed until {{ deadline }}
-                    	but points are only worth {{ percent }} %.
-                    	{% endblocktrans %}
-                    	</em>
-                    </span>
-                    {% endif %}
-                </p>
-                <div class="table-container">
-                	<div class="progress{% if module_summary.is_passed %} progress-success{% else %} progress-danger{% endif %} progress-striped" style="position:relative">
-		                <div class="bar" rel="tooltip" style="width:{{ module_summary.get_completed_percentage }}%;"
-		                     data-placement="below" title="{% trans 'Your points' %}: {{ module_summary.get_total_points }}">
-		                </div>
-		                {% if course_module.points_to_pass > 0 %}
-		                <a class="score-barrier required-score" rel="tooltip" style="left:{{ module_summary.get_required_percentage }}%" href="#"
-		                   data-placement="bottom" title="{% trans 'Points required to pass' %}: {{ course_module.points_to_pass }}">
-		                </a>
-		                {% endif %}
-	                </div>
-	                <div class="exercise_round_introduction">
-	                	{{ course_module.introduction|safe }}
-	                </div>
-                    <table class="table table-bordered table-condensed exercise-table">
-                        <tbody>
-                        	{% for category, category_summary, categorized_exercise_level in category_level %}
-                            <tr class="category-row">
-                                <td>
-                                	{{ category.name }}
-                                </td>
-                                <td style="max-width:80px;">
-                                	{% if forloop.first %}{% trans "Points" %}{% endif %}
-                                </td>
-                                {% if is_course_staff %}
-                                <td>
-                                	{% trans "Staff" %}
-                                </td>
-                                {% endif %}
-                            </tr>
-                            {% for exercise, exercise_summary in categorized_exercise_level %}
-							<tr>
-                                <td>
-                                	{% if course_module.is_after_open or is_course_staff %}
-                                    <a href="{{ exercise|url }}">
-                                    	{{ exercise.order }}. {{ exercise.name }}
-                                    </a>
-                                	{% else %}
-                                    {{ exercise.order }}. {{ exercise.name }}
-                                	{% endif %}
-                                </td>
-                                <td style="text-align:right">
-                                	{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}
-                                </td>
-                                {% if is_course_staff %}
-                                <td>
-                                	<a class="staff" href="{{ exercise|url:'submission-list' }}">
-                                		{% trans "View submissions" %}
-                                	</a>
-                                </td>
-                                {% endif %}
-                            </tr>
-                            {% endfor %}
-                        	{% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="span3">
-
-        {# Disabled total points score-box for now. #}
-        {% if False %}
-        <div class="well my-score-box">
-            <h4>
-            	{% trans "Total points:" %}
-            </h4>
-            <h2>
-            	{{ summary.get_total_points }}
-            	<small>/ {{ summary.get_max_points }}</small>
-            </h2>
-            <div class="progress {% if summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped" style="position:relative">
-                <div class="bar" rel="tooltip" style="width:{{ summary.get_completed_percentage }}%;"
-                     data-placement="below" title="{% trans 'Your points' %}: {{ summary.get_total_points }}">
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {# Score-boxes for each category #}
-        {% if visible_categories|length > 0 %}
-        <div class="well my-score-box">
-            {% for category_summary in visible_categories %}
-            <h4>
+{% if summary.category_summaries|length > 1 %}
+TODO: fix category filtering without storing to database
+<a id="schedule-filters-btn" class="btn" data-toggle="collapse" data-target="#filters-collapse">
+	{% trans "Filter Categories" %}
+</a>
+<div id="filters-collapse" class="collapse">
+    <div class="well">
+        <form method="post" action="{{ instance|url:'filter-categories' }}?next={{ request.path }}">
+        	{% csrf_token %}
+            <legend>{% trans "Visible categories" %}</legend>
+            {% for id, category_summary in summary.category_summaries.items %}
+            <label class="checkbox" for="category_filter_{{ category_summary.category.id }}">
+            	<input id="category_filter_{{ category_summary.category.id }}" type="checkbox" name="category_filters" value="{{ category_summary.category.id }}" {% if not category_summary.is_hidden %}checked="checked"{% endif %} />
             	{{ category_summary.category.name }}
-            </h4>
-            <h2>
-            	{{ category_summary.get_total_points }}
-            	<small>/ {{ category_summary.get_max_points }}</small>
-            </h2>
-            <div class="progress {% if category_summary.is_passed %}progress-success{% else %}progress-info{% endif %} progress-striped" style="position:relative">
-                <div class="bar" rel="tooltip" style="width:{{ category_summary.get_completed_percentage }}%;"
-                	data-placement="below" title="{% trans 'Your points' %}: {{ category_summary.get_total_points }}">
-                </div>
-                {% if category_summary.category.points_to_pass > 0 %}
-                <a class="score-barrier required-score" rel="tooltip" style="left:{{ category_summary.get_required_percentage }}%" href="#"
-                       data-placement="bottom" title="{% trans 'Points required to pass' %}: {{ category_summary.category.points_to_pass }}">
-                </a>
-                {% endif %}
-            </div>
+            </label>
             {% endfor %}
-        </div>
-        {% endif %}
-
-        {% plugin_renderers user instance as plugins %}
-        {% for plugin in plugins %}
-            {{ plugin.render|safe }}
-        {% endfor %}
-
+            <input type="submit" class="btn" value="{% trans 'Update filters' %}" />
+        </form>
     </div>
 </div>
+{% endif %}
+
+<p id="toggle-expired" class="hide"><a href="#">{% trans "Show older assignments." %}</a></p>
+
+{% for course_module, module_summary, uncategorized_exercise_level, category_level in exercise_tree %}
+{% with open=course_module.is_open after_open=course_module.is_after_open %}
+<div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
+    <a class="panel-heading{% if not open %} collapsed{% endif %}"
+        role="button" href="#module{{ course_module.id }}" data-toggle="collapse"
+        aria-expanded="true" aria-controls="#module{{ course_module.id }}">
+        <h3 class="panel-title">
+            <span class="badge pull-right">
+                {{ module_summary.get_total_points }} / {{ module_summary.get_max_points }}
+                {% if course_module.points_to_pass > 0 %} ;
+                {% blocktrans with points=course_module.points_to_pass %}
+                {{ points }} to pass
+                {% endblocktrans %}
+                {% endif %}
+            </span>
+			{% if not open and not after_open %}
+			<span class="badge pull-right">
+				{% trans "Opens" %} {{ course_module.opening_time }}
+			</span>
+			{% endif %}
+            <span class="caret"></span>
+            {{ course_module }}
+        </h3>
+    </a>
+    <div class="panel-body collapse{% if open %} in{% endif %}" id="module{{ course_module.id }}">
+        {% if after_open %}
+        <div class="exercise-icons {% if uncategorized_exercise_level|length > 10 %}exercise-icons-tight{% endif %}">
+        	<div class="btn-group pull-right">
+            	{% for exercise, exercise_summary in uncategorized_exercise_level %}
+                <a class="btn btn-xs {{ exercise_summary|exercise_summary_classes }}" href="{{ exercise|url }}"
+                	data-toggle="tooltip" data-html="true" data-placement="bottom"
+                    title="{{ exercise_summary.exercise.name }} &lt;span class='text-nowrap'&gt;{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}&lt;/span&gt;">
+                    {{ exercise_summary.exercise.order }}
+                </a>
+            	{% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        <p>
+        	{{ course_module.opening_time }} &ndash; {{ course_module.closing_time }}
+            {% if course_module.late_submissions_allowed %}
+            <br />
+        	<em>
+            	{% blocktrans with deadline=course_module.late_submission_deadline percent=course_module.get_late_submission_point_worth %}
+            	Late submission are allowed until {{ deadline }}
+            	but points are only worth {{ percent }} %.
+            	{% endblocktrans %}
+        	</em>
+            {% endif %}
+        </p>
+        {% summary_progress module_summary %}
+
+    	{{ course_module.introduction|safe }}
+
+        <table class="table table-bordered table-condensed">
+            <tbody>
+            	{% for category, category_summary, categorized_exercise_level in category_level %}
+                <tr class="category-row">
+                    <td>
+                    	{{ category.name }}
+                    </td>
+                    {% if is_course_staff %}
+                    <td></td>
+                    {% endif %}
+                    <td>
+                    	{% trans "Points" %}
+                    </td>
+                </tr>
+                {% for exercise, exercise_summary in categorized_exercise_level %}
+				<tr>
+                    <td>
+                    	{% if after_open %}
+                        <a href="{{ exercise|url }}">
+                        	{{ exercise.order }}. {{ exercise.name }}
+                        </a>
+                    	{% else %}
+                        {{ exercise.order }}. {{ exercise.name }}
+                    	{% endif %}
+                    </td>
+                    {% if is_course_staff %}
+                    <td>
+                        {% if not after_open %}
+                        <a class="btn btn-default btn-xs" href="{{ exercise|url }}">
+                            {% trans "Staff access" %}
+                        </a>
+                        {% endif %}
+                    	<a class="btn btn-default btn-xs" href="{{ exercise|url:'submission-list' }}">
+                    		{% trans "View submissions" %}
+                    	</a>
+                    </td>
+                    {% endif %}
+                    <td class="text-right">
+                    	{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}
+                    </td>
+                </tr>
+                {% endfor %}
+            	{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endwith %}
+{% endfor %}
+{% endblock %}
+
+{% block sidecontent %}
+
+{# Disabled total points score-box for now. #}
+{% if instance.categories|length > 1 %}
+<div class="well">
+    <p>{% trans "Total points:" %}</p>
+    <p><strong class="h2">
+    	{{ summary.get_total_points }}
+    	<small>/ {{ summary.get_max_points }}</small>
+    </strong></p>
+    {% summary_progress summary %}
+</div>
+{% endif %}
+
+{# Score-boxes for each category #}
+{% if visible_categories|length > 0 %}
+<div class="well">
+    {% for category_summary in visible_categories %}
+    <p>
+    	{{ category_summary.category.name }}
+    </p>
+    <p><strong class="h2">
+    	{{ category_summary.get_total_points }}
+    	<small>/ {{ category_summary.get_max_points }}</small>
+    </strong></p>
+    {% summary_progress category_summary %}
+    {% endfor %}
+</div>
+{% endif %}
+
+{% plugin_renderers user instance as plugins %}
+{% for plugin in plugins %}
+    {{ plugin.render|safe }}
+{% endfor %}
+
 {% endblock %}
