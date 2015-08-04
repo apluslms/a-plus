@@ -4,7 +4,7 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title_postfix %}{% if not home_view %}: {% trans "Results" %}{% endif %}{% endblock %}
+{% block title %}{{ block.super }}{% if not home_view %}: {% trans "Results" %}{% endif %}{% endblock %}
 {% block view_tag %}{% if home_view %}home{% else %}results{% endif %}{% endblock %}
 
 {% block scripts %}
@@ -29,7 +29,7 @@ $(function() {
 {% block coursecontent %}
 
 {% if summary.category_summaries|length > 1 %}
-TODO: fix category filtering without storing to database
+{# TODO: fix category filtering without storing to database #}
 <a id="schedule-filters-btn" class="btn" data-toggle="collapse" data-target="#filters-collapse">
 	{% trans "Filter Categories" %}
 </a>
@@ -76,14 +76,15 @@ TODO: fix category filtering without storing to database
             {{ course_module }}
         </h3>
     </a>
-    <div class="panel-body collapse{% if open %} in{% endif %}" id="module{{ course_module.id }}">
+    <div class="collapse{% if open %} in{% endif %}" id="module{{ course_module.id }}">
+		<div class="panel-body">
         {% if after_open %}
         <div class="exercise-icons {% if uncategorized_exercise_level|length > 10 %}exercise-icons-tight{% endif %}">
         	<div class="btn-group pull-right">
             	{% for exercise, exercise_summary in uncategorized_exercise_level %}
                 <a class="btn btn-xs {{ exercise_summary|exercise_summary_classes }}" href="{{ exercise|url }}"
                 	data-toggle="tooltip" data-html="true" data-placement="bottom"
-                    title="{{ exercise_summary.exercise.name }} &lt;span class='text-nowrap'&gt;{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}&lt;/span&gt;">
+                    title="{{ exercise_summary.exercise }} &lt;span class='text-nowrap'&gt;{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}&lt;/span&gt;">
                     {{ exercise_summary.exercise.order }}
                 </a>
             	{% endfor %}
@@ -103,9 +104,8 @@ TODO: fix category filtering without storing to database
             {% endif %}
         </p>
         {% summary_progress module_summary %}
-
     	{{ course_module.introduction|safe }}
-
+		</div>
         <table class="table table-bordered table-condensed">
             <tbody>
             	{% for category, category_summary, categorized_exercise_level in category_level %}
@@ -125,10 +125,10 @@ TODO: fix category filtering without storing to database
                     <td>
                     	{% if after_open %}
                         <a href="{{ exercise|url }}">
-                        	{{ exercise.order }}. {{ exercise.name }}
+                        	{{ exercise }}
                         </a>
                     	{% else %}
-                        {{ exercise.order }}. {{ exercise.name }}
+                        {{ exercise }}
                     	{% endif %}
                     </td>
                     {% if is_course_staff %}
@@ -159,10 +159,9 @@ TODO: fix category filtering without storing to database
 
 {% block sidecontent %}
 
-{# Disabled total points score-box for now. #}
 {% if instance.categories|length > 1 %}
 <div class="well">
-    <p>{% trans "Total points:" %}</p>
+    <p>{% trans "Total points" %}</p>
     <p><strong class="h2">
     	{{ summary.get_total_points }}
     	<small>/ {{ summary.get_max_points }}</small>
@@ -171,21 +170,16 @@ TODO: fix category filtering without storing to database
 </div>
 {% endif %}
 
-{# Score-boxes for each category #}
-{% if visible_categories|length > 0 %}
+{% for category_summary in visible_categories %}
 <div class="well">
-    {% for category_summary in visible_categories %}
-    <p>
-    	{{ category_summary.category.name }}
-    </p>
+    <p>{{ category_summary.category.name }}</p>
     <p><strong class="h2">
     	{{ category_summary.get_total_points }}
     	<small>/ {{ category_summary.get_max_points }}</small>
     </strong></p>
     {% summary_progress category_summary %}
-    {% endfor %}
 </div>
-{% endif %}
+{% endfor %}
 
 {% plugin_renderers user instance as plugins %}
 {% for plugin in plugins %}

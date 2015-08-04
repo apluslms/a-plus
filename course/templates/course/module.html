@@ -3,7 +3,7 @@
 {% load course %}
 {% load apps %}
 
-{% block title_postfix %}: {{ module }}{% endblock %}
+{% block title %}{{ block.super }}: {{ module }}{% endblock %}
 
 {% block coursecontent %}
 

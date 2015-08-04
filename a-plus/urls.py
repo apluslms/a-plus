@@ -17,8 +17,8 @@ urlpatterns = [
     url(r'^', include(redirect_old_urls.urls)),
     url(r'^', include(apps.urls)),
     url(r'^', include(external_services.urls)),
-    url(r'^', include(edit_course.urls)),
     url(r'^', include(deviations.urls)),
+    url(r'^', include(edit_course.urls)),
     url(r'^', include(exercise.urls)),
     url(r'^', include(course.urls)),
 ]

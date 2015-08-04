@@ -1,43 +1,57 @@
-{% extends "course/course_base.html" %}
+{% extends "edit_course/edit_course_base.html" %}
 {% load i18n %}
 {% load course %}
 
-{% block content %}
-<h2>
+{% block title %}{{ block.super }} / {% blocktrans with model=model_name id=object.id %}Remove {{ model }} ID {{ id }}{% endblocktrans %}{% endblock %}
+
+{% block breadcrumb %}
+{{ block.super }}
+<li class="active">
 	{% blocktrans with model=model_name %}
-	Confirm {{ model }} removal
+	Remove {{ model }}
 	{% endblocktrans %}
-</h2>
-<div class="alert alert-danger">
-	{% if empty %}
-		{% blocktrans with model=model_name name=object %}
-	    You are removing {{ model }} <strong>{{ name }}</strong>.
-		Are you sure?
-		{% endblocktrans %}
+</li>
+{% endblock %}
 
-		{% if model == "exercise" %}
-		<h3>
-			{% blocktrans %}
-		    If you remove this exercise, all the submissions
-			to the exercise will also be removed.
-			{% endblocktrans %}
-		</h3>
-		{% endif %}
-	{% else %}
-		{% blocktrans with model=model_name name=object %}
-		The {{ model }} <strong>{{ name }}</strong> is not empty.
-		Contained exercises must be removed first.
-		{% endblocktrans %}
-	{% endif %}
-</div>
-
-<form method="post">
+{% block coursecontent %}
+<form method="post" class="well form">
     {% csrf_token %}
-	{% if empty %}
-    <input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
-	{% endif %}
-    <a class="btn btn-primary" href="{{ instance|url:'course-edit' }}">
-    	{% trans "Cancel" %}
-    </a>
+	<legend>
+		{% blocktrans with model=model_name %}
+		Confirm {{ model }} removal
+		{% endblocktrans %}
+	</legend>
+
+	<div class="alert alert-danger">
+		{% if empty %}
+			{% blocktrans with model=model_name name=object %}
+		    You are removing {{ model }} <strong>{{ name }}</strong>.
+			Are you sure?
+			{% endblocktrans %}
+
+			{% if model == "exercise" %}
+			<p>
+				{% blocktrans %}
+			    If you remove this exercise, <strong>all the submissions
+				to the exercise will also be removed</strong>.
+				{% endblocktrans %}
+			</p>
+			{% endif %}
+		{% else %}
+			{% blocktrans with model=model_name name=object %}
+			The {{ model }} <strong>{{ name }}</strong> is not empty.
+			Contained exercises must be removed first.
+			{% endblocktrans %}
+		{% endif %}
+	</div>
+
+	<div class="form-group">
+		{% if empty %}
+	    <input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
+		{% endif %}
+	    <a class="btn btn-default" href="{{ instance|url:'course-edit' }}">
+	    	{% trans "Cancel" %}
+	    </a>
+	</form>
 </form>
 {% endblock %}

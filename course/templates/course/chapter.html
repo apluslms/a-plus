@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title_postfix %}: {{ chapter }}{% endblock %}
+{% block title %}{{ block.super }}: {{ chapter }}{% endblock %}
 
 {% block scripts %}
 {{ block.super }}
@@ -28,19 +28,21 @@
 
 <div id="chapter" data-chapter-url="{{ chapter|url }}">
 
-	<div id="loading-indicator" class="hide progress progress-striped active"
+	<div id="loading-indicator" class="hide progress"
 		data-msg-load="{% trans 'Loading exercise...' %}"
 		data-msg-submit="{% trans 'Posting submission...' %}"
 		data-msg-error="{% trans 'Communication error with the exercise.' %}">
-		<div class="bar" style="width:100%;"></div>
+		<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;"></div>
 	</div>
 
-	<div id="embed-modal" class="modal hide">
+	<div id="embed-modal" class="modal" role="dialog">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-body"></div>
 				<div class="modal-footer">
-					<button type="button" class="btn" data-dismiss="modal">{% trans "Close" %}</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						{% trans "Close" %}
+					</button>
 				</div>
 			</div>
 		</div>

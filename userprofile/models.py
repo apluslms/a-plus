@@ -12,17 +12,17 @@ class UserProfile(models.Model):
     def get_by(cls, **fields):
         # Regular related fields are populated with select_related.
         return cls.objects.select_related('hidden_categories').get(**fields)
-    
+
     @classmethod
     def get_by_student_id(cls, student_id):
         return UserProfile.get_by(student_id=student_id)
-    
+
     @classmethod
     def get_by_request(cls, request):
         if request.user.is_authenticated():
             return UserProfile.get_by(user=request.user)
         raise RuntimeError("Seeking user profile without authenticated user.")
-    
+
     user = models.OneToOneField(User)
     lang = models.CharField(max_length=5, default="en_US")
     student_id = models.CharField(max_length=25, null=True, blank=True)
@@ -31,7 +31,7 @@ class UserProfile(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return self.user.username
+        return "{} ({})".format(self.student_id, self.user.username)
 
     @property
     def avatar_url(self):
@@ -41,7 +41,7 @@ class UserProfile(models.Model):
         import hashlib
         hash_key = hashlib.md5(self.user.email.encode('utf-8')).hexdigest()
         return "http://www.gravatar.com/avatar/" + hash_key + "?d=identicon"
-    
+
     @property
     def shortname(self):
         """
@@ -73,7 +73,7 @@ class StudentGroup(models.Model):
     """
     Students may form a group that can make a submission together.
     """
-    
+
     members = models.ManyToManyField(UserProfile, related_name="groups")
     name = models.CharField(max_length=32, unique=True)
     description = models.CharField(max_length=256)

@@ -2,8 +2,14 @@
 {% load i18n %}
 {% load staticfiles %}
 
-{% block title_postfix %}: {% trans "Exercise" %} {{ module.order }}.{{ exercise.order }}{% endblock %}
 {% block view_tag %}exercise{% endblock %}
+
+{% block exercisecontent %}
+
+{{ page.content|safe }}
+
+{% include "exercise/_exercise_wait.html" %}
+{% endblock %}
 
 {% block scripts %}
 {{ block.super }}
@@ -18,11 +24,4 @@ window.addEventListener("message", function (event) {
     }
 });
 </script>
-{% endblock %}
-
-{% block exercisecontent %}
-
-{{ page.content|safe }}
-
-{% include "exercise/_exercise_wait.html" %}
 {% endblock %}

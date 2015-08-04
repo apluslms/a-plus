@@ -1,53 +1,42 @@
 {% load i18n %}
 {% load exercise %}
 
-<h3>{% trans "Exercise info" %}</h3>
-<dl>
-    <!--<dt>{% trans "Deadline" %}</dt>
-    <dd>{{ exercise.course_module.closing_time }}</dd>
-
-    <dt>{% trans "Maximum points" %}</dt>
-    <dd>{{ exercise.max_points }}</dd>
-
-    <dt>{% trans "Points to pass" %}</dt>
-    <dd>{{ exercise.points_to_pass }}</dd>-->
-
-    <dt>{% trans "Submissions" %}</dt>
-    <dd>
-    	{{ summary.get_submission_count }}
-    	{% if exercise.max_submissions %}
-    	/ {{ exercise|max_submissions:profile }}
-    	{% endif %}
-    </dd>
-
-    <!--<dt>{% trans "Maximum group size" %}</dt>
-    <dd>{{ exercise.max_group_size }}</dd>-->
-</dl>
-
-<div class="well my-score-box">
-    <h2>{{ summary.get_points }} <small>/ {{ exercise.max_points }}</small></h2>
-    <div class="progress {% if summary.is_passed %}progress-success{% else %}progress-danger{% endif %} progress-striped" style="position:relative">
-        <div class="bar" rel="tooltip" style="width:{{ summary.get_completed_percentage }}%;"
-        	data-placement="below" title="{% trans 'Your points' %}: {{ summary.get_points }}">
-        </div>
-
-        <a class="score-barrier required-score" rel="tooltip" style="left:{{ exercise.get_percentage_to_pass }}%" href="#"
-			data-placement="bottom" title="{% trans 'Points required to pass' %}: {{ exercise.points_to_pass }}">
-		</a>
-
-		{% comment "Disabled: If average is required implement more efficient query for it." %}
-        <a class="score-barrier course-average" rel="tooltip" style="left:{{ exercise.todo }}%" href="#"
-			data-placement="bottom" title="{% trans 'Course average' %}: {{ exercise.todo|floatformat:2 }}"></a>
-		{% endcomment %}
-    </div>
+<div class="well">
+    <p>{% trans "Earned points" %}</p>
+    <p><strong class="h2">
+    	{{ summary.get_points }}
+    	<small>/ {{ exercise.max_points }}</small>
+    </strong></p>
+    {% summary_progress summary %}
 </div>
 
-<dl>
-    <dt>{% trans "Total number of submitters" %}</dt>
-    <dd>{{ exercise.get_total_submitter_count }}</dd>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4 class="panel-title">{% trans "Exercise info" %}</h4>
+    </div>
+    <div class="panel-body">
+        <dl>
+            <dt>{% trans "Your submissions" %}</dt>
+            <dd>
+            	{{ summary.get_submission_count }}
+            	{% if exercise.max_submissions %}
+            	/ {{ exercise|max_submissions:profile }}
+            	{% endif %}
+            </dd>
 
-	{% comment "Disabled: If average is required implement more efficient query for it." %}
-    <dt>{% trans "Average submissions per student" %}</dt>
-    <dd>{{ exercise.todo|floatformat:2 }}</dd>
-    {% endcomment %}
-</dl>
+            <dt>{% trans "Deadline" %}</dt>
+            <dd>{{ exercise.course_module.closing_time }}</dd>
+
+            <!--<dt>{% trans "Maximum group size" %}</dt>
+            <dd>{{ exercise.max_group_size }}</dd>-->
+
+            <dt>{% trans "Total number of submitters" %}</dt>
+            <dd>{{ exercise.get_total_submitter_count }}</dd>
+
+            {% comment "Disabled: If average is required implement more efficient query for it." %}
+            <dt>{% trans "Average submissions per student" %}</dt>
+            <dd>{{ exercise.todo|floatformat:2 }}</dd>
+            {% endcomment %}
+        </dl>
+    </div>
+</div>

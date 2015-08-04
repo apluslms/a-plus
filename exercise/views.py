@@ -122,7 +122,7 @@ class SubmissionView(SubmissionBaseView):
         else:
             profile = self.submission.submitters.first()
         self.submissions = self.exercise.get_submissions_for_student(profile)
-        self.index = 1 + list(self.submissions).index(self.submission)
+        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
         self.summary = UserExerciseSummary(self.exercise, profile.user)
         self.note("submissions", "index", "summary")
 

@@ -1,0 +1,20 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ block.super}}: {% trans "Edit course" %}{% endblock %}
+{% block view_tag %}edit-course{% endblock %}
+
+{% block columns %}
+<div class="col-md-10">
+    <ol class="breadcrumb">
+        {% block breadcrumb %}
+        <li><a href="{{ instance|url }}">{% trans "Home" %}</a></li>
+        <li><a href="{{ instance|url:'course-edit' }}">{% trans "Edit course" %}</a></li>
+        {% endblock %}
+    </ol>
+
+    {% block coursecontent %}{% endblock %}
+
+</div>
+{% endblock %}

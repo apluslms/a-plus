@@ -28,7 +28,7 @@ class ExternalServicesTest(TestCase):
         self.lti_service = LTIService.objects.create(
             url="http://www.lti-service.com",
             menu_label="LTI Service",
-            menu_icon_class="icon-star",
+            menu_icon_class="star",
             consumer_key="123456789",
             consumer_secret="987654321"
         )
@@ -56,7 +56,7 @@ class ExternalServicesTest(TestCase):
             course_instance=self.course_instance,
             access=MenuItem.ACCESS_STUDENT,
             menu_label="Overriden Label",
-            menu_icon_class="icon-star"
+            menu_icon_class="star"
         )
 
         self.menu_item2 = MenuItem.objects.create(
@@ -98,11 +98,11 @@ class ExternalServicesTest(TestCase):
         self.assertEqual("LTI Service", self.menu_item5.label)
 
     def test_menuitem_icon_class(self):
-        self.assertEqual("icon-star", self.menu_item1.icon_class)
-        self.assertEqual("icon-globe", self.menu_item2.icon_class)
-        self.assertEqual("icon-globe", self.menu_item3.icon_class)
-        self.assertEqual("icon-globe", self.menu_item4.icon_class)
-        self.assertEqual("icon-star", self.menu_item5.icon_class)
+        self.assertEqual("star", self.menu_item1.icon_class)
+        self.assertEqual("globe", self.menu_item2.icon_class)
+        self.assertEqual("globe", self.menu_item3.icon_class)
+        self.assertEqual("globe", self.menu_item4.icon_class)
+        self.assertEqual("star", self.menu_item5.icon_class)
 
     def test_menuitem_url(self):
         self.assertEqual("http://www.external-service.com", self.menu_item1.url)

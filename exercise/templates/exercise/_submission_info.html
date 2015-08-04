@@ -2,73 +2,39 @@
 {% load course %}
 {% load exercise %}
 
-<h3>{% trans "Submission info" %}</h3>
-<dl>
-	{% comment %}
-	Disabled as unnecessary glutter.
-    <dt>
-        {% trans "Exercise" %}
-    </dt>
-    <dd>
-        <a href="{{ exercise|url }}">{{ exercise.name }}</a>
-    </dd>
-    {% endcomment %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4 class="panel-title">{% trans "Submission info" %}</h4>
+    </div>
+    <div class="panel-body">
+        <dl>
+            <dt>{% trans "Submitted on" %}</dt>
+            <dd>{{ submission.submission_time }}</dd>
 
-    <dt>
-        {% trans "Status" %}
-    </dt>
-    <dd>
-        <span class="label{% if submission.is_graded %} success{% endif %}">
-            {{ submission.status }}
-        </span>
-    </dd>
+            <dt>{% trans "Status" %}</dt>
+            <dd>
+                <span class="label label-{% if submission.is_graded %}success{% else %}default{% endif %}">
+                    {{ submission.status }}
+                </span>
+            </dd>
 
-    <dt>
-        {% trans "Submitted on" %}
-    </dt>
-    <dd>
-        {{ submission.submission_time }}
-    </dd>
+            <dt>{% trans "Grade" %}</dt>
+            <dd>
+                {{ submission.grade }} / {{ exercise.max_points }}
+                {% if is_course_staff and exercise.max_points != submission.service_max_points %}
+                <br />({% trans "nonscaled" %} {{ submission.service_points }} / {{ submission.service_max_points }})
+                {% endif %}
+            </dd>
 
-    <dt>
-        {% trans "Grade" %}
-    </dt>
-    <dd>
-        {{ submission.grade }} / {{ exercise.max_points }}
-    </dd>
+            {% if submission.late_penalty_applied %}
+            <dt>{% trans "Includes late penalty" %}</dt>
+            <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
+            {% endif %}
 
-	{% if submission.late_penalty_applied %}
-    <dt>{% trans "Includes late penalty" %}</dt>
-    <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
-    {% endif %}
-
-    {% if exercise.max_points != submission.service_max_points %}
-    <dt>
-        {% trans "Non-scaled grading" %}
-    </dt>
-    <dd>
-        {{ submission.service_points }} / {{ submission.service_max_points }}
-    </dd>
-    {% endif %}
-
-    {% comment %}
-    TODO: enable with group functionality
-    <dt>
-        {% trans "Submitters" %}
-    </dt>
-    <dd>
-    	{{ submission.submitters.all|students }}
-    </dd>
-    {% endcomment %}
-
-    {% if is_teacher or is_assistant %}
-    <dt>
-        {% trans "Staff" %}
-    </dt>
-    <dd>
-        <a href="{{ submission|url:'submission-inspect' }}">
-            {% trans "Inspect" %}
-        </a>
-    </dd>
-    {% endif %}
-</dl>
+            <dt>
+                {% trans "Submitters" %}
+            </dt>
+            <dd>{{ submission.submitters.all|students }}</dd>
+        </dl>
+    </div>
+</div>

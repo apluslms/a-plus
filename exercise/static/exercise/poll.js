@@ -9,7 +9,7 @@
 	var defaults = {
     poll_url_attr: "data-poll-url",
 		poll_delays: [2,3,5,5,5,10,10,10,10],
-		message_selector: ".bar",
+		message_selector: ".progress-bar",
 		message_attr: {
 			error: "data-msg-error",
 			timeout: "data-msg-timeout"
@@ -76,7 +76,7 @@
 			this.element.removeClass("active").find(this.settings.message_selector)
 				.text(this.element.attr(this.settings.message_attr[messageType]));
 			if (messageType == "error") {
-				this.element.addClass("progress-danger");
+				this.element.addClass("progress-bar-danger");
 			}
 		},
 

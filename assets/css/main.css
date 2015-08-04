@@ -1,5 +1,5 @@
 /* common */
-.glyphicon {
+.glyphicon, .label {
     margin: 0 0.5em;
 }
 dl > dt {
@@ -7,6 +7,10 @@ dl > dt {
 }
 .pull-right {
     margin-left: 0.5em;
+}
+.nav-tabs .navbar-btn {
+    margin-top: 10px;
+    margin-bottom: 0;
 }
 
 /* site footer */
@@ -66,6 +70,9 @@ html, body {
     border-left: 4px dashed;
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;
+}
+.module-panel table {
+    margin: 0;
 }
 
 /* point progress bars */

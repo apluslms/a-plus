@@ -12,7 +12,7 @@ from .models import DeadlineRuleDeviation
 
 class ListDeadlinesView(CourseInstanceBaseView):
     access_mode = ACCESS.TEACHER
-    template_name = "deviations/teacher/list_dl.html"
+    template_name = "deviations/list_dl.html"
 
     def get_common_objects(self):
         super().get_common_objects()
@@ -23,7 +23,7 @@ class ListDeadlinesView(CourseInstanceBaseView):
 
 class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
-    template_name = "deviations/teacher/add_dl.html"
+    template_name = "deviations/add_dl.html"
     form_class = DeadlineRuleDeviationForm
 
     def get_form_kwargs(self):

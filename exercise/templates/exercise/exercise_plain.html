@@ -4,7 +4,7 @@
 {% load exercise %}
 <html>
 	<head>
-		<title>{{ exercise.name }}</title>
+		<title>{{ exercise }}</title>
 		<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
 		<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
 		<script type="text/javascript" src="{% static 'exercise/poll.js' %}"></script>
@@ -58,7 +58,7 @@
 				{% endif %}
 			</ul>
 			<div class="exercise-response">
-				{% include "widgets/messages.html" %}
+				{% include "_messages.html" %}
 
 				{{ page.content|safe }}
 

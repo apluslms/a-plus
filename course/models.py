@@ -256,13 +256,17 @@ class CourseModule(models.Model):
             .exclude(id=self.id).filter(order__lt=self.order).last()
 
     def next(self):
-        chapter = self.chapters.first()
-        return chapter or self.next_module()
+        child = self.chapters.first()
+        child = child or self.learning_objects.first()
+        return child or self.next_module()
 
     def previous(self):
-        module = self.previous_module()
-        chapter = module.chapters.last() if module else None
-        return chapter or module
+        last_module = self.previous_module()
+        if last_module:
+            last = last_module.chapters.last()
+            last = last or last_module.learning_objects.last()
+            return last or last_module
+        return None
 
     def get_absolute_url(self):
         instance = self.course_instance

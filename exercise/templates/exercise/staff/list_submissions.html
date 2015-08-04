@@ -1,38 +1,32 @@
-{% extends "course/course_base.html" %}
+{% extends "exercise/exercise_base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 {% load course %}
 
-{% block coursecontent %}
+{% block title %}{{ block.super }} / {% trans "All submissions" %}{% endblock %}
+{% block view_tag %}all-submissions{% endblock %}
 
-<div class="row">
-    <div class="span10">
-        <ul class="breadcrumb">
-            <li>
-                <a href="{{ instance|url }}">
-                	{{ course.name }}
-                </a>
-                <span class="divider">/</span>
-            </li>
-            <li class="active">
-                {{ exercise.name }}
-            </li>
-        </ul>
-    </div>
-</div>
-
-<div class="row">
-    <div class="span10">
-        <h2>{{ exercise.name }} <small>{{ submissions.count }} {% trans "submissions" %}</small></h2>
-        {% include 'exercise/staff/_submissions_table.html' %}
-    </div>
+{% block columns %}
+<div class="col-md-10">
+    <ol class="breadcrumb">
+        <li><a href="{{ instance|url }}">{{ course.name }}</a></li>
+        <li><a href="{{ exercise|url }}">{{ exercise }}</a></li>
+        <li class="active">{% trans "All submissions" %}</li>
+    </ol>
+    <p>
+        {% blocktrans with count=submissions.count %}
+        {{ count }} submissions
+        {% endblocktrans %}
+    </p>
+    {% include 'exercise/staff/_submissions_table.html' %}
 </div>
 {% endblock %}
 
 {% block scripts %}
-            <script type="text/javascript" src="{{ STATIC_URL }}js/picnet.table.filter.min.js"></script>
-            <script type="text/javascript">
-                $(document).ready(function() {
-                    $('#submission-table').tableFilter();
-                });
-            </script>
+<script type="text/javascript" src="{% static 'js/picnet.table.filter.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#submission-table').tableFilter();
+    });
+</script>
 {% endblock %}

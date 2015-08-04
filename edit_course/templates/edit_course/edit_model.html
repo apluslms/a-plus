@@ -1,20 +1,27 @@
-{% extends "course/course_base.html" %}
+{% extends "edit_course/edit_course_base.html" %}
 {% load i18n %}
 {% load course %}
+{% load bootstrap %}
 
-{% block coursecontent %}
-<h2>
+{% block title %}{{ block.super}} / {% if object.id %}{% blocktrans with model=model_name id=object.id %}Edit {{ model }} ID {{ id }}{% endblocktrans %}{% else %}{% blocktrans with model=model_name %}Add new {{ model }}{% endblocktrans %}{% endif %}{% endblock %}
+
+{% block breadcrumb %}
+{{ block.super }}
+<li class="active">
     {% if object.id %}
-        {% blocktrans with model=model_name %}
-        Edit {{ model }}
-        {% endblocktrans %}
+    	{% blocktrans with model=model_name %}
+    	Edit {{ model }}
+    	{% endblocktrans %}
     {% else %}
         {% blocktrans with model=model_name %}
         Add new {{ model }}
         {% endblocktrans %}
     {% endif %}
-</h2>
-<form method="post" class="form-horizontal well"{% if form.multipart %} enctype="multipart/form-data"{% endif %}>
+</li>
+{% endblock %}
+
+{% block coursecontent %}
+<form method="post" class="well form-horizontal"{% if form.multipart %} enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
 
     {% for hidden in form.hidden_fields %}
@@ -25,27 +32,34 @@
     <fieldset>
         <legend>{% trans "Exercise service" %}</legend>
 
-        <div class="control-group {% if form.service_url.errors %}error{% endif %}">
-            {% if field.errors %}
-                {{ field.errors }}
-            {% endif %}
-            <label class="control-label" for="id_{{ form.service_url.html_name }}">
-            	{{ form.service_url.label }}
-            </label>
-            <div class="controls">
-                {{ form.service_url }}
-                <a id="fetch-metadata" title="{% trans 'Download metadata' %}" class="btn btn-primary">
-                	<i class="icon-download icon-white"></i>
+        <div>
+            {{ form.service_url|bootstrap_horizontal }}
+        </div>
+        <div class="col-sm-10 col-sm-offset-2">
+            <p>
+                {% trans "Fill in the URL and" %}
+                <a id="fetch-metadata" class="btn btn-primary btn-xs" href="#">
+                    {% trans 'Download possible metadata' %}
+                    <span class="glyphicon glyphicon-download"></span>
                 </a>
-                <div id="metadata-progress" class="progress progress-striped active" style="width:218px; display:none;">
-                    <div class="bar" style="width: 100%;"></div>
-                </div>
-                <p class="help-block">
-               		{% trans "Fill in the URL and click the button to automatically download exercise details" %}
-               	</p>
+            </p>
+            <div id="metadata-progress" class="progress hide">
+                <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%;"></div>
             </div>
         </div>
     </fieldset>
+    {% else %}
+    <legend>
+        {% if object.id %}
+        {% blocktrans with model=model_name name=object %}
+        Edit {{ model }} {{ name }}
+        {% endblocktrans %}
+        {% else %}
+        {% blocktrans with model=model_name %}
+        Add new {{ model }}
+        {% endblocktrans %}
+        {% endif %}
+    </legend>
     {% endif %}
 
     {% for fieldset in form.get_fieldsets %}
@@ -54,34 +68,29 @@
         <legend>{{ fieldset.legend }}</legend>
         {% endif %}
         {% for field in fieldset.fields %}
-        <div class="control-group {% if field.errors %}error{% endif %}">
-            {% if field.errors %}
-                {{ field.errors }}
-            {% endif %}
-            <label class="control-label" for="id_{{ field.html_name }}">
-            	{{ field.label }}
-            </label>
-            <div class="controls">
-                {{ field }}
-                <p class="help-block">{{field.help_text}}</p>
-            </div>
-        </div>
+        {{ field|bootstrap_horizontal }}
         {% endfor %}
     </fieldset>
     {% endfor %}
-
-    <div class="form-actions">
-        <input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
+    <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2">
+            <button type="submit" class="btn btn-primary">{% trans 'Submit' %}</button>
+            <a class="btn btn-default" href="{{ instance|url:'course-edit' }}">
+                {% trans 'Cancel' %}
+            </a>
+        </div>
     </div>
 </form>
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 {% if form.service_url %}
 <script type="text/javascript">
-    $("#fetch-metadata").click(function(event) {
+$(function() {
+    $("#fetch-metadata").on("click", function(event) {
         event.preventDefault();
-        $("#metadata-progress").show();
+        $("#metadata-progress").removeClass("hide").show();
         $.getJSON("{{ instance|url:'exercise-metadata' }}",
         	{
                 exercise_url: $("#id_service_url").val()
@@ -90,13 +99,14 @@
                 if (data.success) {
                     $("#id_name").val(data.name);
                     $("#id_description").val(data.description);
-                    /*console.log(data);*/
                 } else {
                     alert(data.message);
                 }
                 $("#metadata-progress").hide();
-            });
-    });
+            }
+        );
+    })
+});
 </script>
 {% endif %}
 {% endblock %}

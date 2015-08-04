@@ -1,8 +1,11 @@
 {% extends "exercise/exercise_base.html" %}
 {% load i18n %}
 
+{% block title %}{{ block.super }} / {% trans "Submission" %} {{ index }}{% endblock %}
+{% block view_tag %}submission{% endblock %}
+
 {% block exercisecontent %}
-    
+
     {% if submission.files.all %}
     <h3>{% trans "Files in this submission" %}</h3>
     <ul class="unstyled">
@@ -14,33 +17,33 @@
         {% endfor %}
     </ul>
     {% endif %}
-    
+
     {% if submission.exercise.allow_assistant_grading %}
     {% if submission.assistant_feedback %}
-    
+
     <h2>{% trans "Assistant feedback" %}</h2>
     {{ submission.assistant_feedback|safe }}
-    
+
     {% else %}
-    
+
     <div class="alert alert-info">
         {% trans "No assistant feedback available for this submission." %}
     </div>
-    
+
     {% endif %}
     {% endif %}
 
     {% if submission.feedback %}
-    
+
     <h2>{% trans "Grader feedback" %}</h2>
 	{{ submission.feedback|safe }}
-    
+
     {% else %}
-    
+
     <div class="alert alert-info">
         {% trans "No grader feedback available for this submission." %}
     </div>
-    
+
     {% endif %}
 
 {% endblock %}

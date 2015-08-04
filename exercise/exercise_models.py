@@ -38,8 +38,9 @@ class LearningObject(ModelWithInheritance):
         ordering = ['course_module', 'order', 'id']
 
     def __str__(self):
-        if self.order > 0:
-            return "{:d}. {}".format(self.order, self.name)
+        if self.course_module.order > 0:
+            return "{:d}.{:d} {}".format(
+                self.course_module.order, self.order, self.name)
         return self.name
 
     def clean(self):
@@ -57,6 +58,19 @@ class LearningObject(ModelWithInheritance):
     @property
     def course_instance(self):
         return self.course_module.course_instance
+
+    def is_after_open(self, when=None):
+        return self.course_module.is_after_open(when=when)
+
+    def next(self):
+        exercise = self.course_module.learning_objects \
+            .exclude(id=self.id).filter(order__gt=self.order).first()
+        return exercise or self.course_module.next_module()
+
+    def previous(self):
+        exercise = self.course_module.learning_objects \
+            .exclude(id=self.id).filter(order__lt=self.order).last()
+        return exercise or self.course_module
 
     def get_url(self, name):
         instance = self.course_instance

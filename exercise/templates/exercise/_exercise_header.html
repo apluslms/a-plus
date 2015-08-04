@@ -1,6 +1,18 @@
 {% load i18n %}
 {% load course %}
 
+{% with next=exercise.next previous=exercise.previous %}
+{% include "course/_siblings.html" %}
+{% endwith %}
+
+<ol class="breadcrumb">
+    <li><a href="{{ instance|url }}">{% trans "Home" %}</a></li>
+    <li><a href="{{ module|url }}">{{ module }}</a></li>
+    <li class="active">
+        {{ exercise }}
+    </li>
+</ol>
+
 <ul class="nav nav-tabs">
     <li class="menu-exercise">
         <a href="{{ exercise|url }}">
@@ -31,11 +43,18 @@
         	{% endfor %}
         </ul>
     </li>
-    {% if is_teacher or is_assistant %}
-    <li class="menu-all-submissions">
-    	<a class="staff" href="{{ exercise|url:'submission-list' }}">
-			{% trans "View all submissions" %}
-		</a>
+    {% if is_course_staff %}
+    <li>
+        <p class="navbar-text navbar-btn">
+            {% if submission %}
+            <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+                {% trans "Inspect" %}
+            </a>
+            {% endif %}
+        	<a href="{{ exercise|url:'submission-list' }}" class="btn btn-default btn-xs">
+    			{% trans "View all submissions" %}
+    		</a>
+        </p>
 	</li>
 	{% endif %}
 </ul>

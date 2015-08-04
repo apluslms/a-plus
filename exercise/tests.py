@@ -211,8 +211,8 @@ class ExerciseTest(TestCase):
         )
 
     def test_learning_object_category_unicode_string(self):
-        self.assertEqual("test category / 123456 test course: Fall 2011 day 1", str(self.learning_object_category))
-        self.assertEqual("hidden category / 123456 test course: Fall 2011 day 1", str(self.hidden_learning_object_category))
+        self.assertEqual("test category", str(self.learning_object_category))
+        self.assertEqual("hidden category", str(self.hidden_learning_object_category))
 
     def test_learning_object_category_hiding(self):
         self.assertFalse(self.learning_object_category.is_hidden_to(self.user.userprofile))
@@ -309,22 +309,14 @@ class ExerciseTest(TestCase):
         self.assertEqual(self.exercise_with_attachment.get_total_submitter_count(), 0)
 
     def test_base_exercise_unicode_string(self):
-        self.assertEqual("1. test exercise", str(self.base_exercise))
-        self.assertEqual("2. test exercise 2", str(self.static_exercise))
-        self.assertEqual("3. test exercise 3", str(self.exercise_with_attachment))
+        self.assertEqual("1.1 test exercise", str(self.base_exercise))
+        self.assertEqual("1.2 test exercise 2", str(self.static_exercise))
+        self.assertEqual("1.3 test exercise 3", str(self.exercise_with_attachment))
 
     def test_base_exercise_absolute_url(self):
         self.assertEqual("/Course-Url/T-00.1000_d1/exercises/3/", self.base_exercise.get_absolute_url())
         self.assertEqual("/Course-Url/T-00.1000_d1/exercises/4/", self.static_exercise.get_absolute_url())
         self.assertEqual("/Course-Url/T-00.1000_d1/exercises/5/", self.exercise_with_attachment.get_absolute_url())
-
-    def test_base_exercise_breadcrumb(self):
-        self.assertEqual([('123456 test course', '/Course-Url/T-00.1000_d1/'), ('1. test exercise', '/Course-Url/T-00.1000_d1/exercises/3/')],
-                         self.base_exercise.get_breadcrumb())
-        self.assertEqual([('123456 test course', '/Course-Url/T-00.1000_d1/'), ('2. test exercise 2', '/Course-Url/T-00.1000_d1/exercises/4/')],
-                         self.static_exercise.get_breadcrumb())
-        self.assertEqual([('123456 test course', '/Course-Url/T-00.1000_d1/'), ('3. test exercise 3', '/Course-Url/T-00.1000_d1/exercises/5/')],
-                         self.exercise_with_attachment.get_breadcrumb())
 
     def test_base_exercise_async_url(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
@@ -438,20 +430,6 @@ class ExerciseTest(TestCase):
         self.assertEqual("/Course-Url/T-00.1000_d1/exercises/3/submissions/1/", self.submission.get_absolute_url())
         self.assertEqual("/Course-Url/T-00.1000_d1/exercises/3/submissions/3/", self.late_submission.get_absolute_url())
 
-    def test_submission_breadcrumb(self):
-        breadcrumb = self.submission.get_breadcrumb()
-        self.assertEqual(3, len(breadcrumb))
-        self.assertEqual(('123456 test course', '/Course-Url/T-00.1000_d1/'), breadcrumb[0])
-        self.assertEqual(('1. test exercise', '/Course-Url/T-00.1000_d1/exercises/3/'), breadcrumb[1])
-        self.assertEqual(2, len(breadcrumb[2]))
-        self.assertEqual('/Course-Url/T-00.1000_d1/exercises/3/submissions/1/', breadcrumb[2][1])
-        breadcrumb = self.late_submission.get_breadcrumb()
-        self.assertEqual(3, len(breadcrumb))
-        self.assertEqual(('123456 test course', '/Course-Url/T-00.1000_d1/'), breadcrumb[0])
-        self.assertEqual(('1. test exercise', '/Course-Url/T-00.1000_d1/exercises/3/'), breadcrumb[1])
-        self.assertEqual(2, len(breadcrumb[2]))
-        self.assertEqual('/Course-Url/T-00.1000_d1/exercises/3/submissions/3/', breadcrumb[2][1])
-
     def test_submission_upload_dir(self):
         from exercise.submission_models import build_upload_dir
         submitted_file1 = SubmittedFile.objects.create(
@@ -471,7 +449,6 @@ class ExerciseTest(TestCase):
         self.assertEqual(summary.get_exercise_count(), 5)
         self.assertEqual(summary.get_max_points(), 400)
         self.assertEqual(summary.get_total_points(), 0)
-        self.assertEqual(summary.get_completed_percentage(), 0)
 
     def test_presentation_summary(self):
 
@@ -481,22 +458,17 @@ class ExerciseTest(TestCase):
         self.assertEqual(summary.get_exercise_count(), 5)
         self.assertEqual(summary.get_max_points(), 400)
         self.assertEqual(summary.get_total_points(), 100)
-        self.assertEqual(summary.get_completed_percentage(), 25)
 
         msummary = summary.get_module_summary(self.course_module)
         self.assertEqual(msummary.get_exercise_count(), 3)
         self.assertEqual(msummary.get_max_points(), 200)
         self.assertEqual(msummary.get_total_points(), 100)
-        self.assertEqual(msummary.get_completed_percentage(), 50)
-        self.assertEqual(msummary.get_required_percentage(), 8)
         self.assertFalse(msummary.is_passed())
 
         csummary = summary.get_category_summary(self.learning_object_category)
         self.assertEqual(csummary.get_exercise_count(), 5)
         self.assertEqual(csummary.get_max_points(), 400)
         self.assertEqual(csummary.get_total_points(), 100)
-        self.assertEqual(csummary.get_completed_percentage(), 25)
-        self.assertEqual(csummary.get_required_percentage(), 1)
         self.assertFalse(csummary.is_passed())
 
     def test_exercise_views(self):

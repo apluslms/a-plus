@@ -3,17 +3,16 @@
 <nav class="row siblings">
 
     {% if next %}
-    {% if next.is_after_open %}
+    {% if next.is_after_open or not module.is_after_open %}
     <a href="{{ next|url }}" class="pull-right btn btn-link">
         {{ next }} &raquo;
     </a>
     {% else %}
     <span class="pull-right btn btn-link disabled">
-        {{ next }}
+        {{ next }} &raquo;
         {% if is_course_staff %}
-        <a href="{{ next|url }}">{% trans "Staff access" %}</a>
+        <a href="{{ next|url }}" class="pull-right btn btn-default btn-xs">{% trans "Staff access" %}</a>
         {% endif %}
-        &raquo;
     </span>
     {% endif %}
     {% endif %}

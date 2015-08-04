@@ -20,7 +20,7 @@
     <tbody>
     	{% for student, grades, grade_sum in result_table.results_for_template %}
         <tr>
-            <th scope="row">{{ student.student_id }}</th>
+            <th scope="row">{% firstof student.student_id student.user.username %}</th>
             {% for grade in grades %}
             <td>{% if grade != None %}{{ grade }}{% else %}&nbsp;{% endif %}</td>
             {% endfor %}

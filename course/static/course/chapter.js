@@ -47,9 +47,11 @@
 
 		openModalURL: function(sourceURL) {
 			if (sourceURL && sourceURL !== "#") {
-				this.modalElement.find(this.settings.modal_content_selector)
-					.empty().load(sourceURL);
-				this.modalElement.modal("show");
+				var element = this.modalElement;
+				element.find(this.settings.modal_content_selector)
+					.empty().load(sourceURL, function() {
+						element.modal("show");
+					});
 			}
 		},
 
@@ -80,7 +82,7 @@
 	var pluginName = "aplusExercise";
 	var defaults = {
 		quiz_attr: "data-exercise-quiz",
-		message_selector: ".bar",
+		message_selector: ".progress-bar",
 		message_attr: {
 			load: "data-msg-load",
 			submit: "data-msg-submit",
@@ -234,9 +236,9 @@
 			this.loader.show().find(this.settings.message_selector)
 				.text(this.loader.attr(this.settings.message_attr[messageType]));
 			if (messageType == "error") {
-				this.loader.removeClass("active").addClass("progress-danger");
+				this.loader.removeClass("active").addClass("progress-bar-danger");
 			} else {
-				this.loader.addClass("active").removeClass("progress-danger");
+				this.loader.addClass("active").removeClass("progress-bar-danger");
 			}
 		},
 
