@@ -4,13 +4,12 @@
 <table class="submission-info table table-bordered table-condensed">
 	<tr>
 		<th>{% trans "Date" %}</th>
-		<th>{% trans "Status" %}</th>
-		<th>{% trans "Grade" %}</th>
+		<th>{% if submission.is_graded %}{% trans "Points" %}{% else %}{% trans "Status" %}{% endif %}</th>
 		{% if submission.files.exists %}
 		<th>{% trans "Files" %}</th>
 		{% endif %}
 		{% if is_course_staff %}
-		<th>{% trans "Staff" %}</th>
+		<th>{% trans "Course staff" %}</th>
 		{% endif %}
 	</tr>
 	<tr>
@@ -24,19 +23,21 @@
 			</span>
 			{% endif %}
 		</td>
-		<td class="{% if submission.is_graded %}success{% endif %}">{{ submission.status }}</td>
-		<td>{{ submission.grade }} / {{ submission.exercise.max_points }}</td>
+		<td>{% submission_points submission %}</td>
 		{% if submission.files.exists %}
 		<td>
 			{% for file in submission.files.all %}
-			<i class="icon-file"></i>
-			{% include "exercise/_file_link.html" %}
+			<div>
+				<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+				{% include "exercise/_file_link.html" %}
+			</div>
 			{% endfor %}
 		</td>
 		{% endif %}
 		{% if is_course_staff %}
 		<td>
-			<a href="{{ submission|url:'submission-inspect' }}">
+			<a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+				<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
 				{% trans "Inspect" %}
 			</a>
 		</td>

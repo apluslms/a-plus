@@ -1,6 +1,6 @@
 /* common */
 .glyphicon, .label {
-    margin: 0 0.5em;
+    margin-right: 0.2em;
 }
 dl > dt {
     margin-top: 0.5em;
@@ -8,7 +8,7 @@ dl > dt {
 .pull-right {
     margin-left: 0.5em;
 }
-.nav-tabs .navbar-btn {
+.nav .navbar-btn {
     margin-top: 10px;
     margin-bottom: 0;
 }
@@ -31,9 +31,67 @@ html, body {
 }
 
 /* site header */
+.navbar-static-top {
+    background-color: #337ab7;
+    background-image: -moz-linear-gradient(top, #0088cc, #2e6da4);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#2e6da4));
+    background-image: -webkit-linear-gradient(top, #0088cc, #2e6da4);
+    background-image: -o-linear-gradient(top, #0088cc, #0066aa);
+    background-image: linear-gradient(to bottom, #337ab7, #2e6da4);
+    background-repeat: repeat-x;
+    border-bottom: none;
+    -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+.navbar-static-top .navbar-brand,
+.navbar-static-top .navbar-nav>li>a,
+.navbar-static-top .navbar-toggle,
+.navbar-static-top .navbar-nav>.active>a,
+.navbar-static-top .navbar-nav>.active>a:focus,
+.navbar-static-top .navbar-nav>.active>a:hover {
+    color: #ffffff;
+    background: transparent;
+}
+.navbar-static-top a.navbar-brand:hover,
+.navbar-static-top .navbar-nav>li>a:hover,
+.navbar-static-top .navbar-nav>.open>a,
+.navbar-static-top .navbar-nav>.open>a:focus,
+.navbar-static-top .navbar-nav>.open>a:hover,
+.navbar-inverse .navbar-toggle:focus,
+.navbar-inverse .navbar-toggle:hover {
+    background-color: #236aa7;
+    background-color: rgba(0, 0, 0, 0.10);
+}
 .navbar-static-top .navbar-header .visible-xs {
-    max-width: 300px;
+    max-width: 250px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.navbar-static-top ul.visible-xs {
+    margin: 0;
+}
+.navbar-static-top ul.visible-xs li {
+    border: 1px solid;
+    border-top: none;
+    border-color: #236aa7;
+    border-color: rgba(0, 0, 0, 0.25);
+}
+.navbar-static-top ul.visible-xs .divider,
+.navbar-static-top ul.visible-xs .header {
+    height: 1px;
+    margin: -1px 0 0 0;
+    overflow: hidden;
+    background: #333;
+}
+
+/* menus */
+.course-menu .nav>li>a {
+    padding: 5px;
+}
+.siblings>.btn {
+    max-width: 50%;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -47,10 +105,14 @@ html, body {
     height: 130px;
     overflow: hidden;
     text-align: center;
-    background: #cccccc;
+    background: #eee;
 }
 .course-thumbnail .image img {
     height: 130px;
+}
+.course-thumbnail .image .glyphicon {
+    color: #fff;
+    font-size: 90px;
 }
 .course-thumbnail .buttons {
     position: absolute;
@@ -75,9 +137,28 @@ html, body {
     margin: 0;
 }
 
-/* point progress bars */
+/* point progress and badges */
 .progress .required-points {
     position: absolute;
     height: 20px;
     border-left: 1px solid black;
+}
+.badge-warning, .panel-primary>.panel-heading .badge-warning {
+    background-color: #f0ad4e;
+    color: #fff;
+}
+.badge-success, .panel-primary>.panel-heading .badge-success {
+    background-color: #5cb85c;
+    color: #fff;
+}
+.panel-primary>.panel-heading .badge-warning,
+.panel-primary>.panel-heading .badge-success {
+    border: 1px solid #fff;
+    padding: 2px 6px;
+}
+
+/* exercise wells */
+.exercise-summary {
+    border-bottom: 1px solid #e3e3e3;
+    margin-bottom: 19px;
 }

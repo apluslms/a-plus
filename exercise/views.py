@@ -9,36 +9,14 @@ from django.views.static import serve
 
 from course.viewbase import CourseInstanceBaseView
 from lib.viewbase import BaseRedirectMixin
-from .presentation.score import ScoreBoard
-from .presentation.summary import UserCourseSummary, UserExerciseSummary
+from .presentation.summary import UserExerciseSummary
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin
 
 
-class ProfileView(CourseInstanceBaseView):
-    template_name = "exercise/profile.html"
-
-    def get_common_objects(self):
-        super().get_common_objects()
-        self.submissions = self.profile.submissions \
-            .filter(exercise__course_module__course_instance=self.instance) \
-            .order_by("-id")[:10]
-        self.note("submissions")
-
-
 class ResultsView(CourseInstanceBaseView):
     template_name = "exercise/results.html"
-    home_view = False
-
-    def get_common_objects(self):
-        super().get_common_objects()
-        self.summary = UserCourseSummary(self.instance, self.request.user)
-        score = ScoreBoard(self.instance, self.request.user)
-        self.exercise_tree=score.collect_tree(self.summary)
-        self.visible_categories=score.collect_categories(self.summary)
-        self.note("summary", "exercise_tree", "visible_categories",
-            "home_view")
 
 
 class ExerciseInfoView(ExerciseBaseView):

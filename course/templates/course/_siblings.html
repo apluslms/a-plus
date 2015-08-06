@@ -11,7 +11,10 @@
     <span class="pull-right btn btn-link disabled">
         {{ next }} &raquo;
         {% if is_course_staff %}
-        <a href="{{ next|url }}" class="pull-right btn btn-default btn-xs">{% trans "Staff access" %}</a>
+        <a href="{{ next|url }}" class="pull-right btn btn-default btn-xs">
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            {% trans "Early access" %}
+        </a>
         {% endif %}
     </span>
     {% endif %}

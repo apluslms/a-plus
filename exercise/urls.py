@@ -10,9 +10,6 @@ SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX \
     + r'submissions/(?P<submission_id>\d+)/'
 
 urlpatterns = [
-    url(USER_URL_PREFIX + r'$',
-        views.ProfileView.as_view(),
-        name="profile"),
     url(USER_URL_PREFIX + r'results/$',
         views.ResultsView.as_view(),
         name="results"),

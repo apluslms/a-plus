@@ -3,8 +3,7 @@
 {% load course %}
 {% load editcourse %}
 
-{% block breadcrumb %}
-<li><a href="{{ instance|url }}">{% trans "Home" %}</a></li>
+{% block editbreadcrumblist %}
 <li class="active">{% trans "Edit course" %}</li>
 {% endblock %}
 
@@ -22,12 +21,12 @@
                 </td>
                 <td>
                     <a class="btn btn-default btn-xs" href="{{ category|editurl:'category' }}">
-                        <span class="glyphicon glyphicon-edit"></span>
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         {% trans "Edit category" %}
                     </a>
                     {% if category.learning_objects.count == 0 %}
                     <a class="btn btn-default btn-xs" href="{{ category|removeurl:'category' }}">
-                    	<i class="glyphicon glyphicon-remove"></i> {% trans "Remove" %}
+                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     {% endif %}
                 </td>
@@ -36,7 +35,7 @@
             <tr>
                 <th colspan="2">
                     <a class="btn btn-primary btn-xs" href="{{ instance|createurl:'category' }}">
-                        <span class="glyphicon glyphicon-plus-sign"></span>
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         {% trans "Add new category" %}
                     </a>
                 </th>
@@ -56,11 +55,11 @@
                 <th><strong>{{ module }}</strong></th>
                 <td>
                     <a class="btn btn-default btn-xs" href="{{ module|editurl:'module' }}">
-                        <span class="glyphicon glyphicon-edit"></span> {% trans "Edit module" %}
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit module" %}
                     </a>
                     {% if module.learning_objects.count == 0 %}
                     <a class="btn btn-default btn-xs" href="{{ module|removeurl:'module' }}">
-                    	<span class="glyphicon glyphicon-remove"></span> {% trans "Remove" %}
+                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     {% endif %}
                     <a class="btn btn-link btn-xs" href="{{ module|url }}">
@@ -75,10 +74,10 @@
                 </td>
                 <td>
                     <a class="btn btn-default btn-xs" href="{{ object|editurl:'chapter' }}">
-                        <span class="glyphicon glyphicon-edit"></span> {% trans "Edit chapter" %}
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit chapter" %}
                     </a>
                     <a class="btn btn-default btn-xs" href="{{ object|removeurl:'chapter' }}">
-                        <span class="glyphicon glyphicon-remove"></span> {% trans "Remove" %}
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     <a class="btn btn-link btn-xs" href="{{ object|url }}">
                         {% trans "Open chapter" %}
@@ -100,10 +99,10 @@
                 </td>
                 <td>
                     <a class="btn btn-default btn-xs" href="{{ object|editurl:'exercise' }}">
-                        <span class="glyphicon glyphicon-edit"></span> {% trans "Edit exercise" %}
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit exercise" %}
                     </a>
                     <a class="btn btn-default btn-xs" href="{{ object|removeurl:'exercise' }}">
-                        <span class="glyphicon glyphicon-remove"></span> {% trans "Remove" %}
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     <a class="btn btn-link btn-xs" href="{{ object|url }}">
                     	{% trans "Open exercise" %}
@@ -148,7 +147,7 @@
             <tr>
                 <th colspan="2">
                     <a class="btn btn-primary btn-xs" href="{{ instance|createurl:'module' }}">
-                        <span class="glyphicon glyphicon-plus-sign"></span> {% trans "Add new module" %}
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> {% trans "Add new module" %}
                     </a>
                 </th>
             </tr>
@@ -163,10 +162,10 @@
     <div class="panel-body">
         <p>{% trans "Add or view personalized deadlines for students for exercises." %}</p>
         <a class="btn btn-primary btn-xs" href="{{ instance|url:'deviations-add-dl' }}">
-            <span class="glyphicon glyphicon-plus-sign"></span> {% trans "Add deadline deviations" %}
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> {% trans "Add deadline deviations" %}
         </a>
         <a class="btn btn-primary btn-xs" href="{{ instance|url:'deviations-list-dl' }}">
-            <span class="glyphicon glyphicon-list-alt"></span> {% trans "List deadline deviations" %}
+            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> {% trans "List deadline deviations" %}
         </a>
     </div>
 </div>

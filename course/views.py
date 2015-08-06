@@ -45,15 +45,9 @@ class CourseView(CourseBaseView):
 class InstanceView(CourseInstanceBaseView):
     template_name = "course/toc.html"
 
-    def get(self, request, *args, **kwargs):
-        self.handle()
-        if self.instance.has_chapters():
-            return self.response()
 
-        # Display alternative view content from exercise package.
-        from exercise.views import ResultsView
-        view = ResultsView.as_view(home_view=True)
-        return view(request, *args, **kwargs)
+class ProfileView(CourseInstanceBaseView):
+    template_name = "course/profile.html"
 
 
 class ModuleView(CourseModuleBaseView):
@@ -63,7 +57,7 @@ class ModuleView(CourseModuleBaseView):
         self.handle()
         if not self.module.is_after_open():
             messages.warning(self.request,
-                _("Staff: The course module is not yet open for students."))
+                _("The course module is not yet open for students."))
         return self.response()
 
 
@@ -74,7 +68,7 @@ class ChapterView(CourseChapterView):
         self.handle()
         if not self.module.is_after_open():
             messages.warning(self.request,
-                _("Staff: The course module is not yet open for students."))
+                _("The course module is not yet open for students."))
         try:
             page = RemotePage(self.chapter.content_url)
             page.fix_relative_urls()

@@ -4,6 +4,10 @@
 
 {% block view_tag %}exercise{% endblock %}
 
+{% block exercisebreadcrumblist %}
+<li class="active">{{ exercise }}</li>
+{% endblock %}
+
 {% block exercisecontent %}
 
 {{ page.content|safe }}

@@ -6,33 +6,28 @@
 {% block title %}{{ block.super }} / {% trans "Assess SID " %} {{ submission.id}}{% endblock %}
 {% block view_tag %}assess{% endblock %}
 
-{% block columns %}
-<div class="col-md-10">
-    <ol class="breadcrumb">
-        <li><a href="{{ instance|url }}">{{ course.name }}</a></li>
-        <li><a href="{{ exercise|url }}">{{ exercise }}</a></li>
-        <li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
-        <li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
-        <li class="active">{% trans "Assess" %}</td>
-    </ol>
-    <div class="row">
-        <div class="col-md-5">
-            {% include "exercise/staff/_assess_info.html" %}
-        </div>
-        <div class="col-md-7">
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
+<li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
+<li class="active">{% trans "Assess" %}</td>
+{% endblock %}
 
-            <h3>{% trans "Assessment" %}</h3>
-            <div class="well">
-                <form method="post" role="form">
-                    {% csrf_token %}
-                    {{ form|bootstrap }}
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
-                        <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default">{% trans "Cancel" %}</a>
-                    </div>
-                </form>
+{% block columns %}
+<div class="col-md-5">
+    {% include "exercise/staff/_assess_info.html" %}
+</div>
+<div class="col-md-7">
+    <h3>{% trans "Assessment" %}</h3>
+    <div class="well">
+        <form method="post" role="form">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+                <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default">{% trans "Cancel" %}</a>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 {% endblock %}

@@ -1,24 +1,18 @@
 {% extends "exercise/exercise_base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% load course %}
 
 {% block title %}{{ block.super }} / {% trans "All submissions" %}{% endblock %}
 {% block view_tag %}all-submissions{% endblock %}
 
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "All submissions" %}</li>
+{% endblock %}
+
 {% block columns %}
-<div class="col-md-10">
-    <ol class="breadcrumb">
-        <li><a href="{{ instance|url }}">{{ course.name }}</a></li>
-        <li><a href="{{ exercise|url }}">{{ exercise }}</a></li>
-        <li class="active">{% trans "All submissions" %}</li>
-    </ol>
-    <p>
-        {% blocktrans with count=submissions.count %}
-        {{ count }} submissions
-        {% endblocktrans %}
-    </p>
-    {% include 'exercise/staff/_submissions_table.html' %}
+<div class="col-md-12">
+    {% include "exercise/staff/_submissions_table.html" %}
 </div>
 {% endblock %}
 

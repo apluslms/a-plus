@@ -9,28 +9,13 @@
     <h1>{{ welcome_text|safe }}</h1>
 </div>
 
-{% comment %}
-<div class="jumbotron">
-    {% blocktrans %}
-    <p>
-        A+ is a service for managing the learning activities. The system is designed for
-        improving the interoperability of various e-learning systems by connecting them
-        with a service-oriented approach.
-
-        A+ is in <strong>beta</strong> and we need your help to move forward. Please
-        inform the course staff if you observe unexpected behavior.
-    </p>
-    {% endblocktrans %}
-</div>
-{% endcomment %}
-
 <div class="row">
     {% for instance in instances %}
     {% with instance_url=instance|url %}
     <div class="col-sm-6 col-md-4">
         <div class="thumbnail course-thumbnail">
-            <div class="image">
-                <img src="{% static 'images/books.jpg' %}">
+            <div class="image" aria-hidden="true">
+                <h1 class="glyphicon glyphicon-book"></h1>
             </div>
             <div class="caption">
                 <h3>
@@ -50,8 +35,7 @@
                 </p>
                 <div class="buttons caption">
                     <a class="btn btn-primary btn-block" role="button" href="{{ instance_url }}">
-                        {% trans "Enter course" %}
-                        <span class="glyphicon glyphicon-hand-right pull-right" aria-hidden="true"></span>
+                        {% trans "View course" %}
                     </a>
                 </div>
             </div>

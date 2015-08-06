@@ -4,186 +4,23 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{{ block.super }}{% if not home_view %}: {% trans "Results" %}{% endif %}{% endblock %}
-{% block view_tag %}{% if home_view %}home{% else %}results{% endif %}{% endblock %}
+{% block title %}{{ block.super }}: {% trans "Results" %}{% endblock %}
+{% block view_tag %}results{% endblock %}
 
-{% block scripts %}
+{% block breadcrumblist %}
 {{ block.super }}
-<script>
-$(function() {
-	var limit = 5;
-	var expired = $(".module-expired");
-	if (expired.size() > limit) {
-		expired.slice(0, expired.size() - limit).hide();
-		$("#toggle-expired").removeClass("hide")
-			.find("a").on("click", function(event) {
-				event.preventDefault();
-				$(".module-expired:hidden").show();
-				$(this).parent().hide();
-			});
-	}
-});
-</script>
+<li class="active">{% trans "My results" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
-
-{% if summary.category_summaries|length > 1 %}
-{# TODO: fix category filtering without storing to database #}
-<a id="schedule-filters-btn" class="btn" data-toggle="collapse" data-target="#filters-collapse">
-	{% trans "Filter Categories" %}
-</a>
-<div id="filters-collapse" class="collapse">
-    <div class="well">
-        <form method="post" action="{{ instance|url:'filter-categories' }}?next={{ request.path }}">
-        	{% csrf_token %}
-            <legend>{% trans "Visible categories" %}</legend>
-            {% for id, category_summary in summary.category_summaries.items %}
-            <label class="checkbox" for="category_filter_{{ category_summary.category.id }}">
-            	<input id="category_filter_{{ category_summary.category.id }}" type="checkbox" name="category_filters" value="{{ category_summary.category.id }}" {% if not category_summary.is_hidden %}checked="checked"{% endif %} />
-            	{{ category_summary.category.name }}
-            </label>
-            {% endfor %}
-            <input type="submit" class="btn" value="{% trans 'Update filters' %}" />
-        </form>
-    </div>
-</div>
-{% endif %}
-
-<p id="toggle-expired" class="hide"><a href="#">{% trans "Show older assignments." %}</a></p>
-
-{% for course_module, module_summary, uncategorized_exercise_level, category_level in exercise_tree %}
-{% with open=course_module.is_open after_open=course_module.is_after_open %}
-<div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
-    <a class="panel-heading{% if not open %} collapsed{% endif %}"
-        role="button" href="#module{{ course_module.id }}" data-toggle="collapse"
-        aria-expanded="true" aria-controls="#module{{ course_module.id }}">
-        <h3 class="panel-title">
-            <span class="badge pull-right">
-                {{ module_summary.get_total_points }} / {{ module_summary.get_max_points }}
-                {% if course_module.points_to_pass > 0 %} ;
-                {% blocktrans with points=course_module.points_to_pass %}
-                {{ points }} to pass
-                {% endblocktrans %}
-                {% endif %}
-            </span>
-			{% if not open and not after_open %}
-			<span class="badge pull-right">
-				{% trans "Opens" %} {{ course_module.opening_time }}
-			</span>
-			{% endif %}
-            <span class="caret"></span>
-            {{ course_module }}
-        </h3>
-    </a>
-    <div class="collapse{% if open %} in{% endif %}" id="module{{ course_module.id }}">
-		<div class="panel-body">
-        {% if after_open %}
-        <div class="exercise-icons {% if uncategorized_exercise_level|length > 10 %}exercise-icons-tight{% endif %}">
-        	<div class="btn-group pull-right">
-            	{% for exercise, exercise_summary in uncategorized_exercise_level %}
-                <a class="btn btn-xs {{ exercise_summary|exercise_summary_classes }}" href="{{ exercise|url }}"
-                	data-toggle="tooltip" data-html="true" data-placement="bottom"
-                    title="{{ exercise_summary.exercise }} &lt;span class='text-nowrap'&gt;{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}&lt;/span&gt;">
-                    {{ exercise_summary.exercise.order }}
-                </a>
-            	{% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        <p>
-        	{{ course_module.opening_time }} &ndash; {{ course_module.closing_time }}
-            {% if course_module.late_submissions_allowed %}
-            <br />
-        	<em>
-            	{% blocktrans with deadline=course_module.late_submission_deadline percent=course_module.get_late_submission_point_worth %}
-            	Late submission are allowed until {{ deadline }}
-            	but points are only worth {{ percent }} %.
-            	{% endblocktrans %}
-        	</em>
-            {% endif %}
-        </p>
-        {% summary_progress module_summary %}
-    	{{ course_module.introduction|safe }}
-		</div>
-        <table class="table table-bordered table-condensed">
-            <tbody>
-            	{% for category, category_summary, categorized_exercise_level in category_level %}
-                <tr class="category-row">
-                    <td>
-                    	{{ category.name }}
-                    </td>
-                    {% if is_course_staff %}
-                    <td></td>
-                    {% endif %}
-                    <td>
-                    	{% trans "Points" %}
-                    </td>
-                </tr>
-                {% for exercise, exercise_summary in categorized_exercise_level %}
-				<tr>
-                    <td>
-                    	{% if after_open %}
-                        <a href="{{ exercise|url }}">
-                        	{{ exercise }}
-                        </a>
-                    	{% else %}
-                        {{ exercise }}
-                    	{% endif %}
-                    </td>
-                    {% if is_course_staff %}
-                    <td>
-                        {% if not after_open %}
-                        <a class="btn btn-default btn-xs" href="{{ exercise|url }}">
-                            {% trans "Staff access" %}
-                        </a>
-                        {% endif %}
-                    	<a class="btn btn-default btn-xs" href="{{ exercise|url:'submission-list' }}">
-                    		{% trans "View submissions" %}
-                    	</a>
-                    </td>
-                    {% endif %}
-                    <td class="text-right">
-                    	{{ exercise_summary.get_points }} / {{ exercise_summary.get_max_points }}
-                    </td>
-                </tr>
-                {% endfor %}
-            	{% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endwith %}
-{% endfor %}
+{% user_results %}
 {% endblock %}
 
 {% block sidecontent %}
-
-{% if instance.categories|length > 1 %}
-<div class="well">
-    <p>{% trans "Total points" %}</p>
-    <p><strong class="h2">
-    	{{ summary.get_total_points }}
-    	<small>/ {{ summary.get_max_points }}</small>
-    </strong></p>
-    {% summary_progress summary %}
-</div>
-{% endif %}
-
-{% for category_summary in visible_categories %}
-<div class="well">
-    <p>{{ category_summary.category.name }}</p>
-    <p><strong class="h2">
-    	{{ category_summary.get_total_points }}
-    	<small>/ {{ category_summary.get_max_points }}</small>
-    </strong></p>
-    {% summary_progress category_summary %}
-</div>
-{% endfor %}
+{% category_points %}
 
 {% plugin_renderers user instance as plugins %}
 {% for plugin in plugins %}
     {{ plugin.render|safe }}
 {% endfor %}
-
 {% endblock %}

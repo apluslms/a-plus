@@ -4,7 +4,7 @@
 
 {% block title %}{{ block.super }} / {% blocktrans with model=model_name id=object.id %}Remove {{ model }} ID {{ id }}{% endblocktrans %}{% endblock %}
 
-{% block breadcrumb %}
+{% block editbreadcrumblist %}
 {{ block.super }}
 <li class="active">
 	{% blocktrans with model=model_name %}

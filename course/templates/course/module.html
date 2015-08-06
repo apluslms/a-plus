@@ -5,19 +5,18 @@
 
 {% block title %}{{ block.super }}: {{ module }}{% endblock %}
 
+{% block siblings %}
+{% with next=module.next previous=module.previous %}
+{% include "course/_siblings.html" %}
+{% endwith %}
+{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{{ module }}</li>
+{% endblock %}
+
 {% block coursecontent %}
-
-    {% with next=module.next previous=module.previous %}
-    {% include "course/_siblings.html" %}
-    {% endwith %}
-
-    <ol class="breadcrumb">
-        <li><a href="{{ instance|url }}">{% trans "Home" %}</a></li>
-        <li class="active">
-            {{ module }}
-        </li>
-    </ol>
-
     <p>
         <span class="small">
             {{ module.opening_time }}

@@ -1,0 +1,12 @@
+{% load i18n %}
+{% if status %}
+<span class="badge">
+    {{ status }}
+</span>
+{% else %}
+<span class="badge{% if submitted %} badge-{% if passed %}success{% else %}warning{% endif %}{% endif %} {{ classes }}"
+        data-toggle="tooltip" data-placement="bottom"
+        title="{% if passed %}{% if submitted %}{% trans 'Passed' %}{% else %}{% trans 'No submissions' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% else %}{% trans 'Required exercises are not passed' %}{% endif %}">
+    {{ points }} / {{ max }}
+</span>
+{% endif %}

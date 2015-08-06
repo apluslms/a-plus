@@ -4,8 +4,12 @@
 {% block title %}{{ block.super }} / {% trans "Submission" %} {{ index }}{% endblock %}
 {% block view_tag %}submission{% endblock %}
 
-{% block exercisecontent %}
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Submission" %} {{ index }}</li>
+{% endblock %}
 
+{% block exercisecontent %}
     {% if submission.files.all %}
     <h3>{% trans "Files in this submission" %}</h3>
     <ul class="unstyled">

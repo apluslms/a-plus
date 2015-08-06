@@ -24,6 +24,9 @@
             	{% endif %}
             </dd>
 
+            <dt>{% trans "Points required to pass" %}</dt>
+            <dd>{{ exercise.points_to_pass }}</dd>
+
             <dt>{% trans "Deadline" %}</dt>
             <dd>{{ exercise.course_module.closing_time }}</dd>
 

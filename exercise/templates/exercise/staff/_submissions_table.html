@@ -1,24 +1,19 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
+<p>
+    {% blocktrans with count=submissions.count %}
+    {{ count }} submissions
+    {% endblocktrans %}
+</p>
 <table class="table table-bordered" id="submission-table">
     <thead>
         <tr>
-            <th>
-                {% trans "Submitters" %}
-            </th>
-            <th>
-                {% trans "Time" %}
-            </th>
-            <th>
-                {% trans "Status" %}
-            </th>
-            <th>
-                {% trans "Grade" %}
-            </th>
-            <th>
-                {% trans "Inspect" %}
-            </th>
+            <th>{% trans "Submitters" %}</th>
+            <th>{% trans "Time" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Grade" %}</th>
+            <th>{% trans "Inspect" %}</th>
         </tr>
     </thead>
     <tbody>
@@ -44,7 +39,8 @@
                 {{ submission.grade }}
             </td>
             <td>
-                <a href="{{ submission|url:'submission-inspect' }}">
+                <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+                    <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
                     {% trans "Inspect" %}
                 </a>
             </td>

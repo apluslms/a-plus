@@ -5,12 +5,50 @@
 {% block title %}{{ block.super }}: {% trans "All results" %}{% endblock %}
 {% block view_tag %}all-results{% endblock %}
 
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "All results" %}</li>
+{% endblock %}
+
 {% block columns %}
-<div class="col-md-10">
-    <ol class="breadcrumb">
-        <li><a href="{{ instance|url }}">{% trans "Home" %}</a></li>
-        <li class="active">{% trans "All results" %}</li>
-    </ol>
-    {% include 'exercise/staff/_results_table.html' with result_table=table %}
+<div class="col-md-12">
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">
+                	{% blocktrans with num=table.students|length %}
+                	Student (N={{ num }})
+                	{% endblocktrans %}
+                </th>
+                {% for exercise in table.exercises %}
+                <th scope="col">
+                	<a href="{{ exercise|url }}">{{ exercise.name }}</a>
+                </th>
+                {% endfor %}
+                <th>{% trans "Sum" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        	{% for student, grades, grade_sum in table.results_for_template %}
+            <tr>
+                <th scope="row">{% firstof student.student_id student.user.username %}</th>
+                {% for grade in grades %}
+                <td>{% if grade != None %}{{ grade }}{% else %}&nbsp;{% endif %}</td>
+                {% endfor %}
+                <td>{{ grade_sum }}</td>
+            </tr>
+        	{% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>{% trans "Maximum points" %}</td>
+                {% for exercise in table.exercises %}
+                <td>{{ exercise.max_points }}</td>
+                {% endfor %}
+                <td>{{ table.max_sum }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
 </div>
 {% endblock %}
