@@ -32,7 +32,8 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     page = ExercisePage(exercise)
     try:
         data, files = submission.get_post_parameters()
-        remote_page = RemotePage(url, timeout=50, data=data, files=files)
+        remote_page = RemotePage(url, timeout=50, post=True, data=data,
+            files=files)
         submission.clean_post_parameters()
         parse_page_content(page, remote_page)
     except RemotePageException:

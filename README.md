@@ -25,12 +25,13 @@ Code Organization
 -----------------
 
 * [a-plus/](a-plus) : Django main settings
-* [course/](course) : The course elements and course editing
+* [userprofile/](userprofile) : User information and authentication
+* [django_shibboleth/](django_shibboleth) : Handles users for Apache Shibboleth request headers
+* [course/](course) : The course instances, modules and chapters
 * [exercise/](exercise) : Exercises and submissions to them
 * [deviations/](deviations) : Student deviations to submission rules
-* [userprofile/](userprofile) : Additional user information and groups
-* [django_shibboleth/](django_shibboleth) : Handles users for Apache Shibboleth request headers
 * [notification/](notification) : User messaging framework
+* [edit_course/](edit_course) : The course editing for teachers
 * [inheritance/](inheritance) : Utilities for model class hierarchy
 * [external_services/](external_services) : Linking to external services, optionally LTI authenticated
 * [apps/](apps) : Provides plugins that can integrate additional content to course instances

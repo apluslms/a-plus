@@ -18,10 +18,10 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, timeout=20, data=None, files=None):
+    def __init__(self, url, timeout=20, post=False, data=None, files=None):
         self.url = urllib.parse.urlparse(url)
         try:
-            if data:
+            if post:
                 self.response = requests.post(url, data=data, files=files,
                     timeout=timeout)
             else:
