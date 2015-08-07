@@ -9,7 +9,7 @@
     <div class="col-sm-2 hidden-xs">
         <nav class="course-menu">
             <ul class="nav nav-pills nav-stacked">
-                {% include "course/_course_menu.html" with logout=False %}
+                {% include "course/_course_menu.html" %}
             </ul>
         </nav>
 
@@ -50,5 +50,5 @@
 
 {% block mobilemenu %}
 {{ block.super }}
-{% include "course/_course_menu.html" with logout=True %}
+{% include "course/_course_menu.html" %}
 {% endblock %}

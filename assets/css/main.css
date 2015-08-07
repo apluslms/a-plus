@@ -87,12 +87,16 @@ html, body {
     border-color: #236aa7;
     border-color: rgba(0, 0, 0, 0.25);
 }
-.navbar-static-top ul.visible-xs .divider,
 .navbar-static-top ul.visible-xs .header {
-    height: 1px;
-    margin: -1px 0 0 0;
-    overflow: hidden;
-    background: #333;
+    border-left: none;
+    border-right: none;
+    padding: 0.2em 1em;
+}
+.navbar-static-top ul.visible-xs .header h4 {
+    font-size: 10px;
+    font-weight: bolder;
+    color: #75A5D0;
+    margin: 0;
 }
 
 /* menus */

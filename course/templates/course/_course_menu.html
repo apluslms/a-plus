@@ -15,20 +15,12 @@
         {% trans "My results" %}
     </a>
 </li>
-<li role="presentation" class="menu-profile">
+<li role="presentation" class="menu-notifications">
     <a href="{{ instance|url:'notifications' }}">
         <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
         {% trans "Notifications" %}
     </a>
 </li>
-{% if logout and user.is_authenticated %}
-<li role="presentation">
-    <a href="{% url 'logout' %}">
-        <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-        {% trans "Log out"%}
-    </a>
-</li>
-{% endif %}
 
 {% external_menu_entries instance.pk as entries %}
 {% if entries|length > 0 %}
