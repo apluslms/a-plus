@@ -76,21 +76,29 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
         return self.submission.get_inspect_url()
 
     def form_valid(self, form):
+        assistant_feedback = form.cleaned_data["assistant_feedback"]
+        feedback = form.cleaned_data["feedback"]
+
+        note = ""
+        if self.submission.assistant_feedback != assistant_feedback:
+            note = assistant_feedback
+        elif self.submission.feedback != feedback:
+            note = feedback
+
         self.submission.set_points(form.cleaned_data["points"],
             self.exercise.max_points, no_penalties=True)
         self.submission.grader = self.profile
-        self.submission.assistant_feedback = \
-            form.cleaned_data["assistant_feedback"]
-        self.submission.feedback = form.cleaned_data["feedback"]
+        self.submission.assistant_feedback = assistant_feedback
+        self.submission.feedback = feedback
         self.submission.set_ready()
         self.submission.save()
 
-        sub = _('New assistant feedback')
+        sub = _('Feedback to {name}').format(name=self.exercise)
         msg = _('<p>You have new personal feedback to exercise '
-                '<a href="{url}">{name}</a>:</p>{message}').format(
+                '<a href="{url}">{name}</a>.</p>{message}').format(
             url=self.submission.get_absolute_url(),
-            name=self.exercise.name,
-            message=self.submission.feedback,
+            name=self.exercise,
+            message=note,
         )
         for student in self.submission.submitters.all():
             Notification.send(self.profile, student, self.instance, sub, msg)
@@ -151,7 +159,7 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
         )
         if not form.is_valid():
             messages.error(request,
-                _("Invalid POST data: <pre>{error}</pre>").format(
+                _("Invalid POST data:\n{error}").format(
                     error="\n".join(extract_form_errors(form))))
             return self.redirect(self.exercise.get_submission_list_url())
 

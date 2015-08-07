@@ -26,12 +26,14 @@
 		<td>{% submission_points submission %}</td>
 		{% if submission.files.exists %}
 		<td>
+			<ul class="list-unstyled">
 			{% for file in submission.files.all %}
-			<div>
-				<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-				{% include "exercise/_file_link.html" %}
-			</div>
+				<li>
+					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+					{% include "exercise/_file_link.html" %}
+				</li>
 			{% endfor %}
+			</ul>
 		</td>
 		{% endif %}
 		{% if is_course_staff %}
@@ -45,23 +47,17 @@
 	</tr>
 </table>
 
-{% if submission.exercise.allow_assistant_grading %}
 {% if submission.assistant_feedback %}
-
 <h4>{% trans "Assistant feedback" %}</h4>
-{{ submission.assistant_feedback|safe }}
-
-{% else %}
+<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
+{% elif submission.exercise.allow_assistant_grading %}
 <div class="alert alert-info">
 	{% trans "No assistant feedback available for this submission." %}
 </div>
 {% endif %}
-{% endif %}
 
 {% if submission.feedback %}
-
-{{ submission.feedback|safe }}
-
+<div>{{ submission.feedback|safe }}</div>
 {% else %}
 <div class="alert alert-info">
 	{% trans "No grader feedback available for this submission." %}

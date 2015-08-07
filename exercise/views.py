@@ -80,8 +80,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def submission_check(self, students):
         ok, issues = self.exercise.is_submission_allowed(students)
-        for msg in issues:
-            messages.warning(self.request, msg)
+        if len(issues) > 0:
+            messages.warning(self.request, "\n".join(issues))
         return ok
 
 

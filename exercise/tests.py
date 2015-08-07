@@ -459,13 +459,19 @@ class ExerciseTest(TestCase):
         self.assertEqual(summary.get_max_points(), 400)
         self.assertEqual(summary.get_total_points(), 100)
 
-        msummary = summary.get_module_summary(self.course_module)
+        for s in summary.module_summaries:
+            if s.module == self.course_module:
+                msummary = s
+                break
         self.assertEqual(msummary.get_exercise_count(), 3)
         self.assertEqual(msummary.get_max_points(), 200)
         self.assertEqual(msummary.get_total_points(), 100)
         self.assertFalse(msummary.is_passed())
 
-        csummary = summary.get_category_summary(self.learning_object_category)
+        for s in summary.category_summaries:
+            if s.category == self.learning_object_category:
+                csummary = s
+                break
         self.assertEqual(csummary.get_exercise_count(), 5)
         self.assertEqual(csummary.get_max_points(), 400)
         self.assertEqual(csummary.get_total_points(), 100)

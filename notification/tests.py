@@ -88,22 +88,24 @@ class NotificationTest(TestCase):
         self.assertEqual("testNotification", notifications[1].notification)
         self.assertFalse(notifications[1].seen)
 
-    def test_notification_mark_as_seen(self):
+    def test_notification_mark_unseen(self):
         self.assertFalse(self.notification.seen)
         ns = NotificationSet.get_unread(self.teacher)
         self.assertEqual(ns.count, 1)
-        ns = NotificationSet.get_course_unread_and_mark(self.course_instance, self.teacher)
+        ns = NotificationSet.get_course(self.course_instance, self.teacher)
+        self.assertEqual(ns.count_and_mark_unseen(), 1)
         self.assertTrue(self.notification in ns.notifications)
         ns = NotificationSet.get_unread(self.teacher)
         self.assertEqual(ns.count, 0)
-        ns = NotificationSet.get_course_read(self.course_instance, self.teacher)
+        ns = NotificationSet.get_course(self.course_instance, self.teacher)
         self.assertEqual(ns.count, 1)
+        self.assertEqual(ns.count_and_mark_unseen(), 0)
 
     def test_notification_string(self):
         self.assertEqual("To:teacher, testSubject, testNotification", str(self.notification))
 
     def test_notification_unread_count(self):
-        
+
         self.notification1 = Notification.objects.create(
             subject="test1",
             notification="testNotification1",
@@ -151,8 +153,3 @@ class NotificationTest(TestCase):
         self.assertEqual(2, unread.count)
         unread = NotificationSet.get_unread(self.superuser)
         self.assertEqual(0, unread.count)
-
-    def test_notification_unread_course_instances(self):
-        unread = NotificationSet.get_unread(self.teacher)
-        self.assertEqual(1, unread.count)
-        self.assertTrue(self.course_instance in unread.course_instances)

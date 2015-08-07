@@ -138,3 +138,22 @@ class BaseFormMixin(BaseRedirectMixin, BaseTemplateMixin, FormMixin):
 
 class BaseFormView(BaseFormMixin, View):
     pass
+
+
+class PagerMixin(object):
+    page_kw = "page"
+    per_page = 10
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.page = self._parse_page(self.page_kw)
+        self.note("page", "per_page")
+
+    def _parse_page(self, parameter_name):
+        try:
+            value = self.request.GET.get(parameter_name)
+            if value:
+                return max(1, int(value))
+        except ValueError:
+            pass
+        return 1

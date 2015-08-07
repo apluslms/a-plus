@@ -5,8 +5,17 @@
 dl > dt {
     margin-top: 0.5em;
 }
-.pull-right {
+.pre {
+    white-space: pre;
+}
+.unread {
+    font-weight: bold;
+}
+.panel-title .pull-right {
     margin-left: 0.5em;
+}
+.alert .pull-left {
+    margin-right: 0.5em;
 }
 .nav .navbar-btn {
     margin-top: 10px;
@@ -95,6 +104,17 @@ html, body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.menu-exercise, .menu-submission {
+    max-width: 50%;
+    text-overflow: ellipsis;
+}
+@media (min-width: 768px) {
+    .col-sm-2 .nav a {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
 
 /* index thumbnails */
 .course-thumbnail {
@@ -121,14 +141,14 @@ html, body {
     width: 100%;
 }
 
-/* module panels */
+/* panels */
 .module-panel .panel-heading {
     display: block;
 }
 .module-panel .panel-title .caret {
     margin-right: 0.5em;
 }
-.module-panel .collapsed .panel-title .caret {
+.collapsed .caret {
     border-left: 4px dashed;
     border-top: 4px solid transparent;
     border-bottom: 4px solid transparent;

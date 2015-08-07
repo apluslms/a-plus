@@ -33,6 +33,10 @@ class ArchiveView(UserProfileView):
     template_name = "course/archive.html"
 
 
+class ProfileView(UserProfileView):
+    template_name = "course/profile.html"
+
+
 class CourseView(CourseBaseView):
     template_name = "course/course.html"
 
@@ -44,10 +48,6 @@ class CourseView(CourseBaseView):
 
 class InstanceView(CourseInstanceBaseView):
     template_name = "course/toc.html"
-
-
-class ProfileView(CourseInstanceBaseView):
-    template_name = "course/profile.html"
 
 
 class ModuleView(CourseModuleBaseView):

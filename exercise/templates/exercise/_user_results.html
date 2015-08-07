@@ -9,7 +9,7 @@
 <div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
     <a class="panel-heading{% if not open %} collapsed{% endif %}"
         role="button" href="#module{{ course_module.id }}" data-toggle="collapse"
-        aria-expanded="true" aria-controls="#module{{ course_module.id }}">
+        aria-expanded="{% if open %}true{% else %}false{% endif %}" aria-controls="#module{{ course_module.id }}">
         <h3 class="panel-title">
 			{% summary_points module_summary "pull-right" %}
 			{% if not open and not after_open %}
@@ -17,7 +17,7 @@
 				{% trans "Opens" %} {{ course_module.opening_time }}
 			</span>
 			{% endif %}
-            <span class="caret"></span>
+            <span class="caret" aria-hidden="true"></span>
             {{ course_module }}
         </h3>
     </a>

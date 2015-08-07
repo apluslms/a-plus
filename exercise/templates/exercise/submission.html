@@ -11,43 +11,32 @@
 
 {% block exercisecontent %}
     {% if submission.files.all %}
-    <h3>{% trans "Files in this submission" %}</h3>
-    <ul class="unstyled">
+    <h4>{% trans "Files in this submission" %}</h4>
+    <ul class="list-unstyled">
         {% for file in submission.files.all %}
         <li>
-        	<i class="icon-file"></i>
+        	<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
         	{% include "exercise/_file_link.html" %}
         </li>
         {% endfor %}
     </ul>
     {% endif %}
 
-    {% if submission.exercise.allow_assistant_grading %}
     {% if submission.assistant_feedback %}
-
-    <h2>{% trans "Assistant feedback" %}</h2>
-    {{ submission.assistant_feedback|safe }}
-
-    {% else %}
-
+    <h4>{% trans "Assistant feedback" %}</h4>
+    <blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
+    {% elif submission.exercise.allow_assistant_grading %}
     <div class="alert alert-info">
         {% trans "No assistant feedback available for this submission." %}
     </div>
-
-    {% endif %}
     {% endif %}
 
     {% if submission.feedback %}
-
-    <h2>{% trans "Grader feedback" %}</h2>
-	{{ submission.feedback|safe }}
-
+    <div>{{ submission.feedback|safe }}</div>
     {% else %}
-
     <div class="alert alert-info">
         {% trans "No grader feedback available for this submission." %}
     </div>
-
     {% endif %}
 
 {% endblock %}
