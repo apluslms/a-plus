@@ -9,7 +9,7 @@ class FileUploadGraderTest(unittest.TestCase):
         testInitializer = TestInitializer()
         self.driver = testInitializer.getFirefoxDriverWithLoggingEnabled()
         testInitializer.recreateDatabase()
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginAsStudent()
 
     def testShouldGiveZeroPointsOnEmptySubmit(self):
         fileUploadPage = FileUploadGrader(self.driver)

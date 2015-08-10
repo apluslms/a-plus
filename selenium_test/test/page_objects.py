@@ -11,7 +11,6 @@ from locators import FirstPageLocators, \
     HomePageLocators, \
     StaffPageLocators, \
     TeachersPageLocators, \
-    AssistantsPageLocators, \
     SubmissionPageLocators, \
     StudentFeedbackPageLocators, \
     ExercisePageLocators, \
@@ -110,6 +109,7 @@ class LoginPage(AbstractPage):
     defaultUsername = "jenkins"
     defaultPassword = "admin"
     studentUsername = "student_user"
+    assistantUsername = "assistant_user"
     teacherUsername = "teacher_user"
 
     def __init__(self, driver):
@@ -119,15 +119,17 @@ class LoginPage(AbstractPage):
     def loginToCourse(self, course, username=defaultUsername, password=defaultPassword):
         if (course == CourseName.APLUS):
             self.getElement(FirstPageLocators.APLUS_TEST_COURSE_INSTANCE_BUTTON).click()
-            self.signIn(username, password)
-            self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
         elif (course == CourseName.HOOK):
             self.getElement(FirstPageLocators.HOOK_EXAMPLE_BUTTON).click()
-            self.signIn(username, password)
-            self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
+        self.waitForElement(LoginPageLocators.BANNER)
+        self.signIn(username, password)
+        self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
 
     def loginAsStudent(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.studentUsername, self.defaultPassword)
+
+    def loginAsAssistant(self, course=CourseName.APLUS):
+        self.loginToCourse(course, self.assistantUsername, self.defaultPassword)
 
     def loginAsTeacher(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.teacherUsername, self.defaultPassword)
@@ -167,7 +169,7 @@ class BasePage(AbstractPage):
         self.getElement(BasePageLocators.TEACHERS_VIEW_LINK).click()
 
     def hasNewNotifications(self):
-        return self.isElementPresent(BasePageLocators.NOTIFICATION_MENU)
+        return self.isElementPresent(BasePageLocators.NOTIFICATION_ALERT)
 
 
 class HomePage(BasePage):
@@ -237,15 +239,10 @@ class StaffPage(BasePage):
         else:
             raise Exception("Tried to click submission link number " + number + "but there are only " + len(submissionLinks) + " elements.")
 
-class TeachersPage(StaffPage):
+class TeachersPage(BasePage):
     def __init__(self, driver):
-        StaffPage.__init__(self, driver)
+        BasePage.__init__(self, driver)
         self.load("/aplus1/basic_instance/teachers/", TeachersPageLocators.TEACHERS_VIEW_BANNER)
-
-class AssistantsPage(StaffPage):
-    def __init__(self, driver):
-        StaffPage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
 
 class EditModulePage(BasePage):
     def __init__(self, driver, moduleNumber):
@@ -282,6 +279,7 @@ class EditModulePage(BasePage):
 
     def submit(self):
         self.getElement(EditModulePageLocators.SUBMIT_BUTTON).click()
+        self.waitForElement(TeachersPageLocators.TEACHERS_VIEW_BANNER)
 
     def isSuccessfulSave(self):
         return self.isElementVisible(EditModulePageLocators.SUCCESSFUL_SAVE_BANNER)
@@ -325,7 +323,7 @@ class EditExercisePage(BasePage):
 class SubmissionPage(BasePage):
     def __init__(self, driver, exerciseNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/submissions/", SubmissionPageLocators.TABLE_FIRST_HEADER)
+        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/submissions/", SubmissionPageLocators.SUBMISSIONS_PAGE_BANNER)
 
     def getInspectionLinks(self):
         return self.getElements(SubmissionPageLocators.INSPECTION_LINKS)
@@ -345,12 +343,11 @@ class StudentFeedbackPage(BasePage):
         BasePage.__init__(self, driver)
         self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
 
-    # We have to use str.split because feedback texts aren't tagged
     def getAssistantFeedbackText(self):
-        return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).split('\n', 3)[1].strip()
+        return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).strip()
 
     def getFeedbackText(self):
-        return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).split('\n', 3)[3].strip()
+        return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).strip()
 
 class InspectionPage(BasePage):
     def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
@@ -390,7 +387,7 @@ class AssessmentPage(BasePage):
 class CourseArchivePage(AbstractPage):
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
-        self.load("/archive/", CourseArchiveLocators.COURSE_ID_TITLE)
+        self.load("/archive/", FirstPageLocators.BANNER)
 
 
 class MyFirstExerciseGrader(ExercisePage):
@@ -403,6 +400,7 @@ class MyFirstExerciseGrader(ExercisePage):
 
     def submit(self):
         self.getElement(MyFirstExerciseLocators.SUBMIT_BUTTON).click()
+        self.waitForElement(ExercisePageLocators.RECEIVED_BANNER)
 
 
 class FileUploadGrader(ExercisePage):
@@ -411,7 +409,11 @@ class FileUploadGrader(ExercisePage):
         self.load("/aplus1/basic_instance/exercises/2/", FileUploadGraderLocators.MAIN_TITLE)
 
     def submit(self):
+        # Failed to select actual file to submit.
+        #script = "document.getElementById('myfile_id').value='/tmp/selenium_test_file';";
+        #self.driver.execute_script(script)
         self.getElement(FileUploadGraderLocators.SUBMIT_BUTTON).click()
+        self.waitForElement(ExercisePageLocators.RECEIVED_BANNER)
 
 
 class MyAjaxExerciseGrader(ExercisePage):
@@ -426,3 +428,4 @@ class MyAjaxExerciseGrader(ExercisePage):
         self.getElement(MyAjaxExerciseGraderLocators.SUBMIT_BUTTON).click()
         alert = self.getAlert()
         alert.accept()
+        self.waitForAjax()

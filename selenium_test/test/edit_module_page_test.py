@@ -8,7 +8,7 @@ class EditModulePageTest(unittest.TestCase):
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
         TestInitializer().recreateDatabase()
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginAsTeacher()
 
     def testShouldSaveModule(self):
         COURSE_NAME = "Testikurssi"

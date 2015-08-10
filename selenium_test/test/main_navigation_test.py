@@ -9,7 +9,7 @@ class MainNavigationTest(unittest.TestCase):
 
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginAsTeacher()
 
     def testNavigateToResults(self):
         BasePage(self.driver).clickResultsLink()
@@ -17,7 +17,7 @@ class MainNavigationTest(unittest.TestCase):
 
     def testNavigateToUserPage(self):
         BasePage(self.driver).clickUserLink()
-        self.assertEqual(self.baseUrl + 'user/', str(self.driver.current_url))
+        self.assertEqual(self.baseUrl + 'user/notifications/', str(self.driver.current_url))
 
     def testNavigateToTeachersView(self):
         BasePage(self.driver).clickTeachersViewLink()
@@ -25,7 +25,7 @@ class MainNavigationTest(unittest.TestCase):
 
     def testDownloadCalendar(self):
         BasePage(self.driver).clickCalendarFeedLink()
-        self.assertEqual("Calendar feed (ics)", str(self.driver.switch_to.active_element.text))
+        self.assertEqual("Download calendar (ics)", str(self.driver.switch_to.active_element.text))
 
     def tearDown(self):
         self.driver.close()

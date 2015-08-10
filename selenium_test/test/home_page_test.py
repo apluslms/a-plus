@@ -14,6 +14,7 @@ class HomePageTest(unittest.TestCase):
     def testInitialScoreShouldBeZero(self):
         self.assertEqual("0 / 300", HomePage(self.driver).getMainScore())
 
+    @unittest.skip("TODO: reimplement filtering")
     def testFilterCategories(self):
         homePage = HomePage(self.driver)
 

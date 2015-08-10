@@ -8,14 +8,13 @@ class EditExercisePageTest(unittest.TestCase):
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
         TestInitializer().recreateDatabase()
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginAsTeacher()
 
     def testShouldSaveExercise(self):
         exerciseName = "Testiharjoitus"
         maxSubmissions = "5"
         maxPoints = "99"
         pointToPass = "50"
-        #moduleNumber = 1
         exerciseNumber = 1
 
         editExercisePage = EditExercisePage(self.driver, exerciseNumber)
