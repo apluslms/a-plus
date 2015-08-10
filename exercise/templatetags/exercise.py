@@ -109,6 +109,7 @@ def user_results(context):
     return {
         "summary": summary,
         "exercise_tree": collect_tree(summary),
+        "is_course_staff": context["is_course_staff"],
     }
 
 
