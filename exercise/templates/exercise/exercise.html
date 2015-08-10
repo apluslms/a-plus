@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block exercisecontent %}
-
-{{ page.content|safe }}
-
+<div id="exercise">
+    {{ page.content|safe }}
+</div>
 {% include "exercise/_exercise_wait.html" %}
 {% endblock %}
 

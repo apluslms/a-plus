@@ -32,7 +32,9 @@
     {% endif %}
 
     {% if submission.feedback %}
-    <div>{{ submission.feedback|safe }}</div>
+    <div id="exercise">
+        {{ submission.feedback|safe }}
+    </div>
     {% else %}
     <div class="alert alert-info">
         {% trans "No grader feedback available for this submission." %}
