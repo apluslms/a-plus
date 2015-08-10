@@ -1,6 +1,7 @@
 # Usage: pip install -r requirements.txt
 beautifulsoup4==4.3.2
 Django==1.7.7
+django-bootstrap-form==3.2
 django-tastypie==0.12.1
 feedparser
 icalendar==3.9.0
