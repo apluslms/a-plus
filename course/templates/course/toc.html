@@ -1,0 +1,86 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load apps %}
+
+{% block view_tag %}home{% endblock %}
+{% block breadcrumb %}{% endblock %}
+
+{% block coursecontent %}
+{% if instance.has_chapters %}
+<ul>
+    {% for module in instance.course_modules.all %}
+    {% if module.chapters.exists or module.learning_objects.exists %}
+    {% with open=module.is_after_open %}
+    <li>
+        <h3>
+            {% if open %}
+            <a href="{{ module|url }}">{{ module }}</a>
+            {% else %}
+            {{ module }}
+            {% if is_course_staff %}
+            <a class="btn btn-default btn-xs" href="{{ module|url }}">
+                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                {% trans "Early access" %}
+            </a>
+            {% endif %}
+            {% endif %}
+        </h3>
+        <p>
+            <small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
+        </p>
+        <ul class="chapters">
+            {% for chapter in module.chapters.all %}
+            <li>
+                {% if open %}
+                <a href="{{ chapter|url }}">{{ chapter }}</a>
+                {% else %}
+                {{ chapter }}
+                {% if is_course_staff %}
+                <a class="btn btn-default btn-xs" href="{{ chapter|url }}">
+                    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                    {% trans "Early access" %}
+                </a>
+                {% endif %}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% if not module.chapters.exists %}
+        <ul class="exercises">
+            {% for exercise in module.learning_objects.all %}
+            <li>
+                {% if open %}
+                <a href="{{ exercise|url }}">{{ exercise }}</a>
+                {% else %}
+                {{ exercise }}
+                {% if is_course_staff %}
+                <a class="btn btn-default btn-xs" href="{{ exercise|url }}">
+                    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                    {% trans "Early access" %}
+                </a>
+                {% endif %}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+    {% endwith %}
+    {% endif %}
+    {% endfor %}
+</ul>
+{% else %}
+{% user_results %}
+{% endif %}
+{% endblock %}
+
+{% block sidecontent %}
+    {% category_points %}
+
+    {% plugin_renderers user instance as plugins %}
+    {% for plugin in plugins %}
+        {{ plugin.render|safe }}
+    {% endfor %}
+{% endblock %}

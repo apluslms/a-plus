@@ -1,154 +1,74 @@
-{% extends "course/course_base.html" %}
+{% extends "exercise/exercise_base.html" %}
 {% load i18n %}
-{% load exercise %}
+{% load course %}
 
-{% block coursecontent %}
+{% block title %}{{ block.super }} / {% trans "Inspect SID " %} {{ submission.id}}{% endblock %}
+{% block view_tag %}inspect{% endblock %}
 
-<div class="row">
-    <div class="span10">
-        <ul class="breadcrumb">
-            <li>
-                <a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
-                	{{ course.name }}
-                </a>
-                <span class="divider">/</span>
-            </li>
-            <li>
-                <a href="{% url 'exercise.staff_views.list_exercise_submissions' course_url=course.url instance_url=instance.url exercise_id=exercise.id %}">
-                	{{ exercise.name }}
-                </a>
-                <span class="divider">/</span>
-            </li>
-            <li class="active">
-                {% trans "Submission" %} {{ submission.id }}
-            </li>
-        </ul>
-    </div>
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
+<li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
+<li class="active">{% trans "Inspect" %}</td>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-5">
+    {% include "exercise/staff/_assess_info.html" %}
 </div>
+<div class="col-md-7">
+    <h3>{% trans "Assistant feedback" %}</h3>
+    <div class="well">
 
-<div class="row">
-    <div class="span4" id="student-submission">
-        <h2>{% trans "Submission" %}</h2>
-        
-        <div class="well">
-            {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
-            <p>
-                <a class="btn btn-primary" href="{% url 'exercise.staff_views.assess_submission' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
-                	{% trans "Assess this submission" %}
-                </a>
-            </p>
-            {% endif %}
-            
-            <hr />
-            
-            <h3>{% trans "General information" %}</h3>
-            <dl>
-                <dt>{% trans "Submitters" %}</dt>
-                <dd>{{ submission.submitters.all|students }}</dd>
-            </dl>
-            <dl>
-                <dt>{% trans "Status" %}</dt>
-                <dd>{{ submission.status }}</dd>
-            </dl>
-            <dl>
-                <dt>{% trans "Submission time" %}</dt>
-                <dd>{{ submission.submission_time }}</dd>
-            </dl>
-            <dl>
-                <dt>{% trans "Grade" %}</dt>
-                <dd>{{ submission.grade }} / {{ submission.exercise.max_points }}</dd>
-            </dl>
-            {% if submission.late_penalty_applied %}
-            <dl>
-                <dt>{% trans "Includes late penalty" %}</dt>
-                <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
-            </dl>
-            {% endif %}
-            
-            <hr />
-            
-            <h3>{% trans "Submitted files" %}</h3>
-            <ul class="unstyled">
-                {% for file in submission.files.all %}
-                <li>
-                	<i class="icon-file"></i>
-					{% include "exercise/_file_link.html" %}
-                </li>
-                {% empty %}
-                <li>
-                    {% trans "No files" %}
-                </li>
-                {% endfor %}
-            </ul>
-            
-            <hr />
-            
-            <h3>{% trans "Submitted values" %}</h3>
-            <dl>
-            	{% for item in submission.submission_data %}
-                <dt>{{ item.0 }}</dt>
-                <dd>{{ item.1 }}</dd>
-            	{% empty %}
-                <dt>{% trans "No values" %}</dt>
-            	{% endfor %}
-            </dl>
-            
-            <hr />
-            
-            <h3>Re-Submit to Service</h3>
-            <p>
-            	{% blocktrans %}
-                Click this button to re-submit this submission to the assessment
-                service. This is meant to be used only in situations where the
-                assessment service has behaved incorrectly so that the grading
-                data is incorrect or the status of the submission never became
-                ready. Caution! Re-submitting overwrites the current grading data.
-                {% endblocktrans %}
-            </p>
-            <p>
-            	<form method="post" action="{% url 'exercise.staff_views.resubmit_to_service' course_url=course.url instance_url=instance.url exercise_id=exercise.id submission_id=submission.id %}">
-            		{% csrf_token %}
-            		<input class="btn btn-primary" type="submit" value="{% trans 'Re-Submit to Service' %}" />
-            	</form>
-            </p>
-
-            <hr />
-
-            <h3>{% trans "Grading data" %}</h3>
-            <dl>
-            	{% for item in submission.grading_data.items %}
-                <dt>{{ item.0 }}</dt>
-                <dd>{{ item.1 }}</dd>
-            	{% empty %}
-                <dt>{% trans "No values" %}</dt>
-            	{% endfor %}
-            </dl>
+        {% if submission.assistant_feedback %}
+        {{ submission.assistant_feedback|safe }}
+        {% else %}
+        <div class="alert alert-info">
+        	{% trans "No assistant feedback available for this submission." %}
         </div>
+        {% endif %}
+
+        {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
+        <hr/>
+        <p>
+            <a class="btn btn-primary" href="{{ submission|url:'submission-assess' }}">
+                {% if submission.exercise.allow_assistant_grading %}
+            	{% trans "Assistant assess this submission" %}
+                {% else %}
+                {% trans "Teacher assess this submission" %}
+                {% endif %}
+            </a>
+        </p>
+        {% endif %}
     </div>
-    
-    <div class="span6" id="generated-feedback">
-        <h2>{% trans "Feedback" %}</h2>
-        <div class="well">
-        
-            {% if submission.assistant_feedback %}
-            <h2>Assistant feedback</h2>
-            {{ submission.assistant_feedback|safe }}
-            {% else %}
-            <div class="alert alert-info">
-            	{% trans "No assistant feedback available for this submission." %}
-            </div>
-            {% endif %}
 
-        	{% if submission.feedback %}
-            <h2>Grader feedback</h2>
-            {{ submission.feedback|safe }}
-        	{% else %}
-            <div class="alert alert-info">
-            	{% trans "No grader feedback available for this submission." %}
-            </div>
-        	{% endif %}
-        
+    <h3>{% trans "Grader feedback" %}</h3>
+    <div class="well">
+    	{% if submission.feedback %}
+        {{ submission.feedback|safe }}
+    	{% else %}
+        <div class="alert alert-info">
+        	{% trans "No grader feedback available for this submission." %}
         </div>
+    	{% endif %}
+
+        <hr/>
+        <p>
+        	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
+        		{% csrf_token %}
+        		<input class="btn btn-primary" type="submit" value="{% trans 'Re-submit to service' %}" />
+        	</form>
+        </p>
+        <p>
+        	{% blocktrans %}
+            Click this button to re-submit this submission to the assessment
+            service. This is meant to be used only in situations where the
+            assessment service has behaved incorrectly so that the grading
+            data is incorrect or the status of the submission never became
+            ready. Caution! Re-submitting overwrites the current grading data.
+            {% endblocktrans %}
+        </p>
+
     </div>
 </div>
 {% endblock %}

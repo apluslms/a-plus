@@ -20,7 +20,7 @@ class LinkService(ModelWithInheritance):
     )
     menu_icon_class = models.CharField(
         max_length=32,
-        default="icon-globe",
+        default="globe",
         help_text=_("A default menu icon style name, see http://getbootstrap.com/components/#glyphicons-glyphs")
     )
     enabled = models.BooleanField(
@@ -58,12 +58,23 @@ class MenuItem(models.Model):
     Attaches LTI service to course instance menu.
 
     '''
+    ACCESS_STUDENT = 0
+    ACCESS_ASSISTANT = 5
+    ACCESS_TEACHER = 10
+    ACCESS_CHOICES = (
+        (ACCESS_STUDENT, _("All students, assistants and teachers can access.")),
+        (ACCESS_ASSISTANT, _("Only assistants and teachers can access.")),
+        (ACCESS_TEACHER, _("Only teachers can access.")),
+    )
     service = models.ForeignKey(LinkService)
-
     course_instance = models.ForeignKey(
         CourseInstance,
         related_name="ext_services",
         help_text=_("A course instance where the service is used.")
+    )
+    access = models.IntegerField(
+        choices=ACCESS_CHOICES,
+        default=ACCESS_STUDENT,
     )
     menu_label = models.CharField(
         max_length=32,
@@ -75,7 +86,7 @@ class MenuItem(models.Model):
         max_length=32,
         null=True,
         blank=True,
-        help_text=_("Overrides service default menu icon style, e.g. icon-star see http://getbootstrap.com/components/#glyphicons-glyphs")
+        help_text=_("Overrides service default menu icon style name, e.g. star see http://getbootstrap.com/components/#glyphicons-glyphs")
     )
     menu_weight = models.IntegerField(
         default=0,
@@ -99,7 +110,6 @@ class MenuItem(models.Model):
     @property
     def icon_class(self):
         '''
-        @rtype: C{str}
         @return: menu icon class locally overwritten or from the service
         '''
         if self.menu_icon_class:
@@ -109,11 +119,15 @@ class MenuItem(models.Model):
     @property
     def url(self):
         '''
-        @rtype: C{str}
         @return: menu url
         '''
         if type(self.service.as_leaf_class()) == LTIService:
-            return reverse('external_services.views.lti_login', args=[self.id])
+            instance = self.course_instance
+            return reverse('lti-login', kwargs={
+                "course": instance.course.url,
+                "instance": instance.url,
+                "menu_id": self.id,
+            })
         return self.service.url
 
     def __str__(self):

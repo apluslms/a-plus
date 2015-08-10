@@ -8,11 +8,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 
-from exercise.models import BaseExercise
-from exercise.submission_forms import SubmissionCallbackForm
-from exercise.submission_models import Submission
 from userprofile.models import UserProfile
 from lib.helpers import extract_form_errors
+from .forms import SubmissionCallbackForm
+from .models import BaseExercise
+from .submission_models import Submission
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -30,7 +30,6 @@ def new_async_submission(request, student_ids, exercise_id, hash_key):
     included. When a POST request is made, the view tries to create a new
     submission for the given students.
     """
-
     exercise = get_object_or_404(BaseExercise, id=exercise_id)
     user_ids = student_ids.split("-")
     students = UserProfile.objects.filter(id__in=user_ids)
@@ -172,7 +171,7 @@ def _post_async_submission(request, exercise, submission, students, errors):
             "success": True,
             "errors": []
         }
-        
+
     # Produce error if something goes wrong during saving the points.
     except Exception as e:
         return {

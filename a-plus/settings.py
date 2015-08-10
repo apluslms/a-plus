@@ -26,16 +26,20 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Content
+# To disable Shibboleth login, comment out 'shibboleth_login' in
+# INSTALLED_APPS. Any templates can be overridden by copying into
+# local_templates/possible_path/template_name.html
 
 WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
-
-# To disable Shibboleth login, comment out 'shibboleth_login' in INSTALLED_APPS.
-LOGIN_TITLE_TEXT = 'Log in with Aalto WebLogin'
-LOGIN_BODY_TEXT = 'Click the button below to log in with Aalto University\'s Shibboleth service.'
-LOGIN_BUTTON_TEXT = 'Aalto WebLogin'
+LOGIN_TITLE_TEXT = 'Local A+ users'
+LOGIN_BODY_TEXT = ''
+SHIBBOLETH_TITLE_TEXT = 'Aalto university students'
+SHIBBOLETH_BODY_TEXT = 'Click the button below to log in with Aalto University\'s identity service.'
+SHIBBOLETH_BUTTON_TEXT = 'Aalto WebLogin'
+from .privacy_policy import PRIVACY_POLICY_TEXT
 
 # Application definition
 
@@ -46,8 +50,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.auth',
-
-    # HTTP service API
+    'bootstrapform',
     'tastypie',
 
     # First party applications
@@ -56,6 +59,7 @@ INSTALLED_APPS = (
     'shibboleth_login',
     'course',
     'exercise',
+    'edit_course',
     'deviations',
     'notification',
     'external_services',
@@ -69,13 +73,13 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    #'userprofile.middleware.StudentGroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'lib.middleware.SqlInjectionMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'local_templates'),
     os.path.join(BASE_DIR, 'templates'),
 )
 
@@ -86,7 +90,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.static",
     "django.contrib.messages.context_processors.messages",
-    #"userprofile.context_processors.student_group",
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -134,7 +137,7 @@ USE_TZ = True
 #DATETIME_FORMAT = "Y-m-d H:i"
 
 # Apache module mod_uwsgi was unable to create UTF-8 environment variables.
-# Problem was avoided by URL encoding in Shibboleth: <RequestMap encoding="URL" /> 
+# Problem was avoided by URL encoding in Shibboleth: <RequestMap encoding="URL" />
 SHIBBOLETH_VARIABLES_URL_ENCODED = True
 
 # Static files (CSS, JavaScript, Images)

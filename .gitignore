@@ -2,6 +2,8 @@
 *.pot
 *.pyc
 local_settings.py
+local_privacy_policy.py
+local_templates/
 .svn
 .DS_Store
 
@@ -28,4 +30,3 @@ test_results/
 selenium_test/aplus.out
 selenium_test/example_grader.out
 selenium_test/server.ports
-

@@ -1,0 +1,57 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ block.super }} / {% blocktrans with model=model_name id=object.id %}Remove {{ model }} ID {{ id }}{% endblocktrans %}{% endblock %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li class="active">
+	{% blocktrans with model=model_name %}
+	Remove {{ model }}
+	{% endblocktrans %}
+</li>
+{% endblock %}
+
+{% block coursecontent %}
+<form method="post" class="well form">
+    {% csrf_token %}
+	<legend>
+		{% blocktrans with model=model_name %}
+		Confirm {{ model }} removal
+		{% endblocktrans %}
+	</legend>
+
+	<div class="alert alert-danger">
+		{% if empty %}
+			{% blocktrans with model=model_name name=object %}
+		    You are removing {{ model }} <strong>{{ name }}</strong>.
+			Are you sure?
+			{% endblocktrans %}
+
+			{% if model == "exercise" %}
+			<p>
+				{% blocktrans %}
+			    If you remove this exercise, <strong>all the submissions
+				to the exercise will also be removed</strong>.
+				{% endblocktrans %}
+			</p>
+			{% endif %}
+		{% else %}
+			{% blocktrans with model=model_name name=object %}
+			The {{ model }} <strong>{{ name }}</strong> is not empty.
+			Contained exercises must be removed first.
+			{% endblocktrans %}
+		{% endif %}
+	</div>
+
+	<div class="form-group">
+		{% if empty %}
+	    <input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
+		{% endif %}
+	    <a class="btn btn-default" href="{{ instance|url:'course-edit' }}">
+	    	{% trans "Cancel" %}
+	    </a>
+	</form>
+</form>
+{% endblock %}

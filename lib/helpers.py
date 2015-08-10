@@ -18,7 +18,7 @@ def get_random_string(length=32):
     """
     This function creates a random string with a given length.
     The strings consist of upper and lower case letters and numbers.
-        
+
     @param length: the length of the randomized string, defaults to 32
     @return: a random string containing lower and upper case letters and digits
     """
@@ -56,5 +56,5 @@ FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-"
 def safe_file_name(name):
     safename = "".join(c for c in name if c in FILENAME_CHARS)
     if safename[0] == "-":
-        return "_" + safename[1:]
-    return safename
+        return "_" + safename[1:80]
+    return safename[:80]

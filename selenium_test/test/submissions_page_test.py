@@ -9,7 +9,7 @@ class SubmissionsPageTest(unittest.TestCase):
     def setUp(self):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
         TestInitializer().recreateDatabase()
-        LoginPage(self.driver).loginToCourse(CourseName.APLUS)
+        LoginPage(self.driver).loginAsAssistant()
 
     def testShouldContainAsManySubmissionsAsSubmitted(self):
         firstExercisePage = MyFirstExerciseGrader(self.driver)

@@ -9,7 +9,7 @@ class TeacherFeedbackTest(unittest.TestCase):
         self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
         TestInitializer().recreateDatabase()
 
-    def testStudentShouldGetTeacherFeedbackWithNotification(self):
+    def testStudentShouldGetFeedbackWithNotification(self):
         ASSISTANT_FEEDBACK_TEXT = "ASSISTANT_FEEDBACK"
         FEEDBACK_TEXT = "FEEDBACK"
         EXERCISE_NUMBER = 2
@@ -23,7 +23,7 @@ class TeacherFeedbackTest(unittest.TestCase):
         fileUploadGrader.logout()
 
         # Check submissions
-        LoginPage(self.driver).loginAsTeacher()
+        LoginPage(self.driver).loginAsAssistant()
         submissionPage = SubmissionPage(self.driver, EXERCISE_NUMBER)
         self.assertEqual(submissionPage.getSubmissionCount(), 1)
 

@@ -36,27 +36,23 @@ class UserExerciseSummary(object):
     def get_best_submission(self):
         return self.best_submission
 
-    def get_points(self):
-        return self.best_submission.grade if self.best_submission else 0
-
     def get_max_points(self):
         return self.exercise.max_points
 
-    def get_completed_percentage(self):
-        if self.exercise.max_points > 0:
-            return int(round(100.0 * self.get_points() / self.exercise.max_points))
-        return 100
+    def get_points(self):
+        return self.best_submission.grade if self.best_submission else 0
 
-    def get_required_percentage(self):
-        if self.exercise.max_points > 0:
-            return int(round(100.0 * self.exercise.points_to_pass / self.exercise.max_points))
-        return 0
+    def get_total_points(self):
+        return self.get_points()
 
-    def is_full_points(self):
-        return self.get_points() >= self.exercise.max_points
+    def get_required_points(self):
+        return self.exercise.points_to_pass
+
+    def is_missing_points(self):
+        return self.get_points() < self.exercise.points_to_pass
 
     def is_passed(self):
-        return self.get_points() >= self.exercise.points_to_pass
+        return not self.is_missing_points()
 
     def is_submitted(self):
         return self.submission_count > 0
@@ -65,7 +61,7 @@ class UserExerciseSummary(object):
 class UserModuleSummary(object):
     """
     Summarises the submissions of a certain user in a course module.
-    
+
     """
     def __init__(self, module, user=None, **kwargs):
         self.module = module
@@ -80,7 +76,9 @@ class UserModuleSummary(object):
             for summary in self.exercise_summaries)
         self.total_points = sum(summary.get_points() \
             for summary in self.exercise_summaries)
-    
+        self.submission_count = sum(summary.get_submission_count() \
+            for summary in self.exercise_summaries)
+
     def _generate_summary(self):
         for ex in BaseExercise.objects.filter(course_module=self.module):
             self.exercise_summaries.append(UserExerciseSummary(ex, self.user))
@@ -94,29 +92,28 @@ class UserModuleSummary(object):
     def get_total_points(self):
         return self.total_points
 
-    def get_completed_percentage(self):
-        if self.max_points > 0:
-            return int(round(100.0 * self.total_points / self.max_points))
-        return 100
+    def get_required_points(self):
+        return self.module.points_to_pass
 
-    def get_required_percentage(self):
-        if self.max_points > 0:
-            return int(round(100.0 * self.module.points_to_pass / self.max_points))
-        return 0
+    def is_missing_points(self):
+        return self.total_points < self.module.points_to_pass
 
     def is_passed(self):
-        if self.total_points < self.module.points_to_pass:
+        if self.is_missing_points():
             return False
         for es in self.exercise_summaries:
             if not es.is_passed():
                 return False
         return True
 
+    def is_submitted(self):
+        return self.submission_count > 0
+
 
 class UserCategorySummary(object):
     """
     Summarises the submissions of a certain user in an exercise category.
-    
+
     """
     def __init__(self, category, user=None, **kwargs):
         self.category = category
@@ -125,11 +122,13 @@ class UserCategorySummary(object):
 
         if kwargs.get("generate", True):
             self._generate_summary()
-        
+
         self.exercise_count = len(self.exercise_summaries)
         self.max_points = sum(summary.get_max_points() \
             for summary in self.exercise_summaries)
         self.total_points = sum(summary.get_points() \
+            for summary in self.exercise_summaries)
+        self.submission_count = sum(summary.get_submission_count() \
             for summary in self.exercise_summaries)
 
     def _generate_summary(self):
@@ -144,24 +143,23 @@ class UserCategorySummary(object):
 
     def get_total_points(self):
         return self.total_points
-    
-    def get_completed_percentage(self):
-        if self.max_points > 0:
-            return int(round(100.0 * self.total_points / self.max_points))
-        return 100
 
-    def get_required_percentage(self):
-        if self.max_points > 0:
-            return int(round(100.0 * self.category.points_to_pass / self.max_points))
-        return 0
+    def get_required_points(self):
+        return self.category.points_to_pass
+
+    def is_missing_points(self):
+        return self.total_points < self.category.points_to_pass
 
     def is_passed(self):
-        if self.total_points < self.category.points_to_pass:
+        if self.is_missing_points():
             return False
         for es in self.exercise_summaries:
             if not es.is_passed():
                 return False
         return True
+
+    def is_submitted(self):
+        return self.submission_count > 0
 
 
 class UserCourseSummary(object):
@@ -196,10 +194,8 @@ class UserCourseSummary(object):
         self.max_points = sum(exercise.max_points for exercise in self.exercises)
 
         # Summaries to be generated.
-        self.exercise_summaries = {}
-        self.module_summaries = {}
-        self.category_summaries = {}
-        self.visible_category_summaries = {}
+        self.module_summaries = []
+        self.category_summaries = []
         self.total_points = 0
 
         self._generate_summary()
@@ -208,26 +204,23 @@ class UserCourseSummary(object):
         """
         Generates the different user summaries.
         """
-        submissions_by_exercise_id = {
-            exercise.id: {
-                "obj": exercise,
-                "count": 0,
-                "best": None
-            } for exercise in self.exercises
-        }
 
         # Count submissions and find the best.
-        for submission in self.submissions:
-            d = submissions_by_exercise_id[submission.exercise_id]
-            d["count"] += 1
-            if not d["best"] or submission.grade >= d["best"].grade:
-                d["best"] = submission
-
-        exercise_summaries_by_course_modules = {
-            course_module: [] for course_module in self.modules
+        submissions_by_exercise_id = {
+            exercise.id: (0, None) for exercise in self.exercises
         }
-        exercise_summaries_by_categories = {
-            category: [] for category in self.categories
+        for submission in self.submissions:
+            count, best = submissions_by_exercise_id[submission.exercise_id]
+            if not best or submission.grade >= best.grade:
+                best = submission
+            submissions_by_exercise_id[submission.exercise_id] = (
+                count + 1, best)
+
+        exercise_summaries_by_course_module_id = {
+            course_module.id: [] for course_module in self.modules
+        }
+        exercise_summaries_by_category_id = {
+            category.id: [] for category in self.categories
         }
 
         # Generate summary for each exercise. We have already found out the
@@ -235,54 +228,37 @@ class UserCourseSummary(object):
         # we just pass those to the __init__ of each UserExerciseSummary and
         # use the generate=False to tell the __init__ that it doesn't need to
         # make any additional model queries.
-        for eid, d in list(submissions_by_exercise_id.items()):
-            best = d["best"]
+        for exercise in self.exercises:
+            count, best = submissions_by_exercise_id[exercise.id]
             if best:
                 self.total_points += best.grade
             exercise_summary = UserExerciseSummary(
-                d["obj"],
+                exercise,
                 self.user,
-                submission_count=d["count"],
+                submission_count=count,
                 best_submission=best,
                 generate=False
             )
-            exercise_summaries_by_course_modules[d["obj"].course_module] \
+            exercise_summaries_by_course_module_id[exercise.course_module.id] \
                 .append(exercise_summary)
-            exercise_summaries_by_categories[d["obj"].category] \
+            exercise_summaries_by_category_id[exercise.category.id] \
                 .append(exercise_summary)
-            self.exercise_summaries[eid] = exercise_summary
 
         # Generate a summary for each course module.
-        for module, exercise_summaries \
-                in list(exercise_summaries_by_course_modules.items()):
-            self.module_summaries[module.id] = UserModuleSummary(
+        for module in self.modules:
+            self.module_summaries.append(UserModuleSummary(
                 module,
                 self.user,
-                exercise_summaries=exercise_summaries,
-                generate=False)
+                exercise_summaries=exercise_summaries_by_course_module_id[module.id],
+                generate=False))
 
         # Generate a summary for each category.
-        user_hidden_categories = \
-            list(self.user.userprofile.hidden_categories.all())
-        for category, exercise_summaries \
-                in list(exercise_summaries_by_categories.items()):
-            summary = UserCategorySummary(
+        for category in self.categories:
+            self.category_summaries.append(UserCategorySummary(
                 category,
                 self.user,
-                exercise_summaries=exercise_summaries,
-                generate=False)
-            self.category_summaries[category.id] = summary
-            if not category in user_hidden_categories:
-                self.visible_category_summaries[category.id] = summary
-
-    def get_category_summary(self, category):
-        return self.category_summaries[category.id]
-
-    def get_module_summary(self, course_module):
-        return self.module_summaries[course_module.id]
-
-    def get_exercise_summary(self, exercise):
-        return self.exercise_summaries[exercise.id]
+                exercise_summaries=exercise_summaries_by_category_id[category.id],
+                generate=False))
 
     def get_exercise_count(self):
         return self.exercise_count
@@ -293,13 +269,14 @@ class UserCourseSummary(object):
     def get_total_points(self):
         return self.total_points
 
-    def get_completed_percentage(self):
-        if self.max_points > 0:
-            return int(round(100.0 * self.total_points / self.max_points))
-        return 100
+    def get_required_points(self):
+        return None
+
+    def is_missing_points(self):
+        return False
 
     def is_passed(self):
-        for summary in self.module_summaries.values():
-            if summary.is_passed() == False:
-                return False
-        return True
+        return False
+
+    def is_submitted(self):
+        return False

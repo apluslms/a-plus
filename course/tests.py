@@ -96,7 +96,7 @@ class CourseTest(TestCase):
             late_submission_deadline=self.two_days_from_now,
             late_submission_penalty=0.2
         )
-        
+
         self.learning_object_category = LearningObjectCategory.objects.create(
             name="test category",
             course_instance=self.current_course_instance,
@@ -189,13 +189,6 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_course_staff(self.user))
         self.assertEquals(0, len(self.current_course_instance.get_course_staff_profiles()))
 
-    def test_course_instance_breadcrumb(self):
-        breadcrumb = self.current_course_instance.get_breadcrumb()
-        self.assertEqual(1, len(breadcrumb))
-        self.assertEqual(2, len(breadcrumb[0]))
-        self.assertEqual("123456 test course", breadcrumb[0][0])
-        self.assertEqual("/Course-Url/T-00.1000_d1/", breadcrumb[0][1])
-
     def test_course_instance_students(self):
         students = self.current_course_instance.get_student_profiles()
         self.assertEquals(1, len(students))
@@ -270,13 +263,6 @@ class CourseTest(TestCase):
         self.assertTrue(self.course_module.is_after_open(self.tomorrow))
         self.assertTrue(self.course_module.is_after_open(self.two_days_from_now))
 
-    def test_course_module_breadcrumb(self):
-        breadcrumb = self.course_module.get_breadcrumb()
-        self.assertEqual(2, len(breadcrumb))
-        self.assertEqual(2, len(breadcrumb[1]))
-        self.assertEqual("test module", breadcrumb[1][0])
-        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/", breadcrumb[1][1])
-
     def test_course_views(self):
         response = self.client.get('/no_course/test', follow=True)
         self.assertEqual(response.status_code, 404)
@@ -302,22 +288,19 @@ class CourseTest(TestCase):
         self.assertEqual(response.context["instance"], self.current_course_instance)
         self.assertFalse(response.context["is_assistant"])
         self.assertFalse(response.context["is_teacher"])
-        
+
         response = self.client.get(self.hidden_course_instance.get_absolute_url(), follow=True)
         self.assertEqual(response.status_code, 403)
 
     def test_course_teacher_views(self):
-        url = reverse('course.teacher_views.edit_course', kwargs={
-            'course_url': self.course.url,
-            'instance_url': self.current_course_instance.url
-        })
+        url = self.current_course_instance.get_edit_url()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
-        
+
         self.client.login(username="testUser", password="testPassword")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
-        
+
         self.current_course_instance.assistants.add(self.grader.userprofile)
         self.client.login(username="grader", password="graderPassword")
         response = self.client.get(url)
@@ -326,7 +309,7 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["is_assistant"])
         self.assertFalse(response.context["is_teacher"])
-        
+
         self.current_course_instance.assistants.clear()
         self.course.teachers.add(self.grader.userprofile)
         response = self.client.get(url)
@@ -335,11 +318,11 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context["is_assistant"])
         self.assertTrue(response.context["is_teacher"])
-        
+
         self.client.logout()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
-        
+
         self.client.login(username="staff", password="staffPassword")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

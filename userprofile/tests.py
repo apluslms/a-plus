@@ -115,10 +115,10 @@ class UserProfileTest(TestCase):
         self.assertRaises(UserProfile.DoesNotExist, UserProfile.get_by_student_id, "111111")
 
     def test_userprofile_unicode_string(self):
-        self.assertEqual("testUser", str(self.student_profile))
-        self.assertEqual("grader", str(self.grader_profile))
-        self.assertEqual("teacher", str(self.teacher_profile))
-        self.assertEqual("superuser", str(self.superuser_profile))
+        self.assertEqual("12345X (testUser)", str(self.student_profile))
+        self.assertEqual("67890Y (grader)", str(self.grader_profile))
+        self.assertEqual("None (teacher)", str(self.teacher_profile))
+        self.assertEqual("None (superuser)", str(self.superuser_profile))
 
     def test_userprofile_gravatar_url(self):
         self.assertEqual("http://www.gravatar.com/avatar/36eb57f675f34b81bd859c525cb2b676?d=identicon", self.student_profile.avatar_url)
@@ -137,30 +137,30 @@ class UserProfileTest(TestCase):
 #         self.assertEqual(2, len(self.student_profile.cached_hidden_categories))
 #         self.assertEqual(self.learning_object_category1, self.student_profile.cached_hidden_categories[0])
 #         self.assertEqual(self.learning_object_category2, self.student_profile.cached_hidden_categories[1])
-# 
+#
 #         self.grader_profile.reset_hidden_categories_cache()
 #         self.assertEqual(1, len(self.grader_profile.cached_hidden_categories))
 #         self.assertEqual(self.learning_object_category1, self.grader_profile.cached_hidden_categories[0])
-# 
+#
 #         self.teacher_profile.reset_hidden_categories_cache()
 #         self.assertEqual(0, len(self.teacher_profile.cached_hidden_categories))
-# 
+#
 #         self.superuser_profile.reset_hidden_categories_cache()
 #         self.assertEqual(0, len(self.superuser_profile.cached_hidden_categories))
-# 
-# 
+#
+#
 #     def test_userprofile_hidden_categories_cache(self):
 #         student_hidden_categories_cache = self.student_profile.get_hidden_categories_cache()
 #         self.assertEqual(2, len(student_hidden_categories_cache))
 #         self.assertEqual(self.learning_object_category1, student_hidden_categories_cache[0])
 #         self.assertEqual(self.learning_object_category2, student_hidden_categories_cache[1])
-# 
+#
 #         grader_hidden_categories_cache = self.grader_profile.get_hidden_categories_cache()
 #         self.assertEqual(1, len(grader_hidden_categories_cache))
 #         self.assertEqual(self.learning_object_category1, grader_hidden_categories_cache[0])
-# 
+#
 #         self.assertEqual(0, len(self.teacher_profile.get_hidden_categories_cache()))
-# 
+#
 #         self.assertEqual(0, len(self.superuser_profile.get_hidden_categories_cache()))
 
     def test_studentgroup_names(self):
@@ -199,7 +199,7 @@ class UserProfileTest(TestCase):
 #         self.assertEqual(2, len(studentsFromRequestWithGroup))
 #         self.assertEqual(self.student_profile, studentsFromRequestWithGroup[0])
 #         self.assertEqual(self.grader_profile, studentsFromRequestWithGroup[1])
-# 
+#
 #         requestWithoutGroup = HttpRequest()
 #         requestWithoutGroup.user = self.student
 #         studentsFromRequestWithoutGroup = StudentGroup.get_students_from_request(requestWithoutGroup)

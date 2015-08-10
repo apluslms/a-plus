@@ -1,0 +1,26 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load apps %}
+
+{% block title %}{{ block.super }}: {% trans "Results" %}{% endblock %}
+{% block view_tag %}results{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "My results" %}</li>
+{% endblock %}
+
+{% block coursecontent %}
+{% user_results %}
+{% endblock %}
+
+{% block sidecontent %}
+{% category_points %}
+
+{% plugin_renderers user instance as plugins %}
+{% for plugin in plugins %}
+    {{ plugin.render|safe }}
+{% endfor %}
+{% endblock %}

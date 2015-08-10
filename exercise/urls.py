@@ -1,34 +1,65 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from course.urls import INSTANCE_URL_PREFIX, EXERCISE_URL_PREFIX
+from course.urls import INSTANCE_URL_PREFIX, USER_URL_PREFIX, EDIT_URL_PREFIX
+from . import views, async_views, staff_views
 
 
-SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX + r'submissions/(?P<submission_id>\d+)/'
+EXERCISE_URL_PREFIX = INSTANCE_URL_PREFIX \
+    + r'exercises/(?P<exercise_id>\d+)/'
+SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX \
+    + r'submissions/(?P<submission_id>\d+)/'
 
-urlpatterns = patterns('exercise.views',
-    url(INSTANCE_URL_PREFIX + r'user/$', 'profile'),
-    url(INSTANCE_URL_PREFIX + r'user/results/$', 'user_score', name="user_score"),
-    url(EXERCISE_URL_PREFIX + r'$', 'view_exercise', name="learning_object"),
-    url(SUBMISSION_URL_PREFIX + r'$', 'view_submission'),
-    url(SUBMISSION_URL_PREFIX + r'file/(?P<file_id>\d+)/(?P<file_name>[\w\d\_\-\.]+)$',
-        'view_submitted_file'),
-)
-urlpatterns += patterns('exercise.async_views',
-    url(r'^rest/exercise/(?P<exercise_id>\d+)/students/(?P<student_ids>[\d\-]+)/(?P<hash_key>\w+)/$',
-        'new_async_submission'),
+urlpatterns = [
+    url(USER_URL_PREFIX + r'results/$',
+        views.ResultsView.as_view(),
+        name="results"),
+    url(EXERCISE_URL_PREFIX + r'$',
+        views.ExerciseView.as_view(),
+        name="exercise"),
+    url(EXERCISE_URL_PREFIX + r'info/$',
+        views.ExerciseInfoView.as_view(),
+        name="exercise-info"),
+    url(SUBMISSION_URL_PREFIX + r'$',
+        views.SubmissionView.as_view(),
+        name="submission"),
+    url(SUBMISSION_URL_PREFIX + r'poll/$',
+        views.SubmissionPollView.as_view(),
+        name="submission-poll"),
+    url(SUBMISSION_URL_PREFIX \
+            + r'file/(?P<file_id>\d+)/(?P<file_name>[\w\d\_\-\.]+)',
+        views.SubmittedFileView.as_view(),
+        name="submission-file"),
+
+    url(r'^rest/exercise/(?P<exercise_id>\d+)/' \
+            + r'students/(?P<student_ids>[\d\-]+)/(?P<hash_key>\w+)/$',
+        async_views.new_async_submission,
+        name="async-new"),
     url(r'^rest/submission/(?P<submission_id>\d+)/(?P<hash_key>\w+)/$',
-        'grade_async_submission'),
-)
-urlpatterns += patterns('exercise.staff_views',
-    url(INSTANCE_URL_PREFIX + r'teachers/results/$', 'results_table'),
-    url(EXERCISE_URL_PREFIX + r'submissions/$', 'list_exercise_submissions'),
-    url(SUBMISSION_URL_PREFIX + r'inspect/$', 'inspect_exercise_submission'),
-    url(SUBMISSION_URL_PREFIX + r're-submit/$', 'resubmit_to_service'),
-    url(SUBMISSION_URL_PREFIX + r'assess/$', 'assess_submission'),
+        async_views.grade_async_submission,
+        name="async-grade"),
+
+    url(EXERCISE_URL_PREFIX + r'submissions/$',
+        staff_views.ListSubmissionsView.as_view(),
+        name="submission-list"),
     url(EXERCISE_URL_PREFIX + r'submissions/create_and_assess/$',
-        'create_and_assess_submission'),
-    url(INSTANCE_URL_PREFIX + r'teachers/batch_create_and_assess',
-        'batch_create_and_assess_submissions'),    
-    url(INSTANCE_URL_PREFIX + r'teachers/fetch-metadata/$',
-        'fetch_exercise_metadata', name="exercise_metadata"),
-)
+        staff_views.CreateSubmissionView.as_view(),
+        name="submission-create"),
+    url(SUBMISSION_URL_PREFIX + r'inspect/$',
+        staff_views.InspectSubmissionView.as_view(),
+        name="submission-inspect"),
+    url(SUBMISSION_URL_PREFIX + r're-submit/$',
+        staff_views.ResubmitSubmissionView.as_view(),
+        name="submission-re-submit"),
+    url(SUBMISSION_URL_PREFIX + r'assess/$',
+        staff_views.AssessSubmissionView.as_view(),
+        name="submission-assess"),
+    url(EDIT_URL_PREFIX + r'results/$',
+        staff_views.AllResultsView.as_view(),
+        name="all-results"),
+    url(EDIT_URL_PREFIX + r'fetch-metadata/$',
+        staff_views.FetchMetadataView.as_view(),
+        name="exercise-metadata"),
+    url(EDIT_URL_PREFIX + r'batch_create_and_assess/$',
+        staff_views.BatchCreateSubmissionsView.as_view(),
+        name="batch-assess"),
+]

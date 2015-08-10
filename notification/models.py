@@ -7,7 +7,7 @@ from userprofile.models import UserProfile
 class NotificationSet(object):
     """
     A result set of notifications.
-    
+
     """
     @classmethod
     def get_unread(cls, user):
@@ -16,34 +16,34 @@ class NotificationSet(object):
                 seen=False))
 
     @classmethod
-    def get_course_unread_and_mark(cls, course_instance, user):
+    def get_course(cls, course_instance, user, per_page=30, page=1):
+        skip = max(0, page - 1) * per_page
         qs = user.userprofile.received_notifications.filter(
-            course_instance=course_instance,
-            seen=False)
-        notifications = list(qs)
-        qs.update(seen=True)
-        return NotificationSet(notifications)
-
-    @classmethod
-    def get_course_read(cls, course_instance, user):
-        return NotificationSet(
-            user.userprofile.received_notifications.filter(
-                course_instance=course_instance,
-                seen=True))
+            course_instance=course_instance)[skip:(skip + per_page)]
+        return NotificationSet(qs)
 
     def __init__(self, queryset):
         self.notifications = list(queryset)
-    
+
     @property
     def count(self):
         return len(self.notifications)
-    
-    @property
-    def course_instances(self):
-        courses = set()
+
+    def count_and_mark_unseen(self):
+        """
+        Marks notifications seen in data base but keeps the set instances
+        in unseen state.
+        """
+        count = 0
         for notification in self.notifications:
-            courses.add(notification.course_instance)
-        return courses
+            if not notification.seen:
+                count += 1
+                notification.seen = True
+                notification.save(update_fields=["seen"])
+
+                # Return the instance to previous state without saving.
+                notification.seen = False
+        return count
 
 
 class Notification(models.Model):

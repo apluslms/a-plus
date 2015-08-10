@@ -2,6 +2,7 @@ import logging
 import urllib.request, urllib.parse
 
 from django.contrib.contenttypes import generic
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
@@ -23,20 +24,31 @@ class Course(models.Model):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     url = models.CharField(unique=True, max_length=255, blank=False,
-                       validators=[RegexValidator(regex="^(?!admin$)(?!course$)[\w\-\.]*$")],
-                       help_text=_("Input an URL identifier for this course. Taken words include: admin, course"))
-    teachers = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)    
+                       validators=[RegexValidator(regex="^[\w\-\.]*$")],
+                       help_text=_("Input an URL identifier for this course."))
+    teachers = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)
 
     def __str__(self):
         return "{} {}".format(self.code, self.name)
 
+    def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        """
+        RESERVED = ("admin", "accounts", "shibboleth", "api",
+            "archive", "course", "exercise")
+        if self.url in RESERVED:
+            raise ValidationError(_("Taken words include: {}").format(
+                ", ".join(RESERVED)
+            ))
+
     def is_teacher(self, user):
         return user and user.is_authenticated() and (user.is_superuser or \
             self.teachers.filter(id=user.userprofile.id).exists())
-    
+
     def get_absolute_url(self):
-        return reverse('course.views.view_course', kwargs={
-            'course_url': self.url
+        return reverse('course-instances', kwargs={
+            'course': self.url
         })
 
 
@@ -44,11 +56,11 @@ class CourseInstanceManager(models.Manager):
     """
     Helpers in CourseInstance.objects
     """
-    
+
     def get_active(self, user=None):
         qs = self.filter(ending_time__gte=timezone.now())
         if not user or not user.is_authenticated():
-            qs = qs.filter(visible_to_students=True)        
+            qs = qs.filter(visible_to_students=True)
         elif not user.is_superuser:
             qs = qs.filter(Q(visible_to_students=True)
                            | Q(assistants=user.userprofile)
@@ -112,15 +124,23 @@ class CourseInstance(models.Model):
         if self.visible_to_students:
             return True
         return user and self.is_course_staff(user)
-    
-    def get_absolute_url(self):
-        return reverse('course.views.view_instance', kwargs={
-            'course_url': self.course.url,
-            'instance_url': self.url
+
+    def has_chapters(self):
+        return CourseChapter.objects\
+            .filter(course_module__course_instance=self)\
+            .count() > 0
+
+    def get_url(self, name):
+        return reverse(name, kwargs={
+            "course": self.course.url,
+            "instance": self.url,
         })
-    
-    def get_breadcrumb(self):
-        return [(str(self.course), self.get_absolute_url())]
+
+    def get_absolute_url(self):
+        return self.get_url("course")
+
+    def get_edit_url(self):
+        return self.get_url("course-edit")
 
 
 class CourseHook(models.Model):
@@ -158,29 +178,26 @@ class CourseHook(models.Model):
 
 class CourseModule(models.Model):
     """
-    CourseModule objects connect learning objects to logical sets of each other
-    and course instances. They also contain information about the opening times
-    and deadlines for exercises. A module may also include a reference to
-    study content. 
+    CourseModule objects connect chapters and learning objects to logical sets
+    of each other and course instances. They also contain information about the
+    opening times and deadlines for exercises.
     """
+    order = models.IntegerField(default=1)
     name = models.CharField(max_length=255)
     url = models.CharField(max_length=255,
-                       validators=[RegexValidator(regex="^(?!teachers$)(?!user$)[\w\-\.]*$")],
-                       help_text=_("Input an URL identifier for this module. Taken words include: teachers, user"))
-    chapter = models.IntegerField(default=1)
-    subchapter = models.IntegerField(default=1)
+                       validators=[RegexValidator(regex="^[\w\-\.]*$")],
+                       help_text=_("Input an URL identifier for this module."))
     points_to_pass = models.PositiveIntegerField(default=0)
     introduction = models.TextField(blank=True)
     course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
     opening_time = models.DateTimeField(default=timezone.now)
     closing_time = models.DateTimeField(default=timezone.now)
-    content_url = models.URLField(blank=True)
 
     # early_submissions_allowed= models.BooleanField(default=False)
     # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)
     # early_submission_bonus  = PercentField(default=0.1,
     #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
-    
+
     late_submissions_allowed = models.BooleanField(default=False)
     late_submission_deadline = models.DateTimeField(default=timezone.now)
     late_submission_penalty = PercentField(default=0.5,
@@ -188,10 +205,22 @@ class CourseModule(models.Model):
 
     class Meta:
         unique_together = ("course_instance", "url")
-        ordering = ['closing_time', 'id']
+        ordering = ['closing_time', 'order', 'id']
 
     def __str__(self):
-        return self.name + " / " + str(self.course_instance)
+        if self.order > 0:
+            return "{:d}. {}".format(self.order, self.name)
+        return self.name
+
+    def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        """
+        RESERVED = ("teachers", "user", "exercises", "apps", "lti-login")
+        if self.url in RESERVED:
+            raise ValidationError(_("Taken words include: {}").format(
+                ", ".join(RESERVED)
+            ))
 
     def is_open(self, when=None):
         when = when or timezone.now()
@@ -203,7 +232,7 @@ class CourseModule(models.Model):
         """
         when = when or timezone.now()
         return self.opening_time <= when
-    
+
     def is_late_submission_open(self, when=None):
         when = when or timezone.now()
         return self.late_submissions_allowed \
@@ -218,23 +247,84 @@ class CourseModule(models.Model):
             point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth
 
+    def next_module(self):
+        return self.course_instance.course_modules \
+            .exclude(id=self.id).filter(order__gt=self.order).first()
+
+    def previous_module(self):
+        return self.course_instance.course_modules \
+            .exclude(id=self.id).filter(order__lt=self.order).last()
+
+    def next(self):
+        child = self.chapters.first()
+        child = child or self.learning_objects.first()
+        return child or self.next_module()
+
+    def previous(self):
+        last_module = self.previous_module()
+        if last_module:
+            last = last_module.chapters.last()
+            last = last or last_module.learning_objects.last()
+            return last or last_module
+        return None
+
     def get_absolute_url(self):
         instance = self.course_instance
-        return reverse('course.views.view_module', kwargs={
-            'course_url': instance.course.url,
-            'instance_url': instance.url,
-            'module_url': self.url
+        return reverse('module', kwargs={
+            'course': instance.course.url,
+            'instance': instance.url,
+            'module': self.url,
         })
 
-    def get_breadcrumb(self):
-        """
-        Returns a list of tuples containing the names and URL
-        addresses of parent objects and self.
-        """
-        crumb = self.course_instance.get_breadcrumb()
-        crumb.append((self.name, self.get_absolute_url()))
-        return crumb
-        return self.course_instance.get_breadcrumb()
+
+class CourseChapter(models.Model):
+    """
+    Chapters can offer and organize learning material as one page chapters.
+    """
+    course_module = models.ForeignKey(CourseModule, related_name="chapters")
+    order = models.IntegerField(default=1)
+    name = models.CharField(max_length=255)
+    url = models.CharField(max_length=255,
+        validators=[RegexValidator(regex="^[\w\-\.]*$")],
+        help_text=_("Input an URL identifier for this chapter."))
+    content_url = models.URLField(help_text=_("The resource to show."))
+
+    class Meta:
+        unique_together = ("course_module", "url")
+        ordering = ['course_module', 'order', 'id']
+
+    def __str__(self):
+        if self.course_module.order > 0:
+            return "{:d}.{:d} {}".format(
+                self.course_module.order, self.order, self.name)
+        return self.name
+
+    @property
+    def course_instance(self):
+        return self.course_module.course_instance
+
+    def is_after_open(self, when=None):
+        return self.course_module.is_after_open(when=when)
+
+    def next(self):
+        chapter = self.course_module.chapters \
+            .exclude(id=self.id).filter(order__gt=self.order).first()
+        return chapter or self.course_module.next_module()
+
+    def previous(self):
+        chapter = self.course_module.chapters \
+            .exclude(id=self.id).filter(order__lt=self.order).last()
+        return chapter or self.course_module
+
+    def get_absolute_url(self):
+        module = self.course_module
+        instance = module.course_instance
+        return reverse('chapter', kwargs={
+            'course': instance.course.url,
+            'instance': instance.url,
+            'module': module.url,
+            'chapter': self.url,
+        })
 
 
 class LearningObjectCategory(models.Model):
@@ -252,7 +342,7 @@ class LearningObjectCategory(models.Model):
         unique_together = ("name", "course_instance")
 
     def __str__(self):
-        return self.name + " / " + str(self.course_instance)
+        return self.name
 
     def is_hidden_to(self, user_profile):
         return self.hidden_to.filter(id=user_profile.id).exists()

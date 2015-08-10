@@ -3,8 +3,10 @@ import hmac
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.signals import post_delete
 from django.template import loader, Context
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -32,7 +34,14 @@ class LearningObject(ModelWithInheritance):
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
 
     class Meta:
-        ordering = ['order', 'id']
+        app_label = "exercise"
+        ordering = ['course_module', 'order', 'id']
+
+    def __str__(self):
+        if self.course_module.order > 0:
+            return "{:d}.{:d} {}".format(
+                self.course_module.order, self.order, self.name)
+        return self.name
 
     def clean(self):
         """
@@ -50,13 +59,32 @@ class LearningObject(ModelWithInheritance):
     def course_instance(self):
         return self.course_module.course_instance
 
-    def get_absolute_url(self):
+    def is_after_open(self, when=None):
+        return self.course_module.is_after_open(when=when)
+
+    def next(self):
+        exercise = self.course_module.learning_objects \
+            .exclude(id=self.id).filter(order__gt=self.order).first()
+        return exercise or self.course_module.next_module()
+
+    def previous(self):
+        exercise = self.course_module.learning_objects \
+            .exclude(id=self.id).filter(order__lt=self.order).last()
+        return exercise or self.course_module
+
+    def get_url(self, name):
         instance = self.course_instance
-        return reverse("learning_object", kwargs={
-            "course_url": instance.course.url,
-            "instance_url": instance.url,
+        return reverse(name, kwargs={
+            "course": instance.course.url,
+            "instance": instance.url,
             "exercise_id": self.id
         })
+
+    def get_absolute_url(self):
+        return self.get_url("exercise")
+
+    def get_submission_list_url(self):
+        return self.get_url("submission-list")
 
 
 class BaseExercise(LearningObject):
@@ -70,12 +98,8 @@ class BaseExercise(LearningObject):
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         app_label = 'exercise'
-        ordering = ['course_module__closing_time', 'course_module', 'order', 'id']
 
     def clean(self):
         """
@@ -145,7 +169,7 @@ class BaseExercise(LearningObject):
         if not self.one_has_access(students):
             warnings.append(
                 _('This exercise is not open for submissions.'))
-        
+
         if not (self.min_group_size <= len(students) <= self.max_group_size):
             warnings.append(
                 _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
@@ -173,7 +197,7 @@ class BaseExercise(LearningObject):
                     percent=self.course_module.get_late_submission_point_worth(),
                 ))
 
-        warnings = list(str(warning) for warning in warnings) 
+        warnings = list(str(warning) for warning in warnings)
         return success, warnings
 
     def get_total_submitter_count(self):
@@ -186,7 +210,7 @@ class BaseExercise(LearningObject):
         Returns a list of tuples containing the names and url
         addresses of parent objects and self.
         """
-        crumb = self.course_module.get_breadcrumb()
+        crumb = self.course_instance.get_breadcrumb()
         crumb_tuple = (str(self), self.get_absolute_url())
         crumb.append(crumb_tuple)
         return crumb
@@ -210,7 +234,7 @@ class BaseExercise(LearningObject):
         if self.id:
             student_str, hash_key = self.get_async_hash(students)
             url = self._build_service_url(request, reverse(
-                "exercise.async_views.new_async_submission", kwargs={
+                "async-new", kwargs={
                     "exercise_id": self.id if self.id else 0,
                     "student_ids": student_str,
                     "hash_key": hash_key
@@ -225,7 +249,7 @@ class BaseExercise(LearningObject):
         Loads the exercise feedback page.
         """
         url = self._build_service_url(request, reverse(
-            "exercise.async_views.grade_async_submission", kwargs={
+            "async-grade", kwargs={
                 "submission_id": submission.id,
                 "hash_key": submission.hash
             }))
@@ -246,7 +270,8 @@ class BaseExercise(LearningObject):
         params = {
             "max_points": self.max_points,
             "submission_url": request.build_absolute_uri(submission_url),
-            "post_url": request.build_absolute_uri(self.get_absolute_url()),
+            "post_url": request.build_absolute_uri(
+                str(self.get_absolute_url())),
         }
         return update_url_params(self.service_url, params)
 
@@ -335,3 +360,11 @@ class ExerciseWithAttachment(BaseExercise):
             os.path.basename(self.attachment.path),
             open(self.attachment.path, "rb")
         )
+
+
+def _delete_file(sender, instance, **kwargs):
+    """
+    Deletes exercise attachment file after the exercise in database is removed.
+    """
+    default_storage.delete(instance.attachment.path)
+post_delete.connect(_delete_file, ExerciseWithAttachment)

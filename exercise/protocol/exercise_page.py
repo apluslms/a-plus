@@ -10,6 +10,7 @@ class ExercisePage:
         self.is_loaded = False
         self.is_graded = False
         self.is_accepted = False
+        self.is_wait = False
         self.points = 0
         self.max_points = exercise.max_points
         self.content = ""
@@ -19,10 +20,10 @@ class ExercisePage:
             "description": exercise.description
         }
         self.errors = []
-    
+
     def is_sane(self):
         """
-        Checks that the values are sane/acceptable.    
+        Checks that the values are sane/acceptable.
         """
         return self.points <= self.max_points \
             and not (self.exercise.max_points != 0 \

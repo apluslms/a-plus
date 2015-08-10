@@ -11,7 +11,6 @@ from locators import FirstPageLocators, \
     HomePageLocators, \
     StaffPageLocators, \
     TeachersPageLocators, \
-    AssistantsPageLocators, \
     SubmissionPageLocators, \
     StudentFeedbackPageLocators, \
     ExercisePageLocators, \
@@ -46,7 +45,7 @@ class AbstractPage(object):
             WebDriverWait(self.driver, self.wait_timeout).until(EC.presence_of_element_located(element))
         except TimeoutException:
             raise TimeoutException("Wait for element failed: {0}".format(element))
-        
+
     def waitForVisibleElement(self, element):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(EC.visibility_of_element_located(element))
@@ -58,7 +57,7 @@ class AbstractPage(object):
             WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
         except TimeoutException:
             raise TimeoutException("Wait for condition failed: {0}".format(condition))
-        
+
     def waitForAjax(self):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(lambda driver: driver.execute_script("return jQuery.active") == 0)
@@ -110,6 +109,7 @@ class LoginPage(AbstractPage):
     defaultUsername = "jenkins"
     defaultPassword = "admin"
     studentUsername = "student_user"
+    assistantUsername = "assistant_user"
     teacherUsername = "teacher_user"
 
     def __init__(self, driver):
@@ -119,15 +119,17 @@ class LoginPage(AbstractPage):
     def loginToCourse(self, course, username=defaultUsername, password=defaultPassword):
         if (course == CourseName.APLUS):
             self.getElement(FirstPageLocators.APLUS_TEST_COURSE_INSTANCE_BUTTON).click()
-            self.signIn(username, password)
-            self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
         elif (course == CourseName.HOOK):
             self.getElement(FirstPageLocators.HOOK_EXAMPLE_BUTTON).click()
-            self.signIn(username, password)
-            self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
+        self.waitForElement(LoginPageLocators.BANNER)
+        self.signIn(username, password)
+        self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
 
     def loginAsStudent(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.studentUsername, self.defaultPassword)
+
+    def loginAsAssistant(self, course=CourseName.APLUS):
+        self.loginToCourse(course, self.assistantUsername, self.defaultPassword)
 
     def loginAsTeacher(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.teacherUsername, self.defaultPassword)
@@ -167,7 +169,7 @@ class BasePage(AbstractPage):
         self.getElement(BasePageLocators.TEACHERS_VIEW_LINK).click()
 
     def hasNewNotifications(self):
-        return self.isElementPresent(BasePageLocators.NOTIFICATION_MENU)
+        return self.isElementPresent(BasePageLocators.NOTIFICATION_ALERT)
 
 
 class HomePage(BasePage):
@@ -237,24 +239,19 @@ class StaffPage(BasePage):
         else:
             raise Exception("Tried to click submission link number " + number + "but there are only " + len(submissionLinks) + " elements.")
 
-class TeachersPage(StaffPage):
+class TeachersPage(BasePage):
     def __init__(self, driver):
-        StaffPage.__init__(self, driver)
+        BasePage.__init__(self, driver)
         self.load("/aplus1/basic_instance/teachers/", TeachersPageLocators.TEACHERS_VIEW_BANNER)
 
-class AssistantsPage(StaffPage):
-    def __init__(self, driver):
-        StaffPage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/assistants/", AssistantsPageLocators.ASSISTANTS_VIEW_BANNER)
-
 class EditModulePage(BasePage):
-    def __init__(self, driver, moduleUrl):
+    def __init__(self, driver, moduleNumber):
         BasePage.__init__(self, driver)
-        if (moduleUrl):
-            self.load("/aplus1/basic_instance/" + moduleUrl + "/edit/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+        if (moduleNumber):
+            self.load("/aplus1/basic_instance/teachers/module/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
         else:
             # Create new module
-            self.load("/aplus1/basic_instance/teachers/add-module/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+            self.load("/aplus1/basic_instance/teachers/module/add/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
 
     def getCourseName(self):
         return str(self.getElement(EditModulePageLocators.COURSE_NAME_INPUT).get_attribute('value'))
@@ -282,6 +279,7 @@ class EditModulePage(BasePage):
 
     def submit(self):
         self.getElement(EditModulePageLocators.SUBMIT_BUTTON).click()
+        self.waitForElement(TeachersPageLocators.TEACHERS_VIEW_BANNER)
 
     def isSuccessfulSave(self):
         return self.isElementVisible(EditModulePageLocators.SUCCESSFUL_SAVE_BANNER)
@@ -289,7 +287,7 @@ class EditModulePage(BasePage):
 class EditExercisePage(BasePage):
     def __init__(self, driver, exerciseNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/edit/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
+        self.load("/aplus1/basic_instance/teachers/exercise/" + str(exerciseNumber) + "/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
 
     def getExerciseName(self):
         return str(self.getElement(EditExercisePageLocators.EXERCISE_NAME_INPUT).get_attribute('value'))
@@ -325,7 +323,7 @@ class EditExercisePage(BasePage):
 class SubmissionPage(BasePage):
     def __init__(self, driver, exerciseNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/submissions/", SubmissionPageLocators.TABLE_FIRST_HEADER)
+        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/submissions/", SubmissionPageLocators.SUBMISSIONS_PAGE_BANNER)
 
     def getInspectionLinks(self):
         return self.getElements(SubmissionPageLocators.INSPECTION_LINKS)
@@ -345,12 +343,11 @@ class StudentFeedbackPage(BasePage):
         BasePage.__init__(self, driver)
         self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
 
-    # We have to use str.split because feedback texts aren't tagged
     def getAssistantFeedbackText(self):
-        return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).split('\n', 3)[1].strip()
+        return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).strip()
 
     def getFeedbackText(self):
-        return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).split('\n', 3)[3].strip()
+        return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).strip()
 
 class InspectionPage(BasePage):
     def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
@@ -390,7 +387,7 @@ class AssessmentPage(BasePage):
 class CourseArchivePage(AbstractPage):
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
-        self.load("/archive/", CourseArchiveLocators.COURSE_ID_TITLE)
+        self.load("/archive/", FirstPageLocators.BANNER)
 
 
 class MyFirstExerciseGrader(ExercisePage):
@@ -403,6 +400,7 @@ class MyFirstExerciseGrader(ExercisePage):
 
     def submit(self):
         self.getElement(MyFirstExerciseLocators.SUBMIT_BUTTON).click()
+        self.waitForElement(ExercisePageLocators.RECEIVED_BANNER)
 
 
 class FileUploadGrader(ExercisePage):
@@ -411,7 +409,11 @@ class FileUploadGrader(ExercisePage):
         self.load("/aplus1/basic_instance/exercises/2/", FileUploadGraderLocators.MAIN_TITLE)
 
     def submit(self):
+        # Failed to select actual file to submit.
+        #script = "document.getElementById('myfile_id').value='/tmp/selenium_test_file';";
+        #self.driver.execute_script(script)
         self.getElement(FileUploadGraderLocators.SUBMIT_BUTTON).click()
+        self.waitForElement(ExercisePageLocators.RECEIVED_BANNER)
 
 
 class MyAjaxExerciseGrader(ExercisePage):
@@ -426,3 +428,4 @@ class MyAjaxExerciseGrader(ExercisePage):
         self.getElement(MyAjaxExerciseGraderLocators.SUBMIT_BUTTON).click()
         alert = self.getAlert()
         alert.accept()
+        self.waitForAjax()

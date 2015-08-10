@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from exercise.exercise_models import BaseExercise
@@ -23,6 +24,14 @@ class SubmissionRuleDeviation(models.Model):
     class Meta:
         abstract = True
         unique_together = ["exercise", "submitter"]
+
+    def get_url(self, name):
+        instance = self.exercise.course_instance
+        return reverse(name, kwargs={
+            "course": instance.course.url,
+            "instance": instance.url,
+            "deviation_id": self.id,
+        })
 
 
 class DeadlineRuleDeviation(SubmissionRuleDeviation):

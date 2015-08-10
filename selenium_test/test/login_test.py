@@ -13,22 +13,21 @@ class LoginTest(unittest.TestCase):
     def testLoginToTestCourseInstance(self):
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
         homePage = HomePage(self.driver, CourseName.APLUS)
-        self.assertEqual(homePage.getCourseBanner(), 'A+ Test Course Instance')
+        self.assertEqual(homePage.getCourseBanner(), 'aplus-001 My test course')
         self.assertTrue(LoginPage.defaultUsername in homePage.getLoggedInText())
 
     def testLoginToExampleHookCourseInstance(self):
         LoginPage(self.driver).loginToCourse(CourseName.HOOK)
         homePage = HomePage(self.driver, CourseName.HOOK)
-        self.assertEqual(homePage.getCourseBanner(), 'Hook Example')
+        self.assertEqual(homePage.getCourseBanner(), 'aplus-001 My test course')
         self.assertTrue(LoginPage.defaultUsername in homePage.getLoggedInText())
 
-    def testShouldThrowTimoutExceptionOnWrongCredentials(self):
+    def testShouldThrowTimeoutExceptionOnWrongCredentials(self):
         loginPage = LoginPage(self.driver)
         try:
             loginPage.loginToCourse(CourseName.APLUS, 'fake', 'password')
         except Exception:
             return
-
         self.fail("There should have been an exception")
 
     def tearDown(self):

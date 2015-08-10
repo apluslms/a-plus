@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4 class="panel-title">{{ title }}</h4>
+    </div>
+    <div class="list-group">
+        {% for submission in submissions %}
+        <a href="{{ submission|url }}" class="list-group-item">
+            {% submission_points submission %}
+            {{ submission.exercise }}<br />
+            <small class="text-nowrap">
+                {{ submission.submission_time }}
+            </small>
+        </a>
+        {% empty %}
+        <div class="list-group-item">
+            {{ empty }}
+        </div>
+        {% endfor %}
+    </div>
+</div>

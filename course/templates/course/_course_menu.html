@@ -1,79 +1,75 @@
 {% load i18n %}
+{% load course %}
 {% load external_services %}
 
-    <li class="nav-header">
-        {% trans "Course" %}
-    </li>
-    <li>
-    	<a href="{% url 'course' course_url=course.url instance_url=instance.url %}">
-	        <i class="icon-home"></i>
-	        {% trans "Home" %}
-    	</a>
-    </li>
-    <li>
-    	<a href="{% url 'course.views.export_calendar' course_url=course.url instance_url=instance.url %}">
-	        <i class="icon-calendar"></i>
-	        {% trans "Calendar feed" %} (ics)
-    	</a>
-    </li>
-    <li>
-    	<a href="{% url 'user_score' course_url=course.url instance_url=instance.url %}">
-	        <i class="icon-list-alt"></i>
-	        {% trans "My results" %}
-	    </a>
-	</li>
-    <li>
-        <a href="{% url 'exercise.views.profile' course_url=course.url instance_url=instance.url %}" class="profile-link">
-            <i class="icon-user"></i>
-            {{ user.userprofile.shortname }}
-        </a>
-    </li>
+<li role="presentation" class="header"><h4>{% trans "Course" %}</h4></li>
+<li role="presentation" class="menu-home">
+	<a href="{{ instance|url }}">
+        <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+        {{ course.code }}
+	</a>
+</li>
+<li role="presentation" class="menu-results">
+	<a href="{{ instance|url:'results' }}">
+        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+        {% trans "My results" %}
+    </a>
+</li>
+<li role="presentation" class="menu-notifications">
+    <a href="{{ instance|url:'notifications' }}">
+        <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+        {% trans "Notifications" %}
+    </a>
+</li>
 
-    {% external_menu_entries instance.pk as entries %}
-    {% if entries|length > 0 %}
-    <li class="nav-header">
-        {% trans "External" %}
-    </li>
-    {% for menu_entry in entries %}
-    <li>
-        <a href="{{ menu_entry.url }}" target="_blank">
-            <i class="{{ menu_entry.icon_class }}"></i>
-            {{ menu_entry.label }}
-        </a>
-    </li>
-    {% endfor %}
-    {% endif %}
+{% external_menu_entries instance.pk as entries %}
+{% if entries|length > 0 %}
+<li role="presentation" class="header"><h4>{% trans "External" %}</h4></li>
+{% for menu_entry in entries %}
+<li>
+    <a href="{{ menu_entry.url }}" target="_blank">
+        <span class="glyphicon glyphicon-{{ menu_entry.icon_class }}" aria-hidden="true"></span>
+        {{ menu_entry.label }}
+    </a>
+</li>
+{% endfor %}
+{% endif %}
 
-    {% if instance.tabs.all|length > 0 %}
-    <li class="nav-header">
-        {% trans "Apps" %}
-    </li>
-    {% for tab in instance.tabs.all %}
-    <li>
-        <a href="{% url 'apps.views.view_tab' tab_id=tab.id %}">
-            <i class="icon-th-large"></i>
-            {{ tab.label }}
-        </a>
-    </li>
-    {% endfor %}
-    {% endif %}
+{% if instance.tabs.exists %}
+<li role="presentation" class="header"><h4>{% trans "Apps" %}</h4></li>
+{% for tab in instance.tabs.all %}
+<li role="presentation" class="menu-tab{{ tab.id }}">
+    <a href="{% url 'apps-tab' course=course.url instance=instance.url tab_id=tab.id %}">
+        <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+        {{ tab.label }}
+    </a>
+</li>
+{% endfor %}
+{% endif %}
 
-    {% if is_teacher or is_assistant %}
-    <li class="nav-header">
-        {% trans "Course staff" %}
-    </li>
-    <li>
-    	<a href="{% url 'exercise.staff_views.results_table' course_url=course.url instance_url=instance.url %}">
-    		<i class="icon-list-alt"></i>
-    		{% trans "All results" %}
-    	</a>
-    </li>
-    {% if is_teacher %}
-    <li>
-        <a href="{% url 'course.teacher_views.edit_course' course_url=course.url instance_url=instance.url %}" class="teachers-link">
-            <i class="icon-pencil"></i>
-            {% trans "Edit course" %}
-        </a>
-    </li>
-    {% endif %}
-    {% endif %}
+{% if is_course_staff %}
+<li role="presentation" class="header"><h4>{% trans "Course staff" %}</h4></li>
+<li role="presentation" class="menu-all-results">
+	<a href="{{ instance|url:'all-results' }}">
+		<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+		{% trans "All results" %}
+	</a>
+</li>
+{% if is_teacher %}
+<li role="presentation" class="menu-edit-course">
+    <a href="{{ instance|url:'course-edit' }}">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+        {% trans "Edit course" %}
+    </a>
+</li>
+{% endif %}
+{% external_staff_menu_entries instance.pk is_assistant is_teacher as entries %}
+{% for menu_entry in entries %}
+<li role="presentation">
+    <a href="{{ menu_entry.url }}" target="_blank">
+        <span class="glyphicon glyphicon-{{ menu_entry.icon_class }}" aria-hidden="true"></span>
+        {{ menu_entry.label }}
+    </a>
+</li>
+{% endfor %}
+{% endif %}

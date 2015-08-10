@@ -1,14 +1,9 @@
 {% load i18n %}
+{% load course %}
 {% for ci in instances %}
-<li>
-	<a href="{% url 'course' course_url=ci.course.url instance_url=ci.url %}">
-    	{{ ci.course.code }} {{ ci.course.name }}
+<li role="presentation">
+	<a href="{{ ci|url }}">
+    	{{ ci.course }}
     </a>
 </li>
 {% endfor %}
-<li class="divider"></li>
-<li>
-	<a href="{% url 'course.views.course_archive' %}">
-		{% trans "Course archive" %}
-	</a>
-</li>

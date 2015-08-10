@@ -52,12 +52,14 @@ class RedirectTest(TestCase):
         self.assertTrue(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'userprofile/login.html')
-        
+
         self.client.login(username="testUser", password="testPassword")
         response = self.client.get('/course/Course-Url/', follow=True)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'course/course.html')
+        response = self.client.get('/another/course/Course-Url/')
+        self.assertEqual(response.status_code, 404)
 
     def test_course_instance(self):
         self.client.login(username="testUser", password="testPassword")
@@ -66,6 +68,8 @@ class RedirectTest(TestCase):
         response = self.client.get('/course/Course-Url/T-00.1000_2011/', follow=True)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
+        response = self.client.get('/another/course/Course-Url/T-00.1000_2011/')
+        self.assertEqual(response.status_code, 404)
 
     def test_exercise(self):
         self.client.login(username="testUser", password="testPassword")
@@ -74,3 +78,5 @@ class RedirectTest(TestCase):
         response = self.client.get('/exercise/{:d}'.format(self.exercise.id), follow=True)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
+        response = self.client.get('/foobar/exercise/{:d}'.format(self.exercise.id), follow=True)
+        self.assertEqual(response.status_code, 404)
