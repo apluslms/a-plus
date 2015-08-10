@@ -108,6 +108,7 @@ def user_results(context):
     summary = _get_course_summary(context)
     return {
         "summary": summary,
+        "categories": summary.category_summaries,
         "exercise_tree": collect_tree(summary),
         "is_course_staff": context["is_course_staff"],
     }
@@ -119,6 +120,7 @@ def category_points(context):
     return {
         "summary": summary,
         "categories": summary.category_summaries,
+        "is_course_staff": context["is_course_staff"],
     }
 
 

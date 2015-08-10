@@ -14,24 +14,6 @@ class HomePageTest(unittest.TestCase):
     def testInitialScoreShouldBeZero(self):
         self.assertEqual("0 / 300", HomePage(self.driver).getMainScore())
 
-    @unittest.skip("TODO: reimplement filtering")
-    def testFilterCategories(self):
-        homePage = HomePage(self.driver)
-
-        homePage.clickFilterCategories()
-        self.assertTrue(homePage.isOnlineExercisesCheckboxSelected(), 'Online exercises checkbox should have been checked')
-
-        homePage.clickUpdateFilters()
-        homePage.clickFilterCategories()
-        self.assertTrue(homePage.isOnlineExercisesCheckboxSelected(), 'Online exercises checkbox should have been checked')
-
-        homePage.clickOnlineExercisesCheckbox()
-        homePage.clickUpdateFilters()
-        homePage.isElementPresent(BasePageLocators.WARNING_BANNER)
-
-        homePage.clickFilterCategories()
-        self.assertTrue(homePage.isOnlineExercisesCheckboxSelected(), 'Online exercises checkbox should have been checked')
-
     def tearDown(self):
         self.driver.close()
 

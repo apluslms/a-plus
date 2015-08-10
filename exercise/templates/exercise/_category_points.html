@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load exercise %}
 
+{% comment "Disabled as course total points/grade calculation is unknown." %}
 {% if categories|length > 1 %}
 <div class="well">
     <p>{% trans "Total points" %}</p>
@@ -11,6 +12,7 @@
     {% summary_progress summary %}
 </div>
 {% endif %}
+{% endcomment %}
 
 {% for category_summary in categories %}
 <div class="well">

@@ -26,9 +26,6 @@ class BasePageLocators(object):
 
 class HomePageLocators(object):
     MAIN_SCORE = (By.XPATH, "//div[contains(@class, 'well')]/p/strong[contains(@class, 'h2')]")
-    FILTER_CATEGORIES_BUTTON = (By.XPATH, "//*[@id='schedule-filters-btn']")
-    ONLINE_EXERCISES_CHECKBOX = (By.XPATH, "//*[@id='category_filter_1']")
-    UPDATE_FILTERS_BUTTON = (By.XPATH, "//input[contains(@value, 'Update filters')]")
 
 class ExercisePageLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title']")
