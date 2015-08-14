@@ -1,0 +1,13 @@
+{% extends 'access/exercise_frame.html' %}
+
+{% block exercise %}
+
+{% if exercise.instructions %}
+<div class="instructions">
+  {{ exercise.instructions|safe }}
+</div>
+{% endif %}
+
+{% include 'access/accept_git_form.html' %}
+
+{% endblock %}

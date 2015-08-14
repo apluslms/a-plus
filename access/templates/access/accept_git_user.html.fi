@@ -1,0 +1,29 @@
+{% extends 'access/exercise_frame.html.fi' %}
+
+{% block exercise %}
+
+{% if exercise.instructions %}
+<div class="instructions">
+  {{ exercise.instructions|safe }}
+</div>
+{% endif %}
+
+<form method="post" action="#">
+	{% if result.user and result.hash %}
+	<input type="hidden" name="user" value="{{ result.user }}" />
+	<input type="hidden" name="hash" value="{{ result.hash }}" />
+	{% else %}
+	<div class="form-group">
+		<label for="user"><strong>Anna k&auml;ytt&auml;j&auml;tunnuksesi arvostelua varten</strong></label>
+		<input type="text" id="user" name="user" style="width:15em;"/>
+	</div>
+	{% endif %}
+	
+	<input type="submit" class="btn btn-primary" value="Pyyd&auml; Git-repositoryni arvostelua" />
+	
+	{% if not exercise.no_git_reminder %}
+	<span class="help-block">Muistitko git add - git commit - git push?</span>
+	{% endif %}
+</form>
+
+{% endblock %}

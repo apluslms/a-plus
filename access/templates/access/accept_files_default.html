@@ -1,0 +1,15 @@
+{% extends 'access/exercise_frame.html' %}
+
+{% block exercise %}
+
+{% if exercise.instructions %}
+<div class="instructions">
+  {{ exercise.instructions|safe }}
+</div>
+{% else %}
+<h1>Select your files for grading</h1>
+{% endif %}
+
+{% include 'access/accept_files_form.html' %}
+
+{% endblock %}

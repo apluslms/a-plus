@@ -1,0 +1,22 @@
+{% extends 'access/exercise_frame.html' %}
+
+{% block exercise %}
+
+{% if result.accepted %}
+<div class="alert {% if result.error_fields %}alert-error{% else %}alert-success{% endif %}">
+<p>You got {{ result.points }}/{{ exercise.max_points }} points from this questionnaire.</p>
+<p>Note that the whole section of questions is marked as being incorrect if one of the questions
+ in that section is incorrect. You can change your answers and grade them again from the bottom
+ of the page. Notice the number of allowed submissions left!</p>
+</div>
+{% endif %}
+
+{% if exercise.instructions %}
+<div class="instructions">
+  {{ exercise.instructions|safe }}
+</div>
+{% endif %}
+
+{% include 'access/graded_form.html' %}
+
+{% endblock %}

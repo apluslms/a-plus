@@ -1,0 +1,32 @@
+{% extends 'grader_frame.html' %}
+
+{% block body %}
+	<h1>Exercise material pull requests</h1>
+	<form method="get">
+		<p>
+			Update course exercises that have been checked out to this grader server as a Git submodule.
+		</p>
+		<p>
+			You should PROBABLY NOT DO THIS unless you control the repository and know the HEAD state. 
+		</p>
+		<select name="key">
+			<option value="">- Select a course -</option>
+			{% for course in courses %}
+			<option value="{{ course.key }}">{{ course.name }}</option>
+			{% endfor %}
+		</select>
+		<input type="submit" value="Request Git pull at next full minute" />
+	</form>
+	
+	{% if status.updated %}
+	<h4>Status: Request added</h4>
+	{% elif status.not_found %}
+	<h4>Status: Unknown course!</h4>
+	{% endif %}
+	
+	<h4>Log:</h4>
+	<pre>
+{{ log }}
+	</pre>
+
+{% endblock %}

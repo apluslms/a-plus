@@ -1,0 +1,34 @@
+<form method="post" action="{{ result.fix_url }}">
+
+{% if result.fix_url %}
+<input type="hidden" name="fix_url" value="{{ result.fix_url }}" />
+{% endif %}
+
+{% for field in result.form %}
+
+{% if field.field.open_set %}
+<fieldset id="{{ field.field.open_set }}"{% if result.accepted %} class="alert {% if field.field.open_set in result.error_groups %}alert-error{% else %}alert-success{% endif %}"{% endif %}>
+	{% if field.field.set_title %}<legend>{{ field.field.set_title }}</legend>{% endif %}
+{% endif %}
+
+	<div class="field-group">
+		{% if field.field.choices %}
+		{{ field.label }}
+		{% else %}
+		{{ field.label_tag }}
+		{% endif %}
+		{{ field.errors }}
+		<div class="field-input">
+		{{ field }}
+		</div>
+	</div>
+
+{% if field.field.close_set %}
+</fieldset>
+{% endif %}
+
+{% endfor %}
+{% if result.fix_url or not result.accepted %}
+  <input type="submit" value="Submit" class="btn btn-primary" />
+{% endif %}
+</form>

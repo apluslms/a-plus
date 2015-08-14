@@ -1,0 +1,11 @@
+{% if exercise.files %}
+<form method="post" action="#" enctype="multipart/form-data">
+	{% for entry in exercise.files %}
+	<p class="form-group">
+		<label for="{{ entry.field }}_id">{{ entry.name }}</label>
+		<input type="file" id="{{ entry.field }}_id" name="{{ entry.field }}" />
+	</p>
+	{% endfor %}
+	<input type="submit" value="Lähetä" class="btn btn-primary" />
+</form>
+{% endif %}

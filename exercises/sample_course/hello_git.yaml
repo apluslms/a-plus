@@ -1,0 +1,44 @@
+---
+# This is an example of grading submission from Git.
+#
+# Further comments could include
+# - author information
+# - exercise motivation and purpose
+# - history of course instances/years
+
+title: Grade from Git
+
+# An optional META description
+#description:
+
+# Optional exercise instructions displayed by default templates.
+instructions: |
+
+  <h1>Grade from Git</h1>
+
+  <p>This is an example of grading a submission from user's Git repository.</p>
+
+# Overrides the default template to display.
+# Any new configuration fields are available in exercise object in template.
+#template: sample_course/custom_instructions.html
+
+view_type: access.types.stdasync.acceptGitAddress
+#require_gitlab: git.niksula.hut.fi
+
+# Overrides the default feedback template to render.
+# Any new configuration fields are available in exercise object in template.
+#feedback_template: sample_course/task_feedback.html
+# Passes grading task output directly.
+#feedback_template: access/task_direct.html
+
+actions:
+  #- type: grader.actions.gitlabquery
+  #  token: xxxxxxxxxxxxxxxxxxxx
+  #  private: True
+  #  forks: user/project
+  - type: grader.actions.gitclone
+    title: Access Git
+    points: 5
+  - type: grader.actions.sandbox
+    title: List contents
+    cmd: [ "/usr/local/sandbox/template.sh" ]

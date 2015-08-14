@@ -1,0 +1,36 @@
+---
+# This is a template for an exercise configuration file.
+#
+# Further comments could include
+# - author information
+# - exercise motivation and purpose
+# - history of course instances/years
+
+title: Grading template
+
+# An optional META description
+description: Output from the template grading action.
+
+# Any new configuration fields are available in exercise object in template.
+#template: sample_course/custom_instructions.html
+
+view_type: access.types.stdasync.acceptFiles
+files:
+  - field: file1
+    name: file1.txt
+  - field: file2
+    name: sub/file2.txt
+
+# Any new configuration fields are available in exercise object in template.
+#feedback_template: sample_course/task_feedback.html
+
+# Passes grading task output directly.
+#feedback_template: access/task_direct.html
+
+actions:
+  - type: grader.actions.sandbox
+    #title: Template title for action
+    # If points are given they overwrite script output
+    # and are rewarded on return code 0.
+    #points: 1
+    cmd: [ "/usr/local/sandbox/template.sh", "--opt", "one two three" ]

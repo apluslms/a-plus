@@ -1,0 +1,36 @@
+<div id="feedback">
+{% for entry in result.tests %}
+{% if entry.title or entry.out or entry.err %}
+<div class="grading-task">
+	{% if entry.title %}
+	<h3>{{ entry.title }}</h3>
+	{% endif %}
+	
+	{% if entry.out %}
+		{% if entry.html %}
+		{{ entry.out|safe }}
+		{% else %}
+		<pre>{{ entry.out }}</pre>
+		{% endif %}
+	{% endif %}
+
+	{% if entry.err %}
+	<pre class="alert alert-danger">{{ entry.err }}</pre>
+	{% endif %}
+</div>
+{% endif %}
+{% endfor %}
+
+{% if result.has_appendixes %}
+<div id="appendixes" class="accordion">
+	<h2>Appendixes</h2>
+	<div>
+{% for entry in result.tests %}
+	{% if entry.appendix %}
+		{{ entry.appendix|safe }}
+	{% endif %}
+{% endfor %}
+	</div>
+</div>
+{% endif %}
+</div>

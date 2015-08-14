@@ -1,0 +1,10 @@
+<form method="post" action="#">
+	<label for="git_id"><strong>Syötä arvosteltavan projektisi Git-osoite</strong></label>
+	<div class="form-horizontal">
+		<input type="text" id="git_id" name="git" style="width:30em;"/>
+		<input type="submit" value="L&auml;het&auml;" class="btn btn-primary" />
+	</div>
+	{% if not exercise.no_git_reminder %}
+	<span class="help-block">Muistitko git add - git commit - git push?</span>
+	{% endif %}
+</form>

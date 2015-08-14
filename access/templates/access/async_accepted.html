@@ -1,0 +1,28 @@
+{% extends 'access/exercise_frame.html' %}
+
+{% block exercise %}
+
+<h1>Submission accepted</h1>
+
+{% if result.missing_url %}
+<div class="alert alert-error">
+	<p>Missing the "submission_url" for result delivery! Grading and logging results.</p>
+</div>
+{% endif %}
+
+<div id="feedback">
+	<p>
+		{% if result.queue < 3 %}
+		Your submission is being graded. The result will be available on this page
+		when the grading process completes. Note that grading may take a while.
+		You might also need to update the page manually in order to see the results.
+		{% else %}
+		Your submission is in the grading queue. There are {{ result.queue }} other
+		submissions before. The result will be available on this page
+		when the grading process completes. The page must be updated manually to
+		see the results.
+		{% endif %}
+	</p>
+</div>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'grader_frame.html' %}
+
+{% block body %}
+	<h1>{{ course.name }}</h1>
+	<p>
+		<ul>
+			{% for exercise in exercises %}
+			<li><a href="{% url 'access.views.exercise' course.key exercise.key %}">{{ exercise.title }}</a></li>
+			{% endfor %}
+		</ul>
+	</p>
+{% endblock %}

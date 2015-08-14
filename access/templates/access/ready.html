@@ -1,0 +1,19 @@
+{% extends 'grader_frame.html' %}
+
+{% block body %}
+	<h1>Grader ready</h1>
+	<p>
+		<a href="{% url 'access.views.queue_length' %}">Current queue length</a>
+	</p>
+	<p>
+		Available courses
+		<ul>
+			{% for course in courses %}
+			<li><a href="{% url 'access.views.course' course.key %}">{{ course.name }}</a></li>
+			{% endfor %}
+		</ul>
+	</p>
+	<p>
+		<a href="{% url 'access.views.pull_request' %}">Exercise material pull requests</a>
+	</p>
+{% endblock %}

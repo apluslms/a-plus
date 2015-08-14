@@ -1,0 +1,15 @@
+{% extends 'grader_frame.html' %}
+
+{% block head %}
+{{ block.super }}
+		<meta name="status" value="error" />
+{% endblock %}
+
+{% block body %}
+	<h1>500 Internal server error</h1>
+	<p>
+		Ooops, there seems to be problems in the system!
+		Sorry for your inconvenience.
+		Please try again later or contact course support.
+	</p>
+{% endblock %}

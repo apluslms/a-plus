@@ -1,0 +1,28 @@
+{% extends 'access/exercise_frame.html.fi' %}
+
+{% block exercise %}
+
+<h1>Palautus on vastaanotettu</h1>
+
+{% if result.missing_url %}
+<div class="alert alert-error">
+	<p>Tuloksen toimittamiseen tarvittava "submission_url" puuttuu! Arvostellaan ja kirjoitetaan tulos logiin.</p>
+</div>
+{% endif %}
+
+<div id="feedback">
+	<p>
+		{% if result.queue < 3 %}
+		Palautuksesi on arvosteltavana. Tulos on mahdollista nähdä tällä sivulla, kun
+		arvosteluprosessi on suoritettu loppuun.
+    Huomioi, että arvostelu voi kestää useita kymmeniä sekunteja.
+    Voit lisäksi joutua lataamaan tämän sivun uudestaan nähdäksesi palautteen.
+		{% else %}
+		Palautuksesi on arvostelujonossa. Jonossa on edellä {{ result.queue }}
+		palautusta. Tulos näytetään tällä sivulla, kun arvosteluprosessi
+		on suoritettu. Joudut lataamaan sivun uudelleen nähdäksesi palautteen.
+		{% endif %}
+	</p>
+</div>
+
+{% endblock %}

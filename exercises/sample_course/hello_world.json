@@ -1,0 +1,39 @@
+{
+	"title": "Hello world!",
+	"description": "An optional description: accept files for configured grading actions.",
+	"max_points": 5,
+
+	"template": "sample_course/hello_world.html",
+
+	"view_type": "access.types.stdasync.acceptFiles",
+	"files": [
+		{
+			"field": "file1",
+			"name": "HelloWorld.scala"
+		}
+	],
+
+	"actions": [
+		{
+			"type": "grader.actions.prepare",
+			"charset": "us-ascii",
+			"add": "sample_course/hello_world"
+		},
+		{
+			"title": "Compiling",
+			"points": 1,
+			"type": "grader.actions.sandbox",
+			"cmd": [
+				"/usr/local/sandbox/scala_compile.sh"
+			]
+		},
+		{
+			"title": "Executing",
+			"max_points": 4,
+			"type": "grader.actions.sandbox",
+			"cmd": [
+				"scala", "hello.HelloWorldTest"
+			]
+		}
+	]
+}

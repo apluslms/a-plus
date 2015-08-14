@@ -1,0 +1,29 @@
+# Names of nodes to start
+CELERYD_NODES="tasks"
+
+# Absolute or relative path to the 'celery' command:
+CELERY_BIN="/usr/local/bin/celery"
+
+# App instance to use
+CELERY_APP="grader.tasks"
+
+# Where to chdir at start.
+CELERYD_CHDIR="/var/mooc-grader/"
+
+# Extra command-line arguments to the worker
+# --concurrency: amount of concurrent task processes per worker
+CELERYD_OPTS="--concurrency=1"
+
+# %N will be replaced with the first part of the nodename.
+CELERYD_LOG_FILE="/var/log/celery/%N.log"
+CELERYD_PID_FILE="/var/run/celery/%N.pid"
+
+# Workers should run as an unprivileged user.
+#   You need to create this user manually (or you can choose
+#   a user/group combination that already exists, e.g. nobody).
+CELERYD_USER="www-data"
+CELERYD_GROUP="www-data"
+
+# If enabled pid and log directories will be created if missing,
+# and owned by the userid/group configured.
+CELERY_CREATE_DIRS=1

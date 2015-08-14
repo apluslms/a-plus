@@ -1,0 +1,17 @@
+{
+	"name": "A sample course",
+	"contact": "teemu.t.lehtinen@aalto.fi",
+	"description": "This is a sample course suitable for testing the grader.",
+	
+	"lang": "en",
+	
+	"exercises": [
+		"hello_world",
+		"hello_git",
+		"multiple_choice",
+		"correct_button",
+		"template",
+		"error",
+		"timeout"
+	]
+}

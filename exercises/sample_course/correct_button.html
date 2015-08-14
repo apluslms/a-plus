@@ -1,0 +1,26 @@
+{% extends 'access/exercise_frame.html' %}
+
+{% block exercise %}
+
+<h1>Choose the correct button</h1>
+
+{% if result.accepted %}
+<div class="result">
+	{% if result.points == 0 %}
+	<p>Bad choice.</p>
+	{% elif result.points < exercise.max_points %}
+	<p>You can do better.</p>
+	{% else %}
+	<p>Excellent!</p>
+	{% endif %}
+</div>
+
+{% else %}
+<form method="post" action="#">
+	<button type="submit" name="left" value="1">Wrong</button>
+	<button type="submit" name="right" value="1">Right</button>
+</form>
+
+{% endif %}
+
+{% endblock %}

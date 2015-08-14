@@ -1,0 +1,40 @@
+<h1>Kokonaispisteet {{ result.points }} / {{ result.max_points }}</h1>
+{% for entry in result.tests %}
+	
+	{% if entry.title or entry.out or entry.err or entry.points > 0 %}
+	<div class="grading-task">
+		{% if entry.title %}
+		<h3>{{ entry.title }}</h3>
+		{% endif %}
+		
+		{% if entry.points > 0 and entry.max_points > 0 %}
+		Pisteet {{ entry.points }} / {{ entry.max_points }}
+		{% endif %}
+		
+		{% if entry.out %}
+		{% if entry.html %}
+		{{ entry.out|safe }}
+		{% else %}
+		<pre>{{ entry.out }}</pre>
+		{% endif %}
+		{% endif %}
+
+		{% if entry.err %}
+		<pre class="alert alert-danger">{{ entry.err }}</pre>
+		{% endif %}
+	</div>
+	{% endif %}
+{% endfor %}
+
+{% if result.has_appendixes %}
+<div id="appendixes" class="accordion">
+	<h2>Liitteet</h2>
+	<div>
+{% for entry in result.tests %}
+	{% if entry.appendix %}
+		{{ entry.appendix|safe }}
+	{% endif %}
+{% endfor %}
+	</div>
+</div>
+{% endif %}

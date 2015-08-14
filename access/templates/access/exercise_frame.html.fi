@@ -1,0 +1,31 @@
+{% extends 'frame.html' %}
+
+{% block head %}
+		{% include 'access/exercise_head.html' %}
+{% endblock %}
+
+{% block body %}
+		<div id="exercise">
+
+			{% if result.error %}
+			<div class="alert alert-error">
+
+				{% if result.missing_files %}
+				<p>Palautus vaatii kaikki tiedostot.</p>
+				{% endif %}
+
+				{% if result.missing_file_name %}
+				<p>Tuntematon tiedosto vastaanotettu (tiedostonimeä ei ole asetuksissa).</p>
+				{% endif %}
+				
+				{% if result.invalid_address %}
+				<p>Syötetty osoite ei kelpaa.</p>
+				{% endif %}
+
+			</div>
+			{% endif %}
+
+			{% block exercise %}
+			{% endblock %}
+		</div>
+{% endblock %}

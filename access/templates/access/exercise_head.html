@@ -1,0 +1,23 @@
+		{% if result.max_points >= 0 %}
+		<meta name="max-points" value="{{ result.max_points }}" />
+		{% elif exercise.max_points >= 0 %}
+		<meta name="max-points" value="{{ exercise.max_points }}" />
+		{% endif %}
+		<meta name="DC.Title" content="{{ exercise.title }}" />
+		{% if exercise.description %}
+		<meta name="DC.Description" content="{{ exercise.description }}" />
+		{% endif %}
+		<title>{{ exercise.title }}</title>
+
+		{% if result.error %}
+		<meta name="status" value="error" />
+		{% elif result.accepted %}
+		<meta name="status" value="accepted" />
+		{% if result.wait and result.queue < 3 %}
+		<meta name="wait" value="{{ result.queue }}" />
+		{% endif %}
+		{% endif %}
+
+		{% if result.points >= 0 %}
+		<meta name="points" value="{{ result.points }}" />
+		{% endif %}
