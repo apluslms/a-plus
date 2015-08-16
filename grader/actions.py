@@ -11,13 +11,14 @@ Functions take arguments:
     @param action: action configuration dictionary
     @type submission_dir: C{str}
     @param submission_dir: a submission directory where submitted files are stored
-    @rtype: C{tuple}
-    @return: points = granted points, out = standard out, err = standard error, stop = True to stop further actions
-
+    @rtype: C{dict}
+    @return: points = granted points, max_points = maximum points,
+        out = standard out, err = standard error,
+        stop = True to stop further actions, appendix = appendix output
 '''
 from django.conf import settings
 from access.config import ConfigError
-from util.shell import invoke_configured_sandbox, invoke_script
+from util.shell import invoke_script, invoke_sandbox
 from util.xslt import transform
 from util.http import get_json
 import logging
@@ -28,55 +29,52 @@ LOGGER = logging.getLogger('main')
 def prepare(course, exercise, action, submission_dir):
     '''
     Runs the preparation script for the submitted files.
-
     '''
-    return _run_boolean("/scripts/prepare.sh", ("charset", "add", "unzip", "attachment", "pull", "mv"), action, submission_dir)
+    return _boolean(invoke_script(settings.PREPARE_SCRIPT,
+        _collect_args(("attachment_pull", "attachment_unzip", "unzip",
+            "charset", "cp_exercises", "cp", "mv"), action,
+            { "course_key": course["key"] }),
+        submission_dir))
 
 
 def gitclone(course, exercise, action, submission_dir):
     '''
     Runs a git clone script.
-
     '''
-    return _appendix(_run_boolean("/scripts/gitclone.sh", ("read", "files"), action, submission_dir))
+    return _appendix(_boolean(invoke_script(settings.GITCLONE_SCRIPT,
+        _collect_args(("repo_dir", "read", "files"), action), submission_dir)))
 
 
 def sandbox(course, exercise, action, submission_dir):
     '''
     Executes sandbox script and looks for TotalPoints line in the result.
-
     '''
-    return _find_point_lines(invoke_configured_sandbox(action, submission_dir))
+    return _find_point_lines(invoke_sandbox(course["key"], action,
+        submission_dir))
 
 
 def sandbox_python_test(course, exercise, action, submission_dir):
     '''
     Executes sandbox script and looks for succesful python test. Test may print
     out TotalPoints and MaxPoints lines at end.
-
     '''
-    r = _find_point_lines(invoke_configured_sandbox(action, submission_dir))
-    return { "points": r["points"], "max_points": r["max_points"], "out": r["err"], "err": "", "stop": r["stop"] }
+    r = sandbox(course, exercise, action, submission_dir)
+    return { "points": r["points"], "max_points": r["max_points"],
+        "out": r["err"], "err": "", "stop": r["stop"] }
 
 
 def expaca(course, exercise, action, submission_dir):
     '''
-    Executes script and looks for expaca XML result.
-
+    Executes third party expaca testing application.
     '''
-    name = "scripts/expaca_grade.sh"
-    if "attachment" in action and action["attachment"]:
-        name = "scripts/expaca_attachment_grade.sh"
-    args = {}
-    for key in ("testdir", "rulefile", "modeldir", "filesdir"):
-        if key in action:
-            args[key] = action[key]
-    r = invoke_script(name, args, submission_dir)
+    r = invoke_script(settings.EXPACA_SCRIPT,
+        _collect_args(("rule_file", "model_dir", "user_dir"), action),
+        submission_dir)
 
-    # Expaca should return 0.
+    # Expaca should always return 0.
     if r["code"] != 0:
-        raise ConfigError("Expaca return code not zero!\nMore information: %s" % (str(r)))
-
+        raise ConfigError("Expaca return code not zero!\nMore information: %s"
+            % (str(r)))
     out = r["out"]
     points = 0
     max_points = 0
@@ -86,7 +84,6 @@ def expaca(course, exercise, action, submission_dir):
     if b >= 0:
         e = out.find("</TotalPoints>", b + 13)
         points = int(out[b + 13 : e])
-
     b = out.find("<TotalMaxpoints>")
     if b >= 0:
         e = out.find("</TotalMaxpoints>", b + 16)
@@ -94,15 +91,16 @@ def expaca(course, exercise, action, submission_dir):
 
     # Transform the feedback if configured.
     if "xslt_transform" in action:
-        out = transform(out, "%s/%s" % (settings.BASE_DIR, action["xslt_transform"]))
+        out = transform(out, "%s/%s" % (settings.BASE_DIR,
+            action["xslt_transform"]))
 
-    return { "points": points, "max_points": max_points, "out": out, "err": r["err"], "stop": False }
+    return { "points": points, "max_points": max_points, "out": out,
+        "err": r["err"], "stop": False }
 
 
 def timeout(course, exercise, action, submission_dir):
     '''
     FOR DEBUG: Sleeps for a long time to test grading time out.
-
     '''
     import time
     print "stdasync.timeoutAction: Sleeping and blocking queue for testing purposes."
@@ -113,7 +111,6 @@ def timeout(course, exercise, action, submission_dir):
 def gitlabquery(course, exercise, action, submission_dir):
     '''
     Queries gitlab API to check repository properties.
-
     '''
     if not "require_gitlab" in exercise:
         raise ConfigError("This action needs require_gitlab in exercise.")
@@ -139,35 +136,27 @@ def gitlabquery(course, exercise, action, submission_dir):
     return { "points": 0, "max_points": 0, "out": "", "err": err, "stop": err != "" }
 
 
-def _run_boolean(script_name, arg_names, action, submission_dir):
+def _collect_args(arg_names, action, args={}):
     '''
     Collects argument map for names in action.
-
-    @type script_name: C{str}
-    @param script_name: a script name
-    @type arg_names: C{list}
-    @param arg_names: argument names
-    @type action: C{dict}
-    @param action: action configuration
-    @rtype: C{dict}
-    @return: points = granted points, out = standard out, err = standard error, stop = True to stop further actions
     '''
-    args = {}
     for name in arg_names:
         if name in action:
             args[name] = action[name]
-    r = invoke_script(script_name, args, submission_dir)
-    return { "points": 0, "max_points": 0, "out": r["out"], "err": r["err"], "stop": r["code"] != 0 }
+    return args
+
+
+def _boolean(result):
+    '''
+    Plain return code check for continuing actions.
+    '''
+    return { "points": 0, "max_points": 0, "out": result["out"],
+        "err": result["err"], "stop": result["code"] != 0 }
 
 
 def _find_point_lines(result):
     '''
     Looks for TotalPoints and/or MaxPoints line in the result.
-
-    @type result: C{dict}
-    @param result: a shell invocation result
-    @rtype: C{dict}
-    @return: points = granted points, out = standard out, err = standard error, stop = True to stop further actions
     '''
     lines = []
     points = 0
@@ -185,18 +174,14 @@ def _find_point_lines(result):
         except ValueError:
             pass
 
-    return { "points": points, "max_points": max_points, "out": "\n".join(lines),
-             "err": result["err"], "stop": result["code"] != 0 }
+    return { "points": points, "max_points": max_points,
+        "out": "\n".join(lines), "err": result["err"],
+        "stop": result["code"] != 0 }
 
 
 def _appendix(result):
     '''
     Looks for appendix section in output.
-
-    @type result: C{dict}
-    @param result: a shell invocation result
-    @rtype: C{dict}
-    @return: points = granted points, out = standard out, err = standard error, stop = True to stop further actions, appendix = appendix output
     '''
     out = []
     appendix = []

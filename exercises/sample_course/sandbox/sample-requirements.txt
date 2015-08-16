@@ -1,10 +1,5 @@
+# python3.4
 coverage==3.7.1
 nose==1.3.7
-pytz
-
 #numpy==1.9.2
-
 #Django==1.8.3
-
-#selenium==2.47.1
-#html5lib

@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Looks for a flag to git pull any of the course configurations.
+# The flag can be set via web interface and repository hooks.
+# Typically this script should be run as a frequent cron task.
+#
 cd `dirname $0`/..
 ROOT=`pwd`
 FLAG=/tmp/mooc-grader/gitpull.flag

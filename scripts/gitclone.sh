@@ -4,9 +4,9 @@
 #
 cd `dirname $0`/..
 source scripts/_config.sh
-RDIR=user-repo
 
 DIR=
+RDIR=user-repo
 READ=gitsource
 FILES=()
 
@@ -16,6 +16,7 @@ while args
 do
 	case "$ARG_ITER" in
 		--dir) DIR=$ARG_NEXT; args_skip ;;
+		--repo_dir) RDIR=$ARG_NEXT; args_skip ;;
 		--read) READ=$ARG_NEXT; args_skip ;;
 		--files) FILES=( "$ARG_NEXT" ); args_skip ;;
 		*) ;;

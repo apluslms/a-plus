@@ -8,8 +8,7 @@ then
 	exit 0
 fi
 
-INFO=`file -i $2`
-FROM=${INFO##*charset=}
+FROM=`file -b --mime-encoding $2`
 if [ "$FROM" != "binary" ]
 then
 	iconv -f $FROM -t $1 -c $2 > $3

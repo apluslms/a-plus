@@ -1,12 +1,6 @@
 ---
-# This is a demonstration of a gradable form.
-#
-# Further comments could include
-# - author information
-# - exercise motivation and purpose
-# - history of course instances/years
-
 title: Mutiple choices form
+description: A demonstration of a graded questionnaire
 max_points: 7
 
 view_type: access.types.stdsync.createForm
@@ -16,7 +10,7 @@ fieldgroups:
   - title: Graded section
     fields:
 
-      - title: 1. <code>1 + 1 = ?</code>
+      - title: 1. <var>1 + 1 = ?</var>
         type: radio
         points: 2
         options:
@@ -25,7 +19,7 @@ fieldgroups:
             correct: true
           - label: 3
 
-      - title: 2. <code>1 + 1 = ?</code>
+      - title: 2. <var>1 + 1 = ?</var>
         type: dropdown
         points: 1
         options:
@@ -36,8 +30,9 @@ fieldgroups:
 
       - title: 3. Which of the following are yellow?
         more: |
-          Meaning what objects you normally see as yellow
-          when looking at in day conditions.
+          <p class="help-block">
+            Meaning what objects you normally see as yellow when looking at in day conditions.
+          </p>
         type: checkbox
         points: 2
         options:
@@ -47,12 +42,12 @@ fieldgroups:
             correct: true
           - label: sea
 
-      - title: 4. Write "blue" below.
+      - title: 4. Type <kbd>blue</kbd> below.
         type: text
         points: 1
         correct: blue
 
-      - title: 5. Write something including "test".
+      - title: 5. Type some <code>code</code> including word "<samp>test</samp>".
         type: text
         points: 1
         regex: .*test.*
@@ -65,7 +60,6 @@ fieldgroups:
         options:
           - label: A
           - label: B
-          - label: C
 
       - title: "Your life story:"
         type: textarea

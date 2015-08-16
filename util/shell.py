@@ -6,6 +6,7 @@ from django.conf import settings
 from access.config import ConfigError
 import subprocess
 import logging
+import os.path
 
 
 LOGGER = logging.getLogger('main')
@@ -26,14 +27,12 @@ def invoke(cmd_list):
     return {"code": p.returncode, "out": out.strip(), "err": err.strip()}
 
 
-def invoke_script(name, arguments, dirarg=None):
+def invoke_script(script, arguments, dirarg=None):
     '''
-    Invokes a grader script.
+    Invokes a named shell script.
 
-    @type name: C{str}
-    @param name: a script file name
-    @type net: C{bool}
-    @param net: True to add network enabled argument
+    @type script: C{str}
+    @param script: a script file name
     @type arguments: C{dict}
     @param arguments: arguments to pass for the script
     @type dirarg: C{str}
@@ -41,7 +40,7 @@ def invoke_script(name, arguments, dirarg=None):
     @rtype: C{dict}
     @return: code = process return code, out = standard out, err = standard error
     '''
-    cmd = ["%s/%s" % (settings.BASE_DIR, name)]
+    cmd = [ script ]
     for key, value in arguments.iteritems():
         cmd.append("--%s" % (key))
         cmd.append("%s" % (value))
@@ -51,9 +50,9 @@ def invoke_script(name, arguments, dirarg=None):
     return invoke(cmd)
 
 
-def invoke_configured_sandbox(action, dirarg=None):
+def invoke_sandbox(course_key, action, dirarg=None):
     '''
-    Invokes a configured grader script in a sandboxed environment.
+    Invokes a configured command in the sandbox environment.
 
     @type action: C{dict}
     @param action: action configuration
@@ -64,19 +63,22 @@ def invoke_configured_sandbox(action, dirarg=None):
     '''
     if not "cmd" in action or not isinstance(action["cmd"], list):
         raise ConfigError("Missing list \"cmd\" from action configuration")
-    cmd = [ "%s/scripts/chroot_execvp" % (settings.BASE_DIR)]
+
+    cmd = [ settings.SANDBOX_RUNNER if os.path.isfile(settings.SANDBOX_RUNNER)
+        else settings.SANDBOX_FALLBACK ]
 
     if "net" in action and action["net"]:
         cmd.append("net")
 
     for key in ("time", "memory", "files", "disk"):
         if key in action:
-            cmd.append(action[key])
+            cmd.append(str(action[key]))
         else:
-            cmd.append(settings.SANDBOX_LIMITS[key])
+            cmd.append(str(settings.SANDBOX_LIMITS[key]))
 
     if dirarg:
-        cmd.append(dirarg)
+        cmd.append(os.path.join(dirarg,
+            action["dir"] if "dir" in action else "user"))
     else:
         cmd.append("-")
     cmd.extend(action["cmd"])

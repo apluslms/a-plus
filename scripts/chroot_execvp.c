@@ -1,3 +1,9 @@
+/**
+ * Moves the target directory inside sandboxed system
+ * and then runs the given command in it.
+ *
+ * @author Teemu Lehtinen
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,10 +45,6 @@ static gid_t orig_gid = 0;
 static pid_t pid = 0;
 static unsigned int time_limit = 0;
 
-/**
- * Moves the target directory inside sandboxed system
- * and then runs the given command in it.
- */
 int main(int argc, char *argv[])
 {
 	int argp = 1;
@@ -60,12 +62,13 @@ int main(int argc, char *argv[])
 	{
 		printf("Runs a command in a sandbox environment.\n");
 		printf("Usage: %s [net] time heap files disk dir prg [arguments...]\n", argv[0]);
+		printf("    1k for kilobyte, 1m for megabyte and - for unlimited\n");
 		printf("    net          enables network (optional)\n");
 		printf("    time         maximum time for process in seconds\n");
-		printf("    memory       maximum memory size (suffix k for kilobytes and m for megabytes)\n");
-		printf("    files        maximum number of file descriptors\n");
-		printf("    disk         maximum disk size (suffix k for kilobytes and m for megabytes)\n");
-		printf("    dir          a target directory moved into sandbox working directory\n");
+		printf("    memory       maximum memory size\n");
+		printf("    files        maximum number of open file descriptors\n");
+		printf("    disk         maximum disk write size\n");
+		printf("    dir          a target directory or -\n");
 		printf("    prg          a program to envoke\n");
 		printf("    arguments    any arguments for program (optional)\n");
 		return 0;
@@ -183,7 +186,7 @@ int main(int argc, char *argv[])
 
 		// Create environment array.
 		char *env[4];
-		env[0] = "PATH=/bin:/usr/bin";
+		env[0] = "PATH=/bin:/usr/bin:/usr/local/bin:/usr/local/sandbox";
 		struct passwd *pw = getpwuid(uid);
 		if (pw == NULL)
 		{

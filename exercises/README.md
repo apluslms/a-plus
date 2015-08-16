@@ -17,9 +17,7 @@ The submodules will not be stored in the mooc-grader repository.
 	* `name`: A public complete course name
 	* `contact`: A private contact email for course configuration
 	* `description` (optional): A private course description
-	* `lang` (optional): A course language code to insert in HTML and
-		to select alternative templates named `template.html.lang`.
-		Default templates support finnish "fi" and fallback to english.
+	* `lang` (optional): The default language.
 	* `exercises`: a list of active exercise keys
 
 2. ### course_key/exercise_key.[json|yaml]
@@ -33,14 +31,19 @@ The submodules will not be stored in the mooc-grader repository.
 	* `max_points` (optional): The maximum exercise points (positive int).
 		Overrides any maximum points reported by test actions.
 	* `view_type`: A dotted name for an exercise implementation
+
 	Rest of the attributes are exercise type specific.
 
 3. ### course_key/sandbox
-	* A directory for sandbox environment content. Directory is copied into
-	sandbox as `/usr/local/sandbox/course_key`. Any files beginning with
-	`install-` will be run inside the sandbox in alphabetical order during
-	the `manage_sandbox.sh` run. Many common requirements can be filled by
-	copying install scripts from `scripts/sandbox_available`.
+	A directory for sandbox environment content. Directory is copied into
+	sandbox as `/usr/local/sandbox/course_key`. In a sandbox action the
+	executables are automatically in the command path. Files beginning with
+	`install-` will be run inside the sandbox in alphabetical order during the
+	`manage_sandbox.sh` run. Before that the `scripts/sandbox` and the selected
+	`scripts/sandbox_available` install files are run.
+
+4. ### course_key/sandbox/from_sandbox_available
+	List required files from `scripts/sandbox_available` each name at one line.
 
 ## Exercise view types
 
@@ -66,9 +69,9 @@ course specific exercise view in a course specific Python module.
 		name of a template to present.
 		This test is used with exercises configured externally
 		where also the creation of the form should be taken care off.
-		Post should include several file fields named `file[]` where
-		the first file is an exercise rule attachment and rest are
-		user files which are named by `file_N` post fields in order.
+		Post should include several file fields named `content_N` where
+		`content_0` is an exercise rule attachment and rest are
+		user files which are named by `file_N` post fields.
 		(Format is used by A+ exercises with attachments).
 	* `feedback_template` (default `access/task_success.html`):
 		name of a template used to format the feedback
@@ -78,7 +81,7 @@ course specific exercise view in a course specific Python module.
 	Writes the Git address into user/gitsource file for asynchronous grading
 	queue. See grader.actions.git*. Extended attributes:
 	* `require_gitlab` (optional):
-		a host name for a gitlab installation.
+		a host name for a Gitlab installation.
 		Makes sure that the address is an SSH repo path or any HTTP URL
 		in given Gitlab host. Stores the standard SSH path for key access.
 	* `template` (default: `access/accept_git_default.html`):
@@ -129,17 +132,21 @@ course specific exercise view in a course specific Python module.
 
 ## Test action types
 
-Asynchronous exercises configure a list of `actions`. Actions will run in
-listed order.
+Asynchronous exercises accept the submitted files into user/filename[s].
+Once the queued grading commences the configured list of `actions`
+will run in the listed order.
 
-* ### Common attributes for each action
+* Common attributes for each action are
 	* `type`: A dotted name for a test action implementation
-	* `points` (optional): Overrides any points reported
-		by the action. Passed action awards all points.
-		Failed action awards zero points.
-	* `title` (optional): grading action title in template
+	* `points` (optional): Overrides points reported by the action.
+		Passed action awards all points. Failed action awards zero points.
+		Unless max points is separately set this will also set the max points
+		for the action.
+	* `max_points` (optional): Overrides max points reported by the action.
+	* `title` (optional): grading action title for template
 	* `html` (optional): true to pass output as HTML in template
-	Rest of the attributes are action type specific
+
+	Rest of the attributes are action type specific.
 
 ### Action types
 
@@ -151,18 +158,37 @@ sandbox system.
 
 1. ### grader.actions.prepare
 	Does preparations on the submitted files. Additional attributes:
-	* `charset`: a character set where to convert submitted files to
-	* `add`: a directory including files to add to the user submission
-		e.g. `course_key/exercise_name` for support and test code
-	* `unzip`: a received file name to unzip
-	* `pull`: a file to pull outside from the user directory
-		e.g. `exercise_attachment` for later comparison
+	* `attachment_pull` (optional): a TARGET file path to pull
+		*user/exercise_attachment* from *acceptAttachedExercise* view
+	* `attachment_unzip` (optional): `yes` to unzip *user/exercise_attachment*
+		from *acceptAttachedExercise* into submission root
+	* `unzip` (optional): a submitted user file name to unzip inside *user*
+		directory
+	* `charset` (optional): a character set where to convert submitted text
+		files from any recognized character sets they are in
+	* `cp_exercises` (optional): a space separated list of *path->path* where
+		source path is relative to exercise configuration e.g.
+		`exercise_dir->user` would copy contents of
+		*exercises/course_key/exercise_dir* into the submission *user*
+		directory.
+	* `cp` (optional): a space separated list of *path->path* where both paths
+		are relative to submission root e.g. `model/lib->user/lib` would
+		replicate the lib directory among the user submitted files.
+	* `mv` (optional): a space separated list of *path->path* where
+		both paths are relative to submission root e.g.
+		`user/file_name->user/new_dir/file_name`
+
+	**Note** that the cp/mv *path->path* pattern does not replicate shell
+	command arguments. Either dir->dir contents or individual file->file is
+	inserted creating new parent directories if required.
 
 2. ### grader.actions.sandbox
 	Executes a command inside the chroot sandbox as a restricted user.
 	Picks points from `TotalPoints: N` and/or `MaxPoints: N` lines if
 	printed out. Additional attributes:
 	* `cmd`: command line as an ARRAY
+	* `dir` (optional): sandboxed path relative to submission root,
+		default is *user*
 	* `net` (optional): `true` to use network enabled sandbox user
 	* `time` (optional): limit the seconds the command can run
 	* `memory` (optional): limit the memory bytes (address space) the command
@@ -181,55 +207,52 @@ sandbox system.
 	should be printed out.
 
 4. ### grader.actions.gitlabquery
-	Requires the acceptGitAddress view type with require_gitlab set.
+	Requires the *acceptGitAddress* view type with *require_gitlab* set.
 	Queries the Gitlab API and checks desired properties. Additional attributes:
 	* `token`: a Gitlab account private token for API access
-	* `private` (optional): True, stop if public access
-	* `forks` (optional): Project ID, stop if not forked from this
+	* `private` (optional): `yes` to stop if repository has public access
+	* `forks` (optional): Project ID to stop if not forked from this project
 
 5. ### grader.actions.gitclone
-	Works with the acceptGitAddress view type. Tries to clone the
+	Works with the *acceptGitAddress* view type. Tries to clone the
 	repository. Additional attributes:
 	* `files` (optional): a space separated list of files to select for
-		submission from the repository. The files are moved into the
-		normal user submission directory and contents are listed in the
-		feedback.
+		submission from the repository. The files are moved into
+		*user/filename[s]* and contents are listed in the feedback.
+	* `repo_dir` (optional): the clone directory, default *user-repo*
 	* `read` (optional): override the file where the git address is read from
 
 6. ### grader.actions.expaca
-	Executes the expaca testing application. The expaca is not freely available
-	and this action requires the expaca properly installed. Additional
-	attributes:
-	* `attachment` (alternative): True, if acceptAttachedExercise is used
-	* `testdir` (alternative): a directory including expaca test
-		e.g. course_key/exercise_name
-	* `rulefile` (optional): inside test, default `checkingRule.xml`
-	* `modeldir` (optional): inside test, default `model`
-	* `filesdir` (optional): inside test, default `CheckingFiles`
+	Executes the expaca testing application which compares outputs of a model
+	and the student solutions. Expaca is not freely available. This action
+	assumes that expaca is properly installed. Additional attributes:
+	* `rule_file` (optional): default `checkingRule.xml`
+	* `model_dir` (optional): default `model`
+	* `user_dir` (optional): default `user`
 	* `xslt_transform` (optional): a name of an XSL style file for
-		transforming expaca XML output
+		transforming expaca XML output e.g. `expaca/xsl/aplus-utf8.xsl`
 
 ## Default sandbox scripts
 
-Following common scripts are provided by default and copied into
-/usr/local/sandbox inside sandbox. They may be used in the
-sandbox command line.
+Following common scripts are provided by default and copied into the sandbox.
+However, the common scripts may have sandbox install requirements that are not
+met by default. Both the /usr/local/sandbox and /usr/local/sandbox/course_key
+are in the sandbox execution path and may be included in sandbox command line.
 
-* java_compile.sh
-	Compiles all java files in submission. Args:
+1. ### java_compile.sh
+	Compiles all java files in submission. Takes arguments:
 	* `--cp` (optional): classpath to use
 	* `--clean` (optional): `yes` to remove java source after compilation
 
-* scala_compile.sh
-	Compiles all scala files in submission. Args:
+2. ### scala_compile.sh
+	Compiles all scala files in submission. Takes arguments:
 	* `--cp` (optional): classpath to use
 	* `--clean` (optional): `yes` to remove scala source after compilation
 
-* python_run.sh
-	Passes a call to python interpreter. Implements extra arg:
-	* `--virtualenv` (optional): activates named virtualenv for the command
+3. ### virtualenv.sh envname cmd [arguments..]
+	Activates the named Python virtualenv and passes rest for a command.
 
-* template.sh
+4. ### template.sh
 	An example of a grading shell script. Will list submission files and
 	always grade 10/10 points.
 

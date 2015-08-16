@@ -11,6 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grader.settings')
 from celery import Celery
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
+from django.utils import translation
 from access.config import ConfigParser, ConfigError
 from grader.runactions import runactions
 from util.http import post_system_error, post_result
@@ -38,24 +39,27 @@ LOGGER = logging.getLogger('main')
 
 
 @app.task(ignore_result=True)
-def grade(course_key, exercise_key, submission_url, submission_dir):
+def grade(course_key, exercise_key, lang, submission_url, submission_dir):
     '''
     Grades the submission using configured grading actions.
-    
+
     @type course_key: C{str}
     @param course: a course key
     @type exercise: C{str}
     @param exercise: an exercise key
+    @type lang: C{str}
+    @param lang: a language code
     @type submission_url: C{str}
     @param submission_url: a submission URL where grader should POST result
     @type submission_dir: C{str}
     @param submission_dir: a submission directory where submitted files are stored
     '''
-    (course, exercise) = config.exercise_entry(course_key, exercise_key)
+    translation.activate(lang)
+    (course, exercise) = config.exercise_entry(course_key, exercise_key, lang=lang)
     if course is None or exercise is None:
         LOGGER.error("Unknown exercise \"%s/%s\" for \"%s\"", course_key, exercise_key, submission_url)
         post_system_error(submission_url, course)
-    
+
     try:
         LOGGER.debug("Grading \"%s/%s\" for \"%s\"", course_key, exercise_key, submission_url)
         r = runactions(course, exercise, submission_dir)
@@ -74,7 +78,7 @@ def grade(course_key, exercise_key, submission_url, submission_dir):
 def queue_length():
     '''
     Gets the length of the queue.
-    
+
     @rtype: C{int}
     @return: a number of queued tasks
     '''

@@ -90,20 +90,30 @@ CELERY_TASK_KILL_SEC = CELERY_TASK_LIMIT_SEC + 5
 QUEUE_ALERT_LENGTH = 20
 
 #
+# Sandbox process default limits.
+# CELERY_TASK_LIMIT_SEC is enforced over this time limit.
+#
+SANDBOX_LIMITS = {
+    "time": "-",
+    "memory": "-",
+    "files": "100",
+    "disk": "1m",
+}
+
+#
 # Exercise files submission path:
 # Django process requires write access to this directory.
 #
 SUBMISSION_PATH = os.path.join(BASE_DIR, 'uploads')
 
 #
-# Sandbox process default limits.
+# Grading action scripts.
 #
-SANDBOX_LIMITS = {
-    "time": "-",
-    "memory": "-",
-    "files": "-",
-    "disk": "-",
-}
+PREPARE_SCRIPT = os.path.join(BASE_DIR, "scripts/prepare.sh")
+GITCLONE_SCRIPT = os.path.join(BASE_DIR, "scripts/gitclone.sh")
+SANDBOX_RUNNER = os.path.join(BASE_DIR, "scripts/chroot_execvp")
+SANDBOX_FALLBACK = os.path.join(BASE_DIR, "scripts/no_sandbox.sh")
+EXPACA_SCRIPT = os.path.join(BASE_DIR, "scripts/expaca_grade.sh")
 
 #
 # Define a dummy logging configuration:

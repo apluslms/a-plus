@@ -1,0 +1,26 @@
+---
+title: Hello Python!
+description: An example of grading with Python code
+instructions: |
+
+    <h1>Hello Python!</h1>
+    <p>
+        In this exercise you must implement a function <var>hello</var>
+        that returns a string "<samp>Hello Python!</samp>".
+    </p>
+
+view_type: access.types.stdasync.acceptFiles
+files:
+  - field: file1
+    name: functions.py
+
+actions:
+  - type: grader.actions.prepare
+    charset: us-ascii
+    cp_exercises: hello_python->user
+  - type: grader.actions.sandbox_python_test
+    #type: grader.actions.sandbox # Using other type for unittest output.
+    cmd: [ "virtualenv.sh", "sample", "python", "tests.py" ]
+    time: 3
+    memory: 100k
+    disk: 0

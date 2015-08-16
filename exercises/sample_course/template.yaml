@@ -6,13 +6,11 @@
 # - exercise motivation and purpose
 # - history of course instances/years
 
-title: Grading template
-
-# An optional META description
-description: Output from the template grading action.
-
-# Any new configuration fields are available in exercise object in template.
-#template: sample_course/custom_instructions.html
+title: Grading template (meta/default title)
+description: A template for developing graders (meta/default description)
+instructions: |
+    <h1>Grading template</h1>
+    <p>Submit any files to run the template grader in a sandbox.</p>
 
 view_type: access.types.stdasync.acceptFiles
 files:
@@ -21,16 +19,19 @@ files:
   - field: file2
     name: sub/file2.txt
 
-# Any new configuration fields are available in exercise object in template.
-#feedback_template: sample_course/task_feedback.html
-
-# Passes grading task output directly.
-#feedback_template: access/task_direct.html
+# Customized template is an alternative to plain instructions entry.
+#template: sample_course/accept_files.html
 
 actions:
+  - type: grader.actions.prepare
+    charset: us-ascii
   - type: grader.actions.sandbox
-    #title: Template title for action
-    # If points are given they overwrite script output
-    # and are rewarded on return code 0.
-    #points: 1
-    cmd: [ "/usr/local/sandbox/template.sh", "--opt", "one two three" ]
+    cmd: [ "template.sh", "--opt", "one two three" ]
+    #title: Feedback title for the action
+    #points: 1 # Points are rewarded on return code 0 and override points in cmd output.
+    #html: True # Stops escaping HTML in the cmd output.
+
+# Feedback template may also be customized.
+#feedback_template: sample_course/task_success.html
+# Passes raw grading task output.
+#feedback_template: access/task_direct.html

@@ -1,0 +1,39 @@
+---
+title: Hello Scala!
+description: An example of grading with Scala code
+instructions: |
+
+    <h1>Hello Scala!</h1>
+    <p>
+        In this exercise you must implement <code>object HelloScala</code>
+        in <code>package hello</code>. The object must have a method named
+        <var>hello</var> that returns a String "<samp>Hello Scala!</samp>".
+    </p>
+    <p>
+        The result may be tested with REPL typing<br />
+        <kbd>import hello.HelloScala; HelloScala.hello</kbd>
+    </p>
+
+view_type: access.types.stdasync.acceptFiles
+files:
+  - field: file1
+    name: HelloScala.scala
+
+# Max points is relevant if multiple actions award points. In case an earlier
+# action stops execution the following actions will not report their max points.
+max_points: 5
+
+actions:
+  - type: grader.actions.prepare
+    charset: us-ascii
+    cp_exercises: HelloScalaTest.scala->user/HelloScalaTest.scala
+  - title: Compiling
+    type: grader.actions.sandbox
+    cmd: [ "scala_compile.sh" ]
+    points: 1
+  - title: Executing
+    type: grader.actions.sandbox
+    cmd: [ "scala", "hello.HelloScalaTest" ]
+    time: 3
+    memory: 100k
+    disk: 0

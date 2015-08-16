@@ -1,0 +1,26 @@
+---
+# An example course demonstrating different type of exercises.
+#
+# This list represents an exercise bank rather than a specific course instance.
+# The exercises are picked from this selection to the learning system, e.g. A+.
+
+name: A sample course
+contact: e.g. author email address for technical support
+description: This is a sample course for testing and studying the grader.
+
+# The course default language which may be overridden with ?lang=xx.
+# Currently internal mooc-grader exercise messages support en and fi.
+# In addition, the exercise configuration supports languages, e.g.
+# "instructions|i18n": { "en": "In english", "fi": "Suomeksi" }
+lang: en
+
+# Each active exercise must be configured in name.json/yaml.
+exercises:
+  - template
+  - hello_python
+  - hello_scala
+  - hello_git
+  - multiple_choice
+  - correct_button
+  - error
+  - timeout

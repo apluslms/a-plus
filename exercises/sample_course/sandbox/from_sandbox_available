@@ -1,0 +1,4 @@
+install-python-3.4.sh
+install-python-virtualenvs.sh
+install-jdk-7.sh
+install-scala-2.11.7.sh
