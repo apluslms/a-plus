@@ -42,21 +42,28 @@ class GradedForm(forms.Form):
                 # Create a field by type.
                 f = None
                 r = "required" in field and field["required"]
+                atr = {"class": "form-control"}
                 if t == "checkbox":
-                    f = forms.MultipleChoiceField(widget=CheckboxSelectMultiple, choices=self.create_choices(field), required=r)
+                    f = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(),
+                        required=r, choices=self.create_choices(field))
                 elif t == "radio":
-                    f = forms.ChoiceField(widget=RadioSelect, choices=self.create_choices(field), required=r)
+                    f = forms.ChoiceField(widget=forms.RadioSelect(), required=r,
+                        choices=self.create_choices(field))
                 elif t == 'dropdown':
-                    f = forms.ChoiceField(choices=self.create_choices(field), required=r)
+                    f = forms.ChoiceField(widget=forms.Select(attrs=atr), required=r,
+                        choices=self.create_choices(field))
                 elif t == "text":
-                    f = forms.CharField(required=r)
+                    f = forms.CharField(widget=forms.TextInput(attrs=atr), required=r)
                 elif t == "textarea":
-                    f = forms.CharField(widget=Textarea, required=r)
+                    f = forms.CharField(widget=forms.Textarea(attrs=atr), required=r)
                 else:
                     raise ConfigError("Unknown field type: %s" % (t))
+                f.type = t
+                f.choice_list = (t == "checkbox" or t == "radio")
 
                 # Set field defaults.
-                f.label = self.create_label(field)
+                f.label = mark_safe(field["title"])
+                f.more = self.create_more(field)
                 if j == 0:
                     f.open_set = self.group_name(g)
                     if "title" in group:
@@ -71,22 +78,17 @@ class GradedForm(forms.Form):
             g += 1
 
 
-    def create_label(self, configuration):
+    def create_more(self, configuration):
         '''
-        Creates a field label by configuration.
+        Creates more instructions by configuration.
 
         '''
-        label = ""
-        if "title" in configuration:
-            label += configuration["title"]
         more = ""
         if "more" in configuration:
             more += configuration["more"]
         if "include" in configuration:
             more += template_to_str(None, None, configuration["include"])
-        if more != "":
-            label += "<div class=\"more\">%s</div>" % (more)
-        return mark_safe(label)
+        return more or None
 
 
     def create_choices(self, configuration):

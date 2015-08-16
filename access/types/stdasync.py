@@ -22,6 +22,7 @@ Functions take arguments:
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
+from django.utils import translation
 from grader import tasks
 from access.config import ConfigError
 from util.templates import render_configured_template, render_template
@@ -204,7 +205,7 @@ def _acceptSubmission(request, course, exercise, sdir):
         surl_missing = True
 
     # Queue grader.
-    tasks.grade.delay(course["key"], exercise["key"], surl, sdir)
+    tasks.grade.delay(course["key"], exercise["key"], translation.get_language(), surl, sdir)
 
     _acceptSubmission.counter += 1
     qlen = tasks.queue_length()

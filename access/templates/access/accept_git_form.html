@@ -1,10 +1,17 @@
+{% load i18n %}
 <form method="post" action="#">
-	<label for="git_id"><strong>Enter your Git repository address for grading</strong></label>
-	<div class="form-horizontal">
-		<input type="text" id="git_id" name="git" style="width:30em;"/>
-		<input type="submit" id="git_submit" value="Submit" class="btn btn-primary" />
+	<div class="form-group">
+		<label for="git_id">
+			<strong>{% trans "Enter your Git repository address for grading" %}</strong>
+		</label>
+		<input type="text" id="git_id" name="git" class="form-control" />
+		{% if not exercise.no_git_reminder %}
+		<p class="help-block">
+			{% trans "Did you remember git add - git commit - git push?" %}
+		</p>
+		{% endif %}
 	</div>
-	{% if not exercise.no_git_reminder %}
-	<span class="help-block">Did you remember git add - git commit - git push?</span>
-	{% endif %}
+	<div class="form-group">
+		<input type="submit" id="git_submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
+	</div>
 </form>

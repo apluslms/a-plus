@@ -1,4 +1,5 @@
 {% extends 'access/exercise_frame.html' %}
+{% load i18n %}
 
 {% block exercise %}
 
@@ -14,16 +15,20 @@
 	<input type="hidden" name="hash" value="{{ result.hash }}" />
 	{% else %}
 	<div class="form-group">
-		<label for="user"><strong>Enter your user id for grading</strong></label>
-		<input type="text" id="user" name="user" style="width:15em;"/>
+		<label for="user">
+            <strong>{% trans "Enter your user id for grading" %}</strong>
+        </label>
+		<input type="text" id="user" name="user" class="form-control" />
 	</div>
 	{% endif %}
-	
-	<input type="submit" class="btn btn-primary" value="Request grading of my repository" />
-	
-	{% if not exercise.no_git_reminder %}
-	<span class="help-block">Did you remember git add - git commit - git push?</span>
+    {% if not exercise.no_git_reminder %}
+	<p class="help-block">
+        {% trans "Did you remember git add - git commit - git push?" %}
+    </p>
 	{% endif %}
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" value="{% trans 'Request grading of my repository' %}" />
+    </div>
 </form>
 
 {% endblock %}

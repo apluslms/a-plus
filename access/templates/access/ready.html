@@ -1,19 +1,24 @@
 {% extends 'grader_frame.html' %}
+{% load i18n %}
 
 {% block body %}
-	<h1>Grader ready</h1>
-	<p>
-		<a href="{% url 'access.views.queue_length' %}">Current queue length</a>
-	</p>
-	<p>
-		Available courses
-		<ul>
-			{% for course in courses %}
-			<li><a href="{% url 'access.views.course' course.key %}">{{ course.name }}</a></li>
-			{% endfor %}
-		</ul>
-	</p>
-	<p>
-		<a href="{% url 'access.views.pull_request' %}">Exercise material pull requests</a>
-	</p>
+<div class="page-header">
+	<h1>{% trans "Grader ready" %}</h1>
+</div>
+<p>
+	<a href="{% url 'access.views.queue_length' %}" class="btn btn-default btn-sm">
+		{% trans "Current queue length" %}
+	</a>
+	<a href="{% url 'access.views.pull_request' %}" class="btn btn-default btn-sm">
+		{% trans "Exercise material pull requests" %}
+	</a>
+</p>
+<h3>{% trans "Available courses" %}</h3>
+<div class="list-group">
+	{% for course in courses %}
+	<a href="{% url 'access.views.course' course.key %}" class="list-group-item">
+		{{ course.name }}
+	</a>
+	{% endfor %}
+</ul>
 {% endblock %}

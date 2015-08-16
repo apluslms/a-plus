@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html lang="{% if course.lang %}{{ course.lang }}{% else %}en{% endif %}">
+<html lang="{{ LANGUAGE_CODE }}">
 	<head>
 		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
 		{% block head %}
 		{% endblock %}
 	</head>
 	<body>
-		{% block body %}
-		{% endblock %}	
+		<div class="container-fluid">
+			<div class="col-md-6 col-md-offset-3">
+				{% block body %}
+				{% endblock %}
+			</div>
+		</div>
 	</body>
 </html>

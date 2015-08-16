@@ -1,11 +1,17 @@
+{% load i18n %}
 {% if exercise.files %}
 <form method="post" action="#" enctype="multipart/form-data">
 	{% for entry in exercise.files %}
-	<p class="form-group">
-		<label for="{{ entry.field }}_id">{{ entry.name }}</label>
-		<input type="file" id="{{ entry.field }}_id" name="{{ entry.field }}" />
-	</p>
+	<div class="form-group">
+		<label for="{{ entry.field }}_id">
+			<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+			{{ entry.name }}
+		</label>
+		<input type="file" id="{{ entry.field }}_id" name="{{ entry.field }}" class="form-control" />
+	</div>
 	{% endfor %}
-	<input type="submit" value="Submit" class="btn btn-primary" />
+	<div class="form-group">
+		<input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
+	</div>
 </form>
 {% endif %}

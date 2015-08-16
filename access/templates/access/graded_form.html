@@ -1,34 +1,47 @@
+{% load i18n %}
 <form method="post" action="{{ result.fix_url }}">
+	{% if result.fix_url %}
+	<input type="hidden" name="fix_url" value="{{ result.fix_url }}" />
+	{% endif %}
 
-{% if result.fix_url %}
-<input type="hidden" name="fix_url" value="{{ result.fix_url }}" />
-{% endif %}
+	{% for field in result.form %}
+	{% if field.field.open_set %}
+	<fieldset id="{{ field.field.open_set }}"{% if result.accepted %} class="alert {% if field.field.open_set in result.error_groups %}alert-danger{% else %}alert-success{% endif %}"{% endif %}>
+		{% if field.field.set_title %}<legend>{{ field.field.set_title }}</legend>{% endif %}
+	{% endif %}
 
-{% for field in result.form %}
+		<div class="form-group">
+			{% if field.field.choice_list %}
+			<label>{{ field.label }}</label>
+			{% else %}
+			{{ field.label_tag }}
+			{% endif %}
 
-{% if field.field.open_set %}
-<fieldset id="{{ field.field.open_set }}"{% if result.accepted %} class="alert {% if field.field.open_set in result.error_groups %}alert-error{% else %}alert-success{% endif %}"{% endif %}>
-	{% if field.field.set_title %}<legend>{{ field.field.set_title }}</legend>{% endif %}
-{% endif %}
+			{% if field.field.more %}
+			{{ field.field.more|safe }}
+			{% endif %}
 
-	<div class="field-group">
-		{% if field.field.choices %}
-		{{ field.label }}
-		{% else %}
-		{{ field.label_tag }}
-		{% endif %}
-		{{ field.errors }}
-		<div class="field-input">
-		{{ field }}
+			{% if field.field.choice_list %}
+			{% for choice in field %}
+			<div class="{{ field.field.type }}">
+				<label>
+					{{ choice.tag }}
+					{{ choice.choice_label }}
+				</label>
+			</div>
+			{% endfor %}
+			{% else %}
+			{{ field }}
+			{% endif %}
 		</div>
+	{% if field.field.close_set %}
+	</fieldset>
+	{% endif %}
+	{% endfor %}
+
+	{% if result.fix_url or not result.accepted %}
+	<div class="form-group">
+		<input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
 	</div>
-
-{% if field.field.close_set %}
-</fieldset>
-{% endif %}
-
-{% endfor %}
-{% if result.fix_url or not result.accepted %}
-  <input type="submit" value="Submit" class="btn btn-primary" />
-{% endif %}
+	{% endif %}
 </form>

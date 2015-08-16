@@ -3,14 +3,14 @@ Utility functions for exercise templates.
 
 '''
 from django.template import loader, Context
-from django.http.response import HttpResponse
+from django.shortcuts import render
 from access.config import ConfigError
 
 
 def render_configured_template(request, course, exercise, default=None, result=None):
     '''
     Renders a configured or optional default template.
-    
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @type course: C{dict}
@@ -37,7 +37,7 @@ def render_configured_template(request, course, exercise, default=None, result=N
 def render_template(request, course, exercise, template, result=None):
     '''
     Renders a template.
-    
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @type course: C{dict}
@@ -51,13 +51,13 @@ def render_template(request, course, exercise, template, result=None):
     @rtype: C{django.http.response.HttpResponse}
     @return: a response
     '''
-    return HttpResponse(template_to_str(course, exercise, template, result))
+    return render(request, template, _exercise_context(course, exercise, result))
 
 
 def template_to_str(course, exercise, template, result=None):
     '''
     Renders a template to text string.
-    
+
     @type course: C{dict}
     @param course: a course configuration
     @type exercise: C{dict}
@@ -69,8 +69,9 @@ def template_to_str(course, exercise, template, result=None):
     @rtype: C{str}
     @return: rendered template content
     '''
-    if course is not None and "lang" in course:
-        tpl = loader.select_template([ "%s.%s" % (template, course["lang"]), template ])
-    else:
-        tpl = loader.get_template(template)
-    return tpl.render(Context({ "course": course, "exercise": exercise, "result": result }))
+    tpl = loader.get_template(template)
+    return tpl.render(Context(_exercise_context(course, exercise, result)))
+
+
+def _exercise_context(course, exercise, result=None):
+    return { "course": course, "exercise": exercise, "result": result }

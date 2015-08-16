@@ -1,13 +1,14 @@
-from django.shortcuts import render, redirect
-from django.http.response import HttpResponse, Http404
+from django.shortcuts import render
+from django.http.response import HttpResponse, JsonResponse, Http404
+from django.utils import translation
 from django.utils.module_loading import import_by_path
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 from access.config import ConfigParser, ConfigError
 from grader.tasks import queue_length as qlength
 import os
-import json
 import logging
+
 
 LOGGER = logging.getLogger('main')
 
@@ -17,25 +18,26 @@ config = ConfigParser()
 
 def index(request):
     '''
-    Signals that the grader is ready and lists available courses. 
-    
+    Signals that the grader is ready and lists available courses.
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @rtype: C{django.http.response.HttpResponse}
     @return: a response
     '''
     courses = config.courses()
-    
     if request.is_ajax():
-        return _json_response(request, { "ready": True, "courses": _filter_fields(courses, ["key", "name"]) })
-    
+        return JsonResponse({
+            "ready": True,
+            "courses": _filter_fields(courses, ["key", "name"])
+        })
     return render(request, 'access/ready.html', { "courses": courses })
 
 
 def course(request, course_key):
     '''
     Signals that the course is ready to be graded and lists available exercises.
-    
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @type course_key: C{str}
@@ -46,19 +48,19 @@ def course(request, course_key):
     (course, exercises) = config.exercises(course_key)
     if course is None:
         raise Http404()
-    
     if request.is_ajax():
-        return _json_response(request, { "ready": True,
-                                         "course_name": course["name"],
-                                         "exercises": _filter_fields(exercises, ["key", "title"]) })
-    
+        return JsonResponse({
+            "ready": True,
+            "course_name": course["name"],
+            "exercises": _filter_fields(exercises, ["key", "title"])
+        })
     return render(request, 'access/course.html', { 'course': course, 'exercises': exercises })
 
 
 def exercise(request, course_key, exercise_key):
     '''
     Presents the exercise and accepts answers to it.
-    
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @type course_key: C{str}
@@ -71,12 +73,19 @@ def exercise(request, course_key, exercise_key):
     # Fetch the language and user parameters if given.
     lang = request.REQUEST.get('lang', None)
     user = request.REQUEST.get('user', None)
-    
+
     # Fetch the corresponding exercise entry from the config.
     (course, exercise) = config.exercise_entry(course_key, exercise_key, lang=lang)
     if course is None or exercise is None:
         raise Http404()
-    
+
+    if not lang:
+        if "lang" in course:
+            lang = course["lang"]
+        else:
+            lang = "en"
+    translation.activate(lang)
+
     # Try to call the configured view.
     exview = None
     try:
@@ -89,7 +98,7 @@ def exercise(request, course_key, exercise_key):
 def pull_request(request):
     '''
     Records a pull request to update course exercises from version repository.
-    
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @rtype: C{django.http.response.HttpResponse}
@@ -97,7 +106,7 @@ def pull_request(request):
     '''
     courses = config.courses()
     status = {}
-    
+
     if "key" in request.GET:
         course = config.course_entry(request.GET["key"])
         if course:
@@ -112,26 +121,24 @@ def pull_request(request):
             status["updated"] = True
         else:
             status["not_found"] = True
-        return redirect('access.views.pull_request')
-    
     log = ""
     filename = os.path.join(settings.BASE_DIR, "gitpull.log")
     if os.path.exists(filename):
         with open(filename, "r") as f:
             log = f.read()
-    
-    return render(request, 'access/pull_request.html', { "courses": courses,
-                                                         "status": status, "log": log })
+
+    return render(request, 'access/pull_request.html', {
+        "courses": courses, "status": status, "log": log })
 
 
 def queue_length(request):
     '''
     Reports the current queue length.
-    
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @rtype: C{django.http.response.HttpResponse}
-    @return: a response   
+    @return: a response
     '''
     return HttpResponse(qlength())
 
@@ -139,7 +146,7 @@ def queue_length(request):
 def null(request):
     '''
     Accepts any request and does nothing.
-    
+
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @rtype: C{django.http.response.HttpResponse}
@@ -147,13 +154,13 @@ def null(request):
     '''
     if "error" in request.POST:
         LOGGER.warning("Received error result.")
-    return _json_response(request, { "success": True })
+    return JsonResponse({ "success": True })
 
 
 def _filter_fields(dict_list, pick_fields):
     '''
     Filters picked fields from a list of dictionaries.
-    
+
     @type dict_list: C{list}
     @param dict_list: a list of dictionaries
     @type pick_fields: C{list}
@@ -168,17 +175,3 @@ def _filter_fields(dict_list, pick_fields):
             new_entry[name] = entry[name]
         result.append(new_entry)
     return result
-    
-
-def _json_response(request, data):
-    '''
-    Returns a JSON response.
-    
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @type data: C{dict}
-    @param data: data for the response
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a JSON response
-    '''
-    return HttpResponse(json.dumps(data), content_type="application/json")

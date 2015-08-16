@@ -1,8 +1,5 @@
 {% extends 'frame.html' %}
 
-{% load staticfiles %}
-
 {% block head %}
-		<title>Exercise Grader</title>
-		<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+<title>{% block title %}mooc-grader{% endblock %}</title>
 {% endblock %}

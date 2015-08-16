@@ -1,32 +1,32 @@
 {% extends 'frame.html' %}
+{% load i18n %}
 
 {% block head %}
-		{% include 'access/exercise_head.html' %}
+{% include 'access/exercise_head.html' %}
 {% endblock %}
 
 {% block body %}
+<div id="exercise">
 
-		<div id="exercise">
-		
-			{% if result.error %}
-			<div class="alert alert-error">
-			
-				{% if result.missing_files %}
-				<p>Every file is required for a submission.</p>
-				{% endif %}
-			
-				{% if result.missing_file_name %}
-				<p>Unknown file received (no file name configured).</p>
-				{% endif %}
-				
-				{% if result.invalid_address %}
-				<p>Invalid address entered.</p>
-				{% endif %}
-				
-			</div>
-			{% endif %}
+	{% if result.error %}
+	<div class="alert alert-danger">
 
-			{% block exercise %}
-			{% endblock %}
-		</div>
+		{% if result.missing_files %}
+		<p>{% trans "Every file is required for a submission." %}</p>
+		{% endif %}
+
+		{% if result.missing_file_name %}
+		<p>{% trans "Unknown file received (no file name configured)." %}</p>
+		{% endif %}
+
+		{% if result.invalid_address %}
+		<p>{% trans "Invalid address entered." %}</p>
+		{% endif %}
+
+	</div>
+	{% endif %}
+
+	{% block exercise %}
+	{% endblock %}
+</div>
 {% endblock %}
