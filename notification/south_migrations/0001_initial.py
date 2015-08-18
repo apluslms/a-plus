@@ -3,7 +3,7 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from django.utils import import timezone
+from django.utils import timezone
 
 
 class Migration(SchemaMigration):

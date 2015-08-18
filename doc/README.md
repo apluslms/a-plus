@@ -5,7 +5,7 @@ Installing Local Test Environment for A+
 ## Prerequisites
 
 You need to have Python 3.4+ and virtualenv installed.
-Follow the OS specific instructions below to install everything you need. 
+Follow the OS specific instructions below to install everything you need.
 
 ### Ubuntu
 
@@ -13,17 +13,17 @@ The "python3" package of Ubuntu/Debian is still Python 3.2.
 Until the packaged version is upgraded it is necessary to compile from source.
 Other Linux flavors should follow the same pattern (e.g. replace apt-get with yum).
 
-	sudo apt-get install libsqlite3-dev
+	sudo apt-get install build-essential libssl-dev libsqlite3-dev
 	wget https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz
 	tar xvf Python-3.4.3.tar.xz
 	cd Python-3.4.3
 	./configure
 	make
 	sudo make install
-	
+
 	sudo pip3 install --upgrade pip
     sudo pip3 install virtualenv
-    
+
     cd [project_root]
     ./create_test_environment.sh [optional_path_to_virtualenv]
 
@@ -35,7 +35,7 @@ To compile packages also the Xcode command line tool package is required.
     xcode-select --install
     sudo brew install python3
 
-    sudo pip3 install --upgrade pip 
+    sudo pip3 install --upgrade pip
     sudo pip3 install virtualenv
 
 	cd [project_root]
@@ -75,7 +75,7 @@ Unit tests can be executed by running:
 
 If you've loaded the initial data the example exercise relies on you can use the external grader server
 (example_grader.py) running on port 8888. This grader can be started by running:
-    
+
     cd [project_root]/doc
     PATH_TO_VIRTUALENV/bin/python example_grader.py
 
@@ -110,7 +110,7 @@ Running individual tests:
 
 	cd selenium_test/test/
 	../run_servers.sh
-	
+
 	python login_test.py
 	python home_page_test.py
 
