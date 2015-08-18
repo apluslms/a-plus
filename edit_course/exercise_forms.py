@@ -76,7 +76,7 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
             'category',
             'course_module',
             'order',
-            'instructions',
+            'instructions', #TODO: field belongs to BaseExercise, should use it the same way in others as well?
             'files_to_submit',
             'attachment',
             'max_submissions',

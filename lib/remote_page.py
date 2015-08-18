@@ -3,6 +3,7 @@ import logging
 import urllib.parse
 import posixpath
 from bs4 import BeautifulSoup
+from django.utils.translation import ugettext_lazy as _
 
 
 logger = logging.getLogger("aplus.remotepage")
