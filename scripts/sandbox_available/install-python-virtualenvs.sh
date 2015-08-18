@@ -32,6 +32,7 @@ for path in $(find /usr/local/sandbox -name \*-requirements.txt); do
 		virtualenv -p $python $name
 	fi
 	source $name/bin/activate
+	pip install --upgrade pip
 	pip install -r $path
 	deactivate
 done

@@ -25,7 +25,6 @@
 #define TMP_PATH "/tmp/grader"
 #define KB_IN_BYTES 1024
 #define MB_IN_BYTES 1048576
-#define REQUIRED_FILES 4
 
 static void cleanup();
 static void handle_signals(int sig);
@@ -201,6 +200,13 @@ int main(int argc, char *argv[])
 		env[3] = NULL;
 
 		if (limit_process(memory, files, disk) != 0) return 1;
+
+		// Update path in current env for finding the cmd.
+		if (setenv("PATH", "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sandbox", 1) != 0)
+		{
+			fprintf(stderr, "FAILED setenv PATH\n");
+			return fail("main");
+		}
 
 		// Replace the process.
 		execvpe(cmd, arg, env);

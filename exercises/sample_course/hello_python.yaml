@@ -22,5 +22,5 @@ actions:
     #type: grader.actions.sandbox # Using other type for unittest output.
     cmd: [ "virtualenv.sh", "sample", "python", "tests.py" ]
     time: 3
-    memory: 100k
+    memory: 50m
     disk: 0

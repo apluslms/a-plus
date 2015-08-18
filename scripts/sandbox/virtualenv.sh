@@ -6,19 +6,17 @@
 #
 VDIR="/usr/local/pyvirtualenvs"
 
-VENV=VDIR/$1/bin/activate
+VENV=$VDIR/$1/bin/activate
 shift
 
 # Try to activate the virtualenv.
 if [ -f $VENV ]; then
 	source $VENV
-	$@
-	RESULT=$?
-	deactivate
 else
-	echo "Virtual environment not found. Trying anyway. NOT READY FOR PRODUCTION!" >&2
+	echo "Virtual environment not found ($VENV). Trying anyway. NOT READY FOR PRODUCTION!" >&2
 	echo "" >&2
-	$@
-	RESULT=$?
 fi
+
+$@
+RESULT=$?
 exit $RESULT
