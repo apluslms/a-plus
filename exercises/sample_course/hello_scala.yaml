@@ -35,5 +35,5 @@ actions:
     type: grader.actions.sandbox
     cmd: [ "scala", "hello.HelloScalaTest" ]
     time: 3
-    memory: 2000m
+    memory: 1g
     disk: 0

@@ -81,5 +81,6 @@ def invoke_sandbox(course_key, action, dirarg=None):
             action["dir"] if "dir" in action else "user"))
     else:
         cmd.append("-")
+    cmd.append(course_key)
     cmd.extend(action["cmd"])
     return invoke(cmd)

@@ -21,10 +21,11 @@
 #define SANDBOX_DIR "/var/sandbox"
 #define SANDBOX_UID 666
 #define SANDBOX_NET_UID 667
-
+#define CMD_PATH ".:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sandbox:/usr/local/sandbox/"
 #define TMP_PATH "/tmp/grader"
 #define KB_IN_BYTES 1024
 #define MB_IN_BYTES 1048576
+#define GB_IN_BYTES 1073741824
 
 static void cleanup();
 static void handle_signals(int sig);
@@ -61,13 +62,14 @@ int main(int argc, char *argv[])
 	{
 		printf("Runs a command in a sandbox environment.\n");
 		printf("Usage: %s [net] time heap files disk dir prg [arguments...]\n", argv[0]);
-		printf("    1k for kilobyte, 1m for megabyte and - for unlimited\n");
+		printf("    1k for kilobyte, m for mega, g for giga and - for unlimited\n");
 		printf("    net          enables network (optional)\n");
 		printf("    time         maximum time for process in seconds\n");
 		printf("    memory       maximum memory size\n");
 		printf("    files        maximum number of open file descriptors\n");
 		printf("    disk         maximum disk write size\n");
 		printf("    dir          a target directory or -\n");
+		printf("    course_key   a course key for building PATH\n");
 		printf("    prg          a program to envoke\n");
 		printf("    arguments    any arguments for program (optional)\n");
 		return 0;
@@ -139,6 +141,9 @@ int main(int argc, char *argv[])
 	unsigned long int memory = parse_number(argv[argp + 1]);
 	unsigned long int files = parse_number(argv[argp + 2]);
 	unsigned long int disk = parse_number(argv[argp + 3]);
+	char cmd_path[strlen(CMD_PATH) + strlen(argv[argp + 5]) + 1];
+	strcpy(cmd_path, CMD_PATH);
+	strcat(cmd_path, argv[argp + 5]);
 
 	// Limit maximum run time.
 	time_limit = parse_number(argv[argp]);
@@ -170,8 +175,8 @@ int main(int argc, char *argv[])
 		}
 
 		// Create command line array.
-		char *cmd = argv[argp + 5];
-		int argn = argp + 6;
+		char *cmd = argv[argp + 6];
+		int argn = argp + 7;
 		char *arg[argc - argn];
 		arg[0] = cmd;
 		int p = 1;
@@ -185,26 +190,29 @@ int main(int argc, char *argv[])
 
 		// Create environment array.
 		char *env[4];
-		env[0] = "PATH=/bin:/usr/bin:/usr/local/bin:/usr/local/sandbox";
+		char envpath[6 + strlen(cmd_path)];
+		strcpy(envpath, "PATH=");
+		strcat(envpath, cmd_path);
+		env[0] = envpath;
 		struct passwd *pw = getpwuid(uid);
 		if (pw == NULL)
 		{
 			fprintf(stderr, "FAILED: getpwuid %d\n", uid);
 			return fail("main");
 		}
-		char home[6 + strlen(pw->pw_dir)];
-		strcpy(home, "HOME=");
-		strcat(home, pw->pw_dir);
-		env[1] = home;
+		char envhome[6 + strlen(pw->pw_dir)];
+		strcpy(envhome, "HOME=");
+		strcat(envhome, pw->pw_dir);
+		env[1] = envhome;
 		env[2] = "DISPLAY=:0";
 		env[3] = NULL;
 
 		if (limit_process(memory, files, disk) != 0) return 1;
 
 		// Update path in current env for finding the cmd.
-		if (setenv("PATH", "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sandbox", 1) != 0)
+		if (setenv("PATH", cmd_path, 1) != 0)
 		{
-			fprintf(stderr, "FAILED setenv PATH\n");
+			fprintf(stderr, "FAILED: setenv PATH=%s\n", cmd_path);
 			return fail("main");
 		}
 
@@ -357,6 +365,10 @@ unsigned long int parse_number(const char *argument)
 	else if (end[0] == 'm' || end[0] == 'M')
 	{
 		res *= MB_IN_BYTES;
+	}
+	else if (end[0] == 'g' || end[0] == 'G')
+	{
+		res *= GB_IN_BYTES;
 	}
 	return res;
 }
