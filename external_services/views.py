@@ -1,98 +1,110 @@
-'''
+"""
 Provides LTI access to external services with current course and user identity.
- 
-'''
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render_to_response
-from django.http import HttpResponseForbidden, Http404
-from django.template.context import RequestContext
+"""
+import hashlib
+
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
-from external_services.models import MenuItem
-import md5, datetime, calendar, oauth2, uuid
+from oauthlib.common import urldecode
+from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY
+
+from course.viewbase import CourseInstanceBaseView
+from .models import MenuItem
 
 
-@login_required
-def lti_login(request, menu_id):
-    '''
+class LTILoginView(CourseInstanceBaseView):
+    """
     Generates an LTI POST form for a service.
     Implements LTI 1.0 using required and most recommended parameters.
     Tested for use with Piazza, https://piazza.com/product/lti
-    
-    @type request: C{django.http.HttpRequest}
-    @param requet: an HTTP request
-    @type menu_id: C{str}
-    @param menu_id: an LTI menu item id
-    @rtype: C{django.http.HttpResponse}
-    @return: an HTTP response
-    '''
-    menu_item = get_object_or_404(MenuItem, pk=menu_id)
-    service = menu_item.service.as_leaf_class()
+    """
+    template_name = "external_services/lti_form.html"
+    id_kw = "menu_id"
 
-    # Check that service and menu item are enabled.
-    if not menu_item.enabled or not service.enabled:
-        raise Http404()
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        self.menu_item = get_object_or_404(
+            MenuItem,
+            pk=self._get_kwarg(self.id_kw),
+            course_instance=self.instance
+        )
+        self.service = self.menu_item.service.as_leaf_class()
 
-    course_instance = menu_item.course_instance
-    course = course_instance.course
+        # Check that service and menu item are enabled.
+        if not self.menu_item.enabled or not self.service.enabled:
+            raise Http404()
 
-    # Get user and control access.
-    user = request.user
-    user_profile = user.get_profile()
-    if not course_instance.is_visible_to(user_profile):
-        return HttpResponseForbidden("You are not allowed to access this view.")
+    def access_control(self):
+        super().access_control()
+        if self.menu_item.access >= MenuItem.ACCESS_TEACHER:
+            if not self.is_teacher:
+                raise PermissionDenied()
+        elif self.menu_item.access >= MenuItem.ACCESS_ASSISTANT:
+            if not self.is_assistant:
+                raise PermissionDenied()
 
-    # Determine user ID.
-    student_id = "aplusuid%d" % (user.pk)
-    if user_profile.student_id:
-        student_id = user_profile.student_id
+    def get_common_objects(self):
+        super().get_common_objects()
+        user = self.request.user
 
-    # MD5 the user id so that the real student id and names or emails are not linked.
-    student_id = md5.new(student_id).hexdigest()
+        # Determine user ID.
+        student_id = "aplusuid%d" % (user.pk)
+        if self.profile.student_id:
+            student_id = self.profile.student_id
 
-    # Determine user role.
-    role = "Student"
-    if course_instance.is_teacher(user_profile):
-        role = "Instructor"
-    elif course_instance.is_assistant(user_profile):
-        role = "TA"
+        # MD5 the user id so that the real student id and names or emails
+        # are not linked in external services.
+        student_id = hashlib.md5(student_id.encode('utf-8')).hexdigest()
 
-    parameters = {
+        # Determine user role.
+        role = "Student"
+        if self.is_teacher:
+            role = "Instructor"
+        elif self.is_assistant:
+            role = "TA,TeachingAssistant"
 
-        "lti_version": "LTI-1p0",
-        "lti_message_type": "basic-lti-launch-request",
+        parameters = {
 
-        "resource_link_id": "aplus%d" % (service.pk),
-        "resource_link_title": menu_item.label,
+            "lti_version": "LTI-1p0",
+            "lti_message_type": "basic-lti-launch-request",
 
-        # User session.
-        "user_id": student_id,
-        "roles": role,
-        "lis_person_name_full": "%s %s" % (user.first_name, user.last_name),
-        "lis_person_name_given": user.first_name,
-        "lis_person_name_family": user.last_name,
-        "lis_person_contact_email_primary": user.email,
+            "resource_link_id": "aplus%d" % (self.service.pk),
+            "resource_link_title": self.menu_item.label,
 
-        # Selected course.
-        "context_id": request.get_host() + course_instance.get_absolute_url(),
-        "context_title": course.name,
-        "context_label": course.code,
+            # User session.
+            "user_id": student_id,
+            "roles": role,
+            "lis_person_name_full": "%s %s" % (user.first_name, user.last_name),
+            "lis_person_name_given": user.first_name,
+            "lis_person_name_family": user.last_name,
+            "lis_person_contact_email_primary": user.email,
 
-        "launch_presentation_locale": get_language(),
+            # Selected course.
+            "context_id": self.request.get_host() \
+                + self.instance.get_absolute_url(),
+            "context_title": self.course.name,
+            "context_label": self.course.code,
 
-        "tool_consumer_instance_guid": request.get_host() + "/aplus",
-        "tool_consumer_instance_name": "A+ LMS",
-        
-        "oauth_version": "1.0",
-        "oauth_timestamp": (calendar.timegm(datetime.datetime.utcnow().utctimetuple())),
-        "oauth_nonce": str(uuid.uuid1())
-    }
+            "launch_presentation_locale": get_language(),
 
-    # Sign the request using OAuth.
-    consumer = oauth2.Consumer(key=service.consumer_key, secret=service.consumer_secret)
-    oauth_req = oauth2.Request(method="POST", url=service.url, parameters=parameters)
-    oauth_req.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, None)
+            "tool_consumer_instance_guid": self.request.get_host() + "/aplus",
+            "tool_consumer_instance_name": "A+ LMS",
+        }
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
 
-    return render_to_response("external_services/lti_form.html", RequestContext(request, {
-        "url": service.url,
-        "parameters": oauth_req.items(),
-    }))
+        # Sign the request using OAuth.
+        client = Client(self.service.consumer_key,
+            client_secret=self.service.consumer_secret,
+            signature_method=SIGNATURE_HMAC,
+            signature_type=SIGNATURE_TYPE_BODY)
+        uri, headers, body = client.sign(self.service.url,
+            http_method="POST",
+            body=parameters,
+            headers=headers)
+        self.url = uri
+        self.parameters = urldecode(body)
+        self.note("url", "parameters")

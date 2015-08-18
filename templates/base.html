@@ -1,22 +1,29 @@
 {% load i18n %}
-{% load course_menu %}
+{% load staticfiles %}
+{% load course %}
+{% load notification %}
 <!DOCTYPE html>
     <html>
     <head>
         <meta charset="utf-8" />
-        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <title>{% block title %}A+{% endblock %}</title>
 
-        <!-- This is for responsive bootstrap -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-        <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
-        
-        <link rel="stylesheet" href="{{ STATIC_URL }}css/submission.css" type="text/css" />
-        
-        <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css" />
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}prettify/prettify.css" type="text/css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+
+        <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/submission.css' %}" />
+        <script src="{% static 'js/aplus.js' %}"></script>
+
+        {% block scripts %}
+            {# Put all additional scripts inside this block. #}
+        {% endblock %}
 
         <!-- Some favicons courtesy of http://realfavicongenerator.net/ -->
         <link rel="apple-touch-icon" sizes="57x57" href="{{ STATIC_URL }}favicons/apple-touch-icon-57x57.png">
@@ -35,107 +42,102 @@
         <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-32x32.png" sizes="32x32">
         <meta name="msapplication-TileColor" content="#2b5797">
         <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
-        
-        {% block head %}{% endblock %}
     </head>
-    <body>
-        <div id="base-container">
-            {% block navbar %}
-            {% comment %}
-            TODO: implement groups
-            <form method="POST" id="group-change-form" class="hidden">
-                {% csrf_token %}
-                <input name="change_to_group" id="change_to_group" />
-                <input type="submit" />
-            </form>
-            {% endcomment %}
-
-            <div id="main-navbar" class="navbar navbar-static-top">
-                <div class="navbar-inner">
-                    <div class="container">
-                        <a class="brand" href="/">A+</a>
-                        <div class="nav dropdown nav-collapse collapse">
-                            <a href="#" class="brand dropdown-toggle" data-toggle="dropdown">
-                                {% block pagetitle %}
+    <body data-view-tag="{% block view_tag %}{% endblock %}">
+        <div class="page-wrap">
+            <nav class="navbar navbar-inverse navbar-static-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
+                            <span class="sr-only">{% trans "Toggle navigation" %}</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand hidden-xs" href="{% url 'home' %}">A+</a>
+                        <span class="navbar-brand visible-xs">
+                        A+{% if instance %} &nbsp; {{ course.name }}{% endif %}
+                        </span>
+                    </div>
+                    <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+                        <ul class="nav navbar-nav hidden-xs">
+                            <li role="presentation" class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    {% if instance %}
+                                    {{ course }}
+                                    {% if not instance.visible_to_students %}
+                                    <span class="label label-danger">{% trans "Hidden" %}</span>
+                                    {% endif %}
+                                    {% else %}
                                     {% trans "Select course" %}
-                                {% endblock %}
-                            <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                {% render_course_list %}
-                            </ul>
-                        </div>
-                        <div class="nav-collapse">
-                            <ul id="user-status" class="nav pull-right">
-                                {% if user.is_authenticated %}
-
-                                    {% if user.get_profile.get_unread_notification_count > 0 %}
-                                        <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i id="unread-notifications-icon" class="icon-white icon-envelope"></i> 
-                                        {% blocktrans with count=user.get_profile.get_unread_notification_count count_p=user.get_profile.get_unread_notification_count|pluralize %}
-                                            {{ count }} new notification{{ count_p }}
-                                        {% endblocktrans %}
-                                        </a>                                        
-                                        <ul class="dropdown-menu" id="notification-menu">
-                                            {%for course_instance in user.get_profile.get_unread_notification_course_instances %}
-                                                <li><a href="{{ course_instance.get_absolute_url }}me/">{{course_instance.instance_name}}</a></li>
-                                            {% endfor %}
-                                        </ul>
-                                        </li>                                        
                                     {% endif %}
-
-                                    {% if user.get_profile.get_unread_notification_count == 0 and instance %}
-                                        <li><a id="notification-icon" href="{{ instance.get_absolute_url }}me/"><i class="icon-white icon-envelope"></i></a></li>                                        
-                                    {% endif %}
-
-                                    <li><a>{% trans "Logged in as"%} {{ user.username }}.</a></li>
-                                    {% comment %}
-                                    TODO: implement groups
-                                    <li class="dropdown" id="group-menu">
-                                        <a href="#group-menu" class="dropdown-toggle" data-toggle="dropdown">
-                                            {% if active_group %}
-                                                {{ active_group.name }}
-                                            {% else %}
-                                                {% trans "No group selected"%}
-                                            {% endif %}
-                                        <b class="caret"></b></a>
-                                        <ul class="dropdown-menu">
-                                            {% if active_group %}
-                                                <li><a href="#" data-group-id="0" class="group_change_link">{% trans "No group" %}</a></li>
-                                                <li class="divider"></li>
-                                            {% endif %}
-                                            {% for group in user.get_profile.groups.all %}
-                                                <li><a href="#" data-group-id="{{ group.id }}" data-placement="left" rel="tooltip" title="{{ group.get_names }}" class="group_change_link">{{ group.name }}</a></li>
-                                            {% empty %}
-                                                <li><a href="#">{% trans "No groups"%}</a></li>
-                                            {% endfor %}
-                                            <li class="divider"></li>
-                                            <li><a href="{% url userprofile.views.view_groups %}">{% trans "Join or create a group"%}</a></li>
-                                        </ul>
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {% course_menu %}
+                                    <li role="presentation" class="divider"></li>
+                                    <li role="presentation">
+                                    	<a href="{% url 'archive' %}">
+                                    		{% trans "Course archive" %}
+                                    	</a>
                                     </li>
-                                    {% endcomment %}
-                                    <li><a href="{% url logout %}">{% trans "Log out"%}</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
+                                </ul>
+                            </li>
+                        </ul>
+                        {% if user.is_authenticated %}
+                        <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+                            <li role="presentation" class="menu-profile">
+                                <a href="{% url 'profile' %}">
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                                    {{ user.username }}
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="{% url 'logout' %}">
+                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                                    {% trans "Log out"%}
+                                </a>
+                            </li>
+                        </ul>
+                        {% endif %}
+
+                        {# Separate menu optimized for mobile users #}
+                        <ul class="nav navbar-nav visible-xs">
+                            {% course_menu %}
+                            {% block mobilemenu %}{% endblock %}
+                            <li role="presentation" class="header"><h4>{% trans "Site" %}</h4></li>
+                            <li role="presentation">
+                                <a href="{% url 'home' %}">
+                                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                                    {% trans "Home" %}
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="{% url 'archive' %}">
+                                    <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                            	    {% trans "Course archive" %}
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="{% url 'profile' %}">
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            	    {{ user.username }}
+                                </a>
+                            </li>
+                            <li role="presentation">
+                                <a href="{% url 'logout' %}">
+                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                            	    {% trans "Log out"%}
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-            </div>
-            {% endblock %}
+            </nav>
 
-            <div id="main_content" class="container">
-                <div class="row">
-                    <div class="span12">
-                        <div class="page-header">
-                            {% block maintitle %}
-                            {% endblock %}
-                        </div>
-                    </div>
-                </div>
-                {% block breadcrumb %}{% endblock %}
-
-                {% block secondnav %}{% endblock %}
-
-                {% include "widgets/messages.html" %}
-
+            <div class="site-content container">
+                {% notification_messages %}
+                {% include "_messages.html" %}
                 {% block content %}
                     <div class="error">
                         No content
@@ -144,26 +146,18 @@
             </div>
 
             {% block footer %}
-            <footer>
+            <nav class="site-footer navbar navbar-default navbar-fixed-bottom">
                 <div class="container">
-                    {% block footercontent %}{% endblock %}
-                    <p><a href="{% url privacy_policy %}">Privacy Policy</a></p>
+                    <ul class="nav navbar-nav">
+                        {% block footercontent %}{% endblock %}
+                        {% url 'privacy_policy' as policy_url %}
+                        {% if policy_url %}
+                        <li role="presentation"><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+                        {% endif %}
+                    </ul>
                 </div>
-            </footer>
+            </nav>
             {% endblock %}
-
-            <!-- When the scripts are at the end of the body, the rendering is not
-            blocked by the script loading and thus, the borwser shows the page
-            faster -->
-            <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}js/aaltoplus.js"></script>
-            <script type="text/javascript" src="{{ STATIC_URL }}prettify/prettify.js"></script>
-
-            {% block scripts %}
-                {# Put all additional scripts inside this block. #}
-            {% endblock %}
-
-        </div><!-- #base-container -->
+        </div>
     </body>
 </html>

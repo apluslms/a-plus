@@ -1,0 +1,9 @@
+{% load i18n %}
+{% load course %}
+{% for ci in instances %}
+<li role="presentation">
+	<a href="{{ ci|url }}">
+    	{{ ci.course }}
+    </a>
+</li>
+{% endfor %}

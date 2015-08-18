@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ course.name }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>
+        {% blocktrans with code=course.code name=course.name %}
+        Active instances of {{ code }} {{ name }}
+        {% endblocktrans %}
+    </h1>
+</div>
+
+<ul>
+    {% for instance in instances %}
+    <li>
+        <a href="{{ instance|url }}">
+        	{{ instance.instance_name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+<p>
+    {% url 'archive' as url %}
+    {% blocktrans with url=url %}
+    Old courses can be found at the <a href="{{ url }}">course archive</a>.
+    {% endblocktrans %}
+</p>
+
+{% endblock %}

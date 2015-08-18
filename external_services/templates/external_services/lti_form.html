@@ -1,3 +1,4 @@
+{% load i18n %}
 <html>
 	<head>
 		<meta charset="UTF-8" />
@@ -9,7 +10,7 @@
 			{% for entry in parameters %}
 			<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
 			{% endfor %}
-			<input type="submit" value="Continue to service.." />
+			<input type="submit" value="{% trans 'Continue to service...' %}" />
 		</form>
 	</body>
 </html>

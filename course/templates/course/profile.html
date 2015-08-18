@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}A+ {% trans "Profile" %}{% endblock %}
+{% block view_tag %}profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>
+        {% if user.first_name or user.last_name %}
+        {{ user.first_name }} {{ user.last_name }}
+        {% else %}
+        {% trans "[Unknown name]" %}
+        {% endif %}
+    </h1>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <div class="thumbnail">
+            <img src="{{ profile.avatar_url }}" alt="avatar" />
+        </div>
+        <dl>
+            {% trans "[Missing]" as miss %}
+        	<dt>{% trans "Student ID" %}</dt>
+            <dd>{% firstof profile.student_id miss %}</dd>
+            <dt>{% trans "E-mail" %}</dt>
+            <dd>{% firstof user.email miss %}</dd>
+            <dt>{% trans "Username" %}</dt>
+            <dd>{% firstof user.username miss %}</dd>
+        </dl>
+    </div>
+    <div class="col-md-6">
+        <div class="alert alert-info">
+            {% blocktrans with email=user.email %}
+            You can change your avatar icon
+            at <a href="http://gravatar.com">gravatar.com</a>.
+            Use your e-mail address <strong>{{ email }}</strong>
+            when registering your account.
+            {% endblocktrans %}
+        </div>
+
+        {# TODO: check the user type and show editing options/help #}
+        <div class="alert alert-info">
+            {% blocktrans %}
+            To change your settings, such as <strong>e-mail</strong>
+            address or <strong>password</strong>, you must update
+            them on your identity provider.
+            {% endblocktrans %}
+        </div>
+    </div>
+    <div class="col-md-4">
+
+        {# TODO: list enrolled courses #}
+    </div>
+</div>
+{% endblock %}

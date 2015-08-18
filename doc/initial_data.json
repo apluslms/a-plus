@@ -1,22 +1,23 @@
 [
   {
     "pk": 1,
-    "model": "exercise.coursemodule",
+    "model": "course.coursemodule",
     "fields": {
       "name": "First Exercise Round",
+      "url": "first-exercise-round",
       "introduction": "",
-      "late_submission_deadline": "2025-09-27 10:47:09",
+      "late_submission_deadline": "2025-09-27T10:47:09.000Z",
       "late_submissions_allowed": false,
       "course_instance": 1,
       "points_to_pass": 0,
-      "closing_time": "2024-09-27 10:47:09",
-      "opening_time": "2013-09-27 10:47:09",
+      "closing_time": "2024-09-27T10:47:09.000Z",
+      "opening_time": "2013-09-27T10:47:09.000Z",
       "late_submission_penalty": 0.5
     }
   },
   {
     "pk": 1,
-    "model": "exercise.learningobjectcategory",
+    "model": "course.learningobjectcategory",
     "fields": {
       "hidden_to": [],
       "points_to_pass": 0,
@@ -27,22 +28,23 @@
   },
   {
     "pk": 2,
-    "model": "exercise.coursemodule",
+    "model": "course.coursemodule",
     "fields": {
       "name": "Exercises with Hook",
+      "url": "exercises-with-hook",
       "introduction": "",
-      "late_submission_deadline": "2025-09-27 10:47:09",
+      "late_submission_deadline": "2025-09-27T10:47:09.000Z",
       "late_submissions_allowed": false,
       "course_instance": 2,
       "points_to_pass": 0,
-      "closing_time": "2024-09-27 10:47:09",
-      "opening_time": "2013-09-27 10:47:09",
+      "closing_time": "2024-09-27T10:47:09.000Z",
+      "opening_time": "2013-09-27T10:47:09.000Z",
       "late_submission_penalty": 0.5
     }
   },
   {
     "pk": 2,
-    "model": "exercise.learningobjectcategory",
+    "model": "course.learningobjectcategory",
     "fields": {
       "hidden_to": [],
       "points_to_pass": 0,
@@ -82,9 +84,9 @@
     "fields": {
       "category": 1,
       "description": "",
-      "name": "Attachment Exercise (assistant graded)",
+      "name": "File exercise (assistant graded)",
       "course_module": 1,
-      "service_url": "http://localhost:8888/attachment_exercise/",
+      "service_url": "http://localhost:8888/file_exercise/",
       "order": 2,
       "instructions": ""
     }
@@ -107,7 +109,7 @@
     "fields": {
       "category": 1,
       "description": "",
-      "name": "AJAX Exercise",
+      "name": "AJAX exercise",
       "course_module": 1,
       "service_url": "http://localhost:8888/ajax_exercise/",
       "order": 3,
@@ -168,9 +170,9 @@
     "model": "course.courseinstance",
     "fields": {
       "website": "http://plus.cs.hut.fi/",
-      "ending_time": "2024-09-27 10:47:18",
+      "ending_time": "2024-09-27T10:47:18.000Z",
       "url": "basic_instance",
-      "starting_time": "2013-09-27 10:47:17",
+      "starting_time": "2013-09-27T10:47:17.000Z",
       "instance_name": "A+ Test Course Instance",
       "course": 1,
       "assistants": [],
@@ -182,9 +184,9 @@
     "model": "course.courseinstance",
     "fields": {
       "website": "http://plus.cs.hut.fi/",
-      "ending_time": "2024-09-27 10:47:18",
+      "ending_time": "2024-09-27T10:47:18.000Z",
       "url": "hook_instance",
-      "starting_time": "2013-09-27 10:47:17",
+      "starting_time": "2013-09-27T10:47:17.000Z",
       "instance_name": "Hook Example",
       "course": 1,
       "assistants": [],

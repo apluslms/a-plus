@@ -1,0 +1,31 @@
+{% extends "exercise/exercise_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block view_tag %}exercise{% endblock %}
+
+{% block exercisebreadcrumblist %}
+<li class="active">{{ exercise }}</li>
+{% endblock %}
+
+{% block exercisecontent %}
+<div id="exercise">
+    {{ page.content|safe }}
+</div>
+{% include "exercise/_exercise_wait.html" %}
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'exercise/poll.js' %}"></script>
+<script>
+// Add an Ajax exercise event listener to refresh the info column.
+window.addEventListener("message", function (event) {
+    if (event.data.type === "a-plus-refresh-stats") {
+        var $stats = $("#exercise-info"),
+            url = $stats.data("url");
+        $stats.load(url);
+    }
+});
+</script>
+{% endblock %}

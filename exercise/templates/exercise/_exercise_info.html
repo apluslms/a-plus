@@ -1,0 +1,45 @@
+{% load i18n %}
+{% load exercise %}
+
+<div class="well">
+    <p>{% trans "Earned points" %}</p>
+    <p><strong class="h2">
+    	{{ summary.get_points }}
+    	<small>/ {{ exercise.max_points }}</small>
+    </strong></p>
+    {% summary_progress summary %}
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4 class="panel-title">{% trans "Exercise info" %}</h4>
+    </div>
+    <div class="panel-body">
+        <dl>
+            <dt>{% trans "Your submissions" %}</dt>
+            <dd>
+            	{{ summary.get_submission_count }}
+            	{% if exercise.max_submissions %}
+            	/ {{ exercise|max_submissions:profile }}
+            	{% endif %}
+            </dd>
+
+            <dt>{% trans "Points required to pass" %}</dt>
+            <dd>{{ exercise.points_to_pass }}</dd>
+
+            <dt>{% trans "Deadline" %}</dt>
+            <dd>{{ exercise.course_module.closing_time }}</dd>
+
+            <!--<dt>{% trans "Maximum group size" %}</dt>
+            <dd>{{ exercise.max_group_size }}</dd>-->
+
+            <dt>{% trans "Total number of submitters" %}</dt>
+            <dd>{{ exercise.get_total_submitter_count }}</dd>
+
+            {% comment "Disabled: If average is required implement more efficient query for it." %}
+            <dt>{% trans "Average submissions per student" %}</dt>
+            <dd>{{ exercise.todo|floatformat:2 }}</dd>
+            {% endcomment %}
+        </dl>
+    </div>
+</div>

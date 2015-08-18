@@ -1,0 +1,26 @@
+{% extends "exercise/exercise_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block title %}{{ block.super }} / {% trans "All submissions" %}{% endblock %}
+{% block view_tag %}all-submissions{% endblock %}
+
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "All submissions" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+    {% include "exercise/staff/_submissions_table.html" %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{% static 'js/picnet.table.filter.min.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#submission-table').tableFilter();
+    });
+</script>
+{% endblock %}

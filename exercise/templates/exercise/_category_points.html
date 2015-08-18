@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load exercise %}
+
+{% comment "Disabled as course total points/grade calculation is unknown." %}
+{% if categories|length > 1 %}
+<div class="well">
+    <p>{% trans "Total points" %}</p>
+    <p><strong class="h2">
+    	{{ summary.get_total_points }}
+    	<small>/ {{ summary.get_max_points }}</small>
+    </strong></p>
+    {% summary_progress summary %}
+</div>
+{% endif %}
+{% endcomment %}
+
+{% for category_summary in categories %}
+<div class="well">
+    <p>{{ category_summary.category.name }}</p>
+    <p><strong class="h2">
+    	{{ category_summary.get_total_points }}
+    	<small>/ {{ category_summary.get_max_points }}</small>
+    </strong></p>
+    {% summary_progress category_summary %}
+</div>
+{% endfor %}

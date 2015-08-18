@@ -1,0 +1,40 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h4 class="panel-title">{% trans "Submission info" %}</h4>
+    </div>
+    <div class="panel-body">
+        <dl>
+            <dt>{% trans "Submitted on" %}</dt>
+            <dd>{{ submission.submission_time }}</dd>
+
+            <dt>{% trans "Status" %}</dt>
+            <dd>
+                <span class="label label-{% if submission.is_graded %}success{% else %}default{% endif %}">
+                    {{ submission.status }}
+                </span>
+            </dd>
+
+            <dt>{% trans "Grade" %}</dt>
+            <dd>
+                {{ submission.grade }} / {{ exercise.max_points }}
+                {% if is_course_staff and exercise.max_points != submission.service_max_points %}
+                <br />({% trans "nonscaled" %} {{ submission.service_points }} / {{ submission.service_max_points }})
+                {% endif %}
+            </dd>
+
+            {% if submission.late_penalty_applied %}
+            <dt>{% trans "Includes late penalty" %}</dt>
+            <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
+            {% endif %}
+
+            <dt>
+                {% trans "Submitters" %}
+            </dt>
+            <dd>{{ submission.submitters.all|students }}</dd>
+        </dl>
+    </div>
+</div>

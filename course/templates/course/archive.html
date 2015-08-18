@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}A+ {% trans "Course archive" %}{% endblock %}
+{% block view_tag %}archive{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+
+        <div class="page-header">
+            <h1>{% trans "Course archive" %}
+        </div>
+
+        <ul id="course-list"></ul>
+
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-info">
+            {% blocktrans %}
+            <strong>Note:</strong>
+            To demonstrate functionality found in A+, the list of courses and course instances is fetched
+            from the API. And built using JavaScript.
+            {% endblocktrans %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(function(){
+        $.getJSON("/api/v1/course/", function(courseResponse) {
+            $.each(courseResponse.objects, function(i, course) {
+                var $courseLI = $("<li />").attr('id', 'course'+course.id).appendTo("#course-list");
+                var $courseHeading = $("<h3 />").text(course.code + " " + course.name).appendTo($courseLI);
+                $instanceUL = $("<ul />").appendTo($courseLI);
+                $.each(course.instances, function(j, courseInstance) {
+                    $.getJSON(courseInstance, function(instanceResponse) {
+                        var $instanceLI = $("<li />").appendTo($("#course" + course.id + " > ul"));
+                        var $instanceLink = $("<a />")
+                            .text(instanceResponse.instance_name)
+                            .attr("href", instanceResponse.browser_url)
+                            .appendTo($instanceLI);
+                        if (instanceResponse.is_open) {
+                            $instanceLI.append(" <span class='label label-success'>open</span>");
+                        }
+                    });
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

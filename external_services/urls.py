@@ -1,6 +1,11 @@
-from django.conf.urls.defaults import patterns
-from external_services.views import lti_login
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    (r'^lti/(\d+)$', lti_login),
-)
+from course.urls import INSTANCE_URL_PREFIX
+from . import views
+
+
+urlpatterns = [
+    url(INSTANCE_URL_PREFIX + r'lti-login/(?P<menu_id>\d+)/$',
+    views.LTILoginView.as_view(),
+    name="lti-login"),
+]

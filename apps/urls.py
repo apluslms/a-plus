@@ -1,6 +1,10 @@
-from django.conf.urls.defaults import *
-from apps.views import view_tab
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    (r'tab/(?P<tab_id>\d+)/$', view_tab),
-)
+from course.urls import INSTANCE_URL_PREFIX
+from . import views
+
+urlpatterns = [
+    url(INSTANCE_URL_PREFIX + r'tabs/(?P<tab_id>\d+)/$',
+    views.TabView.as_view(),
+    name="apps-tab"),
+]

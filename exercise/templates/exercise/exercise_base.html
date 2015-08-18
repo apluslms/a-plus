@@ -1,0 +1,88 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load apps %}
+
+{% block title %}{{ block.super }}: {% trans "Exercise" %} {{ module.order }}.{{ exercise.order }}{% endblock %}
+
+{% block siblings %}
+{% with next=exercise.next previous=exercise.previous %}
+{% include "course/_siblings.html" %}
+{% endwith %}
+{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li><a href="{{ module|url }}">{{ module }}</a></li>
+{% block exercisebreadcrumblist %}
+<li><a href="{{ exercise|url }}">{{ exercise }}</a></li>
+{% endblock %}
+{% endblock %}
+
+{% block coursecontent %}
+<ul class="nav nav-tabs">
+    <li class="menu-exercise">
+        <a href="{{ exercise|url }}">
+            {% trans "Exercise description" %}
+        </a>
+    </li>
+    <li class="dropdown menu-submission">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+            aria-haspopup="true" aria-expanded="false">
+            {% trans "My submissions" %}
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            {% for submission in submissions %}
+            <li>
+                <a href="{{ submission|url }}">
+                    {{ forloop.revcounter }}.
+                    {{ submission.submission_time }}
+                    {% submission_points submission %}
+                </a>
+            </li>
+            {% empty %}
+            <li>
+                <a href="#">{% trans "No submissions yet" %}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% if is_course_staff %}
+    <li>
+        <p class="navbar-text navbar-btn">
+            {% if submission %}
+            <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+                <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+                {% trans "Inspect" %}
+            </a>
+            {% endif %}
+            <a href="{{ exercise|url:'submission-list' }}" class="btn btn-default btn-xs">
+                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                {% trans "View all submissions" %}
+            </a>
+        </p>
+    </li>
+    {% endif %}
+</ul>
+
+{% block exercisecontent %}{% endblock %}
+{% endblock %}
+
+{% block sidecontent %}
+    {% block exerciseinfo %}
+    <div id="exercise-info" data-url="{{ exercise|url:'exercise-info' }}">
+        {% include "exercise/_exercise_info.html" %}
+    </div>
+    {% endblock %}
+
+	{% if submission %}
+		{% plugin_renderers user submission as plugins %}
+	{% else %}
+		{% plugin_renderers user exercise as plugins %}
+	{% endif %}
+    {% for plugin in plugins %}
+        {{ plugin.render|safe }}
+    {% endfor %}
+{% endblock %}

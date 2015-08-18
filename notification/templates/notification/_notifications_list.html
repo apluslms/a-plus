@@ -1,0 +1,21 @@
+{% load i18n %}
+{% for notification in notifications %}
+<tr class="list-entry{% if not notification.seen %} unread{% endif %}">
+    <td>
+        <a href="#notification{{ notification.id }}" class="{% if notification.seen %}collapsed{% endif %}"
+            data-toggle="collapse" aria-expanded="{% if notification.seen %}false{% else %}true{% endif %}" aria-controls="#notification{{ notification.id }}">
+            <span class="caret" aria-hidden="true"></span>
+            {{ notification.subject }}
+        </a>
+    </td>
+    <td>{% firstof notification.sender.user.get_full_name notification.sender.user.username %}</td>
+    <td>{{ notification.timestamp }}</td>
+</tr>
+<tr id="notification{{ notification.id }}" class="collapse{% if not notification.seen %} in{% endif %}">
+    <td colspan="3">{{ notification.notification|safe }}</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="3">{% trans "No received notifications." %}</td>
+</tr>
+{% endfor %}

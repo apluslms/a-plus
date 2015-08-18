@@ -1,0 +1,226 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load editcourse %}
+
+{% block editbreadcrumblist %}
+<li class="active">{% trans "Edit course" %}</li>
+{% endblock %}
+
+{% block coursecontent %}
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{% trans "Exercise categories" %}</h3>
+    </div>
+    <table class="table table-striped table-bordered table-condensed">
+        <tbody>
+            {% for category in instance.categories.all %}
+            <tr>
+                <td>
+                    {{ category.name }}
+                </td>
+                <td>
+                    <a class="btn btn-default btn-xs" href="{{ category|editurl:'category' }}">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        {% trans "Edit category" %}
+                    </a>
+                    {% if category.learning_objects.count == 0 %}
+                    <a class="btn btn-default btn-xs" href="{{ category|removeurl:'category' }}">
+                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th colspan="2">
+                    <a class="btn btn-primary btn-xs" href="{{ instance|createurl:'category' }}">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        {% trans "Add new category" %}
+                    </a>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{% trans "Course modules" %}</h3>
+    </div>
+    <table class="table table-striped table-bordered table-condensed">
+        <tbody>
+            {% for module in instance.course_modules.all %}
+            <tr class="success">
+                <th><strong>{{ module }}</strong></th>
+                <td>
+                    <a class="btn btn-default btn-xs" href="{{ module|editurl:'module' }}">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit module" %}
+                    </a>
+                    {% if module.learning_objects.count == 0 %}
+                    <a class="btn btn-default btn-xs" href="{{ module|removeurl:'module' }}">
+                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
+                    </a>
+                    {% endif %}
+                    <a class="btn btn-link btn-xs" href="{{ module|url }}">
+                        {% trans "Open module" %}
+                    </a>
+                </td>
+            </tr>
+            {% for object in module.chapters.all %}
+            <tr>
+                <td>
+                    {{ object }}
+                </td>
+                <td>
+                    <a class="btn btn-default btn-xs" href="{{ object|editurl:'chapter' }}">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit chapter" %}
+                    </a>
+                    <a class="btn btn-default btn-xs" href="{{ object|removeurl:'chapter' }}">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
+                    </a>
+                    <a class="btn btn-link btn-xs" href="{{ object|url }}">
+                        {% trans "Open chapter" %}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2">
+                    <a class="btn btn-success btn-xs" href="{{ module|createurl:'chapter' }}">
+                        {% trans "Add new chapter" %}
+                    </a>
+                </td>
+            </tr>
+            {% for object in module.learning_objects.all %}
+            <tr>
+                <td>
+                    {{ object }}
+                </td>
+                <td>
+                    <a class="btn btn-default btn-xs" href="{{ object|editurl:'exercise' }}">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit exercise" %}
+                    </a>
+                    <a class="btn btn-default btn-xs" href="{{ object|removeurl:'exercise' }}">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
+                    </a>
+                    <a class="btn btn-link btn-xs" href="{{ object|url }}">
+                    	{% trans "Open exercise" %}
+                    </a>
+                    <a class="btn btn-link btn-xs" href="{{ object|url:'submission-list' }}">
+                    	{% trans "View submissions" %}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2">
+                    <div class="btn-group dropdown">
+                        <a class="btn btn-success btn-xs" href="{{ module|createurl:'exercise' }}">
+                            {% trans "Add new exercise" %}
+                        </a>
+                        <a class="dropdown-toggle btn btn-success btn-xs" data-toggle="dropdown" href="#"
+                            role="button" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="{{ module|createurl:'exercise' }}">
+                                    {% trans "Add exercise" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ module|createurl:'exercise,static' }}">
+                                    {% trans "Add static exercise" %}
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ module|createurl:'exercise,attachment' }}">
+                                    {% trans "Add exercise with attachment" %}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th colspan="2">
+                    <a class="btn btn-primary btn-xs" href="{{ instance|createurl:'module' }}">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> {% trans "Add new module" %}
+                    </a>
+                </th>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{% trans "Deadline rule deviations" %}</h3>
+    </div>
+    <div class="panel-body">
+        <p>{% trans "Add or view personalized deadlines for students for exercises." %}</p>
+        <a class="btn btn-primary btn-xs" href="{{ instance|url:'deviations-add-dl' }}">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> {% trans "Add deadline deviations" %}
+        </a>
+        <a class="btn btn-primary btn-xs" href="{{ instance|url:'deviations-list-dl' }}">
+            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> {% trans "List deadline deviations" %}
+        </a>
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">{% trans "Batch create and assess submissions" %}</h3>
+    </div>
+    <div class="panel-body">
+        {% blocktrans %}
+<p><em>Use only if you know what you are doing!</em></p>
+<p>By submitting json to the form below you can try to create and assess multiple exercises for students automatically.</p>
+<dl>
+	<dt>XXXXX1 and XXXXX2</dt>
+    <dd>the real student ids</dd>
+	<dt>X1 (integer)</dt>
+    <dd>the A+ userprofile id of the desired grader</dd>
+	<dt>Z1 and Z2 (integers)</dt>
+    <dd>A+ exercise ids</dd>
+</dl>
+<pre>{
+  "objects": [
+    {
+      "students_by_student_id": [
+        "XXXXX1"
+      ],
+      "feedback": "Nicely solved exercise!",
+      "grader": X1,
+      "exercise_id": Z1,
+      "submission_time": "2014-09-24 11:50",
+      "points": 100
+    },
+    {
+      "students_by_student_id": [
+        "XXXXX2"
+      ],
+      "feedback": "You can do better!",
+      "grader": X1,
+      "exercise_id": Z2,
+      "submission_time": "2014-09-24 11:50",
+      "points": 20
+    }
+  ]
+}
+</pre>
+       {% endblocktrans %}
+        <form method="post" action="{{ instance|url:'batch-assess' }}">
+        	{% csrf_token %}
+            <div class="form-group">
+                <textarea name="submissions_json"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                {% trans "Submit" %}
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

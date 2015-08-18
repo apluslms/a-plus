@@ -1,0 +1,12 @@
+{% load i18n %}
+{% load course %}
+{% if page.is_wait %}
+<div class="exercise-wait hide progress"
+  data-poll-url="{{ submission|url:'submission-poll' }}"
+  data-msg-error="{% trans 'Communication error with the exercise.' %}"
+  data-msg-timeout="{% trans 'Unfortunately grading takes longer than expected. Return later to see the result.' %}">
+  <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
+    {% trans "Grading submission..." %}
+  </div>
+</div>
+{% endif %}

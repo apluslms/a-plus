@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load course %}
+{% if unread.count > 0 %}
+<div class="alert alert-info">
+    <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
+    <p>
+        {% blocktrans with count=unread.count count_p=unread.count|pluralize %}
+        You have {{ count }} new notification{{ count_p }}.
+        {% endblocktrans %}
+        <ul>
+            {% for notification in unread.notifications %}
+            <li><a href="{{ notification.course_instance|url:'notifications' }}" class="alert-link">
+                {{ notification.course_instance.course }}: {{ notification.subject }}
+            </a></li>
+            {% endfor %}
+        </ul>
+    </p>
+</div>
+{% endif %}

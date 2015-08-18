@@ -1,42 +1,65 @@
-from django.conf.urls.defaults import *
-from exercise.views import view_submission, view_exercise, \
-    view_submitted_file, view_update_stats
-from exercise.staff_views import list_exercise_submissions, \
-    inspect_exercise_submission, add_or_edit_exercise, \
-    fetch_exercise_metadata, assess_submission, resubmit_to_service, \
-    create_and_assess_submission, add_deadline_rule_deviations, \
-    list_deadline_rule_deviations, remove_deadline_rule_deviation, remove_exercise
-from exercise.async_views import new_async_submission, grade_async_submission
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    (r'^(?P<exercise_id>\d+)/$', view_exercise),
-    (r'^stats/(?P<exercise_id>\d+)/$', view_update_stats),
-    (r'^submission/(?P<submission_id>\d+)/$', view_submission),
-    (r'^submissions/list/(?P<exercise_id>\d+)/$', list_exercise_submissions),
-    (r'^submissions/inspect/(?P<submission_id>\d+)/$',
-     inspect_exercise_submission),
-    (r'^submissions/assess/(?P<submission_id>\d+)/$', assess_submission),
-    (r'^(?P<exercise_id>\d+)/create_and_assess_submission/$',
-     create_and_assess_submission),
-    (r'^submitted_file/(?P<submitted_file_id>\d+)/', view_submitted_file),
-    (r'^manage/(?P<module_id>\d+)/$', add_or_edit_exercise),
-    (r'^fetch_metadata/$', fetch_exercise_metadata),
-    (r'^manage/(?P<module_id>\d+)/exercise_type/(?P<exercise_type>\w+)$',
-     add_or_edit_exercise),
-    (r'^manage/(?P<module_id>\d+)/(?P<exercise_id>\d+)/$',
-     add_or_edit_exercise),
-    (r'^remove/(?P<module_id>\d+)/(?P<exercise_id>\d+)/$',
-     remove_exercise),
-    (r'^rest/exercise/(?P<exercise_id>\d+)/students/(?P<student_ids>[\d\-]+)/(?'
-     'P<hash>\w+)/$', new_async_submission),
-    (r'^rest/submission/(?P<submission_id>\d+)/(?P<hash>\w+)/$',
-     grade_async_submission),
-    (r'^submissions/re-submit-to-service/(?P<submission_id>\d+)/$',
-     resubmit_to_service),
-    url(r'^deadline_rule_deviation/remove/(?P<deadline_rule_deviation_id>\d+)$',
-        remove_deadline_rule_deviation, name="remove_dl_deviation"),
-    url(r'^deadline_rule_deviation/(?P<course_instance>\d+)/add/$',
-        add_deadline_rule_deviations, name="add_dl_deviations"),
-    url(r'^deadline_rule_deviation/(?P<course_instance>\d+)/list/$',
-        list_deadline_rule_deviations, name="list_dl_deviations"),
-)
+from course.urls import INSTANCE_URL_PREFIX, USER_URL_PREFIX, EDIT_URL_PREFIX
+from . import views, async_views, staff_views
+
+
+EXERCISE_URL_PREFIX = INSTANCE_URL_PREFIX \
+    + r'exercises/(?P<exercise_id>\d+)/'
+SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX \
+    + r'submissions/(?P<submission_id>\d+)/'
+
+urlpatterns = [
+    url(USER_URL_PREFIX + r'results/$',
+        views.ResultsView.as_view(),
+        name="results"),
+    url(EXERCISE_URL_PREFIX + r'$',
+        views.ExerciseView.as_view(),
+        name="exercise"),
+    url(EXERCISE_URL_PREFIX + r'info/$',
+        views.ExerciseInfoView.as_view(),
+        name="exercise-info"),
+    url(SUBMISSION_URL_PREFIX + r'$',
+        views.SubmissionView.as_view(),
+        name="submission"),
+    url(SUBMISSION_URL_PREFIX + r'poll/$',
+        views.SubmissionPollView.as_view(),
+        name="submission-poll"),
+    url(SUBMISSION_URL_PREFIX \
+            + r'file/(?P<file_id>\d+)/(?P<file_name>[\w\d\_\-\.]+)',
+        views.SubmittedFileView.as_view(),
+        name="submission-file"),
+
+    url(r'^rest/exercise/(?P<exercise_id>\d+)/' \
+            + r'students/(?P<student_ids>[\d\-]+)/(?P<hash_key>\w+)/$',
+        async_views.new_async_submission,
+        name="async-new"),
+    url(r'^rest/submission/(?P<submission_id>\d+)/(?P<hash_key>\w+)/$',
+        async_views.grade_async_submission,
+        name="async-grade"),
+
+    url(EXERCISE_URL_PREFIX + r'submissions/$',
+        staff_views.ListSubmissionsView.as_view(),
+        name="submission-list"),
+    url(EXERCISE_URL_PREFIX + r'submissions/create_and_assess/$',
+        staff_views.CreateSubmissionView.as_view(),
+        name="submission-create"),
+    url(SUBMISSION_URL_PREFIX + r'inspect/$',
+        staff_views.InspectSubmissionView.as_view(),
+        name="submission-inspect"),
+    url(SUBMISSION_URL_PREFIX + r're-submit/$',
+        staff_views.ResubmitSubmissionView.as_view(),
+        name="submission-re-submit"),
+    url(SUBMISSION_URL_PREFIX + r'assess/$',
+        staff_views.AssessSubmissionView.as_view(),
+        name="submission-assess"),
+    url(EDIT_URL_PREFIX + r'results/$',
+        staff_views.AllResultsView.as_view(),
+        name="all-results"),
+    url(EDIT_URL_PREFIX + r'fetch-metadata/$',
+        staff_views.FetchMetadataView.as_view(),
+        name="exercise-metadata"),
+    url(EDIT_URL_PREFIX + r'batch_create_and_assess/$',
+        staff_views.BatchCreateSubmissionsView.as_view(),
+        name="batch-assess"),
+]

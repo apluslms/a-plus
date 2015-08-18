@@ -1,0 +1,74 @@
+{% extends "exercise/exercise_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ block.super }} / {% trans "Inspect SID " %} {{ submission.id}}{% endblock %}
+{% block view_tag %}inspect{% endblock %}
+
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
+<li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
+<li class="active">{% trans "Inspect" %}</td>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-5">
+    {% include "exercise/staff/_assess_info.html" %}
+</div>
+<div class="col-md-7">
+    <h3>{% trans "Assistant feedback" %}</h3>
+    <div class="well">
+
+        {% if submission.assistant_feedback %}
+        {{ submission.assistant_feedback|safe }}
+        {% else %}
+        <div class="alert alert-info">
+        	{% trans "No assistant feedback available for this submission." %}
+        </div>
+        {% endif %}
+
+        {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
+        <hr/>
+        <p>
+            <a class="btn btn-primary" href="{{ submission|url:'submission-assess' }}">
+                {% if submission.exercise.allow_assistant_grading %}
+            	{% trans "Assistant assess this submission" %}
+                {% else %}
+                {% trans "Teacher assess this submission" %}
+                {% endif %}
+            </a>
+        </p>
+        {% endif %}
+    </div>
+
+    <h3>{% trans "Grader feedback" %}</h3>
+    <div class="well">
+    	{% if submission.feedback %}
+        {{ submission.feedback|safe }}
+    	{% else %}
+        <div class="alert alert-info">
+        	{% trans "No grader feedback available for this submission." %}
+        </div>
+    	{% endif %}
+
+        <hr/>
+        <p>
+        	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
+        		{% csrf_token %}
+        		<input class="btn btn-primary" type="submit" value="{% trans 'Re-submit to service' %}" />
+        	</form>
+        </p>
+        <p>
+        	{% blocktrans %}
+            Click this button to re-submit this submission to the assessment
+            service. This is meant to be used only in situations where the
+            assessment service has behaved incorrectly so that the grading
+            data is incorrect or the status of the submission never became
+            ready. Caution! Re-submitting overwrites the current grading data.
+            {% endblocktrans %}
+        </p>
+
+    </div>
+</div>
+{% endblock %}
