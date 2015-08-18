@@ -95,6 +95,16 @@ for course_dir in $REPO_ROOT_DIR/exercises/*; do
     rm -rf $sbd/usr/local/sandbox/$course
     cp -r --preserve=mode $course_dir/sandbox $sbd/usr/local/sandbox/$course
     chmod a+rx $sbd/usr/local/sandbox/$course
+
+    # Add requested available scripts.
+    if [ -f $course_dir/sandbox/from_sandbox_available ]; then
+      for name in $(cat $course_dir/sandbox/from_sandbox_available); do
+        src=$REPO_ROOT_DIR/scripts/sandbox_available/$name
+        if [ -f $src ]; then
+          cp $src $sbd/usr/local/sandbox/
+        fi
+      done
+    fi
   fi
 done
 

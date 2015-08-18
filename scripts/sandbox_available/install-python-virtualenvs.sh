@@ -17,8 +17,7 @@ mkdir -p $VDIR
 cd $VDIR
 
 # Create virtual environments.
-FILES=`find /usr/local/sandbox -name \*-requirements.txt`
-for path in FILES; do
+for path in $(find /usr/local/sandbox -name \*-requirements.txt); do
 	file=${path##*/}
 	name=${file%-requirements.txt}
 
