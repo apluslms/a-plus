@@ -137,8 +137,18 @@ USE_TZ = True
 #DATETIME_FORMAT = "Y-m-d H:i"
 
 # Apache module mod_uwsgi was unable to create UTF-8 environment variables.
-# Problem was avoided by URL encoding in Shibboleth: <RequestMap encoding="URL" />
+# Problem was avoided by URL encoding in Shibboleth:
+# <RequestMapper type="Native">
+#   <RequestMap applicationId="default" encoding="URL" />
+# </RequestMapper>
 SHIBBOLETH_VARIABLES_URL_ENCODED = True
+
+# Fields to receive from the Shibboleth (defaults).
+#SHIB_USER_ID_KEY = 'SHIB_eppn'
+#SHIB_FIRST_NAME_KEY = 'SHIB_displayName'
+#SHIB_LAST_NAME_KEY = 'SHIB_sn'
+#SHIB_MAIL_KEY = 'SHIB_mail'
+#SHIB_STUDENT_ID_KEY = 'SHIB_schacPersonalUniqueCode'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
