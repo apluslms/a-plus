@@ -11,8 +11,8 @@ class CourseArchivePageTest(unittest.TestCase):
 
     def testShouldOpenCourseArchivePage(self):
         courseArchivePage = CourseArchivePage(self.driver)
-        self.assertTrue(courseArchivePage.isElementVisible(CourseArchiveLocators.APLUS_LINK))
-        self.assertTrue(courseArchivePage.isElementVisible(CourseArchiveLocators.HOOK_LINK))
+        courseArchivePage.waitForElement(CourseArchiveLocators.APLUS_LINK)
+        courseArchivePage.waitForElement(CourseArchiveLocators.HOOK_LINK)
 
     def tearDown(self):
         self.driver.close()
