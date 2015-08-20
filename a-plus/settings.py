@@ -33,6 +33,8 @@ ALLOWED_HOSTS = ["*"]
 # INSTALLED_APPS. Any templates can be overridden by copying into
 # local_templates/possible_path/template_name.html
 
+SITEWIDE_ALERT_TEXT = None
+BRAND_NAME = 'A+'
 WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
 LOGIN_TITLE_TEXT = 'Local A+ users'
 LOGIN_BODY_TEXT = ''
