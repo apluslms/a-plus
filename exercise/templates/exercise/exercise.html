@@ -12,6 +12,11 @@
 <div id="exercise">
     {{ page.content|safe }}
 </div>
+<div id="submit-progress" class="hide progress">
+  <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
+    {% trans "Posting submission..." %}
+  </div>
+</div>
 {% include "exercise/_exercise_wait.html" %}
 {% endblock %}
 
@@ -19,6 +24,14 @@
 {{ block.super }}
 <script src="{% static 'exercise/poll.js' %}"></script>
 <script>
+// Visualize loading in case of slow POST operations.
+$(function() {
+    var forms = $("#exercise").find("form");
+    forms.on("submit", function(event) {
+        $("#submit-progress").removeClass("hide");
+    });
+});
+
 // Add an Ajax exercise event listener to refresh the info column.
 window.addEventListener("message", function (event) {
     if (event.data.type === "a-plus-refresh-stats") {

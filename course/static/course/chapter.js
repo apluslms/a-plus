@@ -187,6 +187,7 @@
 					exercise.updateSubmission($(data));
 				}
 			});
+			forms.find(":input").attr("disabled", true);
 		},
 
 		updateSubmission: function(input) {
