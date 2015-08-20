@@ -1,5 +1,5 @@
-A+
-==
+A+ ![Build status](http://plustest.cs.hut.fi/job/A-plus-test-MASTER/badge/icon)
+===============================================================================
 
 "We present a design and open source implementation for a service oriented e-learning system, which utilizes external services for supporting a wide range of learning content and also offers a REST API for external clients to fetch information stored in the system."
 

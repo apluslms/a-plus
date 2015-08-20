@@ -31,10 +31,12 @@ Walkthrough for Ubuntu on 6/2015
 
 4. Add Postgre SQL database.
 
-		sudo apt-get install postgresql
+		sudo apt-get install postgresql postgresql-server-dev-all
 		sudo -u postgres psql
 			create database aplus;
-			grant all privileges on database aplus to [shell-username]
+			\c aplus
+			create role [shell-username] with login;
+			grant all privileges on database aplus to [shell-username];
 			\q
 
 		source venv/bin/activate
@@ -108,7 +110,7 @@ Walkthrough for Ubuntu on 6/2015
 
 		respawn
 
-		exec uwsgi --emperor /etc/uwsgi/apps-enabled
+		exec /home/[shell-username]/venv/bin/uwsgi --emperor /etc/uwsgi/apps-enabled
 
 	Operate with:
 
@@ -116,7 +118,7 @@ Walkthrough for Ubuntu on 6/2015
 		sudo start uwsgi
 
 		# Force application reload with
-		sudo touch /etc/uwsgi/aplus.ini
+		sudo touch /etc/uwsgi/apps-enabled/aplus.ini
 
 10. Install Apache and libraries.
 
