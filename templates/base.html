@@ -8,7 +8,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{% block title %}A+{% endblock %}</title>
+        <title>{% block title %}{% brand_name %}{% endblock %}</title>
 
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 
@@ -54,9 +54,9 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <a class="navbar-brand hidden-xs" href="{% url 'home' %}">A+</a>
+                        <a class="navbar-brand hidden-xs" href="{% url 'home' %}">{% brand_name %}</a>
                         <span class="navbar-brand visible-xs">
-                        A+{% if instance %} &nbsp; {{ course.name }}{% endif %}
+                        {% brand_name %}{% if instance %} &nbsp; {{ course.name }}{% endif %}
                         </span>
                     </div>
                     <div class="collapse navbar-collapse" id="bs-navbar-collapse">
@@ -136,6 +136,7 @@
             </nav>
 
             <div class="site-content container">
+                {% site_alert %}
                 {% notification_messages %}
                 {% include "_messages.html" %}
                 {% block content %}

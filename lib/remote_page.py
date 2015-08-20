@@ -73,10 +73,10 @@ class RemotePage:
     def _fix_relative_urls(self, base_url, tag_name, attr_name):
         for element in self.soup.findAll(tag_name, {attr_name: True}):
             value = element[attr_name]
-            if not value.startswith("http://"):
+            if not (value.startswith("http://") or value.startswith("https://")):
                 element[attr_name] = "".join((
                     base_url,
-                    "/" if value[0] != "/" else "",
+                    "/" if (value[0] != "/" and base_url[-1] != "/") else "",
                     value
                 ))
 

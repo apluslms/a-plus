@@ -86,7 +86,7 @@ class CalendarExport(CourseInstanceMixin, View):
         self.handle()
 
         cal = icalendar.Calendar()
-        cal.add('prodid', '-// A+ calendar //')
+        cal.add('prodid', '-// {} calendar //'.format(settings.BRAND_NAME))
         cal.add('version', '2.0')
         for module in self.instance.course_modules.all():
             event = icalendar.Event()
