@@ -134,8 +134,12 @@ class BaseExercise(LearningObject):
                     return True
         return False
 
-    def get_submissions_for_student(self, user_profile):
-        return user_profile.submissions.filter(exercise=self)
+    def get_submissions_for_student(self, user_profile, exclude_errors=False):
+        if exclude_errors:
+            submissions = user_profile.submissions.exclude_errors()
+        else:
+            submissions = user_profile.submissions
+        return submissions.filter(exercise=self)
 
     def max_submissions_for_student(self, user_profile):
         """
@@ -152,8 +156,8 @@ class BaseExercise(LearningObject):
         if self.max_submissions == 0:
             return True
         for profile in students:
-            if self.get_submissions_for_student(profile).count() \
-                < self.max_submissions_for_student(profile):
+            if self.get_submissions_for_student(profile, True).count() \
+                    < self.max_submissions_for_student(profile):
                 return True
         return False
 
