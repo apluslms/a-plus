@@ -5,7 +5,14 @@
     <p>{% trans "Earned points" %}</p>
     <p><strong class="h2">
     	{{ summary.get_points }}
-    	<small>/ {{ exercise.max_points }}</small>
+    	<small>
+            / {{ exercise.max_points }}
+            {% if summary.get_penalty %}
+            <span class="badge">
+                {% trans "Late" %} -{{ summary.get_penalty|percent }} %
+            </span>
+            {% endif %}
+        </small>
     </strong></p>
     {% summary_progress summary %}
 </div>
