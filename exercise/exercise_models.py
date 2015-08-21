@@ -59,8 +59,15 @@ class LearningObject(ModelWithInheritance):
     def course_instance(self):
         return self.course_module.course_instance
 
+    def is_open(self, when=None):
+        return self.course_module.is_open(when=when)
+
     def is_after_open(self, when=None):
         return self.course_module.is_after_open(when=when)
+
+    def is_late(self, when=None):
+        when = when or timezone.now()
+        return when >= self.course_module.closing_time
 
     def next(self):
         exercise = self.course_module.learning_objects \
@@ -108,13 +115,6 @@ class BaseExercise(LearningObject):
         if self.points_to_pass > self.max_points:
             return ValidationError(
                 _("Points to pass cannot be greater than max_points."))
-
-    def is_open(self, when=None):
-        """
-        Returns True if submissions are allowed for this exercise.
-        """
-        when = when or timezone.now()
-        return self.course_module.is_open(when=when)
 
     def one_has_access(self, students, when=None):
         """

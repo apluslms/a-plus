@@ -400,6 +400,16 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.late_submission_when_late_allowed.late_penalty_applied)
         self.assertTrue(self.late_late_submission_when_late_allowed.late_penalty_applied)
 
+    def test_early_submission(self):
+        self.course_module_with_late_submissions_allowed.opening_time = self.tomorrow
+        submission = Submission.objects.create(
+            exercise=self.base_exercise_with_late_submission_allowed,
+            grader=self.grader.userprofile
+        )
+        submission.submitters.add(self.grader.userprofile)
+        submission.set_points(10, 10)
+        self.assertFalse(submission.late_penalty_applied)
+
     def test_submission_unicode_string(self):
         self.assertEqual("1", str(self.submission))
         self.assertEqual("2", str(self.submission_with_two_submitters))
