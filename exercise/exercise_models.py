@@ -157,7 +157,7 @@ class BaseExercise(LearningObject):
             return True
         for profile in students:
             if self.get_submissions_for_student(profile, True).count() \
-                    < self.max_submissions_for_student(profile):
+                < self.max_submissions_for_student(profile):
                 return True
         return False
 

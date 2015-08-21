@@ -30,7 +30,9 @@ class MyAjaxExerciseGraderTest(unittest.TestCase):
         myAjaxExercisePage = MyAjaxExerciseGrader(self.driver)
         myAjaxExercisePage.setText("101")
         myAjaxExercisePage.submit()
-        self.assertEqual(myAjaxExercisePage.getAllowedSubmissions(), '1 / 10')
+
+        # Over the limit leaves submission to error state and does not count.
+        self.assertEqual(myAjaxExercisePage.getAllowedSubmissions(), '0 / 10')
         self.assertEqual(myAjaxExercisePage.getExerciseScore(), '0 / 100')
         self.assertEqual(myAjaxExercisePage.getNumberOfSubmitters(), '1')
 
