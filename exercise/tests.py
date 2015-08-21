@@ -247,6 +247,13 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))
         self.assertTrue(self.static_exercise.one_has_submissions([self.user.userprofile]))
         self.assertTrue(self.exercise_with_attachment.one_has_submissions([self.user.userprofile]))
+        self.submission.set_error()
+        self.submission.save()
+        self.submission_with_two_submitters.set_error()
+        self.submission_with_two_submitters.save()
+        self.late_submission.set_error()
+        self.late_submission.save()
+        self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile]))
 
     def test_base_exercise_max_submissions(self):
         self.assertEqual(1, self.base_exercise.max_submissions_for_student(self.user.userprofile))
@@ -257,6 +264,10 @@ class ExerciseTest(TestCase):
         self.assertEqual(3, len(self.base_exercise.get_submissions_for_student(self.user.userprofile)))
         self.assertEqual(0, len(self.static_exercise.get_submissions_for_student(self.user.userprofile)))
         self.assertEqual(0, len(self.exercise_with_attachment.get_submissions_for_student(self.user.userprofile)))
+        self.submission.set_error()
+        self.submission.save()
+        self.assertEqual(3, len(self.base_exercise.get_submissions_for_student(self.user.userprofile)))
+        self.assertEqual(2, len(self.base_exercise.get_submissions_for_student(self.user.userprofile, True)))
 
     def test_base_exercise_is_open(self):
         self.assertTrue(self.base_exercise.is_open())
@@ -399,6 +410,16 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.submission_when_late_allowed.late_penalty_applied)
         self.assertTrue(self.late_submission_when_late_allowed.late_penalty_applied)
         self.assertTrue(self.late_late_submission_when_late_allowed.late_penalty_applied)
+
+    def test_early_submission(self):
+        self.course_module_with_late_submissions_allowed.opening_time = self.tomorrow
+        submission = Submission.objects.create(
+            exercise=self.base_exercise_with_late_submission_allowed,
+            grader=self.grader.userprofile
+        )
+        submission.submitters.add(self.grader.userprofile)
+        submission.set_points(10, 10)
+        self.assertFalse(submission.late_penalty_applied)
 
     def test_submission_unicode_string(self):
         self.assertEqual("1", str(self.submission))

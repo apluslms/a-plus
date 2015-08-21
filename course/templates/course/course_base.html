@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ course.name }}{% endblock %}
+{% block title %}{{ block.super }} {{ course.name }}{% endblock %}
 
 {% block content %}
 <div class="row">

@@ -21,10 +21,10 @@ class ResultTable:
         self.exercises = list(BaseExercise.objects \
             .filter(course_module__course_instance=course_instance) \
             .order_by("course_module__closing_time", "course_module", "order"))
-        
+
         # Students on the course.
         self.students = list(course_instance.get_student_profiles())
-        
+
         # Empty results table.
         self.results = {
             student.id: {
@@ -43,14 +43,13 @@ class ResultTable:
         """
         submissions = Submission.objects \
             .filter(exercise__course_module__course_instance=self.course_instance) \
-            .values("submitters", "exercise") \
+            .only("submitters", "exercise") \
             .annotate(best=Max("grade")) \
             .order_by()
         for submission in submissions:
-            student_id = submission["submitters"]
-            exercise_id = submission["exercise"]
-            if student_id:
-                self.results[student_id][exercise_id] = submission["best"]
+            for student in submission.submitters.all():
+                if student.id in self.results:
+                    self.results[student.id][submission.exercise.id] = submission.best
 
 
     def results_for_template(self):

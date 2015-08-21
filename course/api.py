@@ -69,41 +69,27 @@ class CourseInstanceSummaryResource(Resource):
 
     class Meta:
         resource_name = 'course_result'
-        object_class = UserCourseSummary
+        object_class = CourseInstance
         allowed_methods = ['get']
         api_name = 'v1'
 
     # From: http://www.maykinmedia.nl/blog/2012/oct/2/nested-resources-tastypie/
     def prepend_urls(self):
         return [
-            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/user/(?P<user>\w[\w/-]*)/$' % 
+            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/user/(?P<user>\w[\w/-]*)/$' %
                 (self._meta.resource_name),
                 self.wrap_view('dispatch_detail'),
                 name='api_dispatch_detail'),
-            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/$' % 
+            url(r'^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/$' %
                 (self._meta.resource_name),
                 self.wrap_view('dispatch_overall'),
                 name='api_dispatch_list'),
-            url(r'^(?P<resource_name>%s)/$' % 
+            url(r'^(?P<resource_name>%s)/$' %
                 (self._meta.resource_name),
                 self.wrap_view('dispatch_course_instances'),
                 name='api_course_instances')
         ]
 
-    def get_resource_uri(self, bundle_or_obj):
-        kwargs = {
-            'resource_name': self._meta.resource_name,
-            'api_name': self._meta.api_name,
-        }
-
-        if isinstance(bundle_or_obj, Bundle):
-            kwargs['user'] = bundle_or_obj.obj['user']
-            kwargs['pk'] = bundle_or_obj.obj['course_instance']
-        else:
-            kwargs['user'] = bundle_or_obj['user']
-            kwargs['pk'] = bundle_or_obj['course_instance']
-
-        return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
 
     def dispatch_overall(self, request, **kwargs):
         return CourseInstanceSummaryResource().dispatch('list', request, **kwargs)
@@ -130,16 +116,23 @@ class CourseInstanceSummaryResource(Resource):
                 tmp = {}
                 tmp["exercise_id"] = ex_summary.exercise.id
                 tmp["submission_count"] = ex_summary.submission_count
-                tmp["completed_percentage"] = ex_summary.get_completed_percentage()
+                tmp["completed_percentage"] = self._percentage(
+                    ex_summary.get_total_points(), ex_summary.get_max_points())
                 exercise_summaries.append(tmp)
             summary.append({
-                "exercise_round_id": rnd.exercise_round.id,
-                "completed_percentage": rnd.get_completed_percentage(),
-                "closing_time": rnd.exercise_round.closing_time,
+                "exercise_round_id": rnd.module.id,
+                "completed_percentage": self._percentage(
+                    rnd.get_total_points(), rnd.get_max_points()),
+                "closing_time": rnd.module.closing_time,
                 "exercise_summaries": exercise_summaries
             })
         results["summary"] = summary
         return results
+
+    def _percentage(self, points, max_points):
+        if max_points > 0:
+            return int(round(100.0 * points / max_points))
+        return 100
 
     def dehydrate(self, bundle):
         bundle.data.update(bundle.obj)

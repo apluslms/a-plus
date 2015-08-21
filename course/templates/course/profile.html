@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}A+ {% trans "Profile" %}{% endblock %}
+{% block title %}{{ block.super }} {% trans "Profile" %}{% endblock %}
 {% block view_tag %}profile{% endblock %}
 
 {% block content %}

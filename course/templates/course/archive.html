@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load course %}
 
-{% block title %}A+ {% trans "Course archive" %}{% endblock %}
+{% block title %}{{ block.super }} {% trans "Course archive" %}{% endblock %}
 {% block view_tag %}archive{% endblock %}
 
 {% block content %}
@@ -19,7 +20,8 @@
         <div class="alert alert-info">
             {% blocktrans %}
             <strong>Note:</strong>
-            To demonstrate functionality found in A+, the list of courses and course instances is fetched
+            To demonstrate functionality of the system,
+            the list of courses and course instances is fetched
             from the API. And built using JavaScript.
             {% endblocktrans %}
         </div>

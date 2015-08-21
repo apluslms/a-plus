@@ -115,7 +115,9 @@ class CourseInstance(models.Model):
     def get_student_profiles(self):
         # TODO: enrollment should be designed
         return UserProfile.objects.filter(submissions__exercise__course_module__course_instance=self)\
-            .distinct()
+            .distinct()\
+            .exclude(assisting_courses=self)\
+            .exclude(teaching_courses=self.course)
 
     def is_open(self):
         return self.starting_time <= timezone.now() <= self.ending_time

@@ -64,11 +64,11 @@
 
 		ready: function() {
 			this.element.hide();
-			this.suburl = this.url.substr(0, this.url.length - "poll/".length);
+			var suburl = this.url.substr(0, this.url.length - "poll/".length);
 			if (this.callback) {
-				this.callback(this.suburl);
+				this.callback(suburl);
 			} else {
-				location.href = this.suburl;
+				window.location = suburl;
 			}
 	    },
 
@@ -96,4 +96,6 @@
 
 })(jQuery, window, document);
 
-jQuery.aplusExerciseDetectWaits();
+jQuery(function() {
+	jQuery.aplusExerciseDetectWaits();
+});

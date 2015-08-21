@@ -8,7 +8,7 @@ from django.db.models.signals import post_delete
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from exercise import exercise_models
+from . import exercise_models
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
     safe_file_name
@@ -34,6 +34,9 @@ class SubmissionManager(models.Manager):
             new_submission.delete()
             return None
         return new_submission
+
+    def exclude_errors(self):
+        return self.exclude(status=Submission.STATUS_ERROR)
 
 
 class Submission(models.Model):
@@ -165,7 +168,7 @@ class Submission(models.Model):
         # with late submission penalty. No less than 0 points are given. This
         # is not done if no_penalties is True.
         # TODO: Decide whether penalties apply to deadline deviations.
-        if not no_penalties and not self.exercise.is_open(when=self.submission_time):
+        if not no_penalties and self.exercise.is_late(when=self.submission_time):
             self.late_penalty_applied = self.exercise.course_module.late_submission_penalty
             adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
         else:

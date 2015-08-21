@@ -1,4 +1,4 @@
-from exercise.models import BaseExercise
+from ..models import BaseExercise, Submission
 
 
 class UserExerciseSummary(object):
@@ -25,7 +25,7 @@ class UserExerciseSummary(object):
     def _generate_summary(self):
         if self.user and self.user.is_authenticated():
             submissions = self.exercise \
-                .get_submissions_for_student(self.user.userprofile) \
+                .get_submissions_for_student(self.user.userprofile, True) \
                 .order_by('-grade', 'id')
             self.submission_count = submissions.count()
             self.best_submission = submissions.first()
@@ -41,6 +41,9 @@ class UserExerciseSummary(object):
 
     def get_points(self):
         return self.best_submission.grade if self.best_submission else 0
+
+    def get_penalty(self):
+        return self.best_submission.late_penalty_applied if self.best_submission else None
 
     def get_total_points(self):
         return self.get_points()
@@ -185,7 +188,7 @@ class UserCourseSummary(object):
         self.exercises = list(BaseExercise.objects \
             .filter(course_module__course_instance=self.course_instance) \
             .select_related("course_module", "category"))
-        self.submissions = list(user.userprofile.submissions \
+        self.submissions = list(user.userprofile.submissions.exclude_errors() \
             .filter(exercise__course_module__course_instance=self.course_instance) \
             .defer("feedback", "assistant_feedback", "submission_data", "grading_data")) \
             if user and user.is_authenticated() else []
