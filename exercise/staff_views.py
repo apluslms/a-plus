@@ -227,7 +227,7 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseRedirectView):
                     self.set_error(
                         _('Invalid fields in object {count:d}: {error}'),
                         count=count,
-                        error=" ; ".join(extract_form_errors(form)))
+                        error="\n".join(extract_form_errors(form)))
 
         if not self.error:
             for form in validated_forms:
@@ -244,7 +244,7 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseRedirectView):
                 sub.save()
             messages.success(request, _("New submissions stored."))
 
-        return self.redirect(self.instance.get_edit_url())
+        return self.redirect(self.instance.get_url('batch-assess-form'))
 
     def set_error(self, text, **kwargs):
         messages.error(self.request, text.format(**kwargs))

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super }} / {% blocktrans with model=model_name id=object.id %}Remove {{ model }} ID {{ id }}{% endblocktrans %}{% endblock %}
+{% block edittitle %}{% blocktrans with model=model_name id=object.id %}Remove {{ model }} ID {{ id }}{% endblocktrans %}{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
@@ -14,6 +14,7 @@
 {% endblock %}
 
 {% block coursecontent %}
+<br />
 <form method="post" class="well form">
     {% csrf_token %}
 	<legend>

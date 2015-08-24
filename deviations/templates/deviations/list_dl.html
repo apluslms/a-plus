@@ -2,22 +2,25 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super }} / {% trans "List deadline deviations" %}{% endblock %}
+{% block edittitle %}{% trans "List deadline deviations" %}{% endblock %}
+{% block view_tag %}edit-course,deviations{% endblock %}
 
-{% block breadcrumb %}
+{% block editbreadcrumblist %}
 {{ block.super }}
 <li class="active">{% trans "List deadline deviations" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
+<br />
+<p>
+	<a class="btn btn-primary btn-xs" href="{{ instance|url:'deviations-add-dl' }}">
+		<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+		{% trans "Add new deadline deviations" %}
+	</a>
+</p>
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<h3 class="panel-title">{% trans "Deadline deviations" %}</h3>
-	</div>
-	<div class="panel-body">
-		<a class="btn btn-success" href="{{ instance|url:'deviations-add-dl' }}">
-			{% trans "Add new deadline rule deviations" %}
-		</a>
 	</div>
 	<table class="table table-striped table-bordered table-condensed">
 		<tr>
@@ -34,7 +37,10 @@
 			<td>
 				<form method="post" action="{{ deviation|url:'deviations-remove-dl' }}">
 					{% csrf_token %}
-					<input type="submit" value="{% trans 'Remove' %}" class="btn btn-warning" />
+					<button type="submit" class="btn btn-default btn-xs">
+						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+						{% trans 'Remove' %}
+					</button>
 				</form>
 			</td>
 		</tr>

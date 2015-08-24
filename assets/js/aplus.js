@@ -3,7 +3,10 @@ $(function() {
     // Mark active menu based on body attribute data-view-tag.
     var tag = $("body").attr("data-view-tag");
     if (tag) {
-        $(".menu-" + tag).addClass("active");
+        var entries = tag.split(",");
+        for (var i = 0; i < entries.length; i++) {
+            $(".menu-" + entries[i]).addClass("active");
+        }
     }
 
     $('[data-toggle="tooltip"]').tooltip();
