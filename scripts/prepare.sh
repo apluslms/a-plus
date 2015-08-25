@@ -109,10 +109,10 @@ function copy_paths
 	done
 }
 
-list=("$CPE")
+list=($CPE)
 copy_paths $ROOT/exercises/$COURSE/ $DIR/
 
-list=("$CP")
+list=($CP)
 copy_paths $DIR/ $DIR/
 
 list=("$MV")
