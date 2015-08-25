@@ -7,8 +7,11 @@ from . import views
 MODEL_URL_PREFIX = EDIT_URL_PREFIX + r'(?P<model>[\w\d\-]+)/'
 
 urlpatterns = [
+    url(EDIT_URL_PREFIX + r'course/$',
+        views.EditInstanceView.as_view(),
+        name='course-details'),
     url(EDIT_URL_PREFIX + r'$',
-        views.EditCourseView.as_view(),
+        views.EditContentView.as_view(),
         name='course-edit'),
     url(MODEL_URL_PREFIX + r'add/$',
         views.ModelEditView.as_view(),
@@ -25,4 +28,10 @@ urlpatterns = [
     url(MODEL_URL_PREFIX + r'(?P<id>\d+)/delete/$',
         views.ModelDeleteView.as_view(),
         name='model-remove'),
+    url(EDIT_URL_PREFIX + r'batch-assess/$',
+        views.BatchCreateSubmissionsView.as_view(),
+        name='batch-assess'),
+    url(EDIT_URL_PREFIX + r'course/clone/$',
+        views.CloneInstanceView.as_view(),
+        name='course-clone'),
 ]

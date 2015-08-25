@@ -3,7 +3,7 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block title %}{{ block.super}} / {% if object.id %}{% blocktrans with model=model_name id=object.id %}Edit {{ model }} ID {{ id }}{% endblocktrans %}{% else %}{% blocktrans with model=model_name %}Add new {{ model }}{% endblocktrans %}{% endif %}{% endblock %}
+{% block edittitle %}{% if object.id %}{% blocktrans with model=model_name id=object.id %}Edit {{ model }} ID {{ id }}{% endblocktrans %}{% else %}{% blocktrans with model=model_name %}Add new {{ model }}{% endblocktrans %}{% endif %}{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
@@ -21,6 +21,7 @@
 {% endblock %}
 
 {% block coursecontent %}
+<br />
 <form method="post" class="well form-horizontal"{% if form.multipart %} enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
 

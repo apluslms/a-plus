@@ -2,8 +2,8 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super}}: {% trans "Edit course" %}{% endblock %}
-{% block view_tag %}edit-course{% endblock %}
+{% block title %}{{ block.super}}: {% block edittitle %}{% trans "Edit course" %}{% endblock %}{% endblock %}
+{% block view_tag %}edit-course,edit-content{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
@@ -14,6 +14,30 @@
 
 {% block columns %}
 <div class="col-md-12">
+
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="menu-course-details">
+            <a href="{{ instance|url:'course-details' }}">
+                {% trans "Course" %}
+            </a>
+        </li>
+        <li role="presentation" class="menu-edit-content">
+        	<a href="{{ instance|url:'course-edit' }}">
+                {% trans "Content" %}
+            </a>
+        </li>
+        <li role="presentation" class="menu-deviations">
+            <a href="{{ instance|url:'deviations-list-dl' }}">
+                {% trans "Deviations" %}
+            </a>
+        </li>
+        <li role="presentation" class="menu-batch-assess">
+            <a href="{{ instance|url:'batch-assess' }}">
+                {% trans "Batch assess" %}
+            </a>
+        </li>
+    </ul>
+
     {% block coursecontent %}{% endblock %}
 </div>
 {% endblock %}

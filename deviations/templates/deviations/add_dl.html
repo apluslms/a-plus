@@ -3,15 +3,17 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block title %}{{ block.super }} / {% trans "Add deadline deviations" %}{% endblock %}
+{% block edittitle %}{% trans "Add deadline deviations" %}{% endblock %}
+{% block view_tag %}edit-course,deviations{% endblock %}
 
-{% block breadcrumb %}
+{% block editbreadcrumblist %}
 {{ block.super }}
 <li><a href="{{ instance|url:'deviations-list-dl' }}">{% trans "List deadline deviations" %}</a></li>
 <li class="active">{% trans "Add new deadline deviations" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
+<br/>
 <form method="post" class="well form-horizontal">
     {% csrf_token %}
     <legend>{% trans "Add deadline deviations" %}</legend>
