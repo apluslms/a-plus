@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block coursecontent %}
-<p>
+<br/>
 <form method="post" class="well form-horizontal">
     {% csrf_token %}
     <legend>{% trans "Add deadline deviations" %}</legend>
@@ -25,5 +25,4 @@
         </div>
     </div>
 </form>
-</p>
 {% endblock %}
