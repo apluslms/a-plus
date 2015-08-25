@@ -89,14 +89,3 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
                 _("Use students or students_by_student_id but not both"))
 
         return self.cleaned_data
-
-
-class BatchSubmissionCreateAndReviewForm(SubmissionCreateAndReviewForm):
-
-    grader = forms.ModelChoiceField(queryset=UserProfile.objects.none())
-
-    def __init__(self, *args, **kwargs):
-        super(BatchSubmissionCreateAndReviewForm, self) \
-            .__init__(*args, **kwargs)
-        self.fields["grader"].queryset = \
-            self.exercise.course_instance.get_course_staff_profiles()

@@ -55,10 +55,10 @@
 }
 </pre>
        {% endblocktrans %}
-        <form method="post" action="{{ instance|url:'batch-assess' }}">
+        <form method="post">
         	{% csrf_token %}
             <div class="form-group">
-                <textarea name="submissions_json"></textarea>
+                <textarea name="submissions_json" style="width:100%;height:10em;"></textarea>
             </div>
             <button type="submit" class="btn btn-primary">
                 {% trans "Submit" %}

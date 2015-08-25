@@ -59,7 +59,4 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'fetch-metadata/$',
         staff_views.FetchMetadataView.as_view(),
         name="exercise-metadata"),
-    url(EDIT_URL_PREFIX + r'batch_create_and_assess/$',
-        staff_views.BatchCreateSubmissionsView.as_view(),
-        name="batch-assess"),
 ]

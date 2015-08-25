@@ -16,6 +16,11 @@
 <div class="col-md-12">
 
     <ul class="nav nav-tabs">
+        <li role="presentation" class="menu-course-details">
+            <a href="{{ instance|url:'course-details' }}">
+                {% trans "Course" %}
+            </a>
+        </li>
         <li role="presentation" class="menu-edit-content">
         	<a href="{{ instance|url:'course-edit' }}">
                 {% trans "Content" %}
@@ -27,17 +32,10 @@
             </a>
         </li>
         <li role="presentation" class="menu-batch-assess">
-            <a href="{{ instance|url:'batch-assess-form' }}">
+            <a href="{{ instance|url:'batch-assess' }}">
                 {% trans "Batch assess" %}
             </a>
         </li>
-        {% comment %}
-        <li role="presentation" class="menu-clone-instant">
-            <a href="{{ instance|url:'course-edit' }}">
-                {% trans "Clone" %}
-            </a>
-        </li>
-        {% endcomment %}
     </ul>
 
     {% block coursecontent %}{% endblock %}

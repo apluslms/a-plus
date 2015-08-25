@@ -9,17 +9,15 @@ class DeadlineRuleDeviationForm(forms.Form):
 
     exercise = forms.ModelMultipleChoiceField(
         queryset=BaseExercise.objects.none(),
-        help_text=_("Hold down 'Control', or 'Command' on a Mac, to select more than one exercise.")
     )
     submitter = forms.ModelMultipleChoiceField(
         queryset=UserProfile.objects.none(),
-        help_text=_("Hold down 'Control', or 'Command' on a Mac, to select more than one student.")
     )
     minutes = forms.IntegerField(
         min_value=1,
         help_text=_("Amount of extra time given in minutes."),
     )
-    
+
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.pop('instance')
         super(DeadlineRuleDeviationForm, self).__init__(*args, **kwargs)

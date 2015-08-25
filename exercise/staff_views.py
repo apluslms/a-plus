@@ -9,14 +9,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
-from lib.helpers import extract_form_errors
 from lib.viewbase import BaseRedirectView, BaseFormView
 from notification.models import Notification
 from userprofile.viewbase import ACCESS
 from .models import BaseExercise
 from .presentation.results import ResultTable
-from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm, \
-    BatchSubmissionCreateAndReviewForm
+from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm
 from .submission_models import Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, \
     ExerciseMixin
@@ -170,82 +168,10 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
         sub.set_points(form.cleaned_data.get("points"),
             self.exercise.max_points, no_penalties=True)
         sub.submission_time = form.cleaned_data.get("submission_time")
+        sub.grader = self.profile
         sub.grading_time = timezone.now()
         sub.set_ready()
         sub.save()
 
         messages.success(request, _("New submission stored."))
         return self.redirect(sub.get_absolute_url())
-
-
-class BatchCreateSubmissionsView(CourseInstanceMixin, BaseRedirectView):
-    access_mode = ACCESS.TEACHER
-
-    def post(self, request, *args, **kwargs):
-        self.handle()
-        self.error = False
-        try:
-            submissions_json = json.loads(
-                request.POST.get("submissions_json", "{}"))
-        except Exception as e:
-            logger.exception(
-                "Failed to parse submission batch JSON from user: %s",
-                request.user.username)
-            self.set_error(
-                _("Failed to parse the JSON: {error}"),
-                error=str(e))
-        if not self.error and not "objects" in submissions_json:
-            self.set_error(_('Missing JSON field: objects'))
-
-        validated_forms = []
-        if not self.error:
-            count = 0
-            for submission_json in submissions_json["objects"]:
-                count += 1
-                if not "exercise_id" in submission_json:
-                    self.set_error(
-                        _('Missing field "exercise_id" in object {count:d}.'),
-                        count=count)
-                    continue
-
-                exercise = BaseExercise.objects.filter(
-                    id=submission_json["exercise_id"],
-                    course_module__course_instance=self.instance).first()
-                if not exercise:
-                    self.set_error(
-                        _('Unknown exercise_id {id} in object {count:d}.'),
-                        count=count,
-                        id=submission_json["exercise_id"])
-                    continue
-
-                # Use form to parse and validate object data.
-                form = BatchSubmissionCreateAndReviewForm(submission_json,
-                    exercise=exercise)
-                if form.is_valid():
-                    validated_forms.append(form)
-                else:
-                    self.set_error(
-                        _('Invalid fields in object {count:d}: {error}'),
-                        count=count,
-                        error="\n".join(extract_form_errors(form)))
-
-        if not self.error:
-            for form in validated_forms:
-                sub = Submission.objects.create(exercise=form.exercise)
-                sub.submitters = form.cleaned_data.get("students") \
-                    or form.cleaned_data.get("students_by_student_id")
-                sub.feedback = form.cleaned_data.get("feedback")
-                sub.set_points(form.cleaned_data.get("points"),
-                    sub.exercise.max_points, no_penalties=True)
-                sub.submission_time = form.cleaned_data.get("submission_time")
-                sub.grading_time = timezone.now()
-                sub.grader = form.cleaned_data.get("grader") or self.profile
-                sub.set_ready()
-                sub.save()
-            messages.success(request, _("New submissions stored."))
-
-        return self.redirect(self.instance.get_url('batch-assess-form'))
-
-    def set_error(self, text, **kwargs):
-        messages.error(self.request, text.format(**kwargs))
-        self.error = True
