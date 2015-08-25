@@ -72,6 +72,7 @@ def summary_points(summary, classes=None):
         "required": summary.get_required_points(),
         "missing_points": summary.is_missing_points(),
         "passed": summary.is_passed(),
+        "full_score": summary.get_total_points() >= summary.get_max_points(),
         "submitted": summary.is_submitted(),
     }
 
@@ -87,6 +88,7 @@ def submission_points(submission, classes=None):
         "required": exercise.points_to_pass,
         "missing_points": not passed,
         "passed": passed,
+        "full_score": submission.grade >= exercise.max_points,
         "submitted": True,
         "status": False if submission.is_graded() else submission.status
     }
