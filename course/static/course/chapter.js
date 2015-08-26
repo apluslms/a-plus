@@ -51,6 +51,7 @@
 				element.find(this.settings.modal_content_selector)
 					.empty().load(sourceURL, function() {
 						element.modal("show");
+						element.find('.file-modal').aplusFileModal();
 					});
 			}
 		},
