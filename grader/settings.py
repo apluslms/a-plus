@@ -72,6 +72,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+LOCALE_PATHS = (os.path.join(BASE_DIR, 'locale'),)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
@@ -80,6 +81,7 @@ STATIC_URL = '/static/'
 #
 # Celery task queue settings:
 #
+# TODO: setting broker to false -> grade without queue?
 CELERY_BROKER = 'amqp://guest@localhost//'
 CELERY_TASK_LIMIT_SEC = 2 * 60
 CELERY_TASK_KILL_SEC = CELERY_TASK_LIMIT_SEC + 5
