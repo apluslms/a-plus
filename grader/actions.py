@@ -103,7 +103,7 @@ def timeout(course, exercise, action, submission_dir):
     FOR DEBUG: Sleeps for a long time to test grading time out.
     '''
     import time
-    print "stdasync.timeoutAction: Sleeping and blocking queue for testing purposes."
+    print("stdasync.timeoutAction: Sleeping and blocking queue for testing purposes.")
     time.sleep(15 * 60)
     return { "points": 10, "out": "Did not reach timeout, should not happen.", "err": "", "stop": True }
 

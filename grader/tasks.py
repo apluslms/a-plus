@@ -1,12 +1,13 @@
 '''
 An asychronous grading task that is queued and later run by queue workers.
 Requires running Celery which requires running broker e.g. RabbitMQ.
-
 '''
+import logging
+import os
 
 # Set Django configuration path for celeryd.
-import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grader.settings')
+
 
 from celery import Celery
 from celery.exceptions import SoftTimeLimitExceeded
@@ -15,8 +16,7 @@ from django.utils import translation
 from access.config import ConfigParser, ConfigError
 from grader.runactions import runactions
 from util.http import post_system_error, post_result
-from librabbitmq import Connection
-import logging
+
 
 # Check settings object and validate base dir.
 if len(settings.BASE_DIR) < 2:
@@ -82,10 +82,16 @@ def queue_length():
     @rtype: C{int}
     @return: a number of queued tasks
     '''
-    host = settings.CELERY_BROKER.split("//")[1].split("@")[1]
-    connection = Connection(host=host, userid="guest", password="guest", virtual_host="/")
-    channel = connection.channel()
-    name, jobs, consumers = channel.queue_declare(queue="celery", passive=True)
-    channel.close()
-    connection.close()
-    return jobs
+    if settings.CELERY_BROKER:
+        try:
+            from librabbitmq import Connection
+            host = settings.CELERY_BROKER.split("//")[1].split("@")[1]
+            connection = Connection(host=host, userid="guest", password="guest", virtual_host="/")
+            channel = connection.channel()
+            name, jobs, consumers = channel.queue_declare(queue="celery", passive=True)
+            channel.close()
+            connection.close()
+            return jobs
+        except ImportError:
+            LOGGER.exception("Failed to import librabbitmq module. Queue length is unknown.")
+    return 0

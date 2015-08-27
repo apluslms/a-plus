@@ -54,4 +54,4 @@ class Command(BaseCommand):
         # Run actions.
         r = runactions(course, exercise, sdir)
         self.stdout.write("Response body:")
-        self.stdout.write(template_to_str(course, exercise, r["template"], r["result"]))
+        self.stdout.write(template_to_str(course, exercise, "", r["template"], r["result"]))

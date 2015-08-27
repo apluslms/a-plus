@@ -81,8 +81,8 @@ STATIC_URL = '/static/'
 #
 # Celery task queue settings:
 #
-# TODO: setting broker to false -> grade without queue?
-CELERY_BROKER = 'amqp://guest@localhost//'
+CELERY_BROKER = False
+#CELERY_BROKER = 'amqp://guest@localhost//'
 CELERY_TASK_LIMIT_SEC = 2 * 60
 CELERY_TASK_KILL_SEC = CELERY_TASK_LIMIT_SEC + 5
 

@@ -9,7 +9,7 @@ import datetime, random, string, os, shutil
 def create_submission_dir(course, exercise):
     '''
     Creates a directory for a submission.
-    
+
     @type course: C{dict}
     @param course: a course configuration
     @type exercise: C{dict}
@@ -20,7 +20,7 @@ def create_submission_dir(course, exercise):
 
     # Create a unique directory name for the submission.
     r = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-    r.join([random.choice(string.letters) for _ in xrange(10)])
+    r.join([random.choice(string.ascii_letters) for _ in range(10)])
     submission_dir = os.path.join(settings.SUBMISSION_PATH, course["key"], exercise["key"], r)
 
     # Create empty directory.
@@ -33,7 +33,7 @@ def create_submission_dir(course, exercise):
 def clean_submission_dir(submission_dir):
     '''
     Cleans a submission directory after grading.
-    
+
     @type submission_dir: C{str}
     @param submission_dir: directory path
     '''
@@ -44,7 +44,7 @@ def clean_submission_dir(submission_dir):
 def save_submitted_file(submission_dir, file_name, post_file):
     '''
     Saves a submitted file to a submission directory.
-    
+
     @type submission_dir: C{str}
     @param submission_dir: directory path
     @type file_name: C{str}
@@ -62,7 +62,7 @@ def save_submitted_file(submission_dir, file_name, post_file):
 def write_submission_file(submission_dir, file_name, content):
     '''
     Writes a submission file to a submission directory.
-    
+
     @type submission_dir: C{str}
     @param submission_dir: directory path
     @type file_name: C{str}
@@ -79,7 +79,7 @@ def write_submission_file(submission_dir, file_name, content):
 def submission_file_path(submission_dir, file_name):
     '''
     Creates a submission file path.
-    
+
     @type submission_dir: C{str}
     @param submission_dir: directory path
     @type file_name: C{str}
@@ -99,7 +99,7 @@ def submission_file_path(submission_dir, file_name):
 def is_safe_file_name(file_name):
     '''
     Checks that a file name is safe for concatenating to some path.
-    
+
     @type file_name: C{str}
     @param file_name: a file name
     '''

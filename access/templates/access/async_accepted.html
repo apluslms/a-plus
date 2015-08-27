@@ -2,7 +2,18 @@
 {% load i18n %}
 
 {% block exercise %}
+{% if result.points %}
+<div class="alert alert-danger">
+	{% blocktrans %}
+	The grading queue is not configured. This submission was graded
+	synchronously while blocking other services. NOT READY FOR PRODUCTION!
+	{% endblocktrans %}
+</div>
+<div id="feedback">
+	{{ result.feedback }}
+</div>
 
+{% else %}
 <h1>{% trans "Submission accepted" %}</h1>
 
 {% if result.missing_url %}
@@ -31,5 +42,5 @@
 		{% endif %}
 	</p>
 </div>
-
+{% endif %}
 {% endblock %}

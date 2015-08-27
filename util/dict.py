@@ -35,7 +35,7 @@ def iterate_kvp_with_dfs(node, key_regex=None):
                 yield sub_key, sub_value, sub_node
 
         # Yield matching key-value-parent tuples.
-        if key_regex.match(unicode(child_key)):
+        if key_regex.match(str(child_key)):
             yield child_key, child_value, node
 
 

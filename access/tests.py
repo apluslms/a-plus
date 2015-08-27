@@ -8,7 +8,7 @@ from access.config import ConfigParser
 from util.shell import invoke_script
 
 class ConfigTestCase(TestCase):
-    
+
 
     def setUp(self):
         '''
@@ -20,7 +20,7 @@ class ConfigTestCase(TestCase):
         '''
         '''
         from access.config import get_rst_as_html
-        print get_rst_as_html('A **foobar**.')
+        print(get_rst_as_html('A **foobar**.'))
         return
         import re
         from access.config import iterate_kvp_with_dfs
@@ -31,9 +31,9 @@ class ConfigTestCase(TestCase):
         rgx = re.compile(r'^(.+)\|(\w+)$')
         for k, v, p in iterate_kvp_with_dfs(data, key_regex=rgx):
             g = rgx.match(k).groups()
-            print '- %s: %s (%s)' % (k, v, g)
+            print('- %s: %s (%s)' % (k, v, g))
         self.config._process_data(data)
-        print data
+        print(data)
 
 
     def test_loading(self):
@@ -45,7 +45,7 @@ class ConfigTestCase(TestCase):
 
         root = self.config._course_root(course_key)
         ptime = root["ptime"]
-        
+
         # Ptime changes if cache is missed.
         root = self.config._course_root(course_key)
         self.assertEqual(ptime, root["ptime"])

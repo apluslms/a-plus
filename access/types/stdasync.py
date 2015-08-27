@@ -26,7 +26,8 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.utils import translation
 from grader import tasks
-from util.templates import render_configured_template, render_template
+from util.templates import render_configured_template, render_template, \
+    template_to_str
 from util.files import create_submission_dir, save_submitted_file, \
     clean_submission_dir, write_submission_file
 from .auth import detect_user, make_hash
@@ -192,17 +193,32 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     '''
     Queues the submission for grading.
     '''
-    # Determine submission URL for asynchronous response.
+
+    # Backup synchronous grading.
+    if not settings.CELERY_BROKER:
+        LOGGER.warning("No queue configured")
+        from grader.runactions import runactions
+        r = runactions(course, exercise, sdir)
+        html = template_to_str(course, exercise, "", r["template"], r["result"])
+        return render_template(request, course, exercise, post_url,
+            "access/async_accepted.html", {
+                "accepted": True,
+                "max_points": r["result"].get("max_points", 1),
+                "points": r["result"].get("points", 0),
+                "feedback": html,
+            })
+
     if "submission_url" in request.GET:
         surl = request.GET["submission_url"]
         surl_missing = False
     else:
-        LOGGER.warning("submission_url missing from a request, responding to null view")
+        LOGGER.warning("submission_url missing from a request")
         surl = request.build_absolute_uri(reverse('access.views.null'))
         surl_missing = True
 
     # Queue grader.
-    tasks.grade.delay(course["key"], exercise["key"], translation.get_language(), surl, sdir)
+    tasks.grade.delay(course["key"], exercise["key"],
+        translation.get_language(), surl, sdir)
 
     _acceptSubmission.counter += 1
     qlen = tasks.queue_length()
@@ -218,5 +234,4 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
             "missing_url": surl_missing,
             "queue": qlen
         })
-
 _acceptSubmission.counter = 0

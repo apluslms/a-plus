@@ -13,7 +13,7 @@ LOGGER = logging.getLogger('main')
 def get_json(url):
     '''
     Gets URL response content.
-    
+
     @type url: C{str}
     @param url: an URL to get
     @rtype: C{str}
@@ -25,7 +25,7 @@ def get_json(url):
 def post_result(submission_url, course, exercise, template, result):
     '''
     Posts grading result to the submission URL.
-    
+
     @type submission_url: C{str}
     @param submission_url: a submission URL where grader should POST result
     @type course: C{dict}
@@ -44,7 +44,7 @@ def post_result(submission_url, course, exercise, template, result):
         html = html.encode("ascii", "xmlcharrefreplace")
 
     data = {
-        "max_points": max(result.get("max_points", exercise.get("max_points", 0)), 1),
+        "max_points": result.get("max_points", 1),
         "points": result.get("points", 0),
         "feedback": html
     }
@@ -69,7 +69,7 @@ def post_result(submission_url, course, exercise, template, result):
 def post_system_error(submission_url, course=None, exercise=None):
     '''
     Posts report on detected system error to the submission URL.
-    
+
     @type submission_url: C{str}
     @param submission_url: a submission URL where grader should POST result
     @type course: C{dict}
