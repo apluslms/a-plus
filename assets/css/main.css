@@ -21,6 +21,20 @@ dl > dt {
     margin-top: 10px;
     margin-bottom: 0;
 }
+.hljs {
+    padding: 0;
+}
+table.src tr td.num {
+    color: #ccc;
+    background: #fff;
+    border-right: 1px solid #ccc;
+    vertical-align: top;
+    padding:0 0.4em;
+}
+table.src tr td.src {
+    white-space: normal;
+    padding:0 0.4em;
+}
 
 /* site footer */
 html, body {

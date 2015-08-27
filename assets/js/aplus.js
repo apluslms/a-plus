@@ -44,8 +44,19 @@ $(function() {
                     var text = $("<pre/>").text(data);
                     modal.find(settings.title_selector).text(link.text());
                     modal.find(settings.content_selector).html(text);
-        			modal.modal("show");
                     hljs.highlightBlock(text[0]);
+
+                    // Add line numbers.
+                    var lines = text.html().split(/\r\n|\r|\n/g);
+                    var list = $("<table/>").addClass("src");
+                    for (var i = 1; i <= lines.length; i++) {
+                        if (lines[i] !== undefined) {
+                            list.append('<tr><td class="num">' + i + '</td><td class="src">' + lines[i] + '</td></tr>');
+                        }
+                    }
+                    text.html(list);
+
+        			modal.modal("show");
                 });
             });
         }
