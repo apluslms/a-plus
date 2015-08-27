@@ -12,30 +12,28 @@ Functions take arguments:
     @param course: a course configuration
     @type exercise: C{dict}
     @param exercise: an exercise configuration
-    @type user: C{str}
-    @param user: None or a user id to direct grading
+    @type post_url: C{str}
+    @param post_url: the exercise post URL
     @rtype: C{django.http.response.HttpResponse}
-    @return: a response    
+    @return: a response
 
 '''
 from util.templates import render_configured_template
-from access.config import ConfigError
-from access.types.forms import GradedForm
-from access.types.stdasync import _authHash, _aplusStudent
+from .forms import GradedForm
+from .auth import detect_user, make_hash
+from ..config import ConfigError
 
 
-def noGrading(request, course, exercise, user):
+def noGrading(request, course, exercise, post_url):
     '''
     Presents a template and does no grading.
-    
     '''
-    return render_configured_template(request, course, exercise, None, None);
+    return render_configured_template(request, course, exercise, post_url, None, None);
 
 
-def comparePostValues(request, course, exercise, user):
+def comparePostValues(request, course, exercise, post_url):
     '''
     Presents a template and grades configured POST values.
-    
     '''
     result = None
 
@@ -43,12 +41,12 @@ def comparePostValues(request, course, exercise, user):
         raise ConfigError("Missing required \"max_points\" in exercise configuration")
 
     if request.method == "POST":
-        
+
         if "values" in exercise:
             received = {}
             points = 0
             failed = []
-            
+
             # Check each POST value against the rule.
             for (name, rule) in exercise["values"].iteritems():
                 received[name] = request.POST.get(name, False)
@@ -59,63 +57,59 @@ def comparePostValues(request, course, exercise, user):
                             points += rule["points"]
                     else:
                         failed.append(name)
-            
+
             # If points are not granted by rules.
             if points == 0 and not failed:
                 points = exercise["max_points"]
 
             points = pointsInRange(points, exercise["max_points"])
-            result = { "accepted": True, "received": received, "points": points, "failed": failed }
+            result = { "accepted": True, "received": received,
+                "points": points, "failed": failed }
         else:
             result = { "accepted": True, "points": 0 }
 
-    return render_configured_template(request, course, exercise, None, result)
+    return render_configured_template(request, course, exercise, post_url, None, result)
 
 
-def createForm(request, course, exercise, user):
+def createForm(request, course, exercise, post_url):
     '''
     Creates form by configuration and grades answers.
-    
     '''
     if "max_points" not in exercise:
         raise ConfigError("Missing required \"max_points\" in exercise configuration")
-    
+
     form = GradedForm(request.POST or None, exercise=exercise)
     result = { "form": form }
-    
+
     # Grade valid form posts.
     if form.is_valid():
         (points, error_groups, error_fields) = form.grade()
         points = pointsInRange(points, exercise["max_points"])
-        
+
         # If points are not granted by form fields.
         if points == 0 and not error_fields:
             points = exercise["max_points"]
-        
-        result = { "form": form, "accepted": True, "points": points, "error_groups": error_groups, "error_fields": error_fields }
-    
-    # Fix action URL for A+ feedback
-    if request.method == "POST" and "post_url" in request.GET:
-        result["fix_url"] = request.GET["post_url"]
 
-    return render_configured_template(request, course, exercise, 'access/create_form_default.html', result)
+        result = { "form": form, "accepted": True, "points": points,
+            "error_groups": error_groups, "error_fields": error_fields }
+
+    return render_configured_template(request, course, exercise, post_url,
+        'access/create_form_default.html', result)
 
 
-def md5Authentication(request, course, exercise, user):
+def md5Authentication(request, course, exercise, post_url):
     '''
     Creates an md5 hash for user authentication.
-    
     '''
-    if user is None:
-        user = _aplusStudent(request)
-    return render_configured_template(request, course, exercise, None,
-        { "user": user, "hash": _authHash(exercise["auth_secret"], user) })
+    user = detect_user(request)
+    key = make_hash(exercise["auth_secret"], user)
+    return render_configured_template(request, course, exercise, post_url,
+        None, { "user": user, "hash": key })
 
 
 def pointsInRange(points, max_points):
     '''
     Check the points is in range.
-    
     '''
     if points > max_points:
         return max_points

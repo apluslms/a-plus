@@ -1,7 +1,7 @@
 {% extends 'access/exercise_frame.html' %}
 
 {% block exercise %}
-
+{% if not result.error %}
 {% if exercise.instructions %}
 <div class="instructions">
   {{ exercise.instructions|safe }}
@@ -9,5 +9,5 @@
 {% endif %}
 
 {% include 'access/accept_git_form.html' %}
-
+{% endif %}
 {% endblock %}

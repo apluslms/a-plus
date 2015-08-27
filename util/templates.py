@@ -7,7 +7,7 @@ from django.shortcuts import render
 from access.config import ConfigError
 
 
-def render_configured_template(request, course, exercise, default=None, result=None):
+def render_configured_template(request, course, exercise, post_url, default=None, result=None):
     '''
     Renders a configured or optional default template.
 
@@ -17,6 +17,8 @@ def render_configured_template(request, course, exercise, default=None, result=N
     @param course: a course configuration
     @type exercise: C{dict}
     @param exercise: an exercise configuration
+    @type post_url: C{str}
+    @param post_url: the post URL for the exercise
     @type default: C{str}
     @param default: a default template name to use if not configured
     @type result: C{dict}
@@ -31,10 +33,10 @@ def render_configured_template(request, course, exercise, default=None, result=N
         template = default
     else:
         raise ConfigError("Missing \"template\" in exercise configuration.")
-    return render_template(request, course, exercise, template, result)
+    return render_template(request, course, exercise, post_url, template, result)
 
 
-def render_template(request, course, exercise, template, result=None):
+def render_template(request, course, exercise, post_url, template, result=None):
     '''
     Renders a template.
 
@@ -44,6 +46,8 @@ def render_template(request, course, exercise, template, result=None):
     @param course: a course configuration
     @type exercise: C{dict}
     @param exercise: an exercise configuration
+    @type post_url: C{str}
+    @param post_url: the post URL for the exercise
     @type template: C{str}
     @param template: a template name to use
     @type result: C{dict}
@@ -51,10 +55,11 @@ def render_template(request, course, exercise, template, result=None):
     @rtype: C{django.http.response.HttpResponse}
     @return: a response
     '''
-    return render(request, template, _exercise_context(course, exercise, result))
+    return render(request, template,
+        _exercise_context(course, exercise, post_url, result))
 
 
-def template_to_str(course, exercise, template, result=None):
+def template_to_str(course, exercise, post_url, template, result=None):
     '''
     Renders a template to text string.
 
@@ -62,6 +67,8 @@ def template_to_str(course, exercise, template, result=None):
     @param course: a course configuration
     @type exercise: C{dict}
     @param exercise: an exercise configuration
+    @type post_url: C{str}
+    @param post_url: the post URL for the exercise
     @type template: C{str}
     @param template: a template name to use
     @type result: C{dict}
@@ -70,8 +77,14 @@ def template_to_str(course, exercise, template, result=None):
     @return: rendered template content
     '''
     tpl = loader.get_template(template)
-    return tpl.render(Context(_exercise_context(course, exercise, result)))
+    return tpl.render(Context(
+        _exercise_context(course, exercise, post_url, result)))
 
 
-def _exercise_context(course, exercise, result=None):
-    return { "course": course, "exercise": exercise, "result": result }
+def _exercise_context(course, exercise, post_url, result=None):
+    return {
+        "course": course,
+        "exercise": exercise,
+        "post_url": post_url or "",
+        "result": result,
+    }

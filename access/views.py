@@ -70,15 +70,15 @@ def exercise(request, course_key, exercise_key):
     @rtype: C{django.http.response.HttpResponse}
     @return: a response
     '''
-    # Fetch the language and user parameters if given.
-    lang = request.REQUEST.get('lang', None)
-    user = request.REQUEST.get('user', None)
+    post_url = request.GET.get('post_url', None)
+    lang = request.GET.get('lang', None)
 
     # Fetch the corresponding exercise entry from the config.
     (course, exercise) = config.exercise_entry(course_key, exercise_key, lang=lang)
     if course is None or exercise is None:
         raise Http404()
 
+    # Exercise language.
     if not lang:
         if "lang" in course:
             lang = course["lang"]
@@ -92,7 +92,7 @@ def exercise(request, course_key, exercise_key):
         exview = import_by_path(exercise["view_type"])
     except ImproperlyConfigured as e:
         raise ConfigError("Invalid \"view_type\" in exercise configuration.", e)
-    return exview(request, course, exercise, user)
+    return exview(request, course, exercise, post_url)
 
 
 def pull_request(request):

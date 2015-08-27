@@ -1,5 +1,5 @@
 {% load i18n %}
-<form method="post" action="#">
+<form method="post" action="{{ post_url }}">
 	<div class="form-group">
 		<label for="git_id">
 			<strong>{% trans "Enter your Git repository address for grading" %}</strong>
@@ -11,7 +11,9 @@
 		</p>
 		{% endif %}
 	</div>
+	{% if post_url or not result.accepted %}
 	<div class="form-group">
 		<input type="submit" id="git_submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
 	</div>
+	{% endif %}
 </form>

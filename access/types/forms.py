@@ -1,9 +1,11 @@
+import re
+
 from django import forms
-from access.config import ConfigError
 from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Textarea
 from django.utils.safestring import mark_safe
 from util.templates import template_to_str
-import re
+from ..config import ConfigError
+
 
 class GradedForm(forms.Form):
     '''

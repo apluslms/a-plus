@@ -13,30 +13,31 @@ Functions take arguments:
     @param course: a course configuration
     @type exercise: C{dict}
     @param exercise: an exercise configuration
-    @type user: C{str}
-    @param user: None or a user id to direct grading
+    @type post_url: C{str}
+    @param post_url: the exercise post URL
     @rtype: C{django.http.response.HttpResponse}
     @return: a response
 
 '''
+import logging
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.utils import translation
 from grader import tasks
-from access.config import ConfigError
 from util.templates import render_configured_template, render_template
 from util.files import create_submission_dir, save_submitted_file, \
     clean_submission_dir, write_submission_file
-import logging
+from .auth import detect_user, make_hash
+from ..config import ConfigError
 
 LOGGER = logging.getLogger('main')
 
 
-def acceptFiles(request, course, exercise, user):
+def acceptFiles(request, course, exercise, post_url):
     '''
     Presents a template and accepts files for grading queue.
-
     '''
     _requireActions(exercise)
     result = None
@@ -55,16 +56,15 @@ def acceptFiles(request, course, exercise, user):
             sdir = create_submission_dir(course, exercise)
             for entry in exercise["files"]:
                 save_submitted_file(sdir, entry["name"], request.FILES[entry["field"]])
-            return _acceptSubmission(request, course, exercise, sdir)
+            return _acceptSubmission(request, course, exercise, post_url, sdir)
 
-    return render_configured_template(request, course, exercise, "access/accept_files_default.html",
-                                      result)
+    return render_configured_template(request, course, exercise, post_url,
+        "access/accept_files_default.html", result)
 
 
-def acceptAttachedExercise(request, course, exercise, user):
+def acceptAttachedExercise(request, course, exercise, post_url):
     '''
     Accepts attached exercise rules and user files for queue.
-
     '''
     _requireActions(exercise)
     result = None
@@ -100,7 +100,7 @@ def acceptAttachedExercise(request, course, exercise, user):
                     save_submitted_file(sdir, "exercise_attachment", content)
                 i += 1
             if result is None:
-                return _acceptSubmission(request, course, exercise, sdir)
+                return _acceptSubmission(request, course, exercise, post_url, sdir)
 
     # Add the attachment as a hint to the default view form.
     if result is None:
@@ -108,14 +108,13 @@ def acceptAttachedExercise(request, course, exercise, user):
         exercise = copy.deepcopy(exercise)
         exercise["files"] = [ { "field": "content_0", "name": "exercise_attachment" } ]
 
-    return render_configured_template(request, course, exercise,
-                                      "access/accept_files_default.html", result)
+    return render_configured_template(request, course, exercise, post_url,
+        "access/accept_files_default.html", result)
 
 
-def acceptGitAddress(request, course, exercise, user):
+def acceptGitAddress(request, course, exercise, post_url):
     '''
     Presents a template and accepts Git URL for grading.
-
     '''
     _requireActions(exercise)
     result = None
@@ -147,53 +146,51 @@ def acceptGitAddress(request, course, exercise, user):
         if result is None:
             sdir = create_submission_dir(course, exercise)
             write_submission_file(sdir, "gitsource", source)
-            return _acceptSubmission(request, course, exercise, sdir)
+            return _acceptSubmission(request, course, exercise, post_url, sdir)
 
-    return render_configured_template(request, course, exercise, "access/accept_git_default.html",
-                                      result)
+    return render_configured_template(request, course, exercise, post_url,
+        "access/accept_git_default.html", result)
 
 
-def acceptGitUser(request, course, exercise, user):
+def acceptGitUser(request, course, exercise, post_url):
     '''
     Presents a template and expects a user id to create Git URL for grading.
-
     '''
+    auth_secret = "*AYVhD'b5,hKzf/6"
+
     _requireActions(exercise)
     if not "git_address" in exercise:
         raise  ConfigError("Missing \"git_address\" in exercise configuration.")
 
-    # Try to find A+ user id.
-    auth_secret = "*AYVhD'b5,hKzf/6"
-    if user is None:
-        user = _aplusStudent(request)
-
+    user = detect_user(request)
     if request.method == "POST":
         if user is None and "user" in request.POST and "hash" in request.POST:
             user = request.POST["user"]
-            if _authHash(auth_secret, user) != request.POST["hash"]:
+            if make_hash(auth_secret, user) != request.POST["hash"]:
                 raise PermissionDenied()
-        source = exercise["git_address"].replace("$USER", user.strip())
+        source = exercise["git_address"].replace("$USER", user)
         sdir = create_submission_dir(course, exercise)
         write_submission_file(sdir, "gitsource", source)
-        return _acceptSubmission(request, course, exercise, sdir)
+        return _acceptSubmission(request, course, exercise, post_url, sdir)
 
-    return render_configured_template(request, course, exercise, "access/accept_git_user.html",
-        { "user": user, "hash": _authHash(auth_secret, user) })
+    return render_configured_template(request, course, exercise, post_url,
+        "access/accept_git_user.html", {
+            "user": user,
+            "hash": make_hash(auth_secret, user)
+        })
 
 
 def _requireActions(exercise):
     '''
     Checks that some actions are set.
-
     '''
     if "actions" not in exercise or len(exercise["actions"]) == 0:
         raise ConfigError("Missing \"actions\" in exercise configuration.")
 
 
-def _acceptSubmission(request, course, exercise, sdir):
+def _acceptSubmission(request, course, exercise, post_url, sdir):
     '''
     Queues the submission for grading.
-
     '''
     # Determine submission URL for asynchronous response.
     if "submission_url" in request.GET:
@@ -210,30 +207,16 @@ def _acceptSubmission(request, course, exercise, sdir):
     _acceptSubmission.counter += 1
     qlen = tasks.queue_length()
     LOGGER.debug("Submission of %s/%s, queue counter %d, queue length %d",
-                  course["key"], exercise["key"], _acceptSubmission.counter, qlen)
+        course["key"], exercise["key"], _acceptSubmission.counter, qlen)
     if qlen >= settings.QUEUE_ALERT_LENGTH:
         LOGGER.error("Queue alert, length: %d", qlen)
 
-    return render_template(request, course, exercise, "access/async_accepted.html", {
-        "accepted": True,
-        "wait": True,
-        "missing_url": surl_missing,
-        "queue": qlen
-    })
+    return render_template(request, course, exercise, post_url,
+        "access/async_accepted.html", {
+            "accepted": True,
+            "wait": True,
+            "missing_url": surl_missing,
+            "queue": qlen
+        })
 
 _acceptSubmission.counter = 0
-
-
-def _aplusStudent(request):
-    if "submission_url" in request.GET:
-        parts = request.GET["submission_url"].partition("/exercise/rest/")[2].split("/")
-        if len(parts) > 4 and parts[2] == "students":
-            return parts[3]
-    return None
-
-
-def _authHash(secret, user):
-    if user is not None:
-        from hashlib import md5
-        return md5(secret + user).hexdigest()
-    return None
