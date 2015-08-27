@@ -66,6 +66,7 @@ class ConfigParser:
         # Find all courses if exercises directory is modified.
         t = os.path.getmtime(DIR)
         if self._dir_mtime < t:
+            self._courses.clear()
             self._dir_mtime = t
             LOGGER.debug('Recreating course list.')
             for item in os.listdir(DIR):
