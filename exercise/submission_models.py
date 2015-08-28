@@ -236,7 +236,7 @@ def build_upload_dir(instance, filename):
     submission = instance.submission
     exercise = submission.exercise
     submitter_ids = [str(profile.id) for profile in submission.submitters.all().order_by("id")]
-    return "submissions/course_instance_{:d}/exercise_{:d}/users_{}/submission_{:d}/{}".format(
+    return "course_instance_{:d}/submissions/exercise_{:d}/users_{}/submission_{:d}/{}".format(
         exercise.course_instance.id,
         exercise.id,
         "-".join(submitter_ids),

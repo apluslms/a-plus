@@ -11,7 +11,7 @@
 
 {% block coursecontent %}
 <br />
-<form method="post" class="well">
+<form method="post" enctype="multipart/form-data" class="well">
     {% csrf_token %}
     <legend>{% trans "Course details" %}</legend>
     {{ form|bootstrap }}

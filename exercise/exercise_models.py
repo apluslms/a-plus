@@ -309,7 +309,7 @@ def build_upload_dir(instance, filename):
     @param filename: the actual name of the submitted file
     @return: a path where the file should be stored, relative to MEDIA_ROOT directory
     """
-    return "exercise_attachments/course_instance_{:d}/exercise_{:d}/{}".format(
+    return "course_instance_{:d}/exercise_attachment_{:d}/{}".format(
         instance.course_instance.id,
         instance.id,
         safe_file_name(filename)

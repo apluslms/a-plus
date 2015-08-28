@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 
@@ -23,3 +24,8 @@ urlpatterns = [
     url(r'^', include(exercise.urls)),
     url(r'^', include(course.urls)),
 ]
+
+if settings.DEBUG:
+    import django.views.static
+    urlpatterns.insert(0, url(r'^media/(?P<path>.*)$', django.views.static.serve,
+        { 'document_root': settings.MEDIA_ROOT }))

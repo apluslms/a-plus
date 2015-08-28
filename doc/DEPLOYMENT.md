@@ -169,8 +169,13 @@ Walkthrough for Ubuntu on 6/2015
 			# Static files served by Apache.
 			Alias /static/ /home/[shell-username]/a-plus/static/
 			Alias /favicon.ico /home/[shell-username]/a-plus/static/favicons/favicon.ico
+			Alias /media/public/ /home/[shell-username]/a-plus/media/public/
 			<Directory /home/[shell-username]/a-plus/static/>
 				Options FollowSymLinks
+				Order allow,deny
+				Allow from all
+			</Directory>
+			<Directory /home/[shell-username]/a-plus/media/public/>
 				Order allow,deny
 				Allow from all
 			</Directory>

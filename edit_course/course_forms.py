@@ -75,6 +75,8 @@ class CourseInstanceForm(forms.ModelForm):
             'visible_to_students',
             'instance_name',
             'url',
+            'image',
+            'description',
             'starting_time',
             'ending_time',
             'assistants'
