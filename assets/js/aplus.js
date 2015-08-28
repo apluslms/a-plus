@@ -50,9 +50,7 @@ $(function() {
                     var lines = text.html().split(/\r\n|\r|\n/g);
                     var list = $("<table/>").addClass("src");
                     for (var i = 1; i <= lines.length; i++) {
-                        if (lines[i] !== undefined) {
-                            list.append('<tr><td class="num">' + i + '</td><td class="src">' + lines[i] + '</td></tr>');
-                        }
+                        list.append('<tr><td class="num">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
                     }
                     text.html(list);
 

@@ -32,7 +32,7 @@ table.src tr td.num {
     padding:0 0.4em;
 }
 table.src tr td.src {
-    white-space: normal;
+    white-space: pre-wrap;
     padding:0 0.4em;
 }
 
