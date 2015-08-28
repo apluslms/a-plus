@@ -37,7 +37,7 @@ def post_result(submission_url, course, exercise, template, result):
     @type result: C{dict}
     @param result: additional results
     '''
-    html = template_to_str(course, exercise, template, result)
+    html = template_to_str(course, exercise, None, template, result)
 
     # Make unicode results ascii.
     if isinstance(html, unicode):
@@ -77,5 +77,5 @@ def post_system_error(submission_url, course=None, exercise=None):
     @type exercise: C{dict}
     @param exercise: an exercise configuration
     '''
-    post_result(submission_url, course, exercise, "access/task_system_error.html",
-                { "error": True })
+    post_result(submission_url, course, exercise,
+        "access/task_system_error.html", { "error": True })
