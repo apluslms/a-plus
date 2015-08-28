@@ -7,7 +7,7 @@ Configuration is written as JSON or YAML in exercises-directory. Each subdirecto
 holding an `index.json` or `index.yaml` is a valid active course. It is recommended
 that each course is checkout as a submodule in the exercises-directory.
 
-	git submodule add (repository) exercises/(course_key)
+	git submodule add (course_repository_url) exercises/(course_key)
 
 The submodules will not be stored in the mooc-grader repository.
 

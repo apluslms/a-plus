@@ -106,8 +106,7 @@ Installing the full stack
 	Copies daemon configuration and script (configuration
 	depends on the grader directory). Registers daemon
 	for default run levels and starts it up. The **mooc-grader
-	directory must** be set in the `/etc/default/celeryd`.
-	If using virtualenv pay attention to celery path as well.
+	directory and user must** be set in the `/etc/default/celeryd`.
 
 		sudo cp doc/etc-default-celeryd /etc/default/celeryd
 		sudo cp doc/etc-init.d-celeryd /etc/init.d/celeryd
@@ -118,8 +117,6 @@ Installing the full stack
 7. ### Web server configuration
 
 	__Apache__: Edit your `/etc/apache2/sites-available/sitename`.
-	This is an example configuration without virtualenv or case
-	optimized parameters.
 
 		WSGIDaemonProcess grader user=username group=username python-path=/home/username/mooc-grader:/home/username/venv/lib/python2.7/site-packages
 		WSGIProcessGroup grader
