@@ -121,12 +121,12 @@ Installing the full stack
 	This is an example configuration without virtualenv or case
 	optimized parameters.
 
-		WSGIDaemonProcess grader user=www-data group=www-data
+		WSGIDaemonProcess grader user=username group=username python-path=/home/username/mooc-grader:/home/username/venv/lib/python2.7/site-packages
 		WSGIProcessGroup grader
-		WSGIScriptAlias / /var/mooc-grader/grader/wsgi.py
-		Alias /static/ /var/mooc-grader/static/
-		Alias /robots.txt /var/mooc-grader/static/robots.txt
-		<Directory /var/mooc-grader/static/>
+		WSGIScriptAlias / /home/username/mooc-grader/grader/wsgi.py
+		Alias /static/ /home/username/mooc-grader/static/
+		Alias /robots.txt /home/username/mooc-grader/static/robots.txt
+		<Directory /home/username/mooc-grader/static/>
 			Order allow,deny
 			allow from all
 		</Directory>
