@@ -13,7 +13,9 @@ def detect_user(request):
         if len(parts) > 4 and parts[2] == "students":
             return parts[3]
 
-    return user.strip()
+    if user:
+        return user.strip()
+    return user
 
 
 def make_hash(secret, user):
