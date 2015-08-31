@@ -110,6 +110,13 @@ class CourseInstance(models.Model):
     def __str__(self):
         return "{}: {}".format(str(self.course), self.instance_name)
 
+    def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        """
+        if self.ending_time <= self.starting_time:
+            raise ValidationError(_("Ending time must be later than starting time."))
+
     def is_assistant(self, user):
         return user and user.is_authenticated() \
             and self.assistants.filter(id=user.userprofile.id).exists()
