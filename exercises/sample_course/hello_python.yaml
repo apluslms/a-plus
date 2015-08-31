@@ -16,7 +16,7 @@ files:
 
 actions:
   - type: grader.actions.prepare
-    charset: us-ascii
+    charset: UTF-8
     cp_exercises: hello_python->user
   - type: grader.actions.sandbox_python_test
     #type: grader.actions.sandbox # Using other type for unittest output.
