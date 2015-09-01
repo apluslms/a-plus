@@ -41,15 +41,15 @@ class ResultTable:
         Helper for the __init__.
         This method puts the data from the database in to the results table.
         """
-        submissions = Submission.objects \
+        submissions = list(Submission.objects \
             .filter(exercise__course_module__course_instance=self.course_instance) \
-            .only("submitters", "exercise") \
+            .values("submitters", "exercise") \
             .annotate(best=Max("grade")) \
-            .order_by()
+            .order_by()) # Remove default ordering.
         for submission in submissions:
-            for student in submission.submitters.all():
-                if student.id in self.results:
-                    self.results[student.id][submission.exercise.id] = submission.best
+            student_id = submission["submitters"]
+            if student_id in self.results:
+                self.results[student_id][submission["exercise"]] = submission["best"]
 
 
     def results_for_template(self):
