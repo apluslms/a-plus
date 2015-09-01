@@ -169,9 +169,8 @@ Walkthrough for Ubuntu on 6/2015
 			# Static files served by Apache.
 			Alias /static/ /home/[shell-username]/a-plus/static/
 			Alias /favicon.ico /home/[shell-username]/a-plus/static/favicons/favicon.ico
-			Alias /media/public/ /home/[shell-username]/a-plus/media/public/
+			AliasMatch ^/media/public/(.*)$ /home/[shell-username]/a-plus/media/public/$1
 			<Directory /home/[shell-username]/a-plus/static/>
-				Options FollowSymLinks
 				Order allow,deny
 				Allow from all
 			</Directory>
@@ -191,6 +190,9 @@ Walkthrough for Ubuntu on 6/2015
 				SetHandler None
 			</Location>
 			<Location /favicon.ico>
+				SetHandler None
+			</Location>
+			<Location /media/public/>
 				SetHandler None
 			</Location>
 
