@@ -170,7 +170,6 @@
     "pk": 1,
     "model": "course.courseinstance",
     "fields": {
-      "website": "http://plus.cs.hut.fi/",
       "ending_time": "2024-09-27T10:47:18.000Z",
       "url": "basic_instance",
       "starting_time": "2013-09-27T10:47:17.000Z",
@@ -184,7 +183,6 @@
     "pk": 2,
     "model": "course.courseinstance",
     "fields": {
-      "website": "http://plus.cs.hut.fi/",
       "ending_time": "2024-09-27T10:47:18.000Z",
       "url": "hook_instance",
       "starting_time": "2013-09-27T10:47:17.000Z",
