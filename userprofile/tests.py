@@ -74,7 +74,6 @@ class UserProfileTest(TestCase):
 
         self.course_instance1 = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            website="http://www.example.com",
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
@@ -84,7 +83,6 @@ class UserProfileTest(TestCase):
 
         self.course_instance2 = CourseInstance.objects.create(
             instance_name="Fall 2011 day 2",
-            website="http://www.example.com",
             starting_time=self.tomorrow,
             ending_time=self.two_days_from_now,
             course=self.course,

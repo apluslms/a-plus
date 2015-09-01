@@ -21,6 +21,20 @@ dl > dt {
     margin-top: 10px;
     margin-bottom: 0;
 }
+.hljs {
+    padding: 0;
+}
+table.src tr td.num {
+    color: #ccc;
+    background: #fff;
+    border-right: 1px solid #ccc;
+    vertical-align: top;
+    padding:0 0.4em;
+}
+table.src tr td.src {
+    white-space: pre-wrap;
+    padding:0 0.4em;
+}
 
 /* site footer */
 html, body {
@@ -162,6 +176,9 @@ html, body {
 }
 
 /* point progress and badges */
+.progress {
+    position: relative;
+}
 .progress .required-points {
     position: absolute;
     height: 20px;
@@ -171,11 +188,16 @@ html, body {
     background-color: #f0ad4e;
     color: #fff;
 }
+.badge-info, .panel-primary>.panel-heading .badge-info {
+    background-color: #5bc0de;
+    color: #fff;
+}
 .badge-success, .panel-primary>.panel-heading .badge-success {
     background-color: #5cb85c;
     color: #fff;
 }
 .panel-primary>.panel-heading .badge-warning,
+.panel-primary>.panel-heading .badge-info,
 .panel-primary>.panel-heading .badge-success {
     border: 1px solid #fff;
     padding: 2px 6px;

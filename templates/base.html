@@ -12,9 +12,10 @@
 
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
 
         <link rel="stylesheet" href="{% static 'css/main.css' %}" />
@@ -160,5 +161,18 @@
             </nav>
             {% endblock %}
         </div>
+        <div id="default-modal" class="modal" role="dialog">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title"></h4>
+                    </div>
+					<div class="modal-body"></div>
+				</div>
+			</div>
+		</div>
     </body>
 </html>

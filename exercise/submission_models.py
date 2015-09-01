@@ -7,6 +7,7 @@ from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from mimetypes import guess_type
 
 from . import exercise_models
 from lib.fields import JSONField, PercentField
@@ -235,7 +236,7 @@ def build_upload_dir(instance, filename):
     submission = instance.submission
     exercise = submission.exercise
     submitter_ids = [str(profile.id) for profile in submission.submitters.all().order_by("id")]
-    return "submissions/course_instance_{:d}/exercise_{:d}/users_{}/submission_{:d}/{}".format(
+    return "course_instance_{:d}/submissions/exercise_{:d}/users_{}/submission_{:d}/{}".format(
         exercise.course_instance.id,
         exercise.id,
         "-".join(submitter_ids),
@@ -251,6 +252,7 @@ class SubmittedFile(models.Model):
     foreign key relation. The files are stored on the disk while models are
     stored in the database.
     """
+    PASS_MIME = ( "image/jpeg", "image/png", "image/gif", "application/pdf" )
     submission = models.ForeignKey(Submission, related_name="files")
     param_name = models.CharField(max_length=128)
     file_object = models.FileField(upload_to=build_upload_dir, max_length=255)
@@ -264,6 +266,12 @@ class SubmittedFile(models.Model):
         Returns the actual name of the file on the disk.
         """
         return os.path.basename(self.file_object.path)
+
+    def get_mime(self):
+        return guess_type(self.file_object.path)
+
+    def is_passed(self):
+        return self.get_mime() in SubmittedFile.PASS_MIME
 
     def get_absolute_url(self):
         """

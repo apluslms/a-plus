@@ -130,4 +130,19 @@ class SubmittedFileView(SubmissionMixin, View):
 
     def get(self, request, *args, **kwargs):
         self.handle()
-        return serve(request, self.file.file_object.name, settings.MEDIA_ROOT)
+
+        # Download the file.
+        if request.GET.get("download", False):
+            with open(self.file.file_object.path) as f:
+                response = HttpResponse(f.read(),
+                    content_type="application/octet-stream")
+                response["Content-Disposition"] = 'attachment; filename="{}"'\
+                    .format(self.file.filename)
+                return response
+
+        if self.file.is_passed():
+            mime = self.file.get_mime()
+        else:
+            mime = 'text/plain; charset="UTF-8"'
+        with open(self.file.file_object.path) as f:
+            return HttpResponse(f.read(), content_type=mime)

@@ -42,7 +42,7 @@ class LTILoginView(CourseInstanceBaseView):
             if not self.is_teacher:
                 raise PermissionDenied()
         elif self.menu_item.access >= MenuItem.ACCESS_ASSISTANT:
-            if not self.is_assistant:
+            if not self.is_course_staff:
                 raise PermissionDenied()
 
     def get_common_objects(self):

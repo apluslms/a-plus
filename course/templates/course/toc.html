@@ -8,6 +8,9 @@
 {% block breadcrumb %}{% endblock %}
 
 {% block coursecontent %}
+<div>
+    {{ instance.description }}
+</div>
 {% if instance.has_chapters %}
 <ul>
     {% for module in instance.course_modules.all %}

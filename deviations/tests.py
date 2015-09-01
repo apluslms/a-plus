@@ -15,20 +15,19 @@ class DeviationsTest(TestCase):
         self.user = User(username="testUser", first_name="First", last_name="Last")
         self.user.set_password("testPassword")
         self.user.save()
-        
+
         self.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
-        
+
         self.today = timezone.now()
         self.tomorrow = self.today + timedelta(days=1)
         self.two_days_from_now = self.today + timedelta(days=2)
 
         self.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            website="http://www.example.com",
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
@@ -60,7 +59,7 @@ class DeviationsTest(TestCase):
             files_to_submit="test1.txt|test2.txt|img.png",
             instructions="test_instructions"
         )
-        
+
         self.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment,
             submitter=self.user.userprofile,
@@ -75,4 +74,3 @@ class DeviationsTest(TestCase):
 
     def test_deadline_rule_deviation_normal_deadline(self):
         self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_normal_deadline())
-

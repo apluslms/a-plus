@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from apps.models import BaseTab, BasePlugin
 from lib.fields import PercentField
+from lib.helpers import safe_file_name
 from userprofile.models import UserProfile
 
 
@@ -69,6 +70,16 @@ class CourseInstanceManager(models.Manager):
         return qs
 
 
+def build_upload_dir(instance, filename):
+    """
+    Returns the path to a directory where the instance image should be saved.
+    """
+    return "public/course_instance_{:d}/{}".format(
+        instance.id,
+        safe_file_name(filename)
+    )
+
+
 class CourseInstance(models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have
@@ -77,13 +88,14 @@ class CourseInstance(models.Model):
     instances.
     """
     instance_name = models.CharField(max_length=255)
-    website = models.URLField(max_length=255, blank=True)
     url = models.CharField(max_length=255, blank=False,
             validators=[RegexValidator(regex="^[\w\-\.]*$")],
             help_text="Input an URL identifier for this course instance.")
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     visible_to_students = models.BooleanField(default=True)
+    image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
+    description = models.TextField(blank=True)
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
     course = models.ForeignKey(Course, related_name="instances")
     plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk",
@@ -97,6 +109,13 @@ class CourseInstance(models.Model):
 
     def __str__(self):
         return "{}: {}".format(str(self.course), self.instance_name)
+
+    def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        """
+        if self.ending_time <= self.starting_time:
+            raise ValidationError(_("Ending time must be later than starting time."))
 
     def is_assistant(self, user):
         return user and user.is_authenticated() \

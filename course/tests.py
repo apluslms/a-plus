@@ -41,7 +41,6 @@ class CourseTest(TestCase):
 
         self.past_course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 0",
-            website="http://www.example.com",
             starting_time=self.yesterday,
             ending_time=self.today,
             course=self.course,
@@ -50,7 +49,6 @@ class CourseTest(TestCase):
 
         self.current_course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            website="http://www.example.com",
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
@@ -59,7 +57,6 @@ class CourseTest(TestCase):
 
         self.future_course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 2",
-            website="http://www.example.com",
             starting_time=self.tomorrow,
             ending_time=self.two_days_from_now,
             course=self.course,
@@ -68,7 +65,6 @@ class CourseTest(TestCase):
 
         self.hidden_course_instance = CourseInstance.objects.create(
             instance_name="Secret super course",
-            website="http://www.secret.com",
             starting_time=self.tomorrow,
             ending_time=self.two_days_from_now,
             course=self.course,
