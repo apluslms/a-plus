@@ -44,7 +44,6 @@ class ExternalServicesTest(TestCase):
 
         self.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011",
-            website="http://www.example.com",
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,

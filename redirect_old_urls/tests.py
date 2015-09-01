@@ -20,7 +20,6 @@ class RedirectTest(TestCase):
         )
         self.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011",
-            website="http://www.example.com",
             starting_time=timezone.now(),
             ending_time=timezone.now() + timedelta(days=5),
             course=self.course,

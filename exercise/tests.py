@@ -52,7 +52,6 @@ class ExerciseTest(TestCase):
 
         self.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            website="http://www.example.com",
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
@@ -363,7 +362,7 @@ class ExerciseTest(TestCase):
 
     def test_exercise_upload_dir(self):
         from exercise.exercise_models import build_upload_dir
-        self.assertEqual("exercise_attachments/course_instance_1/exercise_5/test_file_name",
+        self.assertEqual("course_instance_1/exercise_attachment_5/test_file_name",
                          build_upload_dir(self.exercise_with_attachment, "test_file_name"))
 
     def test_exercise_with_attachment_files_to_submit(self):
@@ -462,8 +461,8 @@ class ExerciseTest(TestCase):
             submission=self.submission_with_two_submitters,
             param_name="testParam2"
         )
-        self.assertEqual("submissions/course_instance_1/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(submitted_file1, "test_file_name"))
-        self.assertEqual("submissions/course_instance_1/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(submitted_file2, "test_file_name"))
+        self.assertEqual("course_instance_1/submissions/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(submitted_file1, "test_file_name"))
+        self.assertEqual("course_instance_1/submissions/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(submitted_file2, "test_file_name"))
 
     def test_presentation_summary_empty(self):
         summary = UserCourseSummary(self.course_instance, self.user)
@@ -552,7 +551,6 @@ class ExerciseTest(TestCase):
     def test_exercise_staff_views(self):
         self.other_instance = CourseInstance.objects.create(
             instance_name="Another",
-            website="http://www.example.com",
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
