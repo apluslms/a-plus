@@ -38,7 +38,7 @@ BRAND_NAME = 'A+'
 WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
 LOGIN_TITLE_TEXT = 'Local A+ users'
 LOGIN_BODY_TEXT = ''
-SHIBBOLETH_TITLE_TEXT = 'Aalto university students'
+SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
 SHIBBOLETH_BODY_TEXT = 'Click the button below to log in with Aalto University\'s identity service.'
 SHIBBOLETH_BUTTON_TEXT = 'Aalto WebLogin'
 from .privacy_policy import PRIVACY_POLICY_TEXT

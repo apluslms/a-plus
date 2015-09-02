@@ -85,8 +85,8 @@
                                 </ul>
                             </li>
                         </ul>
-                        {% if user.is_authenticated %}
                         <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+                            {% if user.is_authenticated %}
                             <li role="presentation" class="menu-profile">
                                 <a href="{% url 'profile' %}">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
@@ -99,8 +99,15 @@
                                     {% trans "Log out"%}
                                 </a>
                             </li>
+                            {% else %}
+                            <li role="presentation">
+                                <a href="{% url 'login' %}">
+                                    <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                    {% trans "Log in"%}
+                                </a>
+                            </li>
+                            {% endif %}
                         </ul>
-                        {% endif %}
 
                         {# Separate menu optimized for mobile users #}
                         <ul class="nav navbar-nav visible-xs">
@@ -119,6 +126,7 @@
                             	    {% trans "Course archive" %}
                                 </a>
                             </li>
+                            {% if user.is_authenticated %}
                             <li role="presentation">
                                 <a href="{% url 'profile' %}">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
@@ -131,6 +139,14 @@
                             	    {% trans "Log out"%}
                                 </a>
                             </li>
+                            {% else %}
+                            <li role="presentation">
+                                <a href="{% url 'login' %}">
+                                    <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                    {% trans "Log in" %}
+                                </a>
+                            </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
