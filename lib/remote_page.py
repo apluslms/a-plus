@@ -1,12 +1,8 @@
 import requests
-import logging
 import urllib.parse
 import posixpath
 from bs4 import BeautifulSoup
 from django.utils.translation import ugettext_lazy as _
-
-
-logger = logging.getLogger("aplus.remotepage")
 
 
 class RemotePageException(Exception):
@@ -32,7 +28,6 @@ class RemotePage:
             self.response.encoding = "utf-8"
             self.soup = BeautifulSoup(self.response.text)
         except requests.exceptions.RequestException:
-            logger.exception("Failed to load external page: %s", url)
             raise RemotePageException(
                 _("Connecting to the course service failed!"))
 

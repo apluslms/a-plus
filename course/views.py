@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 import icalendar
 from django.conf import settings
@@ -15,6 +16,9 @@ from userprofile.viewbase import ACCESS, UserProfileView
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
     CourseModuleBaseView, CourseChapterView, CourseInstanceMixin
 from .models import CourseInstance
+
+
+logger = logging.getLogger("course.views")
 
 
 class HomeView(UserProfileView):
@@ -76,6 +80,9 @@ class ChapterView(CourseChapterView):
         except RemotePageException:
             messages.error(self.request,
                 _("Connecting to the content service failed!"))
+            if self.instance.visible_to_students:
+                logger.exception("Failed to load external page: {}".format(
+                    self.chapter.content_url))
             content = None
         return self.response(content=content)
 

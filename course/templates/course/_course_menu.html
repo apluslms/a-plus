@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load course %}
+{% load notification %}
 {% load external_services %}
 
 <li role="presentation" class="header"><h4>{% trans "Course" %}</h4></li>
@@ -19,6 +20,10 @@
     <a href="{{ instance|url:'notifications' }}">
         <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
         {% trans "Notifications" %}
+		{% notification_count as count %}
+		{% if count > 0 %}
+		<span class="badge badge-danger" title="{% blocktrans with count=count %}{{ count }} unread{% endblocktrans %}">{{ count }}</span>
+		{% endif %}
     </a>
 </li>
 
