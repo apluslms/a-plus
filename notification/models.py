@@ -22,6 +22,11 @@ class NotificationSet(object):
             course_instance=course_instance)[skip:(skip + per_page)]
         return NotificationSet(qs)
 
+    @classmethod
+    def get_course_new_count(cls, course_instance, user):
+        return user.userprofile.received_notifications.filter(
+            course_instance=course_instance, seen=False).count()
+
     def __init__(self, queryset):
         self.notifications = list(queryset)
 

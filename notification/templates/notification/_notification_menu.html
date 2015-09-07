@@ -1,19 +1,21 @@
 {% load i18n %}
 {% load course %}
 {% if unread.count > 0 %}
-<div class="alert alert-danger visible-xs">
-    <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
-    <p>
+<li role="presentation" class="menu-notification">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+        <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
+
         {% blocktrans with count=unread.count count_p=unread.count|pluralize %}
-        You have {{ count }} new notification{{ count_p }}.
+        <span class="badge badge-danger">{{ count }}</span> new notification{{ count_p }}
+        <span class="caret" aria-hidden="true"></span>
         {% endblocktrans %}
-        <ul>
+        <ul class="dropdown-menu">
             {% for notification in unread.notifications %}
             <li><a href="{{ notification.course_instance|url:'notifications' }}" class="alert-link">
                 {{ notification.course_instance.course }}: {{ notification.subject }}
             </a></li>
             {% endfor %}
         </ul>
-    </p>
-</div>
+    </a>
+</li>
 {% endif %}

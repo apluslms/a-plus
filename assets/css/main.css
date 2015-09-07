@@ -184,6 +184,10 @@ html, body {
     height: 20px;
     border-left: 1px solid black;
 }
+.badge-danger, .panel-primary>.panel-heading .badge-danger {
+    background-color: #d9534f;
+    color: #fff;
+}
 .badge-warning, .panel-primary>.panel-heading .badge-warning {
     background-color: #f0ad4e;
     color: #fff;
@@ -196,6 +200,7 @@ html, body {
     background-color: #5cb85c;
     color: #fff;
 }
+.panel-primary>.panel-heading .badge-danger,
 .panel-primary>.panel-heading .badge-warning,
 .panel-primary>.panel-heading .badge-info,
 .panel-primary>.panel-heading .badge-success {
