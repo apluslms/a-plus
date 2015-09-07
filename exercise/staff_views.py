@@ -123,7 +123,7 @@ class FetchMetadataView(CourseInstanceMixin, View):
                 metadata["description"] = page.meta["description"]
                 metadata["success"] = True
             else:
-                metadata["message"] = _("Failed to load the resource.")
+                metadata["message"] = str(_("Failed to load the resource."))
         except ValidationError as e:
             metadata["message"] = " ".join(e.messages)
         return JsonResponse(metadata)

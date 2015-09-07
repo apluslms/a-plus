@@ -21,6 +21,8 @@ def load_exercise_page(request, url, exercise):
     except RemotePageException:
         messages.error(request,
             _("Connecting to the exercise service failed!"))
+        if exercise.id and exercise.course_instance.visible_to_students:
+            logger.exception("Failed to request {}".format(url))
     return page
 
 
@@ -39,6 +41,8 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     except RemotePageException:
         messages.error(request,
             _("Connecting to the assessment service failed!"))
+        if exercise.id and exercise.course_instance.visible_to_students:
+            logger.exception("Failed to request {}".format(url))
 
     if page.is_loaded:
         submission.feedback = page.content
