@@ -47,7 +47,7 @@
     <body data-view-tag="{% block view_tag %}{% endblock %}">
         <div class="page-wrap">
             <nav class="navbar navbar-inverse navbar-static-top">
-                <div class="container">
+                <div class="container-fluid">
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
                             <span class="sr-only">{% trans "Toggle navigation" %}</span>
@@ -86,6 +86,7 @@
                             </li>
                         </ul>
                         <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+                            {% notification_menu %}
                             {% if user.is_authenticated %}
                             <li role="presentation" class="menu-profile">
                                 <a href="{% url 'profile' %}">
@@ -152,7 +153,7 @@
                 </div>
             </nav>
 
-            <div class="site-content container">
+            <div class="site-content container-fluid">
                 {% site_alert %}
                 {% notification_messages %}
                 {% include "_messages.html" %}
@@ -165,7 +166,7 @@
 
             {% block footer %}
             <nav class="site-footer navbar navbar-default navbar-fixed-bottom">
-                <div class="container">
+                <div class="container container-fluid">
                     <ul class="nav navbar-nav">
                         {% block footercontent %}{% endblock %}
                         {% url 'privacy_policy' as policy_url %}
