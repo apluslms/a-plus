@@ -47,18 +47,20 @@
 
 		openModalURL: function(sourceURL) {
 			if (sourceURL && sourceURL !== "#") {
-				var element = this.modalElement;
-				element.find(this.settings.modal_content_selector)
-					.empty().load(sourceURL, function() {
-						element.modal("show");
-						element.find('.file-modal').aplusFileModal();
-					});
+				var self = this;
+				$.ajax(sourceURL).done(function(data) {
+					self.openModal($(data).filter('table,#exercise'));
+
+				}).fail(function() {
+					self.openModal("Internal error.");
+				});
 			}
 		},
 
 		openModal: function(content) {
 			this.modalElement.find(this.settings.modal_content_selector)
-				.empty().append(content);
+				.empty().append(content)
+				.find('.file-modal').aplusFileModal();
 			this.modalElement.modal("show");
 		}
 	});

@@ -67,6 +67,7 @@ class BaseMixin(object):
 class BaseTemplateMixin(TemplateResponseMixin):
     template_name = None
     ajax_template_name = None
+    force_ajax_template = False
 
     def get(self, request, *args, **kwargs):
         self.handle()
@@ -83,7 +84,7 @@ class BaseTemplateMixin(TemplateResponseMixin):
         return context
 
     def get_template_names(self):
-        if self.request.is_ajax() or not self.template_name:
+        if self.force_ajax_template or self.request.is_ajax() or not self.template_name:
             if self.ajax_template_name:
                 return [self.ajax_template_name]
         return super().get_template_names()
