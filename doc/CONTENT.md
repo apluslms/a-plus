@@ -16,7 +16,7 @@ functionality in the page.
 
     <div
       data-exercise-url="http://aplus.domain.org/course/2015/exercises/1/"
-      data-exercise-quiz />
+      data-exercise-quiz></div>
 
 Embeds a fully functioning exercise to the content including student
 submission status.
