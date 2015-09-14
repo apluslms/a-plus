@@ -25,7 +25,7 @@
 		<div id="exercise">
 			<ul class="exercise-summary nav nav-pills">
 				<li>
-					<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url }}{% else %}#{% endif %}">
+					<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
 						{% trans "Points" %}
 						{% summary_points summary %}
 					</a>
@@ -44,7 +44,7 @@
 			        <ul class="dropdown-menu">
 			        	{% for submission in submissions %}
 			            <li>
-			                <a href="{{ submission|url }}">
+			                <a href="{{ submission|url:'submission-plain' }}">
 			                    {{ forloop.revcounter }}.
 			                    {{ submission.submission_time }}
 			                    {% submission_points submission %}

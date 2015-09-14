@@ -31,6 +31,7 @@ class ExerciseInfoView(ExerciseBaseView):
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     template_name = "exercise/exercise.html"
     ajax_template_name = "exercise/exercise_plain.html"
+    post_url_name = "exercise"
 
     # Allow form posts without the cross-site-request-forgery key.
     @method_decorator(csrf_exempt)
@@ -47,7 +48,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         self.handle()
         students = self.get_students()
         self.submission_check(students)
-        page = self.exercise.load(request, students)
+        page = self.exercise.load(request, students,
+            url_name=self.post_url_name)
         self.get_after_new_submission()
         return self.response(page=page, students=students)
 
@@ -60,7 +62,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)
             if new_submission:
-                page = self.exercise.grade(request, new_submission)
+                page = self.exercise.grade(request, new_submission,
+                    url_name=self.post_url_name)
             else:
                 messages.error(request,
                     _("The submission could not be saved for some reason. "

@@ -50,7 +50,6 @@
 				var self = this;
 				$.ajax(sourceURL).done(function(data) {
 					self.openModal($(data).filter('table,#exercise'));
-
 				}).fail(function() {
 					self.openModal("Internal error.");
 				});

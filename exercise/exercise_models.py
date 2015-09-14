@@ -231,13 +231,13 @@ class BaseExercise(LearningObject):
         )
         return student_str, hash_key.hexdigest()
 
-    def load(self, request, students):
+    def load(self, request, students, url_name="exercise"):
         """
         Loads the exercise page.
         """
         if self.id:
             student_str, hash_key = self.get_async_hash(students)
-            url = self._build_service_url(request, reverse(
+            url = self._build_service_url(request, url_name, reverse(
                 "async-new", kwargs={
                     "exercise_id": self.id if self.id else 0,
                     "student_ids": student_str,
@@ -248,11 +248,12 @@ class BaseExercise(LearningObject):
             url = self.service_url
         return load_exercise_page(request, url, self)
 
-    def grade(self, request, submission, no_penalties=False):
+    def grade(self, request, submission,
+            no_penalties=False, url_name="exercise"):
         """
         Loads the exercise feedback page.
         """
-        url = self._build_service_url(request, reverse(
+        url = self._build_service_url(request, url_name, reverse(
             "async-grade", kwargs={
                 "submission_id": submission.id,
                 "hash_key": submission.hash
@@ -267,7 +268,7 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def _build_service_url(self, request, submission_url):
+    def _build_service_url(self, request, url_name, submission_url):
         """
         Generates complete URL with added parameters to the exercise service.
         """
@@ -275,7 +276,7 @@ class BaseExercise(LearningObject):
             "max_points": self.max_points,
             "submission_url": request.build_absolute_uri(submission_url),
             "post_url": request.build_absolute_uri(
-                str(self.get_absolute_url())),
+                str(self.get_url(url_name))),
         }
         return update_url_params(self.service_url, params)
 
@@ -288,12 +289,13 @@ class StaticExercise(BaseExercise):
     exercise_page_content = models.TextField()
     submission_page_content = models.TextField()
 
-    def load(self, request, students):
+    def load(self, request, students, url_name="exercise"):
         page = ExercisePage(self)
         page.content = self.exercise_page_content
         return page
 
-    def grade(self, request, submission, no_penalties=False):
+    def grade(self, request, submission,
+            no_penalties=False, url_name="exercise"):
         page = ExercisePage(self)
         page.content = self.submission_page_content
         page.is_accepted = True
@@ -342,7 +344,7 @@ class ExerciseWithAttachment(BaseExercise):
             files = self.files_to_submit.split("|")
             return [filename.strip() for filename in files]
 
-    def load(self, request, students):
+    def load(self, request, students, url_name="exercise"):
         page = ExercisePage(self)
         page.content = self.instructions
 
