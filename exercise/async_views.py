@@ -139,7 +139,6 @@ def _post_async_submission(request, exercise, submission, students, errors):
     # Use form to parse and validate the request.
     form = SubmissionCallbackForm(request.POST)
     errors.extend(extract_form_errors(form))
-    logger.info("Receiving, valid={}, errors={}".format(form.is_valid(), errors))
     if not form.is_valid():
         logger.error('Exercise service returned with invalid grade request: %s',
             '\n'.join(errors))
