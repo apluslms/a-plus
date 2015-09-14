@@ -83,7 +83,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 )
         else:
             submission.set_error()
-            logger.error("No accept or points received: %s",
+            logger.info("No accept or points received: %s",
                 exercise.service_url)
             messages.error(request,
                 _("Assessment service responded with error."))
