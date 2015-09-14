@@ -55,7 +55,13 @@
             {% if submission %}
             <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
                 <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-                {% trans "Inspect" %}
+                {% trans "Inspect submission" %}
+            </a>
+            {% elif is_teacher %}
+            {% load editcourse %}
+            <a href="{{ exercise|editurl:'exercise' }}" class="btn btn-default btn-xs">
+                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                {% trans "Edit exercise" %}
             </a>
             {% endif %}
             <a href="{{ exercise|url:'submission-list' }}" class="btn btn-default btn-xs">
