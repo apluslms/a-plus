@@ -9,14 +9,14 @@ class SubmissionCallbackForm(forms.Form):
     Parses and validates the grading callback request.
     """
     points = forms.IntegerField(min_value=0)
-    max_points = forms.IntegerField(min_value=0)
+    max_points = forms.IntegerField(min_value=0, required=False)
     feedback = forms.CharField(required=False)
     grading_payload = forms.CharField(required=False)
     error = forms.BooleanField(required=False)
 
     def clean(self):
         points      = self.cleaned_data.get("points")
-        max_points  = self.cleaned_data.get("max_points")
+        max_points  = self.cleaned_data.get("max_points", 0)
         if points and max_points:
             if points > max_points:
                 raise forms.ValidationError(

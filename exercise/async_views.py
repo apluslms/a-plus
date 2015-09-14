@@ -139,6 +139,7 @@ def _post_async_submission(request, exercise, submission, students, errors):
     # Use form to parse and validate the request.
     form = SubmissionCallbackForm(request.POST)
     errors.extend(extract_form_errors(form))
+    logger.info("Receiving, valid={}, errors={}".format(form.is_valid(), errors))
     if not form.is_valid():
         logger.error('Exercise service returned with invalid grade request: %s',
             '\n'.join(errors))
@@ -152,7 +153,7 @@ def _post_async_submission(request, exercise, submission, students, errors):
         submission.save()
         return {
             "success": False,
-            "errors": extract_form_errors(form)
+            "errors": errors
         }
 
     # Grade the submission.
@@ -174,7 +175,8 @@ def _post_async_submission(request, exercise, submission, students, errors):
 
     # Produce error if something goes wrong during saving the points.
     except Exception as e:
+        logger.exception("Unexpected error while saving grade");
         return {
             "success": False,
-            "errors": [str(e)]
+            "errors": [repr(e)]
         }
