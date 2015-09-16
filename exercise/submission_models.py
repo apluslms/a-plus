@@ -268,7 +268,7 @@ class SubmittedFile(models.Model):
         return os.path.basename(self.file_object.path)
 
     def get_mime(self):
-        return guess_type(self.file_object.path)
+        return guess_type(self.file_object.path)[0]
 
     def is_passed(self):
         return self.get_mime() in SubmittedFile.PASS_MIME

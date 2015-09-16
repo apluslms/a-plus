@@ -11,6 +11,7 @@ class CourseArchivePageTest(unittest.TestCase):
 
     def testShouldOpenCourseArchivePage(self):
         courseArchivePage = CourseArchivePage(self.driver)
+        courseArchivePage.waitForAjax()
         courseArchivePage.waitForElement(CourseArchiveLocators.APLUS_LINK)
         courseArchivePage.waitForElement(CourseArchiveLocators.HOOK_LINK)
 
