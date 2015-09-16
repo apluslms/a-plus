@@ -1,3 +1,4 @@
+import time
 import unittest
 
 from test_initializer import TestInitializer
@@ -11,6 +12,7 @@ class CourseArchivePageTest(unittest.TestCase):
 
     def testShouldOpenCourseArchivePage(self):
         courseArchivePage = CourseArchivePage(self.driver)
+        time.sleep(0.5)
         courseArchivePage.waitForAjax()
         courseArchivePage.waitForElement(CourseArchiveLocators.APLUS_LINK)
         courseArchivePage.waitForElement(CourseArchiveLocators.HOOK_LINK)
