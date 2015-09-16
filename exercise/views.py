@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.static import serve
@@ -88,6 +89,18 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         return ok
 
 
+class ExercisePlainView(ExerciseView):
+    force_ajax_template=True
+    post_url_name="exercise-plain"
+
+    # Allow form posts without the cross-site-request-forgery key.
+    # Allow iframe in another domain.
+    @method_decorator(csrf_exempt)
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
 class SubmissionView(SubmissionBaseView):
     template_name = "exercise/submission.html"
     ajax_template_name = "exercise/submission_plain.html"
@@ -106,6 +119,15 @@ class SubmissionView(SubmissionBaseView):
         self.index = len(self.submissions) - list(self.submissions).index(self.submission)
         self.summary = UserExerciseSummary(self.exercise, profile.user)
         self.note("submissions", "index", "summary")
+
+
+class SubmissionPlainView(SubmissionView):
+    force_ajax_template=True
+
+    # Allow iframe in another domain.
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
 
 class SubmissionPollView(SubmissionMixin, View):

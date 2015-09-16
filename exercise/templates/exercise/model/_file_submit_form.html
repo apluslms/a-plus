@@ -3,14 +3,14 @@
   <fieldset>
     <legend>{% trans "Submit" %}</legend>
     {% for file in files %}
-    <div class='clearfix'>
+    <div class="form-group">
       <label>{{ file }}</label>
       <input type="hidden" name="file_{{ forloop.counter }}" value="{{ file }}" />
       <div class='input'><input name='content_{{ forloop.counter }}' type='file' /></div>
     </div>
     {% endfor %}
   </fieldset>
-  <div class="actions">
+  <div class="form-group">
     <input class="btn btn-primary" type="submit" value="{% trans 'Submit' %}" />
   </div>
 </form>

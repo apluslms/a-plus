@@ -17,8 +17,7 @@ urlpatterns = [
         views.ExerciseView.as_view(),
         name="exercise"),
     url(EXERCISE_URL_PREFIX + r'plain/$',
-        views.ExerciseView.as_view(
-            force_ajax_template=True, post_url_name="exercise-plain"),
+        views.ExercisePlainView.as_view(),
         name="exercise-plain"),
     url(EXERCISE_URL_PREFIX + r'info/$',
         views.ExerciseInfoView.as_view(),
@@ -27,7 +26,7 @@ urlpatterns = [
         views.SubmissionView.as_view(),
         name="submission"),
     url(SUBMISSION_URL_PREFIX + r'plain/$',
-        views.SubmissionView.as_view(force_ajax_template=True),
+        views.SubmissionPlainView.as_view(),
         name="submission-plain"),
     url(SUBMISSION_URL_PREFIX + r'poll/$',
         views.SubmissionPollView.as_view(),

@@ -24,6 +24,13 @@
 	<body>
 		<table class="submission-info table table-bordered table-condensed">
 			<tr>
+				{% if not request.is_ajax %}
+				<th rowspan="2">
+					<a href="{{ submission.exercise|url:'exercise-plain' }}" class="btn btn-primary">
+						{% trans "Return to exercise" %}
+					</a>
+				</th>
+				{% endif %}
 				<th>{% trans "Date" %}</th>
 				<th>{% if submission.is_graded %}{% trans "Points" %}{% else %}{% trans "Status" %}{% endif %}</th>
 				{% if submission.files.exists %}
