@@ -35,9 +35,12 @@ $(function() {
 // Add an Ajax exercise event listener to refresh the info column.
 window.addEventListener("message", function (event) {
     if (event.data.type === "a-plus-refresh-stats") {
+        $("#submit-progress").addClass("hide");
         var $stats = $("#exercise-info"),
             url = $stats.data("url");
-        $stats.load(url);
+        $stats.load(url, function() {
+            $stats.find('[data-toggle="tooltip"]').tooltip();
+        });
     }
 });
 </script>

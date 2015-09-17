@@ -4,17 +4,40 @@
 {% load exercise %}
 <html>
 	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
 		<title>{{ exercise }}</title>
-		<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-		<script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
-		<script type="text/javascript" src="{% static 'exercise/poll.js' %}"></script>
-		<link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}" />
+
+		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+
+		<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+		<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
+
+		<script>
+			// Add an Ajax exercise event listener to refresh the summary.
+			window.addEventListener("message", function (event) {
+				if (event.data.type === "a-plus-refresh-stats") {
+					$.ajax(window.location.href, {dataType: "html"})
+						.done(function(data) {
+							$(".exercise-summary").empty().append(
+								$(data).find(".exercise-summary").contents());
+						});
+				}
+			});
+		</script>
 	</head>
 	<body>
 		<div id="exercise">
 			<ul class="exercise-summary nav nav-pills">
 				<li>
-					<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url }}{% else %}#{% endif %}">
+					<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
 						{% trans "Points" %}
 						{% summary_points summary %}
 					</a>
@@ -33,7 +56,7 @@
 			        <ul class="dropdown-menu">
 			        	{% for submission in submissions %}
 			            <li>
-			                <a href="{{ submission|url }}">
+			                <a href="{{ submission|url:'submission-plain' }}">
 			                    {{ forloop.revcounter }}.
 			                    {{ submission.submission_time }}
 			                    {% submission_points submission %}

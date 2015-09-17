@@ -1,6 +1,7 @@
 import json
 import logging
 from django.contrib import messages
+from django.db import IntegrityError
 from django.http.response import Http404
 from django.utils.translation import ugettext_lazy as _
 
@@ -99,7 +100,12 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
         return kwargs
 
     def form_valid(self, form):
-        self.object = form.save()
+        try:
+            self.object = form.save()
+        except IntegrityError as e:
+            messages.error(self.request,
+                _('Save failed: {error}').format(error=repr(e)))
+            return super().form_invalid(form)
         messages.success(self.request,
             _('The {name} was saved successfully.').format(
                 name=self.model_name))

@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.static import serve
@@ -31,6 +32,7 @@ class ExerciseInfoView(ExerciseBaseView):
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     template_name = "exercise/exercise.html"
     ajax_template_name = "exercise/exercise_plain.html"
+    post_url_name = "exercise"
 
     # Allow form posts without the cross-site-request-forgery key.
     @method_decorator(csrf_exempt)
@@ -47,7 +49,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         self.handle()
         students = self.get_students()
         self.submission_check(students)
-        page = self.exercise.load(request, students)
+        page = self.exercise.load(request, students,
+            url_name=self.post_url_name)
         self.get_after_new_submission()
         return self.response(page=page, students=students)
 
@@ -60,7 +63,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)
             if new_submission:
-                page = self.exercise.grade(request, new_submission)
+                page = self.exercise.grade(request, new_submission,
+                    url_name=self.post_url_name)
             else:
                 messages.error(request,
                     _("The submission could not be saved for some reason. "
@@ -85,6 +89,18 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         return ok
 
 
+class ExercisePlainView(ExerciseView):
+    force_ajax_template=True
+    post_url_name="exercise-plain"
+
+    # Allow form posts without the cross-site-request-forgery key.
+    # Allow iframe in another domain.
+    @method_decorator(csrf_exempt)
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
 class SubmissionView(SubmissionBaseView):
     template_name = "exercise/submission.html"
     ajax_template_name = "exercise/submission_plain.html"
@@ -103,6 +119,15 @@ class SubmissionView(SubmissionBaseView):
         self.index = len(self.submissions) - list(self.submissions).index(self.submission)
         self.summary = UserExerciseSummary(self.exercise, profile.user)
         self.note("submissions", "index", "summary")
+
+
+class SubmissionPlainView(SubmissionView):
+    force_ajax_template=True
+
+    # Allow iframe in another domain.
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
 
 class SubmissionPollView(SubmissionMixin, View):
@@ -130,19 +155,19 @@ class SubmittedFileView(SubmissionMixin, View):
 
     def get(self, request, *args, **kwargs):
         self.handle()
+        with open(self.file.file_object.path, "rb") as f:
+            bytedata = f.read()
 
         # Download the file.
         if request.GET.get("download", False):
-            with open(self.file.file_object.path) as f:
-                response = HttpResponse(f.read(),
-                    content_type="application/octet-stream")
-                response["Content-Disposition"] = 'attachment; filename="{}"'\
-                    .format(self.file.filename)
-                return response
+            response = HttpResponse(bytedata,
+                content_type="application/octet-stream")
+            response["Content-Disposition"] = 'attachment; filename="{}"'\
+                .format(self.file.filename)
+            return response
 
         if self.file.is_passed():
-            mime = self.file.get_mime()
-        else:
-            mime = 'text/plain; charset="UTF-8"'
-        with open(self.file.file_object.path) as f:
-            return HttpResponse(f.read(), content_type=mime)
+            return HttpResponse(bytedata, content_type=self.file.get_mime())
+
+        return HttpResponse(bytedata.decode('utf-8', 'ignore'),
+            content_type='text/plain; charset="UTF-8"')

@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 import json
+import os.path
 import urllib
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -331,8 +333,8 @@ class ExerciseTest(TestCase):
     def test_base_exercise_async_url(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
         # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
-        split_base_exercise_service_url = self.base_exercise._build_service_url(request, 'service').split("?")
-        split_static_exercise_service_url = self.static_exercise._build_service_url(request, 'service').split("?")
+        split_base_exercise_service_url = self.base_exercise._build_service_url(request, 'exercise', 'service').split("?")
+        split_static_exercise_service_url = self.static_exercise._build_service_url(request, 'exercise', 'service').split("?")
         self.assertEqual("", split_base_exercise_service_url[0])
         self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
         # a quick hack to check whether the parameters are URL encoded
@@ -588,3 +590,57 @@ class ExerciseTest(TestCase):
         self.course_instance.assistants.clear()
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 403)
+
+    def test_uploading_and_viewing_file(self):
+        exercise = BaseExercise.objects.create(
+            order=4,
+            name="test exercise 4",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            max_points=50,
+            points_to_pass=50,
+            max_submissions=0,
+            service_url="http://nowhere.asdasfasf/testServiceURL",
+        )
+        png = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x05\x00\x00\x00\x05\x08\x02\x00\x00\x00\x02\r\xb1\xb2\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\x15IDAT\x08\xd7c`\xc0\n\xfe\xff\xff\x8f\xce\xc1"\x84\x05\x00\x00\xde\x7f\x0b\xf5<|+\x98\x00\x00\x00\x00IEND\xaeB`\x82'
+        file_a = os.path.join(settings.MEDIA_ROOT, "test.png")
+        file_b = os.path.join(settings.MEDIA_ROOT, "test.py")
+        with open(file_a, "wb") as f:
+            f.write(png)
+        with open(file_b, "wb") as f:
+            f.write("Tekijät ja Hyyppö".encode("latin1"))
+
+        self.client.login(username="testUser", password="testPassword")
+        with open(file_a, "rb") as fa:
+            with open(file_b, "rb") as fb:
+                response = self.client.post(exercise.get_absolute_url(), {
+                    "key": "value",
+                    "file1": fa,
+                    "file2": fb,
+                })
+        self.assertEqual(response.status_code, 200)
+
+        subs = self.user.userprofile.submissions.filter(exercise=exercise.id)
+        self.assertEqual(subs.count(), 1)
+        sub = subs.first()
+
+        self.assertEqual(sub.submission_data[0], ["key", "value"])
+        self.assertEqual(sub.files.count(), 2)
+        files = sub.files.all().order_by("param_name")
+
+        self.assertEqual(files[0].param_name, "file1")
+        response = self.client.get(files[0].get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "image/png")
+
+        self.assertEqual(files[1].param_name, "file2")
+        response = self.client.get(files[1].get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], 'text/plain; charset="UTF-8"')
+
+        response = self.client.get(files[1].get_absolute_url() + "?download=1")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/octet-stream")
+        self.assertTrue(response["Content-Disposition"].startswith("attachment; filename="))
+
+        exercise.delete()

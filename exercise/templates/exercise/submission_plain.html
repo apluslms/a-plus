@@ -1,67 +1,96 @@
 {% load i18n %}
+{% load staticfiles %}
 {% load course %}
 {% load exercise %}
-<table class="submission-info table table-bordered table-condensed">
-	<tr>
-		<th>{% trans "Date" %}</th>
-		<th>{% if submission.is_graded %}{% trans "Points" %}{% else %}{% trans "Status" %}{% endif %}</th>
-		{% if submission.files.exists %}
-		<th>{% trans "Files" %}</th>
-		{% endif %}
-		{% if is_course_staff %}
-		<th>{% trans "Course staff" %}</th>
-		{% endif %}
-	</tr>
-	<tr>
-		<td>
-			{{ submission.submission_time }}
-			{% if submission.late_penalty_applied %}
-			<span class="label label-warning">
-				{% blocktrans with percent=submission.late_penalty_applied|percent %}
-				Late <small>-{{ percent }}%</small>
-				{% endblocktrans %}
-			</span>
-			{% endif %}
-		</td>
-		<td>{% submission_points submission %}</td>
-		{% if submission.files.exists %}
-		<td>
-			<ul class="list-unstyled">
-			{% for file in submission.files.all %}
-				<li>
-					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-					{% include "exercise/_file_link.html" %}
-				</li>
-			{% endfor %}
-			</ul>
-		</td>
-		{% endif %}
-		{% if is_course_staff %}
-		<td>
-			<a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
-				<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-				{% trans "Inspect" %}
-			</a>
-		</td>
-		{% endif %}
-	</tr>
-</table>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% if submission.assistant_feedback %}
-<h4>{% trans "Assistant feedback" %}</h4>
-<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
-{% elif submission.exercise.allow_assistant_grading %}
-<div class="alert alert-info">
-	{% trans "No assistant feedback available for this submission." %}
-</div>
-{% endif %}
+		<title>{{ exercise }}</title>
 
-{% if submission.feedback %}
-<div id="exercise">
-	{{ submission.feedback|safe }}
-</div>
-{% else %}
-<div class="alert alert-info">
-	{% trans "No grader feedback available for this submission." %}
-</div>
-{% endif %}
+		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+
+		<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+		<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
+	</head>
+	<body>
+		<table class="submission-info table table-bordered table-condensed">
+			<tr>
+				{% if not request.is_ajax %}
+				<th rowspan="2">
+					<a href="{{ submission.exercise|url:'exercise-plain' }}" class="btn btn-primary">
+						{% trans "Return to exercise" %}
+					</a>
+				</th>
+				{% endif %}
+				<th>{% trans "Date" %}</th>
+				<th>{% if submission.is_graded %}{% trans "Points" %}{% else %}{% trans "Status" %}{% endif %}</th>
+				{% if submission.files.exists %}
+				<th>{% trans "Files" %}</th>
+				{% endif %}
+				{% if is_course_staff %}
+				<th>{% trans "Course staff" %}</th>
+				{% endif %}
+			</tr>
+			<tr>
+				<td>
+					{{ submission.submission_time }}
+					{% if submission.late_penalty_applied %}
+					<span class="label label-warning">
+						{% blocktrans with percent=submission.late_penalty_applied|percent %}
+						Late <small>-{{ percent }}%</small>
+						{% endblocktrans %}
+					</span>
+					{% endif %}
+				</td>
+				<td>{% submission_points submission %}</td>
+				{% if submission.files.exists %}
+				<td>
+					<ul class="list-unstyled">
+					{% for file in submission.files.all %}
+						<li>
+							<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+							{% include "exercise/_file_link.html" %}
+						</li>
+					{% endfor %}
+					</ul>
+				</td>
+				{% endif %}
+				{% if is_course_staff %}
+				<td>
+					<a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+						<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+						{% trans "Inspect" %}
+					</a>
+				</td>
+				{% endif %}
+			</tr>
+		</table>
+
+		{% if submission.assistant_feedback %}
+		<h4>{% trans "Assistant feedback" %}</h4>
+		<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
+		{% elif submission.exercise.allow_assistant_grading %}
+		<div class="alert alert-info">
+			{% trans "No assistant feedback available for this submission." %}
+		</div>
+		{% endif %}
+
+		{% if submission.feedback %}
+		<div id="exercise">
+			{{ submission.feedback|safe }}
+		</div>
+		{% else %}
+		<div class="alert alert-info">
+			{% trans "No grader feedback available for this submission." %}
+		</div>
+		{% endif %}
+	</body>
+</html>
