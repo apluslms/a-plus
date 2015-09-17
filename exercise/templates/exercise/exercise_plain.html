@@ -19,7 +19,19 @@
 
 		<link rel="stylesheet" href="{% static 'css/main.css' %}" />
 		<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
-		<script src="{% static 'js/aplus.js' %}"></script>
+
+		<script>
+			// Add an Ajax exercise event listener to refresh the summary.
+			window.addEventListener("message", function (event) {
+				if (event.data.type === "a-plus-refresh-stats") {
+					$.ajax(window.location.href, {dataType: "html"})
+						.done(function(data) {
+							$(".exercise-summary").empty().append(
+								$(data).find(".exercise-summary").contents());
+						});
+				}
+			});
+		</script>
 	</head>
 	<body>
 		<div id="exercise">
