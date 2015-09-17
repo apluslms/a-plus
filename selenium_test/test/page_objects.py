@@ -34,10 +34,11 @@ class AbstractPage(object):
         self.wait_timeout = 3
         self.condition_wait_timeout = 10
 
-    def load(self, url, loaded_check):
+    def load(self, url, loaded_check=None):
         url = self.base_url + url
         self.driver.get(url)
-        self.waitForElement(loaded_check)
+        if loaded_check:
+            self.waitForElement(loaded_check)
         self.checkBrowserErrors()
 
     def waitForElement(self, element):
@@ -103,6 +104,10 @@ class AbstractPage(object):
         element = self.getElement(locator)
         element.clear()
         element.send_keys(text)
+
+    def getJSON(self):
+        import json
+        return json.loads(self.driver.find_element_by_tag_name("body").text)
 
 
 class LoginPage(AbstractPage):
