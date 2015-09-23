@@ -90,13 +90,13 @@ case "$task" in
     ;;
   'fsc-start')
 	if [ $quiet -eq 0 ]; then
-		./scripts/chroot_execvp - - - - - /usr/local/sandbox/fsc.sh --check; rv=$?
+		./scripts/chroot_execvp - - - - - - fsc.sh --check; rv=$?
 	else
-		./scripts/chroot_execvp - - - - - /usr/local/sandbox/fsc.sh --quietcheck; rv=$?
+		./scripts/chroot_execvp - - - - - - fsc.sh --quietcheck; rv=$?
 	fi
 	;;
-  'fsc-restart') ./scripts/chroot_execvp - - - - - /usr/local/sandbox/fsc.sh; rv=$? ;;
-  'fsc-stop') ./scripts/chroot_execvp - - - - - /usr/local/sandbox/fsc.sh --shutdown; rv=$? ;;
+  'fsc-restart') ./scripts/chroot_execvp - - - - - - /usr/local/sandbox/fsc.sh; rv=$? ;;
+  'fsc-stop') ./scripts/chroot_execvp - - - - - - /usr/local/sandbox/fsc.sh --shutdown; rv=$? ;;
   *) print_help; echo_err "Invalid task: $task!"; exit 1 ;;
 esac
 
