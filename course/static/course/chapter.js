@@ -84,6 +84,7 @@
 	var pluginName = "aplusExercise";
 	var defaults = {
 		quiz_attr: "data-exercise-quiz",
+		ajax_attr: "data-exercise-ajax",
 		message_selector: ".progress-bar",
 		message_attr: {
 			load: "data-msg-load",
@@ -105,6 +106,7 @@
 		this.settings = $.extend({}, defaults, options);
 		this.url = null;
 		this.quiz = false;
+		this.ajax = false;
 		this.loader = null;
 		this.init();
 	}
@@ -112,6 +114,7 @@
 	$.extend(AplusExercise.prototype, {
 
 		init: function() {
+			this.chapterID = this.element.attr("id");
 			this.url = this.element.attr(this.chapter.settings.exercise_url_attr);
 			this.url = this.url + "?__r=" + encodeURIComponent(
 				window.location.href + "#" + this.element.attr("id"));
@@ -119,10 +122,26 @@
 			// In quiz mode feedback replaces the exercise.
 			this.quiz = (this.element.attr(this.settings.quiz_attr) !== undefined);
 
+			// Do not mess up events in an Ajax exercise.
+			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
+
 			this.loader = this.chapter.cloneLoader();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			this.load();
+
+			// Add an Ajax exercise event listener to refresh the summary.
+			if (this.ajax) {
+				var exercise = this;
+				window.addEventListener("message", function (event) {
+					if (event.data.type === "a-plus-refresh-stats") {
+						$.ajax(exercise.url, {dataType: "html"})
+							.done(function(data) {
+								exercise.updateSummary($(data));
+							});
+					}
+				});
+			}
 		},
 
 		load: function() {
@@ -162,12 +181,16 @@
 		bindFormEvents: function(content) {
 			var forms = content.find("form").attr("action", this.url);
 			var exercise = this;
-			if (this.chapter.ajaxForms) {
+			if (this.chapter.ajaxForms && !this.ajax) {
 				forms.on("submit", function(event) {
 					event.preventDefault();
 					exercise.submit(this);
 				});
 			}
+			window.postMessage({
+				type: "a-plus-bind-exercise",
+				id: this.chapterID
+			}, "*");
 		},
 
 		submit: function(form_element) {
@@ -181,6 +204,7 @@
 				dataType: "html"
 			}).fail(function() {
 				exercise.showLoader("error");
+				$(form_element).find(":input").prop("disabled", false);
 			}).done(function(data) {
 				exercise.hideLoader();
 				if (exercise.quiz) {
@@ -188,18 +212,21 @@
 				} else {
 					exercise.updateSubmission($(data));
 				}
+				$(form_element).find(":input").prop("disabled", false);
 			});
-			forms.find(":input").attr("disabled", true);
+			$(form_element).find(":input").prop("disabled", true);
 		},
 
-		updateSubmission: function(input) {
-
-			// Update exercise summary.
+		updateSummary: function(input) {
 			this.element.find(this.settings.summary_selector)
 				.empty().append(
 					input.find(this.settings.summary_selector).contents()
 				);
 			this.bindNavEvents();
+		},
+
+		updateSubmission: function(input) {
+			this.updateSummary(input);
 
 			// Open feedback modal.
 			this.chapter.openModal(
