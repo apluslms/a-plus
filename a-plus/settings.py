@@ -43,6 +43,10 @@ SHIBBOLETH_BODY_TEXT = 'Click the button below to log in with Aalto University\'
 SHIBBOLETH_BUTTON_TEXT = 'Aalto WebLogin'
 from .privacy_policy import PRIVACY_POLICY_TEXT
 
+# Exercise settings
+EXERCISE_HTTP_TIMEOUT = 15
+EXERCISE_HTTP_RETRIES = (5,5,5)
+
 # Application definition
 
 INSTALLED_APPS = (
