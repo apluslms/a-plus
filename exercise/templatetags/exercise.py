@@ -19,16 +19,6 @@ def percent(decimal):
     return int(decimal * 100)
 
 
-@register.filter
-def students(profiles):
-    return ", ".join(
-        "{} ({})".format(
-            profile.user.get_full_name(),
-            profile.student_id if profile.student_id else profile.user.username
-        ) for profile in profiles
-    )
-
-
 def _progress_data(points, max_points, passed=False, required=None):
     """
     Formats data for progress bar template.

@@ -79,7 +79,8 @@ class CourseInstanceForm(forms.ModelForm):
             'description',
             'starting_time',
             'ending_time',
-            'assistants'
+            'assistants',
+            'technical_error_emails',
         ]
 
     def __init__(self, *args, **kwargs):

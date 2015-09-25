@@ -20,7 +20,7 @@
         {% for submission in submissions %}
         <tr>
             <td>
-                {{ submission.submitters.all|students }}
+                {{ submission.submitters.all|profiles }}
             </td>
             <td>
                 {{ submission.submission_time }}

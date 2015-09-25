@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 
 <div class="panel panel-default">
@@ -8,7 +9,7 @@
     <div class="panel-body">
         <dl>
             <dt>{% trans "Submitters" %}</dt>
-            <dd>{{ submission.submitters.all|students }}</dd>
+            <dd>{{ submission.submitters.all|profiles }}</dd>
             <dt>{% trans "Status" %}</dt>
             <dd>{{ submission.status }}</dd>
             <dt>{% trans "Submission time" %}</dt>
