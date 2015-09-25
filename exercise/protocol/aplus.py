@@ -3,6 +3,7 @@ import logging
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
+from lib.email_messages import email_course_error
 from lib.remote_page import RemotePage, RemotePageException
 from .exercise_page import ExercisePage
 
@@ -22,7 +23,9 @@ def load_exercise_page(request, url, exercise):
         messages.error(request,
             _("Connecting to the exercise service failed!"))
         if exercise.id and exercise.course_instance.visible_to_students:
-            logger.exception("Failed to request {}".format(url))
+            msg = "Failed to request {}".format(url)
+            logger.exception(msg)
+            email_course_error(exercise.instance, msg)
     return page
 
 
@@ -41,7 +44,9 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
         messages.error(request,
             _("Connecting to the assessment service failed!"))
         if exercise.id and exercise.course_instance.visible_to_students:
-            logger.exception("Failed to request {}".format(url))
+            msg = "Failed to request {}".format(url)
+            logger.exception(msg)
+            email_course_error(exercise.instance, msg)
 
     if page.is_loaded:
         submission.feedback = page.content
@@ -60,12 +65,6 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                         ))
                 else:
                     submission.set_error()
-                    logger.error("Insane grading %d/%d (exercise max %d): %s",
-                        page.points,
-                        page.max_points,
-                        exercise.max_points,
-                        exercise.service_url
-                    )
                     messages.error(request,
                         _("Assessment service responded with invalid score. "
                           "Points: {points:d}/{max:d} "
@@ -75,6 +74,11 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                             exercise_max=exercise.max_points
                         )
                     )
+                    msg = "Insane grading {:d}/{:d} (exercise max {:d}): {}"\
+                        .format(page.points, page.max_points,
+                            exercise.max_points, exercise.service_url)
+                    logger.error(msg)
+                    email_course_error(exercise.instance, msg)
             else:
                 messages.success(request,
                     _("The exercise was submitted successfully "

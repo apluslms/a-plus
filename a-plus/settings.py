@@ -46,6 +46,7 @@ from .privacy_policy import PRIVACY_POLICY_TEXT
 # Exercise settings
 EXERCISE_HTTP_TIMEOUT = 15
 EXERCISE_HTTP_RETRIES = (5,5,5)
+EXERCISE_ERROR_DESCRIPTION = 'As a course teacher or technical contact you were automatically emailed by A+ about the error incident.'
 
 # Application definition
 
