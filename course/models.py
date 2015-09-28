@@ -101,7 +101,8 @@ class CourseInstance(models.Model):
     course = models.ForeignKey(Course, related_name="instances")
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
-            "email addresses. Set this field to override the recipients."))
+            "email addresses. Set this field as comma separated emails to "
+            "override the recipients."))
     plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk",
                                       content_type_field="container_type")
     tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",

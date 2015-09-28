@@ -52,8 +52,8 @@ As a course teacher or technical contact you were automatically emailed by A+ ab
 
 {message}
 
-Edit the exercise:
-  {exercise_edit_url}
+Open the exercise:
+  {exercise_url}
 Edit course email settings:
   {course_edit_url}
 

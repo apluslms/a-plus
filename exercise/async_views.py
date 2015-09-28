@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 
 from userprofile.models import UserProfile
+from lib.email_messages import email_course_error
 from lib.helpers import extract_form_errors
 from .forms import SubmissionCallbackForm
 from .models import BaseExercise
@@ -152,7 +153,7 @@ def _post_async_submission(request, exercise, submission, students, errors):
             msg = "Exercise service returned with invalid grade request: {}"\
                 .format("\n".join(errors))
             logger.error(msg)
-            email_course_error(None, exercise, msg)
+            email_course_error(request, exercise, msg, False)
         return {
             "success": False,
             "errors": errors
