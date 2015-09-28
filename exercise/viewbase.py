@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
@@ -25,8 +26,9 @@ class ExerciseMixin(CourseModuleAccessMixin, CourseInstanceMixin):
         super().access_control()
         if self.access_mode == ACCESS.GRADING:
             if not (self.is_teacher or self.exercise.allow_assistant_grading):
-                raise PermissionDenied(
+                messages.error(self.request,
                     _("Assistant grading is not allowed for this exercise."))
+                raise PermissionDenied()
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
@@ -49,6 +51,8 @@ class SubmissionMixin(ExerciseMixin):
         super().access_control()
         if not (self.is_course_staff \
             or self.submission.is_submitter(self.request.user)):
+                messages.error(self.request,
+                    _("Only the submitter shall pass."))
                 raise PermissionDenied()
 
 
