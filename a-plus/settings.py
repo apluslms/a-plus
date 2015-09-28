@@ -46,7 +46,29 @@ from .privacy_policy import PRIVACY_POLICY_TEXT
 # Exercise settings
 EXERCISE_HTTP_TIMEOUT = 15
 EXERCISE_HTTP_RETRIES = (5,5,5)
-EXERCISE_ERROR_DESCRIPTION = 'As a course teacher or technical contact you were automatically emailed by A+ about the error incident.'
+EXERCISE_ERROR_SUBJECT = """A+ exercise error in {course}: {exercise}"""
+EXERCISE_ERROR_DESCRIPTION = """
+As a course teacher or technical contact you were automatically emailed by A+ about the error incident. A student could not access or submit an exercise because the grading service used is offline or unable to produce valid response.
+
+{message}
+
+Edit the exercise:
+  {exercise_edit_url}
+Edit course email settings:
+  {course_edit_url}
+
+****************************************
+Error trace:
+****************************************
+
+{error_trace}
+
+****************************************
+Request fields:
+****************************************
+
+{request_fields}
+"""
 
 # Application definition
 

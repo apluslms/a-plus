@@ -140,8 +140,6 @@ def _post_async_submission(request, exercise, submission, students, errors):
     form = SubmissionCallbackForm(request.POST)
     errors.extend(extract_form_errors(form))
     if not form.is_valid():
-        logger.error('Exercise service returned with invalid grade request: %s',
-            '\n'.join(errors))
         submission.feedback = _(
             "<div class=\"alert alert-error\">\n"
             "<p>The exercise assessment service is malfunctioning. "
@@ -150,6 +148,11 @@ def _post_async_submission(request, exercise, submission, students, errors):
             "</div>")
         submission.set_error()
         submission.save()
+        if exercise.course_instance.visible_to_students:
+            msg = "Exercise service returned with invalid grade request: {}"\
+                .format("\n".join(errors))
+            logger.error(msg)
+            email_course_error(None, exercise, msg)
         return {
             "success": False,
             "errors": errors

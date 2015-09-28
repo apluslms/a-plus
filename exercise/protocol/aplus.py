@@ -25,7 +25,7 @@ def load_exercise_page(request, url, exercise):
         if exercise.id and exercise.course_instance.visible_to_students:
             msg = "Failed to request {}".format(url)
             logger.exception(msg)
-            email_course_error(exercise.instance, msg)
+            email_course_error(request, exercise, msg)
     return page
 
 
@@ -43,10 +43,10 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     except RemotePageException:
         messages.error(request,
             _("Connecting to the assessment service failed!"))
-        if exercise.id and exercise.course_instance.visible_to_students:
+        if exercise.course_instance.visible_to_students:
             msg = "Failed to request {}".format(url)
             logger.exception(msg)
-            email_course_error(exercise.instance, msg)
+            email_course_error(request, exercise, msg)
 
     if page.is_loaded:
         submission.feedback = page.content
@@ -66,7 +66,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 else:
                     submission.set_error()
                     messages.error(request,
-                        _("Assessment service responded with invalid score. "
+                        _("Assessment service responded with invalid points. "
                           "Points: {points:d}/{max:d} "
                           "(exercise max {exercise_max:d})").format(
                             points=page.points,
@@ -74,11 +74,13 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                             exercise_max=exercise.max_points
                         )
                     )
-                    msg = "Insane grading {:d}/{:d} (exercise max {:d}): {}"\
-                        .format(page.points, page.max_points,
-                            exercise.max_points, exercise.service_url)
-                    logger.error(msg)
-                    email_course_error(exercise.instance, msg)
+                    if exercise.course_instance.visible_to_students:
+                        msg = "Graded with invalid points {:d}/{:d}"\
+                            " (exercise max {:d}): {}".format(
+                                page.points, page.max_points,
+                                exercise.max_points, exercise.service_url)
+                        logger.error(msg)
+                        email_course_error(request, exercise, msg)
             else:
                 messages.success(request,
                     _("The exercise was submitted successfully "
