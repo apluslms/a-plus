@@ -25,9 +25,10 @@ class Course(models.Model):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     url = models.CharField(unique=True, max_length=255, blank=False,
-                       validators=[RegexValidator(regex="^[\w\-\.]*$")],
-                       help_text=_("Input an URL identifier for this course."))
-    teachers = models.ManyToManyField(UserProfile, related_name="teaching_courses", blank=True)
+        validators=[RegexValidator(regex="^[\w\-\.]*$")],
+        help_text=_("Input an URL identifier for this course."))
+    teachers = models.ManyToManyField(UserProfile,
+        related_name="teaching_courses", blank=True)
 
     def __str__(self):
         return "{} {}".format(self.code, self.name)
@@ -98,6 +99,10 @@ class CourseInstance(models.Model):
     description = models.TextField(blank=True)
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
     course = models.ForeignKey(Course, related_name="instances")
+    technical_error_emails = models.CharField(max_length=255, blank=True,
+        help_text=_("By default exercise errors are reported to teacher "
+            "email addresses. Set this field as comma separated emails to "
+            "override the recipients."))
     plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk",
                                       content_type_field="container_type")
     tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",

@@ -15,6 +15,10 @@
     {% csrf_token %}
     <legend>{% trans "Course details" %}</legend>
     {{ form|bootstrap }}
+    <div class="form-group">
+        <label>{% trans "Teachers" %}</label>
+        <p>{{ course.teachers.all|profiles }}</p>
+    </div>
     <button type="submit" class="btn btn-primary">
         {% trans "Save" %}
     </button>

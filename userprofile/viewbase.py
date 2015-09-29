@@ -1,3 +1,4 @@
+from django.template.response import SimpleTemplateResponse
 from django.views.generic.base import View
 
 from lib.viewbase import BaseMixin, BaseTemplateView
@@ -34,6 +35,7 @@ class LoginException(Exception):
 
 class UserProfileMixin(BaseMixin, AccessMixin):
     access_mode = ACCESS.STUDENT
+    login_redirect = True
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -53,7 +55,13 @@ class UserProfileMixin(BaseMixin, AccessMixin):
         try:
             return super().dispatch(request, *args, **kwargs)
         except LoginException:
-            return self.handle_no_permission()
+            if self.login_redirect:
+                return self.handle_no_permission()
+            path = request.path
+            if path.endswith("/plain/"):
+                path = path[:-6]
+            return SimpleTemplateResponse("userprofile/login_plain.html",
+                { "path": path })
 
 
 class UserProfileView(UserProfileMixin, BaseTemplateView):

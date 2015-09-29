@@ -1,5 +1,7 @@
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import ACCESS, UserProfileMixin
@@ -22,6 +24,8 @@ class CourseMixin(UserProfileMixin):
         super().access_control()
         if self.access_mode >= ACCESS.TEACHER:
             if not self.is_teacher:
+                messages.error(self.request,
+                    _("Only course teachers shall pass."))
                 raise PermissionDenied()
 
 
@@ -47,8 +51,12 @@ class CourseInstanceMixin(CourseMixin):
         super().access_control()
         if self.access_mode >= ACCESS.ASSISTANT:
             if not self.is_course_staff:
+                messages.error(self.request,
+                    _("Only course staff shall pass."))
                 raise PermissionDenied()
         elif not self.instance.is_visible_to(self.request.user):
+                messages.error(self.request,
+                    _("The resource is not currently visible."))
                 raise PermissionDenied()
 
 
@@ -61,6 +69,9 @@ class CourseModuleAccessMixin(object):
     def access_control(self):
         super().access_control()
         if not (self.is_course_staff or self.module.is_after_open()):
+            messages.error(self.request,
+                _("The module will open for submissions at {date}").format(
+                    date=self.module.opening_time))
             raise PermissionDenied()
 
 

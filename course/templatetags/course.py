@@ -19,6 +19,16 @@ def url(model_object, name=None):
     return model_object.get_absolute_url()
 
 
+@register.filter
+def profiles(profiles):
+    return ", ".join(
+        "{} ({})".format(
+            profile.user.get_full_name(),
+            profile.student_id if profile.student_id else profile.user.username
+        ) for profile in profiles
+    )
+
+
 @register.simple_tag
 def brand_name():
     return settings.BRAND_NAME

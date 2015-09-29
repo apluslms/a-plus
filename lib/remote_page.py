@@ -1,8 +1,14 @@
-import requests
-import urllib.parse
+import logging
 import posixpath
+import requests
+import time
+import urllib.parse
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
+
+logger = logging.getLogger("aplus.remote_page")
 
 
 class RemotePageException(Exception):
@@ -15,21 +21,42 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, timeout=20, post=False, data=None, files=None):
+    def __init__(self, url, post=False, data=None, files=None):
         self.url = urllib.parse.urlparse(url)
         try:
-            if post:
-                self.response = requests.post(url, data=data, files=files,
-                    timeout=timeout)
-            else:
-                self.response = requests.get(url, timeout=timeout)
-            if self.response.status_code != 200:
-                self.response.raise_for_status()
-            self.response.encoding = "utf-8"
-            self.soup = BeautifulSoup(self.response.text)
+            self.response = self._request(url, post, data, files)
         except requests.exceptions.RequestException:
             raise RemotePageException(
                 _("Connecting to the course service failed!"))
+        self.response.encoding = "utf-8"
+        self.soup = BeautifulSoup(self.response.text)
+
+    def _request(self, url, post=False, data=None, files=None):
+        last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
+        n = 0
+        while n <= last_retry:
+            try:
+                if post:
+                    response = requests.post(url, data=data, files=files,
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                else:
+                    response = requests.get(url,
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                if response.status_code == 200:
+                    return response
+                elif response.status_code >= 500 and n < last_retry:
+                    logger.warning("Retrying: Server error {:d} at {}".format(
+                        response.status_code, url))
+                else:
+                    response.raise_for_status()
+            except requests.exceptions.ConnectionError as e:
+                if n >= last_retry:
+                    raise e
+                logger.warning("Retrying: ConnectionError to {}".format(url));
+            time.sleep(settings.EXERCISE_HTTP_RETRIES[n])
+            n += 1
+        logger.error("HTTP request loop ended in unexpected state")
+        assert False
 
     def base_url(self):
         return urllib.parse.urlunparse((
