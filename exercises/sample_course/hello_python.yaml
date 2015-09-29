@@ -18,6 +18,7 @@ actions:
   - type: grader.actions.prepare
     charset: UTF-8
     cp_exercises: hello_python->user
+    expect_success: True
   - type: grader.actions.sandbox_python_test
     #type: grader.actions.sandbox # Using other type for unittest output.
     cmd: [ "virtualenv.sh", "sample", "python", "tests.py" ]

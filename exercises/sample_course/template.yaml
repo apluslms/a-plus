@@ -25,6 +25,7 @@ files:
 actions:
   - type: grader.actions.prepare
     charset: us-ascii
+    #expect_success: True # Failed action does not only stop but raises an error.
   - type: grader.actions.sandbox
     cmd: [ "template.sh", "--opt", "one two three" ]
     #title: Feedback title for the action

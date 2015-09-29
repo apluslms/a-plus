@@ -9,7 +9,7 @@ LOGGER = logging.getLogger('main')
 def runactions(course, exercise, submission_dir):
     '''
     Runs configured grading actions for an exercise submission.
-    
+
     @type course: C{dict}
     @param course: a course configuration
     @type exercise: C{dict}
@@ -22,6 +22,7 @@ def runactions(course, exercise, submission_dir):
     total_points = 0
     max_points = 0
     total_result = []
+    error = False
     has_appendixes = False
 
     # Try to run the grading actions.
@@ -32,12 +33,12 @@ def runactions(course, exercise, submission_dir):
                 exgrader = import_by_path(action["type"])
             except ImproperlyConfigured as e:
                 raise ConfigError("Invalid action \"type\" in exercise configuration.", e)
-            
+
             # Run the exercise grader action
             LOGGER.debug("Running action \"%s\"", action["type"])
             r = exgrader(course, exercise, action, submission_dir)
             has_appendixes = has_appendixes or "appendix" in r
-            
+
             # Configured template values.
             if "title" in action:
                 r["title"] = action["title"]
@@ -55,35 +56,43 @@ def runactions(course, exercise, submission_dir):
                 r["max_points"] = action["max_points"]
                 if r["points"] > action["max_points"]:
                     r["points"] = action["max_points"]
-            
+
             # Sum total numbers.
             total_result.append(r)
             total_points += r["points"]
             if "max_points" in r:
                 max_points += r["max_points"]
             if r["stop"]:
+                if "expect_success" in action and action["expect_success"]:
+                    error = True
                 break
-    
+
         # Override with configured max points.
         if "max_points" in exercise:
             max_points = exercise["max_points"]
-    
+
         # Check the points are in range.
         if total_points > max_points:
             total_points = max_points
         elif total_points < 0:
             total_points = 0
-    
+
         # Determine template.
         template = None
         if "feedback_template" in exercise:
             template = exercise["feedback_template"]
         else:
             template = "access/task_success.html"
-        
+
         return {
             "template": template,
-            "result": { "points": total_points, "max_points": max_points, "tests": total_result, "has_appendixes": has_appendixes }
+            "result": {
+                "points": total_points,
+                "max_points": max_points,
+                "tests": total_result,
+                "error": error,
+                "has_appendixes": has_appendixes,
+            }
         }
 
     finally:

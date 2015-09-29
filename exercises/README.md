@@ -145,6 +145,8 @@ will run in the listed order.
 	* `max_points` (optional): Overrides max points reported by the action.
 	* `title` (optional): grading action title for template
 	* `html` (optional): true to pass output as HTML in template
+	* `expect_success` (optional): true to not only stop but to raise an error
+		when the action fails
 
 	Rest of the attributes are action type specific.
 

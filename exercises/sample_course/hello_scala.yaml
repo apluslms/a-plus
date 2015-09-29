@@ -27,6 +27,7 @@ actions:
   - type: grader.actions.prepare
     charset: UTF-8
     cp_exercises: HelloScalaTest.scala->user/HelloScalaTest.scala
+    expect_success: True
   - title: Compiling
     type: grader.actions.sandbox
     cmd: [ "scala_compile.sh" ]

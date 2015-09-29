@@ -63,7 +63,15 @@ def grade(course_key, exercise_key, lang, submission_url, submission_dir):
     try:
         LOGGER.debug("Grading \"%s/%s\" for \"%s\"", course_key, exercise_key, submission_url)
         r = runactions(course, exercise, submission_dir)
-        LOGGER.debug("Finished grading with points: %d/%d", r["result"]["points"], r["result"]["max_points"])
+        if r["result"]["error"]:
+            LOGGER.error("Grading \"%s/%s\" for \"%s\" failed. "
+                "Expected success for the last action:\n\n%s\n\n%s",
+                course_key, exercise_key, submission_url,
+                r["result"]["tests"][-1]["out"],
+                r["result"]["tests"][-1]["err"])
+        else:
+            LOGGER.debug("Finished grading with points: %d/%d",
+                r["result"]["points"], r["result"]["max_points"])
         post_result(submission_url, course, exercise, r["template"], r["result"])
 
     except SoftTimeLimitExceeded:
