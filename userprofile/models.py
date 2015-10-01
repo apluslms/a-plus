@@ -3,29 +3,31 @@ from django.db import models
 from django.db.models.signals import post_save
 
 
+class UserProfileManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("user")
+
+
 class UserProfile(models.Model):
     """
     Additional user information and methods.
     """
 
     @classmethod
-    def get_by(cls, **fields):
-        # Regular related fields are populated with select_related.
-        return cls.objects.select_related('hidden_categories').get(**fields)
-
-    @classmethod
     def get_by_student_id(cls, student_id):
-        return UserProfile.get_by(student_id=student_id)
+        return cls.objects.get(student_id=student_id)
 
     @classmethod
     def get_by_request(cls, request):
         if request.user.is_authenticated():
-            return UserProfile.get_by(user=request.user)
+            return cls.objects.get(user=request.user)
         raise RuntimeError("Seeking user profile without authenticated user.")
 
     user = models.OneToOneField(User)
     lang = models.CharField(max_length=5, default="en_US")
     student_id = models.CharField(max_length=25, null=True, blank=True)
+    objects = UserProfileManager()
 
     class Meta:
         ordering = ['id']

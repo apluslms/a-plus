@@ -80,7 +80,8 @@ def _async_submission_handler(request, exercise, students, submission=None):
     # Check the IP address matches the host name.
     if request.META["REMOTE_ADDR"] != _get_service_ip(exercise.service_url):
         logger.error('Request IP does not match exercise service URL: %s != %s',
-            request.META["REMOTE_ADDR"], exercise.service_url)
+            request.META["REMOTE_ADDR"], exercise.service_url,
+            extra={'request': request})
         return HttpResponseForbidden(
             _("Only the exercise service is allowed to access this URL."))
 
@@ -152,7 +153,7 @@ def _post_async_submission(request, exercise, submission, students, errors):
         if exercise.course_instance.visible_to_students:
             msg = "Exercise service returned with invalid grade request: {}"\
                 .format("\n".join(errors))
-            logger.error(msg)
+            logger.error(msg, extra={"request": request})
             email_course_error(request, exercise, msg, False)
         return {
             "success": False,
