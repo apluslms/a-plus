@@ -30,7 +30,8 @@ class ListSubmissionsView(ExerciseBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.submissions = self.exercise.submissions.all()
+        self.submissions = self.exercise.submissions\
+            .prefetch_related('submitters').all()
         self.note("submissions")
 
 
