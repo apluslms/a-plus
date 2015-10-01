@@ -79,7 +79,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                             " (exercise max {:d}): {}".format(
                                 page.points, page.max_points,
                                 exercise.max_points, exercise.service_url)
-                        logger.error(msg)
+                        logger.error(msg, extra={"request": request})
                         email_course_error(request, exercise, msg)
             else:
                 messages.success(request,
