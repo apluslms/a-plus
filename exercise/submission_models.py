@@ -154,7 +154,8 @@ class Submission(models.Model):
 
         # If service max points is zero, then exercise max points must be zero
         # too because otherwise adjusted_grade would be ambiguous.
-        assert not (max_points == 0 and self.exercise.max_points != 0)
+        # Disabled: Teacher is always responsible the exercise can be passed.
+        #assert not (max_points == 0 and self.exercise.max_points != 0)
 
         self.service_points = points
         self.service_max_points = max_points
