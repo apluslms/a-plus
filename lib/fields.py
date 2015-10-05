@@ -1,4 +1,5 @@
 import json
+from PIL import Image
 
 from django import forms
 from django.core import exceptions
@@ -76,6 +77,23 @@ class JSONFormField(forms.CharField):
     """
     def to_python(self, value):
         return JSONField.parse_json(value)
-    
+
     def prepare_value(self, value):
         return JSONField.print_json(value)
+
+
+class ResizedImageField(models.ImageField):
+    """
+    An image field that scales submitted image to maximum size.
+    """
+    def __init__(self, *args, **kwargs):
+        self.max_size = kwargs.pop("max_size", None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self, value, model_instance):
+        value = super().clean(value, model_instance)
+        if value:
+            image = Image.open(value.path)
+            image.thumbnail(self.max_size, Image.ANTIALIAS)
+            image.save(value.path)
+        return value

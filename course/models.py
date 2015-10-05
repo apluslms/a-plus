@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from apps.models import BaseTab, BasePlugin
-from lib.fields import PercentField
+from lib.fields import PercentField, ResizedImageField
 from lib.helpers import safe_file_name
 from userprofile.models import UserProfile
 
@@ -95,7 +95,8 @@ class CourseInstance(models.Model):
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     visible_to_students = models.BooleanField(default=True)
-    image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
+    image = ResizedImageField(blank=True, null=True,
+        upload_to=build_upload_dir, max_size=(800,600))
     description = models.TextField(blank=True)
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
     course = models.ForeignKey(Course, related_name="instances")
