@@ -169,9 +169,10 @@ class Submission(models.Model):
         # Check if this submission was done late. If it was, reduce the points
         # with late submission penalty. No less than 0 points are given. This
         # is not done if no_penalties is True.
-        # TODO: Decide whether penalties apply to deadline deviations.
-        if not no_penalties and self.exercise.is_late(when=self.submission_time):
-            self.late_penalty_applied = self.exercise.course_module.late_submission_penalty
+        if not no_penalties and self.is_late():
+            self.late_penalty_applied = \
+                self.exercise.course_module.late_submission_penalty \
+                if self.exercise.course_module.late_submissions_allowed else 0
             adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
         else:
             self.late_penalty_applied = None
@@ -195,6 +196,16 @@ class Submission(models.Model):
 
     def set_error(self):
         self.status = self.STATUS_ERROR
+
+    def is_late(self):
+        if self.submission_time <= self.exercise.course_module.closing_time:
+            return False
+        deviation = self.exercise.one_has_deadline_deviation(
+            self.submitters.all())
+        if deviation and deviation.without_late_penalty\
+                and self.submission_time <= deviation.get_new_deadline():
+            return False
+        return True
 
     def is_graded(self):
         return self.status == self.STATUS_READY
