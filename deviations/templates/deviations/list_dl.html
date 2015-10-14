@@ -27,6 +27,7 @@
 			<th>{% trans "Submitter" %}</th>
 			<th>{% trans "Exercise" %}</th>
 			<th>{% trans "Extra minutes" %}</th>
+			<th>{% trans "Without late penalty" %}</th>
 			<th>{% trans "Actions" %}</th>
 		</tr>
 		{% for deviation in deviations %}
@@ -34,6 +35,7 @@
 			<td>{{ deviation.submitter }}</td>
 			<td>{{ deviation.exercise }}</td>
 			<td>{{ deviation.extra_minutes }}</td>
+			<td>{{ deviation.without_late_penalty }}</td>
 			<td>
 				<form method="post" action="{{ deviation|url:'deviations-remove-dl' }}">
 					{% csrf_token %}

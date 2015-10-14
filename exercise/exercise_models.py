@@ -65,10 +65,6 @@ class LearningObject(ModelWithInheritance):
     def is_after_open(self, when=None):
         return self.course_module.is_after_open(when=when)
 
-    def is_late(self, when=None):
-        when = when or timezone.now()
-        return when >= self.course_module.closing_time
-
     def next(self):
         exercise = self.course_module.learning_objects \
             .exclude(id=self.id).filter(order__gt=self.order).first()
@@ -127,12 +123,19 @@ class BaseExercise(LearningObject):
         or module.is_late_submission_open(when=when):
             return True
         if self.course_module.is_after_open(when=when):
-            for profile in students:
-                deviation = self.deadlineruledeviation_set \
-                    .filter(submitter=profile).first()
-                if deviation and when <= deviation.get_new_deadline():
-                    return True
+            deviation = self.one_has_deadline_deviation(students)
+            if deviation and when <= deviation.get_new_deadline():
+                return True
         return False
+
+    def one_has_deadline_deviation(self, students):
+        deviation = None
+        for profile in students:
+            for d in self.deadlineruledeviation_set.filter(submitter=profile):
+                if not deviation\
+                        or d.get_new_deadline() > deviation.get_new_deadline():
+                    deviation = d
+        return deviation
 
     def get_submissions_for_student(self, user_profile, exclude_errors=False):
         if exclude_errors:

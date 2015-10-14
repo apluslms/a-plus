@@ -17,6 +17,10 @@ class DeadlineRuleDeviationForm(forms.Form):
         min_value=1,
         help_text=_("Amount of extra time given in minutes."),
     )
+    without_late_penalty = forms.BooleanField(
+        initial=True,
+        label=_("Do not apply late penalty during extra time."),
+    )
 
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.pop('instance')
