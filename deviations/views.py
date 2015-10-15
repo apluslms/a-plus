@@ -36,17 +36,20 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         minutes = form.cleaned_data["minutes"]
+        without_late_penalty = form.cleaned_data["without_late_penalty"]
         for profile in form.cleaned_data["submitter"]:
             for exercise in form.cleaned_data["exercise"]:
-                self.add_deviation(exercise, profile, minutes)
+                self.add_deviation(
+                    exercise, profile, minutes, without_late_penalty)
         return super().form_valid(form)
 
-    def add_deviation(self, exercise, profile, minutes):
+    def add_deviation(self, exercise, profile, minutes, without_late_penalty):
         try:
             deviation = DeadlineRuleDeviation.objects.create(
                 exercise=exercise,
                 submitter=profile,
-                extra_minutes=minutes
+                extra_minutes=minutes,
+                without_late_penalty=without_late_penalty,
             )
         except IntegrityError:
             messages.warning(self.request,

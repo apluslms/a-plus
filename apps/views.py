@@ -1,6 +1,7 @@
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 
+from course.models import CourseInstance
 from course.viewbase import CourseInstanceBaseView
 from .models import BaseTab
 
@@ -14,7 +15,7 @@ class TabView(CourseInstanceBaseView):
             BaseTab,
             id=self._get_kwarg(self.tab_kw),
         ).as_leaf_class()
-        self.container = tab_object.container
+        self.container = self.tab_object.container
 
         if isinstance(self.container, CourseInstance):
             if self.container.id != self.instance.id:

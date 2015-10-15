@@ -27,13 +27,18 @@
 <form id="clone-form" method="post" action="{{ instance|url:'course-clone' }}" class="well">
     {% csrf_token %}
     <legend>{% trans "Clone course" %}</legend>
+    <p>
+        {% blocktrans %}
+        This action will clone all course modules and exercises into a new instance.
+        {% endblocktrans %}
+    </p>
     <div class="form-group">
-        <label class="control-label" for="id_new_url">{% trans "New url" %}</label>
+        <label class="control-label" for="id_new_url">{% trans "New URL identifier for the course instance" %}</label>
         <input type="text" id="id_new_url" name="new_url" class="form-control" />
     </div>
     <div class="form-group">
         <button type="submit" class="btn btn-warning">
-            {% trans "Clone new instance" %}
+            {% trans "Clone into new instance" %}
         </button>
     </div>
     <div class="hide progress">

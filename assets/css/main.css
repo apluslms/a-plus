@@ -5,6 +5,9 @@
 dl > dt {
     margin-top: 0.5em;
 }
+iframe {
+    border: none;
+}
 .pre {
     white-space: pre;
 }

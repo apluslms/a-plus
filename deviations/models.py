@@ -36,6 +36,7 @@ class SubmissionRuleDeviation(models.Model):
 
 class DeadlineRuleDeviation(SubmissionRuleDeviation):
     extra_minutes = models.IntegerField()
+    without_late_penalty = models.BooleanField(default=True)
 
     class Meta(SubmissionRuleDeviation.Meta):
         pass

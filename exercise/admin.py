@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile
-from exercise.templatetags import exercise
+from course.templatetags import course as coursetags
 
 
 def real_class(obj):
@@ -24,7 +24,7 @@ def submitters_wrapper(obj):
     """
     Submitters as a string for a submission.
     """
-    return exercise.students(obj.submitters.all())
+    return coursetags.profiles(obj.submitters.all())
 
 
 real_class.short_description = _('Real class')
@@ -56,6 +56,12 @@ class SubmissionAdmin(admin.ModelAdmin):
                      "submitters__user__first_name",
                      "submitters__user__last_name", "submitters__user__email"]
     list_per_page = 500
+
+    def get_queryset(self, request):
+        return super().get_queryset(request)\
+            .defer("feedback", "assistant_feedback",
+                "submission_data", "grading_data")\
+            .prefetch_related('submitters')
 
 
 admin.site.register(BaseExercise, BaseExerciseAdmin)

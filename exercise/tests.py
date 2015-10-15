@@ -14,7 +14,8 @@ from django.utils.datastructures import MultiValueDict
 
 from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory
-from deviations.models import DeadlineRuleDeviation
+from deviations.models import DeadlineRuleDeviation, \
+    MaxSubmissionsRuleDeviation
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject
 from exercise.presentation.summary import UserCourseSummary
@@ -315,6 +316,24 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.grader.userprofile])[0])
         self.assertTrue(self.old_base_exercise.is_submission_allowed([self.grader.userprofile])[0])
 
+    def test_base_exercise_submission_deviation(self):
+        self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))
+        deviation = MaxSubmissionsRuleDeviation.objects.create(
+            exercise=self.base_exercise,
+            submitter=self.user.userprofile,
+            extra_submissions=3
+        )
+        self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile]))
+
+    def test_base_exercise_deadline_deviation(self):
+        self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile]))
+        deviation = DeadlineRuleDeviation.objects.create(
+            exercise=self.old_base_exercise,
+            submitter=self.user.userprofile,
+            extra_minutes=10*24*60
+        )
+        self.assertTrue(self.old_base_exercise.one_has_access([self.user.userprofile]))
+
     def test_base_exercise_total_submission_count(self):
         self.assertEqual(self.base_exercise.get_total_submitter_count(), 2)
         self.assertEqual(self.static_exercise.get_total_submitter_count(), 0)
@@ -407,10 +426,28 @@ class ExerciseTest(TestCase):
         self.late_submission_when_late_allowed.set_points(5, 10)
         self.late_late_submission_when_late_allowed.set_points(5, 10)
         self.assertFalse(self.submission.late_penalty_applied)
-        self.assertTrue(self.late_submission.late_penalty_applied)
+        self.assertTrue(self.late_submission.late_penalty_applied is not None)
+        self.assertAlmostEqual(self.late_submission.late_penalty_applied, 0.0)
+        self.assertEqual(self.late_submission.service_points, 5)
+        self.assertEqual(self.late_submission.grade, 50)
         self.assertFalse(self.submission_when_late_allowed.late_penalty_applied)
         self.assertTrue(self.late_submission_when_late_allowed.late_penalty_applied)
         self.assertTrue(self.late_late_submission_when_late_allowed.late_penalty_applied)
+        self.assertAlmostEqual(self.late_late_submission_when_late_allowed.late_penalty_applied, 0.2)
+        self.assertEqual(self.late_late_submission_when_late_allowed.service_points, 5)
+        self.assertEqual(self.late_late_submission_when_late_allowed.grade, 40)
+        deviation = DeadlineRuleDeviation.objects.create(
+            exercise=self.base_exercise_with_late_submission_allowed,
+            submitter=self.user.userprofile,
+            extra_minutes=10*24*60,
+            without_late_penalty=True
+        )
+        self.late_late_submission_when_late_allowed.set_points(5, 10)
+        self.assertFalse(self.late_late_submission_when_late_allowed.late_penalty_applied)
+        deviation.without_late_penalty=False
+        deviation.save()
+        self.late_late_submission_when_late_allowed.set_points(5, 10)
+        self.assertAlmostEqual(self.late_late_submission_when_late_allowed.late_penalty_applied, 0.2)
 
     def test_early_submission(self):
         self.course_module_with_late_submissions_allowed.opening_time = self.tomorrow
