@@ -2,10 +2,9 @@
 Utility functions for exercise HTTP responses.
 
 '''
-from util.templates import template_to_str
-import urllib, urllib2
-import json
+import requests
 import logging
+from util.templates import template_to_str
 
 LOGGER = logging.getLogger('main')
 
@@ -19,7 +18,10 @@ def get_json(url):
     @rtype: C{str}
     @return: the HTTP response content
     '''
-    return json.load(urllib2.urlopen(url, timeout=3))
+    r = requests.get(url, timeout=3)
+    if r.status_code != 200:
+        r.raise_for_status()
+    return r.json()
 
 
 def post_result(submission_url, course, exercise, template, result):
@@ -53,17 +55,16 @@ def post_result(submission_url, course, exercise, template, result):
         data["error"] = True
 
     # Try to send send the result.
-    res = None
     try:
-        response = urllib2.urlopen(submission_url, urllib.urlencode(data))
-        try:
-            res = json.loads(response.read())
-        except Exception:
-            pass
-        if not res or not "success" in res or not res["success"]:
-            LOGGER.error("Result POST to \"%s\" got unexpected response: %s", submission_url, res)
-    except ValueError:
-        LOGGER.error("Invalid submission_url \"%s\"", submission_url)
+        r = requests.post(submission_url, data=data)
+        if r.status_code != 200:
+            r.raise_for_status()
+        rsp = r.json()
+        if not "success" in rsp or not rsp["success"]:
+            LOGGER.error("Result POST to \"%s\" got unexpected response: %s",
+                submission_url, rsp.body)
+    except Exception:
+        LOGGER.error("Failed to submit \"%s\"", submission_url)
 
 
 def post_system_error(submission_url, course=None, exercise=None):

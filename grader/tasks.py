@@ -19,7 +19,7 @@ from grader.runactions import runactions
 from util.http import post_system_error, post_result
 try:
     from urllib.parse import urlparse
-except ImportError
+except ImportError:
     from urlparse import urlparse
 
 # Check settings object and validate base dir.

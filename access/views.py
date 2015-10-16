@@ -114,7 +114,7 @@ def pull_request(request):
             flagdir = os.path.join(tempfile.gettempdir(), "mooc-grader")
             if not os.path.exists(flagdir):
                 os.makedirs(flagdir)
-                os.chmod(flagdir, 0777)
+                os.chmod(flagdir, 0o777)
             filename = os.path.join(flagdir, "gitpull.flag")
             with open(filename, "a") as f:
                 f.write("%s\n" % (course["key"]))
