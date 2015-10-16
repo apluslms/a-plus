@@ -13,10 +13,14 @@ from celery import Celery
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.utils import translation
+from pyrabbit.api import Client
 from access.config import ConfigParser, ConfigError
 from grader.runactions import runactions
 from util.http import post_system_error, post_result
-
+try:
+    from urllib.parse import urlparse
+except ImportError
+    from urlparse import urlparse
 
 # Check settings object and validate base dir.
 if len(settings.BASE_DIR) < 2:
@@ -31,6 +35,16 @@ app.conf.update(
     CELERYD_PREFETCH_MULTIPLIER=1,
     CELERYD_HIJACK_ROOT_LOGGER=True,
 )
+
+# Create rabbitmq management client.
+client = None
+path = None
+if settings.CELERY_BROKER:
+    uri = urlparse(settings.CELERY_BROKER)
+    client = Client(
+        "{}:{:d}".format(uri.hostname, settings.RABBITMQ_MANAGEMENT_PORT),
+        uri.username, uri.password)
+    path = uri.path
 
 # Hold on to the latest exercise configuration.
 config = ConfigParser()
@@ -90,16 +104,9 @@ def queue_length():
     @rtype: C{int}
     @return: a number of queued tasks
     '''
-    if settings.CELERY_BROKER:
-        try:
-            from librabbitmq import Connection
-            host = settings.CELERY_BROKER.split("//")[1].split("@")[1]
-            connection = Connection(host=host, userid="guest", password="guest", virtual_host="/")
-            channel = connection.channel()
-            name, jobs, consumers = channel.queue_declare(queue="celery", passive=True)
-            channel.close()
-            connection.close()
-            return jobs
-        except ImportError:
-            LOGGER.exception("Failed to import librabbitmq module. Queue length is unknown.")
+    try:
+        if client:
+            return client.get_queue_depth(path, "celery")
+    except Error:
+        LOGGER.exception("Queue length is unknown.")
     return 0
