@@ -78,7 +78,7 @@ class ConfigParser:
 
         # Pick course data into list.
         course_list = []
-        for c in self._courses.itervalues():
+        for c in self._courses.values():
             course_list.append(c["data"])
         return course_list
 

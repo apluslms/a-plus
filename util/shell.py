@@ -41,7 +41,7 @@ def invoke_script(script, arguments, dirarg=None):
     @return: code = process return code, out = standard out, err = standard error
     '''
     cmd = [ script ]
-    for key, value in arguments.iteritems():
+    for key, value in arguments.items():
         cmd.append("--%s" % (key))
         cmd.append("%s" % (value))
     if dirarg is not None:

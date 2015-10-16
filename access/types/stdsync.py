@@ -48,7 +48,7 @@ def comparePostValues(request, course, exercise, post_url):
             failed = []
 
             # Check each POST value against the rule.
-            for (name, rule) in exercise["values"].iteritems():
+            for (name, rule) in exercise["values"].items():
                 received[name] = request.POST.get(name, False)
                 if "accept" in rule:
                     if (received[name] in rule["accept"]) or \
