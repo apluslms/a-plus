@@ -1,0 +1,29 @@
+<VirtualHost *:80>
+	ServerAdmin root@grader-n.foo.bar
+	ServerName grader-n.foo.bar
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+	LogLevel info
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+	Alias /static/ /home/[shell-username]/mooc-grader/static/
+	Alias /robots.txt /home/[shell-username]/mooc-grader/static/robots.txt
+	<Directory /home/[shell-username]/mooc-grader/static/>
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	<Location />
+        	Options FollowSymLinks
+        	SetHandler uwsgi-handler
+        	uWSGISocket 127.0.0.1:3031
+        	uWSGIMaxVars 256
+	</Location>
+	<Location /static/>
+		SetHandler None
+	</Location>
+	<Location /robots.txt>
+		SetHandler None
+	</Location>
+
+</VirtualHost>

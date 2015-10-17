@@ -69,26 +69,42 @@ Installing the full stack
 
 > 6/2014 - Ubuntu 12.04.4
 
-1. ### Further requirements on top of the development
+1. ### Web server configuration
 
-		sudo apt-get install rabbitmq-server
-		sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
+	Install uwsgi to run WSGI processes. The **mooc-grader directory
+	and user must** be set in the configuration files.
 
-2. ### Configuration
+		source venv/bin/activate
+		pip install uwsgi
+		sudo mkdir -p /etc/uwsgi
+		sudo mkdir -p /var/log/uwsgi
+		sudo cp doc/etc-uwsgi-grader.ini /etc/uwsgi/grader.ini
+		sudo cp doc/etc-init-uwsgi.conf /etc/init/uwsgi.conf
+		# EDIT /etc/uwsgi/grader.ini
+		# EDIT /etc/init/uwsgi.conf
+		sudo touch /var/log/uwsgi/grader.log
+		sudo chown -R [shell-username]:users /etc/uwsgi /var/log/uwsgi
 
-	Create `settings_local.py` and override necessary configuration.
+	NOTE that the ownership of the log file is required for graceful
+	restarts using touch. Operate the workers using:
 
-	* `CELERY_BROKER`: the queue URL (RabbitMQ service)
-	* `CELERY_TASK_LIMIT_SEC`: the timeout for grading a task
-	* `QUEUE_ALERT_LENGTH`: the error log threshold
-	* `SUBMISSION_PATH`: the file submission directory
-	* `SANDBOX_LIMITS`: the default time/memory limits for sandbox
+		sudo status uwsgi
+		sudo start uwsgi
+		# Graceful application reload
+		touch /etc/uwsgi/grader.ini
 
-	The celery queue worker can now be tested.
+	#### nginx
 
-		celery -A grader.tasks worker
+		sudo apt-get install nginx
+		# Configure based on doc/etc-nginx-sites-available-grader
 
-3. ### Chroot sandbox creation
+	#### apache2
+
+		sudo apt-get install apache2 libapache2-mod-uwsgi
+		# Configure based on doc/etc-apache2-sites-available-grader
+
+
+2. ### Chroot sandbox creation
 
 	Creates a chroot environment to `/var/sandbox/` where tests
 	can not escape the enclosing directory. The script can be run
@@ -100,43 +116,47 @@ Installing the full stack
 	`scripts/chroot_execvp.c` and using an argument with the
 	management script.
 
-5. ### X virtual frame buffer
+3. ### Asynchronous grading queue
 
-	For tests requiring X display server xvfb can be used. These
-	tests include in browser tests. Following installs xvfb and copies
-	the daemon script. Finally X daemon is started at DISPLAY=:0
+	Install rabbitmq and enable HTTP management interface.
+
+		sudo apt-get install rabbitmq-server
+		sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
+
+	Create `settings_local.py` and override necessary configuration, e.g.
+
+	* `CELERY_BROKER`: the queue URL (RabbitMQ service)
+	* `CELERY_TASK_LIMIT_SEC`: the timeout for grading a task
+	* `QUEUE_ALERT_LENGTH`: the error log threshold
+	* `SANDBOX_LIMITS`: the default time/memory limits for sandbox
+
+	The celery queue worker can now be tested in console.
+
+		celery -A grader.tasks worker
+
+4. ### Run Celery as daemon on boot
+
+	Following copies daemon configuration and script in their place
+	and registers the daemon for default run levels and starts it up.
+	The **mooc-grader directory and user must** be set in the
+	`/etc/default/celeryd`.
+
+		sudo cp doc/etc-default-celeryd /etc/default/celeryd
+		# EDIT /etc/init.d/celeryd
+		sudo cp doc/etc-init.d-celeryd /etc/init.d/celeryd
+		sudo chmod a+x /etc/init.d/celeryd
+		sudo update-rc.d celeryd defaults
+		sudo /etc/init.d/celeryd start
+
+5. ### X virtual frame buffer (if required)
+
+	For tests requiring X display server xvfb can be used at DISPLAY=:0.
+	Such tests typically run GUI code or WWW browser using Selenium.
+	Following installs xvfb and copies the daemon script in place and
+	registers the daemon for default run levels and starts it up.
 
 		sudo apt-get install xvfb
 		sudo cp doc/etc-init.d-xvfb /etc/init.d/xvfb
 		sudo chmod a+x /etc/init.d/xvfb
 		sudo update-rc.d xvfb defaults
 		sudo /etc/init.d/xvfb start
-
-6. ### Celeryd installation
-
-	Following copies daemon configuration and script in their place
-	and registers daemon for default run levels and starts it up.
-	The **mooc-grader directory and user must** be set in the
-	`/etc/default/celeryd`.
-
-		sudo cp doc/etc-default-celeryd /etc/default/celeryd
-		sudo cp doc/etc-init.d-celeryd /etc/init.d/celeryd
-		sudo chmod a+x /etc/init.d/celeryd
-		sudo update-rc.d celeryd defaults
-		sudo /etc/init.d/celeryd start
-
-7. ### Web server configuration
-
-	### TODO update to nginx and uwsgi for Python 3.
-
-	__Apache__: Edit your `/etc/apache2/sites-available/sitename`.
-
-		WSGIDaemonProcess grader user=username group=username python-path=/home/username/mooc-grader:/home/username/venv/lib/python2.7/site-packages
-		WSGIProcessGroup grader
-		WSGIScriptAlias / /home/username/mooc-grader/grader/wsgi.py
-		Alias /static/ /home/username/mooc-grader/static/
-		Alias /robots.txt /home/username/mooc-grader/static/robots.txt
-		<Directory /home/username/mooc-grader/static/>
-			Order allow,deny
-			allow from all
-		</Directory>
