@@ -5,17 +5,16 @@ any record other than service logs. The grader is designed to serve exercises
 for the A+ learning system. A farm of individual grading servers can be setup
 to handle large amount of submissions.
 
-The grader is implemented on Django 1.7 (`grader/settings.py`)
-and grading queue on Celery 3.1 (`grader/tasks.py`). Actual grading is
-typically executed via shell scripts in a Linux chroot sandbox.
-On an Ubuntu system the sandbox can be created with the `manage_sandbox.sh`
-script.
+The grader is implemented on Django 1.7 (`grader/settings.py`) and grading
+queue on Celery 3.1 (`grader/tasks.py`). The application is tested on both
+Python 2.7 and 3.4. Actual grading is typically executed via shell scripts in
+a Linux chroot sandbox. On an Ubuntu system the sandbox can be created with
+the `manage_sandbox.sh` script.
 
-The grader can be run stand alone without the full stack to test graders
-in the local system environment. The grader is designed to be extended for
-different courses and exercise types. Course and exercise configuration is
-in `exercises` directory where exercise documentation and examples are
-available.
+The grader can be run stand alone without the full stack to test graders in
+the local system environment. The grader is designed to be extended for
+different courses and exercise types. Course and exercise configuration is in
+`exercises` directory where exercise documentation and examples are available.
 
 Installing for development
 ==========================
@@ -27,17 +26,28 @@ Installing for development
 		git clone https://github.com/Aalto-LeTech/mooc-grader.git
 		mkdir mooc-grader/uploads
 
-2. ### Python requirements
+2. ### Python requirements (2.7 should work too)
 
-	At Aug 13th librabbitmq did not have Python 3 support so Python 2 is
-	required.
-
-		sudo apt-get install python python-pip python-dev
+		sudo apt-get install python3 python3-dev python3-pip
 		sudo apt-get install libxml2-dev libxslt-dev
-		sudo pip install virtualenv
 
-		virtualenv venv -p python
-		source virtualenv/bin/activate
+	OR install from source.
+
+		sudo apt-get install build-essential libssl-dev libsqlite3-dev
+		wget https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz
+		tar xvf Python-3.4.3.tar.xz
+		cd Python-3.4.3
+		./configure
+		make
+		sudo make install
+
+	Then, create virtual environment with grader requirements.
+
+		sudo pip3 install --upgrade pip
+		sudo pip3 install virtualenv
+
+		virtualenv -p python3 venv
+		source venv/bin/activate
 		pip install -r mooc-grader/requirements.txt
 
 3. ### Testing grader application
@@ -61,7 +71,8 @@ Installing the full stack
 
 1. ### Further requirements on top of the development
 
-		sudo apt-get install rabbitmq-server apache2 libapache2-mod-wsgi
+		sudo apt-get install rabbitmq-server
+		sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
 
 2. ### Configuration
 
@@ -92,8 +103,8 @@ Installing the full stack
 5. ### X virtual frame buffer
 
 	For tests requiring X display server xvfb can be used. These
-	tests include in browser tests. Installs the xvfb and copies
-	the daemon script. Finally starts X daemon in DISPLAY=:0
+	tests include in browser tests. Following installs xvfb and copies
+	the daemon script. Finally X daemon is started at DISPLAY=:0
 
 		sudo apt-get install xvfb
 		sudo cp doc/etc-init.d-xvfb /etc/init.d/xvfb
@@ -103,10 +114,10 @@ Installing the full stack
 
 6. ### Celeryd installation
 
-	Copies daemon configuration and script (configuration
-	depends on the grader directory). Registers daemon
-	for default run levels and starts it up. The **mooc-grader
-	directory and user must** be set in the `/etc/default/celeryd`.
+	Following copies daemon configuration and script in their place
+	and registers daemon for default run levels and starts it up.
+	The **mooc-grader directory and user must** be set in the
+	`/etc/default/celeryd`.
 
 		sudo cp doc/etc-default-celeryd /etc/default/celeryd
 		sudo cp doc/etc-init.d-celeryd /etc/init.d/celeryd
@@ -115,6 +126,8 @@ Installing the full stack
 		sudo /etc/init.d/celeryd start
 
 7. ### Web server configuration
+
+	### TODO update to nginx and uwsgi for Python 3.
 
 	__Apache__: Edit your `/etc/apache2/sites-available/sitename`.
 
