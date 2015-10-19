@@ -107,6 +107,6 @@ def queue_length():
     try:
         if client:
             return client.get_queue_depth(path, "celery")
-    except Error:
+    except Exception:
         LOGGER.exception("Queue length is unknown.")
     return 0

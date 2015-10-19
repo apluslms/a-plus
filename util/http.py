@@ -42,8 +42,7 @@ def post_result(submission_url, course, exercise, template, result):
     html = template_to_str(course, exercise, None, template, result)
 
     # Make unicode results ascii.
-    if isinstance(html, unicode):
-        html = html.encode("ascii", "xmlcharrefreplace")
+    html = html.encode("ascii", "xmlcharrefreplace")
 
     data = {
         "max_points": result.get("max_points", 1),

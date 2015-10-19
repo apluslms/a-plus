@@ -53,7 +53,7 @@ def save_submitted_file(submission_dir, file_name, post_file):
     @param post_file: an uploaded file to save
     '''
     file_path = submission_file_path(submission_dir, file_name)
-    with open(file_path, "w+") as f:
+    with open(file_path, "wb+") as f:
         for chunk in post_file.chunks():
             f.write(chunk)
         f.close()
