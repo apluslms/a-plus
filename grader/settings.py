@@ -82,8 +82,8 @@ STATIC_URL = '/static/'
 # Celery task queue settings:
 #
 CELERY_BROKER = False
-#CELERY_BROKER = 'amqp://guest:quest@localhost/'
-RABBITMQ_MANAGEMENT_PORT = 55672
+#CELERY_BROKER = 'amqp://guest@localhost/'
+RABBITMQ_MANAGEMENT = { "port": 55672, "password": "guest" }
 CELERY_TASK_LIMIT_SEC = 2 * 60
 CELERY_TASK_KILL_SEC = CELERY_TASK_LIMIT_SEC + 5
 

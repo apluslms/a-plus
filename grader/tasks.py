@@ -42,8 +42,8 @@ path = None
 if settings.CELERY_BROKER:
     uri = urlparse(settings.CELERY_BROKER)
     client = Client(
-        "{}:{:d}".format(uri.hostname, settings.RABBITMQ_MANAGEMENT_PORT),
-        uri.username, uri.password)
+        "{}:{:d}".format(uri.hostname, settings.RABBITMQ_MANAGEMENT["port"]),
+        uri.username, settings.RABBITMQ_MANAGEMENT["password"])
     path = uri.path
 
 # Hold on to the latest exercise configuration.
