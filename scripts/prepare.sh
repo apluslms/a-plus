@@ -81,6 +81,8 @@ function next_paths
 {
 	if [ "${list[$list_pos]}" ]; then
 		entry=${list[$list_pos]}
+		IF=${entry%\?*}
+		entry=${entry#\?*}
 		SRC=$1${entry%->*}
 		TO=$2${entry#*->}
 		if [[ $entry == *".."* ]] || [ "$SRC" == "" -o "$TO" == "" ]; then
@@ -102,8 +104,8 @@ function copy_paths
 		elif [ -f $SRC ]; then
 			mkdir -p `dirname $TO`
 			cp $SRC $TO
-		else
-			echo "Copy source not found $SRC" >&2
+		elif [ "$IF" != "" ]; then
+			echo "Copy source not found $SRC IF=$IF" >&2
 			exit 1
 		fi
 	done

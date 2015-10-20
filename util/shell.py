@@ -22,7 +22,8 @@ def invoke(cmd_list):
     @return: code = process return code, out = standard out, err = standard error
     '''
     LOGGER.debug('Subprocess %s', cmd_list)
-    p = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(cmd_list, universal_newlines=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     return {"code": p.returncode, "out": out.strip(), "err": err.strip()}
 

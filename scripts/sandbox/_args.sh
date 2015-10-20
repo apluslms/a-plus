@@ -49,6 +49,6 @@ function args_require_dir
 # Check argument is logically set true.
 function args_true
 {
-	[ "$1" == "1" ] || [ "$1" == "on" ] || [ "$1" == "true" ] || [ "$1" == "yes" ]
+	[ "$1" == "1" ] || [ "$1" == "on" ] || [ "$1" == "true" ] || [ "$1" == "yes" ] || [ "$1" == "True" ]
 	return $?
 }
