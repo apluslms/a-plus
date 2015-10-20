@@ -37,7 +37,8 @@ def runactions(course, exercise, submission_dir):
             # Run the exercise grader action
             LOGGER.debug("Running action \"%s\"", action["type"])
             r = exgrader(course, exercise, action, submission_dir)
-            has_appendixes = has_appendixes or "appendix" in r
+            has_appendixes = has_appendixes or \
+                ("appendix" in r and r["appendix"])
 
             # Configured template values.
             if "title" in action:

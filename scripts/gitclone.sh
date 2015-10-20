@@ -52,20 +52,22 @@ fi
 cd ..
 
 # Pick the files.
-echo "***APPENDIX***"
 FSTAT=0
-for f in $FILES
-do
-	if [ ! -f $RDIR/$f ]
-	then
-		echo "Failed to find \"$f\"." 1>&2
-		FSTAT=1
-	else
-		TARGET=user/${f##*/}
-		mv $RDIR/$f $TARGET
-		echo "<p class=\"submission-file\">$f</p><pre>"
-		cat $TARGET | sed 's/</\&lt;/g; s/>/\&gt;/g'
-		echo "</pre>"
-	fi
-done
+if [ ${#FILES[@]} -gt 0 ]; then
+	echo "***APPENDIX***"
+	for f in $FILES
+	do
+		if [ ! -f $RDIR/$f ]
+		then
+			echo "Failed to find \"$f\"." 1>&2
+			FSTAT=1
+		else
+			TARGET=user/${f##*/}
+			mv $RDIR/$f $TARGET
+			echo "<p class=\"submission-file\">$f</p><pre>"
+			cat $TARGET | sed 's/</\&lt;/g; s/>/\&gt;/g'
+			echo "</pre>"
+		fi
+	done
+fi
 exit $FSTAT
