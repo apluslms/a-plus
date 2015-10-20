@@ -121,8 +121,11 @@ def gitlabquery(course, exercise, action, submission_dir):
     try:
         with open(submission_dir + "/user/gitsource") as content:
             source = content.read()
-        import urllib
-        rid = urllib.quote_plus(source[source.index(":") + 1:])
+        try:
+            from urllib.parse import quote_plus
+        except ImportError:
+            from urllib import quote_plus
+        rid = quote_plus(source[source.index(":") + 1:])
         url = "https://%s/api/v3/projects/%s?private_token=%s" % (exercise["require_gitlab"], rid, action["token"])
         data = get_json(url)
         if "private" in action and action["private"] and data["public"]:
