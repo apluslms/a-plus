@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 		arg[p] = NULL;
 
 		// Create environment array.
-		char *env[4];
+		char *env[5];
 		char envpath[6 + strlen(cmd_path)];
 		strcpy(envpath, "PATH=");
 		strcat(envpath, cmd_path);
@@ -205,7 +205,8 @@ int main(int argc, char *argv[])
 		strcat(envhome, pw->pw_dir);
 		env[1] = envhome;
 		env[2] = "DISPLAY=:0";
-		env[3] = NULL;
+		env[3] = "LANG=en_US.UTF-8";
+		env[4] = NULL;
 
 		if (limit_process(memory, files, disk) != 0) return 1;
 
