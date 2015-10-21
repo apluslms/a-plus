@@ -17,3 +17,24 @@
 	</div>
 	{% endif %}
 </form>
+<script>
+$(function() {
+
+	var id = document.cookie.replace(/(?:(?:^|.*;\s*)aplusgit\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+	if (id.length > 0) {
+		$("#git_id").val(decodeURIComponent(id));
+	}
+
+	$("#git_submit").on("click", function() {
+		var id = $("#git_id").val();
+		if (id.trim().length > 0) {
+			var expire = new Date();
+			expire.setTime(Date.now() + 365 * 24 * 60 * 60);
+			var path = document.location.href.split("/");
+			document.cookie = "aplusgit=" + encodeURIComponent(id)
+				+ ";path=/" + path[3] + "/" + path[4] + "/"
+				+ ";expires=" + expire.toGMTString();
+		}
+	});
+});
+</script>
