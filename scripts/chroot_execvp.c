@@ -61,11 +61,11 @@ int main(int argc, char *argv[])
 	if (argc < 6 + argp)
 	{
 		printf("Runs a command in a sandbox environment.\n");
-		printf("Usage: %s [net] time heap files disk dir prg [arguments...]\n", argv[0]);
+		printf("Usage: %s [net] time heap files disk dir course_key prg [arguments...]\n", argv[0]);
 		printf("    1k for kilobyte, m for mega, g for giga and - for unlimited\n");
 		printf("    net          enables network (optional)\n");
 		printf("    time         maximum time for process in seconds\n");
-		printf("    memory       maximum memory size\n");
+		printf("    heap         maximum heap memory size\n");
 		printf("    files        maximum number of open file descriptors\n");
 		printf("    disk         maximum disk write size\n");
 		printf("    dir          a target directory or -\n");

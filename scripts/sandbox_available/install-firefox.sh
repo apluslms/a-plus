@@ -13,4 +13,4 @@ then
 	echo "deb http://archive.ubuntu.com/ubuntu precise-security main universe restricted" >> /etc/apt/sources.list
 fi
 apt-get -q update
-apt-get -qy install firefox
+apt-get -qy install firefox dbus-x11
