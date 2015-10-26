@@ -13,7 +13,7 @@
 		<meta name="status" value="error" />
 		{% elif result.accepted %}
 		<meta name="status" value="accepted" />
-		{% if result.wait and result.queue < 3 %}
+		{% if result.wait and result.queue < 3 and not exercise.never_wait %}
 		<meta name="wait" value="{{ result.queue }}" />
 		{% endif %}
 		{% endif %}

@@ -58,6 +58,10 @@ course specific exercise view in a course specific Python module.
 		* `name`: actual file name, may include subdirectories
 	* `template` (default `access/accept_files_default.html`):
 		name of a template to present
+	* `accepted_message` (optional): overrides the default message displayed when
+		asynchronous submission is accepted
+	* `never_wait` (optional): true stops the automatic feedback polling for
+		asynchronous submissions (normally occurs if queue is shorter than 3)
 	* `feedback_template` (default `access/task_success.html`):
 		name of a template used to format the feedback
 	* `actions`: list of asynchronous test actions
@@ -73,9 +77,7 @@ course specific exercise view in a course specific Python module.
 		`content_0` is an exercise rule attachment and rest are
 		user files which are named by `file_N` post fields.
 		(Format is used by A+ exercises with attachments).
-	* `feedback_template` (default `access/task_success.html`):
-		name of a template used to format the feedback
-	* `actions`: list of asynchronous test actions
+	* `accepted_message` etc as in type 1.
 
 3. ### access.types.stdasync.acceptGitAddress
 	Writes the Git address into user/gitsource file for asynchronous grading
@@ -86,9 +88,7 @@ course specific exercise view in a course specific Python module.
 		in given Gitlab host. Stores the standard SSH path for key access.
 	* `template` (default: `access/accept_git_default.html`):
 		name of a template to present
-	* `feedback_template` (default `access/task_success.html`):
-		name of a template used to format the feedback
-	* `actions`: list of asynchronous test actions
+		* `accepted_message` etc as in type 1.
 
 4. ### access.types.stdsync.createForm
 	Synchronous form checker. Requires `max_points` in the
@@ -145,8 +145,8 @@ will run in the listed order.
 	* `max_points` (optional): Overrides max points reported by the action.
 	* `title` (optional): grading action title for template
 	* `html` (optional): true to pass output as HTML in template
-	* `expect_success` (optional): true to not only stop but to raise an error
-		when the action fails
+	* `expect_success` (optional): true to not only stop but to set grading state
+	 	to error when the action fails, "error" to write/mail error log
 
 	Rest of the attributes are action type specific.
 
