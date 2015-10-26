@@ -65,12 +65,17 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             if new_submission:
                 page = self.exercise.grade(request, new_submission,
                     url_name=self.post_url_name)
+
+                # Redirect non AJAX normally to submission page.
+                if not request.is_ajax() and "__r" not in request.GET:
+                    return self.redirect(new_submission.get_absolute_url() +
+                        ("?wait=1" if page.is_wait else ""))
             else:
                 messages.error(request,
                     _("The submission could not be saved for some reason. "
                       "The submission was not registered."))
 
-            # Redirect non AJAX back to content page.
+            # Redirect non AJAX content page request back.
             if not request.is_ajax() and "__r" in request.GET:
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
@@ -108,6 +113,8 @@ class SubmissionView(SubmissionBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
+        self.page = { "is_wait": "wait" in self.request.GET }
+        self.note("page")
         if not self.request.is_ajax():
             self.get_submissions()
 
