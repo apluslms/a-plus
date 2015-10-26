@@ -26,10 +26,14 @@
         <br />
         <span class="dates">
             <em>
-                {% blocktrans with deadline=module.late_submission_deadline percent=module.get_late_submission_point_worth %}
+                {% blocktrans with deadline=module.late_submission_deadline %}
                 Late submission are allowed until {{ deadline }}
-                but points are only worth {{ percent }} %.
                 {% endblocktrans %}
+                {% if module.get_late_submission_point_worth != 100 %}
+                {% blocktrans with percent=module.get_late_submission_point_worth %}
+                but points are only worth {{ percent }}%.
+                {% endblocktrans %}
+                {% endif %}
             </em>
         </span>
         {% endif %}
