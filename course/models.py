@@ -122,12 +122,13 @@ class CourseInstance(models.Model):
         if self.ending_time <= self.starting_time:
             raise ValidationError(_("Ending time must be later than starting time."))
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """
         Saves the model.
         """
-        super().save()
-        resize_image(self.image.path,(800,600))
+        super().save(*args, **kwargs)
+        if self.image:
+            resize_image(self.image.path, (800,600))
 
     def is_assistant(self, user):
         return user and user.is_authenticated() \
