@@ -57,12 +57,15 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                     submission.set_points(
                         page.points, page.max_points, no_penalties)
                     submission.set_ready()
-                    messages.success(request,
-                        _("The exercise was submitted and graded "
-                          "successfully. Points: {points:d}/{max:d}").format(
-                            points=submission.grade,
-                            max=exercise.max_points
-                        ))
+                    msg = _("The exercise was submitted and graded "
+                        "successfully. Points: {points:d}/{max:d}").format(
+                        points=submission.grade,
+                        max=exercise.max_points
+                    )
+                    if submission.grade < exercise.max_points:
+                        messages.info(request, msg)
+                    else:
+                        messages.success(request, msg)
                 else:
                     submission.set_error()
                     messages.error(request,
