@@ -1,4 +1,5 @@
 from random import choice
+from PIL import Image
 import string
 import urllib
 
@@ -58,3 +59,9 @@ def safe_file_name(name):
     if safename[0] == "-":
         return "_" + safename[1:80]
     return safename[:80]
+
+
+def resize_image(path, max_size):
+    image = Image.open(path)
+    image.thumbnail(max_size, Image.ANTIALIAS)
+    image.save(path)

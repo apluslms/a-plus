@@ -40,10 +40,14 @@
 	            {% if course_module.late_submissions_allowed %}
 	            <br />
 	        	<em>
-	            	{% blocktrans with deadline=course_module.late_submission_deadline percent=course_module.get_late_submission_point_worth %}
-	            	Late submission are allowed until {{ deadline }}
-	            	but points are only worth {{ percent }} %.
-	            	{% endblocktrans %}
+              {% blocktrans with deadline=course_module.late_submission_deadline %}
+              Late submission are allowed until {{ deadline }}
+              {% endblocktrans %}
+              {% if course_module.get_late_submission_point_worth != 100 %}
+              {% blocktrans with percent=course_module.get_late_submission_point_worth %}
+              but points are only worth {{ percent }}%.
+              {% endblocktrans %}
+              {% endif %}
 	        	</em>
 	            {% endif %}
 				{% if course_module.points_to_pass > 0 %}

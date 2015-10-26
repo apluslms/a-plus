@@ -1,5 +1,6 @@
 {% extends "exercise/exercise_base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block title %}{{ block.super }} / {% trans "Submission" %} {{ index }}{% endblock %}
 {% block view_tag %}submission{% endblock %}
@@ -40,7 +41,13 @@
         {% trans "No grader feedback available for this submission." %}
     </div>
     {% endif %}
+    {% include "exercise/_exercise_wait.html" %}
 
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'exercise/poll.js' %}"></script>
 {% endblock %}
 
 {% block exerciseinfo %}

@@ -655,7 +655,7 @@ class ExerciseTest(TestCase):
                     "file1": fa,
                     "file2": fb,
                 })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
         subs = self.user.userprofile.submissions.filter(exercise=exercise.id)
         self.assertEqual(subs.count(), 1)
