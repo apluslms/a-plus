@@ -18,6 +18,7 @@ class DeadlineRuleDeviationForm(forms.Form):
         help_text=_("Amount of extra time given in minutes."),
     )
     without_late_penalty = forms.BooleanField(
+        required=False,
         initial=True,
         label=_("Do not apply late penalty during extra time."),
     )
