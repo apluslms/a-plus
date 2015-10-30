@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.http.response import Http404
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 from course.models import CourseInstance
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -16,6 +17,7 @@ from .course_forms import CourseInstanceForm
 from .managers import CategoryManager, ModuleManager, ChapterManager, \
     ExerciseManager
 from .submission_forms import BatchSubmissionCreateAndReviewForm
+from exercise.submission_models import Submission
 
 
 logger = logging.getLogger('aplus.edit_course')
