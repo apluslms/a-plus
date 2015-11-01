@@ -117,6 +117,8 @@ def aplus_json(request, course_key):
     if "modules" in course:
         for m in course["modules"]:
             mf = _type_dict(m, course.get("module_types", {}))
+
+            # Build exercise configurations.
             efs = []
             if "exercises" in mf:
                 for e in mf["exercises"]:
@@ -134,6 +136,21 @@ def aplus_json(request, course_key):
                     ef = _type_dict(e, course.get("exercise_types", {}))
                     efs.append(ef)
             mf["exercises"] = efs
+
+            # Build chapter configurations.
+            cfs = []
+            if "chapters" in mf:
+                for c in mf["chapters"]:
+                    if "public_content" in c:
+                        print(c)
+                        base = { "url": request.build_absolute_uri(
+                            '/public/%s/%s' % (course["key"], c["public_content"])),
+                        }
+                        base.update(c)
+                        c = base
+                    cfs.append(c)
+            mf["chapters"] = cfs
+
             data["modules"].append(mf)
     return JsonResponse(data)
 

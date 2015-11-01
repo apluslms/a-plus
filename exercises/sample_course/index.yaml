@@ -42,12 +42,12 @@ modules:
         title: Override Title
         max_points: 30
 
-  - name: Sample chapter
+  - name: Sample chapters
     url_slug: study
     type: normal
     chapters:
       - name: Introduction
-        url: "intro"
+        url_slug: "intro"
         public_content: intro.html
     exercises:
       - config: multiple_choice
