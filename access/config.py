@@ -111,16 +111,15 @@ class ConfigParser:
 
         # Pick exercise data into list.
         exercise_list = []
-        exercise_keys = []
         if "modules" in course_root["data"]:
+            keys = []
             for module in course_root["data"]["modules"]:
                 if "exercises" in module:
                     for exercise_vars in module["exercises"]:
                         if "config" in exercise_vars:
-                            exercise_keys.append(exercise_vars["config"])
-        elif "exercises" in course_root["data"]:
-            exercise_keys = course_root["data"]["exercises"]
-        for exercise_key in exercise_keys:
+                            keys.append(exercise_vars["config"])
+            course_root["data"]["exercises"] = keys
+        for exercise_key in course_root["data"]["exercises"]:
             _, exercise = self.exercise_entry(course_root, exercise_key)
             if exercise is None:
                 raise ConfigError('Invalid exercise key "%s" listed in "%s"'
