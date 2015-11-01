@@ -29,7 +29,7 @@ $(function() {
 		var id = $("#git_id").val();
 		if (id.trim().length > 0) {
 			var expire = new Date();
-			expire.setTime(Date.now() + 365 * 24 * 60 * 60);
+			expire.setFullYear(expire.getFullYear() + 1);
 			var path = document.location.href.split("/");
 			document.cookie = "aplusgit=" + encodeURIComponent(id)
 				+ ";path=/" + path[3] + "/" + path[4] + "/"

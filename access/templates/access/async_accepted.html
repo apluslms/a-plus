@@ -26,7 +26,9 @@
 
 <div id="feedback">
 	<p>
-		{% if result.queue < 3 %}
+		{% if exercise.accepted_message %}
+		{{ exercise.accepted_message }}
+		{% elif result.queue < 3 %}
 		{% blocktrans %}
 		Your submission is being graded. The result will be available on this page
 		when the grading process completes. Note that grading may take a while.

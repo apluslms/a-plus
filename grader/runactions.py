@@ -64,8 +64,8 @@ def runactions(course, exercise, submission_dir):
             if "max_points" in r:
                 max_points += r["max_points"]
             if r["stop"]:
-                if "expect_success" in action and action["expect_success"]:
-                    error = True
+                if "expect_success" in action:
+                    error = action["expect_success"]
                 break
 
         # Override with configured max points.

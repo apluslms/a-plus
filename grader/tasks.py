@@ -78,7 +78,8 @@ def grade(course_key, exercise_key, lang, submission_url, submission_dir):
         LOGGER.debug("Grading \"%s/%s\" for \"%s\"", course_key, exercise_key, submission_url)
         r = runactions(course, exercise, submission_dir)
         if r["result"]["error"]:
-            LOGGER.error("Grading \"%s/%s\" for \"%s\" failed. "
+            level = 40 if r["result"]["error"] == "error" else 30
+            LOGGER.log(level, "Grading \"%s/%s\" for \"%s\" failed. "
                 "Expected success for the last action:\n\n%s\n\n%s",
                 course_key, exercise_key, submission_url,
                 r["result"]["tests"][-1]["out"],
