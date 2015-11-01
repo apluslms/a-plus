@@ -1,26 +1,97 @@
 ---
-# An example course demonstrating different type of exercises.
-#
-# This list represents an exercise bank rather than a specific course instance.
-# The exercises are picked from this selection to the learning system, e.g. A+.
-
 name: A sample course
-contact: e.g. author email address for technical support
 description: This is a sample course for testing and studying the grader.
 
 # The course default language which may be overridden with ?lang=xx.
 # Currently internal mooc-grader exercise messages support en and fi.
 # In addition, the exercise configuration supports languages, e.g.
-# "instructions|i18n": { "en": "In english", "fi": "Suomeksi" }
+# title|i18n:
+#   en: A sample exercise
+#   fi: Mallitehtävä
 lang: en
 
-# Each active exercise must be configured in name.json/yaml.
-exercises:
-  - template
-  - hello_python
-  - hello_scala
-  - hello_git
-  - multiple_choice
-  - correct_button
-  - error
-  - timeout
+# The identifier to use in the A+ URLs.
+url_slug: sample
+
+# Comma separated email addresses for technical support.
+contact: teemu.t.lehtinen@aalto.fi
+
+# Student IDs to grant course assistant access in A+.
+assistants:
+  - 47983K # Teemu Lehtinen
+
+# Course schedule and content for A+.
+start: 2015-01-01
+end: 2055-01-01
+modules:
+
+  - name: Sample exercises
+    introduction: This round presents a set of different sample exercises.
+    url_slug: exercises
+    type: normal
+    points_to_pass: 100
+    exercises:
+      - config: hello_python
+        type: programming
+      - config: hello_git
+        type: programming
+      - config: correct_button
+        type: questionnaire
+      - config: template
+        type: programming
+        title: Override Title
+        max_points: 30
+
+  - name: Sample chapter
+    url_slug: study
+    type: normal
+    chapters:
+      - name: Introduction
+        url: "intro"
+        public_content: intro.html
+    exercises:
+      - config: multiple_choice
+        type: questionnaire
+      - config: hello_scala
+        type: programming
+
+  - name: Errors for testing
+    url_slug: errors
+    type: normal
+    open: 2015-09-01 12:00
+    close: 2020-12-31 23:59
+    exercises:
+      - config: error
+        type: programming
+      - config: timeout
+        type: programming
+
+# A+ exercise categories.
+categories:
+  online:
+    name: Online exercises
+    points_to_pass: 0
+    description: The default exercise category
+
+# Module and exercise types to control frequent configuration sets.
+# Any values can be overridden in the item specific configuration.
+module_types:
+  normal:
+    open: 2015-01-01 12:00
+    duration: 10y
+    points_to_pass: 0
+    late_duration: 2d
+    late_penalty: 0.5
+exercise_types:
+  programming:
+    category: online
+    max_submissions: 100
+    max_points: 50
+    points_to_pass: 30
+    allow_assistant_grading: yes
+  questionnaire:
+    category: online
+    max_submissions: 10
+    max_points: 10
+    points_to_pass: 6
+    allow_assistant_grading: yes
