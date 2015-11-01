@@ -111,14 +111,6 @@ class ConfigParser:
 
         # Pick exercise data into list.
         exercise_list = []
-        if "modules" in course_root["data"]:
-            keys = []
-            for module in course_root["data"]["modules"]:
-                if "exercises" in module:
-                    for exercise_vars in module["exercises"]:
-                        if "config" in exercise_vars:
-                            keys.append(exercise_vars["config"])
-            course_root["data"]["exercises"] = keys
         for exercise_key in course_root["data"]["exercises"]:
             _, exercise = self.exercise_entry(course_root, exercise_key)
             if exercise is None:
@@ -195,6 +187,15 @@ class ConfigParser:
 
         self._check_fields(f, data, ["name"])
         data["key"] = course_key
+
+        if "modules" in data:
+            keys = []
+            for module in data["modules"]:
+                if "exercises" in module:
+                    for exercise_vars in module["exercises"]:
+                        if "config" in exercise_vars:
+                            keys.append(exercise_vars["config"])
+            data["exercises"] = keys
 
         # Enable course configurable ecercise_loader function.
         exercise_loader = self._default_exercise_loader

@@ -3,11 +3,13 @@ from django.http.response import HttpResponse, JsonResponse, Http404
 from django.utils import translation
 from django.utils.module_loading import import_by_path
 from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from access.config import ConfigParser, ConfigError
 from grader.tasks import queue_length as qlength
 import os
 import logging
+import copy
 
 
 LOGGER = logging.getLogger('main')
@@ -95,9 +97,51 @@ def exercise(request, course_key, exercise_key):
     return exview(request, course, exercise, post_url)
 
 
+def aplus_json(request, course_key):
+    '''
+    Delivers the configuration as JSON for A+.
+
+    @type request: C{django.http.request.HttpRequest}
+    @param request: a request to handle
+    @type course_key: C{str}
+    @param course_key: a key of the course
+    @rtype: C{django.http.response.HttpResponse}
+    @return: a response
+    '''
+    course = config.course_entry(course_key)
+    if course is None:
+        raise Http404()
+    data = _copy_fields(course, ["name", "description", "url_slug", "contact",
+        "assistants", "start", "end", "categories"])
+    data["modules"] = []
+    if "modules" in course:
+        for m in course["modules"]:
+            mf = _type_dict(m, course.get("module_types", {}))
+            efs = []
+            if "exercises" in mf:
+                for e in mf["exercises"]:
+                    if "config" in e:
+                        _, exercise = config.exercise_entry(course["key"], e["config"])
+                        base = {
+                            "title": exercise.get("title", ""),
+                            "description": exercise.get("description", ""),
+                            "url": request.build_absolute_uri(
+                                reverse('access.views.exercise', args=[
+                                    course["key"], exercise["key"]])),
+                        }
+                        base.update(e)
+                        e = base
+                    ef = _type_dict(e, course.get("exercise_types", {}))
+                    efs.append(ef)
+            mf["exercises"] = efs
+            data["modules"].append(mf)
+    return JsonResponse(data)
+
+
 def pull_request(request):
     '''
     Records a pull request to update course exercises from version repository.
+    TODO: Refactor into a specific app.
 
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
@@ -175,3 +219,40 @@ def _filter_fields(dict_list, pick_fields):
             new_entry[name] = entry[name]
         result.append(new_entry)
     return result
+
+
+def _copy_fields(dict_item, pick_fields):
+    '''
+    Copies picked fields from a dictionary.
+
+    @type dict_item: C{dict}
+    @param dict_item: a dictionary
+    @type pick_fields: C{list}
+    @param pick_fields: a list of field names
+    @rtype: C{dict}
+    @return: a dictionary of picked fields
+    '''
+    result = {}
+    for name in pick_fields:
+        if name in dict_item:
+            result[name] = copy.deepcopy(dict_item[name])
+    return result
+
+def _type_dict(dict_item, dict_types):
+    '''
+    Extends dictionary with a type reference.
+
+    @type dict_item: C{dict}
+    @param dict_item: a dictionary
+    @type dict_types: C{dict}
+    @param dict_types: a dictionary of type dictionaries
+    @rtype: C{dict}
+    @return: an extended dictionary
+    '''
+    base = {}
+    if "type" in dict_item and dict_item["type"] in dict_types:
+        base = copy.deepcopy(dict_types[dict_item["type"]])
+    base.update(dict_item)
+    if "type" in base:
+        del base["type"]
+    return base
