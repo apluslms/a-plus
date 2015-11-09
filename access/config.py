@@ -114,7 +114,8 @@ class ConfigParser:
         for exercise_key in course_root["data"]["exercises"]:
             _, exercise = self.exercise_entry(course_root, exercise_key)
             if exercise is None:
-                raise ConfigError('Invalid exercise key listed in "%s"' % (course_root["file"]))
+                raise ConfigError('Invalid exercise key "%s" listed in "%s"'
+                    % (exercise_key, course_root["file"]))
             exercise_list.append(exercise)
         return (course_root["data"], exercise_list)
 
@@ -184,8 +185,17 @@ class ConfigParser:
         if data is None:
             raise ConfigError('Failed to parse configuration file "%s"' % (f))
 
-        self._check_fields(f, data, ["name", "contact", "exercises"])
+        self._check_fields(f, data, ["name"])
         data["key"] = course_key
+
+        if "modules" in data:
+            keys = []
+            for module in data["modules"]:
+                if "exercises" in module:
+                    for exercise_vars in module["exercises"]:
+                        if "config" in exercise_vars:
+                            keys.append(exercise_vars["config"])
+            data["exercises"] = keys
 
         # Enable course configurable ecercise_loader function.
         exercise_loader = self._default_exercise_loader

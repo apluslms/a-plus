@@ -7,7 +7,12 @@
 <div class="page-header">
 	<h1>{{ course.name }}</h1>
 </div>
-<h3>{% trans "Available courses" %}</h3>
+<p>
+	<a href="{% url 'access.views.aplus_json' course.key %}" class="btn btn-default btn-sm">
+		{% trans "A+ configuration JSON" %}
+	</a>
+</p>
+<h3>{% trans "Available exercises" %}</h3>
 <div class="list-group">
 	{% for exercise in exercises %}
 	<a href="{% url 'access.views.exercise' course.key exercise.key %}" class="list-group-item">

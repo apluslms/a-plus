@@ -1,0 +1,12 @@
+---
+title: Select correct button
+description: POST value comparison
+max_points: 1
+
+template: sample_course/correct_button.html
+
+view_type: access.types.stdsync.comparePostValues
+values:
+  right:
+    accept: [ "1" ]
+    points: 1
