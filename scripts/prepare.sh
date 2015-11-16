@@ -117,7 +117,7 @@ copy_paths $ROOT/exercises/$COURSE/ $DIR/
 list=($CP)
 copy_paths $DIR/ $DIR/
 
-list=("$MV")
+list=($MV)
 list_pos=0
 while next_paths $DIR/ $DIR/; do
 	if [ -e $SRC ]; then
