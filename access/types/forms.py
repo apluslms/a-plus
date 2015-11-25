@@ -70,7 +70,7 @@ class GradedForm(forms.Form):
                     f.open_set = self.group_name(g)
                     if "title" in group:
                         f.set_title = group["title"]
-                elif j >= l:
+                if j >= l:
                     f.close_set = True
                 j += 1
 
