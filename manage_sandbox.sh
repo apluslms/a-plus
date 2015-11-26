@@ -39,6 +39,7 @@ Tasks:
   fsc-start     Start the fast scala compilation service for the sandbox user.
   fsc-restart   Restart the fast scala compilation service.
   fsc-stop      Stop the fast scala compilation service.
+  mount-dev-shm Create dev/shm for Python multiprocessing.Pool()
 
 The script requires super user priviliges. Enjoy!"
 }
@@ -97,6 +98,10 @@ case "$task" in
 	;;
   'fsc-restart') ./scripts/chroot_execvp - - - - - - /usr/local/sandbox/fsc.sh; rv=$? ;;
   'fsc-stop') ./scripts/chroot_execvp - - - - - - /usr/local/sandbox/fsc.sh --shutdown; rv=$? ;;
+  'mount-dev-shm')
+    echo_ok "*** Mounting /var/sandbox/dev/shm"
+    ./scripts/mount_dev_shm.sh
+  ;;
   *) print_help; echo_err "Invalid task: $task!"; exit 1 ;;
 esac
 
