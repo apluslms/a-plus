@@ -71,10 +71,10 @@ class ConfigParser:
             LOGGER.debug('Recreating course list.')
             for item in os.listdir(DIR):
                 try:
-                    self._get_config(os.path.join(DIR, item, INDEX))
+                    self._course_root(item)
                 except ConfigError:
+                    LOGGER.exception("Failed to load course: %s", item)
                     continue
-                self._course_root(item)
 
         # Pick course data into list.
         course_list = []
@@ -146,7 +146,6 @@ class ConfigParser:
             return course_root["data"], None
 
         # Try to find version for requested or configured language.
-        LOGGER.debug('Accessing config for "%s/%s" lang=%s' % (course_key, exercise_key, lang))
         for lang in lang, course_root["lang"]:
             if lang in exercise_root["data"]:
                 return course_root["data"], exercise_root["data"][lang]
@@ -190,12 +189,16 @@ class ConfigParser:
 
         if "modules" in data:
             keys = []
+            config = {}
             for module in data["modules"]:
                 if "exercises" in module:
                     for exercise_vars in module["exercises"]:
-                        if "config" in exercise_vars:
-                            keys.append(exercise_vars["config"])
+                        if "key" in exercise_vars:
+                            keys.append(exercise_vars["key"])
+                            if "config" in exercise_vars:
+                                config[exercise_vars["key"]] = exercise_vars["config"]
             data["exercises"] = keys
+            data["config_files"] = config
 
         # Enable course configurable ecercise_loader function.
         exercise_loader = self._default_exercise_loader
@@ -236,9 +239,12 @@ class ConfigParser:
                 pass
 
         LOGGER.debug('Loading exercise "%s/%s"', course_root["data"]["key"], exercise_key)
+        file_name = exercise_key
+        if "config_files" in course_root["data"]:
+            file_name = course_root["data"]["config_files"].get(exercise_key, exercise_key)
         f, t, data = course_root["exercise_loader"](
             course_root,
-            exercise_key,
+            file_name,
             os.path.join(DIR, course_root["data"]["key"])
         )
         if not data:
@@ -344,10 +350,7 @@ class ConfigParser:
         @rtype: C{str}, C{dict}
         @return: exercise config file path, modified time and data dict
         '''
-        try:
-            config_file = self._get_config(os.path.join(course_dir, exercise_key))
-        except ConfigError:
-            return None, None, None
+        config_file = self._get_config(os.path.join(course_dir, exercise_key))
         return config_file, os.path.getmtime(config_file), self._parse(config_file)
 
 

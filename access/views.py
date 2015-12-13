@@ -54,9 +54,14 @@ def course(request, course_key):
         return JsonResponse({
             "ready": True,
             "course_name": course["name"],
-            "exercises": _filter_fields(exercises, ["key", "title"])
+            "exercises": _filter_fields(exercises, ["key", "title"]),
         })
-    return render(request, 'access/course.html', { 'course': course, 'exercises': exercises })
+    return render(request, 'access/course.html', {
+        'course': course,
+        'exercises': exercises,
+        'plus_config_url': request.build_absolute_uri(reverse(
+            'access.views.aplus_json', args=[course['key']])),
+    })
 
 
 def exercise(request, course_key, exercise_key):
@@ -122,14 +127,15 @@ def aplus_json(request, course_key):
             efs = []
             if "exercises" in mf:
                 for e in mf["exercises"]:
-                    if "config" in e:
-                        _, exercise = config.exercise_entry(course["key"], e["config"])
+                    if "key" in e:
+                        _, exercise = config.exercise_entry(course["key"], e["key"])
                         base = {
                             "title": exercise.get("title", ""),
                             "description": exercise.get("description", ""),
                             "url": request.build_absolute_uri(
                                 reverse('access.views.exercise', args=[
-                                    course["key"], exercise["key"]])),
+                                    course["key"], exercise["key"]
+                                ])),
                         }
                         base.update(e)
                         e = base

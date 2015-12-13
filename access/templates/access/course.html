@@ -8,8 +8,8 @@
 	<h1>{{ course.name }}</h1>
 </div>
 <p>
-	<a href="{% url 'access.views.aplus_json' course.key %}" class="btn btn-default btn-sm">
-		{% trans "A+ configuration JSON" %}
+	<a href="{{ plus_config_url }}">
+		{{ plus_config_url }}
 	</a>
 </p>
 <h3>{% trans "Available exercises" %}</h3>
