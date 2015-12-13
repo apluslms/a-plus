@@ -1,9 +1,0 @@
----
-title: System error
-description: This exercise will cause a system error when grading.
-view_type: access.types.stdasync.acceptFiles
-files:
-  - field: file1
-    name: file1.txt
-actions:
-  - type: grader.actions.notexisting
