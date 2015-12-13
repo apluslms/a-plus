@@ -147,10 +147,13 @@ def aplus_json(request, course_key):
             cfs = []
             if "chapters" in mf:
                 for c in mf["chapters"]:
-                    if "public_content" in c:
-                        print(c)
+                    if "static_content" in c:
                         base = { "url": request.build_absolute_uri(
-                            '/public/%s/%s' % (course["key"], c["public_content"])),
+                            '%s%s/%s' % (
+                                settings.STATIC_URL,
+                                course["key"],
+                                c["static_content"],
+                            )),
                         }
                         base.update(c)
                         c = base
