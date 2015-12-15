@@ -76,7 +76,7 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
             'category',
             'course_module',
             'order',
-            'instructions', #TODO: field belongs to BaseExercise, should use it the same way in others as well?
+            'content',
             'files_to_submit',
             'attachment',
             'max_submissions',
@@ -93,7 +93,7 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
                 self["category"],
                 self["course_module"],
                 self["order"],
-                self["instructions"],
+                self["content"],
                 self["files_to_submit"],
                 self["attachment"])
 

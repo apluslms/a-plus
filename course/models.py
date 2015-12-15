@@ -1,3 +1,4 @@
+import datetime
 import logging
 import urllib.request, urllib.parse
 
@@ -13,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from apps.models import BaseTab, BasePlugin
 from lib.fields import PercentField
 from lib.helpers import safe_file_name, resize_image
+from lib.remote_page import RemotePage, RemotePageException
 from userprofile.models import UserProfile
 
 
@@ -322,6 +324,8 @@ class CourseChapter(models.Model):
         validators=[RegexValidator(regex="^[\w\-\.]*$")],
         help_text=_("Input an URL identifier for this chapter."))
     content_url = models.URLField(help_text=_("The resource to show."))
+    content = models.TextField(blank=True)
+    content_time = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         unique_together = ("course_module", "url")
@@ -359,6 +363,26 @@ class CourseChapter(models.Model):
             'module': module.url,
             'chapter': self.url,
         })
+
+    def load(self, request):
+        if self.content and self.course_instance.ending_time < timezone.now():
+            return self.content
+        try:
+            page = RemotePage(self.content_url)
+            page.fix_relative_urls()
+            content = page.element_or_body("chapter")
+            if not self.content_time or self.content_time + datetime.timedelta(days=3) < timezone.now():
+                self.content_time = timezone.now()
+                self.content = content
+                self.save()
+            return content
+        except RemotePageException:
+            messages.error(self.request,
+                _("Connecting to the content service failed!"))
+            if self.instance.visible_to_students:
+                logger.exception("Failed to load external page: {}".format(
+                    self.content_url))
+            return None
 
 
 class LearningObjectCategory(models.Model):

@@ -145,7 +145,7 @@ class ExerciseTest(TestCase):
             points_to_pass=50,
             max_submissions=0,
             files_to_submit="test1.txt|test2.txt|img.png",
-            instructions="test_instructions"
+            content="test_instructions"
         )
 
         self.old_base_exercise = BaseExercise.objects.create(

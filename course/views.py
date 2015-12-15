@@ -6,11 +6,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 
-from lib.remote_page import RemotePage, RemotePageException
 from lib.viewbase import BaseRedirectView
 from userprofile.viewbase import ACCESS, UserProfileView
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
@@ -70,21 +70,13 @@ class ChapterView(CourseChapterView):
 
     def get(self, request, *args, **kwargs):
         self.handle()
-        if not self.module.is_after_open():
+        if self.chapter.course_instance.ending_time < timezone.now():
+            messages.warning(self.request,
+                _("The course is archived. Chapters are offline."))
+        elif not self.module.is_after_open():
             messages.warning(self.request,
                 _("The course module is not yet open for students."))
-        try:
-            page = RemotePage(self.chapter.content_url)
-            page.fix_relative_urls()
-            content = page.element_or_body("chapter")
-        except RemotePageException:
-            messages.error(self.request,
-                _("Connecting to the content service failed!"))
-            if self.instance.visible_to_students:
-                logger.exception("Failed to load external page: {}".format(
-                    self.chapter.content_url))
-            content = None
-        return self.response(content=content)
+        return self.response(content=self.chapter.load(request))
 
 
 class CalendarExport(CourseInstanceMixin, View):

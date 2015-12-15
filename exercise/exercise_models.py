@@ -1,7 +1,9 @@
+import datetime
 import hashlib
 import hmac
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
@@ -28,8 +30,9 @@ class LearningObject(ModelWithInheritance):
     order = models.IntegerField(default=1)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    instructions = models.TextField(blank=True)
     service_url = models.URLField(blank=True)
+    content = models.TextField(blank=True)
+    content_time = models.DateTimeField(blank=True, null=True)
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
 
@@ -172,28 +175,26 @@ class BaseExercise(LearningObject):
         @return: (success_flag, warning_message_list)
         """
         warnings = []
-
-        if not self.one_has_access(students):
-            warnings.append(
-                _('This exercise is not open for submissions.'))
-
-        if not (self.min_group_size <= len(students) <= self.max_group_size):
-            warnings.append(
-                _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
-                  'The size of your current group is %(size)d.') % {
-                    'min': self.min_group_size,
-                    'max': self.max_group_size,
-                    'size': len(students),
-                })
-
-        if not self.one_has_submissions(students):
-            warnings.append(
-                _('You have used the allowed amount of submissions for this exercise.'))
-
-        # The above problems will prevent the submission if users are not in
-        # course staff. The problems below are always just notifications.
-        success = len(warnings) == 0 \
-            or all(self.course_instance.is_course_staff(p.user) for p in students)
+        if self.course_instance.ending_time < timezone.now():
+            warnings.append(_('The course is archived. Exercises are offline.'))
+            success = False
+        else:
+            if not self.one_has_access(students):
+                warnings.append(
+                    _('This exercise is not open for submissions.'))
+            if not (self.min_group_size <= len(students) <= self.max_group_size):
+                warnings.append(
+                    _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
+                      'The size of your current group is %(size)d.') % {
+                        'min': self.min_group_size,
+                        'max': self.max_group_size,
+                        'size': len(students),
+                    })
+            if not self.one_has_submissions(students):
+                warnings.append(
+                    _('You have used the allowed amount of submissions for this exercise.'))
+            success = len(warnings) == 0 \
+                or all(self.course_instance.is_course_staff(p.user) for p in students)
 
         # If late submission is open, notify the student about point reduction.
         if self.course_module.is_late_submission_open():
@@ -238,18 +239,28 @@ class BaseExercise(LearningObject):
         """
         Loads the exercise page.
         """
-        if self.id:
-            student_str, hash_key = self.get_async_hash(students)
-            url = self._build_service_url(request, url_name, reverse(
-                "async-new", kwargs={
-                    "exercise_id": self.id if self.id else 0,
-                    "student_ids": student_str,
-                    "hash_key": hash_key
-                }
-            ))
+        if self.content and self.course_instance.ending_time < timezone.now():
+            page = ExercisePage(self)
+            page.is_loaded = True
+            page.content = self.content
         else:
-            url = self.service_url
-        return load_exercise_page(request, url, self)
+            if self.id:
+                student_str, hash_key = self.get_async_hash(students)
+                url = self._build_service_url(request, url_name, reverse(
+                    "async-new", kwargs={
+                        "exercise_id": self.id if self.id else 0,
+                        "student_ids": student_str,
+                        "hash_key": hash_key
+                    }
+                ))
+            else:
+                url = self.service_url
+            page = load_exercise_page(request, url, self)
+            if not self.content_time or self.content_time + datetime.timedelta(days=3) < timezone.now():
+                self.content_time = timezone.now()
+                self.content = page.content
+                self.save()
+        return page
 
     def grade(self, request, submission,
             no_penalties=False, url_name="exercise"):
@@ -349,7 +360,7 @@ class ExerciseWithAttachment(BaseExercise):
 
     def load(self, request, students, url_name="exercise"):
         page = ExercisePage(self)
-        page.content = self.instructions
+        page.content = self.content
 
         # Adds the submission form to the content if there are files to be
         # submitted. A template is used to avoid hard-coded HTML here.
