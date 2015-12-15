@@ -14,7 +14,6 @@ class ExercisePage:
         self.points = 0
         self.max_points = exercise.max_points
         self.content = ""
-        self.instructions = exercise.instructions
         self.meta = {
             "title": exercise.name,
             "description": exercise.description

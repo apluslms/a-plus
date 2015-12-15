@@ -1,6 +1,8 @@
+import datetime
 import logging
 import urllib.request, urllib.parse
 
+from django.contrib import messages
 from django.contrib.contenttypes import generic
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -11,9 +13,13 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from apps.models import BaseTab, BasePlugin
+from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import safe_file_name, resize_image
+from lib.remote_page import RemotePage, RemotePageException
 from userprofile.models import UserProfile
+
+logger = logging.getLogger("course.models")
 
 
 class Course(models.Model):
@@ -289,17 +295,39 @@ class CourseModule(models.Model):
         return self.course_instance.course_modules \
             .exclude(id=self.id).filter(order__lt=self.order).last()
 
+    def root_chapters(self):
+        return self.chapters.filter(parent__isnull=True)
+
+    def chapter_list(self):
+        chapters = []
+        def sub(qs):
+            if qs.count() > 0:
+                chapters.append({'sub':'open'})
+                for current in qs:
+                    chapters.append(current)
+                    sub(current.children.all())
+                chapters.append({'sub':'close'})
+        sub(self.root_chapters())
+        return chapters
+
+    def last_chapter(self):
+        def last(chapter):
+            if chapter and chapter.children.count() > 0:
+                return last(chapter.children.last())
+            return chapter
+        return last(self.root_chapters().last())
+
     def next(self):
-        child = self.chapters.first()
-        child = child or self.learning_objects.first()
-        return child or self.next_module()
+        return self.root_chapters().first() \
+            or self.learning_objects.first() \
+            or self.next_module()
 
     def previous(self):
-        last_module = self.previous_module()
-        if last_module:
-            last = last_module.chapters.last()
-            last = last or last_module.learning_objects.last()
-            return last or last_module
+        module = self.previous_module()
+        if module:
+            return module.last_chapter() \
+                or module.learning_objects.last() \
+                or module
         return None
 
     def get_absolute_url(self):
@@ -316,22 +344,35 @@ class CourseChapter(models.Model):
     Chapters can offer and organize learning material as one page chapters.
     """
     course_module = models.ForeignKey(CourseModule, related_name="chapters")
+    parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
     order = models.IntegerField(default=1)
     name = models.CharField(max_length=255)
     url = models.CharField(max_length=255,
         validators=[RegexValidator(regex="^[\w\-\.]*$")],
         help_text=_("Input an URL identifier for this chapter."))
     content_url = models.URLField(help_text=_("The resource to show."))
+    content = models.TextField(blank=True)
+    content_time = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        unique_together = ("course_module", "url")
         ordering = ['course_module', 'order', 'id']
+
+    def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        """
+        if self.parent == self or self.parent.course_module != self.course_module:
+            raise ValidationError(_("Invalid parent chapter selected."))
 
     def __str__(self):
         if self.course_module.order > 0:
-            return "{:d}.{:d} {}".format(
-                self.course_module.order, self.order, self.name)
+            return "{} {}".format(self.number(), self.name)
         return self.name
+
+    def number(self):
+        if self.parent:
+            return "{}.{:d}".format(self.parent.number(), self.order)
+        return "{:d}.{:d}".format(self.course_module.order, self.order)
 
     @property
     def course_instance(self):
@@ -341,14 +382,24 @@ class CourseChapter(models.Model):
         return self.course_module.is_after_open(when=when)
 
     def next(self):
-        chapter = self.course_module.chapters \
-            .exclude(id=self.id).filter(order__gt=self.order).first()
-        return chapter or self.course_module.next_module()
+        if self.children.count() > 0:
+            return self.children.first()
+        return self.next_sibling()
+
+    def next_sibling(self):
+        chapter = self.course_module.chapters\
+            .exclude(id=self.id)\
+            .filter(parent=self.parent, order__gt=self.order)\
+            .first()
+        return chapter or (self.parent.next_sibling() if self.parent
+            else self.course_module.next_module())
 
     def previous(self):
-        chapter = self.course_module.chapters \
-            .exclude(id=self.id).filter(order__lt=self.order).last()
-        return chapter or self.course_module
+        chapter = self.course_module.chapters\
+            .exclude(id=self.id)\
+            .filter(parent=self.parent, order__lt=self.order)\
+            .last()
+        return chapter or self.parent or self.course_module
 
     def get_absolute_url(self):
         module = self.course_module
@@ -359,6 +410,29 @@ class CourseChapter(models.Model):
             'module': module.url,
             'chapter': self.url,
         })
+
+    def load(self, request):
+        if self.content and self.course_instance.ending_time < timezone.now():
+            return self.content
+        try:
+            page = RemotePage(self.content_url)
+            page.fix_relative_urls()
+            content = page.element_or_body((
+                {'id':'chapter'},
+                {'class':'entry-content'},
+            ))
+            if not self.content_time or self.content_time + datetime.timedelta(days=3) < timezone.now():
+                self.content_time = timezone.now()
+                self.content = content
+                self.save()
+            return content
+        except RemotePageException:
+            messages.error(request, _("Connecting to the content service failed!"))
+            if self.course_instance.visible_to_students:
+                msg = "Failed to request: {}".format(self.content_url)
+                logger.exception(msg)
+                email_course_error(request, self, msg)
+            return None
 
 
 class LearningObjectCategory(models.Model):

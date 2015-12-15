@@ -1,7 +1,7 @@
 from base64 import b64encode
 
 from tastypie import fields
-from tastypie.authentication import Authentication, ApiKeyAuthentication 
+from tastypie.authentication import Authentication, ApiKeyAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.resources import ModelResource, ALL
 
@@ -29,7 +29,7 @@ class ExerciseResource(ModelResource):
     class Meta:
         queryset = BaseExercise.objects.all()
         resource_name = 'exercise'
-        excludes = ['allow_assistant_grading', 'description', 'instructions']
+        excludes = ['allow_assistant_grading', 'description', 'content']
 
         # In the first version GET (read only) requests are
         # allowed and no authentication is required

@@ -54,6 +54,7 @@ class CourseChapterForm(FieldsetModelForm):
         model = CourseChapter
         fields = [
             'course_module',
+            'parent',
             'order',
             'name',
             'url',
@@ -65,6 +66,8 @@ class CourseChapterForm(FieldsetModelForm):
         self.chapter = kwargs.get('instance')
         self.fields["course_module"].queryset = CourseModule.objects.filter(
             course_instance=self.chapter.course_instance)
+        self.fields["parent"].queryset = CourseChapter.objects.filter(
+            course_module=self.chapter.course_module)
 
 
 class CourseInstanceForm(forms.ModelForm):

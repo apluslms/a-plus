@@ -78,11 +78,12 @@ class RemotePage:
             return self.soup.body.renderContents()
         return ""
 
-    def element_or_body(self, search_id):
+    def element_or_body(self, search_attributes):
         if self.soup:
-            element = self.soup.find(id=search_id)
-            if element:
-                return element.renderContents()
+            for attr in search_attributes:
+                element = self.soup.find(**attr)
+                if element:
+                    return element.renderContents()
         return self.body()
 
     def fix_relative_urls(self):
@@ -95,7 +96,9 @@ class RemotePage:
     def _fix_relative_urls(self, base_url, tag_name, attr_name):
         for element in self.soup.findAll(tag_name, {attr_name: True}):
             value = element[attr_name]
-            if not (value.startswith("http://") or value.startswith("https://")):
+            if not (value.startswith("http://")
+                    or value.startswith("https://")
+                    or value.startswith("#")):
                 element[attr_name] = "".join((
                     base_url,
                     "/" if (value[0] != "/" and base_url[-1] != "/") else "",

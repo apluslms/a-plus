@@ -33,8 +33,12 @@
         <p>
             <small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
         </p>
+        {% for chapter in module.chapter_list %}
+        {% if chapter.sub == 'open' %}
         <ul class="chapters">
-            {% for chapter in module.chapters.all %}
+        {% elif chapter.sub == 'close' %}
+        </ul>
+        {% else %}
             <li>
                 {% if open %}
                 <a href="{{ chapter|url }}">{{ chapter }}</a>
@@ -48,8 +52,8 @@
                 {% endif %}
                 {% endif %}
             </li>
-            {% endfor %}
-        </ul>
+        {% endif %}
+        {% endfor %}
         {% if not module.chapters.exists %}
         <ul class="exercises">
             {% for exercise in module.learning_objects.all %}

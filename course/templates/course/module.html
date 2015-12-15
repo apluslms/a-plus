@@ -45,16 +45,20 @@
 	</p>
 	{% endif %}
 
+    {% for chapter in module.chapter_list %}
+    {% if chapter.sub == 'open' %}
     <ul class="chapters">
-        {% for chapter in module.chapters.all %}
+    {% elif chapter.sub == 'close' %}
+    </ul>
+    {% else %}
         <li>
             <a href="{{ chapter|url }}">
-                {{ chapter }}
+              {{ chapter }}
             </a>
         </li>
-        {% endfor %}
-    </ul>
-
+    {% endif %}
+    {% endfor %}
+    
     {% if not module.chapters.exists %}
     <ul class="exercises">
         {% for exercise in module.learning_objects.all %}

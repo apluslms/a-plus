@@ -57,7 +57,7 @@ class DeviationsTest(TestCase):
             points_to_pass=50,
             max_submissions=0,
             files_to_submit="test1.txt|test2.txt|img.png",
-            instructions="test_instructions"
+            content="test_instructions"
         )
 
         self.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(

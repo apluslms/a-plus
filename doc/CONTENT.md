@@ -8,9 +8,9 @@ source. The chapters can embed A+ learning objects from the course module.
 
 "Teacher" creates chapter objects in the A+ and configures
 the `content_url` for them. On chapter view the URL is requested and
-the response BODY (or if `<div id="chapter">` exists) will be presented
-to the student. The HTML may include following elements to inject A+
-functionality in the page.
+the response BODY (or if `id="chapter"` or `class="entry-content"`
+element exists) will be presented to the student. The HTML may include
+following elements to inject A+ functionality in the page.
 
 ### Exercise
 

@@ -12,7 +12,7 @@ def email_course_error(request, exercise, message, exception=True):
     if instance.technical_error_emails:
         recipients = instance.technical_error_emails.split(",")
     else:
-        recipients = (p.user.email for p in instance.course.teachers.all())
+        recipients = (p.user.email for p in instance.course.teachers.all() if p.user.email)
 
     error_trace = "-"
     if exception:
@@ -29,4 +29,5 @@ def email_course_error(request, exercise, message, exception=True):
             instance.get_url('course-details')),
         error_trace=error_trace,
         request_fields=repr(request))
-    send_mail(subject, body, settings.SERVER_EMAIL, recipients, True)
+    if recipients:
+        send_mail(subject, body, settings.SERVER_EMAIL, recipients, True)
