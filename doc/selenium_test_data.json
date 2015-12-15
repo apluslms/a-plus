@@ -243,7 +243,7 @@
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
-     "email": "admin@selenium.test",
+     "email": "",
      "date_joined": "2015-05-02T18:56:18.000Z"
     }
   },
@@ -261,7 +261,7 @@
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
-     "email": "admin@selenium.test",
+     "email": "",
      "date_joined": "2015-05-02T18:56:18.000Z"
     }
   },
@@ -279,7 +279,7 @@
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
-     "email": "admin@selenium.test",
+     "email": "",
      "date_joined": "2015-05-02T18:56:18.000Z"
     }
   },
@@ -297,7 +297,7 @@
      "groups": [],
      "user_permissions": [],
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
-     "email": "admin@selenium.test",
+     "email": "",
      "date_joined": "2015-05-02T18:56:18.000Z"
     }
   }
