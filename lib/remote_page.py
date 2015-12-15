@@ -78,11 +78,12 @@ class RemotePage:
             return self.soup.body.renderContents()
         return ""
 
-    def element_or_body(self, search_id):
+    def element_or_body(self, search_attributes):
         if self.soup:
-            element = self.soup.find(id=search_id)
-            if element:
-                return element.renderContents()
+            for attr in search_attributes:
+                element = self.soup.find(**attr)
+                if element:
+                    return element.renderContents()
         return self.body()
 
     def fix_relative_urls(self):

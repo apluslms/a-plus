@@ -135,4 +135,7 @@ def parse_page_content(page, remote_page):
         page.is_accepted = True
         page.is_wait = False
 
-    page.content = remote_page.element_or_body("exercise")
+    page.content = remote_page.element_or_body((
+        {'id':'exercise'},
+        {'class':'entry-content'},
+    ))

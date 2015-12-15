@@ -370,7 +370,10 @@ class CourseChapter(models.Model):
         try:
             page = RemotePage(self.content_url)
             page.fix_relative_urls()
-            content = page.element_or_body("chapter")
+            content = page.element_or_body((
+                {'id':'chapter'},
+                {'class':'entry-content'},
+            ))
             if not self.content_time or self.content_time + datetime.timedelta(days=3) < timezone.now():
                 self.content_time = timezone.now()
                 self.content = content
