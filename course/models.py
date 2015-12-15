@@ -361,7 +361,7 @@ class CourseChapter(models.Model):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        if self.parent == self or self.parent.course_module != self.course_module:
+        if self.parent and (self.parent == self or self.parent.course_module != self.course_module):
             raise ValidationError(_("Invalid parent chapter selected."))
 
     def __str__(self):
