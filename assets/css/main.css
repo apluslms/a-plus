@@ -149,7 +149,7 @@ html, body {
     background: #eee;
 }
 .course-thumbnail .image img {
-    height: 130px;
+    width: 100%;
 }
 .course-thumbnail .image .glyphicon {
     color: #fff;

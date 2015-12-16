@@ -6,7 +6,7 @@
     {{ count }} submissions
     {% endblocktrans %}
 </p>
-<table class="table table-bordered" id="submission-table">
+<table class="table table-bordered filtered-table">
     <thead>
         <tr>
             <th>{% trans "Submitters" %}</th>
@@ -37,6 +37,9 @@
             </td>
             <td>
                 {{ submission.grade }}
+                {% if submission.assistant_feedback %}
+                <span class="label label-warning">{% trans 'A.Feedback' %}</span>
+                {% endif %}
             </td>
             <td>
                 <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">

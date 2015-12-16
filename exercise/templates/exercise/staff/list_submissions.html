@@ -15,12 +15,3 @@
     {% include "exercise/staff/_submissions_table.html" %}
 </div>
 {% endblock %}
-
-{% block scripts %}
-<script type="text/javascript" src="{% static 'js/picnet.table.filter.min.js' %}"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#submission-table').tableFilter();
-    });
-</script>
-{% endblock %}
