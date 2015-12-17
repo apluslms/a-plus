@@ -46,9 +46,10 @@ class Course(models.Model):
         RESERVED = ("admin", "accounts", "shibboleth", "api",
             "archive", "course", "exercise")
         if self.url in RESERVED:
-            raise ValidationError(_("Taken words include: {}").format(
-                ", ".join(RESERVED)
-            ))
+            raise ValidationError({
+                'url':_("Taken words include: {}").format(
+                    ", ".join(RESERVED))
+            })
 
     def is_teacher(self, user):
         return user and user.is_authenticated() and (user.is_superuser or \
@@ -126,7 +127,9 @@ class CourseInstance(models.Model):
         Validates the model before saving (standard method used in Django admin).
         """
         if self.ending_time <= self.starting_time:
-            raise ValidationError(_("Ending time must be later than starting time."))
+            raise ValidationError({
+                'ending_time': _("Ending time must be later than starting time.")
+            })
 
     def save(self, *args, **kwargs):
         """
@@ -258,9 +261,10 @@ class CourseModule(models.Model):
         """
         RESERVED = ("teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
-            raise ValidationError(_("Taken words include: {}").format(
-                ", ".join(RESERVED)
-            ))
+            raise ValidationError({
+                'url':_("Taken words include: {}").format(
+                    ", ".join(RESERVED))
+            })
 
     def is_open(self, when=None):
         when = when or timezone.now()

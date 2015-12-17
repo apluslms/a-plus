@@ -32,6 +32,7 @@ class LearningObject(ModelWithInheritance):
     description = models.TextField(blank=True)
     service_url = models.URLField(blank=True)
     content = models.TextField(blank=True)
+    #content_head = models.TextField(blank=True)
     content_time = models.DateTimeField(blank=True, null=True)
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
@@ -50,8 +51,9 @@ class LearningObject(ModelWithInheritance):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        course_instance_error = ValidationError(
-            _("Course_module and category must belong to the same course instance."))
+        course_instance_error = ValidationError({
+            'category':_("Course_module and category must belong to the same course instance.")
+        })
         try:
             if (self.course_module.course_instance != self.category.course_instance):
                 raise course_instance_error
@@ -112,8 +114,9 @@ class BaseExercise(LearningObject):
         Validates the model before saving (standard method used in Django admin).
         """
         if self.points_to_pass > self.max_points:
-            return ValidationError(
-                _("Points to pass cannot be greater than max_points."))
+            raise ValidationError({
+                'points_to_pass':_("Points to pass cannot be greater than max_points.")
+            })
 
     def one_has_access(self, students, when=None):
         """
