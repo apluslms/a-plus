@@ -53,6 +53,10 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
         messages.success(self.request, _("Changes were saved succesfully."))
         return self.redirect(self.instance.get_url('course-details'))
 
+    def form_invalid(self, form):
+        messages.error(self.request, _("Failed to save changes."))
+        return super().form_invalid(form)
+
 
 class ModelBaseMixin(CourseInstanceMixin):
     access_mode = ACCESS.TEACHER
@@ -122,6 +126,11 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             _('The {name} was saved successfully.').format(
                 name=self.model_name))
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request,
+            _('Failed to save {name}').format(name=self.model_name))
+        return super().form_invalid(form)
 
 
 class ModelDeleteView(ModelBaseMixin, BaseRedirectMixin, BaseTemplateView):
