@@ -2,13 +2,19 @@
 {% load i18n %}
 {% load course %}
 {% load editcourse %}
+{% load bootstrap %}
 
 {% block editbreadcrumblist %}
 <li class="active">{% trans "Edit course" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
-<br />
+<br>
+<form method="post" class="well form-inline">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <button class="btn btn-primary" type="submit">{% trans 'Apply configuration' %}</button>
+</form>
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{% trans "Exercise categories" %}</h3>
