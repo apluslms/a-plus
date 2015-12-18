@@ -73,6 +73,12 @@ class RemotePage:
             return self.soup.title.contents
         return ""
 
+    def head_aplus(self):
+        if self.soup and self.soup.head:
+            return "\n".join(str(tag) for tag in
+                self.soup.head.find_all({'data-aplus':True}))
+        return ""
+
     def body(self):
         if self.soup and self.soup.body:
             return self.soup.body.renderContents()
@@ -96,12 +102,12 @@ class RemotePage:
     def _fix_relative_urls(self, base_url, tag_name, attr_name):
         for element in self.soup.findAll(tag_name, {attr_name: True}):
             value = element[attr_name]
-            if not (value.startswith("http://")
+            if value and not (value.startswith("http://")
                     or value.startswith("https://")
                     or value.startswith("#")):
                 element[attr_name] = "".join((
                     base_url,
-                    "/" if (value[0] != "/" and base_url[-1] != "/") else "",
+                    "/" if (value[0] != "/" and (not base_url or base_url[-1] != "/")) else "",
                     value
                 ))
 
