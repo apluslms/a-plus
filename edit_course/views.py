@@ -13,7 +13,7 @@ from lib.helpers import extract_form_errors
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
     BaseRedirectView
 from userprofile.viewbase import ACCESS
-from .course_forms import CourseInstanceForm
+from .course_forms import CourseInstanceForm, CourseContentForm
 from .managers import CategoryManager, ModuleManager, ChapterManager, \
     ExerciseManager
 from .submission_forms import BatchSubmissionCreateAndReviewForm
@@ -23,9 +23,19 @@ from exercise.submission_models import Submission
 logger = logging.getLogger('aplus.edit_course')
 
 
-class EditContentView(CourseInstanceBaseView):
+class EditContentView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
     template_name = "edit_course/edit_content.html"
+    form_class = CourseContentForm
+
+    def get_from_kwargs(self):
+        kwargs = super().get_from_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def form_valid(self, form):
+        messages.success(self.request, _("Changes saved."))
+        return self.response()
 
 
 class EditInstanceView(CourseInstanceMixin, BaseFormView):

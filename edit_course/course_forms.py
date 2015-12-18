@@ -99,3 +99,10 @@ class CourseInstanceForm(forms.ModelForm):
         if self.instance and self.instance.visible_to_students:
             return self.instance.url
         return self.cleaned_data["url"]
+
+
+class CourseContentForm(forms.Form):
+    url = forms.URLField(label=_("Import and override content configuration from URL"))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
