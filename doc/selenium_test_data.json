@@ -63,6 +63,7 @@
       "course_module": 1,
       "service_url": "http://localhost:8889/first_exercise/",
       "order": 1,
+      "url": "1",
       "content": ""
     }
   },
@@ -74,7 +75,7 @@
       "max_points": 100,
       "points_to_pass": 40,
       "min_group_size": 1,
-      "max_submissions": 10,
+      "max_submissions": 4,
       "max_group_size": 1
     }
   },
@@ -88,6 +89,7 @@
       "course_module": 1,
       "service_url": "http://localhost:8889/file_exercise/",
       "order": 2,
+      "url": "2",
       "content": ""
     }
   },
@@ -113,6 +115,7 @@
       "course_module": 1,
       "service_url": "http://localhost:8889/ajax_exercise/",
       "order": 3,
+      "url": "3",
       "content": ""
     }
   },
@@ -138,6 +141,7 @@
       "course_module": 2,
       "service_url": "http://localhost:8889/first_exercise/",
       "order": 1,
+      "url": "4",
       "content": ""
     }
   },

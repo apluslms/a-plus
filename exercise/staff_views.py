@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -12,7 +13,7 @@ from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseRedirectView, BaseFormView
 from notification.models import Notification
 from userprofile.viewbase import ACCESS
-from .models import BaseExercise
+from .models import LearningObject
 from .presentation.results import ResultTable
 from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm
 from .submission_models import Submission
@@ -119,8 +120,8 @@ class FetchMetadataView(CourseInstanceMixin, View):
         validate = URLValidator()
         try:
             validate(exercise_url)
-            exercise = BaseExercise(service_url=exercise_url)
-            page = exercise.load(request, [])
+            lobject = LearningObject(service_url=exercise_url)
+            page = lobject.load(request, [])
             if page.is_loaded:
                 metadata["name"] = page.meta["title"]
                 metadata["description"] = page.meta["description"]

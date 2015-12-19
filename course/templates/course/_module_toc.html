@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load course %}
+{% for lobject in module.flat_learning_objects %}
+{% if lobject.sub == 'open' %}
+<ul>
+{% elif lobject.sub == 'close' %}
+</ul>
+{% else %}
+    <li>
+        {% if open %}
+        <a href="{{ lobject|url }}">{{ lobject }}</a>
+        {% else %}
+        {{ lobject }}
+        {% if is_course_staff %}
+        <a class="btn btn-default btn-xs" href="{{ lobject|url }}">
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            {% trans "Early access" %}
+        </a>
+        {% endif %}
+        {% endif %}
+    </li>
+{% endif %}
+{% endfor %}

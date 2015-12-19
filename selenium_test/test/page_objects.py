@@ -326,9 +326,9 @@ class EditExercisePage(BasePage):
 
 
 class SubmissionPage(BasePage):
-    def __init__(self, driver, exerciseNumber=1):
+    def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1"):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) + "/submissions/", SubmissionPageLocators.SUBMISSIONS_PAGE_BANNER)
+        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) + "/submissions/", SubmissionPageLocators.SUBMISSIONS_PAGE_BANNER)
 
     def getInspectionLinks(self):
         return self.getElements(SubmissionPageLocators.INSPECTION_LINKS)
@@ -344,9 +344,9 @@ class SubmissionPage(BasePage):
             raise Exception("Tried to click inspection link number " + number + "but there are only " + len(inspectionLinks) + " elements.")
 
 class StudentFeedbackPage(BasePage):
-    def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
+    def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
+        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
 
     def getAssistantFeedbackText(self):
         return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).strip()
@@ -355,9 +355,9 @@ class StudentFeedbackPage(BasePage):
         return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).strip()
 
 class InspectionPage(BasePage):
-    def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
+    def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/inspect/", InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
+        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/inspect/", InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
 
     def doesNotHaveFeedback(self):
         return self.isElementVisible(InspectionPageLocators.NO_FEEDBACK_BANNER)
@@ -372,9 +372,9 @@ class InspectionPage(BasePage):
         return str(self.getElement(InspectionPageLocators.GRADE_TEXT).text)
 
 class AssessmentPage(BasePage):
-    def __init__(self, driver, exerciseNumber=1, submissionNumber=1):
+    def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/" + str(exerciseNumber) +"/submissions/" + str(submissionNumber) + "/assess/", AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
+        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/assess/", AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
 
     def setPoints(self, points):
         self.clearAndSendKeys(AssessmentPageLocators.POINTS_INPUT, points)
@@ -398,7 +398,7 @@ class CourseArchivePage(AbstractPage):
 class MyFirstExerciseGrader(ExercisePage):
     def __init__(self, driver):
         ExercisePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/1/", MyFirstExerciseLocators.MAIN_TITLE)
+        self.load("/aplus1/basic_instance/first-exercise-round/1/", MyFirstExerciseLocators.MAIN_TITLE)
 
     def setText(self, text):
         self.getElement(MyFirstExerciseLocators.TEXT_INPUT).send_keys(text)
@@ -411,7 +411,7 @@ class MyFirstExerciseGrader(ExercisePage):
 class FileUploadGrader(ExercisePage):
     def __init__(self, driver):
         ExercisePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/2/", FileUploadGraderLocators.MAIN_TITLE)
+        self.load("/aplus1/basic_instance/first-exercise-round/2/", FileUploadGraderLocators.MAIN_TITLE)
 
     def submit(self):
         # Failed to select actual file to submit.
@@ -424,7 +424,7 @@ class FileUploadGrader(ExercisePage):
 class MyAjaxExerciseGrader(ExercisePage):
     def __init__(self, driver):
         ExercisePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/exercises/3/", MyAjaxExerciseGraderLocators.MAIN_TITLE)
+        self.load("/aplus1/basic_instance/first-exercise-round/3/", MyAjaxExerciseGraderLocators.MAIN_TITLE)
 
     def setText(self, text):
         self.getElement(MyAjaxExerciseGraderLocators.TEXT_INPUT).send_keys(text)

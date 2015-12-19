@@ -45,31 +45,10 @@
 	</p>
 	{% endif %}
 
-    {% for chapter in module.chapter_list %}
-    {% if chapter.sub == 'open' %}
-    <ul class="chapters">
-    {% elif chapter.sub == 'close' %}
-    </ul>
-    {% else %}
-        <li>
-            <a href="{{ chapter|url }}">
-              {{ chapter }}
-            </a>
-        </li>
-    {% endif %}
-    {% endfor %}
-    
-    {% if not module.chapters.exists %}
-    <ul class="exercises">
-        {% for exercise in module.learning_objects.all %}
-        <li>
-            <a href="{{ exercise|url }}">
-                {{ exercise }}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+  {% with open=module.is_after_open %}
+  {% include 'course/_module_toc.html' %}
+  {% endwith %}
+
 {% endblock %}
 
 {% block sidecontent %}

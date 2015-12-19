@@ -107,13 +107,15 @@ class ExerciseTest(TestCase):
         self.learning_object = LearningObject.objects.create(
             name="test learning object",
             course_module=self.course_module,
-            category=self.learning_object_category
+            category=self.learning_object_category,
+            url="l1",
         )
 
         self.broken_learning_object = LearningObject.objects.create(
             name="test learning object",
             course_module=self.course_module_with_late_submissions_allowed,
-            category=self.learning_object_category
+            category=self.learning_object_category,
+            url="l2",
         )
 
         self.base_exercise = BaseExercise.objects.create(
@@ -121,7 +123,8 @@ class ExerciseTest(TestCase):
             name="test exercise",
             course_module=self.course_module,
             category=self.learning_object_category,
-            max_submissions=1
+            url="b1",
+            max_submissions=1,
         )
 
         self.static_exercise = StaticExercise.objects.create(
@@ -129,6 +132,7 @@ class ExerciseTest(TestCase):
             name="test exercise 2",
             course_module=self.course_module,
             category=self.learning_object_category,
+            url="s2",
             max_points=50,
             points_to_pass=50,
             service_url="/testServiceURL",
@@ -141,6 +145,7 @@ class ExerciseTest(TestCase):
             name="test exercise 3",
             course_module=self.course_module,
             category=self.learning_object_category,
+            url="a1",
             max_points=50,
             points_to_pass=50,
             max_submissions=0,
@@ -152,13 +157,15 @@ class ExerciseTest(TestCase):
             name="test exercise",
             course_module=self.old_course_module,
             category=self.learning_object_category,
+            url="b2",
             max_submissions=1
         )
 
         self.base_exercise_with_late_submission_allowed = BaseExercise.objects.create(
             name="test exercise with late submissions allowed",
             course_module=self.course_module_with_late_submissions_allowed,
-            category=self.learning_object_category
+            category=self.learning_object_category,
+            url="b3",
         )
 
         self.submission = Submission.objects.create(
@@ -345,9 +352,9 @@ class ExerciseTest(TestCase):
         self.assertEqual("1.3 test exercise 3", str(self.exercise_with_attachment))
 
     def test_base_exercise_absolute_url(self):
-        self.assertEqual("/Course-Url/T-00.1000_d1/exercises/3/", self.base_exercise.get_absolute_url())
-        self.assertEqual("/Course-Url/T-00.1000_d1/exercises/4/", self.static_exercise.get_absolute_url())
-        self.assertEqual("/Course-Url/T-00.1000_d1/exercises/5/", self.exercise_with_attachment.get_absolute_url())
+        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/b1/", self.base_exercise.get_absolute_url())
+        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/s2/", self.static_exercise.get_absolute_url())
+        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/a1/", self.exercise_with_attachment.get_absolute_url())
 
     def test_base_exercise_async_url(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
@@ -486,8 +493,8 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.submission.is_graded())
 
     def test_submission_absolute_url(self):
-        self.assertEqual("/Course-Url/T-00.1000_d1/exercises/3/submissions/1/", self.submission.get_absolute_url())
-        self.assertEqual("/Course-Url/T-00.1000_d1/exercises/3/submissions/3/", self.late_submission.get_absolute_url())
+        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/b1/submissions/1/", self.submission.get_absolute_url())
+        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/b1/submissions/3/", self.late_submission.get_absolute_url())
 
     def test_submission_upload_dir(self):
         from exercise.submission_models import build_upload_dir
@@ -549,6 +556,7 @@ class ExerciseTest(TestCase):
             name="upcoming exercise",
             course_module=upcoming_module,
             category=self.learning_object_category,
+            url="sssss",
             max_points=50,
             points_to_pass=50,
             service_url="/testServiceURL",
@@ -634,6 +642,7 @@ class ExerciseTest(TestCase):
             name="test exercise 4",
             course_module=self.course_module,
             category=self.learning_object_category,
+            url="bbb",
             max_points=50,
             points_to_pass=50,
             max_submissions=0,

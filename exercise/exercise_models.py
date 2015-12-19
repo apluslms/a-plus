@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import post_delete
 from django.template import loader, Context
@@ -16,7 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
 from inheritance.models import ModelWithInheritance
-from lib.helpers import update_url_params, safe_file_name
+from lib.helpers import update_url_params, safe_file_name, roman_numeral
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
@@ -25,44 +26,85 @@ from .protocol.exercise_page import ExercisePage
 
 class LearningObject(ModelWithInheritance):
     """
-    All learning objects e.g. exercises inherit this model.
+    All learning objects inherit this model.
     """
+    STATUS_READY = 'ready'
+    STATUS_HIDDEN = 'hidden'
+    STATUS_MAINTENANCE = 'maintenance'
+    STATUS_CHOICES = (
+        (STATUS_READY, _("Ready")),
+        (STATUS_HIDDEN, _("Hidden")),
+        (STATUS_MAINTENANCE, _("Maintenance")),
+    )
+    status = models.CharField(max_length=32,
+        choices=STATUS_CHOICES, default=STATUS_READY)
+    category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
+    course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
+    parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
     order = models.IntegerField(default=1)
+    url = models.CharField(max_length=255,
+        validators=[RegexValidator(regex="^[\w\-\.]*$")],
+        help_text=_("Input an URL identifier for this object."))
     name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True,
+        help_text=_("Internal description is not presented on site."))
+    use_wide_column = models.BooleanField(default=False,
+        help_text=_("Remove the third info column for more space."))
     service_url = models.URLField(blank=True)
     content = models.TextField(blank=True)
-    #content_head = models.TextField(blank=True)
+    content_head = models.TextField(blank=True)
     content_time = models.DateTimeField(blank=True, null=True)
-    course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
-    category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
 
     class Meta:
         app_label = "exercise"
         ordering = ['course_module', 'order', 'id']
-
-    def __str__(self):
-        if self.course_module.order > 0:
-            return "{:d}.{:d} {}".format(
-                self.course_module.order, self.order, self.name)
-        return self.name
+        unique_together = ['course_module', 'parent', 'url']
 
     def clean(self):
         """
         Validates the model before saving (standard method used in Django admin).
         """
         course_instance_error = ValidationError({
-            'category':_("Course_module and category must belong to the same course instance.")
+            'category':_('Course_module and category must belong to the same course instance.')
         })
         try:
             if (self.course_module.course_instance != self.category.course_instance):
                 raise course_instance_error
         except (LearningObjectCategory.DoesNotExist, CourseModule.DoesNotExist):
             raise course_instance_error
+        if self.parent and (self.parent.course_module != self.course_module
+                or self.parent.id == self.id):
+            raise ValidationError({
+                'parent':_('Cannot select parent from another course module.')
+            })
+        RESERVED = ("submissions", "plain", "info")
+        if self.url in RESERVED:
+            raise ValidationError({
+                'url':_("Taken words include: {}").format(", ".join(RESERVED))
+            })
+
+    def __str__(self):
+        if self.course_instance.content_numbering == 1:
+            number = self.number()
+            if self.course_instance.module_numbering == 1:
+                return "{:d}{} {}".format(self.course_module.order,
+                    number, self.name)
+                return "{} {}".format(number[1:], self.name)
+        elif self.course_instance.content_numbering == 2:
+            return "{} {}".format(roman_numeral(self.order, self.name))
+        return self.name
+
+    def number(self):
+        if self.parent:
+            return "{}.{:d}".format(self.parent.number(), self.order)
+        return ".{:d}".format(self.order)
 
     @property
     def course_instance(self):
         return self.course_module.course_instance
+
+    def is_submittable(self):
+        return False
 
     def is_open(self, when=None):
         return self.course_module.is_open(when=when)
@@ -71,21 +113,52 @@ class LearningObject(ModelWithInheritance):
         return self.course_module.is_after_open(when=when)
 
     def next(self):
-        exercise = self.course_module.learning_objects \
-            .exclude(id=self.id).filter(order__gt=self.order).first()
-        return exercise or self.course_module.next_module()
+        if self.children.count() > 0:
+            return self.children.first()
+        return self.next_sibling()
+
+    def next_sibling(self):
+        lobject = self.course_module.learning_objects\
+            .exclude(id=self.id)\
+            .filter(parent=self.parent, order__gt=self.order)\
+            .first()
+        return lobject or (self.parent.next_sibling() if self.parent
+            else self.course_module.next_module())
 
     def previous(self):
-        exercise = self.course_module.learning_objects \
-            .exclude(id=self.id).filter(order__lt=self.order).last()
-        return exercise or self.course_module
+        lobject = self.course_module.learning_objects\
+            .exclude(id=self.id)\
+            .filter(parent=self.parent, order__lt=self.order)\
+            .last()
+        return lobject or self.parent or self.course_module
+
+    def parent_list(self, first=True):
+        if self.parent:
+            parents = self.parent.parent_list(False)
+        else:
+            parents = []
+        if not first:
+            parents.append(self)
+        return parents
+
+    def get_path_parts(self):
+        if self.parent:
+            path = self.parent.get_path_parts()
+        else:
+            path = []
+        path.append(self.url)
+        return path
+
+    def get_path(self):
+        return '/'.join(self.get_path_parts())
 
     def get_url(self, name):
         instance = self.course_instance
         return reverse(name, kwargs={
             "course": instance.course.url,
             "instance": instance.url,
-            "exercise_id": self.id
+            "module": self.course_module.url,
+            "exercise_path": self.get_path(),
         })
 
     def get_absolute_url(self):
@@ -93,6 +166,35 @@ class LearningObject(ModelWithInheritance):
 
     def get_submission_list_url(self):
         return self.get_url("submission-list")
+
+    def get_load_url(self, request, students, url_name="exercise"):
+        return self.service_url
+
+    def load(self, request, students, url_name="exercise"):
+        """
+        Loads the learning object page.
+        """
+        if self.id and self.content \
+                and self.course_instance.ending_time < timezone.now():
+            page = ExercisePage(self)
+            page.is_loaded = True
+            page.content = self.content
+        else:
+            page = load_exercise_page(request, self.get_load_url(
+                request, students, url_name), self)
+            if self.id and (not self.content_time or \
+                    self.content_time + datetime.timedelta(days=3) < timezone.now()):
+                self.content_time = timezone.now()
+                self.content = page.content
+                self.save()
+        return page
+
+
+class CourseChapter(LearningObject):
+    """
+    Chapters can offer and organize learning material as one page chapters.
+    """
+    generate_table_of_contents = models.BooleanField(default=False)
 
 
 class BaseExercise(LearningObject):
@@ -113,10 +215,14 @@ class BaseExercise(LearningObject):
         """
         Validates the model before saving (standard method used in Django admin).
         """
+        super().clean()
         if self.points_to_pass > self.max_points:
             raise ValidationError({
                 'points_to_pass':_("Points to pass cannot be greater than max_points.")
             })
+
+    def is_submittable(self):
+        return True
 
     def one_has_access(self, students, when=None):
         """
@@ -216,16 +322,6 @@ class BaseExercise(LearningObject):
             .filter(submissions__exercise=self) \
             .distinct().count()
 
-    def get_breadcrumb(self):
-        """
-        Returns a list of tuples containing the names and url
-        addresses of parent objects and self.
-        """
-        crumb = self.course_instance.get_breadcrumb()
-        crumb_tuple = (str(self), self.get_absolute_url())
-        crumb.append(crumb_tuple)
-        return crumb
-
     def get_async_hash(self, students):
         student_str = "-".join(
             sorted(str(userprofile.id) for userprofile in students)
@@ -238,32 +334,18 @@ class BaseExercise(LearningObject):
         )
         return student_str, hash_key.hexdigest()
 
-    def load(self, request, students, url_name="exercise"):
-        """
-        Loads the exercise page.
-        """
-        if self.content and self.course_instance.ending_time < timezone.now():
-            page = ExercisePage(self)
-            page.is_loaded = True
-            page.content = self.content
+    def get_load_url(self, request, students, url_name="exercise"):
+        if self.id:
+            student_str, hash_key = self.get_async_hash(students)
+            return self._build_service_url(request, url_name, reverse(
+                "async-new", kwargs={
+                    "exercise_id": self.id if self.id else 0,
+                    "student_ids": student_str,
+                    "hash_key": hash_key
+                }
+            ))
         else:
-            if self.id:
-                student_str, hash_key = self.get_async_hash(students)
-                url = self._build_service_url(request, url_name, reverse(
-                    "async-new", kwargs={
-                        "exercise_id": self.id if self.id else 0,
-                        "student_ids": student_str,
-                        "hash_key": hash_key
-                    }
-                ))
-            else:
-                url = self.service_url
-            page = load_exercise_page(request, url, self)
-            if not self.content_time or self.content_time + datetime.timedelta(days=3) < timezone.now():
-                self.content_time = timezone.now()
-                self.content = page.content
-                self.save()
-        return page
+            return self.service_url
 
     def grade(self, request, submission,
             no_penalties=False, url_name="exercise"):

@@ -35,7 +35,9 @@
 		</script>
 	</head>
 	<body>
-		<div id="exercise">
+		<div id="exercise-all">
+
+      {% if exercise.is_submittable %}
 			<ul class="exercise-summary nav nav-pills">
 				<li>
 					<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
@@ -91,6 +93,8 @@
 				</li>
 				{% endif %}
 			</ul>
+      {% endif %}
+
 			<div class="exercise-response">
 				{% include "_messages.html" %}
 				<div id="exercise">

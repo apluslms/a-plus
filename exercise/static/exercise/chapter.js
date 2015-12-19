@@ -41,7 +41,7 @@
 		},
 
 		cloneLoader: function(msgType) {
-			return this.element.find(this.settings.loading_selector)
+			return $(this.settings.loading_selector)
 				.clone().removeAttr("id").removeClass("hide");
 		},
 
@@ -93,7 +93,7 @@
 		},
 		content_element: '<div class="exercise-content"></div>',
 		content_selector: '.exercise-content',
-		exercise_selector: '#exercise',
+		exercise_selector: '#exercise-all',
 		summary_selector: '.exercise-summary',
 		response_selector: '.exercise-response',
 		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
@@ -288,4 +288,4 @@
 })(jQuery, window, document);
 
 // Construct the page chapter element.
-jQuery(function() { jQuery("#chapter").aplusChapter(); });
+jQuery(function() { jQuery("#exercise").aplusChapter(); });

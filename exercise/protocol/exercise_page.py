@@ -12,7 +12,9 @@ class ExercisePage:
         self.is_accepted = False
         self.is_wait = False
         self.points = 0
-        self.max_points = exercise.max_points
+        self.max_points = exercise.max_points \
+            if hasattr(exercise, 'max_points') else 0
+        self.head = ""
         self.content = ""
         self.meta = {
             "title": exercise.name,
@@ -24,6 +26,6 @@ class ExercisePage:
         """
         Checks that the values are sane/acceptable.
         """
-        return self.points <= self.max_points \
-            and not (self.exercise.max_points != 0 \
-                     and self.max_points == 0)
+        return self.points <= self.max_points
+            # and not (self.exercise.max_points != 0 \
+            #         and self.max_points == 0)

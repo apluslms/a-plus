@@ -57,7 +57,7 @@ class EditModulePageLocators(object):
     SUCCESSFUL_SAVE_BANNER = (By.XPATH, "//div[contains(@class, 'site-content')]/div[contains(@class, 'alert alert-success')]")
 
 class EditExercisePageLocators(object):
-    EDIT_EXERCISE_PAGE_BANNER = (By.XPATH, "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'Edit exercise')]")
+    EDIT_EXERCISE_PAGE_BANNER = (By.XPATH, "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'Edit learning object')]")
     EXERCISE_NAME_INPUT = (By.XPATH, "//*[@id='id_name']")
     MAX_SUBMISSIONS_INPUT = (By.XPATH, "//*[@id='id_max_submissions']")
     MAX_POINTS_INPUT = (By.XPATH, "//*[@id='id_max_points']")
