@@ -20,8 +20,8 @@ class EditCourseTests(TestCase):
         instance_url = instance.url
         instance_str = str(instance)
         visible = instance.visible_to_students
-        assistant_names = self._as_names(instance.assistants)
-        module_names = self._as_names(instance.course_modules)
+        assistant_names = self._as_names(instance.assistants.all())
+        module_names = self._as_names(instance.course_modules.all())
 
         url = instance.get_url('course-clone')
         self.client.login(username='testUser', password='testPassword')
@@ -34,14 +34,14 @@ class EditCourseTests(TestCase):
         self.assertEqual(instance.url, instance_url)
         self.assertEqual(str(instance), instance_str)
         self.assertEqual(instance.visible_to_students, visible)
-        self.assertEqual(self._as_names(instance.assistants), assistant_names)
-        self.assertEqual(self._as_names(instance.course_modules), module_names)
+        self.assertEqual(self._as_names(instance.assistants.all()), assistant_names)
+        self.assertEqual(self._as_names(instance.course_modules.all()), module_names)
 
         new_instance = CourseInstance.objects.get(course=instance.course, url="another")
         self.assertEqual(str(new_instance), instance_str)
         self.assertFalse(new_instance.visible_to_students)
-        self.assertEqual(self._as_names(new_instance.assistants), assistant_names)
-        self.assertEqual(self._as_names(new_instance.course_modules), module_names)
+        self.assertEqual(self._as_names(new_instance.assistants.all()), assistant_names)
+        self.assertEqual(self._as_names(new_instance.course_modules.all()), module_names)
 
         old_modules = list(instance.course_modules.all())
         new_modules = list(new_instance.course_modules.all())
@@ -49,26 +49,19 @@ class EditCourseTests(TestCase):
         for i in range(len(old_modules)):
             self.assertEqual(old_modules[i].url, new_modules[i].url)
             self.assertEqual(
-                self._as_names(old_modules[i].chapters),
-                self._as_names(new_modules[i].chapters)
+                self._as_names(old_modules[i].flat_learning_objects(False)),
+                self._as_names(new_modules[i].flat_learning_objects(False))
             )
             self.assertEqual(
-                self._as_names(old_modules[i].learning_objects),
-                self._as_names(new_modules[i].learning_objects)
-            )
-            self.assertEqual(
-                self._as_class(old_modules[i].learning_objects),
-                self._as_class(new_modules[i].learning_objects)
+                self._as_class(old_modules[i].flat_learning_objects(False)),
+                self._as_class(new_modules[i].flat_learning_objects(False))
             )
 
-    def _as_names(self, queryset):
-        return self._as(queryset, lambda a: a.name)
+    def _as_names(self, items):
+        return [a.name for a in items]
 
-    def _as_class(self, queryset):
-        return self._as(queryset, lambda a: a.as_leaf_class().__class__)
-
-    def _as(self, queryset, op):
-        return list(op(a) for a in queryset.all())
+    def _as_class(self, items):
+        return [a.as_leaf_class().__class__ for a in items]
 
 class BatchAssessTest(TestCase):
     fixtures = [ 'doc/initial_data.json' ]

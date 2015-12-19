@@ -16,7 +16,7 @@ class MyFirstExerciseTest(unittest.TestCase):
         exercisePage.setText("")
         exercisePage.submit()
 
-        self.assertEqual(exercisePage.getAllowedSubmissions(), '1 / 10')
+        self.assertEqual(exercisePage.getAllowedSubmissions(), '1 / 4')
         self.assertEqual(exercisePage.getExerciseScore(), '0 / 100')
         self.assertEqual(exercisePage.getNumberOfSubmitters(), '1')
         #self.assertEqual(exercisePage.getAverageSubmissionsPerStudent(), '1.00')
@@ -29,7 +29,7 @@ class MyFirstExerciseTest(unittest.TestCase):
         exercisePage.setText("Hell+A")
         exercisePage.submit()
 
-        self.assertEqual(exercisePage.getAllowedSubmissions(), '2 / 10')
+        self.assertEqual(exercisePage.getAllowedSubmissions(), '2 / 4')
         self.assertEqual(exercisePage.getExerciseScore(), '0 / 100')
         self.assertEqual(exercisePage.getNumberOfSubmitters(), '1')
         #self.assertEqual(exercisePage.getAverageSubmissionsPerStudent(), '2.00')
@@ -39,7 +39,7 @@ class MyFirstExerciseTest(unittest.TestCase):
         exercisePage.setText("A+ Hell")
         exercisePage.submit()
 
-        self.assertEqual(exercisePage.getAllowedSubmissions(), '1 / 10')
+        self.assertEqual(exercisePage.getAllowedSubmissions(), '1 / 4')
         self.assertEqual(exercisePage.getExerciseScore(), '50 / 100')
         self.assertEqual(exercisePage.getNumberOfSubmitters(), '1')
         #self.assertEqual(exercisePage.getAverageSubmissionsPerStudent(), '1.00')
@@ -49,20 +49,19 @@ class MyFirstExerciseTest(unittest.TestCase):
         exercisePage.setText("A+Hello")
         exercisePage.submit()
 
-        self.assertEqual(exercisePage.getAllowedSubmissions(), '1 / 10')
+        self.assertEqual(exercisePage.getAllowedSubmissions(), '1 / 4')
         self.assertEqual(exercisePage.getExerciseScore(), '100 / 100')
         self.assertEqual(exercisePage.getNumberOfSubmitters(), '1')
         #self.assertEqual(exercisePage.getAverageSubmissionsPerStudent(), '1.00')
 
     def testShouldRejectAnswerIfMaxSubmissionsReached(self):
         i = 0
-        maxSubmissions = 10;
-        while (i <= maxSubmissions):
+        while (i <= 4):
             exercisePage = MyFirstExerciseGrader(self.driver)
             exercisePage.submit()
             i += 1
 
-        self.assertEqual(exercisePage.getAllowedSubmissions(), str(maxSubmissions) + ' / 10')
+        self.assertEqual(exercisePage.getAllowedSubmissions(), "4 / 4")
         self.assertEqual(exercisePage.getExerciseScore(), '0 / 100')
         self.assertEqual(exercisePage.getNumberOfSubmitters(), '1')
         #self.assertEqual(exercisePage.getAverageSubmissionsPerStudent(), str(maxSubmissions) + '.00')
@@ -70,8 +69,7 @@ class MyFirstExerciseTest(unittest.TestCase):
     # This tests that after 3 submissions the 'My Submissions' dropdown contains also 3 elements
     def testSubmissionCount(self):
         i = 0
-        maxSubmissions = 3
-        while (i < maxSubmissions):
+        while (i < 3):
             exercisePage = MyFirstExerciseGrader(self.driver)
             exercisePage.submit()
             i += 1

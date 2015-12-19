@@ -48,14 +48,20 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     def get(self, request, *args, **kwargs):
         self.handle()
         students = self.get_students()
-        self.submission_check(students)
+        if self.exercise.is_submittable():
+            self.submission_check(students)
+            self.get_after_new_submission()
         page = self.exercise.load(request, students,
             url_name=self.post_url_name)
-        self.get_after_new_submission()
         return self.response(page=page, students=students)
 
     def post(self, request, *args, **kwargs):
         self.handle()
+
+        # Stop submit trials for e.g. chapters.
+        if not self.exercise.is_submittable():
+            return self.http_method_not_allowed(request, *args, **kwargs)
+
         students = self.get_students()
         new_submission = None
         page = ExercisePage(self.exercise)

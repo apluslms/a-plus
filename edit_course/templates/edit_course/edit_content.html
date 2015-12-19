@@ -74,79 +74,68 @@
                     </a>
                 </td>
             </tr>
-            {% for object in module.chapters.all %}
+            {% for lobject in module.flat_learning_objects %}
+            {% if not lobject.sub %}
             <tr>
                 <td>
-                    {{ object }}
+                    {{ lobject }}
                 </td>
                 <td>
-                    <a class="btn btn-default btn-xs" href="{{ object|editurl:'chapter' }}">
-                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit chapter" %}
-                    </a>
-                    <a class="btn btn-default btn-xs" href="{{ object|removeurl:'chapter' }}">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
-                    </a>
-                    <a class="btn btn-link btn-xs" href="{{ object|url }}">
-                        {% trans "Open chapter" %}
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            <tr>
-                <td colspan="2">
-                    <a class="btn btn-success btn-xs" href="{{ module|createurl:'chapter' }}">
-                        {% trans "Add new chapter" %}
-                    </a>
-                </td>
-            </tr>
-            {% for object in module.learning_objects.all %}
-            <tr>
-                <td>
-                    {{ object }}
-                </td>
-                <td>
-                    <a class="btn btn-default btn-xs" href="{{ object|editurl:'exercise' }}">
+                    <a class="btn btn-default btn-xs" href="{{ lobject|editurl:'exercise' }}">
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit exercise" %}
                     </a>
-                    <a class="btn btn-default btn-xs" href="{{ object|removeurl:'exercise' }}">
+                    <a class="btn btn-default btn-xs" href="{{ lobject|removeurl:'exercise' }}">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
-                    <a class="btn btn-link btn-xs" href="{{ object|url }}">
+                    <a class="btn btn-link btn-xs" href="{{ lobject|url }}">
                     	{% trans "Open exercise" %}
                     </a>
-                    <a class="btn btn-link btn-xs" href="{{ object|url:'submission-list' }}">
+                    <a class="btn btn-link btn-xs" href="{{ lobject|url:'submission-list' }}">
                     	{% trans "View submissions" %}
                     </a>
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
             <tr>
                 <td colspan="2">
-                    <div class="btn-group dropdown">
-                        <a class="btn btn-success btn-xs" href="{{ module|createurl:'exercise' }}">
-                            {% trans "Add new exercise" %}
-                        </a>
-                        <a class="dropdown-toggle btn btn-success btn-xs" data-toggle="dropdown" href="#"
-                            role="button" aria-haspopup="true" aria-expanded="false">
-                            <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="{{ module|createurl:'exercise' }}">
-                                    {% trans "Add exercise" %}
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ module|createurl:'exercise,static' }}">
-                                    {% trans "Add static exercise" %}
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ module|createurl:'exercise,attachment' }}">
-                                    {% trans "Add exercise with attachment" %}
-                                </a>
-                            </li>
-                        </ul>
+                    <a class="btn btn-success btn-xs" data-toggle="modal" data-target="#lobject">
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        {% trans "Add new learning object" %}
+                    </a>
+                    <div class="modal" id="lobject" tabindex="-1" role="dialog" aria-labelledby="lobjectLabel">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="lobjectLabel">
+                              {% trans 'Choose learning object type to add' %}
+                            </h4>
+                          </div>
+                          <div class="modal-body">
+                            <div class="list-group">
+                              <a href="{{ module|createurl:'exercise,chapter' }}" class="list-group-item">
+                                <div><strong>{% trans "Content chapter" %}</strong></div>
+                                {% trans "A remote content page loaded in as a chapter" %}
+                              </a>
+                              <a href="{{ module|createurl:'exercise' }}" class="list-group-item">
+                                <div><strong>{% trans "Exercise" %}</strong></div>
+                                {% trans "A remote exercise page loaded in for posting submissions" %}
+                              </a>
+                              <a href="{{ module|createurl:'exercise,attachment' }}" class="list-group-item">
+                                <div><strong>{% trans "Exercise with attachment" %}</strong></div>
+                                {% trans "A local page accepting files and initiating remote grading with teacher provided grading attachment" %}
+                              </a>
+                              <a href="{{ module|createurl:'exercise,static' }}" class="list-group-item">
+                                <div><strong>{% trans "Static exercise" %}</strong></div>
+                                {% trans "A local page with editable markup content" %}
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                 </td>
             </tr>
@@ -154,7 +143,8 @@
             <tr>
                 <th colspan="2">
                     <a class="btn btn-primary btn-xs" href="{{ instance|createurl:'module' }}">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> {% trans "Add new module" %}
+                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        {% trans "Add new module" %}
                     </a>
                 </th>
             </tr>

@@ -108,13 +108,15 @@ class CourseTest(TestCase):
         self.learning_object = LearningObject.objects.create(
             name="test learning object",
             course_module=self.course_module,
-            category=self.learning_object_category
+            category=self.learning_object_category,
+            url='l1',
         )
 
         self.broken_learning_object = LearningObject.objects.create(
             name="test learning object",
             course_module=self.course_module_with_late_submissions_allowed,
-            category=self.learning_object_category
+            category=self.learning_object_category,
+            url='l2',
         )
 
         self.base_exercise = BaseExercise.objects.create(
@@ -122,6 +124,7 @@ class CourseTest(TestCase):
             course_module=self.course_module,
             category=self.learning_object_category,
             service_url="http://localhost/",
+            url='b1',
         )
 
         self.submission = Submission.objects.create(

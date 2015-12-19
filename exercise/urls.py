@@ -1,27 +1,21 @@
 from django.conf.urls import url
 
-from course.urls import INSTANCE_URL_PREFIX, USER_URL_PREFIX, EDIT_URL_PREFIX
+from course.urls import MODULE_URL_PREFIX, USER_URL_PREFIX, EDIT_URL_PREFIX
 from . import views, async_views, staff_views
 
 
-EXERCISE_URL_PREFIX = INSTANCE_URL_PREFIX \
-    + r'exercises/(?P<exercise_id>\d+)/'
+EXERCISE_URL_PREFIX = MODULE_URL_PREFIX \
+    + r'(?P<exercise_path>[\w\d\-\.\/]+)/'
 SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX \
     + r'submissions/(?P<submission_id>\d+)/'
 
 urlpatterns = [
+
+    # In the ordering, note that most general exercise URL has to be last.
+    
     url(USER_URL_PREFIX + r'results/$',
         views.ResultsView.as_view(),
         name="results"),
-    url(EXERCISE_URL_PREFIX + r'$',
-        views.ExerciseView.as_view(),
-        name="exercise"),
-    url(EXERCISE_URL_PREFIX + r'plain/$',
-        views.ExercisePlainView.as_view(),
-        name="exercise-plain"),
-    url(EXERCISE_URL_PREFIX + r'info/$',
-        views.ExerciseInfoView.as_view(),
-        name="exercise-info"),
     url(SUBMISSION_URL_PREFIX + r'$',
         views.SubmissionView.as_view(),
         name="submission"),
@@ -65,4 +59,14 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'fetch-metadata/$',
         staff_views.FetchMetadataView.as_view(),
         name="exercise-metadata"),
+
+    url(EXERCISE_URL_PREFIX + r'plain/$',
+        views.ExercisePlainView.as_view(),
+        name="exercise-plain"),
+    url(EXERCISE_URL_PREFIX + r'info/$',
+        views.ExerciseInfoView.as_view(),
+        name="exercise-info"),
+    url(EXERCISE_URL_PREFIX + r'$',
+        views.ExerciseView.as_view(),
+        name="exercise"),
 ]

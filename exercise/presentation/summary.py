@@ -73,6 +73,8 @@ class UserModuleSummary(object):
 
         if kwargs.get("generate", True):
             self._generate_summary()
+        else:
+            self._sort_summary()
 
         self.exercise_count = len(self.exercise_summaries)
         self.max_points = sum(summary.get_max_points() \
@@ -83,8 +85,21 @@ class UserModuleSummary(object):
             for summary in self.exercise_summaries)
 
     def _generate_summary(self):
-        for ex in BaseExercise.objects.filter(course_module=self.module):
+        for ex in [l.as_leaf_class()
+            for l in self.module.flat_learning_objects(False)
+                if l.is_submittable()]:
             self.exercise_summaries.append(UserExerciseSummary(ex, self.user))
+
+    def _sort_summary(self):
+        ordered = []
+        def recursion(summaries):
+            for exs in summaries:
+                ordered.append(exs)
+                recursion([s for s in self.exercise_summaries
+                        if s.exercise.parent
+                            and s.exercise.parent.id == exs.exercise.id])
+        recursion([s for s in self.exercise_summaries if not s.exercise.parent])
+        self.exercise_summaries = ordered
 
     def get_exercise_count(self):
         return self.exercise_count

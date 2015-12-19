@@ -1,14 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from exercise.models import LearningObject, BaseExercise, StaticExercise, \
-    ExerciseWithAttachment
-from course.models import LearningObjectCategory, CourseModule, \
-    CourseChapter
-from .exercise_forms import BaseExerciseForm, ExerciseWithAttachmentForm, \
-    StaticExerciseForm
-from .course_forms import LearningObjectCategoryForm, CourseModuleForm, \
-    CourseChapterForm
+from exercise.models import LearningObject, CourseChapter, \
+    BaseExercise, StaticExercise, ExerciseWithAttachment
+from course.models import LearningObjectCategory, CourseModule
+from .exercise_forms import CourseChapterForm, BaseExerciseForm, \
+    ExerciseWithAttachmentForm, StaticExerciseForm
+from .course_forms import LearningObjectCategoryForm, CourseModuleForm
 
 
 class ModelManager(object):
@@ -58,28 +56,10 @@ class ModuleManager(ExerciseContainerMixin, ModelManager):
         )
 
 
-class ChapterManager(ModelManager):
-    object_class = CourseChapter
-    instance_field = "course_module__course_instance"
-    form_class = CourseChapterForm
-    name = _("chapter")
-
-    def new_object(self, instance, parent_id, type):
-        module = get_object_or_404(
-            CourseModule,
-            id=parent_id,
-            course_instance=instance
-        )
-        return self.object_class(
-            course_module=module,
-            order=(module.chapters.count() + 1)
-        )
-
-
 class ExerciseManager(ModelManager):
     object_class = LearningObject
     instance_field = "course_module__course_instance"
-    name = _("exercise")
+    name = _("learning object")
 
     def get_object(self, instance, object_id):
         obj = super().get_object(instance, object_id)
@@ -88,6 +68,7 @@ class ExerciseManager(ModelManager):
     def new_object(self, instance, parent_id, type):
         CLASSES = {
             None: BaseExercise,
+            "chapter": CourseChapter,
             "static": StaticExercise,
             "attachment": ExerciseWithAttachment,
         }
@@ -102,7 +83,7 @@ class ExerciseManager(ModelManager):
         )
         kwargs = {
             "course_module": module,
-            "order": module.learning_objects.count() + 1,
+            "order": module.learning_objects.filter(parent__isnull=True).count() + 1,
         }
         first_category = instance.categories.first()
         if first_category:
@@ -111,11 +92,12 @@ class ExerciseManager(ModelManager):
 
     def get_form_class(self, obj):
         FORMS = {
+            CourseChapter: CourseChapterForm,
             BaseExercise: BaseExerciseForm,
             StaticExercise: StaticExerciseForm,
             ExerciseWithAttachment: ExerciseWithAttachmentForm,
         }
         if obj.__class__ not in FORMS:
-            raise TypeError("No form known for the exercise type: %s",
+            raise TypeError("No form known for the object type: %s",
                 obj.__class__)
         return FORMS[obj.__class__]

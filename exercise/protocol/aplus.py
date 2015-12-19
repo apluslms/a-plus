@@ -135,7 +135,11 @@ def parse_page_content(page, remote_page):
         page.is_accepted = True
         page.is_wait = False
 
+    remote_page.fix_relative_urls()
+
+    #TODO page.head = remote_page.
     page.content = remote_page.element_or_body((
+        {'id':'aplus'},
         {'id':'exercise'},
         {'class':'entry-content'},
     ))

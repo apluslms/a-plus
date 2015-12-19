@@ -14,7 +14,7 @@ from django.views.generic.base import View
 from lib.viewbase import BaseRedirectView
 from userprofile.viewbase import ACCESS, UserProfileView
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
-    CourseModuleBaseView, CourseChapterView, CourseInstanceMixin
+    CourseModuleBaseView, CourseInstanceMixin
 from .models import CourseInstance
 
 
@@ -63,20 +63,6 @@ class ModuleView(CourseModuleBaseView):
             messages.warning(self.request,
                 _("The course module is not yet open for students."))
         return self.response()
-
-
-class ChapterView(CourseChapterView):
-    template_name = "course/chapter.html"
-
-    def get(self, request, *args, **kwargs):
-        self.handle()
-        if self.chapter.course_instance.ending_time < timezone.now():
-            messages.warning(self.request,
-                _("The course is archived. Chapters are offline."))
-        elif not self.module.is_after_open():
-            messages.warning(self.request,
-                _("The course module is not yet open for students."))
-        return self.response(content=self.chapter.load(request))
 
 
 class CalendarExport(CourseInstanceMixin, View):

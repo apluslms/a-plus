@@ -14,8 +14,7 @@ from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
     BaseRedirectView
 from userprofile.viewbase import ACCESS
 from .course_forms import CourseInstanceForm, CourseContentForm
-from .managers import CategoryManager, ModuleManager, ChapterManager, \
-    ExerciseManager
+from .managers import CategoryManager, ModuleManager, ExerciseManager
 from .submission_forms import BatchSubmissionCreateAndReviewForm
 from exercise.submission_models import Submission
 
@@ -68,7 +67,6 @@ class ModelBaseMixin(CourseInstanceMixin):
         MANAGERS = {
             "category": CategoryManager,
             "module": ModuleManager,
-            "chapter": ChapterManager,
             "exercise": ExerciseManager,
         }
         self.model = self._get_kwarg(self.model_kw)
@@ -261,25 +259,24 @@ class CloneInstanceView(CourseInstanceMixin, BaseRedirectView):
                 category_map[old_id] = category
 
             for module in modules:
-                chapters = list(module.chapters.all())
-                exercises = list(a.as_leaf_class()
-                    for a in module.learning_objects.all())
+                root = list(module.root_objects())
                 module.id = None
                 module.course_instance = self.instance
                 module.save()
 
-                for chapter in chapters:
-                    chapter.id = None
-                    chapter.course_module = module
-                    chapter.save()
+                def lobject_recursion(level, parent):
+                    for lobject in list(a.as_leaf_class() for a in level):
+                        children = list(lobject.children.all())
+                        lobject.id = None
+                        lobject.learningobject_ptr_id = None
+                        lobject.modelwithinheritance_ptr_id = None
+                        lobject.category = category_map[lobject.category.id]
+                        lobject.course_module = module
+                        lobject.parent = parent
+                        lobject.save()
+                        lobject_recursion(children, lobject)
+                lobject_recursion(root, None)
 
-                for exercise in exercises:
-                    exercise.id = None
-                    exercise.learningobject_ptr_id = None
-                    exercise.modelwithinheritance_ptr_id = None
-                    exercise.course_module = module
-                    exercise.category = category_map[exercise.category.id]
-                    exercise.save()
             messages.success(request, _("Course instance is now cloned."))
 
         return self.redirect(self.instance.get_url('course-details'))
