@@ -7,8 +7,8 @@
 
 	var pluginName = "aplusChapter";
 	var defaults = {
-		chapter_url_attr: "data-chapter-url",
-		exercise_url_attr: "data-exercise-url",
+		chapter_url_attr: "data-aplus-chapter",
+		exercise_url_attr: "data-aplus-exercise",
 		loading_selector: "#loading-indicator",
 		modal_selector: "#embed-modal",
 		modal_content_selector: ".modal-body"
@@ -83,8 +83,8 @@
 
 	var pluginName = "aplusExercise";
 	var defaults = {
-		quiz_attr: "data-exercise-quiz",
-		ajax_attr: "data-exercise-ajax",
+		quiz_attr: "data-aplus-quiz",
+		ajax_attr: "data-aplus-ajax",
 		message_selector: ".progress-bar",
 		message_attr: {
 			load: "data-msg-load",

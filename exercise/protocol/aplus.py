@@ -18,7 +18,7 @@ def load_exercise_page(request, url, exercise):
     """
     page = ExercisePage(exercise)
     try:
-        parse_page_content(page, RemotePage(url))
+        parse_page_content(page, RemotePage(url), exercise)
     except RemotePageException:
         messages.error(request,
             _("Connecting to the exercise service failed!"))
@@ -39,7 +39,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
         data, files = submission.get_post_parameters()
         remote_page = RemotePage(url, post=True, data=data, files=files)
         submission.clean_post_parameters()
-        parse_page_content(page, remote_page)
+        parse_page_content(page, remote_page, exercise)
     except RemotePageException:
         messages.error(request,
             _("Connecting to the assessment service failed!"))
@@ -100,7 +100,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     return page
 
 
-def parse_page_content(page, remote_page):
+def parse_page_content(page, remote_page, exercise):
     """
     Parses exercise page elements.
     """
@@ -137,8 +137,10 @@ def parse_page_content(page, remote_page):
 
     remote_page.fix_relative_urls()
 
+    remote_page.find_and_replace('data-aplus-exercise',
+        {str(o.order): o.get_absolute_url() for o in exercise.children.all()})
+
     page.head = remote_page.head({'data-aplus':True})
-    print('aplus protocol', page.head)
     page.content = remote_page.element_or_body((
         {'id':'aplus'},
         {'id':'exercise'},

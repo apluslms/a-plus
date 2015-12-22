@@ -15,7 +15,7 @@
 {% include 'course/_module_toc.html' with objects=exercise.flat_learning_objects open=module.is_after_open %}
 {% endif %}
 
-<div id="exercise" data-chapter-url="{{ exercise|url }}">
+<div id="exercise" data-aplus-chapter="{{ exercise|url }}">
     {{ page.content|safe }}
 </div>
 
@@ -55,12 +55,12 @@
 <script src="{% static 'exercise/chapter.js' %}"></script>
 <script>
 // Visualize loading in case of slow POST operations.
-/*TODO fix this $(function() {
-    var forms = $("#exercise").find("form");
+$(function() {
+    var forms = $("#exercise").find("form:not([data-aplus-exercise] form)");
     forms.on("submit", function(event) {
         $("#submit-progress").removeClass("hide");
     });
-});*/
+});
 
 // Add an Ajax exercise event listener to refresh the info column.
 window.addEventListener("message", function (event) {
