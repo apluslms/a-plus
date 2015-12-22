@@ -25,14 +25,14 @@ class ModuleTree(object):
     def next(self, ref):
         children = self.children(ref.id)
         n = children[0] if children else self.next_sibling(ref)
-        return self.next(n) if n and n.is_empty() else n
+        return self.next(n) if n and n.is_empty() \
+            else n or self.module.next_module()
 
     def next_sibling(self, ref):
         siblings = [o for o in self.children(ref.parent_id) \
             if o.order > ref.order]
         return siblings[0] if siblings else \
-            (self.next_sibling(self.parent(ref)) if ref.parent_id
-                else self.module.next_module())
+            (self.next_sibling(self.parent(ref)) if ref.parent_id else None)
 
     def first(self):
         children = self.children(None)

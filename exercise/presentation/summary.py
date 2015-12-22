@@ -92,8 +92,8 @@ class UserModuleSummary(object):
 
     def _sort_summary(self):
         ordered = []
-        for o in self.module.flat_learning_objects(False):
-            if o.is_submittable():
+        for o in self.module.flat_admin_learning_objects(False):
+            if o.is_submittable() and o.status != 'hidden':
                 for s in self.exercise_summaries:
                     if o == s.exercise:
                         ordered.append(s)

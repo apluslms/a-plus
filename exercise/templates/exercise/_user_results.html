@@ -85,7 +85,11 @@
       <tr data-category="{{ category.id }}">
         <td>
           {% if after_open %}
+          {% if exercise.status == 'unlisted' %}
+          <a href="{{ exercise.parent|url }}">{{ exercise }}</a>
+          {% else %}
           <a href="{{ exercise|url }}">{{ exercise }}</a>
+          {% endif %}
           {% else %}
           {{ exercise }}
           {% endif %}
