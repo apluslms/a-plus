@@ -85,20 +85,18 @@ class UserModuleSummary(object):
             for summary in self.exercise_summaries)
 
     def _generate_summary(self):
-        for ex in [l.as_leaf_class()
-            for l in self.module.flat_learning_objects(False)
-                if l.is_submittable()]:
-            self.exercise_summaries.append(UserExerciseSummary(ex, self.user))
+        for o in self.module.flat_learning_objects(False):
+            if o.is_submittable():
+                self.exercise_summaries.append(
+                    UserExerciseSummary(o, self.user))
 
     def _sort_summary(self):
         ordered = []
-        def recursion(summaries):
-            for exs in summaries:
-                ordered.append(exs)
-                recursion([s for s in self.exercise_summaries
-                        if s.exercise.parent
-                            and s.exercise.parent.id == exs.exercise.id])
-        recursion([s for s in self.exercise_summaries if not s.exercise.parent])
+        for o in self.module.flat_learning_objects(False):
+            if o.is_submittable():
+                for s in self.exercise_summaries:
+                    if o == s.exercise:
+                        ordered.append(s)
         self.exercise_summaries = ordered
 
     def get_exercise_count(self):
