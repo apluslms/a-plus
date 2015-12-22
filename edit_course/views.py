@@ -13,28 +13,14 @@ from lib.helpers import extract_form_errors
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
     BaseRedirectView
 from userprofile.viewbase import ACCESS
-from .course_forms import CourseInstanceForm, CourseContentForm
+from .course_forms import CourseInstanceForm, CourseIndexForm, \
+    CourseContentForm, CloneInstanceForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 from .submission_forms import BatchSubmissionCreateAndReviewForm
 from exercise.submission_models import Submission
 
 
 logger = logging.getLogger('aplus.edit_course')
-
-
-class EditContentView(CourseInstanceMixin, BaseFormView):
-    access_mode = ACCESS.TEACHER
-    template_name = "edit_course/edit_content.html"
-    form_class = CourseContentForm
-
-    def get_from_kwargs(self):
-        kwargs = super().get_from_kwargs()
-        kwargs["instance"] = self.instance
-        return kwargs
-
-    def form_valid(self, form):
-        messages.success(self.request, _("Changes saved."))
-        return self.response()
 
 
 class EditInstanceView(CourseInstanceMixin, BaseFormView):
@@ -47,14 +33,43 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
         kwargs["instance"] = self.instance
         return kwargs
 
+    def get_success_url(self):
+        return self.instance.get_url('course-details')
+
     def form_valid(self, form):
         self.instance = form.save()
         messages.success(self.request, _("Changes were saved succesfully."))
-        return self.redirect(self.instance.get_url('course-details'))
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _("Failed to save changes."))
         return super().form_invalid(form)
+
+
+class EditIndexView(EditInstanceView):
+    template_name = "edit_course/edit_index.html"
+    form_class = CourseIndexForm
+
+    def get_success_url(self):
+        return self.instance.get_url('course-index')
+
+
+class EditContentView(EditInstanceView):
+    template_name = "edit_course/edit_content.html"
+    form_class = CourseContentForm
+
+    def get_success_url(self):
+        return self.instance.get_url('course-edit')
+
+    def form_valid(self, form):
+        if self.request.POST.get('renumbermodule') is not None:
+            for module in self.instance.course_modules.all():
+                module._children().renumber()
+        elif self.request.POST.get('renumbercourse') is not None:
+            n = 1
+            for module in self.instance.course_modules.exclude(status='hidden'):
+                n = module._children().renumber(n)
+        return super().form_valid(form)
 
 
 class ModelBaseMixin(CourseInstanceMixin):
@@ -228,55 +243,55 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
         self.error = True
 
 
-class CloneInstanceView(CourseInstanceMixin, BaseRedirectView):
+class CloneInstanceView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "edit_course/clone_instance.html"
+    form_class = CloneInstanceForm
 
-    def post(self, request, *args, **kwargs):
-        self.handle()
-        url = self.request.POST.get("new_url", "").strip()
-        if not url:
-            messages.error(request, _("Url was missing."))
-        elif CourseInstance.objects.filter(course=self.course, url=url)\
-            .exists():
-            messages.error(request,
-                _("Url '{}' is already taken.").format(url))
-        else:
-            assistants = list(self.instance.assistants.all())
-            categories = list(self.instance.categories.all())
-            modules = list(self.instance.course_modules.all())
-            self.instance.id = None
-            self.instance.visible_to_students = False
-            self.instance.url = url
-            self.instance.save()
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
 
-            self.instance.assistants.add(*assistants)
+    def form_valid(self, form):
+        url = form.cleaned_data['url']
 
-            category_map = {}
-            for category in categories:
-                old_id = category.id
-                category.id = None
-                category.course_instance = self.instance
-                category.save()
-                category_map[old_id] = category
+        assistants = list(self.instance.assistants.all())
+        categories = list(self.instance.categories.all())
+        modules = list(self.instance.course_modules.all())
+        self.instance.id = None
+        self.instance.visible_to_students = False
+        self.instance.url = url
+        self.instance.save()
 
-            for module in modules:
-                root = list(module.learning_objects.filter(parent__isnull=True))
-                module.id = None
-                module.course_instance = self.instance
-                module.save()
+        self.instance.assistants.add(*assistants)
 
-                def lobject_recursion(level, parent):
-                    for lobject in list(a.as_leaf_class() for a in level):
-                        children = list(lobject.children.all())
-                        lobject.id = None
-                        lobject.learningobject_ptr_id = None
-                        lobject.modelwithinheritance_ptr_id = None
-                        lobject.category = category_map[lobject.category.id]
-                        lobject.course_module = module
-                        lobject.parent = parent
-                        lobject.save()
-                        lobject_recursion(children, lobject)
-                lobject_recursion(root, None)
+        category_map = {}
+        for category in categories:
+            old_id = category.id
+            category.id = None
+            category.course_instance = self.instance
+            category.save()
+            category_map[old_id] = category
 
-            messages.success(request, _("Course instance is now cloned."))
+        for module in modules:
+            root = list(module.learning_objects.filter(parent__isnull=True))
+            module.id = None
+            module.course_instance = self.instance
+            module.save()
 
+            def lobject_recursion(level, parent):
+                for lobject in list(a.as_leaf_class() for a in level):
+                    children = list(lobject.children.all())
+                    lobject.id = None
+                    lobject.learningobject_ptr_id = None
+                    lobject.modelwithinheritance_ptr_id = None
+                    lobject.category = category_map[lobject.category.id]
+                    lobject.course_module = module
+                    lobject.parent = parent
+                    lobject.save()
+                    lobject_recursion(children, lobject)
+            lobject_recursion(root, None)
+
+        messages.success(self.request, _("Course instance is now cloned."))
         return self.redirect(self.instance.get_url('course-details'))

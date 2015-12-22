@@ -91,3 +91,14 @@ class ModuleTree(object):
                 return False
             return self.check_path(self.parent(ref), path[:-1])
         return not (ref or path)
+
+    def renumber(self, start=1):
+        def recursion(parent_id, start=1):
+            n = start
+            for o in self.children(parent_id):
+                o.order = n
+                o.save()
+                recursion(o.id)
+                n += 1
+            return n
+        return recursion(None, start=start)

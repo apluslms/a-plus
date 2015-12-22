@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 
 from course.models import LearningObjectCategory, CourseModule, CourseInstance
@@ -65,7 +67,6 @@ class CourseInstanceForm(forms.ModelForm):
             'instance_name',
             'url',
             'image',
-            'description',
             'starting_time',
             'ending_time',
             'assistants',
@@ -87,8 +88,42 @@ class CourseInstanceForm(forms.ModelForm):
         return self.cleaned_data["url"]
 
 
-class CourseContentForm(forms.Form):
-    url = forms.URLField(label=_("Import and override content configuration from URL"))
+class CourseIndexForm(forms.ModelForm):
+
+    class Meta:
+        model = CourseInstance
+        fields = [
+            'index_mode',
+            'description',
+            'footer',
+        ]
+
+
+class CourseContentForm(forms.ModelForm):
+
+    class Meta:
+        model = CourseInstance
+        fields = [
+            'module_numbering',
+            'content_numbering',
+        ]
+
+
+class CloneInstanceForm(forms.Form):
+    url = forms.CharField(label=_("New URL identifier for the course instance"),
+        validators=[RegexValidator(regex="^[\w\-\.]+$")])
 
     def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
+
+    def clean_url(self):
+        url = self.cleaned_data['url']
+        if CourseInstance.objects.filter(
+                course=self.instance.course, url=url).exists():
+            raise ValidationError(_("The URL is already taken."))
+        return url
+
+
+class CourseConfigureForm(forms.Form):
+    url = forms.URLField(label=_("Import and override content configuration from URL"))

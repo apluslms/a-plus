@@ -10,11 +10,6 @@
 
 {% block coursecontent %}
 <br>
-<form method="post" class="well form-inline">
-    {% csrf_token %}
-    {{ form|bootstrap }}
-    <button class="btn btn-primary" type="submit">{% trans 'Apply configuration' %}</button>
-</form>
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{% trans "Exercise categories" %}</h3>
@@ -159,4 +154,11 @@
         </tbody>
     </table>
 </div>
+<form method="post" class="well">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <button class="btn btn-primary" type="submit" name="save">{% trans 'Save' %}</button>
+    <button class="btn btn-success" type="submit" name="renumbermodule">{% trans 'Renumerate learning objects for each module' %}</button>
+    <button class="btn btn-success" type="submit" name="renumbercourse">{% trans 'Renumerate learning objects ignoring modules' %}</button>
+</form>
 {% endblock %}

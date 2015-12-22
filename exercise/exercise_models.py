@@ -91,9 +91,9 @@ class LearningObject(ModelWithInheritance):
             if self.course_instance.module_numbering == 1:
                 return "{:d}{} {}".format(self.course_module.order,
                     number, self.name)
-                return "{} {}".format(number[1:], self.name)
+            return "{} {}".format(number[1:], self.name)
         elif self.course_instance.content_numbering == 2:
-            return "{} {}".format(roman_numeral(self.order, self.name))
+            return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
     def number(self):

@@ -9,7 +9,7 @@
 
 {% block coursecontent %}
 <div>
-    {{ instance.description }}
+    {{ instance.description|safe }}
 </div>
 {% if instance.index_mode == 1 %}
 <ul class="toc">
@@ -42,6 +42,9 @@
 {% else %}
 {% user_results %}
 {% endif %}
+<div>
+  {{ instance.footer|safe }}
+</div>
 {% endblock %}
 
 {% block sidecontent %}
