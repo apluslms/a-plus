@@ -137,9 +137,11 @@ def parse_page_content(page, remote_page):
 
     remote_page.fix_relative_urls()
 
-    #TODO page.head = remote_page.
+    page.head = remote_page.head({'data-aplus':True})
+    print('aplus protocol', page.head)
     page.content = remote_page.element_or_body((
         {'id':'aplus'},
         {'id':'exercise'},
+        {'id':'chapter'},
         {'class':'entry-content'},
     ))

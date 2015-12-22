@@ -162,6 +162,7 @@ class LearningObject(ModelWithInheritance):
                 and self.course_instance.ending_time < timezone.now():
             page = ExercisePage(self)
             page.is_loaded = True
+            page.content_head = self.content_head
             page.content = self.content
         else:
             page = load_exercise_page(request, self.get_load_url(
@@ -169,6 +170,7 @@ class LearningObject(ModelWithInheritance):
             if self.id and (not self.content_time or \
                     self.content_time + datetime.timedelta(days=3) < timezone.now()):
                 self.content_time = timezone.now()
+                self.content_head = page.head
                 self.content = page.content
                 self.save()
         return page

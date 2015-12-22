@@ -73,10 +73,10 @@ class RemotePage:
             return self.soup.title.contents
         return ""
 
-    def head_aplus(self):
+    def head(self, search_attribute):
         if self.soup and self.soup.head:
             return "\n".join(str(tag) for tag in
-                self.soup.head.find_all({'data-aplus':True}))
+                self.soup.head.find_all(True, search_attribute))
         return ""
 
     def body(self):

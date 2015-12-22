@@ -210,6 +210,9 @@ class Submission(models.Model):
     def is_graded(self):
         return self.status == self.STATUS_READY
 
+    def head(self):
+        return self.exercise.content_head
+
     def get_url(self, name):
         exercise = self.exercise
         instance = exercise.course_instance
@@ -226,15 +229,6 @@ class Submission(models.Model):
 
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
-
-    def get_breadcrumb(self):
-        """
-        Returns a list of tuples containing the names and URL
-        addresses of parent objects and self.
-        """
-        crumb = self.exercise.get_breadcrumb()
-        crumb.append((_("Submission"), self.get_absolute_url()))
-        return crumb
 
 
 def build_upload_dir(instance, filename):
