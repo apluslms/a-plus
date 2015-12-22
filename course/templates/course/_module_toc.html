@@ -1,14 +1,26 @@
 {% load i18n %}
 {% load course %}
-{% for lobject in module.flat_learning_objects %}
+
+{% if module.status == 'maintenance' %}
+<p>
+  {% trans 'Unfortunately this module is currently under maintenance.' %}
+</p>
+{% else %}
+
+{% for lobject in objects %}
 {% if lobject.sub == 'open' %}
-<ul>
+<ul class="toc">
 {% elif lobject.sub == 'close' %}
 </ul>
 {% else %}
     <li>
         {% if open %}
+        {% if lobject.is_empty %}
+        {{ lobject }}
+        {% else %}
         <a href="{{ lobject|url }}">{{ lobject }}</a>
+        {% endif %}
+
         {% else %}
         {{ lobject }}
         {% if is_course_staff %}
@@ -21,3 +33,5 @@
     </li>
 {% endif %}
 {% endfor %}
+
+{% endif %}

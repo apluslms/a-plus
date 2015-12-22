@@ -259,7 +259,7 @@ class CloneInstanceView(CourseInstanceMixin, BaseRedirectView):
                 category_map[old_id] = category
 
             for module in modules:
-                root = list(module.root_objects())
+                root = list(module.learning_objects.filter(parent__isnull=True))
                 module.id = None
                 module.course_instance = self.instance
                 module.save()

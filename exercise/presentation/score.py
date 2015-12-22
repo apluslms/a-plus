@@ -47,12 +47,14 @@ def collect_tree(course_summary):
         [ (
            exercise_summary.exercise,
            exercise_summary
-        ) for exercise_summary in module_summary.exercise_summaries],
+        ) for exercise_summary in module_summary.exercise_summaries
+            if exercise_summary.exercise.status != 'hidden'],
 
         # Reservation for category groups.
         []
 
-    ) for module_summary in course_summary.module_summaries]
+    ) for module_summary in course_summary.module_summaries
+        if module_summary.module.status != 'hidden']
 
     # Create category groups for each module.
     for course_module, _, exercises_and_summaries, category_group \

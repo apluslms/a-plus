@@ -29,11 +29,13 @@ class LearningObject(ModelWithInheritance):
     All learning objects inherit this model.
     """
     STATUS_READY = 'ready'
+    STATUS_UNLISTED = 'unlisted'
     STATUS_HIDDEN = 'hidden'
     STATUS_MAINTENANCE = 'maintenance'
     STATUS_CHOICES = (
         (STATUS_READY, _("Ready")),
-        (STATUS_HIDDEN, _("Hidden")),
+        (STATUS_UNLISTED, _("Unlisted in table of contents")),
+        (STATUS_HIDDEN, _("Hidden from non course staff")),
         (STATUS_MAINTENANCE, _("Maintenance")),
     )
     status = models.CharField(max_length=32,
@@ -106,6 +108,9 @@ class LearningObject(ModelWithInheritance):
     def is_submittable(self):
         return False
 
+    def is_empty(self):
+        return False
+
     def is_open(self, when=None):
         return self.course_module.is_open(when=when)
 
@@ -113,41 +118,20 @@ class LearningObject(ModelWithInheritance):
         return self.course_module.is_after_open(when=when)
 
     def next(self):
-        if self.children.count() > 0:
-            return self.children.first()
-        return self.next_sibling()
-
-    def next_sibling(self):
-        lobject = self.course_module.learning_objects\
-            .exclude(id=self.id)\
-            .filter(parent=self.parent, order__gt=self.order)\
-            .first()
-        return lobject or (self.parent.next_sibling() if self.parent
-            else self.course_module.next_module())
+        return self.course_module._children().next(self)
 
     def previous(self):
-        lobject = self.course_module.learning_objects\
-            .exclude(id=self.id)\
-            .filter(parent=self.parent, order__lt=self.order)\
-            .last()
-        return lobject or self.parent or self.course_module
+        return self.course_module._children().previous(self)
 
-    def parent_list(self, first=True):
-        if self.parent:
-            parents = self.parent.parent_list(False)
-        else:
-            parents = []
-        if not first:
-            parents.append(self)
-        return parents
+    def flat_learning_objects(self, with_sub_markers=True):
+        return self.course_module._children().flat(self, with_sub_markers)
+
+    def parent_list(self):
+        parents = self.course_module._children().parents(self)
+        return parents[:-1]
 
     def get_path_parts(self):
-        if self.parent:
-            path = self.parent.get_path_parts()
-        else:
-            path = []
-        path.append(self.url)
-        return path
+        return [n.url for n in self.course_module._children().parents(self)]
 
     def get_path(self):
         return '/'.join(self.get_path_parts())
@@ -195,6 +179,9 @@ class CourseChapter(LearningObject):
     Chapters can offer and organize learning material as one page chapters.
     """
     generate_table_of_contents = models.BooleanField(default=False)
+
+    def is_empty(self):
+        return not (self.service_url or self.generate_table_of_contents)
 
 
 class BaseExercise(LearningObject):

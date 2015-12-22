@@ -16,19 +16,10 @@ class ExerciseMixin(CourseModuleMixin):
     def get_resource_objects(self):
         super().get_resource_objects()
         path = self._get_kwarg(self.exercise_kw).split('/')
-        self.exercise = get_object_or_404(
-            LearningObject,
-            course_module=self.module,
-            url=path[-1],
-        ).as_leaf_class()
+        self.exercise = self.module._children().by_path(path)
+        if not self.exercise:
+            raise Http404()
         self.note("exercise")
-
-        def recursive_check(lobject, i):
-            if lobject.url != path[i]:
-                raise Http404()
-            if lobject.parent:
-                recursive_check(lobject.parent, i - 1)
-        recursive_check(self.exercise, len(path) - 1)
 
     def access_control(self):
         super().access_control()

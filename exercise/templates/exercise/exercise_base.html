@@ -7,16 +7,20 @@
 {% block title %}{{ block.super }}: {% trans "Exercise" %} {{ module.order }}.{{ exercise.order }}{% endblock %}
 
 {% block siblings %}
-{% with next=exercise.next previous=exercise.previous %}
-{% include "course/_siblings.html" %}
-{% endwith %}
+{% include "course/_siblings.html" with next=exercise.next previous=exercise.previous %}
 {% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
 <li><a href="{{ module|url }}">{{ module }}</a></li>
 {% for parent in exercise.parent_list %}
-<li><a href="{{ parent|url }}">{{ parent }}</a></li>
+<li>
+  {% if parent.is_empty %}
+  {{ parent }}
+  {% else %}
+  <a href="{{ parent|url }}">{{ parent }}</a>
+  {% endif %}
+</li>
 {% endfor %}
 {% block exercisebreadcrumblist %}
 <li><a href="{{ exercise|url }}">{{ exercise }}</a></li>

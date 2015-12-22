@@ -10,6 +10,11 @@
 {% endblock %}
 
 {% block exercisecontent %}
+
+{% if exercise.generate_table_of_contents %}
+{% include 'course/_module_toc.html' with objects=exercise.flat_learning_objects open=module.is_after_open %}
+{% endif %}
+
 <div id="exercise" data-chapter-url="{{ exercise|url }}">
     {{ page.content|safe }}
 </div>
@@ -50,7 +55,7 @@
 <script src="{% static 'exercise/chapter.js' %}"></script>
 <script>
 // Visualize loading in case of slow POST operations.
-/*$(function() {
+/*TODO fix this $(function() {
     var forms = $("#exercise").find("form");
     forms.on("submit", function(event) {
         $("#submit-progress").removeClass("hide");

@@ -33,7 +33,7 @@
         <p>
             <small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
         </p>
-        {% include 'course/_module_toc.html' %}
+        {% include 'course/_module_toc.html' with objects=module.flat_learning_objects %}
     </li>
     {% endwith %}
     {% endif %}

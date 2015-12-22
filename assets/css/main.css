@@ -136,6 +136,9 @@ html, body {
         text-overflow: ellipsis;
     }
 }
+.toc li {
+    list-style: none;
+}
 
 /* index thumbnails */
 .course-thumbnail {

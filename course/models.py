@@ -18,6 +18,7 @@ from lib.fields import PercentField
 from lib.helpers import safe_file_name, resize_image, roman_numeral
 from lib.remote_page import RemotePage, RemotePageException
 from userprofile.models import UserProfile
+from .tree import ModuleTree
 
 logger = logging.getLogger("course.models")
 
@@ -312,43 +313,30 @@ class CourseModule(models.Model):
         return point_worth
 
     def next_module(self):
-        return self.course_instance.course_modules \
-            .exclude(id=self.id).filter(order__gt=self.order).first()
+        return self.course_instance.course_modules\
+            .exclude(status='hidden').filter(order__gt=self.order).first()
 
     def previous_module(self):
-        return self.course_instance.course_modules \
-            .exclude(id=self.id).filter(order__lt=self.order).last()
+        return self.course_instance.course_modules\
+            .exclude(status='hidden').filter(order__lt=self.order).last()
 
-    def root_objects(self):
-        return self.learning_objects.filter(parent__isnull=True)
-
-    def flat_learning_objects(self, with_sub_markers=True):
-        lobjects = []
-        def sub(qs):
-            if qs.count() > 0:
-                if with_sub_markers:
-                    lobjects.append({'sub':'open'})
-                for current in qs:
-                    lobjects.append(current)
-                    sub(current.children.all())
-                if with_sub_markers:
-                    lobjects.append({'sub':'close'})
-        sub(self.root_objects())
-        return lobjects
-
-    def last_object(self):
-        def last(obj):
-            if obj and obj.children.count() > 0:
-                return last(obj.children.last())
-            return obj
-        return last(self.root_objects().last())
+    def _children(self):
+        if not hasattr(self, '_module_children'):
+            self._module_children = ModuleTree(self)
+        return self._module_children
 
     def next(self):
-        return self.root_objects().first() or self.next_module()
+        return self._children().first() or self.next_module()
 
     def previous(self):
         module = self.previous_module()
-        return (module.last_object() or module) if module else None
+        return module._children().last() if module else None
+
+    def flat_learning_objects(self, with_sub_markers=True):
+        return self._children().flat(None, with_sub_markers)
+
+    def flat_admin_learning_objects(self, with_sub_markers=True):
+        return self._children().flat(None, with_sub_markers, True)
 
     def get_absolute_url(self):
         instance = self.course_instance
