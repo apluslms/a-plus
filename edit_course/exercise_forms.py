@@ -24,6 +24,14 @@ SERVICE_FIELDS = [
     'name',
     'description',
 ]
+EXERCISE_FIELDS = [
+    'max_submissions',
+    'max_points',
+    'points_to_pass',
+    'allow_assistant_grading',
+    'min_group_size',
+    'max_group_size'
+]
 
 
 class LearningObjectMixin(object):
@@ -73,14 +81,7 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
 
     class Meta:
         model = BaseExercise
-        fields = COMMON_FIELDS + SERVICE_FIELDS + [
-            'max_submissions',
-            'max_points',
-            'points_to_pass',
-            'allow_assistant_grading',
-            'min_group_size',
-            'max_group_size'
-        ]
+        fields = COMMON_FIELDS + SERVICE_FIELDS + EXERCISE_FIELDS
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,7 +103,7 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
 
     class Meta:
         model = ExerciseWithAttachment
-        fields = COMMON_FIELDS + SERVICE_FIELDS + [
+        fields = COMMON_FIELDS + SERVICE_FIELDS + EXERCISE_FIELDS + [
             'content',
             'files_to_submit',
             'attachment',
@@ -117,7 +118,7 @@ class StaticExerciseForm(BaseExerciseForm):
 
     class Meta:
         model = StaticExercise
-        fields = COMMON_FIELDS + [
+        fields = COMMON_FIELDS + EXERCISE_FIELDS + [
             'name',
             'description',
             'exercise_page_content',

@@ -59,7 +59,12 @@
         <tbody>
             {% for module in instance.course_modules.all %}
             <tr class="success">
-                <th><strong>{{ module }}</strong></th>
+                <th>
+                  <strong>{{ module }}</strong>
+                  {% if module.status != 'ready' %}
+                  <span class="label label-default">{{ module.status }}</span>
+                  {% endif %}
+                </th>
                 <td>
                     <a class="btn btn-default btn-xs" href="{{ module|editurl:'module' }}">
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit module" %}
@@ -74,11 +79,14 @@
                     </a>
                 </td>
             </tr>
-            {% for lobject in module.flat_learning_objects %}
+            {% for lobject in module.flat_admin_learning_objects %}
             {% if not lobject.sub %}
             <tr>
                 <td>
                     {{ lobject }}
+                    {% if lobject.status != 'ready' %}
+                    <span class="label label-default">{{ lobject.status }}</span>
+                    {% endif %}
                 </td>
                 <td>
                     <a class="btn btn-default btn-xs" href="{{ lobject|editurl:'exercise' }}">
@@ -99,18 +107,18 @@
             {% endfor %}
             <tr>
                 <td colspan="2">
-                    <a class="btn btn-success btn-xs" data-toggle="modal" data-target="#lobject">
+                    <a class="btn btn-success btn-xs" data-toggle="modal" data-target="#lobject{{ module.id }}">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         {% trans "Add new learning object" %}
                     </a>
-                    <div class="modal" id="lobject" tabindex="-1" role="dialog" aria-labelledby="lobjectLabel">
+                    <div class="modal" id="lobject{{ module.id }}" tabindex="-1" role="dialog" aria-labelledby="lobject{{ module.id }}Label">
                       <div class="modal-dialog" role="document">
                         <div class="modal-content">
                           <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                             </button>
-                            <h4 class="modal-title" id="lobjectLabel">
+                            <h4 class="modal-title" id="lobject{{ module.id }}Label">
                               {% trans 'Choose learning object type to add' %}
                             </h4>
                           </div>
