@@ -116,51 +116,44 @@ def aplus_json(request, course_key):
     course = config.course_entry(course_key)
     if course is None:
         raise Http404()
-    data = _copy_fields(course, ["name", "description", "url_slug", "contact",
+    data = _copy_fields(course, ["name", "description", "lang", "contact",
         "assistants", "start", "end", "categories"])
-    data["modules"] = []
+
+    def children_recursion(parent):
+        if not "children" in parent:
+            return []
+        result = []
+        for o in [o for o in parent["children"] if "key" in o]:
+            if "config" in o:
+                _, exercise = config.exercise_entry(course["key"], o["key"])
+                of = {
+                    "title": exercise.get("title", ""),
+                    "description": exercise.get("description", ""),
+                    "url": request.build_absolute_uri(
+                        reverse('access.views.exercise', args=[
+                            course["key"], exercise["key"]
+                        ])),
+                }
+            elif "static_content" in o:
+                of = {
+                    "url": request.build_absolute_uri(
+                        '{}{}/{}'.format(settings.STATIC_URL,
+                            course["key"], o["static_content"])),
+                }
+            else:
+                of = {}
+            of.update(o)
+            of["children"] = children_recursion(o)
+            result.append(_type_dict(of, course.get("exercise_types", {})))
+        return result
+
+    modules = []
     if "modules" in course:
         for m in course["modules"]:
             mf = _type_dict(m, course.get("module_types", {}))
-
-            # Build exercise configurations.
-            efs = []
-            if "exercises" in mf:
-                for e in mf["exercises"]:
-                    if "key" in e:
-                        _, exercise = config.exercise_entry(course["key"], e["key"])
-                        base = {
-                            "title": exercise.get("title", ""),
-                            "description": exercise.get("description", ""),
-                            "url": request.build_absolute_uri(
-                                reverse('access.views.exercise', args=[
-                                    course["key"], exercise["key"]
-                                ])),
-                        }
-                        base.update(e)
-                        e = base
-                    ef = _type_dict(e, course.get("exercise_types", {}))
-                    efs.append(ef)
-            mf["exercises"] = efs
-
-            # Build chapter configurations.
-            cfs = []
-            if "chapters" in mf:
-                for c in mf["chapters"]:
-                    if "static_content" in c:
-                        base = { "url": request.build_absolute_uri(
-                            '%s%s/%s' % (
-                                settings.STATIC_URL,
-                                course["key"],
-                                c["static_content"],
-                            )),
-                        }
-                        base.update(c)
-                        c = base
-                    cfs.append(c)
-            mf["chapters"] = cfs
-
-            data["modules"].append(mf)
+            mf["children"] = children_recursion(m)
+            modules.append(mf)
+    data["modules"] = modules
     return JsonResponse(data)
 
 

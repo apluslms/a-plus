@@ -190,13 +190,15 @@ class ConfigParser:
         if "modules" in data:
             keys = []
             config = {}
-            for module in data["modules"]:
-                if "exercises" in module:
-                    for exercise_vars in module["exercises"]:
-                        if "key" in exercise_vars:
+            def recurse_exercises(parent):
+                if "children" in parent:
+                    for exercise_vars in parent["children"]:
+                        if "key" in exercise_vars and "config" in exercise_vars:
                             keys.append(exercise_vars["key"])
-                            if "config" in exercise_vars:
-                                config[exercise_vars["key"]] = exercise_vars["config"]
+                            config[exercise_vars["key"]] = exercise_vars["config"]
+                        recurse_exercises(exercise_vars)
+            for module in data["modules"]:
+                recurse_exercises(module)
             data["exercises"] = keys
             data["config_files"] = config
 
