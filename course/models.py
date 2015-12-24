@@ -105,6 +105,7 @@ class CourseInstance(models.Model):
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
+    language = models.CharField(max_length=5, default="en")
     description = models.TextField(blank=True)
     footer = models.TextField(blank=True)
     INDEX_OPTIONS = (
@@ -113,11 +114,6 @@ class CourseInstance(models.Model):
     )
     index_mode = models.IntegerField(choices=INDEX_OPTIONS, default=0,
         help_text=_('Select content for the course index page.'))
-    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
-    technical_error_emails = models.CharField(max_length=255, blank=True,
-        help_text=_("By default exercise errors are reported to teacher "
-            "email addresses. Set this field as comma separated emails to "
-            "override the recipients."))
     NUMBERING_CHOICES = (
         (0, _("No numbering")),
         (1, _("Arabic")),
@@ -125,6 +121,12 @@ class CourseInstance(models.Model):
     )
     module_numbering = models.IntegerField(choices=NUMBERING_CHOICES, default=1)
     content_numbering = models.IntegerField(choices=NUMBERING_CHOICES, default=1)
+    configure_url = models.URLField(blank=True)
+    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
+    technical_error_emails = models.CharField(max_length=255, blank=True,
+        help_text=_("By default exercise errors are reported to teacher "
+            "email addresses. Set this field as comma separated emails to "
+            "override the recipients."))
     plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk",
                                       content_type_field="container_type")
     tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",
@@ -351,12 +353,20 @@ class LearningObjectCategory(models.Model):
     """
     Learning objects may be grouped to different categories.
     """
+    STATUS_READY = 'ready'
+    STATUS_HIDDEN = 'hidden'
+    STATUS_CHOICES = (
+        (STATUS_READY, _("Ready")),
+        (STATUS_HIDDEN, _("Hidden")),
+    )
+    status = models.CharField(max_length=32,
+        choices=STATUS_CHOICES, default=STATUS_READY)
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
     course_instance = models.ForeignKey(CourseInstance, related_name="categories")
-    hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
-        blank=True, null=True)
+    #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
+    #    blank=True, null=True)
 
     class Meta:
         unique_together = ("name", "course_instance")

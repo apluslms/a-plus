@@ -25,6 +25,7 @@ class LearningObjectCategoryForm(FieldsetModelForm):
     class Meta:
         model = LearningObjectCategory
         fields = [
+            'status',
             'name',
             'points_to_pass',
             'description'
@@ -67,6 +68,7 @@ class CourseInstanceForm(forms.ModelForm):
             'instance_name',
             'url',
             'image',
+            'language',
             'starting_time',
             'ending_time',
             'assistants',
@@ -123,7 +125,3 @@ class CloneInstanceForm(forms.Form):
                 course=self.instance.course, url=url).exists():
             raise ValidationError(_("The URL is already taken."))
         return url
-
-
-class CourseConfigureForm(forms.Form):
-    url = forms.URLField(label=_("Import and override content configuration from URL"))

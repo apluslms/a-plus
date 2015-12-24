@@ -1,26 +1,16 @@
-import json
-import logging
 from django.contrib import messages
 from django.db import IntegrityError
 from django.http.response import Http404
 from django.utils.translation import ugettext_lazy as _
-from django.utils import timezone
 
 from course.models import CourseInstance
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
-from exercise.models import BaseExercise
-from lib.helpers import extract_form_errors
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
     BaseRedirectView
 from userprofile.viewbase import ACCESS
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
-from .submission_forms import BatchSubmissionCreateAndReviewForm
-from exercise.submission_models import Submission
-
-
-logger = logging.getLogger('aplus.edit_course')
 
 
 class EditInstanceView(CourseInstanceMixin, BaseFormView):
@@ -175,72 +165,15 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
 
     def post(self, request, *args, **kwargs):
         self.handle()
-        self.error = False
-        try:
-            submissions_json = json.loads(
-                request.POST.get("submissions_json", "{}"))
-        except Exception as e:
-            logger.exception(
-                "Failed to parse submission batch JSON from user: %s",
-                request.user.username)
-            self.set_error(
-                _("Failed to parse the JSON: {error}"),
-                error=str(e))
-        if not self.error and not "objects" in submissions_json:
-            self.set_error(_('Missing JSON field: objects'))
-
-        validated_forms = []
-        if not self.error:
-            count = 0
-            for submission_json in submissions_json["objects"]:
-                count += 1
-                if not "exercise_id" in submission_json:
-                    self.set_error(
-                        _('Missing field "exercise_id" in object {count:d}.'),
-                        count=count)
-                    continue
-
-                exercise = BaseExercise.objects.filter(
-                    id=submission_json["exercise_id"],
-                    course_module__course_instance=self.instance).first()
-                if not exercise:
-                    self.set_error(
-                        _('Unknown exercise_id {id} in object {count:d}.'),
-                        count=count,
-                        id=submission_json["exercise_id"])
-                    continue
-
-                # Use form to parse and validate object data.
-                form = BatchSubmissionCreateAndReviewForm(submission_json,
-                    exercise=exercise)
-                if form.is_valid():
-                    validated_forms.append(form)
-                else:
-                    self.set_error(
-                        _('Invalid fields in object {count:d}: {error}'),
-                        count=count,
-                        error="\n".join(extract_form_errors(form)))
-
-        if not self.error:
-            for form in validated_forms:
-                sub = Submission.objects.create(exercise=form.exercise)
-                sub.submitters = form.cleaned_data.get("students") \
-                    or form.cleaned_data.get("students_by_student_id")
-                sub.feedback = form.cleaned_data.get("feedback")
-                sub.set_points(form.cleaned_data.get("points"),
-                    sub.exercise.max_points, no_penalties=True)
-                sub.submission_time = form.cleaned_data.get("submission_time")
-                sub.grading_time = timezone.now()
-                sub.grader = form.cleaned_data.get("grader") or self.profile
-                sub.set_ready()
-                sub.save()
+        from .operations.batch import create_submissions
+        errors = create_submissions(self.instance, self.profile,
+            request.POST.get("submissions_json", "{}"))
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+        else:
             messages.success(request, _("New submissions stored."))
-
         return self.response()
-
-    def set_error(self, text, **kwargs):
-        messages.error(self.request, text.format(**kwargs))
-        self.error = True
 
 
 class CloneInstanceView(CourseInstanceMixin, BaseFormView):
@@ -254,44 +187,22 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
         return kwargs
 
     def form_valid(self, form):
-        url = form.cleaned_data['url']
-
-        assistants = list(self.instance.assistants.all())
-        categories = list(self.instance.categories.all())
-        modules = list(self.instance.course_modules.all())
-        self.instance.id = None
-        self.instance.visible_to_students = False
-        self.instance.url = url
-        self.instance.save()
-
-        self.instance.assistants.add(*assistants)
-
-        category_map = {}
-        for category in categories:
-            old_id = category.id
-            category.id = None
-            category.course_instance = self.instance
-            category.save()
-            category_map[old_id] = category
-
-        for module in modules:
-            root = list(module.learning_objects.filter(parent__isnull=True))
-            module.id = None
-            module.course_instance = self.instance
-            module.save()
-
-            def lobject_recursion(level, parent):
-                for lobject in list(a.as_leaf_class() for a in level):
-                    children = list(lobject.children.all())
-                    lobject.id = None
-                    lobject.learningobject_ptr_id = None
-                    lobject.modelwithinheritance_ptr_id = None
-                    lobject.category = category_map[lobject.category.id]
-                    lobject.course_module = module
-                    lobject.parent = parent
-                    lobject.save()
-                    lobject_recursion(children, lobject)
-            lobject_recursion(root, None)
-
+        from .operations.clone import clone
+        instance = clone(self.instance, form.cleaned_data['url'])
         messages.success(self.request, _("Course instance is now cloned."))
-        return self.redirect(self.instance.get_url('course-details'))
+        return self.redirect(instance.get_url('course-details'))
+
+
+class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
+    access_mode = ACCESS.TEACHER
+
+    def post(self, request, *args, **kwargs):
+        self.handle()
+        from .operations.configure import configure_content
+        errors = configure_content(self.instance, request.POST.get('url'))
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+        else:
+            messages.success(request, _("Course content configured."))
+        return self.redirect(self.instance.get_url('course-edit'))
