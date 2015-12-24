@@ -99,11 +99,11 @@ class CourseTest(TestCase):
             points_to_pass=5
         )
 
-        self.hidden_learning_object_category = LearningObjectCategory.objects.create(
-            name="hidden category",
-            course_instance=self.current_course_instance
-        )
-        self.hidden_learning_object_category.hidden_to.add(self.user.userprofile)
+        #self.hidden_learning_object_category = LearningObjectCategory.objects.create(
+        #    name="hidden category",
+        #    course_instance=self.current_course_instance
+        #)
+        #self.hidden_learning_object_category.hidden_to.add(self.user.userprofile)
 
         self.learning_object = LearningObject.objects.create(
             name="test learning object",

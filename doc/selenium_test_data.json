@@ -19,7 +19,6 @@
     "pk": 1,
     "model": "course.learningobjectcategory",
     "fields": {
-      "hidden_to": [],
       "points_to_pass": 0,
       "course_instance": 1,
       "name": "Online Exercises",
@@ -46,7 +45,6 @@
     "pk": 2,
     "model": "course.learningobjectcategory",
     "fields": {
-      "hidden_to": [],
       "points_to_pass": 0,
       "course_instance": 2,
       "name": "Online Exercises with Hooks",

@@ -374,11 +374,11 @@ class LearningObjectCategory(models.Model):
     def __str__(self):
         return self.name
 
-    def is_hidden_to(self, user_profile):
-        return self.hidden_to.filter(id=user_profile.id).exists()
+    #def is_hidden_to(self, user_profile):
+    #    return self.hidden_to.filter(id=user_profile.id).exists()
 
-    def set_hidden_to(self, user_profile, hide=True):
-        if hide and not self.is_hidden_to(user_profile):
-            self.hidden_to.add(user_profile)
-        elif not hide and self.is_hidden_to(user_profile):
-            self.hidden_to.remove(user_profile)
+    #def set_hidden_to(self, user_profile, hide=True):
+    #    if hide and not self.is_hidden_to(user_profile):
+    #        self.hidden_to.add(user_profile)
+    #    elif not hide and self.is_hidden_to(user_profile):
+    #        self.hidden_to.remove(user_profile)
