@@ -117,7 +117,8 @@ def aplus_json(request, course_key):
     if course is None:
         raise Http404()
     data = _copy_fields(course, ["name", "description", "lang", "contact",
-        "assistants", "start", "end", "categories"])
+        "assistants", "start", "end", "categories",
+        "numerate_ignoring_modules"])
 
     def children_recursion(parent):
         if not "children" in parent:
