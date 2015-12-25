@@ -95,7 +95,7 @@ class UserModuleSummary(object):
         for o in self.module.flat_admin_learning_objects(False):
             if o.is_submittable() and o.status != 'hidden':
                 for s in self.exercise_summaries:
-                    if o == s.exercise:
+                    if o.id == s.exercise.id:
                         ordered.append(s)
         self.exercise_summaries = ordered
 

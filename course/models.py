@@ -270,7 +270,7 @@ class CourseModule(models.Model):
 
     class Meta:
         unique_together = ("course_instance", "url")
-        ordering = ['closing_time', 'order', 'id']
+        ordering = ['order', 'closing_time', 'id']
 
     def __str__(self):
         if self.course_instance.module_numbering == 1:
