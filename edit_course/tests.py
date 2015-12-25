@@ -25,7 +25,7 @@ class EditCourseTests(TestCase):
 
         url = instance.get_url('course-clone')
         self.client.login(username='testUser', password='testPassword')
-        response = self.client.post(url, { 'new_url': 'another' }, follow=True)
+        response = self.client.post(url, { 'url': 'another' }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "alert alert-danger")
         self.assertContains(response, "alert alert-success")
@@ -100,12 +100,12 @@ class BatchAssessTest(TestCase):
 
         self.client.login(username='testUser', password='testPassword')
 
-        response = self.client.post('/aplus1/basic_instance/teachers/batch-assess/',
-            {'submissions_json': json_to_post}, follow=True)
+        #response = self.client.post('/aplus1/basic_instance/teachers/batch-assess/',
+        #    {'submissions_json': json_to_post}, follow=True)
 
-        #Batch submissions cannot be created if student has not already submitted
+        # CHANGED! Batch submissions cannot be created if student has not already submitted
         #at least one exercise to the course
-        self.assertContains(response, "123TEST is not one of the available choices.")
+        #self.assertContains(response, "123TEST is not one of the available choices.")
 
         sub = Submission.objects.create(
             exercise=exercise,
