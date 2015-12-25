@@ -67,7 +67,7 @@ class EditExercisePageLocators(object):
 
 class SubmissionPageLocators(object):
     SUBMISSIONS_PAGE_BANNER = (By.XPATH, "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'All submissions')]")
-    INSPECTION_LINKS = (By.XPATH, "//*[@id='submission-table']//a[contains(@href, '/inspect/')]")
+    INSPECTION_LINKS = (By.XPATH, "//table//a[contains(@href, '/inspect/')]")
 
 class StudentFeedbackPageLocators(object):
     ASSISTANT_FEEDBACK_LABEL = (By.XPATH, "//h4[text()='Assistant feedback']")
