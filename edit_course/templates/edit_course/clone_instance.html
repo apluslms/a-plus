@@ -1,0 +1,71 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load bootstrap %}
+{% load course %}
+{% load editcourse %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Instances" %}</li>
+{% endblock %}
+{% block view_tag %}edit-course,course-clone{% endblock %}
+
+{% block coursecontent %}
+<br />
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">{% trans "Course instances" %}</h3>
+  </div>
+  <table class="table table-striped table-bordered table-condensed">
+    <tbody>
+      {% for ci in course.instances.all %}
+      <tr>
+        <td>
+          {% if ci == instance %}
+          <strong>{{ ci.instance_name }}</strong>
+          {% else %}
+          <a href="{{ ci|url:'course-clone' }}">{{ ci.instance_name }}</a>
+          {% endif %}
+          {% if not ci.visible_to_students %}
+          <span class="label label-default">{% trans 'hidden' %}</span>
+          {% endif %}
+        </td>
+        <td>{{ ci.url }}</td>
+        <td>{{ ci.starting_time }} &ndash; {{ ci.ending_time }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<form id="clone-form" method="post" class="well">
+    {% csrf_token %}
+    <legend>{% trans "Clone course" %}</legend>
+    <p>
+        {% blocktrans %}
+        This action will clone all course modules and exercises into a new instance.
+        {% endblocktrans %}
+    </p>
+    {{ form|bootstrap }}
+    <button type="submit" class="btn btn-warning">
+        {% trans "Clone into new instance" %}
+    </button>
+    <div class="hide progress">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
+        {% trans "Cloning course..." %}
+      </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+$(function() {
+    var form = $("#clone-form");
+    form.on("submit", function(event) {
+        form.find('[type="submit"]').attr("disabled", true);
+        form.find('.progress').removeClass("hide");
+    });
+});
+</script>
+{% endblock %}

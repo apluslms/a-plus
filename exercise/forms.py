@@ -70,10 +70,13 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
     def __init__(self, *args, **kwargs):
         super(SubmissionCreateAndReviewForm, self).__init__(*args, **kwargs)
         self.fields["students"].queryset = \
-            self.exercise.course_instance.get_student_profiles()
+            UserProfile.objects.all()
+            #self.exercise.course_instance.get_student_profiles()
         self.fields["students_by_student_id"].choices = \
             [ (p.student_id, p.student_id)
-              for p in self.exercise.course_instance.get_student_profiles() ]
+              for p in UserProfile.objects.all()
+              #self.exercise.course_instance.get_student_profiles()
+            ]
 
     def clean(self):
         self.cleaned_data = super(SubmissionCreateAndReviewForm, self).clean()

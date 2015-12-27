@@ -1,31 +1,16 @@
-import json
-import logging
 from django.contrib import messages
 from django.db import IntegrityError
 from django.http.response import Http404
 from django.utils.translation import ugettext_lazy as _
-from django.utils import timezone
 
 from course.models import CourseInstance
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
-from exercise.models import BaseExercise
-from lib.helpers import extract_form_errors
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
     BaseRedirectView
 from userprofile.viewbase import ACCESS
-from .course_forms import CourseInstanceForm
-from .managers import CategoryManager, ModuleManager, ChapterManager, \
-    ExerciseManager
-from .submission_forms import BatchSubmissionCreateAndReviewForm
-from exercise.submission_models import Submission
-
-
-logger = logging.getLogger('aplus.edit_course')
-
-
-class EditContentView(CourseInstanceBaseView):
-    access_mode = ACCESS.TEACHER
-    template_name = "edit_course/edit_content.html"
+from .course_forms import CourseInstanceForm, CourseIndexForm, \
+    CourseContentForm, CloneInstanceForm
+from .managers import CategoryManager, ModuleManager, ExerciseManager
 
 
 class EditInstanceView(CourseInstanceMixin, BaseFormView):
@@ -38,10 +23,43 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
         kwargs["instance"] = self.instance
         return kwargs
 
+    def get_success_url(self):
+        return self.instance.get_url('course-details')
+
     def form_valid(self, form):
         self.instance = form.save()
         messages.success(self.request, _("Changes were saved succesfully."))
-        return self.redirect(self.instance.get_url('course-details'))
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Failed to save changes."))
+        return super().form_invalid(form)
+
+
+class EditIndexView(EditInstanceView):
+    template_name = "edit_course/edit_index.html"
+    form_class = CourseIndexForm
+
+    def get_success_url(self):
+        return self.instance.get_url('course-index')
+
+
+class EditContentView(EditInstanceView):
+    template_name = "edit_course/edit_content.html"
+    form_class = CourseContentForm
+
+    def get_success_url(self):
+        return self.instance.get_url('course-edit')
+
+    def form_valid(self, form):
+        if self.request.POST.get('renumbermodule') is not None:
+            for module in self.instance.course_modules.all():
+                module._children().renumber()
+        elif self.request.POST.get('renumbercourse') is not None:
+            n = 1
+            for module in self.instance.course_modules.exclude(status='hidden'):
+                n = module._children().renumber(n)
+        return super().form_valid(form)
 
 
 class ModelBaseMixin(CourseInstanceMixin):
@@ -54,7 +72,6 @@ class ModelBaseMixin(CourseInstanceMixin):
         MANAGERS = {
             "category": CategoryManager,
             "module": ModuleManager,
-            "chapter": ChapterManager,
             "exercise": ExerciseManager,
         }
         self.model = self._get_kwarg(self.model_kw)
@@ -113,6 +130,11 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
                 name=self.model_name))
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request,
+            _('Failed to save {name}').format(name=self.model_name))
+        return super().form_invalid(form)
+
 
 class ModelDeleteView(ModelBaseMixin, BaseRedirectMixin, BaseTemplateView):
     template_name = "edit_course/remove_model.html"
@@ -143,124 +165,44 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
 
     def post(self, request, *args, **kwargs):
         self.handle()
-        self.error = False
-        try:
-            submissions_json = json.loads(
-                request.POST.get("submissions_json", "{}"))
-        except Exception as e:
-            logger.exception(
-                "Failed to parse submission batch JSON from user: %s",
-                request.user.username)
-            self.set_error(
-                _("Failed to parse the JSON: {error}"),
-                error=str(e))
-        if not self.error and not "objects" in submissions_json:
-            self.set_error(_('Missing JSON field: objects'))
-
-        validated_forms = []
-        if not self.error:
-            count = 0
-            for submission_json in submissions_json["objects"]:
-                count += 1
-                if not "exercise_id" in submission_json:
-                    self.set_error(
-                        _('Missing field "exercise_id" in object {count:d}.'),
-                        count=count)
-                    continue
-
-                exercise = BaseExercise.objects.filter(
-                    id=submission_json["exercise_id"],
-                    course_module__course_instance=self.instance).first()
-                if not exercise:
-                    self.set_error(
-                        _('Unknown exercise_id {id} in object {count:d}.'),
-                        count=count,
-                        id=submission_json["exercise_id"])
-                    continue
-
-                # Use form to parse and validate object data.
-                form = BatchSubmissionCreateAndReviewForm(submission_json,
-                    exercise=exercise)
-                if form.is_valid():
-                    validated_forms.append(form)
-                else:
-                    self.set_error(
-                        _('Invalid fields in object {count:d}: {error}'),
-                        count=count,
-                        error="\n".join(extract_form_errors(form)))
-
-        if not self.error:
-            for form in validated_forms:
-                sub = Submission.objects.create(exercise=form.exercise)
-                sub.submitters = form.cleaned_data.get("students") \
-                    or form.cleaned_data.get("students_by_student_id")
-                sub.feedback = form.cleaned_data.get("feedback")
-                sub.set_points(form.cleaned_data.get("points"),
-                    sub.exercise.max_points, no_penalties=True)
-                sub.submission_time = form.cleaned_data.get("submission_time")
-                sub.grading_time = timezone.now()
-                sub.grader = form.cleaned_data.get("grader") or self.profile
-                sub.set_ready()
-                sub.save()
+        from .operations.batch import create_submissions
+        errors = create_submissions(self.instance, self.profile,
+            request.POST.get("submissions_json", "{}"))
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+        else:
             messages.success(request, _("New submissions stored."))
-
         return self.response()
 
-    def set_error(self, text, **kwargs):
-        messages.error(self.request, text.format(**kwargs))
-        self.error = True
+
+class CloneInstanceView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "edit_course/clone_instance.html"
+    form_class = CloneInstanceForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def form_valid(self, form):
+        from .operations.clone import clone
+        instance = clone(self.instance, form.cleaned_data['url'])
+        messages.success(self.request, _("Course instance is now cloned."))
+        return self.redirect(instance.get_url('course-details'))
 
 
-class CloneInstanceView(CourseInstanceMixin, BaseRedirectView):
+class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
+    access_mode = ACCESS.TEACHER
 
     def post(self, request, *args, **kwargs):
         self.handle()
-        url = self.request.POST.get("new_url", "").strip()
-        if not url:
-            messages.error(request, _("Url was missing."))
-        elif CourseInstance.objects.filter(course=self.course, url=url)\
-            .exists():
-            messages.error(request,
-                _("Url '{}' is already taken.").format(url))
+        from .operations.configure import configure_content
+        errors = configure_content(self.instance, request.POST.get('url'))
+        if errors:
+            for error in errors:
+                messages.error(request, error)
         else:
-            assistants = list(self.instance.assistants.all())
-            categories = list(self.instance.categories.all())
-            modules = list(self.instance.course_modules.all())
-            self.instance.id = None
-            self.instance.visible_to_students = False
-            self.instance.url = url
-            self.instance.save()
-
-            self.instance.assistants.add(*assistants)
-
-            category_map = {}
-            for category in categories:
-                old_id = category.id
-                category.id = None
-                category.course_instance = self.instance
-                category.save()
-                category_map[old_id] = category
-
-            for module in modules:
-                chapters = list(module.chapters.all())
-                exercises = list(a.as_leaf_class()
-                    for a in module.learning_objects.all())
-                module.id = None
-                module.course_instance = self.instance
-                module.save()
-
-                for chapter in chapters:
-                    chapter.id = None
-                    chapter.course_module = module
-                    chapter.save()
-
-                for exercise in exercises:
-                    exercise.id = None
-                    exercise.learningobject_ptr_id = None
-                    exercise.modelwithinheritance_ptr_id = None
-                    exercise.course_module = module
-                    exercise.category = category_map[exercise.category.id]
-                    exercise.save()
-            messages.success(request, _("Course instance is now cloned."))
-
-        return self.redirect(self.instance.get_url('course-details'))
+            messages.success(request, _("Course content configured."))
+        return self.redirect(self.instance.get_url('course-edit'))

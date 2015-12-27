@@ -136,6 +136,9 @@ html, body {
         text-overflow: ellipsis;
     }
 }
+.toc li {
+    list-style: none;
+}
 
 /* index thumbnails */
 .course-thumbnail {
@@ -149,7 +152,7 @@ html, body {
     background: #eee;
 }
 .course-thumbnail .image img {
-    height: 130px;
+    width: 100%;
 }
 .course-thumbnail .image .glyphicon {
     color: #fff;
@@ -215,4 +218,7 @@ html, body {
 .exercise-summary {
     border-bottom: 1px solid #e3e3e3;
     margin-bottom: 19px;
+}
+.form-inline .form-group div {
+    display: inline-block;
 }

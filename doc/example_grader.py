@@ -32,7 +32,7 @@ class ExerciseGrader(http.server.BaseHTTPRequestHandler):
         elif '/file_exercise/' in self.path:
             response = open('file_exercise.html','r').read()
             self._respond(response.encode('utf-8'))
-        
+
         # An exercise that uses AJAX to create submissions.
         elif '/ajax_exercise/' in self.path:
             response = open('ajax_exercise.html','r').read()
@@ -43,7 +43,7 @@ class ExerciseGrader(http.server.BaseHTTPRequestHandler):
     # On POSTs get the answer, grade it and return the results.
     def do_POST(self):
         form = cgi.FieldStorage(
-            fp=self.rfile, 
+            fp=self.rfile,
             headers=self.headers,
             environ={
                 'REQUEST_METHOD': 'POST',
@@ -93,9 +93,13 @@ class ExerciseGrader(http.server.BaseHTTPRequestHandler):
             }
             opener = urllib.request.build_opener()
             request_data = urllib.parse.urlencode(request_dict).encode('utf-8')
-            response = opener.open(submission_url, request_data, timeout=10).read()
-            
-            self._respond(response, headers={ 'Access-Control-Allow-Origin': '*' })
+            try:
+                response = opener.open(submission_url, request_data, timeout=10).read()
+                status_code = 200
+            except urllib.error.HTTPError as e:
+                response = e.read()
+                status_code = 500
+            self._respond(response, status_code=status_code, headers={ 'Access-Control-Allow-Origin': '*' })
 
         # Exercise with attachment expects course staff selected files.
         elif '/attached_exercise/' in self.path:
@@ -134,7 +138,7 @@ class ExerciseGrader(http.server.BaseHTTPRequestHandler):
     def _respond(self, content, content_type='text/html', status_code=200, headers={}):
         hdrs = {
             'Content-Type': content_type,
-            'Content-Length': len(content), 
+            'Content-Length': len(content),
         }
         hdrs.update(headers)
         self.send_response(status_code)

@@ -12,7 +12,7 @@ class TeacherFeedbackTest(unittest.TestCase):
     def testStudentShouldGetFeedbackWithNotification(self):
         ASSISTANT_FEEDBACK_TEXT = "ASSISTANT_FEEDBACK"
         FEEDBACK_TEXT = "FEEDBACK"
-        EXERCISE_NUMBER = 2
+        EXERCISE_NUMBER = "2"
         SUBMISSION_NUMBER = 1
         POINTS = "50"
 
@@ -24,11 +24,11 @@ class TeacherFeedbackTest(unittest.TestCase):
 
         # Check submissions
         LoginPage(self.driver).loginAsAssistant()
-        submissionPage = SubmissionPage(self.driver, EXERCISE_NUMBER)
+        submissionPage = SubmissionPage(self.driver, exerciseId=EXERCISE_NUMBER)
         self.assertEqual(submissionPage.getSubmissionCount(), 1)
 
         # Assess exercise
-        assessmentPage = AssessmentPage(self.driver, EXERCISE_NUMBER, SUBMISSION_NUMBER)
+        assessmentPage = AssessmentPage(self.driver, exerciseId=EXERCISE_NUMBER, submissionNumber=SUBMISSION_NUMBER)
         assessmentPage.setAssistantFeedback(ASSISTANT_FEEDBACK_TEXT)
         assessmentPage.setFeedback(FEEDBACK_TEXT)
         assessmentPage.setPoints(POINTS)
@@ -37,7 +37,7 @@ class TeacherFeedbackTest(unittest.TestCase):
 
         # Check that student receives the correct assessment and a notification of it
         LoginPage(self.driver).loginAsStudent()
-        studentFeedbackPage = StudentFeedbackPage(self.driver, EXERCISE_NUMBER, SUBMISSION_NUMBER)
+        studentFeedbackPage = StudentFeedbackPage(self.driver, exerciseId=EXERCISE_NUMBER, submissionNumber=SUBMISSION_NUMBER)
 
         self.assertTrue(studentFeedbackPage.hasNewNotifications())
         self.assertEqual(studentFeedbackPage.getAssistantFeedbackText(), ASSISTANT_FEEDBACK_TEXT)

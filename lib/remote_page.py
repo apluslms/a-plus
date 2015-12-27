@@ -68,9 +68,23 @@ class RemotePage:
             self.url.fragment
         ))
 
+    def meta(self, name):
+        if self.soup:
+            element = self.soup.find("meta", {"name": name})
+            if element:
+                return element.get("value",
+                    default=element.get("content", default=None))
+        return None
+
     def title(self):
         if self.soup and self.soup.title:
             return self.soup.title.contents
+        return ""
+
+    def head(self, search_attribute):
+        if self.soup and self.soup.head:
+            return "\n".join(str(tag) for tag in
+                self.soup.head.find_all(True, search_attribute))
         return ""
 
     def body(self):
@@ -94,21 +108,18 @@ class RemotePage:
         self._fix_relative_urls(base_url, "a", "href")
 
     def _fix_relative_urls(self, base_url, tag_name, attr_name):
-        for element in self.soup.findAll(tag_name, {attr_name: True}):
+        for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]
-            if not (value.startswith("http://")
+            if value and not (value.startswith("http://")
                     or value.startswith("https://")
                     or value.startswith("#")):
                 element[attr_name] = "".join((
                     base_url,
-                    "/" if (value[0] != "/" and base_url[-1] != "/") else "",
+                    "/" if (value[0] != "/" and
+                            (not base_url or base_url[-1] != "/")) else "",
                     value
                 ))
 
-    def meta(self, name):
-        if self.soup:
-            element = self.soup.find("meta", {"name": name})
-            if element:
-                return element.get("value",
-                    default=element.get("content", default=None))
-        return None
+    def find_and_replace(self, attr_name, value_map):
+        for element in self.soup.findAll(True, {attr_name:True}):
+            element[attr_name] = value_map.get(element[attr_name], None)

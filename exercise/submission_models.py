@@ -210,13 +210,17 @@ class Submission(models.Model):
     def is_graded(self):
         return self.status == self.STATUS_READY
 
+    def head(self):
+        return self.exercise.content_head
+
     def get_url(self, name):
         exercise = self.exercise
         instance = exercise.course_instance
         return reverse(name, kwargs={
             "course": instance.course.url,
             "instance": instance.url,
-            "exercise_id": exercise.id,
+            "module": exercise.course_module.url,
+            "exercise_path": exercise.get_path(),
             "submission_id": self.id,
         })
 
@@ -225,15 +229,6 @@ class Submission(models.Model):
 
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
-
-    def get_breadcrumb(self):
-        """
-        Returns a list of tuples containing the names and URL
-        addresses of parent objects and self.
-        """
-        crumb = self.exercise.get_breadcrumb()
-        crumb.append((_("Submission"), self.get_absolute_url()))
-        return crumb
 
 
 def build_upload_dir(instance, filename):
@@ -295,7 +290,8 @@ class SubmittedFile(models.Model):
         return reverse('submission-file', kwargs={
             "course": instance.course.url,
             "instance": instance.url,
-            "exercise_id": exercise.id,
+            "module": exercise.course_module.url,
+            "exercise_path": exercise.get_path(),
             "submission_id": submission.id,
             "file_id": self.id,
             "file_name": self.filename

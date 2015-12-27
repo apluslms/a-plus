@@ -1,8 +1,9 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 
-from course.models import LearningObjectCategory, CourseModule, \
-    CourseChapter, CourseInstance
+from course.models import LearningObjectCategory, CourseModule, CourseInstance
 
 
 class FieldsetModelForm(forms.ModelForm):
@@ -12,11 +13,11 @@ class FieldsetModelForm(forms.ModelForm):
 
     def get_fieldsets(self):
         return [
-            {
-                "legend": "",
-                "fields": [self[kw] for kw in self.Meta.fields]
-            }
+            { "legend": "", "fields": self.get_fields(*self.Meta.fields) },
         ]
+
+    def get_fields(self, *names):
+        return [self[name] for name in names]
 
 
 class LearningObjectCategoryForm(FieldsetModelForm):
@@ -24,6 +25,7 @@ class LearningObjectCategoryForm(FieldsetModelForm):
     class Meta:
         model = LearningObjectCategory
         fields = [
+            'status',
             'name',
             'points_to_pass',
             'description'
@@ -35,11 +37,12 @@ class CourseModuleForm(FieldsetModelForm):
     class Meta:
         model = CourseModule
         fields = [
+            'status',
             'order',
             'name',
             'url',
-            'points_to_pass',
             'introduction',
+            'points_to_pass',
             'opening_time',
             'closing_time',
             'late_submissions_allowed',
@@ -47,27 +50,13 @@ class CourseModuleForm(FieldsetModelForm):
             'late_submission_penalty'
         ]
 
-
-class CourseChapterForm(FieldsetModelForm):
-
-    class Meta:
-        model = CourseChapter
-        fields = [
-            'course_module',
-            'parent',
-            'order',
-            'name',
-            'url',
-            'content_url'
+    def get_fieldsets(self):
+        return [
+            { 'legend':_('Hierarchy'), 'fields':self.get_fields('status','order','url') },
+            { 'legend':_('Content'), 'fields':self.get_fields('name','introduction','points_to_pass') },
+            { 'legend':_('Schedule'), 'fields':self.get_fields('opening_time','closing_time',
+                'late_submissions_allowed','late_submission_deadline', 'late_submission_penalty') },
         ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.chapter = kwargs.get('instance')
-        self.fields["course_module"].queryset = CourseModule.objects.filter(
-            course_instance=self.chapter.course_instance)
-        self.fields["parent"].queryset = CourseChapter.objects.filter(
-            course_module=self.chapter.course_module)
 
 
 class CourseInstanceForm(forms.ModelForm):
@@ -79,7 +68,7 @@ class CourseInstanceForm(forms.ModelForm):
             'instance_name',
             'url',
             'image',
-            'description',
+            'language',
             'starting_time',
             'ending_time',
             'assistants',
@@ -99,3 +88,40 @@ class CourseInstanceForm(forms.ModelForm):
         if self.instance and self.instance.visible_to_students:
             return self.instance.url
         return self.cleaned_data["url"]
+
+
+class CourseIndexForm(forms.ModelForm):
+
+    class Meta:
+        model = CourseInstance
+        fields = [
+            'index_mode',
+            'description',
+            'footer',
+        ]
+
+
+class CourseContentForm(forms.ModelForm):
+
+    class Meta:
+        model = CourseInstance
+        fields = [
+            'module_numbering',
+            'content_numbering',
+        ]
+
+
+class CloneInstanceForm(forms.Form):
+    url = forms.CharField(label=_("New URL identifier for the course instance"),
+        validators=[RegexValidator(regex="^[\w\-\.]+$")])
+
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop('instance')
+        super().__init__(*args, **kwargs)
+
+    def clean_url(self):
+        url = self.cleaned_data['url']
+        if CourseInstance.objects.filter(
+                course=self.instance.course, url=url).exists():
+            raise ValidationError(_("The URL is already taken."))
+        return url

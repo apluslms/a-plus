@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import ACCESS, UserProfileMixin
-from .models import Course, CourseInstance, CourseModule, CourseChapter
+from .models import Course, CourseInstance, CourseModule
 
 
 class CourseMixin(UserProfileMixin):
@@ -64,18 +65,7 @@ class CourseInstanceBaseView(CourseInstanceMixin, BaseTemplateView):
     pass
 
 
-class CourseModuleAccessMixin(object):
-
-    def access_control(self):
-        super().access_control()
-        if not (self.is_course_staff or self.module.is_after_open()):
-            messages.error(self.request,
-                _("The module will open for submissions at {date}").format(
-                    date=self.module.opening_time))
-            raise PermissionDenied()
-
-
-class CourseModuleMixin(CourseModuleAccessMixin, CourseInstanceMixin):
+class CourseModuleMixin(CourseInstanceMixin):
     module_kw = "module"
 
     def get_resource_objects(self):
@@ -87,23 +77,17 @@ class CourseModuleMixin(CourseModuleAccessMixin, CourseInstanceMixin):
         )
         self.note("module")
 
+    def access_control(self):
+        super().access_control()
+        if not self.is_course_staff:
+            if self.module.status == CourseModule.STATUS_HIDDEN:
+                raise Http404()
+            if not self.module.is_after_open():
+                messages.error(self.request,
+                    _("The module will open for submissions at {date}").format(
+                        date=self.module.opening_time))
+                raise PermissionDenied()
+
 
 class CourseModuleBaseView(CourseModuleMixin, BaseTemplateView):
-    pass
-
-
-class CourseChapterMixin(CourseModuleMixin):
-    chapter_kw = "chapter"
-
-    def get_resource_objects(self):
-        super().get_resource_objects()
-        self.chapter = get_object_or_404(
-            CourseChapter,
-            url=self._get_kwarg(self.chapter_kw),
-            course_module=self.module
-        )
-        self.note("chapter")
-
-
-class CourseChapterView(CourseChapterMixin, BaseTemplateView):
     pass

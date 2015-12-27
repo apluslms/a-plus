@@ -93,14 +93,14 @@ class UserProfileTest(TestCase):
             name="test category 1",
             course_instance=self.course_instance1
         )
-        self.learning_object_category1.hidden_to.add(self.student_profile)
-        self.learning_object_category1.hidden_to.add(self.grader_profile)
+        #self.learning_object_category1.hidden_to.add(self.student_profile)
+        #self.learning_object_category1.hidden_to.add(self.grader_profile)
 
         self.learning_object_category2 = LearningObjectCategory.objects.create(
             name="test category 2",
             course_instance=self.course_instance1
         )
-        self.learning_object_category2.hidden_to.add(self.student_profile)
+        #self.learning_object_category2.hidden_to.add(self.student_profile)
 
         self.learning_object_category3 = LearningObjectCategory.objects.create(
             name="test category 3",

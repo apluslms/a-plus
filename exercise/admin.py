@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from exercise.models import BaseExercise, StaticExercise, \
+from exercise.models import CourseChapter, BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile
 from course.templatetags import course as coursetags
 
@@ -32,15 +32,16 @@ course_wrapper.short_description = _('Course instance')
 submitters_wrapper.short_description = _('Submitters')
 
 
-class BaseExerciseAdmin(admin.ModelAdmin):
-    list_display_links = ["__str__"]
-    list_display = ["__str__", "course_module", "course_instance",
-                    "max_points", real_class]
+class CourseChapterAdmin(admin.ModelAdmin):
+    list_display_links = ("__str__",)
+    list_display = ("course_instance", "__str__", "service_url")
     list_filter = ["course_module__course_instance", "course_module"]
 
-    class Media:
-        js = ('/static/tiny_mce/tiny_mce.js',
-              '/static/js/tiny_mce_textareas.js',)
+
+class BaseExerciseAdmin(admin.ModelAdmin):
+    list_display_links = ["__str__"]
+    list_display = ["course_instance", "__str__", "max_points", real_class]
+    list_filter = ["course_module__course_instance", "course_module"]
 
 
 class SubmissionAdmin(admin.ModelAdmin):
@@ -64,6 +65,7 @@ class SubmissionAdmin(admin.ModelAdmin):
             .prefetch_related('submitters')
 
 
+admin.site.register(CourseChapter, CourseChapterAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(StaticExercise)
 admin.site.register(ExerciseWithAttachment)

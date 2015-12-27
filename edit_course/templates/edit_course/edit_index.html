@@ -6,20 +6,16 @@
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Details" %}</li>
+<li class="active">{% trans "Index" %}</li>
 {% endblock %}
-{% block view_tag %}edit-course,course-details{% endblock %}
+{% block view_tag %}edit-course,course-index{% endblock %}
 
 {% block coursecontent %}
 <br />
-<form method="post" enctype="multipart/form-data" class="well">
+<form method="post" class="well">
     {% csrf_token %}
-    <legend>{% trans "Edit course details" %}</legend>
+    <legend>{% trans "Edit course index" %}</legend>
     {{ form|bootstrap }}
-    <div class="form-group">
-        <label>{% trans "Teachers" %}</label>
-        <p>{{ course.teachers.all|profiles }}</p>
-    </div>
     <button type="submit" class="btn btn-primary">
         {% trans "Save" %}
     </button>

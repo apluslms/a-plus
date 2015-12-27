@@ -1,39 +1,55 @@
-A+ course chapter content
-=========================
+A+ remote content
+=================
 
-A+ can present course chapters that integrate page content from external
-source. The chapters can embed A+ learning objects from the course module.
+A+ can present course chapters and exercises that integrate page content from
+external sources. The content can embed other A+ learning objects from the
+course module. "Teacher" creates learning objects in the A+ and configures the
+`service_url` for them. On A+ view, the remote URL is requested and content is
+embedded in the A+ response to user.
 
-## External HTML
+### Head
 
-"Teacher" creates chapter objects in the A+ and configures
-the `content_url` for them. On chapter view the URL is requested and
-the response BODY (or if `id="chapter"` or `class="entry-content"`
-element exists) will be presented to the student. The HTML may include
-following elements to inject A+ functionality in the page.
+    <head>
+      <script src="ignored.js"></script>
+      <script src="support.js" data-aplus></script>
+      <link rel="stylesheet" href="support.css" data-aplus>
+    </head>
 
-### Exercise
+Head tags including attribute `data-aplus` will be injected also in the
+final A+ page displaying the chapter.
 
-    <div
-      data-exercise-url="http://aplus.domain.org/course/2015/exercises/1/"
-      data-exercise-quiz></div>
+### Body
 
-Embeds a fully functioning exercise to the content including student
-submission status.
+    <body>
+      <h1>Not embedded</h1>
+      <div id="aplus" class="entry-content">
+        <p>The content to embed.</p>
+      </div>
+    </body>
 
-* `data-exercise-url`
+The area embedded in the A+ can be limited using `id="aplus"`,
+`id="exercise"`, `id="chapter"` or `class="entry-content"`. By default,
+the whole body element is embedded.
 
-    An URL address to an A+ exercise. There are no checks for the exercise
-    to belong to the same course module but this is strongly advised to
-    keep point sums and schedule times coherent.
+### Child exercise
 
-* `data-exercise-quiz`
+    <div data-aplus-exercise="1" data-aplus-quiz></div>
+
+Embeds a fully functioning other A+ exercise to the content including student
+submission status. The embedded exercise must be a child of the loaded exercise
+in the exercise hierarchy.
+
+* `data-aplus-exercise`
+
+    The order number of the child exercise.
+
+* `data-aplus-quiz`
 
     If attribute is present the exercise feedback will take the place of
     the exercise instruction. This works for quiz type exercises where
     the feedback includes the student answer and chance to post changes.
 
-* `data-exercise-ajax`
+* `data-aplus-ajax`
 
     If attribute is present the chapter will not attach any event listeners
     of its own. The exercise is responsible itself to create new graded

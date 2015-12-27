@@ -15,7 +15,7 @@ class StaffPageTest(unittest.TestCase):
         for x in range(0, linkCount):
             assistantsPage = AssistantsPage(self.driver)
             assistantsPage.clickSubmissionLink(x)
-            self.assertTrue('/exercises/' + str(x + 1) + "/submissions/" in str(self.driver.current_url))
+            self.assertTrue('/first-exercise-round/' + str(x + 1) + "/submissions/" in str(self.driver.current_url))
 
     def tearDown(self):
         self.driver.close()

@@ -20,6 +20,8 @@
 
 		<link rel="stylesheet" href="{% static 'css/main.css' %}" />
 		<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
+
+    {{ submission.head|safe }}
 	</head>
 	<body>
 		<table class="submission-info table table-bordered table-condensed">

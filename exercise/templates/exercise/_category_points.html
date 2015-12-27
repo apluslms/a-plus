@@ -15,6 +15,7 @@
 {% endcomment %}
 
 {% for category_summary in categories %}
+{% if category_summary.category.status == 'ready' %}
 <div class="well">
     <p>{{ category_summary.category.name }}</p>
     <p><strong class="h2">
@@ -23,4 +24,5 @@
     </strong></p>
     {% summary_progress category_summary %}
 </div>
+{% endif %}
 {% endfor %}

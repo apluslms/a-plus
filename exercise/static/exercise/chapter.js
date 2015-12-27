@@ -7,8 +7,8 @@
 
 	var pluginName = "aplusChapter";
 	var defaults = {
-		chapter_url_attr: "data-chapter-url",
-		exercise_url_attr: "data-exercise-url",
+		chapter_url_attr: "data-aplus-chapter",
+		exercise_url_attr: "data-aplus-exercise",
 		loading_selector: "#loading-indicator",
 		modal_selector: "#embed-modal",
 		modal_content_selector: ".modal-body"
@@ -41,7 +41,7 @@
 		},
 
 		cloneLoader: function(msgType) {
-			return this.element.find(this.settings.loading_selector)
+			return $(this.settings.loading_selector)
 				.clone().removeAttr("id").removeClass("hide");
 		},
 
@@ -83,8 +83,8 @@
 
 	var pluginName = "aplusExercise";
 	var defaults = {
-		quiz_attr: "data-exercise-quiz",
-		ajax_attr: "data-exercise-ajax",
+		quiz_attr: "data-aplus-quiz",
+		ajax_attr: "data-aplus-ajax",
 		message_selector: ".progress-bar",
 		message_attr: {
 			load: "data-msg-load",
@@ -93,7 +93,7 @@
 		},
 		content_element: '<div class="exercise-content"></div>',
 		content_selector: '.exercise-content',
-		exercise_selector: '#exercise',
+		exercise_selector: '#exercise-all',
 		summary_selector: '.exercise-summary',
 		response_selector: '.exercise-response',
 		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
@@ -288,4 +288,4 @@
 })(jQuery, window, document);
 
 // Construct the page chapter element.
-jQuery(function() { jQuery("#chapter").aplusChapter(); });
+jQuery(function() { jQuery("#exercise").aplusChapter(); });

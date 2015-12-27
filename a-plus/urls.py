@@ -2,8 +2,8 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 
-import shibboleth_login.urls, userprofile.urls, course.urls, exercise.urls, \
-    edit_course.urls, deviations.urls, notification.urls, \
+import shibboleth_login.urls, userprofile.urls, course.urls, course.long_urls, \
+    exercise.urls, edit_course.urls, deviations.urls, notification.urls, \
     external_services.urls, apps.urls, api.urls, redirect_old_urls.urls
 
 
@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^', include(deviations.urls)),
     url(r'^', include(edit_course.urls)),
     url(r'^', include(notification.urls)),
+    url(r'^', include(course.long_urls)),
     url(r'^', include(exercise.urls)),
     url(r'^', include(course.urls)),
 ]

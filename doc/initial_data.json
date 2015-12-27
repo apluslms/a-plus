@@ -19,7 +19,6 @@
     "pk": 1,
     "model": "course.learningobjectcategory",
     "fields": {
-      "hidden_to": [],
       "points_to_pass": 0,
       "course_instance": 1,
       "name": "Online Exercises",
@@ -46,7 +45,6 @@
     "pk": 2,
     "model": "course.learningobjectcategory",
     "fields": {
-      "hidden_to": [],
       "points_to_pass": 0,
       "course_instance": 2,
       "name": "Online Exercises with Hooks",
@@ -63,6 +61,7 @@
       "course_module": 1,
       "service_url": "http://localhost:8888/first_exercise/",
       "order": 1,
+      "url": "1",
       "content": ""
     }
   },
@@ -88,6 +87,7 @@
       "course_module": 1,
       "service_url": "http://localhost:8888/file_exercise/",
       "order": 2,
+      "url": "2",
       "content": ""
     }
   },
@@ -112,7 +112,9 @@
       "name": "AJAX exercise",
       "course_module": 1,
       "service_url": "http://localhost:8888/ajax_exercise/",
-      "order": 3,
+      "parent": 1,
+      "order": 1,
+      "url": "3",
       "content": ""
     }
   },
@@ -138,6 +140,7 @@
       "course_module": 2,
       "service_url": "http://localhost:8888/first_exercise/",
       "order": 1,
+      "url": 4,
       "content": ""
     }
   },

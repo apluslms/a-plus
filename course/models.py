@@ -15,9 +15,10 @@ from django.utils.translation import ugettext_lazy as _
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
-from lib.helpers import safe_file_name, resize_image
+from lib.helpers import safe_file_name, resize_image, roman_numeral
 from lib.remote_page import RemotePage, RemotePageException
 from userprofile.models import UserProfile
+from .tree import ModuleTree
 
 logger = logging.getLogger("course.models")
 
@@ -46,9 +47,10 @@ class Course(models.Model):
         RESERVED = ("admin", "accounts", "shibboleth", "api",
             "archive", "course", "exercise")
         if self.url in RESERVED:
-            raise ValidationError(_("Taken words include: {}").format(
-                ", ".join(RESERVED)
-            ))
+            raise ValidationError({
+                'url':_("Taken words include: {}").format(
+                    ", ".join(RESERVED))
+            })
 
     def is_teacher(self, user):
         return user and user.is_authenticated() and (user.is_superuser or \
@@ -94,17 +96,33 @@ class CourseInstance(models.Model):
     have the same teacher, but teaching assistants and students are connected to individual
     instances.
     """
+    course = models.ForeignKey(Course, related_name="instances")
     instance_name = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=False,
-            validators=[RegexValidator(regex="^[\w\-\.]*$")],
-            help_text="Input an URL identifier for this course instance.")
+        validators=[RegexValidator(regex="^[\w\-\.]*$")],
+        help_text=_("Input an URL identifier for this course instance."))
+    visible_to_students = models.BooleanField(default=True)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
-    visible_to_students = models.BooleanField(default=True)
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
+    language = models.CharField(max_length=5, default="en")
     description = models.TextField(blank=True)
+    footer = models.TextField(blank=True)
+    INDEX_OPTIONS = (
+        (0, _('User results')),
+        (1, _('Table of contents')),
+    )
+    index_mode = models.IntegerField(choices=INDEX_OPTIONS, default=0,
+        help_text=_('Select content for the course index page.'))
+    NUMBERING_CHOICES = (
+        (0, _("No numbering")),
+        (1, _("Arabic")),
+        (2, _("Roman")),
+    )
+    module_numbering = models.IntegerField(choices=NUMBERING_CHOICES, default=1)
+    content_numbering = models.IntegerField(choices=NUMBERING_CHOICES, default=1)
+    configure_url = models.URLField(blank=True)
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
-    course = models.ForeignKey(Course, related_name="instances")
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
@@ -126,7 +144,9 @@ class CourseInstance(models.Model):
         Validates the model before saving (standard method used in Django admin).
         """
         if self.ending_time <= self.starting_time:
-            raise ValidationError(_("Ending time must be later than starting time."))
+            raise ValidationError({
+                'ending_time': _("Ending time must be later than starting time.")
+            })
 
     def save(self, *args, **kwargs):
         """
@@ -164,11 +184,6 @@ class CourseInstance(models.Model):
         if self.visible_to_students:
             return True
         return user and self.is_course_staff(user)
-
-    def has_chapters(self):
-        return CourseChapter.objects\
-            .filter(course_module__course_instance=self)\
-            .count() > 0
 
     def get_url(self, name):
         return reverse(name, kwargs={
@@ -222,6 +237,16 @@ class CourseModule(models.Model):
     of each other and course instances. They also contain information about the
     opening times and deadlines for exercises.
     """
+    STATUS_READY = 'ready'
+    STATUS_HIDDEN = 'hidden'
+    STATUS_MAINTENANCE = 'maintenance'
+    STATUS_CHOICES = (
+        (STATUS_READY, _("Ready")),
+        (STATUS_HIDDEN, _("Hidden")),
+        (STATUS_MAINTENANCE, _("Maintenance")),
+    )
+    status = models.CharField(max_length=32,
+        choices=STATUS_CHOICES, default=STATUS_READY)
     order = models.IntegerField(default=1)
     name = models.CharField(max_length=255)
     url = models.CharField(max_length=255,
@@ -245,11 +270,13 @@ class CourseModule(models.Model):
 
     class Meta:
         unique_together = ("course_instance", "url")
-        ordering = ['closing_time', 'order', 'id']
+        ordering = ['order', 'closing_time', 'id']
 
     def __str__(self):
-        if self.order > 0:
+        if self.course_instance.module_numbering == 1:
             return "{:d}. {}".format(self.order, self.name)
+        elif self.course_instance.module_numbering == 2:
+            return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
     def clean(self):
@@ -258,9 +285,9 @@ class CourseModule(models.Model):
         """
         RESERVED = ("teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
-            raise ValidationError(_("Taken words include: {}").format(
-                ", ".join(RESERVED)
-            ))
+            raise ValidationError({
+                'url':_("Taken words include: {}").format(", ".join(RESERVED))
+            })
 
     def is_open(self, when=None):
         when = when or timezone.now()
@@ -288,47 +315,30 @@ class CourseModule(models.Model):
         return point_worth
 
     def next_module(self):
-        return self.course_instance.course_modules \
-            .exclude(id=self.id).filter(order__gt=self.order).first()
+        return self.course_instance.course_modules\
+            .exclude(status='hidden').filter(order__gt=self.order).first()
 
     def previous_module(self):
-        return self.course_instance.course_modules \
-            .exclude(id=self.id).filter(order__lt=self.order).last()
+        return self.course_instance.course_modules\
+            .exclude(status='hidden').filter(order__lt=self.order).last()
 
-    def root_chapters(self):
-        return self.chapters.filter(parent__isnull=True)
-
-    def chapter_list(self):
-        chapters = []
-        def sub(qs):
-            if qs.count() > 0:
-                chapters.append({'sub':'open'})
-                for current in qs:
-                    chapters.append(current)
-                    sub(current.children.all())
-                chapters.append({'sub':'close'})
-        sub(self.root_chapters())
-        return chapters
-
-    def last_chapter(self):
-        def last(chapter):
-            if chapter and chapter.children.count() > 0:
-                return last(chapter.children.last())
-            return chapter
-        return last(self.root_chapters().last())
+    def _children(self):
+        if not hasattr(self, '_module_children'):
+            self._module_children = ModuleTree(self)
+        return self._module_children
 
     def next(self):
-        return self.root_chapters().first() \
-            or self.learning_objects.first() \
-            or self.next_module()
+        return self._children().first() or self.next_module()
 
     def previous(self):
         module = self.previous_module()
-        if module:
-            return module.last_chapter() \
-                or module.learning_objects.last() \
-                or module
-        return None
+        return module._children().last() if module else None
+
+    def flat_learning_objects(self, with_sub_markers=True):
+        return self._children().flat(None, with_sub_markers)
+
+    def flat_admin_learning_objects(self, with_sub_markers=True):
+        return self._children().flat(None, with_sub_markers, True)
 
     def get_absolute_url(self):
         instance = self.course_instance
@@ -339,112 +349,24 @@ class CourseModule(models.Model):
         })
 
 
-class CourseChapter(models.Model):
-    """
-    Chapters can offer and organize learning material as one page chapters.
-    """
-    course_module = models.ForeignKey(CourseModule, related_name="chapters")
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
-    order = models.IntegerField(default=1)
-    name = models.CharField(max_length=255)
-    url = models.CharField(max_length=255,
-        validators=[RegexValidator(regex="^[\w\-\.]*$")],
-        help_text=_("Input an URL identifier for this chapter."))
-    content_url = models.URLField(help_text=_("The resource to show."))
-    content = models.TextField(blank=True)
-    content_time = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        ordering = ['course_module', 'order', 'id']
-
-    def clean(self):
-        """
-        Validates the model before saving (standard method used in Django admin).
-        """
-        if self.parent == self or self.parent.course_module != self.course_module:
-            raise ValidationError(_("Invalid parent chapter selected."))
-
-    def __str__(self):
-        if self.course_module.order > 0:
-            return "{} {}".format(self.number(), self.name)
-        return self.name
-
-    def number(self):
-        if self.parent:
-            return "{}.{:d}".format(self.parent.number(), self.order)
-        return "{:d}.{:d}".format(self.course_module.order, self.order)
-
-    @property
-    def course_instance(self):
-        return self.course_module.course_instance
-
-    def is_after_open(self, when=None):
-        return self.course_module.is_after_open(when=when)
-
-    def next(self):
-        if self.children.count() > 0:
-            return self.children.first()
-        return self.next_sibling()
-
-    def next_sibling(self):
-        chapter = self.course_module.chapters\
-            .exclude(id=self.id)\
-            .filter(parent=self.parent, order__gt=self.order)\
-            .first()
-        return chapter or (self.parent.next_sibling() if self.parent
-            else self.course_module.next_module())
-
-    def previous(self):
-        chapter = self.course_module.chapters\
-            .exclude(id=self.id)\
-            .filter(parent=self.parent, order__lt=self.order)\
-            .last()
-        return chapter or self.parent or self.course_module
-
-    def get_absolute_url(self):
-        module = self.course_module
-        instance = module.course_instance
-        return reverse('chapter', kwargs={
-            'course': instance.course.url,
-            'instance': instance.url,
-            'module': module.url,
-            'chapter': self.url,
-        })
-
-    def load(self, request):
-        if self.content and self.course_instance.ending_time < timezone.now():
-            return self.content
-        try:
-            page = RemotePage(self.content_url)
-            page.fix_relative_urls()
-            content = page.element_or_body((
-                {'id':'chapter'},
-                {'class':'entry-content'},
-            ))
-            if not self.content_time or self.content_time + datetime.timedelta(days=3) < timezone.now():
-                self.content_time = timezone.now()
-                self.content = content
-                self.save()
-            return content
-        except RemotePageException:
-            messages.error(request, _("Connecting to the content service failed!"))
-            if self.course_instance.visible_to_students:
-                msg = "Failed to request: {}".format(self.content_url)
-                logger.exception(msg)
-                email_course_error(request, self, msg)
-            return None
-
-
 class LearningObjectCategory(models.Model):
     """
     Learning objects may be grouped to different categories.
     """
+    STATUS_READY = 'ready'
+    STATUS_HIDDEN = 'hidden'
+    STATUS_CHOICES = (
+        (STATUS_READY, _("Ready")),
+        (STATUS_HIDDEN, _("Hidden")),
+    )
+    status = models.CharField(max_length=32,
+        choices=STATUS_CHOICES, default=STATUS_READY)
     name = models.CharField(max_length=35)
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
     course_instance = models.ForeignKey(CourseInstance, related_name="categories")
-    hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
-        blank=True, null=True)
+    #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
+    #    blank=True, null=True)
 
     class Meta:
         unique_together = ("name", "course_instance")
@@ -452,11 +374,11 @@ class LearningObjectCategory(models.Model):
     def __str__(self):
         return self.name
 
-    def is_hidden_to(self, user_profile):
-        return self.hidden_to.filter(id=user_profile.id).exists()
+    #def is_hidden_to(self, user_profile):
+    #    return self.hidden_to.filter(id=user_profile.id).exists()
 
-    def set_hidden_to(self, user_profile, hide=True):
-        if hide and not self.is_hidden_to(user_profile):
-            self.hidden_to.add(user_profile)
-        elif not hide and self.is_hidden_to(user_profile):
-            self.hidden_to.remove(user_profile)
+    #def set_hidden_to(self, user_profile, hide=True):
+    #    if hide and not self.is_hidden_to(user_profile):
+    #        self.hidden_to.add(user_profile)
+    #    elif not hide and self.is_hidden_to(user_profile):
+    #        self.hidden_to.remove(user_profile)

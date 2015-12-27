@@ -41,7 +41,8 @@ class RedirectTest(TestCase):
         self.exercise = StaticExercise.objects.create(
             name="test exercise",
             course_module=self.course_module,
-            category=self.learning_object_category
+            category=self.learning_object_category,
+            url='e1',
         )
 
     def test_course(self):
@@ -79,3 +80,11 @@ class RedirectTest(TestCase):
         self.assertEqual(response.status_code, 200)
         response = self.client.get('/foobar/exercise/{:d}'.format(self.exercise.id), follow=True)
         self.assertEqual(response.status_code, 404)
+
+    def test_course_instance_exercise(self):
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.get('/Course-Url/T-00.1000_2011/exercises/{:d}'.format(self.exercise.id), follow=True)
+        self.assertTrue(response.redirect_chain)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get('/Course-Url/T-00.1000_2011/test-module/e1/')
+        self.assertEqual(response.status_code, 200)

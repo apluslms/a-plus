@@ -1,6 +1,7 @@
 {% extends "exercise/exercise_base.html" %}
 {% load i18n %}
 {% load staticfiles %}
+{% load course %}
 
 {% block view_tag %}exercise{% endblock %}
 
@@ -9,24 +10,53 @@
 {% endblock %}
 
 {% block exercisecontent %}
-<div id="exercise">
+
+{% if exercise.generate_table_of_contents %}
+{% include 'course/_module_toc.html' with objects=exercise.flat_learning_objects open=module.is_after_open %}
+{% endif %}
+
+<div id="exercise" data-aplus-chapter="{{ exercise|url }}">
     {{ page.content|safe }}
 </div>
+
 <div id="submit-progress" class="hide progress">
   <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
     {% trans "Posting submission..." %}
   </div>
 </div>
+
 {% include "exercise/_exercise_wait.html" %}
+
+<div id="loading-indicator" class="hide progress"
+  data-msg-load="{% trans 'Loading exercise...' %}"
+  data-msg-submit="{% trans 'Posting submission...' %}"
+  data-msg-error="{% trans 'Communication error with the exercise.' %}">
+  <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;"></div>
+</div>
+
+<div id="embed-modal" class="modal" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          {% trans "Close" %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'exercise/poll.js' %}"></script>
+<script src="{% static 'exercise/chapter.js' %}"></script>
 <script>
 // Visualize loading in case of slow POST operations.
 $(function() {
-    var forms = $("#exercise").find("form");
+    var forms = $("#exercise").find("form:not([data-aplus-exercise] form)");
     forms.on("submit", function(event) {
         $("#submit-progress").removeClass("hide");
     });
@@ -44,4 +74,5 @@ window.addEventListener("message", function (event) {
     }
 });
 </script>
+{{ page.head|safe }}
 {% endblock %}

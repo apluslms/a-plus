@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
@@ -48,14 +49,37 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     def get(self, request, *args, **kwargs):
         self.handle()
         students = self.get_students()
-        self.submission_check(students)
+        if self.exercise.is_submittable():
+            self.submission_check(students)
+            self.get_after_new_submission()
+
+        if self.exercise.status == 'maintenance':
+            if self.is_course_staff:
+                messages.error(request,
+                    _("Exercise is in maintenance and content is hidden from "
+                      "students."))
+            else:
+                page = ExercisePage(self.exercise)
+                page.content = _('Unfortunately this exercise is currently '
+                                 'under maintenance.')
+                return self.response(page=page, students=students)
+
+        if not self.exercise.service_url:
+            page = ExercisePage(self.exercise)
+            return self.response(page=page, students=students)
+
         page = self.exercise.load(request, students,
             url_name=self.post_url_name)
-        self.get_after_new_submission()
         return self.response(page=page, students=students)
 
     def post(self, request, *args, **kwargs):
         self.handle()
+
+        # Stop submit trials for e.g. chapters.
+        # However, allow posts from exercises switched to maintenance status.
+        if not self.exercise.is_submittable():
+            return self.http_method_not_allowed(request, *args, **kwargs)
+
         students = self.get_students()
         new_submission = None
         page = ExercisePage(self.exercise)
