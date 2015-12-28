@@ -29,7 +29,6 @@ Installing for development
 2. ### Python requirements (2.7 should work too)
 
 		sudo apt-get install python3 python3-dev python3-pip
-		sudo apt-get install libxml2-dev libxslt-dev
 
 	OR install from source.
 
@@ -43,7 +42,7 @@ Installing for development
 
 	Then, create virtual environment with grader requirements.
 
-		sudo pip3 install --upgrade pip
+    sudo apt-get install git libxml2-dev libxslt-dev zlib1g-dev
 		sudo pip3 install virtualenv
 
 		virtualenv -p python3 venv
@@ -68,6 +67,16 @@ Installing the full stack
 =========================
 
 > 6/2014 - Ubuntu 12.04.4
+
+0. ### User account
+
+On a server, one can install mooc-grader for a specific grader
+user account.
+
+		sudo useradd -mUrd /srv/grader grader
+		cd
+
+Then follow the "Installing for development" and continue from here.
 
 1. ### Web server configuration
 

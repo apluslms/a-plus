@@ -2,13 +2,13 @@
 CELERYD_NODES="tasks"
 
 # Absolute or relative path to the 'celery' command:
-CELERY_BIN="/home/[shell-username]/venv/bin/celery"
+CELERY_BIN="/srv/grader/venv/bin/celery"
 
 # App instance to use
 CELERY_APP="grader.tasks"
 
 # Where to chdir at start.
-CELERYD_CHDIR="/home/[shell-username]/mooc-grader/"
+CELERYD_CHDIR="/srv/grader/mooc-grader/"
 
 # Extra command-line arguments to the worker
 # --concurrency: amount of concurrent task processes per worker
@@ -21,8 +21,8 @@ CELERYD_PID_FILE="/var/run/celery/%N.pid"
 # Workers should run as an unprivileged user.
 #   You need to create this user manually (or you can choose
 #   a user/group combination that already exists, e.g. nobody).
-CELERYD_USER="[shell-username]"
-CELERYD_GROUP="users"
+CELERYD_USER="grader"
+CELERYD_GROUP="grader"
 
 # If enabled pid and log directories will be created if missing,
 # and owned by the userid/group configured.

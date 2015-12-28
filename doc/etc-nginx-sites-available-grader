@@ -2,16 +2,16 @@ upstream django {
     server 127.0.0.1:3031;
 }
 server {
-    server_name grader-n.foo.bar;
+    server_name grader.cs.hut.fi;
 
     charset utf-8;
     client_max_body_size 50M;
 
     location /static {
-        alias /home/[shell-username]/mooc-grader/static;
+        alias /srv/grader/mooc-grader/static;
     }
     location /robots.txt {
-        alias /home/[shell-username]/mooc-grader/static/robots.txt;
+        alias /srv/grader/mooc-grader/static/robots.txt;
     }
     location / {
         uwsgi_pass  django;

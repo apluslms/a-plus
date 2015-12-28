@@ -6,9 +6,9 @@
 	LogLevel info
 	CustomLog ${APACHE_LOG_DIR}/access.log combined
 
-	Alias /static/ /home/[shell-username]/mooc-grader/static/
-	Alias /robots.txt /home/[shell-username]/mooc-grader/static/robots.txt
-	<Directory /home/[shell-username]/mooc-grader/static/>
+	Alias /static/ /srv/grader/mooc-grader/static/
+	Alias /robots.txt /srv/grader/mooc-grader/static/robots.txt
+	<Directory /srv/grader/mooc-grader/static/>
 		Order allow,deny
 		allow from all
 	</Directory>
