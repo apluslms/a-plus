@@ -2,9 +2,9 @@
 #
 # Installs Python 3.4.
 #
-if ! [ -x /usr/local/bin/python3.4 ]; then
-    sudo apt-get install software-properties-common python-software-properties
-    sudo add-apt-repository ppa:fkrull/deadsnakes
+if ! [ -x /usr/bin/python3.4 ]; then
+    apt-get -qy python-software-properties
+    add-apt-repository ppa:fkrull/deadsnakes
     apt-get -q update
     apt-get -qy install python3.4 python3.4-dev
 fi

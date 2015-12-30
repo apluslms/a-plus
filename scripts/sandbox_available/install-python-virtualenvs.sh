@@ -16,6 +16,19 @@ VDIR=/usr/local/pyvirtualenvs
 mkdir -p $VDIR
 cd $VDIR
 
+if ! [ -x /usr/bin/virtualenv ]; then
+	if ! grep --quiet universe /etc/apt/sources.list
+	then
+		echo "deb http://archive.ubuntu.com/ubuntu precise universe restricted" >> /etc/apt/sources.list
+	fi
+	if ! grep --quiet precise-security /etc/apt/sources.list
+	then
+		echo "deb http://archive.ubuntu.com/ubuntu precise-security main universe restricted" >> /etc/apt/sources.list
+	fi
+	apt-get -q update
+	apt-get -qy python-virtualenv
+fi
+
 # Create virtual environments.
 for path in $(find /usr/local/sandbox -name \*-requirements.txt); do
 	file=${path##*/}
