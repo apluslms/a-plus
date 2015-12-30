@@ -26,7 +26,7 @@ if ! [ -x /usr/bin/virtualenv ]; then
 		echo "deb http://archive.ubuntu.com/ubuntu precise-security main universe restricted" >> /etc/apt/sources.list
 	fi
 	apt-get -q update
-	apt-get -qy python-virtualenv
+	apt-get -qy install python-virtualenv
 fi
 
 # Create virtual environments.
