@@ -2,8 +2,10 @@
 Utility functions for exercise HTTP responses.
 
 '''
-import requests
 import logging
+import requests
+import urllib
+
 from util.templates import template_to_str
 
 LOGGER = logging.getLogger('main')
@@ -82,3 +84,8 @@ def post_system_error(submission_url, course=None, exercise=None):
     '''
     post_result(submission_url, course, exercise,
         "access/task_system_error.html", { "error": True })
+
+
+def update_url_params(url, params):
+    delimiter = "&" if "?" in url else "?"
+    return url + delimiter + urllib.parse.urlencode(params)

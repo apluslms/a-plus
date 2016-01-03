@@ -1,10 +1,12 @@
-from django.utils.module_loading import import_by_path
 from django.core.exceptions import ImproperlyConfigured
-from access.config import ConfigError
-from util.files import clean_submission_dir
 import logging
 
+from access.config import ConfigError
+from util.files import clean_submission_dir
+from util.importer import import_named
+
 LOGGER = logging.getLogger('main')
+
 
 def runactions(course, exercise, submission_dir):
     '''
@@ -30,7 +32,7 @@ def runactions(course, exercise, submission_dir):
         for action in exercise["actions"]:
             exgrader = None
             try:
-                exgrader = import_by_path(action["type"])
+                exgrader = import_named(course, action["type"])
             except ImproperlyConfigured as e:
                 raise ConfigError("Invalid action \"type\" in exercise configuration.", e)
 

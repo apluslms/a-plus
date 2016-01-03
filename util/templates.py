@@ -55,6 +55,8 @@ def render_template(request, course, exercise, post_url, template, result=None):
     @rtype: C{django.http.response.HttpResponse}
     @return: a response
     '''
+    if template.startswith('./'):
+        template = course['key'] + template[1:]
     return render(request, template,
         _exercise_context(course, exercise, post_url, result))
 
@@ -76,6 +78,8 @@ def template_to_str(course, exercise, post_url, template, result=None):
     @rtype: C{str}
     @return: rendered template content
     '''
+    if template.startswith('./'):
+        template = course['key'] + template[1:]
     tpl = loader.get_template(template)
     return tpl.render(Context(
         _exercise_context(course, exercise, post_url, result)))

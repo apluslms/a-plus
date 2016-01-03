@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http.response import HttpResponse, JsonResponse, Http404, HttpResponseForbidden
 from django.utils import timezone
 from django.utils import translation
-from django.utils.module_loading import import_by_path
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -13,6 +12,7 @@ import json
 from access.config import ConfigParser, ConfigError
 from grader.tasks import queue_length as qlength
 from util.http import post_result
+from util.importer import import_named
 
 
 # Hold on to the latest configuration for several requests.
@@ -74,12 +74,8 @@ def exercise(request, course_key, exercise_key):
     translation.activate(lang)
 
     # Try to call the configured view.
-    exview = None
-    try:
-        exview = import_by_path(exercise["view_type"])
-    except ImproperlyConfigured as e:
-        raise ConfigError("Invalid \"view_type\" in exercise configuration.", e)
-    return exview(request, course, exercise, post_url)
+    return import_named(course, exercise['view_type'])(
+        request, course, exercise, post_url)
 
 
 def exercise_ajax(request, course_key, exercise_key):
@@ -87,15 +83,14 @@ def exercise_ajax(request, course_key, exercise_key):
     Receives an AJAX request for an exercise.
     '''
     (course, exercise) = config.exercise_entry(course_key, exercise_key)
-    if course is None or exercise is None:
+    if course is None or exercise is None or 'ajax_type' not in exercise:
         raise Http404()
     if not request.is_ajax():
         return HttpResponse('Method not allowed', status=405)
-    try:
-        exview = import_by_path(exercise['ajax_type'])
-    except ImproperlyConfigured as e:
-        raise ConfigError('Invalid "ajax_type" in exercise configuration.', e)
-    response = exview(request, course, exercise)
+
+    response = import_named(course, exercise['ajax_type'])(
+        request, course, exercise)
+
     # No need to control domain as valid submission_url is required to submit.
     response['Access-Control-Allow-Origin'] = '*'
     return response
@@ -162,12 +157,14 @@ def test_result(request):
     Accepts and displays a result from a test submission.
     '''
     file_path = os.path.join(settings.SUBMISSION_PATH, 'test-result')
+
     if request.method == 'POST':
         vals = request.POST.copy()
         vals['time'] = str(timezone.now())
         with open(file_path, 'w') as f:
             f.write(json.dumps(vals))
         return JsonResponse({ "success": True })
+
     result = None
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:

@@ -3,12 +3,12 @@ The exercises and classes are configured in json/yaml.
 Each directory inside exercises/ holding an index.json/yaml is a course.
 '''
 from django.conf import settings
-from django.utils.module_loading import import_by_path
 import os, time, json, yaml, re
 import logging
 import copy
 
 from util.dict import iterate_kvp_with_dfs, get_rst_as_html
+from util.importer import import_named
 
 
 DIR = os.path.join(settings.BASE_DIR, "exercises")
@@ -205,7 +205,7 @@ class ConfigParser:
         # Enable course configurable ecercise_loader function.
         exercise_loader = self._default_exercise_loader
         if "exercise_loader" in data:
-            exercise_loader = import_by_path(data["exercise_loader"])
+            exercise_loader = import_named(data, data["exercise_loader"])
 
         self._courses[course_key] = course_root = {
             "file": f,
