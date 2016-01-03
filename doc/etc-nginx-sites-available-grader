@@ -13,8 +13,17 @@ server {
     location /robots.txt {
         alias /srv/grader/mooc-grader/static/robots.txt;
     }
+    location /ajax {
+        uwsgi_pass django;
+        include uwsgi_params;
+    }
     location / {
-        uwsgi_pass  django;
-        include     uwsgi_params;
+
+        # If the static content is served public limit grading separately.
+        #allow 192.168.1.0/24;
+        #deny all;
+
+        uwsgi_pass django;
+        include uwsgi_params;
     }
 }

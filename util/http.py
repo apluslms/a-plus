@@ -53,6 +53,9 @@ def post_result(submission_url, course, exercise, template, result):
     if "error" in result and result["error"]:
         data["error"] = True
 
+    if "grading_data" in result:
+        data["grading_data"] = result["grading_data"]
+
     # Try to send send the result.
     try:
         r = requests.post(submission_url, data=data)

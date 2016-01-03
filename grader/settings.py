@@ -22,6 +22,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'y!*vae&k7l6#2^rjz#3_7@5v3!t^kvdvyhv1vdy*q_%dm%1p$q'
+AJAX_KEY = 't76q54Gv'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

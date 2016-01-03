@@ -1,15 +1,18 @@
 from django.shortcuts import render
-from django.http.response import HttpResponse, JsonResponse, Http404
+from django.http.response import HttpResponse, JsonResponse, Http404, HttpResponseForbidden
 from django.utils import timezone
 from django.utils import translation
 from django.utils.module_loading import import_by_path
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.conf import settings
+import copy
+import os
+import json
+
 from access.config import ConfigParser, ConfigError
 from grader.tasks import queue_length as qlength
-import os
-import copy
+from util.http import post_result
 
 
 # Hold on to the latest configuration for several requests.
@@ -19,11 +22,6 @@ config = ConfigParser()
 def index(request):
     '''
     Signals that the grader is ready and lists available courses.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
     '''
     courses = config.courses()
     if request.is_ajax():
@@ -37,13 +35,6 @@ def index(request):
 def course(request, course_key):
     '''
     Signals that the course is ready to be graded and lists available exercises.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @type course_key: C{str}
-    @param course_key: a key of the course
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
     '''
     (course, exercises) = config.exercises(course_key)
     if course is None:
@@ -65,15 +56,6 @@ def course(request, course_key):
 def exercise(request, course_key, exercise_key):
     '''
     Presents the exercise and accepts answers to it.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @type course_key: C{str}
-    @param course_key: a key of the course
-    @type exercise_key: C{str}
-    @param exercise_key: a key of the exercise
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
     '''
     post_url = request.GET.get('post_url', None)
     lang = request.GET.get('lang', None)
@@ -100,32 +82,28 @@ def exercise(request, course_key, exercise_key):
     return exview(request, course, exercise, post_url)
 
 
-def ajax_submit(request, course_key, exercise_key):
+def exercise_ajax(request, course_key, exercise_key):
     '''
-    Receives an AJAX submission for an exercise.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @type course_key: C{str}
-    @param course_key: a key of the course
-    @type exercise_key: C{str}
-    @param exercise_key: a key of the exercise
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
+    Receives an AJAX request for an exercise.
     '''
-    return HttpResponse("bla")
+    (course, exercise) = config.exercise_entry(course_key, exercise_key)
+    if course is None or exercise is None:
+        raise Http404()
+    if not request.is_ajax():
+        return HttpResponse('Method not allowed', status=405)
+    try:
+        exview = import_by_path(exercise['ajax_type'])
+    except ImproperlyConfigured as e:
+        raise ConfigError('Invalid "ajax_type" in exercise configuration.', e)
+    response = exview(request, course, exercise)
+    # No need to control domain as valid submission_url is required to submit.
+    response['Access-Control-Allow-Origin'] = '*'
+    return response
 
 
 def aplus_json(request, course_key):
     '''
     Delivers the configuration as JSON for A+.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @type course_key: C{str}
-    @param course_key: a key of the course
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
     '''
     course = config.course_entry(course_key)
     if course is None:
@@ -175,30 +153,19 @@ def aplus_json(request, course_key):
 def queue_length(request):
     '''
     Reports the current queue length.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
     '''
     return HttpResponse(qlength())
 
 
 def test_result(request):
     '''
-    Accepts a result from a test submission.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
+    Accepts and displays a result from a test submission.
     '''
     file_path = os.path.join(settings.SUBMISSION_PATH, 'test-result')
     if request.method == 'POST':
         vals = request.POST.copy()
         vals['time'] = str(timezone.now())
         with open(file_path, 'w') as f:
-            import json
             f.write(json.dumps(vals))
         return JsonResponse({ "success": True })
     result = None

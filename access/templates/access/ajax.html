@@ -1,0 +1,4 @@
+{% load i18n %}
+{% blocktrans with points=result.points max_points=result.max_points %}
+You got {{ points }}/{{ max_points }} for your answer.
+{% endblocktrans %}
