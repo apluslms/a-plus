@@ -213,7 +213,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         surl_missing = False
     else:
         LOGGER.warning("submission_url missing from a request")
-        surl = request.build_absolute_uri(reverse('access.views.null'))
+        surl = request.build_absolute_uri(reverse('access.views.test_result'))
         surl_missing = True
 
     # Queue grader.

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http.response import HttpResponse, JsonResponse, Http404
+from django.utils import timezone
 from django.utils import translation
 from django.utils.module_loading import import_by_path
 from django.core.exceptions import ImproperlyConfigured
@@ -8,11 +9,8 @@ from django.conf import settings
 from access.config import ConfigParser, ConfigError
 from grader.tasks import queue_length as qlength
 import os
-import logging
 import copy
 
-
-LOGGER = logging.getLogger('main')
 
 # Hold on to the latest configuration for several requests.
 config = ConfigParser()
@@ -102,6 +100,22 @@ def exercise(request, course_key, exercise_key):
     return exview(request, course, exercise, post_url)
 
 
+def ajax_submit(request, course_key, exercise_key):
+    '''
+    Receives an AJAX submission for an exercise.
+
+    @type request: C{django.http.request.HttpRequest}
+    @param request: a request to handle
+    @type course_key: C{str}
+    @param course_key: a key of the course
+    @type exercise_key: C{str}
+    @param exercise_key: a key of the exercise
+    @rtype: C{django.http.response.HttpResponse}
+    @return: a response
+    '''
+    return HttpResponse("bla")
+
+
 def aplus_json(request, course_key):
     '''
     Delivers the configuration as JSON for A+.
@@ -158,43 +172,6 @@ def aplus_json(request, course_key):
     return JsonResponse(data)
 
 
-def pull_request(request):
-    '''
-    Records a pull request to update course exercises from version repository.
-    TODO: Refactor into a specific app.
-
-    @type request: C{django.http.request.HttpRequest}
-    @param request: a request to handle
-    @rtype: C{django.http.response.HttpResponse}
-    @return: a response
-    '''
-    courses = config.courses()
-    status = {}
-
-    if "key" in request.GET:
-        course = config.course_entry(request.GET["key"])
-        if course:
-            import tempfile
-            flagdir = os.path.join(tempfile.gettempdir(), "mooc-grader")
-            if not os.path.exists(flagdir):
-                os.makedirs(flagdir)
-                os.chmod(flagdir, 0o777)
-            filename = os.path.join(flagdir, "gitpull.flag")
-            with open(filename, "a") as f:
-                f.write("%s\n" % (course["key"]))
-            status["updated"] = True
-        else:
-            status["not_found"] = True
-    log = ""
-    filename = os.path.join(settings.BASE_DIR, "gitpull.log")
-    if os.path.exists(filename):
-        with open(filename, "r") as f:
-            log = f.read()
-
-    return render(request, 'access/pull_request.html', {
-        "courses": courses, "status": status, "log": log })
-
-
 def queue_length(request):
     '''
     Reports the current queue length.
@@ -207,18 +184,28 @@ def queue_length(request):
     return HttpResponse(qlength())
 
 
-def null(request):
+def test_result(request):
     '''
-    Accepts any request and does nothing.
+    Accepts a result from a test submission.
 
     @type request: C{django.http.request.HttpRequest}
     @param request: a request to handle
     @rtype: C{django.http.response.HttpResponse}
     @return: a response
     '''
-    if "error" in request.POST:
-        LOGGER.warning("Received error result.")
-    return JsonResponse({ "success": True })
+    file_path = os.path.join(settings.SUBMISSION_PATH, 'test-result')
+    if request.method == 'POST':
+        vals = request.POST.copy()
+        vals['time'] = str(timezone.now())
+        with open(file_path, 'w') as f:
+            import json
+            f.write(json.dumps(vals))
+        return JsonResponse({ "success": True })
+    result = None
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            result = f.read()
+    return HttpResponse(result or 'No test result received yet.')
 
 
 def _filter_fields(dict_list, pick_fields):
