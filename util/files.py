@@ -19,9 +19,10 @@ def create_submission_dir(course, exercise):
     '''
 
     # Create a unique directory name for the submission.
-    r = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-    r.join([random.choice(string.ascii_letters) for _ in range(10)])
-    submission_dir = os.path.join(settings.SUBMISSION_PATH, course["key"], exercise["key"], r)
+    d = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+    d += ''.join([random.choice(string.ascii_letters) for _ in range(5)])
+    submission_dir = os.path.join(settings.SUBMISSION_PATH,
+        course["key"], exercise["key"], d)
 
     # Create empty directory.
     if not os.path.exists(submission_dir):
