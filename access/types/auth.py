@@ -23,5 +23,6 @@ def make_hash(secret, user):
     Creates a hash key for a user.
     '''
     if user is not None:
-        return md5(secret + user).hexdigest()
+        coded = secret + user
+        return md5(coded.encode('ascii', 'ignore')).hexdigest()
     return None

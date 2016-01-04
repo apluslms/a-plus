@@ -14,8 +14,9 @@ Functions take arguments:
 
 '''
 from django.conf import settings
-from django.http.response import HttpResponse, HttpResponseForbidden
+from django.http.response import HttpResponse, HttpResponseForbidden, JsonResponse
 
+from util.http import post_result
 from .auth import make_hash
 
 
@@ -27,18 +28,14 @@ def storeSubmission(request, course, exercise):
     url = request.POST.get('submission_url')
     answer = request.POST.get('answer')
     points = request.POST.get('points')
-    if 'max_points' in exercise:
-        max_points = exercise.get('max_points')
-        i = [url, answer, points]
-    else:
-        max_points = request.POST.get('max_points')
-        i = [url, answer, points, max_points]
+    max_points = request.POST.get('max_points')
+    parts = [url, answer, points, max_points]
 
     if not url or not answer or not points or not max_points:
         return HttpResponse('Missing parameters', status=422)
 
     ajax_key = exercise.get('ajax_key') or settings.AJAX_KEY
-    if checksum != make_hash(ajax_key, ':'.join(i)):
+    if checksum != make_hash(ajax_key, ':'.join(parts)):
         return HttpResponseForbidden()
 
     template = exercise.get('feedback_template') or 'access/ajax.html'
