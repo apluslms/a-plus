@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 		// Create command line array.
 		char *cmd = argv[argp + 6];
 		int argn = argp + 7;
-		char *arg[argc - argn];
+		char *arg[argc - argn + 2];
 		arg[0] = cmd;
 		int p = 1;
 		while (argn < argc)
