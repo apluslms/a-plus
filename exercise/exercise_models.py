@@ -16,8 +16,9 @@ from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
+from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
-from lib.helpers import update_url_params, safe_file_name, roman_numeral
+from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
@@ -367,6 +368,30 @@ class BaseExercise(LearningObject):
                 str(self.get_url(url_name))),
         }
         return update_url_params(self.service_url, params)
+
+
+class LTIExercise(BaseExercise):
+    """
+    Exercises that add LTI user information for use by the exercise service.
+    """
+    lti_service = models.ForeignKey(LTIService)
+
+    def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        """
+        super().clean()
+        if not has_same_domain(self.service_url, self.lti_service.url):
+            raise ValidationError({
+                'service_url':_("Exercise must be located in the LTI domain.")
+            })
+
+    def modify_post_parameters(self, data, files):
+        """
+        Adds the LTI user information.
+        """
+        #TODO add LTI parameters to data
+        pass
 
 
 class StaticExercise(BaseExercise):
