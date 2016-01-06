@@ -16,6 +16,7 @@ from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
+from external_services.lti import LTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
 from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
@@ -350,7 +351,7 @@ class BaseExercise(LearningObject):
         return load_feedback_page(request, url, self, submission,
             no_penalties=no_penalties)
 
-    def modify_post_parameters(self, data, files):
+    def modify_post_parameters(self, data, files, user, host, url):
         """
         Allows to modify submission POST parameters before they are sent to
         the grader. Extending classes may implement this function.
@@ -386,12 +387,21 @@ class LTIExercise(BaseExercise):
                 'service_url':_("Exercise must be located in the LTI domain.")
             })
 
-    def modify_post_parameters(self, data, files):
-        """
-        Adds the LTI user information.
-        """
-        #TODO add LTI parameters to data
-        pass
+    def _get_lti(self, user, host, add={}):
+        return LTIRequest(self.lti_service, user, self.course_instance,
+            host, "aplusexercise%d" % (self.id or 0), self.name, add=add)
+
+    def get_load_url(self, request, students, url_name="exercise"):
+        url = super().get_load_url(request, students, url_name=url_name)
+        if self.lti_service:
+            lti = self._get_lti(students[0].user, request.get_host())
+            return lti.sign_get_query(url)
+        return url
+
+    def modify_post_parameters(self, data, files, user, host, url):
+        literals = {key: str(val[0]) for key,val in data.items()}
+        lti = self._get_lti(user, host, add=literals)
+        data.update(lti.sign_post_parameters(url))
 
 
 class StaticExercise(BaseExercise):
@@ -470,7 +480,7 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
-    def modify_post_parameters(self, data, files):
+    def modify_post_parameters(self, data, files, user, host, url):
         """
         Adds the attachment file to post parameters.
         """

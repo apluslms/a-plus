@@ -109,7 +109,7 @@ class Submission(models.Model):
                 userfile.param_name = key
                 self.files.add(userfile)
 
-    def get_post_parameters(self):
+    def get_post_parameters(self, request, url):
         """
         Produces submission data for POST as (data_dict, files_dict).
         """
@@ -128,7 +128,12 @@ class Submission(models.Model):
                 open(file.file_object.path, "rb")
             )
 
-        self.exercise.as_leaf_class().modify_post_parameters(self._data, self._files)
+        if self.is_submitter(request.user):
+            user = request.user
+        else:
+            user = self.submitters.first().user
+        self.exercise.as_leaf_class().modify_post_parameters(
+            self._data, self._files, user, request.get_host(), url)
         return (self._data, self._files)
 
     def clean_post_parameters(self):
