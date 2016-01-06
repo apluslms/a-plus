@@ -108,19 +108,21 @@ class CourseInstance(models.Model):
     language = models.CharField(max_length=5, default="en")
     description = models.TextField(blank=True)
     footer = models.TextField(blank=True)
-    INDEX_OPTIONS = (
+    index_mode = models.IntegerField(choices=(
         (0, _('User results')),
         (1, _('Table of contents')),
-    )
-    index_mode = models.IntegerField(choices=INDEX_OPTIONS, default=0,
-        help_text=_('Select content for the course index page.'))
-    NUMBERING_CHOICES = (
+    ), default=0, help_text=_('Select content for the course index page.'))
+    module_numbering = models.IntegerField(choices=(
         (0, _("No numbering")),
         (1, _("Arabic")),
         (2, _("Roman")),
-    )
-    module_numbering = models.IntegerField(choices=NUMBERING_CHOICES, default=1)
-    content_numbering = models.IntegerField(choices=NUMBERING_CHOICES, default=1)
+        (3, _("Hidden arabic")),
+    ), default=1)
+    content_numbering = models.IntegerField(choices=(
+        (0, _("No numbering")),
+        (1, _("Arabic")),
+        (2, _("Roman")),
+    ), default=1)
     configure_url = models.URLField(blank=True)
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
