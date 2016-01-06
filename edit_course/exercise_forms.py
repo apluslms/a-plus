@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
 from exercise.models import LearningObject, CourseChapter, BaseExercise, \
-    StaticExercise, ExerciseWithAttachment
+    LTIExercise, StaticExercise, ExerciseWithAttachment
 from .course_forms import FieldsetModelForm
 
 
@@ -76,7 +76,6 @@ class CourseChapterForm(LearningObjectMixin, FieldsetModelForm):
         ]
 
 
-
 class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
 
     class Meta:
@@ -96,6 +95,18 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
             { 'legend':_('Groups'), 'fields':self.get_fields('min_group_size',
                 'max_group_size') },
         ]
+
+
+class LTIExerciseForm(BaseExerciseForm):
+
+    class Meta:
+        model = LTIExercise
+        fields = COMMON_FIELDS + SERVICE_FIELDS + EXERCISE_FIELDS + [
+            'lti_service',
+        ]
+
+    def get_content_fieldset(self):
+        return super().get_content_fieldset('lti_service')
 
 
 class ExerciseWithAttachmentForm(BaseExerciseForm):
