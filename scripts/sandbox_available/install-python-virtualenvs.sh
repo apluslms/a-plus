@@ -12,6 +12,8 @@
 #
 VDIR=/usr/local/pyvirtualenvs
 
+pip install virtualenv
+
 # Check directory to store virtual environments.
 mkdir -p $VDIR
 cd $VDIR
