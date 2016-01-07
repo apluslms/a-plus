@@ -8,3 +8,5 @@ if ! [ -x /usr/bin/python3.4 ]; then
     apt-get -q update
     apt-get -qy install python3.4 python3.4-dev
 fi
+python3.4 -m ensurepip
+python3.4 -m pip install virtualenv
