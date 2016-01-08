@@ -52,6 +52,12 @@ def update_url_params(url, params):
     return url + delimiter + urllib.parse.urlencode(params)
 
 
+def has_same_domain(url1, url2):
+    uri1 = urllib.parse.urlparse(url1)
+    uri2 = urllib.parse.urlparse(url2)
+    return uri1.netloc == uri2.netloc
+
+
 FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-"
 
 def safe_file_name(name):

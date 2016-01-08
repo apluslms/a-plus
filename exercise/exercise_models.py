@@ -16,8 +16,10 @@ from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
+from external_services.lti import LTIRequest
+from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
-from lib.helpers import update_url_params, safe_file_name, roman_numeral
+from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
@@ -88,7 +90,7 @@ class LearningObject(ModelWithInheritance):
     def __str__(self):
         if self.course_instance.content_numbering == 1:
             number = self.number()
-            if self.course_instance.module_numbering == 1:
+            if self.course_instance.module_numbering in [1,3]:
                 return "{:d}{} {}".format(self.course_module.order,
                     number, self.name)
             return "{} {}".format(number[1:], self.name)
@@ -349,7 +351,7 @@ class BaseExercise(LearningObject):
         return load_feedback_page(request, url, self, submission,
             no_penalties=no_penalties)
 
-    def modify_post_parameters(self, data, files):
+    def modify_post_parameters(self, data, files, user, host, url):
         """
         Allows to modify submission POST parameters before they are sent to
         the grader. Extending classes may implement this function.
@@ -367,6 +369,39 @@ class BaseExercise(LearningObject):
                 str(self.get_url(url_name))),
         }
         return update_url_params(self.service_url, params)
+
+
+class LTIExercise(BaseExercise):
+    """
+    Exercises that add LTI user information for use by the exercise service.
+    """
+    lti_service = models.ForeignKey(LTIService)
+
+    def clean(self):
+        """
+        Validates the model before saving (standard method used in Django admin).
+        """
+        super().clean()
+        if not has_same_domain(self.service_url, self.lti_service.url):
+            raise ValidationError({
+                'service_url':_("Exercise must be located in the LTI domain.")
+            })
+
+    def _get_lti(self, user, host, add={}):
+        return LTIRequest(self.lti_service, user, self.course_instance,
+            host, "aplusexercise%d" % (self.id or 0), self.name, add=add)
+
+    def get_load_url(self, request, students, url_name="exercise"):
+        url = super().get_load_url(request, students, url_name=url_name)
+        if self.lti_service:
+            lti = self._get_lti(students[0].user, request.get_host())
+            return lti.sign_get_query(url)
+        return url
+
+    def modify_post_parameters(self, data, files, user, host, url):
+        literals = {key: str(val[0]) for key,val in data.items()}
+        lti = self._get_lti(user, host, add=literals)
+        data.update(lti.sign_post_parameters(url))
 
 
 class StaticExercise(BaseExercise):
@@ -445,7 +480,7 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
-    def modify_post_parameters(self, data, files):
+    def modify_post_parameters(self, data, files, user, host, url):
         """
         Adds the attachment file to post parameters.
         """

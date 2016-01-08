@@ -2,10 +2,10 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from exercise.models import LearningObject, CourseChapter, \
-    BaseExercise, StaticExercise, ExerciseWithAttachment
+    BaseExercise, LTIExercise, StaticExercise, ExerciseWithAttachment
 from course.models import LearningObjectCategory, CourseModule
 from .exercise_forms import CourseChapterForm, BaseExerciseForm, \
-    ExerciseWithAttachmentForm, StaticExerciseForm
+    LTIExerciseForm, ExerciseWithAttachmentForm, StaticExerciseForm
 from .course_forms import LearningObjectCategoryForm, CourseModuleForm
 
 
@@ -68,6 +68,7 @@ class ExerciseManager(ModelManager):
     def new_object(self, instance, parent_id, type):
         CLASSES = {
             None: BaseExercise,
+            "lti": LTIExercise,
             "chapter": CourseChapter,
             "static": StaticExercise,
             "attachment": ExerciseWithAttachment,
@@ -94,6 +95,7 @@ class ExerciseManager(ModelManager):
         FORMS = {
             CourseChapter: CourseChapterForm,
             BaseExercise: BaseExerciseForm,
+            LTIExercise: LTIExerciseForm,
             StaticExercise: StaticExerciseForm,
             ExerciseWithAttachment: ExerciseWithAttachmentForm,
         }

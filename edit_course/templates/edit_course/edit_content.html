@@ -135,6 +135,10 @@
                                 <div><strong>{% trans "Exercise" %}</strong></div>
                                 {% trans "A remote exercise page loaded in for posting submissions" %}
                               </a>
+                              <a href="{{ module|createurl:'exercise,lti' }}" class="list-group-item">
+                                <div><strong>{% trans "LTI Exercise" %}</strong></div>
+                                {% trans "A remote exercise page loaded in for posting submissions including signed LTI course and student information" %}
+                              </a>
                               <a href="{{ module|createurl:'exercise,attachment' }}" class="list-group-item">
                                 <div><strong>{% trans "Exercise with attachment" %}</strong></div>
                                 {% trans "A local page accepting files and initiating remote grading with teacher provided grading attachment" %}
