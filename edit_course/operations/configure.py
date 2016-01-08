@@ -73,9 +73,9 @@ def configure_learning_objects(category_map, module, config, parent,
         if not "key" in o:
             errors.append(_("Learning object requires a key."))
             continue
-        if not "url" in o:
-            errors.append(_("Learning object requires an url."))
-            continue
+        #if not "url" in o:
+        #    errors.append(_("Learning object requires an url."))
+        #    continue
         if not "category" in o:
             errors.append(_("Learning object requires a category."))
             continue
@@ -87,12 +87,11 @@ def configure_learning_objects(category_map, module, config, parent,
         if "points_to_pass" in o:
             lobject = BaseExercise.objects.filter(
                 course_module__course_instance=module.course_instance,
-                service_url=str(o["url"])).first()
+                url=str(o["key"])).first()
             if lobject:
                 lobject.course_module = module
             else:
-                lobject = BaseExercise(course_module=module,
-                    service_url=str(o["url"]))
+                lobject = BaseExercise(course_module=module, url=str(o["key"]))
             if "allow_assistant_grading" in o:
                 lobject.allow_assistant_grading = parse_bool(
                     o["allow_assistant_grading"])
@@ -105,20 +104,20 @@ def configure_learning_objects(category_map, module, config, parent,
         else:
             lobject = CourseChapter.objects.filter(
                 course_module__course_instance=module.course_instance,
-                service_url=str(o["url"])).first()
+                url=str(o["key"])).first()
             if lobject:
                 lobject.course_module=module
             else:
-                lobject = CourseChapter(course_module=module,
-                    service_url=str(o["url"]))
+                lobject = CourseChapter(course_module=module, url=str(o["key"]))
             if "generate_table_of_contents" in o:
                 lobject.generate_table_of_contents = parse_bool(
                     o["generate_table_of_contents"])
 
         lobject.category = category_map[o["category"]]
         lobject.parent = parent
-        lobject.url = str(o["key"])
         lobject.order = n
+        if "url" in o:
+            lobject.service_url = str(o["url"])
         if "status" in o:
             lobject.status = str(o["status"])[:32]
         if "title" in o:
