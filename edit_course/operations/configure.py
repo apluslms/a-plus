@@ -29,7 +29,11 @@ def parse_duration(begin, value, errors):
                     begin.day, begin.hour, begin.minute, begin.second),
                     timezone.get_current_timezone())
             if value[-1] == 'm':
-                return timezone.make_aware(datetime(begin.year, begin.month + i,
+                yi = 0
+                while begin.month + i > 12:
+                    yi += 1
+                    i = begin.month + i - 12
+                return timezone.make_aware(datetime(begin.year + yi, begin.month + i,
                     begin.day, begin.hour, begin.minute, begin.second),
                     timezone.get_current_timezone())
             if value[-1] == 'd':
