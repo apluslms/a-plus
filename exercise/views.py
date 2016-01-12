@@ -48,6 +48,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def get(self, request, *args, **kwargs):
         self.handle()
+        print('get', self.exercise)
         students = self.get_students()
         if self.exercise.is_submittable():
             self.submission_check(students)
@@ -64,11 +65,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
                                  'under maintenance.')
                 return self.response(page=page, students=students)
 
-        if not self.exercise.service_url:
-            page = ExercisePage(self.exercise)
-            return self.response(page=page, students=students)
-
-        page = self.exercise.load(request, students,
+        page = self.exercise.as_leaf_class().load(request, students,
             url_name=self.post_url_name)
         return self.response(page=page, students=students)
 

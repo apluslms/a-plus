@@ -160,6 +160,8 @@ class LearningObject(ModelWithInheritance):
         """
         Loads the learning object page.
         """
+        if not self.exercise.service_url:
+            return ExercisePage(self.exercise)
         if self.id and self.content \
                 and self.course_instance.ending_time < timezone.now():
             page = ExercisePage(self)
