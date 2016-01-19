@@ -23,6 +23,13 @@ Installing for development
 
 1. ### Clone the software
 
+	General requirements
+
+		sudo apt-get install git libjpeg-dev
+		sudo apt-get install libxml2-dev libxslt-dev zlib1g-dev
+
+	Install software
+
 		git clone https://github.com/Aalto-LeTech/mooc-grader.git
 		mkdir mooc-grader/uploads
 
@@ -40,10 +47,11 @@ Installing for development
 		make
 		sudo make install
 
-	Then, create virtual environment with grader requirements.
+	Make sure pip and virtualenv are installed.
 
-    sudo apt-get install git libxml2-dev libxslt-dev zlib1g-dev
 		sudo pip3 install virtualenv
+
+	Then, create virtual environment with grader requirements.
 
 		virtualenv -p python3 venv
 		source venv/bin/activate
