@@ -1,3 +1,4 @@
+from django.conf import settings
 from random import choice
 from PIL import Image
 import string
@@ -82,3 +83,11 @@ def roman_numeral(number):
             roman += letters[i]
             number -= numbers[i]
     return roman
+
+
+def settings_text(request, key):
+    def get(name):
+        if hasattr(settings, name):
+            return getattr(settings, name)
+        return None
+    return get('{}_{}'.format(key, request.LANGUAGE_CODE.upper())) or get(key)

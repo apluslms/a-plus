@@ -54,6 +54,13 @@ class UserProfile(models.Model):
         except:
             return self.user.username
 
+    @property
+    def is_mooc(self):
+        """
+        Is this a mooc account rather than from school shibboleth login.
+        """
+        return self.user.social_auth.exists()
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     """
