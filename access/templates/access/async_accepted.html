@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block exercise %}
-{% if result.points %}
+{% if result.synchronous %}
 <div class="alert alert-danger">
 	{% blocktrans %}
 	The grading queue is not configured. This submission was graded
@@ -18,8 +18,10 @@
 
 {% if result.missing_url %}
 <div class="alert alert-danger">
-	{% blocktrans with key="<code>submission_url</code>" %}
-	Missing the {{ key }} for result delivery! Grading and logging results.
+  {% url 'access.views.test_result' as surl %}
+	{% blocktrans with key="submission_url" url=surl %}
+	Missing the <code>{{ key }}</code> for result delivery!
+  The result can be temporarily seen at <a href="{{ url }}">{{ url }}</a>.
 	{% endblocktrans %}
 </div>
 {% endif %}

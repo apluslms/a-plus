@@ -202,6 +202,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         html = template_to_str(course, exercise, "", r["template"], r["result"])
         return render_template(request, course, exercise, post_url,
             "access/async_accepted.html", {
+                "synchronous": True,
                 "accepted": True,
                 "max_points": r["result"].get("max_points", 1),
                 "points": r["result"].get("points", 0),
