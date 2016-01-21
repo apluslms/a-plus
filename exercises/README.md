@@ -4,21 +4,60 @@ Course and exercise configuration
 ## Configuration files
 
 Configuration is written as JSON or YAML in exercises-directory. Each subdirectory
-holding an `index.json` or `index.yaml` is a valid active course. It is recommended
-that each course is checkout as a submodule in the exercises-directory.
+holding an `index.json` or `index.yaml` is a valid active course.
 
-	git submodule add (course_repository_url) exercises/(course_key)
-
-The submodules will not be stored in the mooc-grader repository.
+Dates will be parsed as '%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S',
+'%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d %H' or '%Y-%m-%d'.
+Durations are given in (int)(unit), where units are y, m, d, h or w.
 
 1. ### course_key/index.[json|yaml]
 	* The directory name acts as a course key, which is used in
 		* URLs: `/course_key`
 	* `name`: A public complete course name
-	* `contact`: A private contact email for course configuration
 	* `description` (optional): A private course description
-	* `lang` (optional): The default language.
-	* `exercises`: a list of active exercise keys
+	* `lang` (optional/a+): The default language.
+	* `contact`: (optional/a+) A private contact email for course configuration
+	* `assistants`: (optional/a+) A list of assistant student ids
+	* `start`: (optional/a+) The course instance start date
+	* `end`: (optional/a+) The course instance end/archive date
+	* `static_dir`: (optional) This subdirectory will be linked to URL /static/course_key
+	* `exercises`: (deprecated, see modules) A list of active exercise keys
+	* `modules`: a list of
+		* `key`: part of the url
+		* `name`,`title`: (optional/a+) The name of the course module
+		* `status`: (optional/a+) ready/hidden/maintenance
+		* `points_to_pass`: (optional/a+) limit to get passed marks
+		* `introduction`: (optional/a+) introduction
+		* `open`: (optional/a+) first access date
+		* `close`: (optional/a+) deadline date
+		* `duration`: (optional/a+) deadline in duration from open
+		* `late_close`: (optional/a+) late deadline date
+		* `late_duration`: (optional/a+) late deadline in duration from first deadline
+		* `late_penalty`: (optional/a+) factor of points worth for late submission
+		* `type`: (optional/a+) a key name in 'module_types'
+		* `children`: a list of
+			* `key`: part of the url
+			* `config`: a path to exercise configuration OR
+			* `static_content`: a path inside static directory
+			* `category`: a key name in 'categories'
+			* `name`,`title`: (optional/a+) The name of the learning object
+			* `status`: (optional/a+) ready/unlisted/hidden/maintenance
+			* `max_submissions`: (optional/a+)
+			* `max_points`: (optional/a+)
+			* `points_to_pass`: (optional/a+) limit to get passed marks
+			* `min_group_size`: (optional/a+)
+			* `max_group_size`: (optional/a+)
+			* `allow_assistant_grading`: (optional/a+) true or false
+			* `use_wide_column`: (optional/a+) true to loose third column
+			* `generate_table_of_contents`: (optional/a+) show index of children
+			* `type`: (optional/a+) a key name in 'exercise_types'
+			* `children`: list recursion
+	* `categories`: a list of
+		* `name`: (optional/a+)
+		* `status`: (optional/a+) ready/hidden
+		* `points_to_pass`: (optional/a+) limit to get passed marks
+	* `module_types`,`exercise_types`: keyed maps of default values
+	* `numerate_ignoring_modules`: (optional/a+) true to numerate I:1...n, II:n+1...m
 
 2. ### course_key/exercise_key.[json|yaml]
 	* The file name acts as an exercise key, which is used in
