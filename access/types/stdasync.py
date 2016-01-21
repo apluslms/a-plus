@@ -36,6 +36,38 @@ from ..config import ConfigError
 LOGGER = logging.getLogger('main')
 
 
+def acceptPost(request, course, exercise, post_url):
+    '''
+    Presents a template and accepts post value for grading queue.
+    '''
+    _requireActions(exercise)
+    result = None
+
+    if request.method == "POST":
+        fields = exercise.get("fields", [])
+        values = {}
+        missing = []
+
+        # Parse submitted values.
+        for entry in fields:
+            value = request.POST.get(entry["name"], "").strip()
+            values[entry["name"]] = value
+            if "required" in entry and entry["required"] and not value:
+                missing.append(name)
+        if missing:
+            result = { "error": True, "missing": missing, "values": values }
+
+        # Store submitted values.
+        if result is None:
+            sdir = create_submission_dir(course, exercise)
+            for entry in fields:
+                write_submission_file(sdir, entry["name"], values[entry["name"]])
+            return _acceptSubmission(request, course, exercise, post_url, sdir)
+
+    return render_configured_template(request, course, exercise, post_url,
+        'access/accept_post_default.html', result)
+
+
 def acceptFiles(request, course, exercise, post_url):
     '''
     Presents a template and accepts files for grading queue.
