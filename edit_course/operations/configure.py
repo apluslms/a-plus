@@ -88,7 +88,7 @@ def configure_learning_objects(category_map, module, config, parent,
             continue
 
         # Select exercise class.
-        if "points_to_pass" in o:
+        if "max_submissions" in o:
             lobject = BaseExercise.objects.filter(
                 course_module__course_instance=module.course_instance,
                 url=str(o["key"])).first()
