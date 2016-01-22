@@ -59,7 +59,7 @@ class UserProfile(models.Model):
         """
         Is this an external rather than internal account.
         """
-        return self.user.social_auth.exists()
+        return hasattr(self.user, 'social_auth') and self.user.social_auth.exists()
 
 
 def create_user_profile(sender, instance, created, **kwargs):
