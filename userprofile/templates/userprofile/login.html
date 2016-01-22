@@ -75,10 +75,10 @@
                     {% csrf_token %}
                     {#{ form|bootstrap }#}
                     <div class="form-group">
-                        <input class="form-control" type="text" name="username" maxlength="254" placeholder="{% trans 'Username' %}">
+                        <input class="form-control" type="text" id="id_username" name="username" maxlength="254" placeholder="{% trans 'Username' %}">
                     </div>
                     <div class="form-group">
-                        <input class="form-control" type="text" name="password" placeholder="{% trans 'Password' %}">
+                        <input class="form-control" type="text" id="id_password" name="password" placeholder="{% trans 'Password' %}">
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-default btn-block">{{ login_button_text|safe }}</button>
