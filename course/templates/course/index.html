@@ -5,9 +5,11 @@
 
 {% block content %}
 
+{% if welcome_text %}
 <div class="page-header">
     <h1>{{ welcome_text|safe }}</h1>
 </div>
+{% endif %}
 
 <div class="row">
     {% for instance in instances %}
