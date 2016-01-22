@@ -1,0 +1,1749 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-01-22 13:38+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/models.py:29
+msgid "object ID"
+msgstr ""
+
+#: apps/models.py:41
+msgid "Label is the word displayed on the tab."
+msgstr ""
+
+#: apps/models.py:43
+msgid "Title is displayed on the top of the tab page."
+msgstr ""
+
+#: apps/models.py:50
+msgid "No content for this tab..."
+msgstr ""
+
+#: apps/models.py:119
+msgid "Base plug-in does not have a render-method."
+msgstr ""
+
+#: course/admin.py:15
+msgid "URL"
+msgstr ""
+
+#: course/models.py:36
+msgid "Input an URL identifier for this course."
+msgstr ""
+
+#: course/models.py:51 course/models.py:313 exercise/exercise_models.py:87
+msgid "Taken words include: {}"
+msgstr ""
+
+#: course/models.py:103
+msgid "Input an URL identifier for this course instance."
+msgstr ""
+
+#: course/models.py:106
+msgid "Public to internet"
+msgstr ""
+
+#: course/models.py:107 course/models.py:112
+msgid "Internal and external users"
+msgstr ""
+
+#: course/models.py:108 course/models.py:113
+msgid "Only external users"
+msgstr ""
+
+#: course/models.py:109 course/models.py:114
+msgid "Only internal users"
+msgstr ""
+
+#: course/models.py:123
+msgid "User results"
+msgstr ""
+
+#: course/models.py:124
+msgid "Table of contents"
+msgstr ""
+
+#: course/models.py:125
+msgid "Select content for the course index page."
+msgstr ""
+
+#: course/models.py:127 course/models.py:133
+msgid "No numbering"
+msgstr ""
+
+#: course/models.py:128 course/models.py:134
+msgid "Arabic"
+msgstr ""
+
+#: course/models.py:129 course/models.py:135
+msgid "Roman"
+msgstr ""
+
+#: course/models.py:130
+msgid "Hidden arabic"
+msgstr ""
+
+#: course/models.py:141
+msgid ""
+"By default exercise errors are reported to teacher email addresses. Set this "
+"field as comma separated emails to override the recipients."
+msgstr ""
+
+#: course/models.py:162
+msgid "Ending time must be later than starting time."
+msgstr ""
+
+#: course/models.py:175
+msgid "You need to login to submit exercises to this course."
+msgstr ""
+
+#: course/models.py:178
+msgid ""
+"You need to login as external student to submit exercises to this course."
+msgstr ""
+
+#: course/models.py:181
+msgid ""
+"You need to login as internal student to submit exercises to this course."
+msgstr ""
+
+#: course/models.py:268 course/models.py:383 exercise/exercise_models.py:38
+#: exercise/submission_models.py:54
+msgid "Ready"
+msgstr ""
+
+#: course/models.py:269 course/models.py:384 templates/base.html:70
+msgid "Hidden"
+msgstr ""
+
+#: course/models.py:270 exercise/exercise_models.py:41
+msgid "Maintenance"
+msgstr ""
+
+#: course/models.py:278
+msgid "Input an URL identifier for this module."
+msgstr ""
+
+#: course/models.py:293
+msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:6
+#: edit_course/templates/edit_course/edit_course_base.html:26
+msgid "Course"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:16
+#: exercise/templates/exercise/results.html:12
+msgid "Exercise results"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:22
+#: notification/templates/notification/notifications.html:6
+#: notification/templates/notification/notifications.html:11
+#: notification/templates/notification/notifications.html:22
+msgid "Notifications"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:25
+#: notification/templates/notification/notifications.html:20
+#, python-format
+msgid "%(count)s unread"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:32
+msgid "External"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:44
+msgid "Apps"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:56
+#: exercise/templates/exercise/_user_results.html:80
+#: exercise/templates/exercise/submission_plain.html:42
+msgid "Course staff"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:60
+#: exercise/templates/exercise/staff/results.html:5
+#: exercise/templates/exercise/staff/results.html:10
+msgid "All results"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:67
+#: edit_course/templates/edit_course/edit_content.html:8
+#: edit_course/templates/edit_course/edit_course_base.html:5
+#: edit_course/templates/edit_course/edit_course_base.html:11
+msgid "Edit course"
+msgstr ""
+
+#: course/templates/course/_module_toc.html:6
+#: exercise/templates/exercise/_user_results.html:65
+msgid "Unfortunately this module is currently under maintenance."
+msgstr ""
+
+#: course/templates/course/_module_toc.html:29
+#: course/templates/course/_siblings.html:16
+#: course/templates/course/toc.html:28
+#: exercise/templates/exercise/_user_results.html:102
+msgid "Early access"
+msgstr ""
+
+#: course/templates/course/archive.html:5
+#: course/templates/course/archive.html:13 templates/base.html:82
+#: templates/base.html.py:127
+msgid "Course archive"
+msgstr ""
+
+#: course/templates/course/archive.html:21
+msgid ""
+"\n"
+"            <strong>Note:</strong>\n"
+"            To demonstrate functionality of the system,\n"
+"            the list of courses and course instances is fetched\n"
+"            from the API. And built using JavaScript.\n"
+"            "
+msgstr ""
+
+#: course/templates/course/course.html:11
+#, python-format
+msgid ""
+"\n"
+"        Active instances of %(code)s %(name)s\n"
+"        "
+msgstr ""
+
+#: course/templates/course/course.html:29
+#: course/templates/course/index.html:56
+#, python-format
+msgid ""
+"\n"
+"    Old courses can be found at the <a href=\"%(url)s\">course archive</a>.\n"
+"    "
+msgstr ""
+
+#: course/templates/course/course_base.html:17
+msgid "Calendar"
+msgstr ""
+
+#: course/templates/course/course_base.html:21
+msgid "Download calendar (ics)"
+msgstr ""
+
+#: course/templates/course/index.html:35
+msgid "Hidden from students"
+msgstr ""
+
+#: course/templates/course/index.html:44
+msgid "View course"
+msgstr ""
+
+#: course/templates/course/module.html:27
+#, python-format
+msgid ""
+"\n"
+"                Late submission are allowed until %(deadline)s\n"
+"                "
+msgstr ""
+
+#: course/templates/course/module.html:31
+#, python-format
+msgid ""
+"\n"
+"                but points are only worth %(percent)s%%.\n"
+"                "
+msgstr ""
+
+#: course/templates/course/profile.html:5
+msgid "Profile"
+msgstr ""
+
+#: course/templates/course/profile.html:14
+msgid "[Unknown name]"
+msgstr ""
+
+#: course/templates/course/profile.html:24
+msgid "[Missing]"
+msgstr ""
+
+#: course/templates/course/profile.html:25
+msgid "Student ID"
+msgstr ""
+
+#: course/templates/course/profile.html:27
+msgid "E-mail"
+msgstr ""
+
+#: course/templates/course/profile.html:29
+#: userprofile/templates/userprofile/login.html:78
+msgid "Username"
+msgstr ""
+
+#: course/templates/course/profile.html:35
+#, python-format
+msgid ""
+"\n"
+"            You can change your avatar icon\n"
+"            at <a href=\"http://gravatar.com\">gravatar.com</a>.\n"
+"            Use your e-mail address <strong>%(email)s</strong>\n"
+"            when registering your account.\n"
+"            "
+msgstr ""
+
+#: course/templates/course/profile.html:45
+msgid ""
+"\n"
+"            To change your settings, such as <strong>e-mail</strong>\n"
+"            address or <strong>password</strong>, you must update\n"
+"            them on your identity provider.\n"
+"            "
+msgstr ""
+
+#: course/viewbase.py:29
+msgid "Only course teachers shall pass."
+msgstr ""
+
+#: course/viewbase.py:60
+msgid "Only course staff shall pass."
+msgstr ""
+
+#: course/viewbase.py:65
+msgid "The resource is not currently visible."
+msgstr ""
+
+#: course/viewbase.py:70
+msgid "This course is only for external students."
+msgstr ""
+
+#: course/viewbase.py:73
+msgid "This course is only for internal students."
+msgstr ""
+
+#: course/viewbase.py:100
+msgid "The module will open for submissions at {date}"
+msgstr ""
+
+#: course/views.py:65
+msgid "The course module is not yet open for students."
+msgstr ""
+
+#: course/views.py:106
+msgid "You tried to hide all categories. Select at least one visible category."
+msgstr ""
+
+#: deviations/forms.py:18
+msgid "Amount of extra time given in minutes."
+msgstr ""
+
+#: deviations/forms.py:23
+msgid "Do not apply late penalty during extra time."
+msgstr ""
+
+#: deviations/templates/deviations/add_dl.html:6
+#: deviations/templates/deviations/add_dl.html:19
+msgid "Add deadline deviations"
+msgstr ""
+
+#: deviations/templates/deviations/add_dl.html:11
+#: deviations/templates/deviations/list_dl.html:5
+#: deviations/templates/deviations/list_dl.html:10
+msgid "List deadline deviations"
+msgstr ""
+
+#: deviations/templates/deviations/add_dl.html:12
+#: deviations/templates/deviations/list_dl.html:18
+msgid "Add new deadline deviations"
+msgstr ""
+
+#: deviations/templates/deviations/add_dl.html:23
+#: edit_course/templates/edit_course/batch_assess.html:64
+#: edit_course/templates/edit_course/edit_model.html:78
+#: exercise/templates/exercise/model/_file_submit_form.html:4
+#: exercise/templates/exercise/model/_file_submit_form.html:14
+msgid "Submit"
+msgstr ""
+
+#: deviations/templates/deviations/add_dl.html:24
+#: edit_course/templates/edit_course/edit_model.html:80
+#: edit_course/templates/edit_course/remove_model.html:54
+#: exercise/templates/exercise/staff/assess_submission.html:28
+msgid "Cancel"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:23
+msgid "Deadline deviations"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:27
+msgid "Submitter"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:28
+#: edit_course/templates/edit_course/edit_content.html:135
+#: exercise/templates/exercise/exercise_base.html:7
+msgid "Exercise"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:29
+msgid "Extra minutes"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:30
+msgid "Without late penalty"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:31
+msgid "Actions"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:44
+#: edit_course/templates/edit_course/edit_content.html:39
+#: edit_course/templates/edit_course/edit_content.html:77
+#: edit_course/templates/edit_course/edit_content.html:99
+#: edit_course/templates/edit_course/remove_model.html:51
+#: templates/base.html:196
+msgid "Remove"
+msgstr ""
+
+#: deviations/templates/deviations/list_dl.html:51
+msgid "No deadline deviations."
+msgstr ""
+
+#: deviations/views.py:56
+msgid ""
+"Deadline deviation already exists for {user} in {exercise}!Remove it before "
+"trying to add a new one."
+msgstr ""
+
+#: edit_course/course_forms.py:55 edit_course/exercise_forms.py:50
+msgid "Hierarchy"
+msgstr ""
+
+#: edit_course/course_forms.py:56 edit_course/exercise_forms.py:54
+#: edit_course/templates/edit_course/edit_course_base.html:36
+msgid "Content"
+msgstr ""
+
+#: edit_course/course_forms.py:57
+msgid "Schedule"
+msgstr ""
+
+#: edit_course/course_forms.py:86
+msgid "The URL identifier is locked while the course is visible to students."
+msgstr ""
+
+#: edit_course/course_forms.py:117
+msgid "New URL identifier for the course instance"
+msgstr ""
+
+#: edit_course/course_forms.py:128
+msgid "The URL is already taken."
+msgstr ""
+
+#: edit_course/exercise_forms.py:93
+msgid "Grading"
+msgstr ""
+
+#: edit_course/exercise_forms.py:95
+msgid "Groups"
+msgstr ""
+
+#: edit_course/managers.py:44
+msgid "category"
+msgstr ""
+
+#: edit_course/managers.py:50
+msgid "module"
+msgstr ""
+
+#: edit_course/managers.py:62
+msgid "learning object"
+msgstr ""
+
+#: edit_course/operations/batch.py:17 edit_course/operations/configure.py:161
+msgid "Failed to parse the JSON: {}"
+msgstr ""
+
+#: edit_course/operations/batch.py:19
+msgid "Missing JSON field: objects"
+msgstr ""
+
+#: edit_course/operations/batch.py:28
+msgid "Missing field \"exercise_id\" in object {count:d}."
+msgstr ""
+
+#: edit_course/operations/batch.py:37
+msgid "Unknown exercise_id {id:d} in object {count:d}."
+msgstr ""
+
+#: edit_course/operations/batch.py:48
+msgid "Invalid fields in object {count:d}: {error}"
+msgstr ""
+
+#: edit_course/operations/configure.py:19
+msgid "Unable to parse date: {}"
+msgstr ""
+
+#: edit_course/operations/configure.py:47
+msgid "Unable to parse duration: {}"
+msgstr ""
+
+#: edit_course/operations/configure.py:55
+msgid "Unable to parse int: {}"
+msgstr ""
+
+#: edit_course/operations/configure.py:63
+msgid "Unable to parse float: {}"
+msgstr ""
+
+#: edit_course/operations/configure.py:78
+msgid "Learning object requires a key."
+msgstr ""
+
+#: edit_course/operations/configure.py:84
+msgid "Learning object requires a category."
+msgstr ""
+
+#: edit_course/operations/configure.py:87
+msgid "Unknown category {}"
+msgstr ""
+
+#: edit_course/operations/configure.py:149
+msgid "Configuration URL required."
+msgstr ""
+
+#: edit_course/operations/configure.py:153
+msgid "Request failed: {}"
+msgstr ""
+
+#: edit_course/operations/configure.py:180
+msgid "Assistants must be given as student ID array."
+msgstr ""
+
+#: edit_course/operations/configure.py:187
+msgid "Assistant student ID was not found: {}"
+msgstr ""
+
+#: edit_course/operations/configure.py:192
+msgid "Categories required as object."
+msgstr ""
+
+#: edit_course/operations/configure.py:195
+msgid "Modules required as array."
+msgstr ""
+
+#: edit_course/operations/configure.py:203
+msgid "Category requires a name."
+msgstr ""
+
+#: edit_course/operations/configure.py:231
+msgid "Module requires a key."
+msgstr ""
+
+#: edit_course/templates/edit_course/batch_assess.html:6
+msgid "Batch assess submissions"
+msgstr ""
+
+#: edit_course/templates/edit_course/batch_assess.html:11
+#: edit_course/templates/edit_course/batch_assess.html:18
+msgid "Batch create and assess submissions"
+msgstr ""
+
+#: edit_course/templates/edit_course/batch_assess.html:21
+msgid ""
+"\n"
+"<p><em>Use only if you know what you are doing!</em></p>\n"
+"<p>By submitting json to the form below you can try to create and assess "
+"multiple exercises for students automatically.</p>\n"
+"<dl>\n"
+"\t<dt>XXXXX1 and XXXXX2</dt>\n"
+"    <dd>the real student ids</dd>\n"
+"\t<dt>X1 (integer)</dt>\n"
+"    <dd>the system userprofile id of the desired grader</dd>\n"
+"\t<dt>Z1 and Z2 (integers)</dt>\n"
+"    <dd>the system exercise ids</dd>\n"
+"</dl>\n"
+"<pre>{\n"
+"  \"objects\": [\n"
+"    {\n"
+"      \"students_by_student_id\": [\n"
+"        \"XXXXX1\"\n"
+"      ],\n"
+"      \"feedback\": \"Nicely solved exercise!\",\n"
+"      \"grader\": X1,\n"
+"      \"exercise_id\": Z1,\n"
+"      \"submission_time\": \"2014-09-24 11:50\",\n"
+"      \"points\": 100\n"
+"    },\n"
+"    {\n"
+"      \"students_by_student_id\": [\n"
+"        \"XXXXX2\"\n"
+"      ],\n"
+"      \"feedback\": \"You can do better!\",\n"
+"      \"grader\": X1,\n"
+"      \"exercise_id\": Z2,\n"
+"      \"submission_time\": \"2014-09-24 11:50\",\n"
+"      \"points\": 20\n"
+"    }\n"
+"  ]\n"
+"}\n"
+"</pre>\n"
+"       "
+msgstr ""
+
+#: edit_course/templates/edit_course/clone_instance.html:9
+#: edit_course/templates/edit_course/edit_course_base.html:21
+msgid "Instances"
+msgstr ""
+
+#: edit_course/templates/edit_course/clone_instance.html:17
+msgid "Course instances"
+msgstr ""
+
+#: edit_course/templates/edit_course/clone_instance.html:30
+msgid "hidden"
+msgstr ""
+
+#: edit_course/templates/edit_course/clone_instance.html:42
+msgid "Clone course"
+msgstr ""
+
+#: edit_course/templates/edit_course/clone_instance.html:44
+msgid ""
+"\n"
+"        This action will clone all course modules and exercises into a new "
+"instance.\n"
+"        "
+msgstr ""
+
+#: edit_course/templates/edit_course/clone_instance.html:50
+msgid "Clone into new instance"
+msgstr ""
+
+#: edit_course/templates/edit_course/clone_instance.html:54
+msgid "Cloning course..."
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:16
+msgid "Import and override content configuration from URL"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:19
+msgid "Apply"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:23
+msgid "Exercise categories"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:35
+msgid "Edit category"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:49
+msgid "Add new category"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:59
+msgid "Course modules"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:73
+msgid "Edit module"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:81
+msgid "Open module"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:96
+#: exercise/templates/exercise/exercise_base.html:74
+msgid "Edit exercise"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:102
+msgid "Open exercise"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:105
+#: exercise/templates/exercise/_user_results.html:107
+msgid "View submissions"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:115
+msgid "Add new learning object"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:125
+msgid "Choose learning object type to add"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:131
+msgid "Content chapter"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:132
+msgid "A remote content page loaded in as a chapter"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:136
+msgid "A remote exercise page loaded in for posting submissions"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:139
+msgid "LTI Exercise"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:140
+msgid ""
+"A remote exercise page loaded in for posting submissions including signed "
+"LTI course and student information"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:143
+msgid "Exercise with attachment"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:144
+msgid ""
+"A local page accepting files and initiating remote grading with teacher "
+"provided grading attachment"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:147
+msgid "Static exercise"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:148
+msgid "A local page with editable markup content"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:162
+msgid "Add new module"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:172
+#: edit_course/templates/edit_course/edit_index.html:20
+#: edit_course/templates/edit_course/edit_instance.html:24
+#: exercise/templates/exercise/staff/assess_submission.html:27
+msgid "Save"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:173
+msgid "Renumerate learning objects for each module"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_content.html:174
+msgid "Renumerate learning objects ignoring modules"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_course_base.html:31
+#: edit_course/templates/edit_course/edit_index.html:9
+msgid "Index"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_course_base.html:41
+msgid "Deviations"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_course_base.html:46
+msgid "Batch assess"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_index.html:17
+msgid "Edit course index"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_instance.html:9
+msgid "Details"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_instance.html:17
+msgid "Edit course details"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_instance.html:20
+msgid "Teachers"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:6
+#, python-format
+msgid "Edit %(model)s ID %(id)s"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:6
+#, python-format
+msgid "Add new %(model)s"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:12
+#, python-format
+msgid ""
+"\n"
+"    \tEdit %(model)s\n"
+"    \t"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:16
+#: edit_course/templates/edit_course/edit_model.html:59
+#, python-format
+msgid ""
+"\n"
+"        Add new %(model)s\n"
+"        "
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:34
+msgid "Remote service"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:41
+msgid "Fill in the URL and"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:43
+msgid "Download possible metadata"
+msgstr ""
+
+#: edit_course/templates/edit_course/edit_model.html:55
+#, python-format
+msgid ""
+"\n"
+"        Edit %(model)s %(name)s\n"
+"        "
+msgstr ""
+
+#: edit_course/templates/edit_course/remove_model.html:5
+#, python-format
+msgid "Remove %(model)s ID %(id)s"
+msgstr ""
+
+#: edit_course/templates/edit_course/remove_model.html:10
+#, python-format
+msgid ""
+"\n"
+"\tRemove %(model)s\n"
+"\t"
+msgstr ""
+
+#: edit_course/templates/edit_course/remove_model.html:21
+#, python-format
+msgid ""
+"\n"
+"\t\tConfirm %(model)s removal\n"
+"\t\t"
+msgstr ""
+
+#: edit_course/templates/edit_course/remove_model.html:28
+#, python-format
+msgid ""
+"\n"
+"\t\t    You are removing %(model)s <strong>%(name)s</strong>.\n"
+"\t\t\tAre you sure?\n"
+"\t\t\t"
+msgstr ""
+
+#: edit_course/templates/edit_course/remove_model.html:35
+msgid ""
+"\n"
+"\t\t\t    If you remove this exercise, <strong>all the submissions\n"
+"\t\t\t\tto the exercise will also be removed</strong>.\n"
+"\t\t\t\t"
+msgstr ""
+
+#: edit_course/templates/edit_course/remove_model.html:42
+#, python-format
+msgid ""
+"\n"
+"\t\t\tThe %(model)s <strong>%(name)s</strong> is not empty.\n"
+"\t\t\tContained exercises must be removed first.\n"
+"\t\t\t"
+msgstr ""
+
+#: edit_course/views.py:31
+msgid "Changes were saved succesfully."
+msgstr ""
+
+#: edit_course/views.py:35
+msgid "Failed to save changes."
+msgstr ""
+
+#: edit_course/views.py:109
+msgid ""
+"At least one exercise category must be created before creating exercises."
+msgstr ""
+
+#: edit_course/views.py:126
+msgid "Save failed: {error}"
+msgstr ""
+
+#: edit_course/views.py:129
+msgid "The {name} was saved successfully."
+msgstr ""
+
+#: edit_course/views.py:135
+msgid "Failed to save {name}"
+msgstr ""
+
+#: edit_course/views.py:175
+msgid "New submissions stored."
+msgstr ""
+
+#: edit_course/views.py:192
+msgid "Course instance is now cloned."
+msgstr ""
+
+#: edit_course/views.py:207
+msgid "Course content configured."
+msgstr ""
+
+#: exercise/admin.py:30
+msgid "Real class"
+msgstr ""
+
+#: exercise/admin.py:31
+msgid "Course instance"
+msgstr ""
+
+#: exercise/admin.py:32 exercise/templates/exercise/_submission_info.html:35
+#: exercise/templates/exercise/staff/_assess_info.html:11
+#: exercise/templates/exercise/staff/_submissions_table.html:12
+msgid "Submitters"
+msgstr ""
+
+#: exercise/async_views.py:40
+msgid "Invalid hash key in URL."
+msgstr ""
+
+#: exercise/async_views.py:42
+msgid "Invalid users in URL."
+msgstr ""
+
+#: exercise/async_views.py:86
+msgid "Only the exercise service is allowed to access this URL."
+msgstr ""
+
+#: exercise/async_views.py:146
+msgid ""
+"<div class=\"alert alert-error\">\n"
+"<p>The exercise assessment service is malfunctioning. Staff has been "
+"notified.</p>\n"
+"<p>This submission is now marked as erroneous.</p>\n"
+"</div>"
+msgstr ""
+
+#: exercise/exercise_models.py:39
+msgid "Unlisted in table of contents"
+msgstr ""
+
+#: exercise/exercise_models.py:40
+msgid "Hidden from non course staff"
+msgstr ""
+
+#: exercise/exercise_models.py:51
+msgid "Input an URL identifier for this object."
+msgstr ""
+
+#: exercise/exercise_models.py:54
+msgid "Internal description is not presented on site."
+msgstr ""
+
+#: exercise/exercise_models.py:56
+msgid "Remove the third info column for more space."
+msgstr ""
+
+#: exercise/exercise_models.py:72
+msgid "Course_module and category must belong to the same course instance."
+msgstr ""
+
+#: exercise/exercise_models.py:82
+msgid "Cannot select parent from another course module."
+msgstr ""
+
+#: exercise/exercise_models.py:214
+msgid "Points to pass cannot be greater than max_points."
+msgstr ""
+
+#: exercise/exercise_models.py:292
+msgid "The course is archived. Exercises are offline."
+msgstr ""
+
+#: exercise/exercise_models.py:302
+msgid "This exercise is not open for submissions."
+msgstr ""
+
+#: exercise/exercise_models.py:305
+#, python-format
+msgid ""
+"This exercise can be submitted in groups of %(min)d to %(max)d students.The "
+"size of your current group is %(size)d."
+msgstr ""
+
+#: exercise/exercise_models.py:313
+msgid "You have used the allowed amount of submissions for this exercise."
+msgstr ""
+
+#: exercise/exercise_models.py:320
+msgid ""
+"Deadline for the exercise has passed. Late submissions are allowed until"
+"{date} but points are only worth {percent:d}%."
+msgstr ""
+
+#: exercise/exercise_models.py:405
+msgid "Exercise must be located in the LTI domain."
+msgstr ""
+
+#: exercise/exercise_models.py:472
+msgid ""
+"File names that user should submit, use pipe character to separate files"
+msgstr ""
+
+#: exercise/forms.py:23
+msgid "Points greater than maximum points are not allowed."
+msgstr ""
+
+#: exercise/forms.py:26
+msgid "Points lower than zero are not allowed."
+msgstr ""
+
+#: exercise/forms.py:33
+msgid ""
+"Possible penalties are not applied - the points are set as given. This will "
+"<em>override</em> grader points!"
+msgstr ""
+
+#: exercise/forms.py:36
+msgid "HTML formatting is allowed. This will not override machine feedback."
+msgstr ""
+
+#: exercise/forms.py:39
+msgid "HTML formatting is allowed. This WILL override machine feedback."
+msgstr ""
+
+#: exercise/forms.py:52
+msgid ""
+"The maximum points for this exercise is {max:d} and the given points is more "
+"than that."
+msgstr ""
+
+#: exercise/forms.py:87
+msgid "Both students and students_by_student_id must not be blank."
+msgstr ""
+
+#: exercise/forms.py:92
+msgid "Use students or students_by_student_id but not both"
+msgstr ""
+
+#: exercise/protocol/aplus.py:24
+msgid "Connecting to the exercise service failed!"
+msgstr ""
+
+#: exercise/protocol/aplus.py:45
+msgid "Connecting to the assessment service failed!"
+msgstr ""
+
+#: exercise/protocol/aplus.py:60
+msgid ""
+"The exercise was submitted and graded successfully. Points: {points:d}/{max:"
+"d}"
+msgstr ""
+
+#: exercise/protocol/aplus.py:72
+msgid ""
+"Assessment service responded with invalid points. Points: {points:d}/{max:d} "
+"(exercise max {exercise_max:d})"
+msgstr ""
+
+#: exercise/protocol/aplus.py:89
+msgid ""
+"The exercise was submitted successfully and is now waiting to be graded."
+msgstr ""
+
+#: exercise/protocol/aplus.py:97
+msgid "Assessment service responded with error."
+msgstr ""
+
+#: exercise/staff_views.py:98
+msgid "Feedback to {name}"
+msgstr ""
+
+#: exercise/staff_views.py:99
+msgid ""
+"<p>You have new personal feedback to exercise <a href=\"{url}\">{name}</a>.</"
+"p>{message}"
+msgstr ""
+
+#: exercise/staff_views.py:108
+msgid "The review was saved successfully and the submitters were notified."
+msgstr ""
+
+#: exercise/staff_views.py:130
+msgid "Failed to load the resource."
+msgstr ""
+
+#: exercise/staff_views.py:164
+msgid ""
+"Invalid POST data:\n"
+"{error}"
+msgstr ""
+
+#: exercise/staff_views.py:180
+msgid "New submission stored."
+msgstr ""
+
+#: exercise/submission_models.py:52
+msgid "Initialized"
+msgstr ""
+
+#: exercise/submission_models.py:53
+msgid "Waiting"
+msgstr ""
+
+#: exercise/submission_models.py:55
+msgid "Error"
+msgstr ""
+
+#: exercise/templates/exercise/_category_points.html:7
+msgid "Total points"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:5
+msgid "Earned points"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:12
+msgid "Late"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:22
+msgid "Exercise info"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:26
+msgid "Your submissions"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:34
+msgid "Points required to pass"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:37
+#: exercise/templates/exercise/exercise_plain.html:83
+msgid "Deadline"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:40
+msgid "Maximum group size"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:43
+msgid "Total number of submitters"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_info.html:47
+msgid "Average submissions per student"
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_wait.html:6
+#: exercise/templates/exercise/exercise.html:33
+msgid "Communication error with the exercise."
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_wait.html:7
+msgid ""
+"Unfortunately grading takes longer than expected. Return later to see the "
+"result."
+msgstr ""
+
+#: exercise/templates/exercise/_exercise_wait.html:9
+msgid "Grading submission..."
+msgstr ""
+
+#: exercise/templates/exercise/_points_badge.html:9
+msgid "Passed"
+msgstr ""
+
+#: exercise/templates/exercise/_points_badge.html:9
+#: exercise/templates/exercise/staff/_submissions_table.html:53
+msgid "No submissions"
+msgstr ""
+
+#: exercise/templates/exercise/_points_badge.html:9
+#, python-format
+msgid "%(points)s points required to pass"
+msgstr ""
+
+#: exercise/templates/exercise/_points_badge.html:9
+msgid "Required exercises are not passed"
+msgstr ""
+
+#: exercise/templates/exercise/_points_progress.html:3
+#: exercise/templates/exercise/_user_results.html:82
+#: exercise/templates/exercise/exercise_plain.html:46
+#: exercise/templates/exercise/submission_plain.html:37
+msgid "Points"
+msgstr ""
+
+#: exercise/templates/exercise/_points_progress.html:3
+msgid "Required"
+msgstr ""
+
+#: exercise/templates/exercise/_submission_info.html:7
+msgid "Submission info"
+msgstr ""
+
+#: exercise/templates/exercise/_submission_info.html:11
+msgid "Submitted on"
+msgstr ""
+
+#: exercise/templates/exercise/_submission_info.html:14
+#: exercise/templates/exercise/staff/_assess_info.html:13
+#: exercise/templates/exercise/staff/_submissions_table.html:14
+#: exercise/templates/exercise/submission_plain.html:37
+msgid "Status"
+msgstr ""
+
+#: exercise/templates/exercise/_submission_info.html:21
+#: exercise/templates/exercise/staff/_assess_info.html:17
+#: exercise/templates/exercise/staff/_submissions_table.html:15
+msgid "Grade"
+msgstr ""
+
+#: exercise/templates/exercise/_submission_info.html:25
+msgid "nonscaled"
+msgstr ""
+
+#: exercise/templates/exercise/_submission_info.html:30
+#: exercise/templates/exercise/staff/_assess_info.html:20
+msgid "Includes late penalty"
+msgstr ""
+
+#: exercise/templates/exercise/_user_results.html:7
+msgid "Filter view"
+msgstr ""
+
+#: exercise/templates/exercise/_user_results.html:17
+msgid "Show older assignments."
+msgstr ""
+
+#: exercise/templates/exercise/_user_results.html:29
+msgid "Opens"
+msgstr ""
+
+#: exercise/templates/exercise/_user_results.html:44
+#, python-format
+msgid ""
+"\n"
+"        Late submission are allowed until %(deadline)s\n"
+"        "
+msgstr ""
+
+#: exercise/templates/exercise/_user_results.html:48
+#, python-format
+msgid ""
+"\n"
+"        but points are only worth %(percent)s%%.\n"
+"        "
+msgstr ""
+
+#: exercise/templates/exercise/_user_results.html:57
+#, python-format
+msgid ""
+"\n"
+"      %(points)s points required to pass the module.\n"
+"      "
+msgstr ""
+
+#: exercise/templates/exercise/exercise.html:24
+#: exercise/templates/exercise/exercise.html:32
+msgid "Posting submission..."
+msgstr ""
+
+#: exercise/templates/exercise/exercise.html:31
+msgid "Loading exercise..."
+msgstr ""
+
+#: exercise/templates/exercise/exercise.html:43
+msgid "Close"
+msgstr ""
+
+#: exercise/templates/exercise/exercise_base.html:37
+msgid "Exercise description"
+msgstr ""
+
+#: exercise/templates/exercise/exercise_base.html:43
+msgid "My submissions"
+msgstr ""
+
+#: exercise/templates/exercise/exercise_base.html:57
+#: exercise/templates/exercise/exercise_plain.html:72
+msgid "No submissions yet"
+msgstr ""
+
+#: exercise/templates/exercise/exercise_base.html:68
+msgid "Inspect submission"
+msgstr ""
+
+#: exercise/templates/exercise/exercise_base.html:79
+#: exercise/templates/exercise/exercise_plain.html:92
+msgid "View all submissions"
+msgstr ""
+
+#: exercise/templates/exercise/exercise_plain.html:52
+msgid "Submissions"
+msgstr ""
+
+#: exercise/templates/exercise/exercise_plain.html:81
+#, python-format
+msgid "%(points)s points required to pass."
+msgstr ""
+
+#: exercise/templates/exercise/results.html:7
+msgid "Results"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_assess_info.html:7
+msgid "General information"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_assess_info.html:15
+msgid "Submission time"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_assess_info.html:25
+msgid "Submitted files"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_assess_info.html:35
+msgid "No files"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_assess_info.html:40
+msgid "Submitted values"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_assess_info.html:47
+#: exercise/templates/exercise/staff/_assess_info.html:58
+msgid "No values"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_assess_info.html:51
+msgid "Grading data"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_submissions_table.html:5
+#, python-format
+msgid ""
+"\n"
+"    %(count)s submissions\n"
+"    "
+msgstr ""
+
+#: exercise/templates/exercise/staff/_submissions_table.html:13
+msgid "Time"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_submissions_table.html:16
+#: exercise/templates/exercise/staff/_submissions_table.html:47
+#: exercise/templates/exercise/staff/inspect_submission.html:12
+#: exercise/templates/exercise/submission_plain.html:73
+msgid "Inspect"
+msgstr ""
+
+#: exercise/templates/exercise/staff/_submissions_table.html:29
+#, python-format
+msgid ""
+"\n"
+"                    Late <small>-%(percent)s%%</small>\n"
+"                    "
+msgstr ""
+
+#: exercise/templates/exercise/staff/_submissions_table.html:41
+msgid "A.Feedback"
+msgstr ""
+
+#: exercise/templates/exercise/staff/assess_submission.html:6
+msgid "Assess SID "
+msgstr ""
+
+#: exercise/templates/exercise/staff/assess_submission.html:11
+#: exercise/templates/exercise/staff/inspect_submission.html:10
+#: exercise/templates/exercise/staff/list_submissions.html:5
+#: exercise/templates/exercise/staff/list_submissions.html:10
+msgid "All submissions"
+msgstr ""
+
+#: exercise/templates/exercise/staff/assess_submission.html:12
+#: exercise/templates/exercise/staff/inspect_submission.html:11
+msgid "Submission ID"
+msgstr ""
+
+#: exercise/templates/exercise/staff/assess_submission.html:13
+msgid "Assess"
+msgstr ""
+
+#: exercise/templates/exercise/staff/assess_submission.html:21
+msgid "Assessment"
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:5
+msgid "Inspect SID "
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:20
+#: exercise/templates/exercise/submission.html:27
+#: exercise/templates/exercise/submission_plain.html:81
+msgid "Assistant feedback"
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:27
+#: exercise/templates/exercise/submission.html:31
+#: exercise/templates/exercise/submission_plain.html:85
+msgid "No assistant feedback available for this submission."
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:36
+msgid "Assistant assess this submission"
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:38
+msgid "Teacher assess this submission"
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:45
+msgid "Grader feedback"
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:51
+#: exercise/templates/exercise/submission.html:41
+#: exercise/templates/exercise/submission_plain.html:95
+msgid "No grader feedback available for this submission."
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:59
+msgid "Re-submit to service"
+msgstr ""
+
+#: exercise/templates/exercise/staff/inspect_submission.html:63
+msgid ""
+"\n"
+"            Click this button to re-submit this submission to the "
+"assessment\n"
+"            service. This is meant to be used only in situations where the\n"
+"            assessment service has behaved incorrectly so that the grading\n"
+"            data is incorrect or the status of the submission never became\n"
+"            ready. Caution! Re-submitting overwrites the current grading "
+"data.\n"
+"            "
+msgstr ""
+
+#: exercise/templates/exercise/staff/results.html:19
+#, python-format
+msgid ""
+"\n"
+"                \tStudent (N=%(num)s)\n"
+"                \t"
+msgstr ""
+
+#: exercise/templates/exercise/staff/results.html:28
+msgid "Sum"
+msgstr ""
+
+#: exercise/templates/exercise/staff/results.html:44
+msgid "Maximum points"
+msgstr ""
+
+#: exercise/templates/exercise/submission.html:5
+#: exercise/templates/exercise/submission.html:10
+msgid "Submission"
+msgstr ""
+
+#: exercise/templates/exercise/submission.html:15
+msgid "Files in this submission"
+msgstr ""
+
+#: exercise/templates/exercise/submission_plain.html:32
+msgid "Return to exercise"
+msgstr ""
+
+#: exercise/templates/exercise/submission_plain.html:36
+#: notification/templates/notification/notifications.html:30
+msgid "Date"
+msgstr ""
+
+#: exercise/templates/exercise/submission_plain.html:39
+msgid "Files"
+msgstr ""
+
+#: exercise/templates/exercise/submission_plain.html:50
+#, python-format
+msgid ""
+"\n"
+"\t\t\t\t\t\tLate <small>-%(percent)s%%</small>\n"
+"\t\t\t\t\t\t"
+msgstr ""
+
+#: exercise/templatetags/exercise.py:126
+msgid "Latest submissions"
+msgstr ""
+
+#: exercise/templatetags/exercise.py:127
+msgid "No submissions for this course."
+msgstr ""
+
+#: exercise/viewbase.py:32
+msgid "Assistant grading is not allowed for this exercise."
+msgstr ""
+
+#: exercise/viewbase.py:57
+msgid "Only the submitter shall pass."
+msgstr ""
+
+#: exercise/views.py:59
+msgid "Exercise is in maintenance and content is hidden from students."
+msgstr ""
+
+#: exercise/views.py:63
+msgid "Unfortunately this exercise is currently under maintenance."
+msgstr ""
+
+#: exercise/views.py:95
+msgid ""
+"The submission could not be saved for some reason. The submission was not "
+"registered."
+msgstr ""
+
+#: external_services/models.py:15
+msgid "The service URL"
+msgstr ""
+
+#: external_services/models.py:19
+msgid "A default label to show in the course menu."
+msgstr ""
+
+#: external_services/models.py:24
+msgid ""
+"A default menu icon style name, see http://getbootstrap.com/components/"
+"#glyphicons-glyphs"
+msgstr ""
+
+#: external_services/models.py:28
+msgid "If not enabled, the service is disabled for all course instances."
+msgstr ""
+
+#: external_services/models.py:48
+msgid "The consumer key provided by the LTI service."
+msgstr ""
+
+#: external_services/models.py:52
+msgid "The consumer secret provided by the LTI service."
+msgstr ""
+
+#: external_services/models.py:65
+msgid "All students, assistants and teachers can access."
+msgstr ""
+
+#: external_services/models.py:66
+msgid "Only assistants and teachers can access."
+msgstr ""
+
+#: external_services/models.py:67
+msgid "Only teachers can access."
+msgstr ""
+
+#: external_services/models.py:73
+msgid "A course instance where the service is used."
+msgstr ""
+
+#: external_services/models.py:83
+msgid "Overrides service default label shown in the course menu."
+msgstr ""
+
+#: external_services/models.py:89
+msgid ""
+"Overrides service default menu icon style name, e.g. star see http://"
+"getbootstrap.com/components/#glyphicons-glyphs"
+msgstr ""
+
+#: external_services/models.py:93
+msgid "Heavier menu entries are placed after lighter ones."
+msgstr ""
+
+#: external_services/templates/external_services/lti_form.html:13
+msgid "Continue to service..."
+msgstr ""
+
+#: lib/fields.py:27
+msgid "The number must be between 0.0 and 1.0"
+msgstr ""
+
+#: lib/fields.py:47 lib/fields.py:67
+msgid "Enter valid JSON."
+msgstr ""
+
+#: lib/remote_page.py:30
+msgid "Connecting to the course service failed!"
+msgstr ""
+
+#: notification/templates/notification/_notification_menu.html:8
+#, python-format
+msgid ""
+"\n"
+"        <span class=\"badge badge-danger\">%(count)s</span> new notification"
+"%(count_p)s\n"
+"        <span class=\"caret\" aria-hidden=\"true\"></span>\n"
+"        "
+msgstr ""
+
+#: notification/templates/notification/_notification_messages.html:7
+#, python-format
+msgid ""
+"\n"
+"        You have %(count)s new notification%(count_p)s.\n"
+"        "
+msgstr ""
+
+#: notification/templates/notification/_notifications_list.html:19
+msgid "No received notifications."
+msgstr ""
+
+#: notification/templates/notification/notifications.html:28
+msgid "Subject"
+msgstr ""
+
+#: notification/templates/notification/notifications.html:29
+msgid "From"
+msgstr ""
+
+#: notification/templates/notification/notifications.html:38
+msgid "Show older notifications..."
+msgstr ""
+
+#: notification/templates/notification/notifications.html:42
+msgid "Loading."
+msgstr ""
+
+#: shibboleth_login/views.py:31
+msgid ""
+"Failed to login the user. Shibboleth META headers missing. Check the Apache "
+"mod_shibd is active and /shibboleth is protected."
+msgstr ""
+
+#: shibboleth_login/views.py:38
+msgid "The user account has been disabled."
+msgstr ""
+
+#: templates/404.html:19
+msgid ""
+"\n"
+"                        For an unknown reason you arrived somewhere that "
+"does not exist.\n"
+"                        Please try again.\n"
+"                        "
+msgstr ""
+
+#: templates/base.html:53
+msgid "Toggle navigation"
+msgstr ""
+
+#: templates/base.html:73
+msgid "Select course"
+msgstr "Valitse kurssi"
+
+#: templates/base.html:100 templates/base.html.py:140
+msgid "Log out"
+msgstr ""
+
+#: templates/base.html:107 templates/base.html.py:147
+msgid "Log in"
+msgstr ""
+
+#: templates/base.html:117
+msgid "Site"
+msgstr ""
+
+#: templates/base.html:121
+msgid "Home"
+msgstr ""
+
+#: templates/base.html:200
+msgid "Search"
+msgstr ""
+
+#: templates/base.html:204
+msgid "No matches"
+msgstr ""
+
+#: templates/base.html:207
+msgid "Search for..."
+msgstr ""
+
+#: userprofile/templates/userprofile/login.html:5
+#: userprofile/templates/userprofile/login.html:10
+#: userprofile/templates/userprofile/login_plain.html:7
+msgid "Login"
+msgstr ""
+
+#: userprofile/templates/userprofile/login.html:54
+msgid "Login Using Google"
+msgstr ""
+
+#: userprofile/templates/userprofile/login.html:81
+msgid "Password"
+msgstr ""
+
+#: userprofile/templates/userprofile/login.html:95
+#, python-format
+msgid ""
+"\n"
+"  You may want to read our privacy policy <a href=\"%(url)s\">here</a>.\n"
+"  "
+msgstr ""
+
+#: userprofile/templates/userprofile/login_plain.html:15
+#, python-format
+msgid ""
+"\n"
+"\t\t\t            Please, <a href=\"%(path)s\" target=\"_blank\">login to A"
+"+</a>\n"
+"\t\t\t            and reload to view and submit exercises here.\n"
+"\t\t\t            "
+msgstr ""
+
+#: userprofile/templates/userprofile/logout.html:4
+#: userprofile/templates/userprofile/logout.html:9
+msgid "Logged out"
+msgstr ""
+
+#: userprofile/templates/userprofile/logout.html:15
+msgid ""
+"\n"
+"            You have successfully logged out. Please close the browser if "
+"you were\n"
+"            using a public computer to clear your remaining sessions.\n"
+"            "
+msgstr ""
+
+#: userprofile/templates/userprofile/privacy.html:4
+msgid "Privacy policy"
+msgstr ""
+
+#: userprofile/templates/userprofile/privacy.html:9
+msgid "Privacy Policy"
+msgstr ""
