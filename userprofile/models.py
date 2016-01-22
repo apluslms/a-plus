@@ -55,9 +55,9 @@ class UserProfile(models.Model):
             return self.user.username
 
     @property
-    def is_mooc(self):
+    def is_external(self):
         """
-        Is this a mooc account rather than from school shibboleth login.
+        Is this an external rather than internal account.
         """
         return self.user.social_auth.exists()
 

@@ -156,14 +156,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
 )
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
-if 'shibboleth_login' in INSTALLED_APPS:
-    AUTHENTICATION_BACKENDS += 'shibboleth_login.auth_backend.ShibbolethAuthBackend'
-if 'social.apps.django_app.default' in INSTALLED_APPS:
-    AUTHENTICATION_BACKENDS += 'social.backends.google.GoogleOAuth2'
-
 FILE_UPLOAD_HANDLERS = (
     #"django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
@@ -256,3 +248,11 @@ except ImportError:
     pass
 
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+if 'shibboleth_login' in INSTALLED_APPS:
+    AUTHENTICATION_BACKENDS += ('shibboleth_login.auth_backend.ShibbolethAuthBackend',)
+if 'social.apps.django_app.default' in INSTALLED_APPS:
+    AUTHENTICATION_BACKENDS += ('social.backends.google.GoogleOAuth2',)

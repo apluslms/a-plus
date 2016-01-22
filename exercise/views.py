@@ -42,13 +42,12 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def get_after_new_submission(self):
         self.submissions = self.exercise.get_submissions_for_student(
-            self.profile)
+            self.profile) if self.profile else []
         self.summary = UserExerciseSummary(self.exercise, self.request.user)
         self.note("submissions", "summary")
 
     def get(self, request, *args, **kwargs):
         self.handle()
-        print('get', self.exercise)
         students = self.get_students()
         if self.exercise.is_submittable():
             self.submission_check(students)
@@ -106,7 +105,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def get_students(self):
         # TODO: group support
-        return (self.profile,)
+        if self.profile:
+            return (self.profile,)
+        return ()
 
     def submission_check(self, students):
         ok, issues = self.exercise.is_submission_allowed(students)

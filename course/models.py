@@ -102,6 +102,17 @@ class CourseInstance(models.Model):
         validators=[RegexValidator(regex="^[\w\-\.]*$")],
         help_text=_("Input an URL identifier for this course instance."))
     visible_to_students = models.BooleanField(default=True)
+    view_access = models.IntegerField(choices=(
+        (0, _('Public to internet')),
+        (1, _('Internal and external users')),
+        (2, _('Only external users')),
+        (3, _('Only internal users')),
+    ), default=3)
+    submission_access = models.IntegerField(choices=(
+        (1, _('Internal and external users')),
+        (2, _('Only external users')),
+        (3, _('Only internal users')),
+    ), default=3)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
@@ -125,6 +136,7 @@ class CourseInstance(models.Model):
     ), default=1)
     configure_url = models.URLField(blank=True)
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
+    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
@@ -157,6 +169,16 @@ class CourseInstance(models.Model):
         super().save(*args, **kwargs)
         if self.image:
             resize_image(self.image.path, (800,600))
+
+    def has_submission_access(self, user):
+        if not user or not user.is_authenticated():
+            return False, _("You need to login to submit exercises to this course.")
+        if self.submission_access == 2:
+            return user.userprofile.is_external, \
+                _("You need to login as external student to submit exercises to this course.")
+        if self.submission_access > 2:
+            return not user.userprofile.is_external, \
+                _("You need to login as internal student to submit exercises to this course.")
 
     def is_assistant(self, user):
         return user and user.is_authenticated() \

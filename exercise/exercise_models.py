@@ -160,8 +160,8 @@ class LearningObject(ModelWithInheritance):
         """
         Loads the learning object page.
         """
-        if not self.exercise.service_url:
-            return ExercisePage(self.exercise)
+        if not self.service_url:
+            return ExercisePage(self)
         if self.id and self.content \
                 and self.course_instance.ending_time < timezone.now():
             page = ExercisePage(self)
@@ -216,6 +216,17 @@ class BaseExercise(LearningObject):
 
     def is_submittable(self):
         return True
+
+    def all_can_submit(self, students):
+        instance = self.course_instance
+        if not students:
+            return instance.has_submission_access(None)
+        for profile in students:
+            # TODO: check all students are enrolled
+            ok, warning = instance.has_submission_access(profile.user)
+            if not ok:
+                return ok, warning
+        return True, ""
 
     def one_has_access(self, students, when=None):
         """
@@ -281,31 +292,36 @@ class BaseExercise(LearningObject):
             warnings.append(_('The course is archived. Exercises are offline.'))
             success = False
         else:
-            if not self.one_has_access(students):
-                warnings.append(
-                    _('This exercise is not open for submissions.'))
-            if not (self.min_group_size <= len(students) <= self.max_group_size):
-                warnings.append(
-                    _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
-                      'The size of your current group is %(size)d.') % {
-                        'min': self.min_group_size,
-                        'max': self.max_group_size,
-                        'size': len(students),
-                    })
-            if not self.one_has_submissions(students):
-                warnings.append(
-                    _('You have used the allowed amount of submissions for this exercise.'))
-            success = len(warnings) == 0 \
-                or all(self.course_instance.is_course_staff(p.user) for p in students)
+            check, message = self.all_can_submit(students)
+            if not check:
+                warnings.append(message)
+                success = False
+            else:
+                if not self.one_has_access(students):
+                    warnings.append(
+                        _('This exercise is not open for submissions.'))
+                if not (self.min_group_size <= len(students) <= self.max_group_size):
+                    warnings.append(
+                        _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
+                          'The size of your current group is %(size)d.') % {
+                            'min': self.min_group_size,
+                            'max': self.max_group_size,
+                            'size': len(students),
+                        })
+                if not self.one_has_submissions(students):
+                    warnings.append(
+                        _('You have used the allowed amount of submissions for this exercise.'))
+                success = len(warnings) == 0 \
+                    or all(self.course_instance.is_course_staff(p.user) for p in students)
 
-        # If late submission is open, notify the student about point reduction.
-        if self.course_module.is_late_submission_open():
-            warnings.append(
-                _('Deadline for the exercise has passed. Late submissions are allowed until'
-                  '{date} but points are only worth {percent:d}%.').format(
-                    date=date_format(self.course_module.late_submission_deadline),
-                    percent=self.course_module.get_late_submission_point_worth(),
-                ))
+            # If late submission is open, notify the student about point reduction.
+            if self.course_module.is_late_submission_open():
+                warnings.append(
+                    _('Deadline for the exercise has passed. Late submissions are allowed until'
+                      '{date} but points are only worth {percent:d}%.').format(
+                        date=date_format(self.course_module.late_submission_deadline),
+                        percent=self.course_module.get_late_submission_point_worth(),
+                    ))
 
         warnings = list(str(warning) for warning in warnings)
         return success, warnings
@@ -318,7 +334,7 @@ class BaseExercise(LearningObject):
     def get_async_hash(self, students):
         student_str = "-".join(
             sorted(str(userprofile.id) for userprofile in students)
-        )
+        ) if students else "-"
         identifier = "{}.{:d}".format(student_str, self.id)
         hash_key = hmac.new(
             settings.SECRET_KEY.encode('utf-8'),
@@ -395,7 +411,7 @@ class LTIExercise(BaseExercise):
 
     def get_load_url(self, request, students, url_name="exercise"):
         url = super().get_load_url(request, students, url_name=url_name)
-        if self.lti_service:
+        if self.lti_service and students:
             lti = self._get_lti(students[0].user, request.get_host())
             return lti.sign_get_query(url)
         return url
