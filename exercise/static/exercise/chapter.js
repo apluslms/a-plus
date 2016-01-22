@@ -97,6 +97,7 @@
 		summary_selector: '.exercise-summary',
 		response_selector: '.exercise-response',
 		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
+		dropdown_selector: 'ul.nav .dropdown-toggle',
 		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
 	};
 
@@ -176,6 +177,7 @@
 					event.preventDefault();
 					chapter.openModalURL($(this).attr("href"));
 				});
+			this.element.find(this.settings.dropdown_selector).dropdown();
 		},
 
 		bindFormEvents: function(content) {
