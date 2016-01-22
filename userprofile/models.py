@@ -54,6 +54,13 @@ class UserProfile(models.Model):
         except:
             return self.user.username
 
+    @property
+    def is_external(self):
+        """
+        Is this an external rather than internal account.
+        """
+        return hasattr(self.user, 'social_auth') and self.user.social_auth.exists()
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     """

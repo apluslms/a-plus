@@ -71,6 +71,8 @@ class CourseInstanceForm(forms.ModelForm):
             'language',
             'starting_time',
             'ending_time',
+            'view_access',
+            'submission_access',
             'assistants',
             'technical_error_emails',
         ]

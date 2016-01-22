@@ -1,7 +1,10 @@
+import logging
 import traceback
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
+
+logger = logging.getLogger('lib.email_messages')
 
 
 def email_course_error(request, exercise, message, exception=True):
@@ -30,4 +33,7 @@ def email_course_error(request, exercise, message, exception=True):
         error_trace=error_trace,
         request_fields=repr(request))
     if recipients:
-        send_mail(subject, body, settings.SERVER_EMAIL, recipients, True)
+        try:
+            send_mail(subject, body, settings.SERVER_EMAIL, recipients, True)
+        except Exception as e:
+            logger.exception('Failed to send error emails.')

@@ -1,49 +1,57 @@
 ####
 # Default settings for A+ Django project. You should create
-# local_settings.py in the same directory to override necessary
-# settings like SECRET_KEY, DEBUG and DATABASES.
+# local_settings.py to override any settings like
+# SECRET_KEY, DEBUG and DATABASES.
 ##
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
-
+# Critical (override in local_settings.py)
+# SECURITY WARNING: set debug to false and change production secret key
+##########################################################################
+DEBUG = True
+SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 #SERVER_EMAIL = 'root@'
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = DEBUG
+##########################################################################
 
 ALLOWED_HOSTS = ["*"]
+TEMPLATE_DEBUG = DEBUG
 
-# Content
-# To disable Shibboleth login, comment out 'shibboleth_login' in
-# INSTALLED_APPS. Any templates can be overridden by copying into
+# Content (may override in local_settings.py)
+#
+# Any templates can be overridden by copying into
 # local_templates/possible_path/template_name.html
-
+##########################################################################
 SITEWIDE_ALERT_TEXT = None
 BRAND_NAME = 'A+'
-WELCOME_TEXT = 'Welcome to A+ <small>the interoperable e-learning platform</small>'
-LOGIN_TITLE_TEXT = 'Local A+ users'
-LOGIN_BODY_TEXT = ''
-SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
-SHIBBOLETH_BODY_TEXT = 'Click the button below to log in with Aalto University\'s identity service.'
-SHIBBOLETH_BUTTON_TEXT = 'Aalto WebLogin'
-from .privacy_policy import PRIVACY_POLICY_TEXT
 
-# Exercise settings
+WELCOME_TEXT = 'Welcome to A+ <small>and networked learning</small>'
+SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
+SHIBBOLETH_BODY_TEXT = 'Log in with Aalto University user account by clicking the button below. Programme students and faculty must login here.'
+SHIBBOLETH_BUTTON_TEXT = 'Aalto Login'
+MOOC_TITLE_TEXT = 'Users external to Aalto'
+MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Login with your user account from one of the following services.'
+LOGIN_TITLE_TEXT = ''
+LOGIN_BODY_TEXT = ''
+LOGIN_BUTTON_TEXT = 'Maintenance login'
+
+WELCOME_TEXT_FI = 'Tervetuloa A-plussaan <small>opiskelemaan verkossa</small>'
+SHIBBOLETH_TITLE_TEXT_FI = 'Aalto-yliopiston käyttäjät'
+SHIBBOLETH_BODY_TEXT_FI = 'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuksella alla olevasta painikkeesta. Koulutusohjelmien opiskelijoiden ja henkilökunnan pitää kirjautua tästä.'
+SHIBBOLETH_BUTTON_TEXT_FI = 'Aalto-kirjautuminen'
+MOOC_TITLE_TEXT_FI = 'Käyttäjät Aallon ulkopuolelta'
+MOOC_BODY_TEXT_FI = 'Osa kursseistamme on avoinna kaikille. Kirjaudu sisään jonkin seuraavan palvelun käyttäjätunnuksellasi.'
+LOGIN_TITLE_TEXT_FI = ''
+LOGIN_BODY_TEXT_FI = ''
+LOGIN_BUTTON_TEXT_FI = 'Ylläpidon kirjautuminen'
+
+from .privacy_policy import PRIVACY_POLICY_TEXT, PRIVACY_POLICY_TEXT_FI
+##########################################################################
+
+# Exercise loading settings
 EXERCISE_HTTP_TIMEOUT = 15
 EXERCISE_HTTP_RETRIES = (5,5,5)
 EXERCISE_ERROR_SUBJECT = """A+ exercise error in {course}: {exercise}"""
@@ -70,8 +78,6 @@ Request fields:
 {request_fields}
 """
 
-# Application definition
-
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
@@ -79,13 +85,14 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.auth',
+
+    # 3rd party applications
     'bootstrapform',
     'tastypie',
 
     # First party applications
     'inheritance',
     'userprofile',
-    'shibboleth_login',
     'course',
     'exercise',
     'edit_course',
@@ -96,15 +103,44 @@ INSTALLED_APPS = (
     'redirect_old_urls',
 )
 
+# Different login options (may override in local_settings.py)
+##########################################################################
+INSTALLED_LOGIN_APPS = (
+    'shibboleth_login',
+    #'social.apps.django_app.default',
+)
+
+# Apache module mod_uwsgi was unable to create UTF-8 environment variables.
+# Problem was avoided by URL encoding in Shibboleth:
+# <RequestMapper type="Native">
+#   <RequestMap applicationId="default" encoding="URL" />
+# </RequestMapper>
+SHIBBOLETH_VARIABLES_URL_ENCODED = True
+
+# Fields to receive from the Shibboleth (defaults).
+#SHIB_USER_ID_KEY = 'SHIB_eppn'
+#SHIB_FIRST_NAME_KEY = 'SHIB_displayName'
+#SHIB_LAST_NAME_KEY = 'SHIB_sn'
+#SHIB_MAIL_KEY = 'SHIB_mail'
+#SHIB_STUDENT_ID_KEY = 'SHIB_schacPersonalUniqueCode'
+
+# Google OAuth2 settings
+#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+##########################################################################
+
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'lib.middleware.SqlInjectionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'lib.middleware.SqlInjectionMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 TEMPLATE_DIRS = (
@@ -121,23 +157,17 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
 )
 
-AUTHENTICATION_BACKENDS = (
-    'shibboleth_login.auth_backend.ShibbolethAuthBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
 FILE_UPLOAD_HANDLERS = (
     #"django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
 ROOT_URLCONF = 'a-plus.urls'
-
 LOGIN_REDIRECT_URL = "/"
 
-# Database
+# Database (override in local_settings.py)
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
+##########################################################################
 DATABASE_FILE = os.environ.get('APLUS_DB_FILE', default='aplus.db')
 DATABASES = {
     'default': {
@@ -149,39 +179,22 @@ DATABASES = {
         'PORT': '', # Set to empty string for default. Not used with sqlite3.
     }
 }
+##########################################################################
 
-# Internationalization
+# Internationalization (may override in local_settings.py)
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
+LANGUAGE_CODE = 'en-gb'
+LANGUAGES = [
+    ('en', 'English'),
+]
 TIME_ZONE = 'EET'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 #DATETIME_FORMAT = "Y-m-d H:i"
-
-# Apache module mod_uwsgi was unable to create UTF-8 environment variables.
-# Problem was avoided by URL encoding in Shibboleth:
-# <RequestMapper type="Native">
-#   <RequestMap applicationId="default" encoding="URL" />
-# </RequestMapper>
-SHIBBOLETH_VARIABLES_URL_ENCODED = True
-
-# Fields to receive from the Shibboleth (defaults).
-#SHIB_USER_ID_KEY = 'SHIB_eppn'
-#SHIB_FIRST_NAME_KEY = 'SHIB_displayName'
-#SHIB_LAST_NAME_KEY = 'SHIB_sn'
-#SHIB_MAIL_KEY = 'SHIB_mail'
-#SHIB_STUDENT_ID_KEY = 'SHIB_schacPersonalUniqueCode'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
-
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'assets'),
 )
@@ -193,7 +206,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
-
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 TEST_OUTPUT_VERBOSE = True
 TEST_OUTPUT_DESCRIPTIONS = True
@@ -201,7 +213,6 @@ TEST_OUTPUT_DIR = "test_results"
 
 # Logging
 # https://docs.djangoproject.com/en/1.7/topics/logging/
-
 LOGGING = {
   'version': 1,
   'disable_existing_loggers': False,
@@ -236,3 +247,13 @@ try:
     from local_settings import *
 except ImportError:
     pass
+
+INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+if 'shibboleth_login' in INSTALLED_APPS:
+    AUTHENTICATION_BACKENDS += ('shibboleth_login.auth_backend.ShibbolethAuthBackend',)
+if 'social.apps.django_app.default' in INSTALLED_APPS:
+    AUTHENTICATION_BACKENDS += ('social.backends.google.GoogleOAuth2',)

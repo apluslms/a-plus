@@ -48,6 +48,10 @@ class CourseInstanceMixin(CourseMixin):
         self.is_course_staff = self.is_teacher or self.is_assistant
         self.note("instance", "is_assistant", "is_course_staff")
 
+        # Loosen the access mode if instance is public.
+        if self.instance.view_access == 0 and self.access_mode == ACCESS.STUDENT:
+            self.access_mode = ACCESS.ANONYMOUS
+
     def access_control(self):
         super().access_control()
         if self.access_mode >= ACCESS.ASSISTANT:
@@ -55,9 +59,18 @@ class CourseInstanceMixin(CourseMixin):
                 messages.error(self.request,
                     _("Only course staff shall pass."))
                 raise PermissionDenied()
-        elif not self.instance.is_visible_to(self.request.user):
+        else:
+            if not self.instance.is_visible_to(self.request.user):
                 messages.error(self.request,
                     _("The resource is not currently visible."))
+                raise PermissionDenied()
+
+            # View access.
+            if self.instance.view_access == 2 and not self.profile.is_external:
+                messages.error(self.request, _("This course is only for external students."))
+                raise PermissionDenied()
+            if self.instance.view_access > 2 and self.profile.is_external:
+                messages.error(self.request, _("This course is only for internal students."))
                 raise PermissionDenied()
 
 

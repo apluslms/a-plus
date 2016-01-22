@@ -32,8 +32,4 @@ class Migration(migrations.Migration):
             field=models.CharField(validators=[django.core.validators.RegexValidator(regex='^[\\w\\-\\.]*$')], max_length=255, help_text='Input an URL identifier for this object.'),
             preserve_default=True,
         ),
-        migrations.AlterUniqueTogether(
-            name='learningobject',
-            unique_together=set([('course_module', 'parent', 'url')]),
-        ),
     ]

@@ -5,6 +5,7 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import resolve_url
 from django.utils.http import is_safe_url
 
+from lib.helpers import settings_text
 from .viewbase import UserProfileView, ACCESS
 
 
@@ -25,11 +26,15 @@ def login(request):
         template_name="userprofile/login.html",
         extra_context={
             'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
-            'login_title_text': settings.LOGIN_TITLE_TEXT,
-            'login_body_text': settings.LOGIN_BODY_TEXT,
-            'shibboleth_title_text': settings.SHIBBOLETH_TITLE_TEXT,
-            'shibboleth_body_text': settings.SHIBBOLETH_BODY_TEXT,
-            'shibboleth_button_text': settings.SHIBBOLETH_BUTTON_TEXT,
+            'mooc_login': 'social.apps.django_app.default' in settings.INSTALLED_APPS,
+            'login_title_text': settings_text(request, 'LOGIN_TITLE_TEXT'),
+            'login_body_text': settings_text(request, 'LOGIN_BODY_TEXT'),
+            'login_button_text': settings_text(request, 'LOGIN_BUTTON_TEXT'),
+            'shibboleth_title_text': settings_text(request, 'SHIBBOLETH_TITLE_TEXT'),
+            'shibboleth_body_text': settings_text(request, 'SHIBBOLETH_BODY_TEXT'),
+            'shibboleth_button_text': settings_text(request, 'SHIBBOLETH_BUTTON_TEXT'),
+            'mooc_title_text': settings_text(request, 'MOOC_TITLE_TEXT'),
+            'mooc_body_text': settings_text(request, 'MOOC_BODY_TEXT'),
         }
     )
 
@@ -40,5 +45,5 @@ class PrivacyPolicyView(UserProfileView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.policy_text = settings.PRIVACY_POLICY_TEXT
+        self.policy_text = settings_text(self.request, 'PRIVACY_POLICY_TEXT')
         self.note("policy_text")

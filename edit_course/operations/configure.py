@@ -29,7 +29,13 @@ def parse_duration(begin, value, errors):
                     begin.day, begin.hour, begin.minute, begin.second),
                     timezone.get_current_timezone())
             if value[-1] == 'm':
-                return begin + timedelta(months=i)
+                yi = 0
+                while begin.month + i > 12:
+                    yi += 1
+                    i = begin.month + i - 12
+                return timezone.make_aware(datetime(begin.year + yi, begin.month + i,
+                    begin.day, begin.hour, begin.minute, begin.second),
+                    timezone.get_current_timezone())
             if value[-1] == 'd':
                 return begin + timedelta(days=i)
             if value[-1] == 'h':
@@ -71,9 +77,9 @@ def configure_learning_objects(category_map, module, config, parent,
         if not "key" in o:
             errors.append(_("Learning object requires a key."))
             continue
-        if not "url" in o:
-            errors.append(_("Learning object requires an url."))
-            continue
+        #if not "url" in o:
+        #    errors.append(_("Learning object requires an url."))
+        #    continue
         if not "category" in o:
             errors.append(_("Learning object requires a category."))
             continue
@@ -82,15 +88,14 @@ def configure_learning_objects(category_map, module, config, parent,
             continue
 
         # Select exercise class.
-        if "points_to_pass" in o:
+        if "max_submissions" in o:
             lobject = BaseExercise.objects.filter(
                 course_module__course_instance=module.course_instance,
-                service_url=str(o["url"])).first()
+                url=str(o["key"])).first()
             if lobject:
                 lobject.course_module = module
             else:
-                lobject = BaseExercise(course_module=module,
-                    service_url=str(o["url"]))
+                lobject = BaseExercise(course_module=module, url=str(o["key"]))
             if "allow_assistant_grading" in o:
                 lobject.allow_assistant_grading = parse_bool(
                     o["allow_assistant_grading"])
@@ -103,20 +108,20 @@ def configure_learning_objects(category_map, module, config, parent,
         else:
             lobject = CourseChapter.objects.filter(
                 course_module__course_instance=module.course_instance,
-                service_url=str(o["url"])).first()
+                url=str(o["key"])).first()
             if lobject:
                 lobject.course_module=module
             else:
-                lobject = CourseChapter(course_module=module,
-                    service_url=str(o["url"]))
+                lobject = CourseChapter(course_module=module, url=str(o["key"]))
             if "generate_table_of_contents" in o:
                 lobject.generate_table_of_contents = parse_bool(
                     o["generate_table_of_contents"])
 
         lobject.category = category_map[o["category"]]
         lobject.parent = parent
-        lobject.url = str(o["key"])
         lobject.order = n
+        if "url" in o:
+            lobject.service_url = str(o["url"])
         if "status" in o:
             lobject.status = str(o["status"])[:32]
         if "title" in o:

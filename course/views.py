@@ -11,6 +11,7 @@ from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 
+from lib.helpers import settings_text
 from lib.viewbase import BaseRedirectView
 from userprofile.viewbase import ACCESS, UserProfileView
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
@@ -27,7 +28,7 @@ class HomeView(UserProfileView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.welcome_text = settings.WELCOME_TEXT
+        self.welcome_text = settings_text(self.request, 'WELCOME_TEXT')
         self.instances = CourseInstance.objects.get_active(self.request.user)
         self.note("welcome_text", "instances")
 

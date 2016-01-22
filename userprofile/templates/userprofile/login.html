@@ -13,7 +13,7 @@
 <div class="row">
 
     {% if shibboleth_login %}
-    <div class="col-sm-6 col-md-4">
+    <div class="col-sm-6 col-md-3">
         <div class="thumbnail">
             <div class="caption">
                 {% if shibboleth_title_text %}
@@ -21,15 +21,9 @@
                 	{{ shibboleth_title_text|safe }}
                 </h3>
                 {% endif %}
-                {% url 'privacy_policy' as policy_url %}
-                {% if shibboleth_body_text or policy_url %}
+                {% if shibboleth_body_text %}
                 <p>
                 	{{ shibboleth_body_text|safe }}
-                	{% if policy_url %}
-                	{% blocktrans with url=policy_url %}
-                	You may want to read our privacy policy <a href="{{ url }}">here</a>.
-                	{% endblocktrans %}
-                	{% endif %}
                 </p>
                 {% endif %}
                 <p>
@@ -42,7 +36,29 @@
     </div>
     {% endif %}
 
-    <div class="col-sm-6 col-md-4">
+    {% if mooc_login %}
+    <div class="col-sm-6 col-md-3">
+        <div class="thumbnail">
+            <div class="caption">
+                {% if mooc_title_text %}
+                <h3>
+                  {{ mooc_title_text|safe }}
+                </h3>
+                {% endif %}
+                {% if mooc_body_text %}
+                <p>
+                    {{ mooc_body_text|safe }}
+                </p>
+                {% endif %}
+                <p>
+                    <a class="btn btn-danger btn-block" role="button" href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Login Using Google' %}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col-sm-6 col-md-3">
         <div class="thumbnail">
             <div class="caption">
                 {% if login_title_text %}
@@ -57,14 +73,29 @@
                 {% endif %}
                 <form method="post" role="form">
                     {% csrf_token %}
-                    {{ form|bootstrap }}
-                	<div class="form-group">
-                		<button type="submit" class="btn btn-block">{% trans 'Login' %}</button>
-                	</div>
+                    {#{ form|bootstrap }#}
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="id_username" name="username" maxlength="254" placeholder="{% trans 'Username' %}">
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" type="text" id="id_password" name="password" placeholder="{% trans 'Password' %}">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default btn-block">{{ login_button_text|safe }}</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
-
 </div>
+
+{% url 'privacy_policy' as policy_url %}
+{% if policy_url %}
+<p>
+  {% blocktrans with url=policy_url %}
+  You may want to read our privacy policy <a href="{{ url }}">here</a>.
+  {% endblocktrans %}
+</p>
+{% endif %}
+
 {% endblock %}

@@ -11,6 +11,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterUniqueTogether(
+            name='learningobject',
+            unique_together=set([('course_module', 'parent', 'url')]),
+        ),
         migrations.AlterField(
             model_name='learningobject',
             name='status',

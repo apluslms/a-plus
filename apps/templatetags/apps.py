@@ -17,11 +17,12 @@ def plugin_renderers(user, some_model, view_name=None):
     """
     Builds the plugin renderers for a view.
     """
+    profile = user.userprofile if user.is_authenticated() else None
     if isinstance(some_model, CourseInstance):
         return build_plugin_renderers(
             some_model.plugins.all(),
             view_name or "course_instance",
-            user_profile=user.userprofile,
+            user_profile=profile,
             course_instance=some_model,
         )
     if isinstance(some_model, BaseExercise):
@@ -29,7 +30,7 @@ def plugin_renderers(user, some_model, view_name=None):
         return build_plugin_renderers(
             course_instance.plugins.all(),
             view_name or "exercise",
-            user_profile=user.userprofile,
+            user_profile=profile,
             exercise=some_model,
             course_instance=course_instance,
         )
@@ -38,7 +39,7 @@ def plugin_renderers(user, some_model, view_name=None):
         return build_plugin_renderers(
             course_instance.plugins.all(),
             view_name or "submission",
-            user_profile=user.userprofile,
+            user_profile=profile,
             submission=some_model,
             exercise=some_model.exercise,
             course_instance=course_instance,
