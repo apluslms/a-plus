@@ -7,14 +7,14 @@
   <h1>Cloned course repositories</h1>
 </div>
 <p>
-  <a href="{% url 'manager-edit' %}" class="btn btn-xs">Add new</a>
+  <a href="{% url 'manager-edit' %}" class="btn btn-default btn-sm">Add new</a>
 </p>
 <table class="table table-bordered">
   <tr>
     <th>Updates</th>
     <th>Origin</th>
     <th>Branch</th>
-    <th>Hook-on</th>
+    <th>Hook</th>
     <th>&nbsp;</th>
   {% for repo in repos %}
   <tr>
@@ -22,7 +22,7 @@
     <td>{{ repo.git_origin }}</td>
     <td>{{ repo.git_branch }}</td>
     <td>{% if repo.update_hook %}x{% endif %}</td>
-    <td><a hrf="{% url 'manager-edit' repo.key %}" class="btn btn-xs">Edit</a></td>
+    <td><a href="{% url 'manager-edit' repo.key %}" class="btn btn-default btn-sm">Edit</a></td>
   </tr>
   {% endfor %}
 </table>

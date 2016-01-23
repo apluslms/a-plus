@@ -1,4 +1,5 @@
 import os, tempfile
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -10,7 +11,7 @@ clean_flag = os.path.join(tempfile.gettempdir(), "mooc-grader-manager-clean")
 
 
 def repos(request):
-    return render(request, 'manager/repos.html', {
+    return render(request, 'gitmanager/repos.html', {
         'repos': CourseRepo.objects.all(),
     })
 
@@ -22,10 +23,12 @@ def edit(request, key=None):
     else:
         repo = None
         form = CourseRepoForm(request.POST or None)
+    for name in form.fields:
+        form.fields[name].widget.attrs = {'class': 'form-control'}
     if request.method == 'POST' and form.is_valid():
         form.save()
-        redirect('manager-repos')
-    return render(request, 'manager/edit.html', {
+        return redirect('manager-repos')
+    return render(request, 'gitmanager/edit.html', {
         'repo': repo,
         'form': form,
     })
@@ -33,10 +36,10 @@ def edit(request, key=None):
 
 def updates(request, key):
     repo = get_object_or_404(CourseRepo, key=key)
-    repo.updates.all()[3:].delete()
-    return render(request, 'manager/updates.html', {
+    return render(request, 'gitmanager/updates.html', {
         'repo': repo,
-        'updates': repo.updates.all(),
+        'updates': repo.updates.all()[:3],
+        'hook': request.build_absolute_uri(reverse('manager-hook', args=[key])),
     })
 
 

@@ -1,0 +1,26 @@
+{% extends 'grader_frame.html' %}
+
+{% block title %}{{ block.super }} :: Manager, Edit {{ repo.key }}{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h1>
+    {% if repo %}Edit {{ repo.key }} repository settings{% else %}Add new course repository{% endif %}
+  </h1>
+</div>
+<form method="post">
+  {% for field in form %}
+  <div class="form-group{% if field.errors %} has-error{% endif %}">
+    {{ field.label_tag }}
+    {{ field }}
+    {% if field.errors %}
+    <div class="alert alert-danger">
+      {{ field.errors }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  <input type="submit" value="Save" class="btn btn-primary">
+  <a href="{% url 'manager-repos' %}" class="btn btn-warning">Cancel</a>
+</form>
+{% endblock %}

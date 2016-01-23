@@ -4,17 +4,23 @@
 
 {% block body %}
 <div class="page-header">
-	<h1>Update from {{ repo.key }} repository</h1>
+	<h1>Update {{ repo.key }}</h1>
 </div>
-<form method="post" action="{% url 'manager-hook' repo.key %}">
-	<p>
-		Origin: {{ repo.git_origin }} {{ repo.git_branch }}
-	</p>
-	<p>
-		Hook: {% url 'manager-hook' repo.key %}
-		<input type="submit" value="Post request" class="btn btn-xs">
-	</p>
+<p>
+	Origin: {{ repo.git_origin }} {{ repo.git_branch }}
+	{% if repo.update_hook %}
+	<br />Hooks forward: {{ repo.update_hook }}
+	{% endif %}
+</p>
+<p>
+<form method="post" action="{% url 'manager-hook' repo.key %}" class="form-inline">
+	<div class="form-group">
+		<label>Hook</label>
+		<input type="text" class="form-control" value="{{ hook }}" size="60" readonly>
+		<input type="submit" value="Trigger" class="btn btn-default btn-md">
+	</div>
 </form>
+</p>
 <table class="table table-bordered">
 	<tr>
 		<th>Request IP</th>

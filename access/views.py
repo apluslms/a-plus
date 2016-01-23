@@ -31,7 +31,7 @@ def index(request):
         })
     return render(request, 'access/ready.html', {
         "courses": courses,
-        "manager": 'manager' in settings.INSTALLED_APPS,
+        "manager": 'gitmanager' in settings.INSTALLED_APPS,
     })
 
 
