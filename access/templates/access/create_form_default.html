@@ -13,10 +13,14 @@
 <p>
     {% blocktrans %}
     Note that the whole section of questions is marked as being incorrect if
-    one of the questions in that section is incorrect. You can change your
-    answers and grade them again from the bottom of the page. Notice the number
-    of allowed submissions left!
+    one of the questions in that section is incorrect.
     {% endblocktrans %}
+    {% if not result.form.disabled %}
+    {% blocktrans %}
+    You can change your answers and grade them again from the bottom of the page.
+    Notice the number of allowed submissions left!
+    {% endblocktrans %}
+    {% endif %}
 </p>
 </div>
 {% endif %}

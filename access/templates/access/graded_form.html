@@ -47,7 +47,14 @@
 
 	{% if post_url or not result.accepted %}
 	<div class="form-group">
+		{% if result.form.nonce or result.form.sample or result.form.checksum %}
+		<input type="hidden" name="_nonce" value="{{ result.form.nonce }}" />
+		<input type="hidden" name="_sample" value="{{ result.form.sample }}" />
+		<input type="hidden" name="_checksum" value="{{ result.form.checksum }}" />
+		{% endif %}
+		{% if not result.form.disabled %}
 		<input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary" />
+		{% endif %}
 	</div>
 	{% endif %}
 </form>

@@ -18,10 +18,31 @@ Functions take arguments:
     @return: a response
 
 '''
+from django.core.exceptions import PermissionDenied
+
+from util.cache import InProcessCache
 from util.templates import render_configured_template
 from .forms import GradedForm
 from .auth import detect_user, make_hash
 from ..config import ConfigError
+
+
+# Hold on to nonces for some time.
+nonces = InProcessCache()
+
+
+def acceptNonce(request):
+    '''
+    Post containing unique _nonce is only accepted once.
+    '''
+    if request.method == 'POST':
+        if '_nonce' in request.POST:
+            nonce = str(request.POST['_nonce'])
+            if nonce in nonces:
+                raise PermissionDenied('Repeating nonce')
+            nonces[nonce] = 1
+            return True
+        return False
 
 
 def noGrading(request, course, exercise, post_url):
@@ -35,11 +56,10 @@ def comparePostValues(request, course, exercise, post_url):
     '''
     Presents a template and grades configured POST values.
     '''
-    result = None
-
     if "max_points" not in exercise:
         raise ConfigError("Missing required \"max_points\" in exercise configuration")
 
+    result = None
     if request.method == "POST":
 
         if "values" in exercise:
@@ -78,6 +98,7 @@ def createForm(request, course, exercise, post_url):
     if "max_points" not in exercise:
         raise ConfigError("Missing required \"max_points\" in exercise configuration")
 
+    acceptNonce(request)
     form = GradedForm(request.POST or None, exercise=exercise)
     result = { "form": form }
 

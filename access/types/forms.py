@@ -1,9 +1,14 @@
+import random
 import re
 
 from django import forms
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Textarea
 from django.utils.safestring import mark_safe
+from util.files import random_ascii
 from util.templates import template_to_str
+from .auth import make_hash
 from ..config import ConfigError
 
 
@@ -21,10 +26,12 @@ class GradedForm(forms.Form):
         if "exercise" not in kwargs:
             raise ConfigError("Missing exercise configuration from form arguments.")
         self.exercise = kwargs.pop("exercise")
+        kwargs['label_suffix'] = ''
         super(forms.Form, self).__init__(*args, **kwargs)
         if "fieldgroups" not in self.exercise:
             raise ConfigError("Missing required \"fieldgroups\" in exercise configuration")
 
+        self.disabled = False
         g = 0
         i = 0
 
@@ -32,11 +39,32 @@ class GradedForm(forms.Form):
         for group in self.exercise["fieldgroups"]:
             if "fields" not in group:
                 raise ConfigError("Missing required \"fields\" in field group configuration")
+
+            # Randomly pick fields to include.
+            if "pick_randomly" in group:
+                secret = self.exercise.get('secret') or settings.AJAX_KEY
+                if not args[0] is None:
+                    POST = args[0]
+                    nonce = POST.get('_nonce', '')
+                    sample = POST.get('_sample', '')
+                    if make_hash(secret, nonce + sample) != POST.get('_checksum', ''):
+                        raise PermissionDenied('Invalid checksum')
+                    indexes = [int(i) for i in sample.split('-')]
+                    self.disabled = True
+                else:
+                    indexes = random.sample(range(len(group["fields"])), int(group["pick_randomly"]))
+                    self.nonce = random_ascii(16)
+                    self.sample = '-'.join([str(i) for i in indexes])
+                    self.checksum = make_hash(secret, self.nonce + self.sample)
+                group["_fields"] = [group["fields"][i] for i in indexes]
+            else:
+                group["_fields"] = group["fields"]
+
             j = 0
-            l = len(group["fields"]) - 1
+            l = len(group["_fields"]) - 1
 
             # Travel each field in group.
-            for field in group["fields"]:
+            for field in group["_fields"]:
                 if "type" not in field:
                     raise ConfigError("Missing required \"type\" in field configuration for: %s" % (group["name"]))
                 t = field["type"]
@@ -44,7 +72,7 @@ class GradedForm(forms.Form):
                 # Create a field by type.
                 f = None
                 r = "required" in field and field["required"]
-                atr = {"class": "form-control"}
+                atr = {"class": "form-control", "readonly": self.disabled}
                 if t == "checkbox":
                     f = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(),
                         required=r, choices=self.create_choices(field))
@@ -124,7 +152,7 @@ class GradedForm(forms.Form):
 
     def append_hint(self, hints, configuration):
         if 'hint' in configuration and not configuration['hint'] in hints:
-            hints.append(configuration['hint'])
+            hints.append(str(configuration['hint']))
 
 
     def grade(self):
@@ -138,7 +166,7 @@ class GradedForm(forms.Form):
         g = 0
         i = 0
         for group in self.exercise["fieldgroups"]:
-            for field in group["fields"]:
+            for field in group["_fields"]:
                 name = self.field_name(i)
                 val = self.cleaned_data.get(name, None)
                 ok, hints = self.grade_field(field, val)

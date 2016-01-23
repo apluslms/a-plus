@@ -6,6 +6,9 @@ from django.conf import settings
 import datetime, random, string, os, shutil
 
 
+def random_ascii(length):
+    return ''.join([random.choice(string.ascii_letters) for _ in range(length)])
+
 def create_submission_dir(course, exercise):
     '''
     Creates a directory for a submission.
@@ -19,8 +22,7 @@ def create_submission_dir(course, exercise):
     '''
 
     # Create a unique directory name for the submission.
-    d = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-    d += ''.join([random.choice(string.ascii_letters) for _ in range(5)])
+    d = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f") + random_ascii(5)
     submission_dir = os.path.join(settings.SUBMISSION_PATH,
         course["key"], exercise["key"], d)
 
