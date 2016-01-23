@@ -122,6 +122,11 @@ class GradedForm(forms.Form):
         return "option_%d" % (i)
 
 
+    def append_hint(self, hints, configuration):
+        if 'hint' in configuration and not configuration['hint'] in hints:
+            hints.append(configuration['hint'])
+
+
     def grade(self):
         '''
         Grades form answers.
@@ -136,10 +141,12 @@ class GradedForm(forms.Form):
             for field in group["fields"]:
                 name = self.field_name(i)
                 val = self.cleaned_data.get(name, None)
-                if self.grade_field(field, val):
+                ok, hints = self.grade_field(field, val)
+                if ok:
                     if "points" in field:
                         points += field["points"]
                 else:
+                    self.fields[name].hints = ' '.join(hints)
                     error_fields.append(name)
                     gname = self.group_name(g)
                     if gname not in error_groups:
@@ -160,38 +167,48 @@ class GradedForm(forms.Form):
         if t == "checkbox":
             i = 0
             correct_exists = False
-            incorrect = False
+            correct = True
+            hints = []
             for opt in configuration["options"]:
                 name = self.option_name(i)
                 if "correct" in opt and opt["correct"]:
                     correct_exists = True
                     if name not in value:
-                        return False
+                        correct = False
+                        self.append_hint(hints, opt)
                 elif name in value:
-                    incorrect = True
+                    correct = False
+                    self.append_hint(hints, opt)
                 i += 1
-            return not correct_exists or not incorrect
+            return not correct_exists or correct, hints
 
         # Grade radio: correct required if any configured
         elif t == "radio" or t == "dropdown":
             i = 0
-            correct_exists = False
+            correct = True
+            hints = []
             for opt in configuration["options"]:
                 name = self.option_name(i)
                 if "correct" in opt and opt["correct"]:
-                    correct_exists = True
-                    if name == value:
-                        return True
+                    if name != value:
+                        correct = False
+                        self.append_hint(hints, opt)
+                elif name == value:
+                    self.append_hint(hints, opt)
                 i += 1
-            return not correct_exists
+            return correct, hints
 
         # Grade text: correct text required if configured
         elif t == "text" or t == "textarea":
+            correct = True
+            hints = []
             if "correct" in configuration:
-                return value.strip() == configuration["correct"]
+                correct = value.strip() == configuration["correct"]
             elif "regex" in configuration:
                 p = re.compile(configuration["regex"])
-                return p.match(value.strip()) != None
-            return True
+                correct = p.match(value.strip()) != None
+            if not correct:
+                self.append_hint(hints, configuration)
+            return correct, hints
 
         raise ConfigError("Unknown field type for grading: %s" % (configuration["type"]))
