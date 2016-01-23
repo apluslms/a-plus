@@ -29,7 +29,10 @@ def index(request):
             "ready": True,
             "courses": _filter_fields(courses, ["key", "name"])
         })
-    return render(request, 'access/ready.html', { "courses": courses })
+    return render(request, 'access/ready.html', {
+        "courses": courses,
+        "manager": 'manager' in settings.INSTALLED_APPS,
+    })
 
 
 def course(request, course_key):

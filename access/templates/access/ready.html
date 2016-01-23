@@ -9,6 +9,11 @@
 	<a href="{% url 'access.views.queue_length' %}" class="btn btn-default btn-sm">
 		{% trans "Current queue length" %}
 	</a>
+	{% if manager %}
+	<a href="{% url 'manager-repos' %}" class="btn btn-default btn-sm">
+		{% trans "Git manager" %}
+	</a>
+	{% endif %}
 </p>
 <h3>{% trans "Available courses" %}</h3>
 <div class="list-group">

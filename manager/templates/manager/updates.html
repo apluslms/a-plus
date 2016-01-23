@@ -1,0 +1,39 @@
+{% extends 'grader_frame.html' %}
+
+{% block title %}{{ block.super }} :: Manager, Updates {{ repo.key }}{% endblock %}
+
+{% block body %}
+<div class="page-header">
+	<h1>Update from {{ repo.key }} repository</h1>
+</div>
+<form method="post" action="{% url 'manager-hook' repo.key %}">
+	<p>
+		Origin: {{ repo.git_origin }} {{ repo.git_branch }}
+	</p>
+	<p>
+		Hook: {% url 'manager-hook' repo.key %}
+		<input type="submit" value="Post request" class="btn btn-xs">
+	</p>
+</form>
+<table class="table table-bordered">
+	<tr>
+		<th>Request IP</th>
+		<th>Created</th>
+		<th>Updated</th>
+	</tr>
+	{% for update in updates %}
+	<tr>
+		<td>{{ update.request_ip }}</td>
+		<td>{{ update.request_time }}</td>
+		<td>{{ update.updated_time }}</td>
+	</tr>
+	{% if forloop.counter == 1 %}
+	<tr>
+		<td colspan="3">
+			<pre>{{ update.log }}</pre>
+		</td>
+	</tr>
+	{% endif %}
+	{% endfor %}
+</table>
+{% endblock %}

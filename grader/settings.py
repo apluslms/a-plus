@@ -43,6 +43,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'access',
 )
+ADD_APPS = (
+    #'manager',
+)
 
 MIDDLEWARE_CLASSES = (
     # 'django.contrib.sessions.middleware.SessionMiddleware',
@@ -162,3 +165,5 @@ try:
     from settings_local import *
 except ImportError:
     pass
+
+INSTALLED_APPS = INSTALLED_APPS + ADD_APPS
