@@ -44,7 +44,7 @@ INSTALLED_APPS = (
     'access',
 )
 ADD_APPS = (
-    #'manager',
+    #'gitmanager',
 )
 
 MIDDLEWARE_CLASSES = (
