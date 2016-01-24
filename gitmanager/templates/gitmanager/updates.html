@@ -31,7 +31,7 @@
 	<tr>
 		<td>{{ update.request_ip }}</td>
 		<td>{{ update.request_time }}</td>
-		<td>{{ update.updated_time }}</td>
+		<td>{% if update.updated %}{{ update.updated_time }}{% endif %}</td>
 	</tr>
 	{% if forloop.counter == 1 %}
 	<tr>

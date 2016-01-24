@@ -22,6 +22,7 @@ class CourseUpdate(models.Model):
     request_ip = models.CharField(max_length=40)
     request_time = models.DateTimeField(auto_now_add=True)
     updated_time = models.DateTimeField(auto_now=True)
+    updated = models.BooleanField(default=False)
     log = models.TextField(default='')
 
     class META:

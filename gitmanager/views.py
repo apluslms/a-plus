@@ -53,14 +53,15 @@ def get_client_ip(request):
 def hook(request, key):
     repo = get_object_or_404(CourseRepo, key=key)
     if request.method == 'POST':
-        repo.updates.create(
-            course_repo=repo,
-            request_ip=get_client_ip(request)
-        )
+        if repo.updates.filter(updated=False).count() == 0:
+            repo.updates.create(
+                course_repo=repo,
+                request_ip=get_client_ip(request)
+            )
 
-        # Remove clean flag for the cronjob.
-        if os.path.exists(clean_flag):
-            os.remove(clean_flag)
+            # Remove clean flag for the cronjob.
+            if os.path.exists(clean_flag):
+                os.remove(clean_flag)
 
     if request.META.get('HTTP_REFERER'):
         return redirect('manager-updates', repo.key)

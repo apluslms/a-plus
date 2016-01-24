@@ -87,19 +87,19 @@ int main(int argc, char *argv[])
 	strcpy(dir, argv[argp + 4]);
 	if (strcmp(dir, "-") != 0)
 	{
-		if (access(dir, R_OK | W_OK | X_OK) != 0)
+		/*if (access(dir, R_OK | W_OK | X_OK) != 0)
 		{
 			fprintf(stderr, "FAILED: access %s\n", dir);
 			return fail("main");
-		}
+		}*/
 		char tmp_path[strlen(SANDBOX_DIR) + strlen(TMP_PATH) + 1];
 		strcpy(tmp_path, SANDBOX_DIR);
 		strcat(tmp_path, TMP_PATH);
-		if (access(tmp_path, R_OK | W_OK | X_OK) != 0)
+		/*if (access(tmp_path, R_OK | W_OK | X_OK) != 0)
 		{
 			fprintf(stderr, "FAILED: access %s\n", tmp_path);
 			return fail("main");
-		}
+		}*/
 
 		// Move target dir inside sandbox.
 		path = tempnam(tmp_path, NULL);
