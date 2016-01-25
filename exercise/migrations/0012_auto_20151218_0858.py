@@ -23,13 +23,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-
         migrations.RunPython(url_from_id, reverse_code=noop),
-
-        migrations.AlterField(
-            model_name='learningobject',
-            name='url',
-            field=models.CharField(validators=[django.core.validators.RegexValidator(regex='^[\\w\\-\\.]*$')], max_length=255, help_text='Input an URL identifier for this object.'),
-            preserve_default=True,
-        ),
     ]
