@@ -311,6 +311,8 @@ class ExerciseTest(TestCase):
         self.assertFalse(ok)
         self.assertEqual(len(errors), 1)
         json.dumps(errors)
+        self.assertFalse(self.static_exercise.is_submission_allowed([self.user.userprofile])[0])
+        self.course_instance.enroll_student(self.user)
         self.assertTrue(self.static_exercise.is_submission_allowed([self.user.userprofile])[0])
         self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.user.userprofile])[0])
         self.assertFalse(self.old_base_exercise.is_submission_allowed([self.user.userprofile])[0])
@@ -656,7 +658,9 @@ class ExerciseTest(TestCase):
         with open(file_b, "wb") as f:
             f.write("Tekijät ja Hyyppö".encode("latin1"))
 
+        self.course_instance.enroll_student(self.user)
         self.client.login(username="testUser", password="testPassword")
+
         with open(file_a, "rb") as fa:
             with open(file_b, "rb") as fb:
                 response = self.client.post(exercise.get_absolute_url(), {

@@ -178,6 +178,7 @@
       "instance_name": "A+ Test Course Instance",
       "course": 1,
       "assistants": [3],
+      "students": [4],
       "visible_to_students": true
     }
   },
@@ -191,6 +192,7 @@
       "instance_name": "Hook Example",
       "course": 1,
       "assistants": [],
+      "students": [4],
       "visible_to_students": true
     }
   },
