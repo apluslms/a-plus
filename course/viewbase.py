@@ -48,11 +48,13 @@ class CourseInstanceMixin(CourseMixin):
         self.is_course_staff = self.is_teacher or self.is_assistant
         self.note("instance", "is_assistant", "is_course_staff")
 
+    def access_control(self):
+
         # Loosen the access mode if instance is public.
-        if self.instance.view_access == 0 and self.access_mode == ACCESS.STUDENT:
+        if self.instance.view_content_to == 4 and \
+                self.access_mode in (ACCESS.STUDENT, ACCESS.ENROLL):
             self.access_mode = ACCESS.ANONYMOUS
 
-    def access_control(self):
         super().access_control()
         if self.access_mode >= ACCESS.ASSISTANT:
             if not self.is_course_staff:
@@ -65,17 +67,32 @@ class CourseInstanceMixin(CourseMixin):
                     _("The resource is not currently visible."))
                 raise PermissionDenied()
 
-            # View access.
-            if self.instance.view_access == 2 and not self.profile.is_external:
-                messages.error(self.request, _("This course is only for external students."))
-                raise PermissionDenied()
-            if self.instance.view_access > 2 and self.profile.is_external:
-                messages.error(self.request, _("This course is only for internal students."))
-                raise PermissionDenied()
+            # View content access.
+            if not self.is_course_staff:
+                if self.instance.view_content_to == 1 and self.access_mode > ACCESS.ENROLL:
+                    if not self.instance.is_student(self.request.user):
+                        messages.error(self.request, _("Only enrolled students shall pass."))
+                        raise PermissionDenied()
+                elif self.instance.view_content_to < 3:
+                    if self.instance.enrollment_audience == 1 and self.profile.is_external:
+                        messages.error(self.request, _("This course is only for internal students."))
+                        raise PermissionDenied()
+                    if self.instance.enrollment_audience == 2 and not self.profile.is_external:
+                        messages.error(self.request, _("This course is only for external students."))
+                        raise PermissionDenied()
 
 
 class CourseInstanceBaseView(CourseInstanceMixin, BaseTemplateView):
     pass
+
+
+class EnrollableViewMixin(CourseInstanceMixin):
+    access_mode = ACCESS.ENROLL
+
+    def get_common_objects(self):
+        self.enrolled = self.profile and self.instance.is_student(self.profile.user)
+        self.enrollable = self.profile and self.instance.is_enrollable(self.profile.user)
+        self.note('enrolled', 'enrollable')
 
 
 class CourseModuleMixin(CourseInstanceMixin):
