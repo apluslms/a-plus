@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-22 13:38+0200\n"
+"POT-Creation-Date: 2016-01-25 09:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,7 +46,7 @@ msgstr ""
 msgid "Input an URL identifier for this course."
 msgstr ""
 
-#: course/models.py:51 course/models.py:313 exercise/exercise_models.py:87
+#: course/models.py:51 course/models.py:322 exercise/exercise_models.py:102
 msgid "Taken words include: {}"
 msgstr ""
 
@@ -55,19 +55,31 @@ msgid "Input an URL identifier for this course instance."
 msgstr ""
 
 #: course/models.py:106
-msgid "Public to internet"
+msgid "Internal users"
 msgstr ""
 
-#: course/models.py:107 course/models.py:112
+#: course/models.py:107
+msgid "External users"
+msgstr ""
+
+#: course/models.py:108
 msgid "Internal and external users"
 msgstr ""
 
-#: course/models.py:108 course/models.py:113
-msgid "Only external users"
+#: course/models.py:111
+msgid "Enrolled students"
 msgstr ""
 
-#: course/models.py:109 course/models.py:114
-msgid "Only internal users"
+#: course/models.py:112
+msgid "Enrollment audience"
+msgstr ""
+
+#: course/models.py:113
+msgid "All registered users"
+msgstr ""
+
+#: course/models.py:114
+msgid "Public to internet"
 msgstr ""
 
 #: course/models.py:123
@@ -108,38 +120,24 @@ msgstr ""
 msgid "Ending time must be later than starting time."
 msgstr ""
 
-#: course/models.py:175
-msgid "You need to login to submit exercises to this course."
-msgstr ""
-
-#: course/models.py:178
-msgid ""
-"You need to login as external student to submit exercises to this course."
-msgstr ""
-
-#: course/models.py:181
-msgid ""
-"You need to login as internal student to submit exercises to this course."
-msgstr ""
-
-#: course/models.py:268 course/models.py:383 exercise/exercise_models.py:38
+#: course/models.py:277 course/models.py:392 exercise/exercise_models.py:51
 #: exercise/submission_models.py:54
 msgid "Ready"
 msgstr ""
 
-#: course/models.py:269 course/models.py:384 templates/base.html:70
+#: course/models.py:278 course/models.py:393 templates/base.html:70
 msgid "Hidden"
 msgstr ""
 
-#: course/models.py:270 exercise/exercise_models.py:41
+#: course/models.py:279 exercise/exercise_models.py:55
 msgid "Maintenance"
 msgstr ""
 
-#: course/models.py:278
+#: course/models.py:287
 msgid "Input an URL identifier for this module."
 msgstr ""
 
-#: course/models.py:293
+#: course/models.py:302
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr ""
 
@@ -200,7 +198,7 @@ msgstr ""
 
 #: course/templates/course/_module_toc.html:29
 #: course/templates/course/_siblings.html:16
-#: course/templates/course/toc.html:28
+#: course/templates/course/toc.html:50
 #: exercise/templates/exercise/_user_results.html:102
 msgid "Early access"
 msgstr ""
@@ -230,7 +228,7 @@ msgid ""
 msgstr ""
 
 #: course/templates/course/course.html:29
-#: course/templates/course/index.html:56
+#: course/templates/course/index.html:63
 #, python-format
 msgid ""
 "\n"
@@ -250,7 +248,7 @@ msgstr ""
 msgid "Hidden from students"
 msgstr ""
 
-#: course/templates/course/index.html:44
+#: course/templates/course/index.html:51
 msgid "View course"
 msgstr ""
 
@@ -315,35 +313,68 @@ msgid ""
 "            "
 msgstr ""
 
+#: course/templates/course/toc.html:18
+msgid "In order to submit exercises, you must enroll to the course."
+msgstr ""
+
+#: course/templates/course/toc.html:20
+msgid ""
+"In order to submit exercises and see material, you must enroll to the course."
+msgstr ""
+
+#: course/templates/course/toc.html:22
+msgid "Enroll"
+msgstr ""
+
+#: course/templates/course/toc.html:25
+msgid ""
+"Unfortunately, you cannot enroll to this course, but you may explore the "
+"course material."
+msgstr ""
+
+#: course/templates/course/toc.html:27
+msgid ""
+"Login is required to submit exercises, but you may anonymously explore the "
+"course material."
+msgstr ""
+
 #: course/viewbase.py:29
 msgid "Only course teachers shall pass."
 msgstr ""
 
-#: course/viewbase.py:60
+#: course/viewbase.py:62
 msgid "Only course staff shall pass."
 msgstr ""
 
-#: course/viewbase.py:65
+#: course/viewbase.py:67
 msgid "The resource is not currently visible."
 msgstr ""
 
-#: course/viewbase.py:70
-msgid "This course is only for external students."
+#: course/viewbase.py:74
+msgid "Only enrolled students shall pass."
 msgstr ""
 
-#: course/viewbase.py:73
+#: course/viewbase.py:78
 msgid "This course is only for internal students."
 msgstr ""
 
-#: course/viewbase.py:100
+#: course/viewbase.py:81
+msgid "This course is only for external students."
+msgstr ""
+
+#: course/viewbase.py:117
 msgid "The module will open for submissions at {date}"
 msgstr ""
 
-#: course/views.py:65
+#: course/views.py:67
+msgid "You cannot enroll, or have already enrolled, to this course."
+msgstr ""
+
+#: course/views.py:86
 msgid "The course module is not yet open for students."
 msgstr ""
 
-#: course/views.py:106
+#: course/views.py:127
 msgid "You tried to hide all categories. Select at least one visible category."
 msgstr ""
 
@@ -948,68 +979,80 @@ msgid ""
 "</div>"
 msgstr ""
 
-#: exercise/exercise_models.py:39
+#: exercise/exercise_models.py:52
 msgid "Unlisted in table of contents"
 msgstr ""
 
-#: exercise/exercise_models.py:40
-msgid "Hidden from non course staff"
-msgstr ""
-
-#: exercise/exercise_models.py:51
-msgid "Input an URL identifier for this object."
+#: exercise/exercise_models.py:53
+msgid "Enrollment questions"
 msgstr ""
 
 #: exercise/exercise_models.py:54
+msgid "Hidden from non course staff"
+msgstr ""
+
+#: exercise/exercise_models.py:65
+msgid "Input an URL identifier for this object."
+msgstr ""
+
+#: exercise/exercise_models.py:68
 msgid "Internal description is not presented on site."
 msgstr ""
 
-#: exercise/exercise_models.py:56
+#: exercise/exercise_models.py:70
 msgid "Remove the third info column for more space."
 msgstr ""
 
-#: exercise/exercise_models.py:72
+#: exercise/exercise_models.py:87
 msgid "Course_module and category must belong to the same course instance."
 msgstr ""
 
-#: exercise/exercise_models.py:82
+#: exercise/exercise_models.py:97
 msgid "Cannot select parent from another course module."
 msgstr ""
 
-#: exercise/exercise_models.py:214
+#: exercise/exercise_models.py:238
 msgid "Points to pass cannot be greater than max_points."
 msgstr ""
 
-#: exercise/exercise_models.py:292
+#: exercise/exercise_models.py:319
 msgid "The course is archived. Exercises are offline."
 msgstr ""
 
-#: exercise/exercise_models.py:302
+#: exercise/exercise_models.py:325
+msgid "You cannot enroll to the course."
+msgstr ""
+
+#: exercise/exercise_models.py:328
+msgid "You must enroll at course home to submit exercises."
+msgstr ""
+
+#: exercise/exercise_models.py:333
 msgid "This exercise is not open for submissions."
 msgstr ""
 
-#: exercise/exercise_models.py:305
+#: exercise/exercise_models.py:336
 #, python-format
 msgid ""
 "This exercise can be submitted in groups of %(min)d to %(max)d students.The "
 "size of your current group is %(size)d."
 msgstr ""
 
-#: exercise/exercise_models.py:313
+#: exercise/exercise_models.py:344
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr ""
 
-#: exercise/exercise_models.py:320
+#: exercise/exercise_models.py:352
 msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed until"
 "{date} but points are only worth {percent:d}%."
 msgstr ""
 
-#: exercise/exercise_models.py:405
+#: exercise/exercise_models.py:435
 msgid "Exercise must be located in the LTI domain."
 msgstr ""
 
-#: exercise/exercise_models.py:472
+#: exercise/exercise_models.py:502
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -1515,15 +1558,15 @@ msgstr ""
 msgid "Only the submitter shall pass."
 msgstr ""
 
-#: exercise/views.py:59
+#: exercise/views.py:66
 msgid "Exercise is in maintenance and content is hidden from students."
 msgstr ""
 
-#: exercise/views.py:63
+#: exercise/views.py:70
 msgid "Unfortunately this exercise is currently under maintenance."
 msgstr ""
 
-#: exercise/views.py:95
+#: exercise/views.py:112
 msgid ""
 "The submission could not be saved for some reason. The submission was not "
 "registered."
