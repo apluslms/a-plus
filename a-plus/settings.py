@@ -28,7 +28,7 @@ TEMPLATE_DEBUG = DEBUG
 SITEWIDE_ALERT_TEXT = None
 BRAND_NAME = 'A+'
 
-WELCOME_TEXT = 'Welcome to A+ <small>and networked learning</small>'
+WELCOME_TEXT = 'Welcome to A+ <small>modern learning environment</small>'
 SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
 SHIBBOLETH_BODY_TEXT = 'Log in with Aalto University user account by clicking the button below. Programme students and faculty must login here.'
 SHIBBOLETH_BUTTON_TEXT = 'Aalto Login'
@@ -37,8 +37,10 @@ MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Login with your use
 LOGIN_TITLE_TEXT = ''
 LOGIN_BODY_TEXT = ''
 LOGIN_BUTTON_TEXT = 'Maintenance login'
+INTERNAL_USER_LABEL = 'Aalto'
+EXTERNAL_USER_LABEL = 'MOOC'
 
-WELCOME_TEXT_FI = 'Tervetuloa A-plussaan <small>opiskelemaan verkossa</small>'
+WELCOME_TEXT_FI = 'A+ <small>verkkopohjainen oppimisympäristö</small>'
 SHIBBOLETH_TITLE_TEXT_FI = 'Aalto-yliopiston käyttäjät'
 SHIBBOLETH_BODY_TEXT_FI = 'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuksella alla olevasta painikkeesta. Koulutusohjelmien opiskelijoiden ja henkilökunnan pitää kirjautua tästä.'
 SHIBBOLETH_BUTTON_TEXT_FI = 'Aalto-kirjautuminen'

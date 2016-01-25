@@ -23,7 +23,8 @@ except ImportError:
 
 class ACCESS(object):
     ANONYMOUS = 0
-    STUDENT = 1
+    ENROLL = 1
+    STUDENT = 3
     ASSISTANT = 5
     GRADING = 6
     TEACHER = 10

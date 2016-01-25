@@ -188,8 +188,8 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_course_staff(self.user))
         self.assertEquals(0, len(self.current_course_instance.get_course_staff_profiles()))
 
-    def test_course_instance_students(self):
-        students = self.current_course_instance.get_student_profiles()
+    def test_course_instance_submitters(self):
+        students = self.current_course_instance.get_submitted_profiles()
         self.assertEquals(1, len(students))
         self.assertEquals("testUser", students[0].shortname)
 
@@ -198,7 +198,7 @@ class CourseTest(TestCase):
             grader=self.grader.userprofile)
         submission2.submitters.add(self.user.userprofile)
 
-        students = self.current_course_instance.get_student_profiles()
+        students = self.current_course_instance.get_submitted_profiles()
         self.assertEquals(1, len(students))
         self.assertEquals("testUser", students[0].shortname)
 
@@ -207,7 +207,7 @@ class CourseTest(TestCase):
             grader=self.user.userprofile)
         submission3.submitters.add(self.grader.userprofile)
 
-        students = self.current_course_instance.get_student_profiles()
+        students = self.current_course_instance.get_submitted_profiles()
         self.assertEquals(2, len(students))
         self.assertEquals("testUser", students[0].shortname)
         self.assertEquals("grader", students[1].shortname)

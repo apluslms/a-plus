@@ -13,7 +13,7 @@ class ModuleTree(object):
         if show_hidden:
             return [o for o in self.objects if o.parent_id == parent_id]
         return [o for o in self.objects if o.parent_id == parent_id \
-            and o.status != 'hidden' and o.status != 'unlisted']
+            and o.status in ('ready', 'maintenance')]
 
     def parent(self, ref):
         if ref.parent_id:

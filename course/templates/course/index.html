@@ -5,9 +5,11 @@
 
 {% block content %}
 
+{% if welcome_text %}
 <div class="page-header">
     <h1>{{ welcome_text|safe }}</h1>
 </div>
+{% endif %}
 
 <div class="row">
     {% for instance in instances %}
@@ -36,6 +38,13 @@
                     <!--{{ instance.instance_name }}<br />-->
                     {{ instance.starting_time|date:"N j, Y" }} &ndash;
                     {{ instance.ending_time|date:"N j, Y" }}
+                    <br />
+                    {% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
+                    <span class="label label-success">{{ internal_user_label|safe }}</span>
+                    {% endif %}
+                    {% if instance.enrollment_audience == 2 or instance.enrollment_audience == 3 %}
+                    <span class="label label-info">{{ external_user_label|safe }}</span>
+                    {% endif %}
                 </p>
                 <div class="buttons caption">
                     <a class="btn btn-primary btn-block" role="button" href="{{ instance_url }}">

@@ -11,11 +11,12 @@ from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 
+from exercise.models import LearningObject
 from lib.helpers import settings_text
-from lib.viewbase import BaseRedirectView
+from lib.viewbase import BaseTemplateView, BaseRedirectView
 from userprofile.viewbase import ACCESS, UserProfileView
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
-    CourseModuleBaseView, CourseInstanceMixin
+    CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
 from .models import CourseInstance
 
 
@@ -29,8 +30,10 @@ class HomeView(UserProfileView):
     def get_common_objects(self):
         super().get_common_objects()
         self.welcome_text = settings_text(self.request, 'WELCOME_TEXT')
+        self.internal_user_label = settings_text(self.request, 'INTERNAL_USER_LABEL')
+        self.external_user_label = settings_text(self.request, 'EXTERNAL_USER_LABEL')
         self.instances = CourseInstance.objects.get_active(self.request.user)
-        self.note("welcome_text", "instances")
+        self.note("welcome_text", "internal_user_label", "external_user_label", "instances")
 
 
 class ArchiveView(UserProfileView):
@@ -51,8 +54,26 @@ class CourseView(CourseBaseView):
         self.note("instances")
 
 
-class InstanceView(CourseInstanceBaseView):
+class InstanceView(EnrollableViewMixin, BaseTemplateView):
     template_name = "course/toc.html"
+
+
+class Enroll(EnrollableViewMixin, BaseRedirectView):
+
+    def post(self, request, *args, **kwargs):
+        self.handle()
+
+        if self.enrolled or not self.enrollable:
+            messages.error(self.request, _("You cannot enroll, or have already enrolled, to this course."))
+            raise PermissionDenied()
+
+        # Support enrollment questionnaires.
+        exercise = LearningObject.objects.find_enrollment_exercise(self.instance)
+        if exercise:
+            return self.redirect(exercise.get_absolute_url())
+
+        self.instance.enroll_student(self.request.user)
+        return self.redirect(self.instance.get_absolute_url())
 
 
 class ModuleView(CourseModuleBaseView):
