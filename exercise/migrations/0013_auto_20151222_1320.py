@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.core.validators
 
 
 class Migration(migrations.Migration):
@@ -11,6 +12,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='learningobject',
+            name='url',
+            field=models.CharField(validators=[django.core.validators.RegexValidator(regex='^[\\w\\-\\.]*$')], max_length=255, help_text='Input an URL identifier for this object.'),
+            preserve_default=True,
+        ),
         migrations.AlterUniqueTogether(
             name='learningobject',
             unique_together=set([('course_module', 'parent', 'url')]),
