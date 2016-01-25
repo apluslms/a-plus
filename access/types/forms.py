@@ -77,7 +77,9 @@ class GradedForm(forms.Form):
                 # Create a field by type.
                 f = None
                 r = "required" in field and field["required"]
-                atr = {"class": "form-control", "readonly": self.disabled}
+                atr = {"class": "form-control"}
+                if self.disabled:
+                    atr["readonly"] = True
                 if t == "checkbox":
                     f = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(),
                         required=r, choices=self.create_choices(field))
