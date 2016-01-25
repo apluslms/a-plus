@@ -37,6 +37,8 @@ MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Login with your use
 LOGIN_TITLE_TEXT = ''
 LOGIN_BODY_TEXT = ''
 LOGIN_BUTTON_TEXT = 'Maintenance login'
+INTERNAL_USER_LABEL = 'Aalto'
+EXTERNAL_USER_LABEL = 'MOOC'
 
 WELCOME_TEXT_FI = 'A+ <small>verkkopohjainen oppimisympäristö</small>'
 SHIBBOLETH_TITLE_TEXT_FI = 'Aalto-yliopiston käyttäjät'

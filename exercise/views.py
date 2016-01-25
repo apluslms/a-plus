@@ -11,6 +11,8 @@ from django.views.static import serve
 
 from course.viewbase import CourseInstanceBaseView
 from lib.viewbase import BaseRedirectMixin
+from userprofile.viewbase import ACCESS
+from .models import LearningObjectDisplay
 from .presentation.summary import UserExerciseSummary
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
@@ -40,6 +42,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
+    def access_control(self):
+        if self.exercise.status == 'enrollment' and self.access_mode == ACCESS.STUDENT:
+            self.access_mode = ACCESS.ENROLL
+        super().access_control()
+
     def get_after_new_submission(self):
         self.submissions = self.exercise.get_submissions_for_student(
             self.profile) if self.profile else []
@@ -66,6 +73,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
         page = self.exercise.as_leaf_class().load(request, students,
             url_name=self.post_url_name)
+
+        if self.profile:
+            LearningObjectDisplay.objects.get_or_create(
+                learning_object=self.exercise, profile=self.profile)
+
         return self.response(page=page, students=students)
 
     def post(self, request, *args, **kwargs):
@@ -85,6 +97,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             if new_submission:
                 page = self.exercise.grade(request, new_submission,
                     url_name=self.post_url_name)
+
+                # Enroll after succesfull enrollment exercise.
+                if self.exercise.status == 'enrollment' \
+                        and new_submission.status == Submission.STATUS_READY:
+                    self.instance.enroll_student(self.request.user)
 
                 # Redirect non AJAX normally to submission page.
                 if not request.is_ajax() and "__r" not in request.GET:

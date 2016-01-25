@@ -26,17 +26,31 @@ from .protocol.aplus import load_exercise_page, load_feedback_page
 from .protocol.exercise_page import ExercisePage
 
 
+class LearningObjectManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().defer('description', 'content')
+
+    def find_enrollment_exercise(self, course_instance):
+        return self.filter(
+            course_module__course_instance=course_instance,
+            status='enrollment'
+        ).first()
+
+
 class LearningObject(ModelWithInheritance):
     """
     All learning objects inherit this model.
     """
     STATUS_READY = 'ready'
     STATUS_UNLISTED = 'unlisted'
+    STATUS_ENROLLMENT = 'enrollment'
     STATUS_HIDDEN = 'hidden'
     STATUS_MAINTENANCE = 'maintenance'
     STATUS_CHOICES = (
         (STATUS_READY, _("Ready")),
         (STATUS_UNLISTED, _("Unlisted in table of contents")),
+        (STATUS_ENROLLMENT, _("Enrollment questions")),
         (STATUS_HIDDEN, _("Hidden from non course staff")),
         (STATUS_MAINTENANCE, _("Maintenance")),
     )
@@ -58,6 +72,7 @@ class LearningObject(ModelWithInheritance):
     content = models.TextField(blank=True)
     content_head = models.TextField(blank=True)
     content_time = models.DateTimeField(blank=True, null=True)
+    objects = LearningObjectManager()
 
     class Meta:
         app_label = "exercise"
@@ -180,6 +195,15 @@ class LearningObject(ModelWithInheritance):
         return page
 
 
+class LearningObjectDisplay(models.Model):
+    """
+    Records views of learning objects.
+    """
+    learning_object = models.ForeignKey(LearningObject)
+    profile = models.ForeignKey(UserProfile)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+
 class CourseChapter(LearningObject):
     """
     Chapters can offer and organize learning material as one page chapters.
@@ -217,16 +241,14 @@ class BaseExercise(LearningObject):
     def is_submittable(self):
         return True
 
-    def all_can_submit(self, students):
-        instance = self.course_instance
+    def all_have_enrolled(self, students):
         if not students:
-            return instance.has_submission_access(None)
+            return False
         for profile in students:
-            # TODO: check all students are enrolled
-            ok, warning = instance.has_submission_access(profile.user)
-            if not ok:
-                return ok, warning
-        return True, ""
+            if not (self.course_instance.is_student(profile.user) \
+                    or self.course_instance.is_course_staff(profile.user)):
+                return False
+        return True
 
     def one_has_access(self, students, when=None):
         """
@@ -287,43 +309,51 @@ class BaseExercise(LearningObject):
 
         @return: (success_flag, warning_message_list)
         """
+        success, warnings = self._check_submission_allowed(students)
+        return success, list(str(w) for w in warnings)
+
+    def _check_submission_allowed(self, students):
         warnings = []
+
         if self.course_instance.ending_time < timezone.now():
             warnings.append(_('The course is archived. Exercises are offline.'))
-            success = False
-        else:
-            check, message = self.all_can_submit(students)
-            if not check:
-                warnings.append(message)
-                success = False
-            else:
-                if not self.one_has_access(students):
-                    warnings.append(
-                        _('This exercise is not open for submissions.'))
-                if not (self.min_group_size <= len(students) <= self.max_group_size):
-                    warnings.append(
-                        _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
-                          'The size of your current group is %(size)d.') % {
-                            'min': self.min_group_size,
-                            'max': self.max_group_size,
-                            'size': len(students),
-                        })
-                if not self.one_has_submissions(students):
-                    warnings.append(
-                        _('You have used the allowed amount of submissions for this exercise.'))
-                success = len(warnings) == 0 \
-                    or all(self.course_instance.is_course_staff(p.user) for p in students)
+            return False, warnings
 
-            # If late submission is open, notify the student about point reduction.
-            if self.course_module.is_late_submission_open():
-                warnings.append(
-                    _('Deadline for the exercise has passed. Late submissions are allowed until'
-                      '{date} but points are only worth {percent:d}%.').format(
-                        date=date_format(self.course_module.late_submission_deadline),
-                        percent=self.course_module.get_late_submission_point_worth(),
-                    ))
+        if self.status == LearningObject.STATUS_ENROLLMENT:
+            if not len(students) == 1 and \
+                    not self.course_instance.is_enrollable(students[0].user):
+                warnings.append(_('You cannot enroll to the course.'))
+                return False, warnings
+        elif not self.all_have_enrolled(students):
+            warnings.append(_('You must enroll at course home to submit exercises.'))
+            return False, warnings
 
-        warnings = list(str(warning) for warning in warnings)
+        # Check different submission limits.
+        if not self.one_has_access(students):
+            warnings.append(_('This exercise is not open for submissions.'))
+        if not (self.min_group_size <= len(students) <= self.max_group_size):
+            warnings.append(
+                _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
+                  'The size of your current group is %(size)d.') % {
+                    'min': self.min_group_size,
+                    'max': self.max_group_size,
+                    'size': len(students),
+                })
+        if not self.one_has_submissions(students):
+            warnings.append(
+                _('You have used the allowed amount of submissions for this exercise.'))
+
+        success = len(warnings) == 0 \
+            or all(self.course_instance.is_course_staff(p.user) for p in students)
+
+        # If late submission is open, notify the student about point reduction.
+        if self.course_module.is_late_submission_open():
+            warnings.append(
+                _('Deadline for the exercise has passed. Late submissions are allowed until'
+                  '{date} but points are only worth {percent:d}%.').format(
+                    date=date_format(self.course_module.late_submission_deadline),
+                    percent=self.course_module.get_late_submission_point_worth(),
+                ))
         return success, warnings
 
     def get_total_submitter_count(self):

@@ -8,9 +8,31 @@
 {% block breadcrumb %}{% endblock %}
 
 {% block coursecontent %}
+
+{% if not enrolled %}
+<div class="alert alert-info">
+{% if enrollable %}
+<form method="post" action="{{ instance|url:'enroll' }}">
+  {% csrf_token %}
+  {% if instance.view_content_to > 1 %}
+  {% trans "In order to submit exercises, you must enroll to the course." %}
+  {% else %}
+  {% trans "In order to submit exercises and see material, you must enroll to the course." %}
+  {% endif %}
+  <input type="submit" value="{% trans 'Enroll' %}" class="btn btn-info">
+</form>
+{% elif profile %}
+{% trans "Unfortunately, you cannot enroll to this course, but you may explore the course material." %}
+{% else %}
+{% trans "Login is required to submit exercises, but you may anonymously explore the course material." %}
+{% endif %}
+</div>
+{% endif %}
+
 <div>
     {{ instance.description|safe }}
 </div>
+
 {% if instance.index_mode == 1 %}
 <ul class="toc">
     {% for module in instance.course_modules.all %}
@@ -39,9 +61,11 @@
     {% endif %}
     {% endfor %}
 </ul>
+
 {% else %}
 {% user_results %}
 {% endif %}
+
 <div>
   {{ instance.footer|safe }}
 </div>
