@@ -31,7 +31,17 @@ class GradedForm(forms.Form):
         if "fieldgroups" not in self.exercise:
             raise ConfigError("Missing required \"fieldgroups\" in exercise configuration")
 
+        # Check that sample is unmodified in a randomized form.
+        if not args[0] is None:
+            nonce = args[0].get('_nonce', '')
+            sample = args[0].get('_sample', '')
+            if nonce and sample:
+                if self.samples_hash(nonce, sample) != args[0].get('_checksum', ''):
+                    raise PermissionDenied('Invalid checksum')
+                post_samples = sample.split('/')
+
         self.disabled = False
+        samples = []
         g = 0
         i = 0
 
@@ -42,20 +52,15 @@ class GradedForm(forms.Form):
 
             # Randomly pick fields to include.
             if "pick_randomly" in group:
-                secret = self.exercise.get('secret') or settings.AJAX_KEY
                 if not args[0] is None:
-                    POST = args[0]
-                    nonce = POST.get('_nonce', '')
-                    sample = POST.get('_sample', '')
-                    if make_hash(secret, nonce + sample) != POST.get('_checksum', ''):
-                        raise PermissionDenied('Invalid checksum')
-                    indexes = [int(i) for i in sample.split('-')]
                     self.disabled = True
+                    if len(post_samples) > 0:
+                        indexes = [int(i) for i in post_samples.pop(0).split('-')]
+                    else:
+                        indexes = []
                 else:
                     indexes = random.sample(range(len(group["fields"])), int(group["pick_randomly"]))
-                    self.nonce = random_ascii(16)
-                    self.sample = '-'.join([str(i) for i in indexes])
-                    self.checksum = make_hash(secret, self.nonce + self.sample)
+                    samples.append('-'.join([str(i) for i in indexes]))
                 group["_fields"] = [group["fields"][i] for i in indexes]
             else:
                 group["_fields"] = group["fields"]
@@ -106,6 +111,19 @@ class GradedForm(forms.Form):
                 self.fields[self.field_name(i)] = f
                 i += 1
             g += 1
+
+        # Protect sample used in a randomized form.
+        if len(samples) > 0:
+            self.nonce = random_ascii(16)
+            self.sample = '/'.join(samples)
+            self.checksum = self.samples_hash(self.nonce, self.sample)
+
+
+    def samples_hash(self, nonce, sample):
+        return make_hash(
+            self.exercise.get('secret') or settings.AJAX_KEY,
+            nonce + sample
+        )
 
 
     def create_more(self, configuration):
