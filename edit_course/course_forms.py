@@ -9,11 +9,12 @@ from course.models import LearningObjectCategory, CourseModule, CourseInstance
 class FieldsetModelForm(forms.ModelForm):
 
     class Meta:
+        legend = ""
         fields = []
 
     def get_fieldsets(self):
         return [
-            { "legend": "", "fields": self.get_fields(*self.Meta.fields) },
+            { "legend": self.Meta.legend, "fields": self.get_fields(*self.Meta.fields) },
         ]
 
     def get_fields(self, *names):
@@ -24,6 +25,7 @@ class LearningObjectCategoryForm(FieldsetModelForm):
 
     class Meta:
         model = LearningObjectCategory
+        legend = _("Category")
         fields = [
             'status',
             'name',

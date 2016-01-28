@@ -29,7 +29,7 @@
         {{ hidden }}
     {% endfor %}
 
-    {% if form.service_url %}
+    {% if form.remote_service_head %}
     <fieldset>
         <legend>{% trans "Remote service" %}</legend>
 
@@ -49,18 +49,6 @@
             </div>
         </div>
     </fieldset>
-    {% else %}
-    <legend>
-        {% if object.id %}
-        {% blocktrans with model=model_name name=object %}
-        Edit {{ model }} {{ name }}
-        {% endblocktrans %}
-        {% else %}
-        {% blocktrans with model=model_name %}
-        Add new {{ model }}
-        {% endblocktrans %}
-        {% endif %}
-    </legend>
     {% endif %}
 
     {% for fieldset in form.get_fieldsets %}

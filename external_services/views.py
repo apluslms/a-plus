@@ -48,7 +48,6 @@ class LTILoginView(CourseInstanceBaseView):
             self.request.user,
             self.instance,
             self.request.get_host(),
-            "aplus%d" % (self.service.pk),
             self.menu_item.label,
         )
         self.url = self.service.url
