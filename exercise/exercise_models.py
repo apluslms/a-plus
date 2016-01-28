@@ -29,7 +29,7 @@ from .protocol.exercise_page import ExercisePage
 class LearningObjectManager(models.Manager):
 
     def get_queryset(self):
-        return super().get_queryset().defer('description', 'content')
+        return super().get_queryset().defer('description', 'content', 'content_head')
 
     def find_enrollment_exercise(self, course_instance):
         return self.filter(
@@ -177,12 +177,14 @@ class LearningObject(ModelWithInheritance):
         """
         if not self.service_url:
             return ExercisePage(self)
-        if self.id and self.content \
-                and self.course_instance.ending_time < timezone.now():
+
+        # Archived course presents static copy.
+        if self.id and self.course_instance.ending_time < timezone.now() and self.content:
             page = ExercisePage(self)
             page.is_loaded = True
             page.content_head = self.content_head
             page.content = self.content
+
         else:
             page = load_exercise_page(request, self.get_load_url(
                 request, students, url_name), self)
@@ -421,23 +423,57 @@ class BaseExercise(LearningObject):
 
 class LTIExercise(BaseExercise):
     """
-    Exercises that add LTI user information for use by the exercise service.
+    Exercise launched by LTI or optionally ameding A+ protocol with LTI data.
     """
     lti_service = models.ForeignKey(LTIService)
+    context_id = models.CharField(max_length=128, blank=True,
+        help_text=_('Default: [hostname]/[course:url]/[instance:url]/'))
+    resource_link_id = models.CharField(max_length=128, blank=True,
+        help_text=_('Default: [aplusexercise:id]'))
+    resource_link_title = models.CharField(max_length=128, blank=True,
+        help_text=_('Default: Launch exercise'))
+    aplus_get_and_post = models.BooleanField(default=False,
+        help_text=_('Perform GET and POST from A+ to custom service URL with LTI data appended.'))
 
     def clean(self):
         """
         Validates the model before saving (standard method used in Django admin).
         """
         super().clean()
-        if not has_same_domain(self.service_url, self.lti_service.url):
+        if self.service_url and not has_same_domain(self.service_url, self.lti_service.url):
             raise ValidationError({
                 'service_url':_("Exercise must be located in the LTI domain.")
             })
 
+    def load(self, request, students, url_name="exercise"):
+        if self.aplus_get_and_post:
+            return super().load(request, students, url_name=url_name)
+
+        lti = self._get_lti(students[0].user, request.get_host())
+
+        # Render launch button.
+        page = ExercisePage(self)
+        page.content = self.content
+        template = loader.get_template('exercise/model/_lti_button.html')
+        page.content += template.render(Context({
+            'service': self.lti_service,
+            'url': self.service_url or self.lti_service.url,
+            'parameters': lti.sign_post_parameters(),
+            'title': self.resource_link_title,
+        }))
+        return page
+
     def _get_lti(self, user, host, add={}):
-        return LTIRequest(self.lti_service, user, self.course_instance,
-            host, "aplusexercise%d" % (self.id or 0), self.name, add=add)
+        return LTIRequest(
+            self.lti_service,
+            user,
+            self.course_instance,
+            host,
+            self.resource_link_title or self.name,
+            self.context_id or None,
+            self.resource_link_id or "aplusexercise{:d}".format(self.id or 0),
+            add=add,
+        )
 
     def get_load_url(self, request, students, url_name="exercise"):
         url = super().get_load_url(request, students, url_name=url_name)
@@ -456,6 +492,10 @@ class StaticExercise(BaseExercise):
     """
     Static exercises are used for storing submissions on the server, but not automatically
     assessing them. Static exercises may be retrieved by other services through the API.
+
+    Chapters should be used for non submittable content.
+
+    Should be deprecated as a contradiction to A+ ideology.
     """
     exercise_page_content = models.TextField()
     submission_page_content = models.TextField()
@@ -497,6 +537,8 @@ class ExerciseWithAttachment(BaseExercise):
     will contain a submission form for the files the user should submit if the
     files to be submitted are defined. Otherwise the instructions must contain
     the submission form.
+
+    Could be deprecated as a contradiction to A+ purist ideology.
     """
     files_to_submit = models.CharField(max_length=200, blank=True,
         help_text=_("File names that user should submit, use pipe character to separate files"))

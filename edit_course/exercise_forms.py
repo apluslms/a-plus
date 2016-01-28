@@ -46,6 +46,10 @@ class LearningObjectMixin(object):
             .exclude(id=self.lobject.id)\
             .filter(course_module=self.lobject.course_module)
 
+    @property
+    def remote_service_head(self):
+        return True
+
     def get_hierarchy_fieldset(self):
         return { 'legend':_('Hierarchy'), 'fields':self.get_fields('status',
             'category','course_module','parent','order','url') }
@@ -103,10 +107,20 @@ class LTIExerciseForm(BaseExerciseForm):
         model = LTIExercise
         fields = COMMON_FIELDS + SERVICE_FIELDS + EXERCISE_FIELDS + [
             'lti_service',
+            'context_id',
+            'resource_link_id',
+            'resource_link_title',
+            'aplus_get_and_post',
         ]
 
+    @property
+    def remote_service_head(self):
+        return False
+
     def get_content_fieldset(self):
-        return super().get_content_fieldset('lti_service')
+        return super().get_content_fieldset('lti_service','context_id',
+            'resource_link_id','resource_link_title',
+            'aplus_get_and_post','service_url')
 
 
 class ExerciseWithAttachmentForm(BaseExerciseForm):

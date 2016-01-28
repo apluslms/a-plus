@@ -9,14 +9,19 @@ from lib.helpers import update_url_params
 
 class LTIRequest(object):
 
-    def __init__(self, service, user, instance, host, resource, title, add={}):
+    def __init__(self, service, user, instance, host, title, context_id=None, link_id=None, add={}):
         self.service = service
         course = instance.course
 
+        # Context and resource parameters.
+        context_id = context_id or (host + instance.get_absolute_url())
+        link_id = link_id or "aplus{:d}".format(service.pk)
+        title = title or link_id
+
         # Determine user ID.
-        student_id = "aplusuid%d" % (user.pk)
-        if user.userprofile.student_id:
-            student_id = user.userprofile.student_id
+        student_id = user.userprofile.student_id \
+            if user.userprofile.student_id \
+            else "aplusuid{:d}".format(user.pk)
 
         # MD5 the user id so that the real student id and names or emails
         # are not linked in external services.
@@ -35,19 +40,19 @@ class LTIRequest(object):
             "lti_version": "LTI-1p0",
             "lti_message_type": "basic-lti-launch-request",
 
-            "resource_link_id": resource,
+            "resource_link_id": link_id,
             "resource_link_title": title,
 
             # User.
             "user_id": student_id,
             "roles": role,
-            "lis_person_name_full": "%s %s" % (user.first_name, user.last_name),
+            "lis_person_name_full": "{} {}".format(user.first_name, user.last_name),
             "lis_person_name_given": user.first_name,
             "lis_person_name_family": user.last_name,
             "lis_person_contact_email_primary": user.email,
 
             # Selected course.
-            "context_id": host + instance.get_absolute_url(),
+            "context_id": context_id,
             "context_title": course.name,
             "context_label": course.code,
 
