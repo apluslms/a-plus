@@ -77,9 +77,15 @@ def invoke_sandbox(course_key, action, dirarg=None):
         else:
             cmd.append(str(settings.SANDBOX_LIMITS[key]))
 
+    print(action)
     if dirarg:
-        cmd.append(os.path.join(dirarg,
-            action["dir"] if "dir" in action else "user"))
+        if "dir" in action:
+            if action["dir"] == ".":
+                cmd.append(dirarg)
+            else:
+                cmd.append(os.path.join(dirarg, action["dir"]))
+        else:
+            cmd.append(os.path.join(dirarg, "user"))
     else:
         cmd.append("-")
     cmd.append(course_key)
