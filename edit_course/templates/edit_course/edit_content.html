@@ -101,9 +101,11 @@
                     <a class="btn btn-link btn-xs" href="{{ lobject|url }}">
                     	{% trans "Open exercise" %}
                     </a>
+                    {% if lobject.is_submittable %}
                     <a class="btn btn-link btn-xs" href="{{ lobject|url:'submission-list' }}">
                     	{% trans "View submissions" %}
                     </a>
+                    {% endif %}
                 </td>
             </tr>
             {% endif %}
