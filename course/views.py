@@ -4,6 +4,7 @@ import logging
 import icalendar
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
