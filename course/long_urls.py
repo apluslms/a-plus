@@ -11,7 +11,7 @@ urlpatterns = [
     url(USER_URL_PREFIX + r'export-calendar/$',
         views.CalendarExport.as_view(),
         name='export-calendar'),
-    url(USER_URL_PREFIX + r'filter-categories/$',
-        views.FilterCategories.as_view(),
-        name='filter-categories'),
+    # url(USER_URL_PREFIX + r'filter-categories/$',
+    #     views.FilterCategories.as_view(),
+    #     name='filter-categories'),
 ]

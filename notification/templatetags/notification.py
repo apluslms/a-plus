@@ -1,5 +1,6 @@
 
 from django import template
+from django.utils.translation import ungettext
 from notification.models import NotificationSet
 
 register = template.Library()
@@ -18,8 +19,14 @@ def _unread_messages(context):
     user = _context_user(context)
     if user:
         unread = NotificationSet.get_unread(user)
+        message = ungettext(
+            'new notification',
+            'new notifications',
+            unread.count
+        )
     return {
         "unread": unread,
+        "unread_message": message,
     }
 
 

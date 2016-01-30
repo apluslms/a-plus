@@ -31,14 +31,18 @@
             	{% endif %}
             </dd>
 
+            {% if exercise.points_to_pass > 0 %}
             <dt>{% trans "Points required to pass" %}</dt>
             <dd>{{ exercise.points_to_pass }}</dd>
+            {% endif %}
 
             <dt>{% trans "Deadline" %}</dt>
             <dd>{{ exercise.course_module.closing_time }}</dd>
 
-            <!--<dt>{% trans "Maximum group size" %}</dt>
-            <dd>{{ exercise.max_group_size }}</dd>-->
+            {% if exercise.min_group_size > 1 or exercise.max_group_size > 1 %}
+            <dt>{% trans "Group size" %}</dt>
+            <dd>{{ exercise.min_group_size }}-{{ exercise.max_group_size }}</dd>
+            {% endif %}
 
             <dt>{% trans "Total number of submitters" %}</dt>
             <dd>{{ exercise.get_total_submitter_count }}</dd>
