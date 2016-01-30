@@ -16,6 +16,7 @@ def _context_user(context):
 
 def _unread_messages(context):
     unread = []
+    message = ""
     user = _context_user(context)
     if user:
         unread = NotificationSet.get_unread(user)
