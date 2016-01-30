@@ -4,6 +4,7 @@ import logging
 import icalendar
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -109,22 +110,22 @@ class CalendarExport(CourseInstanceMixin, View):
             content_type="text/calendar; charset=utf-8")
 
 
-class FilterCategories(CourseInstanceMixin, BaseRedirectView):
-
-    def post(self, request, *args, **kwargs):
-        self.handle()
-
-        if "category_filters" in request.POST:
-            visible_category_ids = [int(cat_id)
-                for cat_id in request.POST.getlist("category_filters")]
-            for category in self.instance.categories.all():
-                if category.id in visible_category_ids:
-                    category.set_hidden_to(self.profile, False)
-                else:
-                    category.set_hidden_to(self.profile, True)
-        else:
-            messages.warning(request,
-                _("You tried to hide all categories. "
-                  "Select at least one visible category."))
-
-        return self.redirect_kwarg("next", backup=self.instance)
+# class FilterCategories(CourseInstanceMixin, BaseRedirectView):
+#
+#     def post(self, request, *args, **kwargs):
+#         self.handle()
+#
+#         if "category_filters" in request.POST:
+#             visible_category_ids = [int(cat_id)
+#                 for cat_id in request.POST.getlist("category_filters")]
+#             for category in self.instance.categories.all():
+#                 if category.id in visible_category_ids:
+#                     category.set_hidden_to(self.profile, False)
+#                 else:
+#                     category.set_hidden_to(self.profile, True)
+#         else:
+#             messages.warning(request,
+#                 _("You tried to hide all categories. "
+#                   "Select at least one visible category."))
+#
+#         return self.redirect_kwarg("next", backup=self.instance)

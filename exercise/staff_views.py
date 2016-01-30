@@ -4,7 +4,7 @@ import time
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, Http404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
@@ -31,6 +31,8 @@ class ListSubmissionsView(ExerciseBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
+        if not self.exercise.is_submittable():
+            raise Http404()
         self.submissions = self.exercise.submissions\
             .defer("feedback", "assistant_feedback",
                 "submission_data", "grading_data")\

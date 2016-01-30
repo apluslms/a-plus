@@ -173,7 +173,7 @@
                         {% block footercontent %}{% endblock %}
                         {% url 'privacy_policy' as policy_url %}
                         {% if policy_url %}
-                        <li role="presentation"><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+                        <li role="presentation"><a href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a></li>
                         {% endif %}
                     </ul>
                 </div>

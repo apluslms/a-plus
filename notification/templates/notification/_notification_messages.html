@@ -4,9 +4,7 @@
 <div class="alert alert-danger visible-xs">
     <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
     <p>
-        {% blocktrans with count=unread.count count_p=unread.count|pluralize %}
-        You have {{ count }} new notification{{ count_p }}.
-        {% endblocktrans %}
+        {% trans "You have" %} {{ undread.count }} {{ unread_message }}
         <ul>
             {% for notification in unread.notifications %}
             <li><a href="{{ notification.course_instance|url:'notifications' }}" class="alert-link">
