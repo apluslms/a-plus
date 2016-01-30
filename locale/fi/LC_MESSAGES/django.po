@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-30 17:19+0200\n"
+"POT-Creation-Date: 2016-01-30 18:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -445,7 +445,6 @@ msgstr ""
 
 #: deviations/templates/deviations/list_dl.html:28
 #: edit_course/templates/edit_course/edit_content.html:137
-#: exercise/templates/exercise/exercise_base.html:7
 msgid "Exercise"
 msgstr "Tehtävä"
 
@@ -1716,9 +1715,23 @@ msgstr ""
 msgid "Heavier menu entries are placed after lighter ones."
 msgstr ""
 
-#: external_services/templates/external_services/lti_form.html:13
-msgid "Continue to service..."
-msgstr "Jatka ulkoiseen palveluun..."
+#: external_services/templates/external_services/lti_form.html:14
+#, python-format
+msgid ""
+"\n"
+"\t\tYou are about to use an external service, %(name)s, for the first time.\n"
+"\t\tTo use the service, your name and email address will be transferred\n"
+"\t\tto the provider of this service.\n"
+"\t\t"
+msgstr ""
+"\nOlet siirtymässä ensimmäistä kertaa ulkoiseen palveluun, %(name)s. "
+"Palvelun käyttämiseksi nimesi ja sähköpostiosoitteesi lähetetään "
+"tämän palvelun ylläpitäjälle."
+
+#: external_services/templates/external_services/lti_form.html:29
+#, python-format
+msgid "Accept and continue to %(name)s"
+msgstr "Hyväksy ja jatka palveluun, %(name)s"
 
 #: lib/fields.py:27
 msgid "The number must be between 0.0 and 1.0"
@@ -1878,3 +1891,6 @@ msgstr ""
 "\n"
 "Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
 "tietokonetta, sulje selain poistaaksesi istunnon tiedot."
+
+#~ msgid "Continue to service..."
+#~ msgstr "Jatka ulkoiseen palveluun..."

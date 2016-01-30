@@ -1,16 +1,55 @@
+{% extends "course/course_base.html" %}
 {% load i18n %}
-<html>
-	<head>
-		<meta charset="UTF-8" />
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script>$(function() { $("form")[0].submit(); });</script>
-	</head>
-	<body>
-		<form id="lti_login_form" method="POST" action="{{ url }}">
-			{% for entry in parameters %}
-			<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
-			{% endfor %}
-			<input type="submit" value="{% trans 'Continue to service...' %}" />
-		</form>
-	</body>
-</html>
+
+{% block title %}{{ block.super }}: {{ service.menu_label }}{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{{ service.menu_label }}</li>
+{% endblock %}
+
+{% block coursecontent %}
+<div class="alert alert-warning">
+	<p>
+		{% blocktrans with name=service.menu_label %}
+		You are about to use an external service, {{ name }}, for the first time.
+		To use the service, your name and email address will be transferred
+		to the provider of this service.
+		{% endblocktrans %}
+	</p>
+	<p>
+		<a href="{{ site }}" target="_new">{{ site }}</a>
+	</p>
+	<p>
+	<br>
+	<form id="lti_login_form" method="POST" action="{{ service.url }}">
+		{% for entry in parameters %}
+		<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
+		{% endfor %}
+		<input type="submit" value="{% blocktrans with name=service.menu_label %}Accept and continue to {{ name }}{% endblocktrans %}" class="btn btn-primary" />
+	</form>
+	</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+$(function() {
+	var cookieName = "aplusexse{{ service.id }}";
+	var regex = new RegExp("(?:(?:^|.*;\s*)" + cookieName + "\s*\=\s*([^;]*).*$)|^.*$");
+	var val = document.cookie.replace(regex, "$1");
+	if (val == "1") {
+		$("form")[0].submit();
+	}
+	$("form").on("submit", function() {
+		var expire = new Date();
+		expire.setFullYear(expire.getFullYear() + 1);
+		var path = document.location.href.split("/");
+		document.cookie = cookieName + "=1"
+			+ ";path=/" + path[3] + "/" + path[4] + "/"
+			+ ";expires=" + expire.toGMTString();
+	});
+});
+</script>
+{% endblock %}

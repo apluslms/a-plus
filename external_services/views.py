@@ -50,6 +50,6 @@ class LTILoginView(CourseInstanceBaseView):
             self.request.get_host(),
             self.menu_item.label,
         )
-        self.url = self.service.url
         self.parameters = lti.sign_post_parameters()
-        self.note("url", "parameters")
+        self.site = '/'.join(self.service.url.split('/')[:3])
+        self.note("service", "parameters", "site")
