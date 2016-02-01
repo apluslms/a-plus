@@ -56,19 +56,19 @@ msgstr ""
 
 #: course/models.py:106
 msgid "Internal users"
-msgstr ""
+msgstr "Paikalliset käyttäjät"
 
 #: course/models.py:107
 msgid "External users"
-msgstr ""
+msgstr "Ulkoiset käyttäjät"
 
 #: course/models.py:108
 msgid "Internal and external users"
-msgstr ""
+msgstr "Paikalliset ja ulkoiset käyttäjät"
 
 #: course/models.py:111
 msgid "Enrolled students"
-msgstr ""
+msgstr "Ilmoittautuneet opiskelijat"
 
 #: course/models.py:112
 msgid "Enrollment audience"
@@ -76,11 +76,11 @@ msgstr ""
 
 #: course/models.py:113
 msgid "All registered users"
-msgstr ""
+msgstr "Kaikki rekisteröityneet käyttäjät"
 
 #: course/models.py:114
 msgid "Public to internet"
-msgstr ""
+msgstr "Julkisesti Internetissä"
 
 #: course/models.py:123
 msgid "User results"
@@ -88,27 +88,27 @@ msgstr ""
 
 #: course/models.py:124
 msgid "Table of contents"
-msgstr ""
+msgstr "Sisällysluettelo"
 
 #: course/models.py:125
 msgid "Select content for the course index page."
-msgstr ""
+msgstr "Valitse sisältö kurssin etusivulle"
 
 #: course/models.py:127 course/models.py:133
 msgid "No numbering"
-msgstr ""
+msgstr "Ei numerointia"
 
 #: course/models.py:128 course/models.py:134
 msgid "Arabic"
-msgstr ""
+msgstr "arabialainen"
 
 #: course/models.py:129 course/models.py:135
 msgid "Roman"
-msgstr ""
+msgstr "roomalainen"
 
 #: course/models.py:130
 msgid "Hidden arabic"
-msgstr ""
+msgstr "piilotettu arabialainen"
 
 #: course/models.py:141
 msgid ""
@@ -118,20 +118,20 @@ msgstr ""
 
 #: course/models.py:162
 msgid "Ending time must be later than starting time."
-msgstr ""
+msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
 #: course/models.py:277 course/models.py:392 exercise/exercise_models.py:51
 #: exercise/submission_models.py:54
 msgid "Ready"
-msgstr ""
+msgstr "Valmis"
 
 #: course/models.py:278 course/models.py:393 templates/base.html:72
 msgid "Hidden"
-msgstr ""
+msgstr "Piilotettu"
 
 #: course/models.py:279 exercise/exercise_models.py:55
 msgid "Maintenance"
-msgstr ""
+msgstr "Huolto"
 
 #: course/models.py:287
 msgid "Input an URL identifier for this module."
@@ -139,7 +139,7 @@ msgstr ""
 
 #: course/models.py:302
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
-msgstr ""
+msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
 #: course/templates/course/_course_menu.html:6
 #: edit_course/templates/edit_course/edit_course_base.html:26
@@ -330,13 +330,13 @@ msgstr ""
 
 #: course/templates/course/toc.html:18
 msgid "In order to submit exercises, you must enroll to the course."
-msgstr "Palauttaaksesi tehtäviä, sinun pitää ilmoittautua kurssille."
+msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
 #: course/templates/course/toc.html:20
 msgid ""
 "In order to submit exercises and see material, you must enroll to the course."
 msgstr ""
-"Palauttaaksesi tehtäviä ja nähdäksesi materiaalin, sinun pitää ilmoittautua "
+"Palauttaaksesi tehtäviä ja nähdäksesi materiaalin sinun pitää ilmoittautua "
 "kurssille."
 
 #: course/templates/course/toc.html:22
@@ -398,27 +398,27 @@ msgstr "Tämä osio ei ole vielä avoinna opiskelijoille."
 
 #: deviations/forms.py:18
 msgid "Amount of extra time given in minutes."
-msgstr ""
+msgstr "Annettu ylimääräinen palautusaika minuuteissa."
 
 #: deviations/forms.py:23
 msgid "Do not apply late penalty during extra time."
-msgstr ""
+msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 
 #: deviations/templates/deviations/add_dl.html:6
 #: deviations/templates/deviations/add_dl.html:19
 msgid "Add deadline deviations"
-msgstr ""
+msgstr "Lisää määräajan muutoksia"
 
 #: deviations/templates/deviations/add_dl.html:11
 #: deviations/templates/deviations/list_dl.html:5
 #: deviations/templates/deviations/list_dl.html:10
 msgid "List deadline deviations"
-msgstr ""
+msgstr "Listaa määräajan muutokset"
 
 #: deviations/templates/deviations/add_dl.html:12
 #: deviations/templates/deviations/list_dl.html:18
 msgid "Add new deadline deviations"
-msgstr ""
+msgstr "Lisää uusia määräajan muutoksia"
 
 #: deviations/templates/deviations/add_dl.html:23
 #: edit_course/templates/edit_course/batch_assess.html:64
@@ -437,11 +437,11 @@ msgstr "Peruuta"
 
 #: deviations/templates/deviations/list_dl.html:23
 msgid "Deadline deviations"
-msgstr ""
+msgstr "Määräajan muutokset"
 
 #: deviations/templates/deviations/list_dl.html:27
 msgid "Submitter"
-msgstr ""
+msgstr "Palauttaja"
 
 #: deviations/templates/deviations/list_dl.html:28
 #: edit_course/templates/edit_course/edit_content.html:137
@@ -450,15 +450,15 @@ msgstr "Tehtävä"
 
 #: deviations/templates/deviations/list_dl.html:29
 msgid "Extra minutes"
-msgstr ""
+msgstr "Ylimääräiset minuutit"
 
 #: deviations/templates/deviations/list_dl.html:30
 msgid "Without late penalty"
-msgstr ""
+msgstr "Ilman myöhästymissakkoa"
 
 #: deviations/templates/deviations/list_dl.html:31
 msgid "Actions"
-msgstr ""
+msgstr "Toiminnot"
 
 #: deviations/templates/deviations/list_dl.html:44
 #: edit_course/templates/edit_course/edit_content.html:39
@@ -482,40 +482,40 @@ msgstr ""
 
 #: edit_course/course_forms.py:28
 msgid "Category"
-msgstr ""
+msgstr "Kategoria"
 
 #: edit_course/course_forms.py:57 edit_course/exercise_forms.py:54
 msgid "Hierarchy"
-msgstr ""
+msgstr "Hierarkia"
 
 #: edit_course/course_forms.py:58 edit_course/exercise_forms.py:58
 #: edit_course/templates/edit_course/edit_course_base.html:36
 msgid "Content"
-msgstr ""
+msgstr "Sisältö"
 
 #: edit_course/course_forms.py:59
 msgid "Schedule"
-msgstr ""
+msgstr "Aikataulu"
 
 #: edit_course/course_forms.py:88
 msgid "The URL identifier is locked while the course is visible to students."
-msgstr ""
+msgstr "URL-tunniste on lukittu, kun kurssi näkyy opiskelijoille."
 
 #: edit_course/course_forms.py:119
 msgid "New URL identifier for the course instance"
-msgstr ""
+msgstr "Uusi URL-tunniste kurssikerralle"
 
 #: edit_course/course_forms.py:130
 msgid "The URL is already taken."
-msgstr ""
+msgstr "URL on jo käytössä."
 
 #: edit_course/exercise_forms.py:97
 msgid "Grading"
-msgstr ""
+msgstr "Arvostelu"
 
 #: edit_course/exercise_forms.py:99
 msgid "Groups"
-msgstr ""
+msgstr "Ryhmät"
 
 #: edit_course/managers.py:44
 msgid "category"
@@ -531,11 +531,11 @@ msgstr ""
 
 #: edit_course/operations/batch.py:17 edit_course/operations/configure.py:161
 msgid "Failed to parse the JSON: {}"
-msgstr ""
+msgstr "JSON-jäsennysvirhe: {}"
 
 #: edit_course/operations/batch.py:19
 msgid "Missing JSON field: objects"
-msgstr ""
+msgstr "Puuttuva JSON-kenttä: objects"
 
 #: edit_course/operations/batch.py:28
 #, python-brace-format
@@ -666,19 +666,19 @@ msgstr ""
 #: edit_course/templates/edit_course/clone_instance.html:9
 #: edit_course/templates/edit_course/edit_course_base.html:21
 msgid "Instances"
-msgstr ""
+msgstr "Kurssikerrat"
 
 #: edit_course/templates/edit_course/clone_instance.html:17
 msgid "Course instances"
-msgstr ""
+msgstr "Kurssikerrat"
 
 #: edit_course/templates/edit_course/clone_instance.html:30
 msgid "hidden"
-msgstr ""
+msgstr "piilotettu"
 
 #: edit_course/templates/edit_course/clone_instance.html:42
 msgid "Clone course"
-msgstr ""
+msgstr "Kloonaa kurssi"
 
 #: edit_course/templates/edit_course/clone_instance.html:44
 msgid ""
@@ -689,12 +689,12 @@ msgid ""
 msgstr ""
 
 #: edit_course/templates/edit_course/clone_instance.html:50
-msgid "Clone into new instance"
+msgid "Kloonaa uuteen kurssikertaan"
 msgstr ""
 
 #: edit_course/templates/edit_course/clone_instance.html:54
 msgid "Cloning course..."
-msgstr ""
+msgstr "Kloonataan kurssia..."
 
 #: edit_course/templates/edit_course/edit_content.html:16
 msgid "Import and override content configuration from URL"
@@ -706,45 +706,45 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_content.html:23
 msgid "Exercise categories"
-msgstr ""
+msgstr "Tehtäväkategoriat"
 
 #: edit_course/templates/edit_course/edit_content.html:35
 msgid "Edit category"
-msgstr ""
+msgstr "Muokkaa kategoriaa"
 
 #: edit_course/templates/edit_course/edit_content.html:49
 msgid "Add new category"
-msgstr ""
+msgstr "Lisää uusi kategoria"
 
 #: edit_course/templates/edit_course/edit_content.html:59
 msgid "Course modules"
-msgstr ""
+msgstr "Kurssimoduulit"
 
 #: edit_course/templates/edit_course/edit_content.html:73
 msgid "Edit module"
-msgstr ""
+msgstr "Muokaa moduulia"
 
 #: edit_course/templates/edit_course/edit_content.html:81
 msgid "Open module"
-msgstr ""
+msgstr "Avaa moduuli"
 
 #: edit_course/templates/edit_course/edit_content.html:96
 #: exercise/templates/exercise/exercise_base.html:74
 msgid "Edit exercise"
-msgstr ""
+msgstr "Muokkaa tehtävää"
 
 #: edit_course/templates/edit_course/edit_content.html:102
 msgid "Open exercise"
-msgstr ""
+msgstr "Avaa tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:106
 #: exercise/templates/exercise/_user_results.html:107
 msgid "View submissions"
-msgstr ""
+msgstr "Näytä palautukset"
 
 #: edit_course/templates/edit_course/edit_content.html:117
 msgid "Add new learning object"
-msgstr ""
+msgstr "Lisää uusi oppimissisältö"
 
 #: edit_course/templates/edit_course/edit_content.html:127
 msgid "Choose learning object type to add"
@@ -752,19 +752,19 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_content.html:133
 msgid "Content chapter"
-msgstr ""
+msgstr "Sisältökappale"
 
 #: edit_course/templates/edit_course/edit_content.html:134
 msgid "A remote content page loaded in as a chapter"
-msgstr ""
+msgstr "Ulkoinen sisältösivu, joka ladataan luvuksi"
 
 #: edit_course/templates/edit_course/edit_content.html:138
 msgid "A remote exercise page loaded in for posting submissions"
-msgstr ""
+msgstr "Ulkoinen tehtäväsivu, johon palautukset lähetetään"
 
 #: edit_course/templates/edit_course/edit_content.html:141
 msgid "LTI Exercise"
-msgstr ""
+msgstr "LTI-tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:142
 msgid ""
@@ -774,7 +774,7 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_content.html:145
 msgid "Exercise with attachment"
-msgstr ""
+msgstr "Tehtävä liitetiedostolla"
 
 #: edit_course/templates/edit_course/edit_content.html:146
 msgid ""
@@ -784,15 +784,15 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_content.html:149
 msgid "Static exercise"
-msgstr ""
+msgstr "Staattinen tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:150
 msgid "A local page with editable markup content"
-msgstr ""
+msgstr "Paikallinen sivu muokattavalla HTML-sisällöllä"
 
 #: edit_course/templates/edit_course/edit_content.html:164
 msgid "Add new module"
-msgstr ""
+msgstr "Lisää uusi moduuli"
 
 #: edit_course/templates/edit_course/edit_content.html:174
 #: edit_course/templates/edit_course/edit_index.html:20
@@ -812,11 +812,11 @@ msgstr ""
 #: edit_course/templates/edit_course/edit_course_base.html:31
 #: edit_course/templates/edit_course/edit_index.html:9
 msgid "Index"
-msgstr ""
+msgstr "Etusivu"
 
 #: edit_course/templates/edit_course/edit_course_base.html:41
 msgid "Deviations"
-msgstr ""
+msgstr "Määräajan muutokset"
 
 #: edit_course/templates/edit_course/edit_course_base.html:46
 msgid "Batch assess"
@@ -824,7 +824,7 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_index.html:17
 msgid "Edit course index"
-msgstr ""
+msgstr "Muokkaa kurssin etusivua"
 
 #: edit_course/templates/edit_course/edit_instance.html:9
 msgid "Details"
@@ -832,11 +832,11 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_instance.html:17
 msgid "Edit course details"
-msgstr ""
+msgstr "Muokkaa kurssin tietoja"
 
 #: edit_course/templates/edit_course/edit_instance.html:20
 msgid "Teachers"
-msgstr ""
+msgstr "Opettajat"
 
 #: edit_course/templates/edit_course/edit_model.html:6
 #, python-format
@@ -874,7 +874,7 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_model.html:43
 msgid "Download possible metadata"
-msgstr ""
+msgstr "Lataa mahdollinen metadata"
 
 #: edit_course/templates/edit_course/remove_model.html:5
 #, python-format
@@ -925,11 +925,11 @@ msgstr ""
 
 #: edit_course/views.py:31
 msgid "Changes were saved succesfully."
-msgstr ""
+msgstr "Muutokset tallennettiin onnistuneesti."
 
 #: edit_course/views.py:35
 msgid "Failed to save changes."
-msgstr ""
+msgstr "Muutosten tallentaminen epäonnistui."
 
 #: edit_course/views.py:109
 msgid ""
@@ -969,7 +969,7 @@ msgstr ""
 
 #: exercise/admin.py:31
 msgid "Course instance"
-msgstr ""
+msgstr "Kurssikerta"
 
 #: exercise/admin.py:32 exercise/templates/exercise/_submission_info.html:35
 #: exercise/templates/exercise/staff/_assess_info.html:11
@@ -1002,18 +1002,18 @@ msgstr ""
 msgid "Unlisted in table of contents"
 msgstr ""
 "<div class=\"alert alert-error\">\n"
-"<p>Tehtävän arvostelija on rikki ja kurssihenkilökunnalle on ilmoitettu.</"
+"<p>Tehtävän arvostelupalvelu on rikki. Kurssin henkilökunnalle on ilmoitettu tästä.</"
 "p>\n"
 "<p>Tämä palautus merkittiin epäonnistuneeksi.</p>\n"
 "</div>"
 
 #: exercise/exercise_models.py:53
 msgid "Enrollment questions"
-msgstr ""
+msgstr "Ilmoittautumiskyselyt"
 
 #: exercise/exercise_models.py:54
 msgid "Hidden from non course staff"
-msgstr ""
+msgstr "Piilotettu muilta kuin kurssin henkilökunnalta"
 
 #: exercise/exercise_models.py:65
 msgid "Input an URL identifier for this object."
@@ -1041,7 +1041,7 @@ msgstr ""
 
 #: exercise/exercise_models.py:321
 msgid "The course is archived. Exercises are offline."
-msgstr "Kurssi on arkistoitu ja tehtävistä esitetään näköiskopio."
+msgstr "Kurssi on arkistoitu, ja tehtävistä esitetään näköiskopio."
 
 #: exercise/exercise_models.py:327
 msgid "You cannot enroll to the course."
@@ -1049,11 +1049,11 @@ msgstr "Et voi ilmoittautua kurssille."
 
 #: exercise/exercise_models.py:330
 msgid "You must enroll at course home to submit exercises."
-msgstr "Palauttaaksesi tehtäviä, sinun pitää ilmoittautua kurssin etusivulla."
+msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
 
 #: exercise/exercise_models.py:335
 msgid "This exercise is not open for submissions."
-msgstr "Tämä tehtävä on suljettu ja sitä ei voi palauttaa."
+msgstr "Tämä tehtävä on suljettu, eikä sitä ei voi palauttaa."
 
 #: exercise/exercise_models.py:338
 #, python-format
@@ -1074,8 +1074,8 @@ msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed "
 "until{date} but points are only worth {percent:d}%."
 msgstr ""
-"Tehtävän määräaika on ohitse. Myöhäisiä palautuksia vastaanotetaan {date} "
-"asti, mutta pisteiden arvo on {percent:d}% normaalista."
+"Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
+"asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
 #: exercise/exercise_models.py:430
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
@@ -1118,7 +1118,7 @@ msgid ""
 "Possible penalties are not applied - the points are set as given. This will "
 "<em>override</em> grader points!"
 msgstr ""
-"Mahdollisia myöhästymisvähennyksiä ei tehdä automaattisesti.Pisteet "
+"Mahdollisia myöhästymisvähennyksiä ei tehdä automaattisesti. Pisteet "
 "<em>korvaavat</em> automaattisen arvioinnin tuloksen!"
 
 #: exercise/forms.py:36
@@ -1171,7 +1171,7 @@ msgstr ""
 #: exercise/protocol/aplus.py:89
 msgid ""
 "The exercise was submitted successfully and is now waiting to be graded."
-msgstr "Tehtävän palautus onnistui ja odottaa arvostelua."
+msgstr "Tehtävän palautus onnistui, ja tehtävä odottaa arvostelua."
 
 #: exercise/protocol/aplus.py:97
 msgid "Assessment service responded with error."
@@ -1240,7 +1240,7 @@ msgstr "Tehtävän tiedot"
 
 #: exercise/templates/exercise/_exercise_info.html:26
 msgid "Your submissions"
-msgstr "Palautuskertasi"
+msgstr "Palautuksesi"
 
 #: exercise/templates/exercise/_exercise_info.html:35
 msgid "Points required to pass"
@@ -1261,7 +1261,7 @@ msgstr "Palauttaneita opiskelijoita yhteensä"
 
 #: exercise/templates/exercise/_exercise_info.html:51
 msgid "Average submissions per student"
-msgstr ""
+msgstr "Palautuksia keskimäärin per opiskelija"
 
 #: exercise/templates/exercise/_exercise_wait.html:6
 #: exercise/templates/exercise/exercise.html:33
@@ -1647,7 +1647,7 @@ msgstr "Vain palautuksen tehneelle - only the submitter shall pass."
 
 #: exercise/views.py:66
 msgid "Exercise is in maintenance and content is hidden from students."
-msgstr "Tehtävässä on huoltokatko ja sisältö on piilotettu opiskelijoilta."
+msgstr "Tehtävässä on huoltokatko, ja sisältö on piilotettu opiskelijoilta."
 
 #: exercise/views.py:70
 msgid "Unfortunately this exercise is currently under maintenance."
@@ -1735,7 +1735,7 @@ msgstr "Hyväksy ja jatka palveluun, %(name)s"
 
 #: lib/fields.py:27
 msgid "The number must be between 0.0 and 1.0"
-msgstr ""
+msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
 #: lib/fields.py:47 lib/fields.py:67
 msgid "Enter valid JSON."
