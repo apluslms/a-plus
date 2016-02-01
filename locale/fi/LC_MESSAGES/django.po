@@ -330,7 +330,7 @@ msgstr ""
 
 #: course/templates/course/toc.html:18
 msgid "In order to submit exercises, you must enroll to the course."
-msgstr "Palauttaaksesi tehtäviä, sinun pitää ilmoittautua kurssille."
+msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
 #: course/templates/course/toc.html:20
 msgid ""
