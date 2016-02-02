@@ -38,7 +38,7 @@ def updates(request, key):
     repo = get_object_or_404(CourseRepo, key=key)
     return render(request, 'gitmanager/updates.html', {
         'repo': repo,
-        'updates': repo.updates.all()[:3],
+        'updates': repo.updates.order_by('-request_time').all(),
         'hook': request.build_absolute_uri(reverse('manager-hook', args=[key])),
     })
 
@@ -59,9 +59,9 @@ def hook(request, key):
                 request_ip=get_client_ip(request)
             )
 
-            # Remove clean flag for the cronjob.
-            if os.path.exists(clean_flag):
-                os.remove(clean_flag)
+        # Remove clean flag for the cronjob.
+        if os.path.exists(clean_flag):
+            os.remove(clean_flag)
 
     if request.META.get('HTTP_REFERER'):
         return redirect('manager-updates', repo.key)

@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 FLAG="/tmp/mooc-grader-manager-clean"
 if [ -e $FLAG ]; then
@@ -9,74 +9,54 @@ touch $FLAG
 LOG="/tmp/mooc-grader-log"
 QUEUE="/etc/init.d/celeryd"
 TOUCH="/etc/uwsgi/grader.ini"
-SQL="sqlite3 -batch -noheader db.sqlite3 "
-PYTHON="/srv/grader/venv/bin/python"
+SQL="sqlite3 -batch -noheader -column db.sqlite3 "
+TRY_PYTHON="/srv/grader/venv/bin/python"
+
+PYTHON="python"
+if [ -x $TRY_PYTHON ]; then
+  PYTHON=$TRY_PYTHON
+fi
 
 cd `dirname $0`/..
 
+vals=(`ls -ld exercises`)
+USER=${vals[2]}
+
+chown $USER $FLAG
+
 if [ -x $QUEUE ]; then
-  $QUEUE stop
+  $QUEUE stop >/dev/null 2>&1
 fi
 
-keys=( "`$SQL "select r.key from gitmanager_courseupdate as u left join gitmanager_courserepo r on u.course_repo_id=r.id where u.updated=0;"`" )
+# Handle each scheduled course key.
+keys="`$SQL "select r.key from gitmanager_courseupdate as u left join gitmanager_courserepo r on u.course_repo_id=r.id where u.updated=0;"`"
 for key in $keys; do
   echo "Update $key" > $LOG
+  vals=(`$SQL "select id,git_origin,git_branch from gitmanager_courserepo where key='$key';"`)
+  id=${vals[0]}
 
-  # Update from git origin and move to dir.
-  dir=exercises/$key
-  id=`$SQL "select id from gitmanager_courserepo where key='$key';"`
-  url=`$SQL "select git_origin from gitmanager_courserepo where key='$key';"`
-  branch=`$SQL "select git_branch from gitmanager_courserepo where key='$key';"`
-  if [ -e $dir ]; then
-    cd $dir
-    branchnow=`git branch`
-    if [ "${branchnow#* }" != "$branch" ]; then
-      git checkout $branch >> $LOG
-    fi
-    git pull >> $LOG
-  else
-    git clone -b $branch $url $dir >> $LOG
-    cd $dir
-  fi
-
-  # Build course material.
-  if [ -e build.sh ]; then
-    /bin/bash build.sh >> $LOG
-  fi
-  cd ../..
-
-  # Link to static.
-  static_dir=`$PYTHON cron.py static $dir`
-  if [ "$static_dir" != "" ]; then
-    cd static
-    target="../$dir/$static_dir"
-    if [ -e $key ]; then
-      if [ "`readlink $key`" != "$target" ]; then
-        rm $key
-        ln -s $target $key
-      fi
-    else
-      ln -s $target $key
-    fi
-    cd ..
-  fi
+  sudo -u $USER gitmanager/cron_pull_build.sh $PYTHON $key ${vals[@]} >> $LOG 2>&1
 
   # Update sandbox.
-  ./manage_sandbox.sh create $key >> $LOG
+  if [ -d /var/sandbox ]; then
+    ./manage_sandbox.sh -q create $key >> $LOG
+  fi
 
   # Write to database.
-  data=`$PYTHON cron.py log $LOG`
-  $SQL "update gitmanager_courseupdate set log='$data',updated_time=CURRENT_TIMESTAMP,updated=1 where key='$key' and updated=0;"
+  data=`$PYTHON gitmanager/cron.py log $LOG`
+  $SQL "update gitmanager_courseupdate set log='$data',updated_time=CURRENT_TIMESTAMP,updated=1 where course_repo_id=$id and updated=0;"
 
   # Clean up old entries.
-  last=`$SQL "select request_time from gitmanager_courseupdate where id=$id order by request_time desc limit 4,1;"`
+  vals=(`$SQL "select request_time from gitmanager_courseupdate where id=$id order by request_time desc limit 4,1;"`)
+  last=${vals[0]}
   if [ "$last" != "" ]; then
     $SQL "delete from gitmanager_courseupdate where id=$id and request_time > '$last';"
   fi
 done
 
-touch $TOUCH
-
+if [ -e $TOUCH ]; then
+  touch $TOUCH
+fi
 if [ -x $QUEUE ]; then
-  $QUEUE start
+  $QUEUE start > /dev/null 2>&1
 fi

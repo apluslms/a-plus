@@ -33,13 +33,11 @@
 		<td>{{ update.request_time }}</td>
 		<td>{% if update.updated %}{{ update.updated_time }}{% endif %}</td>
 	</tr>
-	{% if forloop.counter == 1 %}
 	<tr>
 		<td colspan="3">
-			<pre>{{ update.log }}</pre>
+			<pre>{{ update.log_nl }}</pre>
 		</td>
 	</tr>
-	{% endif %}
 	{% endfor %}
 </table>
 {% endblock %}

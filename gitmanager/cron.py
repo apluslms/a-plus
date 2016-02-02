@@ -21,7 +21,7 @@ def read_log(log_file):
     '''
     Reads a log file.
     '''
-    if os.path.exists($log_file):
+    if os.path.exists(log_file):
         with open(log_file) as f:
             content = f.read()
             content = content.replace('"', '').replace('\'', '')

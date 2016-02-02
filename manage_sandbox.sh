@@ -73,7 +73,7 @@ fi
 export REPO_ROOT_DIR=$(pwd)
 
 case "$task" in
-  'create') ./scripts/manage_sandbox__create.sh "$sbd" "$@"; rv=$? ;;
+  'create') ./scripts/manage_sandbox__create.sh "$sbd" "$@" "$quiet"; rv=$? ;;
   'shell') chroot $sbd su sandbox; rv=$? ;;
   'shell-net') chroot $sbd su sandboxnet; rv=$? ;;
   'reset')

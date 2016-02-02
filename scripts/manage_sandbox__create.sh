@@ -5,11 +5,12 @@
 # Assign arguments
 sbd=$1
 target=$2
+quiet=$3
 
 if [ ! $(type -t echo_err) = 'function' ]; then
   echo 'USE THIS ONLY THROUGH manage_sandbox.sh!'
   exit 1
-elif [ $# -ne 2 ]; then
+elif [ $# -lt 2 ]; then
   echo_err 'Invalid number of arguments!'
   exit 1
 elif [ "$target" = 'all' ]; then
@@ -23,9 +24,13 @@ fi
 if [ -f $sbd/bin/bash ]; then update=true; else update=false; fi
 
 if $update; then
-  ask_yn 'Really update your sandbox at "'$sbd'"?' || exit 1
+  if [ "$quiet" != "1" ]; then
+    ask_yn 'Really update your sandbox at "'$sbd'"?' || exit 1
+  fi
 else
-  ask_yn 'Really create new sandbox to "'$sbd'"?' || exit 1
+  if [ "$quiet" != "1" ]; then
+    ask_yn 'Really create new sandbox to "'$sbd'"?' || exit 1
+  fi
   echo_ok "*** Getting and using debootstrap to create chroot system"
   apt-get -qy install debootstrap
   rm -rf "$sbd"

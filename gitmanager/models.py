@@ -11,7 +11,7 @@ class CourseRepo(models.Model):
     update_hook = models.URLField(blank=True)
 
     class META:
-        ordering = ('key',)
+        ordering = ['key']
 
 
 class CourseUpdate(models.Model):
@@ -26,4 +26,7 @@ class CourseUpdate(models.Model):
     log = models.TextField(default='')
 
     class META:
-        ordering = ('-updated_time')
+        ordering = ['-request_time']
+
+    def log_nl(self):
+        return self.log.replace('\\n', '\n').replace('\\t', '\t')
