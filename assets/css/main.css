@@ -38,6 +38,9 @@ table.src tr td.src {
     white-space: pre-wrap;
     padding:0 0.4em;
 }
+#exercise blockquote {
+  font-size:100%;
+}
 
 /* site footer */
 html, body {
