@@ -6,8 +6,9 @@ class ModuleTree(object):
 
     def __init__(self, module):
         self.module = module
-        self.objects = [o.as_leaf_class() for o in \
-            module.learning_objects.all()]
+        self.objects = list(module.learning_objects.all())
+        for o in self.objects:
+            o.course_module = module
 
     def children(self, parent_id=None, show_hidden=False):
         if show_hidden:
