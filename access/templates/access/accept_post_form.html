@@ -1,12 +1,15 @@
 {% load i18n %}
 {% if exercise.fields %}
 <form method="post" action="{{ post_url }}">
-	{% for entry in exercise.fields %}
-	<div class="form-group">
-		<label for="{{ entry.name }}_id">
-			{{ entry.title }}
+	{% for entry in result.fields %}
+	<div class="form-group{% if entry.missing %} has-error{% endif %}">
+		<label for="{{ entry.name }}_id" class="control-label">
+			{{ entry.title|safe }}
 		</label>
-		<textarea id="{{ entry.name }}_id" name="{{ entry.name }}" class="form-control"></textarea>
+		{% if entry.more %}
+		{{ entry.more|safe }}
+		{% endif %}
+		<textarea id="{{ entry.name }}_id" name="{{ entry.name }}" class="form-control" rows="6"></textarea>
 	</div>
 	{% endfor %}
 	{% if post_url or not result.accepted %}

@@ -23,6 +23,10 @@
 		<p>{% trans "Invalid address entered." %}</p>
 		{% endif %}
 
+		{% if result.fields %}
+		<p>{% trans "Missing required fields." %}</p>
+		{% endif %}
+
 	</div>
 	{% endif %}
 

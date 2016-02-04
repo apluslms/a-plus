@@ -20,11 +20,12 @@ Functions take arguments:
 
 '''
 import logging
-
+import copy
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.utils import translation
+
 from grader import tasks
 from util.templates import render_configured_template, render_template, \
     template_to_str
@@ -41,28 +42,27 @@ def acceptPost(request, course, exercise, post_url):
     Presents a template and accepts post value for grading queue.
     '''
     _requireActions(exercise)
-    result = None
-
+    fields = copy.deepcopy(exercise.get("fields", []))
     if request.method == "POST":
-        fields = exercise.get("fields", [])
-        values = {}
-        missing = []
 
         # Parse submitted values.
+        miss = False
         for entry in fields:
-            value = request.POST.get(entry["name"], "").strip()
-            values[entry["name"]] = value
-            if "required" in entry and entry["required"] and not value:
-                missing.append(name)
-        if missing:
-            result = { "error": True, "missing": missing, "values": values }
+            entry["value"] = request.POST.get(entry["name"], "").strip()
+            if "required" in entry and entry["required"] and not entry["value"]:
+                entry["missing"] = True
+                miss = True
+        if miss:
+            result = { "fields": fields, "error": True }
+        else:
 
-        # Store submitted values.
-        if result is None:
+            # Store submitted values.
             sdir = create_submission_dir(course, exercise)
             for entry in fields:
-                write_submission_file(sdir, entry["name"], values[entry["name"]])
+                write_submission_file(sdir, entry["name"], entry["value"])
             return _acceptSubmission(request, course, exercise, post_url, sdir)
+    else:
+        result = { "fields": fields }
 
     return render_configured_template(request, course, exercise, post_url,
         'access/accept_post_default.html', result)

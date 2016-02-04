@@ -2,7 +2,6 @@
 {% load i18n %}
 
 {% block exercise %}
-{% if not result.error %}
 {% if exercise.instructions %}
 <div class="instructions">
   {{ exercise.instructions|safe }}
@@ -12,5 +11,4 @@
 {% endif %}
 
 {% include 'access/accept_post_form.html' %}
-{% endif %}
 {% endblock %}
