@@ -130,9 +130,10 @@ class LearningObject(ModelWithInheritance):
         return False
 
     def is_empty(self):
-        return not self.service_url and not (
-            hasattr(self, 'generate_table_of_contents') or
-            not self.generate_table_of_contents)
+        return not self.service_url and self.as_leaf_class()._is_empty()
+
+    def _is_empty(self):
+        return True
 
     def is_open(self, when=None):
         return self.course_module.is_open(when=when)
@@ -217,6 +218,9 @@ class CourseChapter(LearningObject):
     Chapters can offer and organize learning material as one page chapters.
     """
     generate_table_of_contents = models.BooleanField(default=False)
+
+    def _is_empty(self):
+        return not self.generate_table_of_contents
 
 
 class BaseExercise(LearningObject):
