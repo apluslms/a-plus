@@ -29,7 +29,10 @@ from .protocol.exercise_page import ExercisePage
 class LearningObjectManager(models.Manager):
 
     def get_queryset(self):
-        return super().get_queryset().defer('description', 'content', 'content_head')
+        return super().get_queryset()\
+            .defer('description', 'content', 'content_head')\
+            .select_related('course_module', 'course_module__course_instance',
+                'course_module__course_instance__course')
 
     def find_enrollment_exercise(self, course_instance):
         return self.filter(

@@ -36,8 +36,8 @@
                     {% endif %}
                     <br />
                     <!--{{ instance.instance_name }}<br />-->
-                    {{ instance.starting_time|date:"N j, Y" }} &ndash;
-                    {{ instance.ending_time|date:"N j, Y" }}
+                    {{ instance.starting_time|date:"SHORT_DATE_FORMAT" }} &ndash;
+                    {{ instance.ending_time|date:"SHORT_DATE_FORMAT" }}
                     <br />
                     {% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
                     <span class="label label-success">{{ internal_user_label|safe }}</span>

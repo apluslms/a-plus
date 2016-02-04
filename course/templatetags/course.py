@@ -1,5 +1,7 @@
+from datetime import timedelta
 from django import template
 from django.conf import settings
+from django.utils import timezone
 
 from course.models import CourseInstance
 
@@ -9,7 +11,12 @@ register = template.Library()
 
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
 def course_menu(context):
-    return { "instances": CourseInstance.objects.get_active(context["user"]) }
+    if "course_menu" not in context:
+        six_months_before = timezone.now() - timedelta(days=180)
+        context["course_menu"] = \
+            list(CourseInstance.objects.get_enrolled(context["user"], six_months_before)) + \
+            list(CourseInstance.objects.get_on_staff(context["user"], six_months_before))
+    return { "instances": context["course_menu"] }
 
 
 @register.filter

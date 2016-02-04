@@ -33,7 +33,16 @@ class HomeView(UserProfileView):
         self.welcome_text = settings_text(self.request, 'WELCOME_TEXT')
         self.internal_user_label = settings_text(self.request, 'INTERNAL_USER_LABEL')
         self.external_user_label = settings_text(self.request, 'EXTERNAL_USER_LABEL')
-        self.instances = CourseInstance.objects.get_active(self.request.user)
+        self.instances = []
+        prio2 = []
+        treshold = timezone.now() - datetime.timedelta(days=10)
+        for instance in CourseInstance.objects.get_visible(self.request.user)\
+                .filter(ending_time__gte=timezone.now()):
+            if instance.starting_time > treshold:
+                self.instances += [instance]
+            else:
+                prio2 += [instance]
+        self.instances += prio2[::-1]
         self.note("welcome_text", "internal_user_label", "external_user_label", "instances")
 
 
@@ -41,18 +50,14 @@ class ArchiveView(UserProfileView):
     access_mode = ACCESS.ANONYMOUS
     template_name = "course/archive.html"
 
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.instances = CourseInstance.objects.get_visible(self.request.user)
+        self.note("instances")
+
 
 class ProfileView(UserProfileView):
     template_name = "course/profile.html"
-
-
-class CourseView(CourseBaseView):
-    template_name = "course/course.html"
-
-    def get_common_objects(self):
-        super().get_common_objects()
-        self.instances = self.course.instances.get_active(self.request.user)
-        self.note("instances")
 
 
 class InstanceView(EnrollableViewMixin, BaseTemplateView):

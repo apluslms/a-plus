@@ -144,7 +144,6 @@ class CourseTest(TestCase):
         self.assertFalse(self.future_course_instance.is_open())
 
     def test_course_url(self):
-        self.assertEqual("/Course-Url/", self.course.get_absolute_url())
         self.assertEqual("/Course-Url/T-00.1000_d1/", self.current_course_instance.get_absolute_url())
         self.assertEqual("/Course-Url/T-00.1000_hidden/", self.hidden_course_instance.get_absolute_url())
 
@@ -220,19 +219,19 @@ class CourseTest(TestCase):
         self.assertTrue(self.current_course_instance.is_visible_to(self.superuser))
         self.assertTrue(self.hidden_course_instance.is_visible_to(self.superuser))
 
-    def test_course_instance_get_active(self):
-        open_course_instances = CourseInstance.objects.get_active()
-        self.assertEqual(2, len(open_course_instances))
-        self.assertTrue(self.current_course_instance in open_course_instances)
-        self.assertTrue(self.future_course_instance in open_course_instances)
-
-        open_course_instances = CourseInstance.objects.get_active(self.user)
-        self.assertEqual(2, len(open_course_instances))
-        self.assertTrue(self.current_course_instance in open_course_instances)
-        self.assertTrue(self.future_course_instance in open_course_instances)
-
-        open_course_instances = CourseInstance.objects.get_active(self.superuser)
+    def test_course_instance_get_visible(self):
+        open_course_instances = CourseInstance.objects.get_visible()
         self.assertEqual(3, len(open_course_instances))
+        self.assertTrue(self.current_course_instance in open_course_instances)
+        self.assertTrue(self.future_course_instance in open_course_instances)
+
+        open_course_instances = CourseInstance.objects.get_visible(self.user)
+        self.assertEqual(3, len(open_course_instances))
+        self.assertTrue(self.current_course_instance in open_course_instances)
+        self.assertTrue(self.future_course_instance in open_course_instances)
+
+        open_course_instances = CourseInstance.objects.get_visible(self.superuser)
+        self.assertEqual(4, len(open_course_instances))
         self.assertTrue(self.current_course_instance in open_course_instances)
         self.assertTrue(self.future_course_instance in open_course_instances)
         self.assertTrue(self.hidden_course_instance in open_course_instances)
@@ -265,10 +264,6 @@ class CourseTest(TestCase):
     def test_course_views(self):
         response = self.client.get('/no_course/test', follow=True)
         self.assertEqual(response.status_code, 404)
-        response = self.client.get(self.course.get_absolute_url(), follow=True)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'userprofile/login.html')
         response = self.client.get(self.current_course_instance.get_absolute_url(), follow=True)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
@@ -277,9 +272,6 @@ class CourseTest(TestCase):
         self.client.login(username="testUser", password="testPassword")
         response = self.client.get('/no_course/test', follow=True)
         self.assertEqual(response.status_code, 404)
-        response = self.client.get(self.course.get_absolute_url(), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'course/course.html')
         response = self.client.get(self.current_course_instance.get_absolute_url(), follow=True)
         self.assertEqual(response.status_code, 200)
 
