@@ -21,14 +21,14 @@ Functions take arguments:
 from django.core.exceptions import PermissionDenied
 
 from util.cache import InProcessCache
-from util.templates import render_configured_template
+from util.templates import render_configured_template, render_template
 from .forms import GradedForm
 from .auth import detect_user, make_hash
 from ..config import ConfigError
 
 
 # Hold on to nonces for some time.
-nonces = InProcessCache()
+nonces = InProcessCache(limit=100)
 
 
 def acceptNonce(request):
@@ -40,7 +40,7 @@ def acceptNonce(request):
             nonce = str(request.POST['_nonce'])
             if nonce in nonces:
                 raise PermissionDenied('Repeating nonce')
-            nonces[nonce] = 1
+            nonces[nonce] = True
             return True
         return False
 
@@ -97,8 +97,12 @@ def createForm(request, course, exercise, post_url):
     '''
     if "max_points" not in exercise:
         raise ConfigError("Missing required \"max_points\" in exercise configuration")
+    try:
+        acceptNonce(request)
+    except PermissionDenied:
+        return render_template(request, course, exercise, post_url,
+            'access/exercise_frame.html', { "error":True, "nonce_used":True })
 
-    acceptNonce(request)
     form = GradedForm(request.POST or None, exercise=exercise)
     result = { "form": form }
 

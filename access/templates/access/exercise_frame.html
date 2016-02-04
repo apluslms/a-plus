@@ -23,6 +23,10 @@
 		<p>{% trans "Invalid address entered." %}</p>
 		{% endif %}
 
+		{% if result.nonce_used %}
+		<p>{% trans "The same form can obly be submitted once. Start again from exercise description." %}</p>
+		{% endif %}
+
 		{% if result.fields %}
 		<p>{% trans "Missing required fields." %}</p>
 		{% endif %}
