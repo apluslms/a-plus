@@ -204,7 +204,7 @@ class CourseInstance(models.Model):
             and self.students.filter(id=user.userprofile.id).exists()
 
     def is_enrollable(self, user):
-        if user and user.is_authenticated():
+        if user and user.is_authenticated() and self.is_open():
             if self.enrollment_audience == 1:
                 return not user.userprofile.is_external
             if self.enrollment_audience == 2:
