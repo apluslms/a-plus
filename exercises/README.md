@@ -17,6 +17,7 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 	* `description` (optional): A private course description
 	* `lang` (optional/a+): The default language.
 	* `contact`: (optional/a+) A private contact email for course configuration
+	* `contact_phone`: (optional) A private contact phone number for course responsible
 	* `assistants`: (optional/a+) A list of assistant student ids
 	* `start`: (optional/a+) The course instance start date
 	* `end`: (optional/a+) The course instance end/archive date
@@ -105,7 +106,29 @@ course specific exercise view in a course specific Python module.
 		name of a template used to format the feedback
 	* `actions`: list of asynchronous test actions
 
-2. ### access.types.stdasync.acceptAttachedExercise
+2. ### access.types.stdasync.acceptPost
+	Accepts form text for asynchronous grading queue. Extended attributes:
+	* `fields`: list of text fields
+		* `name`: field name and written file name
+		* `title` (optional): field title or label
+		* `more` (optional): more instructions
+		* `required` (optional): `true` to require an answer
+	* `template` (default `access/accept_post_default.html`):
+		name of a template to present
+	* `accepted_message` etc as in type 1.
+
+3. ### access.types.stdasync.acceptGitAddress
+	Writes the Git address into user/gitsource file for asynchronous grading
+	queue. See grader.actions.git*. Extended attributes:
+	* `require_gitlab` (optional):
+		a host name for a Gitlab installation.
+		Makes sure that the address is an SSH repo path or any HTTP URL
+		in given Gitlab host. Stores the standard SSH path for key access.
+	* `template` (default: `access/accept_git_default.html`):
+		name of a template to present
+	* `accepted_message` etc as in type 1.
+
+4. ### access.types.stdasync.acceptAttachedExercise
 	Accepts attached exercise rules and user files for asynchronous
 	grading queue. Extended attributes:
 	* `template` (default `access/accept_files_default.html`):
@@ -118,29 +141,20 @@ course specific exercise view in a course specific Python module.
 		(Format is used by A+ exercises with attachments).
 	* `accepted_message` etc as in type 1.
 
-3. ### access.types.stdasync.acceptGitAddress
-	Writes the Git address into user/gitsource file for asynchronous grading
-	queue. See grader.actions.git*. Extended attributes:
-	* `require_gitlab` (optional):
-		a host name for a Gitlab installation.
-		Makes sure that the address is an SSH repo path or any HTTP URL
-		in given Gitlab host. Stores the standard SSH path for key access.
-	* `template` (default: `access/accept_git_default.html`):
-		name of a template to present
-		* `accepted_message` etc as in type 1.
-
-4. ### access.types.stdsync.createForm
+5. ### access.types.stdsync.createForm
 	Synchronous form checker. Requires `max_points` in the
 	exercise configuration. If form has no points configured then maximum
 	points are granted on errorless submission. Extended attributes:
 	* `fieldgroups`: list of field groups
 		* `name` (optional): group name (fieldset legend)
+		* `pick_randomly` (optional): number of fields to randomly sample
+		* `group_errors` (optional): `true` to hide individual failed fields
 		* `fields`: list of fields
 			* `title` (optional): field title or label
 			* `more` (optional): more instructions
 			* `include` (optional): template name to include
 				as content in more instructions
-			* `type`: `radio`/`checkbox`/`text`/`textarea`
+			* `type`: `radio`/`checkbox`/`dropdown`/`text`/`textarea`
 			* `points` (optional): number of points to grant
 			* `required` (optional): `true` to require an answer
 			* `correct` (optional): exact correct answer for text fields
@@ -153,8 +167,10 @@ course specific exercise view in a course specific Python module.
 					the correct options selected. If no correct
 					options are configured anything is correct.
 	* `template` (default `access/create_form_default.html`): name of a template to present
+	* `accepted_message` (optional): overrides the default message displayed when
+		submission is accepted
 
-5. ### access.types.stdsync.comparePostValues
+6. ### access.types.stdsync.comparePostValues
 	Synchronous check against posted values. Requires `max_points` in the
 	exercise configuration. If values have no points configured then maximum
 	points are granted on errorless submission. Extended attributes:
@@ -165,7 +181,7 @@ course specific exercise view in a course specific Python module.
 	* `template`: name of a template to present. Template should manually
 		include a form that produces the expected POST values.
 
-6. ### access.types.stdsync.noGrading
+7. ### access.types.stdsync.noGrading
 	Presents a template and does not grade anything. Extended attributes:
 	* `template`: name of a template to present
 

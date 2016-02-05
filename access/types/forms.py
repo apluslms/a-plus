@@ -99,8 +99,13 @@ class GradedForm(forms.Form):
                 f.choice_list = (t == "checkbox" or t == "radio")
 
                 # Set field defaults.
+                f.name = self.field_name(i)
                 f.label = mark_safe(field["title"])
                 f.more = self.create_more(field)
+                f.points = field.get("points", 0)
+                f.group_errors = group.get("group_errors", False)
+                if f.group_errors:
+                    self.group_errors = True
                 if j == 0:
                     f.open_set = self.group_name(g)
                     if "title" in group:
@@ -110,7 +115,7 @@ class GradedForm(forms.Form):
                 j += 1
 
                 # Store field in form.
-                self.fields[self.field_name(i)] = f
+                self.fields[f.name] = f
                 i += 1
             g += 1
 

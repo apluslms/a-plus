@@ -2,15 +2,22 @@
 <form method="post" action="{{ post_url }}">
 	{% for field in result.form %}
 	{% if field.field.open_set %}
-	<fieldset id="{{ field.field.open_set }}"{% if result.accepted %} class="alert {% if field.field.open_set in result.error_groups %}alert-danger{% else %}alert-success{% endif %}"{% endif %}>
+	<fieldset id="{{ field.field.open_set }}"{% if result.accepted and field.field.group_errors %} class="alert {% if field.field.open_set in result.error_groups %}alert-danger{% else %}alert-success{% endif %}"{% endif %}>
 		{% if field.field.set_title %}<legend>{{ field.field.set_title }}</legend>{% endif %}
 	{% endif %}
 
-		<div class="form-group{% if field.errors %} has-error{% endif %}">
+		<div class="form-group{% if field.errors %} has-error{% elif not field.field.group_errors and field.field.name in result.error_fields %} has-error{% endif %}">
 			{% if field.field.choice_list %}
 			<label>{{ field.label }}</label>
 			{% else %}
 			{{ field.label_tag }}
+			{% endif %}
+			{% if result.accepted and not field.field.group_errors and field.field.points > 0 %}
+			{% if field.field.name in result.error_fields %}
+			<span class="badge badge-danger">0 / {{ field.field.points }}</span>
+			{% else %}
+			<span class="badge badge-success">{{ field.field.points }} / {{ field.field.points }}</span>
+			{% endif %}
 			{% endif %}
 
 			{% if field.field.more %}

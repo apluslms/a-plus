@@ -6,15 +6,21 @@
 {% if result.accepted %}
 <div class="alert {% if result.error_fields %}alert-danger{% else %}alert-success{% endif %}">
 <p>
+    {% if exercise.accepted_message %}
+    {{ exercise.accepted_message|safe }}
+    {% else %}
     {% blocktrans with points=result.points max_points=exercise.max_points %}
     You got {{ points }}/{{ max_points }} points from this questionnaire.
     {% endblocktrans %}
+    {% endif %}
 </p>
 <p>
+    {% if result.form.group_errors %}
     {% blocktrans %}
     Note that the whole section of questions is marked as being incorrect if
     one of the questions in that section is incorrect.
     {% endblocktrans %}
+    {% endif %}
     {% if not result.form.disabled %}
     {% blocktrans %}
     You can change your answers and grade them again from the bottom of the page.

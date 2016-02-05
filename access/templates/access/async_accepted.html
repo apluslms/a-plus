@@ -29,7 +29,7 @@
 <div id="feedback">
 	<p>
 		{% if exercise.accepted_message %}
-		{{ exercise.accepted_message }}
+		{{ exercise.accepted_message|safe }}
 		{% elif result.queue < 3 %}
 		{% blocktrans %}
 		Your submission is being graded. The result will be available on this page
