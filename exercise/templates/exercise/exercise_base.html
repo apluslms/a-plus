@@ -77,10 +77,12 @@
                   {% trans "Edit exercise" %}
               </a>
               {% endif %}
+              {% if is_teacher or exercise.allow_assistant_viewing %}
               <a href="{{ exercise|url:'submission-list' }}" class="btn btn-default btn-xs">
                   <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                   {% trans "View all submissions" %}
               </a>
+              {% endif %}
           </p>
       </li>
       {% endif %}

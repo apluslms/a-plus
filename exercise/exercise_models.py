@@ -227,6 +227,7 @@ class BaseExercise(LearningObject):
     """
     The common parts for all exercises.
     """
+    allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
     min_group_size = models.PositiveIntegerField(default=1)
     max_group_size = models.PositiveIntegerField(default=1)
