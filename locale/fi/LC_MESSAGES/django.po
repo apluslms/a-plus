@@ -598,12 +598,12 @@ msgstr ""
 
 #: edit_course/templates/edit_course/batch_assess.html:6
 msgid "Batch assess submissions"
-msgstr ""
+msgstr "Joukkoarvostele palautuksia"
 
 #: edit_course/templates/edit_course/batch_assess.html:11
 #: edit_course/templates/edit_course/batch_assess.html:18
 msgid "Batch create and assess submissions"
-msgstr ""
+msgstr "Luo ja arvostele palautusjoukkoja"
 
 #: edit_course/templates/edit_course/batch_assess.html:21
 msgid ""

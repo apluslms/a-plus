@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from lib.viewbase import BaseTemplateView
@@ -47,6 +48,10 @@ class CourseInstanceMixin(CourseMixin):
         self.is_assistant = self.instance.is_assistant(self.request.user)
         self.is_course_staff = self.is_teacher or self.is_assistant
         self.note("instance", "is_assistant", "is_course_staff")
+
+        # Apply course instance language.
+        if self.instance.language:
+            translation.activate(self.instance.language)
 
     def access_control(self):
 
