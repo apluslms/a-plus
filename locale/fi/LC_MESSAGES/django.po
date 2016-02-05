@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-26 13:20+0000\n"
+"POT-Creation-Date: 2016-02-05 07:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,9 +22,10 @@ msgstr ""
 msgid "Select your files for grading"
 msgstr "Valitse arvosteltavat tiedostot"
 
-#: access/templates/access/accept_files_form.html:14
-#: access/templates/access/accept_git_form.html:15
-#: access/templates/access/graded_form.html:44
+#: access/templates/access/accept_files_form.html:15
+#: access/templates/access/accept_git_form.html:16
+#: access/templates/access/accept_post_form.html:17
+#: access/templates/access/graded_form.html:63
 msgid "Submit"
 msgstr "Lähetä"
 
@@ -41,26 +42,48 @@ msgstr "Muistitko git add - git commit - git push?"
 msgid "Enter your user id for grading"
 msgstr "Anna käyttäjätunnuksesi arvostelua varten"
 
-#: access/templates/access/accept_git_user.html:30
+#: access/templates/access/accept_git_user.html:31
 msgid "Request grading of my repository"
 msgstr "Pyydä Git-repositoryni arvostelua"
 
-#: access/templates/access/async_accepted.html:6
+#: access/templates/access/accept_post_default.html:10
+msgid "Enter your submission"
+msgstr "Kirjoita ratkaisusi"
+
+#: access/templates/access/ajax.html:2
+msgid ""
+"\n"
+"You got %(points)s/%(max_points)s for your answer.\n"
+msgstr ""
+"\n"
+"Sait %(points)s/%(max_points)s pistettä tästä monivalintatehtävästä.\n"
+
+#: access/templates/access/async_accepted.html:7
+msgid ""
+"\n"
+"\tThe grading queue is not configured. This submission was graded\n"
+"\tsynchronously while blocking other services. NOT READY FOR PRODUCTION!\n"
+"\t"
+msgstr ""
+
+#: access/templates/access/async_accepted.html:17
 msgid "Submission accepted"
 msgstr "Palautus on vastaanotettu"
 
-#: access/templates/access/async_accepted.html:10
-#, python-format
+#: access/templates/access/async_accepted.html:22
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "\tMissing the %(key)s for result delivery! Grading and logging results.\n"
+#| "\t"
 msgid ""
 "\n"
-"\tMissing the %(key)s for result delivery! Grading and logging results.\n"
+"\tMissing the <code>%(key)s</code> for result delivery!\n"
+"  The result can be temporarily seen at <a href=\"%(url)s\">%(url)s</a>.\n"
 "\t"
 msgstr ""
-"\n"
-"Tuloksen toimittamiseen tarvittava %(key)s puuttuu!\n"
-"Arvostellaan ja kirjoitetaan tulos logiin."
 
-#: access/templates/access/async_accepted.html:19
+#: access/templates/access/async_accepted.html:34
 msgid ""
 "\n"
 "\t\tYour submission is being graded. The result will be available on this "
@@ -76,7 +99,7 @@ msgstr ""
 "Huomioi, että arvostelu voi kestää useita kymmeniä sekunteja.\n"
 "Voit lisäksi joutua lataamaan tämän sivun uudestaan nähdäksesi palautteen."
 
-#: access/templates/access/async_accepted.html:25
+#: access/templates/access/async_accepted.html:40
 #, python-format
 msgid ""
 "\n"
@@ -92,12 +115,11 @@ msgstr ""
 "Tulos näytetään tällä sivulla, kun arvosteluprosessi on suoritettu.\n"
 "Joudut lataamaan sivun uudelleen nähdäksesi palautteen."
 
-#: access/templates/access/course.html:10
-#: access/templates/access/ready.html:16
-msgid "Available courses"
+#: access/templates/access/course.html:15
+msgid "Available exercises"
 msgstr ""
 
-#: access/templates/access/create_form_default.html:9
+#: access/templates/access/create_form_default.html:12
 #, python-format
 msgid ""
 "\n"
@@ -105,22 +127,30 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"Sait %(points)s/%(max_points)s pistettä tästä monivalintatehtävästä."
+"Sait %(points)s/%(max_points)s pistettä tästä tehtävästä."
 
-#: access/templates/access/create_form_default.html:14
+#: access/templates/access/create_form_default.html:19
 msgid ""
 "\n"
 "    Note that the whole section of questions is marked as being incorrect "
 "if\n"
-"    one of the questions in that section is incorrect. You can change your\n"
-"    answers and grade them again from the bottom of the page. Notice the "
-"number\n"
-"    of allowed submissions left!\n"
+"    one of the questions in that section is incorrect.\n"
 "    "
 msgstr ""
 "\n"
 "Huomaa, että koko kysymysosio merkitään virheelliseksi, jos yksikin osion\n"
-"vastauksista on virheellinen. Voit vaihtaa vastauksiasi ja arvostella ne\n"
+"vastauksista on virheellinen."
+
+#: access/templates/access/create_form_default.html:25
+msgid ""
+"\n"
+"    You can change your answers and grade them again from the bottom of the "
+"page.\n"
+"    Notice the number of allowed submissions left!\n"
+"    "
+msgstr ""
+"\n"
+"Voit vaihtaa vastauksiasi ja arvostella ne\n"
 "uudelleen sivun lopusta. Huomaa jäljellä olevien palautuskertojen määrä!"
 
 #: access/templates/access/exercise_frame.html:15
@@ -135,58 +165,15 @@ msgstr "Tuntematon tiedosto vastaanotettu (tiedostonimeä ei ole asetuksissa)."
 msgid "Invalid address entered."
 msgstr "Syötetty osoite ei kelpaa."
 
-#: access/templates/access/pull_request.html:4
-msgid "Pull request"
-msgstr ""
-
-#: access/templates/access/pull_request.html:8
-#: access/templates/access/ready.html:13
-msgid "Exercise material pull requests"
-msgstr ""
-
-#: access/templates/access/pull_request.html:11
+#: access/templates/access/exercise_frame.html:27
 msgid ""
-"\n"
-"\tUpdate course exercises that have been checked out to this grader server "
-"as a Git submodule.\n"
-"\t"
-msgstr ""
+"The same form can obly be submitted once. Start again from exercise "
+"description."
+msgstr "Sama lomake voidaan lähettää vain kerran. Aloita uudelleen tehtävänannosta."
 
-#: access/templates/access/pull_request.html:16
-msgid ""
-"\n"
-"\tYou should NOT DO THIS unless you control the repository and know the HEAD "
-"state.\n"
-"\t"
-msgstr ""
-
-#: access/templates/access/pull_request.html:23
-msgid "Select a course"
-msgstr ""
-
-#: access/templates/access/pull_request.html:30
-msgid "Request Git pull at next full minute"
-msgstr ""
-
-#: access/templates/access/pull_request.html:36
-msgid ""
-"\n"
-"\tStatus: Request added<br />\n"
-"\tThis page URL may be used as a repository hook for automatic updates.\n"
-"\t"
-msgstr ""
-
-#: access/templates/access/pull_request.html:43
-msgid "Status: Unknown course!"
-msgstr ""
-
-#: access/templates/access/pull_request.html:48
-msgid "Log"
-msgstr ""
-
-#: access/templates/access/pull_request.html:50
-msgid "Update log"
-msgstr ""
+#: access/templates/access/exercise_frame.html:31
+msgid "Missing required fields."
+msgstr "Täytä kaikki pakolliset kentät."
 
 #: access/templates/access/ready.html:6
 msgid "Grader ready"
@@ -194,6 +181,14 @@ msgstr ""
 
 #: access/templates/access/ready.html:10
 msgid "Current queue length"
+msgstr ""
+
+#: access/templates/access/ready.html:14
+msgid "Git manager"
+msgstr ""
+
+#: access/templates/access/ready.html:18
+msgid "Available courses"
 msgstr ""
 
 #: access/templates/access/task_success.html:4
