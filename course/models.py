@@ -75,7 +75,7 @@ class CourseInstanceManager(models.Manager):
             return self.none()
         qs = self.filter(visible_to_students=True, students=user.userprofile)
         if end_after:
-            qs.exclude(ending_time__gte=end_after)
+            qs.exclude(ending_time__lt=end_after)
         return qs
 
     def get_on_staff(self, user=None, end_after=None):
@@ -84,7 +84,7 @@ class CourseInstanceManager(models.Manager):
         qs = self.filter(Q(assistants=user.userprofile) |
             Q(course__teachers=user.userprofile)).distinct()
         if end_after:
-            qs.exclude(ending_time__gte=end_after)
+            qs.exclude(ending_time__lt=end_after)
         return qs
 
     def get_visible(self, user=None):
