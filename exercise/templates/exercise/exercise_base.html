@@ -9,6 +9,9 @@
 {% block siblings %}
 {% include "course/_siblings.html" with next=exercise.next previous=exercise.previous %}
 {% endblock %}
+{% block siblings_bottom %}
+{% include "course/_siblings.html" with next=exercise.next previous=exercise.previous %}
+{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
