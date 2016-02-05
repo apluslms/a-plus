@@ -1,7 +1,7 @@
 import unittest
 
 from test_initializer import TestInitializer
-from page_objects import LoginPage, FileUploadGrader, AssessmentPage, SubmissionPage, StudentFeedbackPage
+from page_objects import LoginPage, FileUploadGrader, AssessmentPage, SubmissionPage, HomePage, StudentFeedbackPage
 
 
 class TeacherFeedbackTest(unittest.TestCase):
@@ -37,9 +37,10 @@ class TeacherFeedbackTest(unittest.TestCase):
 
         # Check that student receives the correct assessment and a notification of it
         LoginPage(self.driver).loginAsStudent()
-        studentFeedbackPage = StudentFeedbackPage(self.driver, exerciseId=EXERCISE_NUMBER, submissionNumber=SUBMISSION_NUMBER)
+        homePage = HomePage(self.driver)
+        self.assertTrue(homePage.hasNewNotifications())
 
-        self.assertTrue(studentFeedbackPage.hasNewNotifications())
+        studentFeedbackPage = StudentFeedbackPage(self.driver, exerciseId=EXERCISE_NUMBER, submissionNumber=SUBMISSION_NUMBER)
         self.assertEqual(studentFeedbackPage.getAssistantFeedbackText(), ASSISTANT_FEEDBACK_TEXT)
         self.assertEqual(studentFeedbackPage.getFeedbackText(), FEEDBACK_TEXT)
         self.assertEqual(FileUploadGrader(self.driver).getPoints(), POINTS)
