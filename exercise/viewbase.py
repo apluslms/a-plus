@@ -19,6 +19,8 @@ class ExerciseMixin(CourseModuleMixin):
         self.exercise = self.module._children().by_path(path)
         if not self.exercise:
             raise Http404()
+        else:
+            self.exercise = self.exercise.as_leaf_class()
         self.note("exercise")
 
     def access_control(self):
