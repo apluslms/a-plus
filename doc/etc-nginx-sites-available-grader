@@ -8,6 +8,8 @@ server {
     client_max_body_size 50M;
 
     location /static {
+        add_header 'Access-Control-Allow-Origin' '*';
+      	add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
         alias /srv/grader/mooc-grader/static;
     }
     location /robots.txt {

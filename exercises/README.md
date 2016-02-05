@@ -48,6 +48,7 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 			* `points_to_pass`: (optional/a+) limit to get passed marks
 			* `min_group_size`: (optional/a+)
 			* `max_group_size`: (optional/a+)
+			* `allow_assistant_viewing`: (optional/a+) true or false
 			* `allow_assistant_grading`: (optional/a+) true or false
 			* `use_wide_column`: (optional/a+) true to loose third column
 			* `generate_table_of_contents`: (optional/a+) show index of children
