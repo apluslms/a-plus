@@ -2,7 +2,17 @@ upstream django {
     server 127.0.0.1:3031;
 }
 server {
-    server_name grader.cs.hut.fi;
+    listen 80;
+    server_name grader.domain.none;
+    return 301 https://$server_name$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name grader.domain.none;
+
+    ssl on;
+    ssl_certificate /etc/ssl/certs/grader.domain.none.pem;
+    ssl_certificate_key /etc/ssl/private/grader.domain.none.key;
 
     charset utf-8;
     client_max_body_size 50M;
@@ -16,6 +26,8 @@ server {
         alias /srv/grader/mooc-grader/static/robots.txt;
     }
     location /ajax {
+        add_header 'Access-Control-Allow-Origin' '*';
+      	add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
         uwsgi_pass django;
         include uwsgi_params;
     }

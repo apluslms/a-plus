@@ -115,27 +115,25 @@ def aplus_json(request, course_key):
             return []
         result = []
         for o in [o for o in parent["children"] if "key" in o]:
-            if "config" in o:
-                _, exercise = config.exercise_entry(course["key"], o["key"])
-                of = {
+            of = _type_dict(o, course.get("exercise_types", {}))
+            if "config" in of:
+                _, exercise = config.exercise_entry(course["key"], of["key"])
+                of.update({
                     "title": exercise.get("title", ""),
                     "description": exercise.get("description", ""),
                     "url": request.build_absolute_uri(
                         reverse('access.views.exercise', args=[
                             course["key"], exercise["key"]
                         ])),
-                }
-            elif "static_content" in o:
-                of = {
+                })
+            elif "static_content" in of:
+                of.update({
                     "url": request.build_absolute_uri(
                         '{}{}/{}'.format(settings.STATIC_URL,
-                            course["key"], o["static_content"])),
-                }
-            else:
-                of = {}
-            of.update(o)
+                            course["key"], of["static_content"])),
+                })
             of["children"] = children_recursion(o)
-            result.append(_type_dict(of, course.get("exercise_types", {})))
+            result.append(of)
         return result
 
     modules = []

@@ -58,7 +58,7 @@ def render_template(request, course, exercise, post_url, template, result=None):
     if template.startswith('./'):
         template = course['key'] + template[1:]
     return render(request, template,
-        _exercise_context(course, exercise, post_url, result))
+        _exercise_context(course, exercise, post_url, result, request))
 
 
 def template_to_str(course, exercise, post_url, template, result=None):
@@ -85,8 +85,9 @@ def template_to_str(course, exercise, post_url, template, result=None):
         _exercise_context(course, exercise, post_url, result)))
 
 
-def _exercise_context(course, exercise, post_url, result=None):
+def _exercise_context(course, exercise, post_url, result=None, request=None):
     return {
+        "request": request,
         "course": course,
         "exercise": exercise,
         "post_url": post_url or "",

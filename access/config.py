@@ -193,9 +193,17 @@ class ConfigParser:
             def recurse_exercises(parent):
                 if "children" in parent:
                     for exercise_vars in parent["children"]:
-                        if "key" in exercise_vars and "config" in exercise_vars:
-                            keys.append(exercise_vars["key"])
-                            config[exercise_vars["key"]] = exercise_vars["config"]
+                        if "key" in exercise_vars:
+                            cfg = None
+                            if "config" in exercise_vars:
+                                cfg = exercise_vars["config"]
+                            elif "type" in exercise_vars and "exercise_types" in data \
+                                    and exercise_vars["type"] in data["exercise_types"] \
+                                    and "config" in data["exercise_types"][exercise_vars["type"]]:
+                                cfg = data["exercise_types"][exercise_vars["type"]]["config"]
+                            if cfg:
+                                keys.append(exercise_vars["key"])
+                                config[exercise_vars["key"]] = cfg
                         recurse_exercises(exercise_vars)
             for module in data["modules"]:
                 recurse_exercises(module)
