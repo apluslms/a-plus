@@ -7,50 +7,32 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-8">
-
-        <div class="page-header">
-            <h1>{% trans "Course archive" %}
-        </div>
-
-        <ul id="course-list"></ul>
-
+  <div class="col-md-8">
+    <div class="page-header">
+        <h1>{% trans "Course archive" %}
     </div>
-    <div class="col-md-4">
-        <div class="alert alert-info">
-            {% blocktrans %}
-            <strong>Note:</strong>
-            To demonstrate functionality of the system,
-            the list of courses and course instances is fetched
-            from the API. And built using JavaScript.
-            {% endblocktrans %}
-        </div>
-    </div>
+    <ul>
+      {% for instance in instances %}
+      <li>
+        <h4>
+            <a href="{{ instance|url }}">{{ instance }}</a>
+            <small>
+              <br />{{ instance.starting_time|date:"SHORT_DATE_FORMAT" }}
+              &ndash; {{ instance.ending_time|date:"SHORT_DATE_FORMAT" }}
+              {% if not instance.visible_to_students %}
+              <span class="label label-danger">{% trans "Hidden from students" %}</span>
+              {% endif %}
+              {% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
+              <span class="label label-success">{{ internal_user_label|safe }}</span>
+              {% endif %}
+              {% if instance.enrollment_audience == 2 or instance.enrollment_audience == 3 %}
+              <span class="label label-info">{{ external_user_label|safe }}</span>
+              {% endif %}
+            </small>
+        </h4>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script type="text/javascript">
-    $(function(){
-        $.getJSON("/api/v1/course/", function(courseResponse) {
-            $.each(courseResponse.objects, function(i, course) {
-                var $courseLI = $("<li />").attr('id', 'course'+course.id).appendTo("#course-list");
-                var $courseHeading = $("<h3 />").text(course.code + " " + course.name).appendTo($courseLI);
-                $instanceUL = $("<ul />").appendTo($courseLI);
-                $.each(course.instances, function(j, courseInstance) {
-                    $.getJSON(courseInstance, function(instanceResponse) {
-                        var $instanceLI = $("<li />").appendTo($("#course" + course.id + " > ul"));
-                        var $instanceLink = $("<a />")
-                            .text(instanceResponse.instance_name)
-                            .attr("href", instanceResponse.browser_url)
-                            .appendTo($instanceLI);
-                        if (instanceResponse.is_open) {
-                            $instanceLI.append(" <span class='label label-success'>open</span>");
-                        }
-                    });
-                });
-            });
-        });
-    });
-</script>
 {% endblock %}

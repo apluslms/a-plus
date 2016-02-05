@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import ACCESS
-from .models import LearningObject, Submission
+from .models import LearningObject, Submission, BaseExercise
 
 
 class ExerciseMixin(CourseModuleMixin):
@@ -19,6 +19,8 @@ class ExerciseMixin(CourseModuleMixin):
         self.exercise = self.module._children().by_path(path)
         if not self.exercise:
             raise Http404()
+        else:
+            self.exercise = self.exercise.as_leaf_class()
         self.note("exercise")
 
     def access_control(self):
@@ -26,11 +28,17 @@ class ExerciseMixin(CourseModuleMixin):
         if not self.is_course_staff \
                 and self.exercise.status == LearningObject.STATUS_HIDDEN:
             raise Http404()
-        if self.access_mode == ACCESS.GRADING:
-            if not (self.is_teacher or self.exercise.allow_assistant_grading):
-                messages.error(self.request,
-                    _("Assistant grading is not allowed for this exercise."))
-                raise PermissionDenied()
+        if isinstance(self.exercise, BaseExercise):
+            if self.access_mode >= ACCESS.ASSISTANT:
+                if not (self.is_teacher or self.exercise.allow_assistant_viewing):
+                    messages.error(self.request,
+                        _("Assistant viewing is not allowed for this exercise."))
+                    raise PermissionDenied()
+            if self.access_mode == ACCESS.GRADING:
+                if not (self.is_teacher or self.exercise.allow_assistant_grading):
+                    messages.error(self.request,
+                        _("Assistant grading is not allowed for this exercise."))
+                    raise PermissionDenied()
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):

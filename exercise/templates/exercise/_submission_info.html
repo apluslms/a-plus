@@ -21,7 +21,7 @@
             <dt>{% trans "Grade" %}</dt>
             <dd>
                 {{ submission.grade }} / {{ exercise.max_points }}
-                {% if is_course_staff and exercise.max_points != submission.service_max_points %}
+                {% if is_course_staff %}
                 <br />({% trans "For staff: original" %} {{ submission.service_points }} / {{ submission.service_max_points }})
                 {% endif %}
             </dd>

@@ -22,7 +22,7 @@ class BasePageLocators(object):
     LOGOUT_LINK = (By.XPATH, "//*[contains(@class, 'user-menu')]/li/a[contains(@href, '/accounts/logout/')]")
     LOGOUT_BANNER = (By.XPATH, "//div[contains(@class, 'alert alert-success')]")
     WARNING_BANNER = (By.XPATH, "//div[contains(@class, 'alert alert-warning')]")
-    NOTIFICATION_ALERT = (By.XPATH, "//*[contains(@class, 'alert')]/span[contains(@class, 'glyphicon-envelope')]")
+    NOTIFICATION_ALERT = (By.XPATH, "//*[contains(@class, 'menu-notification')]//span[contains(@class, 'badge-danger')]")
 
 class HomePageLocators(object):
     MAIN_SCORE = (By.XPATH, "//div[contains(@class, 'well')]/p/strong[contains(@class, 'h2')]")

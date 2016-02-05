@@ -86,14 +86,14 @@ class UserModuleSummary(object):
 
     def _generate_summary(self):
         for o in self.module.flat_learning_objects(False):
-            if o.is_submittable():
+            if o.as_leaf_class().is_submittable():
                 self.exercise_summaries.append(
                     UserExerciseSummary(o, self.user))
 
     def _sort_summary(self):
         ordered = []
         for o in self.module.flat_admin_learning_objects(False):
-            if o.is_submittable() and o.status != 'hidden':
+            if o.status != 'hidden' and o.as_leaf_class().is_submittable():
                 for s in self.exercise_summaries:
                     if o.id == s.exercise.id:
                         ordered.append(s)

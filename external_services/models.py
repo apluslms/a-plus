@@ -53,6 +53,12 @@ class LTIService(LinkService):
     )
 
 
+class MenuItemManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().select_related(
+            'course_instance', 'course_instance__course')
+
 class MenuItem(models.Model):
     '''
     Attaches LTI service to course instance menu.

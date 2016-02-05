@@ -29,7 +29,10 @@ from .protocol.exercise_page import ExercisePage
 class LearningObjectManager(models.Manager):
 
     def get_queryset(self):
-        return super().get_queryset().defer('description', 'content', 'content_head')
+        return super().get_queryset()\
+            .defer('description', 'content', 'content_head')\
+            .select_related('course_module', 'course_module__course_instance',
+                'course_module__course_instance__course')
 
     def find_enrollment_exercise(self, course_instance):
         return self.filter(
@@ -114,8 +117,9 @@ class LearningObject(ModelWithInheritance):
         return self.name
 
     def number(self):
-        if self.parent:
-            return "{}.{:d}".format(self.parent.number(), self.order)
+        parent = self.course_module._children().parent(self)
+        if parent:
+            return "{}.{:d}".format(parent.number(), self.order)
         return ".{:d}".format(self.order)
 
     @property
@@ -126,7 +130,10 @@ class LearningObject(ModelWithInheritance):
         return False
 
     def is_empty(self):
-        return False
+        return not self.service_url and self.as_leaf_class()._is_empty()
+
+    def _is_empty(self):
+        return True
 
     def is_open(self, when=None):
         return self.course_module.is_open(when=when)
@@ -212,14 +219,15 @@ class CourseChapter(LearningObject):
     """
     generate_table_of_contents = models.BooleanField(default=False)
 
-    def is_empty(self):
-        return not (self.service_url or self.generate_table_of_contents)
+    def _is_empty(self):
+        return not self.generate_table_of_contents
 
 
 class BaseExercise(LearningObject):
     """
     The common parts for all exercises.
     """
+    allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
     min_group_size = models.PositiveIntegerField(default=1)
     max_group_size = models.PositiveIntegerField(default=1)

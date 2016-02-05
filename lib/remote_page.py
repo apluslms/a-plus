@@ -1,5 +1,6 @@
 import logging
 import posixpath
+import re
 import requests
 import time
 import urllib.parse
@@ -58,15 +59,10 @@ class RemotePage:
         logger.error("HTTP request loop ended in unexpected state")
         assert False
 
-    def base_url(self):
-        return urllib.parse.urlunparse((
-            self.url.scheme,
-            self.url.netloc,
-            posixpath.dirname(self.url.path),
-            self.url.params,
-            self.url.query,
-            self.url.fragment
-        ))
+    def base_address(self):
+        domain = urllib.parse.urlunparse((self.url.scheme, self.url.netloc, '', '', '', ''))
+        path = posixpath.dirname(self.url.path)
+        return domain, path + '/' if not path or path[-1] != '/' else path
 
     def meta(self, name):
         if self.soup:
@@ -101,24 +97,21 @@ class RemotePage:
         return self.body()
 
     def fix_relative_urls(self):
-        base_url = self.base_url()
-        self._fix_relative_urls(base_url, "img", "src")
-        self._fix_relative_urls(base_url, "script", "src")
-        self._fix_relative_urls(base_url, "link", "href")
-        self._fix_relative_urls(base_url, "a", "href")
+        domain, path = self.base_address()
+        self._fix_relative_urls(domain, path, "img", "src")
+        self._fix_relative_urls(domain, path, "script", "src")
+        self._fix_relative_urls(domain, path, "link", "href")
+        self._fix_relative_urls(domain, path, "a", "href")
 
-    def _fix_relative_urls(self, base_url, tag_name, attr_name):
+    def _fix_relative_urls(self, domain, path, tag_name, attr_name):
+        test = re.compile('^(#|.+:\/\/|data:.+;)', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]
-            if value and not (value.startswith("http://")
-                    or value.startswith("https://")
-                    or value.startswith("#")):
-                element[attr_name] = "".join((
-                    base_url,
-                    "/" if (value[0] != "/" and
-                            (not base_url or base_url[-1] != "/")) else "",
-                    value
-                ))
+            if value and not test.match(value):
+                if value[0] == '/':
+                    element[attr_name] = domain + value
+                else:
+                    element[attr_name] = domain + path + value
 
     def find_and_replace(self, attr_name, value_map):
         for element in self.soup.findAll(True, {attr_name:True}):

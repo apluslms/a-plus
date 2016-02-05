@@ -57,7 +57,7 @@ class RedirectTest(TestCase):
         response = self.client.get('/course/Course-Url/', follow=True)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'course/course.html')
+        self.assertTemplateUsed(response, 'course/toc.html')
         response = self.client.get('/another/course/Course-Url/')
         self.assertEqual(response.status_code, 404)
 

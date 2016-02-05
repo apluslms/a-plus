@@ -11,7 +11,7 @@
 
 {% if not enrolled %}
 <div class="alert alert-info">
-{% if enrollable %}
+{% if enrollable or is_course_staff %}
 <form method="post" action="{{ instance|url:'enroll' }}">
   {% csrf_token %}
   {% if instance.view_content_to > 1 %}

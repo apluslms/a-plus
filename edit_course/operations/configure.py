@@ -96,6 +96,9 @@ def configure_learning_objects(category_map, module, config, parent,
                 lobject.course_module = module
             else:
                 lobject = BaseExercise(course_module=module, url=str(o["key"]))
+            if "allow_assistant_viewing" in o:
+                lobject.allow_assistant_viewing = parse_bool(
+                    o["allow_assistant_viewing"])
             if "allow_assistant_grading" in o:
                 lobject.allow_assistant_grading = parse_bool(
                     o["allow_assistant_grading"])

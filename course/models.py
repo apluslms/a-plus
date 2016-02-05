@@ -67,16 +67,35 @@ class CourseInstanceManager(models.Manager):
     Helpers in CourseInstance.objects
     """
 
-    def get_active(self, user=None):
-        qs = self.filter(ending_time__gte=timezone.now())
+    def get_queryset(self):
+        return super().get_queryset().select_related('course').order_by('-starting_time')
+
+    def get_enrolled(self, user=None, end_after=None):
         if not user or not user.is_authenticated():
-            qs = qs.filter(visible_to_students=True)
-        elif not user.is_superuser:
-            qs = qs.filter(Q(visible_to_students=True)
+            return self.none()
+        qs = self.filter(visible_to_students=True, students=user.userprofile)
+        if end_after:
+            qs.exclude(ending_time__gte=end_after)
+        return qs
+
+    def get_on_staff(self, user=None, end_after=None):
+        if not user or not user.is_authenticated():
+            return self.none()
+        qs = self.filter(Q(assistants=user.userprofile) |
+            Q(course__teachers=user.userprofile)).distinct()
+        if end_after:
+            qs.exclude(ending_time__gte=end_after)
+        return qs
+
+    def get_visible(self, user=None):
+        if not user or not user.is_authenticated():
+            return self.filter(visible_to_students=True)
+        if not user.is_superuser:
+            return self.filter(Q(visible_to_students=True)
                            | Q(assistants=user.userprofile)
                            | Q(course__teachers=user.userprofile)
                 ).distinct()
-        return qs
+        return self.all()
 
 
 def build_upload_dir(instance, filename):
@@ -116,7 +135,7 @@ class CourseInstance(models.Model):
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
-    language = models.CharField(max_length=5, default="en")
+    language = models.CharField(max_length=5, blank=True, default="")
     description = models.TextField(blank=True)
     footer = models.TextField(blank=True)
     index_mode = models.IntegerField(choices=(
@@ -185,7 +204,7 @@ class CourseInstance(models.Model):
             and self.students.filter(id=user.userprofile.id).exists()
 
     def is_enrollable(self, user):
-        if user and user.is_authenticated():
+        if user and user.is_authenticated() and self.is_open():
             if self.enrollment_audience == 1:
                 return not user.userprofile.is_external
             if self.enrollment_audience == 2:
@@ -264,6 +283,13 @@ class CourseHook(models.Model):
                          self.hook_type, self.hook_url, self.course_instance)
 
 
+class CourseModuleManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().select_related(
+            'course_instance', 'course_instance__course')
+
+
 class CourseModule(models.Model):
     """
     CourseModule objects connect chapters and learning objects to logical sets
@@ -300,6 +326,8 @@ class CourseModule(models.Model):
     late_submission_deadline = models.DateTimeField(default=timezone.now)
     late_submission_penalty = PercentField(default=0.5,
         help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+
+    objects = CourseModuleManager()
 
     class Meta:
         unique_together = ("course_instance", "url")

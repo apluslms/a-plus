@@ -4,7 +4,7 @@ from exercise.exercise_models import BaseExercise
 
 def course(request, course_url=None):
     course = get_object_or_404(Course, url=course_url)
-    return redirect(course.get_absolute_url(), permanent=True)
+    return redirect(course.instances.first().get_absolute_url(), permanent=True)
 
 def instance(request, course_url=None, instance_url=None):
     instance = get_object_or_404(CourseInstance, url=instance_url, course__url=course_url)

@@ -142,6 +142,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
@@ -166,6 +167,7 @@ FILE_UPLOAD_HANDLERS = (
 
 ROOT_URLCONF = 'a-plus.urls'
 LOGIN_REDIRECT_URL = "/"
+LOGIN_ERROR_URL = "/accounts/login/"
 
 # Database (override in local_settings.py)
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
