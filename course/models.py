@@ -135,7 +135,7 @@ class CourseInstance(models.Model):
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
-    language = models.CharField(max_length=5, blank=True, default=None)
+    language = models.CharField(max_length=5, blank=True, default="")
     description = models.TextField(blank=True)
     footer = models.TextField(blank=True)
     index_mode = models.IntegerField(choices=(
