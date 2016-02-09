@@ -82,6 +82,7 @@
 	"use strict";
 
 	var pluginName = "aplusExercise";
+	var reloadName = "aplusReload";
 	var defaults = {
 		quiz_attr: "data-aplus-quiz",
 		ajax_attr: "data-aplus-ajax",
@@ -283,6 +284,15 @@
 		return this.each(function() {
 			if (!$.data(this, "plugin_" + pluginName)) {
 				$.data(this, "plugin_" + pluginName, new AplusExercise(this, chapter, options));
+			}
+		});
+	};
+
+	$.fn[reloadName] = function() {
+		return this.each(function() {
+			var exercise = $.data(this, "plugin_" + pluginName);
+			if (exercise) {
+				exercise.load();
 			}
 		});
 	};
