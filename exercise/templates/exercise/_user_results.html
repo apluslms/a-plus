@@ -71,7 +71,7 @@
     {% endif %}
   </div>
   {% if course_module.status == 'ready' %}
-  <table class="table table-striped table-condensed">
+  <table class="table table-striped table-condensed results-table">
     <tbody>
       {% for category, categorized_exercise_level in category_level %}
       <tr class="category-row" data-category="{{ category.id }}">

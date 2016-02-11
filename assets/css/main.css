@@ -225,3 +225,9 @@ html, body {
 .form-inline .form-group div {
     display: inline-block;
 }
+
+/* results table */
+
+table.results-table .category-row {
+    font-weight: bold;
+}
