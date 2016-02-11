@@ -74,7 +74,7 @@ class CourseInstanceManager(models.Manager):
         if not user or not user.is_authenticated():
             return self.none()
         qs = self.filter(visible_to_students=True, students=user.userprofile)
-        if end_after:
+        if not end_after is None:
             qs.exclude(ending_time__lt=end_after)
         return qs
 
@@ -83,7 +83,7 @@ class CourseInstanceManager(models.Manager):
             return self.none()
         qs = self.filter(Q(assistants=user.userprofile) |
             Q(course__teachers=user.userprofile)).distinct()
-        if end_after:
+        if not end_after is None:
             qs.exclude(ending_time__lt=end_after)
         return qs
 

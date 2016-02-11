@@ -113,6 +113,18 @@ class RemotePage:
                 else:
                     element[attr_name] = domain + path + value
 
-    def find_and_replace(self, attr_name, value_map):
+    def find_and_replace(self, attr_name, list_of_attributes):
+        l = len(list_of_attributes)
+        if l == 0:
+            return
+        i = 0
         for element in self.soup.findAll(True, {attr_name:True}):
-            element[attr_name] = value_map.get(element[attr_name], None)
+            for name,value in list_of_attributes[i].items():
+                if name.startswith('?'):
+                    if name[1:] in element:
+                        element[name[1:]] = value
+                else:
+                    element[name] = value
+            i += 1
+            if i >= l:
+                return

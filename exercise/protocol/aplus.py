@@ -136,9 +136,10 @@ def parse_page_content(page, remote_page, exercise):
         page.is_wait = False
 
     remote_page.fix_relative_urls()
-
-    remote_page.find_and_replace('data-aplus-exercise',
-        {str(o.order): o.get_absolute_url() for o in exercise.children.all()})
+    remote_page.find_and_replace('data-aplus-exercise', [{
+        'data-aplus-order': i,
+        'data-aplus-exercise': o.get_absolute_url(),
+    } for i,o in enumerate(exercise.children.all())])
 
     page.head = remote_page.head({'data-aplus':True})
     page.content = remote_page.element_or_body((
