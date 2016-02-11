@@ -88,8 +88,9 @@ def exercise_ajax(request, course_key, exercise_key):
     (course, exercise) = config.exercise_entry(course_key, exercise_key)
     if course is None or exercise is None or 'ajax_type' not in exercise:
         raise Http404()
-    if not request.is_ajax():
-        return HttpResponse('Method not allowed', status=405)
+    # jQuery does not send "requested with" on cross domain requests
+    #if not request.is_ajax():
+    #    return HttpResponse('Method not allowed', status=405)
 
     response = import_named(course, exercise['ajax_type'])(
         request, course, exercise)
