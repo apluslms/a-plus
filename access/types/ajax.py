@@ -13,8 +13,10 @@ Functions take arguments:
     @return: a response
 
 '''
+import json
+import urllib.parse
 from django.conf import settings
-from django.http.response import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http.response import HttpResponse, HttpResponseForbidden
 
 from util.http import post_result
 from .auth import make_hash
@@ -42,6 +44,6 @@ def storeSubmission(request, course, exercise):
     post_result(url, course, exercise, template, {
         'points': points,
         'max_points': max_points,
-        'grading_data': answer,
+        'grading_data': urllib.parse.unquote(answer),
     })
-    return JsonResponse({'success': True})
+    return HttpResponse(json.dumps({'success':True}), content_type='application/json')
