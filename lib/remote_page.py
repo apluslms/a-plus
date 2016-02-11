@@ -31,7 +31,6 @@ class RemotePage:
                 _("Connecting to the course service failed!"))
         self.response.encoding = "utf-8"
         self.soup = BeautifulSoup(self.response.text, 'html5lib')
-        print(self.soup.body)
 
     def _request(self, url, post=False, data=None, files=None):
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
