@@ -31,7 +31,7 @@ class AbstractPage(object):
     def __init__(self, driver, base_url=base_url):
         self.driver = driver
         self.base_url = base_url
-        self.wait_timeout = 3
+        self.wait_timeout = 10
         self.condition_wait_timeout = 10
 
     def load(self, url, loaded_check=None):
