@@ -7,11 +7,13 @@ TEST_DB = os.path.join(TEST_PATH, 'aplus.db')
 TEST_COPY = os.path.join(TEST_PATH, 'aplus.db_copy')
 
 class TestInitializer(object):
-    
+
     def getFirefoxDriverWithLoggingEnabled(self):
         firefoxCapabilities =  DesiredCapabilities.FIREFOX
         firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
-        firefoxDriver = webdriver.Firefox(capabilities=firefoxCapabilities)
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference('startup.homepage_welcome_url.additional', '')
+        firefoxDriver = webdriver.Firefox(profile, capabilities=firefoxCapabilities)
         firefoxDriver.set_window_size(1024, 768)
         return firefoxDriver
 

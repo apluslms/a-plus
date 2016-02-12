@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import MultipleObjectsReturned
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -75,8 +76,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             url_name=self.post_url_name)
 
         if self.profile:
-            LearningObjectDisplay.objects.get_or_create(
-                learning_object=self.exercise, profile=self.profile)
+            try:
+                LearningObjectDisplay.objects.get_or_create(
+                    learning_object=self.exercise, profile=self.profile)
+            except MultipleObjectsReturned:
+                pass
 
         return self.response(page=page, students=students)
 

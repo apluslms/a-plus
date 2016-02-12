@@ -42,7 +42,7 @@ class HomeView(UserProfileView):
                 self.instances += [instance]
             else:
                 prio2 += [instance]
-        self.instances += prio2[::-1]
+        self.instances += prio2
         self.note("welcome_text", "internal_user_label", "external_user_label", "instances")
 
 

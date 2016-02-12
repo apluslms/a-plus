@@ -74,8 +74,8 @@ class CourseInstanceManager(models.Manager):
         if not user or not user.is_authenticated():
             return self.none()
         qs = self.filter(visible_to_students=True, students=user.userprofile)
-        if end_after:
-            qs.exclude(ending_time__gte=end_after)
+        if not end_after is None:
+            qs.exclude(ending_time__lt=end_after)
         return qs
 
     def get_on_staff(self, user=None, end_after=None):
@@ -83,8 +83,8 @@ class CourseInstanceManager(models.Manager):
             return self.none()
         qs = self.filter(Q(assistants=user.userprofile) |
             Q(course__teachers=user.userprofile)).distinct()
-        if end_after:
-            qs.exclude(ending_time__gte=end_after)
+        if not end_after is None:
+            qs.exclude(ending_time__lt=end_after)
         return qs
 
     def get_visible(self, user=None):
@@ -204,7 +204,7 @@ class CourseInstance(models.Model):
             and self.students.filter(id=user.userprofile.id).exists()
 
     def is_enrollable(self, user):
-        if user and user.is_authenticated() and self.is_open():
+        if user and user.is_authenticated() and timezone.now() < self.ending_time:
             if self.enrollment_audience == 1:
                 return not user.userprofile.is_external
             if self.enrollment_audience == 2:

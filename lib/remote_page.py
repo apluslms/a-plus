@@ -30,7 +30,7 @@ class RemotePage:
             raise RemotePageException(
                 _("Connecting to the course service failed!"))
         self.response.encoding = "utf-8"
-        self.soup = BeautifulSoup(self.response.text)
+        self.soup = BeautifulSoup(self.response.text, 'html5lib')
 
     def _request(self, url, post=False, data=None, files=None):
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
@@ -113,6 +113,18 @@ class RemotePage:
                 else:
                     element[attr_name] = domain + path + value
 
-    def find_and_replace(self, attr_name, value_map):
+    def find_and_replace(self, attr_name, list_of_attributes):
+        l = len(list_of_attributes)
+        if l == 0:
+            return
+        i = 0
         for element in self.soup.findAll(True, {attr_name:True}):
-            element[attr_name] = value_map.get(element[attr_name], None)
+            for name,value in list_of_attributes[i].items():
+                if name.startswith('?'):
+                    if name[1:] in element:
+                        element[name[1:]] = value
+                else:
+                    element[name] = value
+            i += 1
+            if i >= l:
+                return
