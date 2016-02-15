@@ -34,7 +34,7 @@ for key in $keys; do
 
   # Update sandbox.
   if [ -d /var/sandbox ]; then
-    ./manage_sandbox.sh -q create $key >> $LOG
+    ./manage_sandbox.sh -q create $key >> $LOG 2>&1
   fi
 
   # Write to database.
