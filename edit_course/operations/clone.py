@@ -7,8 +7,11 @@ def clone_learning_objects(category_map, module, objects, parent):
 
         # Save as new learning object.
         lobject.id = None
-        lobject.learningobject_ptr_id = None
         lobject.modelwithinheritance_ptr_id = None
+        if hasattr(lobject, "learningobject_ptr_id"):
+            lobject.learningobject_ptr_id = None
+        if hasattr(lobject, "baseexercise_ptr_id"):
+            lobject.baseexercise_ptr_id = None
         lobject.category = category_map[lobject.category.id]
         lobject.course_module = module
         lobject.parent = parent
