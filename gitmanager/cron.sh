@@ -7,7 +7,6 @@ fi
 touch $FLAG
 
 LOG="/tmp/mooc-grader-log"
-QUEUE="/etc/init.d/celeryd"
 TOUCH="/etc/uwsgi/grader.ini"
 SQL="sqlite3 -batch -noheader -column db.sqlite3 "
 TRY_PYTHON="/srv/grader/venv/bin/python"
@@ -23,10 +22,6 @@ vals=(`ls -ld exercises`)
 USER=${vals[2]}
 
 chown $USER $FLAG
-
-if [ -x $QUEUE ]; then
-  $QUEUE stop >/dev/null 2>&1
-fi
 
 # Handle each scheduled course key.
 keys="`$SQL "select r.key from gitmanager_courseupdate as u left join gitmanager_courserepo r on u.course_repo_id=r.id where u.updated=0;"`"
@@ -56,7 +51,4 @@ done
 
 if [ -e $TOUCH ]; then
   touch $TOUCH
-fi
-if [ -x $QUEUE ]; then
-  $QUEUE start > /dev/null 2>&1
 fi
