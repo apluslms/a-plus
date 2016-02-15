@@ -457,6 +457,7 @@ class LTIExercise(BaseExercise):
         if self.aplus_get_and_post:
             return super().load(request, students, url_name=url_name)
 
+        url = self.service_url or self.lti_service.url
         lti = self._get_lti(students[0].user, request.get_host())
 
         # Render launch button.
@@ -465,8 +466,8 @@ class LTIExercise(BaseExercise):
         template = loader.get_template('exercise/model/_lti_button.html')
         page.content += template.render(Context({
             'service': self.lti_service,
-            'url': self.service_url or self.lti_service.url,
-            'parameters': lti.sign_post_parameters(),
+            'url': url,
+            'parameters': lti.sign_post_parameters(url),
             'title': self.resource_link_title,
         }))
         return page
