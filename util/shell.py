@@ -77,7 +77,6 @@ def invoke_sandbox(course_key, action, dirarg=None):
         else:
             cmd.append(str(settings.SANDBOX_LIMITS[key]))
 
-    print(action)
     if dirarg:
         if "dir" in action:
             if action["dir"] == ".":
