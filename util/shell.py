@@ -68,7 +68,7 @@ def invoke_sandbox(course_key, action, dirarg=None):
     cmd = [ settings.SANDBOX_RUNNER if os.path.isfile(settings.SANDBOX_RUNNER)
         else settings.SANDBOX_FALLBACK ]
 
-    if "net" in action and action["net"]:
+    if "net" in action and (action["net"] is True or str(action["net"]).lower() in ('true','yes')):
         cmd.append("net")
 
     for key in ("time", "memory", "files", "disk"):
