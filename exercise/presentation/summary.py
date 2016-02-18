@@ -93,7 +93,7 @@ class UserModuleSummary(object):
     def _sort_summary(self):
         ordered = []
         for o in self.module.flat_admin_learning_objects(False):
-            if o.status != 'hidden' and o.as_leaf_class().is_submittable():
+            if o.status != 'hidden':
                 for s in self.exercise_summaries:
                     if o.id == s.exercise.id:
                         ordered.append(s)
@@ -196,8 +196,8 @@ class UserCourseSummary(object):
         self.user = user
 
         # QuerySets.
-        self.modules = course_instance.course_modules.all()
-        self.categories = course_instance.categories.all()
+        self.modules = list(course_instance.course_modules.all())
+        self.categories = list(course_instance.categories.all())
         self.exercises = list(BaseExercise.objects \
             .filter(course_module__course_instance=self.course_instance) \
             .select_related("course_module", "category"))
