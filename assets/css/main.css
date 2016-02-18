@@ -218,9 +218,17 @@ html, body {
 }
 
 /* exercise wells */
+.exercise {
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+    padding: 1em;
+}
 .exercise-summary {
     border-bottom: 1px solid #e3e3e3;
     margin-bottom: 19px;
+}
+[data-aplus-no-summary] .exercise-summary {
+    display: none;
 }
 .form-inline .form-group div {
     display: inline-block;

@@ -182,13 +182,15 @@
 		},
 
 		bindFormEvents: function(content) {
-			var forms = content.find("form").attr("action", this.url);
-			var exercise = this;
-			if (this.chapter.ajaxForms && !this.ajax) {
-				forms.on("submit", function(event) {
-					event.preventDefault();
-					exercise.submit(this);
-				});
+			if (!this.ajax) {
+				var forms = content.find("form").attr("action", this.url);
+				var exercise = this;
+				if (this.chapter.ajaxForms) {
+					forms.on("submit", function(event) {
+						event.preventDefault();
+						exercise.submit(this);
+					});
+				}
 			}
 			window.postMessage({
 				type: "a-plus-bind-exercise",
