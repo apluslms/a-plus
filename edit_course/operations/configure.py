@@ -73,13 +73,9 @@ def configure_learning_objects(category_map, module, config, parent,
     if not isinstance(config, list):
         return start
     for o in config:
-        n += 1
         if not "key" in o:
             errors.append(_("Learning object requires a key."))
             continue
-        #if not "url" in o:
-        #    errors.append(_("Learning object requires an url."))
-        #    continue
         if not "category" in o:
             errors.append(_("Learning object requires a category."))
             continue
@@ -122,7 +118,12 @@ def configure_learning_objects(category_map, module, config, parent,
 
         lobject.category = category_map[o["category"]]
         lobject.parent = parent
-        lobject.order = n
+
+        if "order" in o:
+            lobject.order = parse_int(o["order"], errors)
+        else:
+            n += 1
+            lobject.order = n
         if "url" in o:
             lobject.service_url = str(o["url"])
         if "status" in o:
@@ -229,12 +230,17 @@ def configure_content(instance, url):
     nn = 0
     n = 0
     for m in config.get("modules", []):
-        n += 1
         if not "key" in m:
             errors.append(_("Module requires a key."))
             continue
         module, flag = instance.course_modules.get_or_create(url=str(m["key"]))
-        module.order = n
+
+        if "order" in m:
+            module.order = parse_int(m["order"], errors)
+        else:
+            n += 1
+            module.order = n
+
         if "title" in m:
             module.name = str(m["title"])
         elif "name" in m:
