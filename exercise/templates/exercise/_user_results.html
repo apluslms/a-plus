@@ -86,7 +86,7 @@
         <td>
           {% if after_open %}
           {% if exercise.status == 'unlisted' %}
-          <a href="{{ exercise.parent|url }}">{{ exercise }}</a>
+          <a href="{{ exercise.parent_cached|url }}">{{ exercise }}</a>
           {% else %}
           <a href="{{ exercise|url }}">{{ exercise }}</a>
           {% endif %}

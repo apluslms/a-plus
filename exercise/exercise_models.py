@@ -32,7 +32,7 @@ class LearningObjectManager(models.Manager):
         return super().get_queryset()\
             .defer('description', 'content', 'content_head')\
             .select_related('course_module', 'course_module__course_instance',
-                'course_module__course_instance__course')
+                'course_module__course_instance__course', 'category')
 
     def find_enrollment_exercise(self, course_instance):
         return self.filter(
@@ -149,6 +149,9 @@ class LearningObject(ModelWithInheritance):
 
     def flat_learning_objects(self, with_sub_markers=True):
         return self.course_module._children().flat(self, with_sub_markers)
+
+    def parent_cached(self):
+        return self.course_module._children().parent(self)
 
     def parent_list(self):
         parents = self.course_module._children().parents(self)

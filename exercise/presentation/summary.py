@@ -10,6 +10,8 @@ class UserExerciseSummary(object):
     """
     def __init__(self, exercise, user=None, **kwargs):
         self.exercise = exercise
+        self.max_points = getattr(exercise, 'max_points', 0)
+        self.points_to_pass = getattr(exercise, 'points_to_pass', 0)
         self.user = user
         self.submission_count = kwargs.get("submission_count", 0)
         self.best_submission = kwargs.get("best_submission", None)
@@ -37,7 +39,7 @@ class UserExerciseSummary(object):
         return self.best_submission
 
     def get_max_points(self):
-        return self.exercise.max_points
+        return self.max_points
 
     def get_points(self):
         return self.best_submission.grade if self.best_submission else 0
@@ -49,10 +51,10 @@ class UserExerciseSummary(object):
         return self.get_points()
 
     def get_required_points(self):
-        return self.exercise.points_to_pass
+        return self.points_to_pass
 
     def is_missing_points(self):
-        return self.get_points() < self.exercise.points_to_pass
+        return self.get_points() < self.points_to_pass
 
     def is_passed(self):
         return not self.is_missing_points()
@@ -198,7 +200,8 @@ class UserCourseSummary(object):
         self.categories = list(course_instance.categories.all())
         self.exercises = list(BaseExercise.objects \
             .filter(course_module__course_instance=self.course_instance) \
-            .select_related("course_module", "category"))
+            .select_related("course_module", "course_module__course_instance",
+                "course_module__course_instance__course", "category"))
         self.submissions = list(user.userprofile.submissions.exclude_errors() \
             .filter(exercise__course_module__course_instance=self.course_instance) \
             .defer("feedback", "assistant_feedback", "submission_data", "grading_data")) \
