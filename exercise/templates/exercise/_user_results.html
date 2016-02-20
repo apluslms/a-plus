@@ -6,10 +6,12 @@
 <p class="filter-categories">
   <small>{% trans "Filter view" %}:</small>
   {% for category_summary in categories %}
+  {% if category_summary.category.status != 'hidden' %}
   <button class="btn btn-default btn-xs" data-category="{{ category_summary.category.id }}">
     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
     {{ category_summary.category.name }}
   </button>
+  {% endif %}
   {% endfor %}
 </p>
 {% endif %}
