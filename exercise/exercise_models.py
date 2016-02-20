@@ -524,6 +524,9 @@ class StaticExercise(BaseExercise):
         page.is_accepted = True
         return page
 
+    def _is_empty(self):
+        return not bool(self.exercise_page_content)
+
 
 def build_upload_dir(instance, filename):
     """

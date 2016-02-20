@@ -152,6 +152,10 @@ class StaticExerciseForm(BaseExerciseForm):
             'submission_page_content',
         ]
 
+    @property
+    def remote_service_head(self):
+        return False
+
     def get_content_fieldset(self):
         return super().get_content_fieldset(
             'exercise_page_content', 'submission_page_content')
