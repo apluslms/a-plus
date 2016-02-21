@@ -104,7 +104,7 @@ class RemotePage:
         self._fix_relative_urls(domain, path, "a", "href")
 
     def _fix_relative_urls(self, domain, path, tag_name, attr_name):
-        test = re.compile('^(#|.+:\/\/|data:.+;)', re.IGNORECASE)
+        test = re.compile('^(#|\/\/|.+:\/\/|data:.+;)', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]
             if value and not test.match(value):
