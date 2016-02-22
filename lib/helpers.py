@@ -59,7 +59,7 @@ def has_same_domain(url1, url2):
     return uri1.netloc == uri2.netloc
 
 
-FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-"
+FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-0123456789"
 
 def safe_file_name(name):
     safename = "".join(c for c in name if c in FILENAME_CHARS)
