@@ -334,10 +334,11 @@ class CourseModule(models.Model):
         ordering = ['order', 'closing_time', 'id']
 
     def __str__(self):
-        if self.course_instance.module_numbering == 1:
-            return "{:d}. {}".format(self.order, self.name)
-        elif self.course_instance.module_numbering == 2:
-            return "{} {}".format(roman_numeral(self.order), self.name)
+        if self.order > 0:
+            if self.course_instance.module_numbering == 1:
+                return "{:d}. {}".format(self.order, self.name)
+            elif self.course_instance.module_numbering == 2:
+                return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
     def clean(self):

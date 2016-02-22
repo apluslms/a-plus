@@ -32,7 +32,7 @@ class LearningObjectManager(models.Manager):
         return super().get_queryset()\
             .defer('description', 'content', 'content_head')\
             .select_related('course_module', 'course_module__course_instance',
-                'course_module__course_instance__course')
+                'course_module__course_instance__course', 'category')
 
     def find_enrollment_exercise(self, course_instance):
         return self.filter(
@@ -106,14 +106,15 @@ class LearningObject(ModelWithInheritance):
             })
 
     def __str__(self):
-        if self.course_instance.content_numbering == 1:
-            number = self.number()
-            if self.course_instance.module_numbering in [1,3]:
-                return "{:d}{} {}".format(self.course_module.order,
-                    number, self.name)
-            return "{} {}".format(number[1:], self.name)
-        elif self.course_instance.content_numbering == 2:
-            return "{} {}".format(roman_numeral(self.order), self.name)
+        if self.order >= 0:
+            if self.course_instance.content_numbering == 1:
+                number = self.number()
+                if self.course_instance.module_numbering in [1,3]:
+                    return "{:d}{} {}".format(self.course_module.order,
+                        number, self.name)
+                return "{} {}".format(number[1:], self.name)
+            elif self.course_instance.content_numbering == 2:
+                return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
     def number(self):
@@ -149,6 +150,9 @@ class LearningObject(ModelWithInheritance):
 
     def flat_learning_objects(self, with_sub_markers=True):
         return self.course_module._children().flat(self, with_sub_markers)
+
+    def parent_cached(self):
+        return self.course_module._children().parent(self)
 
     def parent_list(self):
         parents = self.course_module._children().parents(self)
@@ -457,6 +461,7 @@ class LTIExercise(BaseExercise):
         if self.aplus_get_and_post:
             return super().load(request, students, url_name=url_name)
 
+        url = self.service_url or self.lti_service.url
         lti = self._get_lti(students[0].user, request.get_host())
 
         # Render launch button.
@@ -465,8 +470,8 @@ class LTIExercise(BaseExercise):
         template = loader.get_template('exercise/model/_lti_button.html')
         page.content += template.render(Context({
             'service': self.lti_service,
-            'url': self.service_url or self.lti_service.url,
-            'parameters': lti.sign_post_parameters(),
+            'url': url,
+            'parameters': lti.sign_post_parameters(url),
             'title': self.resource_link_title,
         }))
         return page
@@ -519,6 +524,9 @@ class StaticExercise(BaseExercise):
         page.content = self.submission_page_content
         page.is_accepted = True
         return page
+
+    def _is_empty(self):
+        return not bool(self.exercise_page_content)
 
 
 def build_upload_dir(instance, filename):

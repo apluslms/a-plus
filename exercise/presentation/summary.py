@@ -10,6 +10,8 @@ class UserExerciseSummary(object):
     """
     def __init__(self, exercise, user=None, **kwargs):
         self.exercise = exercise
+        self.max_points = getattr(exercise, 'max_points', 0)
+        self.points_to_pass = getattr(exercise, 'points_to_pass', 0)
         self.user = user
         self.submission_count = kwargs.get("submission_count", 0)
         self.best_submission = kwargs.get("best_submission", None)
@@ -37,7 +39,7 @@ class UserExerciseSummary(object):
         return self.best_submission
 
     def get_max_points(self):
-        return self.exercise.max_points
+        return self.max_points
 
     def get_points(self):
         return self.best_submission.grade if self.best_submission else 0
@@ -49,10 +51,10 @@ class UserExerciseSummary(object):
         return self.get_points()
 
     def get_required_points(self):
-        return self.exercise.points_to_pass
+        return self.points_to_pass
 
     def is_missing_points(self):
-        return self.get_points() < self.exercise.points_to_pass
+        return self.get_points() < self.points_to_pass
 
     def is_passed(self):
         return not self.is_missing_points()
@@ -73,8 +75,7 @@ class UserModuleSummary(object):
 
         if kwargs.get("generate", True):
             self._generate_summary()
-        else:
-            self._sort_summary()
+        self._sort_summary()
 
         self.exercise_count = len(self.exercise_summaries)
         self.max_points = sum(summary.get_max_points() \
@@ -85,17 +86,16 @@ class UserModuleSummary(object):
             for summary in self.exercise_summaries)
 
     def _generate_summary(self):
-        for o in self.module.flat_learning_objects(False):
-            if o.as_leaf_class().is_submittable():
-                self.exercise_summaries.append(
-                    UserExerciseSummary(o, self.user))
+        for ex in BaseExercise.objects.filter(course_module=self.module):
+            self.exercise_summaries.append(UserExerciseSummary(ex, self.user))
 
     def _sort_summary(self):
         ordered = []
         for o in self.module.flat_admin_learning_objects(False):
-            if o.status != 'hidden' and o.as_leaf_class().is_submittable():
+            if o.status != 'hidden':
                 for s in self.exercise_summaries:
                     if o.id == s.exercise.id:
+                        s.exercise = o
                         ordered.append(s)
         self.exercise_summaries = ordered
 
@@ -196,11 +196,12 @@ class UserCourseSummary(object):
         self.user = user
 
         # QuerySets.
-        self.modules = course_instance.course_modules.all()
-        self.categories = course_instance.categories.all()
+        self.modules = list(course_instance.course_modules.all())
+        self.categories = list(course_instance.categories.all())
         self.exercises = list(BaseExercise.objects \
             .filter(course_module__course_instance=self.course_instance) \
-            .select_related("course_module", "category"))
+            .select_related("course_module", "course_module__course_instance",
+                "course_module__course_instance__course", "category"))
         self.submissions = list(user.userprofile.submissions.exclude_errors() \
             .filter(exercise__course_module__course_instance=self.course_instance) \
             .defer("feedback", "assistant_feedback", "submission_data", "grading_data")) \

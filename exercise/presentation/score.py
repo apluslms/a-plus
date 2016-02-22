@@ -60,15 +60,16 @@ def collect_tree(course_summary):
     for course_module, _, exercises_and_summaries, category_group \
             in exercise_tree:
         for exercise, exercise_summary in exercises_and_summaries:
+            if exercise.category.status != 'hidden':
 
-            # Create new category group if category changes.
-            if (len(category_group) == 0
-                    or category_group[-1][0] != exercise.category):
-                category_group.append((
-                    exercise.category,
-                    []
-                ))
+                # Create new category group if category changes.
+                if (len(category_group) == 0
+                        or category_group[-1][0] != exercise.category):
+                    category_group.append((
+                        exercise.category,
+                        []
+                    ))
 
-            category_group[-1][1].append((exercise, exercise_summary))
+                category_group[-1][1].append((exercise, exercise_summary))
 
     return exercise_tree

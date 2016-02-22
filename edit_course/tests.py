@@ -3,9 +3,10 @@ from django.test import TestCase
 
 from course.models import CourseInstance
 from exercise.submission_models import Submission
-from exercise.exercise_models import BaseExercise
+from exercise.exercise_models import BaseExercise, ExerciseWithAttachment
+from exercise.submission_models import Submission
 
-class EditCourseTests(TestCase):
+class CourseCloneTests(TestCase):
     fixtures = [ 'doc/initial_data.json' ]
 
     def setUp(self):
@@ -56,6 +57,35 @@ class EditCourseTests(TestCase):
                 self._as_class(old_modules[i].flat_learning_objects(False)),
                 self._as_class(new_modules[i].flat_learning_objects(False))
             )
+
+    def test_clone_submissions(self):
+        instance = CourseInstance.objects.get(id=1)
+        module = instance.course_modules.first()
+        n = module.learning_objects.count()
+        exercise = ExerciseWithAttachment(
+            category=instance.categories.first(),
+            course_module=instance.course_modules.first(),
+            url="",
+            name="Clone Test",
+        )
+        exercise.save()
+        self.assertEqual(module.learning_objects.count(), n + 1)
+        submission = Submission(exercise=exercise)
+        submission.save()
+        submission.submitters.add(self.user.userprofile)
+        self.assertEqual(exercise.submissions.count(), 1)
+
+        from .operations.clone import clone
+        new_instance = clone(instance, 'cloned')
+        new_module = new_instance.course_modules.first()
+        self.assertEqual(instance.course_modules.count(), new_instance.course_modules.count())
+        self.assertEqual(module.learning_objects.count(), n + 1)
+        self.assertEqual(new_module.learning_objects.count(), n + 1)
+        self.assertEqual(ExerciseWithAttachment.objects.filter(course_module=module).count(), 1)
+        self.assertEqual(ExerciseWithAttachment.objects.filter(course_module=new_module).count(), 1)
+        new_exercise = ExerciseWithAttachment.objects.filter(course_module=new_module).first()
+        self.assertEqual(exercise.submissions.count(), 1)
+        self.assertEqual(new_exercise.submissions.count(), 0)
 
     def _as_names(self, items):
         return [a.name for a in items]
