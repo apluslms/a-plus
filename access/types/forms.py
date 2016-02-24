@@ -15,13 +15,11 @@ from ..config import ConfigError
 class GradedForm(forms.Form):
     '''
     A dynamically build form class for an exercise.
-
     '''
 
     def __init__(self, *args, **kwargs):
         '''
         Constructor. Requires keyword argument "exercise".
-
         '''
         if "exercise" not in kwargs:
             raise ConfigError("Missing exercise configuration from form arguments.")
@@ -50,6 +48,11 @@ class GradedForm(forms.Form):
             if "fields" not in group:
                 raise ConfigError("Missing required \"fields\" in field group configuration")
 
+            # Group errors to hide the errorneous fields.
+            group_errors = group.get("group_errors", False)
+            if group_errors:
+                self.group_errors = True
+
             # Randomly pick fields to include.
             if "pick_randomly" in group:
                 if not args[0] is None:
@@ -75,48 +78,44 @@ class GradedForm(forms.Form):
                 t = field["type"]
 
                 # Create a field by type.
-                f = None
-                r = "required" in field and field["required"]
-                atr = {"class": "form-control"}
-                if self.disabled:
-                    atr["readonly"] = True
                 if t == "checkbox":
-                    f = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(),
-                        required=r, choices=self.create_choices(field))
+                    i, f = self.add_field(i, field,
+                        forms.MultipleChoiceField, forms.CheckboxSelectMultiple,
+                        self.create_choices(field), {})
                 elif t == "radio":
-                    f = forms.ChoiceField(widget=forms.RadioSelect(), required=r,
-                        choices=self.create_choices(field))
-                elif t == 'dropdown':
-                    f = forms.ChoiceField(widget=forms.Select(attrs=atr), required=r,
-                        choices=self.create_choices(field))
+                    i, f = self.add_field(i, field,
+                        forms.ChoiceField, forms.RadioSelect,
+                        self.create_choices(field), {})
+                elif (t == "dropdown" or t == "select"):
+                    i, f = self.add_field(i, field,
+                        forms.ChoiceField, forms.Select,
+                        self.create_choices(field))
                 elif t == "text":
-                    f = forms.CharField(widget=forms.TextInput(attrs=atr), required=r)
+                    i, f = self.add_field(i, field,
+                        forms.CharField, forms.TextInput)
                 elif t == "textarea":
-                    f = forms.CharField(widget=forms.Textarea(attrs=atr), required=r)
+                    i, f = self.add_field(i, field,
+                        forms.CharField, forms.Textarea)
+                elif t == "table-radio":
+                    i, f = self.add_table_fields(i, field,
+                        forms.ChoiceField, forms.RadioSelect)
+                elif t == "table-checkbox":
+                    i, f = self.add_table_fields(i, field,
+                        forms.MultipleChoiceField, forms.CheckboxSelectMultiple)
                 else:
                     raise ConfigError("Unknown field type: %s" % (t))
-                f.type = t
-                f.choice_list = (t == "checkbox" or t == "radio")
 
-                # Set field defaults.
-                f.name = self.field_name(i)
-                f.label = mark_safe(field["title"])
-                f.more = self.create_more(field)
-                f.points = field.get("points", 0)
-                f.group_errors = group.get("group_errors", False)
-                if f.group_errors:
-                    self.group_errors = True
+                for fi in f:
+                    fi.group_errors = group_errors
+
                 if j == 0:
-                    f.open_set = self.group_name(g)
+                    f[0].open_set = self.group_name(g)
                     if "title" in group:
-                        f.set_title = group["title"]
+                        f[0].set_title = group["title"]
                 if j >= l:
-                    f.close_set = True
+                    f[-1].close_set = True
                 j += 1
 
-                # Store field in form.
-                self.fields[f.name] = f
-                i += 1
             g += 1
 
         # Protect sample used in a randomized form.
@@ -132,11 +131,41 @@ class GradedForm(forms.Form):
             nonce + sample
         )
 
+    def add_table_fields(self, i, config, field_class, widget_class):
+        fields = []
+        choices = self.create_choices(config)
+        for row in config.get('rows', []):
+            i, fi = self.add_field(i, config,
+                field_class, widget_class, choices, {})
+            fi[0].row_label = row.get('label', None)
+            fields += fi
+        fields[0].open_table = True
+        fields[-1].close_table = True
+        return i, fields
+
+    def add_field(self, i, config, field_class, widget_class, choices=None,
+            widget_attrs={'class': 'form-control'}):
+        if self.disabled:
+            widget_attrs['readonly'] = True
+        args = {
+            'widget': widget_class(attrs=widget_attrs),
+            'required': 'required' in config and config['required']
+        }
+        if not choices is None:
+            args['choices'] = choices
+        field = field_class(**args)
+        field.type = config['type']
+        field.name = self.field_name(i)
+        field.label = mark_safe(config['title'])
+        field.more = self.create_more(config)
+        field.points = config.get('points', 0)
+        field.choice_list = not choices is None and widget_class != forms.Select
+        self.fields[field.name] = field
+        return (i + 1, [field])
 
     def create_more(self, configuration):
         '''
         Creates more instructions by configuration.
-
         '''
         more = ""
         if "more" in configuration:
@@ -144,7 +173,6 @@ class GradedForm(forms.Form):
         if "include" in configuration:
             more += template_to_str(None, None, configuration["include"])
         return more or None
-
 
     def create_choices(self, configuration):
         '''
@@ -162,28 +190,23 @@ class GradedForm(forms.Form):
                 i += 1
         return choices
 
-
     def group_name(self, i):
         return "group_%d" % (i)
-
 
     def field_name(self, i):
         return "field_%d" % (i)
 
-
     def option_name(self, i):
         return "option_%d" % (i)
 
-
     def append_hint(self, hints, configuration):
-        if 'hint' in configuration and not configuration['hint'] in hints:
-            hints.append(str(configuration['hint']))
-
+        hint = str(configuration.get('hint', ''))
+        if hint and not hint in hints:
+            hints.append(hint)
 
     def grade(self):
         '''
         Grades form answers.
-
         '''
         points = 0
         error_fields = []
@@ -192,76 +215,123 @@ class GradedForm(forms.Form):
         i = 0
         for group in self.exercise["fieldgroups"]:
             for field in group["_fields"]:
-                name = self.field_name(i)
-                val = self.cleaned_data.get(name, None)
-                ok, hints = self.grade_field(field, val)
-                if ok:
-                    if "points" in field:
-                        points += field["points"]
-                else:
-                    self.fields[name].hints = ' '.join(hints)
-                    error_fields.append(name)
+                prev = i
+                i, ok, p = self.grade_field(i, field)
+                points += p
+                print('graded', i, ok, p)
+                if not ok:
+                    error_fields.append(self.field_name(prev))
                     gname = self.group_name(g)
                     if gname not in error_groups:
                         error_groups.append(gname)
-                i += 1
             g += 1
         return (points, error_groups, error_fields)
 
-
-    def grade_field(self, configuration, value):
-        '''
-        Grades field answer.
-
-        '''
+    def grade_field(self, i, configuration):
         t = configuration["type"]
 
-        # Grade checkbox: all correct required if any configured
-        if t == "checkbox":
-            i = 0
-            correct_exists = False
-            correct = True
+        if t == "table-radio" or t == "table-checkbox":
+            all_ok = True
             hints = []
-            for opt in configuration["options"]:
-                name = self.option_name(i)
-                if "correct" in opt and opt["correct"]:
-                    correct_exists = True
-                    if name not in value:
-                        correct = False
-                        self.append_hint(hints, opt)
-                elif name in value:
+            points = configuration.get("points", 0)
+            max_points = points
+            first_name = self.field_name(i)
+            for row in configuration.get("rows", []):
+                name = self.field_name(i)
+                value = self.cleaned_data.get(name, None)
+                if t == "table-radio":
+                    ok, hints = self.grade_radio(
+                        self.row_options(configuration, row), value, hints)
+                else:
+                    ok, hints = self.grade_checkbox(
+                        self.row_options(configuration, row), value, hints)
+                if ok:
+                    points += row.get("points", 0)
+                    max_points += row.get("points", 0)
+                else:
+                    all_ok = False
+                    max_points += row.get("points", 0)
+                i += 1
+            self.fields[first_name].grade_points = points
+            self.fields[first_name].max_points = max_points
+            self.fields[name].hints = ' '.join(hints)
+            return i, all_ok, points
+
+        name = self.field_name(i)
+        value = self.cleaned_data.get(name, None)
+        if t == "checkbox":
+            ok, hints = self.grade_checkbox(configuration, value)
+        elif t == "radio" or t == "dropdown" or t == "select":
+            ok, hints = self.grade_radio(configuration, value)
+        elif t == "text" or t == "textarea":
+            ok, hints = self.grade_text(configuration, value)
+        else:
+            raise ConfigError("Unknown field type for grading: %s" % (t))
+        points = configuration.get('points', 0)
+        self.fields[name].grade_points = points if ok else 0
+        self.fields[name].max_points = points
+        self.fields[name].hints = ' '.join(hints)
+        return i + 1, ok, points if ok else 0
+
+    def row_options(self, configuration, row):
+        hint = row.get('hint', '')
+        correct = row.get('correct_options', [])
+        opt = []
+        for i, _ in enumerate(configuration.get('options', [])):
+            opt.append({
+                'hint': hint,
+                'correct': correct[i] if i < len(correct) else False
+            })
+        return { 'options': opt }
+
+    def grade_checkbox(self, configuration, value, hints=None):
+        hints = hints or []
+        correct_exists = False
+
+        # All correct required if any configured
+        correct = True
+        i = 0
+        for opt in configuration.get("options", []):
+            name = self.option_name(i)
+            if opt.get("correct", False):
+                correct_exists = True
+                if name not in value:
                     correct = False
                     self.append_hint(hints, opt)
-                i += 1
-            return not correct_exists or correct, hints
+            elif name in value:
+                correct = False
+                self.append_hint(hints, opt)
+            i += 1
+        return not correct_exists or correct, hints
 
-        # Grade radio: correct required if any configured
-        elif t == "radio" or t == "dropdown":
-            i = 0
-            correct = True
-            hints = []
-            for opt in configuration["options"]:
-                name = self.option_name(i)
-                if "correct" in opt and opt["correct"]:
-                    if name != value:
-                        correct = False
-                        self.append_hint(hints, opt)
-                elif name == value:
+    def grade_radio(self, configuration, value, hints=None):
+        hints = hints or []
+        correct_exists = False
+
+        # One correct required if any configured
+        correct = False
+        i = 0
+        for opt in configuration.get("options", []):
+            name = self.option_name(i)
+            if opt.get("correct", False):
+                correct_exists = True
+                if name == value:
+                    correct = True
+                else:
                     self.append_hint(hints, opt)
-                i += 1
-            return correct, hints
+            elif name == value:
+                self.append_hint(hints, opt)
+            i += 1
+        return not correct_exists or correct, hints
 
-        # Grade text: correct text required if configured
-        elif t == "text" or t == "textarea":
-            correct = True
-            hints = []
-            if "correct" in configuration:
-                correct = value.strip() == configuration["correct"]
-            elif "regex" in configuration:
-                p = re.compile(configuration["regex"])
-                correct = p.match(value.strip()) != None
-            if not correct:
-                self.append_hint(hints, configuration)
-            return correct, hints
-
-        raise ConfigError("Unknown field type for grading: %s" % (configuration["type"]))
+    def grade_text(self, configuration, value, hints=None):
+        hints = hints or []
+        correct = True
+        if "correct" in configuration:
+            correct = value.strip() == configuration["correct"]
+        elif "regex" in configuration:
+            p = re.compile(configuration["regex"])
+            correct = p.match(value.strip()) != None
+        if not correct:
+            self.append_hint(hints, configuration)
+        return correct, hints

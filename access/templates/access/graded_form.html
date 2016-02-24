@@ -6,6 +6,7 @@
 		{% if field.field.set_title %}<legend>{{ field.field.set_title }}</legend>{% endif %}
 	{% endif %}
 
+		{% if not field.field.row_label or field.field.open_table %}
 		<div class="form-group{% if field.errors %} has-error{% elif not field.field.group_errors and field.field.name in result.error_fields %} has-error{% endif %}">
 			{% if field.field.required %}<span class="required">*</span>{% endif %}
 			{% if field.field.choice_list %}
@@ -13,19 +14,46 @@
 			{% else %}
 			{{ field.label_tag }}
 			{% endif %}
-			{% if result.accepted and not field.field.group_errors and field.field.points > 0 %}
-			{% if field.field.name in result.error_fields %}
-			<span class="badge badge-danger">0 / {{ field.field.points }}</span>
-			{% else %}
-			<span class="badge badge-success">{{ field.field.points }} / {{ field.field.points }}</span>
-			{% endif %}
+			{% if result.accepted and not field.field.group_errors and field.field.max_points > 0 %}
+			<span class="badge badge-{% if field.field.name in result.error_fields %}danger{% else %}success{% endif %}">{{ field.field.grade_points }} / {{ field.field.max_points }}</span>
 			{% endif %}
 
 			{% if field.field.more %}
 			{{ field.field.more|safe }}
 			{% endif %}
+		{% endif %}
 
-			{% if field.field.choice_list %}
+			{% if field.field.row_label %}
+			{% if field.field.open_table %}
+			<table class="table">
+			<tr>
+				<td>&nbsp;</td>
+				{% for choice in field %}
+				<td style="width:12%;">{{ choice.choice_label }}</td>
+				{% endfor %}
+			</tr>
+			{% endif %}
+			<tr>
+				<td>{{ field.field.row_label|safe }}</td>
+				{% for choice in field %}
+				<td>{{ choice.tag }}</td>
+				{% endfor %}
+			</tr>
+			{% if field.errors %}
+			<tr>
+				<td>&nbsp;</td>
+				<td colspan="{{ field|length }}">
+					<div class="alert alert-danger">
+						{{ field.errors }}
+					</div>
+				</td>
+			</tr>
+			{% endif %}
+			{% if field.field.close_table %}
+			</table>
+			{% endif %}
+
+			{% elif field.field.choice_list %}
 			{% for choice in field %}
 			<div class="{{ field.field.type }}">
 				<label>
@@ -34,20 +62,28 @@
 				</label>
 			</div>
 			{% endfor %}
-			{% else %}
-			{{ field }}
-			{% endif %}
-
 			{% if field.errors %}
 			<div class="alert alert-danger">
 				{{ field.errors }}
 			</div>
 			{% endif %}
 
+			{% else %}
+			{{ field }}
+			{% if field.errors %}
+			<div class="alert alert-danger">
+				{{ field.errors }}
+			</div>
+			{% endif %}
+			{% endif %}
+
+		{% if not field.field.row_label or field.field.close_table %}
 			{% if field.field.hints %}
 			{{ field.field.hints }}
 			{% endif %}
 		</div>
+		{% endif %}
+
 	{% if field.field.close_set %}
 	</fieldset>
 	{% endif %}
