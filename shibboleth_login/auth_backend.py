@@ -18,7 +18,7 @@ STUDENT_ID_KEY = 'SHIB_STUDENT_ID_KEY'
 DEFAULT_KEYS = {
     USER_ID_KEY: 'SHIB_eppn',
     MAIL_KEY: 'SHIB_mail',
-    FIRST_NAME_KEY: 'SHIB_displayName',
+    FIRST_NAME_KEY: 'SHIB_givenName',
     LAST_NAME_KEY: 'SHIB_sn',
     STUDENT_ID_KEY: 'SHIB_schacPersonalUniqueCode',
 }
@@ -28,18 +28,18 @@ class ShibbolethAuthBackend(ModelBackend):
     """
     Authenticates the trusted user from the Shibboleth middleware headers.
     Creates a new user or updates changed fields on an existing user.
-    
+
     """
     def authenticate(self, shibd_meta=None):
         if not shibd_meta:
             return None
         user_save_flag = False
-        
+
         username = self._parse(shibd_meta, USER_ID_KEY, 30)
         if not username:
             logger.warning('Shibboleth login attempt without a user id.')
             return None
-        
+
         UserModel = get_user_model()
         user = UserModel._default_manager.filter(username=username).first()
         if not user:
@@ -64,10 +64,10 @@ class ShibbolethAuthBackend(ModelBackend):
         if last_name and last_name != user.last_name:
             user.last_name = last_name
             user_save_flag = True
-        
+
         if user_save_flag:
             user.save()
-        
+
         profile = user.userprofile
         student_id = self._parse(shibd_meta, STUDENT_ID_KEY)
         if student_id:
@@ -75,7 +75,7 @@ class ShibbolethAuthBackend(ModelBackend):
             if student_id and student_id != profile.student_id:
                 profile.student_id = student_id
                 profile.save()
-        
+
         return user
 
     def _parse(self, shibd_meta, key_name, max_length=None):
