@@ -12,12 +12,12 @@ DEF_SHIBD_META = {
     'SHIB_mail': 'teemu.teekkari@aalto.fi',
     'Shib-Authentication-Method': 'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport',
     'Shib-Identity-Provider': 'https://locahost/idp/shibboleth',
-    'SHIB_displayName': 'Teemu',
+    'SHIB_displayName': 'Teemudemus',
     'Shib-AuthnContext-Class': 'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport',
     'SHIB_schacPersonalUniqueCode': 'urn:mace:terena.org:schac:personalUniqueCode:int:studentID:aalto.fi:123453',
     'Shib-Session-Index': '_941d95bafed0b1787c81541e627a8c8b',
     'SHIB_sn': 'Teekkari',
-    'SHIB_givenName': 'Teemudemus',
+    'SHIB_givenName': 'Teemu',
     'Shib-Application-ID': 'default',
     'Shib-Authentication-Instant': str(timezone.now()),
     'Shib-Session-ID': '_92d7c6a832b5c7dafea59ea12ca1289e',
@@ -40,7 +40,7 @@ class ShibbolethTest(TestCase):
         self.user.save()
         self.user.userprofile.student_id = '000'
         self.user.userprofile.save()
-        
+
         self.login_url = reverse('shibboleth_login.views.login')
 
     def test_invalid(self):
@@ -49,7 +49,7 @@ class ShibbolethTest(TestCase):
         response = self._get(meta)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(User.objects.count(), 1)
-    
+
     def test_valid_new(self):
         meta = DEF_SHIBD_META.copy()
         response = self._get(meta)
@@ -64,7 +64,7 @@ class ShibbolethTest(TestCase):
     def test_without_email(self):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_mail']
-        del meta['SHIB_displayName']
+        del meta['SHIB_givenName']
         response = self._get(meta)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(User.objects.count(), 2)
@@ -73,7 +73,7 @@ class ShibbolethTest(TestCase):
         self.assertEqual(user.first_name, '')
         self.assertEqual(user.last_name, 'Teekkari')
         self.assertEqual(user.userprofile.student_id, '123453')
-    
+
     def test_without_student_id(self):
         meta = DEF_SHIBD_META.copy()
         del meta['SHIB_schacPersonalUniqueCode']
@@ -98,11 +98,11 @@ class ShibbolethTest(TestCase):
         self.assertEqual(user.first_name, 'Teemu')
         self.assertEqual(user.last_name, 'Sukunimi')
         self.assertEqual(user.userprofile.student_id, '123453')
-    
+
     def test_nonascii(self):
         meta = DEF_SHIBD_META.copy()
         meta['SHIB_eppn'] = self.user.username.encode('utf-8')
-        del meta['SHIB_displayName']
+        del meta['SHIB_givenName']
         meta['SHIB_sn'] = 'Meikäläinen'
         del meta['SHIB_schacPersonalUniqueCode']
         response = self._get(meta)
@@ -113,7 +113,7 @@ class ShibbolethTest(TestCase):
         self.assertEqual(user.first_name, 'Matti')
         self.assertEqual(user.last_name, 'Meikäläinen')
         self.assertEqual(user.userprofile.student_id, '000')
-    
+
     def test_inactive(self):
         self.user.is_active = False
         self.user.save()
@@ -122,7 +122,7 @@ class ShibbolethTest(TestCase):
         response = self._get(meta)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(User.objects.count(), 1)
-        
+
     def _get(self, meta):
         if settings.SHIBBOLETH_VARIABLES_URL_ENCODED:
             for key in meta.keys():
