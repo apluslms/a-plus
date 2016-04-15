@@ -3,7 +3,6 @@ from tastypie.resources import ModelResource
 from api.permissions import SuperuserAuthorization
 from userprofile.models import UserProfile
 
-
 class UserProfileResource(ModelResource):
 
     def dehydrate(self, bundle):
@@ -27,4 +26,5 @@ class UserProfileResource(ModelResource):
         # In this version of the API only superusers are allowed to access
         # userprofile objects
         allowed_methods = ['get']
+
         authorization = SuperuserAuthorization()
