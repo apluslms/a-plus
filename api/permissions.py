@@ -5,6 +5,7 @@ from tastypie.exceptions import Unauthorized
 class SuperuserAuthorization(Authorization):
 
     # This implementation is supported only in versions 0.9.11 and below...
+    # -----------------------------------------------------------------------
     """
     def is_authorized(self, request, object=None):
         return request.user.is_superuser
@@ -13,7 +14,18 @@ class SuperuserAuthorization(Authorization):
         return object_list"""
 
     # Implementation in versions 0.9.12 and up.
+    # -----------------------------------------------------------------------
+
+    # User is trying to GET list of resources
     def read_list(self, object_list, bundle):
+        # Is the person who made the request, superuser?
+        if bundle.request.user.is_superuser:
+            return object_list
+        else:
+            raise Unauthorized("Sorry, only VIP.")
+
+    # User is trying to GET a resource
+    def read_detail(self, object_list, bundle):
         # Is the person who made the request, superuser?
         if bundle.request.user.is_superuser:
             return object_list
