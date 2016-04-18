@@ -28,6 +28,6 @@ class SuperuserAuthorization(Authorization):
     def read_detail(self, object_list, bundle):
         # Is the person who made the request, superuser?
         if bundle.request.user.is_superuser:
-            return object_list
+            return True
         else:
             raise Unauthorized("Sorry, only VIP.")
