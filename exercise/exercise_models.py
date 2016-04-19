@@ -429,6 +429,7 @@ class BaseExercise(LearningObject):
             "submission_url": request.build_absolute_uri(submission_url),
             "post_url": request.build_absolute_uri(
                 str(self.get_url(url_name))),
+            "uid": request.user.id,
         }
         return update_url_params(self.service_url, params)
 
