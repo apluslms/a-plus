@@ -41,6 +41,12 @@ table.src tr td.src {
 #exercise blockquote {
   font-size:100%;
 }
+.unselectable {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 /* site footer */
 html, body {
