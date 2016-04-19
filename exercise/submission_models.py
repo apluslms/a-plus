@@ -21,6 +21,10 @@ logger = logging.getLogger('aplus.exercise')
 
 class SubmissionManager(models.Manager):
 
+    def get_queryset(self):
+        return super().get_queryset()\
+            .prefetch_related('submitters')
+
     def create_from_post(self, exercise, submitters, request):
         new_submission = Submission.objects.create(
             exercise=exercise,
