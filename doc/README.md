@@ -25,7 +25,7 @@ Other Linux flavors should follow the same pattern (e.g. replace apt-get with yu
     sudo pip3 install virtualenv
 
     cd [project_root]
-    ./create_test_environment.sh [optional_path_to_virtualenv]
+    ./doc/create_test_environment.sh [optional_path_to_virtualenv]
 
 ### OS X
 
@@ -39,7 +39,7 @@ To compile packages also the Xcode command line tool package is required.
     sudo pip3 install virtualenv
 
 	cd [project_root]
-	./create_test_environment.sh [optional_path_to_virtualenv]
+	./doc/create_test_environment.sh [optional_path_to_virtualenv]
 
 ### Windows
 
