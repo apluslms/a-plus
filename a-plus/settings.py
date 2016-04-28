@@ -91,6 +91,8 @@ INSTALLED_APPS = (
     # 3rd party applications
     'bootstrapform',
     'tastypie',
+    'rest_framework',
+    'rest_framework.authtoken',
 
     # First party applications
     'inheritance',
@@ -211,6 +213,22 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Django REST Framework settings
+# http://www.django-rest-framework.org/api-guide/settings/
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # Support token auth. Requires rest_framework.authtoken in apps
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+   'DEFAULT_PERMISSION_CLASSES': (
+        # If not other permissions are defined, require login.
+        # Should be replaced with NoPermission and all permissions
+        # should be defined in api view entries.
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'PAGE_SIZE': 100,
+}
+
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
@@ -248,6 +266,7 @@ LOGGING = {
     },
   },
 }
+
 
 # Overrides and appends settings defined in local_settings.py
 try:

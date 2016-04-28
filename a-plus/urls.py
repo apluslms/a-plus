@@ -5,7 +5,7 @@ from django.contrib import admin
 import shibboleth_login.urls, social.apps.django_app.urls, \
     userprofile.urls, course.urls, course.long_urls, \
     exercise.urls, edit_course.urls, deviations.urls, notification.urls, \
-    external_services.urls, apps.urls, api.urls, redirect_old_urls.urls
+    external_services.urls, apps.urls, api.urls, api.urls_v2, redirect_old_urls.urls
 
 
 admin.autodiscover()
@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^shibboleth/', include(shibboleth_login.urls)),
     url('', include(social.apps.django_app.urls, namespace='social')),
     url(r'^api/', include(api.urls)), # ^api/v1/ only
+    url(r'^api/v2/', include(api.urls_v2)),
     url(r'^accounts/', include(userprofile.urls)),
     url(r'^', include(redirect_old_urls.urls)),
     url(r'^', include(apps.urls)),
