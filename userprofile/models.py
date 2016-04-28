@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
+from rest_framework.authtoken.models import Token
 
 
 class UserProfileManager(models.Manager):
@@ -73,6 +74,8 @@ def create_user_profile(sender, instance, created, **kwargs):
     """
     if created:
         UserProfile.objects.get_or_create(user=instance)
+        # Also make a token for user
+        Token.objects.create(user=instance)
 
 # Attach to the post_save signal.
 post_save.connect(create_user_profile, sender=User)

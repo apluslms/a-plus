@@ -7,7 +7,6 @@ import shibboleth_login.urls, social.apps.django_app.urls, \
     exercise.urls, edit_course.urls, deviations.urls, notification.urls, \
     external_services.urls, apps.urls, api.urls, redirect_old_urls.urls
 
-
 admin.autodiscover()
 
 #  Pay attention to the order the URL patterns will be matched!

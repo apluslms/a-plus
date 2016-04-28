@@ -1,27 +1,18 @@
-from django.conf.urls import patterns, include, url
-from tastypie.api import Api
+from userprofile import userprofile_api
+from exercise import exercise_api
+from django.conf.urls import url, patterns, include
 
-from course.api import CourseResource, CourseInstanceResource, \
-    CourseInstanceSummaryResource, CourseModuleResource
-from exercise.api import LearningObjectResource, ExerciseResource, \
-    SubmissionResource, SubmissionContentResource
-from userprofile.api import UserProfileResource
-
-
-api = Api(api_name='v1')
-
-api.register(UserProfileResource())
-
-api.register(CourseResource())
-api.register(CourseInstanceResource())
-api.register(CourseInstanceSummaryResource())
-api.register(CourseModuleResource())
-api.register(LearningObjectResource())
-
-api.register(ExerciseResource())
-api.register(SubmissionResource())
-api.register(SubmissionContentResource())
-
+# REST Framework URLs
 urlpatterns = patterns('',
-    url(r'^', include(api.urls)),
+    url(r'^userprofile/$', userprofile_api.UserList.as_view()),
+    url(r'^userprofile/(?P<pk>[0-9]+)/$', userprofile_api.UserDetail.as_view()),
+
+    url(r'^learningobject/$', exercise_api.LearningObjectList.as_view()),
+    url(r'^submission/$', exercise_api.SubmissionList.as_view()),
 )
+
+# For login/logout etc. pages in REST Framework
+urlpatterns += [
+    url(r'^api-auth/', include('rest_framework.urls',
+                               namespace='rest_framework')),
+]

@@ -90,7 +90,8 @@ INSTALLED_APPS = (
 
     # 3rd party applications
     'bootstrapform',
-    'tastypie',
+    'rest_framework',
+    'rest_framework.authtoken',
 
     # First party applications
     'inheritance',
@@ -264,3 +265,16 @@ if 'shibboleth_login' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('shibboleth_login.auth_backend.ShibbolethAuthBackend',)
 if 'social.apps.django_app.default' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('social.backends.google.GoogleOAuth2',)
+
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    # Use token as authentication
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    # Allow requests only from users with token as default
+   'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'PAGE_SIZE': 10
+}
