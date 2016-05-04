@@ -179,7 +179,8 @@ def _post_async_submission(request, exercise, submission, students, errors):
 
     # Produce error if something goes wrong during saving the points.
     except Exception as e:
-        logger.exception("Unexpected error while saving grade");
+        logger.exception("Unexpected error while saving grade"
+            " for {} and submission id {:d}".format(str(exercise), submission.id));
         return {
             "success": False,
             "errors": [repr(e)]

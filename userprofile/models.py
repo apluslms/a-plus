@@ -19,6 +19,10 @@ class UserProfile(models.Model):
         return cls.objects.get(student_id=student_id)
 
     @classmethod
+    def get_by_email(cls, email):
+        return User.objects.get(email=email).userprofile
+
+    @classmethod
     def get_by_request(cls, request):
         if request.user.is_authenticated():
             return cls.objects.get(user=request.user)
