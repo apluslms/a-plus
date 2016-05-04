@@ -13,4 +13,5 @@ class BatchSubmissionCreateAndReviewForm(SubmissionCreateAndReviewForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["grader"].queryset = \
-            self.exercise.course_instance.get_course_staff_profiles()
+            UserProfile.objects.all()
+            #self.exercise.course_instance.get_course_staff_profiles()

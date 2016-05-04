@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from userprofile.models import UserProfile
@@ -66,6 +67,11 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
         coerce=lambda student_id: UserProfile.get_by_student_id(student_id),
         choices=[(p.student_id, p.student_id) for p in UserProfile.objects.none()],
         required=False)
+    students_by_email = forms.TypedMultipleChoiceField(
+        empty_value=UserProfile.objects.none(),
+        coerce=lambda email: UserProfile.get_by_email(email),
+        choices=[(u.email, u.email) for u in User.objects.none()],
+        required=False)
 
     def __init__(self, *args, **kwargs):
         super(SubmissionCreateAndReviewForm, self).__init__(*args, **kwargs)
@@ -73,22 +79,25 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
             UserProfile.objects.all()
             #self.exercise.course_instance.get_student_profiles()
         self.fields["students_by_student_id"].choices = \
-            [ (p.student_id, p.student_id)
-              for p in UserProfile.objects.all()
+            [ (p.student_id, p.student_id) for p in UserProfile.objects.all()
               #self.exercise.course_instance.get_student_profiles()
             ]
+        self.fields["students_by_email"].choices = \
+            [ (u.email, u.email) for u in User.objects.all() ]
 
     def clean(self):
         self.cleaned_data = super(SubmissionCreateAndReviewForm, self).clean()
-
-        if not self.cleaned_data.get("students") \
-        and not self.cleaned_data.get("students_by_student_id"):
+        n = 0
+        if self.cleaned_data.get("students"):
+            n += 1
+        if self.cleaned_data.get("students_by_student_id"):
+            n += 1
+        if self.cleaned_data.get("students_by_email"):
+            n += 1
+        if n == 0:
             raise forms.ValidationError(
-                _("Both students and students_by_student_id must not be blank."))
-
-        if self.cleaned_data.get("students") \
-        and self.cleaned_data.get("students_by_student_id"):
+                _("One of the student fields must not be blank: students, students_by_student_id, students_by_email"))
+        if n > 1:
             raise forms.ValidationError(
-                _("Use students or students_by_student_id but not both"))
-
+                _("Only one student field can be given: students, students_by_student_id, students_by_email"))
         return self.cleaned_data
