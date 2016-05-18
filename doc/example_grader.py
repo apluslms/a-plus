@@ -147,7 +147,7 @@ class ExerciseGrader(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(content)
 
-httpd = http.server.HTTPServer(('', PORT), ExerciseGrader)
+httpd = http.server.HTTPServer(('127.0.0.1', PORT), ExerciseGrader)
 print('Serving at port:', PORT)
 try:
     httpd.serve_forever()
