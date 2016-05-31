@@ -99,6 +99,7 @@ class Command(BaseCommand):
                     'Exercise': str(exercise),
                     'Status': submission.status,
                     'Grade': str(submission.grade),
+                    'Submission data': submission.submission_data or {},
                     'Grading data': submission.grading_data or {},
                 })
         print(json.dumps(data))
