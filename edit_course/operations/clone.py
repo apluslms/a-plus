@@ -1,3 +1,5 @@
+from django.db import transaction
+
 def clone_learning_objects(category_map, module, objects, parent):
     """
     Clones learning objects recursively.
@@ -20,6 +22,7 @@ def clone_learning_objects(category_map, module, objects, parent):
         clone_learning_objects(category_map, module, children, lobject)
 
 
+@transaction.atomic
 def clone(instance, url):
     """
     Clones the course instance and returns the new saved instance.
