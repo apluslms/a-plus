@@ -154,8 +154,6 @@ class CourseInstance(models.Model):
         (2, _("Roman")),
     ), default=1)
     configure_url = models.URLField(blank=True)
-    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
-    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
@@ -164,8 +162,13 @@ class CourseInstance(models.Model):
                                       content_type_field="container_type")
     tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",
                                    content_type_field="container_type")
-    objects = CourseInstanceManager()
 
+    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
+    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True)
+    # categories from course.models.LearningObjectCategory
+    # course_modules from course.models.CourseModule
+
+    objects = CourseInstanceManager()
     class Meta:
         unique_together = ("course", "url")
 
