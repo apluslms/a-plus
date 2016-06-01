@@ -16,7 +16,7 @@
 {% block coursecontent %}
 <br />
 <form method="post" class="well form">
-    {% csrf_token %}
+	{% csrf_token %}
 	<legend>
 		{% blocktrans with model=model_name %}
 		Confirm {{ model }} removal
@@ -26,14 +26,14 @@
 	<div class="alert alert-danger">
 		{% if empty %}
 			{% blocktrans with model=model_name name=object %}
-		    You are removing {{ model }} <strong>{{ name }}</strong>.
+			You are removing {{ model }} <strong>{{ name }}</strong>.
 			Are you sure?
 			{% endblocktrans %}
 
 			{% if model == "exercise" %}
 			<p>
 				{% blocktrans %}
-			    If you remove this exercise, <strong>all the submissions
+				If you remove this exercise, <strong>all the submissions
 				to the exercise will also be removed</strong>.
 				{% endblocktrans %}
 			</p>
@@ -48,11 +48,11 @@
 
 	<div class="form-group">
 		{% if empty %}
-	    <input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
+		<input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
 		{% endif %}
-	    <a class="btn btn-default" href="{{ instance|url:'course-edit' }}">
-	    	{% trans "Cancel" %}
-	    </a>
-	</form>
+		<a class="btn btn-default" href="{{ instance|url:'course-edit' }}">
+			{% trans "Cancel" %}
+		</a>
+	</div>
 </form>
 {% endblock %}
