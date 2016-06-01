@@ -68,7 +68,8 @@ def runactions(course, exercise, submission_dir):
             if r["stop"]:
                 if "expect_success" in action:
                     error = action["expect_success"]
-                break
+                if not ("continue_after_error" in action and action["continue_after_error"]):
+                    break # skip the subsequent actions
 
         # Override with configured max points.
         if "max_points" in exercise:

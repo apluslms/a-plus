@@ -203,6 +203,10 @@ will run in the listed order.
 	* `html` (optional): true to pass output as HTML in template
 	* `expect_success` (optional): true to not only stop but to set grading state
 	 	to error when the action fails, "error" to write/mail error log
+	* `continue_after_error` (optional): true to continue to subsequent actions
+		when the action fails, by default the subsequent actions are not run.
+		This setting is needed if sandbox actions are expected to run as long
+		as they can until a time limit interrupts them.
 
 	Rest of the attributes are action type specific.
 
