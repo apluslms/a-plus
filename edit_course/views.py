@@ -79,6 +79,10 @@ class ModelBaseMixin(CourseInstanceMixin):
             raise Http404()
         self.manager = MANAGERS[self.model]()
         self.model_name = self.manager.name
+        # FIXME: model is passed from kwargs in View.dispatch and from
+        # BaseMixin/BaseTemplateMixin to template context. As the value is
+        # same, this should break anything, but is still a problematic thing.
+        # Should be fixed one day.
         self.note("model", "model_name")
 
     def get_success_url(self):

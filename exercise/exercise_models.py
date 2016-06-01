@@ -20,6 +20,7 @@ from external_services.lti import LTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
 from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
+from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
@@ -41,7 +42,7 @@ class LearningObjectManager(models.Manager):
         ).first()
 
 
-class LearningObject(ModelWithInheritance):
+class LearningObject(UrlMixin, ModelWithInheritance):
     """
     All learning objects inherit this model.
     """
@@ -164,17 +165,11 @@ class LearningObject(ModelWithInheritance):
     def get_path(self):
         return '/'.join(self.get_path_parts())
 
-    def get_url(self, name):
-        instance = self.course_instance
-        return reverse(name, kwargs={
-            "course": instance.course.url,
-            "instance": instance.url,
-            "module": self.course_module.url,
-            "exercise_path": self.get_path(),
-        })
 
-    def get_absolute_url(self):
-        return self.get_url("exercise")
+    ABSOLUTE_URL_NAME = "exercise"
+
+    def get_url_kwargs(self):
+        return dict(exercise_path=self.get_path(), **self.course_module.get_url_kwargs())
 
     def get_submission_list_url(self):
         return self.get_url("submission-list")

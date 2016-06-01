@@ -90,7 +90,7 @@ class ModuleView(CourseModuleBaseView):
         if not self.module.is_after_open():
             messages.warning(self.request,
                 _("The course module is not yet open for students."))
-        return self.response()
+        return super().get(request, *args, **kwargs)
 
 
 class CalendarExport(CourseInstanceMixin, View):

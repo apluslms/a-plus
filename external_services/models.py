@@ -130,8 +130,8 @@ class MenuItem(models.Model):
         if type(self.service.as_leaf_class()) == LTIService:
             instance = self.course_instance
             return reverse('lti-login', kwargs={
-                "course": instance.course.url,
-                "instance": instance.url,
+                "course_slug": instance.course.url,
+                "instance_slug": instance.url,
                 "menu_id": self.id,
             })
         return self.service.url
