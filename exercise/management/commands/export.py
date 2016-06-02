@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if len(args) != 2:
-            raise CommandError('Missing arguments: exercise/course/views id')
+            raise CommandError('Missing arguments: exercise/course/json/views id')
         if args[0] == 'exercise':
             self.export_exercise(args[1])
         elif args[0] == 'course':
@@ -117,12 +117,15 @@ class Command(BaseCommand):
         students = [u['id'] for u in instance.students.values('id')]
         displays = [d for d in LearningObjectDisplay.objects.prefetch_related('profile', 'learning_object').all() if d.profile.id in students]
 
-        self.print_row(['Time', 'UID', 'Email', 'EID', 'Exercise'])
+        self.print_row(['Time', 'UID', 'Email', 'MID', 'Module', 'EID', 'Exercise'])
         for d in displays:
+            module = d.learning_object.course_module
             self.print_row([
                 str(d.timestamp),
                 str(d.profile.id),
                 d.profile.user.email,
+                str(module.id),
+                str(module),
                 str(d.learning_object.id),
                 str(d.learning_object),
             ])
