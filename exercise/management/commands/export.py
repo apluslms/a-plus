@@ -38,7 +38,7 @@ class Command(BaseCommand):
                     fields.append(key)
         fields = sorted(fields)
 
-        header = [ 'Time', 'UID', 'Email', 'Status', 'Grade' ]
+        header = [ 'Time', 'Email', 'Status', 'Grade' ]
         header += fields
         self.print_row(header)
 
@@ -46,7 +46,6 @@ class Command(BaseCommand):
             profile = submission.submitters.first()
             data = [
                 str(submission.submission_time),
-                str(profile.id),
                 profile.user.email,
                 submission.status,
                 str(submission.grade),
@@ -64,9 +63,10 @@ class Command(BaseCommand):
             raise CommandError('Course instance not found.')
         students = [u['id'] for u in instance.students.values('id')]
 
-        self.print_row([ 'Time', 'UID', 'Email', 'EID', 'Exercise', 'Status', 'Grade' ])
+        self.print_row([ 'Time', 'UID', 'Email', 'MID', 'Module', 'EID', 'Exercise', 'Status', 'Grade' ])
 
         for exercise in BaseExercise.objects.filter(course_module__course_instance=instance).all():
+            module = exercise.course_module
             submissions = [s for s in exercise.submissions.all() if s.submitters.first().id in students]
             for submission in submissions:
                 profile = submission.submitters.first()
@@ -74,6 +74,8 @@ class Command(BaseCommand):
                     str(submission.submission_time),
                     str(profile.id),
                     profile.user.email,
+                    str(module.id),
+                    str(module),
                     str(exercise.id),
                     str(exercise),
                     submission.status,
@@ -88,6 +90,7 @@ class Command(BaseCommand):
 
         data = []
         for exercise in BaseExercise.objects.filter(course_module__course_instance=instance).all():
+            module = exercise.course_module
             submissions = [s for s in exercise.submissions.all() if s.submitters.first().id in students]
             for submission in submissions:
                 profile = submission.submitters.first()
@@ -95,6 +98,8 @@ class Command(BaseCommand):
                     'Time': str(submission.submission_time),
                     'UID': str(profile.id),
                     'Email': profile.user.email,
+                    'MID': str(module.id),
+                    'Module': str(module),
                     'EID': str(exercise.id),
                     'Exercise': str(exercise),
                     'Status': submission.status,
