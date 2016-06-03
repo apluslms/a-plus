@@ -59,6 +59,7 @@ Installing for development
 
 3. ### Testing grader application
 
+		cd mooc-grader
 		python manage.py runserver
 
 	In addition, the exercise configuration and grading of individual
