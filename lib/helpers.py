@@ -1,8 +1,26 @@
 from django.conf import settings
+from django.utils.deprecation import RemovedInNextVersionWarning
 from random import choice
 from PIL import Image
 import string
 import urllib
+import functools
+import warnings
+
+
+def deprecated(message):
+    '''
+    This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emitted
+    when the function is used.
+    '''
+    def wrapper(func):
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            warnings.warn(message, category=RemovedInNextVersionWarning, stacklevel=2)
+            return func(*args, **kwargs)
+        return new_func
+    return wrapper
 
 
 def extract_form_errors(form):

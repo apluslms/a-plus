@@ -95,6 +95,7 @@ INSTALLED_APPS = (
     # First party applications
     'inheritance',
     'userprofile',
+    'authorization',
     'course',
     'exercise',
     'edit_course',

@@ -138,7 +138,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
 
 class ExercisePlainView(ExerciseView):
-    login_redirect=False
+    raise_exception=True
     force_ajax_template=True
     post_url_name="exercise-plain"
 
@@ -173,7 +173,7 @@ class SubmissionView(SubmissionBaseView):
 
 
 class SubmissionPlainView(SubmissionView):
-    login_redirect=False
+    raise_exception=True
     force_ajax_template=True
 
     # Allow iframe in another domain.
