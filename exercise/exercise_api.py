@@ -15,7 +15,7 @@ class LearningObjectList(generics.ListAPIView):
     serializer_class = LearningObjectSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-
+# TODO: Under construction
 class SubmissionList(generics.ListCreateAPIView):
     """
     * GET/POST a submission

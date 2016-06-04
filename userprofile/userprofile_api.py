@@ -15,7 +15,7 @@ class UserList(generics.ListCreateAPIView):
     # Overwrite the default value. This makes GET available for everyone
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-
+# TODO: Under construction
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     GET/PUT/PATCH/DELETE to single user
@@ -24,3 +24,11 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserPSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    # Allow only superuser to put/patch/delete, so override those
+    # methods
+    def perform_update(self, serializer):
+        submitter = self.request.user
+        data = self.request.data
+        print(submitter)
+        print(data)
