@@ -3,8 +3,9 @@ Course and exercise configuration
 
 ## Configuration files
 
-Configuration is written as JSON or YAML in exercises-directory. Each subdirectory
-holding an `index.json` or `index.yaml` is a valid active course.
+Configuration is written as JSON or YAML inside subdirectories.
+Each subdirectory holding an `index.json` or `index.yaml` is a
+valid active course.
 
 Dates will be parsed as '%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S',
 '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d %H' or '%Y-%m-%d'.

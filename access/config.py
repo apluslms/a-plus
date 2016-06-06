@@ -11,9 +11,14 @@ from util.dict import iterate_kvp_with_dfs, get_rst_as_html
 from util.importer import import_named
 
 
-DIR = os.path.join(settings.BASE_DIR, "exercises")
 INDEX = "index"
 DEFAULT_LANG = "en"
+DIR = os.path.join(settings.BASE_DIR, "courses")
+
+# Keep backwards compatibility for exercises directory.
+OLD_DIR = os.path.join(settings.BASE_DIR, "exercises")
+if os.path.isdir(OLD_DIR):
+    DIR = OLD_DIR
 
 LOGGER = logging.getLogger('main')
 
