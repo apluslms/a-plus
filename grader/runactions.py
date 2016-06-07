@@ -8,7 +8,7 @@ from util.importer import import_named
 LOGGER = logging.getLogger('main')
 
 
-def runactions(course, exercise, submission_dir):
+def runactions(course, exercise, submission_dir, user_ids=""):
     '''
     Runs configured grading actions for an exercise submission.
 
@@ -18,6 +18,8 @@ def runactions(course, exercise, submission_dir):
     @param exercise: an exercise configuration
     @type submission_dir: C{str}
     @param submission_dir: a submission directory where submitted files are stored
+    @type user_ids: C{str}
+    @param user_ids: user id(s) of the submitter(s) for personalized exercises
     @rtype: C{dict}
     @return: template = template name, result = points, max_points, tests
     '''
@@ -38,7 +40,11 @@ def runactions(course, exercise, submission_dir):
 
             # Run the exercise grader action
             LOGGER.debug("Running action \"%s\"", action["type"])
-            r = exgrader(course, exercise, action, submission_dir)
+            if action["type"] == "grader.actions.prepare" or \
+                    action["type"] == "grader.actions.store_user_files":
+                r = exgrader(course, exercise, action, submission_dir, user_ids)
+            else:
+                r = exgrader(course, exercise, action, submission_dir)
             has_appendixes = has_appendixes or \
                 ("appendix" in r and r["appendix"])
 

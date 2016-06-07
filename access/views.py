@@ -13,6 +13,7 @@ from access.config import ConfigParser, ConfigError
 from grader.tasks import queue_length as qlength
 from util.http import post_result
 from util.importer import import_named
+from util.personalized import read_user_personal_file
 
 
 # Hold on to the latest configuration for several requests.
@@ -171,6 +172,29 @@ def test_result(request):
             result = f.read()
     return HttpResponse(result or 'No test result received yet.')
 
+
+def generated_exercise_file(request, course_key, exercise_key, user_ids, filename):
+    '''
+    Delivers a generated file of the personalized exercise instance assigned to the user(s).
+    '''
+    # Fetch the corresponding exercise entry from the config.
+    (course, exercise) = config.exercise_entry(course_key, exercise_key)
+    if course is None or exercise is None:
+        raise Http404()
+    if "generated_files" in exercise:
+        import magic
+        for gen_file_conf in exercise["generated_files"]:
+            if gen_file_conf["file"] == filename:
+                if "allow_download" in gen_file_conf and gen_file_conf["allow_download"]:
+                    file_content = read_user_personal_file(course, exercise, user_ids, filename, True)
+                    response = HttpResponse(file_content,
+                                            content_type=magic.from_buffer(file_content, mime=True))
+                    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                    return response
+                else:
+                    # hide file existence with 404
+                    raise Http404()
+    raise Http404()
 
 def _filter_fields(dict_list, pick_fields):
     '''

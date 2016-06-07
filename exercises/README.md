@@ -72,6 +72,28 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 	* `max_points` (optional): The maximum exercise points (positive int).
 		Overrides any maximum points reported by test actions.
 	* `view_type`: A dotted name for an exercise implementation
+	* `personalized`: (optional) if true, personalized exercise instances must
+		be pregenerated and each user is then assigned an instance of the exercise
+	* `generated_files`: (required if personalized) set a list of generated files
+		for a personalized exercise. Each list item defines the following settings:
+		* `file`: filename of the generated file
+		* `key`: key for accessing the file in HTML templates
+		* `url_in_template`: if true, template variable includes a URL to download
+		   the generated file
+		* `content_in_template`: if true, template variable includes the content
+		   of the generated file
+		* `allow_download`: if true, the generated file can be downloaded from the web
+	* `generator`: (required if personalized) settings for the generator program that
+		creates one new instance of the exercise. At least `cmd` must be set.
+		* `cmd`: command line as an ARRAY that is used to run the generator.
+			Mooc-grader appends the instance directory path to the argument list and
+			the generator is expected to write files into the directory. The file names
+			should be listed under `generated_files` setting so that mooc-grader is aware
+			of them. The Django command used to pregenerate exercises is
+			`python manage.py pregenerate_exercises course_key</exercise_key>`.
+		* `cwd`: if set, this sets the current working directory for the generator
+			program. Start the path from the course directory (course key as the
+			first directory).
 
 	Rest of the attributes are exercise type specific.
 
@@ -239,6 +261,12 @@ sandbox system.
 	* `mv` (optional): a space separated list of *path->path* where
 		both paths are relative to submission root e.g.
 		`user/file_name->user/new_dir/file_name`
+	* `cp_personal`: a space separated list of *path->path* where the source path
+		is relative to the user's personal directory (contains generated link and
+		personal directory) and the destination path is relative to the submission
+		root. E.g., `generated/->user` copies all generated files of the exercise
+		instance to the submission directory and `personal/somefile->user/somefile`
+		copies a personal file `somefile` to the submission directory.
 
 	**Note** that the cp/mv *path->path* pattern does not replicate shell
 	command arguments. Either dir->dir contents or individual file->file is
@@ -294,6 +322,14 @@ sandbox system.
 	* `xslt_transform` (optional): a name of an XSL style file for
 		transforming expaca XML output e.g. `expaca/xsl/aplus-utf8.xsl`
 
+7. ### grader.actions.store_user_files
+	Stores files from the submission directory to the user's personal directory.
+	This can be used to store grading output files for future use in grading.
+	* `cp`: a space separated list of *path->path* where the source path is
+		relative to the submission root and the destination is relative to the
+		personal directory of the user. E.g., `user/someoutput->output` stores
+		`someout` to `output` file in the personal directory of the user.
+
 ## Default sandbox scripts
 
 Following common scripts are provided by default and copied into the sandbox.
@@ -327,6 +363,11 @@ listed below.
 1. ### All templates
 	* `course`: course configuration dictionary
 	* `exercise`: exercise configuration dictionary
+	* If the exercise is personalized and the exercise settings include
+		`generated_files`:
+		* `generated_files`: dictionary with the keys defined in the settings,
+			for each key there is the value for `file`, and with the enabled
+			settings also `url` and `content`
 
 	Note that you can add any new keys to configuration and utilize them in templates.
 

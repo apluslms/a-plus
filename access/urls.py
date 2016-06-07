@@ -8,4 +8,6 @@ urlpatterns = patterns('',
     url(r'^([\w-]+)/$', 'access.views.course'),
     url(r'^([\w-]+)/aplus-json$', 'access.views.aplus_json'),
     url(r'^([\w-]+)/([\w-]+)$', 'access.views.exercise'),
+    url(r'^([\w-]+)/([\w-]+)/([\d-]+)/generatedfile/([\w-]+)$', 'access.views.generated_exercise_file',
+        name='generated-file'),
 )

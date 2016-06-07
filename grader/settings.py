@@ -122,6 +122,11 @@ SANDBOX_LIMITS = {
 # Django process requires write access to this directory.
 #
 SUBMISSION_PATH = os.path.join(BASE_DIR, 'uploads')
+#
+# Personalized exercises and user files are kept here.
+# Django process requires write access to this directory.
+#
+PERSONALIZED_CONTENT_PATH = os.path.join(BASE_DIR, 'exercises-meta')
 
 #
 # Grading action scripts.
@@ -131,6 +136,7 @@ GITCLONE_SCRIPT = os.path.join(BASE_DIR, "scripts/gitclone.sh")
 SANDBOX_RUNNER = os.path.join(BASE_DIR, "scripts/chroot_execvp")
 SANDBOX_FALLBACK = os.path.join(BASE_DIR, "scripts/no_sandbox.sh")
 EXPACA_SCRIPT = os.path.join(BASE_DIR, "scripts/expaca_grade.sh")
+STORE_USER_FILES_SCRIPT = os.path.join(BASE_DIR, "scripts/store_user_files.sh")
 
 #
 # Define a dummy logging configuration:

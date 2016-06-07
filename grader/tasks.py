@@ -53,7 +53,7 @@ LOGGER = logging.getLogger('main')
 
 
 @app.task(ignore_result=True)
-def grade(course_key, exercise_key, lang, submission_url, submission_dir):
+def grade(course_key, exercise_key, lang, submission_url, submission_dir, user_ids=''):
     '''
     Grades the submission using configured grading actions.
 
@@ -67,6 +67,8 @@ def grade(course_key, exercise_key, lang, submission_url, submission_dir):
     @param submission_url: a submission URL where grader should POST result
     @type submission_dir: C{str}
     @param submission_dir: a submission directory where submitted files are stored
+    @type user_ids: C{str}
+    @param user_ids: user id(s) of the submitter(s) for personalized exercises
     '''
     translation.activate(lang)
     (course, exercise) = config.exercise_entry(course_key, exercise_key, lang=lang)
@@ -76,7 +78,7 @@ def grade(course_key, exercise_key, lang, submission_url, submission_dir):
 
     try:
         LOGGER.debug("Grading \"%s/%s\" for \"%s\"", course_key, exercise_key, submission_url)
-        r = runactions(course, exercise, submission_dir)
+        r = runactions(course, exercise, submission_dir, user_ids)
         if r["result"]["error"]:
             level = 40 if r["result"]["error"] == "error" else 30
             LOGGER.log(level, "Grading \"%s/%s\" for \"%s\" failed. "

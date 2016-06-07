@@ -230,7 +230,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     if not settings.CELERY_BROKER:
         LOGGER.warning("No queue configured")
         from grader.runactions import runactions
-        r = runactions(course, exercise, sdir)
+        r = runactions(course, exercise, sdir, request.GET.get("uid", ""))
         html = template_to_str(course, exercise, "", r["template"], r["result"])
         return render_template(request, course, exercise, post_url,
             "access/async_accepted.html", {
@@ -251,7 +251,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
 
     # Queue grader.
     tasks.grade.delay(course["key"], exercise["key"],
-        translation.get_language(), surl, sdir)
+        translation.get_language(), surl, sdir, request.GET.get("uid", ""))
 
     _acceptSubmission.counter += 1
     qlen = tasks.queue_length()

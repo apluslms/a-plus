@@ -2,10 +2,11 @@
 Utility functions for exercise templates.
 
 '''
+from django.core.urlresolvers import reverse
 from django.template import loader, Context
 from django.shortcuts import render
 from access.config import ConfigError
-
+from .personalized import prepare_user_personal_directory, read_user_personal_file
 
 def render_configured_template(request, course, exercise, post_url, default=None, result=None):
     '''
@@ -33,6 +34,9 @@ def render_configured_template(request, course, exercise, post_url, default=None
         template = default
     else:
         raise ConfigError("Missing \"template\" in exercise configuration.")
+    if "personalized" in exercise and exercise["personalized"]:
+        prepare_user_personal_directory(course, exercise, request.GET["uid"])
+        
     return render_template(request, course, exercise, post_url, template, result)
 
 
@@ -86,10 +90,30 @@ def template_to_str(course, exercise, post_url, template, result=None):
 
 
 def _exercise_context(course, exercise, post_url, result=None, request=None):
-    return {
+    ctx = {
         "request": request,
         "course": course,
         "exercise": exercise,
         "post_url": post_url or "",
         "result": result,
     }
+    if "personalized" in exercise and exercise["personalized"] and request:
+        if "generated_files" not in exercise:
+            raise ConfigError('"generated_files" missing in the configuration of a personalized exercise')
+        generated_files = {}
+        for gen_file_conf in exercise["generated_files"]:
+            if "file" not in gen_file_conf:
+                raise ConfigError('"file" under "generated_files" missing in the exercise configuration')
+            file_ctx = {}
+            file_ctx["file"] = gen_file_conf["file"]
+            if "url_in_template" in gen_file_conf and gen_file_conf["url_in_template"]:
+                # URL to download the exercise generated file
+                file_ctx["url"] = reverse('generated-file',
+                        args=(course["key"], exercise["key"], request.GET["uid"], gen_file_conf["file"]))
+            if "content_in_template" in gen_file_conf and gen_file_conf["content_in_template"]:
+                # read contents of the exercise generated file to a variable
+                file_ctx["content"] = read_user_personal_file(course, exercise,
+                        request.GET["uid"], gen_file_conf["file"], True)
+            generated_files[gen_file_conf["key"]] = file_ctx
+        ctx["generated_files"] = generated_files
+    return ctx

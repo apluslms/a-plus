@@ -21,19 +21,28 @@ from access.config import ConfigError
 from util.shell import invoke_script, invoke_sandbox
 from util.xslt import transform
 from util.http import get_json
+from util.personalized import user_personal_directory_path
 import logging
+import os
 
 LOGGER = logging.getLogger('main')
 
 
-def prepare(course, exercise, action, submission_dir):
+def prepare(course, exercise, action, submission_dir, user_ids=''):
     '''
     Runs the preparation script for the submitted files.
     '''
+    args = {
+        "course_key": course["key"],
+        "exercise_key": exercise["key"],
+    }
+    if user_ids:
+        args["userid"] = user_ids
+    
     return _boolean(invoke_script(settings.PREPARE_SCRIPT,
         _collect_args(("attachment_pull", "attachment_unzip", "unzip",
-            "charset", "cp_exercises", "cp", "mv"), action,
-            { "course_key": course["key"] }),
+            "charset", "cp_exercises", "cp", "mv", "cp_personal"),
+            action, args),
         submission_dir))
 
 
@@ -96,6 +105,20 @@ def expaca(course, exercise, action, submission_dir):
 
     return { "points": points, "max_points": max_points, "out": out,
         "err": r["err"], "stop": False }
+
+
+def store_user_files(course, exercise, action, submission_dir, user_ids):
+    '''
+    Stores files from the submission directory to the personal directory of the user(s).
+    '''
+    args = {
+        "target": os.path.join(user_personal_directory_path(course, exercise, user_ids), "personal"),
+    }
+    
+    return _boolean(invoke_script(settings.STORE_USER_FILES_SCRIPT,
+        _collect_args(("cp",),
+            action, args),
+        submission_dir))
 
 
 def timeout(course, exercise, action, submission_dir):
