@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^shibboleth/', include(shibboleth_login.urls)),
     url('', include(social.apps.django_app.urls, namespace='social')),
     url(r'^api/', include(api.urls)), # ^api/v1/ only
-    url(r'^api/v2/', include(api.urls_v2)),
+    url(r'^api/v2/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
     url(r'^accounts/', include(userprofile.urls)),
     url(r'^', include(redirect_old_urls.urls)),
     url(r'^', include(apps.urls)),
