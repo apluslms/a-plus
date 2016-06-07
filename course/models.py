@@ -17,13 +17,14 @@ from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import safe_file_name, resize_image, roman_numeral
 from lib.remote_page import RemotePage, RemotePageException
+from lib.models import UrlMixin
 from userprofile.models import UserProfile
 from .tree import ModuleTree
 
 logger = logging.getLogger("course.models")
 
 
-class Course(models.Model):
+class Course(UrlMixin, models.Model):
     """
     Course model represents a course in a university. A course has a name and an
     identification number. It also has a URL which is included in the addresses
@@ -56,10 +57,11 @@ class Course(models.Model):
         return user and user.is_authenticated() and (user.is_superuser or \
             self.teachers.filter(id=user.userprofile.id).exists())
 
-    def get_absolute_url(self):
-        return reverse('course-instances', kwargs={
-            'course': self.url
-        })
+
+    ABSOLUTE_URL_NAME = "course-instances"
+
+    def get_url_kwargs(self):
+        return dict(course_slug=self.url)
 
 
 class CourseInstanceManager(models.Manager):
@@ -108,7 +110,7 @@ def build_upload_dir(instance, filename):
     )
 
 
-class CourseInstance(models.Model):
+class CourseInstance(UrlMixin, models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have
     several instances either at the same time or during different years. All instances
@@ -154,8 +156,6 @@ class CourseInstance(models.Model):
         (2, _("Roman")),
     ), default=1)
     configure_url = models.URLField(blank=True)
-    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
-    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
@@ -164,8 +164,13 @@ class CourseInstance(models.Model):
                                       content_type_field="container_type")
     tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",
                                    content_type_field="container_type")
-    objects = CourseInstanceManager()
 
+    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
+    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True)
+    # categories from course.models.LearningObjectCategory
+    # course_modules from course.models.CourseModule
+
+    objects = CourseInstanceManager()
     class Meta:
         unique_together = ("course", "url")
 
@@ -237,17 +242,15 @@ class CourseInstance(models.Model):
             return True
         return user and self.is_course_staff(user)
 
-    def get_url(self, name):
-        return reverse(name, kwargs={
-            "course": self.course.url,
-            "instance": self.url,
-        })
 
-    def get_absolute_url(self):
-        return self.get_url("course")
+    ABSOLUTE_URL_NAME = "course"
+    EDIT_URL_NAME = "course-edit"
 
-    def get_edit_url(self):
-        return self.get_url("course-edit")
+    def get_url_kwargs(self):
+        # dict(foo=bar, **baz()) is not nice, but it's cleanest solution for this
+        # specific problem. For more read out stackoverflow answer about merging
+        # python dicts in single line: http://stackoverflow.com/a/26853961
+        return dict(instance_slug=self.url, **self.course.get_url_kwargs())
 
 
 class CourseHook(models.Model):
@@ -290,7 +293,7 @@ class CourseModuleManager(models.Manager):
             'course_instance', 'course_instance__course')
 
 
-class CourseModule(models.Model):
+class CourseModule(UrlMixin, models.Model):
     """
     CourseModule objects connect chapters and learning objects to logical sets
     of each other and course instances. They also contain information about the
@@ -402,13 +405,11 @@ class CourseModule(models.Model):
     def flat_admin_learning_objects(self, with_sub_markers=True):
         return self._children().flat(None, with_sub_markers, True)
 
-    def get_absolute_url(self):
-        instance = self.course_instance
-        return reverse('module', kwargs={
-            'course': instance.course.url,
-            'instance': instance.url,
-            'module': self.url,
-        })
+
+    ABSOLUTE_URL_NAME = "module"
+
+    def get_url_kwargs(self):
+        return dict(module_slug=self.url, **self.course_instance.get_url_kwargs())
 
 
 class LearningObjectCategory(models.Model):

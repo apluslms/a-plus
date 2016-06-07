@@ -2,57 +2,41 @@
 Defines base views for extending and mixing to higher level views.
 The structure was created for handling nested models.
 """
+from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponseRedirect
 from django.utils.http import is_safe_url
-from django.views.generic.base import TemplateResponseMixin, ContextMixin, View
-from django.views.generic.edit import FormMixin
+from django.views.generic.base import TemplateResponseMixin, TemplateView, View
+from django.views.generic.edit import FormMixin, FormView
 
+from authorization.views import AuthorizedResourceMixin
+from lib.helpers import deprecated
 
-class BaseMixin(object):
+class AccessControlPermission(object):
+    def has_permission(self, request, view):
+        try:
+            view.access_control()
+            return True
+        except PermissionDenied:
+            return False
+
+class BaseMixin(AuthorizedResourceMixin):
     """
     Extend to handle data and mixin with one of the views implementing
     get/post methods. Calling the super method is required when overriding
     the base methods.
     """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._attr = []
+    permission_classes = [AccessControlPermission]
 
-    def get_resource_objects(self):
-        """
-        Get the resource objects sufficient to determine the existance.
-        Should raise Http404 if the request does not reach a resource.
-        Use self.note to announce attributes of further interest.
-        """
-        pass
-
+    @deprecated("access_control is deprecated and should be replaced with correct permission_classes")
     def access_control(self):
         """
-        Access control the resource. Should raise PermissionDenied if
-        access is not granted.
+        Support old access_control system with AccessControlPermission
         """
         pass
 
-    def get_common_objects(self):
-        """
-        Once access is verified further objects may be created that
-        are common for different HTTP methods, e.g. get and post.
-        Use self.note to announce attributes of further interest.
-        """
-        pass
-
-    def note(self, *args):
-        """
-        The class attribute names given in argument list are marked
-        "interesting" for the view. In a TemplateView these will be
-        injected to the template context.
-        """
-        self._attr.extend(args)
-
+    @deprecated("self.handle() is deprecated. There is no need to call it anymore.")
     def handle(self):
-        self.get_resource_objects()
-        self.access_control()
-        self.get_common_objects()
+        pass
 
     def _get_kwarg(self, kw, **kwargs):
         arg = self.kwargs.get(kw)
@@ -64,24 +48,14 @@ class BaseMixin(object):
         return arg
 
 
-class BaseTemplateMixin(TemplateResponseMixin):
+class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
     template_name = None
     ajax_template_name = None
     force_ajax_template = False
 
-    def get(self, request, *args, **kwargs):
-        self.handle()
-        return self.response()
-
+    @deprecated("self.response() is deprecated and should be replaced with super().get(...)")
     def response(self, **kwargs):
         return self.render_to_response(self.get_context_data(**kwargs))
-
-    def get_context_data(self, **kwargs):
-        context = {"request": self.request}
-        for key in self._attr:
-            context[key] = getattr(self, key)
-        context.update(kwargs)
-        return context
 
     def get_template_names(self):
         if self.force_ajax_template or self.request.is_ajax() or not self.template_name:
@@ -90,7 +64,7 @@ class BaseTemplateMixin(TemplateResponseMixin):
         return super().get_template_names()
 
 
-class BaseTemplateView(BaseTemplateMixin, View):
+class BaseTemplateView(BaseTemplateMixin, TemplateView):
     pass
 
 
@@ -115,29 +89,10 @@ class BaseRedirectView(BaseRedirectMixin, View):
 
 
 class BaseFormMixin(BaseRedirectMixin, BaseTemplateMixin, FormMixin):
-    form_class = None
-    success_url = None
-
-    def get(self, request, *args, **kwargs):
-        self.handle()
-        form = self.get_form(self.get_form_class())
-        return self.response(form=form)
-
-    def post(self, request, *args, **kwargs):
-        self.handle()
-        form = self.get_form(self.get_form_class())
-        if form.is_valid():
-            return self.form_valid(form)
-        return self.form_invalid(form)
-
     def form_valid(self, form):
         return self.redirect(self.get_success_url())
 
-    def form_invalid(self, form):
-        return self.response(form=form)
-
-
-class BaseFormView(BaseFormMixin, View):
+class BaseFormView(BaseFormMixin, FormView):
     pass
 
 

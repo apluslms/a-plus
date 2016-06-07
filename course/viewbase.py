@@ -11,7 +11,7 @@ from .models import Course, CourseInstance, CourseModule
 
 
 class CourseMixin(UserProfileMixin):
-    course_kw = "course"
+    course_kw = "course_slug"
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -36,7 +36,7 @@ class CourseBaseView(CourseMixin, BaseTemplateView):
 
 
 class CourseInstanceMixin(CourseMixin):
-    instance_kw = "instance"
+    instance_kw = "instance_slug"
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -101,7 +101,7 @@ class EnrollableViewMixin(CourseInstanceMixin):
 
 
 class CourseModuleMixin(CourseInstanceMixin):
-    module_kw = "module"
+    module_kw = "module_slug"
 
     def get_resource_objects(self):
         super().get_resource_objects()

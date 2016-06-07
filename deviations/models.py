@@ -5,9 +5,10 @@ from django.db import models
 
 from exercise.exercise_models import BaseExercise
 from userprofile.models import UserProfile
+from lib.models import UrlMixin
 
 
-class SubmissionRuleDeviation(models.Model):
+class SubmissionRuleDeviation(UrlMixin, models.Model):
     """
     An abstract model binding a user to an exercise stating that there is some
     kind of deviation from the normal submission boundaries, that is, special
@@ -25,13 +26,8 @@ class SubmissionRuleDeviation(models.Model):
         abstract = True
         unique_together = ["exercise", "submitter"]
 
-    def get_url(self, name):
-        instance = self.exercise.course_instance
-        return reverse(name, kwargs={
-            "course": instance.course.url,
-            "instance": instance.url,
-            "deviation_id": self.id,
-        })
+    def get_url_kwargs(self):
+        return dict(deviation_id=self.id, **self.exercise.course_instance.get_url_kwargs())
 
 
 class DeadlineRuleDeviation(SubmissionRuleDeviation):

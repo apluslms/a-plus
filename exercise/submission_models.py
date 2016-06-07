@@ -13,6 +13,7 @@ from . import exercise_models
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
     safe_file_name
+from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
 
@@ -44,7 +45,7 @@ class SubmissionManager(models.Manager):
         return self.exclude(status=Submission.STATUS_ERROR)
 
 
-class Submission(models.Model):
+class Submission(UrlMixin, models.Model):
     """
     A submission to some course exercise from one or more submitters.
     """
@@ -222,19 +223,11 @@ class Submission(models.Model):
     def head(self):
         return self.exercise.content_head
 
-    def get_url(self, name):
-        exercise = self.exercise
-        instance = exercise.course_instance
-        return reverse(name, kwargs={
-            "course": instance.course.url,
-            "instance": instance.url,
-            "module": exercise.course_module.url,
-            "exercise_path": exercise.get_path(),
-            "submission_id": self.id,
-        })
 
-    def get_absolute_url(self):
-        return self.get_url("submission")
+    ABSOLUTE_URL_NAME = "submission"
+
+    def get_url_kwargs(self):
+        return dict(submission_id=self.id, **self.exercise.get_url_kwargs())
 
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
@@ -261,7 +254,7 @@ def build_upload_dir(instance, filename):
     )
 
 
-class SubmittedFile(models.Model):
+class SubmittedFile(UrlMixin, models.Model):
     """
     Represents a file submitted by the student as a solution to an exercise.
     Submitted files are always linked to a certain submission through a
@@ -289,22 +282,14 @@ class SubmittedFile(models.Model):
     def is_passed(self):
         return self.get_mime() in SubmittedFile.PASS_MIME
 
-    def get_absolute_url(self):
-        """
-        Returns the URL for downloading this file.
-        """
-        submission = self.submission
-        exercise = submission.exercise
-        instance = exercise.course_instance
-        return reverse('submission-file', kwargs={
-            "course": instance.course.url,
-            "instance": instance.url,
-            "module": exercise.course_module.url,
-            "exercise_path": exercise.get_path(),
-            "submission_id": submission.id,
-            "file_id": self.id,
-            "file_name": self.filename
-        })
+
+    ABSOLUTE_URL_NAME = "submission-file"
+
+    def get_url_kwargs(self):
+        return dict(
+            file_id=self.id,
+            file_name=self.filename,
+            **self.submission.get_url_kwargs())
 
 
 def _delete_file(sender, instance, **kwargs):

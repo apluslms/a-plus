@@ -55,7 +55,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         self.note("submissions", "summary")
 
     def get(self, request, *args, **kwargs):
-        self.handle()
         students = self.get_students()
         if self.exercise.is_submittable():
             self.submission_check(students)
@@ -70,7 +69,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
                 page = ExercisePage(self.exercise)
                 page.content = _('Unfortunately this exercise is currently '
                                  'under maintenance.')
-                return self.response(page=page, students=students)
+                return super().get(request, *args, page=page, students=students, **kwargs)
 
         page = self.exercise.as_leaf_class().load(request, students,
             url_name=self.post_url_name)
@@ -82,11 +81,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             except MultipleObjectsReturned:
                 pass
 
-        return self.response(page=page, students=students)
+        return super().get(request, *args, page=page, students=students, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.handle()
-
         # Stop submit trials for e.g. chapters.
         # However, allow posts from exercises switched to maintenance status.
         if not self.exercise.is_submittable():
@@ -138,7 +135,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
 
 class ExercisePlainView(ExerciseView):
-    login_redirect=False
+    raise_exception=True
     force_ajax_template=True
     post_url_name="exercise-plain"
 
@@ -173,7 +170,7 @@ class SubmissionView(SubmissionBaseView):
 
 
 class SubmissionPlainView(SubmissionView):
-    login_redirect=False
+    raise_exception=True
     force_ajax_template=True
 
     # Allow iframe in another domain.
@@ -185,7 +182,6 @@ class SubmissionPlainView(SubmissionView):
 class SubmissionPollView(SubmissionMixin, View):
 
     def get(self, request, *args, **kwargs):
-        self.handle()
         return HttpResponse(self.submission.status, content_type="text/plain")
 
 
@@ -206,7 +202,6 @@ class SubmittedFileView(SubmissionMixin, View):
             raise Http404()
 
     def get(self, request, *args, **kwargs):
-        self.handle()
         with open(self.file.file_object.path, "rb") as f:
             bytedata = f.read()
 
