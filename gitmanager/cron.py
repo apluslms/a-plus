@@ -1,19 +1,18 @@
-import sys, os, yaml, json
+import sys, os
 
 
-def read_static_dir(course_dir):
+def read_static_dir(course_key):
     '''
     Reads static_dir from course configuration.
     '''
-    for parser, file_name in (
-        (yaml.load, '/index.yaml'),
-        (json.load, '/index.json'),
-    ):
-        if os.path.exists(course_dir + file_name):
-            with open(course_dir + file_name) as f:
-                content = parser(f.read())
-                if 'static_dir' in content:
-                    return content['static_dir']
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "grader.settings")
+    from access.config import ConfigParser
+    config = ConfigParser()
+
+    course = config.course_entry(course_key)
+    if 'static_dir' in course:
+        return course['static_dir']
     return ''
 
 
@@ -37,7 +36,7 @@ def main(argv):
         print(read_static_dir(argv[2]))
     else:
         print('Use 1: {} log $log_file'.format(argv[0]))
-        print('Use 2: {} static $course_dir'.format(argv[0]))
+        print('Use 2: {} static $course_key'.format(argv[0]))
 
 
 if __name__ == '__main__':

@@ -18,7 +18,13 @@ fi
 
 cd `dirname $0`/..
 
-vals=(`ls -ld exercises`)
+if [ -d exercises ]; then
+  CDIR=exercises
+else
+  CDIR=courses
+fi
+
+vals=(`ls -ld $CDIR`)
 USER=${vals[2]}
 
 chown $USER $FLAG
