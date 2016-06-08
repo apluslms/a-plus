@@ -6,10 +6,10 @@ from ..models import LearningObject, Submission
 class LearningObjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningObject
-        fields = ('name', 'url', 'content', 'service_url')
+        fields = ('name', 'course_module', 'url', 'content', 'service_url', 'objects')
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = ('status', 'grade')
+        fields = ('exercise', 'feedback', 'grade', 'status', 'grade')
