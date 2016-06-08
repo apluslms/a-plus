@@ -22,12 +22,14 @@
         </div>
         <dl>
             {% trans "[Missing]" as miss %}
-        	<dt>{% trans "Student ID" %}</dt>
+        	  <dt>{% trans "Student ID" %}</dt>
             <dd>{% firstof profile.student_id miss %}</dd>
             <dt>{% trans "E-mail" %}</dt>
             <dd>{% firstof user.email miss %}</dd>
             <dt>{% trans "Username" %}</dt>
             <dd>{% firstof user.username miss %}</dd>
+            <dt>Token</dt>
+            <dd>{{ token }}</dd>
         </dl>
     </div>
     <div class="col-md-6">
