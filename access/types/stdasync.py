@@ -78,18 +78,28 @@ def acceptFiles(request, course, exercise, post_url):
     # Receive post.
     if request.method == "POST" and "files" in exercise:
 
-        # Confirm that all files were submitted.
+        # Confirm that all required files were submitted.
+        files_submitted = [] # exercise["files"] entries for the files that were really submitted
         for entry in exercise["files"]:
+            # by default, all fields are required
+            required = ("required" not in entry or entry["required"])
             if entry["field"] not in request.FILES:
-                result = { "error": True, "missing_files": True }
-                break
+                if required:
+                    result = { "error": True, "missing_files": True }
+                    break
+            else:
+                files_submitted.append(entry)
 
-        # Store submitted files.
         if result is None:
-            sdir = create_submission_dir(course, exercise)
-            for entry in exercise["files"]:
-                save_submitted_file(sdir, entry["name"], request.FILES[entry["field"]])
-            return _acceptSubmission(request, course, exercise, post_url, sdir)
+            if "required_number_of_files" in exercise and \
+                    exercise["required_number_of_files"] > len(files_submitted):
+                result = { "error": True, "missing_files": True }
+            else:
+                # Store submitted files.
+                sdir = create_submission_dir(course, exercise)
+                for entry in files_submitted:
+                    save_submitted_file(sdir, entry["name"], request.FILES[entry["field"]])
+                return _acceptSubmission(request, course, exercise, post_url, sdir)
 
     return render_configured_template(request, course, exercise, post_url,
         "access/accept_files_default.html", result)

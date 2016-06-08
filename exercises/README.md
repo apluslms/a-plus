@@ -119,6 +119,11 @@ course specific exercise view in a course specific Python module.
 	* `files`: list of expected files
 		* `field`: file field name
 		* `name`: actual file name, may include subdirectories
+		* `required`: (optional, default true) if true, the user must submit this file,
+			otherwise it can be left empty
+	* `required_number_of_files`: (optional, integer) if not all files are required,
+		define how many files must be submitted. The number should be less than the
+		length of the `files` list.
 	* `template` (default `access/accept_files_default.html`):
 		name of a template to present
 	* `accepted_message` (optional): overrides the default message displayed when

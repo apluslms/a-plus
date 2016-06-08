@@ -1,6 +1,14 @@
 {% load i18n %}
 {% if exercise.files %}
 <form method="post" action="{{ post_url }}" enctype="multipart/form-data">
+	{% if exercise.required_number_of_files %}
+		<p>
+		{% blocktrans with num_files=exercise.required_number_of_files %}
+			Submit only {{ num_files }} of the following files.
+		{% endblocktrans %}
+		</p>
+	{% endif %}
+
 	{% for entry in exercise.files %}
 	<div class="form-group">
 		<label for="{{ entry.field }}_id">
