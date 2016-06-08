@@ -52,7 +52,7 @@ def course(request, course_key):
         'course': course,
         'exercises': exercises,
         'plus_config_url': request.build_absolute_uri(reverse(
-            'access.views.aplus_json', args=[course['key']])),
+            'aplus-json', args=[course['key']])),
     })
 
 
