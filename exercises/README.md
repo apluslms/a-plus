@@ -330,6 +330,7 @@ sandbox system.
 7. ### grader.actions.store_user_files
 	Stores files from the submission directory to the user's personal directory.
 	This can be used to store grading output files for future use in grading.
+	Requires that the exercise is personalized (so that the personal directory exists).
 	* `cp`: a space separated list of *path->path* where the source path is
 		relative to the submission root and the destination is relative to the
 		personal directory of the user. E.g., `user/someoutput->output` stores

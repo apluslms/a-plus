@@ -111,6 +111,8 @@ def store_user_files(course, exercise, action, submission_dir, user_ids):
     '''
     Stores files from the submission directory to the personal directory of the user(s).
     '''
+    if not ("personalized" in exercise and exercise["personalized"]):
+        raise ConfigError('Action "grader.actions.store_user_files" can only be used in personalized exercises')
     args = {
         "target": os.path.join(user_personal_directory_path(course, exercise, user_ids), "personal"),
     }
