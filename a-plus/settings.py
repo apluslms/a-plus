@@ -217,8 +217,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # http://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # Support token auth. Requires rest_framework.authtoken in apps
+        # Clients should use token for authentication
+        # Requires rest_framework.authtoken in apps.
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
    'DEFAULT_PERMISSION_CLASSES': (
         # If not other permissions are defined, require login.
@@ -283,3 +285,8 @@ if 'shibboleth_login' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('shibboleth_login.auth_backend.ShibbolethAuthBackend',)
 if 'social.apps.django_app.default' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('social.backends.google.GoogleOAuth2',)
+
+# If debug is enabled allow basic auth for API
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] + (
+            'rest_framework.authentication.BasicAuthentication',)
