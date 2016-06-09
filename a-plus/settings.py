@@ -222,13 +222,25 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-   'DEFAULT_PERMISSION_CLASSES': (
+    'DEFAULT_PERMISSION_CLASSES': (
         # If not other permissions are defined, require login.
         # Should be replaced with NoPermission and all permissions
         # should be defined in api view entries.
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'lib.api.APlusJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'lib.api.APlusContentNegotiation',
+    'DEFAULT_VERSIONING_CLASS': 'lib.api.APlusVersioning',
     'PAGE_SIZE': 100,
+    'DEFAULT_VERSION': '2',
+    'ALLOWED_VERSIONS': {
+        # These are really just latest versions
+        '1': '1.0',
+        '2': '2.0',
+    },
 }
 
 # Testing
