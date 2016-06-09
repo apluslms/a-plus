@@ -128,6 +128,7 @@
 			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
 
 			this.loader = this.chapter.cloneLoader();
+			this.element.empty();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			this.load();
