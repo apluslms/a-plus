@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.template import loader, Context
 from django.shortcuts import render
 from access.config import ConfigError
+from access.types.auth import get_uid
 from .personalized import prepare_user_personal_directory, read_user_personal_file
 
 def render_configured_template(request, course, exercise, post_url, default=None, result=None):
@@ -35,7 +36,10 @@ def render_configured_template(request, course, exercise, post_url, default=None
     else:
         raise ConfigError("Missing \"template\" in exercise configuration.")
     if "personalized" in exercise and exercise["personalized"]:
-        prepare_user_personal_directory(course, exercise, request.GET["uid"])
+        user_ids = get_uid(request)
+        if not user_ids:
+            raise ConfigError('Exercise is personalized but HTTP GET request did not supply any "uid" parameter.')
+        prepare_user_personal_directory(course, exercise, user_ids)
         
     return render_template(request, course, exercise, post_url, template, result)
 
@@ -109,11 +113,11 @@ def _exercise_context(course, exercise, post_url, result=None, request=None):
             if "url_in_template" in gen_file_conf and gen_file_conf["url_in_template"]:
                 # URL to download the exercise generated file
                 file_ctx["url"] = reverse('generated-file',
-                        args=(course["key"], exercise["key"], request.GET["uid"], gen_file_conf["file"]))
+                        args=(course["key"], exercise["key"], get_uid(request), gen_file_conf["file"]))
             if "content_in_template" in gen_file_conf and gen_file_conf["content_in_template"]:
                 # read contents of the exercise generated file to a variable
                 file_ctx["content"] = read_user_personal_file(course, exercise,
-                        request.GET["uid"], gen_file_conf["file"], True)
+                        get_uid(request), gen_file_conf["file"], True)
             generated_files[gen_file_conf["key"]] = file_ctx
         ctx["generated_files"] = generated_files
     return ctx
