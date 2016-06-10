@@ -7,7 +7,7 @@ from tastypie.resources import ModelResource, ALL
 
 from api.permissions import SuperuserAuthorization
 
-from .models import LearningObject, BaseExercise, Submission
+from ..models import LearningObject, BaseExercise, Submission
 
 
 class LearningObjectResource(ModelResource):
@@ -24,7 +24,7 @@ class LearningObjectResource(ModelResource):
 
 
 class ExerciseResource(ModelResource):
-    submissions = fields.ToManyField('exercise.api.SubmissionResource', 'submissions')
+    submissions = fields.ToManyField('exercise.api.v1.SubmissionResource', 'submissions')
 
     class Meta:
         queryset = BaseExercise.objects.all()
@@ -39,9 +39,9 @@ class ExerciseResource(ModelResource):
 
 
 class SubmissionResource(ModelResource):
-    exercise = fields.ToOneField('exercise.api.ExerciseResource', 'exercise')
-    grader = fields.ToOneField('userprofile.api.UserProfileResource', 'grader', null=True, blank=True)
-    submitters = fields.ToManyField('userprofile.api.UserProfileResource', 'submitters', null=True, blank=True)
+    exercise = fields.ToOneField('exercise.api.v1.ExerciseResource', 'exercise')
+    grader = fields.ToOneField('userprofile.api.v1.UserProfileResource', 'grader', null=True, blank=True)
+    submitters = fields.ToManyField('userprofile.api.v1.UserProfileResource', 'submitters', null=True, blank=True)
 
     def dehydrate(self, bundle):
         """
@@ -81,10 +81,10 @@ class SubmissionContentResource(ModelResource):
     included (base64 encoded) and this resource can be read with
     API key authentication.
     """
-    exercise = fields.ToOneField('exercise.api.ExerciseResource', 'exercise')
-    grader = fields.ToOneField('userprofile.api.UserProfileResource',
+    exercise = fields.ToOneField('exercise.api.v1.ExerciseResource', 'exercise')
+    grader = fields.ToOneField('userprofile.api.v1.UserProfileResource',
         'grader', null=True, blank=True)
-    submitters = fields.ToManyField('userprofile.api.UserProfileResource',
+    submitters = fields.ToManyField('userprofile.api.v1.UserProfileResource',
         'submitters', null=True, blank=True)
 
     def dehydrate(self, bundle):

@@ -3,6 +3,7 @@ beautifulsoup4==4.3.2
 Django==1.7.7
 django-bootstrap-form==3.2
 django-tastypie==0.12.1
+djangorestframework==3.3.3
 feedparser
 html5lib
 icalendar==3.9.0

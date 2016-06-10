@@ -8,11 +8,11 @@ from tastypie.resources import ModelResource, Resource
 from exercise.presentation.summary import UserCourseSummary
 from userprofile.models import UserProfile
 
-from .models import Course, CourseInstance, CourseModule
+from ..models import Course, CourseInstance, CourseModule
 
 
 class CourseResource(ModelResource):
-    instances = fields.ToManyField('course.api.CourseInstanceResource', 'instances')
+    instances = fields.ToManyField('course.api.v1.CourseInstanceResource', 'instances')
 
     class Meta:
         queryset = Course.objects.all()
@@ -27,7 +27,7 @@ class CourseResource(ModelResource):
 
 
 class CourseInstanceResource(ModelResource):
-    course_modules = fields.ToManyField('course.api.CourseModuleResource', 'course_modules')
+    course_modules = fields.ToManyField('course.api.v1.CourseModuleResource', 'course_modules')
 
     def dehydrate(self, bundle):
         bundle.data.update({
@@ -140,7 +140,7 @@ class CourseInstanceSummaryResource(Resource):
 
 
 class CourseModuleResource(ModelResource):
-    learning_objects = fields.ToManyField('exercise.api.LearningObjectResource', 'learning_objects')
+    learning_objects = fields.ToManyField('exercise.api.v1.LearningObjectResource', 'learning_objects')
 
     class Meta:
         queryset = CourseModule.objects.all()

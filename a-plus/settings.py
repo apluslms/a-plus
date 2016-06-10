@@ -91,6 +91,8 @@ INSTALLED_APPS = (
     # 3rd party applications
     'bootstrapform',
     'tastypie',
+    'rest_framework',
+    'rest_framework.authtoken',
 
     # First party applications
     'inheritance',
@@ -212,6 +214,36 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Django REST Framework settings
+# http://www.django-rest-framework.org/api-guide/settings/
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # Clients should use token for authentication
+        # Requires rest_framework.authtoken in apps.
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        # If not other permissions are defined, require login.
+        # Should be replaced with NoPermission and all permissions
+        # should be defined in api view entries.
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'lib.api.APlusJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'lib.api.APlusContentNegotiation',
+    'DEFAULT_VERSIONING_CLASS': 'lib.api.APlusVersioning',
+    'PAGE_SIZE': 100,
+    'DEFAULT_VERSION': '2',
+    'ALLOWED_VERSIONS': {
+        # These are really just latest versions
+        '1': '1.0',
+        '2': '2.0',
+    },
+}
+
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
@@ -250,6 +282,7 @@ LOGGING = {
   },
 }
 
+
 # Overrides and appends settings defined in local_settings.py
 try:
     from local_settings import *
@@ -265,3 +298,8 @@ if 'shibboleth_login' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('shibboleth_login.auth_backend.ShibbolethAuthBackend',)
 if 'social.apps.django_app.default' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('social.backends.google.GoogleOAuth2',)
+
+# If debug is enabled allow basic auth for API
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] + (
+            'rest_framework.authentication.BasicAuthentication',)
