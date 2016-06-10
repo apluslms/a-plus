@@ -8,7 +8,7 @@ import course.api.views
 api_router = DefaultRouter()
 api_router.register(r'users', userprofile.api.views.UserViewSet, base_name='user')
 api_router.register(r'learningobjects', exercise.api.views.LearningObjectViewSet, base_name='learningobject')
-api_router.register(r'courses', course.api.views.CourseViewSet, base_name='course')
+api_router.register(r'courseinstances', course.api.views.CourseInstanceViewSet, base_name='course')
 # Submissions are categorized by exercises for example:
 # api/v2/exercises/hello_world/submissions/1
 api_router.register(r'exercises/', exercise.api.views.SubmissionViewSet, base_name='submission')

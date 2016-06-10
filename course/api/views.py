@@ -1,12 +1,12 @@
 from rest_framework import generics, permissions, viewsets
 
-from ..models import Course
-from .serializers import CourseSerializer
+from ..models import Course, CourseInstance
+from .serializers import CourseSerializer, CourseInstanceSerializer
 
-class CourseViewSet(viewsets.ReadOnlyModelViewSet):
+class CourseInstanceViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    GET list of courses
+    GET list of course instances
     """
-    queryset = Course.objects.all()
-    serializer_class = CourseSerializer
+    queryset = CourseInstance.objects.all()
+    serializer_class = CourseInstanceSerializer
     permission_classes = [permissions.IsAuthenticated]
