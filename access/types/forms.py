@@ -218,7 +218,6 @@ class GradedForm(forms.Form):
                 prev = i
                 i, ok, p = self.grade_field(i, field)
                 points += p
-                print('graded', i, ok, p)
                 if not ok:
                     error_fields.append(self.field_name(prev))
                     gname = self.group_name(g)

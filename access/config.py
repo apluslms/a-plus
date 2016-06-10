@@ -229,7 +229,7 @@ class ConfigParser:
             "mtime": t,
             "ptime": time.time(),
             "data": data,
-            "lang": data["lang"] if "lang" in data else DEFAULT_LANG,
+            "lang": data.get('language', data.get('lang', DEFAULT_LANG)),
             "exercise_loader": exercise_loader,
             "exercises": {}
         }
