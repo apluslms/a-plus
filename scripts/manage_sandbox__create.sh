@@ -2,6 +2,12 @@
 # A sub script for manage_sandbox.sh that creates or updates a
 # sandbox installation. See the master script for more info.
 
+if [ -d exercises ]; then
+  CDIR=exercises
+else
+  CDIR=courses
+fi
+
 # Assign arguments
 sbd=$1
 target=$2
@@ -15,8 +21,8 @@ elif [ $# -lt 2 ]; then
   exit 1
 elif [ "$target" = 'all' ]; then
   echo "About to install all courses:"
-  find ./exercises -mindepth 1 -maxdepth 1 -type d
-elif [ ! -d ./exercises/$target ]; then
+  find ./$CDIR -mindepth 1 -maxdepth 1 -type d
+elif [ ! -d ./$CDIR/$target ]; then
   echo_err 'Invalid target "'$target'"!'
   exit 1
 fi
@@ -90,7 +96,7 @@ cp --preserve=mode $REPO_ROOT_DIR/scripts/sandbox/* $sbd/usr/local/sandbox/
 
 # Add exercise sandbox scripts.
 echo_ok "*** Copying course-specific sandbox scripts"
-for course_dir in $REPO_ROOT_DIR/exercises/*; do
+for course_dir in $REPO_ROOT_DIR/$CDIR/*; do
   if [ -d $course_dir/sandbox ]; then
     course=${course_dir##*/}
     if [ ! "$target" = 'all' -a ! "$target" = "$course" ]; then

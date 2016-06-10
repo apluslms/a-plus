@@ -7,8 +7,14 @@ url=$4
 branch=$5
 echo "Processing key=$key id=$id url=$url branch=$branch python=$PYTHON"
 
+if [ -d exercises ]; then
+  CDIR=exercises
+else
+  CDIR=courses
+fi
+
 # Update from git origin and move to dir.
-dir=exercises/$key
+dir=$CDIR/$key
 if [ -e $dir ]; then
   cd $dir
   branchnow=`git branch`
@@ -28,7 +34,7 @@ fi
 cd ../..
 
 # Link to static.
-static_dir=`$PYTHON gitmanager/cron.py static $dir`
+static_dir=`$PYTHON gitmanager/cron.py static $key`
 if [ "$static_dir" != "" ]; then
   echo "Link static dir $static_dir"
   cd static

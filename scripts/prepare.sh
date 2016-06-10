@@ -20,6 +20,12 @@ CPPER=
 USERID=
 EXERCISE=
 
+if [ -d exercises ]; then
+  CDIR=exercises
+else
+  CDIR=courses
+fi
+
 # Parse arguments.
 source scripts/sandbox/_args.sh
 while args; do
@@ -86,7 +92,7 @@ cd ..
 # Prepare to travel path->path lists.
 
 list=($CPE)
-copy_paths $ROOT/exercises/$COURSE/ $DIR/
+copy_paths $ROOT/$CDIR/$COURSE/ $DIR/
 
 list=($CP)
 copy_paths $DIR/ $DIR/
