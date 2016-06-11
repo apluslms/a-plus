@@ -27,11 +27,11 @@ class UserProfileMixin(BaseMixin):
 
             # Get user's API key
             self.token = Token.objects.get(user=self.profile)
+            self.note("token")
         else:
             self.profile = None
         # Add available for template
         self.note("profile")
-        self.note("token")
 
     def access_control(self):
         super().access_control()

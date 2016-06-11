@@ -11,7 +11,7 @@ api_router.register(r'learningobjects', exercise.api.views.LearningObjectViewSet
 api_router.register(r'courseinstances', course.api.views.CourseInstanceViewSet, base_name='course')
 # Submissions are categorized by exercises for example:
 # api/v2/exercises/hello_world/submissions/1
-api_router.register(r'exercises/', exercise.api.views.SubmissionViewSet, base_name='submission')
+#api_router.register(r'exercises/<>/submissions/<>', exercise.api.views.SubmissionViewSet, base_name='submission')
 
 urlpatterns = [
     url(r'^', include(api_router.urls, namespace='api')),
