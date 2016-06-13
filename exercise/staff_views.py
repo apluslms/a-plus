@@ -31,7 +31,7 @@ class ListSubmissionsView(ExerciseBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        if not self.exercise.is_submittable():
+        if not self.exercise.is_submittable:
             raise Http404()
         self.submissions = self.exercise.submissions\
             .defer("feedback", "assistant_feedback",
