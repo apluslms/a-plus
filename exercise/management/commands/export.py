@@ -3,15 +3,16 @@ from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance
 from exercise.models import BaseExercise, LearningObjectDisplay
+from exercise.presentation.results import ResultTable
 
 
 class Command(BaseCommand):
-    args = 'exercise/course/json/views id'
+    args = 'exercise/course/json/views/results id'
     help = 'Exports submission data.'
 
     def handle(self, *args, **options):
         if len(args) != 2:
-            raise CommandError('Missing arguments: exercise/course/json/views id')
+            raise CommandError('Missing arguments: exercise/course/json/views/results id')
         if args[0] == 'exercise':
             self.export_exercise(args[1])
         elif args[0] == 'course':
@@ -20,6 +21,8 @@ class Command(BaseCommand):
             self.export_json(args[1])
         elif args[0] == 'views':
             self.export_views(args[1])
+        elif args[0] == 'results':
+            self.export_results(args[1])
         else:
             raise CommandError('Unknown argument!')
 
@@ -81,6 +84,24 @@ class Command(BaseCommand):
                     submission.status,
                     str(submission.grade),
                 ])
+
+    def export_results(self, cid):
+        instance = CourseInstance.objects.filter(id=cid).first()
+        if not instance:
+            raise CommandError('Course instance not found.')
+        table = ResultTable(instance)
+
+        labels = ['UID','Email','Name']
+        labels.extend([str(e) for e in table.exercises])
+        labels.append('Total')
+        self.print_row(labels)
+
+        for student in table.students:
+            row = [str(student.id), student.user.email, student.user.first_name + ' ' + student.user.last_name]
+            points = [table.results[student.id][exercise.id] for exercise in table.exercises]
+            row.extend([str(p) if p else '0' for p in points])
+            row.append(str(sum(p for p in points if p is not None)))
+            self.print_row(row)
 
     def export_json(self, cid):
         instance = CourseInstance.objects.filter(id=cid).first()
