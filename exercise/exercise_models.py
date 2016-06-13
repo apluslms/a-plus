@@ -128,6 +128,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def course_instance(self):
         return self.course_module.course_instance
 
+    @property
     def is_submittable(self):
         return False
 
@@ -247,6 +248,7 @@ class BaseExercise(LearningObject):
                 'points_to_pass':_("Points to pass cannot be greater than max_points.")
             })
 
+    @property
     def is_submittable(self):
         return True
 
