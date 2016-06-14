@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, viewsets
 
 from ..models import LearningObject, Submission, BaseExercise, SubmissionManager
-from .serializers import LearningObjectSerializer, SubmissionSerializer
+from .serializers import *
 
 class LearningObjectViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -11,18 +11,20 @@ class LearningObjectViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LearningObjectSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-class SubmissionViewSet(viewsets.ModelViewSet):
+class ExerciseViewSet(viewsets.ModelViewSet):
     """
-    POST a submission
-    GET a result of submission
+    GET: List exercises (/exercises)
+    GET: Get one exercise (/exercises/123)
+    POST: Make a submission (/exercises/123/submissions)
+    GET: Get a result of a submission (/exercises/123/submissions/1)
     """
-    queryset = Submission.objects.all()
-    serializer_class = SubmissionSerializer
+    queryset = BaseExercise.objects.all()
+    serializer_class = BaseExerciseSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     # For POSTing a submission. An extra parameter exercise_id comes
     # from url
-    def create(self, request, exercise_id):
+    def create(self, request):
 
         #SubmissionManager.create_from_post(exercise, request.user, request)
         # Kts. myös a-plus/exercise/views.py rivi 99
@@ -50,35 +52,12 @@ class SubmissionViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, pk=None):
         print(pk)
 
-
-
-# TODO: Under construction
-class SubmissionList(generics.ListCreateAPIView):
+class SubmissionViewSet(viewsets.ModelViewSet):
     """
-    * GET/POST a submission
-    * GET is for getting the result of SubmissionDetail
-    * POST is for making new SubmissionDetail
+    GET list of submissions to related exercise
+    GET result of a submission
+    POST make a new submission to related exercise
     """
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-
-    # Override the POST-method
-    def perform_create(self, serializer):
-        # First parse the request
-        submitter = self.request.user
-        data = self.request.data
-        print(data)
-        exercise_name = data["exercise_name"]
-
-        # Before submission we need to check if user is able to make a submission
-        try:
-            exercice_to_submit = BaseExercise.objects.get(name=exercise_name)
-        except DoesNotExist:
-            return Response(status=404)
-
-        print(exercice_to_submit)
-        if exercice_to_submit.is_submission_allowed(students):
-            print("Submission is available.")
-        else:
-            return Response(status=404)
+    permission_classes = [permissions.IsAuthenticated]
