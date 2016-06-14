@@ -8,6 +8,7 @@ from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Textarea
 from django.utils.safestring import mark_safe
 from util.files import random_ascii
 from util.templates import template_to_str
+from util import forms as custom_forms
 from .auth import make_hash
 from ..config import ConfigError
 
@@ -102,6 +103,9 @@ class GradedForm(forms.Form):
                 elif t == "table-checkbox":
                     i, f = self.add_table_fields(i, field,
                         forms.MultipleChoiceField, forms.CheckboxSelectMultiple)
+                elif t == "static":
+                    i, f = self.add_field(i, field,
+                        forms.CharField, custom_forms.PlainTextWidget)
                 else:
                     raise ConfigError("Unknown field type: %s" % (t))
 
@@ -264,6 +268,8 @@ class GradedForm(forms.Form):
             ok, hints = self.grade_radio(configuration, value)
         elif t == "text" or t == "textarea":
             ok, hints = self.grade_text(configuration, value)
+        elif t == "static":
+            ok, hints = True, []
         else:
             raise ConfigError("Unknown field type for grading: %s" % (t))
         points = configuration.get('points', 0)
