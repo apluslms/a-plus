@@ -202,11 +202,14 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
 
     def post(self, request, *args, **kwargs):
         self.handle()
-        from .operations.configure import configure_content
-        errors = configure_content(self.instance, request.POST.get('url'))
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-        else:
-            messages.success(request, _("Course content configured."))
+        try:
+            from .operations.configure import configure_content
+            errors = configure_content(self.instance, request.POST.get('url'))
+            if errors:
+                for error in errors:
+                    messages.error(request, error)
+            else:
+                messages.success(request, _("Course content configured."))
+        except Exception as e:
+            messages.error(request, _("Server error: {}").format(str(e)))
         return self.redirect(self.instance.get_url('course-edit'))
