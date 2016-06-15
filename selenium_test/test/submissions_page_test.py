@@ -7,7 +7,7 @@ from page_objects import LoginPage, MyFirstExerciseGrader, MyAjaxExerciseGrader,
 class SubmissionsPageTest(unittest.TestCase):
 
     def setUp(self):
-        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
+        self.driver = TestInitializer().getDefaultDriver()
         TestInitializer().recreateDatabase()
         LoginPage(self.driver).loginAsAssistant()
 
