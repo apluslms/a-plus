@@ -423,7 +423,7 @@ class LearningObjectCategory(models.Model):
     )
     status = models.CharField(max_length=32,
         choices=STATUS_CHOICES, default=STATUS_READY)
-    name = models.CharField(max_length=35)
+    name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
     course_instance = models.ForeignKey(CourseInstance, related_name="categories")

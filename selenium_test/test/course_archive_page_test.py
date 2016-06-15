@@ -8,7 +8,7 @@ from locators import CourseArchiveLocators
 
 class CourseArchivePageTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
+        self.driver = TestInitializer().getDefaultDriver()
 
     def testApiDirectly(self):
         page = AbstractPage(self.driver)

@@ -20,7 +20,7 @@ class UserProfile(models.Model):
 
     @classmethod
     def get_by_email(cls, email):
-        return User.objects.get(email=email).userprofile
+        return User.objects.filter(email=email).first().userprofile
 
     @classmethod
     def get_by_request(cls, request):
