@@ -7,7 +7,7 @@ from test_initializer import TestInitializer
 class MyAjaxExerciseGraderTest(unittest.TestCase):
     def setUp(self):
         testInitializer = TestInitializer()
-        self.driver = testInitializer.getFirefoxDriverWithLoggingEnabled()
+        self.driver = testInitializer.getDefaultDriver()
         testInitializer.recreateDatabase()
         LoginPage(self.driver).loginAsStudent()
 

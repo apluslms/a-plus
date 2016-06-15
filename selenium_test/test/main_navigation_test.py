@@ -8,7 +8,7 @@ class MainNavigationTest(unittest.TestCase):
     baseUrl = BasePage.base_url + "/aplus1/basic_instance/"
 
     def setUp(self):
-        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
+        self.driver = TestInitializer().getDefaultDriver()
         LoginPage(self.driver).loginAsTeacher()
 
     def testNavigateToResults(self):

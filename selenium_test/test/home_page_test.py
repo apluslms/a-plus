@@ -7,7 +7,7 @@ from locators import BasePageLocators
 
 class HomePageTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
+        self.driver = TestInitializer().getDefaultDriver()
         TestInitializer().recreateDatabase()
         LoginPage(self.driver).loginAsStudent()
 
