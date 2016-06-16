@@ -6,7 +6,7 @@ from page_objects import LoginPage, EditModulePage, CourseName
 
 class EditModulePageTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestInitializer().getFirefoxDriverWithLoggingEnabled()
+        self.driver = TestInitializer().getDefaultDriver()
         TestInitializer().recreateDatabase()
         LoginPage(self.driver).loginAsTeacher()
 
