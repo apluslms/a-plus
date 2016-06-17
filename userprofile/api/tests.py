@@ -19,33 +19,17 @@ class UserProfileAPITest(TestCase):
             'count': 4, 'next': None, 'previous': None,
             'results': [
                 {'url': 'http://testserver/api/v2/users/1/',
-                 'first_name': 'Superb',
                  'user_id': 1,
-                 'username': 'testUser',
-                 'student_id': '12345X',
-                 'email': 'test@aplus.com',
-                 'last_name': 'Student'},
+                 'username': 'testUser'},
                 {'url': 'http://testserver/api/v2/users/2/',
-                 'first_name': 'Grumpy',
                  'user_id': 2,
-                 'username': 'grader',
-                 'student_id': '67890Y',
-                 'email': 'grader@aplus.com',
-                 'last_name': 'Grader'},
+                 'username': 'grader'},
                 {'url': 'http://testserver/api/v2/users/3/',
-                 'first_name': 'Tedious',
                  'user_id': 3,
-                 'username': 'teacher',
-                 'student_id': None,
-                 'email': 'teacher@aplus.com',
-                 'last_name': 'Teacher'},
+                 'username': 'teacher'},
                 {'url': 'http://testserver/api/v2/users/4/',
-                 'first_name': 'Super',
                  'user_id': 4,
-                 'username': 'superuser',
-                 'student_id': None,
-                 'email': 'superuser@aplus.com',
-                 'last_name': 'User'}
+                 'username': 'superuser'}
                 ]
             })
 
