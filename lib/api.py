@@ -1,6 +1,6 @@
 from distutils.version import LooseVersion as _version
 
-from rest_framework import exceptions
+from rest_framework import exceptions, serializers
 from rest_framework.renderers import JSONRenderer
 from rest_framework.versioning import AcceptHeaderVersioning, URLPathVersioning
 from rest_framework.negotiation import DefaultContentNegotiation
@@ -102,3 +102,16 @@ class ListSerializerMixin(object):
         if self.action == 'list':
             return getattr(self, 'listserializer_class', self.serializer_class)
         return super(ListSerializerMixin, self).get_serializer_class()
+
+
+class HtmlViewField(serializers.ReadOnlyField):
+    def __init__(self, *args, **kwargs):
+        super(HtmlViewField, self).__init__(*args, **kwargs)
+
+    def get_attribute(self, obj):
+        return obj
+
+    def to_representation(self, obj):
+        request = self.context['request']
+        url = obj.get_absolute_url()
+        return request.build_absolute_uri(url)
