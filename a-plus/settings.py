@@ -3,7 +3,7 @@
 # local_settings.py to override any settings like
 # SECRET_KEY, DEBUG and DATABASES.
 ##
-import os
+import os, warnings
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Critical (override in local_settings.py)
@@ -285,8 +285,9 @@ LOGGING = {
 
 # Overrides and appends settings defined in local_settings.py
 try:
-    from local_settings import *
-except ImportError:
+    from .local_settings import *
+except ImportError as e:
+    warnings.warn("Couldn't find local settings: %s" % (e,))
     pass
 
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
