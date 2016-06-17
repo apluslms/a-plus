@@ -5,15 +5,20 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.renderers import JSONRenderer
 
-from ..models import UserProfile
-from .serializers import UserSerializer
-from course.models import CourseInstance
+from lib.api import ListSerializerMixin
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+from ..models import UserProfile
+from course.models import CourseInstance
+from .serializers import \
+    UserSerializer, UserBriefSerialiser
+
+
+class UserViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
     queryset = UserProfile.objects.all()
-    serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'user_id'
+    listserializer_class = UserBriefSerialiser
+    serializer_class = UserSerializer
 
     # if update is required, change to normal modelviewset and
     # change permissions
