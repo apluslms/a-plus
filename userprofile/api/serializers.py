@@ -37,10 +37,13 @@ class UserSerializer(UserBriefSerialiser):
       course_instances = CourseInstance.objects.all()
       for course in course_instances:
           if userinstance in course.students.all():
-              enrolled_courses.append(course.__str__())
-
-      # Convert list to str and return result
-      return ", ".join(enrolled_courses)
+              enrolled_courses.append({
+                "name": course.__str__(),
+                "id": course.id
+              })
+      # Return all coursetuples in list. Tuple consists of name of the course
+      # and the id of the course
+      return enrolled_courses
 
     class Meta:
         model = UserProfile
