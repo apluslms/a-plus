@@ -178,7 +178,7 @@ def regenerate_user_exercise(course, exercise, userid):
     user_dir = user_personal_directory_path(course, exercise, userid)
     try:
         generated_link = os.path.join(user_dir, 'generated')
-        old_instance = os.readlink(generated_link)
+        old_instance = os.path.basename(os.readlink(generated_link))
         # remove the old link
         os.unlink(generated_link)
     except OSError:
@@ -188,10 +188,22 @@ def regenerate_user_exercise(course, exercise, userid):
     
     # select a new, different generated exercise instance
     generated_dir = old_instance
-    while generated_dir == old_instance:
-        generated_dir = select_random_exercise_instance(course, exercise)
+    
+    instances = pregenerated_exercise_instances(course, exercise)
+    if not instances: # empty
+        raise access.config.ConfigError("Exercise is personalized but no exercise instances have been pregenerated")
+    if len(instances) == 1:
+        # only one instance, must pick that one
+        generated_dir = instances[0]
+    else:
+        while generated_dir == old_instance:
+            generated_dir = random.choice(instances)
+    
+    pregenerated_dir = pregenerated_exercises_directory_path(course, exercise)
+    generated_dir = os.path.join(pregenerated_dir, generated_dir)
+    
     try:
-        # link the user to a randomly selected generated exercise instance
+        # link the user to the randomly selected generated exercise instance
         os.symlink(generated_dir, os.path.join(user_dir, 'generated'))
     except OSError:
         pass # the generated link already exists

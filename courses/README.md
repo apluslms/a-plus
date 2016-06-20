@@ -95,6 +95,10 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 		* `cwd`: if set, this sets the current working directory for the generator
 			program. Start the path from the course directory (course key as the
 			first directory).
+	* `max_submissions_before_regeneration`: (optional, only usable in personalized exercises)
+		defines how many times the student may submit before the personalized exercise is
+		regenerated (the exercise instance is changed to another one). If unset,
+		the exercise is never regenerated.
 
 	Rest of the attributes are exercise type specific.
 
