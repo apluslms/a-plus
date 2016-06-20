@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: set debug to false and change production secret key
 ##########################################################################
 DEBUG = True
-SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
+SECRET_KEY = None
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
@@ -301,6 +301,17 @@ except ImportError:
         # make a warning that there is no local_settings, but ignore the exception
         warnings.warn("Couldn't find local_settings.py from project root nor under aplus/")
         pass
+
+if not SECRET_KEY:
+    try:
+        from .secret_key import *
+    except ImportError:
+        from lib.helpers import create_secret_key_file
+        settings_dir = os.path.abspath(os.path.dirname(__file__))
+        create_secret_key_file(os.path.join(settings_dir, 'secret_key.py'))
+        del settings_dir
+        del create_secret_key_file
+        from .secret_key import *
 
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 

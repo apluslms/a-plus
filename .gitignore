@@ -4,6 +4,7 @@
 local_settings.py
 local_privacy_policy.py
 local_templates/
+aplus/secret_key.py
 .svn
 .DS_Store
 
