@@ -94,7 +94,7 @@ Walkthrough for Ubuntu on 6/2015
 
 		[uwsgi]
 		chdir=/home/[shell-username]/a-plus
-		module=a-plus.wsgi:application
+		module=aplus.wsgi:application
 		home=/home/[shell-username]/venv
 		master=True
 		uid=[shell-username]

@@ -12,20 +12,26 @@ The system has since been developed by various contributors at Aalto University,
 Requirements
 ------------
 
-A+ is a Django 1.7+ and Python 3.4+ application which has been run in production using Postgresql database, Apache 2 and uwsgi. See [doc/DEPLOYMENT.md](doc/DEPLOYMENT.md) for further deployment instructions. Consider using `virtualenv` and `pip3 install -r requirements.txt`. Create `local_settings.py` and override necessary Django settings from `a-plus/settings.py`. At least `DEBUG`, `SECRET_KEY` and `DATABASES` must be set in case of deployment. The server process needs write access to the `media` directory.
+A+ is a Django 1.7+ and Python 3.4+ application which has been run in production using Postgresql database, Apache 2 and uwsgi.
+See [doc/DEPLOYMENT.md](doc/DEPLOYMENT.md) for further deployment instructions.
+Consider using `virtualenv` and `pip3 install -r requirements.txt`.
+Create `local_settings.py` and override necessary Django settings from `aplus/settings.py`.
+At least `DEBUG`, `SECRET_KEY` and `DATABASES` must be set in case of deployment.
+The server process needs write access to the `media` directory.
 
 Development
 -----------
 
-See [doc/README.md](doc/README.md) on how to create and run a test environment for development. The [doc/GRADERS.md](doc/GRADERS.md) describes grader service protocols and [doc/example_grader.py](doc/example_grader.py) is a minimal sample for implementing different kind of exercise graders. A separate grading framework application supporting the A+ protocol exists
-at https://github.com/Aalto-LeTech/mooc-grader
+See [doc/README.md](doc/README.md) on how to create and run a test environment for development.
+The [doc/GRADERS.md](doc/GRADERS.md) describes grader service protocols and [doc/example_grader.py](doc/example_grader.py) is a minimal sample for implementing different kind of exercise graders.
+A separate grading framework application supporting the A+ protocol exists at https://github.com/Aalto-LeTech/mooc-grader
 
 The [selenium_test/](selenium_test) offers an integration test suite using the Selenium Firefox driver.
 
 Code Organization
 -----------------
 
-* [a-plus/](a-plus) : Django main settings
+* [aplus/](aplus) : Django main settings
 * [userprofile/](userprofile) : User information and authentication
 * [django_shibboleth/](django_shibboleth) : Handles users for Apache Shibboleth request headers
 * [course/](course) : The course instances, modules and chapters

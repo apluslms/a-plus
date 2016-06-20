@@ -168,7 +168,7 @@ FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
-ROOT_URLCONF = 'a-plus.urls'
+ROOT_URLCONF = 'aplus.urls'
 LOGIN_REDIRECT_URL = "/"
 LOGIN_ERROR_URL = "/accounts/login/"
 
@@ -198,7 +198,7 @@ TIME_ZONE = 'EET'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-FORMAT_MODULE_PATH = 'a-plus'
+FORMAT_MODULE_PATH = 'aplus'
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
