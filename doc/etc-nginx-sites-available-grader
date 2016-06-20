@@ -26,8 +26,6 @@ server {
         alias /srv/grader/mooc-grader/static/robots.txt;
     }
     location /ajax {
-        add_header 'Access-Control-Allow-Origin' '*';
-      	add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
         uwsgi_pass django;
         include uwsgi_params;
     }

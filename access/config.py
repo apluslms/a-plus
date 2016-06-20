@@ -1,6 +1,6 @@
 '''
 The exercises and classes are configured in json/yaml.
-Each directory inside exercises/ holding an index.json/yaml is a course.
+Each directory inside courses/ holding an index.json/yaml is a course.
 '''
 from django.conf import settings
 import os, time, json, yaml, re
@@ -8,12 +8,19 @@ import logging
 import copy
 
 from util.dict import iterate_kvp_with_dfs, get_rst_as_html
+from util.files import read_meta
 from util.importer import import_named
 
 
-DIR = os.path.join(settings.BASE_DIR, "exercises")
+META = "apps.meta"
 INDEX = "index"
 DEFAULT_LANG = "en"
+DIR = os.path.join(settings.BASE_DIR, "courses")
+
+# Keep backwards compatibility for exercises directory.
+OLD_DIR = os.path.join(settings.BASE_DIR, "exercises")
+if os.path.isdir(OLD_DIR):
+    DIR = OLD_DIR
 
 LOGGER = logging.getLogger('main')
 
@@ -174,8 +181,9 @@ class ConfigParser:
                 pass
 
         LOGGER.debug('Loading course "%s"' % (course_key))
+        meta = read_meta(os.path.join(DIR, course_key, META))
         try:
-            f = self._get_config(os.path.join(DIR, course_key, INDEX))
+            f = self._get_config(os.path.join(self._conf_dir(DIR, course_key, meta), INDEX))
         except ConfigError:
             return None
 
@@ -216,11 +224,12 @@ class ConfigParser:
             exercise_loader = import_named(data, data["exercise_loader"])
 
         self._courses[course_key] = course_root = {
+            "meta": meta,
             "file": f,
             "mtime": t,
             "ptime": time.time(),
             "data": data,
-            "lang": data["lang"] if "lang" in data else DEFAULT_LANG,
+            "lang": data.get('language', data.get('lang', DEFAULT_LANG)),
             "exercise_loader": exercise_loader,
             "exercises": {}
         }
@@ -255,7 +264,7 @@ class ConfigParser:
         f, t, data = course_root["exercise_loader"](
             course_root,
             file_name,
-            os.path.join(DIR, course_root["data"]["key"])
+            self._conf_dir(DIR, course_root["data"]["key"], course_root["meta"])
         )
         if not data:
             return None
@@ -289,6 +298,24 @@ class ConfigParser:
         for name in field_names:
             if name not in data:
                 raise ConfigError('Required field "%s" missing from "%s"' % (name, file_name))
+
+
+    def _conf_dir(self, directory, course_key, meta):
+        '''
+        Gets configuration directory for the course.
+
+        @type directory: C{str}
+        @param directory: courses directory
+        @type course_key: C{str}
+        @param course_key: course key (directory name)
+        @type meta: C{dict}
+        @param meta: course meta data
+        @rtype: C{str}
+        @return: path to the course config directory
+        '''
+        if 'grader_config' in meta:
+            return os.path.join(directory, course_key, meta['grader_config'])
+        return os.path.join(directory, course_key)
 
 
     def _get_config(self, path):

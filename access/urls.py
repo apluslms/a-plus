@@ -1,11 +1,13 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    url(r'^$', 'access.views.index'),
-    url(r'^queue-length$', 'access.views.queue_length'),
-    url(r'^test-result$', 'access.views.test_result'),
-    url(r'^ajax/([\w-]+)/([\w-]+)$', 'access.views.exercise_ajax'),
-    url(r'^([\w-]+)/$', 'access.views.course'),
-    url(r'^([\w-]+)/aplus-json$', 'access.views.aplus_json'),
-    url(r'^([\w-]+)/([\w-]+)$', 'access.views.exercise'),
-)
+from access import views
+
+urlpatterns = [
+    url(r'^$', views.index, name='index'),
+    url(r'^queue-length$', views.queue_length, name='queue-length'),
+    url(r'^test-result$', views.test_result, name='test-result'),
+    url(r'^ajax/([\w-]+)/([\w-]+)$', views.exercise_ajax, name='ajax'),
+    url(r'^([\w-]+)/$', views.course, name='course'),
+    url(r'^([\w-]+)/aplus-json$', views.aplus_json, name='aplus-json'),
+    url(r'^([\w-]+)/([\w-]+)$', views.exercise, name='exercise'),
+]

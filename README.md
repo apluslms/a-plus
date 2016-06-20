@@ -14,7 +14,7 @@ the `manage_sandbox.sh` script.
 The grader can be run stand alone without the full stack to test graders in
 the local system environment. The grader is designed to be extended for
 different courses and exercise types. Course and exercise configuration is in
-`exercises` directory where exercise documentation and examples are available.
+`courses` directory where further documentation and examples are available.
 
 Installing for development
 ==========================
@@ -70,7 +70,7 @@ Installing for development
 
 4. ### For configuring courses and exercises, see
 
-	`exercises/README.md`
+	`courses/README.md`
 
 Installing the full stack
 =========================

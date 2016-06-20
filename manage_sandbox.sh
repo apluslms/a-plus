@@ -31,7 +31,7 @@ Options:
 
 Tasks:
   create TARG   Create/update the sandbox. The TARG variable must match
-                a course directory under './exercises' or the wildcard 'all'.
+                a course directory or the wildcard 'all'.
   shell         Start a sandbox shell as the sandbox user.
   shell-net     As the previous but as a network enabled sandbox user.
   reset         Remove all course specific files from the sandbox.
