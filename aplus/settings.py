@@ -314,5 +314,4 @@ if 'social.apps.django_app.default' in INSTALLED_APPS:
 
 # If debug is enabled allow basic auth for API
 if DEBUG:
-    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] + (
-            'rest_framework.authentication.BasicAuthentication',)
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
