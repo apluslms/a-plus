@@ -56,7 +56,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def get(self, request, *args, **kwargs):
         students = self.get_students()
-        if self.exercise.is_submittable():
+        if self.exercise.is_submittable:
             self.submission_check(students)
             self.get_after_new_submission()
 
@@ -86,7 +86,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     def post(self, request, *args, **kwargs):
         # Stop submit trials for e.g. chapters.
         # However, allow posts from exercises switched to maintenance status.
-        if not self.exercise.is_submittable():
+        if not self.exercise.is_submittable:
             return self.http_method_not_allowed(request, *args, **kwargs)
 
         students = self.get_students()

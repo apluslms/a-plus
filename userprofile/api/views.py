@@ -1,14 +1,18 @@
 from rest_framework import generics, permissions, viewsets
 
+from lib.api import ListSerializerMixin
+
 from ..models import UserProfile
-from .serializers import UserSerializer
+from .serializers import \
+    UserSerializer, UserBriefSerialiser
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
     queryset = UserProfile.objects.all()
-    serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'user_id'
+    listserializer_class = UserBriefSerialiser
+    serializer_class = UserSerializer
 
     # if update is required, change to normal modelviewset and
     # change permissions
