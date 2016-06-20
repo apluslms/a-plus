@@ -10,15 +10,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: set debug to false and change production secret key
 ##########################################################################
 DEBUG = True
+TEMPLATE_DEBUG = None
 SECRET_KEY = None
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 #SERVER_EMAIL = 'root@'
+ALLOWED_HOSTS = ["*"]
 ##########################################################################
 
-ALLOWED_HOSTS = ["*"]
-TEMPLATE_DEBUG = DEBUG
 
 # Content (may override in local_settings.py)
 #
@@ -312,6 +312,9 @@ if not SECRET_KEY:
         del settings_dir
         del create_secret_key_file
         from .secret_key import *
+
+if TEMPLATE_DEBUG is None:
+    TEMPLATE_DEBUG = DEBUG
 
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 
