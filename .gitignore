@@ -4,6 +4,7 @@
 local_settings.py
 local_privacy_policy.py
 local_templates/
+aplus/local_settings.py
 aplus/secret_key.py
 .svn
 .DS_Store
@@ -15,15 +16,16 @@ aplus/secret_key.py
 *.sublime-project
 *.sublime-workspace
 
-static/*
+venv/
+static/
+media/
 
 test.db
 aplus.db
-aplus.db.old
+aplus.db.*
 aplus.db_copy
 
 dump.json
-media
 *.orig
 
 test_results/
