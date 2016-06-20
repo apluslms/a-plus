@@ -308,9 +308,12 @@ if not SECRET_KEY:
     except ImportError:
         from lib.helpers import create_secret_key_file
         settings_dir = os.path.abspath(os.path.dirname(__file__))
-        create_secret_key_file(os.path.join(settings_dir, 'secret_key.py'))
+        key_filename = os.path.join(settings_dir, 'secret_key.py')
+        create_secret_key_file(key_filename)
+        warnings.warn("SECRET_KEY not defined in local_settings.py, created one in %s" % (key_filename,))
         del settings_dir
         del create_secret_key_file
+        del key_filename
         from .secret_key import *
 
 if TEMPLATE_DEBUG is None:
