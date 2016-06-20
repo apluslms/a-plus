@@ -3,12 +3,19 @@
 
 {% block exercise %}
 {% if not result.error %}
-{% if exercise.instructions %}
-<div class="instructions">
-  {{ exercise.instructions|safe }}
-</div>
-{% else %}
+
+{% if not exercise.instructions and not exercise.instructions_file %}
 <h1>{% trans "Select your files for grading" %}</h1>
+
+{% else %}
+<div class="instructions">
+{% if exercise.instructions %}
+  {{ exercise.instructions|safe }}
+{% endif %}
+{% if exercise.instructions_file %}
+  {% include exercise.instructions_file %}
+{% endif %}
+</div>
 {% endif %}
 
 {% include 'access/accept_files_form.html' %}
