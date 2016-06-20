@@ -3,7 +3,7 @@
 # local_settings.py to override any settings like
 # SECRET_KEY, DEBUG and DATABASES.
 ##
-import os
+import os, warnings
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Critical (override in local_settings.py)
@@ -283,11 +283,24 @@ LOGGING = {
 }
 
 
+
+
+
+###############################################################################
+#
+# Settings logic to handle local settings and any reactions to them
+#
+
 # Overrides and appends settings defined in local_settings.py
 try:
     from local_settings import *
 except ImportError:
-    pass
+    try:
+        from aplus.local_settings import *
+    except ImportError:
+        # make a warning that there is no local_settings, but ignore the exception
+        warnings.warn("Couldn't find local_settings.py from project root nor under aplus/")
+        pass
 
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 
