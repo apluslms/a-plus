@@ -34,13 +34,12 @@ class UserSerializer(UserBriefSerialiser):
     def list_courses(self, userinstance):
       # Get courses where the user is enrolled
       enrolled_courses = []
-      course_instances = CourseInstance.objects.all()
-      for course in course_instances:
-          if userinstance in course.students.all():
-              enrolled_courses.append({
-                "name": course.__str__(),
-                "id": course.id
-              })
+      for enrolled in userinstance.enrolled.all():
+          enrolled_courses.append({
+            "name": enrolled.__str__(),
+            "id": enrolled.id
+          })
+
       # Return all coursetuples in list. Tuple consists of name of the course
       # and the id of the course
       return enrolled_courses

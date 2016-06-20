@@ -14,21 +14,13 @@ api.register(r'users',
              userprofile.api.views.UserViewSet,
              base_name='user')
 
-api.register(r'learningobjects',
-                    exercise.api.views.LearningObjectViewSet,
-                    base_name='learningobject')
-
-# Url for GETting information about an exercise. (List of exercises can be fetched
-# from /api/v2/courses/johoh/kk2016/api/v2/courses/{kurssi_instanssi_id}/exercices)
-# /api/v2/exercises/{exercise_id}
-# (/api/v2/exercises/ does not actually exist)
-api.register(r'exercises',
+with api.register(r'exercises',
                     exercise.api.views.ExerciseViewSet,
-                    base_name='exercise')
+                    base_name='exercise') as exercises:
+    exercises.register(r'submit',
+                        exercise.api.views.ExerciseSubmitViewSet,
+                        base_name='exercise-submit')
 
-# Url for submitting (POST) an exercise and for getting (GET) result of automatic
-# assessment
-# /api/v2/submissions/{submissions_id}
 api.register(r'submissions',
                     exercise.api.views.SubmissionViewSet,
                     base_name='submission')
@@ -46,8 +38,6 @@ with api.register(r'courses',
 urlpatterns = [
     url(r'^', include(api.urls, namespace='api')),
 
-    # Url for checking that student has given correct arguments for plugin and
-    # GETting student information such as student id, enrolled course, /api/v2/me
     url(r'^me', userprofile.api.views.MeDetail.as_view()),
 
     # For login/logout etc. pages in Django REST Framework

@@ -24,9 +24,12 @@ class UserViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
     # change permissions
 
 class MeDetail(APIView):
+    """
+    Url for checking that student has given correct arguments for plugin and
+    GETting student information such as student id, enrolled course, /api/v2/me
+    """
     def get(self, request, version, format=None):
-        username = self.request.user
-        userinstance = UserProfile.objects.get(user=username)
+        userinstance = self.request.user.userprofile
 
         serializer = UserSerializer(userinstance, context={
                         'request': request,
