@@ -54,8 +54,7 @@ def get_random_string(length=32):
 
     # Use all letters and numbers in the identifier
     choices = string.ascii_letters + string.digits
-
-    return ''.join([choice(choices) for _ in range(length)])
+    return django_get_random_string(length=length, allowed_chars=choices)
 
 
 def query_dict_to_list_of_tuples(query_dict):
