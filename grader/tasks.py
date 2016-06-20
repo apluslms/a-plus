@@ -78,7 +78,7 @@ def grade(course_key, exercise_key, lang, submission_url, submission_dir, user_i
 
     try:
         LOGGER.debug("Grading \"%s/%s\" for \"%s\"", course_key, exercise_key, submission_url)
-        r = runactions(course, exercise, submission_dir, user_ids)
+        r = runactions(course, exercise, submission_dir, user_ids, submission_url)
         if r["result"]["error"]:
             level = 40 if r["result"]["error"] == "error" else 30
             LOGGER.log(level, "Grading \"%s/%s\" for \"%s\" failed. "

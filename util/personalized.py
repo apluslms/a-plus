@@ -47,21 +47,20 @@ def prepare_user_personal_directory(course, exercise, userid):
     to the user (unless the directory already exists).
     '''
     user_dir = user_personal_directory_path(course, exercise, userid)
+    personal_dir = os.path.join(user_dir, 'personal')
     # Create empty directory unless it already exists
-    if os.path.exists(user_dir):
-        return
-    else:
+    if not os.path.exists(personal_dir):
         try:
-            os.makedirs(user_dir)
+            os.makedirs(personal_dir)
         except OSError:
             return # someone else created the dir after executing the if condition
-    
-    # create directory for personal files
-    os.mkdir(os.path.join(user_dir, 'personal'))
-    
-    # link the user to a randomly selected generated exercise instance
-    generated_dir = select_random_exercise_instance(course, exercise)
-    os.symlink(generated_dir, os.path.join(user_dir, 'generated'))
+
+    try:
+        # link the user to a randomly selected generated exercise instance
+        generated_dir = select_random_exercise_instance(course, exercise)
+        os.symlink(generated_dir, os.path.join(user_dir, 'generated'))
+    except OSError:
+        pass # the generated link already exists
     
 def prepare_pregenerated_exercises_directory(course, exercise):
     '''
@@ -171,3 +170,29 @@ def generate_one_exercise_instance(course, exercise, dir_path):
     command = exercise["generator"]["cmd"][:] # copy the command list from config before appending
     command.append(dir_path)
     return invoke(command, cwd)
+
+def regenerate_user_exercise(course, exercise, userid):
+    '''
+    Change the generated exercise instance assigned to the user to another instance.
+    '''
+    user_dir = user_personal_directory_path(course, exercise, userid)
+    try:
+        generated_link = os.path.join(user_dir, 'generated')
+        old_instance = os.readlink(generated_link)
+        # remove the old link
+        os.unlink(generated_link)
+    except OSError:
+        # the link did not exist, create it as new
+        prepare_user_personal_directory(course, exercise, userid)
+        return
+    
+    # select a new, different generated exercise instance
+    generated_dir = old_instance
+    while generated_dir == old_instance:
+        generated_dir = select_random_exercise_instance(course, exercise)
+    try:
+        # link the user to a randomly selected generated exercise instance
+        os.symlink(generated_dir, os.path.join(user_dir, 'generated'))
+    except OSError:
+        pass # the generated link already exists
+    
