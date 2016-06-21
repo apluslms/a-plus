@@ -41,6 +41,7 @@ class UserProfileAPITest(TestCase):
             'url': 'http://testserver/api/v2/users/1/',
             'user_id': 1,
             'student_id':'12345X',
+            'courses': [],
             'username':'testUser',
             'first_name':'Superb',
             'last_name':'Student',

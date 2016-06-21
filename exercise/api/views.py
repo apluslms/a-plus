@@ -51,8 +51,8 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         # Before submission we need to check if user is able to make a submission
         try:
             exercice_to_submit = BaseExercise.objects.get(id=exercise_id)
-        except DoesNotExist:
-            return HttpResponse(status=405)
+        except BaseExercise.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         print(exercice_to_submit)
 
@@ -64,4 +64,4 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             #    serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
-            return HttpResponse(status=405)
+            return Response(status=status.HTTP_404_NOT_FOUND)

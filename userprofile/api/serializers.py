@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from course.models import CourseInstance
 from ..models import UserProfile
 
@@ -44,11 +45,11 @@ class UserSerializer(UserBriefSerialiser):
       # and the id of the course
       return enrolled_courses
 
-    class Meta:
-        model = UserProfile
-        fields = (
-            'url',
+    class Meta(UserBriefSerialiser.Meta):
+        fields = UserBriefSerialiser.Meta.fields + (
             'courses',
-            'user_id',
-            'username'
+            'student_id',
+            'first_name',
+            'last_name',
+            'email',
         )
