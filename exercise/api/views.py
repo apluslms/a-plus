@@ -21,31 +21,23 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'exercise_id'
 
-class SubmissionViewSet(viewsets.ModelViewSet):
+class ExerciseSubmissionsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
-    Url for GETting all submissions and information about a single submission
-    /api/v2/submissions/{submissions_id}
-    """
-    queryset = Submission.objects.all()
-    serializer_class = SubmissionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-class ExerciseSubmitViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
-                                viewsets.GenericViewSet):
-    """
-    Url for making a submission. Returns link to submission
-    (/api/v2/submissions/{submissions_id})
-    /api/v2/exercises/{exercise_id}/submit
+    * /api/v2/exercises/{exercise_id}/submissions
+    * POST: Make a submission. Returns brief information about submission
+    (including link to submission resource: /api/v2/exercises/{exercise_id}/
+    submissions/{submissions_id})
+    * GET: User can also get his old submission with GET.
     """
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = (TokenAuthentication,) # CSRF validation skipped
     serializer_class = SubmissionSerializer
     queryset = Submission.objects.all()
-    lookup_url_kwarg = 'submit_id'
+    lookup_url_kwarg = 'exercise_submissions'
     parent_lookup_map = {'exercise_id': 'exercise.id'}
 
     # For POSTing a submission. An extra parameter exercise_id comes
-    # from url
+    # from url. UNDER CONSTRUCTION!
     def create(self, request, exercise_id, version):
         # SubmissionManager.create_from_post(exercise, request.user, request)
         # Kts. myös a-plus/exercise/views.py rivi 99

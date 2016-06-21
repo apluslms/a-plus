@@ -17,13 +17,9 @@ api.register(r'users',
 with api.register(r'exercises',
                     exercise.api.views.ExerciseViewSet,
                     base_name='exercise') as exercises:
-    exercises.register(r'submit',
-                        exercise.api.views.ExerciseSubmitViewSet,
-                        base_name='exercise-submit')
-
-api.register(r'submissions',
-                    exercise.api.views.SubmissionViewSet,
-                    base_name='submission')
+    exercises.register(r'submissions',
+                        exercise.api.views.ExerciseSubmissionsViewSet,
+                        base_name='exercise-submissions')
 
 with api.register(r'courses',
                   course.api.views.CourseViewSet,
