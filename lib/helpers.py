@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.crypto import get_random_string as django_get_random_string
 from django.utils.deprecation import RemovedInNextVersionWarning
 from random import choice
 from PIL import Image
@@ -6,6 +7,14 @@ import string
 import urllib
 import functools
 import warnings
+
+
+try:
+    from django.core.management.utils import get_random_secret_key
+except ImportError:
+    def get_random_secret_key():
+        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+        return django_get_random_string(50, chars)
 
 
 def deprecated(message):
@@ -45,8 +54,7 @@ def get_random_string(length=32):
 
     # Use all letters and numbers in the identifier
     choices = string.ascii_letters + string.digits
-
-    return ''.join([choice(choices) for _ in range(length)])
+    return django_get_random_string(length=length, allowed_chars=choices)
 
 
 def query_dict_to_list_of_tuples(query_dict):
@@ -109,3 +117,15 @@ def settings_text(request, key):
             return getattr(settings, name)
         return None
     return get('{}_{}'.format(key, request.LANGUAGE_CODE.upper())) or get(key)
+
+
+def create_secret_key_file(filename):
+    key = get_random_secret_key()
+    with open(filename, 'w') as f:
+        f.write('''"""
+Automatically generated SECRET_KEY for django.
+This needs to be unique and SECRET. It is also installation specific.
+You can change it here or in local_settings.py
+"""
+SECRET_KEY = '%s'
+''' % (key))

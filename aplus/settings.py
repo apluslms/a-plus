@@ -3,22 +3,22 @@
 # local_settings.py to override any settings like
 # SECRET_KEY, DEBUG and DATABASES.
 ##
-import os
+import os, warnings
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Critical (override in local_settings.py)
 # SECURITY WARNING: set debug to false and change production secret key
 ##########################################################################
 DEBUG = True
-SECRET_KEY = '&lr5&01mgf9+=!7%rz1&0pfff&oy_uy(8%c8&l+c(kxt&=u87d'
+TEMPLATE_DEBUG = None
+SECRET_KEY = None
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 #SERVER_EMAIL = 'root@'
+ALLOWED_HOSTS = ["*"]
 ##########################################################################
 
-ALLOWED_HOSTS = ["*"]
-TEMPLATE_DEBUG = DEBUG
 
 # Content (may override in local_settings.py)
 #
@@ -168,7 +168,7 @@ FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
-ROOT_URLCONF = 'a-plus.urls'
+ROOT_URLCONF = 'aplus.urls'
 LOGIN_REDIRECT_URL = "/"
 LOGIN_ERROR_URL = "/accounts/login/"
 
@@ -198,7 +198,7 @@ TIME_ZONE = 'EET'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-FORMAT_MODULE_PATH = 'a-plus'
+FORMAT_MODULE_PATH = 'aplus'
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
@@ -283,11 +283,41 @@ LOGGING = {
 }
 
 
+
+
+
+###############################################################################
+#
+# Settings logic to handle local settings and any reactions to them
+#
+
 # Overrides and appends settings defined in local_settings.py
 try:
     from local_settings import *
 except ImportError:
-    pass
+    try:
+        from aplus.local_settings import *
+    except ImportError:
+        # make a warning that there is no local_settings, but ignore the exception
+        warnings.warn("Couldn't find local_settings.py from project root nor under aplus/")
+        pass
+
+if not SECRET_KEY:
+    try:
+        from .secret_key import *
+    except ImportError:
+        from lib.helpers import create_secret_key_file
+        settings_dir = os.path.abspath(os.path.dirname(__file__))
+        key_filename = os.path.join(settings_dir, 'secret_key.py')
+        create_secret_key_file(key_filename)
+        warnings.warn("SECRET_KEY not defined in local_settings.py, created one in %s" % (key_filename,))
+        del settings_dir
+        del create_secret_key_file
+        del key_filename
+        from .secret_key import *
+
+if TEMPLATE_DEBUG is None:
+    TEMPLATE_DEBUG = DEBUG
 
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 
@@ -301,5 +331,4 @@ if 'social.apps.django_app.default' in INSTALLED_APPS:
 
 # If debug is enabled allow basic auth for API
 if DEBUG:
-    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] + (
-            'rest_framework.authentication.BasicAuthentication',)
+    REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
