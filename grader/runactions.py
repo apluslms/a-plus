@@ -4,14 +4,11 @@ import logging
 from access.config import ConfigError
 from util.files import clean_submission_dir
 from util.importer import import_named
-from util.http import get_json
-from util.personalized import regenerate_user_exercise
-import requests
 
 LOGGER = logging.getLogger('main')
 
 
-def runactions(course, exercise, submission_dir, user_ids="", submission_url=""):
+def runactions(course, exercise, submission_dir, user_ids="", submission_number=1):
     '''
     Runs configured grading actions for an exercise submission.
 
@@ -23,8 +20,8 @@ def runactions(course, exercise, submission_dir, user_ids="", submission_url="")
     @param submission_dir: a submission directory where submitted files are stored
     @type user_ids: C{str}
     @param user_ids: user id(s) of the submitter(s) for personalized exercises
-    @type submission_url: C{str}
-    @param submission_url: submission_url parameter in the grader protocol
+    @type submission_number: C{int}
+    @param submission_number: ordinal number of the submission (parameter in the grader protocol)
     @rtype: C{dict}
     @return: template = template name, result = points, max_points, tests
     '''
@@ -47,7 +44,7 @@ def runactions(course, exercise, submission_dir, user_ids="", submission_url="")
             LOGGER.debug("Running action \"%s\"", action["type"])
             if action["type"] == "grader.actions.prepare" or \
                     action["type"] == "grader.actions.store_user_files":
-                r = exgrader(course, exercise, action, submission_dir, user_ids)
+                r = exgrader(course, exercise, action, submission_dir, user_ids, submission_number)
             else:
                 r = exgrader(course, exercise, action, submission_dir)
             has_appendixes = has_appendixes or \
@@ -99,17 +96,6 @@ def runactions(course, exercise, submission_dir, user_ids="", submission_url="")
         else:
             template = "access/task_success.html"
 
-        # check if exercise requires regeneration (personalized and regeneration submit limit is set)
-        if "personalized" in exercise and exercise["personalized"] and \
-                "max_submissions_before_regeneration" in exercise:
-            try:
-                # GET submission_url to see the submission count of the student
-                info_json = get_json(submission_url)
-                if info_json["submission_ordinal_number"] % exercise["max_submissions_before_regeneration"] == 0:
-                    regenerate_user_exercise(course, exercise, user_ids)
-            except (requests.exceptions.HTTPError, requests.exceptions.Timeout, ValueError) as e:
-                LOGGER.debug("GET submission_url failed while regenerating user's exercise: %s", str(e))
-        
         return {
             "template": template,
             "result": {

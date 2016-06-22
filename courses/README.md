@@ -271,7 +271,8 @@ sandbox system.
 	* `mv` (optional): a space separated list of *path->path* where
 		both paths are relative to submission root e.g.
 		`user/file_name->user/new_dir/file_name`
-	* `cp_personal`: a space separated list of *path->path* where the source path
+	* `cp_personal`: (only in personalized exercises)
+		a space separated list of *path->path* where the source path
 		is relative to the user's personal directory (contains generated link and
 		personal directory) and the destination path is relative to the submission
 		root. E.g., `generated/->user` copies all generated files of the exercise

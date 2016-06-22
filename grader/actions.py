@@ -21,23 +21,45 @@ from access.config import ConfigError
 from util.shell import invoke_script, invoke_sandbox
 from util.xslt import transform
 from util.http import get_json
-from util.personalized import user_personal_directory_path
+from util.personalized import user_personal_directory_path, select_generated_exercise_instance
 import logging
 import os
 
 LOGGER = logging.getLogger('main')
 
 
-def prepare(course, exercise, action, submission_dir, user_ids=''):
+def prepare(course, exercise, action, submission_dir, user_ids='', submission_number=1):
     '''
     Runs the preparation script for the submitted files.
+    
+    @type user_ids: C{str}
+    @param user_ids: user ID(s) of the submitter(s) as string (format "1", "1-2-3")
+    @type submission_number: C{int}
+    @param submission_number: ordinal number of the submission
     '''
     args = {
         "course_key": course["key"],
         "exercise_key": exercise["key"],
     }
-    if user_ids:
+    if "personalized" in exercise and exercise["personalized"]:
         args["userid"] = user_ids
+        generated_link = os.path.join(user_personal_directory_path(course, exercise, user_ids),
+                                      "generated")
+        # remove the possible old generated link in the user's personal directory and
+        # set the link to the current generated exercise instance of the user
+        try:
+            os.unlink(generated_link)
+        except OSError:
+            pass # the link may not exist yet at all
+        try:
+            os.symlink(select_generated_exercise_instance(course, exercise, user_ids, submission_number),
+                       generated_link)
+        except OSError:
+            LOGGER.debug("grader.actions.prepare can not create \"generated\" link to the user's exercise instance")
+        # if there is a concurrency problem with the generated link (multiple graders
+        # could be setting different link targets), the generated link could have a unique
+        # name each time (e.g., generated2647). The "generated/" part in action["cp_personal"]
+        # would then be transformed to the real value ("generated2647/").
     
     return _boolean(invoke_script(settings.PREPARE_SCRIPT,
         _collect_args(("attachment_pull", "attachment_unzip", "unzip",
@@ -107,7 +129,7 @@ def expaca(course, exercise, action, submission_dir):
         "err": r["err"], "stop": False }
 
 
-def store_user_files(course, exercise, action, submission_dir, user_ids):
+def store_user_files(course, exercise, action, submission_dir, user_ids, submission_number=1):
     '''
     Stores files from the submission directory to the personal directory of the user(s).
     '''

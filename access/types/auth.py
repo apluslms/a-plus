@@ -43,3 +43,11 @@ def get_uid(request):
         user_ids = "1"
         
     return user_ids
+
+
+def user_ids_from_string(user_ids_str):
+    '''
+    Given a string of user IDs (in the format "1-2-3"), return a list of the
+    user IDs as integers.
+    '''
+    return list(map(lambda uid: int(uid), user_ids_str.split('-')))
