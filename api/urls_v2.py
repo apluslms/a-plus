@@ -30,6 +30,9 @@ with api.register(r'courses',
     courses.register(r'students',
                      course.api.views.CourseStudentsViewSet,
                      base_name='course-students')
+    courses.register(r'points',
+                     course.api.views.CoursePointsViewSet,
+                     base_name='course-points')
 
 urlpatterns = [
     url(r'^', include(api.urls, namespace='api')),

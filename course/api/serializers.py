@@ -74,6 +74,7 @@ class CourseSerializer(CourseBriefSerializer):
     """
     exercises = NestedHyperlinkedIdentityField(view_name='api:course-exercises-list', format='html')
     students = NestedHyperlinkedIdentityField(view_name='api:course-students-list', format='html')
+    points = NestedHyperlinkedIdentityField(view_name='api:course-points-list', format='html')
 
     class Meta(CourseBriefSerializer.Meta):
         fields = CourseBriefSerializer.Meta.fields + (
@@ -81,4 +82,5 @@ class CourseSerializer(CourseBriefSerializer):
             'ending_time',
             'exercises',
             'students',
+            'points',
         )
