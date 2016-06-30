@@ -3,6 +3,7 @@ The exercises and classes are configured in json/yaml.
 Each directory inside courses/ holding an index.json/yaml is a course.
 '''
 from django.conf import settings
+from django.template import loader as django_template_loader
 import os, time, json, yaml, re
 import logging
 import copy
@@ -374,6 +375,52 @@ class ConfigParser:
         return data
 
 
+    def _include(self, data, target_file, course_dir):
+        '''
+        Includes the config files defined in data["include"] into data.
+
+        @type data: C{dict}
+        @param data: target dict to which new data is included
+        @type target_file: C{str}
+        @param target_file: path to the include target, for error messages only
+        @type course_dir: C{str}
+        @param course_dir: a path to the course root directory
+        @rtype: C{dict}
+        @return: updated data
+        '''
+        return_data = data.copy()
+
+        for include_data in data["include"]:
+            self._check_fields(target_file, include_data, ("file",))
+
+            include_file = self._get_config(os.path.join(course_dir, include_data["file"]))
+            loader = self.FORMATS[os.path.splitext(include_file)[1][1:]]
+
+            if "template_context" in include_data:
+                # Load new data from rendered include file string
+                render_context = include_data["template_context"]
+                template_name = os.path.join(course_dir, include_file)
+                rendered = django_template_loader.render_to_string(
+                            template_name,
+                            render_context
+                           )
+                new_data = loader(rendered)
+            else:
+                # Load new data directly from the include file
+                new_data = loader(include_file)
+
+            if "force" in include_data and include_data["force"]:
+                return_data.update(new_data)
+            else:
+                for new_key, new_value in new_data.items():
+                    if new_key not in return_data:
+                        return_data[new_key] = new_value
+                    else:
+                        raise ConfigError("Cannot overwrite configuration keys without \"force\" key set to True, unable to include \"%s\" into \"%s\"" % (include_file, target_file))
+
+        return return_data
+
+
     def _default_exercise_loader(self, course_root, exercise_key, course_dir):
         '''
         Default loader to find and parse file.
@@ -388,7 +435,10 @@ class ConfigParser:
         @return: exercise config file path, modified time and data dict
         '''
         config_file = self._get_config(os.path.join(course_dir, exercise_key))
-        return config_file, os.path.getmtime(config_file), self._parse(config_file)
+        data = self._parse(config_file)
+        if "include" in data:
+            data = self._include(data, config_file, course_dir)
+        return config_file, os.path.getmtime(config_file), data
 
 
     def _process_exercise_data(self, course_root, data):
