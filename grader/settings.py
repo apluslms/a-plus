@@ -137,6 +137,16 @@ SUBMISSION_PATH = os.path.join(BASE_DIR, 'uploads')
 # Django process requires write access to this directory.
 #
 PERSONALIZED_CONTENT_PATH = os.path.join(BASE_DIR, 'exercises-meta')
+#
+# Enable personalized exercises, which makes the grader stateful.
+# Personalized exercise content is stored in the disk: pregenerated exercise
+# instances are created with a manage.py command and grading action
+# store_user_files may be used to store personal files between grader runs.
+# If no course with personalized exercises is in use, set this to False
+# in order to keep the grader stateless and to avoid unnecessary computation and
+# disk space consumption.
+#
+ENABLE_PERSONALIZED_EXERCISES = False
 
 #
 # Grading action scripts.

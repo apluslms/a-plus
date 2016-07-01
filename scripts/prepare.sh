@@ -109,5 +109,7 @@ while next_paths $DIR/ $DIR/; do
 	fi
 done
 
-list=($CPPER)
-copy_paths $ROOT/exercises-meta/$COURSE/users/$USERID/$EXERCISE/ $DIR/
+if [ -n "$EXERCISE" ] && [ -n "$USERID" ]; then
+	list=($CPPER)
+	copy_paths $ROOT/exercises-meta/$COURSE/users/$USERID/$EXERCISE/ $DIR/
+fi

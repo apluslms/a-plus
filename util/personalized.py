@@ -16,11 +16,12 @@ created in the prepare action because the exercise instance may change after
 the user has submitted too many times, if the exercise has enabled regeneration.)
 '''
 from django.conf import settings
+from django.core.urlresolvers import reverse
 import os
 import shutil
 import logging
 import access.config
-from access.types.auth import user_ids_from_string
+from access.types.auth import get_uid, user_ids_from_string
 from .shell import invoke
 
 LOGGER = logging.getLogger('main')
@@ -207,3 +208,45 @@ def generate_one_exercise_instance(course, exercise, dir_path):
     command = exercise["generator"]["cmd"][:] # copy the command list from config before appending
     command.append(dir_path)
     return invoke(command, cwd)
+
+
+def personalized_template_context(course, exercise, request):
+    '''
+    Return template context for the given personalized exercise and user(s).
+    Prepares the user personal directory if it does not yet exist.
+    '''
+    ctx = {}
+    if not ("personalized" in exercise and exercise["personalized"]):
+        return ctx
+    
+    userid = get_uid(request)
+    if not userid:
+        raise access.config.ConfigError('Exercise is personalized but HTTP GET request did not supply any "uid" parameter.')
+    # create the personal directory
+    prepare_user_personal_directory(course, exercise, userid)
+    
+    if "generated_files" not in exercise:
+        raise access.config.ConfigError('"generated_files" missing in the configuration of a personalized exercise')
+    
+    # prepare template context (variables about the pregenerated exercise instance files)
+    generated_files = {}
+    for gen_file_conf in exercise["generated_files"]:
+        if "file" not in gen_file_conf:
+            raise access.config.ConfigError('"file" under "generated_files" missing in the exercise configuration')
+        file_ctx = {}
+        file_ctx["file"] = gen_file_conf["file"]
+        submission_number = int(request.GET.get("ordinal_number", 1))
+        if "url_in_template" in gen_file_conf and gen_file_conf["url_in_template"]:
+            exercise_instance = os.path.basename(select_generated_exercise_instance(
+                    course, exercise, userid, submission_number))
+            # URL to download the exercise generated file
+            file_ctx["url"] = reverse('generated-file',
+                    args=(course["key"], exercise["key"], exercise_instance, gen_file_conf["file"]))
+        if "content_in_template" in gen_file_conf and gen_file_conf["content_in_template"]:
+            # read contents of the exercise generated file to a variable
+            file_ctx["content"] = read_user_personal_file(course, exercise,
+                    userid, gen_file_conf["file"], True, submission_number)
+        generated_files[gen_file_conf["key"]] = file_ctx
+    
+    ctx["generated_files"] = generated_files
+    return ctx
