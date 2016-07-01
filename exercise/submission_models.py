@@ -97,6 +97,12 @@ class Submission(UrlMixin, models.Model):
     def __str__(self):
         return str(self.id)
 
+    def ordinal_number(self):
+        return self.submitters.first().submissions.exclude_errors().filter(
+            exercise=self.exercise,
+            submission_time__lt=self.submission_time
+        ).count() + 1
+
     def is_submitter(self, user):
         return user and user.is_authenticated() and \
             self.submitters.filter(id=user.userprofile.id).exists()

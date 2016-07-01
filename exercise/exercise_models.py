@@ -386,8 +386,10 @@ class BaseExercise(LearningObject):
 
     def get_load_url(self, request, students, url_name="exercise"):
         if self.id:
+            # Assume that student group cannot be changed once submitted to exercise.
+            submission_count = self.get_submissions_for_student(students[0]).count() if len(students) > 0 else 0
             student_str, hash_key = self.get_async_hash(students)
-            return self._build_service_url(request, student_str, url_name, reverse(
+            return self._build_service_url(request, student_str, submission_count + 1, url_name, reverse(
                 "async-new", kwargs={
                     "exercise_id": self.id if self.id else 0,
                     "student_ids": student_str,
@@ -403,7 +405,7 @@ class BaseExercise(LearningObject):
         Loads the exercise feedback page.
         """
         student_str, _ = self.get_async_hash(submission.submitters.all())
-        url = self._build_service_url(request, student_str, url_name, reverse(
+        url = self._build_service_url(request, student_str, submission.ordinal_number(), url_name, reverse(
             "async-grade", kwargs={
                 "submission_id": submission.id,
                 "hash_key": submission.hash
@@ -418,7 +420,7 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def _build_service_url(self, request, uid, url_name, submission_url):
+    def _build_service_url(self, request, uid, ordinal_number, url_name, submission_url):
         """
         Generates complete URL with added parameters to the exercise service.
         """
@@ -428,6 +430,7 @@ class BaseExercise(LearningObject):
             "post_url": request.build_absolute_uri(
                 str(self.get_url(url_name))),
             "uid": uid or 0,
+            "ordinal_number": ordinal_number,
         }
         return update_url_params(self.service_url, params)
 
