@@ -333,7 +333,7 @@ class BaseExercise(LearningObject):
         if self.status == LearningObject.STATUS_ENROLLMENT:
             if not len(students) == 1 and \
                     not self.course_instance.is_enrollable(students[0].user):
-                warnings.append(_('You cannot enroll to the course.'))
+                warnings.append(_('You cannot enroll in the course.'))
                 return False, warnings
         elif not self.all_have_enrolled(students):
             warnings.append(_('You must enroll at course home to submit exercises.'))
