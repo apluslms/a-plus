@@ -312,12 +312,12 @@ msgstr ""
 "palvelussa."
 
 #: course/templates/course/toc.html:18
-msgid "In order to submit exercises, you must enroll to the course."
+msgid "In order to submit exercises, you must enroll in the course."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
 #: course/templates/course/toc.html:20
 msgid ""
-"In order to submit exercises and see material, you must enroll to the course."
+"In order to submit exercises and see material, you must enroll in the course."
 msgstr ""
 "Palauttaaksesi tehtäviä ja nähdäksesi materiaalin sinun pitää ilmoittautua "
 "kurssille."
@@ -328,7 +328,7 @@ msgstr "Ilmoittaudu"
 
 #: course/templates/course/toc.html:25
 msgid ""
-"Unfortunately, you cannot enroll to this course, but you may explore the "
+"Unfortunately, you cannot enroll in this course, but you may explore the "
 "course material."
 msgstr ""
 "Valitettavasti et voi ilmoittautua tälle kurssille, mutta voit selailla "
@@ -1033,7 +1033,7 @@ msgid "The course is archived. Exercises are offline."
 msgstr "Kurssi on arkistoitu, ja tehtävistä esitetään näköiskopio."
 
 #: exercise/exercise_models.py:334
-msgid "You cannot enroll to the course."
+msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
 #: exercise/exercise_models.py:337
