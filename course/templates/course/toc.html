@@ -15,14 +15,14 @@
 <form method="post" action="{{ instance|url:'enroll' }}">
   {% csrf_token %}
   {% if instance.view_content_to > 1 %}
-  {% trans "In order to submit exercises, you must enroll to the course." %}
+  {% trans "In order to submit exercises, you must enroll in the course." %}
   {% else %}
-  {% trans "In order to submit exercises and see material, you must enroll to the course." %}
+  {% trans "In order to submit exercises and see material, you must enroll in the course." %}
   {% endif %}
   <input type="submit" value="{% trans 'Enroll' %}" class="btn btn-info">
 </form>
 {% elif profile %}
-{% trans "Unfortunately, you cannot enroll to this course, but you may explore the course material." %}
+{% trans "Unfortunately, you cannot enroll in this course, but you may explore the course material." %}
 {% else %}
 {% trans "Login is required to submit exercises, but you may anonymously explore the course material." %}
 {% endif %}
