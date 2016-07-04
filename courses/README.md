@@ -192,17 +192,30 @@ course specific exercise view in a course specific Python module.
 			* `include` (optional): template name to include
 				as content in more instructions
 			* `type`: `radio`/`checkbox`/`dropdown`/`text`/`textarea`
+			* `key` (optional): a field key used in the form post
 			* `points` (optional): number of points to grant
 			* `required` (optional): `true` to require an answer
-			* `correct` (optional): exact correct answer for text fields
-			* `regex` (optional): regex to match correct answer for text fields
+			* `correct` (optional): correct answer for text fields
+			* `compare_method` (optional): `int`/`float`/`string`/`regexp`/`string-(modifier)`
+				Decides how posted value is compared to correct and feedback.
+				Modifiers include:
+				* ignorews: ignore white space
+        * ignorequotes: iqnore "quotes" around
+        * requirecase: require identical lower and upper cases
+        * ignorerepl: ignore REPL prefixes
+			* `regex` (deprecated): regex to match correct answer for text fields
 			* `options` list of options for choice fields
 				* `label`: option label
+				* `value` (optional): the unique value for the option in the form post
 				* `correct` (optional): `true` for correct option.
 					Checkbox requires all and only correct
 					options selected. Radio requires one of
 					the correct options selected. If no correct
 					options are configured anything is correct.
+			* `feedback` (optional): list of feedback messages
+				* `label`: the message
+				* `value`: show when this value is posted
+				* `not`: `true` to show when given value is NOT posted
 	* `template` (default `access/create_form_default.html`): name of a template to present
 	* `accepted_message` (optional): overrides the default message displayed when
 		submission is accepted

@@ -18,7 +18,7 @@
 			{{ field.label_tag }}
 			{% endif %}
 			{% endif %}
-			
+
 			{% if result.accepted and not field.field.group_errors and field.field.max_points > 0 %}
 			<span class="badge badge-{% if field.field.name in result.error_fields %}danger{% else %}success{% endif %}">{{ field.field.grade_points }} / {{ field.field.max_points }}</span>
 			{% endif %}
@@ -34,7 +34,7 @@
 			<tr>
 				<td>&nbsp;</td>
 				{% for choice in field %}
-				<td style="width:12%;">{{ choice.choice_label }}</td>
+				<td style="width:12%;">{{ choice.choice_label|safe }}</td>
 				{% endfor %}
 			</tr>
 			{% endif %}
@@ -49,7 +49,7 @@
 				<td>&nbsp;</td>
 				<td colspan="{{ field|length }}">
 					<div class="alert alert-danger">
-						{{ field.errors }}
+						{{ field.errors|safe }}
 					</div>
 				</td>
 			</tr>
@@ -63,13 +63,13 @@
 			<div class="{{ field.field.type }}">
 				<label>
 					{{ choice.tag }}
-					{{ choice.choice_label }}
+					{{ choice.choice_label|safe }}
 				</label>
 			</div>
 			{% endfor %}
 			{% if field.errors %}
 			<div class="alert alert-danger">
-				{{ field.errors }}
+				{{ field.errors|safe }}
 			</div>
 			{% endif %}
 
@@ -77,14 +77,14 @@
 			{{ field }}
 			{% if field.errors %}
 			<div class="alert alert-danger">
-				{{ field.errors }}
+				{{ field.errors|safe }}
 			</div>
 			{% endif %}
 			{% endif %}
 
 		{% if not field.field.row_label or field.field.close_table %}
 			{% if field.field.hints %}
-			{{ field.field.hints }}
+			{{ field.field.hints|safe }}
 			{% endif %}
 		</div>
 		{% endif %}
