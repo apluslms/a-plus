@@ -20,6 +20,7 @@ from django.core.urlresolvers import reverse
 import os
 import shutil
 import logging
+import random
 import access.config
 from access.types.auth import get_uid, user_ids_from_string
 from .shell import invoke
@@ -102,10 +103,11 @@ def select_generated_exercise_instance(course, exercise, userids_str, submission
     
     if "max_submissions_before_regeneration" in exercise:
         # the generated exercise may be regenerated after submitting certain amount of times
-        instance = (userids + ((submission_number - 1) // exercise["max_submissions_before_regeneration"]) *
-                    userids % num_instances) % num_instances
-        # this function is not good: with some user ids, it does not cycle through all possible exercise instances
-        # Alternatives: use random number generator with set seeds to make it deterministic, seed based on user id?
+        instance_numbers = list(range(num_instances))
+        # use numbers in the list so that the directory listing order (in instances) does not cause surprises
+        r = random.Random(userids)
+        r.shuffle(instance_numbers)
+        instance = instance_numbers[((submission_number - 1) // exercise["max_submissions_before_regeneration"]) % num_instances]
     else:
         # the generated exercise of the user does not change as more submissions are made
         instance = userids % num_instances
