@@ -28,8 +28,8 @@
             <dd>{% firstof user.email miss %}</dd>
             <dt>{% trans "Username" %}</dt>
             <dd>{% firstof user.username miss %}</dd>
-            <dt>Token</dt>
-            <dd>{{ token }}</dd>
+            <dt>{% trans "Token" %}</dt>
+            <dd>{{ profile.api_token }}</dd>
         </dl>
     </div>
     <div class="col-md-6">
