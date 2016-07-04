@@ -41,6 +41,12 @@ class UserProfile(models.Model):
         return "{} ({})".format(self.student_id, self.user.username)
 
     @property
+    def api_token(self):
+        # FIXME: implement support for more than 1 token
+        token, created = Token.objects.get_or_create(user=self.user)
+        return token.key
+
+    @property
     def avatar_url(self):
         """
         URL address for gravatar image based on the user email.
@@ -78,8 +84,6 @@ def create_user_profile(sender, instance, created, **kwargs):
     """
     if created:
         UserProfile.objects.get_or_create(user=instance)
-        # Create a django rest framework authtoken for user
-        Token.objects.create(user=instance)
 
 # Attach to the post_save signal.
 post_save.connect(create_user_profile, sender=User)
