@@ -69,7 +69,7 @@ def _get_service_ip(exercise_url):
     """
     parse_result = urlparse(exercise_url)
     host = parse_result.netloc.split(":")[0]
-    return socket.gethostbyname(host)
+    return [a[4][0] for a in socket.getaddrinfo(host, None)]
 
 
 def _async_submission_handler(request, exercise, students, submission=None):
@@ -78,12 +78,16 @@ def _async_submission_handler(request, exercise, students, submission=None):
 
     """
     # Check the IP address matches the host name.
-    if request.META["REMOTE_ADDR"] != _get_service_ip(exercise.service_url):
-        logger.error('Request IP does not match exercise service URL: %s != %s',
-            request.META["REMOTE_ADDR"], exercise.service_url,
-            extra={'request': request})
+    if not request.META["REMOTE_ADDR"] in _get_service_ip(exercise.service_url):
+        logger.error(
+            'Request IP does not match exercise service URL: {} != {}'.format(
+                request.META["REMOTE_ADDR"], exercise.service_url
+            ),
+            extra={'request': request}
+        )
         return HttpResponseForbidden(
-            _("Only the exercise service is allowed to access this URL."))
+            _("Only the exercise service is allowed to access this URL.")
+        )
 
     if request.method == "GET":
         return JsonResponse(_get_async_submission_info(exercise, students))
