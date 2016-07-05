@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-08 19:04+0300\n"
+"POT-Creation-Date: 2016-07-05 14:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: access/templates/access/accept_files_default.html:11
+#: access/templates/access/accept_files_default.html:8
 msgid "Select your files for grading"
 msgstr "Valitse arvosteltavat tiedostot"
 
@@ -30,13 +30,12 @@ msgid ""
 "\n"
 "\t\t\tSubmit only %(num_files)s of the following files.\n"
 "\t\t"
-msgstr ""
-"Palauta vain %(num_files)s seuraavista tiedostoista."
+msgstr "Palauta vain %(num_files)s seuraavista tiedostoista."
 
 #: access/templates/access/accept_files_form.html:23
 #: access/templates/access/accept_git_form.html:16
 #: access/templates/access/accept_post_form.html:17
-#: access/templates/access/graded_form.html:100
+#: access/templates/access/graded_form.html:105
 msgid "Submit"
 msgstr "Lähetä"
 
@@ -172,10 +171,8 @@ msgid_plural ""
 "\n"
 "\t\t\tYou must submit %(num_files)s files.\n"
 "\t\t\t"
-msgstr[0] ""
-"Sinun täytyy palauttaa %(num_files)s tiedosto."
-msgstr[1] ""
-"Sinun täytyy palauttaa %(num_files)s tiedostoa."
+msgstr[0] "Sinun täytyy palauttaa %(num_files)s tiedosto."
+msgstr[1] "Sinun täytyy palauttaa %(num_files)s tiedostoa."
 
 #: access/templates/access/exercise_frame.html:23
 msgid "Every file is required for a submission."
@@ -199,6 +196,10 @@ msgstr ""
 #: access/templates/access/exercise_frame.html:41
 msgid "Missing required fields."
 msgstr "Täytä kaikki pakolliset kentät."
+
+#: access/templates/access/personalized_content_default.html:6
+msgid "Download"
+msgstr "Lataa"
 
 #: access/templates/access/ready.html:6
 msgid "Grader ready"
@@ -273,3 +274,7 @@ msgstr ""
 "Hups, palautuksesi arvostelu kesti yli maksimiajan!\n"
 "Pahoittelemme häiriötä.\n"
 "Yritä myöhemmin uudelleen tai ota yhteyttä kurssihenkilökuntaan."
+
+#: access/types/forms.py:385
+msgid "Multiple choices are selectable."
+msgstr ""
