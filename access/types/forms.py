@@ -6,8 +6,10 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Textarea
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 from util.files import random_ascii
 from util.templates import template_to_str
+from util import forms as custom_forms
 from .auth import make_hash
 from ..config import ConfigError
 
@@ -102,6 +104,9 @@ class GradedForm(forms.Form):
                 elif t == "table-checkbox":
                     i, f = self.add_table_fields(i, field,
                         forms.MultipleChoiceField, forms.CheckboxSelectMultiple)
+                elif t == "static":
+                    i, f = self.add_field(i, field,
+                        forms.CharField, custom_forms.PlainTextWidget)
                 else:
                     raise ConfigError("Unknown field type: %s" % (t))
 
@@ -137,6 +142,7 @@ class GradedForm(forms.Form):
         for row in config.get('rows', []):
             i, fi = self.add_field(i, config,
                 field_class, widget_class, choices, {})
+            fi[0].name = self.field_name(i, row)
             fi[0].row_label = row.get('label', None)
             fields += fi
         fields[0].open_table = True
@@ -155,7 +161,7 @@ class GradedForm(forms.Form):
             args['choices'] = choices
         field = field_class(**args)
         field.type = config['type']
-        field.name = self.field_name(i)
+        field.name = self.field_name(i, config)
         field.label = mark_safe(config['title'])
         field.more = self.create_more(config)
         field.points = config.get('points', 0)
@@ -186,20 +192,21 @@ class GradedForm(forms.Form):
                 label = ""
                 if "label" in opt:
                     label = opt["label"]
-                choices.append((self.option_name(i), mark_safe(label)))
+                choices.append((self.option_name(i, opt), mark_safe(label)))
                 i += 1
         return choices
 
     def group_name(self, i):
-        return "group_%d" % (i)
+        return "group_{:d}".format(i)
 
-    def field_name(self, i):
-        return "field_%d" % (i)
+    def field_name(self, i, config):
+        return config.get("key", "field_{:d}".format(i))
 
-    def option_name(self, i):
-        return "option_%d" % (i)
+    def option_name(self, i, config):
+        return config.get("value", "option_{:d}".format(i))
 
     def append_hint(self, hints, configuration):
+        # The old definition of hint per option.
         hint = str(configuration.get('hint', ''))
         if hint and not hint in hints:
             hints.append(hint)
@@ -219,12 +226,62 @@ class GradedForm(forms.Form):
                 i, ok, p = self.grade_field(i, field)
                 points += p
                 if not ok:
-                    error_fields.append(self.field_name(prev))
+                    error_fields.append(self.field_name(prev, field))
                     gname = self.group_name(g)
                     if gname not in error_groups:
                         error_groups.append(gname)
             g += 1
         return (points, error_groups, error_fields)
+
+    def compare_values(self, method, val, cmp):
+        parts = method.split("-")
+        t = parts[0]
+        mods = parts[1:]
+
+        if t == "array":
+            return cmp in val
+
+        val = val.strip()
+        cmp = cmp.strip()
+
+        if "ignorerepl" in mods:
+            p = re.compile('(^\w+:\s[\w\.\[\]]+\s=)')
+            m = p.match(val)
+            if m:
+                val = val[len(m.group(1)):].strip()
+
+        if "ignorews" in mods:
+            val = ''.join(val.split())
+            cmp = ''.join(cmp.split())
+
+        if "ignorequotes" in mods:
+            def stripquotes(v):
+                if v.startswith("\"") and v.endswith("\""):
+                    return v[1:len(v)-1]
+                return v
+            val = stripquotes(val)
+            cmp = stripquotes(cmp)
+
+        if t == "string":
+            if "requirecase" in mods:
+                return val == cmp
+            else:
+                return val.lower() == cmp.lower()
+        elif t == "regexp":
+            p = re.compile(cmp)
+            return p.match(val) != None
+        elif t == "int":
+            try:
+                return int(val) == int(cmp)
+            except ValueError:
+                return False
+        elif t == "float":
+            try:
+                return abs(float(val) - float(cmp)) <= 0.02
+            except ValueError:
+                return False
+        else:
+            raise ConfigError("Unknown compare method in form: %s" % (t))
 
     def grade_field(self, i, configuration):
         t = configuration["type"]
@@ -234,9 +291,9 @@ class GradedForm(forms.Form):
             hints = []
             points = configuration.get("points", 0)
             max_points = points
-            first_name = self.field_name(i)
+            first_name = self.field_name(i, configuration)
             for row in configuration.get("rows", []):
-                name = self.field_name(i)
+                name = self.field_name(i, row)
                 value = self.cleaned_data.get(name, None)
                 if t == "table-radio":
                     ok, hints = self.grade_radio(
@@ -256,16 +313,37 @@ class GradedForm(forms.Form):
             self.fields[name].hints = ' '.join(hints)
             return i, all_ok, points
 
-        name = self.field_name(i)
+        name = self.field_name(i, configuration)
         value = self.cleaned_data.get(name, None)
         if t == "checkbox":
-            ok, hints = self.grade_checkbox(configuration, value)
+            ok, hints, method = self.grade_checkbox(configuration, value)
         elif t == "radio" or t == "dropdown" or t == "select":
-            ok, hints = self.grade_radio(configuration, value)
+            ok, hints, method = self.grade_radio(configuration, value)
         elif t == "text" or t == "textarea":
-            ok, hints = self.grade_text(configuration, value)
+            ok, hints, method = self.grade_text(configuration, value)
+        elif t == "static":
+            ok, hints, method = True, [], 'string'
         else:
             raise ConfigError("Unknown field type for grading: %s" % (t))
+
+        # Apply new feedback definitions.
+        for fb in configuration.get("feedback", []):
+            print(fb)
+            new_hint = fb.get('label', None)
+            r = self.compare_values(method, value, fb.get('value', ''))
+            if new_hint and (r or (fb.get('not', False) and not r)):
+                add = True
+                for i in range(len(hints)):
+                    if new_hint.startswith(hints[i]):
+                        hints[i] = new_hint
+                        add = False
+                        break
+                    elif hints[i].startswith(new_hint):
+                        add = False
+                        break
+                if add:
+                    hints.append(new_hint)
+
         points = configuration.get('points', 0)
         self.fields[name].grade_points = points if ok else 0
         self.fields[name].max_points = points
@@ -285,15 +363,15 @@ class GradedForm(forms.Form):
 
     def grade_checkbox(self, configuration, value, hints=None):
         hints = hints or []
-        correct_exists = False
+        correct_count = 0
 
         # All correct required if any configured
         correct = True
         i = 0
         for opt in configuration.get("options", []):
-            name = self.option_name(i)
+            name = self.option_name(i, opt)
             if opt.get("correct", False):
-                correct_exists = True
+                correct_count += 1
                 if name not in value:
                     correct = False
                     self.append_hint(hints, opt)
@@ -301,7 +379,12 @@ class GradedForm(forms.Form):
                 correct = False
                 self.append_hint(hints, opt)
             i += 1
-        return not correct_exists or correct, hints
+
+        # Add note of multiple correct answers.
+        if correct_count > 1 and len(value) == 1:
+            hints.append(_("Multiple choices are selectable."))
+
+        return correct_count == 0 or correct, hints, 'array'
 
     def grade_radio(self, configuration, value, hints=None):
         hints = hints or []
@@ -311,7 +394,7 @@ class GradedForm(forms.Form):
         correct = False
         i = 0
         for opt in configuration.get("options", []):
-            name = self.option_name(i)
+            name = self.option_name(i, opt)
             if opt.get("correct", False):
                 correct_exists = True
                 if name == value:
@@ -321,16 +404,20 @@ class GradedForm(forms.Form):
             elif name == value:
                 self.append_hint(hints, opt)
             i += 1
-        return not correct_exists or correct, hints
+        return not correct_exists or correct, hints, 'string'
 
     def grade_text(self, configuration, value, hints=None):
         hints = hints or []
         correct = True
-        if "correct" in configuration:
-            correct = value.strip() == configuration["correct"]
-        elif "regex" in configuration:
-            p = re.compile(configuration["regex"])
-            correct = p.match(value.strip()) != None
+        accept = None
+        method = configuration.get('compare_method', 'string')
+        if "regex" in configuration:
+            accept = configuration["regex"]
+            method = "regexp"
+        elif "correct" in configuration:
+            accept = configuration["correct"]
+        if not accept is None:
+            correct = self.compare_values(method, value, accept)
         if not correct:
             self.append_hint(hints, configuration)
-        return correct, hints
+        return correct, hints, method
