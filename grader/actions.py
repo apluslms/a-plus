@@ -21,20 +21,42 @@ from access.config import ConfigError
 from util.shell import invoke_script, invoke_sandbox
 from util.xslt import transform
 from util.http import get_json
+from util.personalized import user_personal_directory_path, select_generated_exercise_instance
 import logging
 
 LOGGER = logging.getLogger('main')
 
 
-def prepare(course, exercise, action, submission_dir):
+def prepare(course, exercise, action, submission_dir, user_ids='', submission_number=1):
     '''
     Runs the preparation script for the submitted files.
+    
+    @type user_ids: C{str}
+    @param user_ids: user ID(s) of the submitter(s) as string (format "1", "1-2-3")
+    @type submission_number: C{int}
+    @param submission_number: ordinal number of the submission
     '''
-    return _boolean(invoke_script(settings.PREPARE_SCRIPT,
+    args = {
+        "course_key": course["key"],
+        "exercise_key": exercise["key"],
+    }
+    cp_personal_error = None
+    if "personalized" in exercise and exercise["personalized"]:
+        args["userid"] = user_ids
+        args["gen_instance_path"] = select_generated_exercise_instance(course, exercise, user_ids, submission_number)
+        if not settings.ENABLE_PERSONAL_DIRECTORIES and "cp_personal" in action:
+            cp_personal_error = 'settings.ENABLE_PERSONAL_DIRECTORIES is False but action grader.actions.prepare has "cp_personal" field'
+            LOGGER.error(cp_personal_error)
+    
+    result = _boolean(invoke_script(settings.PREPARE_SCRIPT,
         _collect_args(("attachment_pull", "attachment_unzip", "unzip",
-            "charset", "cp_exercises", "cp", "mv"), action,
-            { "course_key": course["key"] }),
+            "charset", "cp_exercises", "cp", "mv", "cp_personal", "cp_generated"),
+            action, args),
         submission_dir))
+    if cp_personal_error:
+        # add the error to the feedback too
+        result["err"] += "\n" + cp_personal_error
+    return result
 
 
 def gitclone(course, exercise, action, submission_dir):
@@ -96,6 +118,26 @@ def expaca(course, exercise, action, submission_dir):
 
     return { "points": points, "max_points": max_points, "out": out,
         "err": r["err"], "stop": False }
+
+
+def store_user_files(course, exercise, action, submission_dir, user_ids, submission_number=1):
+    '''
+    Stores files from the submission directory to the personal directory of the user(s).
+    '''
+    if not (settings.ENABLE_PERSONAL_DIRECTORIES and \
+            "personalized" in exercise and exercise["personalized"]):
+        msg = 'Action "grader.actions.store_user_files" can only be used in personalized exercises. ' \
+            'Check project settings.ENABLE_PERSONAL_DIRECTORIES value and exercise-specific personalization configuration.'
+        LOGGER.error(msg)
+        raise ConfigError(msg)
+    args = {
+        "target": user_personal_directory_path(course, exercise, user_ids),
+    }
+    
+    return _boolean(invoke_script(settings.STORE_USER_FILES_SCRIPT,
+        _collect_args(("cp",),
+            action, args),
+        submission_dir))
 
 
 def timeout(course, exercise, action, submission_dir):

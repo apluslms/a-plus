@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^([\w-]+)/$', views.course, name='course'),
     url(r'^([\w-]+)/aplus-json$', views.aplus_json, name='aplus-json'),
     url(r'^([\w-]+)/([\w-]+)$', views.exercise, name='exercise'),
+    url(r'^([\w-]+)/([\w-]+)/(\d+)/generatedfile/([\w-]+)$', views.generated_exercise_file,
+        name='generated-file'),
 ]

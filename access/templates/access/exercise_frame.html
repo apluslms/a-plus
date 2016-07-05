@@ -12,7 +12,17 @@
 	<div class="alert alert-danger">
 
 		{% if result.missing_files %}
-		<p>{% trans "Every file is required for a submission." %}</p>
+		<p>
+		{% if exercise.required_number_of_files %}
+			{% blocktrans count num_files=exercise.required_number_of_files %}
+			You must submit {{ num_files }} file.
+			{% plural %}
+			You must submit {{ num_files }} files.
+			{% endblocktrans %}
+		{% else %}
+			{% trans "Every file is required for a submission." %}
+		{% endif %}
+		</p>
 		{% endif %}
 
 		{% if result.missing_file_name %}

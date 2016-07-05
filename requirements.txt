@@ -5,3 +5,4 @@ requests==2.10.0
 lxml==3.6.0
 PyYAML==3.11
 docutils==0.12
+python-magic==0.4.11

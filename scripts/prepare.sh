@@ -5,6 +5,7 @@
 #
 cd `dirname $0`/..
 source scripts/_config.sh
+source scripts/_copy_util.sh
 
 DIR=
 COURSE=
@@ -15,6 +16,11 @@ CHARSET=
 CPE=
 CP=
 MV=
+CPPER=
+CPGEN=
+USERID=
+EXERCISE=
+GENERATED_INSTANCE_PATH=
 
 if [ -d exercises ]; then
   CDIR=exercises
@@ -35,6 +41,11 @@ while args; do
 		--cp_exercises) CPE=$ARG_NEXT; args_skip ;;
 		--cp) CP=$ARG_NEXT; args_skip ;;
 		--mv) MV=$ARG_NEXT; args_skip ;;
+		--cp_personal) CPPER=$ARG_NEXT; args_skip ;;
+		--cp_generated) CPGEN=$ARG_NEXT; args_skip ;;
+		--userid) USERID=$ARG_NEXT; args_skip ;;
+		--exercise_key) EXERCISE=$ARG_NEXT; args_skip ;;
+		--gen_instance_path) GENERATED_INSTANCE_PATH=$ARG_NEXT; args_skip ;;
 		*) ;;
 	esac
 done
@@ -83,39 +94,6 @@ fi
 cd ..
 
 # Prepare to travel path->path lists.
-function next_paths
-{
-	if [ "${list[$list_pos]}" ]; then
-		entry=${list[$list_pos]}
-		IF=${entry%\?*}
-		entry=${entry#\?*}
-		SRC=$1${entry%->*}
-		TO=$2${entry#*->}
-		if [[ $entry == *".."* ]] || [ "$SRC" == "" -o "$TO" == "" ]; then
-			echo "Invalid directive $entry" >&2
-			exit 1
-		fi
-		let list_pos+=1
-		return 0
-	fi
-	return 1
-}
-function copy_paths
-{
-	list_pos=0
-	while next_paths $1 $2; do
-		if [ -d $SRC ]; then
-			mkdir -p $TO
-			find $SRC -mindepth 1 -maxdepth 1 -exec cp -r {} $TO \;
-		elif [ -f $SRC ]; then
-			mkdir -p `dirname $TO`
-			cp $SRC $TO
-		elif [ "$IF" != "" ]; then
-			echo "Copy source not found $SRC IF=$IF" >&2
-			exit 1
-		fi
-	done
-}
 
 list=($CPE)
 copy_paths $ROOT/$CDIR/$COURSE/ $DIR/
@@ -134,3 +112,12 @@ while next_paths $DIR/ $DIR/; do
 		exit 1
 	fi
 done
+
+# personalized exercises: copy personal files and generated exercise instance files
+if [ -n "$EXERCISE" ] && [ -n "$USERID" ] && [ -n "$GENERATED_INSTANCE_PATH" ]; then
+	list=($CPPER)
+	copy_paths $ROOT/exercises-meta/$COURSE/users/$USERID/$EXERCISE/ $DIR/
+	
+	list=($CPGEN)
+	copy_paths "$GENERATED_INSTANCE_PATH"/ $DIR/
+fi

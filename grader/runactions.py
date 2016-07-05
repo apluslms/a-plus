@@ -8,7 +8,7 @@ from util.importer import import_named
 LOGGER = logging.getLogger('main')
 
 
-def runactions(course, exercise, submission_dir):
+def runactions(course, exercise, submission_dir, user_ids="", submission_number=1):
     '''
     Runs configured grading actions for an exercise submission.
 
@@ -18,6 +18,10 @@ def runactions(course, exercise, submission_dir):
     @param exercise: an exercise configuration
     @type submission_dir: C{str}
     @param submission_dir: a submission directory where submitted files are stored
+    @type user_ids: C{str}
+    @param user_ids: user id(s) of the submitter(s) for personalized exercises
+    @type submission_number: C{int}
+    @param submission_number: ordinal number of the submission (parameter in the grader protocol)
     @rtype: C{dict}
     @return: template = template name, result = points, max_points, tests
     '''
@@ -38,7 +42,11 @@ def runactions(course, exercise, submission_dir):
 
             # Run the exercise grader action
             LOGGER.debug("Running action \"%s\"", action["type"])
-            r = exgrader(course, exercise, action, submission_dir)
+            if action["type"] == "grader.actions.prepare" or \
+                    action["type"] == "grader.actions.store_user_files":
+                r = exgrader(course, exercise, action, submission_dir, user_ids, submission_number)
+            else:
+                r = exgrader(course, exercise, action, submission_dir)
             has_appendixes = has_appendixes or \
                 ("appendix" in r and r["appendix"])
 
@@ -68,7 +76,8 @@ def runactions(course, exercise, submission_dir):
             if r["stop"]:
                 if "expect_success" in action:
                     error = action["expect_success"]
-                break
+                if not ("continue_after_error" in action and action["continue_after_error"]):
+                    break # skip the subsequent actions
 
         # Override with configured max points.
         if "max_points" in exercise:
@@ -97,6 +106,6 @@ def runactions(course, exercise, submission_dir):
                 "has_appendixes": has_appendixes,
             }
         }
-
+        
     finally:
         clean_submission_dir(submission_dir)
