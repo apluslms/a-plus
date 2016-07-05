@@ -134,7 +134,8 @@ def read_user_personal_file(course, exercise, userid, filename, generated=False,
     try:
         with open(filepath) as f:
             return f.read()
-    except IOError:
+    except IOError as e:
+        LOGGER.error('User file %s could not be read. Error: %s', filepath, str(e))
         return ''
 
 
@@ -143,10 +144,12 @@ def read_generated_exercise_file(course, exercise, instance, filename):
     Return the contents of a file from a generated exercise instance.
     '''
     generated_dir = pregenerated_exercises_directory_path(course, exercise)
+    path = os.path.join(generated_dir, instance, filename)
     try:
-        with open(os.path.join(generated_dir, instance, filename)) as f:
+        with open(path) as f:
             return f.read()
-    except IOError:
+    except IOError as e:
+        LOGGER.error('Generated exercise instance file %s could not be read. Error: %s', path, str(e))
         return ''
 
 
@@ -241,7 +244,12 @@ def personalized_template_context(course, exercise, request):
             raise access.config.ConfigError('"file" under "generated_files" missing in the exercise configuration')
         file_ctx = {}
         file_ctx["file"] = gen_file_conf["file"]
+        file_ctx["url_in_template"] = gen_file_conf.get("url_in_template", False)
+        file_ctx["content_in_template"] = gen_file_conf.get("content_in_template", False)
+        file_ctx["allow_download"] = gen_file_conf.get("allow_download", False)
+        
         submission_number = int(request.GET.get("ordinal_number", 1))
+        
         if "url_in_template" in gen_file_conf and gen_file_conf["url_in_template"]:
             exercise_instance = os.path.basename(select_generated_exercise_instance(
                     course, exercise, userid, submission_number))
