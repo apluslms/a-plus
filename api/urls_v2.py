@@ -38,10 +38,6 @@ urlpatterns = [
     url(r'^', include(api.urls, namespace='api')),
 
     url(r'^me', userprofile.api.views.MeDetail.as_view()),
-
-    # For login/logout etc. pages in Django REST Framework
-    url(r'^api-auth/', include('rest_framework.urls',
-                               namespace='rest_framework')),
 ]
 
 if settings.DEBUG:
