@@ -94,7 +94,8 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 			the generator is expected to write files into the directory. The file names
 			should be listed under `generated_files` setting so that mooc-grader is aware
 			of them. The Django command used to pregenerate exercises is
-			`python manage.py pregenerate_exercises course_key</exercise_key>`.
+			`python manage.py pregenerate_exercises course_key <exercise_key>`
+			(`--help` option prints all possible arguments).
 		* `cwd`: if set, this sets the current working directory for the generator
 			program. Start the path from the course directory (course key as the
 			first directory).
@@ -274,12 +275,16 @@ sandbox system.
 	* `mv` (optional): a space separated list of *path->path* where
 		both paths are relative to submission root e.g.
 		`user/file_name->user/new_dir/file_name`
+	* `cp_generated`: (only in personalized exercises)
+		a space separated list of *path->path* where the source path
+		is relative to the generated exercise instance assigned to the user and
+		the destination path is relative to the submission root. E.g.,
+		`seed->user/seed` copies a generated file `seed` into the submission
+		directory (assume that the exercise generator creates a file called `seed`).
 	* `cp_personal`: (only in personalized exercises)
 		a space separated list of *path->path* where the source path
-		is relative to the user's personal directory (contains generated link and
-		personal directory) and the destination path is relative to the submission
-		root. E.g., `generated/->user` copies all generated files of the exercise
-		instance to the submission directory and `personal/somefile->user/somefile`
+		is relative to the user's personal directory and the destination path is
+		relative to the submission root. E.g., `somefile->user/somefile`
 		copies a personal file `somefile` to the submission directory.
 
 	**Note** that the cp/mv *path->path* pattern does not replicate shell
@@ -339,11 +344,13 @@ sandbox system.
 7. ### grader.actions.store_user_files
 	Stores files from the submission directory to the user's personal directory.
 	This can be used to store grading output files for future use in grading.
-	Requires that the exercise is personalized (so that the personal directory exists).
+	Requires that the exercise is personalized and the project settings have
+	enabled personal directories (`settings.ENABLE_PERSONAL_DIRECTORIES`)
+	(so that the personal directory exists).
 	* `cp`: a space separated list of *path->path* where the source path is
 		relative to the submission root and the destination is relative to the
 		personal directory of the user. E.g., `user/someoutput->output` stores
-		`someout` to `output` file in the personal directory of the user.
+		`someoutput` to `output` file in the personal directory of the user.
 
 ## Default sandbox scripts
 

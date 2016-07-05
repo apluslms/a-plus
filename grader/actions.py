@@ -23,7 +23,6 @@ from util.xslt import transform
 from util.http import get_json
 from util.personalized import user_personal_directory_path, select_generated_exercise_instance
 import logging
-import os
 
 LOGGER = logging.getLogger('main')
 
@@ -41,32 +40,23 @@ def prepare(course, exercise, action, submission_dir, user_ids='', submission_nu
         "course_key": course["key"],
         "exercise_key": exercise["key"],
     }
-    if settings.ENABLE_PERSONALIZED_EXERCISES and \
-            "personalized" in exercise and exercise["personalized"]:
+    cp_personal_error = None
+    if "personalized" in exercise and exercise["personalized"]:
         args["userid"] = user_ids
-        generated_link = os.path.join(user_personal_directory_path(course, exercise, user_ids),
-                                      "generated")
-        # remove the possible old generated link in the user's personal directory and
-        # set the link to the current generated exercise instance of the user
-        try:
-            os.unlink(generated_link)
-        except OSError:
-            pass # the link may not exist yet at all
-        try:
-            os.symlink(select_generated_exercise_instance(course, exercise, user_ids, submission_number),
-                       generated_link)
-        except OSError:
-            LOGGER.debug("grader.actions.prepare can not create \"generated\" link to the user's exercise instance")
-        # if there is a concurrency problem with the generated link (multiple graders
-        # could be setting different link targets), the generated link could have a unique
-        # name each time (e.g., generated2647). The "generated/" part in action["cp_personal"]
-        # would then be transformed to the real value ("generated2647/").
+        args["gen_instance_path"] = select_generated_exercise_instance(course, exercise, user_ids, submission_number)
+        if not settings.ENABLE_PERSONAL_DIRECTORIES and "cp_personal" in action:
+            cp_personal_error = 'settings.ENABLE_PERSONAL_DIRECTORIES is False but action grader.actions.prepare has "cp_personal" field'
+            LOGGER.error(cp_personal_error)
     
-    return _boolean(invoke_script(settings.PREPARE_SCRIPT,
+    result = _boolean(invoke_script(settings.PREPARE_SCRIPT,
         _collect_args(("attachment_pull", "attachment_unzip", "unzip",
-            "charset", "cp_exercises", "cp", "mv", "cp_personal"),
+            "charset", "cp_exercises", "cp", "mv", "cp_personal", "cp_generated"),
             action, args),
         submission_dir))
+    if cp_personal_error:
+        # add the error to the feedback too
+        result["err"] += "\n" + cp_personal_error
+    return result
 
 
 def gitclone(course, exercise, action, submission_dir):
@@ -134,14 +124,14 @@ def store_user_files(course, exercise, action, submission_dir, user_ids, submiss
     '''
     Stores files from the submission directory to the personal directory of the user(s).
     '''
-    if not (settings.ENABLE_PERSONALIZED_EXERCISES and \
+    if not (settings.ENABLE_PERSONAL_DIRECTORIES and \
             "personalized" in exercise and exercise["personalized"]):
-        msg = 'Action "grader.actions.store_user_files" can only be used in personalized exercises.\n' \
-            'Check project settings.ENABLE_PERSONALIZED_EXERCISES value and exercise-specific personalization configuration.'
+        msg = 'Action "grader.actions.store_user_files" can only be used in personalized exercises. ' \
+            'Check project settings.ENABLE_PERSONAL_DIRECTORIES value and exercise-specific personalization configuration.'
         LOGGER.error(msg)
         raise ConfigError(msg)
     args = {
-        "target": os.path.join(user_personal_directory_path(course, exercise, user_ids), "personal"),
+        "target": user_personal_directory_path(course, exercise, user_ids),
     }
     
     return _boolean(invoke_script(settings.STORE_USER_FILES_SCRIPT,

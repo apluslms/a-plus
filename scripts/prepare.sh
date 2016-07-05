@@ -17,8 +17,10 @@ CPE=
 CP=
 MV=
 CPPER=
+CPGEN=
 USERID=
 EXERCISE=
+GENERATED_INSTANCE_PATH=
 
 if [ -d exercises ]; then
   CDIR=exercises
@@ -40,8 +42,10 @@ while args; do
 		--cp) CP=$ARG_NEXT; args_skip ;;
 		--mv) MV=$ARG_NEXT; args_skip ;;
 		--cp_personal) CPPER=$ARG_NEXT; args_skip ;;
+		--cp_generated) CPGEN=$ARG_NEXT; args_skip ;;
 		--userid) USERID=$ARG_NEXT; args_skip ;;
 		--exercise_key) EXERCISE=$ARG_NEXT; args_skip ;;
+		--gen_instance_path) GENERATED_INSTANCE_PATH=$ARG_NEXT; args_skip ;;
 		*) ;;
 	esac
 done
@@ -109,7 +113,11 @@ while next_paths $DIR/ $DIR/; do
 	fi
 done
 
-if [ -n "$EXERCISE" ] && [ -n "$USERID" ]; then
+# personalized exercises: copy personal files and generated exercise instance files
+if [ -n "$EXERCISE" ] && [ -n "$USERID" ] && [ -n "$GENERATED_INSTANCE_PATH" ]; then
 	list=($CPPER)
 	copy_paths $ROOT/exercises-meta/$COURSE/users/$USERID/$EXERCISE/ $DIR/
+	
+	list=($CPGEN)
+	copy_paths "$GENERATED_INSTANCE_PATH"/ $DIR/
 fi

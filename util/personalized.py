@@ -6,14 +6,18 @@ Personalized content is stored in mooc-grader/exercises-meta directory
 
 mooc-grader/exercises-meta/<course_key>/pregenerated/<exercise_key>/ is created
 when the personalized exercises are generated and holds the different instances
-of the exercise.
+of the exercise. The exercise instances are generated with a manage.py command
+"pregenerate_exercises".
 
-mooc-grader/exercises-meta/<course_key>/users/<user_ids>/<exercise_key>/ has
-directory "personal" in which personal files can be stored after grading and
-a link "generated" that points to the exercise instance assigned to the user is
-created at the start of grading (prepare action). (The generated link is always
-created in the prepare action because the exercise instance may change after
-the user has submitted too many times, if the exercise has enabled regeneration.)
+mooc-grader/exercises-meta/<course_key>/users/<user_ids>/<exercise_key>/ is
+a user's personal directory in which personal files can be stored after grading
+(see action grader.actions.store_user_files). The personal directory is never
+created (and cannot be used) if the project settings have not enabled it
+(see settings.ENABLE_PERSONAL_DIRECTORIES).
+
+See grader.actions.prepare for how to copy generated instance and personal files
+into the submission directory so that they can be used by the grader program
+(in the sandbox).
 '''
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -33,8 +37,7 @@ class ExerciseGenerationError(Exception):
 
 def user_personal_directory_path(course, exercise, userid):
     '''
-    Return path to the personal directory of the user that has link "generated"
-    to the assigned exercise instance and directory "personal".
+    Return the path to the personal directory of the user.
     '''
     return os.path.join(settings.PERSONALIZED_CONTENT_PATH,
         course["key"], "users", userid, exercise["key"])
@@ -53,8 +56,7 @@ def prepare_user_personal_directory(course, exercise, userid):
     '''
     Create the personal directory of the user (unless the directory already exists).
     '''
-    user_dir = user_personal_directory_path(course, exercise, userid)
-    personal_dir = os.path.join(user_dir, 'personal')
+    personal_dir = user_personal_directory_path(course, exercise, userid)
     # Create empty directory unless it already exists
     if not os.path.exists(personal_dir):
         try:
@@ -119,7 +121,6 @@ def read_user_personal_file(course, exercise, userid, filename, generated=False,
     '''
     Return the contents of a personal file of the user(s).
     '''
-    user_dir = user_personal_directory_path(course, exercise, userid)
     if generated:
         # file from the generated exercise instance, the instance depends on
         # the user and submission number
@@ -128,7 +129,8 @@ def read_user_personal_file(course, exercise, userid, filename, generated=False,
                         filename)
     else:
         # personal file stored for the user
-        filepath = os.path.join(user_dir, 'personal', filename)
+        filepath = os.path.join(user_personal_directory_path(course, exercise, userid),
+                                filename)
     try:
         with open(filepath) as f:
             return f.read()
@@ -215,7 +217,8 @@ def generate_one_exercise_instance(course, exercise, dir_path):
 def personalized_template_context(course, exercise, request):
     '''
     Return template context for the given personalized exercise and user(s).
-    Prepares the user personal directory if it does not yet exist.
+    Prepares the user personal directory if it does not yet exist (and if the
+    settings have enabled it).
     '''
     ctx = {}
     if not ("personalized" in exercise and exercise["personalized"]):
@@ -224,8 +227,9 @@ def personalized_template_context(course, exercise, request):
     userid = get_uid(request)
     if not userid:
         raise access.config.ConfigError('Exercise is personalized but HTTP GET request did not supply any "uid" parameter.')
-    # create the personal directory
-    prepare_user_personal_directory(course, exercise, userid)
+    # create the personal directory if enabled
+    if settings.ENABLE_PERSONAL_DIRECTORIES:
+        prepare_user_personal_directory(course, exercise, userid)
     
     if "generated_files" not in exercise:
         raise access.config.ConfigError('"generated_files" missing in the configuration of a personalized exercise')

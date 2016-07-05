@@ -138,15 +138,14 @@ SUBMISSION_PATH = os.path.join(BASE_DIR, 'uploads')
 #
 PERSONALIZED_CONTENT_PATH = os.path.join(BASE_DIR, 'exercises-meta')
 #
-# Enable personalized exercises, which makes the grader stateful.
-# Personalized exercise content is stored in the disk: pregenerated exercise
-# instances are created with a manage.py command and grading action
-# store_user_files may be used to store personal files between grader runs.
-# If no course with personalized exercises is in use, set this to False
-# in order to keep the grader stateless and to avoid unnecessary computation and
-# disk space consumption.
+# Enable personal directories for users, which can be used in personalized
+# exercises to permanently store personal files with the
+# grader.actions.store_user_files action. Personalized exercises can still be
+# used even if this setting is False if the grading only uses the pregenerated
+# exercise instance files. Enabling and using personal directories makes the
+# grader stateful, which at least increases the amount of disk space used.
 #
-ENABLE_PERSONALIZED_EXERCISES = False
+ENABLE_PERSONAL_DIRECTORIES = False
 
 #
 # Grading action scripts.

@@ -52,11 +52,11 @@ class Command(BaseCommand):
             for ex in exercises:
                 if not options["keep_old"]:
                     delete_pregenerated_exercise_instances(course, ex)
-                    # check if there are any users that had been assigned to the deleted, old instances
+                    # check if there are any users that had accessed any of the old, deleted instances
                     for _ in glob.iglob(os.path.join(settings.PERSONALIZED_CONTENT_PATH,
-                                                        course_key, "users", "*", ex["key"])):
+                                                     course_key, "users", "*", ex["key"])):
                         self.stderr.write("Warning: previous exercise instances for %s/%s " \
-                            "were deleted but there are users that have been assigned to one of those instances" % 
+                            "were deleted but there are users that had accessed those instances" %
                             (course_key, ex["key"]))
                         break
                 

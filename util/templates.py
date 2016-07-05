@@ -2,7 +2,6 @@
 Utility functions for exercise templates.
 
 '''
-from django.conf import settings
 from django.template import loader, Context
 from django.shortcuts import render
 from access.config import ConfigError
@@ -95,7 +94,6 @@ def _exercise_context(course, exercise, post_url, result=None, request=None):
         "post_url": post_url or "",
         "result": result,
     }
-    if settings.ENABLE_PERSONALIZED_EXERCISES and \
-            "personalized" in exercise and exercise["personalized"] and request:
+    if "personalized" in exercise and exercise["personalized"] and request:
         ctx.update(personalized_template_context(course, exercise, request))
     return ctx
