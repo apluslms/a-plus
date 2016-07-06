@@ -296,10 +296,10 @@ class GradedForm(forms.Form):
                 name = self.field_name(i, row)
                 value = self.cleaned_data.get(name, None)
                 if t == "table-radio":
-                    ok, hints = self.grade_radio(
+                    ok, hints, method = self.grade_radio(
                         self.row_options(configuration, row), value, hints)
                 else:
-                    ok, hints = self.grade_checkbox(
+                    ok, hints, method = self.grade_checkbox(
                         self.row_options(configuration, row), value, hints)
                 if ok:
                     points += row.get("points", 0)
