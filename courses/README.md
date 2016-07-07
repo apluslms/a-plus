@@ -70,12 +70,39 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 	* `description` (optional): An exercise description (Dublin Core metadata)
 	* `instructions` (optional): Most default templates will print given
 		instructions HTML before the exercise widgets.
-  * `instructions_file` (optional): Like above but is a path to an HTML file to
-    be included. If both `instructions` and `instructions_file` are given,
-    `instructions` will be placed before the content of `instructions_file`.
+	* `instructions_file` (optional): Like above but is a path to an HTML file to
+		be included. If both `instructions` and `instructions_file` are given,
+		`instructions` will be placed before the content of `instructions_file`.
 	* `max_points` (optional): The maximum exercise points (positive int).
 		Overrides any maximum points reported by test actions.
 	* `view_type`: A dotted name for an exercise implementation
+	* `personalized`: (optional) if true, personalized exercise instances must
+		be pregenerated and each user is then assigned an instance of the exercise
+	* `generated_files`: (required if personalized) set a list of generated files
+		for a personalized exercise. Each list item defines the following settings:
+		* `file`: filename of the generated file
+		* `key`: key for accessing the file in HTML templates
+		* `url_in_template`: if true, template variable includes a URL to download
+		   the generated file
+		* `content_in_template`: if true, template variable includes the content
+		   of the generated file
+		* `allow_download`: if true, the generated file can be downloaded from the web
+	* `generator`: (required if personalized) settings for the generator program that
+		creates one new instance of the exercise. At least `cmd` must be set.
+		* `cmd`: command line as an ARRAY that is used to run the generator.
+			Mooc-grader appends the instance directory path to the argument list and
+			the generator is expected to write files into the directory. The file names
+			should be listed under `generated_files` setting so that mooc-grader is aware
+			of them. The Django command used to pregenerate exercises is
+			`python manage.py pregenerate_exercises course_key <exercise_key>`
+			(`--help` option prints all possible arguments).
+		* `cwd`: if set, this sets the current working directory for the generator
+			program. Start the path from the course directory (course key as the
+			first directory).
+	* `max_submissions_before_regeneration`: (optional, only usable in personalized exercises)
+		defines how many times the student may submit before the personalized exercise is
+		regenerated (the exercise instance is changed to another one). If unset,
+		the exercise is never regenerated.
 
 	Rest of the attributes are exercise type specific.
 
@@ -101,6 +128,11 @@ course specific exercise view in a course specific Python module.
 	* `files`: list of expected files
 		* `field`: file field name
 		* `name`: actual file name, may include subdirectories
+		* `required`: (optional, default true) if true, the user must submit this file,
+			otherwise it can be left empty
+	* `required_number_of_files`: (optional, integer) if not all files are required,
+		define how many files must be submitted. The number should be less than the
+		length of the `files` list.
 	* `template` (default `access/accept_files_default.html`):
 		name of a template to present
 	* `accepted_message` (optional): overrides the default message displayed when
@@ -160,17 +192,30 @@ course specific exercise view in a course specific Python module.
 			* `include` (optional): template name to include
 				as content in more instructions
 			* `type`: `radio`/`checkbox`/`dropdown`/`text`/`textarea`
+			* `key` (optional): a field key used in the form post
 			* `points` (optional): number of points to grant
 			* `required` (optional): `true` to require an answer
-			* `correct` (optional): exact correct answer for text fields
-			* `regex` (optional): regex to match correct answer for text fields
+			* `correct` (optional): correct answer for text fields
+			* `compare_method` (optional): `int`/`float`/`string`/`regexp`/`string-(modifier)`
+				Decides how posted value is compared to correct and feedback.
+				Modifiers include:
+				* ignorews: ignore white space
+        * ignorequotes: iqnore "quotes" around
+        * requirecase: require identical lower and upper cases
+        * ignorerepl: ignore REPL prefixes
+			* `regex` (deprecated): regex to match correct answer for text fields
 			* `options` list of options for choice fields
 				* `label`: option label
+				* `value` (optional): the unique value for the option in the form post
 				* `correct` (optional): `true` for correct option.
 					Checkbox requires all and only correct
 					options selected. Radio requires one of
 					the correct options selected. If no correct
 					options are configured anything is correct.
+			* `feedback` (optional): list of feedback messages
+				* `label`: the message
+				* `value`: show when this value is posted
+				* `not`: `true` to show when given value is NOT posted
 	* `template` (default `access/create_form_default.html`): name of a template to present
 	* `accepted_message` (optional): overrides the default message displayed when
 		submission is accepted
@@ -207,6 +252,10 @@ will run in the listed order.
 	* `html` (optional): true to pass output as HTML in template
 	* `expect_success` (optional): true to not only stop but to set grading state
 	 	to error when the action fails, "error" to write/mail error log
+	* `continue_after_error` (optional): true to continue to subsequent actions
+		when the action fails, by default the subsequent actions are not run.
+		This setting is needed if sandbox actions are expected to run as long
+		as they can until a time limit interrupts them.
 
 	Rest of the attributes are action type specific.
 
@@ -239,6 +288,17 @@ sandbox system.
 	* `mv` (optional): a space separated list of *path->path* where
 		both paths are relative to submission root e.g.
 		`user/file_name->user/new_dir/file_name`
+	* `cp_generated`: (only in personalized exercises)
+		a space separated list of *path->path* where the source path
+		is relative to the generated exercise instance assigned to the user and
+		the destination path is relative to the submission root. E.g.,
+		`seed->user/seed` copies a generated file `seed` into the submission
+		directory (assume that the exercise generator creates a file called `seed`).
+	* `cp_personal`: (only in personalized exercises)
+		a space separated list of *path->path* where the source path
+		is relative to the user's personal directory and the destination path is
+		relative to the submission root. E.g., `somefile->user/somefile`
+		copies a personal file `somefile` to the submission directory.
 
 	**Note** that the cp/mv *path->path* pattern does not replicate shell
 	command arguments. Either dir->dir contents or individual file->file is
@@ -294,6 +354,17 @@ sandbox system.
 	* `xslt_transform` (optional): a name of an XSL style file for
 		transforming expaca XML output e.g. `expaca/xsl/aplus-utf8.xsl`
 
+7. ### grader.actions.store_user_files
+	Stores files from the submission directory to the user's personal directory.
+	This can be used to store grading output files for future use in grading.
+	Requires that the exercise is personalized and the project settings have
+	enabled personal directories (`settings.ENABLE_PERSONAL_DIRECTORIES`)
+	(so that the personal directory exists).
+	* `cp`: a space separated list of *path->path* where the source path is
+		relative to the submission root and the destination is relative to the
+		personal directory of the user. E.g., `user/someoutput->output` stores
+		`someoutput` to `output` file in the personal directory of the user.
+
 ## Default sandbox scripts
 
 Following common scripts are provided by default and copied into the sandbox.
@@ -327,6 +398,11 @@ listed below.
 1. ### All templates
 	* `course`: course configuration dictionary
 	* `exercise`: exercise configuration dictionary
+	* If the exercise is personalized and the exercise settings include
+		`generated_files`:
+		* `generated_files`: dictionary with the keys defined in the settings,
+			for each key there is the value for `file`, and with the enabled
+			settings also `url` and `content`
 
 	Note that you can add any new keys to configuration and utilize them in templates.
 

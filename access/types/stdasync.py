@@ -31,7 +31,7 @@ from util.templates import render_configured_template, render_template, \
     template_to_str
 from util.files import create_submission_dir, save_submitted_file, \
     clean_submission_dir, write_submission_file
-from .auth import detect_user, make_hash
+from .auth import detect_user, make_hash, get_uid
 from ..config import ConfigError
 
 LOGGER = logging.getLogger('main')
@@ -78,18 +78,28 @@ def acceptFiles(request, course, exercise, post_url):
     # Receive post.
     if request.method == "POST" and "files" in exercise:
 
-        # Confirm that all files were submitted.
+        # Confirm that all required files were submitted.
+        files_submitted = [] # exercise["files"] entries for the files that were really submitted
         for entry in exercise["files"]:
+            # by default, all fields are required
+            required = ("required" not in entry or entry["required"])
             if entry["field"] not in request.FILES:
-                result = { "error": True, "missing_files": True }
-                break
+                if required:
+                    result = { "error": True, "missing_files": True }
+                    break
+            else:
+                files_submitted.append(entry)
 
-        # Store submitted files.
         if result is None:
-            sdir = create_submission_dir(course, exercise)
-            for entry in exercise["files"]:
-                save_submitted_file(sdir, entry["name"], request.FILES[entry["field"]])
-            return _acceptSubmission(request, course, exercise, post_url, sdir)
+            if "required_number_of_files" in exercise and \
+                    exercise["required_number_of_files"] > len(files_submitted):
+                result = { "error": True, "missing_files": True }
+            else:
+                # Store submitted files.
+                sdir = create_submission_dir(course, exercise)
+                for entry in files_submitted:
+                    save_submitted_file(sdir, entry["name"], request.FILES[entry["field"]])
+                return _acceptSubmission(request, course, exercise, post_url, sdir)
 
     return render_configured_template(request, course, exercise, post_url,
         "access/accept_files_default.html", result)
@@ -230,7 +240,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     if not settings.CELERY_BROKER:
         LOGGER.warning("No queue configured")
         from grader.runactions import runactions
-        r = runactions(course, exercise, sdir)
+        r = runactions(course, exercise, sdir, get_uid(request), int(request.GET.get("ordinal_number", 1)))
         html = template_to_str(course, exercise, "", r["template"], r["result"])
         return render_template(request, course, exercise, post_url,
             "access/async_accepted.html", {
@@ -246,12 +256,13 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         surl_missing = False
     else:
         LOGGER.warning("submission_url missing from a request")
-        surl = request.build_absolute_uri(reverse('access.views.test_result'))
+        surl = request.build_absolute_uri(reverse('test-result'))
         surl_missing = True
 
     # Queue grader.
     tasks.grade.delay(course["key"], exercise["key"],
-        translation.get_language(), surl, sdir)
+        translation.get_language(), surl, sdir, get_uid(request),
+        int(request.GET.get("ordinal_number", 1)))
 
     _acceptSubmission.counter += 1
     qlen = tasks.queue_length()

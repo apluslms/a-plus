@@ -55,6 +55,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'courses'),
             os.path.join(BASE_DIR, 'exercises'),
         ],
         'APP_DIRS': True,
@@ -131,6 +132,20 @@ SANDBOX_LIMITS = {
 # Django process requires write access to this directory.
 #
 SUBMISSION_PATH = os.path.join(BASE_DIR, 'uploads')
+#
+# Personalized exercises and user files are kept here.
+# Django process requires write access to this directory.
+#
+PERSONALIZED_CONTENT_PATH = os.path.join(BASE_DIR, 'exercises-meta')
+#
+# Enable personal directories for users, which can be used in personalized
+# exercises to permanently store personal files with the
+# grader.actions.store_user_files action. Personalized exercises can still be
+# used even if this setting is False if the grading only uses the pregenerated
+# exercise instance files. Enabling and using personal directories makes the
+# grader stateful, which at least increases the amount of disk space used.
+#
+ENABLE_PERSONAL_DIRECTORIES = False
 
 #
 # Grading action scripts.
@@ -140,6 +155,7 @@ GITCLONE_SCRIPT = os.path.join(BASE_DIR, "scripts/gitclone.sh")
 SANDBOX_RUNNER = os.path.join(BASE_DIR, "scripts/chroot_execvp")
 SANDBOX_FALLBACK = os.path.join(BASE_DIR, "scripts/no_sandbox.sh")
 EXPACA_SCRIPT = os.path.join(BASE_DIR, "scripts/expaca_grade.sh")
+STORE_USER_FILES_SCRIPT = os.path.join(BASE_DIR, "scripts/store_user_files.sh")
 
 #
 # Define a dummy logging configuration:

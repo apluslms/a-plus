@@ -5,7 +5,7 @@ Utility functions for exercise templates.
 from django.template import loader, Context
 from django.shortcuts import render
 from access.config import ConfigError
-
+from .personalized import personalized_template_context
 
 def render_configured_template(request, course, exercise, post_url, default=None, result=None):
     '''
@@ -33,6 +33,7 @@ def render_configured_template(request, course, exercise, post_url, default=None
         template = default
     else:
         raise ConfigError("Missing \"template\" in exercise configuration.")
+    
     return render_template(request, course, exercise, post_url, template, result)
 
 
@@ -81,15 +82,17 @@ def template_to_str(course, exercise, post_url, template, result=None):
     if template.startswith('./'):
         template = course['key'] + template[1:]
     tpl = loader.get_template(template)
-    return tpl.render(Context(
-        _exercise_context(course, exercise, post_url, result)))
+    return tpl.render(_exercise_context(course, exercise, post_url, result))
 
 
 def _exercise_context(course, exercise, post_url, result=None, request=None):
-    return {
+    ctx = {
         "request": request,
         "course": course,
         "exercise": exercise,
         "post_url": post_url or "",
         "result": result,
     }
+    if "personalized" in exercise and exercise["personalized"] and request:
+        ctx.update(personalized_template_context(course, exercise, request))
+    return ctx

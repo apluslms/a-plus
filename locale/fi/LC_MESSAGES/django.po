@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-05 07:38+0200\n"
+"POT-Creation-Date: 2016-07-06 07:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,14 +18,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: access/templates/access/accept_files_default.html:11
+#: access/templates/access/accept_files_default.html:8
 msgid "Select your files for grading"
 msgstr "Valitse arvosteltavat tiedostot"
 
-#: access/templates/access/accept_files_form.html:15
+#: access/templates/access/accept_files_form.html:6
+#, fuzzy, python-format
+#| msgid ""
+#| "Submit only %(exercise.required_number_of_files)s of the following files."
+msgid ""
+"\n"
+"\t\t\tSubmit only %(num_files)s of the following files.\n"
+"\t\t"
+msgstr "Palauta vain %(num_files)s seuraavista tiedostoista."
+
+#: access/templates/access/accept_files_form.html:23
 #: access/templates/access/accept_git_form.html:16
 #: access/templates/access/accept_post_form.html:17
-#: access/templates/access/graded_form.html:63
+#: access/templates/access/graded_form.html:105
 msgid "Submit"
 msgstr "Lähetä"
 
@@ -51,6 +61,7 @@ msgid "Enter your submission"
 msgstr "Kirjoita ratkaisusi"
 
 #: access/templates/access/ajax.html:2
+#, python-format
 msgid ""
 "\n"
 "You got %(points)s/%(max_points)s for your answer.\n"
@@ -71,11 +82,7 @@ msgid "Submission accepted"
 msgstr "Palautus on vastaanotettu"
 
 #: access/templates/access/async_accepted.html:22
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "\tMissing the %(key)s for result delivery! Grading and logging results.\n"
-#| "\t"
+#, python-format
 msgid ""
 "\n"
 "\tMissing the <code>%(key)s</code> for result delivery!\n"
@@ -153,27 +160,46 @@ msgstr ""
 "Voit vaihtaa vastauksiasi ja arvostella ne\n"
 "uudelleen sivun lopusta. Huomaa jäljellä olevien palautuskertojen määrä!"
 
-#: access/templates/access/exercise_frame.html:15
+#: access/templates/access/exercise_frame.html:17
+#, fuzzy, python-format
+#| msgid "You must submit %(exercise.required_number_of_files)s file(s)."
+msgid ""
+"\n"
+"\t\t\tYou must submit %(num_files)s file.\n"
+"\t\t\t"
+msgid_plural ""
+"\n"
+"\t\t\tYou must submit %(num_files)s files.\n"
+"\t\t\t"
+msgstr[0] "Sinun täytyy palauttaa %(num_files)s tiedosto."
+msgstr[1] "Sinun täytyy palauttaa %(num_files)s tiedostoa."
+
+#: access/templates/access/exercise_frame.html:23
 msgid "Every file is required for a submission."
 msgstr "Palautus vaatii kaikki tiedostot."
 
-#: access/templates/access/exercise_frame.html:19
+#: access/templates/access/exercise_frame.html:29
 msgid "Unknown file received (no file name configured)."
 msgstr "Tuntematon tiedosto vastaanotettu (tiedostonimeä ei ole asetuksissa)."
 
-#: access/templates/access/exercise_frame.html:23
+#: access/templates/access/exercise_frame.html:33
 msgid "Invalid address entered."
 msgstr "Syötetty osoite ei kelpaa."
 
-#: access/templates/access/exercise_frame.html:27
+#: access/templates/access/exercise_frame.html:37
 msgid ""
 "The same form can obly be submitted once. Start again from exercise "
 "description."
-msgstr "Sama lomake voidaan lähettää vain kerran. Aloita uudelleen tehtävänannosta."
+msgstr ""
+"Sama lomake voidaan lähettää vain kerran. Aloita uudelleen tehtävänannosta."
 
-#: access/templates/access/exercise_frame.html:31
+#: access/templates/access/exercise_frame.html:41
 msgid "Missing required fields."
 msgstr "Täytä kaikki pakolliset kentät."
+
+#: access/templates/access/personalized_content_default.html:6
+msgid "Download"
+msgstr "Lataa"
 
 #: access/templates/access/ready.html:6
 msgid "Grader ready"
@@ -248,3 +274,7 @@ msgstr ""
 "Hups, palautuksesi arvostelu kesti yli maksimiajan!\n"
 "Pahoittelemme häiriötä.\n"
 "Yritä myöhemmin uudelleen tai ota yhteyttä kurssihenkilökuntaan."
+
+#: access/types/forms.py:385
+msgid "Multiple choices are selectable."
+msgstr "Voit valita useita vaihtoehtoja."

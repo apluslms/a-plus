@@ -9,7 +9,7 @@
 		{% if entry.more %}
 		{{ entry.more|safe }}
 		{% endif %}
-		<textarea id="{{ entry.name }}_id" name="{{ entry.name }}" class="form-control" rows="6"></textarea>
+		<textarea id="{{ entry.name }}_id" name="{{ entry.name }}" class="form-control" rows="{% if entry.rows %}{{ entry.rows }}{% else %}6{% endif %}"></textarea>
 	</div>
 	{% endfor %}
 	{% if post_url or not result.accepted %}
