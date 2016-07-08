@@ -138,6 +138,10 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.description = str(o["description"])
         if "use_wide_column" in o:
             lobject.use_wide_column = parse_bool(o["use_wide_column"])
+        if "exercise_info" in o:
+            lobject.exercise_info = o["exercise_info"]
+        if "model_answer" in o:
+            lobject.model_answers = o["model_answer"]
         lobject.save()
         seen.append(lobject.id)
         if "children" in o:

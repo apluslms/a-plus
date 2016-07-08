@@ -19,6 +19,7 @@ from course.models import CourseModule, LearningObjectCategory
 from external_services.lti import LTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
+from lib.fields import JSONField
 from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
@@ -72,10 +73,15 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         help_text=_("Internal description is not presented on site."))
     use_wide_column = models.BooleanField(default=False,
         help_text=_("Remove the third info column for more space."))
+
     service_url = models.URLField(blank=True)
+    exercise_info = JSONField(blank=True)
+    model_answers = models.TextField(blank=True)
+
     content = models.TextField(blank=True)
     content_head = models.TextField(blank=True)
     content_time = models.DateTimeField(blank=True, null=True)
+
     objects = LearningObjectManager()
 
     class Meta:
