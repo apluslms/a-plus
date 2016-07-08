@@ -247,7 +247,7 @@ html, body {
     margin: 0;
 }
 .exercise-summary .navbar-nav .navbar-text {
-    margin: 15px;
+    margin: 15px 15px 0 15px;
 }
 .exercise-summary .navbar-nav>li>a,
 .exercise-summary .navbar-nav>.active>a,

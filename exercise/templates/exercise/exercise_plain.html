@@ -41,7 +41,7 @@
 
       {% if exercise.is_submittable %}
 			<nav class="exercise-summary navbar navbar-default">
-				<ul class="nav navbar-nav">
+				<ul class="nav navbar-nav exercise-nav">
 					<li>
 						<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
 							{% trans "Points" %}
