@@ -199,21 +199,21 @@ html, body {
     height: 20px;
     border-left: 1px solid black;
 }
-.badge-danger, .panel-primary>.panel-heading .badge-danger {
-    background-color: #d9534f;
-    color: #fff;
+.badge-danger {
+    background-color: #d9534f !important;
+    color: #fff !important;
 }
-.badge-warning, .panel-primary>.panel-heading .badge-warning {
-    background-color: #f0ad4e;
-    color: #fff;
+.badge-warning {
+    background-color: #f0ad4e !important;
+    color: #fff !important;
 }
-.badge-info, .panel-primary>.panel-heading .badge-info {
-    background-color: #5bc0de;
-    color: #fff;
+.badge-info {
+    background-color: #5bc0de !important;
+    color: #fff !important;
 }
-.badge-success, .panel-primary>.panel-heading .badge-success {
-    background-color: #5cb85c;
-    color: #fff;
+.badge-success {
+    background-color: #5cb85c !important;
+    color: #fff !important;
 }
 .panel-primary>.panel-heading .badge-danger,
 .panel-primary>.panel-heading .badge-warning,
@@ -225,13 +225,46 @@ html, body {
 
 /* exercise wells */
 .exercise {
-    border: 1px solid #e3e3e3;
+    border: 1px solid #bce8f1;/*grey #e3e3e3;*/
     border-radius: 4px;
-    padding: 1em;
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    margin-bottom: 10px;
 }
 .exercise-summary {
-    border-bottom: 1px solid #e3e3e3;
-    margin-bottom: 19px;
+    background-color: #d9edf7;/*primary #337ab7;*/
+    border-color: #bce8f1;/*primary #2e6da4;*/
+    border-radius: 0;
+}
+.exercise .exercise-summary {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.exercise-summary .navbar-nav {
+    margin: 0;
+}
+.exercise-summary .navbar-nav .navbar-text {
+    margin: 15px;
+}
+.exercise-summary .navbar-nav>li>a,
+.exercise-summary .navbar-nav>.active>a,
+.exercise-summary .navbar-nav>.active>a:focus,
+.exercise-summary .navbar-nav>.active>a:hover,
+.exercise-summary .navbar-nav .navbar-text {
+    color: #31708f;
+    background-color: transparent;
+}
+.exercise-summary .navbar-nav>li>a:hover,
+.exercise-summary .navbar-nav>.open>a,
+.exercise-summary .navbar-nav>.open>a:focus,
+.exercise-summary .navbar-nav>.open>a:hover {
+    background-color: rgba(0,0,0,0.04);
+}
+.exercise-response {
+  padding: 0 1em;
 }
 [data-aplus-no-summary] .exercise-summary {
     display: none;
