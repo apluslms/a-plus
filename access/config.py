@@ -196,6 +196,9 @@ class ConfigParser:
         self._check_fields(f, data, ["name"])
         data["key"] = course_key
 
+        if "language" in data:
+            data["lang"] = data["language"]
+
         if "modules" in data:
             keys = []
             config = {}
@@ -230,7 +233,7 @@ class ConfigParser:
             "mtime": t,
             "ptime": time.time(),
             "data": data,
-            "lang": data.get('language', data.get('lang', DEFAULT_LANG)),
+            "lang": data.get('lang', DEFAULT_LANG),
             "exercise_loader": exercise_loader,
             "exercises": {}
         }
