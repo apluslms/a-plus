@@ -14,6 +14,7 @@ from grader.tasks import queue_length as qlength
 from util.http import post_result
 from util.importer import import_named
 from util.personalized import read_generated_exercise_file
+from util import export
 
 
 # Hold on to the latest configuration for several requests.
@@ -120,18 +121,9 @@ def aplus_json(request, course_key):
             of = _type_dict(o, course.get("exercise_types", {}))
             if "config" in of:
                 _, exercise = config.exercise_entry(course["key"], of["key"])
-                if not "title" in of and not "name" in of:
-                    of["title"] = exercise.get("title", "")
-                if not "description" in of:
-                    of["description"] = exercise.get("description", "")
-                of["url"] = request.build_absolute_uri(
-                    reverse('access.views.exercise', args=[
-                        course["key"], exercise["key"]
-                    ]))
+                of = export.exercise(request, course, exercise, of)
             elif "static_content" in of:
-                of["url"] = request.build_absolute_uri(
-                    '{}{}/{}'.format(settings.STATIC_URL,
-                        course["key"], of["static_content"]))
+                of = export.chapter(request, course, of)
             of["children"] = children_recursion(o)
             result.append(of)
         return result
