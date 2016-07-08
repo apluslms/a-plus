@@ -77,15 +77,13 @@ class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, course_id, version):
         """
-        For listing this courses students and links to their points 
+        For listing this courses students and links to their points
         """
         course_instance = CourseInstance.objects.get(course=course_id)
         table = ResultTable(course_instance)
 
         students_results = {}
-        # Parse results for JSON-format. Key is studentnumber + name of student
-        # and the value another dict where the key is name of the exercise and
-        # value is points he has gained, null if not done
+        # Parse results for JSON-format.
         for student in table.students:
             students_results[student.id] = self.student_information(student,
                                                 course_id, request)
