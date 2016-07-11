@@ -100,6 +100,7 @@ class RemotePage:
         domain, path = self.base_address()
         self._fix_relative_urls(domain, path, "img", "src")
         self._fix_relative_urls(domain, path, "script", "src")
+        self._fix_relative_urls(domain, path, "iframe", "src")
         self._fix_relative_urls(domain, path, "link", "href")
         self._fix_relative_urls(domain, path, "a", "href")
 
@@ -107,8 +108,24 @@ class RemotePage:
         test = re.compile('^(#|\/\/|.+:\/\/|data:.+;)', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]
-            if value and not test.match(value):
-                if value[0] == '/':
+
+            # Custom transform for RST chapter to chapter links.
+            if element.has_attr('data-aplus-chapter'):
+                if value and value.endswith('.html'):
+                    element[attr_name] = '../' + value[:-5]
+
+            elif value and not test.match(value):
+
+                # Custom transform for RST generated exercises.
+                if element.has_attr('data-aplus-path'):
+                    fix_path = element['data-aplus-path'].replace(
+                        '{course}',
+                        path.split('/')[1]
+                    )
+                    fix_value = value[2:] if value.startswith('../') else value
+                    element[attr_name] = domain + fix_path + fix_value
+
+                elif value[0] == '/':
                     element[attr_name] = domain + value
                 else:
                     element[attr_name] = domain + path + value

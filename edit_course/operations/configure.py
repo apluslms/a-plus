@@ -86,11 +86,11 @@ def configure_learning_objects(category_map, module, config, parent,
         # Select exercise class.
         if "max_submissions" in o:
             lobject = BaseExercise.objects.filter(
-                course_module__course_instance=module.course_instance,
-                url=str(o["key"])).first()
-            if lobject:
-                lobject.course_module = module
-            else:
+                #course_module__course_instance=module.course_instance,
+                course_module=module,
+                url=str(o["key"])
+            ).first()
+            if not lobject:
                 lobject = BaseExercise(course_module=module, url=str(o["key"]))
             if "allow_assistant_viewing" in o:
                 lobject.allow_assistant_viewing = parse_bool(
@@ -106,11 +106,11 @@ def configure_learning_objects(category_map, module, config, parent,
                         setattr(lobject, key, i)
         else:
             lobject = CourseChapter.objects.filter(
-                course_module__course_instance=module.course_instance,
-                url=str(o["key"])).first()
-            if lobject:
-                lobject.course_module=module
-            else:
+                #course_module__course_instance=module.course_instance,
+                course_module=module,
+                url=str(o["key"])
+            ).first()
+            if not lobject:
                 lobject = CourseChapter(course_module=module, url=str(o["key"]))
             if "generate_table_of_contents" in o:
                 lobject.generate_table_of_contents = parse_bool(
@@ -138,6 +138,10 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.description = str(o["description"])
         if "use_wide_column" in o:
             lobject.use_wide_column = parse_bool(o["use_wide_column"])
+        if "exercise_info" in o:
+            lobject.exercise_info = o["exercise_info"]
+        if "model_answer" in o:
+            lobject.model_answers = o["model_answer"]
         lobject.save()
         seen.append(lobject.id)
         if "children" in o:
@@ -296,7 +300,6 @@ def configure_content(instance, url):
                 and parse_bool(config["numerate_ignoring_modules"])):
             nn = 0
         if "children" in m:
-            print(nn, m['name'])
             nn = configure_learning_objects(category_map, module, m["children"],
                 None, seen_objects, errors, nn)
 
