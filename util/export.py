@@ -1,14 +1,17 @@
 from django.conf import settings
 
 
+def url_to_course(request, course_key, path):
+    ''' Creates an URL for a course path '''
+    return request.build_absolute_uri(
+        '/{}/{}'.format(course_key, path)
+    )
+
+
 def url_to_static(request, course_key, path):
     ''' Creates an URL for a path in static files '''
     return request.build_absolute_uri(
-        '{}{}/{}'.format(
-            settings.STATIC_URL,
-            course_key,
-            path
-        )
+        '{}{}/{}'.format(settings.STATIC_URL, course_key, path)
     )
 
 
@@ -24,7 +27,8 @@ def exercise(request, course, exercise, of):
         of["title"] = exercise.get("title", "")
     if not "description" in of:
         of["description"] = exercise.get("description", "")
-    of['url'] = url_to_static(request, course['key'], exercise['key'])
+    print(course['key'], exercise['key'])
+    of['url'] = url_to_course(request, course['key'], exercise['key'])
     of['exercise_info'] = {
         'form_spec': form_fields(exercise),
         'resources': [url_to_static(request, course['key'], p) for p in exercise.get('resource_files', [])],
