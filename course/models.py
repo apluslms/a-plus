@@ -9,13 +9,14 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
-from lib.helpers import safe_file_name, resize_image, roman_numeral
+from lib.helpers import safe_file_name, resize_image, roman_numeral, get_random_string
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
@@ -110,6 +111,26 @@ def build_upload_dir(instance, filename):
     )
 
 
+class Enrollment(models.Model):
+    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    personal_code = models.CharField(max_length=10, blank=True, default='')
+
+
+def create_enrollment_code(sender, instance, created, **kwargs):
+    if created:
+        easychars = '0123456789ABCDEFGHJKLMNPQRSTUVXYZ'
+        code = get_random_string(6, easychars)
+        while Enrollment.objects.filter(course_instance=instance.course_instance, personal_code=code).exists():
+            code = get_random_string(6, easychars)
+        instance.personal_code = code
+        instance.save()
+
+
+post_save.connect(create_enrollment_code, sender=Enrollment)
+
+
 class CourseInstance(UrlMixin, models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have
@@ -166,7 +187,7 @@ class CourseInstance(UrlMixin, models.Model):
                                    content_type_field="container_type")
 
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
-    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True)
+    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True, through='Enrollment')
     # categories from course.models.LearningObjectCategory
     # course_modules from course.models.CourseModule
 
@@ -219,7 +240,7 @@ class CourseInstance(UrlMixin, models.Model):
 
     def enroll_student(self, user):
         if user and user.is_authenticated() and not self.is_course_staff(user):
-            self.students.add(user.userprofile)
+            Enrollment.objects.create(course_instance=self, user_profile=user.userprofile)
 
     def get_course_staff_profiles(self):
         return UserProfile.objects.filter(Q(teaching_courses=self.course) | Q(assisting_courses=self))\
