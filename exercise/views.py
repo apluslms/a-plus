@@ -75,11 +75,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             url_name=self.post_url_name)
 
         if self.profile:
-            try:
-                LearningObjectDisplay.objects.get_or_create(
-                    learning_object=self.exercise, profile=self.profile)
-            except MultipleObjectsReturned:
-                pass
+            LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
 
         return super().get(request, *args, page=page, students=students, **kwargs)
 
