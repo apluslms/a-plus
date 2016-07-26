@@ -44,7 +44,7 @@
 <li role="presentation" class="header"><h4>{% trans "Apps" %}</h4></li>
 {% for tab in instance.tabs.all %}
 <li role="presentation" class="menu-tab{{ tab.id }}">
-    <a href="{% url 'apps-tab' course=course.url instance=instance.url tab_id=tab.id %}">
+    <a href="{% url 'apps-tab' course_slug=course.url instance_slug=instance.url tab_id=tab.id %}">
         <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
         {{ tab.label }}
     </a>
