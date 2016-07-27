@@ -41,6 +41,7 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    print(" API URLS:")
-    for url in api.urls:
-        print("  - %r" % (url,))
+    _len = max((len(url.name) for url in api.urls))
+    _fmt = "  - %%-%ds %%s" % (_len,)
+    _urls = '\n'.join((_fmt % (url.name, url.regex.pattern) for url in api.urls))
+    print(" API URLS:\n%s" % (_urls,))
