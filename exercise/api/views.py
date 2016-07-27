@@ -5,13 +5,16 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from lib.api.mixins import MeUserMixin
+from lib.api.constants import REGEX_INT, REGEX_INT_ME
+
 from ..models import (
     Submission,
     BaseExercise,
     SubmissionManager,
 )
 from .serializers import *
-from course.api.serializers import LearningObjectSerializer as ExerciseSerializer
+from .full_serializers import *
 
 
 class ExerciseViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -22,11 +25,13 @@ class ExerciseViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'exercise_id'
+    lookup_value_regex = REGEX_INT
     serializer_class = ExerciseSerializer
     queryset = BaseExercise.objects.all()
 
 
 class ExerciseSubmissionsViewSet(NestedViewSetMixin,
+                                 MeUserMixin,
                                  mixins.ListModelMixin,
                                  viewsets.GenericViewSet):
     """
@@ -38,10 +43,25 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
     """
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = (TokenAuthentication,) # CSRF validation skipped
-    lookup_url_kwarg = 'exercise_submissions'
-    parent_lookup_map = {'exercise_id': 'exercise.id'}
-    serializer_class = SubmissionSerializer
+    lookup_url_kwarg = 'user_id'
+    lookup_field = 'submitters__user__id'
+    lookup_value_regex = REGEX_INT_ME
+    parent_lookup_map = {
+        'exercise_id': 'exercise.id',
+    }
+    serializer_class = SubmissionBriefSerializer
     queryset = Submission.objects.all()
+
+    def filter_queryset(self, queryset):
+        lookup_field = self.lookup_field
+        lookup_url_kwarg = self.lookup_url_kwarg or lookup_field
+        if lookup_url_kwarg in self.kwargs:
+            filter_kwargs = {lookup_field: self.kwargs[lookup_url_kwarg]}
+            queryset = queryset.filter(**filter_kwargs)
+        return super(ExerciseSubmissionsViewSet, self).filter_queryset(queryset)
+
+    def retrieve(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
     # For POSTing a submission. An extra parameter exercise_id comes
     # from url. UNDER CONSTRUCTION!
@@ -72,3 +92,11 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class SubmissionViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_url_kwarg = 'submission_id'
+    lookup_value_regex = REGEX_INT
+    serializer_class = SubmissionSerializer
+    queryset = Submission.objects.all()

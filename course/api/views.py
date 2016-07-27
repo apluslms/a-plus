@@ -5,9 +5,10 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from lib.api.mixins import ListSerializerMixin
+from lib.api.mixins import ListSerializerMixin, MeUserMixin
+from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
-from userprofile.api.serializers import UserBriefSerialiser
+from userprofile.api.serializers import UserBriefSerializer
 from exercise.models import BaseExercise
 from exercise.presentation.results import ResultTable
 
@@ -16,11 +17,13 @@ from ..models import (
     CourseModule,
 )
 from .serializers import *
+from .full_serializers import *
 
 
 class CourseViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'course_id'
+    lookup_value_regex = REGEX_INT
     listserializer_class = CourseBriefSerializer
     serializer_class = CourseSerializer
     queryset = CourseInstance.objects.all().filter(visible_to_students=True)
@@ -29,16 +32,20 @@ class CourseViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
 class CourseExercisesViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'exercisemodule_id'
+    lookup_value_regex = REGEX_INT
     parent_lookup_map = {'course_id': 'course_instance.id'}
     serializer_class = CourseModuleSerializer
     queryset = CourseModule.objects.all()
 
 
-class CourseStudentsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class CourseStudentsViewSet(NestedViewSetMixin,
+                            MeUserMixin,
+                            viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'user_id'
+    lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {'course_id': 'enrolled.id'}
-    serializer_class = UserBriefSerialiser
+    serializer_class = UserBriefSerializer
     queryset = UserProfile.objects.all()
 
 

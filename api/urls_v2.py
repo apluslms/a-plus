@@ -33,6 +33,10 @@ with api.register(r'exercises',
                        exercise.api.views.ExerciseSubmissionsViewSet,
                        base_name='exercise-submissions')
 
+api.register(r'submissions',
+             exercise.api.views.SubmissionViewSet,
+             base_name='submission')
+
 urlpatterns = [
     url(r'^', include(api.urls, namespace='api')),
 

@@ -4,7 +4,7 @@ Django==1.7.7
 django-bootstrap-form==3.2
 django-tastypie==0.12.1
 djangorestframework==3.3.3
--e git+https://github.com/raphendyr/drf-extensions.git@d8878beea0b051170262f7ca10edc9bf9ec76ddb#egg=drf_extensions
+-e git+https://github.com/raphendyr/drf-extensions.git@5201aa008bc8ac8d70c712af187e1c7939a5e49c#egg=drf_extensions
 feedparser
 html5lib
 icalendar==3.9.0

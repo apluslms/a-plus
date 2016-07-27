@@ -81,5 +81,5 @@ class ExerciceSubmissionAPITest(TestCase):
         """
         client = APIClient()
         client.force_authenticate(user=self.student)
-        response = client.get('/api/v2/exercises/1/submissions/1/')
+        response = client.get('/api/v2/submissions/1/')
         self.assertEqual(response.data, {'detail': 'Not found.'})
