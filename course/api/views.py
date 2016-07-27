@@ -5,7 +5,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework import status
 from rest_framework.reverse import reverse
 
-from lib.api import ListSerializerMixin
+from lib.api.mixins import ListSerializerMixin
 from userprofile.models import UserProfile
 from userprofile.api.serializers import UserBriefSerialiser
 from exercise.models import BaseExercise

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
-from lib.api import HtmlViewField
+from lib.api.serializers import HtmlViewField
 
 from userprofile.api.serializers import UserBriefSerialiser
 
@@ -9,6 +9,14 @@ from ..models import (
     CourseModule,
 )
 from exercise.models import BaseExercise
+
+
+__all__ = [
+    'LearningObjectSerializer',
+    'CourseModuleSerializer',
+    'CourseBriefSerializer',
+    'CourseSerializer',
+]
 
 
 class LearningObjectSerializer(serializers.HyperlinkedModelSerializer):

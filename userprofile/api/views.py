@@ -2,7 +2,7 @@ from rest_framework import permissions, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from lib.api import ListSerializerMixin
+from lib.api.mixins import ListSerializerMixin
 
 from ..models import UserProfile
 from .serializers import *

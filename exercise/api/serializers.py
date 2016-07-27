@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from lib.api import HtmlViewField
+from lib.api.serializers import HtmlViewField
 from ..models import LearningObject, Submission, BaseExercise
+
+
+__all__ = [
+    'LearningObjectSerializer',
+    'SubmissionSerializer',
+]
+
 
 # LearningObject is base of exercises.
 class LearningObjectSerializer(serializers.ModelSerializer):

@@ -230,11 +230,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'lib.api.APlusJSONRenderer',
+        'lib.api.core.APlusJSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'lib.api.APlusContentNegotiation',
-    'DEFAULT_VERSIONING_CLASS': 'lib.api.APlusVersioning',
+    'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'lib.api.core.APlusContentNegotiation',
+    'DEFAULT_VERSIONING_CLASS': 'lib.api.core.APlusVersioning',
     'PAGE_SIZE': 100,
     'DEFAULT_VERSION': '2',
     'ALLOWED_VERSIONS': {

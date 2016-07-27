@@ -4,6 +4,12 @@ from course.models import CourseInstance
 from ..models import UserProfile
 
 
+__all__ = [
+    'UserBriefSerialiser',
+    'UserSerializer',
+]
+
+
 class UserBriefSerialiser(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         source='user.id',
