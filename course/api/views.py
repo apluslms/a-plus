@@ -4,47 +4,42 @@ from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework import status
 from rest_framework.reverse import reverse
+
 from lib.api import ListSerializerMixin
+from userprofile.models import UserProfile
+from userprofile.api.serializers import UserBriefSerialiser
+from exercise.models import BaseExercise
+from exercise.presentation.results import ResultTable
 
 from ..models import (
     CourseInstance,
     CourseModule,
 )
-from .serializers import (
-    CourseBriefSerializer,
-    CourseSerializer,
-    CourseModuleSerializer,
-)
-from userprofile.models import UserProfile
-from userprofile.api.serializers import UserBriefSerialiser
-from exercise.models import BaseExercise
-
-# For fetching points on specific course
-from exercise.presentation.results import ResultTable
+from .serializers import *
 
 
 class CourseViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = CourseInstance.objects.filter(visible_to_students=True)
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'course_id'
     listserializer_class = CourseBriefSerializer
     serializer_class = CourseSerializer
+    queryset = CourseInstance.objects.all().filter(visible_to_students=True)
 
 
 class CourseExercisesViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'exercisemodule_id'
+    parent_lookup_map = {'course_id': 'course_instance.id'}
     serializer_class = CourseModuleSerializer
     queryset = CourseModule.objects.all()
-    parent_lookup_map = {'course_id': 'course_instance.id'}
 
 
 class CourseStudentsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'user_id'
+    parent_lookup_map = {'course_id': 'enrolled.id'}
     serializer_class = UserBriefSerialiser
     queryset = UserProfile.objects.all()
-    parent_lookup_map = {'course_id': 'enrolled.id'}
 
 
 class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):

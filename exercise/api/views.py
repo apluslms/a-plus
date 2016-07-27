@@ -1,27 +1,34 @@
-from rest_framework import generics, permissions, viewsets
-from rest_framework.authentication import TokenAuthentication
-from ..models import LearningObject, Submission, BaseExercise, SubmissionManager
-from rest_framework_extensions.mixins import NestedViewSetMixin
 from django.http import HttpResponse
-from rest_framework.response import Response
+from rest_framework import mixins, permissions, viewsets
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.response import Response
+from rest_framework_extensions.mixins import NestedViewSetMixin
+
+from ..models import (
+    Submission,
+    BaseExercise,
+    SubmissionManager,
+)
 from .serializers import *
 from course.api.serializers import LearningObjectSerializer as ExerciseSerializer
-from rest_framework import mixins
 
-class ExerciseViewSet(mixins.RetrieveModelMixin,
-                                viewsets.GenericViewSet):
+
+class ExerciseViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     Url for GETting information about an exercise. (List of exercises can be
     fetched from /api/v2/courses/1/exercices)
     /api/v2/exercises/{exercise_id} (/api/v2/exercises/ does not actually exist)
     """
-    queryset = BaseExercise.objects.all()
-    serializer_class = ExerciseSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'exercise_id'
+    serializer_class = ExerciseSerializer
+    queryset = BaseExercise.objects.all()
 
-class ExerciseSubmissionsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+
+class ExerciseSubmissionsViewSet(NestedViewSetMixin,
+                                 mixins.ListModelMixin,
+                                 viewsets.GenericViewSet):
     """
     * /api/v2/exercises/{exercise_id}/submissions
     * POST: Make a submission. Returns brief information about submission
@@ -31,10 +38,10 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = (TokenAuthentication,) # CSRF validation skipped
-    serializer_class = SubmissionSerializer
-    queryset = Submission.objects.all()
     lookup_url_kwarg = 'exercise_submissions'
     parent_lookup_map = {'exercise_id': 'exercise.id'}
+    serializer_class = SubmissionSerializer
+    queryset = Submission.objects.all()
 
     # For POSTing a submission. An extra parameter exercise_id comes
     # from url. UNDER CONSTRUCTION!
