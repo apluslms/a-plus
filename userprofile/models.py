@@ -87,34 +87,3 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 # Attach to the post_save signal.
 post_save.connect(create_user_profile, sender=User)
-
-
-class StudentGroup(models.Model):
-    """
-    Students may form a group that can make a submission together.
-    """
-
-    members = models.ManyToManyField(UserProfile, related_name="groups")
-    name = models.CharField(max_length=32, unique=True)
-    description = models.CharField(max_length=256)
-    member_limit = models.PositiveIntegerField()
-    is_public = models.BooleanField(default=False)
-    invitation_key = models.CharField(max_length=10, blank=True)
-
-    class Meta:
-        ordering = ['name']
-
-    def get_names(self):
-        return ", ".join(x.shortname for x in self.members.all())
-
-    def has_space_left(self):
-        return self.members.count() < self.member_limit
-
-    def add_member(self, new_member):
-        if self.members.count() >= self.member_limit or new_member in self.members.all():
-            return False
-        self.members.add(new_member)
-        return True
-
-    def __str__(self):
-        return self.name

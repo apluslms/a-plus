@@ -19,6 +19,22 @@ def course_menu(context):
     return { "instances": context["course_menu"] }
 
 
+@register.inclusion_tag('course/_group_select.html', takes_context=True)
+def group_select(context):
+    groups = []
+    enrollment = None
+    profile = context.get('profile', None)
+    instance = context.get('instance', None)
+    if profile and instance:
+        groups = list(profile.groups.filter(course_instance=instance))
+        enrollment = instance.get_enrollment_for(profile.user)
+    return {
+        'groups': groups,
+        'enrollment': enrollment,
+        'instance': instance,
+    }
+
+
 @register.filter
 def url(model_object, name=None):
     if name:
@@ -34,6 +50,11 @@ def profiles(profiles):
             profile.student_id if profile.student_id else profile.user.username
         ) for profile in profiles
     )
+
+
+@register.inclusion_tag('course/_avatars.html')
+def avatars(profiles):
+    return { 'profiles': profiles }
 
 
 @register.simple_tag

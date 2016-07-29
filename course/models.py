@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -65,6 +65,49 @@ class Course(UrlMixin, models.Model):
         return dict(course_slug=self.url)
 
 
+class StudentGroup(models.Model):
+    """
+    Stores a user group for a course instance.
+    """
+    course_instance = models.ForeignKey('CourseInstance', related_name='groups')
+    members = models.ManyToManyField(UserProfile, related_name='groups')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['course_instance','timestamp']
+
+    @classmethod
+    def get_exact(cls, course_instance, member_profiles):
+        qs = cls.objects.filter(course_instance=course_instance) \
+            .annotate(count=Count('members')).filter(count=len(member_profiles))
+        for profile in member_profiles:
+            qs.filter(members=profile)
+        return qs.first()
+
+
+class Enrollment(models.Model):
+    """
+    Maps an enrolled student in a course instance.
+    """
+    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    personal_code = models.CharField(max_length=10, blank=True, default='')
+    selected_group = models.ForeignKey(StudentGroup, blank=True, null=True, default=None, on_delete=models.SET_NULL)
+
+
+def create_enrollment_code(sender, instance, created, **kwargs):
+    if created:
+        easychars = '0123456789ABCDEFGHJKLMNPQRSTUVXYZ'
+        code = get_random_string(6, easychars)
+        while Enrollment.objects.filter(course_instance=instance.course_instance, personal_code=code).exists():
+            code = get_random_string(6, easychars)
+        instance.personal_code = code
+        instance.save()
+
+post_save.connect(create_enrollment_code, sender=Enrollment)
+
+
 class CourseInstanceManager(models.Manager):
     """
     Helpers in CourseInstance.objects
@@ -109,26 +152,6 @@ def build_upload_dir(instance, filename):
         instance.id,
         safe_file_name(filename)
     )
-
-
-class Enrollment(models.Model):
-    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    personal_code = models.CharField(max_length=10, blank=True, default='')
-
-
-def create_enrollment_code(sender, instance, created, **kwargs):
-    if created:
-        easychars = '0123456789ABCDEFGHJKLMNPQRSTUVXYZ'
-        code = get_random_string(6, easychars)
-        while Enrollment.objects.filter(course_instance=instance.course_instance, personal_code=code).exists():
-            code = get_random_string(6, easychars)
-        instance.personal_code = code
-        instance.save()
-
-
-post_save.connect(create_enrollment_code, sender=Enrollment)
 
 
 class CourseInstance(UrlMixin, models.Model):
@@ -241,6 +264,9 @@ class CourseInstance(UrlMixin, models.Model):
     def enroll_student(self, user):
         if user and user.is_authenticated() and not self.is_course_staff(user):
             Enrollment.objects.create(course_instance=self, user_profile=user.userprofile)
+
+    def get_enrollment_for(self, user):
+        return Enrollment.objects.filter(course_instance=self, user_profile=user.userprofile).first()
 
     def get_course_staff_profiles(self):
         return UserProfile.objects.filter(Q(teaching_courses=self.course) | Q(assisting_courses=self))\

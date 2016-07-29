@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load course %}
+{% load exercise %}
 {% load notification %}
 {% load external_services %}
 
@@ -26,6 +27,14 @@
 		{% endif %}
     </a>
 </li>
+{% if instance|max_group_size > 1 %}
+<li role="presentation" class="menu-groups">
+		<a href="{{ instance|url:'groups' }}">
+				<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+				{% trans "Form a group" %}
+		</a>
+</li>
+{% endif %}
 
 {% external_menu_entries instance.pk as entries %}
 {% if entries|length > 0 %}

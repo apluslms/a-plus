@@ -10,6 +10,7 @@ class ACCESS(object):
     ANONYMOUS = 0
     ENROLL = 1
     STUDENT = 3
+    ENROLLED = 4
     ASSISTANT = 5
     GRADING = 6
     TEACHER = 10

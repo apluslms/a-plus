@@ -253,6 +253,10 @@ class BaseExercise(LearningObject):
             raise ValidationError({
                 'points_to_pass':_("Points to pass cannot be greater than max_points.")
             })
+        if self.min_group_size > self.max_group_size:
+            raise ValidationError({
+                'min_group_size':_("Minimum group size cannot exceed maximum size.")
+            })
 
     @property
     def is_submittable(self):

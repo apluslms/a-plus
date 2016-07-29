@@ -88,8 +88,9 @@
                             </li>
                         </ul>
                         <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
-                            {% notification_menu %}
                             {% if user.is_authenticated %}
+                            {% group_select %}
+                            {% notification_menu %}
                             <li role="presentation" class="menu-profile">
                                 <a href="{% url 'profile' %}">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
