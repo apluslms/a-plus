@@ -1,12 +1,14 @@
-from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import mixins, permissions, viewsets
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
+from rest_framework.decorators import detail_route
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from lib.api.mixins import MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
+from userprofile.models import UserProfile
 
 from ..models import (
     Submission,
@@ -94,9 +96,54 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
+                                    MeUserMixin,
+                                    viewsets.GenericViewSet):
+    """
+    Viewset contains info about exercise stats per user
+    this includes current grade and submission count
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_url_kwarg = 'user_id'
+    lookup_value_regex = REGEX_INT_ME
+    serializer_class = SubmitterStatsSerializer
+
+    def retrieve(self, request, exercise_id, user_id, **kwargs):
+        user = ( request.user.userprofile
+                 if user_id == request.user.id
+                 else get_object_or_404(UserProfile, user_id=user_id) )
+        submissions = ( Submission.objects.all()
+            .filter(exercise_id=exercise_id, submitters=user)
+            .order_by('-grade', '-submission_time') )
+        submission_count = submissions.count()
+        best_submission = submissions[0] if submission_count > 0 else None
+        data = {
+            'exercise_id': exercise_id,
+            'user': user,
+            'submissions': submissions,
+            'submission_count': submission_count, # FIXME: doesn't skip false
+            'best_submission': best_submission,
+            'grade': best_submission.grade if best_submission else None,
+        }
+        serializer = self.get_serializer(data)
+        return Response(serializer.data)
+
+
 class SubmissionViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """
+    Interface to exercise submission model.
+    Listing all submissions is not allowed (as there is no point),
+    but are linked from exercises tree (`/exercise/<id>/submissions/`).
+    """
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'submission_id'
     lookup_value_regex = REGEX_INT
     serializer_class = SubmissionSerializer
     queryset = Submission.objects.all()
+
+    @detail_route()
+    def grading(self, request, *args, **kwargs):
+        instance = self.get_object()
+        context = self.get_serializer_context()
+        serializer = SubmissionGradingSerializer(instance=instance, context=context)
+        return Response(serializer.data)

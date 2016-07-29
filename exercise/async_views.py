@@ -118,6 +118,7 @@ def _get_async_submission_info(exercise, students):
             submitters__in=students) \
         .order_by('-grade')
 
+    # FIXME: does count submissions that are not supposed to be counted
     submission_count = submissions.count()
     if submission_count > 0:
         current_points = submissions.first().grade

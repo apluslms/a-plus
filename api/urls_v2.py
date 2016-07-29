@@ -32,6 +32,9 @@ with api.register(r'exercises',
     exercises.register(r'submissions',
                        exercise.api.views.ExerciseSubmissionsViewSet,
                        base_name='exercise-submissions')
+    exercises.register(r'submitter_stats',
+                       exercise.api.views.ExerciseSubmitterStatsViewSet,
+                       base_name='exervise-submitter_stats')
 
 api.register(r'submissions',
              exercise.api.views.SubmissionViewSet,

@@ -1,8 +1,13 @@
 from rest_framework import serializers
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
-from userprofile.api.serializers import UserListField
+from lib.api.serializers import (
+    AplusSerializerMeta,
+    AplusModelSerializerBase,
+)
+from userprofile.api.serializers import UserBriefSerializer
 
+from ..models import Submission
 from .serializers import (
     ExerciseBriefSerializer,
     SubmissionBriefSerializer,
@@ -11,7 +16,9 @@ from .serializers import (
 
 __all__ = [
     'ExerciseSerializer',
+    'SubmitterStatsSerializer',
     'SubmissionSerializer',
+    'SubmissionGradingSerializer',
 ]
 
 
@@ -23,6 +30,13 @@ class ExerciseSerializer(ExerciseBriefSerializer):
     )
     my_submissions = NestedHyperlinkedIdentityField(
         view_name='api:exercise-submissions-detail',
+        lookup_map={
+            'exercise_id': 'id',
+            'user_id': lambda o=None: 'me',
+        },
+    )
+    my_stats = NestedHyperlinkedIdentityField(
+        view_name='api:exervise-submitter_stats-detail',
         lookup_map={
             'exercise_id': 'id',
             'user_id': lambda o=None: 'me',
@@ -41,21 +55,71 @@ class ExerciseSerializer(ExerciseBriefSerializer):
         fields = (
             'is_submittable',
             'post_url',
+            'max_points',
+            'max_submissions',
             'submissions',
             'my_submissions',
+            'my_stats',
+        )
+
+
+class SubmitterStatsSerializer(serializers.Serializer):
+    url = NestedHyperlinkedIdentityField(
+        view_name='api:exervise-submitter_stats-detail',
+        lookup_map={
+            'exercise_id': 'exercise_id',
+            'user_id': 'user.user_id',
+        },
+    )
+    exercise = NestedHyperlinkedIdentityField(
+        view_name='api:exercise-detail',
+        lookup_map={ 'exercise_id': 'exercise_id' },
+    )
+    user = UserBriefSerializer()
+    submission_count = serializers.IntegerField()
+    best_submission = SubmissionBriefSerializer()
+    grade = serializers.IntegerField()
+
+    class Meta(AplusSerializerMeta):
+        fields = (
+            'url',
+            'exercise',
+            'user',
+            'submission_count',
+            'best_submission',
+            'grade',
         )
 
 
 class SubmissionSerializer(SubmissionBriefSerializer):
-    #exercises = NestedHyperlinkedIdentityField(view_name='api:course-exercises-list', format='html')
-    submitters = UserListField()
-    #NestedHyperlinkedIdentityField(view_name='api:course-students-list', format='html')
+    exercise = ExerciseBriefSerializer()
+    submitters = UserBriefSerializer(many=True)
 
     class Meta(SubmissionBriefSerializer.Meta):
         fields = (
             'html_url',
-            #'exercise',
+            'exercise',
             'submitters',
-            #'submission_data',
-            #'is_submittable',
+            'status',
+            'grade',
+            'grading_time',
+        )
+
+
+class SubmissionGradingSerializer(AplusModelSerializerBase):
+    url = NestedHyperlinkedIdentityField(
+        view_name='api:submission-grading',
+        lookup_map='exercise.api.views.SubmissionViewSet',
+    )
+    submission = SubmissionBriefSerializer(source='*')
+    exercise = ExerciseBriefSerializer()
+
+    class Meta(AplusSerializerMeta):
+        model = Submission
+        fields = (
+                'url',
+                'submission',
+                'exercise',
+                'grading_data',
+                'is_graded',
         )

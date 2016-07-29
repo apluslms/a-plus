@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
+
 from lib.api.serializers import AplusModelSerializer
 
 from ..models import Submission, BaseExercise
@@ -32,9 +33,9 @@ class SubmissionBriefSerializer(AplusModelSerializer):
 
     class Meta(AplusModelSerializer.Meta):
         model = Submission
-        #fields = (
-        #    'display_name',
-        #)
+        fields = (
+            'submission_time',
+        )
         extra_kwargs = {
             'url': {
                 'view_name': 'api:submission-detail',
