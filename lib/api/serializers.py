@@ -46,17 +46,9 @@ class AplusSerializerMeta(metaclass=AplusSerializerMetaMetaclass):
     pass
 
 
-class AplusModelSerializer(NestedHyperlinkedModelSerializer):
+class AplusModelSerializerBase(NestedHyperlinkedModelSerializer):
     url_field_name = 'url'
     html_url_field_name = 'html_url'
-
-    class Meta(AplusSerializerMeta):
-        fields = (
-            'id',
-            'url',
-        )
-
-    id = serializers.IntegerField(source='pk', read_only=True)
 
     def get_field_names(self, declared_fields, info):
         fields = list(super().get_field_names(declared_fields, info))
@@ -74,3 +66,13 @@ class AplusModelSerializer(NestedHyperlinkedModelSerializer):
             kwargs.update(extra_kwargs[self.url_field_name])
             return (NestedHyperlinkedIdentityField, kwargs)
         return super().build_unknown_field(field_name, model_class)
+
+
+class AplusModelSerializer(AplusModelSerializerBase):
+    id = serializers.IntegerField(source='pk', read_only=True)
+
+    class Meta(AplusSerializerMeta):
+        fields = (
+            'id',
+            'url',
+        )
