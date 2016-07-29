@@ -478,21 +478,21 @@ class ExerciseTest(TestCase):
 
     def test_submission_status(self):
         self.assertEqual("initialized", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.submission.set_error()
         self.assertEqual("error", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.submission.set_waiting()
         self.assertEqual("waiting", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.submission.set_error()
         self.assertEqual("error", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.assertEqual(None, self.submission.grading_time)
         self.submission.set_ready()
         self.assertIsInstance(self.submission.grading_time, datetime)
         self.assertEqual("ready", self.submission.status)
-        self.assertTrue(self.submission.is_graded())
+        self.assertTrue(self.submission.is_graded)
 
     def test_submission_absolute_url(self):
         self.assertEqual("/Course-Url/T-00.1000_d1/test-module/b1/submissions/1/", self.submission.get_absolute_url())
