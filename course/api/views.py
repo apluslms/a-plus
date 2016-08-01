@@ -58,7 +58,7 @@ class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         Also there's included points to pass value in course module
         and total of gathered points in that module
         """
-        course_instance = CourseInstance.objects.get(course=course_id)
+        course_instance = CourseInstance.objects.get(id=course_id)
         table = ResultTable(course_instance)
         try:
             student_id = int(pk)
@@ -81,7 +81,7 @@ class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         """
         For listing this courses students and links to their points
         """
-        course_instance = CourseInstance.objects.get(course=course_id)
+        course_instance = CourseInstance.objects.get(id=course_id)
         table = ResultTable(course_instance)
 
         students_results = {}
