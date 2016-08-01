@@ -1,4 +1,8 @@
+from collections import OrderedDict
+from functools import partial
+from django.db.models import Manager
 from rest_framework import serializers
+from rest_framework.fields import get_attribute
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 from rest_framework_extensions.serializers import NestedHyperlinkedModelSerializer
 
@@ -22,6 +26,45 @@ class HtmlViewField(serializers.ReadOnlyField):
         request = self.context['request']
         url = obj.get_absolute_url()
         return request.build_absolute_uri(url)
+
+
+class AttributeProxy(object):
+    def __init__(self, obj, **kwargs):
+        self._obj = obj
+        self._kwargs = kwargs
+
+    def __getattr__(self, key):
+        try:
+            return self._kwargs[key]
+        except KeyError:
+            return getattr(self._obj, key)
+
+
+def zip_instance_extra_with_iterable(instance, iterable, extra):
+    extra_attrs = dict(
+        (key, get_attribute(instance, attrs.split('.')))
+        for key, attrs in extra.items()
+    )
+    return (AttributeProxy(item, **extra_attrs) for item in iterable)
+
+
+class CompositeListSerializer(serializers.ListSerializer):
+    @classmethod
+    def with_extra(cls, extra):
+        return partial(cls, extra=extra)
+
+    def __init__(self, instance=None, data=serializers.empty, extra=None, **kwargs):
+        self.__extra = extra
+        source = kwargs.get('source', None)
+        if instance and source:
+            iterable = instance[source]
+            instance = zip_instance_extra_with_iterable(instance, iterable, extra)
+        super(CompositeListSerializer, self).__init__(instance=instance, data=data, **kwargs)
+
+    def get_attribute(self, instance):
+        data = super(CompositeListSerializer, self).get_attribute(instance)
+        iterable = data.all() if isinstance(data, Manager) else data
+        return zip_instance_extra_with_iterable(instance, iterable, self.__extra)
 
 
 class AplusSerializerMetaMetaclass(type):

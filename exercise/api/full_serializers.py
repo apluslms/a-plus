@@ -2,6 +2,8 @@ from rest_framework import serializers
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
 from lib.api.serializers import (
+    AlwaysListSerializer,
+    CompositeListSerializer,
     AplusSerializerMeta,
     AplusModelSerializerBase,
 )
@@ -17,6 +19,7 @@ from .serializers import (
 __all__ = [
     'ExerciseSerializer',
     'SubmitterStatsSerializer',
+    'UserListFieldWithStatsLink',
     'SubmissionSerializer',
     'SubmissionGradingSerializer',
 ]
@@ -91,9 +94,27 @@ class SubmitterStatsSerializer(serializers.Serializer):
         )
 
 
+class UserListFieldWithStatsLink(AlwaysListSerializer, UserBriefSerializer):
+    exercise_stats = NestedHyperlinkedIdentityField(
+        view_name='api:exervise-submitter_stats-detail',
+        lookup_map={
+            'exercise_id': 'exercise_id',
+            'user_id': 'id',
+        },
+    )
+
+    class Meta(UserBriefSerializer.Meta):
+        list_serializer_class = CompositeListSerializer.with_extra({
+            'exercise_id': 'exercise_id',
+        })
+        fields = (
+            'exercise_stats',
+        )
+
+
 class SubmissionSerializer(SubmissionBriefSerializer):
     exercise = ExerciseBriefSerializer()
-    submitters = UserBriefSerializer(many=True)
+    submitters = UserListFieldWithStatsLink()
 
     class Meta(SubmissionBriefSerializer.Meta):
         fields = (

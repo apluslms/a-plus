@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
-from lib.api.mixins import MeUserMixin
+from lib.api.mixins import MeUserMixin, ListSerializerMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
 
@@ -97,7 +97,9 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
 
 
 class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
+                                    ListSerializerMixin,
                                     MeUserMixin,
+                                    mixins.ListModelMixin,
                                     viewsets.GenericViewSet):
     """
     Viewset contains info about exercise stats per user
@@ -106,7 +108,21 @@ class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
+    parent_lookup_map = {
+        'exercise_id': 'submissions.exercise.id',
+    }
+    listserializer_class = UserListFieldWithStatsLink
     serializer_class = SubmitterStatsSerializer
+    queryset = UserProfile.objects
+
+    def get_serializer(self, queryset, **kwargs):
+        if self.action == 'list':
+            queryset = {
+                'submitters': queryset,
+                'exercise_id': self.kwargs['exercise_id'],
+            }
+            kwargs['source'] = 'submitters'
+        return super(ExerciseSubmitterStatsViewSet, self).get_serializer(queryset, **kwargs)
 
     def retrieve(self, request, exercise_id, user_id, **kwargs):
         user = ( request.user.userprofile
