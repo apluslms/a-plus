@@ -7,6 +7,7 @@ from lib.api.serializers import (
     AplusSerializerMeta,
     AplusModelSerializerBase,
 )
+from course.api.serializers import CourseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer
 
 from ..models import Submission
@@ -26,6 +27,7 @@ __all__ = [
 
 
 class ExerciseSerializer(ExerciseBriefSerializer):
+    course = CourseBriefSerializer(source='course_instance')
     post_url = serializers.SerializerMethodField()
     submissions = NestedHyperlinkedIdentityField(
         view_name='api:exercise-submissions-list',
@@ -56,6 +58,7 @@ class ExerciseSerializer(ExerciseBriefSerializer):
 
     class Meta(ExerciseBriefSerializer.Meta):
         fields = (
+            'course',
             'is_submittable',
             'post_url',
             'max_points',
