@@ -15,10 +15,8 @@ class AlwaysListSerializer(object):
 
 class HtmlViewField(serializers.ReadOnlyField):
     def __init__(self, *args, **kwargs):
+        kwargs['source'] = '*'
         super(HtmlViewField, self).__init__(*args, **kwargs)
-
-    def get_attribute(self, obj):
-        return obj
 
     def to_representation(self, obj):
         request = self.context['request']
