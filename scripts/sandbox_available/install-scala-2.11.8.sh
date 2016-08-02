@@ -12,7 +12,7 @@ then
 	mkdir -p /usr/local/scala
 	cd /usr/local/scala/
 
-	wget --no-check-certificate -O $NAME $URL
+	wget --no-check-certificate -nv -O $NAME $URL
 	tar xvf $NAME
 	rm $NAME
 fi

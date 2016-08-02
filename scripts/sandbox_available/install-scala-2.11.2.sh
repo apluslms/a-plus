@@ -19,7 +19,7 @@ then
 	tar zxvf $NAME
 	rm $NAME
 
-	wget --no-check-certificate -O $PATCH_NAME $PATCH_URL
+	wget --no-check-certificate -nv -O $PATCH_NAME $PATCH_URL
 	mv $PATCH_NAME $DIR/lib/
 fi
 
