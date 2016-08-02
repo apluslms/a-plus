@@ -223,6 +223,7 @@ class Submission(UrlMixin, models.Model):
             return False
         return True
 
+    @property
     def is_graded(self):
         return self.status == self.STATUS_READY
 

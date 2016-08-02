@@ -1,28 +1,28 @@
 from rest_framework import permissions, viewsets
 from rest_framework.views import APIView
-from rest_framework import authentication, permissions
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from rest_framework.renderers import JSONRenderer
 
-from lib.api import ListSerializerMixin
-
-from lib.api import ListSerializerMixin
+from lib.api.mixins import ListSerializerMixin, MeUserMixin
+from lib.api.constants import REGEX_INT_ME
 
 from ..models import UserProfile
-from .serializers import \
-    UserSerializer, UserBriefSerialiser
+from .serializers import *
+from .full_serializers import *
 
 
-class UserViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = UserProfile.objects.all()
+class UserViewSet(ListSerializerMixin,
+                  MeUserMixin,
+                  viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'user_id'
-    listserializer_class = UserBriefSerialiser
+    lookup_value_regex = REGEX_INT_ME
+    listserializer_class = UserBriefSerializer
     serializer_class = UserSerializer
+    queryset = UserProfile.objects.all()
 
     # if update is required, change to normal modelviewset and
     # change permissions
+
 
 class MeDetail(APIView):
     """

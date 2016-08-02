@@ -80,7 +80,7 @@ def submission_points(submission, classes=None):
         "passed": passed,
         "full_score": submission.grade >= exercise.max_points,
         "submitted": True,
-        "status": False if submission.is_graded() else submission.status
+        "status": False if submission.is_graded else submission.status
     }
 
 

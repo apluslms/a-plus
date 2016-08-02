@@ -1,24 +1,44 @@
 from rest_framework import serializers
-from lib.api import HtmlViewField
-from ..models import LearningObject, Submission, BaseExercise
+from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
-# LearningObject is base of exercises.
-class LearningObjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = LearningObject
-        fields = ('name', 'course_module', 'url', 'content', 'service_url', 'objects')
+from lib.api.serializers import AplusModelSerializer
 
-class SubmissionSerializer(serializers.HyperlinkedModelSerializer):
-    html_url = HtmlViewField()
+from ..models import Submission, BaseExercise
+
+
+__all__ = [
+    'ExerciseBriefSerializer',
+    'SubmissionBriefSerializer',
+]
+
+
+class ExerciseBriefSerializer(AplusModelSerializer):
+    url = NestedHyperlinkedIdentityField(
+        view_name='api:exercise-detail',
+        lookup_map='exercise.api.views.ExerciseViewSet',
+    )
     display_name = serializers.CharField(source='__str__')
 
-    class Meta:
+    class Meta(AplusModelSerializer.Meta):
+        model = BaseExercise
+        fields = (
+            'url',
+            'html_url',
+            'display_name',
+        )
+
+
+class SubmissionBriefSerializer(AplusModelSerializer):
+    #display_name = serializers.CharField(source='__str__')
+
+    class Meta(AplusModelSerializer.Meta):
         model = Submission
         fields = (
-            'html_url',
-            'exercise',
-            'submitters',
-            'submission_data',
-            'display_name',
-            'is_submittable',
+            'submission_time',
         )
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:submission-detail',
+                'lookup_map': 'exercise.api.views.SubmissionViewSet',
+            }
+        }

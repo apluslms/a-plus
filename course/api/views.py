@@ -4,47 +4,49 @@ from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework import status
 from rest_framework.reverse import reverse
-from lib.api import ListSerializerMixin
+
+from lib.api.mixins import ListSerializerMixin, MeUserMixin
+from lib.api.constants import REGEX_INT, REGEX_INT_ME
+from userprofile.models import UserProfile
+from userprofile.api.serializers import UserBriefSerializer
+from exercise.models import BaseExercise
+from exercise.presentation.results import ResultTable
 
 from ..models import (
     CourseInstance,
     CourseModule,
 )
-from .serializers import (
-    CourseBriefSerializer,
-    CourseSerializer,
-    CourseModuleSerializer,
-)
-from userprofile.models import UserProfile
-from userprofile.api.serializers import UserBriefSerialiser
-from exercise.models import BaseExercise
-
-# For fetching points on specific course
-from exercise.presentation.results import ResultTable
+from .serializers import *
+from .full_serializers import *
 
 
 class CourseViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = CourseInstance.objects.filter(visible_to_students=True)
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'course_id'
+    lookup_value_regex = REGEX_INT
     listserializer_class = CourseBriefSerializer
     serializer_class = CourseSerializer
+    queryset = CourseInstance.objects.all().filter(visible_to_students=True)
 
 
 class CourseExercisesViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'exercisemodule_id'
+    lookup_value_regex = REGEX_INT
+    parent_lookup_map = {'course_id': 'course_instance.id'}
     serializer_class = CourseModuleSerializer
     queryset = CourseModule.objects.all()
-    parent_lookup_map = {'course_id': 'course_instance.id'}
 
 
-class CourseStudentsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class CourseStudentsViewSet(NestedViewSetMixin,
+                            MeUserMixin,
+                            viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'user_id'
-    serializer_class = UserBriefSerialiser
-    queryset = UserProfile.objects.all()
+    lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {'course_id': 'enrolled.id'}
+    serializer_class = UserBriefSerializer
+    queryset = UserProfile.objects.all()
 
 
 class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
@@ -56,7 +58,7 @@ class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         Also there's included points to pass value in course module
         and total of gathered points in that module
         """
-        course_instance = CourseInstance.objects.get(course=course_id)
+        course_instance = CourseInstance.objects.get(id=course_id)
         table = ResultTable(course_instance)
         try:
             student_id = int(pk)
@@ -79,7 +81,7 @@ class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         """
         For listing this courses students and links to their points
         """
-        course_instance = CourseInstance.objects.get(course=course_id)
+        course_instance = CourseInstance.objects.get(id=course_id)
         table = ResultTable(course_instance)
 
         students_results = {}
