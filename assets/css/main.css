@@ -124,6 +124,33 @@ html, body {
     color: #75A5D0;
     margin: 0;
 }
+.navbar-nav>li.menu-groups>a.dropdown-toggle {
+    background: rgba(255, 0, 0, 0.3);
+}
+.navbar-nav>li.menu-groups>a.dropdown-toggle:hover,
+.navbar-nav>li.menu-groups.open>a.dropdown-toggle {
+    background: rgba(255, 0, 0, 0.4);
+}
+.navbar-nav>li.menu-groups .profile-avatars {
+    display: inline-block;
+    margin: -6px 3px;
+}
+.dropdown-menu>li button {
+  display: block;
+  border: none;
+  background: transparent;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: 400;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+  text-align: left;
+  width: 100%;
+}
+.dropdown-menu>li button:hover {
+  background: #eee;
+}
 
 /* menus */
 .course-menu .nav>li>a {

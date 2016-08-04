@@ -4,7 +4,11 @@
 <li role="presentation" class="menu-groups">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
     {% if enrollment.selected_group %}
-    <small>{% trans "You are now submitting as a group" %}</small>
+    <small>
+      {% blocktrans with collaborators=enrollment.selected_group.collaborators|names %}
+      You are now submitting with {{ collaborators }}
+      {% endblocktrans %}
+    </small>
     {% avatars enrollment.selected_group.members.all %}
     {% else %}
     <small>{% trans "You are now submitting alone" %}</small>
@@ -15,7 +19,7 @@
     <li>
       <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
-        <button type="submit" name="group" value="0" class="btn btn-link">
+        <button type="submit" name="group" value="0">
           {% trans "Submit alone" %}
         </button>
       </form>
@@ -24,8 +28,10 @@
     <li>
       <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
-        <button type="submit" name="group" value="{{ group.id }}" class="btn btn-link">
-          {{ group.members.all|profiles }}
+        <button type="submit" name="group" value="{{ group.id }}">
+          {% blocktrans with collaborators=group.collaborators|names %}
+          Submit with {{ collaborators }}
+          {% endblocktrans %}
         </button>
       </form>
     </li>

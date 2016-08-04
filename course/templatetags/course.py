@@ -21,16 +21,26 @@ def course_menu(context):
 
 @register.inclusion_tag('course/_group_select.html', takes_context=True)
 def group_select(context):
-    groups = []
     enrollment = None
+    groups = []
     profile = context.get('profile', None)
     instance = context.get('instance', None)
     if profile and instance:
-        groups = list(profile.groups.filter(course_instance=instance))
         enrollment = instance.get_enrollment_for(profile.user)
+        groups = list(profile.groups.filter(course_instance=instance))
+
+        # Annotate collaborators.
+        def collaborators(group):
+            return [p for p in group.members.all() if p != profile]
+        if enrollment.selected_group:
+            enrollment.selected_group.collaborators = collaborators(enrollment.selected_group)
+        for g in groups:
+            g.collaborators = collaborators(g)
+
     return {
-        'groups': groups,
         'enrollment': enrollment,
+        'groups': groups,
+        'profile': profile,
         'instance': instance,
     }
 
@@ -46,10 +56,15 @@ def url(model_object, name=None):
 def profiles(profiles):
     return ", ".join(
         "{} ({})".format(
-            profile.user.get_full_name(),
-            profile.student_id if profile.student_id else profile.user.username
-        ) for profile in profiles
+            p.user.get_full_name(),
+            p.student_id if p.student_id else p.user.username
+        ) for p in profiles
     )
+
+
+@register.filter
+def names(profiles):
+    return ", ".join(p.user.get_full_name() for p in profiles)
 
 
 @register.inclusion_tag('course/_avatars.html')
