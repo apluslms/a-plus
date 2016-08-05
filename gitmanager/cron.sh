@@ -11,7 +11,7 @@ TOUCH="/etc/uwsgi/grader.ini"
 SQL="sqlite3 -batch -noheader -column db.sqlite3 "
 TRY_PYTHON="/srv/grader/venv/bin/activate"
 
-if [ -x $TRY_PYTHON ]; then
+if [ -f $TRY_PYTHON ]; then
   source $TRY_PYTHON
 fi
 
