@@ -1,16 +1,20 @@
 #!/bin/bash
 
-PYTHON=$1
+TRY_PYTHON=$1
 key=$2
 id=$3
 url=$4
 branch=$5
-echo "Processing key=$key id=$id url=$url branch=$branch python=$PYTHON"
+echo "Processing key=$key id=$id url=$url branch=$branch python=$TRY_PYTHON"
 
 if [ -d exercises ]; then
   CDIR=exercises
 else
   CDIR=courses
+fi
+
+if [ -x $TRY_PYTHON ]; then
+  source $TRY_PYTHON
 fi
 
 # Update from git origin and move to dir.
@@ -34,7 +38,7 @@ fi
 cd ../..
 
 # Link to static.
-static_dir=`$PYTHON gitmanager/cron.py static $key`
+static_dir=`python gitmanager/cron.py static $key`
 if [ "$static_dir" != "" ]; then
   echo "Link static dir $static_dir"
   cd static

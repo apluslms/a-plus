@@ -9,11 +9,10 @@ touch $FLAG
 LOG="/tmp/mooc-grader-log"
 TOUCH="/etc/uwsgi/grader.ini"
 SQL="sqlite3 -batch -noheader -column db.sqlite3 "
-TRY_PYTHON="/srv/grader/venv/bin/python"
+TRY_PYTHON="/srv/grader/venv/bin/activate"
 
-PYTHON="python"
 if [ -x $TRY_PYTHON ]; then
-  PYTHON=$TRY_PYTHON
+  source $TRY_PYTHON
 fi
 
 cd `dirname $0`/..
@@ -36,7 +35,7 @@ for key in $keys; do
   vals=(`$SQL "select id,git_origin,git_branch from gitmanager_courserepo where key='$key';"`)
   id=${vals[0]}
 
-  sudo -u $USER gitmanager/cron_pull_build.sh $PYTHON $key ${vals[@]} >> $LOG 2>&1
+  sudo -u $USER gitmanager/cron_pull_build.sh $TRY_PYTHON $key ${vals[@]} >> $LOG 2>&1
 
   # Update sandbox.
   if [ -d /var/sandbox ]; then
@@ -44,7 +43,7 @@ for key in $keys; do
   fi
 
   # Write to database.
-  data=`$PYTHON gitmanager/cron.py log $LOG`
+  data=`python gitmanager/cron.py log $LOG`
   $SQL "update gitmanager_courseupdate set log='$data',updated_time=CURRENT_TIMESTAMP,updated=1 where course_repo_id=$id and updated=0;"
 
   # Clean up old entries.
