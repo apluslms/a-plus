@@ -74,8 +74,9 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 		* `template_context` (optional): Context dictionary containing key value pairs for rendering the included file.
 	* `instructions` (optional): Most default templates will print given
 		instructions HTML before the exercise widgets.
-	* `instructions_file` (optional): Like above but is a path to an HTML file to
-		be included. If both `instructions` and `instructions_file` are given,
+	* `instructions_file` (optional): Like above but is a path to an HTML file to be included.
+    If the path starts with './', it will be prepended with the course key.
+    If both `instructions` and `instructions_file` are given,
 		`instructions` will be placed before the content of `instructions_file`.
 	* `max_points` (optional): The maximum exercise points (positive int).
 		Overrides any maximum points reported by test actions.

@@ -33,7 +33,7 @@ def render_configured_template(request, course, exercise, post_url, default=None
         template = default
     else:
         raise ConfigError("Missing \"template\" in exercise configuration.")
-    
+
     return render_template(request, course, exercise, post_url, template, result)
 
 
@@ -93,6 +93,8 @@ def _exercise_context(course, exercise, post_url, result=None, request=None):
         "post_url": post_url or "",
         "result": result,
     }
+    if 'instructions_file' in exercise and exercise['instructions_file'].startswith('./'):
+        exercise['instructions_file'] = course['key'] + exercise['instructions_file'][1:]
     if "personalized" in exercise and exercise["personalized"] and request:
         ctx.update(personalized_template_context(course, exercise, request))
     return ctx
