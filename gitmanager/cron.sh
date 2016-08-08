@@ -38,8 +38,12 @@ for key in $keys; do
   sudo -u $USER gitmanager/cron_pull_build.sh $TRY_PYTHON $key ${vals[@]} >> $LOG 2>&1
 
   # Update sandbox.
-  if [ -d /var/sandbox ]; then
-    ./manage_sandbox.sh -q create $key >> $LOG 2>&1
+  if [ -d /var/sandbox_$key ]; then
+    ./manage_sandbox.sh -d /var/sandbox_$key -q create $key >> $LOG 2>&1
+  else
+    if [ -d /var/sandbox ]; then
+      ./manage_sandbox.sh -q create $key >> $LOG 2>&1
+    fi
   fi
 
   # Write to database.
