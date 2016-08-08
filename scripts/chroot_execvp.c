@@ -77,6 +77,27 @@ int main(int argc, char *argv[])
 
 	connect_signals();
 
+	// Look for course specific sandbox.
+	char *course = argv[argp + 5];
+	char sandbox[strlen(SANDBOX_DIR) + strlen(course) + 2];
+	strcpy(sandbox, SANDBOX_DIR);
+	strcat(sandbox, "_");
+	strcat(sandbox, course);
+	DIR* test = opendir(sandbox);
+	if (test)
+	{
+		closedir(test);
+	}
+	else if (ENOENT == errno)
+	{
+		sandbox[strlen(SANDBOX_DIR)] = 0;
+	}
+	else
+	{
+		fprintf(stderr, "FAILED: looking for course specific sandbox\n");
+		return fail("main");
+	}
+
 	// Make static dir variable.
 	dir = malloc(strlen(argv[argp + 4]) + 1);
 	if (dir == NULL)
@@ -92,8 +113,8 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "FAILED: access %s\n", dir);
 			return fail("main");
 		}*/
-		char tmp_path[strlen(SANDBOX_DIR) + strlen(TMP_PATH) + 1];
-		strcpy(tmp_path, SANDBOX_DIR);
+		char tmp_path[strlen(sandbox) + strlen(TMP_PATH) + 1];
+		strcpy(tmp_path, sandbox);
 		strcat(tmp_path, TMP_PATH);
 		/*if (access(tmp_path, R_OK | W_OK | X_OK) != 0)
 		{
@@ -136,7 +157,7 @@ int main(int argc, char *argv[])
 	char *local_path = TMP_PATH;
 	if (path != NULL)
 	{
-		local_path = path + strlen(SANDBOX_DIR);
+		local_path = path + strlen(sandbox);
 	}
 	unsigned long int memory = parse_number(argv[argp + 1]);
 	unsigned long int files = parse_number(argv[argp + 2]);
@@ -158,9 +179,9 @@ int main(int argc, char *argv[])
 	}
 	if (pid == 0)
 	{
-		if (chroot(SANDBOX_DIR) != 0)
+		if (chroot(sandbox) != 0)
 		{
-			fprintf(stderr, "FAILED: chroot %s\n", SANDBOX_DIR);
+			fprintf(stderr, "FAILED: chroot %s\n", sandbox);
 			return fail("main");
 		}
 		if (setuid(uid) != 0)
