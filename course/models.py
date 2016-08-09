@@ -207,6 +207,10 @@ class CourseInstance(UrlMixin, models.Model):
         (1, _("Arabic")),
         (2, _("Roman")),
     ), default=1)
+    head_urls = models.TextField(blank=True,
+        help_text=_("External CSS and JS resources "
+            "that are included on all course pages. "
+            "Separate with white space."))
     configure_url = models.URLField(blank=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
@@ -308,6 +312,13 @@ class CourseInstance(UrlMixin, models.Model):
             return True
         return user and self.is_course_staff(user)
 
+    @property
+    def head_css_urls(self):
+        return [url for url in self.head_urls.split() if url.endswith(".css")]
+
+    @property
+    def head_js_urls(self):
+        return [url for url in self.head_urls.split() if url.endswith(".js")]
 
     ABSOLUTE_URL_NAME = "course"
     EDIT_URL_NAME = "course-edit"
