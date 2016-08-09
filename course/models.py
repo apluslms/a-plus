@@ -186,6 +186,8 @@ class CourseInstance(UrlMixin, models.Model):
     ), default=2)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
+    enrollment_starting_time = models.DateTimeField(blank=True, null=True, default=None)
+    enrollment_ending_time = models.DateTimeField(blank=True, null=True, default=None)
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
     language = models.CharField(max_length=5, blank=True, default="")
     description = models.TextField(blank=True)
@@ -259,7 +261,7 @@ class CourseInstance(UrlMixin, models.Model):
             and self.students.filter(id=user.userprofile.id).exists()
 
     def is_enrollable(self, user):
-        if user and user.is_authenticated() and timezone.now() < self.ending_time:
+        if user and user.is_authenticated():
             if self.enrollment_audience == 1:
                 return not user.userprofile.is_external
             if self.enrollment_audience == 2:
@@ -289,6 +291,17 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_open(self):
         return self.starting_time <= timezone.now() <= self.ending_time
+
+    @property
+    def enrollment_start(self):
+        return self.enrollment_starting_time or self.starting_time
+
+    @property
+    def enrollment_end(self):
+        return self.enrollment_ending_time or self.ending_time
+
+    def is_enrollment_open(self):
+        return self.enrollment_start <= timezone.now() <= self.enrollment_end
 
     def is_visible_to(self, user=None):
         if self.visible_to_students:

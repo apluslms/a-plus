@@ -12,19 +12,29 @@
 {% if not enrolled %}
 <div class="alert alert-info">
 {% if enrollable or is_course_staff %}
-<form method="post" action="{{ instance|url:'enroll' }}">
-  {% csrf_token %}
-  {% if instance.view_content_to > 1 %}
-  {% trans "In order to submit exercises, you must enroll in the course." %}
+  {% if instance.is_enrollment_open %}
+  <form method="post" action="{{ instance|url:'enroll' }}">
+    {% csrf_token %}
+    {% if instance.view_content_to > 1 %}
+    {% blocktrans with end=instance.enrollment_end %}
+    In order to submit exercises, you must enroll in the course. Enroll by {{ end }}
+    {% endblocktrans %}
+    {% else %}
+    {% blocktrans with end=instance.enrollment_end %}
+    In order to submit exercises and see material, you must enroll in the course. Enroll by {{ end }}
+    {% endblocktrans %}
+    {% endif %}
+    <input type="submit" value="{% trans 'Enroll' %}" class="btn btn-info">
+  </form>
   {% else %}
-  {% trans "In order to submit exercises and see material, you must enroll in the course." %}
+  {% blocktrans with start=instance.enrollment_start end=instance.enrollment_end %}
+  The course enrollment opens {{ start }} and closes {{ end }}
+  {% endblocktrans %}
   {% endif %}
-  <input type="submit" value="{% trans 'Enroll' %}" class="btn btn-info">
-</form>
 {% elif profile %}
-{% trans "Unfortunately, you cannot enroll in this course, but you may explore the course material." %}
+  {% trans "Unfortunately, you cannot enroll in this course, but you may explore the course material." %}
 {% else %}
-{% trans "Login is required to submit exercises, but you may anonymously explore the course material." %}
+  {% trans "Login is required to submit exercises, but you may anonymously explore the course material." %}
 {% endif %}
 </div>
 {% endif %}

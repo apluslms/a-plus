@@ -73,6 +73,10 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
             messages.error(self.request, _("You cannot enroll, or have already enrolled, to this course."))
             raise PermissionDenied()
 
+        if not self.is_enrollment_open():
+            messages.error(self.request, _("The enrollment is not open."))
+            raise PermissionDenied()
+
         # Support enrollment questionnaires.
         exercise = LearningObject.objects.find_enrollment_exercise(self.instance)
         if exercise:
