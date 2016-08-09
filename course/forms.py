@@ -49,6 +49,7 @@ class GroupsForm(forms.Form):
         group = StudentGroup(course_instance=self.instance)
         group.save()
         group.members.add(*self.member_profiles)
+        return group
 
 
 class GroupSelectForm(forms.Form):
@@ -76,3 +77,4 @@ class GroupSelectForm(forms.Form):
         enrollment = self.instance.get_enrollment_for(self.profile.user)
         enrollment.selected_group = self.selected_group
         enrollment.save()
+        return enrollment

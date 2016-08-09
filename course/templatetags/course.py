@@ -30,12 +30,10 @@ def group_select(context):
         groups = list(profile.groups.filter(course_instance=instance))
 
         # Annotate collaborators.
-        def collaborators(group):
-            return [p for p in group.members.all() if p != profile]
         if enrollment and enrollment.selected_group:
-            enrollment.selected_group.collaborators = collaborators(enrollment.selected_group)
+            enrollment.selected_group.collaborators = enrollment.selected_group.collaborators_of(profile)
         for g in groups:
-            g.collaborators = collaborators(g)
+            g.collaborators = g.collaborators_of(profile)
 
     return {
         'enrollment': enrollment,

@@ -144,6 +144,7 @@ class GroupsView(CourseInstanceMixin, BaseFormView):
 class GroupSelect(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.ENROLLED
     form_class = GroupSelectForm
+    template_name = "course/_group_info.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -161,9 +162,11 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
         return HttpResponse('Invalid group selection')
 
     def form_valid(self, form):
-        form.save()
+        enrollment = form.save()
         if self.request.is_ajax():
-            return HttpResponse('OK')
+            if enrollment.selected_group:
+                enrollment.selected_group.collaborators = enrollment.selected_group.collaborators_of(self.profile)
+            return self.response(enrollment=enrollment)
         return super().form_valid(form)
 
 

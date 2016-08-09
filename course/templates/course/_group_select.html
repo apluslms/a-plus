@@ -3,17 +3,15 @@
 {% if groups %}
 <li role="presentation" class="menu-groups">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-    {% if enrollment.selected_group %}
-    <small>
-      {% blocktrans with collaborators=enrollment.selected_group.collaborators|names %}
-      You are now submitting with {{ collaborators }}
-      {% endblocktrans %}
-    </small>
-    {% avatars enrollment.selected_group.members.all %}
-    {% else %}
-    <small>{% trans "You are now submitting alone" %}</small>
-    {% endif %}
-    <span class="caret" aria-hidden="true"></span>
+    <span class="selection">
+      <small>
+        {% include "course/_group_info.html" %}
+      </small>
+      <span class="caret" aria-hidden="true"></span>
+    </span>
+    <span class="loader hidden">
+      <small>{% trans "Registering selection..." %}</small>
+    </span>
   </a>
   <ul class="dropdown-menu">
     <li>

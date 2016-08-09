@@ -87,6 +87,9 @@ class StudentGroup(models.Model):
     def equals(self, profiles):
         return set(self.members.all()) == set(profiles)
 
+    def collaborators_of(self, profile):
+        return [p for p in self.members.all() if p != profile]
+
 
 class Enrollment(models.Model):
     """
