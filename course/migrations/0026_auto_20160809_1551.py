@@ -14,13 +14,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='courseinstance',
             name='enrollment_ending_time',
-            field=models.DateTimeField(blank=True, null=True, default=None),
+            field=models.DateTimeField(blank=True, null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='courseinstance',
             name='enrollment_starting_time',
-            field=models.DateTimeField(blank=True, null=True, default=None),
+            field=models.DateTimeField(blank=True, null=True),
             preserve_default=True,
         ),
     ]

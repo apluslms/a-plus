@@ -48,7 +48,7 @@ class ExerciceSubmissionAPITest(TestCase):
         #self.learning_object_category1.
 
         # Add a student to course instance
-        self.course_instance1.students.add(self.student_profile)
+        self.course_instance1.enroll_student(self.student_profile.user)
 
     # Not finished
     def test_post_submission(self):

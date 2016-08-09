@@ -6,7 +6,8 @@ from course.models import CourseInstance
 
 
 def enroll_submitters(apps, schema_editor):
-    for instance in CourseInstance.objects.all():
+    Model = apps.get_model('course', 'CourseInstance')
+    for instance in Model.objects.all():
         instance.students = instance.get_submitted_profiles()
         instance.save()
 

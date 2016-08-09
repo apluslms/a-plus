@@ -338,7 +338,7 @@ class BaseExercise(LearningObject):
             if not self.course_instance.is_enrollable(profile):
                 warnings.append(_('You cannot enroll in the course.'))
                 return False, warnings, students
-        elif not enrollment and not self.course_instance.is_course_staff(profile):
+        elif not enrollment and not self.course_instance.is_course_staff(profile.user):
             warnings.append(_('You must enroll at course home to submit exercises.'))
             return False, warnings, students
 
@@ -396,7 +396,7 @@ class BaseExercise(LearningObject):
             return len(submitters) > 1 or submitters[0] != profile
 
     def _detect_submissions(self, profile, enrollment):
-        if enrollment.selected_group:
+        if enrollment and enrollment.selected_group:
             return not all(
                 len(self.get_submissions_for_student(p)) == 0
                 for p in enrollment.selected_group.members.all() if p != profile
