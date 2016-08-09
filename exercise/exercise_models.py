@@ -262,15 +262,6 @@ class BaseExercise(LearningObject):
     def is_submittable(self):
         return True
 
-    def all_have_enrolled(self, students):
-        if not students:
-            return False
-        for profile in students:
-            if not (self.course_instance.is_student(profile.user) \
-                    or self.course_instance.is_course_staff(profile.user)):
-                return False
-        return True
-
     def one_has_access(self, students, when=None):
         """
         Checks if any of the users can submit taking the granted extra time
@@ -323,46 +314,65 @@ class BaseExercise(LearningObject):
                 return True
         return False
 
-    def is_submission_allowed(self, students):
+    def is_submission_allowed(self, profile):
         """
         Checks whether the submission to this exercise is allowed for the given
-        users and generates list of warnings.
+        user and generates a list of warnings.
 
         @return: (success_flag, warning_message_list)
         """
-        success, warnings = self._check_submission_allowed(students)
-        return success, list(str(w) for w in warnings)
+        success, warnings, students = self._check_submission_allowed(profile)
+        return success, list(str(w) for w in warnings), students
 
-    def _check_submission_allowed(self, students):
+    def _check_submission_allowed(self, profile):
         warnings = []
+        students = [profile]
 
         if self.course_instance.ending_time < timezone.now():
             warnings.append(_('The course is archived. Exercises are offline.'))
-            return False, warnings
+            return False, warnings, students
 
+        # Check enrollment requirements.
+        enrollment = self.course_instance.get_enrollment_for(profile.user)
         if self.status == LearningObject.STATUS_ENROLLMENT:
-            if not len(students) == 1 and \
-                    not self.course_instance.is_enrollable(students[0].user):
+            if not self.course_instance.is_enrollable(profile):
                 warnings.append(_('You cannot enroll in the course.'))
-                return False, warnings
-        elif not self.all_have_enrolled(students):
+                return False, warnings, students
+        elif not enrollment and not self.course_instance.is_course_staff(profile):
             warnings.append(_('You must enroll at course home to submit exercises.'))
-            return False, warnings
+            return False, warnings, students
 
-        # Check different submission limits.
+        # Check groups cannot be changed after submitting.
+        submissions = list(self.get_submissions_for_student(profile))
+        if len(submissions) > 0:
+            if self._detect_group_changes(profile, enrollment, submissions[0]):
+                warnings.append(_('You have previously submitted to this exercise with a different group. Group can only change between different exercises.'))
+                return False, warnings, students
+        elif self._detect_submissions(profile, enrollment):
+            warnings.append(_('Some members of the group have already submitted to this exercise in a different group.'))
+            return False, warnings, students
+
+        # Get submitters.
+        if enrollment and enrollment.selected_group:
+            students = list(enrollment.selected_group.members.all())
+
         if not self.one_has_access(students):
             warnings.append(_('This exercise is not open for submissions.'))
-        if not (self.min_group_size <= len(students) <= self.max_group_size):
-            warnings.append(
-                _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
-                  'The size of your current group is %(size)d.') % {
-                    'min': self.min_group_size,
-                    'max': self.max_group_size,
-                    'size': len(students),
-                })
+
         if not self.one_has_submissions(students):
+            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
+
+        # Check group size.
+        if not (self.min_group_size <= len(students) <= self.max_group_size):
+            if self.max_group_size == self.min_group_size:
+                size = "{:d}".format(self.min_group_size)
+            else:
+                size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
             warnings.append(
-                _('You have used the allowed amount of submissions for this exercise.'))
+                _("This exercise can be submitted in groups of {size} students."
+                  "The size of your current group is {current}.")\
+                .format(size=size, current=len(students))
+            )
 
         success = len(warnings) == 0 \
             or all(self.course_instance.is_course_staff(p.user) for p in students)
@@ -375,7 +385,23 @@ class BaseExercise(LearningObject):
                     date=date_format(self.course_module.late_submission_deadline),
                     percent=self.course_module.get_late_submission_point_worth(),
                 ))
-        return success, warnings
+
+        return success, warnings, students
+
+    def _detect_group_changes(self, profile, enrollment, submission):
+        submitters = list(submission.submitters.all())
+        if enrollment.selected_group:
+            return not enrollment.selected_group.equals(submitters)
+        else:
+            return len(submitters) > 1 or submitters[0] != profile
+
+    def _detect_submissions(self, profile, enrollment):
+        if enrollment.selected_group:
+            return not all(
+                len(self.get_submissions_for_student(p)) == 0
+                for p in enrollment.selected_group.members.all() if p != profile
+            )
+        return False
 
     def get_total_submitter_count(self):
         return UserProfile.objects \

@@ -32,7 +32,7 @@ def group_select(context):
         # Annotate collaborators.
         def collaborators(group):
             return [p for p in group.members.all() if p != profile]
-        if enrollment.selected_group:
+        if enrollment and enrollment.selected_group:
             enrollment.selected_group.collaborators = collaborators(enrollment.selected_group)
         for g in groups:
             g.collaborators = collaborators(g)

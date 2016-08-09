@@ -15,7 +15,10 @@
             <dt>{% trans "Submission time" %}</dt>
             <dd>{{ submission.submission_time }}</dd>
             <dt>{% trans "Grade" %}</dt>
-            <dd>{{ submission.grade }} / {{ submission.exercise.max_points }}</dd>
+            <dd>
+                {{ submission.grade }} / {{ submission.exercise.max_points }}
+                ({% trans "grader output" %} {{ submission.service_points }} / {{ submission.service_max_points }})
+            </dd>
             {% if submission.late_penalty_applied %}
             <dt>{% trans "Includes late penalty" %}</dt>
             <dd>-{{ submission.late_penalty_applied|percent }}%</dd>

@@ -84,6 +84,9 @@ class StudentGroup(models.Model):
             qs.filter(members=profile)
         return qs.first()
 
+    def equals(self, profiles):
+        return set(self.members.all()) == set(profiles)
+
 
 class Enrollment(models.Model):
     """
