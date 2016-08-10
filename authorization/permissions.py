@@ -1,3 +1,8 @@
+from django.utils.translation import ugettext_lazy as _
+
+from lib.helpers import Enum
+from lib.messages import error as error_msg
+
 """
 Base permission classes.
 
@@ -46,3 +51,50 @@ class NoPermission(Permission):
 
     def has_object_permission(self, request, view, obj):
         return False
+
+
+# Access mode
+# ===========
+
+# All access levels
+ACCESS = Enum(
+    ('ANONYMOUS', 0, _("Any user authenticated or not")),
+    ('ENROLL', 1, None),
+    ('STUDENT', 3, _("Any authenticated student")),
+    ('ENROLLED', 4, _("Enrolled student of the course")),
+    ('ASSISTANT', 5, _("Assistant of the course")),
+    ('GRADING', 6, _("Grading. Assistant if course has that option or teacher")),
+    ('TEACHER', 10, _("Teacher of the course")),
+)
+
+
+class AccessModePermission(Permission):
+    """
+    If view has access_mode that is not anonymous, then require authentication
+    """
+    message = _("Permission denied by access mode")
+
+    def has_permission(self, request, view):
+        access_mode = view.get_access_mode()
+
+        if access_mode == ACCESS.ANONYMOUS:
+            return True
+        if not request.user.is_authenticated():
+            return False
+
+        if access_mode >= ACCESS.TEACHER:
+            if not view.is_teacher:
+                error_msg(request, _("Only course teachers shall pass."))
+                return False
+
+        elif access_mode >= ACCESS.ASSISTANT:
+            if not view.is_course_staff:
+                error_msg(request, _("Only course staff shall pass."))
+                return False
+
+        elif access_mode == ACCESS.ENROLLED:
+            if not view.instance.is_student(request.user):
+                error_msg(request, _("Only enrolled students shall pass."))
+                return False
+
+        return True

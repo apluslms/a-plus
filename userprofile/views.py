@@ -6,7 +6,8 @@ from django.shortcuts import resolve_url
 from django.utils.http import is_safe_url
 
 from lib.helpers import settings_text
-from .viewbase import UserProfileView, ACCESS
+from authorization.permissions import ACCESS
+from .viewbase import UserProfileView
 
 
 def login(request):

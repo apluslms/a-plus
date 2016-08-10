@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView
-from userprofile.viewbase import ACCESS
+from authorization.permissions import ACCESS
 from .models import LearningObject, Submission, BaseExercise
 
 
@@ -29,12 +29,13 @@ class ExerciseMixin(CourseModuleMixin):
                 and self.exercise.status == LearningObject.STATUS_HIDDEN:
             raise Http404()
         if isinstance(self.exercise, BaseExercise):
-            if self.access_mode >= ACCESS.ASSISTANT:
+            access_mode = self.get_access_mode()
+            if access_mode >= ACCESS.ASSISTANT:
                 if not (self.is_teacher or self.exercise.allow_assistant_viewing):
                     messages.error(self.request,
                         _("Assistant viewing is not allowed for this exercise."))
                     raise PermissionDenied()
-            if self.access_mode == ACCESS.GRADING:
+            if access_mode == ACCESS.GRADING:
                 if not (self.is_teacher or self.exercise.allow_assistant_grading):
                     messages.error(self.request,
                         _("Assistant grading is not allowed for this exercise."))

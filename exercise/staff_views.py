@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
-from userprofile.viewbase import ACCESS
+from authorization.permissions import ACCESS
 from .models import LearningObject
 from .presentation.results import ResultTable
 from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm

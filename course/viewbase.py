@@ -6,7 +6,8 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from lib.viewbase import BaseTemplateView
-from userprofile.viewbase import ACCESS, UserProfileMixin
+from authorization.permissions import ACCESS
+from userprofile.viewbase import UserProfileMixin
 from .models import Course, CourseInstance, CourseModule
 
 
@@ -21,14 +22,6 @@ class CourseMixin(UserProfileMixin):
         )
         self.is_teacher = self.course.is_teacher(self.request.user)
         self.note("course", "is_teacher")
-
-    def access_control(self):
-        super().access_control()
-        if self.access_mode >= ACCESS.TEACHER:
-            if not self.is_teacher:
-                messages.error(self.request,
-                    _("Only course teachers shall pass."))
-                raise PermissionDenied()
 
 
 class CourseBaseView(CourseMixin, BaseTemplateView):
@@ -54,14 +47,9 @@ class CourseInstanceMixin(CourseMixin):
             translation.activate(self.instance.language)
 
     def access_control(self):
-
-        # Loosen the access mode if instance is public.
-        if self.instance.view_content_to == 4 and \
-                self.access_mode in (ACCESS.STUDENT, ACCESS.ENROLL):
-            self.access_mode = ACCESS.ANONYMOUS
-
         super().access_control()
-        if self.access_mode >= ACCESS.ASSISTANT:
+        access_mode = self.get_access_mode()
+        if access_mode >= ACCESS.ASSISTANT:
             if not self.is_course_staff:
                 messages.error(self.request,
                     _("Only course staff shall pass."))
@@ -74,7 +62,7 @@ class CourseInstanceMixin(CourseMixin):
 
             # View content access.
             if not self.is_course_staff:
-                if self.access_mode == ACCESS.ENROLLED or (self.instance.view_content_to == 1 and self.access_mode > ACCESS.ENROLL):
+                if access_mode == ACCESS.ENROLLED or (self.instance.view_content_to == 1 and access_mode > ACCESS.ENROLL):
                     if not self.instance.is_student(self.request.user):
                         messages.error(self.request, _("Only enrolled students shall pass."))
                         raise PermissionDenied()
@@ -85,6 +73,20 @@ class CourseInstanceMixin(CourseMixin):
                     if self.instance.enrollment_audience == 2 and not self.profile.is_external:
                         messages.error(self.request, _("This course is only for external students."))
                         raise PermissionDenied()
+
+
+    def get_access_mode(self):
+        access_mode = super().get_access_mode()
+
+        if hasattr(self, 'instance'):
+            # Loosen the access mode if instance is public
+            show_for = self.instance.view_content_to
+            is_public = show_for == CourseInstance.VIEW_ACCESS.PUBLIC
+            access_mode_student = access_mode in (ACCESS.STUDENT, ACCESS.ENROLL)
+            if is_public and acecss_mode_student:
+                access_mode = ACCESS.ANONYMOUS
+
+        return access_mode
 
 
 class CourseInstanceBaseView(CourseInstanceMixin, BaseTemplateView):

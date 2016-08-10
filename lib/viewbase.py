@@ -12,6 +12,7 @@ from lib.helpers import deprecated
 from authorization.views import AuthorizedResourceMixin
 from authorization.permissions import (
     Permission,
+    AccessModePermission,
 )
 
 
@@ -30,7 +31,11 @@ class BaseMixin(object):
     get/post methods. Calling the super method is required when overriding
     the base methods.
     """
+    # NOTE: access_mode is not defined here, so if any derived class forgets to
+    # define it AccessModePermission will raise assertion error
+    #access_mode = ACCESS.ANONYMOUS
     base_permission_classes = [
+        AccessModePermission,
         AccessControlPermission,
     ]
 
@@ -38,6 +43,9 @@ class BaseMixin(object):
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.base_permission_classes))
         return perms
+
+    def get_access_mode(self):
+        return self.access_mode
 
     @deprecated("access_control is deprecated and should be replaced with correct permission_classes")
     def access_control(self):

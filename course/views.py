@@ -13,7 +13,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
-from userprofile.viewbase import ACCESS, UserProfileView
+from authorization.permissions import ACCESS
+from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
