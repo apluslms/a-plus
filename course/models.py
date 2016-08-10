@@ -120,6 +120,23 @@ def create_enrollment_code(sender, instance, created, **kwargs):
 post_save.connect(create_enrollment_code, sender=Enrollment)
 
 
+def get_course_visibility_filter(user, prefix=None):
+    class OR(Q):
+        default = Q.OR
+
+    user = user.userprofile
+    filters = (
+        ('visible_to_students', True),
+        ('assistants', user),
+        ('course__teachers', user),
+    )
+    filters = dict(
+        ((prefix+name if prefix else name), val)
+        for name, val in filters
+    )
+    return OR(**filters)
+
+
 class CourseInstanceManager(models.Manager):
     """
     Helpers in CourseInstance.objects
@@ -149,10 +166,7 @@ class CourseInstanceManager(models.Manager):
         if not user or not user.is_authenticated():
             return self.filter(visible_to_students=True)
         if not user.is_superuser:
-            return self.filter(Q(visible_to_students=True)
-                           | Q(assistants=user.userprofile)
-                           | Q(course__teachers=user.userprofile)
-                ).distinct()
+            return self.filter(get_course_visibility_filter(user)).distinct()
         return self.all()
 
 
@@ -382,6 +396,19 @@ class CourseModuleManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().select_related(
             'course_instance', 'course_instance__course')
+
+    def get_visible(self, user=None):
+        if not user or not user.is_authenticated():
+            return self.filter(
+                course_instance__visible_to_students=True,
+                opening_time__lte=timezone.now(),
+            )
+        if not user.is_superuser:
+            return self.filter(
+                get_course_visibility_filter(user, 'course_instance__'),
+                opening_time__lte=timezone.now(),
+            ).distinct()
+        return self.all()
 
 
 class CourseModule(UrlMixin, models.Model):
