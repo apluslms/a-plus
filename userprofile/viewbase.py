@@ -22,14 +22,16 @@ class UserProfileMixin(BaseMixin):
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        if self.request.user.is_authenticated():
-            self.profile = UserProfile.get_by_request(self.request)
-            self.is_external_student = self.profile.is_external
-            self.note("is_external_student")
+        user = self.request.user
+        if user.is_authenticated():
+            self.profile = profile = user.userprofile
+            self.is_external_student = profile.is_external
         else:
             self.profile = None
+            self.is_external_student = False
+
         # Add available for template
-        self.note("profile")
+        self.note("profile", "is_external_student")
 
     def access_control(self):
         super().access_control()

@@ -25,8 +25,9 @@ class UserProfile(models.Model):
 
     @classmethod
     def get_by_request(cls, request):
-        if request.user.is_authenticated():
-            return cls.objects.get(user=request.user)
+        user = request.user
+        if user.is_authenticated():
+            return user.userprofile
         raise RuntimeError("Seeking user profile without authenticated user.")
 
     user = models.OneToOneField(User)
