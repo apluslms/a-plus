@@ -6,6 +6,20 @@ are usable with APIViews too. We define our superclass so we don't need to
 depend on django-rest-framework.
 """
 
+class FilterBackend(object):
+    """
+    FilterBackend interface
+    """
+    def filter_queryset(self, request, queryset, view):
+        """
+        Return a filtered queryset.
+        """
+        raise NotImplementedError
+
+    def get_fields(self, view):
+        return []
+
+
 class Permission(object):
     """
     Permission interface
