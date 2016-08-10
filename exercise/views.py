@@ -7,11 +7,10 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.base import View
 from django.views.static import serve
 
 from course.viewbase import CourseInstanceBaseView
-from lib.viewbase import BaseRedirectMixin
+from lib.viewbase import BaseRedirectMixin, BaseView
 from userprofile.viewbase import ACCESS
 from .models import LearningObjectDisplay
 from .presentation.summary import UserExerciseSummary
@@ -172,13 +171,13 @@ class SubmissionPlainView(SubmissionView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class SubmissionPollView(SubmissionMixin, View):
+class SubmissionPollView(SubmissionMixin, BaseView):
 
     def get(self, request, *args, **kwargs):
         return HttpResponse(self.submission.status, content_type="text/plain")
 
 
-class SubmittedFileView(SubmissionMixin, View):
+class SubmittedFileView(SubmissionMixin, BaseView):
     file_kw = "file_id"
     file_name_kw = "file_name"
 
