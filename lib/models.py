@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 
+
 class UrlMixin(object):
     def get_url(self, name):
         kwargs = self.get_url_kwargs()

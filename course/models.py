@@ -16,7 +16,13 @@ from django.utils.translation import ugettext_lazy as _
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
-from lib.helpers import safe_file_name, resize_image, roman_numeral, get_random_string
+from lib.helpers import (
+    safe_file_name,
+    resize_image,
+    roman_numeral,
+    get_random_string,
+    Enum,
+)
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
@@ -167,23 +173,29 @@ class CourseInstance(UrlMixin, models.Model):
     have the same teacher, but teaching assistants and students are connected to individual
     instances.
     """
+    ENROLLMENT_AUDIENCE = Enum([
+        ('INTERNAL_USERS', 1, _('Internal users')),
+        ('EXTERNAL_USERS', 2, _('External users')),
+        ('ALL_USERS', 3, _('Internal and external users')),
+    ])
+    VIEW_ACCESS = Enum([
+        ('ENROLLED', 1, _('Enrolled students')),
+        ('ENROLLMENT_AUDIENCE', 2, _('Enrollment audience')),
+        ('ALL_REGISTERED', 3, _('All registered users')),
+        ('PUBLIC', 4, _('Public to internet')),
+    ])
+
+
     course = models.ForeignKey(Course, related_name="instances")
     instance_name = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=False,
         validators=[RegexValidator(regex="^[\w\-\.]*$")],
         help_text=_("Input an URL identifier for this course instance."))
     visible_to_students = models.BooleanField(default=True)
-    enrollment_audience = models.IntegerField(choices=(
-        (1, _('Internal users')),
-        (2, _('External users')),
-        (3, _('Internal and external users')),
-    ), default=1)
-    view_content_to = models.IntegerField(choices=(
-        (1, _('Enrolled students')),
-        (2, _('Enrollment audience')),
-        (3, _('All registered users')),
-        (4, _('Public to internet')),
-    ), default=2)
+    enrollment_audience = models.IntegerField(choices=ENROLLMENT_AUDIENCE.choices,
+                                              default=ENROLLMENT_AUDIENCE.INTERNAL_USERS)
+    view_content_to = models.IntegerField(choices=VIEW_ACCESS.choices,
+                                          default=VIEW_ACCESS.ENROLLMENT_AUDIENCE)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     enrollment_starting_time = models.DateTimeField(blank=True, null=True)
@@ -367,7 +379,6 @@ class CourseHook(models.Model):
 
 
 class CourseModuleManager(models.Manager):
-
     def get_queryset(self):
         return super().get_queryset().select_related(
             'course_instance', 'course_instance__course')
