@@ -43,7 +43,7 @@ def extract_form_errors(form):
     return errors
 
 
-def get_random_string(length=32):
+def get_random_string(length=32, choices=None):
     """
     This function creates a random string with a given length.
     The strings consist of upper and lower case letters and numbers.
@@ -53,7 +53,8 @@ def get_random_string(length=32):
     """
 
     # Use all letters and numbers in the identifier
-    choices = string.ascii_letters + string.digits
+    if not choices:
+        choices = string.ascii_letters + string.digits
     return django_get_random_string(length=length, allowed_chars=choices)
 
 

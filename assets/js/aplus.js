@@ -10,11 +10,64 @@ $(function() {
     }
 
     $('[data-toggle="tooltip"]').tooltip();
+    $('.menu-groups').aplusGroupSelect();
     $('.ajax-tail-list').aplusListTail();
     $('.file-modal').aplusFileModal();
     $('.search-select').aplusSearchSelect();
     $('.filtered-table').aplusTableFilter();
 });
+
+/**
+ * Select group using ajax.
+ */
+(function($, window, document, undefined) {
+  "use strict";
+
+  var pluginName = "aplusGroupSelect";
+  var defaults = {};
+
+  function AplusGroupSelect(element, options) {
+    this.element = $(element);
+    this.selection = this.element.find(".selection");
+    this.loader = this.element.find(".loader");
+    this.settings = $.extend({}, defaults, options);
+    this.init();
+  }
+
+  $.extend(AplusGroupSelect.prototype, {
+    init: function() {
+      var self = this;
+      this.element.find("form").on("submit", function(event) {
+        event.preventDefault();
+        self.selection.hide();
+        self.loader.removeClass("hidden").show();
+        var form = $(this);
+        $.ajax(form.attr("action"), {
+          type: "POST",
+          data: {
+            csrfmiddlewaretoken: form.find('input[name="csrfmiddlewaretoken"]').val(),
+            group: form.find('button[name="group"]').val()
+          },
+          dataType: "html"
+        }).fail(function() {
+          self.selection.show().find("small").text("Error");
+          self.loader.hide();
+        }).done(function(data) {
+          self.selection.show().find("small").html(data);
+          self.loader.hide();
+        });
+      });
+    }
+  });
+
+  $.fn[pluginName] = function(options) {
+    return this.each(function() {
+      if (!$.data(this, "plugin_" + pluginName)) {
+        $.data(this, "plugin_" + pluginName, new AplusGroupSelect(this, options));
+      }
+    });
+  };
+})(jQuery, window, document);
 
 /**
  * Open submitted file in a modal.

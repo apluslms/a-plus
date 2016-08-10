@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from course.models import Course, CourseInstance, CourseHook, CourseModule, \
-    LearningObjectCategory
+from course.models import Course, CourseInstance, Enrollment, StudentGroup, CourseHook, CourseModule, LearningObjectCategory
 from userprofile.models import UserProfile
 
 
@@ -47,6 +46,12 @@ class CourseInstanceAdmin(admin.ModelAdmin):
             return self.model.objects.all()
 
 
+class EnrollmentAdmin(admin.ModelAdmin):
+    list_display_links = ("user_profile",)
+    list_display = ("course_instance", "user_profile", "timestamp")
+    list_filter = ("course_instance",)
+
+
 class CourseModuleAdmin(admin.ModelAdmin):
     list_display_links = ("__str__",)
     list_display = ("course_instance", "__str__",
@@ -63,6 +68,8 @@ class LearningObjectCategoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Course, CourseAdmin)
 admin.site.register(CourseInstance, CourseInstanceAdmin)
+admin.site.register(Enrollment, EnrollmentAdmin)
+admin.site.register(StudentGroup)
 admin.site.register(CourseHook)
 admin.site.register(CourseModule, CourseModuleAdmin)
 admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)

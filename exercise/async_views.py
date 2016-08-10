@@ -95,8 +95,9 @@ def _async_submission_handler(request, exercise, students, submission=None):
     # Create a new submission if one is not provided
     errors = []
     if submission == None:
-        is_valid, errors = exercise.is_submission_allowed(students)
-        if not is_valid:
+        # Assume one student id is given that is the current authenticated user.
+        ok, errors, students = exercise.is_submission_allowed(students[0])
+        if not ok:
             return JsonResponse({
                 "success": False,
                 "errors": errors

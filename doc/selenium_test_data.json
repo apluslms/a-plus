@@ -178,7 +178,6 @@
       "instance_name": "A+ Test Course Instance",
       "course": 1,
       "assistants": [3],
-      "students": [4],
       "visible_to_students": true
     }
   },
@@ -192,7 +191,6 @@
       "instance_name": "Hook Example",
       "course": 1,
       "assistants": [],
-      "students": [4],
       "visible_to_students": true
     }
   },
@@ -303,6 +301,26 @@
      "password": "sha1$2769d$518743f58034e6904da5ddef8fb9efafdbcc47e9",
      "email": "",
      "date_joined": "2015-05-02T18:56:18.000Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "course.enrollment",
+    "fields": {
+      "course_instance": 1,
+      "user_profile": 4,
+      "timestamp": "2015-06-01T12:01:01.000Z",
+      "personal_code": "F5G9FZ"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "course.enrollment",
+    "fields": {
+      "course_instance": 2,
+      "user_profile": 4,
+      "timestamp": "2015-06-01T12:01:01.000Z",
+      "personal_code": "F5G9FX"
     }
   }
 ]

@@ -74,7 +74,7 @@ class CourseInstanceMixin(CourseMixin):
 
             # View content access.
             if not self.is_course_staff:
-                if self.instance.view_content_to == 1 and self.access_mode > ACCESS.ENROLL:
+                if self.access_mode == ACCESS.ENROLLED or (self.instance.view_content_to == 1 and self.access_mode > ACCESS.ENROLL):
                     if not self.instance.is_student(self.request.user):
                         messages.error(self.request, _("Only enrolled students shall pass."))
                         raise PermissionDenied()

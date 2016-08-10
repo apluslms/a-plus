@@ -73,8 +73,11 @@ class CourseInstanceForm(forms.ModelForm):
             'language',
             'starting_time',
             'ending_time',
+            'enrollment_starting_time',
+            'enrollment_ending_time',
             'enrollment_audience',
             'view_content_to',
+            'head_urls',
             'assistants',
             'technical_error_emails',
         ]

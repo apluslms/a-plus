@@ -8,14 +8,15 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
-from lib.helpers import safe_file_name, resize_image, roman_numeral
+from lib.helpers import safe_file_name, resize_image, roman_numeral, get_random_string
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
@@ -62,6 +63,55 @@ class Course(UrlMixin, models.Model):
 
     def get_url_kwargs(self):
         return dict(course_slug=self.url)
+
+
+class StudentGroup(models.Model):
+    """
+    Stores a user group for a course instance.
+    """
+    course_instance = models.ForeignKey('CourseInstance', related_name='groups')
+    members = models.ManyToManyField(UserProfile, related_name='groups')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['course_instance','timestamp']
+
+    @classmethod
+    def get_exact(cls, course_instance, member_profiles):
+        qs = cls.objects.filter(course_instance=course_instance) \
+            .annotate(count=Count('members')).filter(count=len(member_profiles))
+        for profile in member_profiles:
+            qs.filter(members=profile)
+        return qs.first()
+
+    def equals(self, profiles):
+        return set(self.members.all()) == set(profiles)
+
+    def collaborators_of(self, profile):
+        return [p for p in self.members.all() if p != profile]
+
+
+class Enrollment(models.Model):
+    """
+    Maps an enrolled student in a course instance.
+    """
+    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE)
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    personal_code = models.CharField(max_length=10, blank=True, default='')
+    selected_group = models.ForeignKey(StudentGroup, blank=True, null=True, default=None, on_delete=models.SET_NULL)
+
+
+def create_enrollment_code(sender, instance, created, **kwargs):
+    if created:
+        easychars = '0123456789ABCDEFGHJKLMNPQRSTUVXYZ'
+        code = get_random_string(6, easychars)
+        while Enrollment.objects.filter(course_instance=instance.course_instance, personal_code=code).exists():
+            code = get_random_string(6, easychars)
+        instance.personal_code = code
+        instance.save()
+
+post_save.connect(create_enrollment_code, sender=Enrollment)
 
 
 class CourseInstanceManager(models.Manager):
@@ -136,6 +186,8 @@ class CourseInstance(UrlMixin, models.Model):
     ), default=2)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
+    enrollment_starting_time = models.DateTimeField(blank=True, null=True)
+    enrollment_ending_time = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
     language = models.CharField(max_length=5, blank=True, default="")
     description = models.TextField(blank=True)
@@ -155,6 +207,10 @@ class CourseInstance(UrlMixin, models.Model):
         (1, _("Arabic")),
         (2, _("Roman")),
     ), default=1)
+    head_urls = models.TextField(blank=True,
+        help_text=_("External CSS and JS resources "
+            "that are included on all course pages. "
+            "Separate with white space."))
     configure_url = models.URLField(blank=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
@@ -166,7 +222,7 @@ class CourseInstance(UrlMixin, models.Model):
                                    content_type_field="container_type")
 
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
-    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True)
+    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True, through='Enrollment')
     # categories from course.models.LearningObjectCategory
     # course_modules from course.models.CourseModule
 
@@ -209,7 +265,7 @@ class CourseInstance(UrlMixin, models.Model):
             and self.students.filter(id=user.userprofile.id).exists()
 
     def is_enrollable(self, user):
-        if user and user.is_authenticated() and timezone.now() < self.ending_time:
+        if user and user.is_authenticated():
             if self.enrollment_audience == 1:
                 return not user.userprofile.is_external
             if self.enrollment_audience == 2:
@@ -219,7 +275,10 @@ class CourseInstance(UrlMixin, models.Model):
 
     def enroll_student(self, user):
         if user and user.is_authenticated() and not self.is_course_staff(user):
-            self.students.add(user.userprofile)
+            Enrollment.objects.create(course_instance=self, user_profile=user.userprofile)
+
+    def get_enrollment_for(self, user):
+        return Enrollment.objects.filter(course_instance=self, user_profile=user.userprofile).first()
 
     def get_course_staff_profiles(self):
         return UserProfile.objects.filter(Q(teaching_courses=self.course) | Q(assisting_courses=self))\
@@ -237,11 +296,29 @@ class CourseInstance(UrlMixin, models.Model):
     def is_open(self):
         return self.starting_time <= timezone.now() <= self.ending_time
 
+    @property
+    def enrollment_start(self):
+        return self.enrollment_starting_time or self.starting_time
+
+    @property
+    def enrollment_end(self):
+        return self.enrollment_ending_time or self.ending_time
+
+    def is_enrollment_open(self):
+        return self.enrollment_start <= timezone.now() <= self.enrollment_end
+
     def is_visible_to(self, user=None):
         if self.visible_to_students:
             return True
         return user and self.is_course_staff(user)
 
+    @property
+    def head_css_urls(self):
+        return [url for url in self.head_urls.split() if url.endswith(".css")]
+
+    @property
+    def head_js_urls(self):
+        return [url for url in self.head_urls.split() if url.endswith(".js")]
 
     ABSOLUTE_URL_NAME = "course"
     EDIT_URL_NAME = "course-edit"

@@ -12,13 +12,13 @@ from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import View
 
-from exercise.models import LearningObject
 from lib.helpers import settings_text
-from lib.viewbase import BaseTemplateView, BaseRedirectView
+from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView
 from userprofile.viewbase import ACCESS, UserProfileView
+from .forms import GroupsForm, GroupSelectForm
+from .models import CourseInstance, Enrollment
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
     CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
-from .models import CourseInstance
 
 
 logger = logging.getLogger("course.views")
@@ -73,6 +73,10 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
             messages.error(self.request, _("You cannot enroll, or have already enrolled, to this course."))
             raise PermissionDenied()
 
+        if not self.is_enrollment_open():
+            messages.error(self.request, _("The enrollment is not open."))
+            raise PermissionDenied()
+
         # Support enrollment questionnaires.
         exercise = LearningObject.objects.find_enrollment_exercise(self.instance)
         if exercise:
@@ -113,6 +117,61 @@ class CalendarExport(CourseInstanceMixin, View):
 
         return HttpResponse(cal.to_ical(),
             content_type="text/calendar; charset=utf-8")
+
+
+class GroupsView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.ENROLLED
+    template_name = "course/groups.html"
+    form_class = GroupsForm
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.enrollment = self.instance.get_enrollment_for(self.request.user)
+        self.groups = list(self.profile.groups.filter(course_instance=self.instance))
+        self.note('enrollment','groups')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["profile"] = self.profile
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def get_success_url(self):
+        return self.instance.get_url('groups')
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _("A new student group was created."))
+        return super().form_valid(form)
+
+
+class GroupSelect(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.ENROLLED
+    form_class = GroupSelectForm
+    template_name = "course/_group_info.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["profile"] = self.profile
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def get_success_url(self):
+        return self.instance.get_absolute_url()
+
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)
+
+    def form_invalid(self, form):
+        return HttpResponse('Invalid group selection')
+
+    def form_valid(self, form):
+        enrollment = form.save()
+        if self.request.is_ajax():
+            if enrollment.selected_group:
+                enrollment.selected_group.collaborators = enrollment.selected_group.collaborators_of(self.profile)
+            return self.response(enrollment=enrollment)
+        return super().form_valid(form)
 
 
 # class FilterCategories(CourseInstanceMixin, BaseRedirectView):

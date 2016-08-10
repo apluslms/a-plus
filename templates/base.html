@@ -46,9 +46,9 @@
         <meta name="msapplication-TileColor" content="#2b5797">
         <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
     </head>
-    <body data-view-tag="{% block view_tag %}{% endblock %}">
+    <body class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %}" data-view-tag="{% block view_tag %}{% endblock %}">
         <div class="page-wrap">
-            <nav class="navbar navbar-inverse navbar-static-top">
+            <nav class="topbar navbar navbar-inverse navbar-fixed-top">
                 <div class="container-fluid">
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
@@ -88,8 +88,9 @@
                             </li>
                         </ul>
                         <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
-                            {% notification_menu %}
                             {% if user.is_authenticated %}
+                            {% group_select %}
+                            {% notification_menu %}
                             <li role="presentation" class="menu-profile">
                                 <a href="{% url 'profile' %}">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>

@@ -1,7 +1,9 @@
 from django import template
+from django.db.models import Max, Min
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
+from ..models import BaseExercise
 from ..presentation.score import collect_tree
 from ..presentation.summary import UserCourseSummary
 
@@ -126,3 +128,17 @@ def latest_submissions(context):
         "title": _("Latest submissions"),
         "empty": _("No submissions for this course."),
     }
+
+
+@register.filter
+def max_group_size(course_instance):
+    return BaseExercise.objects \
+        .filter(course_module__course_instance=course_instance) \
+        .aggregate(max=Max('max_group_size'))['max']
+
+
+@register.filter
+def min_group_size(course_instance):
+    return BaseExercise.objects \
+        .filter(course_module__course_instance=course_instance, max_group_size__gt=1) \
+        .aggregate(min=Min('min_group_size'))['min']

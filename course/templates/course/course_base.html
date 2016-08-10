@@ -2,6 +2,16 @@
 {% load i18n %}
 {% load course %}
 
+{% block scripts %}
+{{ block.super }}
+{% for url in instance.head_css_urls %}
+<link rel="stylesheet" href="{{ url }}" />
+{% endfor %}
+{% for url in instance.head_js_urls %}
+<script src="{{ url }}"></script>
+{% endfor %}
+{% endblock %}
+
 {% block title %}{{ block.super }} {{ course.name }}{% endblock %}
 
 {% block content %}

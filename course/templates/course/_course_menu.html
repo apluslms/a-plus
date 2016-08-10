@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load course %}
+{% load exercise %}
 {% load notification %}
 {% load external_services %}
 
@@ -26,6 +27,14 @@
 		{% endif %}
     </a>
 </li>
+{% if instance|max_group_size > 1 %}
+<li role="presentation" class="menu-groups">
+		<a href="{{ instance|url:'groups' }}">
+				<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+				{% trans "Form a group" %}
+		</a>
+</li>
+{% endif %}
 
 {% external_menu_entries instance.pk as entries %}
 {% if entries|length > 0 %}
@@ -44,7 +53,7 @@
 <li role="presentation" class="header"><h4>{% trans "Apps" %}</h4></li>
 {% for tab in instance.tabs.all %}
 <li role="presentation" class="menu-tab{{ tab.id }}">
-    <a href="{% url 'apps-tab' course=course.url instance=instance.url tab_id=tab.id %}">
+    <a href="{% url 'apps-tab' course_slug=course.url instance_slug=instance.url tab_id=tab.id %}">
         <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
         {{ tab.label }}
     </a>

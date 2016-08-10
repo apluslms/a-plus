@@ -10,6 +10,7 @@ class ACCESS(object):
     ANONYMOUS = 0
     ENROLL = 1
     STUDENT = 3
+    ENROLLED = 4
     ASSISTANT = 5
     GRADING = 6
     TEACHER = 10
@@ -23,6 +24,8 @@ class UserProfileMixin(BaseMixin):
         super().get_resource_objects()
         if self.request.user.is_authenticated():
             self.profile = UserProfile.get_by_request(self.request)
+            self.is_external_student = self.profile.is_external
+            self.note("is_external_student")
         else:
             self.profile = None
         # Add available for template

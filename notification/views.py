@@ -6,14 +6,9 @@ from .models import NotificationSet
 
 
 class NotificationsView(PagerMixin, CourseInstanceBaseView):
+    access_mode = ACCESS.ENROLLED
     template_name = "notification/notifications.html"
     ajax_template_name = "notification/_notifications_list.html"
-
-    def get_resource_objects(self):
-        super().get_resource_objects()
-
-        # Always require logged in student
-        self.access_mode = ACCESS.STUDENT
 
     def get_common_objects(self):
         super().get_common_objects()

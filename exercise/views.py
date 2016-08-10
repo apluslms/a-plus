@@ -55,9 +55,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         self.note("submissions", "summary")
 
     def get(self, request, *args, **kwargs):
-        students = self.get_students()
+        students = [self.profile]
         if self.exercise.is_submittable:
-            self.submission_check(students)
+            ok, students = self.submission_check()
             self.get_after_new_submission()
 
         if self.exercise.status == 'maintenance':
@@ -75,11 +75,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             url_name=self.post_url_name)
 
         if self.profile:
-            try:
-                LearningObjectDisplay.objects.get_or_create(
-                    learning_object=self.exercise, profile=self.profile)
-            except MultipleObjectsReturned:
-                pass
+            LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
 
         return super().get(request, *args, page=page, students=students, **kwargs)
 
@@ -89,10 +85,10 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         if not self.exercise.is_submittable:
             return self.http_method_not_allowed(request, *args, **kwargs)
 
-        students = self.get_students()
         new_submission = None
         page = ExercisePage(self.exercise)
-        if self.submission_check(students):
+        ok, students = self.submission_check(True)
+        if ok:
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)
             if new_submission:
@@ -121,17 +117,14 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         return self.response(page=page, students=students,
             submission=new_submission)
 
-    def get_students(self):
-        # TODO: group support
-        if self.profile:
-            return (self.profile,)
-        return ()
-
-    def submission_check(self, students):
-        ok, issues = self.exercise.is_submission_allowed(students)
+    def submission_check(self, error=False):
+        ok, issues, students = self.exercise.is_submission_allowed(self.profile)
         if len(issues) > 0:
-            messages.warning(self.request, "\n".join(issues))
-        return ok
+            if error:
+                messages.error(self.request, "\n".join(issues))
+            else:
+                messages.warning(self.request, "\n".join(issues))
+        return ok, students
 
 
 class ExercisePlainView(ExerciseView):
