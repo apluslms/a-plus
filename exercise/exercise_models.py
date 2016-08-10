@@ -390,7 +390,7 @@ class BaseExercise(LearningObject):
 
     def _detect_group_changes(self, profile, enrollment, submission):
         submitters = list(submission.submitters.all())
-        if enrollment.selected_group:
+        if enrollment and enrollment.selected_group:
             return not enrollment.selected_group.equals(submitters)
         else:
             return len(submitters) > 1 or submitters[0] != profile
@@ -422,13 +422,19 @@ class BaseExercise(LearningObject):
 
     def get_load_url(self, request, students, url_name="exercise"):
         if self.id:
-            # Assume that student group cannot be changed once submitted to exercise.
-            submission_count = self.get_submissions_for_student(students[0]).count() if len(students) > 0 else 0
-            student_str, hash_key = self.get_async_hash(students)
+            profile = None
+            submission_count = 0
+            if request.user.is_authenticated():
+                profile = request.user.userprofile
+                submission_count = self.get_submissions_for_student(request.user.userprofile).count()
+            # Make async-new URL for the currently authenticated user.
+            # The async handler will handle group selection at that time.
+            profile_str, hash_key = self.get_async_hash([profile] if profile else [])
+            student_str, _ = self.get_async_hash(students)
             return self._build_service_url(request, student_str, submission_count + 1, url_name, reverse(
                 "async-new", kwargs={
                     "exercise_id": self.id if self.id else 0,
-                    "student_ids": student_str,
+                    "student_ids": profile_str,
                     "hash_key": hash_key
                 }
             ))
