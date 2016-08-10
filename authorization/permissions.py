@@ -14,13 +14,13 @@ class Permission(object):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
-        raise NotImplementedError
+        return True
 
     def has_object_permission(self, request, view, obj):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
-        raise NotImplementedError
+        return True
 
 
 class NoPermission(Permission):
