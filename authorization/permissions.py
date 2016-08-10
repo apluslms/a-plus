@@ -98,3 +98,37 @@ class AccessModePermission(Permission):
                 return False
 
         return True
+
+
+# Object permissions
+# ==================
+
+
+class MessageMixin(object):
+    def error_msg(self, request, msg):
+        self.message = msg
+        error_msg(request, msg)
+
+
+class ObjectVisibleBasePermission(MessageMixin, Permission):
+    model = None
+    obj_var = None
+
+    def has_permission(self, request, view):
+        obj = getattr(view, self.obj_var, None)
+        return (
+            obj is None or
+            self.has_object_permission(request, view, obj)
+        )
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        return (
+            not isinstance(obj, self.model) or # skip objects that are not model in question
+            user.is_staff or
+            user.is_superuser or
+            self.is_object_visible(request, view, obj)
+        )
+
+    def is_object_visible(self, request, view, obj):
+        raise NotImplementedError

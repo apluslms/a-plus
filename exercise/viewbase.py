@@ -7,64 +7,80 @@ from django.utils.translation import ugettext_lazy as _
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView
 from authorization.permissions import ACCESS
-from .models import LearningObject, Submission, BaseExercise
+from .permissions import (
+    ExerciseVisiblePermission,
+    BaseExerciseAssistantPermission,
+    SubmissionVisiblePermission,
+)
+from .models import (
+    LearningObject,
+    BaseExercise,
+    Submission,
+)
 
 
-class ExerciseMixin(CourseModuleMixin):
+class ExerciseBaseMixin(object):
     exercise_kw = "exercise_path"
+    exercise_permission_classes = (
+        ExerciseVisiblePermission,
+    )
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.exercise_permission_classes))
+        return perms
+
+    # get_exercise_object
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        path = self._get_kwarg(self.exercise_kw).split('/')
-        self.exercise = self.module._children().by_path(path)
-        if not self.exercise:
-            raise Http404()
-        else:
-            self.exercise = self.exercise.as_leaf_class()
+        self.exercise = self.get_exercise_object()
         self.note("exercise")
 
-    def access_control(self):
-        super().access_control()
-        if not self.is_course_staff \
-                and self.exercise.status == LearningObject.STATUS_HIDDEN:
-            raise Http404()
-        if isinstance(self.exercise, BaseExercise):
-            access_mode = self.get_access_mode()
-            if access_mode >= ACCESS.ASSISTANT:
-                if not (self.is_teacher or self.exercise.allow_assistant_viewing):
-                    messages.error(self.request,
-                        _("Assistant viewing is not allowed for this exercise."))
-                    raise PermissionDenied()
-            if access_mode == ACCESS.GRADING:
-                if not (self.is_teacher or self.exercise.allow_assistant_grading):
-                    messages.error(self.request,
-                        _("Assistant grading is not allowed for this exercise."))
-                    raise PermissionDenied()
+
+class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
+    exercise_permission_classes = ExerciseBaseMixin.exercise_permission_classes + (
+        BaseExerciseAssistantPermission,
+    )
+
+    def get_exercise_object(self):
+        path = self.kwargs[self.exercise_kw].split('/')
+        exercise = self.module._children().by_path(path)
+        if not exercise:
+            raise Http404("Learning object not found")
+        return exercise.as_leaf_class()
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
     pass
 
 
-class SubmissionMixin(ExerciseMixin):
+class SubmissionBaseMixin(object):
     submission_kw = "submission_id"
+    submission_permission_classes = (
+        SubmissionVisiblePermission,
+    )
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.submission_permission_classes))
+        return perms
+
+    # get_submission_object
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        self.submission = get_object_or_404(
-            Submission,
-            id=self._get_kwarg(self.submission_kw),
-            exercise=self.exercise
-        )
+        self.submission = self.get_submission_object()
         self.note("submission")
 
-    def access_control(self):
-        super().access_control()
-        if not (self.is_course_staff \
-            or self.submission.is_submitter(self.request.user)):
-                messages.error(self.request,
-                    _("Only the submitter shall pass."))
-                raise PermissionDenied()
+
+class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
+    def get_submission_object(self):
+        return get_object_or_404(
+            Submission,
+            id=self.kwargs[self.submission_kw],
+            exercise=self.exercise
+        )
 
 
 class SubmissionBaseView(SubmissionMixin, BaseTemplateView):
