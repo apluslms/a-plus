@@ -369,7 +369,7 @@ class BaseExercise(LearningObject):
             else:
                 size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
             warnings.append(
-                _("This exercise can be submitted in groups of {size} students."
+                _("This exercise can be submitted in groups of {size} students. "
                   "The size of your current group is {current}.")\
                 .format(size=size, current=len(students))
             )
