@@ -307,6 +307,9 @@ class CourseInstance(UrlMixin, models.Model):
     def is_enrollment_open(self):
         return self.enrollment_start <= timezone.now() <= self.enrollment_end
 
+    def has_enrollment_closed(self):
+        return timezone.now() > self.enrollment_end
+
     def is_visible_to(self, user=None):
         if self.visible_to_students:
             return True

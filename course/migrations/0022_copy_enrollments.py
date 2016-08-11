@@ -6,10 +6,11 @@ from course.models import Enrollment
 
 
 def copy_enrollments(apps, schema_editor):
+    Model = apps.get_model('course', 'Enrollment')
     cursor = connection.cursor()
     cursor.execute('select * from course_courseinstance_students')
     for row in cursor.fetchall():
-        Enrollment.objects.create(course_instance_id=row[1], user_profile_id=row[2])
+        Model.objects.create(course_instance_id=row[1], user_profile_id=row[2])
 
 
 def skip_reverse(apps, schema_editor):

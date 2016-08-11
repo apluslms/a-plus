@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-10 13:18+0300\n"
+"POT-Creation-Date: 2016-08-11 12:22+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgstr "Tämä ryhmä on jo olemassa"
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:53 course/models.py:431 exercise/exercise_models.py:112
+#: course/models.py:53 course/models.py:434 exercise/exercise_models.py:112
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -147,24 +147,24 @@ msgstr ""
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:383 course/models.py:499 exercise/exercise_models.py:56
+#: course/models.py:386 course/models.py:502 exercise/exercise_models.py:56
 #: exercise/submission_models.py:59
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:384 course/models.py:500 templates/base.html:72
+#: course/models.py:387 course/models.py:503 templates/base.html:72
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:385 exercise/exercise_models.py:60
+#: course/models.py:388 exercise/exercise_models.py:60
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:393
+#: course/models.py:396
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:408
+#: course/models.py:411
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
@@ -263,7 +263,7 @@ msgstr "Valitettavasti tässä osiossa on juuri nyt huoltokatko."
 
 #: course/templates/course/_module_toc.html:29
 #: course/templates/course/_siblings.html:16
-#: course/templates/course/toc.html:65
+#: course/templates/course/toc.html:72
 #: exercise/templates/exercise/_user_results.html:104
 msgid "Early access"
 msgstr "Aikainen pääsy"
@@ -433,47 +433,47 @@ msgstr ""
 "palvelussa."
 
 #: course/templates/course/toc.html:19
-#, python-format
+msgid "In order to submit exercises, you must enroll in the course."
+msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
+
+#: course/templates/course/toc.html:21
 msgid ""
-"\n"
-"    In order to submit exercises, you must enroll in the course. Enroll by "
-"%(end)s\n"
-"    "
+"In order to submit exercises and see material, you must enroll in the course."
 msgstr ""
-"\n"
-"    Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille. Ilmoittaudu "
-"%(end)s mennessä.\n"
-"    "
+"Palauttaaksesi tehtäviä ja nähdäksesi materiaalin sinun pitää ilmoittautua "
+"kurssille."
 
 #: course/templates/course/toc.html:23
-#, python-format
-msgid ""
-"\n"
-"    In order to submit exercises and see material, you must enroll in the "
-"course. Enroll by %(end)s\n"
-"    "
-msgstr ""
-"\n"
-"Palauttaaksesi tehtäviä ja nähdäksesi materiaalin sinun pitää ilmoittautua "
-"kurssille. Ilmoittaudu %(end)s mennessä.\n"
-"    "
-
-#: course/templates/course/toc.html:27
 msgid "Enroll"
 msgstr "Ilmoittaudu"
 
-#: course/templates/course/toc.html:30
+#: course/templates/course/toc.html:27
 #, python-format
 msgid ""
 "\n"
-"  The course enrollment opens %(start)s and closes %(end)s\n"
+"        The course enrollment is open until %(end)s\n"
+"        "
+msgstr ""
+"\n"
+"        Kurssille ilmoittautuminen on avoinna %(end)s asti.\n"
+"        "
+
+#: course/templates/course/toc.html:35
+msgid "Unfortunately, enrolling in the course has ended."
+msgstr "Valitettavasti kurssille ilmoittautuminen on päättynyt."
+
+#: course/templates/course/toc.html:37
+#, python-format
+msgid ""
+"\n"
+"  The course enrollment opens %(start)s\n"
 "  "
 msgstr ""
 "\n"
-"  Kurssille ilmoittautuminen alkaa %(start)s ja loppuu %(end)s\n"
+"  Kurssille ilmoittautuminen avautuu %(start)s\n"
 "  "
 
-#: course/templates/course/toc.html:35
+#: course/templates/course/toc.html:42
 msgid ""
 "Unfortunately, you cannot enroll in this course, but you may explore the "
 "course material."
@@ -481,7 +481,7 @@ msgstr ""
 "Valitettavasti et voi ilmoittautua tälle kurssille, mutta voit selailla "
 "kurssimateriaalia."
 
-#: course/templates/course/toc.html:37
+#: course/templates/course/toc.html:44
 msgid ""
 "Login is required to submit exercises, but you may anonymously explore the "
 "course material."
@@ -489,7 +489,7 @@ msgstr ""
 "Tehtävien palauttaminen vaatii kirjautumisen järjestelmään, mutta voit "
 "selailla kurssimateriaalia tunnistautumatta."
 
-#: course/templates/course/toc.html:70
+#: course/templates/course/toc.html:77
 #: exercise/templates/exercise/_user_results.html:31
 msgid "Opens"
 msgstr "Avautuu"
@@ -1166,7 +1166,7 @@ msgstr ""
 msgid "Only the exercise service is allowed to access this URL."
 msgstr ""
 
-#: exercise/async_views.py:151
+#: exercise/async_views.py:152
 msgid ""
 "<div class=\"alert alert-error\">\n"
 "<p>The exercise assessment service is malfunctioning. Staff has been "
@@ -1271,29 +1271,29 @@ msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:480
+#: exercise/exercise_models.py:486
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:482
+#: exercise/exercise_models.py:488
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:484
+#: exercise/exercise_models.py:490
 msgid "Default: Launch exercise"
 msgstr "Oletus: Avaa tehtävä"
 
-#: exercise/exercise_models.py:486
+#: exercise/exercise_models.py:492
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:495
+#: exercise/exercise_models.py:501
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:598
+#: exercise/exercise_models.py:604
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
