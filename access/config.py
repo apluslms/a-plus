@@ -265,11 +265,18 @@ class ConfigParser:
         file_name = exercise_key
         if "config_files" in course_root["data"]:
             file_name = course_root["data"]["config_files"].get(exercise_key, exercise_key)
-        f, t, data = course_root["exercise_loader"](
-            course_root,
-            file_name,
-            self._conf_dir(DIR, course_root["data"]["key"], course_root["meta"])
-        )
+        if file_name.startswith("/"):
+            f, t, data = course_root["exercise_loader"](
+                course_root,
+                file_name[1:],
+                self._conf_dir(DIR, course_root["data"]["key"], {})
+            )
+        else:
+            f, t, data = course_root["exercise_loader"](
+                course_root,
+                file_name,
+                self._conf_dir(DIR, course_root["data"]["key"], course_root["meta"])
+            )
         if not data:
             return None
 
