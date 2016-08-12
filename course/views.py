@@ -79,6 +79,7 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
             raise PermissionDenied()
 
         # Support enrollment questionnaires.
+        from exercise.models import LearningObject
         exercise = LearningObject.objects.find_enrollment_exercise(self.instance)
         if exercise:
             return self.redirect(exercise.get_absolute_url())
