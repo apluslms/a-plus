@@ -26,8 +26,9 @@ if [ -e $dir ]; then
     git checkout $branch
   fi
   git pull
+  git submodule update --init --recursive
 else
-  git clone -b $branch $url $dir
+  git clone -b $branch --recursive $url $dir
   cd $dir
 fi
 
