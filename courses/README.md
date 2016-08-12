@@ -198,6 +198,7 @@ course specific exercise view in a course specific Python module.
 				as content in more instructions
 			* `type`: `radio`/`checkbox`/`dropdown`/`text`/`textarea`
 			* `key` (optional): a field key used in the form post
+			* `initial` (optional): an initial value for the field
 			* `points` (optional): number of points to grant
 			* `required` (optional): `true` to require an answer
 			* `correct` (optional): correct answer for text fields
@@ -212,6 +213,7 @@ course specific exercise view in a course specific Python module.
 			* `options` list of options for choice fields
 				* `label`: option label
 				* `value` (optional): the unique value for the option in the form post
+				* `selected` (optional): `true` to make this initial selection
 				* `correct` (optional): `true` for correct option.
 					Checkbox requires all and only correct
 					options selected. Radio requires one of

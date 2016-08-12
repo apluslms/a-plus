@@ -80,18 +80,19 @@ class GradedForm(forms.Form):
                 t = field["type"]
 
                 # Create a field by type.
+                initial, choices = self.create_choices(field)
                 if t == "checkbox":
                     i, f = self.add_field(i, field,
                         forms.MultipleChoiceField, forms.CheckboxSelectMultiple,
-                        self.create_choices(field), {})
+                        initial, choices, {})
                 elif t == "radio":
                     i, f = self.add_field(i, field,
                         forms.ChoiceField, forms.RadioSelect,
-                        self.create_choices(field), {})
+                        initial, choices, {})
                 elif (t == "dropdown" or t == "select"):
                     i, f = self.add_field(i, field,
                         forms.ChoiceField, forms.Select,
-                        self.create_choices(field))
+                        initial, choices)
                 elif t == "text":
                     i, f = self.add_field(i, field,
                         forms.CharField, forms.TextInput)
@@ -138,10 +139,10 @@ class GradedForm(forms.Form):
 
     def add_table_fields(self, i, config, field_class, widget_class):
         fields = []
-        choices = self.create_choices(config)
+        initial, choices = self.create_choices(config)
         for row in config.get('rows', []):
             i, fi = self.add_field(i, config,
-                field_class, widget_class, choices, {})
+                field_class, widget_class, initial, choices, {})
             fi[0].name = self.field_name(i, row)
             fi[0].row_label = row.get('label', None)
             fields += fi
@@ -149,8 +150,8 @@ class GradedForm(forms.Form):
         fields[-1].close_table = True
         return i, fields
 
-    def add_field(self, i, config, field_class, widget_class, choices=None,
-            widget_attrs={'class': 'form-control'}):
+    def add_field(self, i, config, field_class, widget_class,
+            initial=None, choices=None, widget_attrs={'class': 'form-control'}):
         if self.disabled:
             widget_attrs['readonly'] = True
         args = {
@@ -159,6 +160,10 @@ class GradedForm(forms.Form):
         }
         if not choices is None:
             args['choices'] = choices
+        if 'initial' in config:
+            args['initial'] = config['initial']
+        elif not initial is None:
+            args['initial'] = initial
         field = field_class(**args)
         field.type = config['type']
         field.name = self.field_name(i, config)
@@ -186,15 +191,19 @@ class GradedForm(forms.Form):
 
         '''
         choices = []
+        initial = None
         if "options" in configuration:
             i = 0
             for opt in configuration["options"]:
                 label = ""
                 if "label" in opt:
                     label = opt["label"]
-                choices.append((self.option_name(i, opt), mark_safe(label)))
+                value = self.option_name(i, opt)
+                choices.append((value, mark_safe(label)))
+                if 'selected' in opt and opt['selected']:
+                    initial = value
                 i += 1
-        return choices
+        return initial, choices
 
     def group_name(self, i):
         return "group_{:d}".format(i)
