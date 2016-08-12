@@ -35,8 +35,14 @@ class LearningObjectManager(models.Manager):
             .select_related('course_module', 'course_module__course_instance',
                 'course_module__course_instance__course', 'category')
 
-    def find_enrollment_exercise(self, course_instance):
-        return self.filter(
+    def find_enrollment_exercise(self, course_instance, profile):
+        exercise = None
+        if profile.is_external:
+            exercise = self.filter(
+                course_module__course_instance=course_instance,
+                status='enrollment_ext'
+            ).first()
+        return exercise or self.filter(
             course_module__course_instance=course_instance,
             status='enrollment'
         ).first()
@@ -49,12 +55,14 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     STATUS_READY = 'ready'
     STATUS_UNLISTED = 'unlisted'
     STATUS_ENROLLMENT = 'enrollment'
+    STATUS_ENROLLMENT_EXTERNAL = 'enrollment_ext'
     STATUS_HIDDEN = 'hidden'
     STATUS_MAINTENANCE = 'maintenance'
     STATUS_CHOICES = (
         (STATUS_READY, _("Ready")),
         (STATUS_UNLISTED, _("Unlisted in table of contents")),
         (STATUS_ENROLLMENT, _("Enrollment questions")),
+        (STATUS_ENROLLMENT_EXTERNAL, _("Enrollment questions (external students)")),
         (STATUS_HIDDEN, _("Hidden from non course staff")),
         (STATUS_MAINTENANCE, _("Maintenance")),
     )

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-11 12:22+0300\n"
+"POT-Creation-Date: 2016-08-12 13:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgstr "Tämä ryhmä on jo olemassa"
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:53 course/models.py:434 exercise/exercise_models.py:112
+#: course/models.py:53 course/models.py:434 exercise/exercise_models.py:120
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -147,7 +147,7 @@ msgstr ""
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:386 course/models.py:502 exercise/exercise_models.py:56
+#: course/models.py:386 course/models.py:502 exercise/exercise_models.py:63
 #: exercise/submission_models.py:59
 msgid "Ready"
 msgstr "Valmis"
@@ -156,7 +156,7 @@ msgstr "Valmis"
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:388 exercise/exercise_models.py:60
+#: course/models.py:388 exercise/exercise_models.py:68
 msgid "Maintenance"
 msgstr "Huolto"
 
@@ -530,11 +530,11 @@ msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:96
+#: course/views.py:98
 msgid "The course module is not yet open for students."
 msgstr "Tämä osio ei ole vielä avoinna opiskelijoille."
 
-#: course/views.py:144
+#: course/views.py:146
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
@@ -1180,59 +1180,63 @@ msgstr ""
 "<p>Tämä palautus merkittiin epäonnistuneeksi.</p>\n"
 "</div>"
 
-#: exercise/exercise_models.py:57
+#: exercise/exercise_models.py:64
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: exercise/exercise_models.py:58
+#: exercise/exercise_models.py:65
 msgid "Enrollment questions"
 msgstr "Ilmoittautumiskysely"
 
-#: exercise/exercise_models.py:59
+#: exercise/exercise_models.py:66
+msgid "Enrollment questions (external students)"
+msgstr "Ilmoittautumiskysely (ulkopuoliset opiskelijat)"
+
+#: exercise/exercise_models.py:67
 msgid "Hidden from non course staff"
 msgstr "Piilotettu muilta kuin kurssin henkilökunnalta"
 
-#: exercise/exercise_models.py:70
+#: exercise/exercise_models.py:78
 msgid "Input an URL identifier for this object."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus tälle kohteelle."
 
-#: exercise/exercise_models.py:73
+#: exercise/exercise_models.py:81
 msgid "Internal description is not presented on site."
 msgstr "Sisäistä kuvausta ei esitetä sivustolla."
 
-#: exercise/exercise_models.py:75
+#: exercise/exercise_models.py:83
 msgid "Remove the third info column for more space."
 msgstr "Poista kolmas tietopalsta tilan leventämiseksi."
 
-#: exercise/exercise_models.py:97
+#: exercise/exercise_models.py:105
 msgid "Course_module and category must belong to the same course instance."
 msgstr "Moduulin ja kategorian pitää kuulua samaan kurssikertaan."
 
-#: exercise/exercise_models.py:107
+#: exercise/exercise_models.py:115
 msgid "Cannot select parent from another course module."
 msgstr "Et voi valita 'Parent'-viitettä toisesta kurssimoduulista."
 
-#: exercise/exercise_models.py:254
+#: exercise/exercise_models.py:262
 msgid "Points to pass cannot be greater than max_points."
 msgstr "'Points to pass' ei voi olla suurempi kuin 'max_points'."
 
-#: exercise/exercise_models.py:258
+#: exercise/exercise_models.py:266
 msgid "Minimum group size cannot exceed maximum size."
 msgstr "Ryhmän koon alaraja ei voi olla suurempi kuin yläraja."
 
-#: exercise/exercise_models.py:332
+#: exercise/exercise_models.py:340
 msgid "The course is archived. Exercises are offline."
 msgstr "Kurssi on arkistoitu, ja tehtävistä esitetään näköiskopio."
 
-#: exercise/exercise_models.py:339
+#: exercise/exercise_models.py:347
 msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:342
+#: exercise/exercise_models.py:350
 msgid "You must enroll at course home to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
 
-#: exercise/exercise_models.py:349
+#: exercise/exercise_models.py:357
 msgid ""
 "You have previously submitted to this exercise with a different group. Group "
 "can only change between different exercises."
@@ -1240,22 +1244,22 @@ msgstr ""
 "Olet palauttanut tämän tehtävän aiemmin eri ryhmässä. Ryhmää voi vaihtaa "
 "vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:352
+#: exercise/exercise_models.py:360
 msgid ""
 "Some members of the group have already submitted to this exercise in a "
 "different group."
 msgstr ""
 "Jotkin ryhmän jäsenet ovat jo palauttaneet tämän tehtävän eri ryhmässä."
 
-#: exercise/exercise_models.py:360
+#: exercise/exercise_models.py:368
 msgid "This exercise is not open for submissions."
 msgstr "Tämä tehtävä on suljettu, eikä sitä voi palauttaa."
 
-#: exercise/exercise_models.py:363
+#: exercise/exercise_models.py:371
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:372
+#: exercise/exercise_models.py:380
 msgid ""
 "This exercise can be submitted in groups of {size} students. The size of "
 "your current group is {current}."
@@ -1263,7 +1267,7 @@ msgstr ""
 "Tämän tehtävän voi palauttaa {size} opiskelijan ryhmässä. Valitun ryhmän "
 "koko on {current}."
 
-#: exercise/exercise_models.py:383
+#: exercise/exercise_models.py:391
 msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed until"
 "{date} but points are only worth {percent:d}%."
@@ -1271,29 +1275,29 @@ msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:486
+#: exercise/exercise_models.py:494
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:488
+#: exercise/exercise_models.py:496
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:490
+#: exercise/exercise_models.py:498
 msgid "Default: Launch exercise"
 msgstr "Oletus: Avaa tehtävä"
 
-#: exercise/exercise_models.py:492
+#: exercise/exercise_models.py:500
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:501
+#: exercise/exercise_models.py:509
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:604
+#: exercise/exercise_models.py:612
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""

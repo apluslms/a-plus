@@ -80,7 +80,8 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
 
         # Support enrollment questionnaires.
         from exercise.models import LearningObject
-        exercise = LearningObject.objects.find_enrollment_exercise(self.instance)
+        exercise = LearningObject.objects.find_enrollment_exercise(
+            self.instance, self.profile)
         if exercise:
             return self.redirect(exercise.get_absolute_url())
 
