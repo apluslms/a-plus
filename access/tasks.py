@@ -1,50 +1,12 @@
-'''
-An asychronous grading task that is queued and later run by queue workers.
-Requires running Celery which requires running broker e.g. RabbitMQ.
-'''
-import logging
-import os
-
-# Set Django configuration path for celeryd.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'grader.settings')
-
-
-from celery import Celery
+from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded
-from django.conf import settings
 from django.utils import translation
-from pyrabbit.api import Client
-from access.config import ConfigParser, ConfigError
+import logging
+
+from access.config import ConfigParser
 from grader.runactions import runactions
 from util.http import post_system_error, post_result
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
 
-# Check settings object and validate base dir.
-if len(settings.BASE_DIR) < 2:
-    raise ConfigError("Configuration problem, BASE_DIR: %s", settings.BASE_DIR)
-
-# Create and configure Celery instance.
-app = Celery("tasks", broker=settings.CELERY_BROKER)
-app.conf.update(
-    CELERYD_TASK_TIME_LIMIT=settings.CELERY_TASK_KILL_SEC,
-    CELERYD_TASK_SOFT_TIME_LIMIT=settings.CELERY_TASK_LIMIT_SEC,
-    CELERYD_CONCURRENCY=1,
-    CELERYD_PREFETCH_MULTIPLIER=1,
-    CELERYD_HIJACK_ROOT_LOGGER=True,
-)
-
-# Create rabbitmq management client.
-client = None
-path = None
-if settings.CELERY_BROKER:
-    uri = urlparse(settings.CELERY_BROKER)
-    client = Client(
-        "{}:{:d}".format(uri.hostname, settings.RABBITMQ_MANAGEMENT["port"]),
-        uri.username, settings.RABBITMQ_MANAGEMENT["password"])
-    path = uri.path
 
 # Hold on to the latest exercise configuration.
 config = ConfigParser()
@@ -52,7 +14,7 @@ config = ConfigParser()
 LOGGER = logging.getLogger('main')
 
 
-@app.task(ignore_result=True)
+@shared_task
 def grade(course_key, exercise_key, lang, submission_url, submission_dir, user_ids='', submission_number=1):
     '''
     Grades the submission using configured grading actions.
@@ -100,18 +62,3 @@ def grade(course_key, exercise_key, lang, submission_url, submission_dir, user_i
     except Exception:
         LOGGER.exception("Grading error \"%s/%s\" for \"%s\"", course_key, exercise_key, submission_url)
         post_system_error(submission_url, course, exercise)
-
-
-def queue_length():
-    '''
-    Gets the length of the queue.
-
-    @rtype: C{int}
-    @return: a number of queued tasks
-    '''
-    try:
-        if client:
-            return client.get_queue_depth(path, "celery")
-    except Exception:
-        LOGGER.exception("Queue length is unknown.")
-    return 0

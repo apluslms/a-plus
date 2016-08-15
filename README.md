@@ -150,7 +150,7 @@ Then follow the "Installing for development" and continue from here.
 
 	The celery queue worker can now be tested in console.
 
-		celery -A grader.tasks worker
+		celery -A grader.celery worker
 
 4. ### Run Celery as daemon on boot
 

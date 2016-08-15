@@ -5,7 +5,7 @@ CELERYD_NODES="tasks"
 CELERY_BIN="/srv/grader/venv/bin/celery"
 
 # App instance to use
-CELERY_APP="grader.tasks"
+CELERY_APP="grader.celery"
 
 # Where to chdir at start.
 CELERYD_CHDIR="/srv/grader/mooc-grader/"

@@ -110,6 +110,7 @@ CELERY_BROKER = False
 RABBITMQ_MANAGEMENT = { "port": 55672, "password": "guest" }
 CELERY_TASK_LIMIT_SEC = 2 * 60
 CELERY_TASK_KILL_SEC = CELERY_TASK_LIMIT_SEC + 5
+CELERY_AFFINITIES = []
 
 #
 # Task queue alert length via logging error.

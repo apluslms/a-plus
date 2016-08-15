@@ -26,13 +26,15 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.utils import translation
 
-from grader import tasks
 from util.templates import render_configured_template, render_template, \
     template_to_str
 from util.files import create_submission_dir, save_submitted_file, \
     clean_submission_dir, write_submission_file
+from util.queue import queue_length
 from .auth import detect_user, make_hash, get_uid
 from ..config import ConfigError
+from .. import tasks
+
 
 LOGGER = logging.getLogger('main')
 
@@ -265,7 +267,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         int(request.GET.get("ordinal_number", 1)))
 
     _acceptSubmission.counter += 1
-    qlen = tasks.queue_length()
+    qlen = queue_length()
     LOGGER.debug("Submission of %s/%s, queue counter %d, queue length %d",
         course["key"], exercise["key"], _acceptSubmission.counter, qlen)
     if qlen >= settings.QUEUE_ALERT_LENGTH:

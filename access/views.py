@@ -10,7 +10,7 @@ import os
 import json
 
 from access.config import ConfigParser, ConfigError
-from grader.tasks import queue_length as qlength
+from util.queue import queue_length as qlength
 from util.http import post_result
 from util.importer import import_named
 from util.personalized import read_generated_exercise_file
