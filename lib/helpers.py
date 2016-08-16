@@ -2,7 +2,6 @@ from collections import OrderedDict
 from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
 from django.utils.deprecation import RemovedInNextVersionWarning
-from random import choice
 from PIL import Image
 import string
 import urllib
