@@ -496,3 +496,7 @@ class ConfigParser:
                     match = self.PROCESSOR_TAG_REGEX.match(k)
 
         LOGGER.debug('Processed %d tags.', tags_processed_count)
+
+
+# An object that holds on to the latest exercise configuration.
+config = ConfigParser()

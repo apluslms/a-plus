@@ -9,16 +9,12 @@ import copy
 import os
 import json
 
-from access.config import ConfigParser, ConfigError
+from access.config import config
 from util.queue import queue_length as qlength
 from util.http import post_result
 from util.importer import import_named
 from util.personalized import read_generated_exercise_file
 from util import export
-
-
-# Hold on to the latest configuration for several requests.
-config = ConfigParser()
 
 
 def index(request):

@@ -1,15 +1,14 @@
 from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded
+from django.conf import settings
 from django.utils import translation
 import logging
 
-from access.config import ConfigParser
+from access.config import config
 from grader.runactions import runactions
+from util.affinity import set_affinity
 from util.http import post_system_error, post_result
 
-
-# Hold on to the latest exercise configuration.
-config = ConfigParser()
 
 LOGGER = logging.getLogger('main')
 
@@ -34,6 +33,7 @@ def grade(course_key, exercise_key, lang, submission_url, submission_dir, user_i
     @type submission_number: C{int}
     @param submission_number: ordinal number of the submission (parameter in the grader protocol)
     '''
+    set_affinity(settings.CELERY_AFFINITIES)
     translation.activate(lang)
     (course, exercise) = config.exercise_entry(course_key, exercise_key, lang=lang)
     if course is None or exercise is None:
