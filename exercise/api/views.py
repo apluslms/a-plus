@@ -9,17 +9,28 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
+from userprofile.permissions import IsAdminOrUserObjIsSelf
+from course.permissions import IsCourseAdminOrUserItselfFilter
 
 from ..models import (
     Submission,
     BaseExercise,
     SubmissionManager,
 )
+from ..permissions import (
+    SubmissionVisibleFilter,
+)
+from .mixins import (
+    ExerciseResourceMixin,
+    SubmissionResourceMixin,
+)
 from .serializers import *
 from .full_serializers import *
 
 
-class ExerciseViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class ExerciseViewSet(mixins.RetrieveModelMixin,
+                      ExerciseResourceMixin,
+                      viewsets.GenericViewSet):
     """
     Url for GETting information about an exercise. (List of exercises can be
     fetched from /api/v2/courses/1/exercices)
@@ -33,6 +44,7 @@ class ExerciseViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
 
 class ExerciseSubmissionsViewSet(NestedViewSetMixin,
+                                 ExerciseResourceMixin,
                                  MeUserMixin,
                                  mixins.ListModelMixin,
                                  viewsets.GenericViewSet):
@@ -44,6 +56,10 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
     * GET: User can also get his old submission with GET.
     """
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = (
+        SubmissionVisibleFilter,
+        IsAdminOrUserObjIsSelf,
+    )
     authentication_classes = (TokenAuthentication,) # CSRF validation skipped
     lookup_url_kwarg = 'user_id'
     lookup_field = 'submitters__user__id'
@@ -97,6 +113,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
 
 
 class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
+                                    ExerciseResourceMixin,
                                     ListSerializerMixin,
                                     MeUserMixin,
                                     mixins.ListModelMixin,
@@ -105,7 +122,13 @@ class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
     Viewset contains info about exercise stats per user
     this includes current grade and submission count
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsAdminOrUserObjIsSelf,
+    )
+    filter_backends = (
+        IsCourseAdminOrUserItselfFilter,
+    )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {
@@ -113,7 +136,7 @@ class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
     }
     listserializer_class = UserListFieldWithStatsLink
     serializer_class = SubmitterStatsSerializer
-    queryset = UserProfile.objects
+    queryset = UserProfile.objects.all()
 
     def get_serializer(self, queryset, **kwargs):
         if self.action == 'list':
@@ -125,9 +148,11 @@ class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
         return super(ExerciseSubmitterStatsViewSet, self).get_serializer(queryset, **kwargs)
 
     def retrieve(self, request, exercise_id, user_id, **kwargs):
+        # NOTE: user id's that do not exist in DB will raise 404 instead of permission denied
         user = ( request.user.userprofile
                  if user_id == request.user.id
                  else get_object_or_404(UserProfile, user_id=user_id) )
+        self.check_object_permissions(request, user)
         submissions = ( Submission.objects.all()
             .filter(exercise_id=exercise_id, submitters=user)
             .order_by('-grade', '-submission_time') )
@@ -145,7 +170,9 @@ class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
         return Response(serializer.data)
 
 
-class SubmissionViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class SubmissionViewSet(mixins.RetrieveModelMixin,
+                        SubmissionResourceMixin,
+                        viewsets.GenericViewSet):
     """
     Interface to exercise submission model.
     Listing all submissions is not allowed (as there is no point),

@@ -1,11 +1,13 @@
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
+from userprofile.models import UserProfile
 from authorization.permissions import (
     ACCESS,
     Permission,
     MessageMixin,
     ObjectVisibleBasePermission,
+    FilterBackend,
 )
 from .models import (
     CourseModule,
@@ -95,3 +97,13 @@ class CourseModulePermission(MessageMixin, Permission):
                     date=module.opening_time))
             return False
         return True
+
+
+class IsCourseAdminOrUserItselfFilter(FilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        user = request.user
+        is_super = user.is_staff or user.is_superuser
+        is_staff = view.is_course_staff
+        if issubclass(queryset.model, UserProfile) and not is_super and not is_staff:
+            queryset = queryset.filter(user_id=user.id)
+        return queryset

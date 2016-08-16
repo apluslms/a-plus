@@ -5,6 +5,7 @@ from authorization.permissions import (
     ACCESS,
     Permission,
     ObjectVisibleBasePermission,
+    FilterBackend,
 )
 from .models import (
     LearningObject,
@@ -75,3 +76,13 @@ class SubmissionVisiblePermission(ObjectVisibleBasePermission):
             self.error_msg(request, _("Only the submitter shall pass."))
             return False
         return True
+
+
+class SubmissionVisibleFilter(FilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        user = request.user
+        is_super = user.is_staff or user.is_superuser
+        is_staff = view.is_course_staff
+        if issubclass(queryset.model, Submission) and not is_super and not is_staff:
+            queryset = queryset.filter(submitters=user.userprofile)
+        return queryset
