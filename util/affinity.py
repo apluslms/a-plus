@@ -16,25 +16,48 @@ def set_affinity(affinities):
         my_pid = os.getpid()
         try:
             get_lock(my_pid)
+
+            # Read a process id for each processor affinity.
             pids = [0] * affinities_n
             if os.path.exists(AFFINITY_FILE):
                 with open(AFFINITY_FILE, 'r') as f:
                     for i,line in enumerate(f):
                         if i < affinities_n:
                             pids[i] = int(line.strip())
-            for i,pid in enumerate(pids):
-                if pid in (0, my_pid) or not process_exists(pid):
-                    aff = affinities[i]
-                    os.sched_setaffinity(0, aff)
-                    print("SET AFFINITY: {}".format(str(aff)))
-                    pids[i] = my_pid
-                    break
 
+            # Find free affinity.
+            i = find_affinity(pids, my_pid)
+            if i >= 0:
+                os.sched_setaffinity(0, affinities[i])
+                #print("SET AFFINITY: {}".format(str(affinities[i])))
+
+            # Update processor affinity list.
             with open(AFFINITY_FILE, 'w') as f:
                 f.write("\n".join([str(i) for i in pids]))
 
         finally:
             release_lock(my_pid)
+
+
+def find_affinity(pids, my_pid):
+    try:
+        return pids.index(my_pid)
+    except ValueError:
+        pass
+    for i,pid in enumerate(pids):
+        if pid == 0 or not process_exists(pid):
+            pids[i] = my_pid
+            return i
+    return -1
+
+
+def process_exists(pid):
+    """ Checks if a process exists. """
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
 
 
 def get_lock(pid):
@@ -53,12 +76,3 @@ def release_lock(pid):
             lock_pid = f.read().strip()
         if lock_pid == str(pid):
             os.remove(LOCK_FILE)
-
-
-def process_exists(pid):
-    """ Checks if a process exists. """
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    return True
