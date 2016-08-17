@@ -1,6 +1,4 @@
 import logging
-import socket
-from urllib.parse import urlparse
 
 from django.http import HttpResponseForbidden
 from django.http.response import HttpResponseNotFound, JsonResponse
@@ -10,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from userprofile.models import UserProfile
 from lib.email_messages import email_course_error
-from lib.helpers import extract_form_errors
+from lib.helpers import extract_form_errors, get_url_ip_address_list
 from .forms import SubmissionCallbackForm
 from .models import BaseExercise
 from .submission_models import Submission
@@ -62,23 +60,13 @@ def grade_async_submission(request, submission_id, hash_key):
     return _async_submission_handler(request, exercise, students, submission)
 
 
-def _get_service_ip(exercise_url):
-    """
-    This function takes a full URL as a parameter and returns the IP address
-    of the host as a string.
-    """
-    parse_result = urlparse(exercise_url)
-    host = parse_result.netloc.split(":")[0]
-    return [a[4][0] for a in socket.getaddrinfo(host, None)]
-
-
 def _async_submission_handler(request, exercise, students, submission=None):
     """
     Responses GET with submissions information and grades a submission on POST.
 
     """
     # Check the IP address matches the host name.
-    if not request.META["REMOTE_ADDR"] in _get_service_ip(exercise.service_url):
+    if not request.META["REMOTE_ADDR"] in get_url_ip_address_list(exercise.service_url):
         logger.error(
             'Request IP does not match exercise service URL: {} != {}'.format(
                 request.META["REMOTE_ADDR"], exercise.service_url

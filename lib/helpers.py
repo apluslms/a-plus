@@ -1,12 +1,15 @@
+import socket
+import string
+import functools
+import warnings
+from cachetools import cached, TTLCache
 from collections import OrderedDict
+from urllib.parse import urlsplit, urlencode
+from PIL import Image
 from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
 from django.utils.deprecation import RemovedInNextVersionWarning
-from PIL import Image
-import string
-import urllib
-import functools
-import warnings
+
 
 
 try:
@@ -77,12 +80,12 @@ def query_dict_to_list_of_tuples(query_dict):
 
 def update_url_params(url, params):
     delimiter = "&" if "?" in url else "?"
-    return url + delimiter + urllib.parse.urlencode(params)
+    return url + delimiter + urlencode(params)
 
 
 def has_same_domain(url1, url2):
-    uri1 = urllib.parse.urlparse(url1)
-    uri2 = urllib.parse.urlparse(url2)
+    uri1 = urlsplit(url1)
+    uri2 = urlsplit(url2)
     return uri1.netloc == uri2.netloc
 
 
@@ -130,6 +133,20 @@ You can change it here or in local_settings.py
 """
 SECRET_KEY = '%s'
 ''' % (key))
+
+
+@cached(TTLCache(100, ttl=30))
+def get_url_ip_address_list(url):
+    """
+    This function takes a full URL as a parameter and returns the IP addresses
+    of the host as a string.
+
+    It will cache results for 30 seconds, so repeated calls return fast
+    """
+    hostname = urlsplit(url).hostname
+    assert hostname, "Invalid url: no hostname found"
+    ips = (a[4][0] for a in socket.getaddrinfo(hostname, None, 0, socket.SOCK_STREAM, socket.IPPROTO_TCP))
+    return tuple(set(ips))
 
 
 class Enum(object):
