@@ -12,7 +12,7 @@ SUBMISSION_URL_PREFIX = EXERCISE_URL_PREFIX \
 urlpatterns = [
 
     # In the ordering, note that most general exercise URL has to be last.
-    
+
     url(USER_URL_PREFIX + r'results/$',
         views.ResultsView.as_view(),
         name="results"),
@@ -55,6 +55,9 @@ urlpatterns = [
     url(EXERCISE_URL_PREFIX + r'plain/$',
         views.ExercisePlainView.as_view(),
         name="exercise-plain"),
+    url(EXERCISE_URL_PREFIX + r'info/model/(?P<file>[\w\d\_\-\.]+)$',
+        views.ExerciseModelView.as_view(),
+        name="exercise-model"),
     url(EXERCISE_URL_PREFIX + r'info/$',
         views.ExerciseInfoView.as_view(),
         name="exercise-info"),

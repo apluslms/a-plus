@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -9,9 +9,10 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 
-from course.viewbase import CourseInstanceBaseView
-from lib.viewbase import BaseRedirectMixin, BaseView
 from authorization.permissions import ACCESS
+from course.viewbase import CourseInstanceBaseView
+from lib.remote_page import request_for_response
+from lib.viewbase import BaseRedirectMixin, BaseView
 from .models import LearningObjectDisplay
 from .presentation.summary import UserExerciseSummary
 from .protocol.exercise_page import ExercisePage
@@ -141,6 +142,29 @@ class ExercisePlainView(ExerciseView):
     @method_decorator(xframe_options_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+
+class ExerciseModelView(ExerciseBaseView):
+    access_mode = ACCESS.ENROLLED
+    file_kw = "file"
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+
+        if not self.exercise.is_closed():
+            raise Http404()
+
+        file_name = self._get_kwarg(self.file_kw)
+        for _,name,url in self.exercise.get_models():
+            if name == file_name:
+                self.url = url
+                return
+
+        raise Http404()
+
+    def get(self, request, *args, **kwargs):
+        response = request_for_response(self.url)
+        return HttpResponse(response.text)
 
 
 class SubmissionView(SubmissionBaseView):

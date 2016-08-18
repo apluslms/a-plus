@@ -75,21 +75,37 @@
 				        	{% endfor %}
 				        </ul>
 					</li>
-					<p class="navbar-text">
-						<small>
-							{% if exercise.points_to_pass > 0 %}
-							{% blocktrans with points=exercise.points_to_pass %}{{ points }} points required to pass.{% endblocktrans %}
+					<li class="navbar-text">
+						{% if exercise.is_closed %}
+							{% if exercise.model_answers %}
+								{% trans "Model answer" %}
+                {% for res in exercise.get_models %}
+                <a href="{{ res.0 }}" class="file-modal" target="_blank">{{ res.1 }}</a>
+                {% endfor %}
 							{% endif %}
-							{% trans "Deadline" %} {{ module.closing_time }}
-						</small>
-						{% if is_course_staff %}
-						<a class="btn btn-default btn-xs" href="{{ exercise|url:'submission-list' }}">
-							<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-							{% trans "View all submissions" %}
-						</a>
+						{% else %}
+							<small>
+							{% if exercise.points_to_pass > 0 %}
+								{% blocktrans with points=exercise.points_to_pass %}{{ points }} points required to pass.{% endblocktrans %}
+							{% endif %}
+							{% if exercise.is_late_submission_open %}
+								{% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
+								{% if module.late_submission_penalty > 0 %}
+								(-{{ module.late_submission_penalty|percent }}%)
+								{% endif %}
+							{% else %}
+								{% trans "Deadline" %} {{ module.closing_time }}
+							{% endif %}
+							</small>
 						{% endif %}
-					</p>
+					</li>
 				</ul>
+				{% if is_course_staff %}
+				<a class="btn btn-default btn-xs" href="{{ exercise|url:'submission-list' }}">
+					<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+					{% trans "View all submissions" %}
+				</a>
+				{% endif %}
 			</nav>
       {% endif %}
 

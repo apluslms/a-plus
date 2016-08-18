@@ -2,8 +2,9 @@ from django.core.urlresolvers import reverse
 
 
 class UrlMixin(object):
-    def get_url(self, name):
+    def get_url(self, name, **add_kwargs):
         kwargs = self.get_url_kwargs()
+        kwargs.update(add_kwargs)
         return reverse(name, kwargs=kwargs)
 
     def get_absolute_url(self):

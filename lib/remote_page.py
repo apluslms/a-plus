@@ -18,21 +18,8 @@ class RemotePageException(Exception):
         self.message = message
 
 
-class RemotePage:
-    """
-    Represents a page that can be loaded over HTTP for further processing.
-    """
-    def __init__(self, url, post=False, data=None, files=None):
-        self.url = urllib.parse.urlparse(url)
-        try:
-            self.response = self._request(url, post, data, files)
-        except requests.exceptions.RequestException:
-            raise RemotePageException(
-                _("Connecting to the course service failed!"))
-        self.response.encoding = "utf-8"
-        self.soup = BeautifulSoup(self.response.text, 'html5lib')
-
-    def _request(self, url, post=False, data=None, files=None):
+def request_for_response(url, post=False, data=None, files=None):
+    try:
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
         n = 0
         while n <= last_retry:
@@ -58,6 +45,19 @@ class RemotePage:
             n += 1
         logger.error("HTTP request loop ended in unexpected state")
         assert False
+    except requests.exceptions.RequestException:
+        raise RemotePageException(_("Connecting to the course service failed!"))
+
+
+class RemotePage:
+    """
+    Represents a page that can be loaded over HTTP for further processing.
+    """
+    def __init__(self, url, post=False, data=None, files=None):
+        self.url = urllib.parse.urlparse(url)
+        self.response = request_for_response(url, post, data, files)
+        self.response.encoding = "utf-8"
+        self.soup = BeautifulSoup(self.response.text, 'html5lib')
 
     def base_address(self):
         domain = urllib.parse.urlunparse((self.url.scheme, self.url.netloc, '', '', '', ''))

@@ -513,6 +513,12 @@ class CourseModule(UrlMixin, models.Model):
         return self.late_submissions_allowed \
             and self.closing_time <= when <= self.late_submission_deadline
 
+    def is_closed(self, when=None):
+        when = when or timezone.now()
+        if self.late_submissions_allowed:
+            return when > self.late_submission_deadline
+        return when > self.closing_time
+
     def get_late_submission_point_worth(self):
         """
         Returns the percentage (0-100) that late submission points are worth.

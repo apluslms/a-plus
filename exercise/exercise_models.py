@@ -83,7 +83,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
     service_url = models.URLField(blank=True)
     exercise_info = JSONField(blank=True)
-    model_answers = models.TextField(blank=True)
+    model_answers = models.TextField(blank=True,
+        help_text=_("List model answer files as protected URL addresses."))
 
     content = models.TextField(blank=True)
     content_head = models.TextField(blank=True)
@@ -157,6 +158,9 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_after_open(self, when=None):
         return self.course_module.is_after_open(when=when)
 
+    def is_closed(self, when=None):
+        return self.course_module.is_closed(when=when)
+
     def next(self):
         return self.course_module._children().next(self)
 
@@ -215,6 +219,10 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                 self.content = page.content
                 self.save()
         return page
+
+    def get_models(self):
+        models = [(url,url.split('/')[-1]) for url in self.model_answers.split()]
+        return [(self.get_url('exercise-model', file=name), name, url) for (url,name) in models]
 
 
 class LearningObjectDisplay(models.Model):

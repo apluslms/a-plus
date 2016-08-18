@@ -23,6 +23,21 @@
     </div>
     <div class="panel-body">
         <dl>
+
+            {% if exercise.is_closed and exercise.model_answers %}
+            <dt>{% trans "Model answer" %}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% for res in exercise.get_models %}
+                <li>
+                  <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                  <a href="{{ res.0 }}" class="file-modal" target="_blank">{{ res.1 }}</a>
+                </li>
+                {% endfor %}
+              </ul>
+            </dd>
+            {% endif %}
+
             <dt>{% trans "Your submissions" %}</dt>
             <dd>
             	{{ summary.get_submission_count }}
@@ -39,9 +54,19 @@
             <dt>{% trans "Deadline" %}</dt>
             <dd>{{ exercise.course_module.closing_time }}</dd>
 
-            {% if exercise.min_group_size > 1 or exercise.max_group_size > 1 %}
+            {% if exercise.course_module.late_submissions_allowed %}
+            <dt>{% trans "Late submission deadline" %}</dt>
+            <dd>
+              {{ exercise.course_module.late_submission_deadline }}
+              {% if module.late_submission_penalty > 0 %}
+                (-{{ exercise.course_module.late_submission_penalty|percent }}%)
+              {% endif %}
+            </dd>
+            {% endif %}
+
+            {% if exercise.max_group_size > 1 %}
             <dt>{% trans "Group size" %}</dt>
-            <dd>{{ exercise.min_group_size }}-{{ exercise.max_group_size }}</dd>
+            <dd>{{ exercise.min_group_size }}{% if exercise.max_group_size > exercise.min_group_size %}-{{ exercise.max_group_size }}{% endif %}</dd>
             {% endif %}
 
             <dt>{% trans "Total number of submitters" %}</dt>
