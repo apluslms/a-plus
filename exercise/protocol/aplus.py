@@ -137,7 +137,7 @@ def parse_page_content(page, remote_page, exercise):
 
     remote_page.fix_relative_urls()
     remote_page.find_and_replace('data-aplus-exercise', [{
-        'data-aplus-order': i,
+        'id': ('chapter-exercise-' + str(o.order)),
         'data-aplus-exercise': o.get_absolute_url(),
     } for i,o in enumerate(exercise.children.all())])
 
