@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^queue-length$', views.queue_length, name='queue-length'),
     url(r'^test-result$', views.test_result, name='test-result'),
     url(r'^ajax/([\w-]+)/([\w-]+)$', views.exercise_ajax, name='ajax'),
+    url(r'^model/([\w-]+)/([\w-]+)/([\w\d\_\-\.]*)$', views.exercise_model, name='model'),
     url(r'^([\w-]+)/$', views.course, name='course'),
     url(r'^([\w-]+)/aplus-json$', views.aplus_json, name='aplus-json'),
     url(r'^([\w-]+)/([\w-]+)$', views.exercise, name='exercise'),

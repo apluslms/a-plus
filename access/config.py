@@ -195,6 +195,7 @@ class ConfigParser:
 
         self._check_fields(f, data, ["name"])
         data["key"] = course_key
+        data["dir"] = self._conf_dir(DIR, course_key, {})
 
         if "language" in data:
             data["lang"] = data["language"]

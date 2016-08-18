@@ -1,18 +1,21 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 
-def url_to_course(request, course_key, path):
-    ''' Creates an URL for a course path '''
+def url_to_exercise(request, course_key, exercise_key):
     return request.build_absolute_uri(
-        '/{}/{}'.format(course_key, path)
-    )
+        reverse('exercise', args=[course_key, exercise_key]))
+
+
+def url_to_model(request, course_key, exercise_key, parameter=None):
+    return request.build_absolute_uri(
+        reverse('model', args=[course_key, exercise_key, parameter]))
 
 
 def url_to_static(request, course_key, path):
     ''' Creates an URL for a path in static files '''
     return request.build_absolute_uri(
-        '{}{}/{}'.format(settings.STATIC_URL, course_key, path)
-    )
+        '{}{}/{}'.format(settings.STATIC_URL, course_key, path))
 
 
 def chapter(request, course, of):
@@ -28,12 +31,13 @@ def exercise(request, course, exercise, of):
     if not "description" in of:
         of["description"] = exercise.get("description", "")
     print(course['key'], exercise['key'])
-    of['url'] = url_to_course(request, course['key'], exercise['key'])
+    of['url'] = url_to_exercise(request, course['key'], exercise['key'])
     of['exercise_info'] = {
         'form_spec': form_fields(exercise),
         'resources': [url_to_static(request, course['key'], p) for p in exercise.get('resource_files', [])],
     }
-    of['model_answer'] = ' '.join([url_to_static(request, course['key'], p) for p in exercise.get('model_files', [])])
+    file_names = [path.split('/')[-1] for path in exercise.get('model_files', [])]
+    of['model_answer'] = ' '.join([url_to_model(request, course['key'], exercise['key'], name) for name in file_names])
     return of
 
 

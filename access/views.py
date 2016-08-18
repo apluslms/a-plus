@@ -98,6 +98,39 @@ def exercise_ajax(request, course_key, exercise_key):
     return response
 
 
+def exercise_model(request, course_key, exercise_key, parameter=None):
+    '''
+    Presents a model answer for an exercise.
+    '''
+    (course, exercise) = config.exercise_entry(course_key, exercise_key)
+    if course is None or exercise is None:
+        raise Http404()
+    response = None
+
+    if 'model_type' in exercise:
+        response = import_named(course, exercise['model_type'])(
+            request, course, exercise, parameter)
+
+    elif 'model_files' in exercise:
+        def find_name(paths, name):
+            models = [(path,path.split('/')[-1]) for path in paths]
+            for path,name in models:
+                if name == parameter:
+                    return path
+            return None
+        path = find_name(exercise['model_files'], parameter)
+        if path:
+            with open(os.path.join(course['dir'], path)) as f:
+                content = f.read()
+            response = HttpResponse(content, content_type='text/plain')
+
+    if response:
+        response['Access-Control-Allow-Origin'] = '*'
+        return response
+    else:
+        raise Http404()
+
+
 def aplus_json(request, course_key):
     '''
     Delivers the configuration as JSON for A+.
