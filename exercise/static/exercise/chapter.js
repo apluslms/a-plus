@@ -34,9 +34,6 @@
 			this.modalElement = $(this.settings.modal_selector).modal({show: false});
 
 			this.element.find("[" + this.settings.exercise_url_attr + "]")
-				.each(function(index) {
-					$(this).attr("id", "chapter-exercise-" + (index + 1));
-				})
 				.aplusExercise(this);
 		},
 
