@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseFormView, BaseRedirectView
-from userprofile.viewbase import ACCESS
+from authorization.permissions import ACCESS
 from .forms import DeadlineRuleDeviationForm
 from .models import DeadlineRuleDeviation
 

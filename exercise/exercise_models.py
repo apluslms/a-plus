@@ -1,7 +1,4 @@
 import datetime
-import hashlib
-import hmac
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -15,10 +12,12 @@ from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
+from aplus.api import api_reverse
 from course.models import CourseModule, LearningObjectCategory
 from external_services.lti import LTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
+from lib.api.authentication import get_graderauth_submission_params, get_graderauth_exercise_params
 from lib.fields import JSONField
 from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
 from lib.models import UrlMixin
@@ -408,52 +407,42 @@ class BaseExercise(LearningObject):
             .filter(submissions__exercise=self) \
             .distinct().count()
 
-    def get_async_hash(self, students):
-        student_str = "-".join(
-            sorted(str(userprofile.id) for userprofile in students)
-        ) if students else "-"
-        identifier = "{}.{:d}".format(student_str, self.id)
-        hash_key = hmac.new(
-            settings.SECRET_KEY.encode('utf-8'),
-            msg=identifier.encode('utf-8'),
-            digestmod=hashlib.sha256
-        )
-        return student_str, hash_key.hexdigest()
-
     def get_load_url(self, request, students, url_name="exercise"):
         if self.id:
-            profile = None
-            submission_count = 0
             if request.user.is_authenticated():
-                profile = request.user.userprofile
-                submission_count = self.get_submissions_for_student(request.user.userprofile).count()
-            # Make async-new URL for the currently authenticated user.
-            # The async handler will handle group selection at that time.
-            profile_str, hash_key = self.get_async_hash([profile] if profile else [])
-            student_str, _ = self.get_async_hash(students)
-            return self._build_service_url(request, student_str, submission_count + 1, url_name, reverse(
-                "async-new", kwargs={
-                    "exercise_id": self.id if self.id else 0,
-                    "student_ids": profile_str,
-                    "hash_key": hash_key
-                }
-            ))
+                user = request.user
+                submission_count = self.get_submissions_for_student(user.userprofile).count()
+            else:
+                user = None
+                submission_count = 0
+            # Make grader async URL for the currently authenticated user.
+            # The async handler will handle group selection at submission time.
+            submission_url = update_url_params(
+                api_reverse("exercise-grader", kwargs={'exercise_id': self.id}),
+                get_graderauth_exercise_params(self, user),
+            )
+            return self._build_service_url(request,
+                                           students,
+                                           submission_count + 1,
+                                           url_name,
+                                           submission_url)
         else:
             return self.service_url
 
-    def grade(self, request, submission,
-            no_penalties=False, url_name="exercise"):
+    def grade(self, request, submission, no_penalties=False, url_name="exercise"):
         """
         Loads the exercise feedback page.
         """
-        student_str, _ = self.get_async_hash(submission.submitters.all())
-        url = self._build_service_url(request, student_str, submission.ordinal_number(), url_name, reverse(
-            "async-grade", kwargs={
-                "submission_id": submission.id,
-                "hash_key": submission.hash
-            }))
-        return load_feedback_page(request, url, self, submission,
-            no_penalties=no_penalties)
+        submission_url = update_url_params(
+            api_reverse("submission-grader", kwargs={'submission_id': submission.id}),
+            get_graderauth_submission_params(submission),
+        )
+        url = self._build_service_url(request,
+                                      submission.submitters.all(),
+                                      submission.ordinal_number(),
+                                      url_name,
+                                      submission_url)
+        return load_feedback_page(request, url, self, submission, no_penalties=no_penalties)
 
     def modify_post_parameters(self, data, files, user, host, url):
         """
@@ -462,16 +451,16 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def _build_service_url(self, request, uid, ordinal_number, url_name, submission_url):
+    def _build_service_url(self, request, students, ordinal_number, url_name, submission_url):
         """
         Generates complete URL with added parameters to the exercise service.
         """
+        uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
         params = {
             "max_points": self.max_points,
             "submission_url": request.build_absolute_uri(submission_url),
-            "post_url": request.build_absolute_uri(
-                str(self.get_url(url_name))),
-            "uid": uid or 0,
+            "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
+            "uid": uid_str,
             "ordinal_number": ordinal_number,
         }
         return update_url_params(self.service_url, params)

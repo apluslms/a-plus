@@ -7,12 +7,11 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.base import View
 from django.views.static import serve
 
 from course.viewbase import CourseInstanceBaseView
-from lib.viewbase import BaseRedirectMixin
-from userprofile.viewbase import ACCESS
+from lib.viewbase import BaseRedirectMixin, BaseView
+from authorization.permissions import ACCESS
 from .models import LearningObjectDisplay
 from .presentation.summary import UserExerciseSummary
 from .protocol.exercise_page import ExercisePage
@@ -43,10 +42,14 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def access_control(self):
-        if self.exercise.status == 'enrollment' and self.access_mode == ACCESS.STUDENT:
-            self.access_mode = ACCESS.ENROLL
-        super().access_control()
+    def get_access_mode(self):
+        access_mode = super().get_access_mode()
+
+        # Loosen the access mode if exercise is enrollment
+        if self.exercise.status == 'enrollment' and access_mode == ACCESS.STUDENT:
+            access_mode = ACCESS.ENROLL
+
+        return access_mode
 
     def get_after_new_submission(self):
         self.submissions = self.exercise.get_submissions_for_student(
@@ -172,13 +175,13 @@ class SubmissionPlainView(SubmissionView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class SubmissionPollView(SubmissionMixin, View):
+class SubmissionPollView(SubmissionMixin, BaseView):
 
     def get(self, request, *args, **kwargs):
         return HttpResponse(self.submission.status, content_type="text/plain")
 
 
-class SubmittedFileView(SubmissionMixin, View):
+class SubmittedFileView(SubmissionMixin, BaseView):
     file_kw = "file_id"
     file_name_kw = "file_name"
 

@@ -16,10 +16,16 @@ from django.utils.translation import ugettext_lazy as _
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
-from lib.helpers import safe_file_name, resize_image, roman_numeral, get_random_string
+from lib.helpers import (
+    safe_file_name,
+    resize_image,
+    roman_numeral,
+    get_random_string,
+    Enum,
+)
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
-from userprofile.models import UserProfile
+from userprofile.models import User, UserProfile, GraderUser
 from .tree import ModuleTree
 
 logger = logging.getLogger("course.models")
@@ -55,8 +61,18 @@ class Course(UrlMixin, models.Model):
             })
 
     def is_teacher(self, user):
-        return user and user.is_authenticated() and (user.is_superuser or \
-            self.teachers.filter(id=user.userprofile.id).exists())
+        return (
+            user and
+            user.is_authenticated() and (
+                user.is_superuser or (
+                    isinstance(user, User) and
+                    self.teachers.filter(id=user.userprofile.id).exists()
+                ) or (
+                    isinstance(user, GraderUser) and
+                    user._course == self
+                )
+            )
+        )
 
 
     ABSOLUTE_URL_NAME = "course-instances"
@@ -114,6 +130,30 @@ def create_enrollment_code(sender, instance, created, **kwargs):
 post_save.connect(create_enrollment_code, sender=Enrollment)
 
 
+def get_course_visibility_filter(user, prefix=None):
+    class OR(Q):
+        default = Q.OR
+
+    filters = (
+        ('visible_to_students', True),
+    )
+    if isinstance(user, User):
+        user = user.userprofile
+        filters += (
+            ('assistants', user),
+            ('course__teachers', user),
+        )
+    elif isinstance(user, GraderUser):
+        filters += (
+            ('course', user._course),
+        )
+    filters = dict(
+        ((prefix+name if prefix else name), val)
+        for name, val in filters
+    )
+    return OR(**filters)
+
+
 class CourseInstanceManager(models.Manager):
     """
     Helpers in CourseInstance.objects
@@ -143,10 +183,7 @@ class CourseInstanceManager(models.Manager):
         if not user or not user.is_authenticated():
             return self.filter(visible_to_students=True)
         if not user.is_superuser:
-            return self.filter(Q(visible_to_students=True)
-                           | Q(assistants=user.userprofile)
-                           | Q(course__teachers=user.userprofile)
-                ).distinct()
+            return self.filter(get_course_visibility_filter(user)).distinct()
         return self.all()
 
 
@@ -167,23 +204,29 @@ class CourseInstance(UrlMixin, models.Model):
     have the same teacher, but teaching assistants and students are connected to individual
     instances.
     """
+    ENROLLMENT_AUDIENCE = Enum([
+        ('INTERNAL_USERS', 1, _('Internal users')),
+        ('EXTERNAL_USERS', 2, _('External users')),
+        ('ALL_USERS', 3, _('Internal and external users')),
+    ])
+    VIEW_ACCESS = Enum([
+        ('ENROLLED', 1, _('Enrolled students')),
+        ('ENROLLMENT_AUDIENCE', 2, _('Enrollment audience')),
+        ('ALL_REGISTERED', 3, _('All registered users')),
+        ('PUBLIC', 4, _('Public to internet')),
+    ])
+
+
     course = models.ForeignKey(Course, related_name="instances")
     instance_name = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=False,
         validators=[RegexValidator(regex="^[\w\-\.]*$")],
         help_text=_("Input an URL identifier for this course instance."))
     visible_to_students = models.BooleanField(default=True)
-    enrollment_audience = models.IntegerField(choices=(
-        (1, _('Internal users')),
-        (2, _('External users')),
-        (3, _('Internal and external users')),
-    ), default=1)
-    view_content_to = models.IntegerField(choices=(
-        (1, _('Enrolled students')),
-        (2, _('Enrollment audience')),
-        (3, _('All registered users')),
-        (4, _('Public to internet')),
-    ), default=2)
+    enrollment_audience = models.IntegerField(choices=ENROLLMENT_AUDIENCE.choices,
+                                              default=ENROLLMENT_AUDIENCE.INTERNAL_USERS)
+    view_content_to = models.IntegerField(choices=VIEW_ACCESS.choices,
+                                          default=VIEW_ACCESS.ENROLLMENT_AUDIENCE)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     enrollment_starting_time = models.DateTimeField(blank=True, null=True)
@@ -251,8 +294,12 @@ class CourseInstance(UrlMixin, models.Model):
             resize_image(self.image.path, (800,600))
 
     def is_assistant(self, user):
-        return user and user.is_authenticated() \
-            and self.assistants.filter(id=user.userprofile.id).exists()
+        return (
+            user and
+            user.is_authenticated() and
+            isinstance(user, User) and
+            self.assistants.filter(id=user.userprofile.id).exists()
+        )
 
     def is_teacher(self, user):
         return self.course.is_teacher(user)
@@ -261,8 +308,12 @@ class CourseInstance(UrlMixin, models.Model):
         return self.is_teacher(user) or self.is_assistant(user)
 
     def is_student(self, user):
-        return user and user.is_authenticated() \
-            and self.students.filter(id=user.userprofile.id).exists()
+        return (
+            user and
+            user.is_authenticated() and
+            isinstance(user, User) and
+            self.students.filter(id=user.userprofile.id).exists()
+        )
 
     def is_enrollable(self, user):
         if user and user.is_authenticated():
@@ -367,10 +418,22 @@ class CourseHook(models.Model):
 
 
 class CourseModuleManager(models.Manager):
-
     def get_queryset(self):
         return super().get_queryset().select_related(
             'course_instance', 'course_instance__course')
+
+    def get_visible(self, user=None):
+        if not user or not user.is_authenticated():
+            return self.filter(
+                course_instance__visible_to_students=True,
+                opening_time__lte=timezone.now(),
+            )
+        if not user.is_superuser:
+            return self.filter(
+                get_course_visibility_filter(user, 'course_instance__'),
+                opening_time__lte=timezone.now(),
+            ).distinct()
+        return self.all()
 
 
 class CourseModule(UrlMixin, models.Model):

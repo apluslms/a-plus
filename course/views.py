@@ -10,11 +10,11 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic.base import View
 
 from lib.helpers import settings_text
-from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView
-from userprofile.viewbase import ACCESS, UserProfileView
+from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
+from authorization.permissions import ACCESS
+from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
@@ -97,7 +97,7 @@ class ModuleView(CourseModuleBaseView):
         return super().get(request, *args, **kwargs)
 
 
-class CalendarExport(CourseInstanceMixin, View):
+class CalendarExport(CourseInstanceMixin, BaseView):
 
     def get(self, request, *args, **kwargs):
         self.handle()

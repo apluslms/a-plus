@@ -22,9 +22,10 @@ with api.register(r'courses',
     courses.register(r'students',
                      course.api.views.CourseStudentsViewSet,
                      base_name='course-students')
-    courses.register(r'points',
-                     course.api.views.CoursePointsViewSet,
-                     base_name='course-points')
+    # FIXME: Disabled w:hile there is no correct permission checks
+    #courses.register(r'points',
+    #                 course.api.views.CoursePointsViewSet,
+    #                 base_name='course-points')
 
 with api.register(r'exercises',
                   exercise.api.views.ExerciseViewSet,
@@ -46,8 +47,25 @@ urlpatterns = [
     url(r'^me', userprofile.api.views.MeDetail.as_view()),
 ]
 
+
 if settings.DEBUG:
-    _len = max((len(url.name) for url in api.urls))
-    _fmt = "  - %%-%ds %%s" % (_len,)
-    _urls = '\n'.join((_fmt % (url.name, url.regex.pattern) for url in api.urls))
-    print(" API URLS:\n%s" % (_urls,))
+    # Print list of api urls
+    _urls = [(url.callback.cls.__name__, url.name, url.regex.pattern) for url in api.urls]
+    _lens = {'v': max(len(v) for v, n, p in _urls), 'n': max(len(url.name) for url in api.urls)}
+    _urls = ("  - {:<{v:d}s} {:<{n:d}s} {:s}".format(*a, **_lens) for a in _urls)
+    print(" API URLS:", *_urls, sep='\n')
+
+    # Print list of api view permissions
+    _vseen = set()
+    _views = (url.callback.cls  for url in api.urls)
+    _methods = ('list', 'create', 'retrieve', 'update', 'partial_update', 'destroy')
+    _get_methods = lambda v: ' '.join(((m[0].upper() if hasattr(v, m) else ' ') for m in _methods))
+    _get_perms = lambda v: ', '.join(p.__class__.__name__ for p in v().get_permissions())
+    _views = [(v.__name__, _get_methods(v), _get_perms(v)) for v in _views if not (v in _vseen or _vseen.add(v))]
+    _lens['m'] = max(len(m) for v, m, p in _views)
+    _perms = ("  - {:<{v:d}s} {:<{m:d}s} {:s}".format(*a, **_lens) for a in _views)
+    print(" API PERMS:", *_perms, sep='\n')
+    print(" API methods:", ', '.join(m.capitalize() for m in _methods))
+
+    # clean vars out of memory
+    del _urls, _lens, _vseen, _views, _methods, _get_methods, _get_perms, _perms

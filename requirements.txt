@@ -7,6 +7,7 @@ djangorestframework==3.3.3
 -e git+https://github.com/raphendyr/drf-extensions.git@5201aa008bc8ac8d70c712af187e1c7939a5e49c#egg=drf_extensions
 feedparser
 html5lib
+cachetools==1.1.6
 icalendar==3.9.0
 mimeparse==0.1.3
 oauthlib==0.6.2

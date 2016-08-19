@@ -7,7 +7,7 @@ from course.models import CourseInstance
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
     BaseRedirectView
-from userprofile.viewbase import ACCESS
+from authorization.permissions import ACCESS
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager

@@ -1,13 +1,16 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework import status
 from rest_framework.reverse import reverse
 
+from lib.viewbase import BaseMixin
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
+from userprofile.permissions import IsAdminOrUserObjIsSelf
 from userprofile.api.serializers import UserBriefSerializer
 from exercise.models import BaseExercise
 from exercise.presentation.results import ResultTable
@@ -16,32 +19,59 @@ from ..models import (
     CourseInstance,
     CourseModule,
 )
+from .mixins import (
+    CourseResourceMixin,
+    CourseModuleResourceMixin,
+)
 from .serializers import *
 from .full_serializers import *
 
 
-class CourseViewSet(ListSerializerMixin, viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+class CourseViewSet(ListSerializerMixin,
+                    CourseResourceMixin,
+                    viewsets.ReadOnlyModelViewSet):
     lookup_url_kwarg = 'course_id'
     lookup_value_regex = REGEX_INT
     listserializer_class = CourseBriefSerializer
     serializer_class = CourseSerializer
-    queryset = CourseInstance.objects.all().filter(visible_to_students=True)
+
+    def get_queryset(self):
+        return ( CourseInstance.objects
+                 .get_visible(self.request.user)
+                 .all() )
+
+    def get_object(self):
+        return self.get_member_object('instance', 'Course')
 
 
-class CourseExercisesViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+class CourseExercisesViewSet(NestedViewSetMixin,
+                             CourseModuleResourceMixin,
+                             CourseResourceMixin,
+                             viewsets.ReadOnlyModelViewSet):
     lookup_url_kwarg = 'exercisemodule_id'
     lookup_value_regex = REGEX_INT
     parent_lookup_map = {'course_id': 'course_instance.id'}
     serializer_class = CourseModuleSerializer
-    queryset = CourseModule.objects.all()
+
+    def get_queryset(self):
+        return ( CourseModule.objects
+                 .get_visible(self.request.user)
+                 .all() )
+
+    def get_object(self):
+        return self.get_member_object('module', 'Exercise module')
 
 
 class CourseStudentsViewSet(NestedViewSetMixin,
                             MeUserMixin,
+                            CourseResourceMixin,
                             viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        IsAdminOrUserObjIsSelf,
+    ]
+    filter_backends = (
+        IsAdminOrUserObjIsSelf,
+    )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {'course_id': 'enrolled.id'}
@@ -50,7 +80,6 @@ class CourseStudentsViewSet(NestedViewSetMixin,
 
 
 class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
 
     def retrieve(self, request, course_id, version, pk=None):
         """

@@ -1,19 +1,9 @@
 from django.core.exceptions import PermissionDenied
 from django.template.response import SimpleTemplateResponse
-from django.views.generic.base import View
 
 from lib.viewbase import BaseMixin, BaseTemplateView
+from authorization.permissions import ACCESS
 from .models import UserProfile
-
-
-class ACCESS(object):
-    ANONYMOUS = 0
-    ENROLL = 1
-    STUDENT = 3
-    ENROLLED = 4
-    ASSISTANT = 5
-    GRADING = 6
-    TEACHER = 10
 
 
 class UserProfileMixin(BaseMixin):
@@ -22,20 +12,16 @@ class UserProfileMixin(BaseMixin):
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        if self.request.user.is_authenticated():
-            self.profile = UserProfile.get_by_request(self.request)
-            self.is_external_student = self.profile.is_external
-            self.note("is_external_student")
+        user = self.request.user
+        if user.is_authenticated():
+            self.profile = profile = user.userprofile
+            self.is_external_student = profile.is_external
         else:
             self.profile = None
-        # Add available for template
-        self.note("profile")
+            self.is_external_student = False
 
-    def access_control(self):
-        super().access_control()
-        if self.access_mode > ACCESS.ANONYMOUS \
-                and not self.request.user.is_authenticated():
-            raise PermissionDenied
+        # Add available for template
+        self.note("profile", "is_external_student")
 
 
 class UserProfileView(UserProfileMixin, BaseTemplateView):

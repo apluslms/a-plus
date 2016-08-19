@@ -222,13 +222,13 @@ REST_FRAMEWORK = {
         # Clients should use token for authentication
         # Requires rest_framework.authtoken in apps.
         'rest_framework.authentication.TokenAuthentication',
+        'lib.api.authentication.grader.GraderAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         # If not other permissions are defined, require login.
-        # Should be replaced with NoPermission and all permissions
-        # should be defined in api view entries.
         'rest_framework.permissions.IsAuthenticated',
+        'userprofile.permissions.GraderUserCanOnlyRead',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'lib.api.core.APlusJSONRenderer',

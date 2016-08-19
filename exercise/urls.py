@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from course.urls import MODULE_URL_PREFIX, USER_URL_PREFIX, EDIT_URL_PREFIX
-from . import views, async_views, staff_views
+from . import views, staff_views
 
 
 EXERCISE_URL_PREFIX = MODULE_URL_PREFIX \
@@ -29,14 +29,6 @@ urlpatterns = [
             + r'file/(?P<file_id>\d+)/(?P<file_name>[\w\d\_\-\.]+)',
         views.SubmittedFileView.as_view(),
         name="submission-file"),
-
-    url(r'^rest/exercise/(?P<exercise_id>\d+)/' \
-            + r'students/(?P<student_ids>[\d\-]+)/(?P<hash_key>\w+)/$',
-        async_views.new_async_submission,
-        name="async-new"),
-    url(r'^rest/submission/(?P<submission_id>\d+)/(?P<hash_key>\w+)/$',
-        async_views.grade_async_submission,
-        name="async-grade"),
 
     url(EXERCISE_URL_PREFIX + r'submissions/$',
         staff_views.ListSubmissionsView.as_view(),

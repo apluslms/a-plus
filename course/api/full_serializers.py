@@ -48,6 +48,7 @@ class CourseSerializer(CourseBriefSerializer):
         fields = (
             'starting_time',
             'ending_time',
+            'visible_to_students',
             'exercises',
             'students',
             'points',

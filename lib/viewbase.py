@@ -8,10 +8,15 @@ from django.utils.http import is_safe_url
 from django.views.generic.base import TemplateResponseMixin, TemplateView, View
 from django.views.generic.edit import FormMixin, FormView
 
-from authorization.views import AuthorizedResourceMixin
 from lib.helpers import deprecated
+from authorization.views import AuthorizedResourceMixin
+from authorization.permissions import (
+    Permission,
+    AccessModePermission,
+)
 
-class AccessControlPermission(object):
+
+class AccessControlPermission(Permission):
     def has_permission(self, request, view):
         try:
             view.access_control()
@@ -19,13 +24,28 @@ class AccessControlPermission(object):
         except PermissionDenied:
             return False
 
-class BaseMixin(AuthorizedResourceMixin):
+
+class BaseMixin(object):
     """
     Extend to handle data and mixin with one of the views implementing
     get/post methods. Calling the super method is required when overriding
     the base methods.
     """
-    permission_classes = [AccessControlPermission]
+    # NOTE: access_mode is not defined here, so if any derived class forgets to
+    # define it AccessModePermission will raise assertion error
+    #access_mode = ACCESS.ANONYMOUS
+    base_permission_classes = [
+        AccessModePermission,
+        AccessControlPermission,
+    ]
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.base_permission_classes))
+        return perms
+
+    def get_access_mode(self):
+        return self.access_mode
 
     @deprecated("access_control is deprecated and should be replaced with correct permission_classes")
     def access_control(self):
@@ -48,6 +68,15 @@ class BaseMixin(AuthorizedResourceMixin):
         return arg
 
 
+class BaseViewMixin(AuthorizedResourceMixin):
+    permission_classes = [] # common come from BaseMixin and this drops NoPermission default
+    pass
+
+
+class BaseView(BaseViewMixin, View):
+    pass
+
+
 class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
     template_name = None
     ajax_template_name = None
@@ -64,11 +93,11 @@ class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
         return super().get_template_names()
 
 
-class BaseTemplateView(BaseTemplateMixin, TemplateView):
+class BaseTemplateView(BaseTemplateMixin, BaseViewMixin, TemplateView):
     pass
 
 
-class BaseRedirectMixin(object):
+class BaseRedirectMixin(BaseMixin):
 
     def redirect_kwarg(self, kw, backup=None):
         to = self.request.POST.get(kw, self.request.GET.get(kw, ""))
@@ -84,7 +113,7 @@ class BaseRedirectMixin(object):
         return HttpResponseRedirect(to)
 
 
-class BaseRedirectView(BaseRedirectMixin, View):
+class BaseRedirectView(BaseRedirectMixin, BaseViewMixin, View):
     pass
 
 
@@ -92,7 +121,8 @@ class BaseFormMixin(BaseRedirectMixin, BaseTemplateMixin, FormMixin):
     def form_valid(self, form):
         return self.redirect(self.get_success_url())
 
-class BaseFormView(BaseFormMixin, FormView):
+
+class BaseFormView(BaseFormMixin, BaseViewMixin, FormView):
     pass
 
 

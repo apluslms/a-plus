@@ -6,7 +6,12 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from lib.viewbase import BaseTemplateView
-from userprofile.viewbase import ACCESS, UserProfileMixin
+from authorization.permissions import ACCESS
+from userprofile.viewbase import UserProfileMixin
+from .permissions import (
+    CourseVisiblePermission,
+    CourseModulePermission,
+)
 from .models import Course, CourseInstance, CourseModule
 
 
@@ -22,69 +27,63 @@ class CourseMixin(UserProfileMixin):
         self.is_teacher = self.course.is_teacher(self.request.user)
         self.note("course", "is_teacher")
 
-    def access_control(self):
-        super().access_control()
-        if self.access_mode >= ACCESS.TEACHER:
-            if not self.is_teacher:
-                messages.error(self.request,
-                    _("Only course teachers shall pass."))
-                raise PermissionDenied()
-
 
 class CourseBaseView(CourseMixin, BaseTemplateView):
     pass
 
 
-class CourseInstanceMixin(CourseMixin):
+class CourseInstanceBaseMixin(object):
+    course_kw = CourseMixin.course_kw
     instance_kw = "instance_slug"
+    course_permission_classes = (
+        CourseVisiblePermission,
+    )
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.course_permission_classes))
+        return perms
+
+    # get_course_instance_object
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        self.instance = get_object_or_404(
+        user = self.request.user
+        instance = self.get_course_instance_object()
+        if instance is not None:
+            self.instance = instance
+            self.course = self.instance.course
+            self.is_teacher = self.course.is_teacher(user)
+            self.is_assistant = self.instance.is_assistant(user)
+            self.is_course_staff = self.is_teacher or self.is_assistant
+            self.note("course", "instance",
+                      "is_teacher", "is_assistant", "is_course_staff")
+
+            # Apply course instance language.
+            if self.instance.language:
+                translation.activate(self.instance.language)
+
+    def get_access_mode(self):
+        access_mode = super().get_access_mode()
+
+        if hasattr(self, 'instance'):
+            # Loosen the access mode if instance is public
+            show_for = self.instance.view_content_to
+            is_public = show_for == CourseInstance.VIEW_ACCESS.PUBLIC
+            access_mode_student = access_mode in (ACCESS.STUDENT, ACCESS.ENROLL)
+            if is_public and acecss_mode_student:
+                access_mode = ACCESS.ANONYMOUS
+
+        return access_mode
+
+
+class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
+    def get_course_instance_object(self):
+        return get_object_or_404(
             CourseInstance,
-            url=self._get_kwarg(self.instance_kw),
-            course=self.course
+            url=self.kwargs[self.instance_kw],
+            course__url=self.kwargs[self.course_kw],
         )
-        self.is_assistant = self.instance.is_assistant(self.request.user)
-        self.is_course_staff = self.is_teacher or self.is_assistant
-        self.note("instance", "is_assistant", "is_course_staff")
-
-        # Apply course instance language.
-        if self.instance.language:
-            translation.activate(self.instance.language)
-
-    def access_control(self):
-
-        # Loosen the access mode if instance is public.
-        if self.instance.view_content_to == 4 and \
-                self.access_mode in (ACCESS.STUDENT, ACCESS.ENROLL):
-            self.access_mode = ACCESS.ANONYMOUS
-
-        super().access_control()
-        if self.access_mode >= ACCESS.ASSISTANT:
-            if not self.is_course_staff:
-                messages.error(self.request,
-                    _("Only course staff shall pass."))
-                raise PermissionDenied()
-        else:
-            if not self.instance.is_visible_to(self.request.user):
-                messages.error(self.request,
-                    _("The resource is not currently visible."))
-                raise PermissionDenied()
-
-            # View content access.
-            if not self.is_course_staff:
-                if self.access_mode == ACCESS.ENROLLED or (self.instance.view_content_to == 1 and self.access_mode > ACCESS.ENROLL):
-                    if not self.instance.is_student(self.request.user):
-                        messages.error(self.request, _("Only enrolled students shall pass."))
-                        raise PermissionDenied()
-                elif self.instance.view_content_to < 3:
-                    if self.instance.enrollment_audience == 1 and self.profile.is_external:
-                        messages.error(self.request, _("This course is only for internal students."))
-                        raise PermissionDenied()
-                    if self.instance.enrollment_audience == 2 and not self.profile.is_external:
-                        messages.error(self.request, _("This course is only for external students."))
-                        raise PermissionDenied()
 
 
 class CourseInstanceBaseView(CourseInstanceMixin, BaseTemplateView):
@@ -100,28 +99,32 @@ class EnrollableViewMixin(CourseInstanceMixin):
         self.note('enrolled', 'enrollable')
 
 
-class CourseModuleMixin(CourseInstanceMixin):
+class CourseModuleBaseMixin(object):
     module_kw = "module_slug"
+    module_permissions_classes = (
+        CourseModulePermission,
+    )
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.module_permissions_classes))
+        return perms
+
+    # get_course_module_object
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        self.module = get_object_or_404(
-            CourseModule,
-            url=self._get_kwarg(self.module_kw),
-            course_instance=self.instance
-        )
+        self.module = self.get_course_module_object()
         self.note("module")
 
-    def access_control(self):
-        super().access_control()
-        if not self.is_course_staff:
-            if self.module.status == CourseModule.STATUS_HIDDEN:
-                raise Http404()
-            if not self.module.is_after_open():
-                messages.error(self.request,
-                    _("The module will open for submissions at {date}").format(
-                        date=self.module.opening_time))
-                raise PermissionDenied()
+
+class CourseModuleMixin(CourseModuleBaseMixin, CourseInstanceMixin):
+    def get_course_module_object(self):
+        return get_object_or_404(
+            CourseModule,
+            url=self.kwargs[self.module_kw],
+            course_instance=self.instance
+        )
 
 
 class CourseModuleBaseView(CourseModuleMixin, BaseTemplateView):

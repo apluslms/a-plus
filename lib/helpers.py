@@ -1,12 +1,15 @@
+import socket
+import string
+import functools
+import warnings
+from cachetools import cached, TTLCache
+from collections import OrderedDict
+from urllib.parse import urlsplit, urlencode
+from PIL import Image
 from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
 from django.utils.deprecation import RemovedInNextVersionWarning
-from random import choice
-from PIL import Image
-import string
-import urllib
-import functools
-import warnings
+
 
 
 try:
@@ -77,12 +80,12 @@ def query_dict_to_list_of_tuples(query_dict):
 
 def update_url_params(url, params):
     delimiter = "&" if "?" in url else "?"
-    return url + delimiter + urllib.parse.urlencode(params)
+    return url + delimiter + urlencode(params)
 
 
 def has_same_domain(url1, url2):
-    uri1 = urllib.parse.urlparse(url1)
-    uri2 = urllib.parse.urlparse(url2)
+    uri1 = urlsplit(url1)
+    uri2 = urlsplit(url2)
     return uri1.netloc == uri2.netloc
 
 
@@ -130,3 +133,63 @@ You can change it here or in local_settings.py
 """
 SECRET_KEY = '%s'
 ''' % (key))
+
+
+@cached(TTLCache(100, ttl=30))
+def get_url_ip_address_list(url):
+    """
+    This function takes a full URL as a parameter and returns the IP addresses
+    of the host as a string.
+
+    It will cache results for 30 seconds, so repeated calls return fast
+    """
+    hostname = urlsplit(url).hostname
+    assert hostname, "Invalid url: no hostname found"
+    ips = (a[4][0] for a in socket.getaddrinfo(hostname, None, 0, socket.SOCK_STREAM, socket.IPPROTO_TCP))
+    return tuple(set(ips))
+
+
+class Enum(object):
+    """
+    Represents constant enumeration.
+
+    Usage:
+        OPTS = Enum(
+            ('FOO', 1, 'help string for foo'),
+            ('BAR', 2, 'help string for bar'),
+        )
+
+        if OPTS.FOO == test_var:
+            return OPTS[test_var]
+
+        ChoicesField(choices=OPTS.choices)
+    """
+    def __init__(self, *choices):
+        if len(choices) == 1 and isinstance(choices[0], list):
+            choices = choices[0]
+        self._strings = OrderedDict()
+        self._keys = []
+        for name, value, string in choices:
+            assert value not in self._strings, "Multiple choices have same value"
+            self._strings[value] = string
+            self._keys.append(name)
+            setattr(self, name, value)
+
+    @property
+    def choices(self):
+        return tuple(sorted(self._strings.items()))
+
+    def keys(self):
+        return (x for x in self._keys)
+
+    def __getitem__(self, key):
+        return self._strings[key]
+
+    def __str__(self):
+        s = ["<%s([" % (self.__class__.__name__,)]
+        for key in self.keys():
+            val = getattr(self, key)
+            txt = self[val]
+            s.append("  (%s, %s, %s)," % (key, val, txt))
+        s.append("])>")
+        return '\n'.join(s)
