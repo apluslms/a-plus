@@ -11,6 +11,10 @@ are usable with APIViews too. We define our superclass so we don't need to
 depend on django-rest-framework.
 """
 
+
+SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
+
+
 class FilterBackend(object):
     """
     FilterBackend interface

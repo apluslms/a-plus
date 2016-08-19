@@ -364,8 +364,8 @@ class ExerciseTest(TestCase):
     def test_base_exercise_async_url(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
         # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
-        split_base_exercise_service_url = self.base_exercise._build_service_url(request, '1', 1, 'exercise', 'service').split("?")
-        split_static_exercise_service_url = self.static_exercise._build_service_url(request, '1', 1, 'exercise', 'service').split("?")
+        split_base_exercise_service_url = self.base_exercise._build_service_url(request, [self.user.userprofile], 1, 'exercise', 'service').split("?")
+        split_static_exercise_service_url = self.static_exercise._build_service_url(request, [self.user.userprofile], 1, 'exercise', 'service').split("?")
         self.assertEqual("", split_base_exercise_service_url[0])
         self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
         # a quick hack to check whether the parameters are URL encoded

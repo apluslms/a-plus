@@ -19,16 +19,18 @@ from .serializers import (
 
 __all__ = [
     'ExerciseSerializer',
+    'ExerciseGraderSerializer',
     'SubmitterStatsSerializer',
     'UserListFieldWithStatsLink',
     'SubmissionSerializer',
-    'SubmissionGradingSerializer',
+    'SubmissionGraderSerializer',
 ]
 
 
 class ExerciseSerializer(ExerciseBriefSerializer):
     course = CourseBriefSerializer(source='course_instance')
     post_url = serializers.SerializerMethodField()
+    exercise_info = serializers.JSONField()
     submissions = NestedHyperlinkedIdentityField(
         view_name='api:exercise-submissions-list',
         lookup_map='exercise.api.views.ExerciseViewSet',
@@ -63,9 +65,25 @@ class ExerciseSerializer(ExerciseBriefSerializer):
             'post_url',
             'max_points',
             'max_submissions',
+            'exercise_info',
             'submissions',
             'my_submissions',
             'my_stats',
+        )
+
+
+class ExerciseGraderSerializer(AplusModelSerializerBase):
+    url = NestedHyperlinkedIdentityField(
+        view_name='api:exercise-grader',
+        lookup_map='exercise.api.views.ExerciseViewSet',
+    )
+    exercise = ExerciseBriefSerializer(source='*')
+
+    class Meta(AplusSerializerMeta):
+        model = Submission
+        fields = (
+            'url',
+            'exercise',
         )
 
 
@@ -130,9 +148,9 @@ class SubmissionSerializer(SubmissionBriefSerializer):
         )
 
 
-class SubmissionGradingSerializer(AplusModelSerializerBase):
+class SubmissionGraderSerializer(AplusModelSerializerBase):
     url = NestedHyperlinkedIdentityField(
-        view_name='api:submission-grading',
+        view_name='api:submission-grader',
         lookup_map='exercise.api.views.SubmissionViewSet',
     )
     submission = SubmissionBriefSerializer(source='*')
@@ -141,9 +159,9 @@ class SubmissionGradingSerializer(AplusModelSerializerBase):
     class Meta(AplusSerializerMeta):
         model = Submission
         fields = (
-                'url',
-                'submission',
-                'exercise',
-                'grading_data',
-                'is_graded',
+            'url',
+            'submission',
+            'exercise',
+            'grading_data',
+            'is_graded',
         )

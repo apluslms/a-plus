@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -29,7 +30,6 @@ from .full_serializers import *
 class CourseViewSet(ListSerializerMixin,
                     CourseResourceMixin,
                     viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'course_id'
     lookup_value_regex = REGEX_INT
     listserializer_class = CourseBriefSerializer
@@ -48,7 +48,6 @@ class CourseExercisesViewSet(NestedViewSetMixin,
                              CourseModuleResourceMixin,
                              CourseResourceMixin,
                              viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
     lookup_url_kwarg = 'exercisemodule_id'
     lookup_value_regex = REGEX_INT
     parent_lookup_map = {'course_id': 'course_instance.id'}
@@ -67,10 +66,9 @@ class CourseStudentsViewSet(NestedViewSetMixin,
                             MeUserMixin,
                             CourseResourceMixin,
                             viewsets.ReadOnlyModelViewSet):
-    permission_classes = (
-        permissions.IsAuthenticated,
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsAdminOrUserObjIsSelf,
-    )
+    ]
     filter_backends = (
         IsAdminOrUserObjIsSelf,
     )
@@ -82,7 +80,6 @@ class CourseStudentsViewSet(NestedViewSetMixin,
 
 
 class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
 
     def retrieve(self, request, course_id, version, pk=None):
         """

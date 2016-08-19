@@ -99,6 +99,21 @@ class CourseModulePermission(MessageMixin, Permission):
         return True
 
 
+class OnlyCourseTeacherPermission(Permission):
+    message = _("Only course staff is allowed")
+
+    def has_permission(self, request, view):
+        return self.has_object_permission(request, view, view.instance)
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        return (
+            user.is_staff or
+            user.is_superuser or
+            view.is_teacher
+        )
+
+
 class IsCourseAdminOrUserItselfFilter(FilterBackend):
     def filter_queryset(self, request, queryset, view):
         user = request.user

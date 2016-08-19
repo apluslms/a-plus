@@ -15,6 +15,7 @@ class UserSerializer(UserBriefSerializer):
     Add the details of a user.
     """
 
+    full_name = serializers.CharField(source='user.get_full_name')
     first_name = serializers.CharField(source='user.first_name')
     last_name = serializers.CharField(source='user.last_name')
     email = serializers.CharField(source='user.email')
@@ -24,6 +25,7 @@ class UserSerializer(UserBriefSerializer):
         fields = (
             'enrolled_courses',
             'student_id',
+            'full_name',
             'first_name',
             'last_name',
             'email',

@@ -1,6 +1,6 @@
-from authorization.permissions import Permission, FilterBackend
+from authorization.permissions import SAFE_METHODS, Permission, FilterBackend
 
-from .models import UserProfile
+from .models import UserProfile, GraderUser
 
 class IsAdminOrUserObjIsSelf(Permission, FilterBackend):
     def has_object_permission(self, request, view, obj):
@@ -21,3 +21,11 @@ class IsAdminOrUserObjIsSelf(Permission, FilterBackend):
         if issubclass(queryset.model, UserProfile) and not is_super:
             queryset = queryset.filter(user_id=user.id)
         return queryset
+
+
+class GraderUserCanOnlyRead(Permission):
+    def has_permission(self, request, view):
+        return (
+            not isinstance(request.user, GraderUser) or
+            request.method in SAFE_METHODS
+        )

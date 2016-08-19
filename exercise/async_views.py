@@ -1,129 +1,15 @@
 import logging
-
-from django.http import HttpResponseForbidden
-from django.http.response import HttpResponseNotFound, JsonResponse
-from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
 
-from userprofile.models import UserProfile
 from lib.email_messages import email_course_error
-from lib.helpers import extract_form_errors, get_url_ip_address_list
+from lib.helpers import extract_form_errors
 from .forms import SubmissionCallbackForm
-from .models import BaseExercise
-from .submission_models import Submission
 
 
 logger = logging.getLogger('aplus.exercise')
 
 
-@csrf_exempt
-def new_async_submission(request, student_ids, exercise_id, hash_key):
-    """
-    Creates a new submission for student(s). The view has a student and
-    exercise specific URL, which can be authenticated by verifying the hash
-    included in the URL.
-
-    When the view is requested with a GET request, a JSON response with
-    information about the exercise and previous submissions for the students is
-    included. When a POST request is made, the view tries to create a new
-    submission for the given students.
-    """
-    exercise = get_object_or_404(BaseExercise, id=exercise_id)
-    user_ids = student_ids.split("-")
-    students = UserProfile.objects.filter(id__in=user_ids)
-    _, valid_hash = exercise.get_async_hash(students)
-
-    if hash_key != valid_hash:
-        return HttpResponseNotFound(_("Invalid hash key in URL."))
-    if len(students) != len(user_ids):
-        return HttpResponseNotFound(_("Invalid users in URL."))
-
-    return _async_submission_handler(request, exercise, students)
-
-
-@csrf_exempt
-def grade_async_submission(request, submission_id, hash_key):
-    """
-    Grades a submission asynchronously. The view has a submission specific URL,
-    which can be authenticated by verifying the hash included in the URL.
-
-    When the view is requested with a GET request, a JSON response with
-    information about the exercise and previous submissions for the students is
-    included. When a POST request is made, the view tries to add grading for
-    the submission.
-    """
-    submission = get_object_or_404(Submission, id=submission_id, hash=hash_key)
-    exercise = submission.exercise
-    students = submission.submitters.all()
-
-    return _async_submission_handler(request, exercise, students, submission)
-
-
-def _async_submission_handler(request, exercise, students, submission=None):
-    """
-    Responses GET with submissions information and grades a submission on POST.
-
-    """
-    # Check the IP address matches the host name.
-    if not request.META["REMOTE_ADDR"] in get_url_ip_address_list(exercise.service_url):
-        logger.error(
-            'Request IP does not match exercise service URL: {} != {}'.format(
-                request.META["REMOTE_ADDR"], exercise.service_url
-            ),
-            extra={'request': request}
-        )
-        return HttpResponseForbidden(
-            _("Only the exercise service is allowed to access this URL.")
-        )
-
-    if request.method == "GET":
-        return JsonResponse(_get_async_submission_info(exercise, students))
-
-    # Create a new submission if one is not provided
-    errors = []
-    if submission == None:
-        # Assume one student id is given that is the current authenticated user.
-        ok, errors, students = exercise.is_submission_allowed(students[0])
-        if not ok:
-            return JsonResponse({
-                "success": False,
-                "errors": errors
-            })
-        submission = Submission.objects.create(exercise=exercise)
-        submission.submitters = students
-
-    return JsonResponse(_post_async_submission(
-        request, exercise, submission, students, errors))
-
-
-def _get_async_submission_info(exercise, students):
-    """
-    Collects details about the exercise and the previous submissions for the
-    given students.
-    """
-    submissions = Submission.objects.filter(
-            exercise=exercise,
-            submitters__in=students) \
-        .order_by('-grade')
-
-    # FIXME: does count submissions that are not supposed to be counted
-    submission_count = submissions.count()
-    if submission_count > 0:
-        current_points = submissions.first().grade
-    else:
-        current_points = 0
-
-    return {
-        "max_points"            : exercise.max_points,
-        "max_submissions"       : exercise.max_submissions,
-        "current_submissions"   : submission_count,
-        "current_points"        : current_points,
-        "is_open"               : exercise.is_open(),
-    }
-
-
-def _post_async_submission(request, exercise, submission, students, errors):
+def _post_async_submission(request, exercise, submission, errors=None):
     """
     Creates or grades a submission.
 
@@ -131,6 +17,8 @@ def _post_async_submission(request, exercise, submission, students, errors):
     errors occur or submissions are no longer accepted, a dictionary with
     "success" is False and "errors" list will be returned.
     """
+    if not errors:
+        errors = []
 
     # Use form to parse and validate the request.
     form = SubmissionCallbackForm(request.POST)

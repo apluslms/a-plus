@@ -1,6 +1,7 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils.functional import cached_property
 from rest_framework.authtoken.models import Token
 
 
@@ -88,3 +89,44 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 # Attach to the post_save signal.
 post_save.connect(create_user_profile, sender=User)
+
+
+class GraderUser(AnonymousUser):
+    @classmethod
+    def from_submission(cls, submission):
+        return cls(submission=submission)
+
+    @classmethod
+    def from_exercise(cls, exercise, student_id):
+        return cls(exercise=exercise, student_id=student_id)
+
+    def __init__(self, submission=None, exercise=None, **extra):
+        self._submission = submission
+        if exercise:
+            self._exercise = exercise
+        self._extra = extra
+
+    def is_anonymous(self):
+        """GraderUser is anonymous, but not AnonymousUser"""
+        return True
+
+    def is_authenticated(self):
+        return True
+
+    # A-plus interface
+    @property
+    def userprofile(self):
+        """Compatibilty with User.userprofile"""
+        return self
+
+    @cached_property
+    def _exercise(self):
+        return self._submission.exercise
+
+    @cached_property
+    def _course_instance(self):
+        return self._exercise.course_module.course_instance
+
+    @cached_property
+    def _course(self):
+        return self._course_instance.course

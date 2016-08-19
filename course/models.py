@@ -25,7 +25,7 @@ from lib.helpers import (
 )
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
-from userprofile.models import UserProfile
+from userprofile.models import User, UserProfile, GraderUser
 from .tree import ModuleTree
 
 logger = logging.getLogger("course.models")
@@ -61,8 +61,18 @@ class Course(UrlMixin, models.Model):
             })
 
     def is_teacher(self, user):
-        return user and user.is_authenticated() and (user.is_superuser or \
-            self.teachers.filter(id=user.userprofile.id).exists())
+        return (
+            user and
+            user.is_authenticated() and (
+                user.is_superuser or (
+                    isinstance(user, User) and
+                    self.teachers.filter(id=user.userprofile.id).exists()
+                ) or (
+                    isinstance(user, GraderUser) and
+                    user._course == self
+                )
+            )
+        )
 
 
     ABSOLUTE_URL_NAME = "course-instances"
@@ -124,12 +134,19 @@ def get_course_visibility_filter(user, prefix=None):
     class OR(Q):
         default = Q.OR
 
-    user = user.userprofile
     filters = (
         ('visible_to_students', True),
-        ('assistants', user),
-        ('course__teachers', user),
     )
+    if isinstance(user, User):
+        user = user.userprofile
+        filters += (
+            ('assistants', user),
+            ('course__teachers', user),
+        )
+    elif isinstance(user, GraderUser):
+        filters += (
+            ('course', user._course),
+        )
     filters = dict(
         ((prefix+name if prefix else name), val)
         for name, val in filters
@@ -277,8 +294,12 @@ class CourseInstance(UrlMixin, models.Model):
             resize_image(self.image.path, (800,600))
 
     def is_assistant(self, user):
-        return user and user.is_authenticated() \
-            and self.assistants.filter(id=user.userprofile.id).exists()
+        return (
+            user and
+            user.is_authenticated() and
+            isinstance(user, User) and
+            self.assistants.filter(id=user.userprofile.id).exists()
+        )
 
     def is_teacher(self, user):
         return self.course.is_teacher(user)
@@ -287,8 +308,12 @@ class CourseInstance(UrlMixin, models.Model):
         return self.is_teacher(user) or self.is_assistant(user)
 
     def is_student(self, user):
-        return user and user.is_authenticated() \
-            and self.students.filter(id=user.userprofile.id).exists()
+        return (
+            user and
+            user.is_authenticated() and
+            isinstance(user, User) and
+            self.students.filter(id=user.userprofile.id).exists()
+        )
 
     def is_enrollable(self, user):
         if user and user.is_authenticated():

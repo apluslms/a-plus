@@ -43,6 +43,7 @@ class UserProfileAPITest(TestCase):
             'student_id':'12345X',
             'enrolled_courses': [],
             'username':'testUser',
+            'full_name':'Superb Student',
             'first_name':'Superb',
             'last_name':'Student',
             'email':'test@aplus.com'})
