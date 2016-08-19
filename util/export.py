@@ -30,7 +30,6 @@ def exercise(request, course, exercise, of):
         of["title"] = exercise.get("title", "")
     if not "description" in of:
         of["description"] = exercise.get("description", "")
-    print(course['key'], exercise['key'])
     of['url'] = url_to_exercise(request, course['key'], exercise['key'])
     of['exercise_info'] = {
         'form_spec': form_fields(exercise),

@@ -337,7 +337,6 @@ class GradedForm(forms.Form):
 
         # Apply new feedback definitions.
         for fb in configuration.get("feedback", []):
-            print(fb)
             new_hint = fb.get('label', None)
             r = self.compare_values(method, value, fb.get('value', ''))
             if new_hint and (r or (fb.get('not', False) and not r)):

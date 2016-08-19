@@ -1,9 +1,12 @@
+from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.global_settings import DEBUG
 
-import gitmanager.urls, access.urls
+urlpatterns = []
 
-urlpatterns = [
-    url(r'^gitmanager/', include(gitmanager.urls)),
-    url(r'^', include(access.urls)),
-]
+if 'gitmanager' in settings.INSTALLED_APPS:
+    import gitmanager.urls
+    urlpatterns.append(url(r'^gitmanager/', include(gitmanager.urls)))
+
+import access.urls
+urlpatterns.append(url(r'^', include(access.urls)))
