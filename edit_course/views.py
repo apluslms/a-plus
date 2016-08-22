@@ -157,7 +157,6 @@ class ModelDeleteView(ModelBaseMixin, BaseRedirectMixin, BaseTemplateView):
         self.note("object", "empty")
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         if self.empty:
             self.object.delete()
         return self.redirect(self.get_success_url())
@@ -168,7 +167,6 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
     template_name = "edit_course/batch_assess.html"
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         from .operations.batch import create_submissions
         errors = create_submissions(self.instance, self.profile,
             request.POST.get("submissions_json", "{}"))
@@ -201,7 +199,6 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
     access_mode = ACCESS.TEACHER
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         try:
             from .operations.configure import configure_content
             errors = configure_content(self.instance, request.POST.get('url'))

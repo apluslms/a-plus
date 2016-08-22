@@ -24,7 +24,7 @@ class TableOfContentsView(CourseInstanceBaseView):
     template_name = "exercise/toc.html"
 
 
-class ResultsView(CourseInstanceBaseView):
+class ResultsView(TableOfContentsView):
     template_name = "exercise/results.html"
 
 
@@ -78,6 +78,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
                 page.content = _('Unfortunately this exercise is currently '
                                  'under maintenance.')
                 return super().get(request, *args, page=page, students=students, **kwargs)
+
+        if hasattr(self.exercise, 'generate_table_of_contents') \
+              and self.exercise.generate_table_of_contents:
+            self.toc = self.content.children_hierarchy(self.exercise)
+            self.note("toc")
 
         page = self.exercise.as_leaf_class().load(request, students,
             url_name=self.post_url_name)

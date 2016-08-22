@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
+from django.util import timezone
 
 from course.models import CourseInstance, CourseModule
 from exercise.models import LearningObject
@@ -22,69 +23,103 @@ class CachedContent(CachedAbstract):
         """ Returns object that is cached into self.data """
         module_index = {}
         exercise_index = {}
+        paths = {}
         flat = []
 
         for module in instance.course_modules.all():
             flat.append({
+                'has_children': False,
+                'close_levels': [],
                 'type': 'module',
                 'hidden': not module.status in (CourseModule.STATUS.READY, CourseModule.STATUS.MAINTENANCE),
                 'maintenance': module.status == CourseModule.STATUS.MAINTENANCE,
                 'name': str(module),
                 'link': module.get_absolute_url(),
-                'model': module,
+                'opening_time': module.opening_time,
+                'closing_time': module.closing_time,
             })
             module_index[module.id] = len(flat) - 1
+            paths[module.id] = {}
             self._generate_recursion(
                 flat,
                 exercise_index,
+                paths,
+                module,
                 list(module.learning_objects.all()),
                 [],
                 None
             )
 
         return {
+            'created': timezone.now(),
             'module_index': module_index,
             'exercise_index': exercise_index,
+            'paths': paths,
             'flat': flat,
         }
 
-    def _generate_recursion(self, flat, index, objects, parents, parent_id):
+    def _generate_recursion(self, flat, index, paths, module, objects, parents, parent_id):
         children = [o for o in objects if o.parent_id == parent_id]
         if children:
-            flat.append({
-                'type': 'level_open',
-            })
+            flat[-1]['has_children'] = True
             for o in children:
+                o._parents = parents + [o]
                 flat.append({
+                    'has_children': False,
+                    'close_levels': [],
                     'type': 'exercise',
                     'hidden': not o.status in (LearningObject.STATUS.READY, LearningObject.STATUS.MAINTENANCE),
                     'maintenance': o.status == LearningObject.STATUS.MAINTENANCE,
-                    'name': o.name,
-                    'link': None,
-                    'model': o,
+                    'name': str(o),
+                    'link': o.get_absolute_url(),
+                    'breadcrumb': [index[o.id] for o in o._parents[:-1]],
+                    'opening_time': module.opening_time,
+                    'closing_time': module.closing_time,
+                    'is_empty': o.is_empty(),
                 })
                 index[o.id] = len(flat) - 1
-                self._generate_recursion(flat, index, objects, parents + [o], o.id)
-            flat.append({
-                'type': 'level_close',
-            })
+                paths[module.id][o.get_path()] = o.id
+                self._generate_recursion(flat, index, paths, module, objects, o._parents, o.id)
+            flat[-1]['close_levels'].append(True)
+
+    def created(self):
+        return self.data['created']
 
     def full_hierarchy(self):
         return self.data['flat']
 
-    def module_hierarchy(self, module):
-        i = self._index_model(module) + 1
-        full = self.full_hierarchy()
-        l = len(full)
-        module = []
-        while i < l and full[i]['type'] != 'module':
-            module.append(full[i])
-            i += 1
-        return module
-
-    def siblings(self, model):
+    def children_hierarchy(self, model):
         i = self._index_model(model)
-        return self._previous(i), self._next(i)
+        full = self.full_hierarchy()
+        children = []
+        model = full[i]
+        if model['has_children']:
+            level = 1
+            i += 1
+            while level > 0:
+                model = full[i]
+                if model['has_children']:
+                    level += 1
+                children.append(model)
+                i += 1
+                level -= len(model['close_levels'])
+        return children
+
+    def find_path(self, module_id, path):
+        paths = self.data['paths'].get(module_id, {})
+        if path in paths:
+            return paths[path]
+        raise NoSuchContent()
+
+    def find(self, model):
+        i = self._index_model(model)
+        full = self.full_hierarchy()
+        return self._previous(full, i), full[i], self._next(full, i)
+
+    def breadcrumb(self, model):
+        i = self._index_model(model)
+        full = self.full_hierarchy()
+        return [full[j] for j in full[i]['breadcrumb']]
 
     def _index_model(self, model):
         if isinstance(model, CourseModule):
@@ -100,7 +135,6 @@ class CachedContent(CachedAbstract):
         raise NoSuchContent()
 
     def _previous(self, full, index):
-        full = self.full_hierarchy()
         i = index - 1
         while i >= 0:
             entry = full[i]
@@ -109,11 +143,10 @@ class CachedContent(CachedAbstract):
             i -= 1
         return None
 
-    def _next(self, index):
-        full = self.full_hierarchy()
+    def _next(self, full, index):
         l = len(full)
         i = index + 1
-        while i < len(full):
+        while i < l:
             entry = full[i]
             if self._is_visible(entry):
                 return entry

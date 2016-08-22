@@ -6,13 +6,13 @@
 {% block view_tag %}exercise{% endblock %}
 
 {% block exercisebreadcrumblist %}
-<li class="active">{{ exercise }}</li>
+<li class="active">{{ current.name }}</li>
 {% endblock %}
 
 {% block exercisecontent %}
 
-{% if exercise.generate_table_of_contents %}
-{% include 'course/_module_toc.html' with objects=exercise.flat_learning_objects open=module.is_after_open %}
+{% if toc %}
+{% include 'exercise/_user_toc.html' %}
 {% endif %}
 
 <div id="exercise" data-aplus-chapter="{{ exercise|url }}">

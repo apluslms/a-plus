@@ -26,7 +26,6 @@ from lib.helpers import (
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
 from userprofile.models import User, UserProfile, GraderUser
-from .tree import ModuleTree
 
 logger = logging.getLogger("course.models")
 
@@ -480,9 +479,9 @@ class CourseModule(UrlMixin, models.Model):
 
     def __str__(self):
         if self.order > 0:
-            if self.course_instance.module_numbering == 1:
+            if self.course_instance.module_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
                 return "{:d}. {}".format(self.order, self.name)
-            elif self.course_instance.module_numbering == 2:
+            elif self.course_instance.module_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
@@ -526,33 +525,6 @@ class CourseModule(UrlMixin, models.Model):
         if self.late_submissions_allowed:
             point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth
-
-    def next_module(self):
-        return self.course_instance.course_modules\
-            .exclude(status='hidden').filter(order__gt=self.order).first()
-
-    def previous_module(self):
-        return self.course_instance.course_modules\
-            .exclude(status='hidden').filter(order__lt=self.order).last()
-
-    def _children(self):
-        if not hasattr(self, '_module_children'):
-            self._module_children = ModuleTree(self)
-        return self._module_children
-
-    def next(self):
-        return self._children().first() or self.next_module()
-
-    def previous(self):
-        module = self.previous_module()
-        return module._children().last() if module else None
-
-    def flat_learning_objects(self, with_sub_markers=True):
-        return self._children().flat(None, with_sub_markers)
-
-    def flat_admin_learning_objects(self, with_sub_markers=True):
-        return self._children().flat(None, with_sub_markers, True)
-
 
     ABSOLUTE_URL_NAME = "module"
 

@@ -72,6 +72,5 @@ class RemoveDeadlineView(CourseInstanceMixin, BaseRedirectView):
         self.note("deviation")
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         self.deviation.delete()
         return self.redirect(self.instance.get_url("deviations-list-dl"))

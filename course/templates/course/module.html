@@ -3,15 +3,15 @@
 {% load course %}
 {% load apps %}
 
-{% block title %}{{ block.super }}: {{ module }}{% endblock %}
+{% block title %}{{ block.super }}: {{ current.name }}{% endblock %}
 
 {% block siblings %}
-{% include "course/_siblings.html" with next=module.next previous=module.previous %}
+{% include "course/_siblings.html" %}
 {% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{{ module }}</li>
+<li class="active">{{ current.name }}</li>
 {% endblock %}
 
 {% block coursecontent %}
@@ -43,9 +43,7 @@
 	</p>
 	{% endif %}
 
-  {% with open=module.is_after_open %}
-  {% include 'course/_module_toc.html' with objects=module.flat_learning_objects %}
-  {% endwith %}
+  {% include 'exercise/_user_toc.html' %}
 
 {% endblock %}
 

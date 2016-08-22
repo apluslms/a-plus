@@ -13,7 +13,7 @@ from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
 from aplus.api import api_reverse
-from course.models import CourseModule, LearningObjectCategory
+from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import LTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
@@ -125,21 +125,29 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
     def __str__(self):
         if self.order >= 0:
-            if self.course_instance.content_numbering == 1:
+            if self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
                 number = self.number()
-                if self.course_instance.module_numbering in [1,3]:
-                    return "{:d}{} {}".format(self.course_module.order,
-                        number, self.name)
-                return "{} {}".format(number[1:], self.name)
-            elif self.course_instance.content_numbering == 2:
+                if self.course_instance.module_numbering in (
+                        CourseInstance.CONTENT_NUMBERING.ARABIC,
+                        CourseInstance.CONTENT_NUMBERING.HIDDEN,
+                    ):
+                    return "{:d}.{} {}".format(self.course_module.order, number, self.name)
+                return "{} {}".format(number, self.name)
+            elif self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
     def number(self):
-        parent = self.course_module._children().parent(self)
-        if parent:
-            return "{}.{:d}".format(parent.number(), self.order)
-        return ".{:d}".format(self.order)
+        return ".".join([str(o.order) for o in self.parent_list()])
+
+    def parent_list(self):
+        if not hasattr(self, '_parents'):
+            def recursion(obj, parents):
+                if not obj is None:
+                    return recursion(obj.parent, [obj] + parents)
+                return parents
+            self._parents = recursion(self.parent, [self])
+        return self._parents
 
     @property
     def course_instance(self):
@@ -164,28 +172,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
 
-    def next(self):
-        return self.course_module._children().next(self)
-
-    def previous(self):
-        return self.course_module._children().previous(self)
-
-    def flat_learning_objects(self, with_sub_markers=True):
-        return self.course_module._children().flat(self, with_sub_markers)
-
-    def parent_cached(self):
-        return self.course_module._children().parent(self)
-
-    def parent_list(self):
-        parents = self.course_module._children().parents(self)
-        return parents[:-1]
-
-    def get_path_parts(self):
-        return [n.url for n in self.course_module._children().parents(self)]
-
     def get_path(self):
-        return '/'.join(self.get_path_parts())
-
+        return "/".join([o.url for o in self.parent_list()])
 
     ABSOLUTE_URL_NAME = "exercise"
 

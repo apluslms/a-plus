@@ -11,9 +11,10 @@ from django.utils import timezone
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 
+from authorization.permissions import ACCESS
+from cached.content import CachedContent
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
-from authorization.permissions import ACCESS
 from userprofile.viewbase import UserProfileView
 from exercise.models import LearningObject
 from .forms import GroupsForm, GroupSelectForm
@@ -62,13 +63,12 @@ class ProfileView(UserProfileView):
 
 
 class InstanceView(EnrollableViewMixin, BaseTemplateView):
-    template_name = "course/toc.html"
+    template_name = "course/course.html"
 
 
 class Enroll(EnrollableViewMixin, BaseRedirectView):
 
     def post(self, request, *args, **kwargs):
-        self.handle()
 
         if self.enrolled or not self.enrollable:
             messages.error(self.request, _("You cannot enroll, or have already enrolled, to this course."))
@@ -92,8 +92,17 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
 class ModuleView(CourseModuleBaseView):
     template_name = "course/module.html"
 
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.now = timezone.now()
+        self.toc = self.content.children_hierarchy(self.module)
+        previous_entry, current_entry, next_entry = self.content.find(self.module)
+        self.previous = previous_entry
+        self.current = current_entry
+        self.next = next_entry
+        self.note('now', 'toc', 'previous', 'current', 'next')
+
     def get(self, request, *args, **kwargs):
-        self.handle()
         if not self.module.is_after_open():
             messages.warning(self.request,
                 _("The course module is not yet open for students."))
@@ -103,8 +112,6 @@ class ModuleView(CourseModuleBaseView):
 class CalendarExport(CourseInstanceMixin, BaseView):
 
     def get(self, request, *args, **kwargs):
-        self.handle()
-
         cal = icalendar.Calendar()
         cal.add('prodid', '-// {} calendar //'.format(settings.BRAND_NAME))
         cal.add('version', '2.0')
@@ -180,7 +187,6 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
 # class FilterCategories(CourseInstanceMixin, BaseRedirectView):
 #
 #     def post(self, request, *args, **kwargs):
-#         self.handle()
 #
 #         if "category_filters" in request.POST:
 #             visible_category_ids = [int(cat_id)

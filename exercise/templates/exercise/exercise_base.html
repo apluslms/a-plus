@@ -4,29 +4,29 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{{ block.super }}: {{ exercise }}{% endblock %}
+{% block title %}{{ block.super }}: {{ current.name }}{% endblock %}
 
 {% block siblings %}
-{% include "course/_siblings.html" with next=exercise.next previous=exercise.previous %}
+{% include "course/_siblings.html" %}
 {% endblock %}
 {% block siblings_bottom %}
-{% include "course/_siblings.html" with next=exercise.next previous=exercise.previous %}
+{% include "course/_siblings.html" %}
 {% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
 <li><a href="{{ module|url }}">{{ module }}</a></li>
-{% for parent in exercise.parent_list %}
+{% for entry in breadcrumb %}
 <li>
-  {% if parent.is_empty %}
-  {{ parent }}
+  {% if entry.is_empty %}
+  {{ entry.name }}
   {% else %}
-  <a href="{{ parent|url }}">{{ parent }}</a>
+  <a href="{{ entry.link }}">{{ entry.name }}</a>
   {% endif %}
 </li>
 {% endfor %}
 {% block exercisebreadcrumblist %}
-<li><a href="{{ exercise|url }}">{{ exercise }}</a></li>
+<li><a href="{{ entry.link }}">{{ entry.name }}</a></li>
 {% endblock %}
 {% endblock %}
 
@@ -36,7 +36,7 @@
   {% if exercise.is_submittable %}
   <ul class="nav nav-tabs">
       <li class="menu-exercise">
-          <a href="{{ exercise|url }}">
+          <a href="{{ current.link }}">
               {% trans "Exercise description" %}
           </a>
       </li>

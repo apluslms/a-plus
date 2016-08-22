@@ -25,7 +25,6 @@ class TabView(CourseInstanceBaseView):
                 self.container.__class__))
 
     def get(self, request, *args, **kwargs):
-        self.handle()
         tab_renderer = self.tab_object.get_renderer_class()(
            self.tab_object,
            self.profile,

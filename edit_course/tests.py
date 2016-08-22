@@ -50,12 +50,12 @@ class CourseCloneTests(TestCase):
         for i in range(len(old_modules)):
             self.assertEqual(old_modules[i].url, new_modules[i].url)
             self.assertEqual(
-                self._as_names(old_modules[i].flat_learning_objects(False)),
-                self._as_names(new_modules[i].flat_learning_objects(False))
+                self._as_names(old_modules[i].learning_objects.all()),
+                self._as_names(new_modules[i].learning_objects.all())
             )
             self.assertEqual(
-                self._as_class(old_modules[i].flat_learning_objects(False)),
-                self._as_class(new_modules[i].flat_learning_objects(False))
+                self._as_class(old_modules[i].learning_objects.all()),
+                self._as_class(new_modules[i].learning_objects.all())
             )
 
     def test_clone_submissions(self):

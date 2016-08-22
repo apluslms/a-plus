@@ -1,14 +1,20 @@
 from django import template
 from django.db.models import Max, Min
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from cached.content import CachedContent
 from ..models import BaseExercise
 from ..presentation.score import collect_tree
 from ..presentation.summary import UserCourseSummary
 
 
 register = template.Library()
+
+
+class TagUsageError(Exception):
+    pass
 
 
 @register.filter
@@ -86,15 +92,17 @@ def submission_points(submission, classes=None):
     }
 
 
-def _get_course_summary(context):
-    """
-    Caches course summary object in the context.
-    """
-    if not "course_summary" in context:
-        context["course_summary"] = UserCourseSummary(
-            context["instance"],
-            context["request"].user)
-    return context["course_summary"]
+def _prepare_context(context):
+    if not 'instance' in context:
+        raise TagUsageError()
+    if not 'now' in context:
+        context['now'] = timezone.now()
+    if not 'content' in context:
+        context['content'] = CachedContent(context['instance'])
+    #if not "course_summary" in context:
+    #    context["course_summary"] = UserCourseSummary(
+    #        context["instance"],
+    #        context["request"].user)
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
@@ -110,10 +118,11 @@ def user_results(context):
 
 @register.inclusion_tag("exercise/_user_toc.html", takes_context=True)
 def user_toc(context):
-    summary = _get_course_summary(context)
+    _prepare_context(context)
     return {
-        "summary": summary,
-        "is_course_staff": context["is_course_staff"],
+        'now': context['now'],
+        'toc': context['content'].full_hierarchy(),
+        'is_course_staff': context.get('is_course_staff', False),
     }
 
 
