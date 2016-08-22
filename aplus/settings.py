@@ -189,6 +189,16 @@ DATABASES = {
 }
 ##########################################################################
 
+# Cache (override in local_settings.py)
+# https://docs.djangoproject.com/en/1.10/topics/cache
+##########################################################################
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+##########################################################################
+
 # Internationalization (may override in local_settings.py)
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 LANGUAGE_CODE = 'en-gb'

@@ -108,6 +108,15 @@ def user_results(context):
     }
 
 
+@register.inclusion_tag("exercise/_user_toc.html", takes_context=True)
+def user_toc(context):
+    summary = _get_course_summary(context)
+    return {
+        "summary": summary,
+        "is_course_staff": context["is_course_staff"],
+    }
+
+
 @register.inclusion_tag("exercise/_category_points.html", takes_context=True)
 def category_points(context):
     summary = _get_course_summary(context)

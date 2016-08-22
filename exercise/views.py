@@ -20,6 +20,10 @@ from .submission_models import SubmittedFile, Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin
 
 
+class TableOfContentsView(CourseInstanceBaseView):
+    template_name = "exercise/toc.html"
+
+
 class ResultsView(CourseInstanceBaseView):
     template_name = "exercise/results.html"
 

@@ -491,7 +491,7 @@ class CourseModule(UrlMixin, models.Model):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        RESERVED = ("teachers", "user", "exercises", "apps", "lti-login")
+        RESERVED = ("toc", "teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
             raise ValidationError({
                 'url':_("Taken words include: {}").format(", ".join(RESERVED))
