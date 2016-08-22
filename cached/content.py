@@ -27,8 +27,8 @@ class CachedContent(CachedAbstract):
         for module in instance.course_modules.all():
             flat.append({
                 'type': 'module',
-                'hidden': not module.status in (CourseModule.STATUS_READY, CourseModule.STATUS_MAINTENANCE),
-                'maintenance': module.status == CourseModule.STATUS_MAINTENANCE,
+                'hidden': not module.status in (CourseModule.STATUS.READY, CourseModule.STATUS.MAINTENANCE),
+                'maintenance': module.status == CourseModule.STATUS.MAINTENANCE,
                 'name': str(module),
                 'link': module.get_absolute_url(),
                 'model': module,
@@ -38,6 +38,7 @@ class CachedContent(CachedAbstract):
                 flat,
                 exercise_index,
                 list(module.learning_objects.all()),
+                [],
                 None
             )
 
@@ -47,7 +48,7 @@ class CachedContent(CachedAbstract):
             'flat': flat,
         }
 
-    def _generate_recursion(self, flat, index, objects, parent_id):
+    def _generate_recursion(self, flat, index, objects, parents, parent_id):
         children = [o for o in objects if o.parent_id == parent_id]
         if children:
             flat.append({
@@ -56,14 +57,14 @@ class CachedContent(CachedAbstract):
             for o in children:
                 flat.append({
                     'type': 'exercise',
-                    'hidden': not o.status in (LearningObject.STATUS_READY, LearningObject.STATUS_MAINTENANCE),
-                    'maintenance': o.status == LearningObject.STATUS_MAINTENANCE,
+                    'hidden': not o.status in (LearningObject.STATUS.READY, LearningObject.STATUS.MAINTENANCE),
+                    'maintenance': o.status == LearningObject.STATUS.MAINTENANCE,
                     'name': o.name,
                     'link': None,
                     'model': o,
                 })
                 index[o.id] = len(flat) - 1
-                self._generate_recursion(flat, index, objects, o.id)
+                self._generate_recursion(flat, index, objects, parents + [o], o.id)
             flat.append({
                 'type': 'level_close',
             })

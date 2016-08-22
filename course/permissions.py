@@ -88,7 +88,7 @@ class CourseModulePermission(MessageMixin, Permission):
         if not isinstance(module, CourseModule):
             return True
 
-        if module.status == CourseModule.STATUS_HIDDEN:
+        if module.status == CourseModule.STATUS.HIDDEN:
             # FIXME: should probably just show error message and return False
             raise Http404("Course module not found")
         if not module.is_after_open():

@@ -140,7 +140,7 @@ class BatchAssessTest(TestCase):
         sub = Submission.objects.create(
             exercise=exercise,
             grader=self.teacher.userprofile,
-            status=Submission.STATUS_ERROR)
+            status=Submission.STATUS.ERROR)
         sub.submitters.add(self.student.userprofile)
 
         response = self.client.post('/aplus1/basic_instance/teachers/batch-assess/',

@@ -17,9 +17,18 @@ from course.models import CourseModule, LearningObjectCategory
 from external_services.lti import LTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
-from lib.api.authentication import get_graderauth_submission_params, get_graderauth_exercise_params
+from lib.api.authentication import (
+    get_graderauth_submission_params,
+    get_graderauth_exercise_params,
+)
 from lib.fields import JSONField
-from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
+from lib.helpers import (
+    Enum,
+    update_url_params,
+    has_same_domain,
+    safe_file_name,
+    roman_numeral,
+)
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
@@ -52,22 +61,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     """
     All learning objects inherit this model.
     """
-    STATUS_READY = 'ready'
-    STATUS_UNLISTED = 'unlisted'
-    STATUS_ENROLLMENT = 'enrollment'
-    STATUS_ENROLLMENT_EXTERNAL = 'enrollment_ext'
-    STATUS_HIDDEN = 'hidden'
-    STATUS_MAINTENANCE = 'maintenance'
-    STATUS_CHOICES = (
-        (STATUS_READY, _("Ready")),
-        (STATUS_UNLISTED, _("Unlisted in table of contents")),
-        (STATUS_ENROLLMENT, _("Enrollment questions")),
-        (STATUS_ENROLLMENT_EXTERNAL, _("Enrollment questions (external students)")),
-        (STATUS_HIDDEN, _("Hidden from non course staff")),
-        (STATUS_MAINTENANCE, _("Maintenance")),
-    )
+    STATUS = Enum([
+        ('READY', 'ready', _("Ready")),
+        ('UNLISTED', 'unlisted', _("Unlisted in table of contents")),
+        ('ENROLLMENT', 'enrollment', _("Enrollment questions")),
+        ('ENROLLMENT_EXTERNAL', 'enrollment_ext', _("Enrollment questions for external students")),
+        ('HIDDEN', 'hidden', _("Hidden from non course staff")),
+        ('MAINTENANCE', 'maintenance', _("Maintenance")),
+    ])
     status = models.CharField(max_length=32,
-        choices=STATUS_CHOICES, default=STATUS_READY)
+        choices=STATUS.choices, default=STATUS.READY)
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
@@ -349,7 +352,7 @@ class BaseExercise(LearningObject):
 
         # Check enrollment requirements.
         enrollment = self.course_instance.get_enrollment_for(profile.user)
-        if self.status == LearningObject.STATUS_ENROLLMENT:
+        if self.status == LearningObject.STATUS.ENROLLMENT:
             if not self.course_instance.is_enrollable(profile.user):
                 warnings.append(_('You cannot enroll in the course.'))
                 return False, warnings, students
