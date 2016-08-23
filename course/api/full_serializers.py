@@ -42,7 +42,8 @@ class CourseSerializer(CourseBriefSerializer):
     """
     exercises = NestedHyperlinkedIdentityField(view_name='api:course-exercises-list', format='html')
     students = NestedHyperlinkedIdentityField(view_name='api:course-students-list', format='html')
-    points = NestedHyperlinkedIdentityField(view_name='api:course-points-list', format='html')
+    # FIXME: points endpoint is disabled
+    #points = NestedHyperlinkedIdentityField(view_name='api:course-points-list', format='html')
 
     class Meta(CourseBriefSerializer.Meta):
         fields = (
@@ -51,5 +52,5 @@ class CourseSerializer(CourseBriefSerializer):
             'visible_to_students',
             'exercises',
             'students',
-            'points',
+            #'points',
         )
