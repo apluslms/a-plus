@@ -11,76 +11,7 @@ class NoSuchContent(Exception):
     pass
 
 
-class CachedContent(CachedAbstract):
-    """ Course content hierarchy for template presentations """
-    KEY_PREFIX = 'content'
-
-    def __init__(self, course_instance):
-        self.instance = course_instance
-        super().__init__(course_instance)
-
-    def _generate_data(self, instance):
-        """ Returns object that is cached into self.data """
-        module_index = {}
-        exercise_index = {}
-        paths = {}
-        flat = []
-
-        for module in instance.course_modules.all():
-            flat.append({
-                'has_children': False,
-                'close_levels': [],
-                'type': 'module',
-                'hidden': not module.status in (CourseModule.STATUS.READY, CourseModule.STATUS.MAINTENANCE),
-                'maintenance': module.status == CourseModule.STATUS.MAINTENANCE,
-                'name': str(module),
-                'link': module.get_absolute_url(),
-                'opening_time': module.opening_time,
-                'closing_time': module.closing_time,
-            })
-            module_index[module.id] = len(flat) - 1
-            paths[module.id] = {}
-            self._generate_recursion(
-                flat,
-                exercise_index,
-                paths,
-                module,
-                list(module.learning_objects.all()),
-                [],
-                None
-            )
-
-        return {
-            'created': timezone.now(),
-            'module_index': module_index,
-            'exercise_index': exercise_index,
-            'paths': paths,
-            'flat': flat,
-        }
-
-    def _generate_recursion(self, flat, index, paths, module, objects, parents, parent_id):
-        children = [o for o in objects if o.parent_id == parent_id]
-        if children:
-            flat[-1]['has_children'] = True
-            for o in children:
-                o._parents = parents + [o]
-                flat.append({
-                    'has_children': False,
-                    'close_levels': [],
-                    'type': 'exercise',
-                    'hidden': not o.status in (LearningObject.STATUS.READY, LearningObject.STATUS.MAINTENANCE),
-                    'maintenance': o.status == LearningObject.STATUS.MAINTENANCE,
-                    'name': str(o),
-                    'link': o.get_absolute_url(),
-                    'breadcrumb': [index[o.id] for o in o._parents[:-1]],
-                    'opening_time': module.opening_time,
-                    'closing_time': module.closing_time,
-                    'is_empty': o.is_empty(),
-                })
-                index[o.id] = len(flat) - 1
-                paths[module.id][o.get_path()] = o.id
-                self._generate_recursion(flat, index, paths, module, objects, o._parents, o.id)
-            flat[-1]['close_levels'].append(True)
+class ContentMixin(object):
 
     def created(self):
         return self.data['created']
@@ -155,6 +86,90 @@ class CachedContent(CachedAbstract):
 
     def _is_visible(self, entry):
         return 'hidden' in entry and not entry['hidden']
+
+
+class CachedContent(ContentMixin, CachedAbstract):
+    """ Course content hierarchy for template presentations """
+    KEY_PREFIX = 'content'
+
+    def __init__(self, course_instance):
+        self.instance = course_instance
+        super().__init__(course_instance)
+
+    def _generate_data(self, instance):
+        """ Returns object that is cached into self.data """
+        module_index = {}
+        exercise_index = {}
+        paths = {}
+        flat = []
+
+        def recursion(self, module, objects, parents, parent_id):
+            """ Recursively travels exercises hierarchy """
+            children = [o for o in objects if o.parent_id == parent_id]
+            if children:
+                flat[-1]['has_children'] = True
+                for o in children:
+                    o._parents = parents + [o]
+                    flat.append({
+                        'has_children': False,
+                        'close_levels': [],
+                        'type': 'exercise',
+                        'hidden': not o.status in (LearningObject.STATUS.READY, LearningObject.STATUS.MAINTENANCE),
+                        'maintenance': o.status == LearningObject.STATUS.MAINTENANCE,
+                        'name': str(o),
+                        'link': o.get_absolute_url(),
+                        'parent': (exercise_index[parent_id]
+                            if not parent_id is None
+                            else module_index[module.id]),
+                        'breadcrumb': [exercise_index[o.id] for o in parents],
+                        'opening_time': module.opening_time,
+                        'closing_time': module.closing_time,
+                        'is_empty': o.is_empty(),
+                        'points_to_pass': 0,
+                        'max_submissions': 0,
+                        'max_points': 0,
+                    })
+                    exercise_index[o.id] = len(flat) - 1
+                    paths[module.id][o.get_path()] = o.id
+                    recursion(module, objects, o._parents, o.id)
+                flat[-1]['close_levels'].append(True)
+
+        # Collect each module.
+        for module in instance.course_modules.all():
+            flat.append({
+                'has_children': False,
+                'close_levels': [],
+                'type': 'module',
+                'hidden': not module.status in (CourseModule.STATUS.READY, CourseModule.STATUS.MAINTENANCE),
+                'maintenance': module.status == CourseModule.STATUS.MAINTENANCE,
+                'name': str(module),
+                'link': module.get_absolute_url(),
+                'opening_time': module.opening_time,
+                'closing_time': module.closing_time,
+                'points_to_pass': module.points_to_pass,
+                'max_points': 0,
+            })
+            module_index[module.id] = len(flat) - 1
+            paths[module.id] = {}
+            recursion(module, list(module.learning_objects.all()), [], None)
+
+        # Augment submission parameters.
+        for exercise in BaseExercise.objects\
+              .filter(course_module__course_instance=instance):
+            entry = flat[exercise_index[exercise.id]]
+            entry.update({
+                'points_to_pass': exercise.points_to_pass,
+                'max_submissions': exercise.max_submissions,
+                'max_points': exercise.max_points,
+            })
+
+        return {
+            'created': timezone.now(),
+            'module_index': module_index,
+            'exercise_index': exercise_index,
+            'paths': paths,
+            'flat': flat,
+        }
 
 
 def invalidate_content(sender, instance, **kwargs):
