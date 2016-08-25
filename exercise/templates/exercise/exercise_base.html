@@ -52,7 +52,7 @@
                   <a href="{{ submission|url }}">
                       {{ forloop.revcounter }}.
                       {{ submission.submission_time }}
-                      {% submission_points submission %}
+                      {% points_badge submission %}
                   </a>
               </li>
               {% empty %}

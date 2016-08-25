@@ -12,8 +12,8 @@ from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from authorization.permissions import ACCESS
+from .exercise_summary import ResultTable
 from .models import LearningObject
-from .presentation.results import ResultTable
 from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm
 from .submission_models import Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, \

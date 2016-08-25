@@ -17,14 +17,14 @@ class CachedAbstract(object):
     @classmethod
     def invalidate(cls, *models):
         cache_key = cls._key(*models)
-        logger.info("Invalidating cached data for {}".format(cache_key))
+        logger.debug("Invalidating cached data for {}".format(cache_key))
         cache.delete(cache_key)
 
     def __init__(self, *models):
         cache_key = self.__class__._key(*models)
         data = cache.get(cache_key)
         if self._needs_generation(data):
-            logger.info("Generating cached data for {}".format(cache_key))
+            logger.debug("Generating cached data for {}".format(cache_key))
             data = self._generate_data(*models)
             cache.set(cache_key, data, None)
         self.data = data

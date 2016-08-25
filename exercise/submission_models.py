@@ -12,7 +12,7 @@ from mimetypes import guess_type
 from . import exercise_models
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
-    safe_file_name
+    safe_file_name, Enum
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
@@ -42,24 +42,19 @@ class SubmissionManager(models.Manager):
         return new_submission
 
     def exclude_errors(self):
-        return self.exclude(status=Submission.STATUS_ERROR)
+        return self.exclude(status=Submission.STATUS.ERROR)
 
 
 class Submission(UrlMixin, models.Model):
     """
     A submission to some course exercise from one or more submitters.
     """
-    STATUS_INITIALIZED = "initialized"
-    STATUS_WAITING = "waiting"
-    STATUS_READY = "ready"
-    STATUS_ERROR = "error"
-    STATUS_CHOICES = (
-        (STATUS_INITIALIZED, _("Initialized")),
-        (STATUS_WAITING, _("Waiting")),
-        (STATUS_READY, _("Ready")),
-        (STATUS_ERROR, _("Error")),
-    )
-
+    STATUS = Enum([
+        ('INITIALIZED', 'initialized', _("Initialized")),
+        ('WAITING', 'waiting', _("Waiting")),
+        ('READY', 'ready', _("Ready")),
+        ('ERROR', 'error', _("Error")),
+    ])
     submission_time = models.DateTimeField(auto_now_add=True)
     hash = models.CharField(max_length=32, default=get_random_string)
 
@@ -75,7 +70,7 @@ class Submission(UrlMixin, models.Model):
     feedback = models.TextField(blank=True)
     assistant_feedback = models.TextField(blank=True)
     status = models.CharField(max_length=32,
-        choices=STATUS_CHOICES, default=STATUS_INITIALIZED)
+        choices=STATUS.choices, default=STATUS.INITIALIZED)
     grade = models.IntegerField(default=0)
     grading_time = models.DateTimeField(blank=True, null=True)
     late_penalty_applied = PercentField(blank=True, null=True)
@@ -199,11 +194,11 @@ class Submission(UrlMixin, models.Model):
         assert 0 <= self.grade <= self.exercise.max_points
 
     def set_waiting(self):
-        self.status = self.STATUS_WAITING
+        self.status = self.STATUS.WAITING
 
     def set_ready(self):
         self.grading_time = timezone.now()
-        self.status = self.STATUS_READY
+        self.status = self.STATUS.READY
 
         # Fire set hooks.
         for hook in self.exercise.course_module.course_instance \
@@ -211,7 +206,7 @@ class Submission(UrlMixin, models.Model):
             hook.trigger({ "submission_id": self.id })
 
     def set_error(self):
-        self.status = self.STATUS_ERROR
+        self.status = self.STATUS.ERROR
 
     def is_late(self):
         if self.submission_time <= self.exercise.course_module.closing_time:
@@ -225,7 +220,7 @@ class Submission(UrlMixin, models.Model):
 
     @property
     def is_graded(self):
-        return self.status == self.STATUS_READY
+        return self.status == self.STATUS.READY
 
     def head(self):
         return self.exercise.content_head

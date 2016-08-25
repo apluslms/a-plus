@@ -6,9 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from cached.content import CachedContent
 from cached.points import CachedPoints
-from ..models import BaseExercise
-from ..presentation.score import collect_tree
-from ..presentation.summary import UserCourseSummary
+from ..exercise_summary import UserExerciseSummary
+from ..models import Submission
 
 
 register = template.Library()
@@ -75,70 +74,61 @@ def percent(decimal):
     return int(decimal * 100)
 
 
-def _progress_data(points, max_points, passed=False, required=None):
-    """
-    Formats data for progress bar template.
-    """
+def _points_data(obj, classes=None):
+    if isinstance(obj, UserExerciseSummary):
+        data = {
+            'points': obj.get_points(),
+            'max': obj.get_max_points(),
+            'required': obj.get_required_points(),
+            'missing_points': obj.is_missing_points(),
+            'passed': obj.is_passed(),
+            'full_score': obj.is_full_points(),
+            'submitted': obj.is_submitted(),
+        }
+    elif isinstance(obj, Submission):
+        exercise = obj.exercise
+        data = {
+            'points': obj.grade,
+            'max': exercise.max_points,
+            'required': exercise.points_to_pass,
+            'missing_points': obj.grade < exercise.points_to_pass,
+            'passed': obj.grade >= exercise.points_to_pass,
+            'full_score': obj.grade >= exercise.max_points,
+            'submitted': True,
+            'status': False if obj.is_graded else obj.status
+        }
+    else:
+        data = {
+            'points': obj['points'],
+            'max': obj['max_points'],
+            'required': obj['points_to_pass'],
+            'missing_points': obj['points'] < obj['points_to_pass'],
+            'passed': obj['passed'],
+            'full_score': obj['points'] >= obj['max_points'],
+            'submitted': obj['submission_count'] > 0,
+        }
     percentage = 100
     required_percentage = None
-    if max_points > 0:
-        percentage = int(round(100.0 * points / max_points))
-        if required:
-            required_percentage = int(round(100.0 * required / max_points))
-    return {
-        "points": points,
-        "max": max_points,
-        "percentage": percentage,
-        "required": required,
-        "required_percentage": required_percentage,
-        "passed": passed,
-    }
+    if data['max'] > 0:
+        percentage = int(round(100.0 * data['points'] / data['max']))
+        if data['required']:
+            required_percentage = int(round(100.0 * data['required'] / data['max']))
+    data.update({
+        'classes': classes,
+        'percentage': percentage,
+        'required_percentage': required_percentage,
+    })
+    return data
 
 
 @register.inclusion_tag("exercise/_points_progress.html")
-def points_progress(points, max_points, passed=False, required=None):
-    return _progress_data(points, max_points, passed, required)
-
-
-@register.inclusion_tag("exercise/_points_progress.html")
-def summary_progress(entry):
-    return _progress_data(
-        entry['points'],
-        entry['max_points'],
-        entry['passed'],
-        entry['points_to_pass']
-    )
+def points_progress(obj):
+    return _points_data(obj)
 
 
 @register.inclusion_tag("exercise/_points_badge.html")
-def summary_points(entry, classes=None):
-    return {
-        "classes": classes,
-        "points": entry['points'],
-        "max": entry['max_points'],
-        "required": entry['points_to_pass'],
-        "missing_points": entry['points'] < entry['points_to_pass'],
-        "passed": entry['passed'],
-        "full_score": entry['points'] >= entry['max_points'],
-        "submitted": entry['submission_count'] > 0,
-    }
-
-
-@register.inclusion_tag("exercise/_points_badge.html")
-def submission_points(submission, classes=None):
-    exercise = submission.exercise
-    passed = submission.grade >= exercise.points_to_pass
-    return {
-        "classes": classes,
-        "points": submission.grade,
-        "max": exercise.max_points,
-        "required": exercise.points_to_pass,
-        "missing_points": not passed,
-        "passed": passed,
-        "full_score": submission.grade >= exercise.max_points,
-        "submitted": True,
-        "status": False if submission.is_graded else submission.status
-    }
+def points_badge(obj, classes=None):
+    return _points_data(obj, classes)
 
 
 @register.filter

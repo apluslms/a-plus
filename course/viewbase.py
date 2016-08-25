@@ -73,7 +73,7 @@ class CourseInstanceBaseMixin(object):
             show_for = self.instance.view_content_to
             is_public = show_for == CourseInstance.VIEW_ACCESS.PUBLIC
             access_mode_student = access_mode in (ACCESS.STUDENT, ACCESS.ENROLL)
-            if is_public and acecss_mode_student:
+            if is_public and access_mode_student:
                 access_mode = ACCESS.ANONYMOUS
 
         return access_mode

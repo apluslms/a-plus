@@ -14,8 +14,8 @@ from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView
 from lib.remote_page import request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
+from .exercise_summary import UserExerciseSummary
 from .models import LearningObject, LearningObjectDisplay
-from .presentation.summary import UserExerciseSummary
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin
@@ -61,10 +61,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         return access_mode
 
     def get_after_new_submission(self):
-        self.submissions = self.exercise.get_submissions_for_student(
-            self.profile) if self.profile else []
         self.summary = UserExerciseSummary(self.exercise, self.request.user)
-        self.note("submissions", "summary")
+        self.submissions = self.summary.get_submissions()
+        self.note("summary", "submissions")
 
     def get(self, request, *args, **kwargs):
         students = [self.profile]
@@ -115,7 +114,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
                 # Enroll after succesfull enrollment exercise.
                 if self.exercise.status == 'enrollment' \
-                        and new_submission.status == Submission.STATUS_READY:
+                        and new_submission.status == Submission.STATUS.READY:
                     self.instance.enroll_student(self.request.user)
 
                 # Redirect non AJAX normally to submission page.
@@ -197,10 +196,10 @@ class SubmissionView(SubmissionBaseView):
             profile = self.profile
         else:
             profile = self.submission.submitters.first()
-        self.submissions = self.exercise.get_submissions_for_student(profile)
-        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
         self.summary = UserExerciseSummary(self.exercise, profile.user)
-        self.note("submissions", "index", "summary")
+        self.submissions = self.summary.get_submissions()
+        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
+        self.note("summary", "submissions", "index")
 
 
 class SubmissionPlainView(SubmissionView):

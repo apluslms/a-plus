@@ -55,6 +55,14 @@ class ContentMixin(object):
     def categories(self):
         return list(self.data['categories'].values())
 
+    def modules(self):
+        full = self.full_hierarchy()
+        return [e for e in full if e['type'] == 'module']
+
+    def exercises(self):
+        full = self.full_hierarchy()
+        return [e for e in full if e['type'] == 'exercise']
+
     def _index_model(self, model):
         if isinstance(model, CourseModule):
             return self._index_dict(self.data['module_index'], model.id)
@@ -72,7 +80,7 @@ class ContentMixin(object):
         i = index - 1
         while i >= 0:
             entry = full[i]
-            if self._is_visible(entry):
+            if self.is_listed(entry):
                 return entry
             i -= 1
         return None
@@ -82,13 +90,54 @@ class ContentMixin(object):
         i = index + 1
         while i < l:
             entry = full[i]
-            if self._is_visible(entry):
+            if self.is_listed(entry):
                 return entry
             i += 1
         return None
 
-    def _is_visible(self, entry):
-        return 'hidden' in entry and not entry['hidden']
+    @classmethod
+    def is_visible(cls, entry):
+        t = entry['type']
+        if t == 'exercise':
+            return (
+                entry['module_status'] != CourseModule.STATUS.HIDDEN
+                and not entry['status'] in (
+                    LearningObject.STATUS.HIDDEN,
+                    LearningObject.STATUS.ENROLLMENT,
+                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                )
+            )
+        if t == 'module':
+            return entry['status'] != CourseModule.STATUS.HIDDEN
+        if t == 'category':
+            return entry['status'] != LearningObjectCategory.STATUS.HIDDEN
+        return False
+
+    @classmethod
+    def is_listed(cls, entry):
+        if not cls.is_visible(entry):
+            return False
+        t = entry['type']
+        if t == 'exercise':
+            return (
+                entry['module_status'] != CourseModule.STATUS.UNLISTED
+                and entry['status'] != LearningObject.STATUS.UNLISTED
+            )
+        if t == 'module':
+            return entry['status'] != CourseModule.STATUS.UNLISTED
+        return True
+
+    @classmethod
+    def is_in_maintenance(cls, entry):
+        t = entry['type']
+        if t == 'exercise':
+            return (
+                entry['module_status'] == CourseModule.STATUS.MAINTENANCE
+                or entry['status'] == LearningObject.STATUS.MAINTENANCE
+            )
+        if t == 'module':
+            return entry['status'] == CourseModule.STATUS.MAINTENANCE
+        return False
 
 
 class CachedContent(ContentMixin, CachedAbstract):
@@ -107,29 +156,9 @@ class CachedContent(ContentMixin, CachedAbstract):
         flat = []
         categories = {}
 
-        def module_hidden(module):
-            return not module.status in (
-                CourseModule.STATUS.READY,
-                CourseModule.STATUS.MAINTENANCE,
-            )
-
-        def module_maintenance(module):
-            return module.status == CourseModule.STATUS.MAINTENANCE
-
-        def exercise_hidden(exercise):
-            return not exercise.status in (
-                LearningObject.STATUS.READY,
-                LearningObject.STATUS.MAINTENANCE,
-            )
-
-        def exercise_maintenance(exercise):
-            return exercise.status == LearningObject.STATUS.MAINTENANCE
-
         def recursion(module, objects, parents, parent_id):
             """ Recursively travels exercises hierarchy """
             children = [o for o in objects if o.parent_id == parent_id]
-            hidden = module_hidden(module)
-            maintenance = module_maintenance(module)
             if children:
                 flat[-1]['has_children'] = True
                 for o in children:
@@ -139,15 +168,16 @@ class CachedContent(ContentMixin, CachedAbstract):
                         'has_children': False,
                         'close_levels': [],
                         'type': 'exercise',
+                        'category': str(category),
+                        'category_id': category.id,
+                        'module_id': module.id,
+                        'module_status': module.status,
                         'id': o.id,
                         'order': o.order,
-                        'hidden': hidden or exercise_hidden(o),
-                        'maintenance': maintenance or exercise_maintenance(o),
+                        'status': o.status,
                         'name': str(o),
                         'link': o.get_absolute_url(),
                         'submissions_link': o.get_submission_list_url(),
-                        'category': str(category),
-                        'category_id': category.id,
                         'parent': (exercise_index[parent_id]
                             if not parent_id is None
                             else module_index[module.id]),
@@ -165,8 +195,9 @@ class CachedContent(ContentMixin, CachedAbstract):
                     paths[module.id][o.get_path()] = o.id
                     if not category.id in categories:
                         categories[category.id] = {
+                            'type': 'category',
                             'id': category.id,
-                            'hidden': not category.status == LearningObjectCategory.STATUS.READY,
+                            'status': category.status,
                             'name': str(category),
                             'points_to_pass': category.points_to_pass,
                         }
@@ -181,8 +212,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'type': 'module',
                 'id': module.id,
                 'order': module.order,
-                'hidden': module_hidden(module),
-                'maintenance': module_maintenance(module),
+                'status': module.status,
                 'name': str(module),
                 'introduction': module.introduction,
                 'link': module.get_absolute_url(),

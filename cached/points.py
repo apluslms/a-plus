@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
-from exercise.models import Submission
+from exercise.models import LearningObject, Submission
 from .abstract import CachedAbstract
 from .content import ContentMixin
 
@@ -28,6 +28,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         # Augment submission parameters.
         for entry in flat:
             entry.update({
+                'exercise_count': 0,
                 'submission_count': 0,
                 'best_submission': None,
                 'points': 0,
@@ -36,15 +37,21 @@ class CachedPoints(ContentMixin, CachedAbstract):
             if entry['type'] == 'module':
                 entry.update({
                     'max_points': 0,
-                    'passed': True,
                 })
         for entry in categories.values():
             entry.update({
                 'max_points': 0,
+                'exercise_count': 0,
                 'submission_count': 0,
                 'points': 0,
                 'passed': True,
             })
+        total = {
+            'exercise_count': 0,
+            'max_points': 0,
+            'submission_count': 0,
+            'points': 0,
+        }
 
         # Augment submission data.
         if user.is_authenticated:
@@ -62,15 +69,20 @@ class CachedPoints(ContentMixin, CachedAbstract):
         # Collect hierarchial submission data.
         for index in exercise_index.values():
             entry = flat[index]
+            entry['exercise_count'] = 1
             category = categories[entry['category_id']]
+            category['exercise_count'] += 1
             category['max_points'] += entry['max_points']
             category['submission_count'] += entry['submission_count']
             category['points'] += entry['points']
-        for category in categories.values():
-            category['passed'] = category['points'] >= category['points_to_pass']
+            total['exercise_count'] += 1
+            total['max_points'] += entry['max_points']
+            total['submission_count'] += entry['submission_count']
+            total['points'] += entry['points']
         for entry in reversed(flat):
-            if 'parent' in entry:
+            if 'parent' in entry and entry['status'] != LearningObject.STATUS.HIDDEN:
                 parent = flat[entry['parent']]
+                parent['exercise_count'] += entry['exercise_count']
                 parent['max_points'] += entry['max_points']
                 parent['submission_count'] += entry['submission_count']
                 parent['points'] += entry['points']
@@ -78,8 +90,14 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 entry['passed'] = entry['points'] >= entry['points_to_pass']
             if 'parent' in entry:
                 parent['passed'] = parent['passed'] and entry['passed']
+        for category in categories.values():
+            category['passed'] = category['points'] >= category['points_to_pass']
 
+        data['total'] = total
         return data
+
+    def total(self):
+        return self.data['total']
 
 
 def invalidate_content(sender, instance, **kwargs):

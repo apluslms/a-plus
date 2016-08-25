@@ -45,7 +45,7 @@
 					<li>
 						<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
 							{% trans "Points" %}
-							{% summary_points summary %}
+							{% points_badge summary %}
 						</a>
 					</li>
 					<li class="dropdown">
@@ -65,7 +65,7 @@
 				                <a href="{{ submission|url:'submission-plain' }}">
 				                    {{ forloop.revcounter }}.
 				                    {{ submission.submission_time }}
-				                    {% submission_points submission %}
+				                    {% points_badge submission %}
 				                </a>
 				            </li>
 				        	{% empty %}

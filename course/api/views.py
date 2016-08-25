@@ -13,7 +13,7 @@ from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 from userprofile.api.serializers import UserBriefSerializer
 from exercise.models import BaseExercise
-from exercise.presentation.results import ResultTable
+from exercise.exercise_summary import ResultTable
 
 from ..models import (
     CourseInstance,

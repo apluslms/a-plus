@@ -37,13 +37,7 @@ class ExerciseBaseMixin(object):
     def get_resource_objects(self):
         super().get_resource_objects()
         self.exercise = self.get_exercise_object()
-        previous_entry, current_entry, next_entry = self.content.find(self.exercise)
-        self.now = timezone.now()
-        self.previous = previous_entry
-        self.current = current_entry
-        self.next = next_entry
-        self.breadcrumb = self.content.breadcrumb(self.exercise)
-        self.note("exercise", "now", "previous", "current", "next", "breadcrumb")
+        self.note("exercise")
 
 
 class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
@@ -60,6 +54,16 @@ class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
             return LearningObject.objects.get(id=exercise_id).as_leaf_class()
         except (NoSuchContent, LearningObject.DoesNotExist):
             raise Http404("Learning object not found")
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.now = timezone.now()
+        previous_entry, current_entry, next_entry = self.content.find(self.exercise)
+        self.previous = previous_entry
+        self.current = current_entry
+        self.next = next_entry
+        self.breadcrumb = self.content.breadcrumb(self.exercise)
+        self.note("now", "previous", "current", "next", "breadcrumb")
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):

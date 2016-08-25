@@ -4,13 +4,13 @@
 
 <ul class="toc">
   {% for entry in toc %}
-    {% if not entry.hidden %}
+    {% if entry|is_listed %}
     <li>
 
       {% if entry.type == 'module' %}
-        {% if entry.opening_time <= now %}
+        {% if entry|has_opened:now %}
           <h3>
-            <a href="{{ entry.link }}">{{ entry.name }}</a>
+            <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
           </h3>
           <h4>
             <small>{{ entry.opening_time }} &ndash; {{ entry.closing_time }}</small>
@@ -32,11 +32,11 @@
         {% endif %}
 
       {% elif entry.type == 'exercise' %}
-        {% if entry.opening_time <= now %}
+        {% if entry|has_opened:now %}
           {% if entry.is_empty %}
           {{ entry.name }}
           {% else %}
-          <a href="{{ entry.link }}">{{ entry.name }}</a>
+          <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
           {% endif %}
         {% else %}
           {{ entry.name }}
@@ -49,7 +49,7 @@
         {% endif %}
 
       {% endif %}
-    {% if entry.has_children == True %}
+    {% if entry.has_children %}
       <ul class="toc">
     {% else %}
     </li>
@@ -59,7 +59,7 @@
     {% endfor %}
     {% endif %}
 
-    {% elif entry.has_children == True %}
+    {% elif entry.has_children %}
     <li>
       <ul class="toc">
     {% else %}

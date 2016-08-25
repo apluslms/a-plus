@@ -9,7 +9,7 @@
     	{{ course.points }}
     	<small>/ {{ course.max_points }}</small>
     </strong></p>
-    {% summary_progress course %}
+    {% points_progress course %}
 </div>
 {% endif %}
 {% endcomment %}
@@ -22,7 +22,7 @@
     	{{ entry.points }}
     	<small>/ {{ entry.max_points }}</small>
     </strong></p>
-    {% summary_progress entry %}
+    {% points_progress entry %}
 </div>
 {% endif %}
 {% endfor %}

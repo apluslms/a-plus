@@ -3,7 +3,7 @@
 <nav class="row siblings">
 
     {% if next %}
-    {% if next.opening_time <= now %}
+    {% if next|has_opened:now %}
     <a href="{{ next.link }}" class="pull-right btn btn-link">
         {{ next.name }} &raquo;
     </a>
@@ -21,7 +21,7 @@
     {% endif %}
 
     {% if previous %}
-    {% if previous.opening_time <= now %}
+    {% if previous|has_opened:now %}
     <a href="{{ previous.link }}" class="btn btn-link">
         &laquo; {{ previous.name }}
     </a>

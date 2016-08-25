@@ -6,7 +6,7 @@
 <p class="filter-categories">
   <small>{% trans "Filter view" %}:</small>
   {% for entry in categories %}
-  {% if not entry.hidden %}
+  {% if entry|is_listed %}
   <button class="btn btn-default btn-xs" data-category="{{ entry.id }}">
     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
     {{ entry.name }}
@@ -19,16 +19,16 @@
 <p id="toggle-expired" class="hide"><a href="#">{% trans "Show older assignments." %}</a></p>
 
 {% for entry in toc %}
-  {% if not entry.hidden %}
+  {% if entry|is_visible %}
 
   {% if entry.type == 'module' %}
-    {% with open=(entry.opening_time <= now <= entry.closing_time) after_open=(entry.opening_time <= now) %}
+    {% with open=entry|is_open:now after_open=entry|has_opened:now %}
 <div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
   <a class="panel-heading{% if not open %} collapsed{% endif %}"
     role="button" href="#module{{ entry.id }}" data-toggle="collapse"
     aria-expanded="{% if open %}true{% else %}false{% endif %}" aria-controls="#module{{ entry.id }}">
     <h3 class="panel-title">
-      {% summary_points entry "pull-right" %}
+      {% points_badge entry "pull-right" %}
       {% if not open and not after_open %}
       <span class="badge pull-right">
         {% trans "Opens" %} {{ entry.opening_time }}
@@ -65,15 +65,8 @@
       {% endif %}
     </p>
 
-    {% if entry.maintenance %}
-    <p>
-      {% trans 'Unfortunately this module is currently under maintenance.' %}
-    </p>
-
-    {% else %}
-    {% summary_progress entry %}
+    {% points_progress entry %}
     {{ entry.introduction|safe }}
-    {% endif %}
   </div>
   <table class="table table-striped table-condensed results-table">
     <tbody>
@@ -88,15 +81,15 @@
     {% endwith %}
 
   {% elif entry.type == 'exercise' %}
-    {% with after_open=(entry.opening_time <= now) %}
+    {% with after_open=entry|has_opened:now %}
     {% if entry.submittable %}
       <tr data-category="{{ entry.category_id }}">
         <td>
           {% if after_open %}
             {% if entry.parent_link %}
-          <a href="{{ entry.parent_link }}#chapter-exercise-{{ entry.order }}">{{ entry.name }}</a>
+          <a href="{{ entry.parent_link }}#chapter-exercise-{{ entry.order }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
             {% else %}
-          <a href="{{ entry.link }}">{{ entry.name }}</a>
+          <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
             {% endif %}
           {% else %}
           {{ entry.name }}
@@ -106,7 +99,7 @@
           <small>{{ entry.category }}</small>
         </td>
         <td>
-          {% summary_points entry %}
+          {% points_badge entry %}
         </td>
         {% if is_course_staff %}
         <td>
@@ -131,6 +124,7 @@
       </tr>
     {% endif %}
     {% endwith %}
+  {% endif %}
   {% endif %}
 
   {% for level in entry.close_levels %}
