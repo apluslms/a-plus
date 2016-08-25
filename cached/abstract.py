@@ -10,11 +10,15 @@ class CachedAbstract(object):
 
     @classmethod
     def _key(cls, *models):
-        return '{}:{}'.format(cls.KEY_PREFIX, ','.join([str(m.pk) for m in models]))
+        return "{}:{}".format(cls.KEY_PREFIX, ",".join(
+            [str(m.pk if hasattr(m, 'pk') else 0) for m in models]
+        ))
 
     @classmethod
     def invalidate(cls, *models):
-        cache.delete(cls._key(*models))
+        cache_key = cls._key(*models)
+        logger.info("Invalidating cached data for {}".format(cache_key))
+        cache.delete(cache_key)
 
     def __init__(self, *models):
         cache_key = self.__class__._key(*models)

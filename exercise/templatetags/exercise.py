@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from cached.content import CachedContent
+from cached.points import CachedPoints
 from ..models import BaseExercise
 from ..presentation.score import collect_tree
 from ..presentation.summary import UserCourseSummary
@@ -15,6 +16,53 @@ register = template.Library()
 
 class TagUsageError(Exception):
     pass
+
+
+def _prepare_context(context):
+    if not 'instance' in context:
+        raise TagUsageError()
+    instance = context['instance']
+    user = context['request'].user
+    if not 'now' in context:
+        context['now'] = timezone.now()
+    if not 'content' in context:
+        context['content'] = CachedContent(instance)
+    if not 'points' in context:
+        context['points'] = CachedPoints(instance, user, context['content'])
+    points = context['points']
+    return {
+        'now': context['now'],
+        'toc': points.full_hierarchy(),
+        'categories': points.categories(),
+        'is_course_staff': context.get('is_course_staff', False),
+    }
+
+
+@register.inclusion_tag("exercise/_user_results.html", takes_context=True)
+def user_results(context):
+    return _prepare_context(context)
+
+
+@register.inclusion_tag("exercise/_user_toc.html", takes_context=True)
+def user_toc(context):
+    return _prepare_context(context)
+
+
+@register.inclusion_tag("exercise/_category_points.html", takes_context=True)
+def category_points(context):
+    return _prepare_context(context)
+
+
+@register.inclusion_tag("exercise/_submission_list.html", takes_context=True)
+def latest_submissions(context):
+    submissions = context["profile"].submissions \
+        .filter(exercise__course_module__course_instance=context["instance"]) \
+        .order_by("-id")[:10]
+    return {
+        "submissions": submissions,
+        "title": _("Latest submissions"),
+        "empty": _("No submissions for this course."),
+    }
 
 
 @register.filter
@@ -53,25 +101,26 @@ def points_progress(points, max_points, passed=False, required=None):
 
 
 @register.inclusion_tag("exercise/_points_progress.html")
-def summary_progress(summary):
+def summary_progress(entry):
     return _progress_data(
-        summary.get_total_points(),
-        summary.get_max_points(),
-        summary.is_passed(),
-        summary.get_required_points())
+        entry['points'],
+        entry['max_points'],
+        entry['passed'],
+        entry['points_to_pass']
+    )
 
 
 @register.inclusion_tag("exercise/_points_badge.html")
-def summary_points(summary, classes=None):
+def summary_points(entry, classes=None):
     return {
         "classes": classes,
-        "points": summary.get_total_points(),
-        "max": summary.get_max_points(),
-        "required": summary.get_required_points(),
-        "missing_points": summary.is_missing_points(),
-        "passed": summary.is_passed(),
-        "full_score": summary.get_total_points() >= summary.get_max_points(),
-        "submitted": summary.is_submitted(),
+        "points": entry['points'],
+        "max": entry['max_points'],
+        "required": entry['points_to_pass'],
+        "missing_points": entry['points'] < entry['points_to_pass'],
+        "passed": entry['passed'],
+        "full_score": entry['points'] >= entry['max_points'],
+        "submitted": entry['submission_count'] > 0,
     }
 
 
@@ -89,62 +138,6 @@ def submission_points(submission, classes=None):
         "full_score": submission.grade >= exercise.max_points,
         "submitted": True,
         "status": False if submission.is_graded else submission.status
-    }
-
-
-def _prepare_context(context):
-    if not 'instance' in context:
-        raise TagUsageError()
-    if not 'now' in context:
-        context['now'] = timezone.now()
-    if not 'content' in context:
-        context['content'] = CachedContent(context['instance'])
-    #if not "course_summary" in context:
-    #    context["course_summary"] = UserCourseSummary(
-    #        context["instance"],
-    #        context["request"].user)
-
-
-@register.inclusion_tag("exercise/_user_results.html", takes_context=True)
-def user_results(context):
-    summary = _get_course_summary(context)
-    return {
-        "summary": summary,
-        "categories": summary.category_summaries,
-        "exercise_tree": collect_tree(summary),
-        "is_course_staff": context["is_course_staff"],
-    }
-
-
-@register.inclusion_tag("exercise/_user_toc.html", takes_context=True)
-def user_toc(context):
-    _prepare_context(context)
-    return {
-        'now': context['now'],
-        'toc': context['content'].full_hierarchy(),
-        'is_course_staff': context.get('is_course_staff', False),
-    }
-
-
-@register.inclusion_tag("exercise/_category_points.html", takes_context=True)
-def category_points(context):
-    summary = _get_course_summary(context)
-    return {
-        "summary": summary,
-        "categories": summary.category_summaries,
-        "is_course_staff": context["is_course_staff"],
-    }
-
-
-@register.inclusion_tag("exercise/_submission_list.html", takes_context=True)
-def latest_submissions(context):
-    submissions = context["profile"].submissions \
-        .filter(exercise__course_module__course_instance=context["instance"]) \
-        .order_by("-id")[:10]
-    return {
-        "submissions": submissions,
-        "title": _("Latest submissions"),
-        "empty": _("No submissions for this course."),
     }
 
 

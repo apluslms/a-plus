@@ -521,7 +521,7 @@ class CourseModule(UrlMixin, models.Model):
         """
         Returns the percentage (0-100) that late submission points are worth.
         """
-        point_worth = 0
+        point_worth = 100
         if self.late_submissions_allowed:
             point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth

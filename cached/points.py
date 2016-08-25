@@ -1,7 +1,8 @@
 from django.core.cache import cache
-from django.util import timezone
+from django.db.models.signals import post_save, post_delete
+from django.utils import timezone
 
-from exercise.models import Submission, BaseExercise
+from exercise.models import Submission
 from .abstract import CachedAbstract
 from .content import ContentMixin
 
@@ -22,6 +23,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         data = self.content.data.copy()
         flat = data['flat']
         exercise_index = data['exercise_index']
+        categories = data['categories']
 
         # Augment submission parameters.
         for entry in flat:
@@ -29,27 +31,53 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 'submission_count': 0,
                 'best_submission': None,
                 'points': 0,
+                'passed': True,
+            })
+            if entry['type'] == 'module':
+                entry.update({
+                    'max_points': 0,
+                    'passed': True,
+                })
+        for entry in categories.values():
+            entry.update({
+                'max_points': 0,
+                'submission_count': 0,
+                'points': 0,
+                'passed': True,
             })
 
         # Augment submission data.
-        for submission in user.userprofile.submissions\
-              .filter(exercise__course_module__course_instance=instance)\
-              .exclude_errors():
-            entry = flat[exercise_index[submission.exercise_id]]
-            entry['submission_count'] += 1
-            if submission.grade > entry['points']:
-                entry.update({
-                    'best_submission': submission.id,
-                    'points': submission.grade,
-                })
+        if user.is_authenticated:
+            for submission in user.userprofile.submissions\
+                  .exclude_errors()\
+                  .filter(exercise__course_module__course_instance=instance):
+                entry = flat[exercise_index[submission.exercise_id]]
+                entry['submission_count'] += 1
+                if submission.grade > entry['points']:
+                    entry.update({
+                        'best_submission': submission.id,
+                        'points': submission.grade,
+                    })
 
         # Collect hierarchial submission data.
+        for index in exercise_index.values():
+            entry = flat[index]
+            category = categories[entry['category_id']]
+            category['max_points'] += entry['max_points']
+            category['submission_count'] += entry['submission_count']
+            category['points'] += entry['points']
+        for category in categories.values():
+            category['passed'] = category['points'] >= category['points_to_pass']
         for entry in reversed(flat):
-            if entry['type'] == 'exercise':
+            if 'parent' in entry:
                 parent = flat[entry['parent']]
                 parent['max_points'] += entry['max_points']
                 parent['submission_count'] += entry['submission_count']
                 parent['points'] += entry['points']
+            if entry['passed']:
+                entry['passed'] = entry['points'] >= entry['points_to_pass']
+            if 'parent' in entry:
+                parent['passed'] = parent['passed'] and entry['passed']
 
         return data
 

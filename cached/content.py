@@ -1,9 +1,9 @@
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
-from django.util import timezone
+from django.utils import timezone
 
-from course.models import CourseInstance, CourseModule
-from exercise.models import LearningObject
+from course.models import CourseInstance, CourseModule, LearningObjectCategory
+from exercise.models import LearningObject, BaseExercise
 from .abstract import CachedAbstract
 
 
@@ -51,6 +51,9 @@ class ContentMixin(object):
         i = self._index_model(model)
         full = self.full_hierarchy()
         return [full[j] for j in full[i]['breadcrumb']]
+
+    def categories(self):
+        return list(self.data['categories'].values())
 
     def _index_model(self, model):
         if isinstance(model, CourseModule):
@@ -102,22 +105,49 @@ class CachedContent(ContentMixin, CachedAbstract):
         exercise_index = {}
         paths = {}
         flat = []
+        categories = {}
 
-        def recursion(self, module, objects, parents, parent_id):
+        def module_hidden(module):
+            return not module.status in (
+                CourseModule.STATUS.READY,
+                CourseModule.STATUS.MAINTENANCE,
+            )
+
+        def module_maintenance(module):
+            return module.status == CourseModule.STATUS.MAINTENANCE
+
+        def exercise_hidden(exercise):
+            return not exercise.status in (
+                LearningObject.STATUS.READY,
+                LearningObject.STATUS.MAINTENANCE,
+            )
+
+        def exercise_maintenance(exercise):
+            return exercise.status == LearningObject.STATUS.MAINTENANCE
+
+        def recursion(module, objects, parents, parent_id):
             """ Recursively travels exercises hierarchy """
             children = [o for o in objects if o.parent_id == parent_id]
+            hidden = module_hidden(module)
+            maintenance = module_maintenance(module)
             if children:
                 flat[-1]['has_children'] = True
                 for o in children:
                     o._parents = parents + [o]
+                    category = o.category
                     flat.append({
                         'has_children': False,
                         'close_levels': [],
                         'type': 'exercise',
-                        'hidden': not o.status in (LearningObject.STATUS.READY, LearningObject.STATUS.MAINTENANCE),
-                        'maintenance': o.status == LearningObject.STATUS.MAINTENANCE,
+                        'id': o.id,
+                        'order': o.order,
+                        'hidden': hidden or exercise_hidden(o),
+                        'maintenance': maintenance or exercise_maintenance(o),
                         'name': str(o),
                         'link': o.get_absolute_url(),
+                        'submissions_link': o.get_submission_list_url(),
+                        'category': str(category),
+                        'category_id': category.id,
                         'parent': (exercise_index[parent_id]
                             if not parent_id is None
                             else module_index[module.id]),
@@ -129,10 +159,19 @@ class CachedContent(ContentMixin, CachedAbstract):
                         'max_submissions': 0,
                         'max_points': 0,
                     })
+                    if o.status == LearningObject.STATUS.UNLISTED:
+                        flat[-1]['parent_link'] = parents[-1].get_absolute_url()
                     exercise_index[o.id] = len(flat) - 1
                     paths[module.id][o.get_path()] = o.id
+                    if not category.id in categories:
+                        categories[category.id] = {
+                            'id': category.id,
+                            'hidden': not category.status == LearningObjectCategory.STATUS.READY,
+                            'name': str(category),
+                            'points_to_pass': category.points_to_pass,
+                        }
                     recursion(module, objects, o._parents, o.id)
-                flat[-1]['close_levels'].append(True)
+                flat[-1]['close_levels'].append('m' if parent_id is None else 'e')
 
         # Collect each module.
         for module in instance.course_modules.all():
@@ -140,14 +179,19 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'has_children': False,
                 'close_levels': [],
                 'type': 'module',
-                'hidden': not module.status in (CourseModule.STATUS.READY, CourseModule.STATUS.MAINTENANCE),
-                'maintenance': module.status == CourseModule.STATUS.MAINTENANCE,
+                'id': module.id,
+                'order': module.order,
+                'hidden': module_hidden(module),
+                'maintenance': module_maintenance(module),
                 'name': str(module),
+                'introduction': module.introduction,
                 'link': module.get_absolute_url(),
                 'opening_time': module.opening_time,
                 'closing_time': module.closing_time,
+                'late_allowed': module.late_submissions_allowed,
+                'late_time': module.late_submission_deadline,
+                'late_percent': module.get_late_submission_point_worth(),
                 'points_to_pass': module.points_to_pass,
-                'max_points': 0,
             })
             module_index[module.id] = len(flat) - 1
             paths[module.id] = {}
@@ -158,6 +202,7 @@ class CachedContent(ContentMixin, CachedAbstract):
               .filter(course_module__course_instance=instance):
             entry = flat[exercise_index[exercise.id]]
             entry.update({
+                'submittable': True,
                 'points_to_pass': exercise.points_to_pass,
                 'max_submissions': exercise.max_submissions,
                 'max_points': exercise.max_points,
@@ -169,6 +214,7 @@ class CachedContent(ContentMixin, CachedAbstract):
             'exercise_index': exercise_index,
             'paths': paths,
             'flat': flat,
+            'categories': categories,
         }
 
 
@@ -181,8 +227,10 @@ def invalidate_content(sender, instance, **kwargs):
 
 # Automatically invalidate cached course content when edited.
 post_save.connect(invalidate_content, sender=CourseInstance)
-post_save.connect(invalidate_content, sender=CourseModule)
-post_save.connect(invalidate_content, sender=LearningObject)
 post_delete.connect(invalidate_content, sender=CourseInstance)
+post_save.connect(invalidate_content, sender=CourseModule)
 post_delete.connect(invalidate_content, sender=CourseModule)
+post_save.connect(invalidate_content, sender=LearningObject)
 post_delete.connect(invalidate_content, sender=LearningObject)
+post_save.connect(invalidate_content, sender=LearningObjectCategory)
+post_delete.connect(invalidate_content, sender=LearningObjectCategory)

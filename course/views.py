@@ -102,12 +102,6 @@ class ModuleView(CourseModuleBaseView):
         self.next = next_entry
         self.note('now', 'toc', 'previous', 'current', 'next')
 
-    def get(self, request, *args, **kwargs):
-        if not self.module.is_after_open():
-            messages.warning(self.request,
-                _("The course module is not yet open for students."))
-        return super().get(request, *args, **kwargs)
-
 
 class CalendarExport(CourseInstanceMixin, BaseView):
 

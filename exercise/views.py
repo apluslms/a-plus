@@ -10,10 +10,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 
 from authorization.permissions import ACCESS
+from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView
 from lib.remote_page import request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
-from .models import LearningObjectDisplay
+from .models import LearningObject, LearningObjectDisplay
 from .presentation.summary import UserExerciseSummary
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
@@ -51,7 +52,10 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         access_mode = super().get_access_mode()
 
         # Loosen the access mode if exercise is enrollment
-        if self.exercise.status == 'enrollment' and access_mode == ACCESS.STUDENT:
+        if (self.exercise.status in (
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+              ) and access_mode == ACCESS.STUDENT):
             access_mode = ACCESS.ENROLL
 
         return access_mode
@@ -68,7 +72,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             ok, students = self.submission_check()
             self.get_after_new_submission()
 
-        if self.exercise.status == 'maintenance':
+        if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
+              or self.module.status == CourseModule.STATUS.MAINTENANCE):
             if self.is_course_staff:
                 messages.error(request,
                     _("Exercise is in maintenance and content is hidden from "

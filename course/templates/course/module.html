@@ -17,18 +17,18 @@
 {% block coursecontent %}
     <p>
         <span class="small">
-            {{ module.opening_time }}
-            &ndash; {{ module.closing_time }}
+            {{ current.opening_time }}
+            &ndash; {{ current.closing_time }}
         </span>
-        {% if module.late_submissions_allowed %}
+        {% if current.late_allowed %}
         <br />
         <span class="dates">
             <em>
-                {% blocktrans with deadline=module.late_submission_deadline %}
+                {% blocktrans with deadline=current.late_time %}
                 Late submission are allowed until {{ deadline }}
                 {% endblocktrans %}
-                {% if module.get_late_submission_point_worth != 100 %}
-                {% blocktrans with percent=module.get_late_submission_point_worth %}
+                {% if current.late_percent != 100 %}
+                {% blocktrans with percent=current.late_percent %}
                 but points are only worth {{ percent }}%.
                 {% endblocktrans %}
                 {% endif %}
