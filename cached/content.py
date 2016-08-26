@@ -63,6 +63,11 @@ class ContentMixin(object):
         full = self.full_hierarchy()
         return [e for e in full if e['type'] == 'exercise']
 
+    def begin(self):
+        for e in self.full_hierarchy():
+            if e['type'] == 'exercise' and self.is_listed(e):
+                return e
+
     def _index_model(self, model):
         if isinstance(model, CourseModule):
             return self._index_dict(self.data['module_index'], model.id)
