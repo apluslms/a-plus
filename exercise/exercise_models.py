@@ -6,6 +6,7 @@ from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models import signals
 from django.db.models.signals import post_delete
 from django.template import loader, Context
 from django.utils import timezone
@@ -122,6 +123,15 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             raise ValidationError({
                 'url':_("Taken words include: {}").format(", ".join(RESERVED))
             })
+
+    def save(self):
+        super().save()
+        # Trigger LearningObject post save signal for extending classes.
+        cls = self.__class__
+        while cls.__bases__:
+            cls = cls.__bases__[0]
+            if cls.__name__ == 'LearningObject':
+                signals.post_save.send(sender=cls, instance=self)
 
     def __str__(self):
         if self.order >= 0:

@@ -14,7 +14,8 @@ export APLUS_DB_FILE=$DIR/aplus.db
 rm -f $APLUS_DB_FILE
 
 $PYTHON manage.py migrate
-$PYTHON manage.py loaddata doc/selenium_test_data.json
+$PYTHON manage.py loaddata selenium_test/test_data.json
+$PYTHON manage.py shell < selenium_test/add_users.py
 
 cp $APLUS_DB_FILE ${APLUS_DB_FILE}_copy
 
