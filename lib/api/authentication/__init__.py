@@ -5,7 +5,7 @@ GRADER_AUTH_TOKEN = 'token'
 
 
 def get_graderauth_submission_params(submission):
-    token = "s{s.id:d}.{s.hash}".format(s=submission)
+    token = "s{:x}.{}".format(submission.id, submission.hash)
     return [(GRADER_AUTH_TOKEN, token)]
 
 

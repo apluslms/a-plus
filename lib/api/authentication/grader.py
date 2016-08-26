@@ -61,9 +61,14 @@ class GraderAuthentication(BaseAuthentication):
 
             submission_id, submission_hash = token_parts
             try:
+                submission_id = int(submission_id, 16)
+            except ValueError:
+                raise AuthenticationFailed(_("Authentication token isn't in correct format"))
+
+            try:
                 submission = Submission.objects.get(id=submission_id, hash=submission_hash)
             except Submission.DoesNotExist:
-                raise AuthenticationFailed(_("No valid submission for authenticaion token"))
+                raise AuthenticationFailed(_("No valid submission for authentication token"))
 
             user = GraderUser.from_submission(submission)
 
