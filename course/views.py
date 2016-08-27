@@ -15,6 +15,7 @@ from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
 from authorization.permissions import ACCESS
 from userprofile.viewbase import UserProfileView
+from exercise.models import LearningObject
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
@@ -73,7 +74,7 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
             messages.error(self.request, _("You cannot enroll, or have already enrolled, to this course."))
             raise PermissionDenied()
 
-        if not self.is_enrollment_open():
+        if not self.instance.is_enrollment_open():
             messages.error(self.request, _("The enrollment is not open."))
             raise PermissionDenied()
 
