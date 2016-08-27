@@ -317,9 +317,9 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_enrollable(self, user):
         if user and user.is_authenticated():
-            if self.enrollment_audience == 1:
+            if self.enrollment_audience == self.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
                 return not user.userprofile.is_external
-            if self.enrollment_audience == 2:
+            if self.enrollment_audience == self.ENROLLMENT_AUDIENCE.EXTERNAL_USERS:
                 return user.userprofile.is_external
             return True
         return False
