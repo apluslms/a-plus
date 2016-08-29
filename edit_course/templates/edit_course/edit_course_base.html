@@ -32,8 +32,13 @@
             </a>
         </li>
         <li role="presentation" class="menu-edit-content">
-        	<a href="{{ instance|url:'course-edit' }}">
+            <a href="{{ instance|url:'course-edit' }}">
                 {% trans "Content" %}
+            </a>
+        </li>
+        <li role="presentation" class="menu-menu">
+            <a href="{{ instance|url:'external-services-list-menu' }}">
+                {% trans "Menu" %}
             </a>
         </li>
         <li role="presentation" class="menu-deviations">

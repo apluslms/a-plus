@@ -26,7 +26,7 @@ def external_menu_entries(course_instance_id):
         course_instance__pk=course_instance_id,
         enabled=True,
         service__enabled=True,
-        access=MenuItem.ACCESS_STUDENT,
+        access=MenuItem.ACCESS.STUDENT,
     )
 
 
@@ -39,10 +39,10 @@ def external_staff_menu_entries(course_instance_id, is_assistant, is_teacher):
         course_instance__pk=course_instance_id,
         enabled=True,
         service__enabled=True,
-        access__gt=MenuItem.ACCESS_STUDENT,
+        access__gt=MenuItem.ACCESS.STUDENT,
     )
     if is_teacher:
-        return qs.exclude(access__gt=MenuItem.ACCESS_TEACHER)
+        return qs.exclude(access__gt=MenuItem.ACCESS.TEACHER)
     elif is_assistant:
-        return qs.exclude(access__gt=MenuItem.ACCESS_ASSISTANT)
+        return qs.exclude(access__gt=MenuItem.ACCESS.ASSISTANT)
     return MenuItem.objects.none()

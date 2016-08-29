@@ -1,14 +1,18 @@
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+import re
 
 from course.models import CourseInstance
 from inheritance.models import ModelWithInheritance
+from lib.helpers import Enum
+from lib.models import UrlMixin
 
 
 class LinkService(ModelWithInheritance):
     '''
-    Configures an external link class which works as a base class for LTIService
+    A link to an external service.
     '''
     url = models.CharField(
         max_length=256,
@@ -40,8 +44,7 @@ class LinkService(ModelWithInheritance):
 
 class LTIService(LinkService):
     '''
-    Configures an external LTI service. Extends LinkService.
-
+    A provider of an LTI service.
     '''
     consumer_key = models.CharField(
         max_length=128,
@@ -59,40 +62,54 @@ class MenuItemManager(models.Manager):
         return super().get_queryset().select_related(
             'course_instance', 'course_instance__course')
 
-class MenuItem(models.Model):
-    '''
-    Attaches LTI service to course instance menu.
 
+class MenuItem(UrlMixin, models.Model):
     '''
-    ACCESS_STUDENT = 0
-    ACCESS_ASSISTANT = 5
-    ACCESS_TEACHER = 10
-    ACCESS_CHOICES = (
-        (ACCESS_STUDENT, _("All students, assistants and teachers can access.")),
-        (ACCESS_ASSISTANT, _("Only assistants and teachers can access.")),
-        (ACCESS_TEACHER, _("Only teachers can access.")),
-    )
-    service = models.ForeignKey(LinkService)
+    Attaches link to course menu.
+    '''
+    ACCESS = Enum([
+        ('STUDENT', 0, _("All students, assistants and teachers can access.")),
+        ('ASSISTANT', 5, _("Only assistants and teachers can access.")),
+        ('TEACHER', 10, _("Only teachers can access.")),
+    ])
     course_instance = models.ForeignKey(
         CourseInstance,
         related_name="ext_services",
-        help_text=_("A course instance where the service is used.")
+        help_text=_("A course where the menu item exists.")
     )
     access = models.IntegerField(
-        choices=ACCESS_CHOICES,
-        default=ACCESS_STUDENT,
+        choices=ACCESS.choices,
+        default=ACCESS.STUDENT,
+    )
+    service = models.ForeignKey(
+        LinkService,
+        blank=True,
+        null=True,
+        help_text=_("If preconfigured, an external service to link.")
+    )
+    menu_url = models.CharField(
+        max_length=256,
+        blank=True,
+        null=True,
+        help_text=_("A link URL (else service default). Relative URLs are relative to course root.")
+    )
+    menu_group_label = models.CharField(
+        max_length=32,
+        blank=True,
+        null=True,
+        help_text=_("Places menu item under a group label.")
     )
     menu_label = models.CharField(
         max_length=32,
-        null=True,
         blank=True,
-        help_text=_("Overrides service default label shown in the course menu.")
+        null=True,
+        help_text=_("Label for the menu link (else service default).")
     )
     menu_icon_class = models.CharField(
         max_length=32,
         null=True,
         blank=True,
-        help_text=_("Overrides service default menu icon style name, e.g. star see http://getbootstrap.com/components/#glyphicons-glyphs")
+        help_text=_("Menu icon style name (else service default), e.g. star see http://getbootstrap.com/components/#glyphicons-glyphs")
     )
     menu_weight = models.IntegerField(
         default=0,
@@ -103,30 +120,37 @@ class MenuItem(models.Model):
     class Meta:
         ordering = ["course_instance", "menu_weight", "menu_label"]
 
+    def __str__(self):
+        out = "%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
+        if not self.enabled or not self.service.enabled:
+            return "[Disabled] " + out
+        return out
+
+    def clean(self):
+        if not self.service and not (self.menu_url and self.menu_label):
+            raise ValidationError(_("Either preconfigured service or custom URL and label needs to be provided."))
+
     @property
     def label(self):
-        '''
-        @rtype: C{str}
-        @return: menu label locally overwritten or from the service
-        '''
         if self.menu_label:
             return self.menu_label
         return self.service.menu_label
 
     @property
     def icon_class(self):
-        '''
-        @return: menu icon class locally overwritten or from the service
-        '''
         if self.menu_icon_class:
             return self.menu_icon_class
         return self.service.menu_icon_class
 
     @property
     def url(self):
-        '''
-        @return: menu url
-        '''
+        if self.menu_url:
+            if re.search(r"^\w+:\/\/", self.menu_url):
+                return self.menu_url
+            return "{}{}".format(
+                self.course_instance.get_absolute_url(),
+                self.menu_url[1:] if self.menu_url.starswith("/") else self.menu_url
+            )
         if type(self.service.as_leaf_class()) == LTIService:
             instance = self.course_instance
             return reverse('lti-login', kwargs={
@@ -136,8 +160,5 @@ class MenuItem(models.Model):
             })
         return self.service.url
 
-    def __str__(self):
-        out = "%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
-        if not self.enabled or not self.service.enabled:
-            return "[Disabled] " + out
-        return out
+    def get_url_kwargs(self):
+        return dict(menu_id=self.id, **self.course_instance.get_url_kwargs())
