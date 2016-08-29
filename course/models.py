@@ -26,7 +26,6 @@ from lib.helpers import (
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
 from userprofile.models import User, UserProfile, GraderUser
-from .tree import ModuleTree
 
 logger = logging.getLogger("course.models")
 
@@ -215,7 +214,18 @@ class CourseInstance(UrlMixin, models.Model):
         ('ALL_REGISTERED', 3, _('All registered users')),
         ('PUBLIC', 4, _('Public to internet')),
     ])
-
+    INDEX_TYPE = Enum([
+        ('RESULTS', 0, _('User results')),
+        ('TOC', 1, _("Table of contents")),
+        ('LAST', 2, _("Link last visited content")),
+        ('EXPERIMENT', 10, _("Experimental setup (hard-coded)")),
+    ])
+    CONTENT_NUMBERING = Enum([
+        ('NONE', 0, _("No numbering")),
+        ('ARABIC', 1, _("Arabic")),
+        ('ROMAN', 2, _("Roman")),
+        ('HIDDEN', 3, _("Hidden arabic")),
+    ])
 
     course = models.ForeignKey(Course, related_name="instances")
     instance_name = models.CharField(max_length=255)
@@ -235,21 +245,12 @@ class CourseInstance(UrlMixin, models.Model):
     language = models.CharField(max_length=5, blank=True, default="")
     description = models.TextField(blank=True)
     footer = models.TextField(blank=True)
-    index_mode = models.IntegerField(choices=(
-        (0, _('User results')),
-        (1, _('Table of contents')),
-    ), default=0, help_text=_('Select content for the course index page.'))
-    module_numbering = models.IntegerField(choices=(
-        (0, _("No numbering")),
-        (1, _("Arabic")),
-        (2, _("Roman")),
-        (3, _("Hidden arabic")),
-    ), default=1)
-    content_numbering = models.IntegerField(choices=(
-        (0, _("No numbering")),
-        (1, _("Arabic")),
-        (2, _("Roman")),
-    ), default=1)
+    index_mode = models.IntegerField(choices=INDEX_TYPE.choices, default=INDEX_TYPE.RESULTS,
+        help_text=_('Select content for the course index page.'))
+    module_numbering = models.IntegerField(choices=CONTENT_NUMBERING.choices,
+                                           default=CONTENT_NUMBERING.ARABIC)
+    content_numbering = models.IntegerField(choices=CONTENT_NUMBERING.choices,
+                                            default=CONTENT_NUMBERING.ARABIC)
     head_urls = models.TextField(blank=True,
         help_text=_("External CSS and JS resources "
             "that are included on all course pages. "
@@ -442,16 +443,14 @@ class CourseModule(UrlMixin, models.Model):
     of each other and course instances. They also contain information about the
     opening times and deadlines for exercises.
     """
-    STATUS_READY = 'ready'
-    STATUS_HIDDEN = 'hidden'
-    STATUS_MAINTENANCE = 'maintenance'
-    STATUS_CHOICES = (
-        (STATUS_READY, _("Ready")),
-        (STATUS_HIDDEN, _("Hidden")),
-        (STATUS_MAINTENANCE, _("Maintenance")),
-    )
+    STATUS = Enum([
+        ('READY', 'ready', _("Ready")),
+        ('UNLISTED', 'unlisted', _("Unlisted in table of contents")),
+        ('HIDDEN', 'hidden', _("Hidden")),
+        ('MAINTENANCE', 'maintenance', _("Maintenance")),
+    ])
     status = models.CharField(max_length=32,
-        choices=STATUS_CHOICES, default=STATUS_READY)
+        choices=STATUS.choices, default=STATUS.READY)
     order = models.IntegerField(default=1)
     name = models.CharField(max_length=255)
     url = models.CharField(max_length=255,
@@ -481,9 +480,9 @@ class CourseModule(UrlMixin, models.Model):
 
     def __str__(self):
         if self.order > 0:
-            if self.course_instance.module_numbering == 1:
+            if self.course_instance.module_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
                 return "{:d}. {}".format(self.order, self.name)
-            elif self.course_instance.module_numbering == 2:
+            elif self.course_instance.module_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
@@ -491,7 +490,7 @@ class CourseModule(UrlMixin, models.Model):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        RESERVED = ("teachers", "user", "exercises", "apps", "lti-login")
+        RESERVED = ("toc", "teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
             raise ValidationError({
                 'url':_("Taken words include: {}").format(", ".join(RESERVED))
@@ -513,6 +512,12 @@ class CourseModule(UrlMixin, models.Model):
         return self.late_submissions_allowed \
             and self.closing_time <= when <= self.late_submission_deadline
 
+    def is_closed(self, when=None):
+        when = when or timezone.now()
+        if self.late_submissions_allowed:
+            return when > self.late_submission_deadline
+        return when > self.closing_time
+
     def get_late_submission_point_worth(self):
         """
         Returns the percentage (0-100) that late submission points are worth.
@@ -521,33 +526,6 @@ class CourseModule(UrlMixin, models.Model):
         if self.late_submissions_allowed:
             point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth
-
-    def next_module(self):
-        return self.course_instance.course_modules\
-            .exclude(status='hidden').filter(order__gt=self.order).first()
-
-    def previous_module(self):
-        return self.course_instance.course_modules\
-            .exclude(status='hidden').filter(order__lt=self.order).last()
-
-    def _children(self):
-        if not hasattr(self, '_module_children'):
-            self._module_children = ModuleTree(self)
-        return self._module_children
-
-    def next(self):
-        return self._children().first() or self.next_module()
-
-    def previous(self):
-        module = self.previous_module()
-        return module._children().last() if module else None
-
-    def flat_learning_objects(self, with_sub_markers=True):
-        return self._children().flat(None, with_sub_markers)
-
-    def flat_admin_learning_objects(self, with_sub_markers=True):
-        return self._children().flat(None, with_sub_markers, True)
-
 
     ABSOLUTE_URL_NAME = "module"
 
@@ -559,14 +537,12 @@ class LearningObjectCategory(models.Model):
     """
     Learning objects may be grouped to different categories.
     """
-    STATUS_READY = 'ready'
-    STATUS_HIDDEN = 'hidden'
-    STATUS_CHOICES = (
-        (STATUS_READY, _("Ready")),
-        (STATUS_HIDDEN, _("Hidden")),
-    )
+    STATUS = Enum([
+        ('READY', 'ready', _("Ready")),
+        ('HIDDEN', 'hidden', _("Hidden")),
+    ])
     status = models.CharField(max_length=32,
-        choices=STATUS_CHOICES, default=STATUS_READY)
+        choices=STATUS.choices, default=STATUS.READY)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)

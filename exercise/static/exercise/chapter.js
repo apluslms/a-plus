@@ -94,7 +94,7 @@
 		exercise_selector: '#exercise-all',
 		summary_selector: '.exercise-summary',
 		response_selector: '.exercise-response',
-		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
+		navigation_selector: 'ul.nav a[class!="dropdown-toggle"][class!="file-modal"]',
 		dropdown_selector: 'ul.nav .dropdown-toggle',
 		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
 	};
@@ -125,8 +125,8 @@
 			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
 
 			this.loader = this.chapter.cloneLoader();
-			this.element.empty();
-			this.element.append(this.settings.content_element);
+			//this.element.empty();
+			//this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			this.load();
 
@@ -161,6 +161,9 @@
 		},
 
 		update: function(input) {
+			this.element.empty();
+			this.element.append(this.settings.content_element);
+			this.element.append(this.loader);
 			var content = this.element.find(this.settings.content_selector)
 				.empty().append(
 					input.filter(this.settings.exercise_selector).contents()
@@ -177,6 +180,7 @@
 					chapter.openModalURL($(this).attr("href"));
 				});
 			this.element.find(this.settings.dropdown_selector).dropdown();
+			this.element.find('.file-modal').aplusFileModal();
 		},
 
 		bindFormEvents: function(content) {

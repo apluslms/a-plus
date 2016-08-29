@@ -17,8 +17,8 @@ aplus/secret_key.py
 *.sublime-workspace
 
 venv/
-static/
-media/
+/static/
+/media/
 
 test.db
 aplus.db

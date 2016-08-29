@@ -1,12 +1,74 @@
 from django.db.models import Max
 
-from exercise.models import BaseExercise, Submission
+from .models import BaseExercise, Submission
+
+
+class UserExerciseSummary(object):
+    """
+    UserExerciseSummary summarises the submissions of a certain user and
+    exercise. It calculates some characterizing figures such as the number of
+    submissions and reference to the best submission. See the public methods
+    for more.
+    """
+    def __init__(self, exercise, user=None):
+        self.exercise = exercise
+        self.max_points = getattr(exercise, 'max_points', 0)
+        self.points_to_pass = getattr(exercise, 'points_to_pass', 0)
+        self.user = user
+        self.submissions = []
+        self.submission_count = 0
+        self.best_submission = None
+
+        if self.user and self.user.is_authenticated():
+            self.submissions = list(exercise.get_submissions_for_student(
+                user.userprofile))
+            for s in self.submissions:
+                if s.status != Submission.STATUS.ERROR:
+                    self.submission_count += 1
+                    if (self.best_submission is None
+                            or s.grade > self.best_submission.grade):
+                          self.best_submission = s
+
+    def get_submission_count(self):
+        return self.submission_count
+
+    def get_submissions(self):
+        return self.submissions
+
+    def get_best_submission(self):
+        return self.best_submission
+
+    def get_max_points(self):
+        return self.max_points
+
+    def get_points(self):
+        return self.best_submission.grade if self.best_submission else 0
+
+    def get_penalty(self):
+        return self.best_submission.late_penalty_applied if self.best_submission else None
+
+    def get_required_points(self):
+        return self.points_to_pass
+
+    def is_missing_points(self):
+        return self.get_points() < self.points_to_pass
+
+    def is_full_points(self):
+        return self.get_points() >= self.max_points
+
+    def is_passed(self):
+        return not self.is_missing_points()
+
+    def is_submitted(self):
+        return self.submission_count > 0
 
 
 class ResultTable:
     """
+    WARNING: Constructing this class is a heavy database operation.
+
     Models the table displaying the grades for each student on each exercise.
-    ResultTables are generated dynamically when needed and not stored
+    Result tables are generated dynamically when needed and not stored
     in a database.
     """
 

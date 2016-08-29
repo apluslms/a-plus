@@ -53,7 +53,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
         # would break api permissiosn (requires get_access_mode)
         if show_for != VA.PUBLIC:
             if not user.is_authenticated():
-                self.error_msg(request, _("This course is not open for public"))
+                self.error_msg(request, _("This course is not open for public."))
                 return False
 
             if show_for == VA.ENROLLED:
@@ -88,9 +88,10 @@ class CourseModulePermission(MessageMixin, Permission):
         if not isinstance(module, CourseModule):
             return True
 
-        if module.status == CourseModule.STATUS_HIDDEN:
-            # FIXME: should probably just show error message and return False
-            raise Http404("Course module not found")
+        if module.status == CourseModule.STATUS.HIDDEN:
+            self.error_msg(request, _("The module is not currently visible."))
+            return False
+
         if not module.is_after_open():
             self.error_msg(request,
                 _("The module will open for submissions at {date}").format(

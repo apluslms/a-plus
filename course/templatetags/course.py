@@ -3,10 +3,24 @@ from django import template
 from django.conf import settings
 from django.utils import timezone
 
+from cached.content import CachedContent
 from course.models import CourseInstance
 
 
 register = template.Library()
+
+
+@register.simple_tag
+def brand_name():
+    return settings.BRAND_NAME
+
+
+@register.simple_tag
+def site_alert():
+    if settings.SITEWIDE_ALERT_TEXT:
+        return '<div class="alert alert-danger">{}</div>'.format(
+            settings.SITEWIDE_ALERT_TEXT)
+    return ''
 
 
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
@@ -44,6 +58,31 @@ def group_select(context):
 
 
 @register.filter
+def is_visible(entry):
+    return CachedContent.is_visible(entry)
+
+
+@register.filter
+def is_listed(entry):
+    return CachedContent.is_listed(entry)
+
+
+@register.filter
+def is_in_maintenance(entry):
+    return CachedContent.is_in_maintenance(entry)
+
+
+@register.filter
+def is_open(entry, now):
+    return entry['opening_time'] <= now <= entry['closing_time']
+
+
+@register.filter
+def has_opened(entry, now):
+    return entry['opening_time'] <= now
+
+
+@register.filter
 def url(model_object, name=None):
     if name:
         return model_object.get_url(name)
@@ -68,16 +107,3 @@ def names(profiles):
 @register.inclusion_tag('course/_avatars.html')
 def avatars(profiles):
     return { 'profiles': profiles }
-
-
-@register.simple_tag
-def brand_name():
-    return settings.BRAND_NAME
-
-
-@register.simple_tag
-def site_alert():
-    if settings.SITEWIDE_ALERT_TEXT:
-        return '<div class="alert alert-danger">{}</div>'.format(
-            settings.SITEWIDE_ALERT_TEXT)
-    return ''

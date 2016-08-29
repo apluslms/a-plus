@@ -6,6 +6,7 @@ from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models import signals
 from django.db.models.signals import post_delete
 from django.template import loader, Context
 from django.utils import timezone
@@ -13,13 +14,22 @@ from django.utils.formats import date_format
 from django.utils.translation import ugettext_lazy as _
 
 from aplus.api import api_reverse
-from course.models import CourseModule, LearningObjectCategory
+from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import LTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
-from lib.api.authentication import get_graderauth_submission_params, get_graderauth_exercise_params
+from lib.api.authentication import (
+    get_graderauth_submission_params,
+    get_graderauth_exercise_params,
+)
 from lib.fields import JSONField
-from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
+from lib.helpers import (
+    Enum,
+    update_url_params,
+    has_same_domain,
+    safe_file_name,
+    roman_numeral,
+)
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
@@ -35,8 +45,14 @@ class LearningObjectManager(models.Manager):
             .select_related('course_module', 'course_module__course_instance',
                 'course_module__course_instance__course', 'category')
 
-    def find_enrollment_exercise(self, course_instance):
-        return self.filter(
+    def find_enrollment_exercise(self, course_instance, profile):
+        exercise = None
+        if profile.is_external:
+            exercise = self.filter(
+                course_module__course_instance=course_instance,
+                status='enrollment_ext'
+            ).first()
+        return exercise or self.filter(
             course_module__course_instance=course_instance,
             status='enrollment'
         ).first()
@@ -46,20 +62,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     """
     All learning objects inherit this model.
     """
-    STATUS_READY = 'ready'
-    STATUS_UNLISTED = 'unlisted'
-    STATUS_ENROLLMENT = 'enrollment'
-    STATUS_HIDDEN = 'hidden'
-    STATUS_MAINTENANCE = 'maintenance'
-    STATUS_CHOICES = (
-        (STATUS_READY, _("Ready")),
-        (STATUS_UNLISTED, _("Unlisted in table of contents")),
-        (STATUS_ENROLLMENT, _("Enrollment questions")),
-        (STATUS_HIDDEN, _("Hidden from non course staff")),
-        (STATUS_MAINTENANCE, _("Maintenance")),
-    )
+    STATUS = Enum([
+        ('READY', 'ready', _("Ready")),
+        ('UNLISTED', 'unlisted', _("Unlisted in table of contents")),
+        ('ENROLLMENT', 'enrollment', _("Enrollment questions")),
+        ('ENROLLMENT_EXTERNAL', 'enrollment_ext', _("Enrollment questions for external students")),
+        ('HIDDEN', 'hidden', _("Hidden from non course staff")),
+        ('MAINTENANCE', 'maintenance', _("Maintenance")),
+    ])
     status = models.CharField(max_length=32,
-        choices=STATUS_CHOICES, default=STATUS_READY)
+        choices=STATUS.choices, default=STATUS.READY)
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
@@ -75,7 +87,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
     service_url = models.URLField(blank=True)
     exercise_info = JSONField(blank=True)
-    model_answers = models.TextField(blank=True)
+    model_answers = models.TextField(blank=True,
+        help_text=_("List model answer files as protected URL addresses."))
 
     content = models.TextField(blank=True)
     content_head = models.TextField(blank=True)
@@ -111,23 +124,40 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                 'url':_("Taken words include: {}").format(", ".join(RESERVED))
             })
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Trigger LearningObject post save signal for extending classes.
+        cls = self.__class__
+        while cls.__bases__:
+            cls = cls.__bases__[0]
+            if cls.__name__ == 'LearningObject':
+                signals.post_save.send(sender=cls, instance=self)
+
     def __str__(self):
         if self.order >= 0:
-            if self.course_instance.content_numbering == 1:
+            if self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
                 number = self.number()
-                if self.course_instance.module_numbering in [1,3]:
-                    return "{:d}{} {}".format(self.course_module.order,
-                        number, self.name)
-                return "{} {}".format(number[1:], self.name)
-            elif self.course_instance.content_numbering == 2:
+                if self.course_instance.module_numbering in (
+                        CourseInstance.CONTENT_NUMBERING.ARABIC,
+                        CourseInstance.CONTENT_NUMBERING.HIDDEN,
+                    ):
+                    return "{:d}.{} {}".format(self.course_module.order, number, self.name)
+                return "{} {}".format(number, self.name)
+            elif self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
     def number(self):
-        parent = self.course_module._children().parent(self)
-        if parent:
-            return "{}.{:d}".format(parent.number(), self.order)
-        return ".{:d}".format(self.order)
+        return ".".join([str(o.order) for o in self.parent_list()])
+
+    def parent_list(self):
+        if not hasattr(self, '_parents'):
+            def recursion(obj, parents):
+                if not obj is None:
+                    return recursion(obj.parent, [obj] + parents)
+                return parents
+            self._parents = recursion(self.parent, [self])
+        return self._parents
 
     @property
     def course_instance(self):
@@ -149,28 +179,11 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_after_open(self, when=None):
         return self.course_module.is_after_open(when=when)
 
-    def next(self):
-        return self.course_module._children().next(self)
-
-    def previous(self):
-        return self.course_module._children().previous(self)
-
-    def flat_learning_objects(self, with_sub_markers=True):
-        return self.course_module._children().flat(self, with_sub_markers)
-
-    def parent_cached(self):
-        return self.course_module._children().parent(self)
-
-    def parent_list(self):
-        parents = self.course_module._children().parents(self)
-        return parents[:-1]
-
-    def get_path_parts(self):
-        return [n.url for n in self.course_module._children().parents(self)]
+    def is_closed(self, when=None):
+        return self.course_module.is_closed(when=when)
 
     def get_path(self):
-        return '/'.join(self.get_path_parts())
-
+        return "/".join([o.url for o in self.parent_list()])
 
     ABSOLUTE_URL_NAME = "exercise"
 
@@ -207,6 +220,10 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                 self.content = page.content
                 self.save()
         return page
+
+    def get_models(self):
+        models = [(url,url.split('/')[-1]) for url in self.model_answers.split()]
+        return [(self.get_url('exercise-model', file=name), name, url) for (url,name) in models]
 
 
 class LearningObjectDisplay(models.Model):
@@ -333,7 +350,7 @@ class BaseExercise(LearningObject):
 
         # Check enrollment requirements.
         enrollment = self.course_instance.get_enrollment_for(profile.user)
-        if self.status == LearningObject.STATUS_ENROLLMENT:
+        if self.status == LearningObject.STATUS.ENROLLMENT:
             if not self.course_instance.is_enrollable(profile.user):
                 warnings.append(_('You cannot enroll in the course.'))
                 return False, warnings, students

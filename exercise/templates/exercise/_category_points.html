@@ -6,23 +6,23 @@
 <div class="well">
     <p>{% trans "Total points" %}</p>
     <p><strong class="h2">
-    	{{ summary.get_total_points }}
-    	<small>/ {{ summary.get_max_points }}</small>
+    	{{ course.points }}
+    	<small>/ {{ course.max_points }}</small>
     </strong></p>
-    {% summary_progress summary %}
+    {% points_progress course %}
 </div>
 {% endif %}
 {% endcomment %}
 
-{% for category_summary in categories %}
-{% if category_summary.category.status == 'ready' %}
+{% for entry in categories %}
+{% if not entry.hidden %}
 <div class="well">
-    <p>{{ category_summary.category.name }}</p>
+    <p>{{ entry.name }}</p>
     <p><strong class="h2">
-    	{{ category_summary.get_total_points }}
-    	<small>/ {{ category_summary.get_max_points }}</small>
+    	{{ entry.points }}
+    	<small>/ {{ entry.max_points }}</small>
     </strong></p>
-    {% summary_progress category_summary %}
+    {% points_progress entry %}
 </div>
 {% endif %}
 {% endfor %}

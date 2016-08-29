@@ -1,18 +1,90 @@
+from datetime import timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone
 
-from course.models import CourseInstance
+from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from exercise.submission_models import Submission
 from exercise.exercise_models import BaseExercise, ExerciseWithAttachment
 from exercise.submission_models import Submission
 
-class CourseCloneTests(TestCase):
-    fixtures = [ 'doc/initial_data.json' ]
+
+class InitialDataTests(TestCase):
 
     def setUp(self):
+        now = timezone.now()
+
         self.user = User(username='testUser')
         self.user.set_password('testPassword')
         self.user.save()
+
+        self.teacher = User(username='testTeacher')
+        self.teacher.set_password('testPassword')
+        self.teacher.save()
+
+        self.student = User(username='testStudent')
+        self.student.set_password('testPassword')
+        self.student.save()
+        self.student.userprofile.student_id = "123TEST"
+        self.student.userprofile.save()
+
+        self.course = Course.objects.create(
+            name="test course",
+            code="123456",
+            url="course",
+        )
+        self.course_instance = CourseInstance.objects.create(
+            instance_name="Fall 2011 day 1",
+            starting_time=now,
+            ending_time=now + timedelta(days=1),
+            course=self.course,
+            url="instance",
+        )
+        self.course_module = CourseModule.objects.create(
+            name="test module",
+            url="module",
+            points_to_pass=10,
+            course_instance=self.course_instance,
+            opening_time=now,
+            closing_time=now + timedelta(days=1),
+        )
+        self.course_module2 = CourseModule.objects.create(
+            name="test module 2",
+            url="module2",
+            points_to_pass=10,
+            course_instance=self.course_instance,
+            opening_time=now + timedelta(days=1),
+            closing_time=now + timedelta(days=2),
+        )
+        self.learning_object_category = LearningObjectCategory.objects.create(
+            name="test category",
+            course_instance=self.course_instance,
+            points_to_pass=5,
+        )
+        self.base_exercise = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            service_url="http://localhost/",
+            url='b1',
+        )
+        self.base_exercise2 = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            service_url="http://localhost/",
+            url='b2',
+        )
+        self.base_exercise3 = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=self.course_module2,
+            category=self.learning_object_category,
+            service_url="http://localhost/",
+            url='b3',
+        )
+
+
+class CourseCloneTests(InitialDataTests):
 
     def test_course_clone(self):
 
@@ -50,12 +122,12 @@ class CourseCloneTests(TestCase):
         for i in range(len(old_modules)):
             self.assertEqual(old_modules[i].url, new_modules[i].url)
             self.assertEqual(
-                self._as_names(old_modules[i].flat_learning_objects(False)),
-                self._as_names(new_modules[i].flat_learning_objects(False))
+                self._as_names(old_modules[i].learning_objects.all()),
+                self._as_names(new_modules[i].learning_objects.all())
             )
             self.assertEqual(
-                self._as_class(old_modules[i].flat_learning_objects(False)),
-                self._as_class(new_modules[i].flat_learning_objects(False))
+                self._as_class(old_modules[i].learning_objects.all()),
+                self._as_class(new_modules[i].learning_objects.all())
             )
 
     def test_clone_submissions(self):
@@ -93,19 +165,8 @@ class CourseCloneTests(TestCase):
     def _as_class(self, items):
         return [a.as_leaf_class().__class__ for a in items]
 
-class BatchAssessTest(TestCase):
-    fixtures = [ 'doc/initial_data.json' ]
 
-    def setUp(self):
-        self.teacher = User(username='testUser')
-        self.teacher.set_password('testPassword')
-        self.teacher.save()
-
-        self.student = User(username='testStudent')
-        self.student.set_password('testPassword')
-        self.student.save()
-        self.student.userprofile.student_id = "123TEST"
-        self.student.userprofile.save()
+class BatchAssessTest(InitialDataTests):
 
     def test_batch_assess(self):
         from json import dumps
@@ -128,22 +189,12 @@ class BatchAssessTest(TestCase):
           ]
         })
 
-        self.client.login(username='testUser', password='testPassword')
+        self.client.login(username='testTeacher', password='testPassword')
 
         #response = self.client.post('/aplus1/basic_instance/teachers/batch-assess/',
         #    {'submissions_json': json_to_post}, follow=True)
 
-        # CHANGED! Batch submissions cannot be created if student has not already submitted
-        #at least one exercise to the course
-        #self.assertContains(response, "123TEST is not one of the available choices.")
-
-        sub = Submission.objects.create(
-            exercise=exercise,
-            grader=self.teacher.userprofile,
-            status=Submission.STATUS_ERROR)
-        sub.submitters.add(self.student.userprofile)
-
-        response = self.client.post('/aplus1/basic_instance/teachers/batch-assess/',
+        response = self.client.post('/course/instance/teachers/batch-assess/',
             {'submissions_json': json_to_post}, follow=True)
 
         self.assertContains(response, 'New submissions stored.')

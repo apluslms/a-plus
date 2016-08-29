@@ -5,7 +5,8 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.bundle import Bundle
 from tastypie.resources import ModelResource, Resource
 
-from exercise.presentation.summary import UserCourseSummary
+from cached.content import CachedContent
+from cached.points import CachedPoints
 from userprofile.models import UserProfile
 
 from ..models import Course, CourseInstance, CourseModule
@@ -105,27 +106,34 @@ class CourseInstanceSummaryResource(Resource):
         results = {}
         course_instance = CourseInstance.objects.get(pk=kwargs["pk"])
         user_profile = UserProfile.objects.get(pk=kwargs["user"])
-        course_summary = UserCourseSummary(course_instance, user_profile.user)
+        points = CachedPoints(
+            course_instance, user_profile.user,
+            CachedContent(course_instance))
         results["user"] = user_profile.id
         results["course_instance"] = kwargs["pk"]
-        summary = []
 
-        for rnd in course_summary.module_summaries:
-            exercise_summaries = []
-            for ex_summary in rnd.exercise_summaries:
-                tmp = {}
-                tmp["exercise_id"] = ex_summary.exercise.id
-                tmp["submission_count"] = ex_summary.submission_count
-                tmp["completed_percentage"] = self._percentage(
-                    ex_summary.get_total_points(), ex_summary.get_max_points())
-                exercise_summaries.append(tmp)
-            summary.append({
-                "exercise_round_id": rnd.module.id,
-                "completed_percentage": self._percentage(
-                    rnd.get_total_points(), rnd.get_max_points()),
-                "closing_time": rnd.module.closing_time,
-                "exercise_summaries": exercise_summaries
+        grouped = {}
+        for entry in points.exercises():
+            m = entry['module_id']
+            if not m in grouped:
+                grouped[m] = []
+            grouped[m].append({
+                'exercise_id': entry['id'],
+                'submission_count': entry['submission_count'],
+                'completed_percentage': self._percentage(
+                    entry['points'], entry['max_points']),
             })
+
+        summary = []
+        for entry in points.modules():
+            summary.append({
+                'exercise_round_id': entry['id'],
+                'completed_percentage': self._percentage(
+                    entry['points'], entry['max_points']),
+                'closing_time': entry['closing_time'],
+                'exercise_summaries': grouped[entry['id']],
+            })
+
         results["summary"] = summary
         return results
 

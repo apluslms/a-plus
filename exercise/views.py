@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -9,17 +9,23 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 
-from course.viewbase import CourseInstanceBaseView
-from lib.viewbase import BaseRedirectMixin, BaseView
 from authorization.permissions import ACCESS
-from .models import LearningObjectDisplay
-from .presentation.summary import UserExerciseSummary
+from course.models import CourseModule
+from course.viewbase import CourseInstanceBaseView
+from lib.remote_page import request_for_response
+from lib.viewbase import BaseRedirectMixin, BaseView
+from .exercise_summary import UserExerciseSummary
+from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin
 
 
-class ResultsView(CourseInstanceBaseView):
+class TableOfContentsView(CourseInstanceBaseView):
+    template_name = "exercise/toc.html"
+
+
+class ResultsView(TableOfContentsView):
     template_name = "exercise/results.html"
 
 
@@ -46,16 +52,18 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         access_mode = super().get_access_mode()
 
         # Loosen the access mode if exercise is enrollment
-        if self.exercise.status == 'enrollment' and access_mode == ACCESS.STUDENT:
+        if (self.exercise.status in (
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+              ) and access_mode == ACCESS.STUDENT):
             access_mode = ACCESS.ENROLL
 
         return access_mode
 
     def get_after_new_submission(self):
-        self.submissions = self.exercise.get_submissions_for_student(
-            self.profile) if self.profile else []
         self.summary = UserExerciseSummary(self.exercise, self.request.user)
-        self.note("submissions", "summary")
+        self.submissions = self.summary.get_submissions()
+        self.note("summary", "submissions")
 
     def get(self, request, *args, **kwargs):
         students = [self.profile]
@@ -63,7 +71,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             ok, students = self.submission_check()
             self.get_after_new_submission()
 
-        if self.exercise.status == 'maintenance':
+        if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
+              or self.module.status == CourseModule.STATUS.MAINTENANCE):
             if self.is_course_staff:
                 messages.error(request,
                     _("Exercise is in maintenance and content is hidden from "
@@ -73,6 +82,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
                 page.content = _('Unfortunately this exercise is currently '
                                  'under maintenance.')
                 return super().get(request, *args, page=page, students=students, **kwargs)
+
+        if hasattr(self.exercise, 'generate_table_of_contents') \
+              and self.exercise.generate_table_of_contents:
+            self.toc = self.content.children_hierarchy(self.exercise)
+            self.note("toc")
 
         page = self.exercise.as_leaf_class().load(request, students,
             url_name=self.post_url_name)
@@ -100,7 +114,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
                 # Enroll after succesfull enrollment exercise.
                 if self.exercise.status == 'enrollment' \
-                        and new_submission.status == Submission.STATUS_READY:
+                        and new_submission.status == Submission.STATUS.READY:
                     self.instance.enroll_student(self.request.user)
 
                 # Redirect non AJAX normally to submission page.
@@ -143,6 +157,29 @@ class ExercisePlainView(ExerciseView):
         return super().dispatch(request, *args, **kwargs)
 
 
+class ExerciseModelView(ExerciseBaseView):
+    access_mode = ACCESS.ENROLLED
+    file_kw = "file"
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+
+        if not self.exercise.is_closed():
+            raise Http404()
+
+        file_name = self._get_kwarg(self.file_kw)
+        for _,name,url in self.exercise.get_models():
+            if name == file_name:
+                self.url = url
+                return
+
+        raise Http404()
+
+    def get(self, request, *args, **kwargs):
+        response = request_for_response(self.url)
+        return HttpResponse(response.text)
+
+
 class SubmissionView(SubmissionBaseView):
     template_name = "exercise/submission.html"
     ajax_template_name = "exercise/submission_plain.html"
@@ -159,10 +196,10 @@ class SubmissionView(SubmissionBaseView):
             profile = self.profile
         else:
             profile = self.submission.submitters.first()
-        self.submissions = self.exercise.get_submissions_for_student(profile)
-        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
         self.summary = UserExerciseSummary(self.exercise, profile.user)
-        self.note("submissions", "index", "summary")
+        self.submissions = self.summary.get_submissions()
+        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
+        self.note("summary", "submissions", "index")
 
 
 class SubmissionPlainView(SubmissionView):

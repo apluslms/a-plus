@@ -25,7 +25,7 @@ class ExerciseVisiblePermission(ObjectVisibleBasePermission):
         """
 
         if (
-            exercise.status == LearningObject.STATUS_HIDDEN and
+            exercise.status == LearningObject.STATUS.HIDDEN and
             not view.is_course_staff
            ):
             raise Http404("Learning object not found")

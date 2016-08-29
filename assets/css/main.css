@@ -260,6 +260,7 @@ body {
     -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
     box-shadow: 0 1px 1px rgba(0,0,0,.05);
     margin-bottom: 10px;
+    min-height: 150px;
 }
 .exercise-summary {
     background-color: #d9edf7;/*primary #337ab7;*/
@@ -292,6 +293,11 @@ body {
 .exercise-summary .navbar-nav>.open>a:focus,
 .exercise-summary .navbar-nav>.open>a:hover {
     background-color: rgba(0,0,0,0.04);
+}
+.navbar-nav>li>a.file-modal {
+    display: inline;
+    padding: 0;
+    text-decoration: underline;
 }
 .exercise-response {
   padding: 0 1em;

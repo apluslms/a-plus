@@ -82,8 +82,7 @@
                     </a>
                 </td>
             </tr>
-            {% for lobject in module.flat_admin_learning_objects %}
-            {% if not lobject.sub %}
+            {% for lobject in module.learning_objects.all %}
             <tr>
                 <td>
                     {{ lobject }}
@@ -108,7 +107,6 @@
                     {% endif %}
                 </td>
             </tr>
-            {% endif %}
             {% endfor %}
             <tr>
                 <td colspan="2">

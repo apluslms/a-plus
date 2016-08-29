@@ -1,0 +1,16 @@
+{% load i18n %}
+{% load exercise %}
+
+<p>
+{% if last %}
+{% blocktrans with time=last_time name=last.name link=last.link %}
+  You have last visited
+  <a href="{{ link }}">{{ name }}</a>
+{% endblocktrans %}
+{% else %}
+{% blocktrans with name=begin.name link=begin.link %}
+  You can start from
+  <a href="{{ link }}">{{ name }}</a>
+{% endblocktrans %}
+{% endif %}
+</p>

@@ -2,8 +2,10 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from cached.content import NoSuchContent
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView
 from authorization.permissions import ACCESS
@@ -44,11 +46,24 @@ class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
     )
 
     def get_exercise_object(self):
-        path = self.kwargs[self.exercise_kw].split('/')
-        exercise = self.module._children().by_path(path)
-        if not exercise:
+        try:
+            exercise_id = self.content.find_path(
+                self.module.id,
+                self.kwargs[self.exercise_kw]
+            )
+            return LearningObject.objects.get(id=exercise_id).as_leaf_class()
+        except (NoSuchContent, LearningObject.DoesNotExist):
             raise Http404("Learning object not found")
-        return exercise.as_leaf_class()
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.now = timezone.now()
+        previous_entry, current_entry, next_entry = self.content.find(self.exercise)
+        self.previous = previous_entry
+        self.current = current_entry
+        self.next = next_entry
+        self.breadcrumb = self.content.breadcrumb(self.exercise)
+        self.note("now", "previous", "current", "next", "breadcrumb")
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):

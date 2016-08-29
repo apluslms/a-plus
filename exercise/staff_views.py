@@ -12,8 +12,8 @@ from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from authorization.permissions import ACCESS
+from .exercise_summary import ResultTable
 from .models import LearningObject
-from .presentation.results import ResultTable
 from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm
 from .submission_models import Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, \
@@ -48,7 +48,6 @@ class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
     access_mode = ACCESS.ASSISTANT
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         _ = self.exercise.grade(request, self.submission)
         return self.redirect(self.submission.get_inspect_url())
 
@@ -115,7 +114,6 @@ class FetchMetadataView(CourseInstanceMixin, BaseView):
     access_mode = ACCESS.TEACHER
 
     def get(self, request, *args, **kwargs):
-        self.handle()
         exercise_url = request.GET.get("exercise_url", None)
         metadata = {"success": False}
         validate = URLValidator()
@@ -152,7 +150,6 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
     access_mode = ACCESS.TEACHER
 
     def post(self, request, *args, **kwargs):
-        self.handle()
 
         # Use form to parse and validate the request.
         form = SubmissionCreateAndReviewForm(

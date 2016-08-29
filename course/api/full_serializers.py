@@ -30,7 +30,7 @@ class CourseModuleSerializer(AplusModelSerializer):
 
     def get_exercises(self, obj):
         # this needs to be method so .as_leaf_class() can be called
-        exercises = obj.flat_learning_objects(with_sub_markers=False)
+        exercises = obj.learning_objects.all()
         exercises = (e.as_leaf_class() for e in exercises)
         serializer = ExerciseBriefSerializer(instance=exercises, many=True, context=self.context)
         return serializer.data

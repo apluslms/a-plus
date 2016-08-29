@@ -5,8 +5,9 @@ from django.shortcuts import get_object_or_404
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from lib.viewbase import BaseTemplateView
 from authorization.permissions import ACCESS
+from cached.content import CachedContent
+from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .permissions import (
     CourseVisiblePermission,
@@ -53,10 +54,11 @@ class CourseInstanceBaseMixin(object):
         if instance is not None:
             self.instance = instance
             self.course = self.instance.course
+            self.content = CachedContent(self.instance)
             self.is_teacher = self.course.is_teacher(user)
             self.is_assistant = self.instance.is_assistant(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
-            self.note("course", "instance",
+            self.note("course", "instance", "content",
                       "is_teacher", "is_assistant", "is_course_staff")
 
             # Apply course instance language.
@@ -71,7 +73,7 @@ class CourseInstanceBaseMixin(object):
             show_for = self.instance.view_content_to
             is_public = show_for == CourseInstance.VIEW_ACCESS.PUBLIC
             access_mode_student = access_mode in (ACCESS.STUDENT, ACCESS.ENROLL)
-            if is_public and acecss_mode_student:
+            if is_public and access_mode_student:
                 access_mode = ACCESS.ANONYMOUS
 
         return access_mode

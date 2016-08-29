@@ -7,9 +7,15 @@
 <li role="presentation" class="header"><h4>{% trans "Course" %}</h4></li>
 <li role="presentation" class="menu-home">
 	<a href="{{ instance|url }}">
-        <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
         {{ course.code }}
 	</a>
+</li>
+<li role="presentation" class="menu-toc">
+	<a href="{{ instance|url:'toc' }}">
+        <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+        {% trans "Table of contents" %}
+    </a>
 </li>
 <li role="presentation" class="menu-results">
 	<a href="{{ instance|url:'results' }}">

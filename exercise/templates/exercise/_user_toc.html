@@ -1,0 +1,73 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+<ul class="toc">
+  {% for entry in toc %}
+    {% if entry|is_listed %}
+    <li>
+
+      {% if entry.type == 'module' %}
+        {% if entry|has_opened:now %}
+          <h3>
+            <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
+          </h3>
+          <h4>
+            <small>{{ entry.opening_time }} &ndash; {{ entry.closing_time }}</small>
+          </h4>
+        {% else %}
+          <h3>
+            {{ entry.name }}
+            {% if is_course_staff %}
+            <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+              <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+              {% trans "Early access" %}
+            </a>
+            {% endif %}
+          </h3>
+          <h4>
+              <span class="label label-info">{% trans 'Opens' %} {{ entry.opening_time }}</span>
+              <small>&ndash; {{ entry.closing_time }}</small>
+          </h4>
+        {% endif %}
+
+      {% elif entry.type == 'exercise' %}
+        {% if entry|has_opened:now %}
+          {% if entry.is_empty %}
+          {{ entry.name }}
+          {% else %}
+          <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
+          {% endif %}
+        {% else %}
+          {{ entry.name }}
+          {% if is_course_staff %}
+          <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            {% trans "Early access" %}
+          </a>
+          {% endif %}
+        {% endif %}
+
+      {% endif %}
+    {% if entry.has_children %}
+      <ul class="toc">
+    {% else %}
+    </li>
+    {% for level in entry.close_levels %}
+      </ul>
+    </li>
+    {% endfor %}
+    {% endif %}
+
+    {% elif entry.has_children %}
+    <li>
+      <ul class="toc">
+    {% else %}
+    {% for level in entry.close_levels %}
+      </ul>
+    </li>
+    {% endfor %}
+    {% endif %}
+
+  {% endfor %}
+</ul>
