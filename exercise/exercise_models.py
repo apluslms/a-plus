@@ -124,8 +124,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                 'url':_("Taken words include: {}").format(", ".join(RESERVED))
             })
 
-    def save(self):
-        super().save()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
         # Trigger LearningObject post save signal for extending classes.
         cls = self.__class__
         while cls.__bases__:
