@@ -1,5 +1,6 @@
 import datetime
 import logging
+import json
 
 import icalendar
 from django.conf import settings
@@ -176,6 +177,25 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
                 enrollment.selected_group.collaborators = enrollment.selected_group.collaborators_of(self.profile)
             return self.response(enrollment=enrollment)
         return super().form_valid(form)
+
+
+class ParticipantsView(CourseInstanceBaseView):
+    access_mode = ACCESS.ASSISTANT
+    template_name = "course/participants.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        participants = self.instance.students.all()
+        self.participants = []
+        for participant in participants:
+            self.participants.append({
+                'id': participant.student_id or '',
+                'last_name': participant.user.last_name,
+                'first_name': participant.user.first_name,
+                'email': participant.user.email
+            })
+        self.participants = json.dumps(self.participants)
+        self.note('participants')
 
 
 # class FilterCategories(CourseInstanceMixin, BaseRedirectView):
