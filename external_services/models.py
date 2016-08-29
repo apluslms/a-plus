@@ -149,7 +149,7 @@ class MenuItem(UrlMixin, models.Model):
                 return self.menu_url
             return "{}{}".format(
                 self.course_instance.get_absolute_url(),
-                self.menu_url[1:] if self.menu_url.starswith("/") else self.menu_url
+                self.menu_url[1:] if self.menu_url.startswith("/") else self.menu_url
             )
         if type(self.service.as_leaf_class()) == LTIService:
             instance = self.course_instance
