@@ -47,6 +47,7 @@ class CourseSerializer(CourseBriefSerializer):
 
     class Meta(CourseBriefSerializer.Meta):
         fields = (
+            'language',
             'starting_time',
             'ending_time',
             'visible_to_students',

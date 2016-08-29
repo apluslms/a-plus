@@ -60,6 +60,7 @@ class ExerciseSerializer(ExerciseBriefSerializer):
 
     class Meta(ExerciseBriefSerializer.Meta):
         fields = (
+            'name',
             'course',
             'is_submittable',
             'post_url',
