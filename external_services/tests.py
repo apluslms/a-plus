@@ -53,7 +53,7 @@ class ExternalServicesTest(TestCase):
         self.menu_item1 = MenuItem.objects.create(
             service=self.link_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT,
+            access=MenuItem.ACCESS.STUDENT,
             menu_label="Overriden Label",
             menu_icon_class="star"
         )
@@ -61,27 +61,27 @@ class ExternalServicesTest(TestCase):
         self.menu_item2 = MenuItem.objects.create(
             service=self.link_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT,
+            access=MenuItem.ACCESS.STUDENT,
             enabled=False
         )
 
         self.menu_item3 = MenuItem.objects.create(
             service=self.disabled_link_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT
+            access=MenuItem.ACCESS.STUDENT
         )
 
         self.menu_item4 = MenuItem.objects.create(
             service=self.disabled_link_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT,
+            access=MenuItem.ACCESS.STUDENT,
             enabled=False
         )
 
         self.menu_item5 = MenuItem.objects.create(
             service=self.lti_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT
+            access=MenuItem.ACCESS.STUDENT
         )
 
     def test_linkservice_string(self):
@@ -130,7 +130,7 @@ class ExternalServicesTest(TestCase):
         self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 2)
         self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 0)
 
-        self.menu_item5.access = MenuItem.ACCESS_ASSISTANT
+        self.menu_item5.access = MenuItem.ACCESS.ASSISTANT
         self.menu_item5.save()
         self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 1)
         self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 1)
@@ -143,7 +143,7 @@ class ExternalServicesTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.menu_item5.access = MenuItem.ACCESS_TEACHER
+        self.menu_item5.access = MenuItem.ACCESS.TEACHER
         self.menu_item5.save()
         self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 1)
         self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 1)

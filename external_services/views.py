@@ -5,9 +5,13 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from course.viewbase import CourseInstanceBaseView
+from authorization.permissions import ACCESS
+from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from lib.viewbase import BaseFormView, BaseRedirectView
+from .forms import MenuItemForm
 from .lti import LTIRequest
 from .models import MenuItem
+from .permissions import MenuVisiblePermission, LTIServicePermission
 
 
 class LTILoginView(CourseInstanceBaseView):
@@ -18,6 +22,15 @@ class LTILoginView(CourseInstanceBaseView):
     """
     template_name = "external_services/lti_form.html"
     id_kw = "menu_id"
+    menu_permission_classes = (
+        MenuVisiblePermission,
+        LTIServicePermission,
+    )
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.menu_permission_classes))
+        return perms
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -26,23 +39,10 @@ class LTILoginView(CourseInstanceBaseView):
             pk=self._get_kwarg(self.id_kw),
             course_instance=self.instance
         )
-        self.service = self.menu_item.service.as_leaf_class()
-
-        # Check that service and menu item are enabled.
-        if not self.menu_item.enabled or not self.service.enabled:
-            raise Http404()
-
-    def access_control(self):
-        super().access_control()
-        if self.menu_item.access >= MenuItem.ACCESS_TEACHER:
-            if not self.is_teacher:
-                raise PermissionDenied()
-        elif self.menu_item.access >= MenuItem.ACCESS_ASSISTANT:
-            if not self.is_course_staff:
-                raise PermissionDenied()
 
     def get_common_objects(self):
         super().get_common_objects()
+        self.service = self.menu_item.service.as_leaf_class()
         lti = LTIRequest(
             self.service,
             self.request.user,
@@ -53,3 +53,62 @@ class LTILoginView(CourseInstanceBaseView):
         self.parameters = lti.sign_post_parameters()
         self.site = '/'.join(self.service.url.split('/')[:3])
         self.note("service", "parameters", "site")
+
+
+class ListMenuItemsView(CourseInstanceBaseView):
+    access_mode = ACCESS.TEACHER
+    template_name = "external_services/list_menu.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.menu_items = MenuItem.objects.filter(course_instance=self.instance)
+        self.note("menu_items")
+
+
+class EditMenuItemView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "external_services/edit_menu.html"
+    form_class = MenuItemForm
+    menu_item_kw = "menu_id"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        menu_id = self._get_kwarg(self.menu_item_kw, default=None)
+        if menu_id:
+            self.menu_item = get_object_or_404(
+                MenuItem,
+                pk=menu_id,
+                course_instance=self.instance
+            )
+            self.note("menu_item")
+        else:
+            self.menu_item = MenuItem(course_instance=self.instance)
+
+        kwargs["instance"] = self.menu_item
+        return kwargs
+
+    def get_success_url(self):
+        return self.instance.get_url("external-services-list-menu")
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+
+class RemoveMenuItemView(CourseInstanceMixin, BaseRedirectView):
+    access_mode = ACCESS.TEACHER
+    menu_item_kw = "menu_id"
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        self.menu_item = get_object_or_404(
+            MenuItem,
+            id=self._get_kwarg(self.menu_item_kw),
+            course_instance=self.instance,
+        )
+        self.note("menu_item")
+
+    def post(self, request, *args, **kwargs):
+        self.menu_item.delete()
+        return self.redirect(self.instance.get_url("external-services-list-menu"))
