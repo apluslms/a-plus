@@ -42,6 +42,12 @@ Walkthrough for Ubuntu on 6/2015
 		source venv/bin/activate
 		pip install psycopg2
 
+5. Add memcached for superior performance.
+
+		sudo apt-get install memcached
+		source venv/bin/activate
+		pip install python-memcached
+
 5. Configure Django.
 
 	Add file (to project root) `/home/[shell-username]/a-plus/local_settings.py`:
@@ -57,6 +63,13 @@ Walkthrough for Ubuntu on 6/2015
 			'default': {
 				'ENGINE': 'django.db.backends.postgresql_psycopg2',
 				'NAME': 'aplus',
+			}
+		}
+
+		CACHES = {
+			'default': {
+				'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+				'LOCATION': '127.0.0.1:11211',
 			}
 		}
 

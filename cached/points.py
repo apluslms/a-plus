@@ -53,7 +53,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         }
 
         # Augment submission data.
-        if user.is_authenticated:
+        if user.is_authenticated():
             for submission in user.userprofile.submissions\
                   .exclude_errors()\
                   .filter(exercise__course_module__course_instance=instance):
