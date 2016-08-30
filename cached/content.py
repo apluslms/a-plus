@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
@@ -53,7 +52,9 @@ class ContentMixin(object):
         return [full[j] for j in full[i]['breadcrumb']]
 
     def categories(self):
-        return list(self.data['categories'].values())
+        categories = list(self.data['categories'].values())
+        categories.sort(key=lambda entry: entry['name'])
+        return categories
 
     def modules(self):
         full = self.full_hierarchy()

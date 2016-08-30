@@ -8,7 +8,7 @@
     <div class="list-group">
         {% for submission in submissions %}
         <a href="{{ submission|url }}" class="list-group-item">
-            {% submission_points submission %}
+            {% points_badge submission %}
             {{ submission.exercise }}<br />
             <small class="text-nowrap">
                 {{ submission.submission_time }}

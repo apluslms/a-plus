@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
@@ -80,6 +79,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             total['submission_count'] += entry['submission_count']
             total['points'] += entry['points']
         for entry in reversed(flat):
+            parent = None
             if 'parent' in entry and entry['status'] != LearningObject.STATUS.HIDDEN:
                 parent = flat[entry['parent']]
                 parent['exercise_count'] += entry['exercise_count']
@@ -88,7 +88,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 parent['points'] += entry['points']
             if entry['passed']:
                 entry['passed'] = entry['points'] >= entry['points_to_pass']
-            if 'parent' in entry:
+            if parent:
                 parent['passed'] = parent['passed'] and entry['passed']
         for category in categories.values():
             category['passed'] = category['points'] >= category['points_to_pass']
