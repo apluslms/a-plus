@@ -1,0 +1,77 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ block.super }}: {% trans "Participants" %}{% endblock %}
+{% block view_tag %}participants{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "All results" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+    <h2>{% trans "Participants" %}</h2>
+
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th><a href="#" class="order-toggle" id="order-id">{% trans "Student id" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
+                <th><a href="#" class="order-toggle" id="order-last">{% trans "Last name" %} </a></th>
+                <th><a href="#" class="order-toggle" id="order-first">{% trans "First name" %} </a></th>
+                <th>{% trans "Email" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+
+<script>
+  $(function() {
+
+    var participants = {{ participants|safe }};
+    participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
+
+    var insertItems = function() {
+      $('tbody').children().remove();
+      participants.forEach(function(participant) {
+        var row = $('<tr></tr>').appendTo('tbody');
+        $('<td></td>').text(participant.id).appendTo(row);
+        $('<td></td>').text(participant.last_name).appendTo(row);
+        $('<td></td>').text(participant.first_name).appendTo(row);
+        var link = $('<a></a>').text(participant.email).attr('href', 'mailto:' + participant.email);
+        $('<td></td>').append(link).appendTo(row);
+      });
+    };
+
+    insertItems();
+
+    $('a.order-toggle').click(function(event) {
+      event.preventDefault();
+
+      $('.order-marker').remove();
+      $(this).append($('<span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span>'));
+
+      if ($(this).attr('id') === 'order-id') {
+        participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
+        insertItems();
+      } else if ($(this).attr('id') === 'order-last') {
+        participants.sort(function(a, b) { return a.last_name.localeCompare(b.last_name); });
+        insertItems();
+      } else if ($(this).attr('id') === 'order-first') {
+        participants.sort(function(a, b) { return a.first_name.localeCompare(b.first_name); });
+        insertItems();
+      }
+    });
+
+  });
+</script>
+
+{% endblock %}
