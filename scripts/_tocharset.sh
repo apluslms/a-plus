@@ -9,7 +9,7 @@ then
 fi
 
 FROM=`file -b --mime-encoding $2`
-if [ "$FROM" != "binary" ]
+if [ "$FROM" != "binary" ] && [[ "$FROM" != ERROR:* ]]
 then
 	iconv -f $FROM -t $1 -c $2 > $3
 	mv $3 $2
