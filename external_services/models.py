@@ -122,13 +122,19 @@ class MenuItem(UrlMixin, models.Model):
 
     def __str__(self):
         out = "%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
-        if not self.enabled or not self.service.enabled:
+        if not self.is_enabled:
             return "[Disabled] " + out
         return out
 
     def clean(self):
         if not self.service and not (self.menu_url and self.menu_label):
             raise ValidationError(_("Either preconfigured service or custom URL and label needs to be provided."))
+
+    @property
+    def is_enabled(self):
+        if self.service:
+            return self.service.enabled and self.enabled
+        return self.enabled
 
     @property
     def label(self):
@@ -140,7 +146,9 @@ class MenuItem(UrlMixin, models.Model):
     def icon_class(self):
         if self.menu_icon_class:
             return self.menu_icon_class
-        return self.service.menu_icon_class
+        if self.service:
+            return self.service.menu_icon_class
+        return ""
 
     @property
     def url(self):
@@ -151,7 +159,7 @@ class MenuItem(UrlMixin, models.Model):
                 self.course_instance.get_absolute_url(),
                 self.menu_url[1:] if self.menu_url.startswith("/") else self.menu_url
             )
-        if type(self.service.as_leaf_class()) == LTIService:
+        if self.is_lti_service():
             instance = self.course_instance
             return reverse('lti-login', kwargs={
                 "course_slug": instance.course.url,
@@ -159,6 +167,12 @@ class MenuItem(UrlMixin, models.Model):
                 "menu_id": self.id,
             })
         return self.service.url
+
+    def is_lti_service(self):
+        if not hasattr(self, '_is_lti'):
+            self._is_lti = (self.service
+                and isinstance(self.service.as_leaf_class(), LTIService))
+        return self._is_lti
 
     def get_url_kwargs(self):
         return dict(menu_id=self.id, **self.course_instance.get_url_kwargs())

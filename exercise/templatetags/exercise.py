@@ -6,15 +6,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from cached.content import CachedContent
 from cached.points import CachedPoints
+from lib.errors import TagUsageError
 from ..exercise_summary import UserExerciseSummary
 from ..models import LearningObjectDisplay, LearningObject, Submission
 
 
 register = template.Library()
-
-
-class TagUsageError(Exception):
-    pass
 
 
 def _prepare_context(context):
