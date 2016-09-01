@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'deviations',
     'notification',
     'external_services',
+    'news',
     'apps',
     'redirect_old_urls',
 )

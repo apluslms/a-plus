@@ -1,0 +1,30 @@
+{% load i18n %}
+{% load news %}
+{% if news %}
+<h4>{% trans "Course news" %}</h4>
+<ul class="list-unstyled">
+{% for item in news %}
+  <li>
+    {% if item.pin and item.alert %}
+    <div class="alert alert-{{ item.alert }}">
+      <h4>
+        {{ item.title|safe }}
+        {% if not item|is_published:now %}<small><span class="label label-default">{% trans "Appears" %} {{ item.publish }}</span></small>{% endif %}
+        {% if is_course_staff %}<small><span class="label label-default">{{ item.audience|news_audience }}</span></small>{% endif %}
+      </h4>
+      {{ item.body|safe }}
+    </div>
+    {% else %}
+    <a href="#news{{ item.id }}" data-toggle="collapse" aria-controls="#news{{ item.id }}"{% if item.open %} aria-expanded="true"{% endif %}>
+      {{ item.publish }} &mdash; {{ item.title|safe }}
+      {% if not item|is_published:now %}<span class="label label-default">{% trans "Appears later" %}</span>{% endif %}
+      {% if is_course_staff %}<span class="label label-default">{{ item.audience|news_audience }}</span>{% endif %}
+    </a>
+    <div id="news{{ item.id }}" class="collapse{% if item.open %} in{% endif %}">
+      {{ item.body|safe }}
+    </div>
+    {% endif %}
+  </li>
+{% endfor %}
+</ul>
+{% endif %}

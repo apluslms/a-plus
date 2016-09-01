@@ -2,10 +2,19 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 
-import shibboleth_login.urls, social.apps.django_app.urls, \
-    userprofile.urls, course.urls, course.long_urls, \
-    exercise.urls, edit_course.urls, deviations.urls, notification.urls, \
-    external_services.urls, apps.urls, api.urls, api.urls_v2, redirect_old_urls.urls
+import shibboleth_login.urls
+import social.apps.django_app.urls
+import userprofile.urls
+import course.urls, course.long_urls
+import exercise.urls
+import edit_course.urls
+import deviations.urls
+import notification.urls
+import external_services.urls
+import news.urls
+import apps.urls
+import api.urls, api.urls_v2
+import redirect_old_urls.urls
 
 
 admin.autodiscover()
@@ -20,6 +29,7 @@ urlpatterns = [
     url(r'^accounts/', include(userprofile.urls)),
     url(r'^', include(redirect_old_urls.urls)),
     url(r'^', include(apps.urls)),
+    url(r'^', include(news.urls)),
     url(r'^', include(external_services.urls)),
     url(r'^', include(deviations.urls)),
     url(r'^', include(edit_course.urls)),
