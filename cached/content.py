@@ -203,7 +203,8 @@ class CachedContent(ContentMixin, CachedAbstract):
                         'max_points': 0,
                     })
                     if o.status == LearningObject.STATUS.UNLISTED:
-                        flat[-1]['parent_link'] = parents[-1].get_absolute_url()
+                        if parents:
+                            flat[-1]['parent_link'] = parents[-1].get_absolute_url()
                     exercise_index[o.id] = len(flat) - 1
                     paths[module.id][o.get_path()] = o.id
                     if not category.id in categories:

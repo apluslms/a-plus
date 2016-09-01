@@ -127,7 +127,7 @@ def _points_data(obj, classes=None):
             'full_score': obj['points'] >= obj['max_points'],
             'submitted': obj['submission_count'] > 0,
         }
-    percentage = 100
+    percentage = 0
     required_percentage = None
     if data['max'] > 0:
         percentage = int(round(100.0 * data['points'] / data['max']))

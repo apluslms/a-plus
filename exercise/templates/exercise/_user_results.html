@@ -68,6 +68,7 @@
     {% points_progress entry %}
     {{ entry.introduction|safe }}
   </div>
+    {% if entry.has_children %}
   <table class="table table-striped table-condensed results-table">
     <tbody>
       <tr class="category-row" data-category="{{ category.id }}">
@@ -78,6 +79,10 @@
         <th>{% trans "Course staff" %}</th>
         {% endif %}
       </tr>
+    {% else %}
+  </div>
+</div>
+    {% endif %}
     {% endwith %}
 
   {% elif entry.type == 'exercise' %}
@@ -116,7 +121,7 @@
         </td>
         {% endif %}
       </tr>
-    {% else %}
+    {% elif entry.has_children %}
       <tr>
         <td colspan="4">
           <small>{{ entry.name }}</small>
