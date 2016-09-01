@@ -121,7 +121,7 @@ class UserListFieldWithStatsLink(AlwaysListSerializer, UserBriefSerializer):
         view_name='api:exervise-submitter_stats-detail',
         lookup_map={
             'exercise_id': 'exercise_id',
-            'user_id': 'id',
+            'user_id': 'user_id',
         },
     )
 
