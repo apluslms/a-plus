@@ -1,0 +1,3 @@
+
+class TagUsageError(Exception):
+    pass

@@ -4,98 +4,136 @@
 {% load notification %}
 {% load external_services %}
 
+{% prepare_course_menu %}
+
 <li role="presentation" class="header"><h4>{% trans "Course" %}</h4></li>
 <li role="presentation" class="menu-home">
 	<a href="{{ instance|url }}">
-        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-        {{ course.code }}
+		<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+		{{ course.code }}
 	</a>
 </li>
 <li role="presentation" class="menu-toc">
 	<a href="{{ instance|url:'toc' }}">
-        <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
-        {% trans "Table of contents" %}
-    </a>
+		<span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+		{% trans "Table of contents" %}
+	</a>
 </li>
 <li role="presentation" class="menu-results">
 	<a href="{{ instance|url:'results' }}">
-        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-        {% trans "Exercise results" %}
-    </a>
+		<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+		{% trans "Exercise results" %}
+	</a>
 </li>
+
 <li role="presentation" class="menu-notifications">
-    <a href="{{ instance|url:'notifications' }}">
-        <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
-        {% trans "Notifications" %}
+	<a href="{{ instance|url:'notifications' }}">
+		<span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+		{% trans "Notifications" %}
 		{% notification_count as count %}
 		{% if count > 0 %}
 		<span class="badge badge-danger" title="{% blocktrans with count=count %}{{ count }} unread{% endblocktrans %}">{{ count }}</span>
 		{% endif %}
-    </a>
+	</a>
 </li>
+
 {% if instance|max_group_size > 1 %}
 <li role="presentation" class="menu-groups">
-		<a href="{{ instance|url:'groups' }}">
-				<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
-				{% trans "Form a group" %}
-		</a>
+	<a href="{{ instance|url:'groups' }}">
+		<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
+		{% trans "Form a group" %}
+	</a>
 </li>
 {% endif %}
 
-{% external_menu_entries instance.pk as entries %}
-{% if entries|length > 0 %}
-<li role="presentation" class="header"><h4>{% trans "External" %}</h4></li>
-{% for menu_entry in entries %}
-<li>
-    <a href="{{ menu_entry.url }}" target="_blank">
-        <span class="glyphicon glyphicon-{{ menu_entry.icon_class }}" aria-hidden="true"></span>
-        {{ menu_entry.label }}
-    </a>
+{% for group in course_menu.student_link_groups %}
+{% if group.label %}
+<li role="presentation" class="header">
+	<h4>{{ group.label }}</h4>
 </li>
-{% endfor %}
 {% endif %}
+{% for entry in group.items %}
+{% if entry.enabled %}
+<li role="presentation">
+	<a href="{{ entry.url }}"{% if entry.blank %} target="_blank"{% endif %}>
+		{% if entry.icon_class %}
+		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
+		{% endif %}
+		{{ entry.label }}
+	</a>
+</li>
+{% endif %}
+{% endfor %}
+{% endfor %}
 
 {% if instance.tabs.exists %}
-<li role="presentation" class="header"><h4>{% trans "Apps" %}</h4></li>
+<li role="presentation" class="header">
+	<h4>{% trans "Apps" %}</h4>
+</li>
 {% for tab in instance.tabs.all %}
 <li role="presentation" class="menu-tab{{ tab.id }}">
-    <a href="{% url 'apps-tab' course_slug=course.url instance_slug=instance.url tab_id=tab.id %}">
-        <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
-        {{ tab.label }}
-    </a>
+		<a href="{% url 'apps-tab' course_slug=course.url instance_slug=instance.url tab_id=tab.id %}">
+				<span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+				{{ tab.label }}
+		</a>
 </li>
 {% endfor %}
 {% endif %}
 
 {% if is_course_staff %}
-<li role="presentation" class="header"><h4>{% trans "Course staff" %}</h4></li>
-<li role="presentation" class="menu-all-results">
-	<a href="{{ instance|url:'all-results' }}">
-		<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-		{% trans "All results" %}
-	</a>
+<li role="presentation" class="header">
+	<h4>{% trans "Course staff" %}</h4>
 </li>
+
 <li role="presentation" class="menu-participants">
 	<a href="{{ instance|url:'participants' }}">
-		<span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
 		{% trans "Participants" %}
 	</a>
 </li>
+
+<li role="presentation" class="menu-all-results">
+	<a href="{{ instance|url:'all-results' }}">
+		<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+		{% trans "All results" %}
+	</a>
+</li>
+
 {% if is_teacher %}
+<li role="presentation" class="menu-edit-news">
+		<a href="{{ instance|url:'news-list' }}">
+				<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+				{% trans "Edit news" %}
+		</a>
+</li>
 <li role="presentation" class="menu-edit-course">
-    <a href="{{ instance|url:'course-edit' }}">
-        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-        {% trans "Edit course" %}
-    </a>
+		<a href="{{ instance|url:'course-edit' }}">
+				<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+				{% trans "Edit course" %}
+		</a>
 </li>
 {% endif %}
-{% external_staff_menu_entries instance.pk is_assistant is_teacher as entries %}
-{% for menu_entry in entries %}
-<li role="presentation">
-    <a href="{{ menu_entry.url }}" target="_blank">
-        <span class="glyphicon glyphicon-{{ menu_entry.icon_class }}" aria-hidden="true"></span>
-        {{ menu_entry.label }}
-    </a>
+
+{% for group in course_menu.staff_link_groups %}
+{% if group.label %}
+<li role="presentation" class="header">
+	<h4>{{ group.label }}</h4>
 </li>
+{% endif %}
+{% for entry in group.items %}
+{% if entry.enabled %}
+{% if is_teacher or entry|is_assistant_link %}
+<li role="presentation">
+	<a href="{{ entry.url }}"{% if entry.blank %} target="_blank"{% endif %}>
+		{% if entry.icon_class %}
+		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
+		{% endif %}
+		{{ entry.label }}
+	</a>
+</li>
+{% endif %}
+{% endif %}
 {% endfor %}
+{% endfor %}
+
 {% endif %}

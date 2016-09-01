@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
+{% load news %}
 {% load apps %}
 
 {% block view_tag %}home{% endblock %}
@@ -54,6 +55,7 @@
 {% user_toc %}
 {% elif instance.index_mode == instance.INDEX_TYPE.LAST %}
 {% user_last %}
+{% user_news 3 %}
 {% else %}
 {% user_results %}
 {% endif %}

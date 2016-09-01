@@ -25,12 +25,12 @@ def site_alert():
 
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
 def course_menu(context):
-    if "course_menu" not in context:
+    if "course_list" not in context:
         six_months_before = timezone.now() - timedelta(days=180)
-        context["course_menu"] = \
+        context["course_list"] = \
             list(CourseInstance.objects.get_enrolled(context["user"], six_months_before)) + \
             list(CourseInstance.objects.get_on_staff(context["user"], six_months_before))
-    return { "instances": context["course_menu"] }
+    return { "instances": context["course_list"] }
 
 
 @register.inclusion_tag('course/_group_select.html', takes_context=True)
