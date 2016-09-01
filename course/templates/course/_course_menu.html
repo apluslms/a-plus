@@ -37,7 +37,8 @@
 	</a>
 </li>
 
-{% if instance|max_group_size > 1 %}
+{% max_group_size as max_group %}
+{% if max_group > 1 %}
 <li role="presentation" class="menu-groups">
 	<a href="{{ instance|url:'groups' }}">
 		<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>

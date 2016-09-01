@@ -3,7 +3,6 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from exercise.templatetags.exercise import max_group_size, min_group_size
 from .models import Enrollment, StudentGroup
 
 
@@ -12,9 +11,11 @@ class GroupsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         self.instance = kwargs.pop('instance')
+        self.content = kwargs.pop('content')
         super().__init__(*args, **kwargs)
-        min_size = max(min_group_size(self.instance), 2)
-        max_size = max_group_size(self.instance)
+        total = self.content.total()
+        min_size = max(total['min_group_size'], 2)
+        max_size = total['max_group_size']
 
         for n in range(2, max_size + 1):
             widget = forms.TextInput(attrs={'class':'form-control'})

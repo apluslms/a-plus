@@ -69,6 +69,9 @@ class ContentMixin(object):
             if e['type'] == 'exercise' and self.is_listed(e):
                 return e
 
+    def total(self):
+        return self.data['total']
+
     def _index_model(self, model):
         if isinstance(model, CourseModule):
             return self._index_dict(self.data['module_index'], model.id)
@@ -161,6 +164,10 @@ class CachedContent(ContentMixin, CachedAbstract):
         paths = {}
         flat = []
         categories = {}
+        total = {
+            'min_group_size': 100000,
+            'max_group_size': 1,
+        }
 
         def recursion(module, objects, parents, parent_id):
             """ Recursively travels exercises hierarchy """
@@ -243,6 +250,12 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'max_submissions': exercise.max_submissions,
                 'max_points': exercise.max_points,
             })
+            if exercise.max_group_size > total['max_group_size']:
+                total['max_group_size'] = exercise.max_group_size
+            if exercise.max_group_size > 1 and exercise.min_group_size < total['min_group_size']:
+                total['min_group_size'] = exercise.min_group_size
+        if total['min_group_size'] > total['max_group_size']:
+            total['min_group_size'] = 1
 
         return {
             'created': timezone.now(),
@@ -251,6 +264,7 @@ class CachedContent(ContentMixin, CachedAbstract):
             'paths': paths,
             'flat': flat,
             'categories': categories,
+            'total': total,
         }
 
 

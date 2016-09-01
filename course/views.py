@@ -139,6 +139,7 @@ class GroupsView(CourseInstanceMixin, BaseFormView):
         kwargs = super().get_form_kwargs()
         kwargs["profile"] = self.profile
         kwargs["instance"] = self.instance
+        kwargs["content"] = self.content
         return kwargs
 
     def get_success_url(self):
@@ -196,23 +197,3 @@ class ParticipantsView(CourseInstanceBaseView):
             })
         self.participants = json.dumps(self.participants)
         self.note('participants')
-
-
-# class FilterCategories(CourseInstanceMixin, BaseRedirectView):
-#
-#     def post(self, request, *args, **kwargs):
-#
-#         if "category_filters" in request.POST:
-#             visible_category_ids = [int(cat_id)
-#                 for cat_id in request.POST.getlist("category_filters")]
-#             for category in self.instance.categories.all():
-#                 if category.id in visible_category_ids:
-#                     category.set_hidden_to(self.profile, False)
-#                 else:
-#                     category.set_hidden_to(self.profile, True)
-#         else:
-#             messages.warning(request,
-#                 _("You tried to hide all categories. "
-#                   "Select at least one visible category."))
-#
-#         return self.redirect_kwarg("next", backup=self.instance)

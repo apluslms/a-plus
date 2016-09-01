@@ -15,11 +15,12 @@
 
 {% block columns %}
 <div class="col-md-7">
-  {% with instance|max_group_size as max_size %}
+  {% max_group_size as max_size %}
   {% if max_size > 1 %}
 
   <div class="alert alert-info">
-    {% blocktrans with code=enrollment.personal_code %}
+    {% trans "[staff has none]" as staff_code %}
+    {% blocktrans with code=enrollment.personal_code|default:staff_code %}
     Your personal group <strong>join code</strong> is <strong>{{ code }}</strong>
     {% endblocktrans %}
   </div>
@@ -44,7 +45,6 @@
   {% trans "This course does not utilize group submissions." %}
 
   {% endif %}
-  {% endwith %}
 </div>
 <div class="col-md-5">
 

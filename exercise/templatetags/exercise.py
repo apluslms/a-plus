@@ -8,7 +8,7 @@ from cached.content import CachedContent
 from cached.points import CachedPoints
 from lib.errors import TagUsageError
 from ..exercise_summary import UserExerciseSummary
-from ..models import LearningObjectDisplay, LearningObject, Submission
+from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
 
 
 register = template.Library()
@@ -18,12 +18,12 @@ def _prepare_context(context):
     if not 'instance' in context:
         raise TagUsageError()
     instance = context['instance']
-    user = context['request'].user
     if not 'now' in context:
         context['now'] = timezone.now()
     if not 'content' in context:
         context['content'] = CachedContent(instance)
     if not 'points' in context:
+        user = context['request'].user
         context['points'] = CachedPoints(instance, user, context['content'])
     return context['points']
 
@@ -151,15 +151,13 @@ def points_badge(obj, classes=None):
     return _points_data(obj, classes)
 
 
-@register.filter
-def max_group_size(course_instance):
-    return BaseExercise.objects \
-        .filter(course_module__course_instance=course_instance) \
-        .aggregate(max=Max('max_group_size'))['max']
+@register.assignment_tag(takes_context=True)
+def max_group_size(context):
+    points = _prepare_context(context)
+    return points.total()['max_group_size']
 
 
-@register.filter
-def min_group_size(course_instance):
-    return BaseExercise.objects \
-        .filter(course_module__course_instance=course_instance, max_group_size__gt=1) \
-        .aggregate(min=Min('min_group_size'))['min']
+@register.assignment_tag(takes_context=True)
+def min_group_size(context):
+    points = _prepare_context(context)
+    return points.total()['min_group_size']

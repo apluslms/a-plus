@@ -23,6 +23,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         flat = data['flat']
         exercise_index = data['exercise_index']
         categories = data['categories']
+        total = data['total']
 
         # Augment submission parameters.
         for entry in flat:
@@ -45,12 +46,12 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 'points': 0,
                 'passed': True,
             })
-        total = {
+        total.update({
             'exercise_count': 0,
             'max_points': 0,
             'submission_count': 0,
             'points': 0,
-        }
+        })
 
         # Augment submission data.
         if user.is_authenticated():
@@ -93,11 +94,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         for category in categories.values():
             category['passed'] = category['points'] >= category['points_to_pass']
 
-        data['total'] = total
         return data
-
-    def total(self):
-        return self.data['total']
 
 
 def invalidate_content(sender, instance, **kwargs):
