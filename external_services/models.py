@@ -36,7 +36,7 @@ class LinkService(ModelWithInheritance):
         ordering = ["menu_label"]
 
     def __str__(self):
-        out = "%s: %s" % (self.menu_label, self.url)
+        out = "{}: {}".format(self.menu_label, self.url)
         if not self.enabled:
             return "[Disabled] " + out
         return out
@@ -121,7 +121,7 @@ class MenuItem(UrlMixin, models.Model):
         ordering = ["course_instance", "menu_weight", "menu_label"]
 
     def __str__(self):
-        out = "%s %s: " % (self.course_instance.course.code, self.course_instance.instance_name)
+        out = self.label
         if not self.is_enabled:
             return "[Disabled] " + out
         return out

@@ -61,7 +61,7 @@ class ListMenuItemsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.menu_items = MenuItem.objects.filter(course_instance=self.instance)
+        self.menu_items = self.instance.ext_services.all()
         self.note("menu_items")
 
 

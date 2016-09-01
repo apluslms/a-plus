@@ -5,29 +5,33 @@ from external_services.models import LTIService, LinkService, MenuItem
 
 class LinkServiceAdmin(admin.ModelAdmin):
     list_display_links = ["id"]
-
-    list_display = ["id",
-                    "menu_label",
-                    "url",
-                    "enabled",
-                    "content_type",]
-
+    list_display = [
+        "id",
+        "menu_label",
+        "url",
+        "content_type",
+        "enabled",
+    ]
     readonly_fields = ("content_type",)
 
 class LTIServiceAdmin(admin.ModelAdmin):
     list_display_links = ["id"]
-
-    list_display = ["id",
-                    "menu_label",
-                    "url"]
+    list_display = [
+        "id",
+        "menu_label",
+        "url",
+    ]
 
 class MenuItemAdmin(admin.ModelAdmin):
-	list_display_links = ["id"]
-
-	list_display = ["id",
-					"service",
-					"course_instance",
-					"enabled",]
+    list_display_links = ["id"]
+    list_display = [
+        "id",
+        "course_instance",
+        "service",
+        "menu_url",
+        "menu_label",
+        "enabled",
+    ]
 
 admin.site.register(LTIService, LTIServiceAdmin)
 admin.site.register(LinkService, LinkServiceAdmin)

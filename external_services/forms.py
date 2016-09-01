@@ -15,4 +15,5 @@ class MenuItemForm(forms.ModelForm):
             'menu_label',
             'menu_icon_class',
             'menu_weight',
+            'enabled',
         ]
