@@ -10,7 +10,7 @@ register = template.Library()
 
 
 @register.inclusion_tag("news/user_news.html", takes_context=True)
-def user_news(context, num):
+def user_news(context, num, more=0):
     if not 'instance' in context:
         raise TagUsageError()
     if not 'now' in context:
@@ -20,26 +20,27 @@ def user_news(context, num):
     news = context['course_news']
 
     if context['is_course_staff']:
-        items = news.for_staff()
+        alerts,news = news.for_staff()
     else:
         user = context['request'].user
-        items = news.for_user(
+        alerts,news = news.for_user(
             not user.is_authenticated()
             or user.userprofile.is_external
         )
 
     i = 0
-    for item in items:
-        if item['pin'] and item['alert']:
-            item['open'] = True
-        else:
-            item['open'] = i < num
-            i += 1
+    for item in news:
+        i += 1
+        item['collapsed'] = i > num
+        if more > 0 and i == more:
+            item['begin_more'] = True
 
     return {
         'is_course_staff': context['is_course_staff'],
         'now': context['now'],
-        'news': items,
+        'alerts': alerts,
+        'news': news,
+        'more': more,
     }
 
 

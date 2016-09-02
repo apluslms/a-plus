@@ -13,42 +13,50 @@ class CachedNews(CachedAbstract):
         super().__init__(course_instance)
 
     def _generate_data(self, instance):
-        entries = []
-        for news in instance.news.all():
-            entries.append({
-                'id': news.id,
-                'audience': news.audience,
-                'publish': news.publish,
-                'title': news.title,
-                'body': news.body,
-                'pin': news.pin,
-                'alert': news.alert,
-            })
+        alerts = []
+        news = []
+        for item in instance.news.all():
+            entry = {
+                'id': item.id,
+                'audience': item.audience,
+                'publish': item.publish,
+                'title': item.title,
+                'body': item.body,
+                'pin': item.pin,
+                'alert': item.alert,
+            }
+            if item.pin and item.alert:
+                alerts.append(entry)
+            else:
+                news.append(entry)
         return {
-            'news': entries,
+            'alerts': alerts,
+            'news': news,
         }
 
     def for_staff(self):
-        return self.data['news']
+        return self.data['alerts'], self.data['news']
 
     def for_user(self, is_external=True):
-        def filter_news(audiences):
+        EXTERNAL = (News.AUDIENCE.EXTERNAL_USERS, News.AUDIENCE.ALL_USERS)
+        INTERNAL = (News.AUDIENCE.INTERNAL_USERS, News.AUDIENCE.ALL_USERS)
+        def filter_news(items, audiences):
             now = timezone.now()
             return [
-                item for item in self.data['news'] if (
+                item for item in items if (
                     item['publish'] <= now
                     and item['audience'] in audiences
                 )
             ]
         if is_external:
-            return filter_news((
-                News.AUDIENCE.EXTERNAL_USERS,
-                News.AUDIENCE.ALL_USERS,
-            ))
-        return filter_news((
-            News.AUDIENCE.INTERNAL_USERS,
-            News.AUDIENCE.ALL_USERS,
-        ))
+            return (
+                filter_news(self.data['alerts'], EXTERNAL),
+                filter_news(self.data['news'], EXTERNAL),
+            )
+        return (
+            filter_news(self.data['alerts'], INTERNAL),
+            filter_news(self.data['news'], INTERNAL),
+        )
 
     @classmethod
     def is_visible(cls, entry, when=None):

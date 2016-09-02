@@ -47,20 +47,24 @@
 </div>
 {% endif %}
 
-<div>
-    {{ instance.description|safe }}
+<div class="index">
+  {{ instance.description|safe }}
+  {% if instance.index_mode == instance.INDEX_TYPE.LAST %}
+  {% user_last %}
+  {% endif %}
 </div>
 
-{% if instance.index_mode == instance.INDEX_TYPE.TOC %}
-{% user_toc %}
-{% elif instance.index_mode == instance.INDEX_TYPE.LAST %}
-{% user_last %}
+{% if instance.index_mode == instance.INDEX_TYPE.LAST %}
 {% user_news 3 %}
+{% elif instance.index_mode == instance.INDEX_TYPE.TOC %}
+{% user_news 1 3 %}
+{% user_toc %}
 {% else %}
+{% user_news 1 3 %}
 {% user_results %}
 {% endif %}
 
-<div>
+<div class="index">
   {{ instance.footer|safe }}
 </div>
 {% endblock %}
