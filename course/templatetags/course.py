@@ -10,19 +10,6 @@ from course.models import CourseInstance
 register = template.Library()
 
 
-@register.simple_tag
-def brand_name():
-    return settings.BRAND_NAME
-
-
-@register.simple_tag
-def site_alert():
-    if settings.SITEWIDE_ALERT_TEXT:
-        return '<div class="alert alert-danger">{}</div>'.format(
-            settings.SITEWIDE_ALERT_TEXT)
-    return ''
-
-
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
 def course_menu(context):
     if "course_list" not in context:

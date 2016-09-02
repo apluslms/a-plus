@@ -50,6 +50,8 @@ LOGIN_TITLE_TEXT_FI = ''
 LOGIN_BODY_TEXT_FI = ''
 LOGIN_BUTTON_TEXT_FI = 'Ylläpidon kirjautuminen'
 
+TRACKING_HTML = ''
+
 from .privacy_policy import PRIVACY_POLICY_TEXT, PRIVACY_POLICY_TEXT_FI
 ##########################################################################
 

@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load staticfiles %}
+{% load base %}
 {% load course %}
 {% load notification %}
 <!DOCTYPE html>
@@ -209,5 +210,6 @@
                 <input type="text" class="form-control" placeholder="{% trans 'Search for...' %}" />
             </div>
         </div>
+        {% if not is_course_staff %}{% tracking_html %}{% endif %}
     </body>
 </html>
