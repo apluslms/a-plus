@@ -21,10 +21,10 @@
     one of the questions in that section is incorrect.
     {% endblocktrans %}
     {% endif %}
-    {% if not result.form.disabled %}
+    {% if not result.form.disabled and result.points < exercise.max_points %}
     {% blocktrans %}
-    You can change your answers and grade them again from the bottom of the page.
-    Notice the number of allowed submissions left!
+    You can change your answers and submit them for regrading.
+    However, notice the number of allowed submissions left!
     {% endblocktrans %}
     {% endif %}
 </p>

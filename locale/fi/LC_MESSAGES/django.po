@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-06 07:04+0000\n"
+"POT-Creation-Date: 2016-09-04 14:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -151,16 +151,15 @@ msgstr ""
 #: access/templates/access/create_form_default.html:25
 msgid ""
 "\n"
-"    You can change your answers and grade them again from the bottom of the "
-"page.\n"
-"    Notice the number of allowed submissions left!\n"
+"    You can change your answers and submit them for regrading.\n"
+"    However, notice the number of allowed submissions left!\n"
 "    "
 msgstr ""
 "\n"
-"Voit vaihtaa vastauksiasi ja arvostella ne\n"
-"uudelleen sivun lopusta. Huomaa jäljellä olevien palautuskertojen määrä!"
+"Voit vaihtaa vastauksiasi ja lähettää ne uudelleen arvosteltavaksi.\n"
+"Huomaa kuitenkin jäljellä olevien palautuskertojen määrä!"
 
-#: access/templates/access/exercise_frame.html:17
+#: access/templates/access/exercise_frame.html:21
 #, fuzzy, python-format
 #| msgid "You must submit %(exercise.required_number_of_files)s file(s)."
 msgid ""
@@ -174,26 +173,26 @@ msgid_plural ""
 msgstr[0] "Sinun täytyy palauttaa %(num_files)s tiedosto."
 msgstr[1] "Sinun täytyy palauttaa %(num_files)s tiedostoa."
 
-#: access/templates/access/exercise_frame.html:23
+#: access/templates/access/exercise_frame.html:27
 msgid "Every file is required for a submission."
 msgstr "Palautus vaatii kaikki tiedostot."
 
-#: access/templates/access/exercise_frame.html:29
+#: access/templates/access/exercise_frame.html:33
 msgid "Unknown file received (no file name configured)."
 msgstr "Tuntematon tiedosto vastaanotettu (tiedostonimeä ei ole asetuksissa)."
 
-#: access/templates/access/exercise_frame.html:33
+#: access/templates/access/exercise_frame.html:37
 msgid "Invalid address entered."
 msgstr "Syötetty osoite ei kelpaa."
 
-#: access/templates/access/exercise_frame.html:37
+#: access/templates/access/exercise_frame.html:41
 msgid ""
 "The same form can obly be submitted once. Start again from exercise "
 "description."
 msgstr ""
 "Sama lomake voidaan lähettää vain kerran. Aloita uudelleen tehtävänannosta."
 
-#: access/templates/access/exercise_frame.html:41
+#: access/templates/access/exercise_frame.html:45
 msgid "Missing required fields."
 msgstr "Täytä kaikki pakolliset kentät."
 
@@ -275,6 +274,6 @@ msgstr ""
 "Pahoittelemme häiriötä.\n"
 "Yritä myöhemmin uudelleen tai ota yhteyttä kurssihenkilökuntaan."
 
-#: access/types/forms.py:385
+#: access/types/forms.py:393
 msgid "Multiple choices are selectable."
 msgstr "Voit valita useita vaihtoehtoja."
