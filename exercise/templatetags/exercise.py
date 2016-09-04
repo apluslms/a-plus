@@ -50,18 +50,20 @@ def user_toc(context):
 
 @register.inclusion_tag("exercise/_user_last.html", takes_context=True)
 def user_last(context):
+    user = context['request'].user
     points = _prepare_context(context)
-    last = LearningObjectDisplay.objects.filter(
-        profile=context['request'].user.userprofile,
-        learning_object__status=LearningObject.STATUS.READY,
-        learning_object__course_module__course_instance=context['instance'],
-    ).select_related('learning_object').order_by('-timestamp').first()
-    if last:
-        _,entry,_ = points.find(last.learning_object)
-        return {
-            'last': entry,
-            'last_time': last.timestamp,
-        }
+    if user.is_authenticated():
+        last = LearningObjectDisplay.objects.filter(
+            profile=user.userprofile,
+            learning_object__status=LearningObject.STATUS.READY,
+            learning_object__course_module__course_instance=context['instance'],
+        ).select_related('learning_object').order_by('-timestamp').first()
+        if last:
+            _,entry,_ = points.find(last.learning_object)
+            return {
+                'last': entry,
+                'last_time': last.timestamp,
+            }
     return {
         'begin': points.begin(),
     }
