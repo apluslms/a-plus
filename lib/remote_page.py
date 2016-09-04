@@ -106,13 +106,23 @@ class RemotePage:
 
     def _fix_relative_urls(self, domain, path, tag_name, attr_name):
         test = re.compile('^(#|\/\/|.+:\/\/|data:.+;)', re.IGNORECASE)
+        chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]
+            if not value:
+                continue
 
             # Custom transform for RST chapter to chapter links.
             if element.has_attr('data-aplus-chapter'):
-                if value and value.endswith('.html'):
-                    element[attr_name] = '../' + value[:-5]
+                m = chapter.match(value)
+                if m:
+                    i = m.start(1)
+                    if i > 0:
+                        element[attr_name] = '../' + value[:i-5] + value[i:]
+                    else:
+                        element[attr_name] = '../' + value[:-5]
+                elif not value.startswith('/'):
+                    element[attr_name] = '../' + value
 
             elif value and not test.match(value):
 
