@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-02 16:40+0300\n"
+"POT-Creation-Date: 2016-09-04 12:07+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,6 +87,7 @@ msgid "URL"
 msgstr ""
 
 #: course/forms.py:23
+#, python-brace-format
 msgid "{num} member"
 msgstr "{num} jäsen"
 
@@ -255,6 +256,7 @@ msgid "The module is not currently visible."
 msgstr "Tämä osio ei ole tällä hetkellä nähtävissä."
 
 #: course/permissions.py:97
+#, python-brace-format
 msgid "The module will open for submissions at {date}"
 msgstr "Tämän osion tehtävät aukeavat {date}."
 
@@ -442,8 +444,7 @@ msgstr "Kalenteri"
 msgid "Download calendar (ics)"
 msgstr "Lataa kalenteri (ics)"
 
-#: course/templates/course/groups.html:8
-#: course/templates/course/groups.html:13
+#: course/templates/course/groups.html:8 course/templates/course/groups.html:13
 #: course/templates/course/groups.html:53
 msgid "My groups"
 msgstr "Minun ryhmäni"
@@ -698,6 +699,7 @@ msgid "No deadline deviations."
 msgstr "Ei yhtään määräajan muutosta."
 
 #: deviations/views.py:56
+#, python-brace-format
 msgid ""
 "Deadline deviation already exists for {user} in {exercise}!Remove it before "
 "trying to add a new one."
@@ -766,14 +768,17 @@ msgid "Missing JSON field: objects"
 msgstr "Puuttuva JSON-kenttä: objects"
 
 #: edit_course/operations/batch.py:28
+#, python-brace-format
 msgid "Missing field \"exercise_id\" in object {count:d}."
 msgstr ""
 
 #: edit_course/operations/batch.py:37
+#, python-brace-format
 msgid "Unknown exercise_id {id:d} in object {count:d}."
 msgstr ""
 
 #: edit_course/operations/batch.py:48
+#, python-brace-format
 msgid "Invalid fields in object {count:d}: {error}"
 msgstr ""
 
@@ -1200,14 +1205,17 @@ msgid ""
 msgstr "Vähintään yksi kategoria pitää luoda ennen harjoitusten lisäämistä."
 
 #: edit_course/views.py:130
+#, python-brace-format
 msgid "Save failed: {error}"
 msgstr "Tallentaminen epäonnistui: {error}"
 
 #: edit_course/views.py:133
+#, python-brace-format
 msgid "The {name} was saved successfully."
 msgstr "Kohde {name} tallennettiin onnistuneesti."
 
 #: edit_course/views.py:139
+#, python-brace-format
 msgid "Failed to save {name}"
 msgstr "Kohteen {name} tallennus epäonnistui."
 
@@ -1337,6 +1345,7 @@ msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
 #: exercise/exercise_models.py:388
+#, python-brace-format
 msgid ""
 "This exercise can be submitted in groups of {size} students. The size of "
 "your current group is {current}."
@@ -1345,9 +1354,10 @@ msgstr ""
 "koko on {current}."
 
 #: exercise/exercise_models.py:399
+#, python-brace-format
 msgid ""
-"Deadline for the exercise has passed. Late submissions are allowed until"
-"{date} but points are only worth {percent:d}%."
+"Deadline for the exercise has passed. Late submissions are allowed "
+"until{date} but points are only worth {percent:d}%."
 msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
@@ -1406,6 +1416,7 @@ msgid "HTML formatting is allowed. This WILL override machine feedback."
 msgstr "HTML-muotoilut sallitaan. Tämä KORVAA automaattisen palautteen."
 
 #: exercise/forms.py:53
+#, python-brace-format
 msgid ""
 "The maximum points for this exercise is {max:d} and the given points is more "
 "than that."
@@ -1458,12 +1469,14 @@ msgid "Connecting to the assessment service failed!"
 msgstr "Tehtäväpalveluun ei saatu yhteyttä!"
 
 #: exercise/protocol/aplus.py:60
+#, python-brace-format
 msgid ""
 "The exercise was submitted and graded successfully. Points: {points:d}/{max:"
 "d}"
 msgstr "Tehtävän palautus ja arvostelu onnistui. Pisteet: {points:d}/{max:d}"
 
 #: exercise/protocol/aplus.py:72
+#, python-brace-format
 msgid ""
 "Assessment service responded with invalid points. Points: {points:d}/{max:d} "
 "(exercise max {exercise_max:d})"
@@ -1481,16 +1494,18 @@ msgid "Assessment service responded with error."
 msgstr "Tehtäväpalvelussa tapahtui virhe."
 
 #: exercise/staff_views.py:98
+#, python-brace-format
 msgid "Feedback to {name}"
 msgstr "Palaute {name}"
 
 #: exercise/staff_views.py:99
+#, python-brace-format
 msgid ""
 "<p>You have new personal feedback to exercise <a href=\"{url}\">{name}</a>.</"
 "p>{message}"
 msgstr ""
-"<p>Olet saanut henkilökohtaista palautetta tehtävästä <a href=\"{url}\">"
-"{name}</a>.</p>{message}"
+"<p>Olet saanut henkilökohtaista palautetta tehtävästä <a href="
+"\"{url}\">{name}</a>.</p>{message}"
 
 #: exercise/staff_views.py:108
 msgid "The review was saved successfully and the submitters were notified."
@@ -1501,6 +1516,7 @@ msgid "Failed to load the resource."
 msgstr "Lataus epäonnistui."
 
 #: exercise/staff_views.py:162
+#, python-brace-format
 msgid ""
 "Invalid POST data:\n"
 "{error}"
@@ -1645,7 +1661,7 @@ msgstr "Arvostelu"
 msgid "Includes late penalty"
 msgstr "Sisältää myöhästymissakon"
 
-#: exercise/templates/exercise/_user_last.html:6
+#: exercise/templates/exercise/_user_last.html:7
 #, python-format
 msgid ""
 "\n"
@@ -1656,15 +1672,17 @@ msgstr ""
 "  Olet ollut oppimateriaalissa viimeksi kohdassa\n"
 "  <a href=\"%(link)s\">%(name)s</a>\n"
 
-#: exercise/templates/exercise/_user_last.html:11
+#: exercise/templates/exercise/_user_last.html:12
 msgid ""
 "\n"
 "  You can start from\n"
 "  <a href=\"%(link)s\">%(name)s</a>\n"
+"  or the <a href=\"%(toc_link)s\">table of contents</a>.\n"
 msgstr ""
 "\n"
 "  Voit aloittaa täältä\n"
 "  <a href=\"%(link)s\">%(name)s</a>\n"
+"  tai <a href=\"%(toc_link)s\">sisällysluettelosta</a>.\n"
 
 #: exercise/templates/exercise/_user_results.html:7
 msgid "Filter view"
@@ -1959,11 +1977,11 @@ msgstr ""
 "\n"
 "Myöhässä <small>-%(percent)s%%</small>"
 
-#: exercise/templatetags/exercise.py:82
+#: exercise/templatetags/exercise.py:85
 msgid "Latest submissions"
 msgstr "Viimeisimmät palautukset"
 
-#: exercise/templatetags/exercise.py:83
+#: exercise/templatetags/exercise.py:86
 msgid "No submissions for this course."
 msgstr "Ei vielä palautuksia tälle kurssille."
 
@@ -2031,7 +2049,8 @@ msgstr "Linkitettävä ulkoinen palvelu, jos etukäteen määritelty."
 msgid ""
 "A link URL (else service default). Relative URLs are relative to course root."
 msgstr ""
-"Linkitettävä osoite (muuten palvelun oletus). Suhteelliset osoitteet ovat suhteellisia kurssin juureen."
+"Linkitettävä osoite (muuten palvelun oletus). Suhteelliset osoitteet ovat "
+"suhteellisia kurssin juureen."
 
 #: external_services/models.py:100
 msgid "Places menu item under a group label."
@@ -2046,8 +2065,8 @@ msgid ""
 "Menu icon style name (else service default), e.g. star see http://"
 "getbootstrap.com/components/#glyphicons-glyphs"
 msgstr ""
-"Ikonin tyyli (muuten palvelun oletus), esim. star katso http://"
-"getbootstrap.com/components/#glyphicons-glyphs"
+"Ikonin tyyli (muuten palvelun oletus), esim. star katso http://getbootstrap."
+"com/components/#glyphicons-glyphs"
 
 #: external_services/models.py:116
 msgid "Heavier menu entries are placed after lighter ones."
@@ -2057,7 +2076,8 @@ msgstr "Painavammat linkit sijoittuvat kevyempien jälkeen."
 msgid ""
 "Either preconfigured service or custom URL and label needs to be provided."
 msgstr ""
-"Joko ennalta määritelty palvelu tai vaihtoehtoisesti oma URL ja nimi vaaditaan."
+"Joko ennalta määritelty palvelu tai vaihtoehtoisesti oma URL ja nimi "
+"vaaditaan."
 
 #: external_services/permissions.py:8
 msgid "Permission denied by menu visibility"

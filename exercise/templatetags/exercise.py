@@ -66,6 +66,7 @@ def user_last(context):
             }
     return {
         'begin': points.begin(),
+        'instance': context['instance'],
     }
 
 

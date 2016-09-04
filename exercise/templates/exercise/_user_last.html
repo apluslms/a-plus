@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load course %}
 {% load exercise %}
 
 <p>
@@ -8,9 +9,10 @@
   <a href="{{ link }}">{{ name }}</a>
 {% endblocktrans %}
 {% else %}
-{% blocktrans with name=begin.name link=begin.link %}
+{% blocktrans with name=begin.name link=begin.link toc_link=instance|url:'toc' %}
   You can start from
   <a href="{{ link }}">{{ name }}</a>
+  or the <a href="{{ toc_link }}">table of contents</a>.
 {% endblocktrans %}
 {% endif %}
 </p>
