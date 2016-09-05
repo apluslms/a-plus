@@ -17,18 +17,44 @@
 		to the provider of this service.
 		{% endblocktrans %}
 	</p>
+	{% if service.enable_api_access %}
+	<p>
+		{% blocktrans %}
+		For this service also API token is transferred.
+		Thus this service will have full access to A+ API with your privileges and
+		could possibly do harm in you name.
+		System administrator can disable this feature for this service.
+		{% endblocktrans %}
+	</p>
+	</p>
+	{% endif %}
 	<p>
 		<a href="{{ site }}" target="_new">{{ site }}</a>
 	</p>
+</div>
+<div>
 	<p>
-	<br>
-	<form id="lti_login_form" method="POST" action="{{ service.url }}">
-		{% for entry in parameters %}
-		<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
-		{% endfor %}
-		<input type="submit" value="{% blocktrans with name=service.menu_label %}Accept and continue to {{ name }}{% endblocktrans %}" class="btn btn-primary" />
-	</form>
+		<form id="lti_login_form" method="POST" action="{{ service.url }}">
+			{% for entry in parameters %}
+			<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
+			{% endfor %}
+			<input type="submit" value="{% blocktrans with name=service.menu_label %}Accept and continue to {{ name }}{% endblocktrans %}" class="btn btn-primary" />
+			<a class="btn btn-default" data-toggle="collapse"
+			   aria-expaned="false" aria-controls="shared_variables"
+			   href="#shared_variables"
+			   >{% trans "Show shared variables" %}</a>
+		</form>
 	</p>
+</div>
+<div class="collapse" id="shared_variables">
+	<table class="card card-block">
+		{% for name, value in parameters|dictsort:"0.lower" %}
+		<tr>
+			<th>{{ name }}</th>
+			<td>{{ value }}</td>
+		</tr>
+		{% endfor %}
+	</table>
 </div>
 {% endblock %}
 
