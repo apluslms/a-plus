@@ -34,6 +34,10 @@
 </div>
 <div>
 	<p>
+		<input id="auto_accept" type="checkbox" value"1" checked="checked" />
+		<label for="auto_accept">{% trans "Remember this and automatically redirect next time." %}</label>
+	</p>
+	<p>
 		<form id="lti_login_form" method="POST" action="{{ service.url }}">
 			{% for entry in parameters %}
 			<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
@@ -63,18 +67,23 @@
 <script>
 $(function() {
 	var cookieName = "aplusexse{{ service.id }}";
+	var cookieValue = "{{ parameters_hash }}";
+	var set_cookie = function(expire_years=1) {
+		var expire = new Date();
+		expire.setFullYear(expire.getFullYear() + expire_years);
+		var path = document.location.href.split("/");
+		document.cookie = cookieName + "=" + cookieValue
+				+ ";path=/" + path[3] + "/" + path[4] + "/"
+				+ ";expires=" + expire.toGMTString();
+	};
 	var regex = new RegExp("(?:(?:^|.*;\s*)" + cookieName + "\s*\=\s*([^;]*).*$)|^.*$");
 	var val = document.cookie.replace(regex, "$1");
-	if (val == "1") {
-		$("form")[0].submit();
-	}
-	$("form").on("submit", function() {
-		var expire = new Date();
-		expire.setFullYear(expire.getFullYear() + 1);
-		var path = document.location.href.split("/");
-		document.cookie = cookieName + "=1"
-			+ ";path=/" + path[3] + "/" + path[4] + "/"
-			+ ";expires=" + expire.toGMTString();
+	var form = $("#lti_login_form");
+	if (val == cookieValue) form.submit(); /* automatically submit accepted data */
+	else set_cookie(-1); /* remove old cookie */
+	form.on("submit", function() {
+		/* on submit remember accepted state via local cookie */
+		if ($('#auto_accept').is(':checked')) set_cookie();
 	});
 });
 </script>

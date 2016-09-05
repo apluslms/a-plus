@@ -1,3 +1,4 @@
+from hashlib import md5
 from django.utils.translation import get_language
 from oauthlib.common import urldecode
 from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY, \
@@ -71,6 +72,11 @@ class LTIRequest(object):
                 'custom_user_api_token': user.userprofile.api_token,
             })
 
+    def get_checksum_of_parameters(self):
+        sum = md5()
+        for key, value in sorted(self.parameters.items()):
+            sum.update("{}={};".format(key, value).encode('utf-8'))
+        return sum.hexdigest()
 
     def sign_post_parameters(self, url=None):
         client = Client(self.service.consumer_key,
