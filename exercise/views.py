@@ -164,9 +164,10 @@ class ExerciseModelView(ExerciseBaseView):
     def get_resource_objects(self):
         super().get_resource_objects()
 
-        if not self.exercise.is_closed():
+        if not self.is_course_staff and not self.exercise.is_closed():
             raise Http404()
 
+        #TODO: present all model urls in one page
         file_name = self._get_kwarg(self.file_kw)
         for _,name,url in self.exercise.get_models():
             if name == file_name:

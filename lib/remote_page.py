@@ -4,6 +4,7 @@ import re
 import requests
 import time
 import urllib.parse
+from wsgiref.handlers import format_date_time
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -18,7 +19,11 @@ class RemotePageException(Exception):
         self.message = message
 
 
-def request_for_response(url, post=False, data=None, files=None):
+class RemotePageNotModified(Exception):
+    pass
+
+
+def request_for_response(url, post=False, data=None, files=None, timestamp=None):
     try:
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
         n = 0
@@ -28,10 +33,16 @@ def request_for_response(url, post=False, data=None, files=None):
                     response = requests.post(url, data=data, files=files,
                         timeout=settings.EXERCISE_HTTP_TIMEOUT)
                 else:
+                    headers = {}
+                    if timestamp:
+                        headers['If-Modified-Since'] = format_date_time(timestamp)
                     response = requests.get(url,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT,
+                        headers=headers)
                 if response.status_code == 200:
                     return response
+                elif response.status_code == 304:
+                    raise RemotePageNotModified()
                 elif response.status_code >= 500 and n < last_retry:
                     logger.warning("Retrying: Server error {:d} at {}".format(
                         response.status_code, url))
@@ -53,9 +64,9 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, post=False, data=None, files=None):
+    def __init__(self, url, post=False, data=None, files=None, timestamp=None):
         self.url = urllib.parse.urlparse(url)
-        self.response = request_for_response(url, post, data, files)
+        self.response = request_for_response(url, post, data, files, timestamp)
         self.response.encoding = "utf-8"
         self.soup = BeautifulSoup(self.response.text, 'html5lib')
 

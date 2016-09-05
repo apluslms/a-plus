@@ -27,12 +27,14 @@ SERVICE_FIELDS = [
 EXERCISE_FIELDS = [
     'max_submissions',
     'max_points',
+    'difficulty',
     'points_to_pass',
     'allow_assistant_viewing',
     'allow_assistant_grading',
     'min_group_size',
     'max_group_size',
     'model_answers',
+    'confirm_the_level',
 ]
 
 

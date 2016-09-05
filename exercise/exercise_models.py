@@ -70,8 +70,11 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         ('HIDDEN', 'hidden', _("Hidden from non course staff")),
         ('MAINTENANCE', 'maintenance', _("Maintenance")),
     ])
+    AUDIENCE = CourseInstance.ENROLLMENT_AUDIENCE
     status = models.CharField(max_length=32,
         choices=STATUS.choices, default=STATUS.READY)
+    audience = models.IntegerField(choices=AUDIENCE.choices,
+        default=AUDIENCE.ALL_USERS)
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
@@ -211,6 +214,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             page.content = self.content
 
         else:
+            #TODO: present processed cached page if not updated (timestamp)
             page = load_exercise_page(request, self.get_load_url(
                 request, students, url_name), self)
             if self.id and (not self.content_time or \
@@ -256,6 +260,9 @@ class BaseExercise(LearningObject):
     max_submissions = models.PositiveIntegerField(default=10)
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
+    difficulty = models.CharField(max_length=32, default="")
+    confirm_the_level = models.BooleanField(default=False,
+        help_text=_("Once this exercise is graded non zero it confirms all the points on this exercise level. Implemented as a mandatory feedback feature."))
 
     class Meta:
         app_label = 'exercise'
