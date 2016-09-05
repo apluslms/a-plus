@@ -36,7 +36,7 @@
   {% trans "Unfortunately, enrolling in the course has ended." %}
   {% else %}
   {% blocktrans with start=instance.enrollment_start end=instance.enrollment_end %}
-  The course enrollment opens {{ start }}
+  The course opens {{ start }}
   {% endblocktrans %}
   {% endif %}
 {% elif profile %}
