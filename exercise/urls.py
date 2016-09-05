@@ -59,7 +59,7 @@ urlpatterns = [
     url(EXERCISE_URL_PREFIX + r'plain/$',
         views.ExercisePlainView.as_view(),
         name="exercise-plain"),
-    url(EXERCISE_URL_PREFIX + r'info/model/(?P<file>[\w\d\_\-\.]+)$',
+    url(EXERCISE_URL_PREFIX + r'info/model/$',
         views.ExerciseModelView.as_view(),
         name="exercise-model"),
     url(EXERCISE_URL_PREFIX + r'info/$',

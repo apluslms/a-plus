@@ -32,10 +32,10 @@ EXERCISE_FIELDS = [
     'points_to_pass',
     'allow_assistant_viewing',
     'allow_assistant_grading',
+    'confirm_the_level',
     'min_group_size',
     'max_group_size',
     'model_answers',
-    'confirm_the_level',
 ]
 
 
@@ -100,8 +100,9 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
             self.get_hierarchy_fieldset(),
             self.get_content_fieldset('model_answers'),
             { 'legend':_('Grading'), 'fields':self.get_fields('max_submissions',
-                'max_points','points_to_pass',
-                'allow_assistant_viewing','allow_assistant_grading') },
+                'max_points','points_to_pass', 'difficulty',
+                'allow_assistant_viewing','allow_assistant_grading',
+                'confirm_the_level' ) },
             { 'legend':_('Groups'), 'fields':self.get_fields('min_group_size',
                 'max_group_size') },
         ]

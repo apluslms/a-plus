@@ -7,11 +7,11 @@ from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import signals
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
 from django.template import loader, Context
 from django.utils import timezone
 from django.utils.formats import date_format
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language, ugettext_lazy as _
 
 from aplus.api import api_reverse
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
@@ -247,8 +247,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return page
 
     def get_models(self):
-        models = [(url,url.split('/')[-1]) for url in self.model_answers.split()]
-        return [(self.get_url('exercise-model', file=name), name, url) for (url,name) in models]
+        return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
 
 
 class LearningObjectDisplay(models.Model):
@@ -281,7 +280,7 @@ class BaseExercise(LearningObject):
     max_submissions = models.PositiveIntegerField(default=10)
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
-    difficulty = models.CharField(max_length=32, default="")
+    difficulty = models.CharField(max_length=32, blank=True)
     confirm_the_level = models.BooleanField(default=False,
         help_text=_("Once this exercise is graded non zero it confirms all the points on this level. Implemented as a mandatory feedback feature."))
 
@@ -507,6 +506,7 @@ class BaseExercise(LearningObject):
             "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
             "uid": uid_str,
             "ordinal_number": ordinal_number,
+            "lang": get_language(),
         }
         return update_url_params(self.service_url, params)
 
@@ -680,4 +680,17 @@ def _delete_file(sender, instance, **kwargs):
     Deletes exercise attachment file after the exercise in database is removed.
     """
     default_storage.delete(instance.attachment.path)
+
+
+def _clear_cache(sender, instance, **kwargs):
+    """
+    Clears parent's cached html if any.
+    """
+    parent = instance.parent
+    if parent and parent.content_stamp:
+        parent.content_stamp = ""
+        parent.save()
+
+
 post_delete.connect(_delete_file, ExerciseWithAttachment)
+post_save.connect(_clear_cache, LearningObject)

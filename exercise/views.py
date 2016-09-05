@@ -158,8 +158,9 @@ class ExercisePlainView(ExerciseView):
 
 
 class ExerciseModelView(ExerciseBaseView):
+    template_name = "exercise/model.html"
+    #ajax_template_name = "exercise/model_plain.html"
     access_mode = ACCESS.ENROLLED
-    file_kw = "file"
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -167,18 +168,18 @@ class ExerciseModelView(ExerciseBaseView):
         if not self.is_course_staff and not self.exercise.is_closed():
             raise Http404()
 
-        #TODO: present all model urls in one page
-        file_name = self._get_kwarg(self.file_kw)
-        for _,name,url in self.exercise.get_models():
-            if name == file_name:
-                self.url = url
-                return
-
-        raise Http404()
-
-    def get(self, request, *args, **kwargs):
-        response = request_for_response(self.url)
-        return HttpResponse(response.text)
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.models = [
+            {
+                'name': name,
+                'content': request_for_response(url).text,
+            }
+            for url,name in self.exercise.get_models()
+        ]
+        self.summary = UserExerciseSummary(self.exercise, self.request.user)
+        self.submissions = self.summary.get_submissions()
+        self.note('models', 'summary', 'submissions')
 
 
 class SubmissionView(SubmissionBaseView):
