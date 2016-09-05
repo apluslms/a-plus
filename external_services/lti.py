@@ -4,6 +4,7 @@ from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY, \
     SIGNATURE_TYPE_QUERY
 import hashlib
 
+from aplus.api import api_reverse
 from lib.helpers import update_url_params
 
 
@@ -61,6 +62,15 @@ class LTIRequest(object):
             "tool_consumer_instance_guid": host + "/aplus",
             "tool_consumer_instance_name": "A+ LMS",
         })
+
+        if service.enable_api_access:
+            self.parameters.update({
+                # FIXME: we need request or full host with protocol here!
+                'custom_context_api': '//' + host + api_reverse("course-detail", kwargs={'course_id': instance.id}),
+                'custom_context_api_id': str(instance.id),
+                'custom_user_api_token': user.userprofile.api_token,
+            })
+
 
     def sign_post_parameters(self, url=None):
         client = Client(self.service.consumer_key,

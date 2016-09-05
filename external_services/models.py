@@ -46,6 +46,10 @@ class LTIService(LinkService):
     '''
     A provider of an LTI service.
     '''
+    enable_api_access = models.BooleanField(
+        default=False,
+        help_text=_("Enable sharing user's api token and course api url in lti launch request. This grants api access with user's privileges for the lti tool."),
+    )
     consumer_key = models.CharField(
         max_length=128,
         help_text=_("The consumer key provided by the LTI service.")
