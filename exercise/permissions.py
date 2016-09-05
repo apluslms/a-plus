@@ -23,12 +23,28 @@ class ExerciseVisiblePermission(ObjectVisibleBasePermission):
         """
         Find out if Exercise (LearningObject) is visible to user
         """
+        if view.is_course_staff:
+            return True
 
-        if (
-            exercise.status == LearningObject.STATUS.HIDDEN and
-            not view.is_course_staff
-           ):
-            raise Http404("Learning object not found")
+        if exercise.status == LearningObject.STATUS.HIDDEN:
+            self.error_msg(request, _("The exercise is not currently visible."))
+            return False
+
+        user = request.user
+        if exercise.audience == LearningObject.AUDIENCE.REGISTERED_USERS:
+            if not exercise.course_instance.is_student(user):
+                self.error_msg(request, _("The exercise is only for registered users."))
+                return False
+        elif exercise.audience == LearningObject.AUDIENCE.INTERNAL_USERS:
+            if (not exercise.course_instance.is_student(user)
+                    or user.userprofile.is_external):
+                self.error_msg(request, _("The exercise is only for internal users."))
+                return False
+        elif exercise.audience == LearningObject.AUDIENCE.EXTERNAL_USERS:
+            if (not exercise.course_instance.is_student(user)
+                    or not user.userprofile.is_external):
+                self.error_msg(request, _("The exercise is only for external users."))
+                return False
 
         return True
 

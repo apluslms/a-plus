@@ -25,7 +25,6 @@ class ExerciseBaseMixin(object):
     exercise_kw = "exercise_path"
     exercise_permission_classes = (
         ExerciseVisiblePermission,
-        #TODO ExerciseAudiencePermission,
     )
 
     def get_permissions(self):

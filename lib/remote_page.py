@@ -4,7 +4,6 @@ import re
 import requests
 import time
 import urllib.parse
-from wsgiref.handlers import format_date_time
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -23,22 +22,28 @@ class RemotePageNotModified(Exception):
     pass
 
 
-def request_for_response(url, post=False, data=None, files=None, timestamp=None):
+def request_for_response(url, post=False, data=None, files=None, stamp=None):
     try:
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
         n = 0
         while n <= last_retry:
             try:
                 if post:
-                    response = requests.post(url, data=data, files=files,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                    response = requests.post(
+                        url,
+                        data=data,
+                        files=files,
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT
+                    )
                 else:
                     headers = {}
-                    if timestamp:
-                        headers['If-Modified-Since'] = format_date_time(timestamp)
-                    response = requests.get(url,
+                    if stamp:
+                        headers['If-Modified-Since'] = stamp
+                    response = requests.get(
+                        url,
                         timeout=settings.EXERCISE_HTTP_TIMEOUT,
-                        headers=headers)
+                        headers=headers
+                    )
                 if response.status_code == 200:
                     return response
                 elif response.status_code == 304:
@@ -64,9 +69,9 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, post=False, data=None, files=None, timestamp=None):
+    def __init__(self, url, post=False, data=None, files=None, stamp=None):
         self.url = urllib.parse.urlparse(url)
-        self.response = request_for_response(url, post, data, files, timestamp)
+        self.response = request_for_response(url, post, data, files, stamp)
         self.response.encoding = "utf-8"
         self.soup = BeautifulSoup(self.response.text, 'html5lib')
 
@@ -82,6 +87,9 @@ class RemotePage:
                 return element.get("value",
                     default=element.get("content", default=None))
         return None
+
+    def header(self, name):
+        return self.response.headers.get(name, "")
 
     def title(self):
         if self.soup and self.soup.title:

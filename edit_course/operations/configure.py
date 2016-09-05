@@ -128,6 +128,9 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.service_url = str(o["url"])
         if "status" in o:
             lobject.status = str(o["status"])[:32]
+        if "audience" in o:
+            words = { 'internal':1, 'external':2, 'registered':3 }
+            lobject.audience = words.get(o['audience'], 0)
         if "title" in o:
             lobject.name = str(o["title"])
         elif "name" in o:

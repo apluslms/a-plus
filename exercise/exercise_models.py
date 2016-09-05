@@ -31,6 +31,7 @@ from lib.helpers import (
     roman_numeral,
 )
 from lib.models import UrlMixin
+from lib.remote_page import RemotePageNotModified
 from userprofile.models import UserProfile
 
 from .protocol.aplus import load_exercise_page, load_feedback_page
@@ -70,11 +71,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         ('HIDDEN', 'hidden', _("Hidden from non course staff")),
         ('MAINTENANCE', 'maintenance', _("Maintenance")),
     ])
-    AUDIENCE = CourseInstance.ENROLLMENT_AUDIENCE
+    AUDIENCE = Enum([
+        ('COURSE_AUDIENCE', 0, _('Course audience')),
+        ('INTERNAL_USERS', 1, _('Only internal users')),
+        ('EXTERNAL_USERS', 2, _('Only external users')),
+        ('REGISTERED_USERS', 3, _('Only registered users')),
+    ])
     status = models.CharField(max_length=32,
         choices=STATUS.choices, default=STATUS.READY)
     audience = models.IntegerField(choices=AUDIENCE.choices,
-        default=AUDIENCE.ALL_USERS)
+        default=AUDIENCE.COURSE_AUDIENCE)
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
@@ -95,6 +101,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
     content = models.TextField(blank=True)
     content_head = models.TextField(blank=True)
+    content_stamp = models.CharField(max_length=128, blank=True)
     content_time = models.DateTimeField(blank=True, null=True)
 
     objects = LearningObjectManager()
@@ -209,20 +216,34 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         # Archived course presents static copy.
         if self.id and self.course_instance.ending_time < timezone.now() and self.content:
             page = ExercisePage(self)
-            page.is_loaded = True
             page.content_head = self.content_head
             page.content = self.content
+            page.is_loaded = True
 
         else:
-            #TODO: present processed cached page if not updated (timestamp)
-            page = load_exercise_page(request, self.get_load_url(
-                request, students, url_name), self)
-            if self.id and (not self.content_time or \
-                    self.content_time + datetime.timedelta(days=3) < timezone.now()):
-                self.content_time = timezone.now()
-                self.content_head = page.head
-                self.content = page.content
-                self.save()
+            try:
+                page = load_exercise_page(
+                    request,
+                    self.get_load_url(request, students, url_name),
+                    self
+                )
+                now = timezone.now()
+                if (self.id
+                        and (
+                            not self.content_time
+                            or (page.stamp and page.stamp != self.content_stamp)
+                            or self.content_time + datetime.timedelta(days=10) < now
+                        )):
+                    self.content_head = page.head
+                    self.content = page.content
+                    self.content_stamp = page.stamp
+                    self.content_time = now
+                    self.save()
+            except RemotePageNotModified:
+                page = ExercisePage(self)
+                page.content_head = self.content_head
+                page.content = self.content
+                page.is_loaded = True
         return page
 
     def get_models(self):
@@ -262,7 +283,7 @@ class BaseExercise(LearningObject):
     points_to_pass = models.PositiveIntegerField(default=40)
     difficulty = models.CharField(max_length=32, default="")
     confirm_the_level = models.BooleanField(default=False,
-        help_text=_("Once this exercise is graded non zero it confirms all the points on this exercise level. Implemented as a mandatory feedback feature."))
+        help_text=_("Once this exercise is graded non zero it confirms all the points on this level. Implemented as a mandatory feedback feature."))
 
     class Meta:
         app_label = 'exercise'

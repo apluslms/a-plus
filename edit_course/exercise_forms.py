@@ -13,6 +13,7 @@ logger = logging.getLogger("aplus.exercise")
 
 COMMON_FIELDS = [
     'status',
+    'audience',
     'category',
     'course_module',
     'parent',
@@ -56,7 +57,7 @@ class LearningObjectMixin(object):
 
     def get_hierarchy_fieldset(self):
         return { 'legend':_('Hierarchy'), 'fields':self.get_fields('status',
-            'category','course_module','parent','order','url') }
+            'audience', 'category','course_module','parent','order','url') }
 
     def get_content_fieldset(self, *add):
         return { 'legend':_('Content'), 'fields':self.get_fields('name',
