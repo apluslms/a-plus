@@ -17,18 +17,58 @@
 		to the provider of this service.
 		{% endblocktrans %}
 	</p>
+	{% if service.enable_api_access %}
+	<p>
+		{% if is_course_staff %}
+			{% blocktrans %}
+			For this service also API token is tranferred,
+			thus giving this service access to A+ API with your privileges.
+			If this was not intended, change 'Enable api access' in django admin.
+			{% endblocktrans %}
+		{% else %}
+			{% blocktrans %}
+			For this service also API token is tranferred,
+			thus giving this service access to A+ API with your privileges.
+			That means service can for example read your student number,
+			course progress and submit solutions to exercises.
+			Course staff has enabled this feature and have checked that
+			the service behaves with your best interest in mind.
+			{% endblocktrans %}
+		{% endif %}
+	</p>
+	</p>
+	{% endif %}
 	<p>
 		<a href="{{ site }}" target="_new">{{ site }}</a>
 	</p>
+</div>
+<div>
 	<p>
-	<br>
-	<form id="lti_login_form" method="POST" action="{{ service.url }}">
-		{% for entry in parameters %}
-		<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
-		{% endfor %}
-		<input type="submit" value="{% blocktrans with name=service.menu_label %}Accept and continue to {{ name }}{% endblocktrans %}" class="btn btn-primary" />
-	</form>
+		<input id="auto_accept" type="checkbox" value"1" checked="checked" />
+		<label for="auto_accept">{% trans "Remember this and automatically redirect next time." %}</label>
 	</p>
+	<p>
+		<form id="lti_login_form" method="POST" action="{{ service.url }}">
+			{% for entry in parameters %}
+			<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
+			{% endfor %}
+			<input type="submit" value="{% blocktrans with name=service.menu_label %}Accept and continue to {{ name }}{% endblocktrans %}" class="btn btn-primary" />
+			<a class="btn btn-default" data-toggle="collapse"
+			   aria-expaned="false" aria-controls="shared_variables"
+			   href="#shared_variables"
+			   >{% trans "Show shared variables" %}</a>
+		</form>
+	</p>
+</div>
+<div class="collapse" id="shared_variables">
+	<table class="card card-block">
+		{% for name, value in parameters|dictsort:"0.lower" %}
+		<tr>
+			<th>{{ name }}</th>
+			<td>{{ value }}</td>
+		</tr>
+		{% endfor %}
+	</table>
 </div>
 {% endblock %}
 
@@ -37,18 +77,23 @@
 <script>
 $(function() {
 	var cookieName = "aplusexse{{ service.id }}";
+	var cookieValue = "{{ parameters_hash }}";
+	var set_cookie = function(expire_years=1) {
+		var expire = new Date();
+		expire.setFullYear(expire.getFullYear() + expire_years);
+		var path = document.location.href.split("/");
+		document.cookie = cookieName + "=" + cookieValue
+				+ ";path=/" + path[3] + "/" + path[4] + "/"
+				+ ";expires=" + expire.toGMTString();
+	};
 	var regex = new RegExp("(?:(?:^|.*;\s*)" + cookieName + "\s*\=\s*([^;]*).*$)|^.*$");
 	var val = document.cookie.replace(regex, "$1");
-	if (val == "1") {
-		$("form")[0].submit();
-	}
-	$("form").on("submit", function() {
-		var expire = new Date();
-		expire.setFullYear(expire.getFullYear() + 1);
-		var path = document.location.href.split("/");
-		document.cookie = cookieName + "=1"
-			+ ";path=/" + path[3] + "/" + path[4] + "/"
-			+ ";expires=" + expire.toGMTString();
+	var form = $("#lti_login_form");
+	if (val == cookieValue) form.submit(); /* automatically submit accepted data */
+	else set_cookie(-1); /* remove old cookie */
+	form.on("submit", function() {
+		/* on submit remember accepted state via local cookie */
+		if ($('#auto_accept').is(':checked')) set_cookie();
 	});
 });
 </script>
