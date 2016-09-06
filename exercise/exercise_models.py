@@ -216,7 +216,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         # Archived course presents static copy.
         if self.id and self.course_instance.ending_time < timezone.now() and self.content:
             page = ExercisePage(self)
-            page.content_head = self.content_head
+            page.head = self.content_head
             page.content = self.content
             page.is_loaded = True
 
@@ -241,7 +241,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                     self.save()
             except RemotePageNotModified:
                 page = ExercisePage(self)
-                page.content_head = self.content_head
+                page.head = self.content_head
                 page.content = self.content
                 page.is_loaded = True
         return page
