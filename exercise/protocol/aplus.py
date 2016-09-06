@@ -18,7 +18,11 @@ def load_exercise_page(request, url, exercise):
     """
     page = ExercisePage(exercise)
     try:
-        parse_page_content(page, RemotePage(url), exercise)
+        parse_page_content(
+            page,
+            RemotePage(url, stamp=exercise.content_stamp),
+            exercise
+        )
     except RemotePageException:
         messages.error(request,
             _("Connecting to the exercise service failed!"))
@@ -148,3 +152,4 @@ def parse_page_content(page, remote_page, exercise):
         {'id':'chapter'},
         {'class':'entry-content'},
     ))
+    page.stamp = remote_page.header('Last-Modified')

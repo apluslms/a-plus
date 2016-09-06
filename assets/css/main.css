@@ -151,9 +151,9 @@ html, body {
 .dropdown-menu>li button:hover {
   background: #eee;
 }
-body {
+/* for navbar-fixed-top: body {
   padding-top: 70px;
-}
+}*/
 
 /* menus */
 .course-menu .nav>li>a {

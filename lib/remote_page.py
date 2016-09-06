@@ -18,20 +18,36 @@ class RemotePageException(Exception):
         self.message = message
 
 
-def request_for_response(url, post=False, data=None, files=None):
+class RemotePageNotModified(Exception):
+    pass
+
+
+def request_for_response(url, post=False, data=None, files=None, stamp=None):
     try:
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
         n = 0
         while n <= last_retry:
             try:
                 if post:
-                    response = requests.post(url, data=data, files=files,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                    response = requests.post(
+                        url,
+                        data=data,
+                        files=files,
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT
+                    )
                 else:
-                    response = requests.get(url,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                    headers = {}
+                    if stamp:
+                        headers['If-Modified-Since'] = stamp
+                    response = requests.get(
+                        url,
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT,
+                        headers=headers
+                    )
                 if response.status_code == 200:
                     return response
+                elif response.status_code == 304:
+                    raise RemotePageNotModified()
                 elif response.status_code >= 500 and n < last_retry:
                     logger.warning("Retrying: Server error {:d} at {}".format(
                         response.status_code, url))
@@ -53,9 +69,9 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, post=False, data=None, files=None):
+    def __init__(self, url, post=False, data=None, files=None, stamp=None):
         self.url = urllib.parse.urlparse(url)
-        self.response = request_for_response(url, post, data, files)
+        self.response = request_for_response(url, post, data, files, stamp)
         self.response.encoding = "utf-8"
         self.soup = BeautifulSoup(self.response.text, 'html5lib')
 
@@ -71,6 +87,9 @@ class RemotePage:
                 return element.get("value",
                     default=element.get("content", default=None))
         return None
+
+    def header(self, name):
+        return self.response.headers.get(name, "")
 
     def title(self):
         if self.soup and self.soup.title:
@@ -106,13 +125,23 @@ class RemotePage:
 
     def _fix_relative_urls(self, domain, path, tag_name, attr_name):
         test = re.compile('^(#|\/\/|.+:\/\/|data:.+;)', re.IGNORECASE)
+        chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]
+            if not value:
+                continue
 
             # Custom transform for RST chapter to chapter links.
             if element.has_attr('data-aplus-chapter'):
-                if value and value.endswith('.html'):
-                    element[attr_name] = '../' + value[:-5]
+                m = chapter.match(value)
+                if m:
+                    i = m.start(1)
+                    if i > 0:
+                        element[attr_name] = '../' + value[:i-5] + value[i:]
+                    else:
+                        element[attr_name] = '../' + value[:-5]
+                elif not value.startswith('/'):
+                    element[attr_name] = '../' + value
 
             elif value and not test.match(value):
 

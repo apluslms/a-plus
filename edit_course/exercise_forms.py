@@ -13,6 +13,7 @@ logger = logging.getLogger("aplus.exercise")
 
 COMMON_FIELDS = [
     'status',
+    'audience',
     'category',
     'course_module',
     'parent',
@@ -27,9 +28,11 @@ SERVICE_FIELDS = [
 EXERCISE_FIELDS = [
     'max_submissions',
     'max_points',
+    'difficulty',
     'points_to_pass',
     'allow_assistant_viewing',
     'allow_assistant_grading',
+    'confirm_the_level',
     'min_group_size',
     'max_group_size',
     'model_answers',
@@ -54,7 +57,7 @@ class LearningObjectMixin(object):
 
     def get_hierarchy_fieldset(self):
         return { 'legend':_('Hierarchy'), 'fields':self.get_fields('status',
-            'category','course_module','parent','order','url') }
+            'audience', 'category','course_module','parent','order','url') }
 
     def get_content_fieldset(self, *add):
         return { 'legend':_('Content'), 'fields':self.get_fields('name',
@@ -97,8 +100,9 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
             self.get_hierarchy_fieldset(),
             self.get_content_fieldset('model_answers'),
             { 'legend':_('Grading'), 'fields':self.get_fields('max_submissions',
-                'max_points','points_to_pass',
-                'allow_assistant_viewing','allow_assistant_grading') },
+                'max_points','points_to_pass', 'difficulty',
+                'allow_assistant_viewing','allow_assistant_grading',
+                'confirm_the_level' ) },
             { 'legend':_('Groups'), 'fields':self.get_fields('min_group_size',
                 'max_group_size') },
         ]
