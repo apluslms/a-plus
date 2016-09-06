@@ -1,0 +1,29 @@
+{% extends "exercise/exercise_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block view_tag %}exercise{% endblock %}
+
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Model answer" %}</li>
+{% endblock %}
+
+{% block exercisecontent %}
+{% for entry in models %}
+<h4>{{ entry.name }}</h4>
+<pre class="hljs">
+  {{ entry.content }}
+</pre>
+{% empty %}
+{% blocktrans %}
+No model answer has been supplied for this exercise.
+{% endblocktrans %}
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>$(function() { $('pre.hljs').highlightCode(); });</script>
+{% endblock %}
