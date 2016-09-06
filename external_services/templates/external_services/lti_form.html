@@ -19,12 +19,22 @@
 	</p>
 	{% if service.enable_api_access %}
 	<p>
-		{% blocktrans %}
-		For this service also API token is transferred.
-		Thus this service will have full access to A+ API with your privileges and
-		could possibly do harm in you name.
-		System administrator can disable this feature for this service.
-		{% endblocktrans %}
+		{% if is_course_staff %}
+			{% blocktrans %}
+			For this service also API token is tranferred,
+			thus giving this service access to A+ API with your privileges.
+			If this was not intended, change 'Enable api access' in django admin.
+			{% endblocktrans %}
+		{% else %}
+			{% blocktrans %}
+			For this service also API token is tranferred,
+			thus giving this service access to A+ API with your privileges.
+			That means service can for example read your student number,
+			course progress and submit solutions to exercises.
+			Course staff has enabled this feature and have checked that
+			the service behaves with your best interest in mind.
+			{% endblocktrans %}
+		{% endif %}
 	</p>
 	</p>
 	{% endif %}
