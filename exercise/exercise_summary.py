@@ -13,6 +13,7 @@ class UserExerciseSummary(object):
     def __init__(self, exercise, user=None):
         self.exercise = exercise
         self.max_points = getattr(exercise, 'max_points', 0)
+        self.difficulty = getattr(exercise, 'difficulty', '')
         self.points_to_pass = getattr(exercise, 'points_to_pass', 0)
         self.user = user
         self.submissions = []
@@ -40,6 +41,9 @@ class UserExerciseSummary(object):
 
     def get_max_points(self):
         return self.max_points
+
+    def get_difficulty(self):
+        return self.difficulty
 
     def get_points(self):
         return self.best_submission.grade if self.best_submission else 0

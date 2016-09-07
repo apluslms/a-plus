@@ -102,6 +102,7 @@ def _points_data(obj, classes=None):
         data = {
             'points': obj.get_points(),
             'max': obj.get_max_points(),
+            'difficulty': obj.get_difficulty(),
             'required': obj.get_required_points(),
             'missing_points': obj.is_missing_points(),
             'passed': obj.is_passed(),
@@ -113,6 +114,7 @@ def _points_data(obj, classes=None):
         data = {
             'points': obj.grade,
             'max': exercise.max_points,
+            'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
             'missing_points': obj.grade < exercise.points_to_pass,
             'passed': obj.grade >= exercise.points_to_pass,
@@ -124,6 +126,7 @@ def _points_data(obj, classes=None):
         data = {
             'points': obj['points'],
             'max': obj['max_points'],
+            'difficulty': obj['difficulty'],
             'required': obj['points_to_pass'],
             'missing_points': obj['points'] < obj['points_to_pass'],
             'passed': obj['passed'],

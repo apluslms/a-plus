@@ -32,25 +32,31 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 'submission_count': 0,
                 'best_submission': None,
                 'points': 0,
+                'points_by_difficulty': {},
                 'passed': True,
             })
             if entry['type'] == 'module':
                 entry.update({
                     'max_points': 0,
+                    'difficulty': '',
                 })
         for entry in categories.values():
             entry.update({
                 'max_points': 0,
+                'difficulty': 0,
                 'exercise_count': 0,
                 'submission_count': 0,
                 'points': 0,
+                'points_by_difficulty': {},
                 'passed': True,
             })
         total.update({
             'exercise_count': 0,
             'max_points': 0,
+            'difficulty': '',
             'submission_count': 0,
             'points': 0,
+            'points_by_difficulty': {},
         })
 
         # Augment submission data.
@@ -64,9 +70,23 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     entry.update({
                         'best_submission': submission.id,
                         'points': submission.grade,
+                        'points_by_difficulty': {
+                            entry['difficulty']: submission.grade,
+                        },
                     })
 
         # Collect hierarchial submission data.
+        def add_points_by_difficulty(src_entry, to_entry, subtract=False):
+            src = src_entry['points_by_difficulty']
+            to = to_entry['points_by_difficulty']
+            for key in src:
+                if key in to:
+                    if subtract:
+                        to[key] -= src[key]
+                    else:
+                        to[key] += src[key]
+                else:
+                    to[key] = 0 if subtract else src[key]
         for index in exercise_index.values():
             entry = flat[index]
             entry['exercise_count'] = 1
@@ -75,10 +95,12 @@ class CachedPoints(ContentMixin, CachedAbstract):
             category['max_points'] += entry['max_points']
             category['submission_count'] += entry['submission_count']
             category['points'] += entry['points']
+            add_points_by_difficulty(entry, category)
             total['exercise_count'] += 1
             total['max_points'] += entry['max_points']
             total['submission_count'] += entry['submission_count']
             total['points'] += entry['points']
+            add_points_by_difficulty(entry, total)
         for entry in reversed(flat):
             parent = None
             if 'parent' in entry and entry['status'] != LearningObject.STATUS.HIDDEN:
@@ -87,13 +109,21 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 parent['max_points'] += entry['max_points']
                 parent['submission_count'] += entry['submission_count']
                 parent['points'] += entry['points']
+                add_points_by_difficulty(entry, parent)
             if entry['passed']:
                 entry['passed'] = entry['points'] >= entry['points_to_pass']
             if parent:
                 parent['passed'] = parent['passed'] and entry['passed']
+                if entry['confirm_the_level']:
+                    parent['unconfirmed'] = not entry['passed']
         for category in categories.values():
             category['passed'] = category['points'] >= category['points_to_pass']
 
+        # Remove unconfirmed points.
+        for entry in flat:
+            if 'unconfirmed' in entry and entry['unconfirmed']:
+                total['points'] -= entry['points']
+                add_points_by_difficulty(entry, total, subtract=True)
         return data
 
 
