@@ -40,6 +40,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'max_points': 0,
                     'difficulty': '',
                 })
+            elif entry['type'] == 'exercise':
+                entry['graded'] = False
         for entry in categories.values():
             entry.update({
                 'max_points': 0,
@@ -66,9 +68,13 @@ class CachedPoints(ContentMixin, CachedAbstract):
                   .filter(exercise__course_module__course_instance=instance):
                 entry = flat[exercise_index[submission.exercise_id]]
                 entry['submission_count'] += 1
-                if submission.grade > entry['points']:
+                if (
+                    submission.status == Submission.STATUS.READY
+                    and submission.grade >= entry['points']
+                ):
                     entry.update({
                         'best_submission': submission.id,
+                        'graded': True,
                         'points': submission.grade,
                         'points_by_difficulty': {
                             entry['difficulty']: submission.grade,

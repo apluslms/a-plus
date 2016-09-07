@@ -99,15 +99,18 @@ def percent(decimal):
 
 def _points_data(obj, classes=None):
     if isinstance(obj, UserExerciseSummary):
+        exercise = obj.exercise
         data = {
             'points': obj.get_points(),
-            'max': obj.get_max_points(),
-            'difficulty': obj.get_difficulty(),
-            'required': obj.get_required_points(),
+            'max': exercise.max_points,
+            'difficulty': exercise.difficulty,
+            'required': exercise.points_to_pass,
+            'confirm_the_level': exercise.confirm_the_level,
             'missing_points': obj.is_missing_points(),
             'passed': obj.is_passed(),
             'full_score': obj.is_full_points(),
             'submitted': obj.is_submitted(),
+            'graded': obj.is_graded(),
         }
     elif isinstance(obj, Submission):
         exercise = obj.exercise
@@ -116,11 +119,13 @@ def _points_data(obj, classes=None):
             'max': exercise.max_points,
             'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
+            'confirm_the_level': exercise.confirm_the_level,
             'missing_points': obj.grade < exercise.points_to_pass,
             'passed': obj.grade >= exercise.points_to_pass,
             'full_score': obj.grade >= exercise.max_points,
             'submitted': True,
-            'status': False if obj.is_graded else obj.status
+            'graded': obj.is_graded,
+            'status': False if obj.is_graded else obj.status,
         }
     else:
         data = {
@@ -128,10 +133,12 @@ def _points_data(obj, classes=None):
             'max': obj['max_points'],
             'difficulty': obj['difficulty'],
             'required': obj['points_to_pass'],
+            'confirm_the_level': obj.get('confirm_the_level', False),
             'missing_points': obj['points'] < obj['points_to_pass'],
             'passed': obj['passed'],
             'full_score': obj['points'] >= obj['max_points'],
             'submitted': obj['submission_count'] > 0,
+            'graded': obj.get('graded', True),
         }
     percentage = 0
     required_percentage = None
