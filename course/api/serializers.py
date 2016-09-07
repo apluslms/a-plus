@@ -5,19 +5,22 @@ from lib.api.serializers import AplusModelSerializer, AlwaysListSerializer
 from ..models import (
     CourseInstance,
     CourseModule,
+    UserTag,
 )
 
 
 __all__ = [
     'CourseBriefSerializer',
     'CourseListField',
+    'CourseUsertagBriefSerializer',
 ]
 
 
 class CourseBriefSerializer(AplusModelSerializer):
     """
-    ...
+    BriefSerializer for course models
     """
+    # course model has url var, so we need to redifen the type here
     url = NestedHyperlinkedIdentityField(
         view_name='api:course-detail',
         lookup_map='course.api.views.CourseViewSet'
@@ -38,3 +41,18 @@ class CourseBriefSerializer(AplusModelSerializer):
 
 class CourseListField(AlwaysListSerializer, CourseBriefSerializer):
     pass
+
+
+class CourseUsertagBriefSerializer(AplusModelSerializer):
+    """
+    BriefSerialzer for course UserTag objects
+    """
+
+    class Meta(AplusModelSerializer.Meta):
+        model = UserTag
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:course-usertags-detail',
+                'lookup_map': 'course.api.views.CourseUsertagsViewSet',
+            }
+        }

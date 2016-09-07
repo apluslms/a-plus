@@ -12,12 +12,15 @@ from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 from userprofile.api.serializers import UserBriefSerializer
+from course.permissions import OnlyCourseTeacherPermission
 from exercise.models import BaseExercise
 from exercise.exercise_summary import ResultTable
 
 from ..models import (
     CourseInstance,
     CourseModule,
+    UserTag,
+    UserTagging,
 )
 from .mixins import (
     CourseResourceMixin,
@@ -194,3 +197,41 @@ class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
         student_info["pointsdetails"] = student_detail
 
         return student_info
+
+
+class CourseUsertagsViewSet(NestedViewSetMixin,
+                            CourseModuleResourceMixin,
+                            CourseResourceMixin,
+                            viewsets.ReadOnlyModelViewSet):
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        OnlyCourseTeacherPermission,
+    ]
+    lookup_url_kwarg = 'usertag_id'
+    serializer_class = CourseUsertagSerializer
+    queryset = UserTag.objects.all()
+    parent_lookup_map = {'course_id': 'course_instance_id'}
+
+import sys
+class CourseUsertaggingsViewSet(NestedViewSetMixin,
+                                CourseModuleResourceMixin,
+                                CourseResourceMixin,
+                                viewsets.ReadOnlyModelViewSet):
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        OnlyCourseTeacherPermission,
+    ]
+    lookup_url_kwarg = 'usertag_id'
+    serializer_class = CourseUsertaggingsSerializer
+    queryset = ( UserTagging.objects
+                 .select_related('tag', 'user', 'user__user')
+                 .only('tag__id', 'tag__course_instance',
+                       'user__user__id', 'user__user__username', 'user__student_id',
+                       'course_instance__id')
+                 .all() )
+    parent_lookup_map = {'course_id': 'course_instance_id'}
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+        tag_id = self.request.GET.get('tag_id')
+        if tag_id is not None:
+            queryset = queryset.filter(tag__id=tag_id)
+        return queryset

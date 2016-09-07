@@ -2,6 +2,7 @@
 beautifulsoup4==4.3.2
 Django==1.7.7
 django-bootstrap-form==3.2
+django-html5-colorfield==1.0
 django-tastypie==0.12.1
 djangorestframework==3.3.3
 -e git+https://github.com/raphendyr/drf-extensions.git@5201aa008bc8ac8d70c712af187e1c7939a5e49c#egg=drf_extensions

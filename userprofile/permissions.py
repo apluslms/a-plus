@@ -16,7 +16,7 @@ class IsAdminOrUserObjIsSelf(Permission, FilterBackend):
 
         user = request.user
         return user and (
-            user.id == obj.user_id or
+            (user.id is not None and user.id == obj.user_id) or
             self.is_super(user)
         )
 

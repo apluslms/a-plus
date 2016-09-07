@@ -1,0 +1,58 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load bootstrap %}
+{% load course %}
+{% load editcourse %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Tags" %}</li>
+{% endblock %}
+{% block view_tag %}edit-course,course-tags{% endblock %}
+
+{% block coursecontent %}
+<br />
+<p>
+	<a class="btn btn-primary btn-sm" href="{{ instance|url:'course-tags-add' }}">
+		<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+		{% trans "Add new student tag" %}
+	</a>
+</p>
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">{% trans "Student tags" %}</h3>
+	</div>
+	<table class="table table-striped table-bordered table-condensed">
+		<tr>
+			<th>{% trans "Tag" %}</th>
+			<th>{% trans "Description" %}</th>
+			<th>{% trans "Visible to students" %}</th>
+			<th>{% trans "Actions" %}</th>
+		</tr>
+		{% for tag in object_list %}
+		<tr>
+			<td>{% include "course/_usertag.html" with tag=tag hide_tooltip=True only %}</td>
+			<td>{{ tag.description }}</td>
+			<td>{% if tag.visible_to_students %}<span style="color: #00B000;">yes</span>{% else %}<span style="color: #B00000;">no</span>{% endif %}</td>
+			<td>
+				<a href="{{ tag|url:'course-tags-edit' }}" class="btn btn-warning btn-xs">
+					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+					{% trans "Edit" %}
+				</a>
+				<a href="{{ tag|url:'course-tags-remove' }}" class="btn btn-danger btn-xs">
+					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+					{% trans "Remove" %}
+				</a>
+				<a href="{{ instance|url:'course-tags' }}" class="btn btn-link btn-xs">
+					{% trans "Show users" %}
+				</a>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td colspan="4">{% trans "No student tags." %}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}
