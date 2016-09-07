@@ -92,18 +92,26 @@ def configure_learning_objects(category_map, module, config, parent,
             ).first()
             if not lobject:
                 lobject = BaseExercise(course_module=module, url=str(o["key"]))
-            if "allow_assistant_viewing" in o:
-                lobject.allow_assistant_viewing = parse_bool(
-                    o["allow_assistant_viewing"])
-            if "allow_assistant_grading" in o:
-                lobject.allow_assistant_grading = parse_bool(
-                    o["allow_assistant_grading"])
-            for key in ["min_group_size", "max_group_size", "max_submissions",
-                "max_points", "points_to_pass"]:
+            for key in [
+                "allow_assistant_viewing",
+                "allow_assistant_grading",
+                "confirm_the_level",
+            ]:
+                if key in o:
+                    setattr(lobject, key, parse_bool(o[key]))
+            for key in [
+                "min_group_size",
+                "max_group_size",
+                "max_submissions",
+                "max_points",
+                "points_to_pass",
+            ]:
                 if key in o:
                     i = parse_int(o[key], errors)
                     if not i is None:
                         setattr(lobject, key, i)
+            if "difficulty" in o:
+                lobject.difficulty = o["difficulty"]
         else:
             lobject = CourseChapter.objects.filter(
                 #course_module__course_instance=module.course_instance,

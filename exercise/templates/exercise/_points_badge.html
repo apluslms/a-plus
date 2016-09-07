@@ -3,10 +3,21 @@
 <span class="badge">
     {{ status }}
 </span>
+
+{% elif confirm_the_level %}
+{% if submitted %}
+<span class="badge{% if graded %} badge-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}{% endif %} {{ classes }}">
+  {% if passed %}{% trans "Accepted" %}{% elif graded %}{% trans "Rejected" %}{% else %}{% trans "Submitted" %}{% endif %}
+</span>
+{% endif %}
+
 {% else %}
-<span class="badge{% if submitted %} badge-{% if full_score %}success{% elif passed %}info{% else %}warning{% endif %}{% endif %} {{ classes }}"
+{% if difficulty %}
+<span class="difficulty">{{ difficulty }}</span>
+{% endif %}
+<span class="badge{% if graded %} badge-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}{% endif %} {{ classes }}"
         data-toggle="tooltip" data-placement="bottom"
-        title="{% if passed %}{% if submitted %}{% trans 'Passed' %}{% else %}{% trans 'No submissions' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% else %}{% trans 'Required exercises are not passed' %}{% endif %}">
+        title="{% if not submitted %}{% trans 'No submissions' %}{% elif passed %}{% trans 'Passed' %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% else %}{% trans 'Required exercises are not passed' %}{% endif %}">
     {{ points }} / {{ max }}
 </span>
 {% endif %}

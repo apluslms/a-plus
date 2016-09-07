@@ -201,6 +201,8 @@ class CachedContent(ContentMixin, CachedAbstract):
                         'points_to_pass': 0,
                         'max_submissions': 0,
                         'max_points': 0,
+                        'difficulty': '',
+                        'confirm_the_level': False,
                     })
                     if o.status == LearningObject.STATUS.UNLISTED:
                         if parents:
@@ -250,7 +252,11 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'points_to_pass': exercise.points_to_pass,
                 'max_submissions': exercise.max_submissions,
                 'max_points': exercise.max_points,
+                'difficulty': exercise.difficulty,
+                'confirm_the_level': exercise.confirm_the_level,
             })
+            if exercise.confirm_the_level:
+                flat[entry['parent']]['unconfirmed'] = True
             if exercise.max_group_size > total['max_group_size']:
                 total['max_group_size'] = exercise.max_group_size
             if exercise.max_group_size > 1 and exercise.min_group_size < total['min_group_size']:

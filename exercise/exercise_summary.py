@@ -13,11 +13,13 @@ class UserExerciseSummary(object):
     def __init__(self, exercise, user=None):
         self.exercise = exercise
         self.max_points = getattr(exercise, 'max_points', 0)
+        self.difficulty = getattr(exercise, 'difficulty', '')
         self.points_to_pass = getattr(exercise, 'points_to_pass', 0)
         self.user = user
         self.submissions = []
         self.submission_count = 0
         self.best_submission = None
+        self.graded = False
 
         if self.user and self.user.is_authenticated():
             self.submissions = list(exercise.get_submissions_for_student(
@@ -25,9 +27,14 @@ class UserExerciseSummary(object):
             for s in self.submissions:
                 if s.status != Submission.STATUS.ERROR:
                     self.submission_count += 1
-                    if (self.best_submission is None
-                            or s.grade > self.best_submission.grade):
+                    if (
+                        s.status == Submission.STATUS.READY and (
+                            self.best_submission is None
+                            or s.grade > self.best_submission.grade
+                        )
+                    ):
                           self.best_submission = s
+                          self.graded = True
 
     def get_submission_count(self):
         return self.submission_count
@@ -38,17 +45,11 @@ class UserExerciseSummary(object):
     def get_best_submission(self):
         return self.best_submission
 
-    def get_max_points(self):
-        return self.max_points
-
     def get_points(self):
         return self.best_submission.grade if self.best_submission else 0
 
     def get_penalty(self):
         return self.best_submission.late_penalty_applied if self.best_submission else None
-
-    def get_required_points(self):
-        return self.points_to_pass
 
     def is_missing_points(self):
         return self.get_points() < self.points_to_pass
@@ -61,6 +62,9 @@ class UserExerciseSummary(object):
 
     def is_submitted(self):
         return self.submission_count > 0
+
+    def is_graded(self):
+        return self.graded
 
 
 class ResultTable:

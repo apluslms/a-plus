@@ -532,13 +532,21 @@ class ExerciseTest(TestCase):
         total = points.total()
         self.assertEqual(total['exercise_count'], 7)
         self.assertEqual(total['max_points'], 400)
-        self.assertEqual(total['points'], 100)
-        _,entry,_ = points.find(self.course_module)
+        self.assertEqual(total['points'], 0)
 
+        self.submission.set_ready()
+        self.submission.save()
+        points = CachedPoints(self.course_instance, self.user,
+            CachedContent(self.course_instance))
+        total = points.total()
+        self.assertEqual(total['points'], 100)
+
+        _,entry,_ = points.find(self.course_module)
         self.assertEqual(entry['exercise_count'], 4)
         self.assertEqual(entry['max_points'], 200)
         self.assertEqual(entry['points'], 100)
         self.assertFalse(entry['passed'])
+
         for s in points.categories():
             if s['id'] == self.learning_object_category.id:
                 entry = s
