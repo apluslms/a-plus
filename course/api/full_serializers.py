@@ -1,15 +1,22 @@
 from rest_framework import serializers
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
-from lib.api.serializers import AplusModelSerializer
 
+from lib.api.serializers import AplusModelSerializer, NestedHyperlinkedIdentityFieldWithQuery
 from exercise.api.serializers import ExerciseBriefSerializer
-from ..models import CourseModule
-from .serializers import CourseBriefSerializer
+from userprofile.api.serializers import UserBriefSerializer
+from ..models import (
+    CourseModule,
+    UserTag,
+    UserTagging,
+)
+from .serializers import *
 
 
 __all__ = [
     'CourseModuleSerializer',
     'CourseSerializer',
+    'CourseUsertagSerializer',
+    'CourseUsertaggingsSerializer',
 ]
 
 
@@ -42,6 +49,8 @@ class CourseSerializer(CourseBriefSerializer):
     """
     exercises = NestedHyperlinkedIdentityField(view_name='api:course-exercises-list', format='html')
     students = NestedHyperlinkedIdentityField(view_name='api:course-students-list', format='html')
+    usertags = NestedHyperlinkedIdentityField(view_name='api:course-usertags-list', format='html')
+    taggings = NestedHyperlinkedIdentityField(view_name='api:course-taggings-list', format='html')
     # FIXME: points endpoint is disabled
     #points = NestedHyperlinkedIdentityField(view_name='api:course-points-list', format='html')
 
@@ -53,5 +62,46 @@ class CourseSerializer(CourseBriefSerializer):
             'visible_to_students',
             'exercises',
             'students',
+            'usertags',
+            'taggings',
             #'points',
         )
+
+
+class CourseUsertagSerializer(CourseUsertagBriefSerializer):
+    """
+    Full Serializer for UserTag model
+    """
+    taggings = NestedHyperlinkedIdentityFieldWithQuery(
+        view_name='api:course-taggings-list',
+        lookup_map={ 'course_id': 'course_instance_id' },
+        query_params={ 'tag_id': 'id' },
+    )
+
+    class Meta(CourseUsertagBriefSerializer.Meta):
+        model = UserTag
+        fields = (
+            'name',
+            'description',
+            'visible_to_students',
+            'color',
+            'font_color',
+            'taggings',
+        )
+
+
+class CourseUsertaggingsSerializer(AplusModelSerializer):
+    user = UserBriefSerializer()
+    tag = CourseUsertagBriefSerializer()
+
+    class Meta(AplusModelSerializer.Meta):
+        model = UserTagging
+        fields = (
+            'user',
+            'tag',
+        )
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:course-taggings-detail',
+            }
+        }

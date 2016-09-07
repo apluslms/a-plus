@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 
-from course.models import LearningObjectCategory, CourseModule, CourseInstance
+from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
 
 
 class FieldsetModelForm(forms.ModelForm):
@@ -132,3 +132,20 @@ class CloneInstanceForm(forms.Form):
                 course=self.instance.course, url=url).exists():
             raise ValidationError(_("The URL is already taken."))
         return url
+
+class UserTagForm(forms.ModelForm):
+
+    class Meta:
+        model = UserTag
+        fields = [
+            'name',
+            'description',
+            'visible_to_students',
+            'color',
+        ]
+
+    @classmethod
+    def get_base_object(self, course_instance):
+        obj = self.Meta.model()
+        obj.course_instance = course_instance
+        return obj

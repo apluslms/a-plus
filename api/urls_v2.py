@@ -22,6 +22,12 @@ with api.register(r'courses',
     courses.register(r'students',
                      course.api.views.CourseStudentsViewSet,
                      base_name='course-students')
+    courses.register(r'usertags',
+                     course.api.views.CourseUsertagsViewSet,
+                     base_name='course-usertags')
+    courses.register(r'taggings',
+                     course.api.views.CourseUsertaggingsViewSet,
+                     base_name='course-taggings')
     # FIXME: Disabled w:hile there is no correct permission checks
     #courses.register(r'points',
     #                 course.api.views.CoursePointsViewSet,

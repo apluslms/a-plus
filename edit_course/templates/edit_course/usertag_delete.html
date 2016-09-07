@@ -1,0 +1,35 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load bootstrap %}
+{% load course %}
+{% load editcourse %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'course-tags' }}">{% trans "Tags" %}</a></li>
+<li class="active">{% trans "Remove user tag" %}</li>
+{% endblock %}
+{% block view_tag %}edit-course,course-tags{% endblock %}
+
+{% block coursecontent %}
+<br />
+<form method="post" class="well form-horizontal">
+	{% csrf_token %}
+	<legend>
+		{% trans "Confirm user tag removal" %}
+	</legend>
+
+	<div class="alert alert-danger">
+		{% trans "Are you sure you want to remove following user tag?" %}
+		{% include "course/_usertag.html" with tag=object only %}
+	</div>
+
+	<div class="form-group">
+		<input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
+		<a class="btn btn-default" href="{{ instance|url:'course-tags' }}">
+			{% trans "Cancel" %}
+		</a>
+	</div>
+</form>
+
+{% endblock %}

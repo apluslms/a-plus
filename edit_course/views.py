@@ -2,14 +2,21 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.http.response import Http404
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from course.models import CourseInstance
-from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
-from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
-    BaseRedirectView
+from lib.viewbase import (
+    BaseViewMixin,
+    BaseTemplateMixin,
+    BaseTemplateView,
+    BaseRedirectMixin,
+    BaseRedirectView,
+    BaseFormView,
+)
 from authorization.permissions import ACCESS
+from course.models import CourseInstance, UserTag
+from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
-    CourseContentForm, CloneInstanceForm
+    CourseContentForm, CloneInstanceForm, UserTagForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 
 
@@ -160,6 +167,40 @@ class ModelDeleteView(ModelBaseMixin, BaseRedirectMixin, BaseTemplateView):
         if self.empty:
             self.object.delete()
         return self.redirect(self.get_success_url())
+
+
+class UserTagMixin(CourseInstanceMixin, BaseTemplateMixin, BaseViewMixin):
+    access_mode = ACCESS.TEACHER
+    form_class = UserTagForm
+    pk_url_kwarg = "tag_id"
+    success_url_name = "course-tags"
+
+    def get_success_url(self):
+        return self.instance.get_url(self.success_url_name)
+
+    def get_queryset(self):
+        return self.instance.usertags.all()
+
+
+class UserTagListView(UserTagMixin, ListView):
+    template_name = "edit_course/usertag_list.html"
+
+class UserTagAddView(UserTagMixin, CreateView):
+    template_name = "edit_course/usertag_add.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if 'instance' not in kwargs or not kwargs['instance']:
+            kwargs.update({'instance': self.form_class.get_base_object(self.instance)})
+        return kwargs
+
+
+class UserTagEditView(UserTagMixin, UpdateView):
+    template_name = "edit_course/usertag_edit.html"
+
+
+class UserTagDeleteView(UserTagMixin, DeleteView):
+    template_name = "edit_course/usertag_delete.html"
 
 
 class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):

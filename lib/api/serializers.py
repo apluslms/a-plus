@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from functools import partial
+from urllib.parse import urlencode
 from django.db.models import Manager
 from rest_framework import serializers
 from rest_framework.fields import get_attribute
@@ -26,6 +27,22 @@ class HtmlViewField(serializers.ReadOnlyField):
         request = self.context['request']
         url = obj.get_absolute_url()
         return request.build_absolute_uri(url)
+
+
+class NestedHyperlinkedIdentityFieldWithQuery(NestedHyperlinkedIdentityField):
+    def __init__(self, *args, query_params=None, **kwargs):
+        self.__query_params = query_params
+        super().__init__(*args, **kwargs)
+
+    def get_url(self, obj, view_name, request, format):
+        url = super().get_url(obj, view_name, request, format)
+
+        if url and self.__query_params:
+            get = lambda x: x(obj) if callable(x) else get_attribute(obj, x.split('.'))
+            params = [(key, get(value)) for key, value in self.__query_params.items()]
+            url = url + '?' + urlencode(params)
+
+        return url
 
 
 class AttributeProxy(object):

@@ -11,7 +11,9 @@ from django.db import models
 from django.db.models import Q, Count
 from django.db.models.signals import post_save
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from colorfield.fields import ColorField
 
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
@@ -21,6 +23,7 @@ from lib.helpers import (
     resize_image,
     roman_numeral,
     get_random_string,
+    get_font_color_for_background,
     Enum,
 )
 from lib.remote_page import RemotePage, RemotePageException
@@ -127,6 +130,47 @@ def create_enrollment_code(sender, instance, created, **kwargs):
         instance.save()
 
 post_save.connect(create_enrollment_code, sender=Enrollment)
+
+
+class UserTag(UrlMixin, models.Model):
+    name = models.CharField(max_length=200)
+    course_instance = models.ForeignKey('CourseInstance', related_name="usertags", on_delete=models.CASCADE)
+    description = models.CharField(max_length=164,
+                                   blank=True,
+                                   help_text=_("Describe the usage or meaning of this usertag"))
+    visible_to_students = models.BooleanField(default=False)
+    color = ColorField(default="#CD0000",
+                       help_text=_("Color that is used for this tag."))
+
+    @cached_property
+    def font_color(self):
+        return get_font_color_for_background(self.color)
+
+    def get_url_kwargs(self):
+        return dict(tag_id=self.id, **self.course_instance.get_url_kwargs())
+
+    def get_tagged_users(self):
+        return self.taggings.filter(course_instance=self.course_instance).select_related('user')
+
+
+class UserTagging(models.Model):
+    tag = models.ForeignKey(UserTag,
+                            related_name="taggings",
+                            on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile,
+                             related_name="taggings",
+                             on_delete=models.CASCADE,
+                             db_index=True)
+    course_instance = models.ForeignKey('CourseInstance',
+                                        related_name="taggings",
+                                        on_delete=models.CASCADE,
+                                        db_index=True)
+
+    class Meta:
+        unique_together = ('tag', 'user', 'course_instance')
+        index_together = (
+            ('user', 'course_instance'),
+        )
 
 
 def get_course_visibility_filter(user, prefix=None):
@@ -267,6 +311,8 @@ class CourseInstance(UrlMixin, models.Model):
 
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
     students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True, through='Enrollment')
+    # usertags from course.models.UserTag
+    # taggings from course.models.UserTagging
     # categories from course.models.LearningObjectCategory
     # course_modules from course.models.CourseModule
 
@@ -329,8 +375,14 @@ class CourseInstance(UrlMixin, models.Model):
         if user and user.is_authenticated() and not self.is_course_staff(user):
             Enrollment.objects.create(course_instance=self, user_profile=user.userprofile)
 
+    def tag_user(self, user, tag):
+        UserTagging.objects.create(tag=tag, user=user.userprofile, course_instance=self)
+
     def get_enrollment_for(self, user):
         return Enrollment.objects.filter(course_instance=self, user_profile=user.userprofile).first()
+
+    def get_user_tags(self, user):
+        return self.taggings.filter(user=user.uesrprofile).select_related('tag')
 
     def get_course_staff_profiles(self):
         return UserProfile.objects.filter(Q(teaching_courses=self.course) | Q(assisting_courses=self))\
