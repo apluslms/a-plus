@@ -40,7 +40,10 @@ class UserProfile(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return "{} ({})".format(self.student_id, self.user.username)
+        if self.student_id == None:
+            return "{} ({} {})".format(self.user.username, self.user.first_name, self.user.last_name)
+        else:
+            return "{} ({} {}, {})".format(self.user.username, self.user.first_name, self.user.last_name, self.student_id)
 
     @property
     def api_token(self):
