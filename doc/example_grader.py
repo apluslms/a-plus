@@ -58,8 +58,9 @@ class ExerciseGrader(http.server.BaseHTTPRequestHandler):
                        '<meta name="max-points" value="' + str(max_points) + '" />\n' +\
                        '<meta name="status" value="graded" />\n' + \
                        '</head><body>' +\
+                       '<div class="alert alert-success">' +\
                        'Submission succesful,  you got ' + str(points) + '/' +\
-                       str(max_points)+ ' points!</body></html>'
+                       str(max_points)+ ' points!</div></body></html>'
             self._respond(response.encode('utf-8'))
 
         # An exercise that expects a file submission.
@@ -70,7 +71,9 @@ class ExerciseGrader(http.server.BaseHTTPRequestHandler):
                 msg = 'Error: missing the submission file.'
             else:
                 status = 'accepted'
-                msg = 'Submission stored, you will be notified when course staff has assessed it.'
+                msg = '<div class="alert alert-success">' +\
+                      'Submission stored, you will be notified when course ' +\
+                      'staff has assessed it.</div>'
             response = '<html><head>\n' +\
                        '<meta name="status" value="' + status + '" />\n' + \
                        '</head><body>' + msg + '</body></html>'
