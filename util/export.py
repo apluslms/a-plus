@@ -56,7 +56,6 @@ def form_fields(exercise):
                     'key': f.get('key', 'field_' + str(n)),
                     'type': f['type'],
                     'title': f['title'],
-                    'htmlClass': f.get('class', ''),
                     'required': f.get('required', False),
                 }
 
@@ -84,6 +83,10 @@ def form_fields(exercise):
 
                 if 'extra_info' in f:
                     field.update(f['extra_info'])
+
+                if 'class' in field:
+                    field['htmlClass'] = field['class']
+                    del(field['class'])
 
                 form.append(field)
                 n += 1
