@@ -30,7 +30,8 @@ def exercise(request, course, exercise, of):
         of["title"] = exercise.get("title", "")
     if not "description" in of:
         of["description"] = exercise.get("description", "")
-    of['url'] = url_to_exercise(request, course['key'], exercise['key'])
+    if not 'url' in of:
+        of["url"] = url_to_exercise(request, course['key'], exercise['key'])
     of['exercise_info'] = {
         'form_spec': form_fields(exercise),
         'resources': [url_to_static(request, course['key'], p) for p in exercise.get('resource_files', [])],
@@ -55,8 +56,18 @@ def form_fields(exercise):
                     'title': f['title'],
                     'required': f.get('required', False),
                 }
+
+                mods = f.get('compare_method', '').split('-')
+                if 'int' in mods:
+                    field['type'] = 'int'
+                elif 'float' in mods:
+                    field['type'] = 'float'
+                elif 'regexp' in mods:
+                    field['pattern'] = f['correct']
+
                 if 'more' in f:
                     field['description'] = f['more']
+
                 if 'options' in f:
                     titleMap = {}
                     enum = []
@@ -68,6 +79,10 @@ def form_fields(exercise):
                         m += 1
                     field['titleMap'] = titleMap
                     field['enum'] = enum
+
+                if 'extra_info' in f:
+                    field.update(f['extra_info'])
+
                 form.append(field)
                 n += 1
 
