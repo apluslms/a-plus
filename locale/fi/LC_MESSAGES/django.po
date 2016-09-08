@@ -113,11 +113,11 @@ msgstr "Varatut sanat: {}"
 
 #: course/models.py:140
 msgid "Describe the usage or meaning of this usertag"
-msgstr ""
+msgstr "Kuvaile merkinnän käyttötarkoitus"
 
 #: course/models.py:143
 msgid "Color that is used for this tag."
-msgstr ""
+msgstr "Merkinnän yhteydessä käytettävä väri."
 
 #: course/models.py:251
 msgid "Internal users"
@@ -192,7 +192,7 @@ msgid ""
 "External CSS and JS resources that are included on all course pages. "
 "Separate with white space."
 msgstr ""
-"Ulkoiset CSS ja JS resurssit, jotka sisällytetään kurssisivuihin. Erottele "
+"Ulkoiset CSS- ja JS-resurssit, jotka sisällytetään kurssisivuihin. Erottele "
 "osoitteet rivinvaihdoilla."
 
 #: course/models.py:304
@@ -1239,7 +1239,7 @@ msgstr "Vahvista käyttäjämerkinnän poisto"
 
 #: edit_course/templates/edit_course/usertag_delete.html:23
 msgid "Are you sure you want to remove following user tag?"
-msgstr ""
+msgstr "Haluatko varmasti poistaa seuraavan käyttäjämerkinnän?"
 
 #: edit_course/templates/edit_course/usertag_edit.html:10
 #: edit_course/templates/edit_course/usertag_edit.html:18
@@ -1256,7 +1256,7 @@ msgstr "Opiskelijamerkinnät"
 
 #: edit_course/templates/edit_course/usertag_list.html:27
 msgid "Tag"
-msgstr ""
+msgstr "Merkintä"
 
 #: edit_course/templates/edit_course/usertag_list.html:28
 msgid "Description"
@@ -1330,7 +1330,7 @@ msgstr ""
 
 #: exercise/admin.py:31
 msgid "Course instance"
-msgstr ""
+msgstr "Kurssikerta"
 
 #: exercise/admin.py:32 exercise/templates/exercise/_submission_info.html:32
 #: exercise/templates/exercise/staff/_assess_info.html:11
@@ -1394,7 +1394,7 @@ msgstr "Poista kolmas tietopalsta tilan leventämiseksi."
 
 #: exercise/exercise_models.py:100
 msgid "List model answer files as protected URL addresses."
-msgstr ""
+msgstr "Luettele mallivastausten ei-julkiset URL-osoitteet."
 
 #: exercise/exercise_models.py:119
 msgid "Course_module and category must belong to the same course instance."
@@ -1721,11 +1721,11 @@ msgstr "Palautusta arvostellaan..."
 
 #: exercise/templates/exercise/_points_badge.html:10
 msgid "Accepted"
-msgstr ""
+msgstr "Hyväksytty"
 
 #: exercise/templates/exercise/_points_badge.html:10
 msgid "Rejected"
-msgstr ""
+msgstr "Hylätty"
 
 #: exercise/templates/exercise/_points_badge.html:10
 msgid "Submitted"
@@ -1906,6 +1906,8 @@ msgid ""
 "\n"
 "No model answer has been supplied for this exercise.\n"
 msgstr ""
+"\n"
+"Tähän tehtävään ei ole malliratkaisua.\n"
 
 #: exercise/templates/exercise/model/_lti_button.html:10
 msgid "Launch exercise"
@@ -2315,19 +2317,27 @@ msgid ""
 "\t\t\tthe service behaves with your best interest in mind.\n"
 "\t\t\t"
 msgstr ""
+"\n"
+"\t\t\tTälle palvelulle annetaan mahdollisuus toimia A+-järjestelmässä\n"
+"\t\t\tsinun käyttöoikeuksillasi.\n"
+"\t\t\tTämä tarkoittaa, että ulkoinen palvelu voi esimerkiksi lukea opiskelijanumerosi ja\n"
+"\t\t\ttarkastella etenemistäsi kurssilla.\n"
+"\t\t\tKurssihenkilökunta on kytkenyt ominaisuuden käyttöön ja tarkistanut, että\n"
+"\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
+"\t\t\t"
 
 #: external_services/templates/external_services/lti_form.html:48
 msgid "Remember this and automatically redirect next time."
-msgstr ""
+msgstr "Muista valinta ja siirry automaattisesti seuraavalla kerralla."
 
 #: external_services/templates/external_services/lti_form.html:55
 #, python-format
 msgid "Accept and continue to %(name)s"
-msgstr "Hyväksy ja jatka palveluun, %(name)s"
+msgstr "Hyväksy ja jatka palveluun %(name)s"
 
 #: external_services/templates/external_services/lti_form.html:59
 msgid "Show shared variables"
-msgstr ""
+msgstr "Näytä jaetut tiedot"
 
 #: lib/api/authentication/grader.py:41
 msgid "Client address doesn't match service address"
