@@ -157,7 +157,11 @@ html, body {
 
 /* menus */
 .course-menu .nav>li>a {
-    padding: 5px;
+    padding: 2px 2px 2px 5px;
+}
+#main-course-menu.fixed {
+    position: fixed;
+    top: 20px;
 }
 .siblings>.btn {
     max-width: 50%;

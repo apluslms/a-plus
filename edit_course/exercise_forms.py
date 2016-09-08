@@ -124,7 +124,7 @@ class LTIExerciseForm(BaseExerciseForm):
     def remote_service_head(self):
         return False
 
-    def get_content_fieldset(self):
+    def get_content_fieldset(self, *add):
         return super().get_content_fieldset('lti_service','context_id',
             'resource_link_id','resource_link_title',
             'aplus_get_and_post','service_url')
@@ -141,7 +141,7 @@ class ExerciseWithAttachmentForm(BaseExerciseForm):
             'attachment',
         ]
 
-    def get_content_fieldset(self):
+    def get_content_fieldset(self, *add):
         return super().get_content_fieldset(
             'content', 'files_to_submit', 'attachment')
 
@@ -161,6 +161,6 @@ class StaticExerciseForm(BaseExerciseForm):
     def remote_service_head(self):
         return False
 
-    def get_content_fieldset(self):
+    def get_content_fieldset(self, *add):
         return super().get_content_fieldset(
             'exercise_page_content', 'submission_page_content')

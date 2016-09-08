@@ -17,6 +17,34 @@ $(function() {
     $('.filtered-table').aplusTableFilter();
 });
 
+$(function() {
+
+    // Keep the menu visible when scrolling
+
+    var menuHeight = $('#main-course-menu').height() + 100;
+    var menuFixed = false;
+
+    var modifyMenu = function() {
+        var menu =  $('#main-course-menu');
+        if ($(window).scrollTop() > menuHeight && !menuFixed) {
+            menu.addClass('fixed');
+            menuFixed = true;
+        } else if ($(window).scrollTop() < 50 && menuFixed) {
+            menu.removeClass('fixed');
+            menuFixed = false;
+        }
+    };
+
+    $(window).bind('scroll', function () {
+      modifyMenu();
+    });
+
+    $(window).bind('resize', function () {
+      modifyMenu();
+    });
+
+});
+
 $.fn.highlightCode = function(options) {
   return this.each(function() {
 
