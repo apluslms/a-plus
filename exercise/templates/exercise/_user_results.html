@@ -124,7 +124,15 @@
     {% elif entry.has_children %}
       <tr>
         <td colspan="4">
-          <small>{{ entry.name }}</small>
+          {% if after_open %}
+          <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a></strong>
+          {% elif is_course_staff %}
+          <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a></strong>
+          <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            {% trans "Early access" %}
+          </a>
+          {% endif %}
         </td>
       </tr>
     {% endif %}

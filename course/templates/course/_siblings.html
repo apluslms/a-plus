@@ -11,7 +11,7 @@
     <span class="pull-right btn btn-link disabled">
         {{ next.name }} &raquo;
         {% if is_course_staff %}
-        <a href="{{ next.link }}" class="pull-right btn btn-default btn-xs">
+        <a href="{{ next.link }}" class="btn btn-default btn-xs">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
         </a>
@@ -22,14 +22,14 @@
 
     {% if previous %}
     {% if previous|has_opened:now %}
-    <a href="{{ previous.link }}" class="btn btn-link">
+    <a href="{{ previous.link }}" class="pull-left btn btn-link">
         &laquo; {{ previous.name }}
     </a>
     {% else %}
-    <span class="btn btn-link disabled">
+    <span class="pull-left btn btn-link disabled">
         &laquo; {{ previous.name }}
         {% if is_course_staff %}
-        <a href="{{ previous.link }}" class="pull-right btn btn-default btn-xs">
+        <a href="{{ previous.link }}" class="btn btn-default btn-xs">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
         </a>
@@ -37,4 +37,11 @@
     </span>
     {% endif %}
     {% endif %}
+
+    <span class="hidden-md hidden-sm hidden-xs" style="display: block; margin: auto; text-align: center;">
+        <a href="{{ instance|url:'toc' }}">
+            {% trans "Course materials" %}
+        </a>
+    </span>
+
 </nav>
