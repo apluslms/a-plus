@@ -56,17 +56,17 @@ def form_fields(exercise):
                     'key': f.get('key', 'field_' + str(n)),
                     'type': f['type'],
                     'title': f['title'],
+                    'htmlClass': f.get('class', ''),
                     'required': f.get('required', False),
                 }
 
                 mods = f.get('compare_method', '').split('-')
                 if 'int' in mods:
-                    field['type'] = 'int'
+                    field['type'] = 'number'
                 elif 'float' in mods:
-                    field['type'] = 'float'
+                    field['type'] = 'number'
                 elif 'regexp' in mods:
                     field['pattern'] = f['correct']
-
                 if 'more' in f:
                     field['description'] = f['more']
 
