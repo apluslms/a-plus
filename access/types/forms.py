@@ -281,10 +281,8 @@ class GradedForm(forms.Form):
             else:
                 return val.lower() == cmp.lower()
         elif t == "regexp":
-            if cmp.startswith('/'):
-                cmp = cmp[1:]
-            if cmp.endswith('/'):
-                cmp = cmp[:-1]
+            if cmp.startswith('/') and cmp.endswith('/'):
+                cmp = cmp[1:-1]
             p = re.compile(cmp)
             return p.match(val) != None
         elif t == "int":
