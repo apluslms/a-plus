@@ -7,7 +7,7 @@
 	{% endif %}
 
 		{% if not field.field.row_label or field.field.open_table %}
-		<div class="form-group{% if field.errors %} has-error{% elif not field.field.group_errors and field.field.name in result.error_fields %} has-error{% endif %}">
+		<div class="{{ field.field.html_class }} {% if field.errors %} has-error{% elif not field.field.group_errors and field.field.name in result.error_fields %} has-error{% endif %}">
 
 			{% if field.field.required %}<span class="required">*</span>{% endif %}
 
@@ -84,7 +84,11 @@
 
 		{% if not field.field.row_label or field.field.close_table %}
 			{% if field.field.hints %}
-			{{ field.field.hints|safe }}
+			<ul class="question-feedback">
+				{% for hint in field.field.hints %}
+				<li class="question-feedback-item">{{ hint|safe }}</li>
+				{% endfor %}
+			</ul>
 			{% endif %}
 		</div>
 		{% endif %}

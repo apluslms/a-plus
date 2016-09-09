@@ -171,6 +171,10 @@ class GradedForm(forms.Form):
         field.more = self.create_more(config)
         field.points = config.get('points', 0)
         field.choice_list = not choices is None and widget_class != forms.Select
+        if 'extra_info' in config and 'class' in config['extra_info']:
+            field.html_class = config['extra_info']['class']
+        else:
+            field.html_class = 'form-group'
         self.fields[field.name] = field
         return (i + 1, [field])
 
@@ -277,6 +281,10 @@ class GradedForm(forms.Form):
             else:
                 return val.lower() == cmp.lower()
         elif t == "regexp":
+            if cmp.startswith('/'):
+                cmp = cmp[1:]
+            if cmp.endswith('/'):
+                cmp = cmp[:-1]
             p = re.compile(cmp)
             return p.match(val) != None
         elif t == "int":
@@ -338,24 +346,31 @@ class GradedForm(forms.Form):
         # Apply new feedback definitions.
         for fb in configuration.get("feedback", []):
             new_hint = fb.get('label', None)
-            r = self.compare_values(method, value, fb.get('value', ''))
-            if new_hint and (r or (fb.get('not', False) and not r)):
-                add = True
-                for i in range(len(hints)):
-                    if new_hint.startswith(hints[i]):
-                        hints[i] = new_hint
+            comparison = fb.get('value', '')
+            if not new_hint:
+                continue
+            add = False
+            if comparison == "%100%":
+                add = ok
+            else:
+                r = self.compare_values(method, value, comparison)
+                add = not r if fb.get('not', False) else r
+            if add:
+                for j in range(len(hints)):
+                    if new_hint.startswith(hints[j]):
+                        hints[j] = new_hint
                         add = False
                         break
-                    elif hints[i].startswith(new_hint):
+                    elif hints[j].startswith(new_hint):
                         add = False
                         break
-                if add:
-                    hints.append(new_hint)
+            if add:
+                hints.append(new_hint)
 
         points = configuration.get('points', 0)
         self.fields[name].grade_points = points if ok else 0
         self.fields[name].max_points = points
-        self.fields[name].hints = ' '.join(hints)
+        self.fields[name].hints = hints
         return i + 1, ok, points if ok else 0
 
     def row_options(self, configuration, row):
