@@ -86,7 +86,7 @@ $(function() {
 				+ ";path=/" + path[3] + "/" + path[4] + "/"
 				+ ";expires=" + expire.toGMTString();
 	};
-	var regex = new RegExp("(?:(?:^|.*;\s*)" + cookieName + "\s*\=\s*([^;]*).*$)|^.*$");
+	var regex = new RegExp("(?:(?:^|.*;\\s*)" + cookieName + "\\s*\\=\\s*([^;]*).*$)|^.*$");
 	var val = document.cookie.replace(regex, "$1");
 	var form = $("#lti_login_form");
 	if (val == cookieValue) form.submit(); /* automatically submit accepted data */
