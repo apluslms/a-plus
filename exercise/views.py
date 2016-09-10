@@ -159,7 +159,7 @@ class ExercisePlainView(ExerciseView):
 
 class ExerciseModelView(ExerciseBaseView):
     template_name = "exercise/model.html"
-    #ajax_template_name = "exercise/model_plain.html"
+    ajax_template_name = "exercise/_model_files.html"
     access_mode = ACCESS.ENROLLED
 
     def get_resource_objects(self):

@@ -157,8 +157,9 @@ $.fn.highlightCode = function(options) {
                       modal.find(settings.content_selector).html(text);
                       text.highlightCode();
                     } else {
-                      modal.find(settings.content_selector).html(data)
-                        .find('.file-modal').aplusModal({file:true});
+                      var c = modal.find(settings.content_selector).html(data);
+                      c.find('.file-modal').aplusModal({file:true});
+                      c.find('pre.hljs').highlightCode();
                     }
                     modal.on("hidden.bs.modal", function(event) {
                       $(".dropdown-toggle").dropdown();

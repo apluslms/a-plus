@@ -95,14 +95,14 @@
 				</ul>
 				{% if is_course_staff or exercise.is_closed %}
 				{% if exercise.model_answers %}
-				<a class="btn btn-default btn-xs" href="{{ exercise|url:'exercise-model' }}">
+				<a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-model' }}">
 					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
 					{% trans "Show model answer" %}
 				</a>
 				{% endif %}
 				{% endif %}
 				{% if is_course_staff %}
-				<a class="btn btn-default btn-xs" href="{{ exercise|url:'submission-list' }}">
+				<a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'submission-list' }}">
 					<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
 					{% trans "View all submissions" %}
 				</a>

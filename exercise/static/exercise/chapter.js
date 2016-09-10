@@ -93,7 +93,7 @@
 		exercise_selector: '#exercise-all',
 		summary_selector: '.exercise-summary',
 		response_selector: '.exercise-response',
-		navigation_selector: 'ul.nav a[class!="dropdown-toggle"][class!="file-modal"]',
+		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
 		dropdown_selector: 'ul.nav .dropdown-toggle',
 		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
 	};
@@ -179,7 +179,7 @@
 					chapter.openModalURL($(this).attr("href"));
 				});
 			this.element.find(this.settings.dropdown_selector).dropdown();
-			this.element.find('.file-modal').aplusModal({file:true});
+			this.element.find('.page-modal').aplusModal();
 		},
 
 		bindFormEvents: function(content) {

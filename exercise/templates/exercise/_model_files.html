@@ -1,0 +1,12 @@
+{% load i18n %}
+<p>{{ current.name }}</p>
+{% for entry in models %}
+<h4>{{ entry.name }}</h4>
+<pre class="hljs">
+{{ entry.content }}
+</pre>
+{% empty %}
+{% blocktrans %}
+No model answer has been supplied for this exercise.
+{% endblocktrans %}
+{% endfor %}
