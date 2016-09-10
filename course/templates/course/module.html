@@ -43,8 +43,7 @@
 	</p>
 	{% endif %}
 
-  {% include 'exercise/_user_toc.html' %}
-
+  {% include "exercise/_children.html" with children=children after_open=True %}
 {% endblock %}
 
 {% block sidecontent %}

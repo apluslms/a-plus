@@ -13,11 +13,10 @@ from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
-from cached.content import CachedContent
+from exercise.models import LearningObject
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
 from userprofile.viewbase import UserProfileView
-from exercise.models import LearningObject
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
@@ -96,12 +95,12 @@ class ModuleView(CourseModuleBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.now = timezone.now()
-        self.toc = self.content.children_hierarchy(self.module)
-        previous_entry, current_entry, next_entry = self.content.find(self.module)
-        self.previous = previous_entry
-        self.current = current_entry
-        self.next = next_entry
-        self.note('now', 'toc', 'previous', 'current', 'next')
+        self.children = self.content.flat_module(self.module)
+        cur, tree, prev, nex = self.content.find(self.module)
+        self.previous = prev
+        self.current = cur
+        self.next = nex
+        self.note('now', 'children', 'previous', 'current', 'next')
 
 
 class CalendarExport(CourseInstanceMixin, BaseView):

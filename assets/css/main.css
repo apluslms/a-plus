@@ -256,6 +256,9 @@ html, body {
     border: 1px solid #fff;
     padding: 2px 6px;
 }
+td.submissions-dropdown {
+  text-align:center;
+}
 
 /* exercise wells */
 .exercise {

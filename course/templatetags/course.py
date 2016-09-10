@@ -3,7 +3,7 @@ from django import template
 from django.conf import settings
 from django.utils import timezone
 
-from cached.content import CachedContent
+from exercise.cache.content import CachedContent
 from course.models import CourseInstance
 
 
@@ -52,6 +52,11 @@ def is_visible(entry):
 @register.filter
 def is_listed(entry):
     return CachedContent.is_listed(entry)
+
+
+@register.filter
+def len_listed(entries):
+    return len([e for e in entries if CachedContent.is_listed(e)])
 
 
 @register.filter

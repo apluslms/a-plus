@@ -2,7 +2,7 @@
 {% load course %}
 {% load exercise %}
 
-{% if categories|length > 1 %}
+{% if categories|len_listed > 1 %}
 <p class="filter-categories">
   <small>{% trans "Filter view" %}:</small>
   {% for entry in categories %}
@@ -18,76 +18,70 @@
 
 <p id="toggle-expired" class="hide"><a href="#">{% trans "Show older assignments." %}</a></p>
 
-{% for entry in toc %}
-  {% if entry|is_visible %}
-
-  {% if entry.type == 'module' %}
-    {% with open=entry|is_open:now after_open=entry|has_opened:now %}
+{% for module in modules %}
+{% if module|is_visible %}
+{% with open=module|is_open:now after_open=module|has_opened:now %}
 <div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
   <a class="panel-heading{% if not open %} collapsed{% endif %}"
-    role="button" href="#module{{ entry.id }}" data-toggle="collapse"
-    aria-expanded="{% if open %}true{% else %}false{% endif %}" aria-controls="#module{{ entry.id }}">
+    role="button" href="#module{{ module.id }}" data-toggle="collapse"
+    aria-expanded="{% if open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
     <h3 class="panel-title">
-      {% points_badge entry "pull-right" %}
+      {% points_badge module "pull-right" %}
       {% if not open and not after_open %}
       <span class="badge pull-right">
-        {% trans "Opens" %} {{ entry.opening_time }}
+        {% trans "Opens" %} {{ module.opening_time }}
       </span>
       {% endif %}
       <span class="caret" aria-hidden="true"></span>
-      {{ entry.name }}
+      {{ module.name }}
     </h3>
   </a>
-  <div class="collapse{% if open %} in{% endif %}" id="module{{ entry.id }}">
+  <div class="collapse{% if open %} in{% endif %}" id="module{{ module.id }}">
   <div class="panel-body">
     <p>
-      {{ entry.opening_time }} &ndash; {{ entry.closing_time }}
+      {{ module.opening_time }} &ndash; {{ module.closing_time }}
 
-      {% if entry.late_allowed %}
+      {% if module.late_allowed %}
       <br />
       <em>
-        {% blocktrans with deadline=entry.late_time %}
+        {% blocktrans with deadline=module.late_time %}
         Late submission are allowed until {{ deadline }}
         {% endblocktrans %}
-        {% if entry.late_percent != 100 %}
-        {% blocktrans with percent=entry.late_percent %}
+        {% if module.late_percent != 100 %}
+        {% blocktrans with percent=module.late_percent %}
         but points are only worth {{ percent }}%.
         {% endblocktrans %}
         {% endif %}
       </em>
       {% endif %}
 
-      {% if entry.points_to_pass > 0 %}
+      {% if module.points_to_pass > 0 %}
       <br />
-      {% blocktrans with points=entry.points_to_pass %}
+      {% blocktrans with points=module.points_to_pass %}
       {{ points }} points required to pass the module.
       {% endblocktrans %}
       {% endif %}
     </p>
 
-    {% points_progress entry %}
-    {{ entry.introduction|safe }}
+    {% points_progress module %}
+    {{ module.introduction|safe }}
   </div>
-    {% if entry.has_children %}
+
+  {% if module.children|len_listed > 0 %}
   <table class="table table-striped table-condensed results-table">
     <tbody>
-      <tr class="category-row" data-category="{{ category.id }}">
+      <tr class="category-row">
         <th>{% trans "Exercise" %}</th>
         <th>{% trans "Category" %}</th>
-        <th class="col-md-2">{% trans "Points" %}</th>
+        <th>{% trans "Submissions" %}</th>
+        <th>{% trans "Points" %}</th>
         {% if is_course_staff %}
         <th>{% trans "Course staff" %}</th>
         {% endif %}
       </tr>
-    {% else %}
-  </div>
-</div>
-    {% endif %}
-    {% endwith %}
+      {% for entry in module.flatted %}
 
-  {% elif entry.type == 'exercise' %}
-    {% with after_open=entry|has_opened:now %}
-    {% if entry.submittable %}
+      {% if entry.submittable %}
       <tr data-category="{{ entry.category_id }}">
         <td>
           {% if after_open %}
@@ -103,13 +97,38 @@
         <td>
           <small>{{ entry.category }}</small>
         </td>
+        <td class="submissions-dropdown dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <span class="badge">
+              {{ entry.submission_count }}
+              {% if entry.max_submissions > 0 %}
+              / {{ entry.max_submissions }}
+              {% endif %}
+            </span><b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu">
+            {% for submission in entry.submissions %}
+            <li>
+              <a href="{{ submission.url }}" class="page-modal">
+                {{ forloop.revcounter }}.
+                {{ submission.date }}
+                {% points_badge submission %}
+              </a>
+            </li>
+            {% empty %}
+            <li>
+              <a href="#" class="page-modal">{% trans "No submissions yet" %}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </td>
         <td>
           {% points_badge entry %}
         </td>
         {% if is_course_staff %}
         <td>
           {% if not after_open %}
-          <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+          <a class="btn btn-default btn-xs" href="{% if entry.parent_link %}{{ entry.parent_link }}#chapter-exercise-{{ entry.order }}{% else %}{{ entry.link }}{% endif %}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
           </a>
@@ -121,34 +140,37 @@
         </td>
         {% endif %}
       </tr>
-    {% elif entry.has_children %}
+
+      {% elif entry.type == 'exercise' %}
       <tr>
         <td colspan="4">
           {% if after_open %}
           <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a></strong>
-          {% elif is_course_staff %}
-          <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a></strong>
+          {% else %}
+          <strong>{{ entry.name }}</strong>
+          {% endif %}
+        </td>
+        {% if is_course_staff %}
+        <td>
+          {% if not after_open %}
           <a class="btn btn-default btn-xs" href="{{ entry.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
           </a>
           {% endif %}
         </td>
+        {% endif %}
       </tr>
-    {% endif %}
-    {% endwith %}
-  {% endif %}
-  {% endif %}
+      {% endif %}
 
-  {% for level in entry.close_levels %}
-  {% if level == 'm' %}
+      {% endfor %}
     </tbody>
   </table>
+  {% endif %}
   </div>
 </div>
-  {% endif %}
-  {% endfor %}
-
+{% endwith %}
+{% endif %}
 {% endfor %}
 
 <script>

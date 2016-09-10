@@ -5,8 +5,8 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.bundle import Bundle
 from tastypie.resources import ModelResource, Resource
 
-from cached.content import CachedContent
-from cached.points import CachedPoints
+from exercise.cache.content import CachedContent
+from exercise.cache.points import CachedPoints
 from userprofile.models import UserProfile
 
 from ..models import Course, CourseInstance, CourseModule
@@ -112,26 +112,22 @@ class CourseInstanceSummaryResource(Resource):
         results["user"] = user_profile.id
         results["course_instance"] = kwargs["pk"]
 
-        grouped = {}
-        for entry in points.exercises():
-            m = entry['module_id']
-            if not m in grouped:
-                grouped[m] = []
-            grouped[m].append({
-                'exercise_id': entry['id'],
-                'submission_count': entry['submission_count'],
-                'completed_percentage': self._percentage(
-                    entry['points'], entry['max_points']),
-            })
-
         summary = []
         for entry in points.modules():
+            exs = []
+            for entry in points.flat_module(entry):
+                exs.append({
+                    'exercise_id': entry['id'],
+                    'submission_count': entry['submission_count'],
+                    'completed_percentage': self._percentage(
+                        entry['points'], entry['max_points']),
+                })
             summary.append({
                 'exercise_round_id': entry['id'],
                 'completed_percentage': self._percentage(
                     entry['points'], entry['max_points']),
                 'closing_time': entry['closing_time'],
-                'exercise_summaries': grouped[entry['id']],
+                'exercise_summaries': exs,
             })
 
         results["summary"] = summary

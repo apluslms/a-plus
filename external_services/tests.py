@@ -3,9 +3,9 @@ from datetime import timedelta
 from django.test import TestCase
 from django.utils import timezone
 
-from cached.menu import CachedCourseMenu
 from course.models import Course, CourseInstance
 from userprofile.models import User
+from .cache import CachedCourseMenu
 from .models import LinkService, LTIService, MenuItem
 from .templatetags import external_services as tags
 

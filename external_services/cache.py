@@ -1,8 +1,8 @@
 from django.db.models.signals import post_save, post_delete
 from django.utils.translation import ugettext as _
 
-from external_services.models import MenuItem
-from .abstract import CachedAbstract
+from lib.cached import CachedAbstract
+from .models import MenuItem
 
 
 class CachedCourseMenu(CachedAbstract):

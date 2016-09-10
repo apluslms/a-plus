@@ -4,9 +4,9 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from cached.content import CachedContent
-from cached.points import CachedPoints
 from lib.errors import TagUsageError
+from ..cache.content import CachedContent
+from ..cache.points import CachedPoints
 from ..exercise_summary import UserExerciseSummary
 from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
 
@@ -32,7 +32,7 @@ def _get_toc(context):
     points = _prepare_context(context)
     return {
         'now': context['now'],
-        'toc': points.full_hierarchy(),
+        'modules': points.modules_flatted(),
         'categories': points.categories(),
         'is_course_staff': context.get('is_course_staff', False),
     }
@@ -59,7 +59,7 @@ def user_last(context):
             learning_object__course_module__course_instance=context['instance'],
         ).select_related('learning_object').order_by('-timestamp').first()
         if last:
-            _,entry,_ = points.find(last.learning_object)
+            entry,_,_,_ = points.find(last.learning_object)
             return {
                 'last': entry,
                 'last_time': last.timestamp,
@@ -125,20 +125,24 @@ def _points_data(obj, classes=None):
             'full_score': obj.grade >= exercise.max_points,
             'submitted': True,
             'graded': obj.is_graded,
-            'status': False if obj.is_graded else obj.status,
+            'status': obj.status,
         }
     else:
+        points = obj.get('points', 0)
+        max_points = obj.get('max_points', 0)
+        required = obj.get('points_to_pass', 0)
         data = {
-            'points': obj['points'],
-            'max': obj['max_points'],
-            'difficulty': obj['difficulty'],
-            'required': obj['points_to_pass'],
+            'points': points,
+            'max': max_points,
+            'difficulty': obj.get('difficulty', ''),
+            'required': required,
             'confirm_the_level': obj.get('confirm_the_level', False),
-            'missing_points': obj['points'] < obj['points_to_pass'],
-            'passed': obj['passed'],
-            'full_score': obj['points'] >= obj['max_points'],
-            'submitted': obj['submission_count'] > 0,
+            'missing_points': points < required,
+            'passed': obj.get('passed', True),
+            'full_score': points >= max_points,
+            'submitted': obj.get('submission_count', 0) > 0,
             'graded': obj.get('graded', True),
+            'status': obj.get('submission_status', False),
         }
     percentage = 0
     required_percentage = None

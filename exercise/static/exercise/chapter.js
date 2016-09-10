@@ -10,7 +10,7 @@
 		chapter_url_attr: "data-aplus-chapter",
 		exercise_url_attr: "data-aplus-exercise",
 		loading_selector: "#loading-indicator",
-		modal_selector: "#embed-modal",
+		modal_selector: "#page-modal",
 		modal_content_selector: ".modal-body"
 	};
 
@@ -32,7 +32,6 @@
 			this.ajaxForms = window.FormData ? true : false;
 			this.url = this.element.attr(this.settings.chapter_url_attr);
 			this.modalElement = $(this.settings.modal_selector).modal({show: false});
-
 			this.element.find("[" + this.settings.exercise_url_attr + "]")
 				.aplusExercise(this);
 		},
@@ -56,7 +55,7 @@
 		openModal: function(content) {
 			this.modalElement.find(this.settings.modal_content_selector)
 				.empty().append(content)
-				.find('.file-modal').aplusFileModal();
+				.find('.file-modal').aplusModal({file:true});
 			this.modalElement.modal("show");
 		}
 	});
@@ -180,7 +179,7 @@
 					chapter.openModalURL($(this).attr("href"));
 				});
 			this.element.find(this.settings.dropdown_selector).dropdown();
-			this.element.find('.file-modal').aplusFileModal();
+			this.element.find('.file-modal').aplusModal({file:true});
 		},
 
 		bindFormEvents: function(content) {

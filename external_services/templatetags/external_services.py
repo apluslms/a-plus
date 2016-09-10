@@ -1,7 +1,7 @@
 from django import template
 
-from cached.menu import CachedCourseMenu
 from lib.errors import TagUsageError
+from ..cache import CachedCourseMenu
 from ..models import MenuItem
 
 
