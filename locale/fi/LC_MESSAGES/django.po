@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-08 12:37+0300\n"
+"POT-Creation-Date: 2016-09-11 23:09+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,11 +78,7 @@ msgstr "Vain kurssihenkilökunnalle - only course staff shall pass."
 msgid "Only enrolled students shall pass."
 msgstr "Vain ilmoittautuneille - only enrolled students shall pass."
 
-#: cached/menu.py:43
-msgid "External"
-msgstr "Ulkoiset palvelut"
-
-#: course/admin.py:14
+#: course/admin.py:24
 msgid "URL"
 msgstr ""
 
@@ -107,7 +103,7 @@ msgstr "Tämä ryhmä on jo olemassa"
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:61 course/models.py:548 exercise/exercise_models.py:134
+#: course/models.py:61 course/models.py:559 exercise/exercise_models.py:134
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -119,75 +115,75 @@ msgstr "Kuvaile merkinnän käyttötarkoitus"
 msgid "Color that is used for this tag."
 msgstr "Merkinnän yhteydessä käytettävä väri."
 
-#: course/models.py:251
+#: course/models.py:261
 msgid "Internal users"
 msgstr "Paikalliset käyttäjät"
 
-#: course/models.py:252
+#: course/models.py:262
 msgid "External users"
 msgstr "Ulkoiset käyttäjät"
 
-#: course/models.py:253
+#: course/models.py:263
 msgid "Internal and external users"
 msgstr "Paikalliset ja ulkoiset käyttäjät"
 
-#: course/models.py:256
+#: course/models.py:266
 msgid "Enrolled students"
 msgstr "Ilmoittautuneet opiskelijat"
 
-#: course/models.py:257
+#: course/models.py:267
 msgid "Enrollment audience"
 msgstr "Ilmoittautumisen kohdeyleisö"
 
-#: course/models.py:258
+#: course/models.py:268
 msgid "All registered users"
 msgstr "Kaikki rekisteröityneet käyttäjät"
 
-#: course/models.py:259
+#: course/models.py:269
 msgid "Public to internet"
 msgstr "Julkisesti Internetissä"
 
-#: course/models.py:262
+#: course/models.py:272
 msgid "User results"
 msgstr "Pistetilanne"
 
-#: course/models.py:263
+#: course/models.py:273
 msgid "Table of contents"
 msgstr "Sisällysluettelo"
 
-#: course/models.py:264
+#: course/models.py:274
 msgid "Link last visited content"
 msgstr "Linkki viimeksi vierailtuun sisältöön"
 
-#: course/models.py:265
+#: course/models.py:275
 msgid "Experimental setup (hard-coded)"
 msgstr "Koeasetelma (kovakoodattu)"
 
-#: course/models.py:268
+#: course/models.py:278
 msgid "No numbering"
 msgstr "Ei numerointia"
 
-#: course/models.py:269
+#: course/models.py:279
 msgid "Arabic"
 msgstr "arabialainen"
 
-#: course/models.py:270
+#: course/models.py:280
 msgid "Roman"
 msgstr "roomalainen"
 
-#: course/models.py:271
+#: course/models.py:281
 msgid "Hidden arabic"
 msgstr "piilotettu arabialainen"
 
-#: course/models.py:278
+#: course/models.py:288
 msgid "Input an URL identifier for this course instance."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssikerralle."
 
-#: course/models.py:293
+#: course/models.py:303
 msgid "Select content for the course index page."
 msgstr "Valitse sisältö kurssin etusivulle"
 
-#: course/models.py:299
+#: course/models.py:309
 msgid ""
 "External CSS and JS resources that are included on all course pages. "
 "Separate with white space."
@@ -195,7 +191,7 @@ msgstr ""
 "Ulkoiset CSS- ja JS-resurssit, jotka sisällytetään kurssisivuihin. Erottele "
 "osoitteet rivinvaihdoilla."
 
-#: course/models.py:304
+#: course/models.py:314
 msgid ""
 "By default exercise errors are reported to teacher email addresses. Set this "
 "field as comma separated emails to override the recipients."
@@ -204,32 +200,32 @@ msgstr ""
 "sähköposteihin. Syötä pilkuilla erotettuja sähköpostiosoitteita korvaamaan "
 "oletusvastaanottajat."
 
-#: course/models.py:332
+#: course/models.py:343
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:499 course/models.py:593 exercise/exercise_models.py:67
+#: course/models.py:510 course/models.py:604 exercise/exercise_models.py:67
 #: exercise/submission_models.py:55
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:500 exercise/exercise_models.py:68
+#: course/models.py:511 exercise/exercise_models.py:68
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:501 course/models.py:594 templates/base.html:73
+#: course/models.py:512 course/models.py:605 templates/base.html:73
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:502 exercise/exercise_models.py:72
+#: course/models.py:513 exercise/exercise_models.py:72
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:510
+#: course/models.py:521
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:525
+#: course/models.py:536
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
@@ -316,12 +312,12 @@ msgstr "Kurssihenkilökunta"
 
 #: course/templates/course/_course_menu.html:92
 #: course/templates/course/participants.html:5
-#: course/templates/course/participants.html:15
+#: course/templates/course/participants.html:10
+#: exercise/templates/exercise/staff/user_results.html:12
 msgid "Participants"
 msgstr "Opiskelijat"
 
 #: course/templates/course/_course_menu.html:99
-#: course/templates/course/participants.html:10
 #: exercise/templates/exercise/staff/results.html:5
 #: exercise/templates/exercise/staff/results.html:10
 msgid "All results"
@@ -375,9 +371,10 @@ msgstr ""
 
 #: course/templates/course/_siblings.html:16
 #: course/templates/course/_siblings.html:34
-#: exercise/templates/exercise/_user_results.html:114
-#: exercise/templates/exercise/_user_toc.html:24
-#: exercise/templates/exercise/_user_toc.html:46
+#: exercise/templates/exercise/_children.html:29
+#: exercise/templates/exercise/_user_results.html:133
+#: exercise/templates/exercise/_user_results.html:158
+#: exercise/templates/exercise/_user_toc.html:23
 msgid "Early access"
 msgstr "Aikainen pääsy"
 
@@ -457,8 +454,7 @@ msgstr "Kalenteri"
 msgid "Download calendar (ics)"
 msgstr "Lataa kalenteri (ics)"
 
-#: course/templates/course/groups.html:8
-#: course/templates/course/groups.html:13
+#: course/templates/course/groups.html:8 course/templates/course/groups.html:13
 #: course/templates/course/groups.html:53
 msgid "My groups"
 msgstr "Minun ryhmäni"
@@ -542,23 +538,44 @@ msgstr ""
 "\n"
 "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
 
-#: course/templates/course/participants.html:20
+#: course/templates/course/participants.html:17
+msgid "Filter users"
+msgstr "Suodata listaa"
+
+#: course/templates/course/participants.html:34
+msgid "Number of students"
+msgstr "Opiskelijoiden märä"
+
+#: course/templates/course/participants.html:39
+#: exercise/templates/exercise/staff/user_results.html:23
 #, fuzzy
 #| msgid "Student ID"
 msgid "Student id"
 msgstr "Opiskelijanumero"
 
-#: course/templates/course/participants.html:21
+#: course/templates/course/participants.html:40
+#: exercise/templates/exercise/staff/user_results.html:24
 msgid "Last name"
 msgstr "Sukunimi"
 
-#: course/templates/course/participants.html:22
+#: course/templates/course/participants.html:41
+#: exercise/templates/exercise/staff/user_results.html:25
 msgid "First name"
 msgstr "Etunimi"
 
-#: course/templates/course/participants.html:23
+#: course/templates/course/participants.html:42
+#: exercise/templates/exercise/staff/user_results.html:26
 msgid "Email"
 msgstr "Sähköposti"
+
+#: course/templates/course/participants.html:43
+#: edit_course/templates/edit_course/edit_course_base.html:46
+#: edit_course/templates/edit_course/usertag_add.html:9
+#: edit_course/templates/edit_course/usertag_delete.html:9
+#: edit_course/templates/edit_course/usertag_edit.html:9
+#: edit_course/templates/edit_course/usertag_list.html:9
+msgid "Tags"
+msgstr "Merkinnät"
 
 #: course/templates/course/profile.html:5
 msgid "Profile"
@@ -685,7 +702,7 @@ msgstr "Palauttaja"
 
 #: deviations/templates/deviations/list_dl.html:28
 #: edit_course/templates/edit_course/edit_content.html:135
-#: exercise/templates/exercise/_user_results.html:75
+#: exercise/templates/exercise/_user_results.html:74
 msgid "Exercise"
 msgstr "Tehtävä"
 
@@ -710,7 +727,7 @@ msgstr "Toiminnot"
 #: edit_course/templates/edit_course/usertag_delete.html:28
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: external_services/templates/external_services/list_menu.html:64
-#: news/templates/news/list.html:53 templates/base.html:199
+#: news/templates/news/list.html:53 templates/base.html:211
 msgid "Remove"
 msgstr "Poista"
 
@@ -728,7 +745,7 @@ msgstr ""
 "Poista se ennen uuden muutokse lisäämistä."
 
 #: edit_course/course_forms.py:28
-#: exercise/templates/exercise/_user_results.html:76
+#: exercise/templates/exercise/_user_results.html:75
 msgid "Category"
 msgstr "Kategoria"
 
@@ -992,7 +1009,7 @@ msgid "Open module"
 msgstr "Avaa moduuli"
 
 #: edit_course/templates/edit_course/edit_content.html:95
-#: exercise/templates/exercise/exercise_base.html:77
+#: exercise/templates/exercise/exercise_base.html:86
 msgid "Edit exercise"
 msgstr "Muokkaa tehtävää"
 
@@ -1001,7 +1018,7 @@ msgid "Open exercise"
 msgstr "Avaa tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:105
-#: exercise/templates/exercise/_user_results.html:119
+#: exercise/templates/exercise/_user_results.html:138
 msgid "View submissions"
 msgstr "Näytä palautukset"
 
@@ -1086,14 +1103,6 @@ msgstr "Etusivu"
 #: edit_course/templates/edit_course/edit_course_base.html:41
 msgid "Menu"
 msgstr "Valikko"
-
-#: edit_course/templates/edit_course/edit_course_base.html:46
-#: edit_course/templates/edit_course/usertag_add.html:9
-#: edit_course/templates/edit_course/usertag_delete.html:9
-#: edit_course/templates/edit_course/usertag_edit.html:9
-#: edit_course/templates/edit_course/usertag_list.html:9
-msgid "Tags"
-msgstr "Merkinnät"
 
 #: edit_course/templates/edit_course/edit_course_base.html:51
 msgid "Deviations"
@@ -1272,11 +1281,7 @@ msgstr "Näkyy opiskelijoille"
 msgid "Edit"
 msgstr "Muokkaa"
 
-#: edit_course/templates/edit_course/usertag_list.html:47
-msgid "Show users"
-msgstr "Näytä käyttäjät"
-
-#: edit_course/templates/edit_course/usertag_list.html:53
+#: edit_course/templates/edit_course/usertag_list.html:50
 msgid "No student tags."
 msgstr "Ei opiskelijamerkintöjä."
 
@@ -1606,12 +1611,12 @@ msgstr ""
 msgid "Assessment service responded with error."
 msgstr "Tehtäväpalvelussa tapahtui virhe."
 
-#: exercise/staff_views.py:98
+#: exercise/staff_views.py:100
 #, python-brace-format
 msgid "Feedback to {name}"
 msgstr "Palaute {name}"
 
-#: exercise/staff_views.py:99
+#: exercise/staff_views.py:101
 #, python-brace-format
 msgid ""
 "<p>You have new personal feedback to exercise <a href=\"{url}\">{name}</a>.</"
@@ -1620,22 +1625,22 @@ msgstr ""
 "<p>Olet saanut henkilökohtaista palautetta tehtävästä <a href="
 "\"{url}\">{name}</a>.</p>{message}"
 
-#: exercise/staff_views.py:108
+#: exercise/staff_views.py:110
 msgid "The review was saved successfully and the submitters were notified."
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
 
-#: exercise/staff_views.py:129
+#: exercise/staff_views.py:131
 msgid "Failed to load the resource."
 msgstr "Lataus epäonnistui."
 
-#: exercise/staff_views.py:162
+#: exercise/staff_views.py:193
 #, python-brace-format
 msgid ""
 "Invalid POST data:\n"
 "{error}"
 msgstr ""
 
-#: exercise/staff_views.py:178
+#: exercise/staff_views.py:209
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 
@@ -1668,6 +1673,7 @@ msgid "Exercise info"
 msgstr "Tehtävän tiedot"
 
 #: exercise/templates/exercise/_exercise_info.html:28
+#: exercise/templates/exercise/exercise_base.html:69
 #: exercise/templates/exercise/model.html:9
 msgid "Model answer"
 msgstr "Mallivastaus"
@@ -1719,6 +1725,14 @@ msgstr ""
 msgid "Grading submission..."
 msgstr "Palautusta arvostellaan..."
 
+#: exercise/templates/exercise/_model_files.html:9
+msgid ""
+"\n"
+"No model answer has been supplied for this exercise.\n"
+msgstr ""
+"\n"
+"Tähän tehtävään ei ole malliratkaisua.\n"
+
 #: exercise/templates/exercise/_points_badge.html:10
 msgid "Accepted"
 msgstr "Hyväksytty"
@@ -1730,11 +1744,6 @@ msgstr "Hylätty"
 #: exercise/templates/exercise/_points_badge.html:10
 msgid "Submitted"
 msgstr "Palautettu"
-
-#: exercise/templates/exercise/_points_badge.html:20
-#: exercise/templates/exercise/staff/_submissions_table.html:53
-msgid "No submissions"
-msgstr "Ei vielä palautuksia"
 
 #: exercise/templates/exercise/_points_badge.html:20
 msgid "Passed"
@@ -1818,12 +1827,12 @@ msgstr "Piilota näkymästä"
 msgid "Show older assignments."
 msgstr "Näytä vanhemmat tehtävät"
 
-#: exercise/templates/exercise/_user_results.html:34
-#: exercise/templates/exercise/_user_toc.html:29
+#: exercise/templates/exercise/_user_results.html:32
+#: exercise/templates/exercise/_user_toc.html:28
 msgid "Opens"
 msgstr "Avautuu"
 
-#: exercise/templates/exercise/_user_results.html:49
+#: exercise/templates/exercise/_user_results.html:47
 #, python-format
 msgid ""
 "\n"
@@ -1833,7 +1842,7 @@ msgstr ""
 "\n"
 "Myöhästyneitä palautuksia vastaanotetaan %(deadline)s asti."
 
-#: exercise/templates/exercise/_user_results.html:53
+#: exercise/templates/exercise/_user_results.html:51
 #, python-format
 msgid ""
 "\n"
@@ -1843,7 +1852,7 @@ msgstr ""
 "\n"
 "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
 
-#: exercise/templates/exercise/_user_results.html:62
+#: exercise/templates/exercise/_user_results.html:60
 #, python-format
 msgid ""
 "\n"
@@ -1852,6 +1861,17 @@ msgid ""
 msgstr ""
 "\n"
 "Osion suorittamiseen vaaditaan %(points)s pistettä."
+
+#: exercise/templates/exercise/_user_results.html:76
+#: exercise/templates/exercise/exercise_plain.html:53
+msgid "Submissions"
+msgstr "Palautukset"
+
+#: exercise/templates/exercise/_user_results.html:120
+#: exercise/templates/exercise/exercise_base.html:60
+#: exercise/templates/exercise/exercise_plain.html:73
+msgid "No submissions yet"
+msgstr "Ei vielä palautuksia"
 
 #: exercise/templates/exercise/exercise.html:24
 #: exercise/templates/exercise/exercise.html:32
@@ -1862,10 +1882,6 @@ msgstr "Palautusta lähetetään..."
 msgid "Loading exercise..."
 msgstr "Tehtävää ladataan..."
 
-#: exercise/templates/exercise/exercise.html:43
-msgid "Close"
-msgstr "Sulje"
-
 #: exercise/templates/exercise/exercise_base.html:40
 msgid "Exercise description"
 msgstr "Tehtävänanto"
@@ -1874,23 +1890,14 @@ msgstr "Tehtävänanto"
 msgid "My submissions"
 msgstr "Palautukseni"
 
-#: exercise/templates/exercise/exercise_base.html:60
-#: exercise/templates/exercise/exercise_plain.html:73
-msgid "No submissions yet"
-msgstr "Ei vielä palautuksia"
-
-#: exercise/templates/exercise/exercise_base.html:71
+#: exercise/templates/exercise/exercise_base.html:80
 msgid "Inspect submission"
 msgstr "Tutki palautusta"
 
-#: exercise/templates/exercise/exercise_base.html:83
+#: exercise/templates/exercise/exercise_base.html:92
 #: exercise/templates/exercise/exercise_plain.html:107
 msgid "View all submissions"
 msgstr "Näytä kaikki palautukset"
-
-#: exercise/templates/exercise/exercise_plain.html:53
-msgid "Submissions"
-msgstr "Palautukset"
 
 #: exercise/templates/exercise/exercise_plain.html:82
 #, python-format
@@ -1900,14 +1907,6 @@ msgstr "Suoritukseen vaaditaan %(points)s pistettä."
 #: exercise/templates/exercise/exercise_plain.html:100
 msgid "Show model answer"
 msgstr "Näytä malliratkaisu"
-
-#: exercise/templates/exercise/model.html:19
-msgid ""
-"\n"
-"No model answer has been supplied for this exercise.\n"
-msgstr ""
-"\n"
-"Tähän tehtävään ei ole malliratkaisua.\n"
 
 #: exercise/templates/exercise/model/_lti_button.html:10
 msgid "Launch exercise"
@@ -1984,6 +1983,10 @@ msgstr ""
 #: exercise/templates/exercise/staff/_submissions_table.html:41
 msgid "Assistant"
 msgstr "Assistentti"
+
+#: exercise/templates/exercise/staff/_submissions_table.html:53
+msgid "No submissions"
+msgstr "Ei vielä palautuksia"
 
 #: exercise/templates/exercise/staff/assess_submission.html:6
 msgid "Assess SID "
@@ -2115,11 +2118,11 @@ msgstr ""
 "\n"
 "Myöhässä <small>-%(percent)s%%</small>"
 
-#: exercise/templatetags/exercise.py:85
+#: exercise/templatetags/exercise.py:92
 msgid "Latest submissions"
 msgstr "Viimeisimmät palautukset"
 
-#: exercise/templatetags/exercise.py:86
+#: exercise/templatetags/exercise.py:93
 msgid "No submissions for this course."
 msgstr "Ei vielä palautuksia tälle kurssille."
 
@@ -2136,6 +2139,10 @@ msgid ""
 "The submission could not be saved for some reason. The submission was not "
 "registered."
 msgstr "Palautuksen tallentaminen epäonnistui. Palautusta ei ole huomioitu."
+
+#: external_services/cache.py:43
+msgid "External"
+msgstr "Ulkoiset palvelut"
 
 #: external_services/models.py:19
 msgid "The service URL"
@@ -2320,9 +2327,11 @@ msgstr ""
 "\n"
 "\t\t\tTälle palvelulle annetaan mahdollisuus toimia A+-järjestelmässä\n"
 "\t\t\tsinun käyttöoikeuksillasi.\n"
-"\t\t\tTämä tarkoittaa, että ulkoinen palvelu voi esimerkiksi lukea opiskelijanumerosi ja\n"
+"\t\t\tTämä tarkoittaa, että ulkoinen palvelu voi esimerkiksi lukea "
+"opiskelijanumerosi ja\n"
 "\t\t\ttarkastella etenemistäsi kurssilla.\n"
-"\t\t\tKurssihenkilökunta on kytkenyt ominaisuuden käyttöön ja tarkistanut, että\n"
+"\t\t\tKurssihenkilökunta on kytkenyt ominaisuuden käyttöön ja tarkistanut, "
+"että\n"
 "\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
 "\t\t\t"
 
@@ -2517,15 +2526,19 @@ msgstr "Etusivu"
 msgid "Privacy Policy"
 msgstr "Tietosuojaseloste"
 
-#: templates/base.html:203
+#: templates/base.html:190 templates/base.html.py:200
+msgid "Close"
+msgstr "Sulje"
+
+#: templates/base.html:215
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:207
+#: templates/base.html:219
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:210
+#: templates/base.html:222
 msgid "Search for..."
 msgstr "Etsi..."
 
@@ -2568,6 +2581,9 @@ msgstr ""
 "\n"
 "Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
 "tietokonetta, sulje selain poistaaksesi istunnon tiedot."
+
+#~ msgid "Show users"
+#~ msgstr "Näytä käyttäjät"
 
 #~ msgid ""
 #~ "The exercise was submitted and graded successfully. Points: {points:d}/"

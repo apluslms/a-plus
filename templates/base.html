@@ -47,7 +47,7 @@
         <meta name="msapplication-TileColor" content="#2b5797">
         <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
     </head>
-    <body class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %}" data-view-tag="{% block view_tag %}{% endblock %}">
+    <body class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %} lang-{{ request.LANGUAGE_CODE }}" data-view-tag="{% block view_tag %}{% endblock %}">
         <div class="page-wrap">
             <nav class="topbar navbar navbar-inverse navbar-static-top">
                 <div class="container-fluid">
