@@ -12,10 +12,26 @@
 
 {% block columns %}
 <div class="col-md-12">
-    <h2>
-      {% trans "Participants" %}
-      &nbsp; <small id="participants-number"></small>
-    </h2>
+
+    <p class="filter-users">
+      <small>{% trans "Filter users" %}:</small>
+      <button class="btn btn-success btn-xs" data-id="aalto">
+        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+        {{ internal_user_label|safe }}
+      </button>
+      <button class="btn btn-info btn-xs" data-id="mooc">
+        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+        {{ external_user_label|safe }}
+      </button>
+      {% for tag in tags %}
+      <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.text_color }};" data-id="{{ tag.id }}">
+        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+        {{ tag.name }}
+      </button>
+      {% endfor %}
+    </p>
+
+    <p>{% trans "Number of students" %} <strong id="participants-number"></strong></p>
 
     <table class="table table-condensed">
         <thead>
@@ -42,13 +58,36 @@
 
     var participants = {{ participants|safe }};
 
-    $('#participants-number').text(participants.length);
-
     participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
 
+    var filterItems = function(participants) {
+      var out = participants;
+      var filters = [];
+      $('.filter-users button:has(.glyphicon-check)').each(function() {
+        filters.push($(this).attr('data-id'));
+      });
+      if (filters.length > 0) {
+        out = out.filter(function(user) {
+          for (var i in filters) {
+            var typ = filters[i];
+            var id = parseInt(typ);
+            if (
+              (typ == 'aalto' && user.external)
+              || (typ == 'mooc' && !user.external)
+              || (!isNaN(id) && user.tag_ids.indexOf(id) < 0)
+            ) return false;
+          }
+          return true;
+        });
+      }
+      return out;
+    };
+
     var insertItems = function() {
+      var filtered = filterItems(participants);
+      $('#participants-number').text(filtered.length);
       $('#participants').children().remove();
-      participants.forEach(function(participant) {
+      filtered.forEach(function(participant) {
         var row = $('<tr></tr>').appendTo('tbody');
         var link = $('<a></a>').attr('href', participant.link);
         $('<td></td>').append(link.clone().text(participant.id)).appendTo(row);
@@ -78,6 +117,17 @@
         participants.sort(function(a, b) { return a.first_name.localeCompare(b.first_name); });
         insertItems();
       }
+    });
+
+    $('.filter-users button').on('click', function(event) {
+      event.preventDefault();
+      var icon = $(this).find('.glyphicon');
+      if (icon.hasClass('glyphicon-unchecked')) {
+        icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+      } else {
+        icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+      }
+      insertItems();
     });
 
   });

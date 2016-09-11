@@ -200,10 +200,16 @@ class ParticipantsView(CourseInstanceBaseView):
                 'last_name': participant.user.last_name or '',
                 'first_name': participant.user.first_name or '',
                 'email': participant.user.email or participant.user.username,
-                'link': participant.get_results_url(self.instance),
+                'link': participant.get_url(self.instance),
                 'tags': render_tags(participant, tags),
                 'tag_ids': [t.id for t in tags],
                 'external': participant.is_external,
             })
         self.participants = json.dumps(self.participants)
-        self.note('participants')
+        self.tags = self.instance.usertags.all()
+        self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
+        self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
+        self.note(
+            'participants', 'tags',
+            'internal_user_label', 'external_user_label',
+        )
