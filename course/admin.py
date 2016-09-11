@@ -1,7 +1,17 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from course.models import Course, CourseInstance, Enrollment, StudentGroup, CourseHook, CourseModule, LearningObjectCategory
+from course.models import (
+    Course,
+    CourseInstance,
+    Enrollment,
+    StudentGroup,
+    CourseHook,
+    CourseModule,
+    LearningObjectCategory,
+    UserTag,
+    UserTagging,
+)
 from userprofile.models import UserProfile
 
 
@@ -73,3 +83,5 @@ admin.site.register(StudentGroup)
 admin.site.register(CourseHook)
 admin.site.register(CourseModule, CourseModuleAdmin)
 admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)
+admin.site.register(UserTag)
+admin.site.register(UserTagging)

@@ -9,7 +9,7 @@ from PIL import Image
 from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
 from django.utils.deprecation import RemovedInNextVersionWarning
-
+from django.utils.translation import get_language
 
 
 try:
@@ -115,12 +115,12 @@ def roman_numeral(number):
     return roman
 
 
-def settings_text(request, key):
+def settings_text(key):
     def get(name):
         if hasattr(settings, name):
             return getattr(settings, name)
         return None
-    return get('{}_{}'.format(key, request.LANGUAGE_CODE.upper())) or get(key)
+    return get('{}_{}'.format(key, get_language().upper())) or get(key)
 
 
 def create_secret_key_file(filename):

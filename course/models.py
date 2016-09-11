@@ -142,6 +142,9 @@ class UserTag(UrlMixin, models.Model):
     color = ColorField(default="#CD0000",
                        help_text=_("Color that is used for this tag."))
 
+    class Meta:
+        ordering = ['course_instance', 'name']
+
     @cached_property
     def font_color(self):
         return get_font_color_for_background(self.color)
@@ -149,8 +152,13 @@ class UserTag(UrlMixin, models.Model):
     def get_url_kwargs(self):
         return dict(tag_id=self.id, **self.course_instance.get_url_kwargs())
 
-    def get_tagged_users(self):
-        return self.taggings.filter(course_instance=self.course_instance).select_related('user')
+
+class UserTaggingManager(models.Manager):
+
+    def tags_for_instance(self, course_instance):
+        ts = self.filter(course_instance=course_instance)\
+            .select_related('tag')
+        return [t.tag for t in ts]
 
 
 class UserTagging(models.Model):
@@ -165,12 +173,14 @@ class UserTagging(models.Model):
                                         related_name="taggings",
                                         on_delete=models.CASCADE,
                                         db_index=True)
+    objects = UserTaggingManager()
 
     class Meta:
         unique_together = ('tag', 'user', 'course_instance')
         index_together = (
             ('user', 'course_instance'),
         )
+        ordering = ['tag']
 
 
 def get_course_visibility_filter(user, prefix=None):
@@ -317,6 +327,7 @@ class CourseInstance(UrlMixin, models.Model):
     # course_modules from course.models.CourseModule
 
     objects = CourseInstanceManager()
+
     class Meta:
         unique_together = ("course", "url")
 

@@ -1,10 +1,12 @@
 from datetime import timedelta
 from django import template
 from django.conf import settings
+from django.template import loader, Context
 from django.utils import timezone
 
 from exercise.cache.content import CachedContent
 from course.models import CourseInstance
+from lib.helpers import settings_text
 
 
 register = template.Library()
@@ -82,7 +84,18 @@ def url(model_object, name=None):
 
 
 @register.filter
-def profiles(profiles):
+def names(profiles):
+    return ", ".join(p.user.get_full_name() for p in profiles)
+
+
+@register.inclusion_tag('course/_avatars.html')
+def avatars(profiles):
+    return { 'profiles': profiles }
+
+
+@register.inclusion_tag("course/_profiles.html")
+def profiles(profiles, instance):
+    return { 'instance': instance, 'profiles': profiles }
     return ", ".join(
         "{} ({})".format(
             p.user.get_full_name(),
@@ -91,11 +104,18 @@ def profiles(profiles):
     )
 
 
-@register.filter
-def names(profiles):
-    return ", ".join(p.user.get_full_name() for p in profiles)
+def _tags_context(profile, tags):
+    return {
+        'external': profile.is_external,
+        'internal_user_label': settings_text('INTERNAL_USER_LABEL'),
+        'external_user_label': settings_text('EXTERNAL_USER_LABEL'),
+        'tags': tags,
+    }
 
+def render_tags(profile, tags):
+    template = loader.get_template("course/_tags.html")
+    return template.render(Context(_tags_context(profile, tags)))
 
-@register.inclusion_tag('course/_avatars.html')
-def avatars(profiles):
-    return { 'profiles': profiles }
+@register.inclusion_tag("course/_tags.html")
+def tags(profile, instance):
+    return _tags_context(profile, profile.taggings.tags_for_instance(instance))

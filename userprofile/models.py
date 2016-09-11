@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User, AnonymousUser
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.functional import cached_property
@@ -32,6 +33,7 @@ class UserProfile(models.Model):
         raise RuntimeError("Seeking user profile without authenticated user.")
 
     user = models.OneToOneField(User)
+    # FIXME: refactor lang to selected_language which by default is blank
     lang = models.CharField(max_length=5, default="en_US")
     student_id = models.CharField(max_length=25, null=True, blank=True)
     objects = UserProfileManager()
@@ -76,6 +78,10 @@ class UserProfile(models.Model):
         Is this an external rather than internal account.
         """
         return hasattr(self.user, 'social_auth') and self.user.social_auth.exists()
+
+    def get_url(self, instance):
+        kwargs = dict(user_id=self.user.id, **instance.get_url_kwargs())
+        return reverse('user-results', kwargs=kwargs)
 
 
 def create_user_profile(sender, instance, created, **kwargs):

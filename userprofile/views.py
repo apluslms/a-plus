@@ -28,14 +28,14 @@ def login(request):
         extra_context={
             'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
             'mooc_login': 'social.apps.django_app.default' in settings.INSTALLED_APPS,
-            'login_title_text': settings_text(request, 'LOGIN_TITLE_TEXT'),
-            'login_body_text': settings_text(request, 'LOGIN_BODY_TEXT'),
-            'login_button_text': settings_text(request, 'LOGIN_BUTTON_TEXT'),
-            'shibboleth_title_text': settings_text(request, 'SHIBBOLETH_TITLE_TEXT'),
-            'shibboleth_body_text': settings_text(request, 'SHIBBOLETH_BODY_TEXT'),
-            'shibboleth_button_text': settings_text(request, 'SHIBBOLETH_BUTTON_TEXT'),
-            'mooc_title_text': settings_text(request, 'MOOC_TITLE_TEXT'),
-            'mooc_body_text': settings_text(request, 'MOOC_BODY_TEXT'),
+            'login_title_text': settings_text('LOGIN_TITLE_TEXT'),
+            'login_body_text': settings_text('LOGIN_BODY_TEXT'),
+            'login_button_text': settings_text('LOGIN_BUTTON_TEXT'),
+            'shibboleth_title_text': settings_text('SHIBBOLETH_TITLE_TEXT'),
+            'shibboleth_body_text': settings_text('SHIBBOLETH_BODY_TEXT'),
+            'shibboleth_button_text': settings_text('SHIBBOLETH_BUTTON_TEXT'),
+            'mooc_title_text': settings_text('MOOC_TITLE_TEXT'),
+            'mooc_body_text': settings_text('MOOC_BODY_TEXT'),
         }
     )
 
@@ -46,5 +46,5 @@ class PrivacyPolicyView(UserProfileView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.policy_text = settings_text(self.request, 'PRIVACY_POLICY_TEXT')
+        self.policy_text = settings_text('PRIVACY_POLICY_TEXT')
         self.note("policy_text")

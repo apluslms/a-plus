@@ -1,0 +1,6 @@
+{% if external %}
+<span class="label label-info label-xs">{{ external_user_label|safe }}</span>
+{% else %}
+<span class="label label-success label-xs">{{ internal_user_label|safe }}</span>
+{% endif %}
+{% for tag in tags %}{% include "course/_usertag.html" %}{% endfor %}

@@ -67,7 +67,7 @@
     {{ module.introduction|safe }}
   </div>
 
-  {% if module.children|len_listed > 0 %}
+  {% if module.children|length > 0 %}
   <table class="table table-striped table-condensed results-table">
     <tbody>
       <tr class="category-row">
@@ -81,7 +81,7 @@
       </tr>
       {% for entry in module.flatted %}
 
-      {% if entry.submittable %}
+      {% if entry.submittable and entry|is_visible %}
       <tr data-category="{{ entry.category_id }}">
         <td>
           {% if after_open %}
@@ -141,7 +141,7 @@
         {% endif %}
       </tr>
 
-      {% elif entry.type == 'exercise' %}
+      {% elif entry.type == 'exercise' and entry|is_visible %}
       <tr>
         <td colspan="4">
           {% if after_open %}

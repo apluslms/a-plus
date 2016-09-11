@@ -14,7 +14,7 @@ from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExer
 register = template.Library()
 
 
-def _prepare_context(context):
+def _prepare_context(context, student=None):
     if not 'instance' in context:
         raise TagUsageError()
     instance = context['instance']
@@ -22,14 +22,17 @@ def _prepare_context(context):
         context['now'] = timezone.now()
     if not 'content' in context:
         context['content'] = CachedContent(instance)
-    if not 'points' in context:
-        user = context['request'].user
-        context['points'] = CachedPoints(instance, user, context['content'])
-    return context['points']
+    def points(user, key):
+        if not key in context:
+            context[key] = CachedPoints(instance, user, context['content'])
+        return context[key]
+    if student:
+        return points(student, 'studentpoints')
+    return points(context['request'].user, 'points')
 
 
-def _get_toc(context):
-    points = _prepare_context(context)
+def _get_toc(context, student=None):
+    points = _prepare_context(context, student)
     return {
         'now': context['now'],
         'modules': points.modules_flatted(),
@@ -39,13 +42,13 @@ def _get_toc(context):
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
-def user_results(context):
-    return _get_toc(context)
+def user_results(context, student=None):
+    return _get_toc(context, student)
 
 
 @register.inclusion_tag("exercise/_user_toc.html", takes_context=True)
-def user_toc(context):
-    return _get_toc(context)
+def user_toc(context, student=None):
+    return _get_toc(context, student)
 
 
 @register.inclusion_tag("exercise/_user_last.html", takes_context=True)
@@ -71,8 +74,8 @@ def user_last(context):
 
 
 @register.inclusion_tag("exercise/_category_points.html", takes_context=True)
-def category_points(context):
-    return _get_toc(context)
+def category_points(context, student=None):
+    return _get_toc(context, student)
 
 
 @register.inclusion_tag("exercise/_submission_list.html", takes_context=True)
