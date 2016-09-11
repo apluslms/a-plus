@@ -135,6 +135,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             submission=new_submission)
 
     def submission_check(self, error=False):
+        if not self.profile:
+            return False, []
         ok, issues, students = self.exercise.is_submission_allowed(self.profile)
         if len(issues) > 0:
             if error:
