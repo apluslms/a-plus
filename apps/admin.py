@@ -1,24 +1,22 @@
 from django.contrib import admin
 
-from .models import ExternalIFrameTab, ExternalEmbeddedTab, RSSPlugin, \
-    ExternalIFramePlugin
+from .models import (
+    BaseTab,
+    HTMLTab,
+    ExternalEmbeddedTab,
+    ExternalIFrameTab,
+    BasePlugin,
+    RSSPlugin,
+    HTMLPlugin,
+    ExternalIFramePlugin,
+)
 
 
-class ExternalIFrameTabAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(ExternalIFrameTab, ExternalIFrameTabAdmin)
-
-
-class ExternalEmbeddedTabAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(ExternalEmbeddedTab, ExternalEmbeddedTabAdmin)
-
-
-class RSSPluginAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(RSSPlugin, RSSPluginAdmin)
-
-
-class ExternalIFramePluginAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(ExternalIFramePlugin, ExternalIFramePluginAdmin)
+admin.site.register(BaseTab)
+admin.site.register(HTMLTab)
+admin.site.register(ExternalEmbeddedTab)
+admin.site.register(ExternalIFrameTab)
+admin.site.register(BasePlugin)
+admin.site.register(RSSPlugin)
+admin.site.register(HTMLPlugin)
+admin.site.register(ExternalIFramePlugin)

@@ -1,3 +1,4 @@
+import json
 from django import template
 from django.db.models import Max, Min
 from django.template.loader import render_to_string
@@ -37,13 +38,16 @@ def _get_toc(context, student=None):
         'now': context['now'],
         'modules': points.modules_flatted(),
         'categories': points.categories(),
+        'total': points.total(),
         'is_course_staff': context.get('is_course_staff', False),
     }
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
 def user_results(context, student=None):
-    return _get_toc(context, student)
+    values = _get_toc(context, student)
+    values['total_json'] = json.dumps(values['total'])
+    return values
 
 
 @register.inclusion_tag("exercise/_user_toc.html", takes_context=True)

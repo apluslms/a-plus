@@ -19,7 +19,7 @@
 {% block sidecontent %}
 {% category_points %}
 
-{% plugin_renderers user instance as plugins %}
+{% plugin_renderers user instance "results" as plugins %}
 {% for plugin in plugins %}
     {{ plugin.render|safe }}
 {% endfor %}

@@ -57,7 +57,7 @@
 {% block sidecontent %}
 {% category_points student %}
 
-{% plugin_renderers user instance as plugins %}
+{% plugin_renderers student.userprofile instance "results" as plugins %}
 {% for plugin in plugins %}
     {{ plugin.render|safe }}
 {% endfor %}
