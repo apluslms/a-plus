@@ -132,7 +132,7 @@ def _points_data(obj, classes=None):
             'full_score': obj.grade >= exercise.max_points,
             'submitted': True,
             'graded': obj.is_graded,
-            'status': obj.status,
+            'status': obj.status if obj.status != Submission.STATUS.READY else False,
         }
     else:
         points = obj.get('points', 0)
