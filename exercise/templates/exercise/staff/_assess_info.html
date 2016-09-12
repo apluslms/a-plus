@@ -9,7 +9,7 @@
     <div class="panel-body">
         <dl>
             <dt>{% trans "Submitters" %}</dt>
-            <dd>{{ submission.submitters.all|profiles }}</dd>
+            <dd>{% profiles submission.submitters.all instance %}</dd>
             <dt>{% trans "Status" %}</dt>
             <dd>{{ submission.status }}</dd>
             <dt>{% trans "Submission time" %}</dt>

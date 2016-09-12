@@ -64,13 +64,14 @@ def build_plugin_renderers(plugins,
                 "course_instance": course_instance,
                 "exercise": exercise,
             }
-        elif view_name == "course_instance":
+        #elif view_name == "course_instance":
+        else:
             context = {
                 "user_profile": user_profile,
                 "course_instance": course_instance,
             }
-        else:
-            raise ValueError(view_name + " is not supported for plugins.")
+        #else:
+        #    raise ValueError(view_name + " is not supported for plugins.")
 
         plugins = plugins.filter(views__contains=view_name)
 
@@ -83,7 +84,7 @@ def build_plugin_renderers(plugins,
                 renderers.append(p)
 
         return renderers
-    
+
     except Exception:
         # If anything goes wrong, just return an empty list so that this isn't
         # a show-stopper for the A+ core functionality.
@@ -92,7 +93,7 @@ def build_plugin_renderers(plugins,
 
 
 class ExternalIFramePluginRenderer(object):
-    
+
     def __init__(self, plugin, view_name, context):
         self.plugin = plugin
         self.view_name = view_name
@@ -125,7 +126,7 @@ class ExternalIFramePluginRenderer(object):
 
 
 class ExternalIFrameTabRenderer(object):
-    
+
     def __init__(self, tab, user_profile, course_instance):
         self.tab = tab
         self.user_profile = user_profile
@@ -148,7 +149,7 @@ class ExternalIFrameTabRenderer(object):
 
 
 class TabRenderer(object):
-    
+
     def __init__(self, tab, user_profile, course_instance):
         self.tab = tab
         self.user_profile = user_profile
@@ -173,7 +174,7 @@ class TabRenderer(object):
             html = soup.find("body").renderContents()
         else:
             html = str(soup.find(id=self.tab.element_id))
-        
+
         # TODO: should make relative link addresses absolute
 
         return html

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block view_tag %}exercise{% endblock %}
+{% block view_tag %}model{% endblock %}
 
 {% block exercisebreadcrumblist %}
 {{ block.super }}
@@ -10,17 +10,7 @@
 {% endblock %}
 
 {% block exercisecontent %}
-{% for entry in models %}
-<h4>{{ entry.name }}</h4>
-<pre class="hljs">
-  {{ entry.content }}
-</pre>
-{% empty %}
-{% blocktrans %}
-No model answer has been supplied for this exercise.
-{% endblocktrans %}
-{% endfor %}
-
+{% include "exercise/_model_files.html" %}
 {% endblock %}
 
 {% block scripts %}

@@ -5,10 +5,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from cached.content import NoSuchContent
+from authorization.permissions import ACCESS
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView
-from authorization.permissions import ACCESS
+from .cache.hierarchy import NoSuchContent
 from .permissions import (
     ExerciseVisiblePermission,
     BaseExerciseAssistantPermission,
@@ -58,11 +58,11 @@ class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
     def get_common_objects(self):
         super().get_common_objects()
         self.now = timezone.now()
-        previous_entry, current_entry, next_entry = self.content.find(self.exercise)
-        self.previous = previous_entry
-        self.current = current_entry
-        self.next = next_entry
-        self.breadcrumb = self.content.breadcrumb(self.exercise)
+        cur, tree, prev, nex = self.content.find(self.exercise)
+        self.previous = prev
+        self.current = cur
+        self.next = nex
+        self.breadcrumb = tree[1:-1]
         self.note("now", "previous", "current", "next", "breadcrumb")
 
 

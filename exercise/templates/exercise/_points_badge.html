@@ -15,9 +15,9 @@
 {% if difficulty %}
 <span class="difficulty">{{ difficulty }}</span>
 {% endif %}
-<span class="badge{% if graded %} badge-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}{% endif %} {{ classes }}"
+<span class="badge{% if submitted %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% endif %} {{ classes }}"
         data-toggle="tooltip" data-placement="bottom"
-        title="{% if not submitted %}{% trans 'No submissions' %}{% elif passed %}{% trans 'Passed' %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% else %}{% trans 'Required exercises are not passed' %}{% endif %}">
+        title="{% if passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
     {{ points }} / {{ max }}
 </span>
 {% endif %}

@@ -62,6 +62,15 @@
               {% endfor %}
           </ul>
       </li>
+      {% if is_course_staff or exercise.is_closed %}
+      {% if exercise.model_answers %}
+      <li class="menu-model">
+        <a href="{{ exercise|url:'exercise-model' }}">
+          {% trans "Model answer" %}
+        </a>
+      </li>
+      {% endif %}
+      {% endif %}
       {% if is_course_staff %}
       <li>
           <p class="navbar-text navbar-btn">

@@ -208,6 +208,7 @@ CACHES = {
 LANGUAGE_CODE = 'en-gb'
 LANGUAGES = [
     ('en', 'English'),
+    ('fi', 'Finnish'),
 ]
 TIME_ZONE = 'EET'
 USE_I18N = True

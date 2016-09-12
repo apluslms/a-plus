@@ -3,71 +3,34 @@
 {% load exercise %}
 
 <ul class="toc">
-  {% for entry in toc %}
-    {% if entry|is_listed %}
-    <li>
-
-      {% if entry.type == 'module' %}
-        {% if entry|has_opened:now %}
-          <h3>
-            <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
-          </h3>
-          <h4>
-            <small>{{ entry.opening_time }} &ndash; {{ entry.closing_time }}</small>
-          </h4>
-        {% else %}
-          <h3>
-            {{ entry.name }}
-            {% if is_course_staff %}
-            <a class="btn btn-default btn-xs" href="{{ entry.link }}">
-              <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-              {% trans "Early access" %}
-            </a>
-            {% endif %}
-          </h3>
-          <h4>
-              <span class="label label-info">{% trans 'Opens' %} {{ entry.opening_time }}</span>
-              <small>&ndash; {{ entry.closing_time }}</small>
-          </h4>
-        {% endif %}
-
-      {% elif entry.type == 'exercise' %}
-        {% if entry|has_opened:now %}
-          {% if entry.is_empty %}
-          {{ entry.name }}
-          {% else %}
-          <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
-          {% endif %}
-        {% else %}
-          {{ entry.name }}
-          {% if is_course_staff %}
-          <a class="btn btn-default btn-xs" href="{{ entry.link }}">
-            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-            {% trans "Early access" %}
-          </a>
-          {% endif %}
-        {% endif %}
-
+  {% for module in modules %}
+  {% if module|is_listed %}
+  {% with after_open=module|has_opened:now %}
+  <li>
+    {% if after_open %}
+    <h3>
+      <a href="{{ module.link }}" class="{% if module|is_in_maintenance %}maintenance{% endif %}">{{ module.name }}</a>
+    </h3>
+    <h4>
+      <small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
+    </h4>
+    {% else %}
+    <h3>
+      {{ module.name }}
+      {% if is_course_staff %}
+      <a class="btn btn-default btn-xs" href="{{ module.link }}">
+        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+        {% trans "Early access" %}
+      </a>
       {% endif %}
-    {% if entry.has_children %}
-      <ul class="toc">
-    {% else %}
-    </li>
-    {% for level in entry.close_levels %}
-      </ul>
-    </li>
-    {% endfor %}
+    </h3>
+    <h4>
+        <span class="label label-info">{% trans 'Opens' %} {{ module.opening_time }}</span> <small>&ndash; {{ module.closing_time }}</small>
+    </h4>
     {% endif %}
-
-    {% elif entry.has_children %}
-    <li>
-      <ul class="toc">
-    {% else %}
-    {% for level in entry.close_levels %}
-      </ul>
-    </li>
-    {% endfor %}
-    {% endif %}
-
+    {% include "exercise/_children.html" with children=module.flatted after_open=after_open %}
+  </li>
+  {% endwith %}
+  {% endif %}
   {% endfor %}
 </ul>

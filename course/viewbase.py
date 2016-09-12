@@ -6,7 +6,7 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
-from cached.content import CachedContent
+from exercise.cache.content import CachedContent
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .permissions import (
@@ -58,8 +58,11 @@ class CourseInstanceBaseMixin(object):
             self.is_teacher = self.course.is_teacher(user)
             self.is_assistant = self.instance.is_assistant(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
-            self.note("course", "instance", "content",
-                      "is_teacher", "is_assistant", "is_course_staff")
+            #self.is_student = self.instance.is_student(user)
+            self.note(
+                "course", "instance", "content",
+                "is_teacher", "is_assistant", "is_course_staff",
+            )
 
             # Apply course instance language.
             if self.instance.language:

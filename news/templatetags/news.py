@@ -1,8 +1,8 @@
 from django import template
 from django.utils import timezone
 
-from cached.news import CachedNews
 from lib.errors import TagUsageError
+from ..cache import CachedNews
 from ..models import News
 
 

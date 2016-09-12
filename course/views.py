@@ -13,13 +13,13 @@ from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
-from cached.content import CachedContent
+from exercise.models import LearningObject
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
 from userprofile.viewbase import UserProfileView
-from exercise.models import LearningObject
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
+from .templatetags.course import render_tags
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
     CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
 
@@ -33,9 +33,9 @@ class HomeView(UserProfileView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.welcome_text = settings_text(self.request, 'WELCOME_TEXT')
-        self.internal_user_label = settings_text(self.request, 'INTERNAL_USER_LABEL')
-        self.external_user_label = settings_text(self.request, 'EXTERNAL_USER_LABEL')
+        self.welcome_text = settings_text('WELCOME_TEXT')
+        self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
+        self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
         self.instances = []
         prio2 = []
         treshold = timezone.now() - datetime.timedelta(days=10)
@@ -96,12 +96,12 @@ class ModuleView(CourseModuleBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.now = timezone.now()
-        self.toc = self.content.children_hierarchy(self.module)
-        previous_entry, current_entry, next_entry = self.content.find(self.module)
-        self.previous = previous_entry
-        self.current = current_entry
-        self.next = next_entry
-        self.note('now', 'toc', 'previous', 'current', 'next')
+        self.children = self.content.flat_module(self.module)
+        cur, tree, prev, nex = self.content.find(self.module)
+        self.previous = prev
+        self.current = cur
+        self.next = nex
+        self.note('now', 'children', 'previous', 'current', 'next')
 
 
 class CalendarExport(CourseInstanceMixin, BaseView):
@@ -186,14 +186,30 @@ class ParticipantsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        participants = self.instance.students.all()
+        participants = self.instance.students.all()\
+            .select_related('taggings__tag')\
+            .prefetch_related('taggings')
         self.participants = []
         for participant in participants:
+            tags = [
+                t.tag for t in participant.taggings.all()
+                if t.course_instance == self.instance
+            ]
             self.participants.append({
                 'id': participant.student_id or '',
-                'last_name': participant.user.last_name,
-                'first_name': participant.user.first_name,
-                'email': participant.user.email
+                'last_name': participant.user.last_name or '',
+                'first_name': participant.user.first_name or '',
+                'email': participant.user.email or participant.user.username,
+                'link': participant.get_url(self.instance),
+                'tags': render_tags(participant, tags),
+                'tag_ids': [t.id for t in tags],
+                'external': participant.is_external,
             })
         self.participants = json.dumps(self.participants)
-        self.note('participants')
+        self.tags = self.instance.usertags.all()
+        self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
+        self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
+        self.note(
+            'participants', 'tags',
+            'internal_user_label', 'external_user_label',
+        )

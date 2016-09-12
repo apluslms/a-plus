@@ -1,0 +1,10 @@
+{% load course %}
+{% for p in profiles %}
+<div>
+  <a href="{{ p|url:instance }}">
+    {{ p.user.get_full_name }}
+    ({% if p.student_id %}{{ p.student_id }}{% else %}{{ p.user.username }}{% endif %})
+  </a>
+  {% tags p instance %}
+</div>
+{% endfor %}

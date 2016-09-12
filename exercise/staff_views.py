@@ -2,9 +2,11 @@ import json
 import logging
 import time
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.http.response import JsonResponse, Http404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -140,6 +142,35 @@ class AllResultsView(CourseInstanceBaseView):
         super().get_common_objects()
         self.table = ResultTable(self.instance)
         self.note("table")
+
+
+class UserResultsView(CourseInstanceBaseView):
+    access_mode = ACCESS.ASSISTANT
+    template_name = "exercise/staff/user_results.html"
+    user_kw = 'user_id'
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        self.student = get_object_or_404(
+            User,
+            id=self.kwargs[self.user_kw],
+        )
+        self.note('student')
+
+    def get_common_objects(self):
+        profile = self.student.userprofile
+        exercise = LearningObject.objects.find_enrollment_exercise(
+            self.instance,
+            profile
+        )
+        if exercise:
+            exercise = exercise.as_leaf_class()
+            submissions = exercise.get_submissions_for_student(profile)
+        else:
+            submissions = []
+        self.enrollment_exercise = exercise
+        self.enrollment_submissions = submissions
+        self.note('enrollment_exercise', 'enrollment_submissions')
 
 
 class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
