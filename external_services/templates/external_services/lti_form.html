@@ -78,7 +78,7 @@
 $(function() {
 	var cookieName = "aplusexse{{ service.id }}";
 	var cookieValue = "{{ parameters_hash }}";
-	var set_cookie = function(expire_years=1) {
+	var set_cookie = function(expire_years) {
 		var expire = new Date();
 		expire.setFullYear(expire.getFullYear() + expire_years);
 		var path = document.location.href.split("/");
@@ -93,7 +93,7 @@ $(function() {
 	else set_cookie(-1); /* remove old cookie */
 	form.on("submit", function() {
 		/* on submit remember accepted state via local cookie */
-		if ($('#auto_accept').is(':checked')) set_cookie();
+		if ($('#auto_accept').is(':checked')) set_cookie(1);
 	});
 });
 </script>
