@@ -1,6 +1,7 @@
 from django.db import models
 
 from course.models import CourseInstance
+from exercise.models import Submission
 from userprofile.models import UserProfile
 
 
@@ -57,23 +58,31 @@ class Notification(models.Model):
     """
 
     @classmethod
-    def send(cls, sender, recipient, course_instance, subject, notification):
+    def send(cls, sender, recipient, submission):
         notification = Notification(
-            notification=notification,
-            subject=subject,
             sender=sender,
             recipient=recipient,
-            course_instance=course_instance
+            course_instance=submission.exercise.course_instance,
+            submission=submission,
         )
         notification.save()
 
-    subject = models.CharField(max_length=255)
-    notification = models.TextField()
-    sender = models.ForeignKey(UserProfile, related_name="sent_notifications")
+    @classmethod
+    def remove(cls, recipients, submission):
+        Notification.objects.filter(
+            submission=submission,
+            recipient__in=recipients
+        ).delete()
+
+    subject = models.CharField(max_length=255, blank=True)
+    notification = models.TextField(blank=True)
+    sender = models.ForeignKey(UserProfile, related_name="sent_notifications",
+        blank=True, null=True)
     recipient = models.ForeignKey(UserProfile, related_name="received_notifications")
     timestamp = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(default=False)
     course_instance = models.ForeignKey(CourseInstance)
+    submission = models.ForeignKey(Submission, blank=True, null=True)
 
     class Meta:
         ordering = ['-timestamp']
