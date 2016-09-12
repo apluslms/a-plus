@@ -543,7 +543,7 @@ msgstr "Suodata listaa"
 
 #: course/templates/course/participants.html:34
 msgid "Number of students"
-msgstr "Opiskelijoiden märä"
+msgstr "Opiskelijoiden määrä"
 
 #: course/templates/course/participants.html:39
 #: exercise/templates/exercise/staff/user_results.html:23
