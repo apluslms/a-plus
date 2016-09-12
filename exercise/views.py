@@ -136,6 +136,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def submission_check(self, error=False):
         if not self.profile:
+            messages.error(self.request,
+                _("You need to sign in and enroll to submit exercises."))
             return False, []
         ok, issues, students = self.exercise.is_submission_allowed(self.profile)
         if len(issues) > 0:
