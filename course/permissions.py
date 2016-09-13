@@ -56,22 +56,30 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
                 self.error_msg(request, _("This course is not open for public."))
                 return False
 
+            # Handle enroll views separately
+            if view.access_mode == ACCESS.ENROLL:
+                return self.enrollment_audience_check(course, user)
+
             if show_for == VA.ENROLLED:
                 if not course.is_student(user):
                     self.error_msg(request, _("Only enrolled students shall pass."))
                     return False
 
             elif show_for == VA.ENROLLMENT_AUDIENCE:
-                audience = course.enrollment_audience
-                external = user.userprofile.is_external # FIXME: change user to userprofile
-                EA = course.ENROLLMENT_AUDIENCE
-                if audience == EA.INTERNAL_USERS and external:
-                    self.error_msg(request, _("This course is only for internal students."))
-                    return False
-                elif audience == EA.EXTERNAL_USERS and not external:
-                    self.error_msg(request, _("This course is only for external students."))
-                    return False
+                return self.enrollment_audience_check(course, user)
 
+        return True
+
+    def enrollment_audience_check(self, course, user):
+        audience = course.enrollment_audience
+        external = user.userprofile.is_external
+        EA = course.ENROLLMENT_AUDIENCE
+        if audience == EA.INTERNAL_USERS and external:
+            self.error_msg(request, _("This course is only for internal students."))
+            return False
+        elif audience == EA.EXTERNAL_USERS and not external:
+            self.error_msg(request, _("This course is only for external students."))
+            return False
         return True
 
 
