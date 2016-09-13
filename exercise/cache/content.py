@@ -61,8 +61,6 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'confirm_the_level': False,
                     'children': [],
                 }
-                if o.status == LearningObject.STATUS.UNLISTED and parents:
-                    entry['parent_link'] = parents[-1].get_absolute_url()
                 container.append(entry)
                 idx = indexes + [j]
                 exercise_index[o.id] = idx

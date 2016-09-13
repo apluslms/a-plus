@@ -56,11 +56,10 @@ def _post_async_submission(request, exercise, submission, errors=None):
             submission.set_ready()
         submission.save()
 
-        if form.cleaned_data["notificate"]:
-            for student in submission.submitters.all():
-                Notification.send(None, student, submission)
+        if form.cleaned_data["notify"]:
+            Notification.send(None, submission)
         else:
-            Notification.remove(submission.submitters.all(), submission)
+            Notification.remove(submission)
 
         return {
             "success": True,

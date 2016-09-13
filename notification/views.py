@@ -1,11 +1,44 @@
-from course.viewbase import CourseInstanceBaseView
-from lib.viewbase import PagerMixin
-from authorization.permissions import ACCESS
+from django.http import Http404, HttpResponse
 
-from .models import NotificationSet
+from authorization.permissions import ACCESS
+from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from lib.viewbase import PagerMixin, BaseRedirectView
+from .models import NotificationSet, Notification
+
+
+class NotificationRedirectView(CourseInstanceMixin, BaseRedirectView):
+    notification_kw = "notification_id"
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        nid = self._get_kwarg(self.notification_kw)
+        self.notification = Notification.objects.filter(
+            id=nid,
+            course_instance=self.instance,
+        ).select_related("submission__exercise").first()
+        if not self.notification:
+            raise Http404()
+
+    def get(self, request, *args, **kwargs):
+        self.notification.seen = True
+        self.notification.save()
+        if self.notification.submission:
+            return self.redirect(
+                self.notification.submission.exercise.get_absolute_url()
+            )
+        return HttpResponse(
+            "[Old Notification] {}: {}".format(
+                self.notification.subject,
+                self.notification.notification,
+            )
+        )
 
 
 class NotificationsView(PagerMixin, CourseInstanceBaseView):
+    """
+    Deprecated: not used anymore,
+    single place for message in submission feedback
+    """
     access_mode = ACCESS.ENROLLED
     template_name = "notification/notifications.html"
     ajax_template_name = "notification/_notifications_list.html"

@@ -4,7 +4,7 @@
 <tr class="list-entry{% if not notification.seen %} unread{% endif %}">
     <td>
         {% if notification.submission %}
-        <a href="{{ notification.submission|url }}">{{ notification.submission.exercise }}</a>
+        <a href="{{ notification|url }}">{{ notification.submission.exercise }}</a>
         {% else %}
         <a href="#notification{{ notification.id }}" class="{% if notification.seen %}collapsed{% endif %}"
             data-toggle="collapse" aria-expanded="{% if notification.seen %}false{% else %}true{% endif %}" aria-controls="#notification{{ notification.id }}">

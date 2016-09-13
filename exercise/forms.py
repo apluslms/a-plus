@@ -12,7 +12,7 @@ class SubmissionCallbackForm(forms.Form):
     points = forms.IntegerField(min_value=0)
     max_points = forms.IntegerField(min_value=0, required=False)
     feedback = forms.CharField(required=False)
-    notificate = forms.CharField(required=False)
+    notify = forms.CharField(required=False)
     grading_payload = forms.CharField(required=False)
     error = forms.BooleanField(required=False)
 

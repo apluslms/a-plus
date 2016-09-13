@@ -104,8 +104,7 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
         #    name=self.exercise,
         #    message=note,
         #)
-        for student in self.submission.submitters.all():
-            Notification.send(self.profile, student, self.submission)
+        Notification.send(self.profile, self.submission)
 
         messages.success(self.request, _("The review was saved successfully "
             "and the submitters were notified."))

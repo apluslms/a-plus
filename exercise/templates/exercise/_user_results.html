@@ -85,11 +85,7 @@
       <tr data-category="{{ entry.category_id }}">
         <td>
           {% if after_open %}
-            {% if entry.parent_link %}
-          <a href="{{ entry.parent_link }}#chapter-exercise-{{ entry.order }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
-            {% else %}
           <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
-            {% endif %}
           {% else %}
           {{ entry.name }}
           {% endif %}
@@ -100,6 +96,9 @@
         <td class="submissions-dropdown dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">
             <span class="badge">
+              {% if entry.notified %}
+              <span class="glyphicon glyphicon-comment"></span>
+              {% endif %}
               {{ entry.submission_count }}
               {% if entry.max_submissions > 0 %}
               / {{ entry.max_submissions }}
@@ -128,7 +127,7 @@
         {% if is_course_staff %}
         <td>
           {% if not after_open %}
-          <a class="btn btn-default btn-xs" href="{% if entry.parent_link %}{{ entry.parent_link }}#chapter-exercise-{{ entry.order }}{% else %}{{ entry.link }}{% endif %}">
+          <a class="btn btn-default btn-xs" href="{{ entry.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
           </a>
