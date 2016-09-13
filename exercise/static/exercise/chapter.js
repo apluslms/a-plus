@@ -258,8 +258,10 @@
 						.done(function(data) {
 							exercise.hideLoader();
 							var f = exercise.element.find(exercise.settings.response_selector)
-								.empty().append(data);
-							f.find("table.submission-info").remove();
+								.empty().append(
+									$(data).filter(exercise.settings.exercise_selector).contents()
+								);
+							//f.find("table.submission-info").remove();
 							exercise.bindFormEvents(f);
 						});
 				}
