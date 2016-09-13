@@ -20,6 +20,7 @@ class LTILoginView(CourseInstanceBaseView):
     Implements LTI 1.0 using required and most recommended parameters.
     Tested for use with Piazza, https://piazza.com/product/lti
     """
+    access_mode = ACCESS.ENROLLED
     template_name = "external_services/lti_form.html"
     id_kw = "menu_id"
     menu_permission_classes = (

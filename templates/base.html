@@ -54,6 +54,10 @@
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
                             <span class="sr-only">{% trans "Toggle navigation" %}</span>
+                            {% notification_count as n_count %}
+                            {% if n_count > 0 %}
+                            <span class="badge badge-danger pull-right">{{ n_count }}</span>
+                            {% endif %}
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
@@ -116,7 +120,8 @@
 
                         {# Separate menu optimized for mobile users #}
                         <ul class="nav navbar-nav visible-xs">
-                            {% course_menu %}
+                            {% notification_menu %}
+                            {% group_select %}
                             {% block mobilemenu %}{% endblock %}
                             <li role="presentation" class="header"><h4>{% trans "Site" %}</h4></li>
                             <li role="presentation">
@@ -125,12 +130,7 @@
                                     {% trans "Home" %}
                                 </a>
                             </li>
-                            <li role="presentation">
-                                <a href="{% url 'archive' %}">
-                                    <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-                            	    {% trans "Course archive" %}
-                                </a>
-                            </li>
+                            {% course_menu %}
                             {% if user.is_authenticated %}
                             <li role="presentation">
                                 <a href="{% url 'profile' %}">

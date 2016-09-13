@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lib.email_messages import email_course_error
 from lib.helpers import extract_form_errors
+from notification.models import Notification
 from .forms import SubmissionCallbackForm
 
 
@@ -54,6 +55,12 @@ def _post_async_submission(request, exercise, submission, errors=None):
         else:
             submission.set_ready()
         submission.save()
+
+        if form.cleaned_data["notify"]:
+            Notification.send(None, submission)
+        else:
+            Notification.remove(submission)
+
         return {
             "success": True,
             "errors": []

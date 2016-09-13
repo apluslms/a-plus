@@ -26,17 +26,6 @@
 	</a>
 </li>
 
-<li role="presentation" class="menu-notifications">
-	<a href="{{ instance|url:'notifications' }}">
-		<span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
-		{% trans "Notifications" %}
-		{% notification_count as count %}
-		{% if count > 0 %}
-		<span class="badge badge-danger" title="{% blocktrans with count=count %}{{ count }} unread{% endblocktrans %}">{{ count }}</span>
-		{% endif %}
-	</a>
-</li>
-
 {% max_group_size as max_group %}
 {% if max_group > 1 %}
 <li role="presentation" class="menu-groups">

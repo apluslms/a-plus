@@ -54,6 +54,7 @@ class ExternalServicesTest(TestCase):
             course=self.course,
             url="T-00.1000_2011"
         )
+        self.course_instance.enroll_student(self.user)
         self.course_instance.assistants.add(self.assistant.userprofile)
 
         self.menu_item1 = MenuItem.objects.create(

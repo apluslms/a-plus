@@ -66,7 +66,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
         if user.is_authenticated():
             for submission in user.userprofile.submissions\
                   .exclude_errors()\
-                  .filter(exercise__course_module__course_instance=instance):
+                  .filter(exercise__course_module__course_instance=instance)\
+                  .select_related("notifications"):
                 tree = self._by_idx(modules, exercise_index[submission.exercise.id])
                 entry = tree[-1]
                 entry['submission_count'] += 1
@@ -91,6 +92,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'passed': submission.grade >= entry['points_to_pass'],
                         'graded': True,
                     })
+                if submission.notifications.count() > 0:
+                    entry['notified'] = True
 
         # Confirm points.
         def r_check(parent, children):

@@ -124,7 +124,7 @@ class RemotePage:
         self._fix_relative_urls(domain, path, "a", "href")
 
     def _fix_relative_urls(self, domain, path, tag_name, attr_name):
-        test = re.compile('^(#|\/\/|.+:\/\/|data:.+;)', re.IGNORECASE)
+        test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE)
         chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]

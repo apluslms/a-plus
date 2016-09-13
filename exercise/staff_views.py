@@ -97,15 +97,14 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
         self.submission.set_ready()
         self.submission.save()
 
-        sub = _('Feedback to {name}').format(name=self.exercise)
-        msg = _('<p>You have new personal feedback to exercise '
-                '<a href="{url}">{name}</a>.</p>{message}').format(
-            url=self.submission.get_absolute_url(),
-            name=self.exercise,
-            message=note,
-        )
-        for student in self.submission.submitters.all():
-            Notification.send(self.profile, student, self.instance, sub, msg)
+        #sub = _('Feedback to {name}').format(name=self.exercise)
+        #msg = _('<p>You have new personal feedback to exercise '
+        #        '<a href="{url}">{name}</a>.</p>{message}').format(
+        #    url=self.submission.get_absolute_url(),
+        #    name=self.exercise,
+        #    message=note,
+        #)
+        Notification.send(self.profile, self.submission)
 
         messages.success(self.request, _("The review was saved successfully "
             "and the submitters were notified."))

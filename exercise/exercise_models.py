@@ -200,6 +200,14 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_url_kwargs(self):
         return dict(exercise_path=self.get_path(), **self.course_module.get_url_kwargs())
 
+    def get_absolute_url(self):
+        if self.status == self.STATUS.UNLISTED and self.parent:
+            return "{}#chapter-exercise-{:d}".format(
+                self.parent_list()[-2].get_absolute_url(),
+                self.order
+            )
+        return super().get_absolute_url()
+
     def get_submission_list_url(self):
         return self.get_url("submission-list")
 

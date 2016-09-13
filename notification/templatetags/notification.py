@@ -14,20 +14,22 @@ def _context_user(context):
     return None
 
 
+def _context_unread(context):
+    if not "unread" in context:
+        user = _context_user(context)
+        context["unread"] = NotificationSet.get_unread(user)
+    return context["unread"]
+
+
 def _unread_messages(context):
-    unread = []
-    message = ""
-    user = _context_user(context)
-    if user:
-        unread = NotificationSet.get_unread(user)
-        message = ungettext(
-            'new notification',
-            'new notifications',
-            unread.count
-        )
+    unread = _context_unread(context)
     return {
         "unread": unread,
-        "unread_message": message,
+        "unread_message": ungettext(
+            "new notification",
+            "new notifications",
+            unread.count
+        ),
     }
 
 
@@ -43,7 +45,5 @@ def notification_menu(context):
 
 @register.assignment_tag(takes_context=True)
 def notification_count(context):
-    user = _context_user(context)
-    if user and "instance" in context:
-        return NotificationSet.get_course_new_count(context["instance"], user)
-    return 0
+    unread = _context_unread(context)
+    return unread.count
