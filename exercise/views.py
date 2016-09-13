@@ -113,8 +113,10 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
                     url_name=self.post_url_name)
 
                 # Enroll after succesfull enrollment exercise.
-                if self.exercise.status == 'enrollment' \
-                        and new_submission.status == Submission.STATUS.READY:
+                if self.exercise.status in (
+                    LearningObject.STATUS.ENROLLMENT,
+                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                ) and new_submission.status == Submission.STATUS.READY:
                     self.instance.enroll_student(self.request.user)
 
                 # Redirect non AJAX normally to submission page.
