@@ -21,6 +21,7 @@ class NotificationSet(object):
 
     @classmethod
     def get_course(cls, course_instance, user, per_page=30, page=1):
+        """ DEPRECATED, not used """
         skip = max(0, page - 1) * per_page
         qs = user.userprofile.received_notifications.filter(
             course_instance=course_instance
@@ -29,6 +30,7 @@ class NotificationSet(object):
 
     @classmethod
     def get_course_new_count(cls, course_instance, user):
+        """ DEPRECATED, not used """
         return user.userprofile.received_notifications.filter(
             course_instance=course_instance,
             seen=False
@@ -43,8 +45,9 @@ class NotificationSet(object):
 
     def count_and_mark_unseen(self):
         """
+        DEPRECATED, not used, was for separate notifications page
         Marks notifications seen in data base but keeps the set instances
-        in unseen state. DEPRECATED: for separate notifications page
+        in unseen state.
         """
         count = 0
         for notification in self.notifications:
