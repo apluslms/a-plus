@@ -263,7 +263,7 @@ class GradedForm(forms.Form):
             if m:
                 val = val[len(m.group(1)):].strip()
 
-        if "ignorews" in mods:
+        if "ignorews" in mods or t == "unsortedchars":
             val = ''.join(val.split())
             cmp = ''.join(cmp.split())
 
@@ -275,6 +275,8 @@ class GradedForm(forms.Form):
             val = stripquotes(val)
             cmp = stripquotes(cmp)
 
+        if t == "unsortedchars":
+            return set(val) == set(cmp)
         if t == "string":
             if "requirecase" in mods:
                 return val == cmp
