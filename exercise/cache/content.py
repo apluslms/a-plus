@@ -48,7 +48,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'order': o.order,
                     'status': o.status,
                     'name': str(o),
-                    'link': o.get_absolute_url(),
+                    'link': o.get_display_url(),
                     'submittable': False,
                     'submissions_link': o.get_submission_list_url(),
                     'opening_time': module.opening_time,

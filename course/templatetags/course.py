@@ -80,7 +80,7 @@ def has_opened(entry, now):
 def url(model_object, name=None):
     if name:
         return model_object.get_url(name)
-    return model_object.get_absolute_url()
+    return model_object.get_display_url()
 
 
 @register.filter
