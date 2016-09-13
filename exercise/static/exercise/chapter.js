@@ -124,8 +124,8 @@
 			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
 
 			this.loader = this.chapter.cloneLoader();
-			//this.element.empty();
-			//this.element.append(this.settings.content_element);
+			this.element.height(this.element.height()).empty();
+			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			this.load();
 
@@ -160,13 +160,11 @@
 		},
 
 		update: function(input) {
-			this.element.empty();
-			this.element.append(this.settings.content_element);
-			this.element.append(this.loader);
 			var content = this.element.find(this.settings.content_selector)
 				.empty().append(
 					input.filter(this.settings.exercise_selector).contents()
 				);
+			this.element.height("auto");
 			this.bindNavEvents();
 			this.bindFormEvents(content);
 		},
