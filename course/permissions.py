@@ -58,7 +58,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
 
             # Handle enroll views separately
             if view.access_mode == ACCESS.ENROLL:
-                return self.enrollment_audience_check(course, user)
+                return self.enrollment_audience_check(request, course, user)
 
             if show_for == VA.ENROLLED:
                 if not course.is_student(user):
@@ -66,11 +66,11 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
                     return False
 
             elif show_for == VA.ENROLLMENT_AUDIENCE:
-                return self.enrollment_audience_check(course, user)
+                return self.enrollment_audience_check(request, course, user)
 
         return True
 
-    def enrollment_audience_check(self, course, user):
+    def enrollment_audience_check(self, request, course, user):
         audience = course.enrollment_audience
         external = user.userprofile.is_external
         EA = course.ENROLLMENT_AUDIENCE
