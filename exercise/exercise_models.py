@@ -385,7 +385,10 @@ class BaseExercise(LearningObject):
 
         # Check enrollment requirements.
         enrollment = self.course_instance.get_enrollment_for(profile.user)
-        if self.status == LearningObject.STATUS.ENROLLMENT:
+        if self.status in (
+            LearningObject.STATUS.ENROLLMENT,
+            LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+        ):
             if not self.course_instance.is_enrollable(profile.user):
                 warnings.append(_('You cannot enroll in the course.'))
                 return False, warnings, students
