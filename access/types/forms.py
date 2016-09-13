@@ -282,7 +282,16 @@ class GradedForm(forms.Form):
         if t == "unsortedchars":
             return set(val) == set(cmp)
         if t == "string":
-            if "requirecase" in mods:
+            if "\n" in cmp:
+                cmp_a = [l.strip() for l in cmp.strip().split()]
+                val_a = [l.strip() for l in val.strip().split()]
+                if len(cmp_a) != len(val_a):
+                    return False
+                if "requirecase" in mods:
+                    return all(c==v for c,v in zip(cmp_a,val_a))
+                else:
+                    return all(c.lower()==v.lower() for c,v in zip(cmp_a,val_a))
+            elif "requirecase" in mods:
                 return val == cmp
             else:
                 return val.lower() == cmp.lower()
