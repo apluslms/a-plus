@@ -286,7 +286,7 @@ class GradedForm(forms.Form):
             if cmp.startswith('/') and cmp.endswith('/'):
                 cmp = cmp[1:-1]
             p = re.compile(cmp)
-            return p.match(val) != None
+            return bool(p.search(val))
         elif t == "int":
             try:
                 return int(val) == int(cmp)
