@@ -103,9 +103,11 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     and entry['confirm_the_level']
                     and entry['passed']
                 ):
-                    del(parent['unconfirmed'])
+                    if 'unconfirmed' in parent:
+                        del(parent['unconfirmed'])
                     for child in parent.get('children', []):
-                        del(child['unconfirmed'])
+                        if 'unconfirmed' in child:
+                            del(child['unconfirmed'])
                 r_check(entry, entry.get('children', []))
         for module in modules:
             r_check(module, module['children'])
