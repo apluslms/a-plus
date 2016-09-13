@@ -275,6 +275,10 @@ class GradedForm(forms.Form):
             val = stripquotes(val)
             cmp = stripquotes(cmp)
 
+        if "ignoreparenthesis" in mods:
+            if val.startswith('(') and val.endswith(')'):
+                val = val[1:-1]
+
         if t == "unsortedchars":
             return set(val) == set(cmp)
         if t == "string":
