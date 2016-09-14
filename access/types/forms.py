@@ -268,23 +268,28 @@ class GradedForm(forms.Form):
             cmp = ''.join(cmp.split())
 
         if "ignorequotes" in mods:
-            def stripquotes(v):
+            def strip_quotes(v):
                 if v.startswith("\"") and v.endswith("\""):
                     return v[1:len(v)-1]
                 return v
-            val = stripquotes(val)
-            cmp = stripquotes(cmp)
+            val = strip_quotes(val)
+            cmp = strip_quotes(cmp)
 
         if "ignoreparenthesis" in mods:
-            if val.startswith('(') and val.endswith(')'):
-                val = val[1:-1]
+            def strip_parenthesis(v):
+                return v.replace("(","").replace(")","")
+            if t == "regexp":
+                val = strip_parenthesis(val)
+            else:
+                val = strip_parenthesis(val)
+                cmp = strip_parenthesis(cmp)
 
         if t == "unsortedchars":
             return set(val) == set(cmp)
         if t == "string":
             if "\n" in cmp:
-                cmp_a = [l.strip() for l in cmp.strip().split()]
-                val_a = [l.strip() for l in val.strip().split()]
+                cmp_a = [l.strip() for l in cmp.strip().split("\n")]
+                val_a = [l.strip() for l in val.strip().split("\n")]
                 if len(cmp_a) != len(val_a):
                     return False
                 if "requirecase" in mods:
