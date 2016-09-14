@@ -103,6 +103,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     content_head = models.TextField(blank=True)
     content_stamp = models.CharField(max_length=128, blank=True)
     content_time = models.DateTimeField(blank=True, null=True)
+    content_expire_minutes = models.PositiveIntegerField(default=0)
 
     objects = LearningObjectManager()
 
@@ -221,37 +222,42 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         if not self.service_url:
             return ExercisePage(self)
 
-        # Archived course presents static copy.
-        if self.id and self.course_instance.ending_time < timezone.now() and self.content:
-            page = ExercisePage(self)
-            page.head = self.content_head
-            page.content = self.content
-            page.is_loaded = True
-
-        else:
+        # Use static copy for cacheable exercises and closed courses.
+        now = timezone.now()
+        if not self.id or not self.content or (
+            self.course_instance.ending_time > now
+            and (
+                not self.content_expire_minutes
+                or (
+                    self.content_time
+                    + datetime.timedelta(minutes=self.content_expire_minutes)
+                ) > now
+            )
+        ):
             try:
                 page = load_exercise_page(
                     request,
                     self.get_load_url(request, students, url_name),
                     self
                 )
-                now = timezone.now()
-                if (self.id
-                        and (
-                            not self.content_time
-                            or (page.stamp and page.stamp != self.content_stamp)
-                            or self.content_time + datetime.timedelta(days=10) < now
-                        )):
+                if self.id and (
+                    not self.content_time
+                    or (page.stamp and page.stamp != self.content_stamp)
+                    or self.content_time + datetime.timedelta(days=10) < now
+                ):
                     self.content_head = page.head
                     self.content = page.content
                     self.content_stamp = page.stamp
                     self.content_time = now
                     self.save()
+                return page
             except RemotePageNotModified:
-                page = ExercisePage(self)
-                page.head = self.content_head
-                page.content = self.content
-                page.is_loaded = True
+                pass
+
+        page = ExercisePage(self)
+        page.head = self.content_head
+        page.content = self.content
+        page.is_loaded = True
         return page
 
     def get_models(self):
