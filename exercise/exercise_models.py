@@ -231,7 +231,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                 or (
                     self.content_time
                     + datetime.timedelta(minutes=self.content_expire_minutes)
-                ) > now
+                ) < now
             )
         ):
             try:
