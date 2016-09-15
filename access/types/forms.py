@@ -26,8 +26,10 @@ class GradedForm(forms.Form):
         if "exercise" not in kwargs:
             raise ConfigError("Missing exercise configuration from form arguments.")
         self.exercise = kwargs.pop("exercise")
+        self.show_correct = kwargs.pop('show_correct') if 'show_correct' in kwargs else False
         kwargs['label_suffix'] = ''
         super(forms.Form, self).__init__(*args, **kwargs)
+
         if "fieldgroups" not in self.exercise:
             raise ConfigError("Missing required \"fieldgroups\" in exercise configuration")
 
@@ -88,11 +90,11 @@ class GradedForm(forms.Form):
                 elif t == "radio":
                     i, f = self.add_field(i, field,
                         forms.ChoiceField, forms.RadioSelect,
-                        initial, choices, {})
+                        initial[0] if initial else None, choices, {})
                 elif (t == "dropdown" or t == "select"):
                     i, f = self.add_field(i, field,
                         forms.ChoiceField, forms.Select,
-                        initial, choices)
+                        initial[0] if initial else None, choices)
                 elif t == "text":
                     i, f = self.add_field(i, field,
                         forms.CharField, forms.TextInput)
@@ -141,6 +143,14 @@ class GradedForm(forms.Form):
         fields = []
         initial, choices = self.create_choices(config)
         for row in config.get('rows', []):
+
+            if self.show_correct:
+                initial = []
+                corr = self.row_options(config, row)['options']
+                for i,choice in enumerate(choices):
+                    if corr[i]['correct']:
+                        initial.append(choice[0])
+
             i, fi = self.add_field(i, config,
                 field_class, widget_class, initial, choices, {})
             fi[0].name = self.field_name(i, row)
@@ -160,7 +170,9 @@ class GradedForm(forms.Form):
         }
         if not choices is None:
             args['choices'] = choices
-        if 'initial' in config:
+        if self.show_correct and 'correct' in config:
+            args['initial'] = config['correct']
+        elif not self.show_correct and 'initial' in config:
             args['initial'] = config['initial']
         elif not initial is None:
             args['initial'] = initial
@@ -195,7 +207,7 @@ class GradedForm(forms.Form):
 
         '''
         choices = []
-        initial = None
+        initial = []
         if "options" in configuration:
             i = 0
             for opt in configuration["options"]:
@@ -205,7 +217,7 @@ class GradedForm(forms.Form):
                 value = self.option_name(i, opt)
                 choices.append((value, mark_safe(label)))
                 if 'selected' in opt and opt['selected']:
-                    initial = value
+                    initial.append(value)
                 i += 1
         return initial, choices
 
@@ -254,8 +266,10 @@ class GradedForm(forms.Form):
         if t == "array":
             return cmp in val
 
-        val = val.strip()
-        cmp = cmp.strip()
+        def good_strip(v):
+            return v.strip().replace("\r","")
+        val = good_strip(val)
+        cmp = good_strip(cmp)
 
         if "ignorerepl" in mods:
             p = re.compile('(^\w+:\s[\w\.\[\]]+\s=)')
@@ -264,8 +278,10 @@ class GradedForm(forms.Form):
                 val = val[len(m.group(1)):].strip()
 
         if "ignorews" in mods or t == "unsortedchars":
-            val = ''.join(val.split())
-            cmp = ''.join(cmp.split())
+            def strip_ws(v):
+                return v.replace(" ","")
+            val = strip_ws(val)
+            cmp = strip_ws(cmp)
 
         if "ignorequotes" in mods:
             def strip_quotes(v):
@@ -395,11 +411,13 @@ class GradedForm(forms.Form):
         hint = row.get('hint', '')
         correct = row.get('correct_options', [])
         opt = []
-        for i, _ in enumerate(configuration.get('options', [])):
-            opt.append({
+        for i, srcopt in enumerate(configuration.get('options', [])):
+            trgopt = srcopt.copy()
+            trgopt.update({
                 'hint': hint,
-                'correct': correct[i] if i < len(correct) else False
+                'correct': correct[i] if i < len(correct) else False,
             })
+            opt.append(trgopt)
         return { 'options': opt }
 
     def grade_checkbox(self, configuration, value, hints=None):
