@@ -36,12 +36,8 @@
 				{% endif %}
 				<th>{% trans "Date" %}</th>
 				<th>{% if submission.is_graded %}{% trans "Points" %}{% else %}{% trans "Status" %}{% endif %}</th>
-				{% if submission.files.exists %}
-				<th>{% trans "Files" %}</th>
-				{% endif %}
-				{% if is_course_staff %}
-				<th>{% trans "Course staff" %}</th>
-				{% endif %}
+				{% if submission.files.exists %}<th>{% trans "Files" %}</th>{% endif %}
+				{% if is_course_staff %}<th>{% trans "Course staff" %}</th>{% endif %}
 			</tr>
 			<tr>
 				<td>
@@ -54,7 +50,10 @@
 					</span>
 					{% endif %}
 				</td>
-				<td>{% points_badge submission %}</td>
+				<td class="points-badge">
+					<span class="hidden">{% points_badge summary %}</span>
+					{% points_badge submission %}
+				</td>
 				{% if submission.files.exists %}
 				<td>
 					<ul class="list-unstyled">

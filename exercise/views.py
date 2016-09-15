@@ -196,14 +196,21 @@ class SubmissionView(SubmissionBaseView):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
-        if not self.request.is_ajax():
-            self.get_submissions()
+        #if not self.request.is_ajax():
+        self.get_submissions()
 
     def get_submissions(self):
         if self.submission.is_submitter(self.request.user):
             profile = self.profile
         else:
             profile = self.submission.submitters.first()
+        self.models = [
+            {
+                'name': name,
+                'content': request_for_response(url).text,
+            }
+            for url,name in self.exercise.get_models()
+        ]
         self.summary = UserExerciseSummary(self.exercise, profile.user)
         self.submissions = self.summary.get_submissions()
         self.index = len(self.submissions) - list(self.submissions).index(self.submission)

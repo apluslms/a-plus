@@ -11,7 +11,8 @@
 		exercise_url_attr: "data-aplus-exercise",
 		loading_selector: "#loading-indicator",
 		modal_selector: "#page-modal",
-		modal_content_selector: ".modal-body"
+		modal_content_selector: ".modal-body",
+		submission_selector: ".submission-info,#exercise-all",
 	};
 
 	function AplusChapter(element, options) {
@@ -45,7 +46,7 @@
 			if (sourceURL && sourceURL !== "#") {
 				var self = this;
 				$.ajax(sourceURL).done(function(data) {
-					self.openModal($(data).filter('table,#exercise'));
+					self.openModal($(data).filter(self.settings.submission_selector));
 				}).fail(function() {
 					self.openModal("Internal error.");
 				});
@@ -231,15 +232,30 @@
 
 		updateSubmission: function(input) {
 			this.updateSummary(input);
-
-			// Open feedback modal.
 			this.chapter.openModal(
-				input.find(this.settings.response_selector).contents()
+				input.filter(this.chapter.settings.submission_selector)
 			);
+
+			// Update asynchronous feedback.
 			if (typeof($.aplusExerciseDetectWaits) == "function") {
 				var exercise = this;
 				$.aplusExerciseDetectWaits(function(suburl) {
-					exercise.chapter.openModalURL(suburl);
+					$.ajax(suburl).done(function(data) {
+						input = $(data);
+
+						var new_badges = input.find(".badge");
+						var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
+						console.log(new_badges, old_badges);
+						old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
+						old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
+
+						exercise.chapter.openModal(
+							input.filter(exercise.chapter.settings.submission_selector)
+						);
+
+					}).fail(function() {
+						exercise.chapter.openModal("Internal error.");
+					});
 				});
 			}
 		},
