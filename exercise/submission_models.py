@@ -87,7 +87,7 @@ class Submission(UrlMixin, models.Model):
 
     class Meta:
         app_label = 'exercise'
-        ordering = ['-submission_time']
+        ordering = ['-id']
 
     def __str__(self):
         return str(self.id)
