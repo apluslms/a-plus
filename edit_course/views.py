@@ -15,6 +15,7 @@ from lib.viewbase import (
 from authorization.permissions import ACCESS
 from course.models import CourseInstance, UserTag
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, UserTagForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
@@ -240,6 +241,13 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
     access_mode = ACCESS.TEACHER
 
     def post(self, request, *args, **kwargs):
+        if 'apply' in request.POST:
+            self.configure(request)
+        elif 'cache' in request.POST:
+            self.clear_cache(request)
+        return self.redirect(self.instance.get_url('course-edit'))
+
+    def configure(self, request):
         try:
             from .operations.configure import configure_content
             errors = configure_content(self.instance, request.POST.get('url'))
@@ -250,4 +258,9 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
                 messages.success(request, _("Course content configured."))
         except Exception as e:
             messages.error(request, _("Server error: {}").format(str(e)))
-        return self.redirect(self.instance.get_url('course-edit'))
+
+    def clear_cache(self, request):
+        LearningObject.objects.filter(
+            course_module__course_instance=self.instance
+        ).update(content="")
+        messages.success(request, _("Exercise caches have been cleared."))

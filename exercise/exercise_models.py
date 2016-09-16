@@ -519,6 +519,7 @@ class BaseExercise(LearningObject):
         uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
         params = {
             "max_points": self.max_points,
+            "max_submissions": self.max_submissions,
             "submission_url": request.build_absolute_uri(submission_url),
             "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
             "uid": uid_str,

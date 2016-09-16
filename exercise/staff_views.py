@@ -5,12 +5,14 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from django.db.models import F
 from django.http.response import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from deviations.models import MaxSubmissionsRuleDeviation
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from authorization.permissions import ACCESS
@@ -45,6 +47,10 @@ class InspectSubmissionView(SubmissionBaseView):
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/inspect_submission.html"
 
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.get_summary_submissions()
+
 
 class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
     access_mode = ACCESS.ASSISTANT
@@ -52,6 +58,22 @@ class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
     def post(self, request, *args, **kwargs):
         _ = self.exercise.grade(request, self.submission)
         return self.redirect(self.submission.get_inspect_url())
+
+
+class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
+    access_mode = ACCESS.TEACHER
+
+    def post(self, request, *args, **kwargs):
+        deviation,_ = MaxSubmissionsRuleDeviation.objects.get_or_create(
+            exercise=self.exercise,
+            submitter=self.submission.submitters.first(),
+            defaults={'extra_submissions': 0}
+        )
+        MaxSubmissionsRuleDeviation.objects\
+            .filter(id=deviation.id)\
+            .update(extra_submissions=(F('extra_submissions') + 1))
+        return self.redirect(self.submission.get_inspect_url())
+
 
 
 class AssessSubmissionView(SubmissionMixin, BaseFormView):
