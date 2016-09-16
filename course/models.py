@@ -96,11 +96,13 @@ class StudentGroup(models.Model):
 
     @classmethod
     def get_exact(cls, course_instance, member_profiles):
-        qs = cls.objects.filter(course_instance=course_instance) \
-            .annotate(count=Count('members')).filter(count=len(member_profiles))
-        for profile in member_profiles:
-            qs.filter(members=profile)
-        return qs.first()
+        for group in cls.objects.filter(
+            course_instance=course_instance,
+            members=member_profiles[0]
+        ):
+            if group.equals(member_profiles):
+                return group
+        return None
 
     def equals(self, profiles):
         return set(self.members.all()) == set(profiles)

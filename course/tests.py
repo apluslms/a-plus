@@ -7,7 +7,7 @@ from django.test.client import Client
 from django.utils import timezone
 
 from course.models import Course, CourseInstance, CourseHook, CourseModule, \
-    LearningObjectCategory
+    LearningObjectCategory, StudentGroup
 from exercise.models import BaseExercise, Submission
 from exercise.exercise_models import LearningObject
 
@@ -319,3 +319,12 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context["is_assistant"])
         self.assertTrue(response.context["is_teacher"])
+
+    def test_groups(self):
+        group = StudentGroup(course_instance=self.current_course_instance)
+        group.save()
+        group.members.add(self.user.userprofile,self.grader.userprofile)
+        self.assertEqual(StudentGroup.get_exact(self.current_course_instance,
+            [self.user.userprofile,self.grader.userprofile]), group)
+        self.assertEqual(StudentGroup.get_exact(self.current_course_instance,
+            [self.user.userprofile,self.superuser.userprofile]), None)
