@@ -162,13 +162,13 @@ class GradedForm(forms.Form):
 
     def add_field(self, i, config, field_class, widget_class,
             initial=None, choices=None, widget_attrs={'class': 'form-control'}):
-        if self.disabled:
-            widget_attrs['readonly'] = True
         args = {
-            'disabled': self.disabled,
             'widget': widget_class(attrs=widget_attrs),
-            'required': 'required' in config and config['required']
+            'required': 'required' in config and config['required'],
         }
+        if self.disabled:
+            args['disabled'] = True
+            args['widget'].attrs['disabled'] = 'disabled'
         if not choices is None:
             args['choices'] = choices
         if self.show_correct and config.get('model', False):
