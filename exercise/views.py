@@ -14,7 +14,6 @@ from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView
 from lib.remote_page import request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
-from .exercise_summary import UserExerciseSummary
 from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
@@ -34,8 +33,7 @@ class ExerciseInfoView(ExerciseBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.summary = UserExerciseSummary(self.exercise, self.request.user)
-        self.note("summary")
+        self.get_summary_submissions()
 
 
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
@@ -60,16 +58,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
         return access_mode
 
-    def get_after_new_submission(self):
-        self.summary = UserExerciseSummary(self.exercise, self.request.user)
-        self.submissions = self.summary.get_submissions()
-        self.note("summary", "submissions")
-
     def get(self, request, *args, **kwargs):
         students = [self.profile]
         if self.exercise.is_submittable:
             ok, students = self.submission_check()
-            self.get_after_new_submission()
+            self.get_summary_submissions()
 
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):
@@ -132,7 +125,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             if not request.is_ajax() and "__r" in request.GET:
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
-        self.get_after_new_submission()
+        self.get_summary_submissions()
         return self.response(page=page, students=students,
             submission=new_submission)
 
@@ -176,6 +169,7 @@ class ExerciseModelView(ExerciseBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
+        self.get_summary_submissions()
         self.models = []
         for url,name in self.exercise.get_models():
             response = request_for_response(url)
@@ -184,9 +178,7 @@ class ExerciseModelView(ExerciseBaseView):
                 'content': response.text,
                 'html': 'text/html' in response.headers.get('Content-Type'),
             })
-        self.summary = UserExerciseSummary(self.exercise, self.request.user)
-        self.submissions = self.summary.get_submissions()
-        self.note('models', 'summary', 'submissions')
+        self.note('models')
 
 
 class SubmissionView(SubmissionBaseView):
@@ -198,24 +190,7 @@ class SubmissionView(SubmissionBaseView):
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
         #if not self.request.is_ajax():
-        self.get_submissions()
-
-    def get_submissions(self):
-        if self.submission.is_submitter(self.request.user):
-            profile = self.profile
-        else:
-            profile = self.submission.submitters.first()
-        self.models = [
-            {
-                'name': name,
-                'content': request_for_response(url).text,
-            }
-            for url,name in self.exercise.get_models()
-        ]
-        self.summary = UserExerciseSummary(self.exercise, profile.user)
-        self.submissions = self.summary.get_submissions()
-        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
-        self.note("summary", "submissions", "index")
+        self.get_summary_submissions()
 
 
 class SubmissionPlainView(SubmissionView):

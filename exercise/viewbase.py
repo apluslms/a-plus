@@ -9,6 +9,7 @@ from authorization.permissions import ACCESS
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView
 from .cache.hierarchy import NoSuchContent
+from .exercise_summary import UserExerciseSummary
 from .permissions import (
     ExerciseVisiblePermission,
     BaseExerciseAssistantPermission,
@@ -65,6 +66,13 @@ class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
         self.breadcrumb = tree[1:-1]
         self.note("now", "previous", "current", "next", "breadcrumb")
 
+    def get_summary_submissions(self, profile=None):
+        self.summary = UserExerciseSummary(
+            self.exercise, profile or self.request.user
+        )
+        self.submissions = self.summary.get_submissions()
+        self.note("summary", "submissions")
+
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
     pass
@@ -90,12 +98,22 @@ class SubmissionBaseMixin(object):
 
 
 class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
+
     def get_submission_object(self):
         return get_object_or_404(
             Submission,
             id=self.kwargs[self.submission_kw],
             exercise=self.exercise
         )
+
+    def get_summary_submissions(self):
+        if self.submission.is_submitter(self.request.user):
+            profile = self.profile
+        else:
+            profile = self.submission.submitters.first()
+        super().get_summary_submissions(profile.user)
+        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
+        self.note("index")
 
 
 class SubmissionBaseView(SubmissionMixin, BaseTemplateView):
