@@ -42,7 +42,7 @@ class GradedForm(forms.Form):
                     raise PermissionDenied('Invalid checksum')
                 post_samples = sample.split('/')
 
-        self.disabled = False
+        self.disabled = self.show_correct
         samples = []
         g = 0
         i = 0
