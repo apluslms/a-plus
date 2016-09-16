@@ -176,13 +176,14 @@ class ExerciseModelView(ExerciseBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.models = [
-            {
+        self.models = []
+        for url,name in self.exercise.get_models():
+            response = request_for_response(url)
+            self.models.append({
                 'name': name,
-                'content': request_for_response(url).text,
-            }
-            for url,name in self.exercise.get_models()
-        ]
+                'content': response.text,
+                'html': 'text/html' in response.headers.get('Content-Type'),
+            })
         self.summary = UserExerciseSummary(self.exercise, self.request.user)
         self.submissions = self.summary.get_submissions()
         self.note('models', 'summary', 'submissions')
