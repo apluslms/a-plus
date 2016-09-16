@@ -170,9 +170,11 @@ class GradedForm(forms.Form):
         }
         if not choices is None:
             args['choices'] = choices
-        if self.show_correct and 'correct' in config:
+        if self.show_correct and config.get('model', False):
+            args['initial'] = config['model']
+        elif self.show_correct and config.get('correct', False):
             args['initial'] = config['correct']
-        elif not self.show_correct and 'initial' in config:
+        elif not self.show_correct and config.get('initial', False):
             args['initial'] = config['initial']
         elif not initial is None:
             args['initial'] = initial
@@ -211,12 +213,14 @@ class GradedForm(forms.Form):
         if "options" in configuration:
             i = 0
             for opt in configuration["options"]:
-                label = ""
-                if "label" in opt:
-                    label = opt["label"]
+                label = opt.get('label', "")
                 value = self.option_name(i, opt)
                 choices.append((value, mark_safe(label)))
-                if 'selected' in opt and opt['selected']:
+                if self.show_correct and opt.get('correct', False):
+                    initial.append(value)
+                elif not self.show_correct and (
+                    opt.get('selected', False) or opt.get('initial', False)
+                ):
                     initial.append(value)
                 i += 1
         return initial, choices

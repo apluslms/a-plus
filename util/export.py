@@ -9,7 +9,8 @@ def url_to_exercise(request, course_key, exercise_key):
 
 def url_to_model(request, course_key, exercise_key, parameter=None):
     return request.build_absolute_uri(
-        reverse('model', args=[course_key, exercise_key, parameter]))
+        reverse('model', args=[course_key, exercise_key, parameter or ''])
+    )
 
 
 def url_to_static(request, course_key, path):
@@ -34,12 +35,24 @@ def exercise(request, course, exercise, of):
         of["url"] = exercise["url"]
     else:
         of["url"] = url_to_exercise(request, course['key'], exercise['key'])
+
     of['exercise_info'] = {
         'form_spec': form_fields(exercise),
         'resources': [url_to_static(request, course['key'], p) for p in exercise.get('resource_files', [])],
     }
-    file_names = [path.split('/')[-1] for path in exercise.get('model_files', [])]
-    of['model_answer'] = ' '.join([url_to_model(request, course['key'], exercise['key'], name) for name in file_names])
+
+    if exercise.get('view_type', None) == 'access.types.stdsync.createForm':
+        of['model_answer'] = url_to_model(
+            request, course['key'], exercise['key']
+        )
+    else:
+        file_names = [
+            path.split('/')[-1] for path in exercise.get('model_files', [])
+        ]
+        of['model_answer'] = ' '.join([
+            url_to_model(request, course['key'], exercise['key'], name)
+            for name in file_names
+        ])
     return of
 
 

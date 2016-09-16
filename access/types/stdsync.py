@@ -122,6 +122,13 @@ def createForm(request, course, exercise, post_url):
         'access/create_form_default.html', result)
 
 
+def createFormModel(request, course, exercise, parameter):
+    form = GradedForm(None, exercise=exercise, show_correct=True)
+    result = { "form": form }
+    return render_template(request, course, exercise, None,
+        'access/graded_form.html', result)
+
+
 def md5Authentication(request, course, exercise, post_url):
     '''
     Creates an md5 hash for user authentication.

@@ -107,11 +107,13 @@ def exercise_model(request, course_key, exercise_key, parameter=None):
         raise Http404()
     response = None
 
-    if 'model_type' in exercise:
-        response = import_named(course, exercise['model_type'])(
+    try:
+        response = import_named(course, exercise['view_type'] + "Model")(
             request, course, exercise, parameter)
+    except ImportError:
+        pass
 
-    elif 'model_files' in exercise:
+    if 'model_files' in exercise:
         def find_name(paths, name):
             models = [(path,path.split('/')[-1]) for path in paths]
             for path,name in models:
@@ -125,7 +127,6 @@ def exercise_model(request, course_key, exercise_key, parameter=None):
             response = HttpResponse(content, content_type='text/plain')
 
     if response:
-        response['Access-Control-Allow-Origin'] = '*'
         return response
     else:
         raise Http404()
