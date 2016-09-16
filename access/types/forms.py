@@ -165,6 +165,7 @@ class GradedForm(forms.Form):
         if self.disabled:
             widget_attrs['readonly'] = True
         args = {
+            'disabled': self.disabled,
             'widget': widget_class(attrs=widget_attrs),
             'required': 'required' in config and config['required']
         }
