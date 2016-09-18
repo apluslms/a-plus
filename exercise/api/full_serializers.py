@@ -149,12 +149,19 @@ class SubmissionSerializer(SubmissionBriefSerializer):
         )
 
 
+class SubmissionInGraderSerializer(SubmissionBriefSerializer):
+    class Meta(SubmissionBriefSerializer.Meta):
+        fields = (
+            'html_url',
+        )
+
+
 class SubmissionGraderSerializer(AplusModelSerializerBase):
     url = NestedHyperlinkedIdentityField(
         view_name='api:submission-grader',
         lookup_map='exercise.api.views.SubmissionViewSet',
     )
-    submission = SubmissionBriefSerializer(source='*')
+    submission = SubmissionInGraderSerializer(source='*')
     exercise = ExerciseBriefSerializer()
 
     class Meta(AplusSerializerMeta):
