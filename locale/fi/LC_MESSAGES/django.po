@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-16 15:39+0300\n"
+"POT-Creation-Date: 2016-09-19 14:20+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -103,87 +103,87 @@ msgstr "Tämä ryhmä on jo olemassa"
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:61 course/models.py:561 exercise/exercise_models.py:135
+#: course/models.py:61 course/models.py:548 exercise/exercise_models.py:135
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
-#: course/models.py:142
+#: course/models.py:146
 msgid "Describe the usage or meaning of this usertag"
 msgstr "Kuvaile merkinnän käyttötarkoitus"
 
-#: course/models.py:145
+#: course/models.py:149
 msgid "Color that is used for this tag."
 msgstr "Merkinnän yhteydessä käytettävä väri."
 
-#: course/models.py:263
+#: course/models.py:250
 msgid "Internal users"
 msgstr "Paikalliset käyttäjät"
 
-#: course/models.py:264
+#: course/models.py:251
 msgid "External users"
 msgstr "Ulkoiset käyttäjät"
 
-#: course/models.py:265
+#: course/models.py:252
 msgid "Internal and external users"
 msgstr "Paikalliset ja ulkoiset käyttäjät"
 
-#: course/models.py:268
+#: course/models.py:255
 msgid "Enrolled students"
 msgstr "Ilmoittautuneet opiskelijat"
 
-#: course/models.py:269
+#: course/models.py:256
 msgid "Enrollment audience"
 msgstr "Ilmoittautumisen kohdeyleisö"
 
-#: course/models.py:270
+#: course/models.py:257
 msgid "All registered users"
 msgstr "Kaikki rekisteröityneet käyttäjät"
 
-#: course/models.py:271
+#: course/models.py:258
 msgid "Public to internet"
 msgstr "Julkisesti Internetissä"
 
-#: course/models.py:274
+#: course/models.py:261
 msgid "User results"
 msgstr "Pistetilanne"
 
-#: course/models.py:275
+#: course/models.py:262
 msgid "Table of contents"
 msgstr "Sisällysluettelo"
 
-#: course/models.py:276
+#: course/models.py:263
 msgid "Link last visited content"
 msgstr "Linkki viimeksi vierailtuun sisältöön"
 
-#: course/models.py:277
+#: course/models.py:264
 msgid "Experimental setup (hard-coded)"
 msgstr "Koeasetelma (kovakoodattu)"
 
-#: course/models.py:280
+#: course/models.py:267
 msgid "No numbering"
 msgstr "Ei numerointia"
 
-#: course/models.py:281
+#: course/models.py:268
 msgid "Arabic"
 msgstr "arabialainen"
 
-#: course/models.py:282
+#: course/models.py:269
 msgid "Roman"
 msgstr "roomalainen"
 
-#: course/models.py:283
+#: course/models.py:270
 msgid "Hidden arabic"
 msgstr "piilotettu arabialainen"
 
-#: course/models.py:290
+#: course/models.py:277
 msgid "Input an URL identifier for this course instance."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssikerralle."
 
-#: course/models.py:305
+#: course/models.py:292
 msgid "Select content for the course index page."
 msgstr "Valitse sisältö kurssin etusivulle"
 
-#: course/models.py:311
+#: course/models.py:298
 msgid ""
 "External CSS and JS resources that are included on all course pages. "
 "Separate with white space."
@@ -191,7 +191,7 @@ msgstr ""
 "Ulkoiset CSS- ja JS-resurssit, jotka sisällytetään kurssisivuihin. Erottele "
 "osoitteet rivinvaihdoilla."
 
-#: course/models.py:316
+#: course/models.py:303
 msgid ""
 "By default exercise errors are reported to teacher email addresses. Set this "
 "field as comma separated emails to override the recipients."
@@ -200,32 +200,32 @@ msgstr ""
 "sähköposteihin. Syötä pilkuilla erotettuja sähköpostiosoitteita korvaamaan "
 "oletusvastaanottajat."
 
-#: course/models.py:345
+#: course/models.py:332
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:512 course/models.py:606 exercise/exercise_models.py:67
+#: course/models.py:499 course/models.py:593 exercise/exercise_models.py:67
 #: exercise/submission_models.py:55
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:513 exercise/exercise_models.py:68
+#: course/models.py:500 exercise/exercise_models.py:68
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:514 course/models.py:607 templates/base.html:77
+#: course/models.py:501 course/models.py:594 templates/base.html:77
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:515 exercise/exercise_models.py:72
+#: course/models.py:502 exercise/exercise_models.py:72
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:523
+#: course/models.py:510
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:538
+#: course/models.py:525
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
@@ -265,6 +265,10 @@ msgstr "Tämä osio avautuu {date}."
 #: course/permissions.py:112
 msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle - only course staff shall pass."
+
+#: course/templates/course/_course_dropdown_menu.html:16
+msgid "Begin with enrolling in a course"
+msgstr "Aloita ilmoittautumalla jollekin kurssille"
 
 #: course/templates/course/_course_menu.html:9
 #: edit_course/templates/edit_course/edit_course_base.html:26
@@ -322,7 +326,7 @@ msgstr "Kurssiuutiset"
 msgid "Edit course"
 msgstr "Muokkaa kurssia"
 
-#: course/templates/course/_group_info.html:4
+#: course/templates/course/_group_info.html:3
 #, python-format
 msgid ""
 "\n"
@@ -333,7 +337,7 @@ msgstr ""
 "  Olet nyt palauttamassa %(collaborators)s kanssa\n"
 "  "
 
-#: course/templates/course/_group_info.html:9
+#: course/templates/course/_group_info.html:8
 msgid "You are now submitting alone"
 msgstr "Olet nyt palauttamassa yksin"
 
@@ -366,7 +370,7 @@ msgid "Early access"
 msgstr "Aikainen pääsy"
 
 #: course/templates/course/archive.html:5
-#: course/templates/course/archive.html:12 templates/base.html:89
+#: course/templates/course/archive.html:12
 msgid "Course archive"
 msgstr "Kurssiarkisto"
 
@@ -711,7 +715,7 @@ msgstr "Toiminnot"
 #: edit_course/templates/edit_course/usertag_delete.html:28
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: external_services/templates/external_services/list_menu.html:64
-#: news/templates/news/list.html:53 templates/base.html:211
+#: news/templates/news/list.html:53 templates/base.html:203
 msgid "Remove"
 msgstr "Poista"
 
@@ -2378,7 +2382,7 @@ msgstr "Numeron on oltava välillä 0.0 - 1.0"
 msgid "Enter valid JSON."
 msgstr ""
 
-#: lib/remote_page.py:65
+#: lib/remote_page.py:70
 msgid "Connecting to the course service failed!"
 msgstr "Kurssin palveluun ei saatu yhteyttä!"
 
@@ -2510,40 +2514,40 @@ msgstr "Näytä valikko"
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:108 templates/base.html.py:144
+#: templates/base.html:100 templates/base.html.py:136
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:115 templates/base.html.py:151
+#: templates/base.html:107 templates/base.html.py:143
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:126
+#: templates/base.html:118
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:130
+#: templates/base.html:122
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:177 userprofile/templates/userprofile/privacy.html:4
+#: templates/base.html:169 userprofile/templates/userprofile/privacy.html:4
 #: userprofile/templates/userprofile/privacy.html:9
 msgid "Privacy Policy"
 msgstr "Tietosuojaseloste"
 
-#: templates/base.html:190 templates/base.html.py:200
+#: templates/base.html:182 templates/base.html.py:192
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:215
+#: templates/base.html:207
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:219
+#: templates/base.html:211
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:222
+#: templates/base.html:214
 msgid "Search for..."
 msgstr "Etsi..."
 
