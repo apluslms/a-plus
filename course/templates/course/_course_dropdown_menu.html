@@ -1,9 +1,20 @@
 {% load i18n %}
-{% load course %}
-{% for ci in instances %}
-<li role="presentation">
-	<a href="{{ ci|url }}">
-    	{{ ci.course }}
-    </a>
-</li>
-{% endfor %}
+<ul class="dropdown-menu">
+	{% for entry in instances %}
+	{% if entry.divider %}
+	<li role="presentation" class="divider"></li>
+	{% else %}
+	<li role="presentation">
+		<a href="{{ entry.link }}">
+			{{ entry.name }}
+		</a>
+	</li>
+	{% endif %}
+	{% empty %}
+	<li role="presentation">
+		<a href="#">
+			{% trans "Not enrolled in any course" %}
+		</a>
+	</li>
+	{% endfor %}
+</ul>

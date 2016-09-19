@@ -1,10 +1,9 @@
 {% load i18n %}
-{% load course %}
-{% if enrollment.selected_group %}
-  {% blocktrans with collaborators=enrollment.selected_group.collaborators|names %}
+{% if id %}
+  {% blocktrans with collaborators=collaborators %}
   You are now submitting with {{ collaborators }}
   {% endblocktrans %}
-  {% avatars enrollment.selected_group.members.all %}
+  {{ avatars }}
 {% else %}
   {% trans "You are now submitting alone" %}
 {% endif %}

@@ -110,6 +110,10 @@ class StudentGroup(models.Model):
     def collaborators_of(self, profile):
         return [p for p in self.members.all() if p != profile]
 
+    def collaborator_names(self, profile):
+        return ", ".join(p.user.get_full_name()
+            for p in self.collaborators_of(profile))
+
 
 class Enrollment(models.Model):
     """

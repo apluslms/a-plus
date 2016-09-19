@@ -81,15 +81,7 @@
                                     {% endif %}
                                     <span class="caret"></span>
                                 </a>
-                                <ul class="dropdown-menu">
-                                    {% course_menu %}
-                                    <li role="presentation" class="divider"></li>
-                                    <li role="presentation">
-                                    	<a href="{% url 'archive' %}">
-                                    		{% trans "Course archive" %}
-                                    	</a>
-                                    </li>
-                                </ul>
+                                {% course_menu %}
                             </li>
                         </ul>
                         <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
