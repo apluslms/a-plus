@@ -26,11 +26,12 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.utils import translation
 
-from util.templates import render_configured_template, render_template, \
-    template_to_str
 from util.files import create_submission_dir, save_submitted_file, \
     clean_submission_dir, write_submission_file
+from util.http import not_modified_since, not_modified_response, cache_headers
 from util.queue import queue_length
+from util.templates import render_configured_template, render_template, \
+    template_to_str
 from .auth import detect_user, make_hash, get_uid
 from ..config import ConfigError
 from .. import tasks
@@ -44,6 +45,9 @@ def acceptPost(request, course, exercise, post_url):
     Presents a template and accepts post value for grading queue.
     '''
     _requireActions(exercise)
+    if not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
+
     fields = copy.deepcopy(exercise.get("fields", []))
     if request.method == "POST":
 
@@ -66,8 +70,14 @@ def acceptPost(request, course, exercise, post_url):
     else:
         result = { "fields": fields }
 
-    return render_configured_template(request, course, exercise, post_url,
-        'access/accept_post_default.html', result)
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url,
+            'access/accept_post_default.html', result
+        ),
+        request,
+        exercise
+    )
 
 
 def acceptFiles(request, course, exercise, post_url):
@@ -75,6 +85,9 @@ def acceptFiles(request, course, exercise, post_url):
     Presents a template and accepts files for grading queue.
     '''
     _requireActions(exercise)
+    if not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
+
     result = None
 
     # Receive post.
@@ -103,8 +116,14 @@ def acceptFiles(request, course, exercise, post_url):
                     save_submitted_file(sdir, entry["name"], request.FILES[entry["field"]])
                 return _acceptSubmission(request, course, exercise, post_url, sdir)
 
-    return render_configured_template(request, course, exercise, post_url,
-        "access/accept_files_default.html", result)
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url,
+            "access/accept_files_default.html", result
+        ),
+        request,
+        exercise
+    )
 
 
 def acceptAttachedExercise(request, course, exercise, post_url):
@@ -112,6 +131,9 @@ def acceptAttachedExercise(request, course, exercise, post_url):
     Accepts attached exercise rules and user files for queue.
     '''
     _requireActions(exercise)
+    if not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
+
     result = None
 
     # Receive post.
@@ -153,8 +175,14 @@ def acceptAttachedExercise(request, course, exercise, post_url):
         exercise = copy.deepcopy(exercise)
         exercise["files"] = [ { "field": "content_0", "name": "exercise_attachment" } ]
 
-    return render_configured_template(request, course, exercise, post_url,
-        "access/accept_files_default.html", result)
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url,
+            "access/accept_files_default.html", result
+        ),
+        request,
+        exercise
+    )
 
 
 def acceptGitAddress(request, course, exercise, post_url):
@@ -162,6 +190,9 @@ def acceptGitAddress(request, course, exercise, post_url):
     Presents a template and accepts Git URL for grading.
     '''
     _requireActions(exercise)
+    if not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
+
     result = None
 
     # Receive post.
@@ -193,8 +224,14 @@ def acceptGitAddress(request, course, exercise, post_url):
             write_submission_file(sdir, "gitsource", source)
             return _acceptSubmission(request, course, exercise, post_url, sdir)
 
-    return render_configured_template(request, course, exercise, post_url,
-        "access/accept_git_default.html", result)
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url,
+            "access/accept_git_default.html", result
+        ),
+        request,
+        exercise
+    )
 
 
 def acceptGitUser(request, course, exercise, post_url):

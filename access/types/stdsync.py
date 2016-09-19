@@ -21,6 +21,7 @@ Functions take arguments:
 from django.core.exceptions import PermissionDenied
 
 from util.cache import InProcessCache
+from util.http import not_modified_since, not_modified_response, cache_headers
 from util.templates import render_configured_template, render_template
 from .forms import GradedForm
 from .auth import detect_user, make_hash
@@ -49,7 +50,15 @@ def noGrading(request, course, exercise, post_url):
     '''
     Presents a template and does no grading.
     '''
-    return render_configured_template(request, course, exercise, post_url, None, None);
+    if not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url, None, None
+        ),
+        request,
+        exercise
+    )
 
 
 def comparePostValues(request, course, exercise, post_url):
@@ -58,6 +67,9 @@ def comparePostValues(request, course, exercise, post_url):
     '''
     if "max_points" not in exercise:
         raise ConfigError("Missing required \"max_points\" in exercise configuration")
+
+    if not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
 
     result = None
     if request.method == "POST":
@@ -88,7 +100,13 @@ def comparePostValues(request, course, exercise, post_url):
         else:
             result = { "accepted": True, "points": 0 }
 
-    return render_configured_template(request, course, exercise, post_url, None, result)
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url, None, result
+        ),
+        request,
+        exercise
+    )
 
 
 def createForm(request, course, exercise, post_url):
@@ -104,6 +122,11 @@ def createForm(request, course, exercise, post_url):
             'access/exercise_frame.html', { "error":True, "nonce_used":True })
 
     form = GradedForm(request.POST or None, exercise=exercise)
+
+    # Support caching of non personalized forms.
+    if not form.randomized and not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
+
     result = { "form": form }
 
     # Grade valid form posts.
@@ -118,8 +141,14 @@ def createForm(request, course, exercise, post_url):
         result = { "form": form, "accepted": True, "points": points,
             "error_groups": error_groups, "error_fields": error_fields }
 
-    return render_configured_template(request, course, exercise, post_url,
-        'access/create_form_default.html', result)
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url,
+            'access/create_form_default.html', result
+        ),
+        request,
+        exercise
+    )
 
 
 def createFormModel(request, course, exercise, parameter):

@@ -102,6 +102,9 @@ LOCALE_PATHS = (os.path.join(BASE_DIR, 'locale'),)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 STATIC_URL = '/static/'
 
+# HTTP
+DEFAULT_EXPIRY_MINUTES = 15
+
 #
 # Celery task queue settings:
 #

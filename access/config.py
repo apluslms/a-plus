@@ -195,6 +195,7 @@ class ConfigParser:
 
         self._check_fields(f, data, ["name"])
         data["key"] = course_key
+        data["mtime"] = t
         data["dir"] = self._conf_dir(DIR, course_key, {})
 
         if "language" in data:
@@ -286,6 +287,7 @@ class ConfigParser:
         for version in data.values():
             self._check_fields(f, version, ["title", "view_type"])
             version["key"] = exercise_key
+            version["mtime"] = t
 
         course_root["exercises"][exercise_key] = exercise_root = {
             "file": f,

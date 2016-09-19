@@ -44,6 +44,7 @@ class GradedForm(forms.Form):
                 post_samples = sample.split('/')
 
         self.disabled = self.show_correct
+        self.randomized = False
         samples = []
         g = 0
         i = 0
@@ -60,6 +61,7 @@ class GradedForm(forms.Form):
 
             # Randomly pick fields to include.
             if "pick_randomly" in group:
+                self.randomized = True
                 if not args[0] is None:
                     self.disabled = True
                     if len(post_samples) > 0:

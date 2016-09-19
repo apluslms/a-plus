@@ -4,7 +4,11 @@ Utility functions for exercise HTTP responses.
 '''
 import logging
 import requests
+import time
 import urllib
+from django.conf import settings
+from django.http import HttpResponseNotModified
+from django.utils.http import http_date, parse_http_date_safe
 
 from util.templates import template_to_str
 
@@ -89,3 +93,23 @@ def post_system_error(submission_url, course=None, exercise=None):
 def update_url_params(url, params):
     delimiter = "&" if "?" in url else "?"
     return url + delimiter + urllib.parse.urlencode(params)
+
+
+def cache_headers(response, request, exercise):
+    if request.method == 'GET' and not exercise.get('personalized', False):
+        response['Last-Modified'] = http_date(exercise['mtime'])
+        expiry = exercise.get('expiry_minutes', settings.DEFAULT_EXPIRY_MINUTES)
+        if expiry > 0:
+            response['Expires'] = http_date(time.time() + expiry * 60)
+    return response
+
+
+def not_modified_since(request, exercise):
+    if request.method != 'GET' or exercise.get('personalized', False):
+        return False
+    time = parse_http_date_safe(request.META.get('HTTP_IF_MODIFIED_SINCE'))
+    return time and time >= exercise['mtime']
+
+
+def not_modified_response(request, exercise):
+    return cache_headers(HttpResponseNotModified(), request, exercise)
