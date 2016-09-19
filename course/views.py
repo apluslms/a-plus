@@ -19,7 +19,7 @@ from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseV
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
-from .templatetags.course import render_tags
+from .renders import render_tags, group_info_context
 from .viewbase import CourseBaseView, CourseInstanceBaseView, \
     CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
 
@@ -174,9 +174,9 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
     def form_valid(self, form):
         enrollment = form.save()
         if self.request.is_ajax():
-            if enrollment.selected_group:
-                enrollment.selected_group.collaborators = enrollment.selected_group.collaborators_of(self.profile)
-            return self.response(enrollment=enrollment)
+            return self.response(
+                **group_info_context(enrollment.selected_group, self.profile)
+            )
         return super().form_valid(form)
 
 

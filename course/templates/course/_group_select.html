@@ -5,7 +5,7 @@
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
     <span class="selection">
       <small>
-        {% include "course/_group_info.html" %}
+        {{ selected }}
       </small>
       <span class="caret" aria-hidden="true"></span>
     </span>
@@ -27,7 +27,7 @@
       <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
         <button type="submit" name="group" value="{{ group.id }}">
-          {% blocktrans with collaborators=group.collaborators|names %}
+          {% blocktrans with collaborators=group.collaborators %}
           Submit with {{ collaborators }}
           {% endblocktrans %}
         </button>

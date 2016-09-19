@@ -110,6 +110,10 @@ class StudentGroup(models.Model):
     def collaborators_of(self, profile):
         return [p for p in self.members.all() if p != profile]
 
+    def collaborator_names(self, profile):
+        return ", ".join(p.user.get_full_name()
+            for p in self.collaborators_of(profile))
+
 
 class Enrollment(models.Model):
     """
@@ -216,23 +220,6 @@ class CourseInstanceManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().select_related('course').order_by('-starting_time')
-
-    def get_enrolled(self, user=None, end_after=None):
-        if not user or not user.is_authenticated():
-            return self.none()
-        qs = self.filter(visible_to_students=True, students=user.userprofile)
-        if not end_after is None:
-            qs.exclude(ending_time__lt=end_after)
-        return qs
-
-    def get_on_staff(self, user=None, end_after=None):
-        if not user or not user.is_authenticated():
-            return self.none()
-        qs = self.filter(Q(assistants=user.userprofile) |
-            Q(course__teachers=user.userprofile)).distinct()
-        if not end_after is None:
-            qs.exclude(ending_time__lt=end_after)
-        return qs
 
     def get_visible(self, user=None):
         if not user or not user.is_authenticated():

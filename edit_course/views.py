@@ -262,5 +262,5 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
     def clear_cache(self, request):
         LearningObject.objects.filter(
             course_module__course_instance=self.instance
-        ).update(content="")
+        ).update(content_stamp="", content="")
         messages.success(request, _("Exercise caches have been cleared."))
