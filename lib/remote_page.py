@@ -28,7 +28,9 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
         n = 0
         while n <= last_retry:
             try:
+                request_time = time.time()
                 if post:
+                    logger.info("POST %s", url)
                     response = requests.post(
                         url,
                         data=data,
@@ -36,6 +38,7 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
                         timeout=settings.EXERCISE_HTTP_TIMEOUT
                     )
                 else:
+                    logger.info("GET %s", url)
                     headers = {}
                     if stamp:
                         headers['If-Modified-Since'] = stamp
@@ -44,19 +47,21 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
                         timeout=settings.EXERCISE_HTTP_TIMEOUT,
                         headers=headers
                     )
+                request_time = time.time() - request_time
+                logger.info("Response %d (%d sec) %s",
+                    response.status_code, request_time, url)
                 if response.status_code == 200:
                     return response
                 elif response.status_code == 304:
                     raise RemotePageNotModified()
-                elif response.status_code >= 500 and n < last_retry:
-                    logger.warning("Retrying: Server error {:d} at {}".format(
-                        response.status_code, url))
-                else:
+                if response.status_code < 500 or n >= last_retry:
                     response.raise_for_status()
             except requests.exceptions.ConnectionError as e:
+                logger.warning("ConnectionError %s", url);
                 if n >= last_retry:
                     raise e
-                logger.warning("Retrying: ConnectionError to {}".format(url));
+            logger.info("Sleep %d sec before retry",
+                settings.EXERCISE_HTTP_RETRIES[n])
             time.sleep(settings.EXERCISE_HTTP_RETRIES[n])
             n += 1
         logger.error("HTTP request loop ended in unexpected state")
