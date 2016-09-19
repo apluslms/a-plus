@@ -215,6 +215,20 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_load_url(self, request, students, url_name="exercise"):
         return self.service_url
 
+    def is_content_expired(self, when=None):
+        when = when or timezone.now()
+        if not (self.id and self.content):
+            return True
+        if when > self.course_instance.ending_time:
+            return False
+        if not self.content_expire_minutes > 0:
+            return True
+        return (
+            when >
+            self.content_time +
+            datetime.timedelta(minutes=self.content_expire_minutes)
+        )
+
     def load(self, request, students, url_name="exercise"):
         """
         Loads the learning object page.
@@ -224,26 +238,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
         # Use static copy for cacheable exercises and closed courses.
         now = timezone.now()
-        if not self.id or not self.content or (
-            self.course_instance.ending_time > now
-            and (
-                not self.content_expire_minutes
-                or (
-                    self.content_time
-                    + datetime.timedelta(minutes=self.content_expire_minutes)
-                ) < now
-            )
-        ):
+        if self.is_content_expired(now):
             try:
                 page = load_exercise_page(
                     request,
                     self.get_load_url(request, students, url_name),
                     self
                 )
-                if self.id and (
-                    not self.content_time
-                    or (page.stamp and page.stamp != self.content_stamp)
-                    or self.content_time + datetime.timedelta(days=10) < now
+                if (
+                    self.id and
+                    not (page.stamp and page.stamp == self.content_stamp)
                 ):
                     self.content_head = page.head
                     self.content = page.content
