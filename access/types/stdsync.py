@@ -124,8 +124,7 @@ def createForm(request, course, exercise, post_url):
 
 def createFormModel(request, course, exercise, parameter):
     form = GradedForm(None, exercise=exercise, show_correct=True)
-    form.is_bound = True
-    form.full_clean()
+    form.bind_initial()
     points,error_groups,error_fields = form.grade()
     result = { "form": form, "accepted": True, "points": points,
         "error_groups": error_groups, "error_fields": error_fields }

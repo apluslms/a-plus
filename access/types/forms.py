@@ -3,7 +3,8 @@ import re
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.forms.utils import ErrorDict
 from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Textarea
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
@@ -167,7 +168,6 @@ class GradedForm(forms.Form):
             'required': 'required' in config and config['required'],
         }
         if self.disabled:
-            args['disabled'] = True
             args['widget'].attrs['disabled'] = 'disabled'
         if not choices is None:
             args['choices'] = choices
@@ -240,6 +240,21 @@ class GradedForm(forms.Form):
         hint = str(configuration.get('hint', ''))
         if hint and not hint in hints:
             hints.append(hint)
+
+    def bind_initial(self):
+        '''
+        Binds form using initial values.
+        '''
+        self.is_bound = True
+        self._errors = ErrorDict()
+        self.cleaned_data = {}
+        for name, field in self.fields.items():
+            value = self.initial.get(name, field.initial)
+            try:
+                self.cleaned_data[name] = field.clean(value)
+            except ValidationError as e:
+                self.add_error(name, e)
+            field.disabled = True
 
     def grade(self):
         '''
