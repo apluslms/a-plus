@@ -1,25 +1,18 @@
-{% load i18n %}
-{% load course %}
-{% if unread.count > 0 %}
+{% if count > 0 %}
 <li role="presentation" class="menu-notification dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-        <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
-        <span class="badge badge-danger">{{ unread.count }}</span> {{ unread_message }}
-        <span class="caret" aria-hidden="true"></span>
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
+    <span class="badge badge-danger">{{ count }}</span> {{ unread_message }}
+    <span class="caret" aria-hidden="true"></span>
+  </a>
+  <ul class="dropdown-menu">
+    {% for entry in notifications %}
+    <li>
+      <a href="{{ entry.link }}" class="alert-link">
+        {{ entry.name }}
       </a>
-        <ul class="dropdown-menu">
-            {% for notification in unread.notifications %}
-            <li>
-              <a href="{{ notification|url }}" class="alert-link">
-                {{ notification.course_instance.course }}:
-                {% if notification.submission %}
-                {{ notification.submission.exercise }}
-                {% else %}
-                {{ notification.subject }}
-                {% endif %}
-              </a>
-            </li>
-            {% endfor %}
-        </ul>
+    </li>
+    {% endfor %}
+  </ul>
 </li>
 {% endif %}

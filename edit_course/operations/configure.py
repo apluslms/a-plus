@@ -153,8 +153,6 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.exercise_info = o["exercise_info"]
         if "model_answer" in o:
             lobject.model_answers = o["model_answer"]
-        if "content_expire_minutes" in o:
-            lobject.content_expire_minutes = o["content_expire_minutes"]
         lobject.save()
         seen.append(lobject.id)
         if "children" in o:

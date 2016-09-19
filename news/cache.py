@@ -12,7 +12,7 @@ class CachedNews(CachedAbstract):
         self.instance = course_instance
         super().__init__(course_instance)
 
-    def _generate_data(self, instance):
+    def _generate_data(self, instance, data=None):
         alerts = []
         news = []
         for item in instance.news.all():

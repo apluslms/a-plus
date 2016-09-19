@@ -12,7 +12,7 @@ class CachedCourseMenu(CachedAbstract):
         self.instance = course_instance
         super().__init__(course_instance)
 
-    def _generate_data(self, instance):
+    def _generate_data(self, instance, data=None):
         student_groups = {}
         student_order = []
         staff_groups = {}

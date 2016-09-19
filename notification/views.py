@@ -2,8 +2,8 @@ from django.http import Http404, HttpResponse
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
-from lib.viewbase import PagerMixin, BaseRedirectView
-from .models import NotificationSet, Notification
+from lib.viewbase import BaseRedirectView
+from .models import Notification
 
 
 class NotificationRedirectView(CourseInstanceMixin, BaseRedirectView):
@@ -32,30 +32,3 @@ class NotificationRedirectView(CourseInstanceMixin, BaseRedirectView):
                 self.notification.notification,
             )
         )
-
-
-class NotificationsView(PagerMixin, CourseInstanceBaseView):
-    """
-    Deprecated: not used anymore,
-    single place for message in submission feedback
-    """
-    access_mode = ACCESS.ENROLLED
-    template_name = "notification/notifications.html"
-    ajax_template_name = "notification/_notifications_list.html"
-
-    def get_access_mode(self):
-        access_mode = super().get_access_mode()
-
-        # Always require at least logged in student
-        if access_mode < ACCESS.STUDENT:
-            access_mode = ACCESS.STUDENT
-
-        return access_mode
-
-    def get_common_objects(self):
-        super().get_common_objects()
-        notifications_set = NotificationSet.get_course(
-            self.instance, self.request.user, self.per_page, self.page)
-        self.count = notifications_set.count_and_mark_unseen()
-        self.notifications = notifications_set.notifications
-        self.note("count", "notifications", "per_page")

@@ -201,6 +201,7 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 ##########################################################################
 
 # Internationalization (may override in local_settings.py)
@@ -348,3 +349,10 @@ if 'social.apps.django_app.default' in INSTALLED_APPS:
 # If debug is enabled allow basic auth for API
 if DEBUG:
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
+else:
+    TEMPLATE_LOADERS = (
+        ('django.template.loaders.cached.Loader', (
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        )),
+    )

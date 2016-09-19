@@ -15,6 +15,7 @@ from lib.viewbase import (
 from authorization.permissions import ACCESS
 from course.models import CourseInstance, UserTag
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from exercise.cache.exercise import invalidate_instance
 from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, UserTagForm
@@ -260,7 +261,5 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
             messages.error(request, _("Server error: {}").format(str(e)))
 
     def clear_cache(self, request):
-        LearningObject.objects.filter(
-            course_module__course_instance=self.instance
-        ).update(content_stamp="", content="")
+        invalidate_instance(self.instance)
         messages.success(request, _("Exercise caches have been cleared."))

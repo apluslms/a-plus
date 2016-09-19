@@ -222,9 +222,6 @@ class Submission(UrlMixin, models.Model):
     def is_graded(self):
         return self.status == self.STATUS.READY
 
-    def head(self):
-        return self.exercise.content_head
-
 
     ABSOLUTE_URL_NAME = "submission"
 
