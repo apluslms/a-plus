@@ -208,7 +208,7 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 ##########################################################################
 
 # Internationalization (may override in local_settings.py)

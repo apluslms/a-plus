@@ -1,5 +1,4 @@
 import logging
-
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
@@ -11,7 +10,7 @@ from .exercise_page import ExercisePage
 logger = logging.getLogger("aplus.protocol")
 
 
-def load_exercise_page(request, url, exercise):
+def load_exercise_page(request, url, last_modified, exercise):
     """
     Loads the exercise page from the remote URL.
 
@@ -20,7 +19,7 @@ def load_exercise_page(request, url, exercise):
     try:
         parse_page_content(
             page,
-            RemotePage(url, stamp=exercise.content_stamp),
+            RemotePage(url, stamp=last_modified),
             exercise
         )
     except RemotePageException:
@@ -155,4 +154,5 @@ def parse_page_content(page, remote_page, exercise):
         {'id':'chapter'},
         {'class':'entry-content'},
     ))
-    page.stamp = remote_page.header('Last-Modified')
+    page.last_modified = remote_page.last_modified()
+    page.expires = remote_page.expires()

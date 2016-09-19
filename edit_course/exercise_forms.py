@@ -22,7 +22,6 @@ COMMON_FIELDS = [
 ]
 SERVICE_FIELDS = [
     'service_url',
-    'content_expire_minutes',
     'name',
     'description',
 ]
@@ -81,7 +80,7 @@ class CourseChapterForm(LearningObjectMixin, FieldsetModelForm):
     def get_fieldsets(self):
         return [
             self.get_hierarchy_fieldset(),
-            self.get_content_fieldset('content_expire_minutes',
+            self.get_content_fieldset(
                 'use_wide_column', 'generate_table_of_contents'),
         ]
 
@@ -99,7 +98,7 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
     def get_fieldsets(self):
         return [
             self.get_hierarchy_fieldset(),
-            self.get_content_fieldset('content_expire_minutes', 'model_answers'),
+            self.get_content_fieldset('model_answers'),
             { 'legend':_('Grading'), 'fields':self.get_fields('max_submissions',
                 'max_points','points_to_pass', 'difficulty',
                 'allow_assistant_viewing','allow_assistant_grading',

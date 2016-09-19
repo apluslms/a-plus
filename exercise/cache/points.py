@@ -17,7 +17,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
     def _needs_generation(self, data):
         return data is None or data['created'] < self.content.created()
 
-    def _generate_data(self, instance, user):
+    def _generate_data(self, instance, user, data=None):
         data = self.content.data.copy()
         module_index = data['module_index']
         exercise_index = data['exercise_index']

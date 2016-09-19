@@ -13,7 +13,7 @@ class CachedTopMenu(CachedAbstract):
         self.user = user
         super().__init__(user)
 
-    def _generate_data(self, user):
+    def _generate_data(self, user, data=None):
         profile = user.userprofile if user and user.is_authenticated() else None
         return {
             'courses': self._generate_courses(profile),

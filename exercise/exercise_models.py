@@ -31,9 +31,9 @@ from lib.helpers import (
     roman_numeral,
 )
 from lib.models import UrlMixin
-from lib.remote_page import RemotePageNotModified
 from userprofile.models import UserProfile
 
+from .cache.exercise import ExerciseCache
 from .protocol.aplus import load_exercise_page, load_feedback_page
 from .protocol.exercise_page import ExercisePage
 
@@ -42,7 +42,7 @@ class LearningObjectManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset()\
-            .defer('description', 'content', 'content_head')\
+            .defer('description')\
             .select_related('course_module', 'course_module__course_instance',
                 'course_module__course_instance__course', 'category')
 
@@ -99,11 +99,9 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     model_answers = models.TextField(blank=True,
         help_text=_("List model answer files as protected URL addresses."))
 
+    # Keep this to support ExerciseWithAttachment
+    # Maybe this should inject extra content to any exercise
     content = models.TextField(blank=True)
-    content_head = models.TextField(blank=True)
-    content_stamp = models.CharField(max_length=128, blank=True)
-    content_time = models.DateTimeField(blank=True, null=True)
-    content_expire_minutes = models.PositiveIntegerField(default=0)
 
     objects = LearningObjectManager()
 
@@ -215,54 +213,26 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_load_url(self, request, students, url_name="exercise"):
         return self.service_url
 
-    def is_content_expired(self, when=None):
-        when = when or timezone.now()
-        if not (self.id and self.content):
-            return True
-        if when > self.course_instance.ending_time:
-            return False
-        if not self.content_expire_minutes > 0:
-            return True
-        return (
-            when >
-            self.content_time +
-            datetime.timedelta(minutes=self.content_expire_minutes)
-        )
-
     def load(self, request, students, url_name="exercise"):
         """
         Loads the learning object page.
         """
-        if not self.service_url:
-            return ExercisePage(self)
-
-        # Use static copy for cacheable exercises and closed courses.
-        now = timezone.now()
-        if self.is_content_expired(now):
-            try:
-                page = load_exercise_page(
-                    request,
-                    self.get_load_url(request, students, url_name),
-                    self
-                )
-                if (
-                    self.id and
-                    not (page.stamp and page.stamp == self.content_stamp)
-                ):
-                    self.content_head = page.head
-                    self.content = page.content
-                    self.content_stamp = page.stamp
-                    self.content_time = now
-                    self.save()
-                return page
-            except RemotePageNotModified:
-                pass
-
         page = ExercisePage(self)
-        page.head = self.content_head
-        page.content = self.content
+        if not self.service_url:
+            return page
+        cache = ExerciseCache(self, request, students, url_name)
+        page.head = cache.head()
+        page.content = cache.content()
         page.is_loaded = True
         return page
+
+    def load_page(self, request, students, url_name, last_modified=None):
+        return load_exercise_page(
+            request,
+            self.get_load_url(request, students, url_name),
+            last_modified,
+            self
+        )
 
     def get_models(self):
         return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
@@ -708,10 +678,8 @@ def _clear_cache(sender, instance, **kwargs):
     """
     Clears parent's cached html if any.
     """
-    parent = instance.parent
-    if parent and parent.content_stamp:
-        parent.content_stamp = ""
-        parent.save()
+    if instance.parent:
+        ExerciseCache.invalidate(instance.parent)
 
 
 post_delete.connect(_delete_file, ExerciseWithAttachment)

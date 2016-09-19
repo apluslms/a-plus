@@ -6,6 +6,7 @@ import time
 import urllib.parse
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.utils.http import parse_http_date_safe
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -19,7 +20,13 @@ class RemotePageException(Exception):
 
 
 class RemotePageNotModified(Exception):
-    pass
+
+    def __init__(self, expires=None):
+        self.expires = expires
+
+
+def parse_expires(response):
+    return parse_http_date_safe(response.headers.get("Expires", "")) or 0
 
 
 def request_for_response(url, post=False, data=None, files=None, stamp=None):
@@ -53,7 +60,7 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
                 if response.status_code == 200:
                     return response
                 elif response.status_code == 304:
-                    raise RemotePageNotModified()
+                    raise RemotePageNotModified(parse_expires(response))
                 if response.status_code < 500 or n >= last_retry:
                     response.raise_for_status()
             except requests.exceptions.ConnectionError as e:
@@ -95,6 +102,12 @@ class RemotePage:
 
     def header(self, name):
         return self.response.headers.get(name, "")
+
+    def last_modified(self):
+        return self.header('Last-Modified')
+
+    def expires(self):
+        return parse_expires(self.response)
 
     def title(self):
         if self.soup and self.soup.title:

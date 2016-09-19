@@ -15,7 +15,7 @@ class CachedContent(ContentMixin, CachedAbstract):
         self.instance = course_instance
         super().__init__(course_instance)
 
-    def _generate_data(self, instance):
+    def _generate_data(self, instance, data=None):
         """ Returns object that is cached into self.data """
         module_index = {}
         exercise_index = {}

@@ -25,7 +25,7 @@ class CachedAbstract(object):
         data = cache.get(cache_key)
         if self._needs_generation(data):
             logger.debug("Generating cached data for {}".format(cache_key))
-            data = self._generate_data(*models)
+            data = self._generate_data(*models, data=data)
             cache.set(cache_key, data, None)
         self.data = data
 
