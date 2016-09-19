@@ -249,6 +249,9 @@ html, body {
     height: 20px;
     border-left: 1px solid black;
 }
+.glyphicon.red {
+  color: #ff7070;
+}
 .badge-danger {
     background-color: #d9534f !important;
     color: #fff !important;

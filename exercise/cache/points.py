@@ -2,6 +2,7 @@ from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
 from lib.cached import CachedAbstract
+from notification.models import Notification
 from ..models import LearningObject, Submission
 from .hierarchy import ContentMixin
 
@@ -94,6 +95,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     })
                 if submission.notifications.count() > 0:
                     entry['notified'] = True
+                    if submission.notifications.filter(seen=False).count() > 0:
+                        entry['unseen'] = True
 
         # Confirm points.
         def r_check(parent, children):
@@ -177,7 +180,14 @@ def invalidate_content(sender, instance, **kwargs):
     for profile in instance.submitters.all():
         CachedPoints.invalidate(course, profile.user)
 
+def invalidate_notification(sender, instance, **kwargs):
+    CachedPoints.invalidate(
+        instance.submission.exercise.course_instance,
+        instance.recipient.user
+    )
 
 # Automatically invalidate cached points when submissions change.
 post_save.connect(invalidate_content, sender=Submission)
 post_delete.connect(invalidate_content, sender=Submission)
+post_save.connect(invalidate_notification, sender=Notification)
+post_delete.connect(invalidate_notification, sender=Notification)

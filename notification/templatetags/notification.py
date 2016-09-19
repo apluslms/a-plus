@@ -1,34 +1,29 @@
-
 from django import template
 from django.utils.translation import ungettext
-from notification.models import NotificationSet
+
+from ..cache import CachedNotifications
+
 
 register = template.Library()
 
 
-def _context_user(context):
-    if "request" in context:
-        user = context["request"].user
-        if user.is_authenticated():
-            return user
-    return None
-
-
 def _context_unread(context):
-    if not "unread" in context:
-        user = _context_user(context)
-        context["unread"] = NotificationSet.get_unread(user)
-    return context["unread"]
+    if not 'notifications' in context:
+        context['notifications'] = CachedNotifications(
+            context['request'].user if 'request' in context else None
+        )
+    return context['notifications']
 
 
 def _unread_messages(context):
-    unread = _context_unread(context)
+    notifications = _context_unread(context)
     return {
-        "unread": unread,
+        'count': notifications.count(),
+        'notifications': notifications.notifications(),
         "unread_message": ungettext(
             "new notification",
             "new notifications",
-            unread.count
+            notifications.count()
         ),
     }
 
@@ -45,5 +40,5 @@ def notification_menu(context):
 
 @register.assignment_tag(takes_context=True)
 def notification_count(context):
-    unread = _context_unread(context)
-    return unread.count
+    notifications = _context_unread(context)
+    return notifications.count()

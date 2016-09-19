@@ -8,7 +8,4 @@ urlpatterns = [
     url(USER_URL_PREFIX + r'notify/(?P<notification_id>\d+)/$',
         views.NotificationRedirectView.as_view(),
         name="notify"),
-    #url(USER_URL_PREFIX + r'notifications/$',
-    #    views.NotificationsView.as_view(),
-    #    name="notifications"),
 ]
