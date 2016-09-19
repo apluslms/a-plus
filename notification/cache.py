@@ -57,7 +57,7 @@ class CachedNotifications(CachedAbstract):
 
 
 def invalidate_notifications(sender, instance, **kwargs):
-    CachedNotifications.invalidate(instance.recipient)
+    CachedNotifications.invalidate(instance.recipient.user)
 
 
 # Automatically invalidate cache when notifications change.
