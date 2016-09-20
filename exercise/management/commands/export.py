@@ -2,8 +2,8 @@ import json, base64
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance
-from exercise.models import BaseExercise, LearningObjectDisplay
-from exercise.presentation.results import ResultTable
+from ...models import BaseExercise, LearningObjectDisplay
+from ...exercise_summary import ResultTable
 
 
 class Command(BaseCommand):
