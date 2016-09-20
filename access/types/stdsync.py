@@ -147,7 +147,8 @@ def createForm(request, course, exercise, post_url):
             'access/create_form_default.html', result
         ),
         request,
-        exercise
+        exercise,
+        form.randomized,
     )
 
 

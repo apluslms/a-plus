@@ -95,8 +95,12 @@ def update_url_params(url, params):
     return url + delimiter + urllib.parse.urlencode(params)
 
 
-def cache_headers(response, request, exercise):
-    if request.method == 'GET' and not exercise.get('personalized', False):
+def cache_headers(response, request, exercise, flag=False):
+    if (
+        not flag
+        and request.method == 'GET'
+        and not exercise.get('personalized', False)
+    ):
         response['Last-Modified'] = http_date(exercise['mtime'])
         expiry = exercise.get('expiry_minutes', settings.DEFAULT_EXPIRY_MINUTES)
         if expiry > 0:
