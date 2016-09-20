@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     fields.append(key)
         fields = sorted(fields)
 
-        header = [ 'Time', 'Email', 'Status', 'Grade' ]
+        header = [ 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade' ]
         header += fields
         self.print_row(header)
 
@@ -49,7 +49,9 @@ class Command(BaseCommand):
             profile = submission.submitters.first()
             data = [
                 str(submission.submission_time),
-                profile.user.email,
+                str(profile.id),
+                profile.student_id or "",
+                profile.user.email or "",
                 submission.status,
                 str(submission.grade),
             ]
