@@ -1,4 +1,5 @@
 import time
+from django.conf import settings
 from django.db.models.signals import post_save, post_delete
 
 from lib.cached import CachedAbstract
@@ -10,13 +11,14 @@ class ExerciseCache(CachedAbstract):
     """ Exercise HTML content """
     KEY_PREFIX = "exercise"
 
-    def __init__(self, exercise, request, students, url_name):
+    def __init__(self, exercise, language, request, students, url_name):
         self.exercise = exercise
-        self.load_args = [request, students, url_name]
-        super().__init__(exercise)
+        self.load_args = [language, request, students, url_name]
+        super().__init__(exercise, modifiers=[language])
 
     def _needs_generation(self, data):
-        return data is None or (time.time() > data['expires'] > 0)
+        expires = data['expires'] if data else None
+        return not expires or time.time() > expires
 
     def _generate_data(self, exercise, data=None):
         try:
@@ -45,4 +47,5 @@ class ExerciseCache(CachedAbstract):
 def invalidate_instance(instance):
     for module in instance.course_modules.all():
         for exercise in module.learning_objects.all():
-            ExerciseCache.invalidate(exercise)
+            for language,_ in settings.LANGUAGES:
+                ExerciseCache.invalidate(exercise, modifiers=[language])

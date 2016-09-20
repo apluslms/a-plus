@@ -210,9 +210,6 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_submission_list_url(self):
         return self.get_url("submission-list")
 
-    def get_load_url(self, request, students, url_name="exercise"):
-        return self.service_url
-
     def load(self, request, students, url_name="exercise"):
         """
         Loads the learning object page.
@@ -220,19 +217,25 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         page = ExercisePage(self)
         if not self.service_url:
             return page
-        cache = ExerciseCache(self, request, students, url_name)
+        language = get_language()
+        cache = ExerciseCache(self, language, request, students, url_name)
         page.head = cache.head()
         page.content = cache.content()
         page.is_loaded = True
         return page
 
-    def load_page(self, request, students, url_name, last_modified=None):
+    def load_page(self, language, request, students, url_name, last_modified=None):
         return load_exercise_page(
             request,
-            self.get_load_url(request, students, url_name),
+            self.get_load_url(language, request, students, url_name),
             last_modified,
             self
         )
+
+    def get_load_url(self, language, request, students, url_name="exercise"):
+        return update_url_params(self.service_url, {
+            'lang': language,
+        })
 
     def get_models(self):
         return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
@@ -442,7 +445,7 @@ class BaseExercise(LearningObject):
             .filter(submissions__exercise=self) \
             .distinct().count()
 
-    def get_load_url(self, request, students, url_name="exercise"):
+    def get_load_url(self, language, request, students, url_name="exercise"):
         if self.id:
             if request.user.is_authenticated():
                 user = request.user
@@ -453,31 +456,35 @@ class BaseExercise(LearningObject):
             # Make grader async URL for the currently authenticated user.
             # The async handler will handle group selection at submission time.
             submission_url = update_url_params(
-                api_reverse("exercise-grader", kwargs={'exercise_id': self.id}),
+                api_reverse("exercise-grader", kwargs={
+                    'exercise_id': self.id
+                }),
                 get_graderauth_exercise_params(self, user),
             )
-            return self._build_service_url(request,
-                                           students,
-                                           submission_count + 1,
-                                           url_name,
-                                           submission_url)
-        else:
-            return self.service_url
+            return self._build_service_url(
+                language, request, students,
+                submission_count + 1, url_name, submission_url
+            )
+        return super().get_load_url(language, request, students, url_name)
 
     def grade(self, request, submission, no_penalties=False, url_name="exercise"):
         """
         Loads the exercise feedback page.
         """
+        language = get_language()
         submission_url = update_url_params(
-            api_reverse("submission-grader", kwargs={'submission_id': submission.id}),
+            api_reverse("submission-grader", kwargs={
+                'submission_id': submission.id
+            }),
             get_graderauth_submission_params(submission),
         )
-        url = self._build_service_url(request,
-                                      submission.submitters.all(),
-                                      submission.ordinal_number(),
-                                      url_name,
-                                      submission_url)
-        return load_feedback_page(request, url, self, submission, no_penalties=no_penalties)
+        url = self._build_service_url(
+            language, request, submission.submitters.all(),
+            submission.ordinal_number(), url_name, submission_url
+        )
+        return load_feedback_page(
+            request, url, self, submission, no_penalties=no_penalties
+        )
 
     def modify_post_parameters(self, data, files, user, host, url):
         """
@@ -486,21 +493,20 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def _build_service_url(self, request, students, ordinal_number, url_name, submission_url):
+    def _build_service_url(self, language, request, students, ordinal_number, url_name, submission_url):
         """
         Generates complete URL with added parameters to the exercise service.
         """
         uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
-        params = {
+        return update_url_params(self.service_url, {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
             "submission_url": request.build_absolute_uri(submission_url),
             "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
             "uid": uid_str,
             "ordinal_number": ordinal_number,
-            "lang": get_language(),
-        }
-        return update_url_params(self.service_url, params)
+            "lang": language,
+        })
 
 
 class LTIExercise(BaseExercise):
@@ -558,8 +564,8 @@ class LTIExercise(BaseExercise):
             add=add,
         )
 
-    def get_load_url(self, request, students, url_name="exercise"):
-        url = super().get_load_url(request, students, url_name=url_name)
+    def get_load_url(self, language, request, students, url_name="exercise"):
+        url = super().get_load_url(language, request, students, url_name)
         if self.lti_service and students:
             lti = self._get_lti(students[0].user, request.get_host())
             return lti.sign_get_query(url)
@@ -588,8 +594,7 @@ class StaticExercise(BaseExercise):
         page.content = self.exercise_page_content
         return page
 
-    def grade(self, request, submission,
-            no_penalties=False, url_name="exercise"):
+    def grade(self, request, submission, no_penalties=False, url_name="exercise"):
         page = ExercisePage(self)
         page.content = self.submission_page_content
         page.is_accepted = True
