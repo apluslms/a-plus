@@ -397,8 +397,9 @@ class CourseInstance(UrlMixin, models.Model):
             .exclude(assisting_courses=self)\
             .exclude(teaching_courses=self.course)
 
-    def is_open(self):
-        return self.starting_time <= timezone.now() <= self.ending_time
+    def is_open(self, when=None):
+        when = when or timezone.now()
+        return self.starting_time <= when <= self.ending_time
 
     @property
     def enrollment_start(self):

@@ -303,10 +303,11 @@ class BaseExercise(LearningObject):
         """
         when = when or timezone.now()
         module = self.course_module
-        if module.is_open(when=when) \
-        or module.is_late_submission_open(when=when):
+        if self.confirm_the_level and self.course_instance.is_open(when=when):
             return True
-        if self.course_module.is_after_open(when=when):
+        if module.is_open(when=when) or module.is_late_submission_open(when=when):
+            return True
+        if module.is_after_open(when=when):
             deviation = self.one_has_deadline_deviation(students)
             if deviation and when <= deviation.get_new_deadline():
                 return True
