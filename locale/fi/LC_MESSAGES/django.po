@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-19 14:20+0300\n"
+"POT-Creation-Date: 2016-09-21 14:25+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -103,7 +103,7 @@ msgstr "Tämä ryhmä on jo olemassa"
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:61 course/models.py:548 exercise/exercise_models.py:135
+#: course/models.py:61 course/models.py:549 exercise/exercise_models.py:133
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -204,28 +204,28 @@ msgstr ""
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:499 course/models.py:593 exercise/exercise_models.py:67
+#: course/models.py:500 course/models.py:594 exercise/exercise_models.py:67
 #: exercise/submission_models.py:55
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:500 exercise/exercise_models.py:68
+#: course/models.py:501 exercise/exercise_models.py:68
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:501 course/models.py:594 templates/base.html:77
+#: course/models.py:502 course/models.py:595 templates/base.html:77
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:502 exercise/exercise_models.py:72
+#: course/models.py:503 exercise/exercise_models.py:72
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:510
+#: course/models.py:511
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:525
+#: course/models.py:526
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
@@ -297,7 +297,7 @@ msgstr "Sovellukset"
 
 #: course/templates/course/_course_menu.html:75
 #: exercise/templates/exercise/_user_results.html:79
-#: exercise/templates/exercise/submission_plain.html:40
+#: exercise/templates/exercise/submission_plain.html:38
 msgid "Course staff"
 msgstr "Kurssihenkilökunta"
 
@@ -737,11 +737,11 @@ msgstr ""
 msgid "Category"
 msgstr "Kategoria"
 
-#: edit_course/course_forms.py:57 edit_course/exercise_forms.py:60
+#: edit_course/course_forms.py:57 edit_course/exercise_forms.py:59
 msgid "Hierarchy"
 msgstr "Hierarkia"
 
-#: edit_course/course_forms.py:58 edit_course/exercise_forms.py:64
+#: edit_course/course_forms.py:58 edit_course/exercise_forms.py:63
 #: edit_course/templates/edit_course/edit_course_base.html:36
 msgid "Content"
 msgstr "Sisältö"
@@ -764,11 +764,11 @@ msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle"
 msgid "The URL is already taken."
 msgstr "URL on jo käytössä."
 
-#: edit_course/exercise_forms.py:103
+#: edit_course/exercise_forms.py:102
 msgid "Grading"
 msgstr "Arvostelu"
 
-#: edit_course/exercise_forms.py:107
+#: edit_course/exercise_forms.py:106
 msgid "Groups"
 msgstr "Ryhmät"
 
@@ -784,7 +784,7 @@ msgstr "moduuli"
 msgid "learning object"
 msgstr "oppimissisältö"
 
-#: edit_course/operations/batch.py:17 edit_course/operations/configure.py:182
+#: edit_course/operations/batch.py:17 edit_course/operations/configure.py:180
 msgid "Failed to parse the JSON: {}"
 msgstr "JSON-jäsennysvirhe: {}"
 
@@ -835,35 +835,35 @@ msgstr ""
 msgid "Unknown category {}"
 msgstr ""
 
-#: edit_course/operations/configure.py:170
+#: edit_course/operations/configure.py:168
 msgid "Configuration URL required."
 msgstr ""
 
-#: edit_course/operations/configure.py:174
+#: edit_course/operations/configure.py:172
 msgid "Request failed: {}"
 msgstr ""
 
-#: edit_course/operations/configure.py:201
+#: edit_course/operations/configure.py:199
 msgid "Assistants must be given as student ID array."
 msgstr ""
 
-#: edit_course/operations/configure.py:208
+#: edit_course/operations/configure.py:206
 msgid "Assistant student ID was not found: {}"
 msgstr ""
 
-#: edit_course/operations/configure.py:213
+#: edit_course/operations/configure.py:211
 msgid "Categories required as object."
 msgstr ""
 
-#: edit_course/operations/configure.py:216
+#: edit_course/operations/configure.py:214
 msgid "Modules required as array."
 msgstr ""
 
-#: edit_course/operations/configure.py:224
+#: edit_course/operations/configure.py:222
 msgid "Category requires a name."
 msgstr ""
 
-#: edit_course/operations/configure.py:251
+#: edit_course/operations/configure.py:249
 msgid "Module requires a key."
 msgstr ""
 
@@ -1277,51 +1277,51 @@ msgstr "Muokkaa"
 msgid "No student tags."
 msgstr "Ei opiskelijamerkintöjä."
 
-#: edit_course/views.py:39
+#: edit_course/views.py:40
 msgid "Changes were saved succesfully."
 msgstr "Muutokset tallennettiin onnistuneesti."
 
-#: edit_course/views.py:43
+#: edit_course/views.py:44
 msgid "Failed to save changes."
 msgstr "Muutosten tallentaminen epäonnistui."
 
-#: edit_course/views.py:121
+#: edit_course/views.py:122
 msgid ""
 "At least one exercise category must be created before creating exercises."
 msgstr "Vähintään yksi kategoria pitää luoda ennen harjoitusten lisäämistä."
 
-#: edit_course/views.py:138
+#: edit_course/views.py:139
 #, python-brace-format
 msgid "Save failed: {error}"
 msgstr "Tallentaminen epäonnistui: {error}"
 
-#: edit_course/views.py:141
+#: edit_course/views.py:142
 #, python-brace-format
 msgid "The {name} was saved successfully."
 msgstr "Kohde {name} tallennettiin onnistuneesti."
 
-#: edit_course/views.py:147
+#: edit_course/views.py:148
 #, python-brace-format
 msgid "Failed to save {name}"
 msgstr "Kohteen {name} tallennus epäonnistui."
 
-#: edit_course/views.py:219
+#: edit_course/views.py:220
 msgid "New submissions stored."
 msgstr "Uudet palautukset tallennettiin."
 
-#: edit_course/views.py:236
+#: edit_course/views.py:237
 msgid "Course instance is now cloned."
 msgstr "Kurssikerta on nyt kopioitu."
 
-#: edit_course/views.py:258
+#: edit_course/views.py:259
 msgid "Course content configured."
 msgstr "Kurssin sisältö on konfiguroitu."
 
-#: edit_course/views.py:260
+#: edit_course/views.py:261
 msgid "Server error: {}"
 msgstr ""
 
-#: edit_course/views.py:266
+#: edit_course/views.py:265
 msgid "Exercise caches have been cleared."
 msgstr "Tehtävien välimuisti on tyhjennetty."
 
@@ -1335,7 +1335,7 @@ msgstr "Kurssikerta"
 
 #: exercise/admin.py:32 exercise/templates/exercise/_submission_info.html:32
 #: exercise/templates/exercise/staff/_assess_info.html:11
-#: exercise/templates/exercise/staff/_submissions_table.html:12
+#: exercise/templates/exercise/staff/_submissions_table.html:20
 msgid "Submitters"
 msgstr "Opiskelijat"
 
@@ -1397,15 +1397,15 @@ msgstr "Poista kolmas tietopalsta tilan leventämiseksi."
 msgid "List model answer files as protected URL addresses."
 msgstr "Luettele mallivastausten ei-julkiset URL-osoitteet."
 
-#: exercise/exercise_models.py:120
+#: exercise/exercise_models.py:118
 msgid "Course_module and category must belong to the same course instance."
 msgstr "Moduulin ja kategorian pitää kuulua samaan kurssikertaan."
 
-#: exercise/exercise_models.py:130
+#: exercise/exercise_models.py:128
 msgid "Cannot select parent from another course module."
 msgstr "Et voi valita 'Parent'-viitettä toisesta kurssimoduulista."
 
-#: exercise/exercise_models.py:299
+#: exercise/exercise_models.py:276
 msgid ""
 "Once this exercise is graded non zero it confirms all the points on this "
 "level. Implemented as a mandatory feedback feature."
@@ -1413,27 +1413,27 @@ msgstr ""
 "Kun tämä tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki "
 "pisteet tällä tasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: exercise/exercise_models.py:311
+#: exercise/exercise_models.py:288
 msgid "Points to pass cannot be greater than max_points."
 msgstr "'Points to pass' ei voi olla suurempi kuin 'max_points'."
 
-#: exercise/exercise_models.py:315
+#: exercise/exercise_models.py:292
 msgid "Minimum group size cannot exceed maximum size."
 msgstr "Ryhmän koon alaraja ei voi olla suurempi kuin yläraja."
 
-#: exercise/exercise_models.py:389
+#: exercise/exercise_models.py:367
 msgid "The course is archived. Exercises are offline."
 msgstr "Kurssi on arkistoitu, ja tehtävistä esitetään näköiskopio."
 
-#: exercise/exercise_models.py:399
+#: exercise/exercise_models.py:377
 msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:402
+#: exercise/exercise_models.py:380
 msgid "You must enroll at course home to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
 
-#: exercise/exercise_models.py:409
+#: exercise/exercise_models.py:387
 msgid ""
 "You have previously submitted to this exercise with a different group. Group "
 "can only change between different exercises."
@@ -1441,22 +1441,22 @@ msgstr ""
 "Olet palauttanut tämän tehtävän aiemmin eri ryhmässä. Ryhmää voi vaihtaa "
 "vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:412
+#: exercise/exercise_models.py:390
 msgid ""
 "Some members of the group have already submitted to this exercise in a "
 "different group."
 msgstr ""
 "Jotkin ryhmän jäsenet ovat jo palauttaneet tämän tehtävän eri ryhmässä."
 
-#: exercise/exercise_models.py:420
+#: exercise/exercise_models.py:398
 msgid "This exercise is not open for submissions."
 msgstr "Tämä tehtävä on suljettu, eikä sitä voi palauttaa."
 
-#: exercise/exercise_models.py:423
+#: exercise/exercise_models.py:401
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:432
+#: exercise/exercise_models.py:410
 #, python-brace-format
 msgid ""
 "This exercise can be submitted in groups of {size} students. The size of "
@@ -1465,7 +1465,7 @@ msgstr ""
 "Tämän tehtävän voi palauttaa {size} opiskelijan ryhmässä. Valitun ryhmän "
 "koko on {current}."
 
-#: exercise/exercise_models.py:443
+#: exercise/exercise_models.py:421
 #, python-brace-format
 msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed "
@@ -1474,29 +1474,29 @@ msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:538
+#: exercise/exercise_models.py:519
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:540
+#: exercise/exercise_models.py:521
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:542
+#: exercise/exercise_models.py:523
 msgid "Default: Launch exercise"
 msgstr "Oletus: Avaa tehtävä"
 
-#: exercise/exercise_models.py:544
+#: exercise/exercise_models.py:525
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:553
+#: exercise/exercise_models.py:534
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:656
+#: exercise/exercise_models.py:636
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -1586,15 +1586,15 @@ msgstr "Pääsy kielletty palautuksen näkyvyyden perusteella"
 msgid "Only the submitter shall pass."
 msgstr "Vain palautuksen tehneelle - only the submitter shall pass."
 
-#: exercise/protocol/aplus.py:28
+#: exercise/protocol/aplus.py:27
 msgid "Connecting to the exercise service failed!"
 msgstr "Tehtäväpalveluun ei saatu yhteyttä!"
 
-#: exercise/protocol/aplus.py:49
+#: exercise/protocol/aplus.py:48
 msgid "Connecting to the assessment service failed!"
 msgstr "Tehtäväpalveluun ei saatu yhteyttä!"
 
-#: exercise/protocol/aplus.py:77
+#: exercise/protocol/aplus.py:76
 #, python-brace-format
 msgid ""
 "Assessment service responded with invalid points. Points: {points:d}/{max:d} "
@@ -1603,26 +1603,26 @@ msgstr ""
 "Tehtävän pisteytyksessä on vikaa. Pisteet: {points:d}/{max:d} (exercise max "
 "{exercise_max:d})"
 
-#: exercise/protocol/aplus.py:104
+#: exercise/protocol/aplus.py:103
 msgid "Assessment service responded with error."
 msgstr "Tehtäväpalvelussa tapahtui virhe."
 
-#: exercise/staff_views.py:131
+#: exercise/staff_views.py:134
 msgid "The review was saved successfully and the submitters were notified."
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
 
-#: exercise/staff_views.py:152
+#: exercise/staff_views.py:155
 msgid "Failed to load the resource."
 msgstr "Lataus epäonnistui."
 
-#: exercise/staff_views.py:214
+#: exercise/staff_views.py:217
 #, python-brace-format
 msgid ""
 "Invalid POST data:\n"
 "{error}"
 msgstr ""
 
-#: exercise/staff_views.py:230
+#: exercise/staff_views.py:233
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 
@@ -1743,7 +1743,7 @@ msgstr "Kaikkia pakollisia tehtäviä ei ole suoritettu"
 #: exercise/templates/exercise/_points_progress.html:3
 #: exercise/templates/exercise/_user_results.html:77
 #: exercise/templates/exercise/exercise_plain.html:47
-#: exercise/templates/exercise/submission_plain.html:38
+#: exercise/templates/exercise/submission_plain.html:36
 msgid "Points"
 msgstr "Pisteet"
 
@@ -1761,14 +1761,14 @@ msgstr "Palautusaika"
 
 #: exercise/templates/exercise/_submission_info.html:14
 #: exercise/templates/exercise/staff/_assess_info.html:13
-#: exercise/templates/exercise/staff/_submissions_table.html:14
-#: exercise/templates/exercise/submission_plain.html:38
+#: exercise/templates/exercise/staff/_submissions_table.html:22
+#: exercise/templates/exercise/submission_plain.html:36
 msgid "Status"
 msgstr "Tila"
 
 #: exercise/templates/exercise/_submission_info.html:21
 #: exercise/templates/exercise/staff/_assess_info.html:17
-#: exercise/templates/exercise/staff/_submissions_table.html:15
+#: exercise/templates/exercise/staff/_submissions_table.html:23
 msgid "Grade"
 msgstr "Arvostelu"
 
@@ -1943,7 +1943,17 @@ msgstr "Ei ole"
 msgid "Grading data"
 msgstr "Arvostelun tiedot"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:5
+#: exercise/templates/exercise/staff/_submissions_table.html:7
+#, python-format
+msgid ""
+"\n"
+"    %(limit)s latest submissions. <a href=\"%(url)s\">Show all</a>\n"
+"    "
+msgstr ""
+"\n"
+"%(limit)s viimeistä palautusta. <a href=\"%(url)s\">Näytä kaikki</a>"
+
+#: exercise/templates/exercise/staff/_submissions_table.html:11
 #, python-format
 msgid ""
 "\n"
@@ -1953,18 +1963,18 @@ msgstr ""
 "\n"
 "%(count)s palautusta"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:13
+#: exercise/templates/exercise/staff/_submissions_table.html:21
 msgid "Time"
 msgstr "Aika"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:16
-#: exercise/templates/exercise/staff/_submissions_table.html:47
+#: exercise/templates/exercise/staff/_submissions_table.html:24
+#: exercise/templates/exercise/staff/_submissions_table.html:55
 #: exercise/templates/exercise/staff/inspect_submission.html:12
-#: exercise/templates/exercise/submission_plain.html:73
+#: exercise/templates/exercise/submission_plain.html:71
 msgid "Inspect"
 msgstr "Tutki"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:29
+#: exercise/templates/exercise/staff/_submissions_table.html:37
 #, python-format
 msgid ""
 "\n"
@@ -1974,11 +1984,11 @@ msgstr ""
 "\n"
 "Myöhässä <small>-%(percent)s%%</small>"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:41
+#: exercise/templates/exercise/staff/_submissions_table.html:49
 msgid "Assistant"
 msgstr "Assistentti"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:53
+#: exercise/templates/exercise/staff/_submissions_table.html:61
 msgid "No submissions"
 msgstr "Ei vielä palautuksia"
 
@@ -2012,7 +2022,7 @@ msgstr "Tutki SID "
 
 #: exercise/templates/exercise/staff/inspect_submission.html:20
 #: exercise/templates/exercise/submission.html:27
-#: exercise/templates/exercise/submission_plain.html:83
+#: exercise/templates/exercise/submission_plain.html:81
 msgid "Assistant feedback"
 msgstr "Assistentin palaute"
 
@@ -2034,7 +2044,7 @@ msgstr "Automaattinen palaute"
 
 #: exercise/templates/exercise/staff/inspect_submission.html:51
 #: exercise/templates/exercise/submission.html:37
-#: exercise/templates/exercise/submission_plain.html:93
+#: exercise/templates/exercise/submission_plain.html:91
 msgid "No grader feedback available for this submission."
 msgstr "Tästä palautuksesta ei ole saatavilla palautetta."
 
@@ -2087,20 +2097,19 @@ msgstr "Palautus"
 msgid "Files in this submission"
 msgstr "Tiedostot tässä palautuksessa"
 
-#: exercise/templates/exercise/submission_plain.html:33
+#: exercise/templates/exercise/submission_plain.html:31
 msgid "Return to exercise"
 msgstr "Palaa tehtävään"
 
-#: exercise/templates/exercise/submission_plain.html:37
-#: notification/templates/notification/notifications.html:30
+#: exercise/templates/exercise/submission_plain.html:35
 msgid "Date"
 msgstr "Päiväys"
 
-#: exercise/templates/exercise/submission_plain.html:39
+#: exercise/templates/exercise/submission_plain.html:37
 msgid "Files"
 msgstr "Tiedostot"
 
-#: exercise/templates/exercise/submission_plain.html:47
+#: exercise/templates/exercise/submission_plain.html:45
 #, python-format
 msgid ""
 "\n"
@@ -2382,7 +2391,7 @@ msgstr "Numeron on oltava välillä 0.0 - 1.0"
 msgid "Enter valid JSON."
 msgstr ""
 
-#: lib/remote_page.py:70
+#: lib/remote_page.py:77
 msgid "Connecting to the course service failed!"
 msgstr "Kurssin palveluun ei saatu yhteyttä!"
 
@@ -2443,42 +2452,11 @@ msgstr "Ilmestyy myöhemmin"
 msgid "Show more"
 msgstr "Näytä lisää"
 
-#: notification/templates/notification/_notification_messages.html:7
+#: notification/templates/notification/_notification_messages.html:6
 msgid "You have"
 msgstr "Sinulla on"
 
-#: notification/templates/notification/_notifications_list.html:26
-msgid "No received notifications."
-msgstr "Ei uusia ilmoituksia."
-
-#: notification/templates/notification/notifications.html:6
-#: notification/templates/notification/notifications.html:11
-#: notification/templates/notification/notifications.html:22
-msgid "Notifications"
-msgstr "Ilmoitukset"
-
-#: notification/templates/notification/notifications.html:20
-#, python-format
-msgid "%(count)s unread"
-msgstr "%(count)s lukematonta"
-
-#: notification/templates/notification/notifications.html:28
-msgid "Subject"
-msgstr "Otsikko"
-
-#: notification/templates/notification/notifications.html:29
-msgid "From"
-msgstr "Lähettäjä"
-
-#: notification/templates/notification/notifications.html:38
-msgid "Show older notifications..."
-msgstr "Näytä vanhemmat ilmoitukset..."
-
-#: notification/templates/notification/notifications.html:42
-msgid "Loading."
-msgstr "Ladataan."
-
-#: notification/templatetags/notification.py:29
+#: notification/templatetags/notification.py:24
 msgid "new notification"
 msgid_plural "new notifications"
 msgstr[0] "uusi ilmoitus"
@@ -2590,26 +2568,3 @@ msgstr ""
 "\n"
 "Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
 "tietokonetta, sulje selain poistaaksesi istunnon tiedot."
-
-#~ msgid "Feedback to {name}"
-#~ msgstr "Palaute {name}"
-
-#~ msgid ""
-#~ "<p>You have new personal feedback to exercise <a href=\"{url}\">{name}</"
-#~ "a>.</p>{message}"
-#~ msgstr ""
-#~ "<p>Olet saanut henkilökohtaista palautetta tehtävästä <a href="
-#~ "\"{url}\">{name}</a>.</p>{message}"
-
-#~ msgid "Show users"
-#~ msgstr "Näytä käyttäjät"
-
-#~ msgid ""
-#~ "The exercise was submitted and graded successfully. Points: {points:d}/"
-#~ "{max:d}"
-#~ msgstr ""
-#~ "Tehtävän palautus ja arvostelu onnistui. Pisteet: {points:d}/{max:d}"
-
-#~ msgid ""
-#~ "The exercise was submitted successfully and is now waiting to be graded."
-#~ msgstr "Tehtävän palautus onnistui, ja tehtävä odottaa arvostelua."

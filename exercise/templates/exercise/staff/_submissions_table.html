@@ -2,9 +2,17 @@
 {% load course %}
 {% load exercise %}
 <p>
-    {% blocktrans with count=submissions.count %}
+    {% with count=submissions.count %}
+    {% if not all and count == default_limit %}
+    {% blocktrans with limit=default_limit count=count url=all_url %}
+    {{ limit }} latest submissions. <a href="{{ url }}">Show all</a>
+    {% endblocktrans %}
+    {% else %}
+    {% blocktrans with count=count %}
     {{ count }} submissions
     {% endblocktrans %}
+    {% endif %}
+    {% endwith %}
 </p>
 <table class="table table-bordered filtered-table">
     <thead>

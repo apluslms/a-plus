@@ -31,16 +31,19 @@ class ListSubmissionsView(ExerciseBaseView):
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/list_submissions.html"
     ajax_template_name = "exercise/staff/_submissions_table.html"
+    default_limit = 50
 
     def get_common_objects(self):
         super().get_common_objects()
         if not self.exercise.is_submittable:
             raise Http404()
-        self.submissions = self.exercise.submissions\
-            .defer("feedback", "assistant_feedback",
-                "submission_data", "grading_data")\
+        qs = self.exercise.submissions\
+            .defer("feedback", "submission_data", "grading_data")\
             .prefetch_related('submitters').all()
-        self.note("submissions")
+        self.all = self.request.GET.get('all', None)
+        self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
+        self.submissions = qs if self.all else qs[:self.default_limit]
+        self.note("all", "all_url", "submissions", "default_limit")
 
 
 class InspectSubmissionView(SubmissionBaseView):
