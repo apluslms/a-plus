@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if len(args) != 2:
-            raise CommandError('Missing arguments: exercise/course/json/views/results id')
+            raise CommandError('Missing arguments: ' + self.args)
         if args[0] == 'exercise':
             self.export_exercise(args[1])
         elif args[0] == 'course':

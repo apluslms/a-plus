@@ -166,6 +166,19 @@ class UserTaggingManager(models.Manager):
             .select_related('tag')
         return [t.tag for t in ts]
 
+    def set(self, profile, tag):
+        self.get_or_create(
+            tag=tag,
+            user=profile,
+            course_instance=tag.course_instance,
+        )
+
+    def unset(self, profile, tag):
+        self.filter(
+            tag=tag,
+            user=profile,
+        ).delete()
+
 
 class UserTagging(models.Model):
     tag = models.ForeignKey(UserTag,
