@@ -181,10 +181,11 @@ def invalidate_content(sender, instance, **kwargs):
         CachedPoints.invalidate(course, profile.user)
 
 def invalidate_notification(sender, instance, **kwargs):
-    CachedPoints.invalidate(
-        instance.submission.exercise.course_instance,
-        instance.recipient.user
-    )
+    course = instance.course_instance
+    if not course and instance.submission:
+        course = instance.submission.exercise.course_instance
+    CachedPoints.invalidate(course, instance.recipient.user)
+
 
 # Automatically invalidate cached points when submissions change.
 post_save.connect(invalidate_content, sender=Submission)
