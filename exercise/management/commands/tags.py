@@ -1,7 +1,7 @@
-from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance, UserTag, UserTagging
+from userprofile.models import UserProfile
 
 
 class Command(BaseCommand):
@@ -22,15 +22,15 @@ class Command(BaseCommand):
     def set_tags(self, instance, filename):
         for tid,users in self.read_user_tag(filename).items():
             tag = UserTag.objects.filter(id=tid, course_instance=instance).first()
-            if not instance:
+            if not tag:
                 raise CommandError('Tag was not found in this course: ' + tid)
             for uid in users:
-                user = User.objects.filter(id=uid).first()
-                if not user:
+                profile = UserProfile.objects.filter(id=uid).first()
+                if not profile:
                     raise CommandError('User was not found: ' + uid)
-                if not instance.is_student(user):
+                if not instance.is_student(profile.user):
                     raise CommandError('User is not student in this course: ' + uid)
-                UserTagging.objects.set(user.userprofile, tag)
+                UserTagging.objects.set(profile, tag)
 
     def read_user_tag(self, filename):
         tag_map = {}
