@@ -209,12 +209,18 @@ class Submission(UrlMixin, models.Model):
         self.status = self.STATUS.ERROR
 
     def is_late(self):
+        if self.exercise.confirm_the_level:
+            return False
         if self.submission_time <= self.exercise.course_module.closing_time:
             return False
         deviation = self.exercise.one_has_deadline_deviation(
-            self.submitters.all())
-        if deviation and deviation.without_late_penalty\
-                and self.submission_time <= deviation.get_new_deadline():
+            self.submitters.all()
+        )
+        if (
+            deviation
+            and deviation.without_late_penalty
+            and self.submission_time <= deviation.get_new_deadline()
+        ):
             return False
         return True
 
