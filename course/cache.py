@@ -95,24 +95,24 @@ def invalidate_content(sender, instance, **kwargs):
 
 def invalidate_assistants(sender, instance, reverse=False, **kwargs):
     if reverse:
-        CachedTopMenu.invalidate(instance)
+        CachedTopMenu.invalidate(instance.user)
     else:
         for profile in instance.assistants.all():
             CachedTopMenu.invalidate(profile.user)
 
 def invalidate_teachers(sender, instance, reverse=False, **kwargs):
     if reverse:
-        CachedTopMenu.invalidate(instance)
+        CachedTopMenu.invalidate(instance.user)
     else:
         for profile in instance.teachers.all():
             CachedTopMenu.invalidate(profile.user)
 
 def invalidate_members(sender, instance, reverse=False, **kwargs):
     if reverse:
-        CachedTopMenu.invalidate(instance)
+        CachedTopMenu.invalidate(instance.user)
     else:
         for profile in instance.members.all():
-            CachedTopMenu.invalidate(instance)
+            CachedTopMenu.invalidate(profile.user)
 
 
 # Automatically invalidate cached menu when enrolled or edited.
