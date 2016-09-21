@@ -71,7 +71,7 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
 
     def post(self, request, *args, **kwargs):
 
-        if self.enrolled or not self.enrollable:
+        if self.is_student or not self.enrollable:
             messages.error(self.request, _("You cannot enroll, or have already enrolled, to this course."))
             raise PermissionDenied()
 

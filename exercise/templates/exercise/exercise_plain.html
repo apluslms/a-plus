@@ -93,7 +93,7 @@
 						{% endif %}
 					</li>
 				</ul>
-				{% if is_course_staff or exercise.is_closed %}
+				{% if is_course_staff or is_student and exercise.is_closed %}
 				{% if exercise.model_answers %}
 				<a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-model' }}">
 					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>

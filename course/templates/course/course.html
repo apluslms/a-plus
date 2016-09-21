@@ -10,7 +10,7 @@
 
 {% block coursecontent %}
 
-{% if not enrolled %}
+{% if not is_student %}
 <div class="alert alert-info">
 {% if enrollable or is_course_staff %}
   {% if instance.is_enrollment_open %}
