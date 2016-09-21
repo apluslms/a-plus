@@ -24,20 +24,6 @@
     <div class="panel-body">
         <dl>
 
-            {% if exercise.is_closed and exercise.model_answers %}
-            <dt>{% trans "Model answer" %}</dt>
-            <dd>
-              <ul class="list-unstyled">
-                {% for res in exercise.get_models %}
-                <li>
-                  <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                  <a href="{{ res.0 }}" class="file-modal" target="_blank">{{ res.1 }}</a>
-                </li>
-                {% endfor %}
-              </ul>
-            </dd>
-            {% endif %}
-
             <dt>{% trans "Your submissions" %}</dt>
             <dd>
             	{{ summary.get_submission_count }}

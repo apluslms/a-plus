@@ -62,7 +62,7 @@
               {% endfor %}
           </ul>
       </li>
-      {% if is_course_staff or exercise.is_closed %}
+      {% if is_course_staff or is_student and exercise.is_closed %}
       {% if exercise.model_answers %}
       <li class="menu-model">
         <a href="{{ exercise|url:'exercise-model' }}">

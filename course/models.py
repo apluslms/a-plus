@@ -580,7 +580,7 @@ class CourseModule(UrlMixin, models.Model):
 
     def is_closed(self, when=None):
         when = when or timezone.now()
-        if self.late_submissions_allowed:
+        if self.late_submissions_allowed and self.late_submission_penalty < 1:
             return when > self.late_submission_deadline
         return when > self.closing_time
 
