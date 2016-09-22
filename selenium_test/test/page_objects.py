@@ -41,9 +41,9 @@ class AbstractPage(object):
             self.waitForElement(loaded_check)
         self.checkBrowserErrors()
 
-    def waitForElement(self, element):
+    def waitForElement(self, element, timeout=None):
         try:
-            WebDriverWait(self.driver, self.wait_timeout).until(EC.presence_of_element_located(element))
+            WebDriverWait(self.driver, timeout or self.wait_timeout).until(EC.presence_of_element_located(element))
         except TimeoutException:
             raise TimeoutException("Wait for element failed: {0}".format(element))
 
@@ -77,10 +77,24 @@ class AbstractPage(object):
             raise Exception("Browser errors found")
 
     def getElement(self, locator):
-        return self.driver.find_element(*locator)
+        try:
+            return self.driver.find_element(*locator)
+        except NoSuchElementException:
+            try:
+                self.waitForElement(locator, timeout=1)
+                return self.getElement(locator)
+            except TimeoutException:
+                raise NoSuchElementException()
 
     def getElements(self, locator):
-        return self.driver.find_elements(*locator)
+        try:
+            return self.driver.find_elements(*locator)
+        except NoSuchElementException:
+            try:
+                self.waitForElement(locator, timeout=1)
+                return self.getElements(locator)
+            except TimeoutException:
+                raise NoSuchElementException()
 
     def getAlert(self):
         self.waitForCondition(EC.alert_is_present())

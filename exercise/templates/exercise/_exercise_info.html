@@ -3,7 +3,7 @@
 
 <div class="well">
     <p>{% trans "Earned points" %}</p>
-    <p><strong class="h2">
+    <p><strong class="h2 exercise-info-points">
     	{{ summary.get_points }}
     	<small>
             / {{ exercise.max_points }}
@@ -25,12 +25,12 @@
         <dl>
             {% if exercise.category.status != "hidden" %}
               <dt>{% trans "Exercise category" %}</dt>
-              <dd>
+              <dd class="exercise-info-category">
               	{{ exercise.category }}
               </dd>
             {% endif %}
             <dt>{% trans "Your submissions" %}</dt>
-            <dd>
+            <dd class="exercise-info-submissions">
             	{{ summary.get_submission_count }}
             	{% if exercise.max_submissions %}
             	/ {{ exercise|max_submissions:profile }}
@@ -39,15 +39,15 @@
 
             {% if exercise.points_to_pass > 0 %}
             <dt>{% trans "Points required to pass" %}</dt>
-            <dd>{{ exercise.points_to_pass }}</dd>
+            <dd class="exercise-info-required-points">{{ exercise.points_to_pass }}</dd>
             {% endif %}
 
             <dt>{% trans "Deadline" %}</dt>
-            <dd>{{ exercise.course_module.closing_time }}</dd>
+            <dd class="exercise-info-deadline">{{ exercise.course_module.closing_time }}</dd>
 
             {% if exercise.course_module.late_submissions_allowed %}
             <dt>{% trans "Late submission deadline" %}</dt>
-            <dd>
+            <dd class="exercise-info-late-deadline">
               {{ exercise.course_module.late_submission_deadline }}
               {% if module.late_submission_penalty > 0 %}
                 (-{{ exercise.course_module.late_submission_penalty|percent }}%)
@@ -57,16 +57,12 @@
 
             {% if exercise.max_group_size > 1 %}
             <dt>{% trans "Group size" %}</dt>
-            <dd>{{ exercise.min_group_size }}{% if exercise.max_group_size > exercise.min_group_size %}-{{ exercise.max_group_size }}{% endif %}</dd>
+            <dd class="exercise-info-group">{{ exercise.min_group_size }}{% if exercise.max_group_size > exercise.min_group_size %}-{{ exercise.max_group_size }}{% endif %}</dd>
             {% endif %}
 
             <dt>{% trans "Total number of submitters" %}</dt>
-            <dd>{{ exercise.get_total_submitter_count }}</dd>
+            <dd class="exercise-info-submitters">{{ exercise.get_total_submitter_count }}</dd>
 
-            {% comment "Disabled: If average is required implement more efficient query for it." %}
-            <dt>{% trans "Average submissions per student" %}</dt>
-            <dd>{{ exercise.todo|floatformat:2 }}</dd>
-            {% endcomment %}
         </dl>
     </div>
 </div>

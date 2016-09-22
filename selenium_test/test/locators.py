@@ -30,8 +30,8 @@ class HomePageLocators(object):
 class ExercisePageLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title']")
     EXERCISE_SCORE = (By.XPATH, "//*[@id='exercise-info']/div[@class='well']/p/strong[contains(@class, 'h2')]")
-    NUMBER_OF_SUBMITTERS = (By.XPATH, "//*[@id='exercise-info']//dl/dd[4]")
-    ALLOWED_SUBMISSIONS = (By.XPATH, "//*[@id='exercise-info']//dl/dd[1]")
+    NUMBER_OF_SUBMITTERS = (By.XPATH, "//*[@id='exercise-info']//dl/dd[contains(@class, 'exercise-info-submitters')]")
+    ALLOWED_SUBMISSIONS = (By.XPATH, "//*[@id='exercise-info']//dl/dd[contains(@class, 'exercise-info-submissions')]")
     MY_SUBMISSIONS_LIST = (By.XPATH, "//li[contains(@class, 'menu-submission')]/ul[@class='dropdown-menu']/li")
     RECEIVED_BANNER = (By.XPATH, "//*[contains(@class, 'alert')]")
 
