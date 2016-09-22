@@ -275,6 +275,9 @@ html, body {
     border: 1px solid #fff;
     padding: 2px 6px;
 }
+.unconfirmed-points {
+  opacity: 0.6;
+}
 td.submissions-dropdown {
   text-align:center;
 }

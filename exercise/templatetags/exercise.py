@@ -47,6 +47,8 @@ def _get_toc(context, student=None):
 def user_results(context, student=None):
     values = _get_toc(context, student)
     values['total_json'] = json.dumps(values['total'])
+    if student:
+        values['is_course_staff'] = False
     return values
 
 
@@ -150,6 +152,8 @@ def _points_data(obj, classes=None):
             'submitted': obj.get('submission_count', 0) > 0,
             'graded': obj.get('graded', True),
             'status': obj.get('submission_status', False),
+            'unconfirmed': obj.get('unconfirmed', False),
+            'confirmable_points': obj.get('confirmable_points', False),
         }
     percentage = 0
     required_percentage = None

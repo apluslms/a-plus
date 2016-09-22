@@ -71,7 +71,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                   .select_related("notifications"):
                 tree = self._by_idx(modules, exercise_index[submission.exercise.id])
                 entry = tree[-1]
-                entry['submission_count'] += 1
+                entry['submission_count'] += 1 if submission.status != Submission.STATUS.ERROR else 0
                 entry['submissions'].append({
                     'max_points': entry['max_points'],
                     'points_to_pass': entry['points_to_pass'],
@@ -79,6 +79,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'submission_count': 1, # to fool points badge
                     'points': submission.grade,
                     'graded': submission.is_graded,
+                    'passed': submission.grade >= entry['points_to_pass'],
                     'submission_status': submission.status if not submission.is_graded else False,
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
@@ -136,9 +137,12 @@ class CachedPoints(ContentMixin, CachedAbstract):
             max_points = 0
             submissions = 0
             points = 0
+            confirm_entry = None
             for entry in children:
                 if entry['submittable']:
-                    if not entry['confirm_the_level']:
+                    if entry['confirm_the_level']:
+                        confirm_entry = entry
+                    else:
                         passed = passed and entry['passed']
                         max_points += entry['max_points']
                         submissions += entry['submission_count']
@@ -151,6 +155,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     r_collect(module, entry, entry.get('children', []))
                     and passed
                 )
+            if confirm_entry and submissions > 0:
+                confirm_entry['confirmable_points'] = True
             if parent and not parent['submittable']:
                 parent['max_points'] = max_points
                 parent['submission_count'] = submissions
