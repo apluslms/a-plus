@@ -23,7 +23,12 @@
     </div>
     <div class="panel-body">
         <dl>
-
+            {% if exercise.category.status != "hidden" %}
+              <dt>{% trans "Exercise category" %}</dt>
+              <dd>
+              	{{ exercise.category }}
+              </dd>
+            {% endif %}
             <dt>{% trans "Your submissions" %}</dt>
             <dd>
             	{{ summary.get_submission_count }}
