@@ -88,7 +88,7 @@ def form_fields(exercise):
                     m = 0
                     for o in f['options']:
                         v = o.get('value', 'option_' + str(m))
-                        titleMap[v] = o['label']
+                        titleMap[v] = o.get('label|i18n', o.get('label', ['missing']))
                         enum.append(v)
                         m += 1
                     field['titleMap'] = titleMap
