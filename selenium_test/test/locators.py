@@ -13,6 +13,7 @@ class FirstPageLocators(object):
 
 class BasePageLocators(object):
     COURSE_BANNER = (By.XPATH, "//*[@id='bs-navbar-collapse']/ul[1]/li[1]/a")
+    FOOTER = (By.XPATH, "//nav[contains(@class, 'site-footer')]")
     HOME_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-home')]/a")
     CALENDAR_FEED_LINK = (By.XPATH, "//*[contains(@class, 'calendar-view')]/p/a[contains(@href, '/export-calendar/')]")
     RESULTS_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-results')]/a")
