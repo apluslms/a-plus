@@ -15,8 +15,8 @@ class UserPermissionsTest(unittest.TestCase):
         LoginPage(self.driver).loginAsTeacher()
         self.assertEqual(self.baseUrl, str(self.driver.current_url))
         basePage = BasePage(self.driver)
-        self.assertTrue(basePage.isElementVisible(BasePageLocators.TEACHERS_VIEW_LINK))
-        self.assertTrue(basePage.isElementVisible(StaffPageLocators.SUBMISSION_LINKS))
+        self.assertTrue(basePage.isElementPresent(BasePageLocators.TEACHERS_VIEW_LINK))
+        self.assertTrue(basePage.isElementPresent(StaffPageLocators.SUBMISSION_LINKS))
         basePage.clickTeachersViewLink()
         self.assertEqual(self.baseUrl + 'teachers/', str(self.driver.current_url))
 
@@ -24,15 +24,15 @@ class UserPermissionsTest(unittest.TestCase):
         LoginPage(self.driver).loginAsAssistant()
         self.assertEqual(self.baseUrl, str(self.driver.current_url))
         basePage = BasePage(self.driver)
-        self.assertFalse(basePage.isElementVisible(BasePageLocators.TEACHERS_VIEW_LINK))
-        self.assertTrue(basePage.isElementVisible(StaffPageLocators.SUBMISSION_LINKS))
+        self.assertFalse(basePage.isElementPresent(BasePageLocators.TEACHERS_VIEW_LINK))
+        self.assertTrue(basePage.isElementPresent(StaffPageLocators.SUBMISSION_LINKS))
 
     def testShouldHaveStudentsPermissions(self):
         LoginPage(self.driver).loginAsStudent()
         self.assertEqual(self.baseUrl, str(self.driver.current_url))
         basePage = BasePage(self.driver)
-        self.assertFalse(basePage.isElementVisible(BasePageLocators.TEACHERS_VIEW_LINK))
-        self.assertFalse(basePage.isElementVisible(StaffPageLocators.SUBMISSION_LINKS))
+        self.assertFalse(basePage.isElementPresent(BasePageLocators.TEACHERS_VIEW_LINK))
+        self.assertFalse(basePage.isElementPresent(StaffPageLocators.SUBMISSION_LINKS))
 
     def tearDown(self):
         self.driver.close()
