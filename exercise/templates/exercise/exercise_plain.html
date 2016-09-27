@@ -44,7 +44,7 @@
 				<ul class="nav navbar-nav exercise-nav">
 					<li>
 						<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
-							{% trans "Points" %}
+							{% if not exercise.confirm_the_level %}{% trans "Points" %}{% endif %}
 							{% points_badge summary %}
 						</a>
 					</li>
@@ -75,6 +75,7 @@
 				        	{% endfor %}
 				        </ul>
 					</li>
+					{% if not exercise.confirm_the_level %}
 					<li class="navbar-text">
 						{% if not exercise.is_closed %}
 							<small>
@@ -92,6 +93,7 @@
 							</small>
 						{% endif %}
 					</li>
+					{% endif %}
 				</ul>
 				{% if is_course_staff or is_student and exercise.is_closed %}
 				{% if exercise.model_answers %}

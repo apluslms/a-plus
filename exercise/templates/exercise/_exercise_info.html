@@ -2,6 +2,12 @@
 {% load exercise %}
 
 <div class="well">
+    {% if exercise.confirm_the_level %}
+    <p>{% trans "Exercise status" %}</p>
+    <p class="exercise-info-points">
+      {% points_badge summary %}
+    </p>
+    {% else %}
     <p>{% trans "Earned points" %}</p>
     <p><strong class="h2 exercise-info-points">
     	{{ summary.get_points }}
@@ -15,6 +21,7 @@
         </small>
     </strong></p>
     {% points_progress summary %}
+    {% endif %}
 </div>
 
 <div class="panel panel-primary">
