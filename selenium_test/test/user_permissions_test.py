@@ -13,6 +13,7 @@ class UserPermissionsTest(unittest.TestCase):
 
     def testShouldHaveTeachersPermissions(self):
         LoginPage(self.driver).loginAsTeacher()
+        self.assertEqual(self.baseUrl, str(self.driver.current_url))
         basePage = BasePage(self.driver)
         self.assertTrue(basePage.isElementVisible(BasePageLocators.TEACHERS_VIEW_LINK))
         self.assertTrue(basePage.isElementVisible(StaffPageLocators.SUBMISSION_LINKS))
@@ -21,12 +22,14 @@ class UserPermissionsTest(unittest.TestCase):
 
     def testShouldHaveAssistantsPermissions(self):
         LoginPage(self.driver).loginAsAssistant()
+        self.assertEqual(self.baseUrl, str(self.driver.current_url))
         basePage = BasePage(self.driver)
         self.assertFalse(basePage.isElementVisible(BasePageLocators.TEACHERS_VIEW_LINK))
         self.assertTrue(basePage.isElementVisible(StaffPageLocators.SUBMISSION_LINKS))
 
     def testShouldHaveStudentsPermissions(self):
         LoginPage(self.driver).loginAsStudent()
+        self.assertEqual(self.baseUrl, str(self.driver.current_url))
         basePage = BasePage(self.driver)
         self.assertFalse(basePage.isElementVisible(BasePageLocators.TEACHERS_VIEW_LINK))
         self.assertFalse(basePage.isElementVisible(StaffPageLocators.SUBMISSION_LINKS))
