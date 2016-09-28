@@ -31,7 +31,13 @@
             <dt>
                 {% trans "Submitters" %}
             </dt>
-            <dd>{{ submission.submitters.all|names }}</dd>
+            <dd>
+              {% if is_course_staff %}
+              {% profiles submission.submitters.all instance %}
+              {% else %}
+              {{ submission.submitters.all|names }}
+              {% endif %}
+            </dd>
         </dl>
     </div>
 </div>
