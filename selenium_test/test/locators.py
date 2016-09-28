@@ -41,7 +41,7 @@ class CourseArchiveLocators(object):
     HOOK_LINK = (By.XPATH, "//*[@id='course1']/ul/li/a[contains(@href, '/aplus1/hook_instance/')]")
 
 class StaffPageLocators(object):
-    SUBMISSION_LINKS = (By.XPATH, "//a[contains(@href,'/submissions')]")
+    SUBMISSION_LINKS = (By.XPATH, "//a[@href='/aplus1/basic_instance/first-exercise-round/1/submissions/']")
 
 class TeachersPageLocators(object):
     TEACHERS_VIEW_BANNER = (By.XPATH, "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'Edit course')]")
