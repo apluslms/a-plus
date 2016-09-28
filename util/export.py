@@ -41,7 +41,9 @@ def exercise(request, course, exercise, of):
         'resources': [url_to_static(request, course['key'], p) for p in exercise.get('resource_files', [])],
     }
 
-    if exercise.get('view_type', None) == 'access.types.stdsync.createForm':
+    if 'model_answer' in exercise:
+        of['model_answer'] = exercise['model_answer']
+    elif exercise.get('view_type', None) == 'access.types.stdsync.createForm':
         of['model_answer'] = url_to_model(
             request, course['key'], exercise['key']
         )
