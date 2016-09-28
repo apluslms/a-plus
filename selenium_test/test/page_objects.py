@@ -143,6 +143,7 @@ class LoginPage(AbstractPage):
         self.waitForElement(LoginPageLocators.BANNER)
         self.signIn(username, password)
         self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
+        self.waitForElement(BasePageLocators.FOOTER)
 
     def loginAsStudent(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.studentUsername, self.defaultPassword)

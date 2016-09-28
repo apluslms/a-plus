@@ -22,7 +22,10 @@
 		<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
 	</head>
 	<body>
-
+		<p class="submission-title">
+			{% if exercise.parent %}{{ exercise.parent }}:{% endif %}
+			{{ exercise }}
+		</p>
 		<table class="submission-info table table-bordered table-condensed">
 			<tr>
 				{% if not request.is_ajax %}

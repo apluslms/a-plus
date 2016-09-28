@@ -17,13 +17,6 @@ class CourseArchivePageTest(unittest.TestCase):
         self.assertEqual(len(data["objects"]), 1)
         self.assertEqual(len(data["objects"][0]["instances"]), 2)
 
-    @unittest.skip("unfixable jquery/ajax problem at plustest")
-    def testShouldOpenCourseArchivePage(self):
-        courseArchivePage = CourseArchivePage(self.driver)
-        courseArchivePage.waitForAjax()
-        courseArchivePage.getElement(CourseArchiveLocators.APLUS_LINK)
-        courseArchivePage.getElement(CourseArchiveLocators.HOOK_LINK)
-
     def tearDown(self):
         self.driver.close()
 

@@ -167,6 +167,34 @@ html, body {
 .dropdown-menu>li button:hover {
   background: #eee;
 }
+.menu-notification .glyphicon {
+  margin-right: 18px;
+}
+.menu-notification .badge {
+  position: absolute;
+  left: 28px;
+  top: 15px;
+  -webkit-animation: bounce 10s ease-in-out;
+  -moz-animation: bounce 10s ease-in-out;
+  -o-animation: bounce 10s ease-in-out;
+  animation: bounce 10s ease-in-out;
+}
+@-webkit-keyframes bounce {
+  0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+    5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
+@-moz-keyframes bounce {
+  0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+    5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
+@-o-keyframes bounce {
+  0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+    5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
+@keyframes bounce {
+  0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+    5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
 /* for navbar-fixed-top: body {
   padding-top: 70px;
 }*/
@@ -274,6 +302,9 @@ html, body {
 .panel-primary>.panel-heading .badge-success {
     border: 1px solid #fff;
     padding: 2px 6px;
+}
+.unconfirmed-points {
+  opacity: 0.6;
 }
 td.submissions-dropdown {
   text-align:center;

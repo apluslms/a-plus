@@ -270,12 +270,19 @@ TEST_OUTPUT_DIR = "test_results"
 
 # Logging
 # https://docs.djangoproject.com/en/1.7/topics/logging/
+from lib.logging import skip_unreadable_post
 LOGGING = {
   'version': 1,
   'disable_existing_loggers': False,
   'formatters': {
     'verbose': {
       'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s'
+    },
+  },
+  'filters': {
+    'skip_unreadable_post': {
+        '()': 'django.utils.log.CallbackFilter',
+        'callback': skip_unreadable_post,
     },
   },
   'handlers': {
@@ -287,6 +294,7 @@ LOGGING = {
     },
     'email': {
       'level': 'ERROR',
+      'filters': ['skip_unreadable_post'],
       'class': 'django.utils.log.AdminEmailHandler',
     },
   },

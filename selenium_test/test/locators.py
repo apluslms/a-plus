@@ -13,6 +13,7 @@ class FirstPageLocators(object):
 
 class BasePageLocators(object):
     COURSE_BANNER = (By.XPATH, "//*[@id='bs-navbar-collapse']/ul[1]/li[1]/a")
+    FOOTER = (By.XPATH, "//nav[contains(@class, 'site-footer')]")
     HOME_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-home')]/a")
     CALENDAR_FEED_LINK = (By.XPATH, "//*[contains(@class, 'calendar-view')]/p/a[contains(@href, '/export-calendar/')]")
     RESULTS_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-results')]/a")
@@ -40,7 +41,7 @@ class CourseArchiveLocators(object):
     HOOK_LINK = (By.XPATH, "//*[@id='course1']/ul/li/a[contains(@href, '/aplus1/hook_instance/')]")
 
 class StaffPageLocators(object):
-    SUBMISSION_LINKS = (By.XPATH, "//a[contains(@href,'/submissions/')]")
+    SUBMISSION_LINKS = (By.XPATH, "//a[@href='/aplus1/basic_instance/first-exercise-round/1/submissions/']")
 
 class TeachersPageLocators(object):
     TEACHERS_VIEW_BANNER = (By.XPATH, "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'Edit course')]")

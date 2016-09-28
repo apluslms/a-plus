@@ -12,7 +12,7 @@
 		loading_selector: "#loading-indicator",
 		modal_selector: "#page-modal",
 		modal_content_selector: ".modal-body",
-		submission_selector: ".submission-info,#exercise-all",
+		submission_selector: ".submission-title,.submission-info,#exercise-all",
 	};
 
 	function AplusChapter(element, options) {
