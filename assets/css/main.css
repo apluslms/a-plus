@@ -1,4 +1,14 @@
 /* common */
+.site-message {
+  position: relative;
+}
+.site-message .glyphicon {
+  position: absolute;
+  top: 19px;
+}
+.site-message .message {
+  margin-left: 27px;
+}
 .glyphicon, .label {
     margin-right: 0.2em;
 }
@@ -16,9 +26,6 @@ iframe {
 }
 .panel-title .pull-right {
     margin-left: 0.5em;
-}
-.alert .pull-left {
-    margin-right: 0.5em;
 }
 .nav .navbar-btn {
     margin-top: 10px;

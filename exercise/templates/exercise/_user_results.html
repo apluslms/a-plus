@@ -41,7 +41,7 @@
     <p>
       {{ module.opening_time }} &ndash; {{ module.closing_time }}
 
-      {% if module.late_allowed %}
+      {% if module.late_allowed and module.late_percent > 0 %}
       <br />
       <em>
         {% blocktrans with deadline=module.late_time %}
