@@ -1,3 +1,4 @@
+from copy import deepcopy
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
@@ -19,7 +20,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         return data is None or data['created'] < self.content.created()
 
     def _generate_data(self, instance, user, data=None):
-        data = self.content.data.copy()
+        data = deepcopy(self.content.data)
         module_index = data['module_index']
         exercise_index = data['exercise_index']
         modules = data['modules']
@@ -67,8 +68,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
         if user.is_authenticated():
             for submission in user.userprofile.submissions\
                   .exclude_errors()\
-                  .filter(exercise__course_module__course_instance=instance)\
-                  .select_related("notifications"):
+                  .filter(exercise__course_module__course_instance=instance):
+                  #.prefetch_related("notifications"): breaks things
                 tree = self._by_idx(modules, exercise_index[submission.exercise.id])
                 entry = tree[-1]
                 entry['submission_count'] += 1 if submission.status != Submission.STATUS.ERROR else 0

@@ -197,11 +197,13 @@ DATABASES = {
 ##########################################################################
 CACHES = {
     'default': {
-        #'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        #'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        #'LOCATION': '127.0.0.1:11211',
+        'TIMEOUT': None,
     }
 }
-#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 ##########################################################################
 
 # Internationalization (may override in local_settings.py)
