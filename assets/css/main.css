@@ -45,6 +45,9 @@ table.src tr td.src {
     white-space: pre-wrap;
     padding:0 0.4em;
 }
+.modal-dialog .modal-progress {
+  padding: 40px 60px 20px;
+}
 #exercise blockquote {
   font-size:100%;
 }

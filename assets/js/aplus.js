@@ -128,7 +128,9 @@ $.fn.highlightCode = function(options) {
         modal_selector: "#page-modal",
         file_modal_selector: "#file-modal",
         title_selector: ".modal-title",
+        loader_selector: ".modal-progress",
         content_selector: ".modal-body",
+        body_regexp: /<body[^>]*>(.|\n)*<\/body>/i,
         file: false
     };
 
@@ -146,25 +148,29 @@ $.fn.highlightCode = function(options) {
                 event.preventDefault();
                 var url = link.attr("href");
                 if (url === "" || url == "#") {
-                  console.log("stop!");
                   return false;
                 }
+                var modal = $(settings.file ? settings.file_modal_selector : settings.modal_selector);
+                modal.find(settings.title_selector).empty();
+                modal.find(settings.content_selector).empty();
+                modal.find(settings.loader_selector).show();
+                modal.on("hidden.bs.modal", function(event) {
+                  $(".dropdown-toggle").dropdown();
+                });
+                modal.modal("show");
                 $.get(url, function(data) {
-                    var modal = $(settings.file ? settings.file_modal_selector : settings.modal_selector);
-                    if (settings.file) {
-                      var text = $("<pre/>").text(data);
-                      modal.find(settings.title_selector).text(link.text());
-                      modal.find(settings.content_selector).html(text);
-                      text.highlightCode();
-                    } else {
-                      var c = modal.find(settings.content_selector).html(data);
-                      c.find('.file-modal').aplusModal({file:true});
-                      c.find('pre.hljs').highlightCode();
-                    }
-                    modal.on("hidden.bs.modal", function(event) {
-                      $(".dropdown-toggle").dropdown();
-                    });
-                    modal.modal("show");
+                  modal.find(settings.loader_selector).hide();
+                  if (settings.file) {
+                    var text = $("<pre/>").text(data);
+                    modal.find(settings.title_selector).text(link.text());
+                    modal.find(settings.content_selector).html(text);
+                    text.highlightCode();
+                  } else {
+                    var content = data.match(settings.body_regexp)[0];
+                    var c = modal.find(settings.content_selector).html(content);
+                    c.find('.file-modal').aplusModal({file:true});
+                    c.find('pre.hljs').highlightCode();
+                  }
                 });
             });
         }
