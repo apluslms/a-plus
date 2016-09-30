@@ -120,7 +120,7 @@ def _points_data(obj, classes=None):
             'full_score': obj.is_full_points(),
             'submitted': obj.is_submitted(),
             'graded': obj.is_graded(),
-            'confirmable_points': True,
+            'exercise_page': True,
         }
     elif isinstance(obj, Submission):
         exercise = obj.exercise

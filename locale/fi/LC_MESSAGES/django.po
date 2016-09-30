@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-27 14:15+0300\n"
+"POT-Creation-Date: 2016-09-30 10:34+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,6 +83,7 @@ msgid "URL"
 msgstr ""
 
 #: course/forms.py:23
+#, python-brace-format
 msgid "{num} member"
 msgstr "{num} jäsen"
 
@@ -257,6 +258,7 @@ msgid "The module is not currently visible."
 msgstr "Tämä osio ei ole tällä hetkellä nähtävissä."
 
 #: course/permissions.py:105
+#, python-brace-format
 msgid "The module will open for submissions at {date}"
 msgstr "Tämä osio avautuu {date}."
 
@@ -442,8 +444,7 @@ msgstr "Kalenteri"
 msgid "Download calendar (ics)"
 msgstr "Lataa kalenteri (ics)"
 
-#: course/templates/course/groups.html:8
-#: course/templates/course/groups.html:13
+#: course/templates/course/groups.html:8 course/templates/course/groups.html:13
 #: course/templates/course/groups.html:53
 msgid "My groups"
 msgstr "Minun ryhmäni"
@@ -723,6 +724,7 @@ msgid "No deadline deviations."
 msgstr "Ei yhtään määräajan muutosta."
 
 #: deviations/views.py:65
+#, python-brace-format
 msgid ""
 "Deadline deviation already exists for {user} in {exercise}!Remove it before "
 "trying to add a new one."
@@ -791,14 +793,17 @@ msgid "Missing JSON field: objects"
 msgstr "Puuttuva JSON-kenttä: objects"
 
 #: edit_course/operations/batch.py:28
+#, python-brace-format
 msgid "Missing field \"exercise_id\" in object {count:d}."
 msgstr ""
 
 #: edit_course/operations/batch.py:37
+#, python-brace-format
 msgid "Unknown exercise_id {id:d} in object {count:d}."
 msgstr ""
 
 #: edit_course/operations/batch.py:48
+#, python-brace-format
 msgid "Invalid fields in object {count:d}: {error}"
 msgstr ""
 
@@ -1286,14 +1291,17 @@ msgid ""
 msgstr "Vähintään yksi kategoria pitää luoda ennen harjoitusten lisäämistä."
 
 #: edit_course/views.py:139
+#, python-brace-format
 msgid "Save failed: {error}"
 msgstr "Tallentaminen epäonnistui: {error}"
 
 #: edit_course/views.py:142
+#, python-brace-format
 msgid "The {name} was saved successfully."
 msgstr "Kohde {name} tallennettiin onnistuneesti."
 
 #: edit_course/views.py:148
+#, python-brace-format
 msgid "Failed to save {name}"
 msgstr "Kohteen {name} tallennus epäonnistui."
 
@@ -1449,6 +1457,7 @@ msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
 #: exercise/exercise_models.py:410
+#, python-brace-format
 msgid ""
 "This exercise can be submitted in groups of {size} students. The size of "
 "your current group is {current}."
@@ -1456,37 +1465,38 @@ msgstr ""
 "Tämän tehtävän voi palauttaa {size} opiskelijan ryhmässä. Valitun ryhmän "
 "koko on {current}."
 
-#: exercise/exercise_models.py:421
+#: exercise/exercise_models.py:424
+#, python-brace-format
 msgid ""
-"Deadline for the exercise has passed. Late submissions are allowed until"
-"{date} but points are only worth {percent:d}%."
+"Deadline for the exercise has passed. Late submissions are allowed "
+"until{date} but points are only worth {percent:d}%."
 msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:519
+#: exercise/exercise_models.py:522
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:521
+#: exercise/exercise_models.py:524
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:523
+#: exercise/exercise_models.py:526
 msgid "Default: Launch exercise"
 msgstr "Oletus: Avaa tehtävä"
 
-#: exercise/exercise_models.py:525
+#: exercise/exercise_models.py:528
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:534
+#: exercise/exercise_models.py:537
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:636
+#: exercise/exercise_models.py:639
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -1518,6 +1528,7 @@ msgid "HTML formatting is allowed. This WILL override machine feedback."
 msgstr "HTML-muotoilut sallitaan. Tämä KORVAA automaattisen palautteen."
 
 #: exercise/forms.py:54
+#, python-brace-format
 msgid ""
 "The maximum points for this exercise is {max:d} and the given points is more "
 "than that."
@@ -1584,6 +1595,7 @@ msgid "Connecting to the assessment service failed!"
 msgstr "Tehtäväpalveluun ei saatu yhteyttä!"
 
 #: exercise/protocol/aplus.py:76
+#, python-brace-format
 msgid ""
 "Assessment service responded with invalid points. Points: {points:d}/{max:d} "
 "(exercise max {exercise_max:d})"
@@ -1604,6 +1616,7 @@ msgid "Failed to load the resource."
 msgstr "Lataus epäonnistui."
 
 #: exercise/staff_views.py:217
+#, python-brace-format
 msgid ""
 "Invalid POST data:\n"
 "{error}"
@@ -1712,20 +1725,33 @@ msgstr "Hylätty"
 msgid "Submitted"
 msgstr "Palautettu"
 
+#: exercise/templates/exercise/_points_badge.html:13
+msgid ""
+"You must submit here to confirm your points. Submissions are received until "
+"the end of the course."
+msgstr ""
+"Tämä palautus vaaditaan pisteiden vahvistamiseksi. Palautuksia "
+"vastaanotetaan kurssin loppuun asti."
+
 #: exercise/templates/exercise/_points_badge.html:14
 msgid "Missing"
 msgstr "Puuttuu"
 
-#: exercise/templates/exercise/_points_badge.html:24
+#: exercise/templates/exercise/_points_badge.html:18
+#| msgid "Submitted"
+msgid "Not submitted"
+msgstr "Ei palautuksia"
+
+#: exercise/templates/exercise/_points_badge.html:28
 msgid "Passed"
 msgstr "Suoritettu"
 
-#: exercise/templates/exercise/_points_badge.html:24
+#: exercise/templates/exercise/_points_badge.html:28
 #, python-format
 msgid "%(points)s points required to pass"
 msgstr "Suoritusmerkintään vaaditaan %(points)s pistettä"
 
-#: exercise/templates/exercise/_points_badge.html:24
+#: exercise/templates/exercise/_points_badge.html:28
 msgid "Required exercises are not passed"
 msgstr "Kaikkia pakollisia tehtäviä ei ole suoritettu"
 

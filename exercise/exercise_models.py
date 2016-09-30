@@ -416,7 +416,10 @@ class BaseExercise(LearningObject):
             or all(self.course_instance.is_course_staff(p.user) for p in students)
 
         # If late submission is open, notify the student about point reduction.
-        if self.course_module.is_late_submission_open():
+        if (
+            not self.confirm_the_level
+            and self.course_module.is_late_submission_open()
+        ):
             warnings.append(
                 _('Deadline for the exercise has passed. Late submissions are allowed until'
                   '{date} but points are only worth {percent:d}%.').format(
