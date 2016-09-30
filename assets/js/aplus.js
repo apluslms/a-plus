@@ -12,8 +12,8 @@ $(function() {
     $('[data-toggle="tooltip"]').tooltip();
     $('.menu-groups').aplusGroupSelect();
     $('.ajax-tail-list').aplusListTail();
-    $('.page-modal').aplusModal();
-    $('.file-modal').aplusModal({file:true});
+    $('.page-modal').aplusModalLink();
+    $('.file-modal').aplusModalLink({file:true});
     $('.search-select').aplusSearchSelect();
     $('.filtered-table').aplusTableFilter();
 });
@@ -118,68 +118,157 @@ $.fn.highlightCode = function(options) {
 };
 
 /**
- * Open submitted file in a modal.
+ * Handle common modal dialog.
  */
 (function($, window, document, undefined) {
-   "use strict";
+  "use strict";
 
-    var pluginName = "aplusModal";
-    var defaults = {
-        modal_selector: "#page-modal",
-        file_modal_selector: "#file-modal",
-        title_selector: ".modal-title",
-        loader_selector: ".modal-progress",
-        content_selector: ".modal-body",
-        body_regexp: /<body[^>]*>(.|\n)*<\/body>/i,
-        file: false
-    };
+  var pluginName = "aplusModal";
+  var defaults = {
+    loader_selector: ".modal-progress",
+    loader_text_selector: ".progress-bar",
+    title_selector: ".modal-title",
+    content_selector: ".modal-body",
+    error_message_attribute: "data-msg-error",
+  };
 
-    function AplusModal(element, options) {
+  function AplusModal(element, options) {
     this.element = $(element);
     this.settings = $.extend({}, defaults, options);
     this.init();
   }
 
   $.extend(AplusModal.prototype, {
+
     init: function() {
-            var link = this.element;
-            var settings = this.settings;
-            link.on("click", function(event) {
-                event.preventDefault();
-                var url = link.attr("href");
-                if (url === "" || url == "#") {
-                  return false;
-                }
-                var modal = $(settings.file ? settings.file_modal_selector : settings.modal_selector);
-                modal.find(settings.title_selector).empty();
-                modal.find(settings.content_selector).empty();
-                modal.find(settings.loader_selector).show();
-                modal.on("hidden.bs.modal", function(event) {
-                  $(".dropdown-toggle").dropdown();
-                });
-                modal.modal("show");
-                $.get(url, function(data) {
-                  modal.find(settings.loader_selector).hide();
-                  if (settings.file) {
-                    var text = $("<pre/>").text(data);
-                    modal.find(settings.title_selector).text(link.text());
-                    modal.find(settings.content_selector).html(text);
-                    text.highlightCode();
-                  } else {
-                    var content = data.match(settings.body_regexp)[0];
-                    var c = modal.find(settings.content_selector).html(content);
-                    c.find('.file-modal').aplusModal({file:true});
-                    c.find('pre.hljs').highlightCode();
-                  }
-                });
-            });
+      this.loader = this.element.find(this.settings.loader_selector);
+      this.loaderText = this.loader.find(this.settings.loader_text_selector);
+      this.title = this.element.find(this.settings.title_selector);
+      this.content = this.element.find(this.settings.content_selector);
+      this.messages = {
+        loading: this.loaderText.text(),
+        error: this.loaderText.attr(this.settings.error_message_attribute)
+      };
+    },
+
+    run: function(command, data) {
+      switch(command) {
+        case "open":
+          this.open(data);
+          break;
+        case "error":
+          this.showError(data);
+          break;
+        case "content":
+          this.showContent(data);
+          break;
+      }
+    },
+
+    open: function(data) {
+      this.title.hide();
+      this.content.hide();
+      this.loaderText
+        .removeClass('progress-bar-danger').addClass('active')
+        .text(data || this.messages.loading);
+      this.loader.show();
+      this.element.on("hidden.bs.modal", function(event) {
+        $(".dropdown-toggle").dropdown();
+      });
+      this.element.modal("show");
+    },
+
+    showError: function(data) {
+      this.loaderText
+        .removeClass('active').addClass('progress-bar-danger')
+        .text(data || this.messages.error);
+    },
+
+    showContent: function(data) {
+      this.loader.hide();
+      if (data.title) {
+        this.title.text(data.title);
+        this.title.show();
+      }
+      if (data.content instanceof jQuery) {
+        this.content.empty().append(data.content);
+      } else {
+        this.content.html(data.content);
+      }
+      this.content.show();
+      return this.content;
+    }
+  });
+
+  $.fn[pluginName] = function(command, data, options) {
+    return this.each(function() {
+      var modal = $.data(this, "plugin_" + pluginName);
+      if (!modal) {
+        modal = new AplusModal(this, options);
+        $.data(this, "plugin_" + pluginName, modal);
+      }
+      return modal.run(command, data);
+    });
+  };
+})(jQuery, window, document);
+
+/**
+ * Open links in a modal.
+ */
+(function($, window, document, undefined) {
+   "use strict";
+
+    var pluginName = "aplusModalLink";
+    var defaults = {
+        modal_selector: "#page-modal",
+        file_modal_selector: "#file-modal",
+        body_regexp: /<body[^>]*>(.|\n)*<\/body>/i,
+        file: false
+    };
+
+    function AplusModalLink(element, options) {
+    this.element = $(element);
+    this.settings = $.extend({}, defaults, options);
+    this.init();
+  }
+
+  $.extend(AplusModalLink.prototype, {
+    init: function() {
+      var link = this.element;
+      var settings = this.settings;
+      link.on("click", function(event) {
+        event.preventDefault();
+        var url = link.attr("href");
+        if (url === "" || url == "#") {
+          return false;
         }
+        var modal = $(settings.file ? settings.file_modal_selector : settings.modal_selector);
+        modal.aplusModal("open");
+        $.get(url, function(data) {
+          if (settings.file) {
+            var text = $("<pre/>").text(data);
+            modal.aplusModal("content", {
+              title: link.text(),
+              content: text,
+            });
+            text.highlightCode();
+          } else {
+            var match = data.match(settings.body_regexp);
+            var c = modal.aplusModal("content", { content: match || data });
+            c.find('.file-modal').aplusModalLink({file:true});
+            c.find('pre.hljs').highlightCode();
+          }
+        }).fail(function() {
+          modal.aplusModal("error");
+        });
+      });
+    }
   });
 
   $.fn[pluginName] = function(options) {
     return this.each(function() {
       if (!$.data(this, "plugin_" + pluginName)) {
-        $.data(this, "plugin_" + pluginName, new AplusModal(this, options));
+        $.data(this, "plugin_" + pluginName, new AplusModalLink(this, options));
       }
     });
   };
