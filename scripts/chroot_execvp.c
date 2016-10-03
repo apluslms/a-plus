@@ -75,6 +75,12 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
+	// Create new process group for kill(0).
+	if (setpgid(0, 0) != 0) {
+		fprintf(stderr, "FAILED: set process group\n");
+		return fail("main");
+	}
+
 	connect_signals();
 
 	// Look for course specific sandbox.
@@ -305,12 +311,8 @@ static void handle_signals(int sig)
 	{
 		fprintf(stderr, "Process interrupted.\n");
 	}
-	if (pid != 0)
-	{
-		kill(pid, SIGKILL);
-	}
 	cleanup();
-	_exit(1);
+	kill(0, SIGKILL);
 }
 
 /**
