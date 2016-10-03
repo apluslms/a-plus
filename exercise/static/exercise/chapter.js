@@ -265,14 +265,11 @@
 				var exercise = this;
 				$.aplusExerciseDetectWaits(function(suburl) {
 					$.ajax(suburl).done(function(data) {
-						input = $(data);
-						var new_badges = input.find(".badge");
+						var new_badges = $(data).find(".badge");
 						var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
 						old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
 						old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
-						exercise.chapter.modalContent(
-							input.filter(exercise.chapter.settings.submission_selector)
-						);
+						exercise.chapter.modalContent(data);
 					}).fail(function() {
 						exercise.chapter.modalError(exercise.chapter.messages.error);
 					});
