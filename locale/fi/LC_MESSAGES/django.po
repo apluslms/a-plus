@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-30 10:34+0300\n"
+"POT-Creation-Date: 2016-09-30 16:06+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -375,7 +375,7 @@ msgid "Course archive"
 msgstr "Kurssiarkisto"
 
 #: course/templates/course/archive.html:23
-#: course/templates/course/index.html:35
+#: course/templates/course/index.html:37
 msgid "Hidden from students"
 msgstr "Piilotettu opiskelijoilta"
 
@@ -494,11 +494,11 @@ msgstr "Tällä kurssilla ei voi palauttaa ryhmänä."
 msgid "No groups yet"
 msgstr "Ei vielä ryhmiä"
 
-#: course/templates/course/index.html:51
+#: course/templates/course/index.html:53
 msgid "View course"
 msgstr "Näytä kurssi"
 
-#: course/templates/course/index.html:63
+#: course/templates/course/index.html:65
 #, python-format
 msgid ""
 "\n"
@@ -715,7 +715,7 @@ msgstr "Toiminnot"
 #: edit_course/templates/edit_course/usertag_delete.html:28
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: external_services/templates/external_services/list_menu.html:64
-#: news/templates/news/list.html:53 templates/base.html:203
+#: news/templates/news/list.html:53 templates/base.html:217
 msgid "Remove"
 msgstr "Poista"
 
@@ -1727,18 +1727,17 @@ msgstr "Palautettu"
 
 #: exercise/templates/exercise/_points_badge.html:13
 msgid ""
-"You must submit here to confirm your points. Submissions are received until "
-"the end of the course."
+"You must submit here to confirm your points. Submissions are accepted even "
+"after the deadline."
 msgstr ""
 "Tämä palautus vaaditaan pisteiden vahvistamiseksi. Palautuksia "
-"vastaanotetaan kurssin loppuun asti."
+"vastaanotetaan vielä määräajan jälkeenkin."
 
 #: exercise/templates/exercise/_points_badge.html:14
 msgid "Missing"
 msgstr "Puuttuu"
 
 #: exercise/templates/exercise/_points_badge.html:18
-#| msgid "Submitted"
 msgid "Not submitted"
 msgstr "Ei palautuksia"
 
@@ -1879,6 +1878,14 @@ msgstr "Palautusta lähetetään..."
 #: exercise/templates/exercise/exercise.html:31
 msgid "Loading exercise..."
 msgstr "Tehtävää ladataan..."
+
+#: exercise/templates/exercise/exercise.html:38
+msgid "Submission received."
+msgstr "Palautus on vastaanotettu."
+
+#: exercise/templates/exercise/exercise.html:41
+msgid "Read the feedback"
+msgstr "Lue palaute vastaukseesi"
 
 #: exercise/templates/exercise/exercise_base.html:40
 msgid "Exercise description"
@@ -2530,19 +2537,27 @@ msgstr "Etusivu"
 msgid "Privacy Policy"
 msgstr "Tietosuojaseloste"
 
-#: templates/base.html:182 templates/base.html.py:192
+#: templates/base.html:181 templates/base.html.py:200
+msgid "Loading failed!"
+msgstr "Lataus epäonnistui!"
+
+#: templates/base.html:182 templates/base.html.py:201
+msgid "Loading..."
+msgstr "Ladataan..."
+
+#: templates/base.html:189 templates/base.html.py:206
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:207
+#: templates/base.html:221
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:211
+#: templates/base.html:225
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:214
+#: templates/base.html:228
 msgid "Search for..."
 msgstr "Etsi..."
 

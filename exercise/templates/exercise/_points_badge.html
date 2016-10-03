@@ -10,7 +10,7 @@
   {% if passed %}{% trans "Accepted" %}{% elif graded %}{% trans "Rejected" %}{% else %}{% trans "Submitted" %}{% endif %}
 </span>
 {% elif confirmable_points %}
-<span class="badge badge-danger" data-toggle="tooltip" title="{% trans 'You must submit here to confirm your points. Submissions are received until the end of the course.' %}">
+<span class="badge badge-danger" data-toggle="tooltip" title="{% trans 'You must submit here to confirm your points. Submissions are accepted even after the deadline.' %}">
   {% trans "Missing" %}
 </span>
 {% elif exercise_page %}

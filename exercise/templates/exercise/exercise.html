@@ -34,6 +34,14 @@
   <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;"></div>
 </div>
 
+<div id="quiz-success" class="hide">
+  <h3 class="text-center">{% trans "Submission received." %}</h3>
+  <p class="text-center badge-placeholder"></p>
+  <button type="button" class="btn btn-success center-block read-feedback" data-dismiss="modal">
+    {% trans "Read the feedback" %}
+  </button>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
