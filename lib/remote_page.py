@@ -120,18 +120,28 @@ class RemotePage:
                 self.soup.head.find_all(True, search_attribute))
         return ""
 
-    def body(self):
-        if self.soup and self.soup.body:
-            return self.soup.body.renderContents()
-        return ""
-
-    def element_or_body(self, search_attributes):
+    def select_element_or_body(self, search_attributes):
         if self.soup:
             for attr in search_attributes:
                 element = self.soup.find(**attr)
                 if element:
-                    return element.renderContents()
-        return self.body()
+                    return element
+            return self.soup.body
+        return None
+
+    def element_or_body(self, search_attributes):
+        element = self.select_element_or_body(search_attributes)
+        return element.renderContents() if element else ""
+
+    def clean_element_or_body(self, search_attributes):
+        element = self.select_element_or_body(search_attributes)
+        if element:
+            for once in element.findAll(True, {'data-aplus-once':True}):
+                once.extract()
+        return element.renderContents() if element else ""
+
+    def body(self):
+        return self.element_or_body([])
 
     def fix_relative_urls(self):
         domain, path = self.base_address()
