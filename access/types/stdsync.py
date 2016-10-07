@@ -121,7 +121,16 @@ def createForm(request, course, exercise, post_url):
         return render_template(request, course, exercise, post_url,
             'access/exercise_frame.html', { "error":True, "nonce_used":True })
 
-    form = GradedForm(request.POST or None, exercise=exercise)
+    last = False
+    if request.method == 'POST':
+        try:
+            n = int(request.GET.get('ordinal_number', '0'))
+            max_n = int(request.GET.get('max_submissions', '0'))
+        except ValueError:
+            pass
+        last = max_n > 0 and n >= max_n
+
+    form = GradedForm(request.POST or None, exercise=exercise, show_correct_once=last)
 
     # Support caching of non personalized forms.
     if not form.randomized and not_modified_since(request, exercise):

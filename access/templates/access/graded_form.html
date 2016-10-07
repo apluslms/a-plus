@@ -62,6 +62,9 @@
 			{% for choice in field %}
 			<div class="{{ field.field.type }}">
 				<label>
+					{% if choice.choice_value in field.field.correct %}
+					<span data-aplus-once="yes" class="correct-option"></span>
+					{% endif %}
 					{{ choice.tag }}
 					{{ choice.choice_label|safe }}
 				</label>
@@ -75,11 +78,22 @@
 
 			{% else %}
 			{{ field }}
+
 			{% if field.errors %}
 			<div class="alert alert-danger">
 				{{ field.errors|safe }}
 			</div>
 			{% endif %}
+
+			{% if field.field.correct %}
+			<ul data-aplus-once="yes" class="question-feedback-item">
+				<li class="question-feedback-item">
+					{% trans "Correct answer" %}:
+					{{ field.field.correct }}
+				</li>
+			</ul>
+			{% endif %}
+
 			{% endif %}
 
 		{% if not field.field.row_label or field.field.close_table %}

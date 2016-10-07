@@ -28,6 +28,7 @@ class GradedForm(forms.Form):
             raise ConfigError("Missing exercise configuration from form arguments.")
         self.exercise = kwargs.pop("exercise")
         self.show_correct = kwargs.pop('show_correct') if 'show_correct' in kwargs else False
+        self.show_correct_once = kwargs.pop('show_correct_once') if 'show_correct_once' in kwargs else False
         kwargs['label_suffix'] = ''
         super(forms.Form, self).__init__(*args, **kwargs)
 
@@ -85,19 +86,19 @@ class GradedForm(forms.Form):
                 t = field["type"]
 
                 # Create a field by type.
-                initial, choices = self.create_choices(field)
+                choices, initial, correct = self.create_choices(field)
                 if t == "checkbox":
                     i, f = self.add_field(i, field,
                         forms.MultipleChoiceField, forms.CheckboxSelectMultiple,
-                        initial, choices, {})
+                        initial, correct, choices, True, {})
                 elif t == "radio":
                     i, f = self.add_field(i, field,
                         forms.ChoiceField, forms.RadioSelect,
-                        initial[0] if initial else None, choices, {})
+                        initial, correct, choices, False, {})
                 elif (t == "dropdown" or t == "select"):
                     i, f = self.add_field(i, field,
                         forms.ChoiceField, forms.Select,
-                        initial[0] if initial else None, choices)
+                        initial, correct, choices, False)
                 elif t == "text":
                     i, f = self.add_field(i, field,
                         forms.CharField, forms.TextInput)
@@ -109,7 +110,7 @@ class GradedForm(forms.Form):
                         forms.ChoiceField, forms.RadioSelect)
                 elif t == "table-checkbox":
                     i, f = self.add_table_fields(i, field,
-                        forms.MultipleChoiceField, forms.CheckboxSelectMultiple)
+                        forms.MultipleChoiceField, forms.CheckboxSelectMultiple, True)
                 elif t == "static":
                     i, f = self.add_field(i, field,
                         forms.CharField, custom_forms.PlainTextWidget)
@@ -142,20 +143,20 @@ class GradedForm(forms.Form):
             nonce + sample
         )
 
-    def add_table_fields(self, i, config, field_class, widget_class):
+    def add_table_fields(self, i, config, field_class, widget_class, multiple=False):
         fields = []
-        initial, choices = self.create_choices(config)
+        choices, initial, correct = self.create_choices(config)
         for row in config.get('rows', []):
 
             if self.show_correct:
-                initial = []
+                correct = []
                 corr = self.row_options(config, row)['options']
                 for i,choice in enumerate(choices):
                     if corr[i]['correct']:
-                        initial.append(choice[0])
+                        correct.append(choice[0])
 
             i, fi = self.add_field(i, config,
-                field_class, widget_class, initial, choices, {})
+                field_class, widget_class, initial, correct, choices, multiple, {})
             fi[0].name = self.field_name(i, row)
             fi[0].row_label = row.get('label', None)
             fields += fi
@@ -164,7 +165,8 @@ class GradedForm(forms.Form):
         return i, fields
 
     def add_field(self, i, config, field_class, widget_class,
-            initial=None, choices=None, widget_attrs={'class': 'form-control'}):
+            initial=None, correct=None, choices=None, multiple=False,
+            widget_attrs={'class': 'form-control'}):
         args = {
             'widget': widget_class(attrs=widget_attrs),
             'required': 'required' in config and config['required'],
@@ -173,14 +175,20 @@ class GradedForm(forms.Form):
             args['widget'].attrs['disabled'] = 'disabled'
         if not choices is None:
             args['choices'] = choices
-        if self.show_correct and config.get('model', False):
-            args['initial'] = config['model']
-        elif self.show_correct and config.get('correct', False):
-            args['initial'] = config['correct']
-        elif not self.show_correct and config.get('initial', False):
-            args['initial'] = config['initial']
-        elif not initial is None:
-            args['initial'] = initial
+
+        if self.show_correct:
+            if correct:
+                args['initial'] = correct if multiple else correct[0]
+            elif config.get('model', False):
+                args['initial'] = config['model']
+            elif config.get('correct', False):
+                args['initial'] = config['correct']
+        else:
+            if initial:
+                args['initial'] = initial if multiple else initial[0]
+            elif config.get('initial', False):
+                args['initial'] = config['initial']
+
         field = field_class(**args)
         field.type = config['type']
         field.name = self.field_name(i, config)
@@ -188,10 +196,21 @@ class GradedForm(forms.Form):
         field.more = self.create_more(config)
         field.points = config.get('points', 0)
         field.choice_list = not choices is None and widget_class != forms.Select
+
+        if self.show_correct_once:
+            if correct:
+                field.correct = correct
+            elif config.get('model', False):
+                field.correct = config['model']
+            elif config.get('correct', False):
+                field.correct = config['correct']
+                print(field.correct)
+
         if 'extra_info' in config and 'class' in config['extra_info']:
             field.html_class = config['extra_info']['class']
         else:
             field.html_class = 'form-group'
+
         self.fields[field.name] = field
         return (i + 1, [field])
 
@@ -213,20 +232,19 @@ class GradedForm(forms.Form):
         '''
         choices = []
         initial = []
+        correct = []
         if "options" in configuration:
             i = 0
             for opt in configuration["options"]:
                 label = opt.get('label', "")
                 value = self.option_name(i, opt)
                 choices.append((value, mark_safe(label)))
-                if self.show_correct and opt.get('correct', False):
-                    initial.append(value)
-                elif not self.show_correct and (
-                    opt.get('selected', False) or opt.get('initial', False)
-                ):
+                if opt.get('correct', False):
+                    correct.append(value)
+                if opt.get('selected', False) or opt.get('initial', False):
                     initial.append(value)
                 i += 1
-        return initial, choices
+        return choices, initial, correct
 
     def group_name(self, i):
         return "group_{:d}".format(i)
