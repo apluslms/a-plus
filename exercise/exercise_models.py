@@ -241,6 +241,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
 
 
+def invalidate_exercise(sender, instance, **kwargs):
+    for language,_ in settings.LANGUAGES:
+        ExerciseCache.invalidate(instance, modifiers=[language])
+
+
+# Automatically invalidate cached exercise html when edited.
+post_save.connect(invalidate_exercise, sender=LearningObject)
+post_delete.connect(invalidate_exercise, sender=LearningObject)
+
+
 class LearningObjectDisplay(models.Model):
     """
     Records views of learning objects.
