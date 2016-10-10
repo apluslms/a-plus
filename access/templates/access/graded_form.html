@@ -63,7 +63,7 @@
 			<div class="{{ field.field.type }}">
 				<label>
 					{% if choice.choice_value in field.field.correct %}
-					<span data-aplus-once="yes" class="correct-option"></span>
+					<span data-aplus-once="yes" class="correct-option glyphicon glyphicon-ok" aria-hidden="true"></span>
 					{% endif %}
 					{{ choice.tag }}
 					{{ choice.choice_label|safe }}
