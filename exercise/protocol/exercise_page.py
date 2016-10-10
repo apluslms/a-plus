@@ -16,6 +16,7 @@ class ExercisePage:
             if hasattr(exercise, 'max_points') else 0
         self.head = ""
         self.content = ""
+        self.clean_content = ""
         self.last_modified = ""
         self.expires = 0
         self.meta = {

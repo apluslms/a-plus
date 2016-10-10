@@ -52,7 +52,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
             email_course_error(request, exercise, msg)
 
     if page.is_loaded:
-        submission.feedback = page.content
+        submission.feedback = page.clean_content
         if page.is_accepted:
             submission.set_waiting()
             if page.is_graded:
@@ -148,11 +148,13 @@ def parse_page_content(page, remote_page, exercise):
     } for i,o in enumerate(exercise.children.all())])
 
     page.head = remote_page.head({'data-aplus':True})
-    page.content = remote_page.element_or_body((
+    element_selectors = (
         {'id':'aplus'},
         {'id':'exercise'},
         {'id':'chapter'},
         {'class':'entry-content'},
-    ))
+    )
+    page.content = remote_page.element_or_body(element_selectors)
+    page.clean_content = remote_page.clean_element_or_body(element_selectors)
     page.last_modified = remote_page.last_modified()
     page.expires = remote_page.expires()
