@@ -82,7 +82,13 @@ class CourseStudentsViewSet(NestedViewSetMixin,
     queryset = UserProfile.objects.all()
 
 
-class CoursePointsViewSet(NestedViewSetMixin, viewsets.ReadOnlyModelViewSet):
+class CoursePointsViewSet(NestedViewSetMixin,
+                          CourseResourceMixin,
+                          viewsets.ReadOnlyModelViewSet):
+    # Allow only staff to see points listings
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        OnlyCourseTeacherPermission,
+    ]
 
     def retrieve(self, request, course_id, version, pk=None):
         """

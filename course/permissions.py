@@ -57,7 +57,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
                 return False
 
             # Handle enroll views separately
-            if view.access_mode == ACCESS.ENROLL:
+            if getattr(view, 'access_mode', None) == ACCESS.ENROLL:
                 return self.enrollment_audience_check(request, course, user)
 
             if show_for == VA.ENROLLED:

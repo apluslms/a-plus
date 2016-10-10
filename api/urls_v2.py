@@ -28,10 +28,9 @@ with api.register(r'courses',
     courses.register(r'taggings',
                      course.api.views.CourseUsertaggingsViewSet,
                      base_name='course-taggings')
-    # FIXME: Disabled w:hile there is no correct permission checks
-    #courses.register(r'points',
-    #                 course.api.views.CoursePointsViewSet,
-    #                 base_name='course-points')
+    courses.register(r'points',
+                     course.api.views.CoursePointsViewSet,
+                     base_name='course-points')
 
 with api.register(r'exercises',
                   exercise.api.views.ExerciseViewSet,
