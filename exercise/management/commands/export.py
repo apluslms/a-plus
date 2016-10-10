@@ -7,14 +7,16 @@ from ...exercise_summary import ResultTable
 
 
 class Command(BaseCommand):
-    args = 'exercise/course/json/views/results id'
+    args = 'exercise/exercises/course/json/views/results id(s)'
     help = 'Exports submission data.'
 
     def handle(self, *args, **options):
-        if len(args) != 2:
+        if len(args) < 2:
             raise CommandError('Missing arguments: ' + self.args)
         if args[0] == 'exercise':
             self.export_exercise(args[1])
+        if args[0] == 'exercises':
+            self.export_exercises(args[1:])
         elif args[0] == 'course':
             self.export_course(args[1])
         elif args[0] == 'json':
@@ -26,10 +28,16 @@ class Command(BaseCommand):
         else:
             raise CommandError('Unknown argument!')
 
-    def export_exercise(self, eid):
+    def export_exercises(self, eids):
+        n = 0
+        for eid in eids:
+            self.export_exercise(eid, n == 0)
+            n += 1
+
+    def export_exercise(self, eid, print_header=True):
         exercise = BaseExercise.objects.filter(id=eid).first()
         if not exercise:
-            raise CommandError('Exercise not found.')
+            raise CommandError('Exercise {} not found.'.format(eid))
 
         students = [u['id'] for u in exercise.course_module.course_instance.students.values('id')]
         submissions = [s for s in exercise.submissions.all() if s.submitters.first().id in students]
@@ -41,13 +49,16 @@ class Command(BaseCommand):
                     fields.append(key)
         fields = sorted(fields)
 
-        header = [ 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade' ]
+        header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade' ]
         header += fields
-        self.print_row(header)
+        if print_header:
+            self.print_row(header)
 
         for submission in submissions:
             profile = submission.submitters.first()
             data = [
+                str(exercise.id),
+                str(exercise),
                 str(submission.submission_time),
                 str(profile.id),
                 profile.student_id or "",
