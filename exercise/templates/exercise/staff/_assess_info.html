@@ -11,7 +11,7 @@
             <dt>{% trans "Submitters" %}</dt>
             <dd>{% profiles submission.submitters.all instance %}</dd>
             <dt>{% trans "Status" %}</dt>
-            <dd>{{ submission.status }}</dd>
+            <dd>{{ submission.status|submission_status }}</dd>
             <dt>{% trans "Submission time" %}</dt>
             <dd>{{ submission.submission_time }}</dd>
             <dt>{% trans "Grade" %}</dt>

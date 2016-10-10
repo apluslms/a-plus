@@ -106,6 +106,11 @@ def percent(decimal):
     return int(decimal * 100)
 
 
+@register.filter
+def submission_status(status):
+    return Submission.STATUS[status]
+
+
 def _points_data(obj, classes=None):
     if isinstance(obj, UserExerciseSummary):
         exercise = obj.exercise
@@ -135,8 +140,15 @@ def _points_data(obj, classes=None):
             'full_score': obj.grade >= exercise.max_points,
             'submitted': True,
             'graded': obj.is_graded,
-            'status': obj.status if obj.status != Submission.STATUS.READY else False,
         }
+        if (
+            obj.status != Submission.STATUS.READY
+            and (
+                not exercise.confirm_the_level
+                or obj.status != Submission.STATUS.WAITING
+            )
+        ):
+            data['status'] = obj.status
     else:
         points = obj.get('points', 0)
         max_points = obj.get('max_points', 0)

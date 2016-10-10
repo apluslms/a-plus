@@ -41,7 +41,7 @@
                 {% endif %}
             </td>
             <td>
-                {{ submission.status }}
+                {{ submission.status|submission_status }}
             </td>
             <td>
                 {{ submission.grade }}

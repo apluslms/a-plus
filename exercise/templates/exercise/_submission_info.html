@@ -14,7 +14,7 @@
             <dt>{% trans "Status" %}</dt>
             <dd>
                 <span class="label label-{% if submission.is_graded %}success{% else %}default{% endif %}">
-                    {{ submission.status }}
+                    {{ submission.status|submission_status }}
                 </span>
             </dd>
 

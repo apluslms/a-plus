@@ -1,7 +1,8 @@
 {% load i18n %}
+{% load exercise %}
 {% if status %}
 <span class="badge">
-    {{ status }}
+    {{ status|submission_status }}
 </span>
 
 {% elif confirm_the_level %}
