@@ -375,6 +375,11 @@ td.submissions-dropdown {
 .form-inline .form-group div {
     display: inline-block;
 }
+.correct-option {
+  margin-left: -38px;
+  margin-right: 20px;
+  color: green;
+}
 
 /* results table */
 
