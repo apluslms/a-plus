@@ -1,4 +1,4 @@
-import json, base64
+import json, re
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                     fields.append(key)
         fields = sorted(fields)
 
-        header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade' ]
+        header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade', 'Feedback', 'A.Feedback' ]
         header += fields
         if print_header:
             self.print_row(header)
@@ -65,6 +65,8 @@ class Command(BaseCommand):
                 profile.user.email or "",
                 submission.status,
                 str(submission.grade),
+                self.strip_html_tags(submission.feedback),
+                submission.assistant_feedback,
             ]
             values = [[] for field in fields]
             if submission.submission_data:
@@ -166,5 +168,13 @@ class Command(BaseCommand):
 
     def print_row(self, fields, quote=False):
         if quote:
-            fields = ['"{}"'.format(f.replace('"','\'')) for f in fields]
+            fields = ['"{}"'.format(self.quote(f)) for f in fields]
         print(','.join(fields))
+
+    def quote(self, value):
+        for m,s in [('"','\''),('\n','\\n'),('\r','\\r'),('\t','\\t')]:
+            value = value.replace(m, s)
+        return value
+
+    def strip_html_tags(self, value):
+        return re.sub('<[^>+?]>', '', value)
