@@ -435,11 +435,11 @@ class CourseInstance(UrlMixin, models.Model):
 
     @property
     def head_css_urls(self):
-        return [url for url in self.head_urls.split() if url.endswith(".css")]
+        return [url for url in self.head_urls.split() if ".css" in url]
 
     @property
     def head_js_urls(self):
-        return [url for url in self.head_urls.split() if url.endswith(".js")]
+        return [url for url in self.head_urls.split() if ".js" in url]
 
     ABSOLUTE_URL_NAME = "course"
     EDIT_URL_NAME = "course-edit"
