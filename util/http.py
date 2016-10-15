@@ -100,6 +100,7 @@ def cache_headers(response, request, exercise, flag=False):
         not flag
         and request.method == 'GET'
         and not exercise.get('personalized', False)
+        and exercise.get('cacheable', True)
     ):
         response['Last-Modified'] = http_date(exercise['mtime'])
         expiry = exercise.get('expiry_minutes', settings.DEFAULT_EXPIRY_MINUTES)
@@ -109,7 +110,11 @@ def cache_headers(response, request, exercise, flag=False):
 
 
 def not_modified_since(request, exercise):
-    if request.method != 'GET' or exercise.get('personalized', False):
+    if (
+        request.method != 'GET'
+        or exercise.get('personalized', False)
+        or not exercise.get('cacheable', True)
+    ):
         return False
     time = parse_http_date_safe(request.META.get('HTTP_IF_MODIFIED_SINCE'))
     return time and time >= exercise['mtime']
