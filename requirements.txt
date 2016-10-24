@@ -1,5 +1,5 @@
 # Usage: pip install -r requirements.txt
-beautifulsoup4==4.3.2
+beautifulsoup4
 Django==1.7.7
 django-bootstrap-form==3.2
 django-html5-colorfield==1.0
@@ -25,4 +25,4 @@ unittest-xml-reporting==1.11.0
 # Required to run browser tests.
 #selenium
 #nose
-
+#coverage
