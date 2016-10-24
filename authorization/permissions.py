@@ -69,6 +69,7 @@ ACCESS = Enum(
     ('ASSISTANT', 5, _("Assistant of the course")),
     ('GRADING', 6, _("Grading. Assistant if course has that option or teacher")),
     ('TEACHER', 10, _("Teacher of the course")),
+    ('SUPERUSER', 100, _("Superuser of the service")),
 )
 
 
@@ -85,6 +86,9 @@ class AccessModePermission(Permission):
             return True
         if not request.user.is_authenticated():
             return False
+
+        if access_mode >= ACCESS.SUPERUSER:
+            return request.user.is_superuser
 
         if access_mode >= ACCESS.TEACHER:
             if not view.is_teacher:

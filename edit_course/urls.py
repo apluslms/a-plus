@@ -37,6 +37,9 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'batch-assess/$',
         views.BatchCreateSubmissionsView.as_view(),
         name='batch-assess'),
+    url(r'^admin/signin-as-user$',
+        views.SignInAsUser.as_view(),
+        name='signin-as-user'),
 
     url(MODEL_URL_PREFIX + r'add/$',
         views.ModelEditView.as_view(),

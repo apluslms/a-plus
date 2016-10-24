@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http.response import Http404
 from django.utils.translation import ugettext_lazy as _
@@ -263,3 +265,15 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
     def clear_cache(self, request):
         invalidate_instance(self.instance)
         messages.success(request, _("Exercise caches have been cleared."))
+
+
+class SignInAsUser(BaseRedirectMixin, BaseTemplateView):
+    access_mode = ACCESS.SUPERUSER
+    template_name = "edit_course/signin_as_user.html"
+
+    def post(self, request, *args, **kwargs):
+        username = request.POST.get('username', None)
+        user = User.objects.get(username=username)
+        user.backend = "django.contrib.auth.backends.ModelBackend"
+        auth_login(request, user)
+        return self.redirect("/")
