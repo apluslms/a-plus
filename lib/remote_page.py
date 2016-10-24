@@ -145,11 +145,16 @@ class RemotePage:
 
     def fix_relative_urls(self):
         domain, path = self.base_address()
-        self._fix_relative_urls(domain, path, "img", "src")
-        self._fix_relative_urls(domain, path, "script", "src")
-        self._fix_relative_urls(domain, path, "iframe", "src")
-        self._fix_relative_urls(domain, path, "link", "href")
-        self._fix_relative_urls(domain, path, "a", "href")
+        for tag,attr in [
+            ("img","src"),
+            ("script","src"),
+            ("iframe","src"),
+            ("link","href"),
+            ("a","href"),
+            ("video","poster"),
+            ("source","src"),
+        ]:
+            self._fix_relative_urls(domain, path, tag, attr)
 
     def _fix_relative_urls(self, domain, path, tag_name, attr_name):
         test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE)

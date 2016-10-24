@@ -59,18 +59,39 @@ class EditContentView(EditInstanceView):
     template_name = "edit_course/edit_content.html"
     form_class = CourseContentForm
 
+    def get_common_objects(self):
+        self.modules = list(self.instance.course_modules.all())
+        for module in self.modules:
+            module.flat_objects = [
+                LearningObject.objects.get(id=entry['id'])
+                for entry in self.content.flat_module(module, enclosed=False)
+                if entry['type'] != 'level'
+            ]
+        self.note('modules')
+
     def get_success_url(self):
         return self.instance.get_url('course-edit')
 
     def form_valid(self, form):
         if self.request.POST.get('renumbermodule') is not None:
-            for module in self.instance.course_modules.all():
-                module._children().renumber()
+            for module in self.content.modules():
+                self.renumber_recursion(module)
         elif self.request.POST.get('renumbercourse') is not None:
             n = 1
-            for module in self.instance.course_modules.exclude(status='hidden'):
-                n = module._children().renumber(n)
+            for module in self.content.modules():
+                nn = self.renumber_recursion(module, n)
+                if module['status'] != 'hidden':
+                    n = nn
         return super().form_valid(form)
+
+    def renumber_recursion(self, parent, n=1):
+        for entry in parent['children']:
+            model = LearningObject.objects.get(id=entry['id'])
+            model.order = n
+            model.save()
+            self.renumber_recursion(entry)
+            n += 1
+        return n
 
 
 class ModelBaseMixin(CourseInstanceMixin):

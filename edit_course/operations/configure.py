@@ -320,8 +320,16 @@ def configure_content(instance, url):
             module.save()
         for lobject in module.learning_objects.all():
             if not lobject.id in seen_objects:
-                lobject.status = "hidden"
-                lobject.save()
+                exercise = lobject.as_leaf_class()
+                if (
+                    not isinstance(exercise, BaseExercise)
+                    or exercise.submissions.count() == 0
+                ):
+                    lobject.delete()
+                else:
+                    lobject.status = "hidden"
+                    lobject.order = 9999
+                    lobject.save()
 
     # Clean up obsolete categories.
     for category in instance.categories.filter(status="hidden"):

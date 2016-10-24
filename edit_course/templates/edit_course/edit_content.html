@@ -61,7 +61,7 @@
     </div>
     <table class="table table-striped table-bordered table-condensed">
         <tbody>
-            {% for module in instance.course_modules.all %}
+            {% for module in modules %}
             <tr class="success">
                 <th>
                   <strong>{{ module }}</strong>
@@ -83,7 +83,7 @@
                     </a>
                 </td>
             </tr>
-            {% for lobject in module.learning_objects.all %}
+            {% for lobject in module.flat_objects %}
             <tr>
                 <td>
                     {{ lobject }}
