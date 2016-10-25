@@ -155,11 +155,24 @@ class GradedForm(forms.Form):
                     if corr[i]['correct']:
                         correct.append(choice[0])
 
-            i, fi = self.add_field(i, config,
+            row_config = config.copy()
+            if 'key' in row:
+                row_config['key'] = row['key']
+            i, fi = self.add_field(i, row_config,
                 field_class, widget_class, initial, correct, choices, multiple, {})
-            fi[0].name = self.field_name(i, row)
             fi[0].row_label = row.get('label', None)
             fields += fi
+
+            if 'more_text' in config:
+                fi[0].more_text = config['more_text']
+                more_config = config.copy()
+                more_config['key'] = self.field_name(i, row_config) + '_more'
+                i, fm = self.add_field(i, more_config,
+                    forms.CharField, forms.TextInput)
+                fm[0].row_label = row.get('label', None)
+                fm[0].table_more = True
+                fields += fm
+
         fields[0].open_table = True
         fields[-1].close_table = True
         return i, fields

@@ -34,16 +34,28 @@
 			<tr>
 				<td>&nbsp;</td>
 				{% for choice in field %}
-				<td style="width:12%;">{{ choice.choice_label|safe }}</td>
+				<td>{{ choice.choice_label|safe }}</td>
 				{% endfor %}
+				{% if field.field.more_text %}
+				<td>{{ field.field.more_text|safe }}</td>
+				{% endif %}
 			</tr>
 			{% endif %}
+
+			{% if field.field.table_more %}
+				<td>{{ field }}</td>
+			</tr>
+			{% else %}
 			<tr>
 				<td>{{ field.field.row_label|safe }}</td>
 				{% for choice in field %}
 				<td>{{ choice.tag }}</td>
 				{% endfor %}
+			{% if not field.field.more_text %}
 			</tr>
+			{% endif %}
+			{% endif %}
+
 			{% if field.errors %}
 			<tr>
 				<td>&nbsp;</td>
