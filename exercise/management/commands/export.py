@@ -30,11 +30,18 @@ class Command(BaseCommand):
 
     def export_exercises(self, eids):
         n = 0
+        fields = set()
         for eid in eids:
-            self.export_exercise(eid, n == 0)
+            exercise = BaseExercise.objects.get(id=eid)
+            for s in exercise.submissions.all():
+                for key,val in s.submission_data:
+                    fields.add(key)
+        fields = sorted(fields)
+        for eid in eids:
+            self.export_exercise(eid, n == 0, fields)
             n += 1
 
-    def export_exercise(self, eid, print_header=True):
+    def export_exercise(self, eid, print_header=True, fields=None):
         exercise = BaseExercise.objects.filter(id=eid).first()
         if not exercise:
             raise CommandError('Exercise {} not found.'.format(eid))
@@ -42,14 +49,14 @@ class Command(BaseCommand):
         students = [u['id'] for u in exercise.course_module.course_instance.students.values('id')]
         submissions = [s for s in exercise.submissions.all() if s.submitters.first().id in students]
 
-        fields = []
-        for submission in submissions:
-            for key, val in submission.submission_data:
-                if not key in fields:
-                    fields.append(key)
-        fields = sorted(fields)
+        if fields is None:
+            fields = set()
+            for s in submissions:
+                for key,val in s.submission_data:
+                    fields.add(key)
+            fields = sorted(fields)
 
-        header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade', 'Feedback', 'A.Feedback' ]
+        header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade']#, 'Feedback', 'A.Feedback' ]
         header += fields
         if print_header:
             self.print_row(header)
@@ -58,20 +65,20 @@ class Command(BaseCommand):
             profile = submission.submitters.first()
             data = [
                 str(exercise.id),
-                str(exercise),
+                '"' + ((str(exercise.parent) + ' ' + str(exercise)) if exercise.parent else str(exercise)) + '"',
                 str(submission.submission_time),
                 str(profile.id),
                 profile.student_id or "",
                 profile.user.email or "",
                 submission.status,
                 str(submission.grade),
-                self.strip_html_tags(submission.feedback),
-                submission.assistant_feedback,
+                #self.strip_html_tags(submission.feedback),
+                #submission.assistant_feedback,
             ]
             values = [[] for field in fields]
             if submission.submission_data:
-                for key, val in submission.submission_data:
-                    values[fields.index(key)].append(val.replace('"','\''))
+                for key,val in submission.submission_data:
+                    values[fields.index(key)].append(val.replace('"','\'').replace('\n','\\n').replace('\r',''))
             data += ['"' + (';'.join(v)) + '"' for v in values]
             self.print_row(data)
 
@@ -106,23 +113,31 @@ class Command(BaseCommand):
             raise CommandError('Course instance not found.')
         table = ResultTable(instance)
 
-        labels = ['UID','Email','Name','Tags']
+        difficulties = set()
+        for e in table.exercises:
+            difficulties.add(e.difficulty)
+        difficulties = sorted(difficulties)
+
+        labels = ['UID','Student ID','Email','Name','Tags','Total']
+        labels.extend(difficulties)
         def label(exercise):
             return "{} ({})".format(str(exercise), exercise.difficulty)
         labels.extend([label(e) for e in table.exercises])
-        labels.append('Total')
         self.print_row(labels)
 
         for student in table.students:
+            points = [table.results[student.id][exercise.id] for exercise in table.exercises]
             row = [
                 str(student.id),
+                student.student_id,
                 student.user.email,
                 student.user.first_name + ' ' + student.user.last_name,
                 '/'.join([t.name for t in student.taggings.tags_for_instance(instance)]),
+                str(sum(p for p in points if p is not None)),
             ]
-            points = [table.results[student.id][exercise.id] for exercise in table.exercises]
+            for d in difficulties:
+                row.append(str(sum(p for p,i in enumerate(points) if table.exercises[i].difficulty == d)))
             row.extend([str(p) if p else '0' for p in points])
-            row.append(str(sum(p for p in points if p is not None)))
             self.print_row(row)
 
     def export_json(self, cid):
