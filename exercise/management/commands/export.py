@@ -115,7 +115,8 @@ class Command(BaseCommand):
 
         difficulties = set()
         for e in table.exercises:
-            difficulties.add(e.difficulty)
+            if e.difficulty:
+                difficulties.add(e.difficulty)
         difficulties = sorted(difficulties)
 
         labels = ['UID','Student ID','Email','Name','Tags','Total']
@@ -126,18 +127,18 @@ class Command(BaseCommand):
         self.print_row(labels)
 
         for student in table.students:
-            points = [table.results[student.id][exercise.id] for exercise in table.exercises]
+            points = [table.results[student.id][exercise.id] or 0 for exercise in table.exercises]
             row = [
                 str(student.id),
-                student.student_id,
+                student.student_id or '',
                 student.user.email,
                 student.user.first_name + ' ' + student.user.last_name,
                 '/'.join([t.name for t in student.taggings.tags_for_instance(instance)]),
-                str(sum(p for p in points if p is not None)),
+                str(sum(points)),
             ]
             for d in difficulties:
-                row.append(str(sum(p for p,i in enumerate(points) if table.exercises[i].difficulty == d)))
-            row.extend([str(p) if p else '0' for p in points])
+                row.append(str(sum(p for i,p in enumerate(points) if table.exercises[i].difficulty == d)))
+            row.extend([str(p) for p in points])
             self.print_row(row)
 
     def export_json(self, cid):
