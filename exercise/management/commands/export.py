@@ -106,13 +106,20 @@ class Command(BaseCommand):
             raise CommandError('Course instance not found.')
         table = ResultTable(instance)
 
-        labels = ['UID','Email','Name']
-        labels.extend([str(e) for e in table.exercises])
+        labels = ['UID','Email','Name','Tags']
+        def label(exercise):
+            return "{} ({})".format(str(exercise), exercise.difficulty)
+        labels.extend([label(e) for e in table.exercises])
         labels.append('Total')
         self.print_row(labels)
 
         for student in table.students:
-            row = [str(student.id), student.user.email, student.user.first_name + ' ' + student.user.last_name]
+            row = [
+                str(student.id),
+                student.user.email,
+                student.user.first_name + ' ' + student.user.last_name,
+                '/'.join([t.name for t in student.taggings.tags_for_instance(instance)]),
+            ]
             points = [table.results[student.id][exercise.id] for exercise in table.exercises]
             row.extend([str(p) if p else '0' for p in points])
             row.append(str(sum(p for p in points if p is not None)))
