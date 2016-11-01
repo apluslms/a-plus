@@ -103,8 +103,13 @@ class GradedForm(forms.Form):
                     i, f = self.add_field(i, field,
                         forms.CharField, forms.TextInput)
                 elif t == "textarea":
+                    attrs = {'class': 'form-control'}
+                    for key in ['rows','cols']:
+                        if key in field:
+                            attrs[key] = field[key]
                     i, f = self.add_field(i, field,
-                        forms.CharField, forms.Textarea)
+                        forms.CharField, forms.Textarea,
+                        widget_attrs=attrs)
                 elif t == "table-radio":
                     i, f = self.add_table_fields(i, field,
                         forms.ChoiceField, forms.RadioSelect)
