@@ -14,3 +14,11 @@ then
 fi
 apt-get -q update
 apt-get -qy install firefox dbus-x11
+
+if [ ! -f /usr/local/geckodriver ]
+then
+	wget --no-check-certificate -O tmp.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.11.1/geckodriver-v0.11.1-linux64.tar.gz
+	tar zxvf tmp.tar.gz
+	rm tmp.tar.gz
+	mv geckodriver /usr/local/geckodriver
+fi
