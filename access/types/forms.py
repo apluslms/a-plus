@@ -222,7 +222,6 @@ class GradedForm(forms.Form):
                 field.correct = config['model']
             elif config.get('correct', False):
                 field.correct = config['correct']
-                print(field.correct)
 
         if 'extra_info' in config and 'class' in config['extra_info']:
             field.html_class = config['extra_info']['class']
@@ -461,9 +460,10 @@ class GradedForm(forms.Form):
                 hints.append(new_hint)
 
         points = configuration.get('points', 0)
-        self.fields[name].grade_points = points if ok else 0
-        self.fields[name].max_points = points
-        self.fields[name].hints = hints
+        if name in self.fields:
+            self.fields[name].grade_points = points if ok else 0
+            self.fields[name].max_points = points
+            self.fields[name].hints = hints
         return i + 1, ok, points if ok else 0
 
     def row_options(self, configuration, row):
