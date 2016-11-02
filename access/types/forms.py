@@ -397,12 +397,13 @@ class GradedForm(forms.Form):
 
         if t == "table-radio" or t == "table-checkbox":
             all_ok = True
+            names = []
             hints = []
             points = configuration.get("points", 0)
             max_points = points
-            first_name = self.field_name(i, configuration)
             for row in configuration.get("rows", []):
                 name = self.field_name(i, row)
+                names.append(name)
                 value = self.cleaned_data.get(name, None)
                 if t == "table-radio":
                     ok, hints, method = self.grade_radio(
@@ -417,8 +418,8 @@ class GradedForm(forms.Form):
                     all_ok = False
                     max_points += row.get("points", 0)
                 i += 1
-            self.fields[first_name].grade_points = points
-            self.fields[first_name].max_points = max_points
+            self.fields[names[0]].grade_points = points
+            self.fields[names[0]].max_points = max_points
             self.fields[name].hints = ' '.join(hints)
             return i, all_ok, points
 
