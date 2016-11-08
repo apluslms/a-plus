@@ -16,3 +16,5 @@ if ! [ -x /usr/bin/nodejs ]; then
 	apt-get -q update
 	apt-get -qy install nodejs
 fi
+
+update-alternatives --install "/usr/bin/node" "node" "/usr/bin/nodejs" 1

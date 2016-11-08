@@ -3,7 +3,7 @@
 # Installs Python 3.4
 #
 if ! [ -x /usr/bin/python3.4 ]; then
-    apt-get -qy python-software-properties
+    apt-get -qy install python-software-properties
     add-apt-repository -y ppa:fkrull/deadsnakes
     apt-get -q update
     apt-get -qy install python3.4 python3.4-dev
@@ -14,3 +14,5 @@ if ! [ -x /usr/local/bin/pip3.4 ]; then
     rm get-pip.py
     pip3.4 install virtualenv
 fi
+
+update-alternatives --install "/usr/bin/python3" "python3" "/usr/bin/python3.4" 1

@@ -6,6 +6,8 @@
 #
 DIR=/usr/local/nodepackages
 
+apt-get -qy install build-essential
+
 # Check directory to store virtual environments.
 mkdir -p $DIR
 cd $DIR

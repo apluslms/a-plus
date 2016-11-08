@@ -14,3 +14,5 @@ if ! [ -x /usr/local/bin/pip3.5 ]; then
     rm get-pip.py
     pip3.5 install virtualenv
 fi
+
+update-alternatives --install "/usr/bin/python3" "python3" "/usr/bin/python3.5" 1
