@@ -414,6 +414,10 @@ class CourseInstance(UrlMixin, models.Model):
         when = when or timezone.now()
         return self.starting_time <= when <= self.ending_time
 
+    def is_past(self, when=None):
+        when = when or timezone.now()
+        return self.ending_time < when
+
     @property
     def enrollment_start(self):
         return self.enrollment_starting_time or self.starting_time
