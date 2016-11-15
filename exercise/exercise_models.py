@@ -1,4 +1,5 @@
 import datetime
+import json
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -500,7 +501,7 @@ class BaseExercise(LearningObject):
             request, url, self, submission, no_penalties=no_penalties
         )
 
-    def modify_post_parameters(self, data, files, user, host, url):
+    def modify_post_parameters(self, data, files, user, students, host, url):
         """
         Allows to modify submission POST parameters before they are sent to
         the grader. Extending classes may implement this function.
@@ -525,7 +526,7 @@ class BaseExercise(LearningObject):
 
 class LTIExercise(BaseExercise):
     """
-    Exercise launched by LTI or optionally ameding A+ protocol with LTI data.
+    Exercise launched by LTI or optionally amending A+ protocol with LTI data.
     """
     lti_service = models.ForeignKey(LTIService)
     context_id = models.CharField(max_length=128, blank=True,
@@ -578,6 +579,20 @@ class LTIExercise(BaseExercise):
             add=add,
         )
 
+    def _group_json(self, students):
+        data = [];
+        for profile in students:
+            user = profile.user
+            data.append({
+                'user': profile.id,
+                'student_id': profile.student_id,
+                'given_name': user.first_name,
+                'family_name': user.last_name,
+                'full_name': "{} {}".format(user.first_name, user.last_name),
+                'email': user.email,
+            })
+        return json.dumps(data)
+
     def get_load_url(self, language, request, students, url_name="exercise"):
         url = super().get_load_url(language, request, students, url_name)
         if self.lti_service and students:
@@ -585,8 +600,10 @@ class LTIExercise(BaseExercise):
             return lti.sign_get_query(url)
         return url
 
-    def modify_post_parameters(self, data, files, user, host, url):
+    def modify_post_parameters(self, data, files, user, students, host, url):
         literals = {key: str(val[0]) for key,val in data.items()}
+        if len(students) > 1:
+            literals['custom_group_members'] = self._group_json(students)
         lti = self._get_lti(user, host, add=literals)
         data.update(lti.sign_post_parameters(url))
 
@@ -675,7 +692,7 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
-    def modify_post_parameters(self, data, files, user, host, url):
+    def modify_post_parameters(self, data, files, user, students, host, url):
         """
         Adds the attachment file to post parameters.
         """
