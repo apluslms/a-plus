@@ -25,10 +25,14 @@ def load_exercise_page(request, url, last_modified, exercise):
     except RemotePageException:
         messages.error(request,
             _("Connecting to the exercise service failed!"))
-        if exercise.id and exercise.course_instance.visible_to_students:
+        if exercise.id:
+            instance = exercise.course_instance
             msg = "Failed to request {}".format(url)
-            logger.exception(msg)
-            email_course_error(request, exercise, msg)
+            if instance.visible_to_students and not instance.is_past():
+                logger.exception(msg)
+                email_course_error(request, exercise, msg)
+            else:
+                logger.warning(msg)
     return page
 
 
