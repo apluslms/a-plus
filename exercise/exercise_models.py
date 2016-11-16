@@ -551,6 +551,9 @@ class LTIExercise(BaseExercise):
         if self.aplus_get_and_post:
             return super().load(request, students, url_name=url_name)
 
+        if not students:
+            return ExercisePage(self)
+
         url = self.service_url or self.lti_service.url
         lti = self._get_lti(students[0].user, students, request.get_host())
 
