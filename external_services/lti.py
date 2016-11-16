@@ -4,6 +4,7 @@ from oauthlib.common import urldecode
 from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY, \
     SIGNATURE_TYPE_QUERY
 import hashlib
+import json
 
 from aplus.api import api_reverse
 from lib.helpers import update_url_params
@@ -97,3 +98,29 @@ class LTIRequest(object):
         uri = update_url_params(url or self.service.service.url, self.parameters)
         query, headers, body = client.sign(uri, http_method="GET")
         return query
+
+
+class CustomStudentInfoLTIRequest(LTIRequest):
+
+    def __init__(self, service, user, profiles, instance, host, title, context_id=None, link_id=None, add={}):
+        add['custom_student_id'] = self._safe_user_id(user.userprofile)
+        if len(profiles) > 1:
+            add['custom_group_members'] = self._group_json(profiles)
+        super().__init__(service, user, instance, host, title, context_id, link_id, add)
+
+    def _safe_user_id(self, profile):
+        return profile.student_id or "A{:d}".format(profile.id)
+
+    def _group_json(self, profiles):
+        data = [];
+        for profile in profiles:
+            user = profile.user
+            data.append({
+                'user': profile.id,
+                'student_id': self._safe_user_id(profile),
+                'given_name': user.first_name,
+                'family_name': user.last_name,
+                'full_name': "{} {}".format(user.first_name, user.last_name),
+                'email': user.email,
+            })
+        return json.dumps(data)

@@ -1,5 +1,4 @@
 import datetime
-import json
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -16,7 +15,7 @@ from django.utils.translation import get_language, ugettext_lazy as _
 
 from aplus.api import api_reverse
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
-from external_services.lti import LTIRequest
+from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
 from lib.api.authentication import (
@@ -553,7 +552,7 @@ class LTIExercise(BaseExercise):
             return super().load(request, students, url_name=url_name)
 
         url = self.service_url or self.lti_service.url
-        lti = self._get_lti(students[0].user, request.get_host())
+        lti = self._get_lti(students[0].user, students, request.get_host())
 
         # Render launch button.
         page = ExercisePage(self)
@@ -567,10 +566,11 @@ class LTIExercise(BaseExercise):
         }))
         return page
 
-    def _get_lti(self, user, host, add={}):
-        return LTIRequest(
+    def _get_lti(self, user, students, host, add={}):
+        return CustomStudentInfoLTIRequest(
             self.lti_service,
             user,
+            students,
             self.course_instance,
             host,
             self.resource_link_title or self.name,
@@ -579,36 +579,16 @@ class LTIExercise(BaseExercise):
             add=add,
         )
 
-    def _safe_user_id(self, profile):
-        return profile.student_id or "A{:d}".format(profile.id)
-
-    def _group_json(self, students):
-        data = [];
-        for profile in students:
-            user = profile.user
-            data.append({
-                'user': profile.id,
-                'student_id': self._safe_user_id(profile),
-                'given_name': user.first_name,
-                'family_name': user.last_name,
-                'full_name': "{} {}".format(user.first_name, user.last_name),
-                'email': user.email,
-            })
-        return json.dumps(data)
-
     def get_load_url(self, language, request, students, url_name="exercise"):
         url = super().get_load_url(language, request, students, url_name)
         if self.lti_service and students:
-            lti = self._get_lti(students[0].user, request.get_host())
+            lti = self._get_lti(students[0].user, [], request.get_host())
             return lti.sign_get_query(url)
         return url
 
     def modify_post_parameters(self, data, files, user, students, host, url):
         literals = {key: str(val[0]) for key,val in data.items()}
-        literals['custom_student_id'] = self._safe_user_id(user.userprofile)
-        if len(students) > 1:
-            literals['custom_group_members'] = self._group_json(students)
-        lti = self._get_lti(user, host, add=literals)
+        lti = self._get_lti(user, students, host, add=literals)
         data.update(lti.sign_post_parameters(url))
 
 
