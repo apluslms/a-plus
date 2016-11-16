@@ -566,7 +566,7 @@ class LTIExercise(BaseExercise):
         }))
         return page
 
-    def _get_lti(self, user, students, host, add={}):
+    def _get_lti(self, user, students, host, add=None):
         return CustomStudentInfoLTIRequest(
             self.lti_service,
             user,
@@ -576,7 +576,7 @@ class LTIExercise(BaseExercise):
             self.resource_link_title or self.name,
             self.context_id or None,
             self.resource_link_id or "aplusexercise{:d}".format(self.id or 0),
-            add=add,
+            add,
         )
 
     def get_load_url(self, language, request, students, url_name="exercise"):

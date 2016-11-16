@@ -12,7 +12,7 @@ from lib.helpers import update_url_params
 
 class LTIRequest(object):
 
-    def __init__(self, service, user, instance, host, title, context_id=None, link_id=None, add={}):
+    def __init__(self, service, user, instance, host, title, context_id=None, link_id=None, add=None):
         self.service = service
         course = instance.course
 
@@ -37,7 +37,7 @@ class LTIRequest(object):
         elif instance.is_assistant(user):
             role = "TA,TeachingAssistant"
 
-        self.parameters = add.copy()
+        self.parameters = add or {}
         self.parameters.update({
 
             "lti_version": "LTI-1p0",
@@ -102,11 +102,12 @@ class LTIRequest(object):
 
 class CustomStudentInfoLTIRequest(LTIRequest):
 
-    def __init__(self, service, user, profiles, instance, host, title, context_id=None, link_id=None, add={}):
-        add['custom_student_id'] = self._safe_user_id(user.userprofile)
+    def __init__(self, service, user, profiles, instance, host, title, context_id=None, link_id=None, add=None):
+        parameters = add or {}
+        parameters['custom_student_id'] = self._safe_user_id(user.userprofile)
         if len(profiles) > 1:
-            add['custom_group_members'] = self._group_json(profiles)
-        super().__init__(service, user, instance, host, title, context_id, link_id, add)
+            parameters['custom_group_members'] = self._group_json(profiles)
+        super().__init__(service, user, instance, host, title, context_id, link_id, parameters)
 
     def _safe_user_id(self, profile):
         return profile.student_id or "A{:d}".format(profile.id)
