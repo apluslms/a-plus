@@ -117,7 +117,7 @@ class CustomStudentInfoLTIRequest(LTIRequest):
         for profile in profiles:
             user = profile.user
             data.append({
-                'user': profile.id,
+                'user': self._safe_user_id(profile),
                 'student_id': self._safe_user_id(profile),
                 'given_name': user.first_name,
                 'family_name': user.last_name,
