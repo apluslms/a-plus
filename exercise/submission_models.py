@@ -138,7 +138,7 @@ class Submission(UrlMixin, models.Model):
         if self.is_submitter(request.user):
             user = request.user
         else:
-            user = students[0] if students else None
+            user = students[0].user if students else None
         self.exercise.as_leaf_class().modify_post_parameters(
             self._data, self._files, user, students, request.get_host(), url)
         return (self._data, self._files)

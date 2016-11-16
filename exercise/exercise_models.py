@@ -579,13 +579,16 @@ class LTIExercise(BaseExercise):
             add=add,
         )
 
+    def _safe_user_id(self, profile):
+        return profile.student_id or "A{:d}".format(profile.id)
+
     def _group_json(self, students):
         data = [];
         for profile in students:
             user = profile.user
             data.append({
                 'user': profile.id,
-                'student_id': profile.student_id,
+                'student_id': self._safe_user_id(profile),
                 'given_name': user.first_name,
                 'family_name': user.last_name,
                 'full_name': "{} {}".format(user.first_name, user.last_name),
@@ -602,6 +605,7 @@ class LTIExercise(BaseExercise):
 
     def modify_post_parameters(self, data, files, user, students, host, url):
         literals = {key: str(val[0]) for key,val in data.items()}
+        literals['custom_student_id'] = self._safe_user_id(user.userprofile)
         if len(students) > 1:
             literals['custom_group_members'] = self._group_json(students)
         lti = self._get_lti(user, host, add=literals)
