@@ -246,10 +246,35 @@ $.fn.highlightCode = function(options) {
         modal.aplusModal("open");
         $.get(url, function(data) {
           if (settings.file) {
+            var content = $("<div></div>");
+
+            var hiddenTextarea = $('<textarea id="copyClipboardContent" style="display: none; width: 1px; height: 1px;"></textarea>').text(data);
+            hiddenTextarea.appendTo(content);
+            var copyButtonContent = $('<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>');
+            var copyButtonText = $('<span></span>').text('Copy to clipboard');
+            var copyButton = $('<button data-clipboard-target="#copyClipboardContent" class="btn btn-xs btn-primary" id="copyButton"></button>');
+            copyButtonContent.appendTo(copyButton);
+            copyButtonText.appendTo(copyButton);
+            $('<p></p>').append(copyButton).appendTo(content);
+
+            copyButton.click(function() {
+              $("#copyClipboardContent").show();
+            });
+
+            var clipboard = new Clipboard("#copyButton");
+            clipboard.on("error", function(e) {
+                $("#copyClipboardContent").hide();
+            });
+            clipboard.on("success", function(e) {
+                $("#copyClipboardContent").hide();
+            });
+
             var text = $("<pre/>").text(data);
+            text.appendTo(content);
+
             modal.aplusModal("content", {
               title: link.text(),
-              content: text,
+              content: content,
             });
             text.highlightCode();
           } else {
