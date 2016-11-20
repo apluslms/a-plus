@@ -106,7 +106,7 @@ class CustomStudentInfoLTIRequest(LTIRequest):
 
     def __init__(self, service, user, profiles, instance, host, title, context_id=None, link_id=None, add=None):
         parameters = add or {}
-        parameters['custom_student_id'] = self._safe_user_id(user.userprofile)
+        parameters['custom_student_id'] = self.true_student_id(user.userprofile)
         if len(profiles) > 1:
             parameters['custom_group_members'] = self.group_json(profiles)
         super().__init__(service, user, instance, host, title, context_id, link_id, parameters)
