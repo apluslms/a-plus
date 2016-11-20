@@ -21,14 +21,7 @@ class LTIRequest(object):
         link_id = link_id or "aplus{:d}".format(service.pk)
         title = title or link_id
 
-        # Determine user ID.
-        student_id = user.userprofile.student_id \
-            if user.userprofile.student_id \
-            else "aplusuid{:d}".format(user.pk)
-
-        # MD5 the user id so that the real student id and names or emails
-        # are not linked in external services.
-        student_id = hashlib.md5(student_id.encode('utf-8')).hexdigest()
+        student_id = self.external_student_id(user)
 
         # Determine user role.
         role = "Student"
@@ -73,6 +66,15 @@ class LTIRequest(object):
                 'custom_user_api_token': user.userprofile.api_token,
             })
 
+    def external_student_id(self, user):
+        student_id = user.userprofile.student_id \
+            if user.userprofile.student_id \
+            else "aplusuid{:d}".format(user.pk)
+
+        # MD5 the id so that the real student id and names or emails
+        # are not linked in external services.
+        return hashlib.md5(student_id.encode('utf-8')).hexdigest()
+
     def get_checksum_of_parameters(self):
         sum = md5()
         for key, value in sorted(self.parameters.items()):
@@ -106,19 +108,19 @@ class CustomStudentInfoLTIRequest(LTIRequest):
         parameters = add or {}
         parameters['custom_student_id'] = self._safe_user_id(user.userprofile)
         if len(profiles) > 1:
-            parameters['custom_group_members'] = self._group_json(profiles)
+            parameters['custom_group_members'] = self.group_json(profiles)
         super().__init__(service, user, instance, host, title, context_id, link_id, parameters)
 
-    def _safe_user_id(self, profile):
+    def true_student_id(self, profile):
         return profile.student_id or "A{:d}".format(profile.id)
 
-    def _group_json(self, profiles):
+    def group_json(self, profiles):
         data = [];
         for profile in profiles:
             user = profile.user
             data.append({
-                'user': self._safe_user_id(profile),
-                'student_id': self._safe_user_id(profile),
+                'user': self.external_student_id(user),
+                'student_id': self.true_student_id(profile),
                 'given_name': user.first_name,
                 'family_name': user.last_name,
                 'full_name': "{} {}".format(user.first_name, user.last_name),
