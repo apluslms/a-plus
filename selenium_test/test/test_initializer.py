@@ -1,5 +1,4 @@
 import os
-from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 
@@ -13,15 +12,15 @@ class TestInitializer(object):
         return self.getChromeDriver()
 
     def setupDisplay(self):
+        # Headless with xvfb. Alternatively may just xvfb-run python.
+        from pyvirtualdisplay import Display
         display = Display(visible=0, size=(1024,768))
         display.start()
 
     def getChromeDriver(self):
-        self.setupDisplay()
         return webdriver.Chrome()
 
     def getFirefoxDriver(self):
-        self.setupDisplay()
         firefoxCapabilities =  DesiredCapabilities.FIREFOX
         #firefoxCapabilities['marionette'] = True # Ubuntu 12.04 has too old glibc.
         firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
