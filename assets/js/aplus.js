@@ -153,8 +153,6 @@ $.fn.highlightCode = function(options) {
   });
 };
 
-$.fn.highlightCode.counter = 0;
-
 /**
  * Handle common modal dialog.
  */
