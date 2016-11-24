@@ -1,4 +1,5 @@
 import os
+from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
 
@@ -9,15 +10,18 @@ TEST_COPY = os.path.join(TEST_PATH, 'aplus.db_copy')
 class TestInitializer(object):
 
     def getDefaultDriver(self):
-        #driver = self.getChromeDriver() # Ubuntu 12.04 has too old Chromium.
-        driver = self.getFirefoxDriver()
-        driver.set_window_size(1024, 768)
-        return driver
+        return self.getChromeDriver()
+
+    def setupDisplay(self):
+        display = Display(visible=0, size=(1024,768))
+        display.start()
 
     def getChromeDriver(self):
+        self.setupDisplay()
         return webdriver.Chrome()
 
     def getFirefoxDriver(self):
+        self.setupDisplay()
         firefoxCapabilities =  DesiredCapabilities.FIREFOX
         #firefoxCapabilities['marionette'] = True # Ubuntu 12.04 has too old glibc.
         firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
