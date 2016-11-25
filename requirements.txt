@@ -24,5 +24,6 @@ unittest-xml-reporting==1.11.0
 
 # Required to run browser tests.
 #selenium
+#pyvirtualdisplay
 #nose
 #coverage

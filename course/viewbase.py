@@ -56,18 +56,13 @@ class CourseInstanceBaseMixin(object):
             self.course = self.instance.course
             self.content = CachedContent(self.instance)
             self.is_student = self.instance.is_student(user)
-            self.is_teacher = (
-                not self.is_student # save query
-                and self.course.is_teacher(user)
-            )
-            self.is_assistant = (
-                not self.is_student # save query
-                and self.instance.is_assistant(user)
-            )
+            self.is_assistant = self.instance.is_assistant(user)
+            if not hasattr(self, 'is_teacher'):
+                self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
             self.note(
                 "course", "instance", "content",
-                "is_student", "is_teacher", "is_assistant", "is_course_staff",
+                "is_student", "is_assistant", "is_teacher", "is_course_staff",
             )
 
             # Apply course instance language.

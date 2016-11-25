@@ -41,6 +41,19 @@ class AbstractPage(object):
             self.waitForElement(loaded_check)
         self.checkBrowserErrors()
 
+    def clickThrough(self, element, timeout=None):
+        try:
+            self.clickThroughElement(self.getElement(element), timeout)
+        except TimeoutException:
+            raise TimeoutException("Link staleness failed after click: {0}".format(element))
+
+    def clickThroughElement(self, link, timeout=None):
+        link.click()
+        try:
+            WebDriverWait(self.driver, timeout or self.wait_timeout).until(EC.staleness_of(link))
+        except TimeoutException:
+            raise TimeoutException("Link staleness failed after click")
+
     def waitForElement(self, element, timeout=None):
         try:
             WebDriverWait(self.driver, timeout or self.wait_timeout).until(EC.presence_of_element_located(element))
@@ -77,24 +90,10 @@ class AbstractPage(object):
             raise Exception("Browser errors found")
 
     def getElement(self, locator):
-        try:
-            return self.driver.find_element(*locator)
-        except NoSuchElementException:
-            try:
-                self.waitForElement(locator, timeout=1)
-                return self.getElement(locator)
-            except TimeoutException:
-                raise NoSuchElementException()
+        return self.driver.find_element(*locator)
 
     def getElements(self, locator):
-        try:
-            return self.driver.find_elements(*locator)
-        except NoSuchElementException:
-            try:
-                self.waitForElement(locator, timeout=1)
-                return self.getElements(locator)
-            except TimeoutException:
-                raise NoSuchElementException()
+        return self.driver.find_elements(*locator)
 
     def getAlert(self):
         self.waitForCondition(EC.alert_is_present())
@@ -137,13 +136,12 @@ class LoginPage(AbstractPage):
 
     def loginToCourse(self, course, username=defaultUsername, password=defaultPassword):
         if (course == CourseName.APLUS):
-            self.getElement(FirstPageLocators.APLUS_TEST_COURSE_INSTANCE_BUTTON).click()
+            self.clickThrough(FirstPageLocators.APLUS_TEST_COURSE_INSTANCE_BUTTON)
         elif (course == CourseName.HOOK):
-            self.getElement(FirstPageLocators.HOOK_EXAMPLE_BUTTON).click()
+            self.clickThrough(FirstPageLocators.HOOK_EXAMPLE_BUTTON)
         self.waitForElement(LoginPageLocators.BANNER)
-        self.signIn(username, password)
-        self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
         self.waitForElement(BasePageLocators.FOOTER)
+        self.signIn(username, password)
 
     def loginAsStudent(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.studentUsername, self.defaultPassword)
@@ -157,7 +155,9 @@ class LoginPage(AbstractPage):
     def signIn(self, username, password):
         self.getElement(LoginPageLocators.USERNAME_INPUT).send_keys(username)
         self.getElement(LoginPageLocators.PASSWORD_INPUT).send_keys(password)
-        self.getElement(LoginPageLocators.SUBMIT_BUTTON).click()
+        self.clickThrough(LoginPageLocators.SUBMIT_BUTTON)
+        self.waitForElement(BasePageLocators.LOGGED_USER_LINK)
+        self.waitForElement(BasePageLocators.FOOTER)
 
 
 class BasePage(AbstractPage):
@@ -170,23 +170,32 @@ class BasePage(AbstractPage):
     def getLoggedInText(self):
         return str(self.getElement(BasePageLocators.LOGGED_USER_LINK).text)
 
+    def waitForPage(self):
+        self.waitForElement(BasePageLocators.FOOTER)
+
     def logout(self):
-        self.getElement(BasePageLocators.LOGOUT_LINK).click()
+        self.clickThrough(BasePageLocators.LOGOUT_LINK)
+        self.waitForPage()
 
     def clickHomeLink(self):
-        self.getElement(BasePageLocators.HOME_LINK).click()
+        self.clickThrough(BasePageLocators.HOME_LINK)
+        self.waitForPage()
 
     def clickCalendarFeedLink(self):
-        self.getElement(BasePageLocators.CALENDAR_FEED_LINK).click()
+        self.clickThrough(BasePageLocators.CALENDAR_FEED_LINK)
+        self.waitForPage()
 
     def clickResultsLink(self):
-        self.getElement(BasePageLocators.RESULTS_LINK).click()
+        self.clickThrough(BasePageLocators.RESULTS_LINK)
+        self.waitForPage()
 
     def clickUserLink(self):
-        self.getElement(BasePageLocators.USER_LINK).click()
+        self.clickThrough(BasePageLocators.USER_LINK)
+        self.waitForPage()
 
     def clickTeachersViewLink(self):
-        self.getElement(BasePageLocators.TEACHERS_VIEW_LINK).click()
+        self.clickThrough(BasePageLocators.TEACHERS_VIEW_LINK)
+        self.waitForPage()
 
     def hasNewNotifications(self):
         return self.isElementPresent(BasePageLocators.NOTIFICATION_ALERT)
@@ -255,9 +264,10 @@ class StaffPage(BasePage):
     def clickSubmissionLink(self, number):
         submissionLinks = self.getSubmissionLinks()
         if(number <= len(submissionLinks)):
-            submissionLinks[number].click()
+            self.clickThroughElement(submissionLinks[number])
+            self.waitForPage()
         else:
-            raise Exception("Tried to click submission link number " + number + "but there are only " + len(submissionLinks) + " elements.")
+            raise Exception("Tried to click submission link number " + number + " but there are only " + len(submissionLinks) + " elements.")
 
 class TeachersPage(BasePage):
     def __init__(self, driver):
@@ -298,8 +308,9 @@ class EditModulePage(BasePage):
         self.clearAndSendKeys(EditModulePageLocators.CLOSING_TIME_INPUT, timestamp)
 
     def submit(self):
-        self.getElement(EditModulePageLocators.SUBMIT_BUTTON).click()
+        self.clickThrough(EditModulePageLocators.SUBMIT_BUTTON)
         self.waitForElement(TeachersPageLocators.TEACHERS_VIEW_BANNER)
+        self.waitForPage()
 
     def isSuccessfulSave(self):
         return self.isElementVisible(EditModulePageLocators.SUCCESSFUL_SAVE_BANNER)
@@ -334,7 +345,8 @@ class EditExercisePage(BasePage):
         self.clearAndSendKeys(EditExercisePageLocators.POINTS_TO_PASS_INPUT, timestamp)
 
     def submit(self):
-        self.getElement(EditExercisePageLocators.SUBMIT_BUTTON).click()
+        self.clickThrough(EditExercisePageLocators.SUBMIT_BUTTON)
+        self.waitForPage()
 
     def isSuccessfulSave(self):
         return self.isElementVisible(EditExercisePageLocators.SUCCESSFUL_SAVE_BANNER)
@@ -354,9 +366,10 @@ class SubmissionPage(BasePage):
     def clickInspectionLink(self, number):
         inspectionLinks = self.getInspectionLinks()
         if(len(inspectionLinks) >= number):
-            inspectionLinks.get(number).click()
+            self.clickThroughElement(inspectionLinks.get(number))
+            self.waitForPage()
         else:
-            raise Exception("Tried to click inspection link number " + number + "but there are only " + len(inspectionLinks) + " elements.")
+            raise Exception("Tried to click inspection link number " + number + " but there are only " + len(inspectionLinks) + " elements.")
 
 class StudentFeedbackPage(BasePage):
     def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
@@ -378,7 +391,8 @@ class InspectionPage(BasePage):
         return self.isElementVisible(InspectionPageLocators.NO_FEEDBACK_BANNER)
 
     def clickAssessThisSubmissionLink(self):
-        self.getElement(InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK).click()
+        self.clickThrough(InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
+        self.waitForPage()
 
     def getSubmitters(self):
         return str(self.getElement(InspectionPageLocators.SUBMITTERS_TEXT).text)
@@ -401,7 +415,8 @@ class AssessmentPage(BasePage):
         self.clearAndSendKeys(AssessmentPageLocators.FEEDBACK_INPUT, text)
 
     def submit(self):
-        self.getElement(AssessmentPageLocators.SAVE_BUTTON).click()
+        self.clickThrough(AssessmentPageLocators.SAVE_BUTTON)
+        self.waitForPage()
 
 
 class CourseArchivePage(AbstractPage):
@@ -419,8 +434,9 @@ class MyFirstExerciseGrader(ExercisePage):
         self.getElement(MyFirstExerciseLocators.TEXT_INPUT).send_keys(text)
 
     def submit(self):
-        self.getElement(MyFirstExerciseLocators.SUBMIT_BUTTON).click()
+        self.clickThrough(MyFirstExerciseLocators.SUBMIT_BUTTON)
         self.waitForElement(ExercisePageLocators.RECEIVED_BANNER)
+        self.waitForPage()
 
 
 class FileUploadGrader(ExercisePage):
@@ -432,8 +448,9 @@ class FileUploadGrader(ExercisePage):
         # Failed to select actual file to submit.
         #script = "document.getElementById('myfile_id').value='/tmp/selenium_test_file';";
         #self.driver.execute_script(script)
-        self.getElement(FileUploadGraderLocators.SUBMIT_BUTTON).click()
+        self.clickThrough(FileUploadGraderLocators.SUBMIT_BUTTON)
         self.waitForElement(ExercisePageLocators.RECEIVED_BANNER)
+        self.waitForPage()
 
 
 class MyAjaxExerciseGrader(ExercisePage):

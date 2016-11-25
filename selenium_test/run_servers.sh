@@ -23,10 +23,10 @@ $PYTHON manage.py runserver 8001 --noreload > $DIR/aplus.out 2>&1 &
 
 unset APLUS_DB_FILE
 
-cd doc
-$PYTHON example_grader.py 8889 > ../$DIR/example_grader.out 2>&1 &
+cd $DIR/grader
+$PYTHON manage.py runserver 8889 --noreload > ../example_grader.out 2>&1 &
 
-jobs -p > ../$DIR/server.ports
+jobs -p > ../server.ports
 
 echo "A+ running at port 8001 and example grader at port 8889."
 echo "Ready for Selenium browser tests. Use kill_servers.sh when finished."
