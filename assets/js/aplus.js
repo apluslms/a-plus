@@ -101,13 +101,49 @@ $(function() {
 /**
  * Highlights code element.
  */
-$.fn.highlightCode = function(options) {
-  return this.each(function() {
 
-    hljs.highlightBlock(this);
+var copyTargetCounter = 0;
+
+$.fn.highlightCode = function(options) {
+
+  return this.each(function() {
+    var codeBlock = $(this).clone();
+    var wrapper = $('<div></div>');
+    wrapper.append(codeBlock);
+    $(this).replaceWith(wrapper);
+
+    // Use $(element).highlightCode{noCopy: true} to prevent copy button
+    if (!options || !options.noCopy) {
+      var buttonContainer = $('<p></p>').prependTo(wrapper);
+      var copyButtonContent = $('<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>');
+      var copyButtonText = $('<span></span>').text('Copy to clipboard');
+      var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="btn btn-xs btn-primary" id="copyButton"></button>');
+      copyButtonContent.appendTo(copyButton);
+      copyButtonText.appendTo(copyButton);
+      copyButton.appendTo(buttonContainer);
+
+      var hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
+      hiddenTextarea.appendTo(wrapper);
+      copyTargetCounter += 1;
+
+      // clipboard.js cannot copy from invisible elements
+      copyButton.click(function() {
+        hiddenTextarea.show();
+      });
+
+      var clipboard = new Clipboard('#copyButton');
+      clipboard.on("error", function(e) {
+          hiddenTextarea.hide();
+      });
+      clipboard.on("success", function(e) {
+          hiddenTextarea.hide();
+      });
+    }
+
+    hljs.highlightBlock(codeBlock[0]);
 
     // Add line numbers.
-    var pre = $(this);
+    var pre = $(codeBlock);
     var lines = pre.html().split(/\r\n|\r|\n/g);
     var list = $("<table/>").addClass("src");
     for (var i = 1; i <= lines.length; i++) {
