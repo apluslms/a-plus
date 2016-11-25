@@ -9,7 +9,9 @@ TEST_COPY = os.path.join(TEST_PATH, 'aplus.db_copy')
 class TestInitializer(object):
 
     def getDefaultDriver(self):
-        return self.getChromeDriver()
+        driver = self.getChromeDriver()
+        driver.set_window_size(1024,768)
+        return driver
 
     def setupDisplay(self):
         # Headless with xvfb. Alternatively may just xvfb-run python.
@@ -22,7 +24,7 @@ class TestInitializer(object):
 
     def getFirefoxDriver(self):
         firefoxCapabilities =  DesiredCapabilities.FIREFOX
-        #firefoxCapabilities['marionette'] = True # Ubuntu 12.04 has too old glibc.
+        firefoxCapabilities['marionette'] = True
         firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
         profile = webdriver.FirefoxProfile()
         profile.set_preference('startup.homepage_welcome_url.additional', '')
