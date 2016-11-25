@@ -1,0 +1,61 @@
+<html>
+<head>
+  <meta name="max-points" content="100" />
+  <meta name="DC.Description" content="Exercise description" />
+  <meta name="DC.title" lang="en" content="An AJAX exercise" />
+</head>
+<body>
+
+<!--
+<h1>Assignment...</h1>
+This part does not show up in A+
+-->
+
+<div id="exercise">
+  <h1 id="title">My AJAX exercise</h1>
+  <h2 class="instructions">Instructions</h2>
+  <p>Insert your points and click grade. The exercise will now be graded without the page refreshing. You should also see your points and submissions change on the right.</p>
+  <form id="form" method="POST">
+    Type your points in here:<br />
+    <input name="points" type="number" /><br />
+    <input name="max_points" type="hidden" value="100" />
+    <input type="submit" value="Grade" />
+  </form>
+
+  <!-- Make sure your script is inside the #exercise div -->
+  <script>
+    // the script is wrapped so that it won't be executed before jQuery has been loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      var form = $("#form"),  // our form containing the points
+          url = "{{url}}";    // example_grader.py will replace the value with the correct URL
+
+      form.submit(function (event) {
+        // this will be executed when the user clicks grade
+        $.post(            // send a post request
+          url,             // to this url
+          form.serialize() // with our form data
+        )
+        .done(function (data) {
+          var response = JSON.parse(data); // this is the response example_grader.py has forwarded from A+
+          if (response.success) {
+            window.alert("Your points was successfully sent to A+!");
+          } else {
+            window.alert("An error occurred when submitting your points\n\n" + response.errors.join("\n"));
+          }
+          // Tell the page to refresh the stats
+          window.postMessage({type: "a-plus-refresh-stats"}, "*");
+        })
+        .fail(function () {
+          window.alert("Whoops! Something went wrong :S");
+        });
+        // prevent default behavior (i.e., keep the user on this page)
+        event.preventDefault();
+
+      }); // end of form.submit()
+
+    }); // end of wrapper
+  </script>
+</div>
+
+</body>
+</html>

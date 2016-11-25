@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <meta name="status" value="{{ status }}" />
+  </head>
+  <body>
+    {% if status == "accepted" %}
+    <div class="alert alert-success">
+      Submission stored, you will be notified when course staff has assessed it.
+    </div>
+    {% else %}
+    <div class="alert alert-danger">
+      Error: missing the submission file.
+    </div>
+    {% endif %}
+  </body>
+</html>
