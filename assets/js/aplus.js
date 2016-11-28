@@ -117,27 +117,29 @@ $.fn.highlightCode = function(options) {
       var buttonContainer = $('<p></p>').prependTo(wrapper);
       var copyButtonContent = $('<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>');
       var copyButtonText = $('<span></span>').text('Copy to clipboard');
-      var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="btn btn-xs btn-primary" id="copyButton"></button>');
+      var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="btn btn-xs btn-primary" id="copy-button-' + copyTargetCounter + '"></button>');
       copyButtonContent.appendTo(copyButton);
       copyButtonText.appendTo(copyButton);
       copyButton.appendTo(buttonContainer);
 
       var hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
       hiddenTextarea.appendTo(buttonContainer);
-      copyTargetCounter += 1;
 
       // clipboard.js cannot copy from invisible elements
       copyButton.click(function() {
         hiddenTextarea.show();
       });
 
-      var clipboard = new Clipboard('#copyButton');
+      var clipboard = new Clipboard('#copy-button-' + copyTargetCounter);
       clipboard.on("error", function(e) {
           hiddenTextarea.hide();
       });
       clipboard.on("success", function(e) {
           hiddenTextarea.hide();
       });
+
+      copyTargetCounter += 1;
+
     }
 
     hljs.highlightBlock(codeBlock[0]);
