@@ -123,7 +123,7 @@ $.fn.highlightCode = function(options) {
       copyButton.appendTo(buttonContainer);
 
       var hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
-      hiddenTextarea.appendTo(wrapper);
+      hiddenTextarea.appendTo(buttonContainer);
       copyTargetCounter += 1;
 
       // clipboard.js cannot copy from invisible elements
