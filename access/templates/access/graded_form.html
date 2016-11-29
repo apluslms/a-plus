@@ -6,6 +6,10 @@
 		{% if field.field.set_title %}<legend>{{ field.field.set_title }}</legend>{% endif %}
 	{% endif %}
 
+		{% if field.field.type == "static" %}
+		{{ field.field.more|safe }}
+		{% else %}
+
 		{% if not field.field.row_label or field.field.open_table %}
 		<div class="{{ field.field.html_class }} {% if field.errors %} has-error{% elif not field.field.group_errors and field.field.name in result.error_fields %} has-error{% endif %}">
 
@@ -117,6 +121,8 @@
 			</ul>
 			{% endif %}
 		</div>
+		{% endif %}
+
 		{% endif %}
 
 	{% if field.field.close_set %}
