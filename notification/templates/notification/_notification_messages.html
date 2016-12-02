@@ -6,7 +6,7 @@
         {% trans "You have" %} {{ count }} {{ unread_message }}
         <ul>
             {% for entry in notifications %}
-            <li><a href="{{ entry.link }}" class="alert-link">
+            <li><a href="{{ entry.link }}" class="page-modal">
                 {{ entry.name }}
             </a></li>
             {% endfor %}

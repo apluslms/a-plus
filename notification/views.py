@@ -24,7 +24,7 @@ class NotificationRedirectView(CourseInstanceMixin, BaseRedirectView):
         self.notification.save()
         if self.notification.submission:
             return self.redirect(
-                self.notification.submission.exercise.get_display_url()
+                self.notification.submission.get_url('submission-plain')
             )
         return HttpResponse(
             "[Old Notification] {}: {}".format(
