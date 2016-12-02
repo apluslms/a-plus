@@ -85,6 +85,11 @@
 				.removeClass("exercise")
 				.removeAttr("id");
 			content.find('.badge-placeholder').empty().append(badge);
+			if (badge.hasClass("badge-success") || badge.hasClass("badge-warning")) {
+				content.find('.btn-success').css('display', 'block');
+			} else {
+				content.find('.btn-success').hide();
+			}
 			this.modalContent(content);
 		}
 
@@ -267,13 +272,17 @@
 				var exercise = this;
 				$.aplusExerciseDetectWaits(function(suburl) {
 					$.ajax(suburl).done(function(data) {
-						var new_badges = $(data).find(".badge");
+						var input2 = $(data);
+						var new_badges = input2.find(".badge");
 						var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
 						old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
 						old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
-						exercise.chapter.modalContent(
-							data.filter(this.settings.exercise_selector).contents()
-						);
+						var content = input2.filter(exercise.settings.exercise_selector).contents();
+						if (content.text().trim() == "") {
+							exercise.chapter.modalSuccess(exercise.element, new_badges.eq(2).clone());
+						} else {
+							exercise.chapter.modalContent(content);
+						}
 					}).fail(function() {
 						exercise.chapter.modalError(exercise.chapter.messages.error);
 					});
