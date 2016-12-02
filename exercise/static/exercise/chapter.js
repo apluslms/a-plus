@@ -258,7 +258,9 @@
 
 		updateSubmission: function(input) {
 			this.updateSummary(input);
-			this.chapter.modalContent(input);
+			this.chapter.modalContent(
+				input.filter(this.settings.exercise_selector).contents()
+			);
 
 			// Update asynchronous feedback.
 			if (typeof($.aplusExerciseDetectWaits) == "function") {
@@ -269,7 +271,9 @@
 						var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
 						old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
 						old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
-						exercise.chapter.modalContent(data);
+						exercise.chapter.modalContent(
+							data.filter(this.settings.exercise_selector).contents()
+						);
 					}).fail(function() {
 						exercise.chapter.modalError(exercise.chapter.messages.error);
 					});
