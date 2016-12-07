@@ -429,8 +429,14 @@ class ConfigParser:
                     if new_key not in return_data:
                         return_data[new_key] = new_value
                     else:
-                        raise ConfigError("Cannot overwrite configuration keys without \"force\" key set to True, unable to include \"%s\" into \"%s\"" % (include_file, target_file))
-
+                        raise ConfigError(
+                            "Key {0!r} with value {1!r} already exists in config file {2!r}, cannot overwrite with key {0!r} with value {3!r} from config file {4!r}, unless 'force' option of the 'include' key is set to True."
+                            .format(
+                                new_key,
+                                return_data[new_key],
+                                target_file,
+                                new_value,
+                                include_file))
         return return_data
 
 
