@@ -74,6 +74,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 entry = tree[-1]
                 entry['submission_count'] += 1 if submission.status != Submission.STATUS.ERROR else 0
                 entry['submissions'].append({
+                    'id': submission.id,
                     'max_points': entry['max_points'],
                     'points_to_pass': entry['points_to_pass'],
                     'confirm_the_level': entry.get('confirm_the_level', False),
@@ -180,6 +181,22 @@ class CachedPoints(ContentMixin, CachedAbstract):
     def created(self):
         return self.data['points_created'], super().created()
 
+    def submission_ids(self, category_id=None, module_id=None, exercise_id=None, best=True):
+        exercises = self.search_exercises(
+            category_id=category_id,
+            module_id=module_id,
+            exercise_id=exercise_id
+        )
+        submissions = []
+        if best:
+            for entry in exercises:
+                sid = entry.get('best_submission', None)
+                if not sid is None:
+                    submissions.append(sid)
+        else:
+            for entry in exercises:
+                submissions.extend(s['id'] for s in entry.get('submissions', []))
+        return submissions
 
 
 def invalidate_content(sender, instance, **kwargs):

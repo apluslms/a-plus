@@ -173,3 +173,13 @@ class SubmissionGraderSerializer(AplusModelSerializerBase):
             'grading_data',
             'is_graded',
         )
+
+
+class SubmissionDataSerializer(SubmissionSerializer):
+
+    class Meta(SubmissionSerializer.Meta):
+        fields = (
+            'late_penalty_applied',
+            'submission_data',
+            'grading_data',
+        )

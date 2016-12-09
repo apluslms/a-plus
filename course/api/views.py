@@ -13,7 +13,10 @@ from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 from userprofile.api.serializers import UserBriefSerializer
 from course.permissions import OnlyCourseTeacherPermission
-from exercise.models import BaseExercise
+
+from exercise.api.full_serializers import SubmissionDataSerializer
+from exercise.cache.points import CachedPoints
+from exercise.models import BaseExercise, Submission
 from exercise.exercise_summary import ResultTable
 
 from ..models import (
@@ -256,5 +259,26 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {'course_id': 'enrolled.id'}
-    serializer_class = CourseSubmissionsBriefSerializer
+    listserializer_class = CourseSubmissionsBriefSerializer
+    serializer_class = SubmissionDataSerializer
     queryset = UserProfile.objects.all()
+
+    def _int_or_none(self, value):
+        if value is None:
+            return None
+        return int(value)
+
+    def retrieve(self, request, course_id, version, user_id=None):
+        profile = self.get_object()
+        points = CachedPoints(self.instance, profile.user, self.content)
+        ids = points.submission_ids(
+            category_id=self._int_or_none(request.GET.get('category_id')),
+            module_id=self._int_or_none(request.GET.get('module_id')),
+            exercise_id=self._int_or_none(request.GET.get('exercise_id')),
+            best=request.GET.get('best') != 'no',
+        )
+        serializer = self.get_serializer(
+            Submission.objects.filter(id__in=ids),
+            many=True
+        )
+        return Response(serializer.data)
