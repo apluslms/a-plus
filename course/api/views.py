@@ -241,3 +241,20 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         if tag_id is not None:
             queryset = queryset.filter(tag__id=tag_id)
         return queryset
+
+
+class CourseSubmissionDataViewSet(NestedViewSetMixin,
+                                  MeUserMixin,
+                                  CourseResourceMixin,
+                                  viewsets.ReadOnlyModelViewSet):
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        IsAdminOrUserObjIsSelf,
+    ]
+    filter_backends = (
+        IsAdminOrUserObjIsSelf,
+    )
+    lookup_url_kwarg = 'user_id'
+    lookup_value_regex = REGEX_INT_ME
+    parent_lookup_map = {'course_id': 'enrolled.id'}
+    serializer_class = CourseSubmissionsBriefSerializer
+    queryset = UserProfile.objects.all()

@@ -52,6 +52,7 @@ class CourseSerializer(CourseBriefSerializer):
     usertags = NestedHyperlinkedIdentityField(view_name='api:course-usertags-list', format='html')
     taggings = NestedHyperlinkedIdentityField(view_name='api:course-taggings-list', format='html')
     points = NestedHyperlinkedIdentityField(view_name='api:course-points-list', format='html')
+    submissiondata = NestedHyperlinkedIdentityField(view_name='api:course-submissiondata-list', format='html')
 
     class Meta(CourseBriefSerializer.Meta):
         fields = (
@@ -64,6 +65,7 @@ class CourseSerializer(CourseBriefSerializer):
             'usertags',
             'taggings',
             'points',
+            'submissiondata',
         )
 
 

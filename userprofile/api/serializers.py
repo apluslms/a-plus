@@ -18,6 +18,8 @@ class UserBriefSerializer(AplusModelSerializer):
         model = UserProfile
         fields = (
             'username',
+            'student_id',
+            'is_external',
         )
         extra_kwargs = {
             'url': {
@@ -29,4 +31,3 @@ class UserBriefSerializer(AplusModelSerializer):
 
 class UserListField(AlwaysListSerializer, UserBriefSerializer):
     pass
-
