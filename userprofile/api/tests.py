@@ -20,16 +20,24 @@ class UserProfileAPITest(TestCase):
             'results': [
                 {'id': 1,
                  'url': 'http://testserver/api/v2/users/1/',
-                 'username': 'testUser'},
+                 'username': 'testUser',
+                 'student_id': '12345X',
+                 'is_external': False},
                 {'id': 2,
                  'url': 'http://testserver/api/v2/users/2/',
-                 'username': 'grader'},
+                 'username': 'grader',
+                 'student_id': '67890Y',
+                 'is_external': False},
                 {'id': 3,
                  'url': 'http://testserver/api/v2/users/3/',
-                 'username': 'teacher'},
+                 'username': 'teacher',
+                 'student_id': None,
+                 'is_external': False},
                 {'id': 4,
                  'url': 'http://testserver/api/v2/users/4/',
-                 'username': 'superuser'}
+                 'username': 'superuser',
+                 'student_id': None,
+                 'is_external': False},
                 ]
             })
 
@@ -40,9 +48,10 @@ class UserProfileAPITest(TestCase):
         self.assertEqual(response.data, {
             'id': 1,
             'url': 'http://testserver/api/v2/users/1/',
-            'student_id':'12345X',
-            'enrolled_courses': [],
             'username':'testUser',
+            'student_id':'12345X',
+            'is_external': False,
+            'enrolled_courses': [],
             'full_name':'Superb Student',
             'first_name':'Superb',
             'last_name':'Student',
