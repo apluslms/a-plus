@@ -12,8 +12,11 @@ from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 from userprofile.api.serializers import UserBriefSerializer
-from course.permissions import OnlyCourseTeacherPermission
-from exercise.models import BaseExercise
+from course.permissions import OnlyCourseTeacherPermission, IsCourseAdminOrUserObjIsSelf
+
+from exercise.api.full_serializers import SubmissionDataSerializer
+from exercise.cache.points import CachedPoints
+from exercise.models import BaseExercise, Submission
 from exercise.exercise_summary import ResultTable
 
 from ..models import (
@@ -83,56 +86,44 @@ class CourseStudentsViewSet(NestedViewSetMixin,
 
 
 class CoursePointsViewSet(NestedViewSetMixin,
+                          MeUserMixin,
                           CourseResourceMixin,
                           viewsets.ReadOnlyModelViewSet):
-    # Allow only staff to see points listings
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        OnlyCourseTeacherPermission,
+        IsCourseAdminOrUserObjIsSelf,
     ]
+    filter_backends = (
+        IsCourseAdminOrUserObjIsSelf,
+    )
+    lookup_url_kwarg = 'user_id'
+    lookup_value_regex = REGEX_INT_ME
+    parent_lookup_map = {'course_id': 'enrolled.id'}
+    queryset = UserProfile.objects.all()
 
-    def retrieve(self, request, course_id, version, pk=None):
-        """
-        For getting students points in all exercises of the course.
-        Also there's included points to pass value in course module
-        and total of gathered points in that module
-        """
-        course_instance = CourseInstance.objects.get(id=course_id)
-        table = ResultTable(course_instance)
-        try:
-            student_id = int(pk)
-        except ValueError:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        if student_id not in table.results:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        else:
-            # Get selected student and his points sorted by weeks
-            student = [x for x in table.students if x.id == student_id][0]
-            students_results = self.student_information(student, course_id, request)
-            students_results = self.students_rounds(student, table,
-                                    students_results, request, course_id)
-
-            return Response(students_results)
-
-
-    def list(self, request, course_id, version):
-        """
-        For listing this courses students and links to their points
-        """
-        course_instance = CourseInstance.objects.get(id=course_id)
-        table = ResultTable(course_instance)
-
-        students_results = {}
-        # Parse results for JSON-format.
-        for student in table.students:
-            students_results[student.id] = self.student_information(student,
-                                                course_id, request)
-
+    def retrieve(self, request, course_id, version, user_id=None):
+        profile = self.get_object()
+        students_results = self.student_information(profile, course_id, request)
+        points = CachedPoints(self.instance, profile.user, self.content)
+        students_results = self.students_rounds(
+            profile, points, students_results, request, course_id
+        )
         return Response(students_results)
 
+    def list(self, request, course_id, version):
+        students_results = {}
+        for student in self.filter_queryset(self.get_queryset()):
+            students_results[student.id] = self.student_information(
+                student, course_id, request
+            )
+        return Response(students_results)
 
-    def students_rounds(self, student, table, students_results, request,
-                        course_id):
+    def _copy_obj_fields(self, data, fields):
+        out = {}
+        for key in fields:
+            out[key] = data[key]
+        return out
+
+    def students_rounds(self, student, points, students_results, request, course_id):
         """
         Get students points in dict. Structure of dict is:
         round
@@ -142,67 +133,60 @@ class CoursePointsViewSet(NestedViewSetMixin,
                 exercise1
                 ...
         """
-
+        # FIXME better to list modules and exercise in order than map them
         weeks = {}
-        for exercise in table.exercises:
-            got_points = table.results[student.id][exercise.id]
-            if got_points is None:
-                got_points = 0
-            max_points = exercise.max_points
+        for module in points.modules_flatted():
+            module_json = self._copy_obj_fields(module, [
+                'max_points', 'points_to_pass',
+                'submission_count', 'points', 'points_by_difficulty', 'passed',
+            ])
 
-            week_link = reverse('api:course-exercises-detail', kwargs=
-                                {
-                                    'version':2,
-                                    'course_id': course_id,
-                                    'exercisemodule_id': exercise.course_module.id
-                                },
-                                 request=request)
+            # FIXME remove the strange key values kept here for backwards compatibility
+            module_json["total points"] = module['points']
+            module_json["points to pass"] = module['points_to_pass']
 
-            if week_link in weeks:
-                weeks[week_link]["exercises"][exercise.name] = \
-                                                {
-                                                "got_points": got_points,
-                                                "max_points": max_points
-                                                }
-                weeks[week_link]["total points"] += got_points
-            else:
-                weeks[week_link] = {
-                    "total points": got_points,
-                    "points to pass": exercise.course_module.points_to_pass,
-                    "exercises": {
-                        exercise.name: {
-                            "got_points": got_points,
-                            "max_points": max_points
-                        }
-                    }
-                }
+            exercises = {}
+            for entry in module['flatted']:
+                if entry['type'] == 'exercise' and entry['submittable']:
+                    exercise_json = self._copy_obj_fields(entry, [
+                        'max_points', 'points_to_pass', 'difficulty',
+                        'submission_count', 'points', 'passed',
+                    ])
+
+                    # FIXME remove the strange key values kept here for backwards compatibility
+                    exercise_json["got_points"] = entry['points']
+
+                    exercises[entry['name']] = exercise_json
+            module_json["exercises"] = exercises
+
+            week_link = reverse('api:course-exercises-detail', kwargs={
+                'version':2,
+                'course_id': course_id,
+                'exercisemodule_id': module['id'],
+            }, request=request)
+            weeks[week_link] = module_json
 
         students_results["rounds"] = weeks
+
+        total = points.total()
+        students_results['submission_count'] = total['submission_count']
+        students_results['points'] = total['points']
+        students_results['points_by_difficulty'] = total['points_by_difficulty']
+
         return students_results
 
-
     def student_information(self, student, course_id, request):
-        """
-        Returns a dict of students information:
-        - url of the points detail
-        - studentnumber
-        - userprofile of student
-        """
-        student_info = {}
-
-        student_detail = reverse('api:course-points-detail', kwargs={'version':2,
-                               'course_id': course_id, 'pk': student.id,
-                               }, request=request)
-
-        student_link = reverse('api:user-detail', kwargs={'version':2,
-                               'user_id': student.id,
-                               }, request=request)
-
-        student_info["studentnumber"] = student.student_id
-        student_info["userprofile"] = student_link
-        student_info["pointsdetails"] = student_detail
-
-        return student_info
+        student_detail = reverse('api:course-points-detail', kwargs={
+            'version': 2, 'course_id': course_id, 'user_id': student.id,
+        }, request=request)
+        student_link = reverse('api:user-detail', kwargs={
+            'version': 2, 'user_id': student.id,
+        }, request=request)
+        return {
+            "studentnumber": student.student_id,
+            "userprofile": student_link,
+            "pointsdetails": student_detail,
+        }
 
 
 class CourseUsertagsViewSet(NestedViewSetMixin,
@@ -241,3 +225,53 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         if tag_id is not None:
             queryset = queryset.filter(tag__id=tag_id)
         return queryset
+
+
+class CourseSubmissionDataViewSet(ListSerializerMixin,
+                                  NestedViewSetMixin,
+                                  MeUserMixin,
+                                  CourseResourceMixin,
+                                  viewsets.ReadOnlyModelViewSet):
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        IsAdminOrUserObjIsSelf,
+    ]
+    filter_backends = (
+        IsAdminOrUserObjIsSelf,
+    )
+    lookup_url_kwarg = 'user_id'
+    lookup_value_regex = REGEX_INT_ME
+    parent_lookup_map = {'course_id': 'enrolled.id'}
+    listserializer_class = CourseSubmissionsBriefSerializer
+    serializer_class = SubmissionDataSerializer
+    queryset = UserProfile.objects.all()
+
+    def _int_or_none(self, value):
+        if value is None:
+            return None
+        return int(value)
+
+    def _submitted_field(self, submission, name):
+        for key,val in submission.submission_data:
+            if key == name:
+                return val
+        return ""
+
+    def retrieve(self, request, course_id, version, user_id=None):
+        profile = self.get_object()
+        points = CachedPoints(self.instance, profile.user, self.content)
+        ids = points.submission_ids(
+            category_id=self._int_or_none(request.GET.get('category_id')),
+            module_id=self._int_or_none(request.GET.get('module_id')),
+            exercise_id=self._int_or_none(request.GET.get('exercise_id')),
+            best=request.GET.get('best') != 'no',
+        )
+        submissions = Submission.objects.filter(id__in=ids)
+
+        # Pick out a field.
+        field = request.GET.get('field')
+        if field:
+            vals = [self._submitted_field(s, field) for s in submissions.all()]
+            return Response([v for v in vals if v != ""])
+
+        serializer = self.get_serializer(submissions, many=True)
+        return Response(serializer.data)

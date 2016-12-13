@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, AlwaysListSerializer
+from userprofile.api.serializers import UserBriefSerializer
 
 from ..models import (
     CourseInstance,
@@ -13,6 +15,7 @@ __all__ = [
     'CourseBriefSerializer',
     'CourseListField',
     'CourseUsertagBriefSerializer',
+    'CourseSubmissionsBriefSerializer',
 ]
 
 
@@ -56,3 +59,13 @@ class CourseUsertagBriefSerializer(AplusModelSerializer):
                 'lookup_map': 'course.api.views.CourseUsertagsViewSet',
             }
         }
+
+
+class CourseSubmissionsBriefSerializer(UserBriefSerializer):
+    url = serializers.SerializerMethodField()
+
+    def get_url(self, obj):
+        return reverse('api:course-submissiondata-detail', kwargs={
+            'course_id': self.context['view'].instance.id,
+            'user_id': obj.id,
+        }, request=self.context['request'])

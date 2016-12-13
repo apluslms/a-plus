@@ -13,7 +13,7 @@ from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile, GraderUser
 from userprofile.permissions import IsAdminOrUserObjIsSelf, GraderUserCanOnlyRead
 from course.permissions import (
-    IsCourseAdminOrUserItselfFilter,
+    IsCourseAdminOrUserObjIsSelf,
     OnlyCourseTeacherPermission,
 )
 from exercise.async_views import _post_async_submission
@@ -196,7 +196,7 @@ class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
         IsAdminOrUserObjIsSelf,
     ]
     filter_backends = (
-        IsCourseAdminOrUserItselfFilter,
+        IsCourseAdminOrUserObjIsSelf,
     )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME

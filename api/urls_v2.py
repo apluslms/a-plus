@@ -31,6 +31,9 @@ with api.register(r'courses',
     courses.register(r'points',
                      course.api.views.CoursePointsViewSet,
                      base_name='course-points')
+    courses.register(r'submissiondata',
+                     course.api.views.CourseSubmissionDataViewSet,
+                     base_name='course-submissiondata')
 
 with api.register(r'exercises',
                   exercise.api.views.ExerciseViewSet,

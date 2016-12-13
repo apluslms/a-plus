@@ -8,13 +8,10 @@ from lib.api.serializers import (
     AplusModelSerializerBase,
 )
 from course.api.serializers import CourseBriefSerializer
-from userprofile.api.serializers import UserBriefSerializer
+from userprofile.api.serializers import UserBriefSerializer, UserListField
 
 from ..models import Submission
-from .serializers import (
-    ExerciseBriefSerializer,
-    SubmissionBriefSerializer,
-)
+from .serializers import ExerciseBriefSerializer, SubmissionBriefSerializer
 
 
 __all__ = [
@@ -172,4 +169,17 @@ class SubmissionGraderSerializer(AplusModelSerializerBase):
             'exercise',
             'grading_data',
             'is_graded',
+        )
+
+
+class SubmissionDataSerializer(SubmissionSerializer):
+    submitters = UserListField()
+    submission_data = serializers.JSONField()
+    grading_data = serializers.JSONField()
+
+    class Meta(SubmissionSerializer.Meta):
+        fields = (
+            'late_penalty_applied',
+            'submission_data',
+            'grading_data',
         )

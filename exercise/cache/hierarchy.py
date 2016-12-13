@@ -150,6 +150,28 @@ class ContentMixin(object):
             self._next(idx, tree),
         )
 
+    def search_exercises(self, category_id=None, module_id=None, exercise_id=None):
+        search = None
+        if not exercise_id is None:
+            search = { 'type': 'exercise', 'id': int(exercise_id) }
+        elif not module_id is None:
+            search = { 'type': 'module', 'id': int(module_id) }
+        if search:
+            idx = self._model_idx(search)
+            tree = self._by_idx(self.modules(), idx)
+        else:
+            tree = [{ 'type': 'all', 'children': self.modules() }]
+        exercises = []
+        def recursion(entry):
+            if entry['type'] == 'exercise' and (
+                category_id is None or entry['category_id'] == category_id
+            ):
+                exercises.append(entry)
+            for child in entry['children']:
+                recursion(child)
+        recursion(tree[-1])
+        return exercises
+
     def _previous(self, idx, tree):
         for entry in PreviousIterator(self.modules(), idx, tree, visited=True):
             if self.is_listed(entry):
