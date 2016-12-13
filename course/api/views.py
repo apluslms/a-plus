@@ -103,10 +103,16 @@ class CoursePointsViewSet(NestedViewSetMixin,
     def retrieve(self, request, course_id, version, user_id=None):
         profile = self.get_object()
         students_results = self.student_information(profile, course_id, request)
+
+        students_results["tags"] = [
+            t.id for t in profile.taggings.tags_for_instance(self.instance)
+        ]
+
         points = CachedPoints(self.instance, profile.user, self.content)
         students_results = self.students_rounds(
             profile, points, students_results, request, course_id
         )
+
         return Response(students_results)
 
     def list(self, request, course_id, version):
