@@ -68,7 +68,7 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 		* Must match the exercise list in `index.[json|yaml]`
 	* `title`: A title of the exercise
 	* `description` (optional): An exercise description (Dublin Core metadata)
-	* `include` (optional): Allows including of configuration files.
+	* `include` (optional): Include configuration files rendered from templates.
 		* `file`: A path to an exercise configuration file. May contain optional Django template syntax, which allows passing of parameters with the `template_context` key.
 		* `force` (optional): Defaults to false. If true, all keys and their contents in the file where the `include` key is located will be overwritten with the corresponding keys and contents from the file which is being included. If false, a ConfigError is thrown if the include file contains keys which already exist in the file where the keys are being included.
 		* `template_context` (optional): Context dictionary containing key value pairs for rendering the included file.
