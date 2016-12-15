@@ -160,7 +160,7 @@ Then follow the "Installing for development" and continue from here.
 	`/etc/default/celeryd`.
 
 		sudo cp doc/etc-default-celeryd /etc/default/celeryd
-		# EDIT /etc/init.d/celeryd
+		# EDIT /etc/default/celeryd
 		sudo cp doc/etc-init.d-celeryd /etc/init.d/celeryd
 		sudo chmod a+x /etc/init.d/celeryd
 		sudo update-rc.d celeryd defaults
