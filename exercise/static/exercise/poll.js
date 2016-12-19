@@ -44,7 +44,7 @@
 				})
 				.done(function(data) {
 					poller.count++;
-					if (data.trim() === "ready") {
+					if (data.trim() === "ready" || data.trim() === "error") {
 						poller.ready();
 					} else if (poller.element.is(":visible")) {
 						if (poller.count < poller.settings.poll_delays.length) {
