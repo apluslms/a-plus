@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^api/', include(api.urls)), # ^api/v1/ only
     url(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
     url(r'^accounts/', include(userprofile.urls)),
+    url(r'^diploma/', include(diploma.urls)),
     url(r'^', include(redirect_old_urls.urls)),
     url(r'^', include(apps.urls)),
     url(r'^', include(news.urls)),
