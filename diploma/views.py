@@ -10,7 +10,7 @@ from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView
 from userprofile.models import UserProfile
 
-from .grade import calculate_grade
+from .grade import calculate_grade, assign_grade
 from .models import CourseDiplomaDesign, StudentDiploma
 from .pdf import render_diploma
 
@@ -65,7 +65,6 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
 
 class DiplomaCreateView(DiplomaMixin, BaseRedirectView):
     access_mode = ACCESS.ENROLLED
-
 
     def post(self, request, *args, **kwargs):
         design = self.design

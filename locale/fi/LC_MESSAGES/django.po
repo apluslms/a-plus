@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-21 07:10+0200\n"
+"POT-Creation-Date: 2016-12-21 11:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -748,6 +748,10 @@ msgstr ""
 #: diploma/templates/diploma/_diploma_button.html:7
 msgid "Get course diploma"
 msgstr "Hae kurssidiplomi"
+
+#: diploma/templates/diploma/_diploma_button.html:12
+msgid "Open grade 0 diploma"
+msgstr "Avaa 0 arvosanan diplomi"
 
 #: diploma/templates/diploma/list.html:28
 #: exercise/templates/exercise/_submission_info.html:21
@@ -1507,8 +1511,8 @@ msgstr ""
 #: exercise/exercise_models.py:434
 #, python-brace-format
 msgid ""
-"Deadline for the exercise has passed. Late submissions are allowed "
-"until {date} but points are only worth {percent:d}%."
+"Deadline for the exercise has passed. Late submissions are allowed until "
+"{date} but points are only worth {percent:d}%."
 msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."

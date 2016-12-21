@@ -48,14 +48,16 @@ def assign_grade(cached_points, diploma_design):
 
     if not (diploma_design and cached_points.user.is_authenticated()):
         return -1
-    profile = cached_points.user.userprofile
-    avail = diploma_design.availability
-    opt = diploma_design.USERGROUP
-    if (
-        (avail == opt.EXTERNAL_USERS and not profile.is_external)
-        or (avail == opt.INTERNAL_USERS and profile.is_external)
-    ):
-        return -1
+
+    if not diploma_design.course.is_course_staff(cached_points.user):
+        avail = diploma_design.availability
+        opt = diploma_design.USERGROUP
+        external = cached_points.user.userprofile.is_external
+        if (
+            (avail == opt.EXTERNAL_USERS and not external)
+            or (avail == opt.INTERNAL_USERS and external)
+        ):
+            return -1
 
     def is_passed(model):
         entry,_,_,_ = cached_points.find(model)

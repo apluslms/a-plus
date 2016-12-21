@@ -22,4 +22,5 @@ def diploma_button(context, student=None):
     return {
         'grade': assign_grade(points, design),
         'url': url,
+        'is_course_staff': context.get('is_course_staff'),
     }
