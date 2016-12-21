@@ -12,6 +12,7 @@ import deviations.urls
 import notification.urls
 import external_services.urls
 import news.urls
+import diploma.urls
 import apps.urls
 import api.urls, api.urls_v2
 import redirect_old_urls.urls

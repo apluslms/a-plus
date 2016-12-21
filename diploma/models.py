@@ -4,6 +4,7 @@ from django.db import models
 from course.models import CourseInstance, CourseModule
 from exercise.models import BaseExercise
 from lib.fields import JSONField
+from lib.helpers import safe_file_name
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
@@ -13,14 +14,16 @@ def build_upload_dir(instance, filename):
 
 
 class CourseDiplomaDesign(models.Model):
+    USERGROUP = CourseInstance.ENROLLMENT_AUDIENCE
     course = models.OneToOneField(CourseInstance, on_delete=models.SET_NULL, null=True)
+    availability = models.IntegerField(choices=USERGROUP.choices, default=USERGROUP.EXTERNAL_USERS)
     logo = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
-    title = models.TextField()
-    body = models.TextField()
+    title = models.TextField(blank=True)
+    body = models.TextField(blank=True)
     date = models.CharField(max_length=256)
-    signature_name = models.CharField(max_length=256)
-    signature_title = models.CharField(max_length=256)
-    small_print = models.TextField()
+    signature_name = models.CharField(max_length=256, blank=True)
+    signature_title = models.CharField(max_length=256, blank=True)
+    small_print = models.TextField(blank=True)
     point_limits = JSONField(blank=True, help_text=(
         "A list of length 5 where each element is the required points for n:th grade."
         "The element can be a list of 2-tuples [[difficulty_level_a, points],[difficulty_level_b, points]]."
@@ -28,8 +31,8 @@ class CourseDiplomaDesign(models.Model):
     pad_points = models.BooleanField(default=False, help_text=(
         "If difficulty levels are used the lower level can be padded with higher level points."
     ))
-    exercises_to_pass = models.ManyToManyField(BaseExercise)
-    modules_to_pass = models.ManyToManyField(CourseModule)
+    exercises_to_pass = models.ManyToManyField(BaseExercise, blank=True)
+    modules_to_pass = models.ManyToManyField(CourseModule, blank=True)
 
 
 class StudentDiploma(UrlMixin, models.Model):
@@ -42,17 +45,16 @@ class StudentDiploma(UrlMixin, models.Model):
 
     def generate_hashkey(self):
         key = None
-        while not key or self.objects.filter(hashkey=key).count() > 0:
-            m = hashlib.md5()
-            m.update("{:d}-{:d}-{:f}".format(
+        while not key or StudentDiploma.objects.filter(hashkey=key).count() > 0:
+            m = hashlib.md5("{:d}-{:d}-{:f}".format(
                 self.design.id,
                 self.profile.id,
                 time.time()
-            ))
+            ).encode('ascii'))
             key = m.hexdigest()
         self.hashkey = key
 
     ABSOLUTE_URL_NAME = 'diploma-view'
 
     def get_url_kwargs(self):
-        return { 'diploma_hash': self.hash }
+        return { 'diploma_hash': self.hashkey }

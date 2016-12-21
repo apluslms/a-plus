@@ -3,6 +3,7 @@
 {% load course %}
 {% load exercise %}
 {% load apps %}
+{% load diploma %}
 
 {% block title %}{{ block.super }}: {{ student.get_full_name }}{% endblock %}
 {% block view_tag %}participants{% endblock %}
@@ -55,10 +56,13 @@
 {% endblock %}
 
 {% block sidecontent %}
+
+{% diploma_button student %}
 {% category_points student %}
 
 {% plugin_renderers student instance "results" as plugins %}
 {% for plugin in plugins %}
     {{ plugin.render|safe }}
 {% endfor %}
+
 {% endblock %}

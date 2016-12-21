@@ -55,7 +55,7 @@ class Course(UrlMixin, models.Model):
         Validates the model before saving (standard method used in Django admin).
         """
         RESERVED = ("admin", "accounts", "shibboleth", "api",
-            "archive", "course", "exercise")
+            "archive", "course", "exercise", "diploma")
         if self.url in RESERVED:
             raise ValidationError({
                 'url':_("Taken words include: {}").format(

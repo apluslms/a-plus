@@ -22,7 +22,8 @@ def calculate_grade(total_points, point_limits, pad_points):
                                 d_points[d] = l
                                 break
                             else:
-                                d_points[d] += jp
+                                p += jp
+                                d_points[d] = p
                                 d_points[jd] = 0
                     else:
                         continue
@@ -45,19 +46,26 @@ def calculate_grade(total_points, point_limits, pad_points):
 
 def assign_grade(cached_points, diploma_design):
 
+    if not (diploma_design and cached_points.user.is_authenticated()):
+        return -1
+    profile = cached_points.user.userprofile
+    avail = diploma_design.availability
+    opt = diploma_design.USERGROUP
+    if (
+        (avail == opt.EXTERNAL_USERS and not profile.is_external)
+        or (avail == opt.INTERNAL_USERS and profile.is_external)
+    ):
+        return -1
+
     def is_passed(model):
         entry,_,_,_ = cached_points.find(model)
         return entry['passed']
+    if not all(is_passed(m) for m in diploma_design.modules_to_pass.all()):
+        return 0
+    if not all(is_passed(e) for e in diploma_design.exercises_to_pass.all()):
+        return 0
 
-    for module in diploma_design.modules_to_pass.all():
-        if not is_passed(module):
-            return 0
-
-    for exercise in diploma_design.exercises_to_pass.all():
-        if not is_passed(exercise):
-            return 0
-
-    return calulate_grade(
+    return calculate_grade(
         cached_points.total(),
         diploma_design.point_limits,
         diploma_design.pad_points
