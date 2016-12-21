@@ -82,6 +82,15 @@
 	</a>
 </li>
 
+{% if instance.coursediplomadesign %}
+<li role="presentation" class="menu-grades">
+	<a href="{% url 'diploma-list' instance.coursediplomadesign.id %}">
+		<span class="glyphicon glyphicon-certificate" aria-hidden="true"></span>
+		{% trans "Grades" %}
+	</a>
+</li>
+{% endif %}
+
 <li role="presentation" class="menu-all-results">
 	<a href="{{ instance|url:'all-results' }}">
 		<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>

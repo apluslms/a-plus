@@ -57,8 +57,7 @@ class CourseInstanceBaseMixin(object):
             self.content = CachedContent(self.instance)
             self.is_student = self.instance.is_student(user)
             self.is_assistant = self.instance.is_assistant(user)
-            if not hasattr(self, 'is_teacher'):
-                self.is_teacher = self.course.is_teacher(user)
+            self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
             self.note(
                 "course", "instance", "content",

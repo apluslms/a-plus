@@ -1,0 +1,11 @@
+{% load i18n %}
+{% if grade >= 0 %}
+<form method="post" action="{{ url }}">
+  {% csrf_token %}
+  <p>
+    <button{% if grade == 0 %} disabled="yes"{% endif %} class="btn btn-default">
+      {% blocktrans %}Get course diploma{% endblocktrans %}
+    </button>
+  </p>
+</form>
+{% endif %}

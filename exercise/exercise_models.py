@@ -431,7 +431,7 @@ class BaseExercise(LearningObject):
             and self.course_module.is_late_submission_open()
         ):
             warnings.append(
-                _('Deadline for the exercise has passed. Late submissions are allowed until'
+                _('Deadline for the exercise has passed. Late submissions are allowed until '
                   '{date} but points are only worth {percent:d}%.').format(
                     date=date_format(self.course_module.late_submission_deadline),
                     percent=self.course_module.get_late_submission_point_worth(),

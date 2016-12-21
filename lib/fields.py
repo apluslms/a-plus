@@ -64,10 +64,12 @@ class JSONField(models.TextField, metaclass=models.SubfieldBase):
     def formfield(self, **kwargs):
         defaults = {
             'form_class': JSONFormField,
-            'help_text': _("Enter valid JSON.")
         }
         defaults.update(kwargs)
-        return super(JSONField, self).formfield(**defaults)
+        field = super(JSONField, self).formfield(**defaults)
+        if not field.help_text:
+            field.help_text = _("Enter valid JSON.")
+        return field
 
 
 class JSONFormField(forms.CharField):
