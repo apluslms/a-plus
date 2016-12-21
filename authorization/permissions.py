@@ -101,7 +101,7 @@ class AccessModePermission(Permission):
                 return False
 
         elif access_mode == ACCESS.ENROLLED:
-            if not view.is_course_staff and not view.instance.is_student(request.user):
+            if not view.is_course_staff and not view.is_student:
                 error_msg(request, _("Only enrolled students shall pass."))
                 return False
 
