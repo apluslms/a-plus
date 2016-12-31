@@ -6,6 +6,7 @@ django-html5-colorfield==1.0
 djangorestframework==3.6.3
 djangorestframework-csv==2.0.0
 -e git+https://github.com/raphendyr/drf-extensions.git@2175f4f5486fab3e132a72abed48b8e8e37fd8b8#egg=drf_extensions
+raphendyr-django-essentials==1.1.0
 feedparser==5.2.1
 html5lib
 cachetools==1.1.6

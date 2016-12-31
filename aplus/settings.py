@@ -295,14 +295,31 @@ LOGGING = {
     'verbose': {
       'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s'
     },
+    'colored': {
+      '()': 'r_django_essentials.logging.SourceColorizeFormatter',
+      'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s',
+      'colors': {
+        'django.db.backends': {'fg': 'cyan'},
+      },
+    },
   },
   'filters': {
     'skip_unreadable_post': {
         '()': 'django.utils.log.CallbackFilter',
         'callback': skip_unreadable_post,
     },
+    'require_debug_true': {
+      '()': 'django.utils.log.RequireDebugTrue',
+    },
   },
   'handlers': {
+    'debug_console': {
+      'level': 'DEBUG',
+      'filters': ['require_debug_true'],
+      'class': 'logging.StreamHandler',
+      'stream': 'ext://sys.stdout',
+      'formatter': 'colored',
+    },
     'console': {
       'level': 'DEBUG',
       'class': 'logging.StreamHandler',
