@@ -1,13 +1,13 @@
 import json, re
 from django.core.management.base import BaseCommand, CommandError
 
-from course.models import CourseInstance
+from course.models import CourseInstance, LearningObjectCategory
 from ...models import BaseExercise, LearningObjectDisplay
 from ...exercise_summary import ResultTable
 
 
 class Command(BaseCommand):
-    args = 'exercise/exercises/course/json/views/results id(s)'
+    args = 'exercise/exercises/category/course/json/views/results id(s)'
     help = 'Exports submission data.'
 
     def handle(self, *args, **options):
@@ -15,8 +15,10 @@ class Command(BaseCommand):
             raise CommandError('Missing arguments: ' + self.args)
         if args[0] == 'exercise':
             self.export_exercise(args[1])
-        if args[0] == 'exercises':
+        elif args[0] == 'exercises':
             self.export_exercises(args[1:])
+        elif args[0] == 'category':
+            self.export_category(args[1])
         elif args[0] == 'course':
             self.export_course(args[1])
         elif args[0] == 'json':
@@ -29,17 +31,22 @@ class Command(BaseCommand):
             raise CommandError('Unknown argument!')
 
     def export_exercises(self, eids):
-        n = 0
         fields = set()
         for eid in eids:
             exercise = BaseExercise.objects.get(id=eid)
             for s in exercise.submissions.all():
-                for key,val in s.submission_data:
-                    fields.add(key)
+                if s.submission_data:
+                    for key,val in s.submission_data:
+                        fields.add(key)
         fields = sorted(fields)
+        n = 0
         for eid in eids:
             self.export_exercise(eid, n == 0, fields)
             n += 1
+
+    def export_category(self, cid):
+        category = LearningObjectCategory.objects.get(id=cid)
+        self.export_exercises(list(e.id for e in category.learning_objects.all()))
 
     def export_exercise(self, eid, print_header=True, fields=None):
         exercise = BaseExercise.objects.filter(id=eid).first()
@@ -52,8 +59,9 @@ class Command(BaseCommand):
         if fields is None:
             fields = set()
             for s in submissions:
-                for key,val in s.submission_data:
-                    fields.add(key)
+                if s.submission_data:
+                    for key,val in s.submission_data:
+                        fields.add(key)
             fields = sorted(fields)
 
         header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade']#, 'Feedback', 'A.Feedback' ]
