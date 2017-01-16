@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from exercise.models import CourseChapter, BaseExercise
+from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
+from external_services.models import LTIService
 from userprofile.models import UserProfile
 
 
@@ -83,15 +84,41 @@ def configure_learning_objects(category_map, module, config, parent,
             errors.append(_("Unknown category {}").format(o["category"]))
             continue
 
+        lobject = LearningObject.objects.filter(
+            #course_module__course_instance=module.course_instance,
+            course_module=module,
+            url=str(o["key"])
+        ).first()
+        if not lobject is None:
+            lobject = lobject.as_leaf_class()
+
         # Select exercise class.
-        if "max_submissions" in o:
-            lobject = BaseExercise.objects.filter(
-                #course_module__course_instance=module.course_instance,
-                course_module=module,
-                url=str(o["key"])
-            ).first()
-            if not lobject:
-                lobject = BaseExercise(course_module=module, url=str(o["key"]))
+        lobject_cls = (
+            LTIExercise if "lti" in o
+            else BaseExercise if "max_submissions" in o
+            else CourseChapter
+        )
+
+        if not lobject is None and not isinstance(lobject, lobject_cls):
+            lobject.url = lobject.url + "_old"
+            lobject.save()
+            lobject = None
+        if lobject is None:
+            lobject = lobject_cls(course_module=module, url=str(o["key"]))
+
+        if lobject_cls == LTIExercise:
+            lti = LTIService.objects.filter(menu_label=str(o["lti"])).first()
+            if not lti is None:
+                lobject.lti_service = lti
+            for key in [
+                "context_id",
+                "resource_link_id",
+            ]:
+                obj_key = "lti_" + key
+                if obj_key in o:
+                    setattr(lobject, key, o[obj_key])
+
+        if lobject_cls in (LTIExercise, BaseExercise):
             for key in [
                 "allow_assistant_viewing",
                 "allow_assistant_grading",
@@ -112,14 +139,8 @@ def configure_learning_objects(category_map, module, config, parent,
                         setattr(lobject, key, i)
             if "difficulty" in o:
                 lobject.difficulty = o["difficulty"]
-        else:
-            lobject = CourseChapter.objects.filter(
-                #course_module__course_instance=module.course_instance,
-                course_module=module,
-                url=str(o["key"])
-            ).first()
-            if not lobject:
-                lobject = CourseChapter(course_module=module, url=str(o["key"]))
+
+        if lobject_cls == CourseChapter:
             if "generate_table_of_contents" in o:
                 lobject.generate_table_of_contents = parse_bool(
                     o["generate_table_of_contents"])
@@ -314,11 +335,11 @@ def configure_content(instance, url):
             nn = configure_learning_objects(category_map, module, m["children"],
                 None, seen_objects, errors, nn)
 
-    for module in instance.course_modules.all():
+    for module in list(instance.course_modules.all()):
         if not module.id in seen_modules:
             module.status = "hidden"
             module.save()
-        for lobject in module.learning_objects.all():
+        for lobject in list(module.learning_objects.all()):
             if not lobject.id in seen_objects:
                 exercise = lobject.as_leaf_class()
                 if (

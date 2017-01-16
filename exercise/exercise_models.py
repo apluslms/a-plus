@@ -83,7 +83,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         default=AUDIENCE.COURSE_AUDIENCE)
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL,
+        blank=True, null=True, related_name='children')
     order = models.IntegerField(default=1)
     url = models.CharField(max_length=255,
         validators=[RegexValidator(regex="^[\w\-\.]*$")],
