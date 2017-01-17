@@ -67,8 +67,10 @@ def invoke_sandbox(course_key, action, dirarg=None, without_sandbox=False):
     if not "cmd" in action or not isinstance(action["cmd"], list):
         raise ConfigError("Missing list \"cmd\" from action configuration")
 
-    cmd = [ settings.SANDBOX_RUNNER if os.path.isfile(settings.SANDBOX_RUNNER)
-        else settings.SANDBOX_FALLBACK ]
+    if not without_sandbox and os.path.isfile(settings.SANDBOX_RUNNER):
+        cmd = [ settings.SANDBOX_RUNNER ]
+    else:
+        cmd = [ settings.SANDBOX_FALLBACK ]
 
     if "net" in action and (action["net"] is True or str(action["net"]).lower() in ('true','yes')):
         cmd.append("net")
@@ -90,9 +92,10 @@ def invoke_sandbox(course_key, action, dirarg=None, without_sandbox=False):
     else:
         cmd.append("-")
     cmd.append(course_key)
-    cmd.extend(action["cmd"])
 
     if without_sandbox:
         cmd.append("without_sandbox")
+
+    cmd.extend(action["cmd"])
 
     return invoke(cmd)
