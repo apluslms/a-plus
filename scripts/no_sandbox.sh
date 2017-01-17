@@ -76,6 +76,10 @@ if type ulimit >/dev/null 2>&1; then
 fi
 shift; shift; shift; shift; shift; shift
 
+if [ $1 == "without_sandbox" ]; then
+  shift
+fi
+
 # Run command.
 CMD="$CMD$@"
 $CMD
