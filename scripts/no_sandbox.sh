@@ -4,8 +4,11 @@
 # This will allow testing graders in most development environments.
 # The feedback will always include a warning to prevent production use.
 #
-echo "Sandbox environment is not created. Testing without file or network access restrictions. The process limits may or may not apply depending on your system. NOT READY FOR PRODUCTION!" >&2
-echo "" >&2
+
+if [ $# -lt 7 ]; then
+  echo "Sandbox environment is not created. Testing without file or network access restrictions. The process limits may or may not apply depending on your system. NOT READY FOR PRODUCTION!" >&2
+  echo "" >&2
+fi
 
 if [ "$1" == "net" ]; then
     shift

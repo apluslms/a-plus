@@ -53,7 +53,7 @@ def invoke_script(script, arguments, dirarg=None):
     return invoke(cmd)
 
 
-def invoke_sandbox(course_key, action, dirarg=None):
+def invoke_sandbox(course_key, action, dirarg=None, without_sandbox=False):
     '''
     Invokes a configured command in the sandbox environment.
 
@@ -91,4 +91,8 @@ def invoke_sandbox(course_key, action, dirarg=None):
         cmd.append("-")
     cmd.append(course_key)
     cmd.extend(action["cmd"])
+
+    if without_sandbox:
+        cmd.append("without_sandbox")
+
     return invoke(cmd)

@@ -85,6 +85,13 @@ def sandbox_python_test(course, exercise, action, submission_dir):
         "out": r["err"], "err": "", "stop": r["stop"] }
 
 
+def without_sandbox(course, exercise, action, submission_dir):
+    '''
+    Executes script outside the sandbox and looks for TotalPoints line in the result.
+    '''
+    return _find_point_lines(invoke_sandbox(course["key"], action,
+        submission_dir, without_sandbox=True))
+
 def expaca(course, exercise, action, submission_dir):
     '''
     Executes third party expaca testing application.
