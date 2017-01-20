@@ -5,7 +5,7 @@ any record other than service logs. The grader is designed to serve exercises
 for the A+ learning system. A farm of individual grading servers can be setup
 to handle large amount of submissions.
 
-The grader is implemented on Django 1.7 (`grader/settings.py`) and grading
+The grader is implemented on Django 1.9 (`grader/settings.py`) and grading
 queue on Celery 3.1 (`grader/tasks.py`). The application is tested on both
 Python 2.7 and 3.4. Actual grading is typically executed via shell scripts in
 a Linux chroot sandbox. On an Ubuntu system the sandbox can be created with
@@ -77,7 +77,7 @@ Installing the full stack
 
 > 6/2014 - Ubuntu 12.04.4
 
-0. ### User account
+1. ### User account
 
 On a server, one can install mooc-grader for a specific grader
 user account.
@@ -91,6 +91,7 @@ Then follow the "Installing for development" and continue from here.
 
 	Install uwsgi to run WSGI processes. The **mooc-grader directory
 	and user must** be set in the configuration files.
+	(Ubuntu < 15.04 uses Upstart, systemd for Ubuntu >= 15.04 is described after it.)
 
 		source venv/bin/activate
 		pip install uwsgi
@@ -108,6 +109,27 @@ Then follow the "Installing for development" and continue from here.
 
 		sudo status uwsgi
 		sudo start uwsgi
+		# Graceful application reload
+		touch /etc/uwsgi/grader.ini
+
+	#### uWSGI with systemd (Ubuntu >= 15.04)
+
+		source venv/bin/activate
+		pip install uwsgi
+		sudo mkdir -p /etc/uwsgi
+		sudo mkdir -p /var/log/uwsgi
+		sudo cp doc/etc-uwsgi-grader.ini /etc/uwsgi/grader.ini
+		sudo cp doc/etc-systemd-system-uwsgi.service /etc/systemd/system/uwsgi.service
+		# EDIT /etc/uwsgi/grader.ini
+		# EDIT /etc/systemd/system/uwsgi.service, set the correct uwsgi path to ExecStart
+		sudo touch /var/log/uwsgi/grader.log
+		sudo chown -R [shell-username]:users /etc/uwsgi /var/log/uwsgi
+
+	Operate the workers:
+
+		systemctl status uwsgi
+		sudo systemctl start uwsgi
+		sudo systemctl enable uwsgi  # start on boot
 		# Graceful application reload
 		touch /etc/uwsgi/grader.ini
 
@@ -141,7 +163,7 @@ Then follow the "Installing for development" and continue from here.
 		sudo apt-get install rabbitmq-server
 		sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
 
-	Create `settings_local.py` and override necessary configuration, e.g.
+	Create `mooc-grader/settings_local.py` and override necessary configuration, e.g.
 
 	* `CELERY_BROKER`: the queue URL (RabbitMQ service)
 	* `CELERY_TASK_LIMIT_SEC`: the timeout for grading a task
@@ -149,6 +171,7 @@ Then follow the "Installing for development" and continue from here.
 	* `SANDBOX_LIMITS`: the default time/memory limits for sandbox
 
 	The celery queue worker can now be tested in console.
+	(Inside the mooc-grader directory with the virtual environment activated.)
 
 		celery -A grader.celery worker
 
@@ -166,7 +189,32 @@ Then follow the "Installing for development" and continue from here.
 		sudo update-rc.d celeryd defaults
 		sudo /etc/init.d/celeryd start
 
-5. ### X virtual frame buffer (if required)
+5. ### Django application settings for deployment
+
+	When deploying, overwrite necessary configurations in `mooc-grader/settings_local.py`:
+	`SECRET_KEY`, `AJAX_KEY`, `DEBUG`, `ALLOWED_HOSTS`
+
+	If `gitmanager` is used to update course content via Git operations, enable it in
+	`settings_local.py`:
+
+		ADD_APPS = (
+			'gitmanager',
+		)
+
+	`gitmanager` uses a database. If `sqlite3` is used (in `settings.py`), it must be installed:
+
+		sudo apt-get install sqlite3 libsqlite3-dev
+
+	Django must install the database schema for the `gitmanager` (Python virtual environment must be activated):
+
+		python manage.py migrate
+
+	The `gitmanager` requires a crontab for the root account:
+
+		sudo crontab -u root doc/gitmanager-root-crontab
+
+
+6. ### X virtual frame buffer (if required)
 
 	For tests requiring X display server xvfb can be used at DISPLAY=:0.
 	Such tests typically run GUI code or WWW browser using Selenium.
