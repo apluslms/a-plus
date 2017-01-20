@@ -39,7 +39,7 @@ the MathJax JavaScript library. The mathematical notations must be surrounded
 by correct delimiters: which delimiters are recognized depends on the Moodle
 site configuration. If the rendering of mathematics is enabled in Moodle, the
 content from the exercise service should not include its own version of, e.g.,
-the MathJax library (in a <script> element within the exercise HTML content).
+the MathJax library (in a `<script>` element within the exercise HTML content).
 
 By default, the Moodle MathJax filter recognizes two sets of delimiters:
 inline formulas use `\( equation \)` and centered formulas use `$$ equation $$`.
