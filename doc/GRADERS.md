@@ -28,6 +28,21 @@ grader services in private network.
 
 	The maximum points for this exercise set by "teacher" in A+.
 
+* `uid`
+
+	User identifier(s) of the student(s) who is/are viewing the exercise.
+	UIDs are not the same as student ids.
+	If there is more than one student, the UIDs (integers) are sorted and combined
+	into one string with dash as the separator, e.g., "2-14-458".
+
+* `ordinal_number`
+
+	Ordinal number of the next submission that the student has not yet made, i.e.,
+	the value is incremented by one from the current count of submissions.
+	The first submission has ordinal number one. If the exercise changes as
+	the submission count increases, the state of the exercise when viewing it
+	matches the state when a new submission is made and graded.
+
 The grader service responds with an HTML document. The BODY (or if `<div id="exercise">`
 exists) will be presented to the student. Normally the content will include a FORM
 posting a submission with any exercise values or files.
@@ -48,6 +63,16 @@ The FORM must use empty (or `post_url`) as ACTION.
 * `max_points`
 
 	The maximum points for this exercise set by "teacher" in A+.
+
+* `uid`
+
+	Same as when viewing the exercise. User identifier(s) of the student(s)
+	submitting to the exercise.
+
+* `ordinal_number`
+
+	Ordinal number of the new submission that is going to be graded.
+	The first submission has ordinal number one.
 
 The grader service responds with an HTML document. The BODY (or if `<div id="exercise">`
 exists) will be presented to the student. Normally the content includes feedback
