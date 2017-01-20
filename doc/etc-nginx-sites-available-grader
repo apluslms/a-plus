@@ -29,6 +29,11 @@ server {
         uwsgi_pass django;
         include uwsgi_params;
     }
+    location /generatedfile {
+        # client web browsers may need to download generated files in personalized exercises
+        uwsgi_pass django;
+        include uwsgi_params;
+    }
     location / {
 
         # If the static content is served public limit grading separately.
