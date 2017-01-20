@@ -1,12 +1,22 @@
 A+ Deployment Instructions
 ==========================
 
-Walkthrough for Ubuntu on 6/2015
---------------------------------
+Walkthrough for Ubuntu
+----------------------
 
-1. Python 3.4 was not yet a system package, compile from source.
+		$ lsb_release -a
+		No LSB modules are available.
+		Distributor ID:	Ubuntu
+		Description:	Ubuntu 16.04.1 LTS
+		Release:	16.04
+		Codename:	xenial
 
-		sudo apt-get install libsqlite3-dev
+1. Currently A+ is stuck with Python 3.4.3
+	due to stuck with Django 1.7
+	due to django.contrib.contenttypes dependency in ModelWithInheritance
+	(TODO: drop the model inheritance completely)
+
+		sudo apt-get install build-essential libssl-dev libsqlite3-dev
 		wget https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tar.xz
 		tar xvf Python-3.4.3.tar.xz
 		cd Python-3.4.3
@@ -19,7 +29,13 @@ Walkthrough for Ubuntu on 6/2015
 		sudo pip3 install --upgrade pip
 		sudo pip3 install virtualenv
 
-3. Create the Django application.
+3. Clone the Django application.
+
+	Preferably as a custom user:
+
+		sudo useradd -mUrd /srv/aplus aplus
+		sudo su aplus
+		cd
 
 		git clone  https://github.com/Aalto-LeTech/a-plus.git
 
@@ -27,7 +43,8 @@ Walkthrough for Ubuntu on 6/2015
 		source venv/bin/activate
 		pip install -r a-plus/requirements.txt
 
-		cd a-plus; ./manage.py test
+		cd a-plus
+		mkdir media
 
 4. Add Postgre SQL database.
 
@@ -35,8 +52,8 @@ Walkthrough for Ubuntu on 6/2015
 		sudo -u postgres psql
 			create database aplus;
 			\c aplus
-			create role [shell-username] with login;
-			grant all privileges on database aplus to [shell-username];
+			create role aplus with login;
+			grant all privileges on database aplus to aplus;
 			\q
 
 		source venv/bin/activate
@@ -50,7 +67,7 @@ Walkthrough for Ubuntu on 6/2015
 
 5. Configure Django.
 
-	Add file (to project root) `/home/[shell-username]/a-plus/local_settings.py`:
+	Add file (to project root) `/srv/aplus/a-plus/local_settings.py`:
 
 		ADMINS = (
 			('My Name', 'my.name@domain.org'),
@@ -97,6 +114,8 @@ Walkthrough for Ubuntu on 6/2015
 9. Configure uWSGI.
 
 		sudo mkdir /var/log/uwsgi
+		sudo touch /var/log/uwsgi/aplus.log
+		sudo chown aplus:aplus /var/log/uwsgi/aplus.log
 		sudo mkdir -p /etc/uwsgi/apps-enabled
 		cd /etc/uwsgi/apps-enabled
 		sudo mkdir ../apps-available
@@ -106,16 +125,34 @@ Walkthrough for Ubuntu on 6/2015
 	Edit file `aplus.ini`:
 
 		[uwsgi]
-		chdir=/home/[shell-username]/a-plus
+		chdir=/srv/aplus/a-plus
 		module=aplus.wsgi:application
-		home=/home/[shell-username]/venv
+		home=/srv/aplus/venv
 		master=True
-		uid=[shell-username]
-		gid=[shell-username]
+		uid=aplus
+		gid=aplus
 		daemonize=/var/log/uwsgi/aplus.log
 		socket=127.0.0.1:3031
 
-	Add file `/etc/init/uwsgi.conf`:
+	Ubuntu systemd, Add file `/lib/systemd/system/uwsgi.service`:
+
+		[Unit]
+		Description=uWSGI Python Web Server
+
+		[Service]
+		Type=simple
+		ExecStart=/srv/aplus/venv/bin/uwsgi --emperor /etc/uwsgi/apps-enabled
+
+		[Install]
+		WantedBy=multi-user.target
+
+	Ubuntu systemd, Operate with:
+
+		sudo systemctl status uwsgi
+		sudo systemctl start uwsgi
+		sudo systemctl restart uwsgi
+
+	*DEPRECATED Ubuntu upstart*, Add file `/etc/init/uwsgi.conf`:
 
 		description "uWSGI Python Web Server"
 		start on runlevel [2345]
@@ -125,12 +162,14 @@ Walkthrough for Ubuntu on 6/2015
 
 		exec /home/[shell-username]/venv/bin/uwsgi --emperor /etc/uwsgi/apps-enabled
 
-	Operate with:
+	*DEPRECATED Ubuntu upstart*, Operate with:
 
 		sudo status uwsgi
 		sudo start uwsgi
 
-		# Force application reload with
+	Discreet application reload that does not break connections
+	(make sure uwsgi has write access to the log file)
+
 		sudo touch /etc/uwsgi/apps-enabled/aplus.ini
 
 10. Install Apache and libraries.
@@ -158,11 +197,11 @@ Walkthrough for Ubuntu on 6/2015
 
 11. Configure Apache.
 
-		sudo touch /etc/apache2/sites-available/aplus-ssl
+		sudo touch /etc/apache2/sites-available/aplus-ssl.conf
 		cd /etc/apache2/sites-enabled
-		sudo ln -s ../sites-available/aplus-ssl 000-aplus-ssl
+		sudo ln -s ../sites-available/aplus-ssl.conf 000-aplus-ssl.conf
 
-	Edit `000-aplus-ssl`:
+	Edit `000-aplus-ssl.conf`:
 
 		<IfModule mod_ssl.c>
 		<VirtualHost _default_:443>
@@ -227,5 +266,5 @@ Walkthrough for Ubuntu on 6/2015
 12. Run it all.
 
 		sudo /etc/init.d/shibd restart
-		sudo restart uwsgi
+		sudo systemctl restart uwsgi
 		sudo /etc/init.d/apache2 restart
