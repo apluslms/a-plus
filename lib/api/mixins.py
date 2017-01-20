@@ -14,7 +14,5 @@ class MeUserMixin(object):
         kw = self.me_user_url_kw
         value = kwargs.get(kw, None)
         if value and self.me_user_value == value:
-            # Use the userprofile id that is used in model relations.
-            # Note that this may differ from user id!
-            kwargs[kw] = request.user.userprofile.id
+            kwargs[kw] = request.user.id if request.user.is_authenticated else None
         return super(MeUserMixin, self).dispatch(request, *args, **kwargs)
