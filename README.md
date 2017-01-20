@@ -77,21 +77,22 @@ Installing the full stack
 
 > 6/2014 - Ubuntu 12.04.4
 
-1. ### User account
+0. ### User account
 
-On a server, one can install mooc-grader for a specific grader
-user account.
+	On a server, one can install mooc-grader for a specific grader
+	user account.
 
 		sudo useradd -mUrd /srv/grader grader
 		cd
 
-Then follow the "Installing for development" and continue from here.
+	Then follow the "Installing for development" and continue from here.
 
 1. ### Web server configuration
 
 	Install uwsgi to run WSGI processes. The **mooc-grader directory
 	and user must** be set in the configuration files.
-	(Ubuntu < 15.04 uses Upstart, systemd for Ubuntu >= 15.04 is described after it.)
+
+	#### uWSGI with Upstart (Ubuntu < 15.04)
 
 		source venv/bin/activate
 		pip install uwsgi
