@@ -67,5 +67,5 @@ class CourseSubmissionsBriefSerializer(UserBriefSerializer):
     def get_url(self, obj):
         return reverse('api:course-submissiondata-detail', kwargs={
             'course_id': self.context['view'].instance.id,
-            'user_id': obj.id,
+            'user_id': obj.user.id,
         }, request=self.context['request'])

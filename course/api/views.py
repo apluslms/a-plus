@@ -80,6 +80,7 @@ class CourseStudentsViewSet(NestedViewSetMixin,
     )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
+    lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
     serializer_class = UserBriefSerializer
     queryset = UserProfile.objects.all()
@@ -97,6 +98,7 @@ class CoursePointsViewSet(NestedViewSetMixin,
     )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
+    lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
     queryset = UserProfile.objects.all()
 
@@ -183,10 +185,10 @@ class CoursePointsViewSet(NestedViewSetMixin,
 
     def student_information(self, student, course_id, request):
         student_detail = reverse('api:course-points-detail', kwargs={
-            'version': 2, 'course_id': course_id, 'user_id': student.id,
+            'version': 2, 'course_id': course_id, 'user_id': student.user.id,
         }, request=request)
         student_link = reverse('api:user-detail', kwargs={
-            'version': 2, 'user_id': student.id,
+            'version': 2, 'user_id': student.user.id,
         }, request=request)
         return {
             "studentnumber": student.student_id,
@@ -246,6 +248,7 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
     )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
+    lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
     listserializer_class = CourseSubmissionsBriefSerializer
     serializer_class = SubmissionDataSerializer
