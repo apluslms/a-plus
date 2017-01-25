@@ -72,7 +72,7 @@ def post_result(submission_url, course, exercise, template, result):
             LOGGER.error("Result POST to \"%s\" got unexpected response: %s",
                 submission_url, rsp.body)
     except Exception:
-        LOGGER.error("Failed to submit \"%s\"", submission_url)
+        LOGGER.exception("Failed to submit \"%s\"", submission_url)
 
 
 def post_system_error(submission_url, course=None, exercise=None):
