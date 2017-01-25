@@ -246,7 +246,7 @@ def acceptGitUser(request, course, exercise, post_url):
 
     user = get_uid(request)
     if request.method == "POST":
-        if user is None and "user" in request.POST and "hash" in request.POST:
+        if "user" in request.POST and "hash" in request.POST:
             user = request.POST["user"]
             if make_hash(auth_secret, user) != request.POST["hash"]:
                 raise PermissionDenied()
