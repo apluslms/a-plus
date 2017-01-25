@@ -32,7 +32,7 @@ from util.http import not_modified_since, not_modified_response, cache_headers
 from util.queue import queue_length
 from util.templates import render_configured_template, render_template, \
     template_to_str
-from .auth import detect_user, make_hash, get_uid
+from .auth import make_hash, get_uid
 from ..config import ConfigError
 from .. import tasks
 
@@ -244,7 +244,7 @@ def acceptGitUser(request, course, exercise, post_url):
     if not "git_address" in exercise:
         raise  ConfigError("Missing \"git_address\" in exercise configuration.")
 
-    user = detect_user(request)
+    user = get_uid(request)
     if request.method == "POST":
         if user is None and "user" in request.POST and "hash" in request.POST:
             user = request.POST["user"]

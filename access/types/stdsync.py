@@ -24,7 +24,7 @@ from util.cache import InProcessCache
 from util.http import not_modified_since, not_modified_response, cache_headers
 from util.templates import render_configured_template, render_template
 from .forms import GradedForm
-from .auth import detect_user, make_hash
+from .auth import make_hash, get_uid
 from ..config import ConfigError
 
 
@@ -175,7 +175,7 @@ def md5Authentication(request, course, exercise, post_url):
     '''
     Creates an md5 hash for user authentication.
     '''
-    user = detect_user(request)
+    user = get_uid(request)
     key = make_hash(exercise["auth_secret"], user)
     return render_configured_template(request, course, exercise, post_url,
         None, { "user": user, "hash": key })

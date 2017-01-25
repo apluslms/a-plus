@@ -2,23 +2,6 @@ from hashlib import md5
 from django.conf import settings
 
 
-def detect_user(request):
-    '''
-    Tries to detect userid from the request.
-    '''
-    user = request.GET.get("user", None)
-
-    # Check submission_url for A+ userid.
-    if not user and "submission_url" in request.GET:
-        parts = request.GET["submission_url"].partition("/rest/exercise/")[2].split("/")
-        if len(parts) > 4 and parts[1] == "students":
-            return parts[2].split("-")[0]
-
-    if user:
-        return user.strip()
-    return user
-
-
 def make_hash(secret, user):
     '''
     Creates a hash key for a user.
@@ -37,11 +20,11 @@ def get_uid(request):
     '''
     user_ids = request.GET.get("uid", "")
     # format: "1" for one user, "1-2-3" for many
-    
+
     if not user_ids and settings.DEBUG:
         # in debug mode, set a default id if the URL has no GET query parameter
         user_ids = "1"
-        
+
     return user_ids
 
 
