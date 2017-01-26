@@ -3,47 +3,94 @@ from django import template
 from django.conf import settings
 from django.utils import timezone
 
+from exercise.cache.content import CachedContent
 from course.models import CourseInstance
+from ..cache import CachedTopMenu
+from ..renders import tags_context
 
 
 register = template.Library()
 
 
+def _prepare_topmenu(context):
+    if 'topmenu' not in context:
+        request = context.get('request', None)
+        context['topmenu'] = CachedTopMenu(request.user if request else None)
+    return context['topmenu']
+
+
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
 def course_menu(context):
-    if "course_menu" not in context:
-        six_months_before = timezone.now() - timedelta(days=180)
-        context["course_menu"] = \
-            list(CourseInstance.objects.get_enrolled(context["user"], six_months_before)) + \
-            list(CourseInstance.objects.get_on_staff(context["user"], six_months_before))
-    return { "instances": context["course_menu"] }
+    menu = _prepare_topmenu(context)
+    return { "instances": menu.courses() }
+
+
+@register.inclusion_tag('course/_group_select.html', takes_context=True)
+def group_select(context):
+    instance = context.get('instance', None)
+    if not instance:
+        return { 'groups': [] }
+    menu = _prepare_topmenu(context)
+    groups, selected = menu.groups(instance)
+    return {
+        'instance': instance,
+        'groups': groups,
+        'selected': selected,
+    }
+
+
+@register.filter
+def is_visible(entry):
+    return CachedContent.is_visible(entry)
+
+
+@register.filter
+def is_listed(entry):
+    return CachedContent.is_listed(entry)
+
+
+@register.filter
+def len_listed(entries):
+    return len([e for e in entries if CachedContent.is_listed(e)])
+
+
+@register.filter
+def is_in_maintenance(entry):
+    return CachedContent.is_in_maintenance(entry)
+
+
+@register.filter
+def is_open(entry, now):
+    return entry['opening_time'] <= now <= entry['closing_time']
+
+
+@register.filter
+def has_opened(entry, now):
+    return entry['opening_time'] <= now
 
 
 @register.filter
 def url(model_object, name=None):
     if name:
         return model_object.get_url(name)
-    return model_object.get_absolute_url()
+    return model_object.get_display_url()
 
 
 @register.filter
-def profiles(profiles):
-    return ", ".join(
-        "{} ({})".format(
-            profile.user.get_full_name(),
-            profile.student_id if profile.student_id else profile.user.username
-        ) for profile in profiles
-    )
+def names(profiles):
+    return ", ".join(p.user.get_full_name() for p in profiles)
 
 
-@register.simple_tag
-def brand_name():
-    return settings.BRAND_NAME
+@register.inclusion_tag('course/_avatars.html')
+def avatars(profiles):
+    return { 'profiles': profiles }
 
 
-@register.simple_tag
-def site_alert():
-    if settings.SITEWIDE_ALERT_TEXT:
-        return '<div class="alert alert-danger">{}</div>'.format(
-            settings.SITEWIDE_ALERT_TEXT)
-    return ''
+@register.inclusion_tag("course/_profiles.html")
+def profiles(profiles, instance):
+    return { 'instance': instance, 'profiles': profiles }
+
+
+@register.inclusion_tag("course/_tags.html")
+def tags(profile, instance):
+    return tags_context(profile, profile.taggings.tags_for_instance(instance))

@@ -1,7 +1,4 @@
 import datetime
-import hashlib
-import hmac
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
@@ -9,19 +6,34 @@ from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models.signals import post_delete
+from django.db.models import signals
+from django.db.models.signals import post_delete, post_save
 from django.template import loader, Context
 from django.utils import timezone
 from django.utils.formats import date_format
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language, ugettext_lazy as _
 
-from course.models import CourseModule, LearningObjectCategory
-from external_services.lti import LTIRequest
+from aplus.api import api_reverse
+from course.models import CourseInstance, CourseModule, LearningObjectCategory
+from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
-from lib.helpers import update_url_params, has_same_domain, safe_file_name, roman_numeral
+from lib.api.authentication import (
+    get_graderauth_submission_params,
+    get_graderauth_exercise_params,
+)
+from lib.fields import JSONField
+from lib.helpers import (
+    Enum,
+    update_url_params,
+    has_same_domain,
+    safe_file_name,
+    roman_numeral,
+)
+from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
+from .cache.exercise import ExerciseCache
 from .protocol.aplus import load_exercise_page, load_feedback_page
 from .protocol.exercise_page import ExercisePage
 
@@ -30,38 +42,49 @@ class LearningObjectManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset()\
-            .defer('description', 'content', 'content_head')\
+            .defer('description')\
             .select_related('course_module', 'course_module__course_instance',
                 'course_module__course_instance__course', 'category')
 
-    def find_enrollment_exercise(self, course_instance):
-        return self.filter(
+    def find_enrollment_exercise(self, course_instance, profile):
+        exercise = None
+        if profile.is_external:
+            exercise = self.filter(
+                course_module__course_instance=course_instance,
+                status='enrollment_ext'
+            ).first()
+        return exercise or self.filter(
             course_module__course_instance=course_instance,
             status='enrollment'
         ).first()
 
 
-class LearningObject(ModelWithInheritance):
+class LearningObject(UrlMixin, ModelWithInheritance):
     """
     All learning objects inherit this model.
     """
-    STATUS_READY = 'ready'
-    STATUS_UNLISTED = 'unlisted'
-    STATUS_ENROLLMENT = 'enrollment'
-    STATUS_HIDDEN = 'hidden'
-    STATUS_MAINTENANCE = 'maintenance'
-    STATUS_CHOICES = (
-        (STATUS_READY, _("Ready")),
-        (STATUS_UNLISTED, _("Unlisted in table of contents")),
-        (STATUS_ENROLLMENT, _("Enrollment questions")),
-        (STATUS_HIDDEN, _("Hidden from non course staff")),
-        (STATUS_MAINTENANCE, _("Maintenance")),
-    )
+    STATUS = Enum([
+        ('READY', 'ready', _("Ready")),
+        ('UNLISTED', 'unlisted', _("Unlisted in table of contents")),
+        ('ENROLLMENT', 'enrollment', _("Enrollment questions")),
+        ('ENROLLMENT_EXTERNAL', 'enrollment_ext', _("Enrollment questions for external students")),
+        ('HIDDEN', 'hidden', _("Hidden from non course staff")),
+        ('MAINTENANCE', 'maintenance', _("Maintenance")),
+    ])
+    AUDIENCE = Enum([
+        ('COURSE_AUDIENCE', 0, _('Course audience')),
+        ('INTERNAL_USERS', 1, _('Only internal users')),
+        ('EXTERNAL_USERS', 2, _('Only external users')),
+        ('REGISTERED_USERS', 3, _('Only registered users')),
+    ])
     status = models.CharField(max_length=32,
-        choices=STATUS_CHOICES, default=STATUS_READY)
+        choices=STATUS.choices, default=STATUS.READY)
+    audience = models.IntegerField(choices=AUDIENCE.choices,
+        default=AUDIENCE.COURSE_AUDIENCE)
     category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
     course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL,
+        blank=True, null=True, related_name='children')
     order = models.IntegerField(default=1)
     url = models.CharField(max_length=255,
         validators=[RegexValidator(regex="^[\w\-\.]*$")],
@@ -71,10 +94,16 @@ class LearningObject(ModelWithInheritance):
         help_text=_("Internal description is not presented on site."))
     use_wide_column = models.BooleanField(default=False,
         help_text=_("Remove the third info column for more space."))
+
     service_url = models.URLField(blank=True)
+    exercise_info = JSONField(blank=True)
+    model_answers = models.TextField(blank=True,
+        help_text=_("List model answer files as protected URL addresses."))
+
+    # Keep this to support ExerciseWithAttachment
+    # Maybe this should inject extra content to any exercise
     content = models.TextField(blank=True)
-    content_head = models.TextField(blank=True)
-    content_time = models.DateTimeField(blank=True, null=True)
+
     objects = LearningObjectManager()
 
     class Meta:
@@ -105,28 +134,46 @@ class LearningObject(ModelWithInheritance):
                 'url':_("Taken words include: {}").format(", ".join(RESERVED))
             })
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Trigger LearningObject post save signal for extending classes.
+        cls = self.__class__
+        while cls.__bases__:
+            cls = cls.__bases__[0]
+            if cls.__name__ == 'LearningObject':
+                signals.post_save.send(sender=cls, instance=self)
+
     def __str__(self):
         if self.order >= 0:
-            if self.course_instance.content_numbering == 1:
+            if self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
                 number = self.number()
-                if self.course_instance.module_numbering in [1,3]:
-                    return "{:d}{} {}".format(self.course_module.order,
-                        number, self.name)
-                return "{} {}".format(number[1:], self.name)
-            elif self.course_instance.content_numbering == 2:
+                if self.course_instance.module_numbering in (
+                        CourseInstance.CONTENT_NUMBERING.ARABIC,
+                        CourseInstance.CONTENT_NUMBERING.HIDDEN,
+                    ):
+                    return "{:d}.{} {}".format(self.course_module.order, number, self.name)
+                return "{} {}".format(number, self.name)
+            elif self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
     def number(self):
-        parent = self.course_module._children().parent(self)
-        if parent:
-            return "{}.{:d}".format(parent.number(), self.order)
-        return ".{:d}".format(self.order)
+        return ".".join([str(o.order) for o in self.parent_list()])
+
+    def parent_list(self):
+        if not hasattr(self, '_parents'):
+            def recursion(obj, parents):
+                if not obj is None:
+                    return recursion(obj.parent, [obj] + parents)
+                return parents
+            self._parents = recursion(self.parent, [self])
+        return self._parents
 
     @property
     def course_instance(self):
         return self.course_module.course_instance
 
+    @property
     def is_submittable(self):
         return False
 
@@ -142,70 +189,67 @@ class LearningObject(ModelWithInheritance):
     def is_after_open(self, when=None):
         return self.course_module.is_after_open(when=when)
 
-    def next(self):
-        return self.course_module._children().next(self)
-
-    def previous(self):
-        return self.course_module._children().previous(self)
-
-    def flat_learning_objects(self, with_sub_markers=True):
-        return self.course_module._children().flat(self, with_sub_markers)
-
-    def parent_cached(self):
-        return self.course_module._children().parent(self)
-
-    def parent_list(self):
-        parents = self.course_module._children().parents(self)
-        return parents[:-1]
-
-    def get_path_parts(self):
-        return [n.url for n in self.course_module._children().parents(self)]
+    def is_closed(self, when=None):
+        return self.course_module.is_closed(when=when)
 
     def get_path(self):
-        return '/'.join(self.get_path_parts())
+        return "/".join([o.url for o in self.parent_list()])
 
-    def get_url(self, name):
-        instance = self.course_instance
-        return reverse(name, kwargs={
-            "course": instance.course.url,
-            "instance": instance.url,
-            "module": self.course_module.url,
-            "exercise_path": self.get_path(),
-        })
+    ABSOLUTE_URL_NAME = "exercise"
 
-    def get_absolute_url(self):
-        return self.get_url("exercise")
+    def get_url_kwargs(self):
+        return dict(exercise_path=self.get_path(), **self.course_module.get_url_kwargs())
+
+    def get_display_url(self):
+        if self.status == self.STATUS.UNLISTED and self.parent:
+            return "{}#chapter-exercise-{:d}".format(
+                self.parent_list()[-2].get_absolute_url(),
+                self.order
+            )
+        return self.get_absolute_url()
 
     def get_submission_list_url(self):
         return self.get_url("submission-list")
-
-    def get_load_url(self, request, students, url_name="exercise"):
-        return self.service_url
 
     def load(self, request, students, url_name="exercise"):
         """
         Loads the learning object page.
         """
+        page = ExercisePage(self)
         if not self.service_url:
-            return ExercisePage(self)
-
-        # Archived course presents static copy.
-        if self.id and self.course_instance.ending_time < timezone.now() and self.content:
-            page = ExercisePage(self)
-            page.is_loaded = True
-            page.content_head = self.content_head
-            page.content = self.content
-
-        else:
-            page = load_exercise_page(request, self.get_load_url(
-                request, students, url_name), self)
-            if self.id and (not self.content_time or \
-                    self.content_time + datetime.timedelta(days=3) < timezone.now()):
-                self.content_time = timezone.now()
-                self.content_head = page.head
-                self.content = page.content
-                self.save()
+            return page
+        language = get_language()
+        cache = ExerciseCache(self, language, request, students, url_name)
+        page.head = cache.head()
+        page.content = cache.content()
+        page.is_loaded = True
         return page
+
+    def load_page(self, language, request, students, url_name, last_modified=None):
+        return load_exercise_page(
+            request,
+            self.get_load_url(language, request, students, url_name),
+            last_modified,
+            self
+        )
+
+    def get_load_url(self, language, request, students, url_name="exercise"):
+        return update_url_params(self.service_url, {
+            'lang': language,
+        })
+
+    def get_models(self):
+        return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
+
+
+def invalidate_exercise(sender, instance, **kwargs):
+    for language,_ in settings.LANGUAGES:
+        ExerciseCache.invalidate(instance, modifiers=[language])
+
+
+# Automatically invalidate cached exercise html when edited.
+post_save.connect(invalidate_exercise, sender=LearningObject)
+post_delete.connect(invalidate_exercise, sender=LearningObject)
 
 
 class LearningObjectDisplay(models.Model):
@@ -238,6 +282,9 @@ class BaseExercise(LearningObject):
     max_submissions = models.PositiveIntegerField(default=10)
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
+    difficulty = models.CharField(max_length=32, blank=True)
+    confirm_the_level = models.BooleanField(default=False,
+        help_text=_("Once this exercise is graded non zero it confirms all the points on this level. Implemented as a mandatory feedback feature."))
 
     class Meta:
         app_label = 'exercise'
@@ -251,17 +298,13 @@ class BaseExercise(LearningObject):
             raise ValidationError({
                 'points_to_pass':_("Points to pass cannot be greater than max_points.")
             })
+        if self.min_group_size > self.max_group_size:
+            raise ValidationError({
+                'min_group_size':_("Minimum group size cannot exceed maximum size.")
+            })
 
+    @property
     def is_submittable(self):
-        return True
-
-    def all_have_enrolled(self, students):
-        if not students:
-            return False
-        for profile in students:
-            if not (self.course_instance.is_student(profile.user) \
-                    or self.course_instance.is_course_staff(profile.user)):
-                return False
         return True
 
     def one_has_access(self, students, when=None):
@@ -271,10 +314,11 @@ class BaseExercise(LearningObject):
         """
         when = when or timezone.now()
         module = self.course_module
-        if module.is_open(when=when) \
-        or module.is_late_submission_open(when=when):
+        if self.confirm_the_level and self.course_instance.is_open(when=when):
             return True
-        if self.course_module.is_after_open(when=when):
+        if module.is_open(when=when) or module.is_late_submission_open(when=when):
+            return True
+        if module.is_after_open(when=when):
             deviation = self.one_has_deadline_deviation(students)
             if deviation and when <= deviation.get_new_deadline():
                 return True
@@ -316,128 +360,173 @@ class BaseExercise(LearningObject):
                 return True
         return False
 
-    def is_submission_allowed(self, students):
+    def is_submission_allowed(self, profile):
         """
         Checks whether the submission to this exercise is allowed for the given
-        users and generates list of warnings.
+        user and generates a list of warnings.
 
         @return: (success_flag, warning_message_list)
         """
-        success, warnings = self._check_submission_allowed(students)
-        return success, list(str(w) for w in warnings)
+        success, warnings, students = self._check_submission_allowed(profile)
+        return success, list(str(w) for w in warnings), students
 
-    def _check_submission_allowed(self, students):
+    def _check_submission_allowed(self, profile):
         warnings = []
+        students = [profile]
 
         if self.course_instance.ending_time < timezone.now():
             warnings.append(_('The course is archived. Exercises are offline.'))
-            return False, warnings
+            return False, warnings, students
 
-        if self.status == LearningObject.STATUS_ENROLLMENT:
-            if not len(students) == 1 and \
-                    not self.course_instance.is_enrollable(students[0].user):
-                warnings.append(_('You cannot enroll to the course.'))
-                return False, warnings
-        elif not self.all_have_enrolled(students):
+        # Check enrollment requirements.
+        enrollment = self.course_instance.get_enrollment_for(profile.user)
+        if self.status in (
+            LearningObject.STATUS.ENROLLMENT,
+            LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+        ):
+            if not self.course_instance.is_enrollable(profile.user):
+                warnings.append(_('You cannot enroll in the course.'))
+                return False, warnings, students
+        elif not enrollment and not self.course_instance.is_course_staff(profile.user):
             warnings.append(_('You must enroll at course home to submit exercises.'))
-            return False, warnings
+            return False, warnings, students
 
-        # Check different submission limits.
+        # Check groups cannot be changed after submitting.
+        submissions = list(self.get_submissions_for_student(profile))
+        if len(submissions) > 0:
+            if self._detect_group_changes(profile, enrollment, submissions[0]):
+                warnings.append(_('You have previously submitted to this exercise with a different group. Group can only change between different exercises.'))
+                return False, warnings, students
+        elif self._detect_submissions(profile, enrollment):
+            warnings.append(_('Some members of the group have already submitted to this exercise in a different group.'))
+            return False, warnings, students
+
+        # Get submitters.
+        if enrollment and enrollment.selected_group:
+            students = list(enrollment.selected_group.members.all())
+
         if not self.one_has_access(students):
             warnings.append(_('This exercise is not open for submissions.'))
-        if not (self.min_group_size <= len(students) <= self.max_group_size):
-            warnings.append(
-                _('This exercise can be submitted in groups of %(min)d to %(max)d students.'
-                  'The size of your current group is %(size)d.') % {
-                    'min': self.min_group_size,
-                    'max': self.max_group_size,
-                    'size': len(students),
-                })
+
         if not self.one_has_submissions(students):
+            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
+
+        # Check group size.
+        if not (self.min_group_size <= len(students) <= self.max_group_size):
+            if self.max_group_size == self.min_group_size:
+                size = "{:d}".format(self.min_group_size)
+            else:
+                size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
             warnings.append(
-                _('You have used the allowed amount of submissions for this exercise.'))
+                _("This exercise can be submitted in groups of {size} students. "
+                  "The size of your current group is {current}.")\
+                .format(size=size, current=len(students))
+            )
 
         success = len(warnings) == 0 \
             or all(self.course_instance.is_course_staff(p.user) for p in students)
 
         # If late submission is open, notify the student about point reduction.
-        if self.course_module.is_late_submission_open():
+        if (
+            not self.confirm_the_level
+            and self.course_module.is_late_submission_open()
+        ):
             warnings.append(
-                _('Deadline for the exercise has passed. Late submissions are allowed until'
+                _('Deadline for the exercise has passed. Late submissions are allowed until '
                   '{date} but points are only worth {percent:d}%.').format(
                     date=date_format(self.course_module.late_submission_deadline),
                     percent=self.course_module.get_late_submission_point_worth(),
                 ))
-        return success, warnings
+
+        return success, warnings, students
+
+    def _detect_group_changes(self, profile, enrollment, submission):
+        submitters = list(submission.submitters.all())
+        if enrollment and enrollment.selected_group:
+            return not enrollment.selected_group.equals(submitters)
+        else:
+            return len(submitters) > 1 or submitters[0] != profile
+
+    def _detect_submissions(self, profile, enrollment):
+        if enrollment and enrollment.selected_group:
+            return not all(
+                len(self.get_submissions_for_student(p)) == 0
+                for p in enrollment.selected_group.members.all() if p != profile
+            )
+        return False
 
     def get_total_submitter_count(self):
         return UserProfile.objects \
             .filter(submissions__exercise=self) \
             .distinct().count()
 
-    def get_async_hash(self, students):
-        student_str = "-".join(
-            sorted(str(userprofile.id) for userprofile in students)
-        ) if students else "-"
-        identifier = "{}.{:d}".format(student_str, self.id)
-        hash_key = hmac.new(
-            settings.SECRET_KEY.encode('utf-8'),
-            msg=identifier.encode('utf-8'),
-            digestmod=hashlib.sha256
-        )
-        return student_str, hash_key.hexdigest()
-
-    def get_load_url(self, request, students, url_name="exercise"):
+    def get_load_url(self, language, request, students, url_name="exercise"):
         if self.id:
-            student_str, hash_key = self.get_async_hash(students)
-            return self._build_service_url(request, student_str, url_name, reverse(
-                "async-new", kwargs={
-                    "exercise_id": self.id if self.id else 0,
-                    "student_ids": student_str,
-                    "hash_key": hash_key
-                }
-            ))
-        else:
-            return self.service_url
+            if request.user.is_authenticated():
+                user = request.user
+                submission_count = self.get_submissions_for_student(user.userprofile).count()
+            else:
+                user = None
+                submission_count = 0
+            # Make grader async URL for the currently authenticated user.
+            # The async handler will handle group selection at submission time.
+            submission_url = update_url_params(
+                api_reverse("exercise-grader", kwargs={
+                    'exercise_id': self.id
+                }),
+                get_graderauth_exercise_params(self, user),
+            )
+            return self._build_service_url(
+                language, request, students,
+                submission_count + 1, url_name, submission_url
+            )
+        return super().get_load_url(language, request, students, url_name)
 
-    def grade(self, request, submission,
-            no_penalties=False, url_name="exercise"):
+    def grade(self, request, submission, no_penalties=False, url_name="exercise"):
         """
         Loads the exercise feedback page.
         """
-        student_str, _ = self.get_async_hash(submission.submitters.all())
-        url = self._build_service_url(request, student_str, url_name, reverse(
-            "async-grade", kwargs={
-                "submission_id": submission.id,
-                "hash_key": submission.hash
-            }))
-        return load_feedback_page(request, url, self, submission,
-            no_penalties=no_penalties)
+        language = get_language()
+        submission_url = update_url_params(
+            api_reverse("submission-grader", kwargs={
+                'submission_id': submission.id
+            }),
+            get_graderauth_submission_params(submission),
+        )
+        url = self._build_service_url(
+            language, request, submission.submitters.all(),
+            submission.ordinal_number(), url_name, submission_url
+        )
+        return load_feedback_page(
+            request, url, self, submission, no_penalties=no_penalties
+        )
 
-    def modify_post_parameters(self, data, files, user, host, url):
+    def modify_post_parameters(self, data, files, user, students, host, url):
         """
         Allows to modify submission POST parameters before they are sent to
         the grader. Extending classes may implement this function.
         """
         pass
 
-    def _build_service_url(self, request, uid, url_name, submission_url):
+    def _build_service_url(self, language, request, students, ordinal_number, url_name, submission_url):
         """
         Generates complete URL with added parameters to the exercise service.
         """
-        params = {
+        uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
+        return update_url_params(self.service_url, {
             "max_points": self.max_points,
+            "max_submissions": self.max_submissions,
             "submission_url": request.build_absolute_uri(submission_url),
-            "post_url": request.build_absolute_uri(
-                str(self.get_url(url_name))),
-            "uid": uid or 0,
-        }
-        return update_url_params(self.service_url, params)
+            "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
+            "uid": uid_str,
+            "ordinal_number": ordinal_number,
+            "lang": language,
+        })
 
 
 class LTIExercise(BaseExercise):
     """
-    Exercise launched by LTI or optionally ameding A+ protocol with LTI data.
+    Exercise launched by LTI or optionally amending A+ protocol with LTI data.
     """
     lti_service = models.ForeignKey(LTIService)
     context_id = models.CharField(max_length=128, blank=True,
@@ -463,8 +552,11 @@ class LTIExercise(BaseExercise):
         if self.aplus_get_and_post:
             return super().load(request, students, url_name=url_name)
 
+        if not students:
+            return ExercisePage(self)
+
         url = self.service_url or self.lti_service.url
-        lti = self._get_lti(students[0].user, request.get_host())
+        lti = self._get_lti(students[0].user, students, request.get_host())
 
         # Render launch button.
         page = ExercisePage(self)
@@ -478,28 +570,29 @@ class LTIExercise(BaseExercise):
         }))
         return page
 
-    def _get_lti(self, user, host, add={}):
-        return LTIRequest(
+    def _get_lti(self, user, students, host, add=None):
+        return CustomStudentInfoLTIRequest(
             self.lti_service,
             user,
+            students,
             self.course_instance,
             host,
             self.resource_link_title or self.name,
             self.context_id or None,
             self.resource_link_id or "aplusexercise{:d}".format(self.id or 0),
-            add=add,
+            add,
         )
 
-    def get_load_url(self, request, students, url_name="exercise"):
-        url = super().get_load_url(request, students, url_name=url_name)
+    def get_load_url(self, language, request, students, url_name="exercise"):
+        url = super().get_load_url(language, request, students, url_name)
         if self.lti_service and students:
-            lti = self._get_lti(students[0].user, request.get_host())
+            lti = self._get_lti(students[0].user, [], request.get_host())
             return lti.sign_get_query(url)
         return url
 
-    def modify_post_parameters(self, data, files, user, host, url):
+    def modify_post_parameters(self, data, files, user, students, host, url):
         literals = {key: str(val[0]) for key,val in data.items()}
-        lti = self._get_lti(user, host, add=literals)
+        lti = self._get_lti(user, students, host, add=literals)
         data.update(lti.sign_post_parameters(url))
 
 
@@ -520,8 +613,7 @@ class StaticExercise(BaseExercise):
         page.content = self.exercise_page_content
         return page
 
-    def grade(self, request, submission,
-            no_penalties=False, url_name="exercise"):
+    def grade(self, request, submission, no_penalties=False, url_name="exercise"):
         page = ExercisePage(self)
         page.content = self.submission_page_content
         page.is_accepted = True
@@ -588,7 +680,7 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
-    def modify_post_parameters(self, data, files, user, host, url):
+    def modify_post_parameters(self, data, files, user, students, host, url):
         """
         Adds the attachment file to post parameters.
         """
@@ -604,4 +696,15 @@ def _delete_file(sender, instance, **kwargs):
     Deletes exercise attachment file after the exercise in database is removed.
     """
     default_storage.delete(instance.attachment.path)
+
+
+def _clear_cache(sender, instance, **kwargs):
+    """
+    Clears parent's cached html if any.
+    """
+    if instance.parent:
+        ExerciseCache.invalidate(instance.parent)
+
+
 post_delete.connect(_delete_file, ExerciseWithAttachment)
+post_save.connect(_clear_cache, LearningObject)

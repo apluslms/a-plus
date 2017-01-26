@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+<ul class="toc">
+  {% for module in modules %}
+  {% if module|is_listed %}
+  {% with after_open=module|has_opened:now %}
+  <li>
+    {% if after_open %}
+    <h3>
+      <a href="{{ module.link }}" class="{% if module|is_in_maintenance %}maintenance{% endif %}">{{ module.name }}</a>
+    </h3>
+    <h4>
+      <small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
+    </h4>
+    {% else %}
+    <h3>
+      {{ module.name }}
+      {% if is_course_staff %}
+      <a class="btn btn-default btn-xs" href="{{ module.link }}">
+        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+        {% trans "Early access" %}
+      </a>
+      {% endif %}
+    </h3>
+    <h4>
+        <span class="label label-info">{% trans 'Opens' %} {{ module.opening_time }}</span> <small>&ndash; {{ module.closing_time }}</small>
+    </h4>
+    {% endif %}
+    {% include "exercise/_children.html" with children=module.flatted after_open=after_open %}
+  </li>
+  {% endwith %}
+  {% endif %}
+  {% endfor %}
+</ul>

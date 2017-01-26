@@ -1,6 +1,9 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils.functional import cached_property
+from rest_framework.authtoken.models import Token
 
 
 class UserProfileManager(models.Manager):
@@ -24,11 +27,13 @@ class UserProfile(models.Model):
 
     @classmethod
     def get_by_request(cls, request):
-        if request.user.is_authenticated():
-            return cls.objects.get(user=request.user)
+        user = request.user
+        if user.is_authenticated():
+            return user.userprofile
         raise RuntimeError("Seeking user profile without authenticated user.")
 
     user = models.OneToOneField(User)
+    # FIXME: refactor lang to selected_language which by default is blank
     lang = models.CharField(max_length=5, default="en_US")
     student_id = models.CharField(max_length=25, null=True, blank=True)
     objects = UserProfileManager()
@@ -37,7 +42,16 @@ class UserProfile(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return "{} ({})".format(self.student_id, self.user.username)
+        if self.student_id == None:
+            return "{} ({} {})".format(self.user.username, self.user.first_name, self.user.last_name)
+        else:
+            return "{} ({} {}, {})".format(self.user.username, self.user.first_name, self.user.last_name, self.student_id)
+
+    @property
+    def api_token(self):
+        # FIXME: implement support for more than 1 token
+        token, created = Token.objects.get_or_create(user=self.user)
+        return token.key
 
     @property
     def avatar_url(self):
@@ -65,6 +79,10 @@ class UserProfile(models.Model):
         """
         return hasattr(self.user, 'social_auth') and self.user.social_auth.exists()
 
+    def get_url(self, instance):
+        kwargs = dict(user_id=self.user.id, **instance.get_url_kwargs())
+        return reverse('user-results', kwargs=kwargs)
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     """
@@ -82,32 +100,42 @@ def create_user_profile(sender, instance, created, **kwargs):
 post_save.connect(create_user_profile, sender=User)
 
 
-class StudentGroup(models.Model):
-    """
-    Students may form a group that can make a submission together.
-    """
+class GraderUser(AnonymousUser):
+    @classmethod
+    def from_submission(cls, submission):
+        return cls(submission=submission)
 
-    members = models.ManyToManyField(UserProfile, related_name="groups")
-    name = models.CharField(max_length=32, unique=True)
-    description = models.CharField(max_length=256)
-    member_limit = models.PositiveIntegerField()
-    is_public = models.BooleanField(default=False)
-    invitation_key = models.CharField(max_length=10, blank=True)
+    @classmethod
+    def from_exercise(cls, exercise, student_id):
+        return cls(exercise=exercise, student_id=student_id)
 
-    class Meta:
-        ordering = ['name']
+    def __init__(self, submission=None, exercise=None, **extra):
+        self._submission = submission
+        if exercise:
+            self._exercise = exercise
+        self._extra = extra
 
-    def get_names(self):
-        return ", ".join(x.shortname for x in self.members.all())
-
-    def has_space_left(self):
-        return self.members.count() < self.member_limit
-
-    def add_member(self, new_member):
-        if self.members.count() >= self.member_limit or new_member in self.members.all():
-            return False
-        self.members.add(new_member)
+    def is_anonymous(self):
+        """GraderUser is anonymous, but not AnonymousUser"""
         return True
 
-    def __str__(self):
-        return self.name
+    def is_authenticated(self):
+        return True
+
+    # A-plus interface
+    @property
+    def userprofile(self):
+        """Compatibilty with User.userprofile"""
+        return self
+
+    @cached_property
+    def _exercise(self):
+        return self._submission.exercise
+
+    @cached_property
+    def _course_instance(self):
+        return self._exercise.course_module.course_instance
+
+    @cached_property
+    def _course(self):
+        return self._course_instance.course

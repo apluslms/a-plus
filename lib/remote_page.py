@@ -6,6 +6,7 @@ import time
 import urllib.parse
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.utils.http import parse_http_date_safe
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -18,46 +19,73 @@ class RemotePageException(Exception):
         self.message = message
 
 
-class RemotePage:
-    """
-    Represents a page that can be loaded over HTTP for further processing.
-    """
-    def __init__(self, url, post=False, data=None, files=None):
-        self.url = urllib.parse.urlparse(url)
-        try:
-            self.response = self._request(url, post, data, files)
-        except requests.exceptions.RequestException:
-            raise RemotePageException(
-                _("Connecting to the course service failed!"))
-        self.response.encoding = "utf-8"
-        self.soup = BeautifulSoup(self.response.text, 'html5lib')
+class RemotePageNotModified(Exception):
 
-    def _request(self, url, post=False, data=None, files=None):
+    def __init__(self, expires=None):
+        self.expires = expires
+
+
+def parse_expires(response):
+    return parse_http_date_safe(response.headers.get("Expires", "")) or 0
+
+
+def request_for_response(url, post=False, data=None, files=None, stamp=None):
+    try:
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
         n = 0
         while n <= last_retry:
             try:
+                request_time = time.time()
                 if post:
-                    response = requests.post(url, data=data, files=files,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                    logger.info("POST %s", url)
+                    response = requests.post(
+                        url,
+                        data=data,
+                        files=files,
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT
+                    )
                 else:
-                    response = requests.get(url,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT)
+                    logger.info("GET %s", url)
+                    headers = {}
+                    if stamp:
+                        headers['If-Modified-Since'] = stamp
+                    response = requests.get(
+                        url,
+                        timeout=settings.EXERCISE_HTTP_TIMEOUT,
+                        headers=headers
+                    )
+                request_time = time.time() - request_time
+                logger.info("Response %d (%d sec) %s",
+                    response.status_code, request_time, url)
                 if response.status_code == 200:
                     return response
-                elif response.status_code >= 500 and n < last_retry:
-                    logger.warning("Retrying: Server error {:d} at {}".format(
-                        response.status_code, url))
-                else:
+                elif response.status_code == 304:
+                    raise RemotePageNotModified(parse_expires(response))
+                if response.status_code < 500 or n >= last_retry:
                     response.raise_for_status()
             except requests.exceptions.ConnectionError as e:
+                logger.warning("ConnectionError %s", url);
                 if n >= last_retry:
                     raise e
-                logger.warning("Retrying: ConnectionError to {}".format(url));
+            logger.info("Sleep %d sec before retry",
+                settings.EXERCISE_HTTP_RETRIES[n])
             time.sleep(settings.EXERCISE_HTTP_RETRIES[n])
             n += 1
         logger.error("HTTP request loop ended in unexpected state")
         assert False
+    except requests.exceptions.RequestException:
+        raise RemotePageException(_("Connecting to the course service failed!"))
+
+
+class RemotePage:
+    """
+    Represents a page that can be loaded over HTTP for further processing.
+    """
+    def __init__(self, url, post=False, data=None, files=None, stamp=None):
+        self.url = urllib.parse.urlparse(url)
+        self.response = request_for_response(url, post, data, files, stamp)
+        self.response.encoding = "utf-8"
+        self.soup = BeautifulSoup(self.response.text, 'html5lib')
 
     def base_address(self):
         domain = urllib.parse.urlunparse((self.url.scheme, self.url.netloc, '', '', '', ''))
@@ -72,6 +100,15 @@ class RemotePage:
                     default=element.get("content", default=None))
         return None
 
+    def header(self, name):
+        return self.response.headers.get(name, "")
+
+    def last_modified(self):
+        return self.header('Last-Modified')
+
+    def expires(self):
+        return parse_expires(self.response)
+
     def title(self):
         if self.soup and self.soup.title:
             return self.soup.title.contents
@@ -83,32 +120,74 @@ class RemotePage:
                 self.soup.head.find_all(True, search_attribute))
         return ""
 
-    def body(self):
-        if self.soup and self.soup.body:
-            return self.soup.body.renderContents()
-        return ""
-
-    def element_or_body(self, search_attributes):
+    def select_element_or_body(self, search_attributes):
         if self.soup:
             for attr in search_attributes:
                 element = self.soup.find(**attr)
                 if element:
-                    return element.renderContents()
-        return self.body()
+                    return element
+            return self.soup.body
+        return None
+
+    def element_or_body(self, search_attributes):
+        element = self.select_element_or_body(search_attributes)
+        return element.renderContents() if element else ""
+
+    def clean_element_or_body(self, search_attributes):
+        element = self.select_element_or_body(search_attributes)
+        if element:
+            for once in element.findAll(True, {'data-aplus-once':True}):
+                once.extract()
+        return element.renderContents() if element else ""
+
+    def body(self):
+        return self.element_or_body([])
 
     def fix_relative_urls(self):
         domain, path = self.base_address()
-        self._fix_relative_urls(domain, path, "img", "src")
-        self._fix_relative_urls(domain, path, "script", "src")
-        self._fix_relative_urls(domain, path, "link", "href")
-        self._fix_relative_urls(domain, path, "a", "href")
+        for tag,attr in [
+            ("img","src"),
+            ("script","src"),
+            ("iframe","src"),
+            ("link","href"),
+            ("a","href"),
+            ("video","poster"),
+            ("source","src"),
+        ]:
+            self._fix_relative_urls(domain, path, tag, attr)
 
     def _fix_relative_urls(self, domain, path, tag_name, attr_name):
-        test = re.compile('^(#|\/\/|.+:\/\/|data:.+;)', re.IGNORECASE)
+        test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE)
+        chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
             value = element[attr_name]
-            if value and not test.match(value):
-                if value[0] == '/':
+            if not value:
+                continue
+
+            # Custom transform for RST chapter to chapter links.
+            if element.has_attr('data-aplus-chapter'):
+                m = chapter.match(value)
+                if m:
+                    i = m.start(1)
+                    if i > 0:
+                        element[attr_name] = '../' + value[:i-5] + value[i:]
+                    else:
+                        element[attr_name] = '../' + value[:-5]
+                elif not value.startswith('/'):
+                    element[attr_name] = '../' + value
+
+            elif value and not test.match(value):
+
+                # Custom transform for RST generated exercises.
+                if element.has_attr('data-aplus-path'):
+                    fix_path = element['data-aplus-path'].replace(
+                        '{course}',
+                        path.split('/')[1]
+                    )
+                    fix_value = value[2:] if value.startswith('../') else value
+                    element[attr_name] = domain + fix_path + fix_value
+
+                elif value[0] == '/':
                     element[attr_name] = domain + value
                 else:
                     element[attr_name] = domain + path + value

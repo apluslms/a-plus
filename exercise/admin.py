@@ -3,7 +3,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from exercise.models import CourseChapter, BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile
-from course.templatetags import course as coursetags
 
 
 def real_class(obj):
@@ -24,7 +23,12 @@ def submitters_wrapper(obj):
     """
     Submitters as a string for a submission.
     """
-    return coursetags.profiles(obj.submitters.all())
+    return ", ".join([
+        "{} ({})".format(
+            p.user.get_full_name(),
+            p.student_id or p.user.username,
+        ) for p in obj.submitters.all()
+    ])
 
 
 real_class.short_description = _('Real class')

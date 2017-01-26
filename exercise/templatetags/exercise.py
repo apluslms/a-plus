@@ -1,119 +1,87 @@
+import json
 from django import template
+from django.db.models import Max, Min
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from ..presentation.score import collect_tree
-from ..presentation.summary import UserCourseSummary
+from lib.errors import TagUsageError
+from ..cache.content import CachedContent
+from ..cache.points import CachedPoints
+from ..exercise_summary import UserExerciseSummary
+from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
 
 
 register = template.Library()
 
 
-@register.filter
-def max_submissions(exercise, user_profile):
-    return exercise.max_submissions_for_student(user_profile)
+def _prepare_context(context, student=None):
+    if not 'instance' in context:
+        raise TagUsageError()
+    instance = context['instance']
+    if not 'now' in context:
+        context['now'] = timezone.now()
+    if not 'content' in context:
+        context['content'] = CachedContent(instance)
+    def points(user, key):
+        if not key in context:
+            context[key] = CachedPoints(instance, user, context['content'])
+        return context[key]
+    if student:
+        return points(student, 'studentpoints')
+    return points(context['request'].user, 'points')
 
 
-@register.filter
-def percent(decimal):
-    return int(decimal * 100)
-
-
-def _progress_data(points, max_points, passed=False, required=None):
-    """
-    Formats data for progress bar template.
-    """
-    percentage = 100
-    required_percentage = None
-    if max_points > 0:
-        percentage = int(round(100.0 * points / max_points))
-        if required:
-            required_percentage = int(round(100.0 * required / max_points))
+def _get_toc(context, student=None):
+    points = _prepare_context(context, student)
     return {
-        "points": points,
-        "max": max_points,
-        "percentage": percentage,
-        "required": required,
-        "required_percentage": required_percentage,
-        "passed": passed,
+        'now': context['now'],
+        'modules': points.modules_flatted(),
+        'categories': points.categories(),
+        'total': points.total(),
+        'is_course_staff': context.get('is_course_staff', False),
     }
-
-
-@register.inclusion_tag("exercise/_points_progress.html")
-def points_progress(points, max_points, passed=False, required=None):
-    return _progress_data(points, max_points, passed, required)
-
-
-@register.inclusion_tag("exercise/_points_progress.html")
-def summary_progress(summary):
-    return _progress_data(
-        summary.get_total_points(),
-        summary.get_max_points(),
-        summary.is_passed(),
-        summary.get_required_points())
-
-
-@register.inclusion_tag("exercise/_points_badge.html")
-def summary_points(summary, classes=None):
-    return {
-        "classes": classes,
-        "points": summary.get_total_points(),
-        "max": summary.get_max_points(),
-        "required": summary.get_required_points(),
-        "missing_points": summary.is_missing_points(),
-        "passed": summary.is_passed(),
-        "full_score": summary.get_total_points() >= summary.get_max_points(),
-        "submitted": summary.is_submitted(),
-    }
-
-
-@register.inclusion_tag("exercise/_points_badge.html")
-def submission_points(submission, classes=None):
-    exercise = submission.exercise
-    passed = submission.grade >= exercise.points_to_pass
-    return {
-        "classes": classes,
-        "points": submission.grade,
-        "max": exercise.max_points,
-        "required": exercise.points_to_pass,
-        "missing_points": not passed,
-        "passed": passed,
-        "full_score": submission.grade >= exercise.max_points,
-        "submitted": True,
-        "status": False if submission.is_graded() else submission.status
-    }
-
-
-def _get_course_summary(context):
-    """
-    Caches course summary object in the context.
-    """
-    if not "course_summary" in context:
-        context["course_summary"] = UserCourseSummary(
-            context["instance"],
-            context["request"].user)
-    return context["course_summary"]
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
-def user_results(context):
-    summary = _get_course_summary(context)
+def user_results(context, student=None):
+    values = _get_toc(context, student)
+    values['total_json'] = json.dumps(values['total'])
+    if student:
+        values['is_course_staff'] = False
+    return values
+
+
+@register.inclusion_tag("exercise/_user_toc.html", takes_context=True)
+def user_toc(context, student=None):
+    return _get_toc(context, student)
+
+
+@register.inclusion_tag("exercise/_user_last.html", takes_context=True)
+def user_last(context):
+    user = context['request'].user
+    points = _prepare_context(context)
+    if user.is_authenticated():
+        last = LearningObjectDisplay.objects.filter(
+            profile=user.userprofile,
+            learning_object__status=LearningObject.STATUS.READY,
+            learning_object__course_module__course_instance=context['instance'],
+        ).select_related('learning_object').order_by('-timestamp').first()
+        if last:
+            entry,_,_,_ = points.find(last.learning_object)
+            return {
+                'last': entry,
+                'last_time': last.timestamp,
+            }
     return {
-        "summary": summary,
-        "categories": summary.category_summaries,
-        "exercise_tree": collect_tree(summary),
-        "is_course_staff": context["is_course_staff"],
+        'begin': points.begin(),
+        'instance': context['instance'],
     }
 
 
 @register.inclusion_tag("exercise/_category_points.html", takes_context=True)
-def category_points(context):
-    summary = _get_course_summary(context)
-    return {
-        "summary": summary,
-        "categories": summary.category_summaries,
-        "is_course_staff": context["is_course_staff"],
-    }
+def category_points(context, student=None):
+    return _get_toc(context, student)
 
 
 @register.inclusion_tag("exercise/_submission_list.html", takes_context=True)
@@ -126,3 +94,111 @@ def latest_submissions(context):
         "title": _("Latest submissions"),
         "empty": _("No submissions for this course."),
     }
+
+
+@register.filter
+def max_submissions(exercise, user_profile):
+    return exercise.max_submissions_for_student(user_profile)
+
+
+@register.filter
+def percent(decimal):
+    return int(decimal * 100)
+
+
+@register.filter
+def submission_status(status):
+    return Submission.STATUS[status]
+
+
+def _points_data(obj, classes=None):
+    if isinstance(obj, UserExerciseSummary):
+        exercise = obj.exercise
+        data = {
+            'points': obj.get_points(),
+            'max': exercise.max_points,
+            'difficulty': exercise.difficulty,
+            'required': exercise.points_to_pass,
+            'confirm_the_level': exercise.confirm_the_level,
+            'missing_points': obj.is_missing_points(),
+            'passed': obj.is_passed(),
+            'full_score': obj.is_full_points(),
+            'submitted': obj.is_submitted(),
+            'graded': obj.is_graded(),
+            'exercise_page': True,
+        }
+    elif isinstance(obj, Submission):
+        exercise = obj.exercise
+        data = {
+            'points': obj.grade,
+            'max': exercise.max_points,
+            'difficulty': exercise.difficulty,
+            'required': exercise.points_to_pass,
+            'confirm_the_level': exercise.confirm_the_level,
+            'missing_points': obj.grade < exercise.points_to_pass,
+            'passed': obj.grade >= exercise.points_to_pass,
+            'full_score': obj.grade >= exercise.max_points,
+            'submitted': True,
+            'graded': obj.is_graded,
+        }
+        if (
+            obj.status != Submission.STATUS.READY
+            and (
+                not exercise.confirm_the_level
+                or obj.status != Submission.STATUS.WAITING
+            )
+        ):
+            data['status'] = obj.status
+    else:
+        points = obj.get('points', 0)
+        max_points = obj.get('max_points', 0)
+        required = obj.get('points_to_pass', 0)
+        data = {
+            'points': points,
+            'max': max_points,
+            'difficulty': obj.get('difficulty', ''),
+            'required': required,
+            'confirm_the_level': obj.get('confirm_the_level', False),
+            'missing_points': points < required,
+            'passed': obj.get('passed', True),
+            'full_score': points >= max_points,
+            'submitted': obj.get('submission_count', 0) > 0,
+            'graded': obj.get('graded', True),
+            'status': obj.get('submission_status', False),
+            'unconfirmed': obj.get('unconfirmed', False),
+            'confirmable_points': obj.get('confirmable_points', False),
+        }
+    percentage = 0
+    required_percentage = None
+    if data['max'] > 0:
+        percentage = int(round(100.0 * data['points'] / data['max']))
+        if data['required']:
+            required_percentage = int(round(100.0 * data['required'] / data['max']))
+    data.update({
+        'classes': classes,
+        'percentage': percentage,
+        'required_percentage': required_percentage,
+    })
+    return data
+
+
+@register.inclusion_tag("exercise/_points_progress.html")
+def points_progress(obj):
+    return _points_data(obj)
+
+
+@register.inclusion_tag("exercise/_points_badge.html")
+def points_badge(obj, classes=None):
+    return _points_data(obj, classes)
+
+
+@register.assignment_tag(takes_context=True)
+def max_group_size(context):
+    points = _prepare_context(context)
+    return points.total()['max_group_size']
+
+
+@register.assignment_tag(takes_context=True)
+def min_group_size(context):
+    points = _prepare_context(context)
+    return points.total()['min_group_size']

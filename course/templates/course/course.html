@@ -1,0 +1,79 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load news %}
+{% load apps %}
+
+{% block view_tag %}home{% endblock %}
+{% block breadcrumb %}{% endblock %}
+
+{% block coursecontent %}
+
+{% if not is_student %}
+<div class="alert alert-info">
+{% if enrollable or is_course_staff %}
+  {% if instance.is_enrollment_open %}
+  <form method="post" action="{{ instance|url:'enroll' }}">
+    {% csrf_token %}
+    {% if instance.view_content_to > 1 %}
+    {% trans "In order to submit exercises, you must enroll in the course." %}
+    {% else %}
+    {% trans "In order to submit exercises and see material, you must enroll in the course." %}
+    {% endif %}
+    <input type="submit" value="{% trans 'Enroll' %}" class="btn btn-info">
+    {% if instance.enrollment_ending_time %}
+    <div>
+      <small>
+        {% blocktrans with end=instance.enrollment_ending_time %}
+        The course enrollment is open until {{ end }}
+        {% endblocktrans %}
+      </small>
+    </div>
+    {% endif %}
+  </form>
+  {% elif instance.has_enrollment_closed %}
+  {% trans "Unfortunately, enrolling in the course has ended." %}
+  {% else %}
+  {% blocktrans with start=instance.enrollment_start end=instance.enrollment_end %}
+  The course opens {{ start }}
+  {% endblocktrans %}
+  {% endif %}
+{% elif profile %}
+  {% trans "Unfortunately, you cannot enroll in this course, but you may explore the course material." %}
+{% else %}
+  {% trans "Login is required to submit exercises, but you may anonymously explore the course material." %}
+{% endif %}
+</div>
+{% endif %}
+
+<div class="index">
+  {{ instance.description|safe }}
+  {% if instance.index_mode == instance.INDEX_TYPE.LAST %}
+  {% user_last %}
+  {% endif %}
+</div>
+
+{% if instance.index_mode == instance.INDEX_TYPE.LAST %}
+{% user_news 3 %}
+{% elif instance.index_mode == instance.INDEX_TYPE.TOC %}
+{% user_news 1 3 %}
+{% user_toc %}
+{% else %}
+{% user_news 1 3 %}
+{% user_results %}
+{% endif %}
+
+<div class="index">
+  {{ instance.footer|safe }}
+</div>
+{% endblock %}
+
+{% block sidecontent %}
+    {% category_points %}
+
+    {% plugin_renderers user instance as plugins %}
+    {% for plugin in plugins %}
+        {{ plugin.render|safe }}
+    {% endfor %}
+{% endblock %}

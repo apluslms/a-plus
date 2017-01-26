@@ -1,0 +1,35 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% for entry in children %}
+
+{% if entry.down == 'level' %}
+{% if entry.down %}
+<ul class="toc">
+{% elif entry.up %}
+</ul>
+{% endif %}
+{% elif entry|is_listed %}
+<li>
+  {% if after_open %}
+  {% if entry.is_empty %}
+  {{ entry.name }}
+  {% else %}
+  <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
+  {% endif %}
+  {% if entry.submission_count %}
+  {% points_badge entry %}
+  {% endif %}
+
+  {% else %}
+  {{ entry.name }}
+  {% if is_course_staff %}
+  <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+    {% trans "Early access" %}
+  </a>
+  {% endif %}
+  {% endif %}
+</li>
+{% endif %}
+{% endfor %}

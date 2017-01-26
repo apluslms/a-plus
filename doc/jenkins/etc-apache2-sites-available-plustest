@@ -1,0 +1,68 @@
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+
+	DocumentRoot /var/www
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /var/www/>
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	ErrorLog ${APACHE_LOG_DIR}/plustest-error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog ${APACHE_LOG_DIR}/plustest-access.log combined
+
+	ProxyPass /ghprbhook/ http://plustest.cs.hut.fi:8080/ghprbhook/
+	ProxyPassReverse /ghprbhook/ http://plustest.cs.hut.fi:8080/ghprbhook/
+	ProxyPass /github-webhook/ http://plustest.cs.hut.fi:8080/github-webhook/
+	ProxyPassReverse /github-webhook/ http://plustest.cs.hut.fi:8080/github-webhook/
+	ProxyPass /job/A-plus-test-MASTER/badge/ http://plustest.cs.hut.fi:8080/job/A-plus-test-MASTER/badge/
+
+	Alias /jobs/ /var/lib/jenkins/jobs/
+	<Directory /var/lib/jenkins/jobs/>
+		Options +Indexes
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	Alias /static/ /var/lib/jenkins/workspace/A-plustest-publish/static/
+	Alias /favicon.ico /var/lib/jenkins/workspace/A-plustest-publish/static/favicons/favicon.ico
+	<Directory /var/lib/jenkins/workspace/A-plustest-publish/static/>
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	<Location />
+		Options FollowSymLinks
+		SetHandler uwsgi-handler
+		uWSGISocket 127.0.0.1:3031
+		uWSGIMaxVars 256
+	</Location>
+	<Location /static>
+		SetHandler none
+	</Location>
+	<Location /favicon.ico>
+		SetHandler none
+	</Location>
+	<Location /ghprbhook>
+		SetHandler none
+	</Location>
+	<Location /github-webhook>
+		SetHandler none
+	</Location>
+	<Location /job>
+		SetHandler none
+	</Location>
+	<Location /jobs>
+		SetHandler none
+	</Location>
+
+</VirtualHost>
+

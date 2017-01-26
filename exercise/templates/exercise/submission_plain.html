@@ -20,10 +20,12 @@
 
 		<link rel="stylesheet" href="{% static 'css/main.css' %}" />
 		<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
-
-    {{ submission.head|safe }}
 	</head>
 	<body>
+		<p class="submission-title">
+			{% if exercise.parent %}{{ exercise.parent }}:{% endif %}
+			{{ exercise }}
+		</p>
 		<table class="submission-info table table-bordered table-condensed">
 			<tr>
 				{% if not request.is_ajax %}
@@ -35,12 +37,8 @@
 				{% endif %}
 				<th>{% trans "Date" %}</th>
 				<th>{% if submission.is_graded %}{% trans "Points" %}{% else %}{% trans "Status" %}{% endif %}</th>
-				{% if submission.files.exists %}
-				<th>{% trans "Files" %}</th>
-				{% endif %}
-				{% if is_course_staff %}
-				<th>{% trans "Course staff" %}</th>
-				{% endif %}
+				{% if submission.files.exists %}<th>{% trans "Files" %}</th>{% endif %}
+				{% if is_course_staff %}<th>{% trans "Course staff" %}</th>{% endif %}
 			</tr>
 			<tr>
 				<td>
@@ -53,7 +51,10 @@
 					</span>
 					{% endif %}
 				</td>
-				<td>{% submission_points submission %}</td>
+				<td class="points-badge">
+					<span class="hidden">{% points_badge summary %}</span>
+					{% points_badge submission %}
+				</td>
 				{% if submission.files.exists %}
 				<td>
 					<ul class="list-unstyled">
@@ -77,13 +78,11 @@
 			</tr>
 		</table>
 
+		<div id="exercise-all">
+
 		{% if submission.assistant_feedback %}
 		<h4>{% trans "Assistant feedback" %}</h4>
 		<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
-		{% elif submission.exercise.allow_assistant_grading %}
-		<div class="alert alert-info">
-			{% trans "No assistant feedback available for this submission." %}
-		</div>
 		{% endif %}
 
 		{% if submission.feedback %}
@@ -95,5 +94,7 @@
 			{% trans "No grader feedback available for this submission." %}
 		</div>
 		{% endif %}
+
+		</div>
 	</body>
 </html>

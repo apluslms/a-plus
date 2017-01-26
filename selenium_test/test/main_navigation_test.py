@@ -15,17 +15,17 @@ class MainNavigationTest(unittest.TestCase):
         BasePage(self.driver).clickResultsLink()
         self.assertEqual(self.baseUrl + 'user/results/', str(self.driver.current_url))
 
-    def testNavigateToUserPage(self):
-        BasePage(self.driver).clickUserLink()
-        self.assertEqual(self.baseUrl + 'user/notifications/', str(self.driver.current_url))
+    #def testNavigateToUserPage(self):
+    #    BasePage(self.driver).clickUserLink()
+    #    self.assertEqual(self.baseUrl + 'user/notifications/', str(self.driver.current_url))
 
     def testNavigateToTeachersView(self):
         BasePage(self.driver).clickTeachersViewLink()
         self.assertEqual(self.baseUrl + 'teachers/', str(self.driver.current_url))
 
-    def testDownloadCalendar(self):
-        BasePage(self.driver).clickCalendarFeedLink()
-        self.assertEqual("Download calendar (ics)", str(self.driver.switch_to.active_element.text))
+    # def testDownloadCalendar(self):
+    #    BasePage(self.driver).clickCalendarFeedLink()
+    #    self.assertEqual("Download calendar (ics)", str(self.driver.switch_to.active_element.text))
 
     def tearDown(self):
         self.driver.close()

@@ -72,7 +72,7 @@ class HTMLTab(BaseTab):
     content = models.TextField()
 
     def render(self):
-        return self.content
+        return mark_safe(self.content)
 
 
 class ExternalEmbeddedTab(BaseTab):

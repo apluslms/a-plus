@@ -1,0 +1,77 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load humanize %}
+{% load course %}
+{% load exercise %}
+{% load bootstrap %}
+
+{% block title %}{{ block.super }}: {% trans "My groups" %}{% endblock %}
+{% block view_tag %}groups{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "My groups" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-7">
+  {% max_group_size as max_size %}
+  {% if max_size > 1 %}
+
+  <div class="alert alert-info">
+    {% trans "[staff has none]" as staff_code %}
+    {% blocktrans with code=enrollment.personal_code|default:staff_code %}
+    Your personal group <strong>join code</strong> is <strong>{{ code }}</strong>
+    {% endblocktrans %}
+  </div>
+
+  <form method="post" class="well form-horizontal">
+    {% csrf_token %}
+    <p>
+      {% blocktrans %}
+      First, query the personal <strong>join codes</strong> from your other group members.
+      Then enter the codes below to form a new group.
+      It is sufficient that one group member submits this form.
+      {% endblocktrans %}
+    </p>
+    {{ form|bootstrap_horizontal }}
+    <button type="submit" class="btn btn-primary">
+        {% trans "Form a new group" %}
+    </button>
+  </form>
+
+  {% else %}
+
+  {% trans "This course does not utilize group submissions." %}
+
+  {% endif %}
+</div>
+<div class="col-md-5">
+
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      {% trans "My groups" %}
+    </div>
+    <table class="table">
+      {% for group in groups %}
+      <tr>
+        <td>{% avatars group.members.all %}</td>
+        <td>{{ group.members.all|names }}</td>
+        <td>{{ group.timestamp|naturalday }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">{% trans "No groups yet" %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+
+</script>
+{% endblock %}

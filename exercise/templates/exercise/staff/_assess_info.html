@@ -9,17 +9,46 @@
     <div class="panel-body">
         <dl>
             <dt>{% trans "Submitters" %}</dt>
-            <dd>{{ submission.submitters.all|profiles }}</dd>
+            <dd>{% profiles submission.submitters.all instance %}</dd>
             <dt>{% trans "Status" %}</dt>
-            <dd>{{ submission.status }}</dd>
+            <dd>{{ submission.status|submission_status }}</dd>
             <dt>{% trans "Submission time" %}</dt>
             <dd>{{ submission.submission_time }}</dd>
             <dt>{% trans "Grade" %}</dt>
-            <dd>{{ submission.grade }} / {{ submission.exercise.max_points }}</dd>
+            <dd>
+                {{ submission.grade }} / {{ submission.exercise.max_points }}
+                ({% trans "grader output" %} {{ submission.service_points }} / {{ submission.service_max_points }})
+            </dd>
             {% if submission.late_penalty_applied %}
             <dt>{% trans "Includes late penalty" %}</dt>
             <dd>-{{ submission.late_penalty_applied|percent }}%</dd>
             {% endif %}
+            <dt>{% trans "Submissions" %}</dt>
+            <dd>
+                <ol>
+                  {% for s in submissions reversed %}
+                  <li>
+                    {% if s = submission %}
+                    {{ s.submission_time }}
+                    {% points_badge s %}
+                    {% else %}
+                    <a href="{{ s|url:'submission-inspect' }}">
+                      {{ s.submission_time }}
+                      {% points_badge s %}
+                    </a>
+                    {% endif %}
+                  </li>
+                  {% endfor %}
+                </ol>
+
+                {% trans "In total" %}
+                {{ summary.get_submission_count }}{% if exercise.max_submissions %}
+                / {{ exercise|max_submissions:submission.submitters.first }}{% if is_teacher %}
+                <form method="post" action="{{ submission|url:'submission-increase-max' }}" style="display:inline;" title="{% trans 'Add one extra submission for the student in this exercise.' %}">
+              		{% csrf_token %}
+              		<input class="btn btn-primary" type="submit" value="+1" />
+              	</form>{% endif %}{% endif %}
+            </dd>
         </dl>
 
         <h4>{% trans "Submitted files" %}</h4>

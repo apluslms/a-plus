@@ -1,14 +1,13 @@
 {% load i18n %}
-{% load course %}
-{% if unread.count > 0 %}
+{% if count > 0 %}
 <div class="alert alert-danger visible-xs">
     <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
     <p>
-        {% trans "You have" %} {{ undread.count }} {{ unread_message }}
+        {% trans "You have" %} {{ count }} {{ unread_message }}
         <ul>
-            {% for notification in unread.notifications %}
-            <li><a href="{{ notification.course_instance|url:'notifications' }}" class="alert-link">
-                {{ notification.course_instance.course }}: {{ notification.subject }}
+            {% for entry in notifications %}
+            <li><a href="{{ entry.link }}" class="page-modal">
+                {{ entry.name }}
             </a></li>
             {% endfor %}
         </ul>

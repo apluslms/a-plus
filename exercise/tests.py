@@ -18,7 +18,6 @@ from deviations.models import DeadlineRuleDeviation, \
     MaxSubmissionsRuleDeviation
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject
-from exercise.presentation.summary import UserCourseSummary
 from exercise.protocol.exercise_page import ExercisePage
 
 
@@ -307,23 +306,26 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile], self.tomorrow))
 
     def test_base_exercise_submission_allowed(self):
-        ok, errors = self.base_exercise.is_submission_allowed([self.user.userprofile])
+        ok, errors, students = self.base_exercise.is_submission_allowed(self.user.userprofile)
         self.assertFalse(ok)
         self.assertEqual(len(errors), 1)
         json.dumps(errors)
-        self.assertFalse(self.static_exercise.is_submission_allowed([self.user.userprofile])[0])
+        self.assertFalse(self.static_exercise.is_submission_allowed(self.user.userprofile)[0])
         self.course_instance.enroll_student(self.user)
-        self.assertTrue(self.static_exercise.is_submission_allowed([self.user.userprofile])[0])
-        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.user.userprofile])[0])
-        self.assertFalse(self.old_base_exercise.is_submission_allowed([self.user.userprofile])[0])
-        self.assertFalse(self.base_exercise.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
-        self.assertFalse(self.static_exercise.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
-        self.assertFalse(self.exercise_with_attachment.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
-        self.assertFalse(self.old_base_exercise.is_submission_allowed([self.user.userprofile, self.grader.userprofile])[0])
-        self.assertTrue(self.base_exercise.is_submission_allowed([self.grader.userprofile])[0])
-        self.assertTrue(self.static_exercise.is_submission_allowed([self.grader.userprofile])[0])
-        self.assertTrue(self.exercise_with_attachment.is_submission_allowed([self.grader.userprofile])[0])
-        self.assertTrue(self.old_base_exercise.is_submission_allowed([self.grader.userprofile])[0])
+        self.assertTrue(self.static_exercise.is_submission_allowed(self.user.userprofile)[0])
+        self.assertTrue(self.exercise_with_attachment.is_submission_allowed(self.user.userprofile)[0])
+        self.assertFalse(self.old_base_exercise.is_submission_allowed(self.user.userprofile)[0])
+
+        # TODO in group with self.grader
+        #self.assertFalse(self.base_exercise.is_submission_allowed(self.user.userprofile)[0])
+        #self.assertFalse(self.static_exercise.is_submission_allowed(self.user.userprofile)[0])
+        #self.assertFalse(self.exercise_with_attachment.is_submission_allowed(self.user.userprofile)[0])
+        #self.assertFalse(self.old_base_exercise.is_submission_allowed(self.user.userprofile)[0])
+
+        self.assertTrue(self.base_exercise.is_submission_allowed(self.grader.userprofile)[0])
+        self.assertTrue(self.static_exercise.is_submission_allowed(self.grader.userprofile)[0])
+        self.assertTrue(self.exercise_with_attachment.is_submission_allowed(self.grader.userprofile)[0])
+        self.assertTrue(self.old_base_exercise.is_submission_allowed(self.grader.userprofile)[0])
 
     def test_base_exercise_submission_deviation(self):
         self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))
@@ -360,9 +362,10 @@ class ExerciseTest(TestCase):
 
     def test_base_exercise_async_url(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
+        language = 'en'
         # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
-        split_base_exercise_service_url = self.base_exercise._build_service_url(request, '1', 'exercise', 'service').split("?")
-        split_static_exercise_service_url = self.static_exercise._build_service_url(request, '1', 'exercise', 'service').split("?")
+        split_base_exercise_service_url = self.base_exercise._build_service_url(language, request, [self.user.userprofile], 1, 'exercise', 'service').split("?")
+        split_static_exercise_service_url = self.static_exercise._build_service_url(language, request, [self.user.userprofile], 1, 'exercise', 'service').split("?")
         self.assertEqual("", split_base_exercise_service_url[0])
         self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
         # a quick hack to check whether the parameters are URL encoded
@@ -478,21 +481,21 @@ class ExerciseTest(TestCase):
 
     def test_submission_status(self):
         self.assertEqual("initialized", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.submission.set_error()
         self.assertEqual("error", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.submission.set_waiting()
         self.assertEqual("waiting", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.submission.set_error()
         self.assertEqual("error", self.submission.status)
-        self.assertFalse(self.submission.is_graded())
+        self.assertFalse(self.submission.is_graded)
         self.assertEqual(None, self.submission.grading_time)
         self.submission.set_ready()
         self.assertIsInstance(self.submission.grading_time, datetime)
         self.assertEqual("ready", self.submission.status)
-        self.assertTrue(self.submission.is_graded())
+        self.assertTrue(self.submission.is_graded)
 
     def test_submission_absolute_url(self):
         self.assertEqual("/Course-Url/T-00.1000_d1/test-module/b1/submissions/1/", self.submission.get_absolute_url())
@@ -511,39 +514,6 @@ class ExerciseTest(TestCase):
         )
         self.assertEqual("course_instance_1/submissions/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(submitted_file1, "test_file_name"))
         self.assertEqual("course_instance_1/submissions/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(submitted_file2, "test_file_name"))
-
-    def test_presentation_summary_empty(self):
-        summary = UserCourseSummary(self.course_instance, self.user)
-        self.assertEqual(summary.get_exercise_count(), 5)
-        self.assertEqual(summary.get_max_points(), 400)
-        self.assertEqual(summary.get_total_points(), 0)
-
-    def test_presentation_summary(self):
-
-        self.submission.set_points(10, 10)
-        self.submission.save()
-        summary = UserCourseSummary(self.course_instance, self.user)
-        self.assertEqual(summary.get_exercise_count(), 5)
-        self.assertEqual(summary.get_max_points(), 400)
-        self.assertEqual(summary.get_total_points(), 100)
-
-        for s in summary.module_summaries:
-            if s.module == self.course_module:
-                msummary = s
-                break
-        self.assertEqual(msummary.get_exercise_count(), 3)
-        self.assertEqual(msummary.get_max_points(), 200)
-        self.assertEqual(msummary.get_total_points(), 100)
-        self.assertFalse(msummary.is_passed())
-
-        for s in summary.category_summaries:
-            if s.category == self.learning_object_category:
-                csummary = s
-                break
-        self.assertEqual(csummary.get_exercise_count(), 5)
-        self.assertEqual(csummary.get_max_points(), 400)
-        self.assertEqual(csummary.get_total_points(), 100)
-        self.assertFalse(csummary.is_passed())
 
     def test_exercise_views(self):
         upcoming_module = CourseModule.objects.create(

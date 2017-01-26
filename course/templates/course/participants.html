@@ -1,0 +1,136 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ block.super }}: {% trans "Participants" %}{% endblock %}
+{% block view_tag %}participants{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Participants" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+
+    <p class="filter-users">
+      <small>{% trans "Filter users" %}:</small>
+      <button class="btn btn-success btn-xs" data-id="aalto">
+        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+        {{ internal_user_label|safe }}
+      </button>
+      <button class="btn btn-info btn-xs" data-id="mooc">
+        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+        {{ external_user_label|safe }}
+      </button>
+      {% for tag in tags %}
+      <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.text_color }};" data-id="{{ tag.id }}">
+        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+        {{ tag.name }}
+      </button>
+      {% endfor %}
+    </p>
+
+    <p>{% trans "Number of students" %} <strong id="participants-number"></strong></p>
+
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th><a href="#" class="order-toggle" id="order-id">{% trans "Student id" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
+                <th><a href="#" class="order-toggle" id="order-last">{% trans "Last name" %} </a></th>
+                <th><a href="#" class="order-toggle" id="order-first">{% trans "First name" %} </a></th>
+                <th>{% trans "Email" %}</th>
+                <th>{% trans "Tags" %}</th>
+            </tr>
+        </thead>
+        <tbody id="participants">
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+
+<script>
+  $(function() {
+
+    var participants = {{ participants|safe }};
+
+    participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
+
+    var filterItems = function(participants) {
+      var out = participants;
+      var filters = [];
+      $('.filter-users button:has(.glyphicon-check)').each(function() {
+        filters.push($(this).attr('data-id'));
+      });
+      if (filters.length > 0) {
+        out = out.filter(function(user) {
+          for (var i in filters) {
+            var typ = filters[i];
+            var id = parseInt(typ);
+            if (
+              (typ == 'aalto' && user.external)
+              || (typ == 'mooc' && !user.external)
+              || (!isNaN(id) && user.tag_ids.indexOf(id) < 0)
+            ) return false;
+          }
+          return true;
+        });
+      }
+      return out;
+    };
+
+    var insertItems = function() {
+      var filtered = filterItems(participants);
+      $('#participants-number').text(filtered.length);
+      $('#participants').children().remove();
+      filtered.forEach(function(participant) {
+        var row = $('<tr></tr>').appendTo('tbody');
+        var link = $('<a></a>').attr('href', participant.link);
+        $('<td></td>').append(link.clone().text(participant.id)).appendTo(row);
+        $('<td></td>').append(link.clone().text(participant.last_name)).appendTo(row);
+        $('<td></td>').append(link.clone().text(participant.first_name)).appendTo(row);
+        //link = $('<a></a>').attr('href', 'mailto:' + participant.email);
+        $('<td></td>').append(link.clone().text(participant.email)).appendTo(row);
+        $('<td></td>').html(participant.tags).appendTo(row);
+      });
+    };
+
+    insertItems();
+
+    $('a.order-toggle').click(function(event) {
+      event.preventDefault();
+
+      $('.order-marker').remove();
+      $(this).append($('<span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span>'));
+
+      if ($(this).attr('id') === 'order-id') {
+        participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
+        insertItems();
+      } else if ($(this).attr('id') === 'order-last') {
+        participants.sort(function(a, b) { return a.last_name.localeCompare(b.last_name); });
+        insertItems();
+      } else if ($(this).attr('id') === 'order-first') {
+        participants.sort(function(a, b) { return a.first_name.localeCompare(b.first_name); });
+        insertItems();
+      }
+    });
+
+    $('.filter-users button').on('click', function(event) {
+      event.preventDefault();
+      var icon = $(this).find('.glyphicon');
+      if (icon.hasClass('glyphicon-unchecked')) {
+        icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+      } else {
+        icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+      }
+      insertItems();
+    });
+
+  });
+</script>
+
+{% endblock %}

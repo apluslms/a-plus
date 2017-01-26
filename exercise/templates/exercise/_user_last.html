@@ -1,0 +1,18 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+<p>
+{% if last %}
+{% blocktrans with time=last_time name=last.name link=last.link %}
+  You have last visited
+  <a href="{{ link }}">{{ name }}</a>
+{% endblocktrans %}
+{% else %}
+{% blocktrans with name=begin.name link=begin.link toc_link=instance|url:'toc' %}
+  You can start from
+  <a href="{{ link }}">{{ name }}</a>
+  or browse the <a href="{{ toc_link }}">course materials</a>.
+{% endblocktrans %}
+{% endif %}
+</p>

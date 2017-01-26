@@ -14,16 +14,13 @@
             <dt>{% trans "Status" %}</dt>
             <dd>
                 <span class="label label-{% if submission.is_graded %}success{% else %}default{% endif %}">
-                    {{ submission.status }}
+                    {{ submission.status|submission_status }}
                 </span>
             </dd>
 
             <dt>{% trans "Grade" %}</dt>
             <dd>
                 {{ submission.grade }} / {{ exercise.max_points }}
-                {% if is_course_staff %}
-                <br />({% trans "For staff: original" %} {{ submission.service_points }} / {{ submission.service_max_points }})
-                {% endif %}
             </dd>
 
             {% if submission.late_penalty_applied %}
@@ -34,7 +31,13 @@
             <dt>
                 {% trans "Submitters" %}
             </dt>
-            <dd>{{ submission.submitters.all|profiles }}</dd>
+            <dd>
+              {% if is_course_staff %}
+              {% profiles submission.submitters.all instance %}
+              {% else %}
+              {{ submission.submitters.all|names }}
+              {% endif %}
+            </dd>
         </dl>
     </div>
 </div>

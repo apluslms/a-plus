@@ -1,0 +1,288 @@
+[
+{
+  "fields": {
+    "content_type": [
+      "exercise",
+      "baseexercise"
+    ]
+  },
+  "model": "inheritance.modelwithinheritance",
+  "pk": 1
+},
+{
+  "fields": {
+    "content_type": [
+      "exercise",
+      "baseexercise"
+    ]
+  },
+  "model": "inheritance.modelwithinheritance",
+  "pk": 2
+},
+{
+  "fields": {
+    "content_type": [
+      "exercise",
+      "baseexercise"
+    ]
+  },
+  "model": "inheritance.modelwithinheritance",
+  "pk": 3
+},
+{
+  "fields": {
+    "content_type": [
+      "exercise",
+      "baseexercise"
+    ]
+  },
+  "model": "inheritance.modelwithinheritance",
+  "pk": 4
+},
+{
+  "fields": {
+    "url": "aplus1",
+    "name": "My test course",
+    "teachers": [],
+    "code": "aplus-001"
+  },
+  "model": "course.course",
+  "pk": 1
+},
+{
+  "fields": {
+    "head_urls": "",
+    "ending_time": "2020-09-27T09:00:00Z",
+    "visible_to_students": true,
+    "configure_url": "",
+    "description": "",
+    "index_mode": 0,
+    "footer": "",
+    "image": "",
+    "course": 1,
+    "technical_error_emails": "",
+    "starting_time": "2013-09-27T09:00:00Z",
+    "module_numbering": 1,
+    "enrollment_ending_time": null,
+    "content_numbering": 1,
+    "assistants": [],
+    "view_content_to": 2,
+    "enrollment_audience": 1,
+    "enrollment_starting_time": null,
+    "url": "basic_instance",
+    "instance_name": "A+ Test Course Instance",
+    "language": ""
+  },
+  "model": "course.courseinstance",
+  "pk": 1
+},
+{
+  "fields": {
+    "head_urls": "",
+    "ending_time": "2023-09-27T09:00:00Z",
+    "visible_to_students": true,
+    "configure_url": "",
+    "description": "",
+    "index_mode": 0,
+    "footer": "",
+    "image": "",
+    "course": 1,
+    "technical_error_emails": "",
+    "starting_time": "2013-09-27T09:00:00Z",
+    "module_numbering": 1,
+    "enrollment_ending_time": null,
+    "content_numbering": 1,
+    "assistants": [],
+    "view_content_to": 2,
+    "enrollment_audience": 1,
+    "enrollment_starting_time": null,
+    "url": "hook_instance",
+    "instance_name": "Hook Example",
+    "language": ""
+  },
+  "model": "course.courseinstance",
+  "pk": 2
+},
+{
+  "fields": {
+    "order": 1,
+    "late_submission_penalty": 0.5,
+    "points_to_pass": 0,
+    "name": "First Exercise Round",
+    "course_instance": 1,
+    "late_submissions_allowed": false,
+    "closing_time": "2023-09-27T09:00:00Z",
+    "late_submission_deadline": "2024-09-27T09:00:00Z",
+    "introduction": "",
+    "opening_time": "2013-09-27T09:00:00Z",
+    "url": "first-exercise-round",
+    "status": "ready"
+  },
+  "model": "course.coursemodule",
+  "pk": 1
+},
+{
+  "fields": {
+    "order": 1,
+    "late_submission_penalty": 0.5,
+    "points_to_pass": 0,
+    "name": "Exercises with Hook",
+    "course_instance": 2,
+    "late_submissions_allowed": false,
+    "closing_time": "2023-09-27T09:00:00Z",
+    "late_submission_deadline": "2024-09-27T09:00:00Z",
+    "introduction": "",
+    "opening_time": "2013-09-27T09:00:00Z",
+    "url": "exercises-with-hook",
+    "status": "ready"
+  },
+  "model": "course.coursemodule",
+  "pk": 2
+},
+{
+  "fields": {
+    "course_instance": 1,
+    "points_to_pass": 0,
+    "name": "Online Exercises",
+    "status": "ready",
+    "description": ""
+  },
+  "model": "course.learningobjectcategory",
+  "pk": 1
+},
+{
+  "fields": {
+    "course_instance": 2,
+    "points_to_pass": 0,
+    "name": "Online Exercises with Hooks",
+    "status": "ready",
+    "description": ""
+  },
+  "model": "course.learningobjectcategory",
+  "pk": 2
+},
+{
+  "fields": {
+    "order": 1,
+    "use_wide_column": false,
+    "course_module": 1,
+    "name": "First exercise: Hello A+",
+    "category": 1,
+    "model_answers": "",
+    "exercise_info": null,
+    "service_url": "http://localhost:8889/first_exercise/",
+    "url": "1",
+    "parent": null,
+    "status": "ready",
+    "description": ""
+  },
+  "model": "exercise.learningobject",
+  "pk": 1
+},
+{
+  "fields": {
+    "order": 2,
+    "use_wide_column": false,
+    "course_module": 1,
+    "name": "File exercise (assistant graded)",
+    "category": 1,
+    "model_answers": "",
+    "exercise_info": null,
+    "service_url": "http://localhost:8889/file_exercise/",
+    "url": "2",
+    "parent": null,
+    "status": "ready",
+    "description": ""
+  },
+  "model": "exercise.learningobject",
+  "pk": 2
+},
+{
+  "fields": {
+    "order": 3,
+    "use_wide_column": false,
+    "course_module": 1,
+    "name": "AJAX exercise",
+    "category": 1,
+    "model_answers": "",
+    "exercise_info": null,
+    "service_url": "http://localhost:8889/ajax_exercise/",
+    "url": "3",
+    "parent": null,
+    "status": "ready",
+    "description": ""
+  },
+  "model": "exercise.learningobject",
+  "pk": 3
+},
+{
+  "fields": {
+    "order": 1,
+    "use_wide_column": false,
+    "course_module": 2,
+    "name": "First exercise: Hello A+",
+    "category": 2,
+    "model_answers": "",
+    "exercise_info": null,
+    "service_url": "http://localhost:8889/first_exercise/",
+    "url": "4",
+    "parent": null,
+    "status": "ready",
+    "description": ""
+  },
+  "model": "exercise.learningobject",
+  "pk": 4
+},
+{
+  "fields": {
+    "points_to_pass": 39,
+    "allow_assistant_viewing": true,
+    "max_points": 100,
+    "max_group_size": 1,
+    "allow_assistant_grading": false,
+    "min_group_size": 1,
+    "max_submissions": 4
+  },
+  "model": "exercise.baseexercise",
+  "pk": 1
+},
+{
+  "fields": {
+    "points_to_pass": 40,
+    "allow_assistant_viewing": true,
+    "max_points": 100,
+    "max_group_size": 1,
+    "allow_assistant_grading": true,
+    "min_group_size": 1,
+    "max_submissions": 10
+  },
+  "model": "exercise.baseexercise",
+  "pk": 2
+},
+{
+  "fields": {
+    "points_to_pass": 40,
+    "allow_assistant_viewing": true,
+    "max_points": 100,
+    "max_group_size": 1,
+    "allow_assistant_grading": false,
+    "min_group_size": 1,
+    "max_submissions": 10
+  },
+  "model": "exercise.baseexercise",
+  "pk": 3
+},
+{
+  "fields": {
+    "points_to_pass": 40,
+    "allow_assistant_viewing": true,
+    "max_points": 100,
+    "max_group_size": 1,
+    "allow_assistant_grading": false,
+    "min_group_size": 1,
+    "max_submissions": 10
+  },
+  "model": "exercise.baseexercise",
+  "pk": 4
+}
+]

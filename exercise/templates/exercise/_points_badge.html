@@ -1,12 +1,32 @@
 {% load i18n %}
+{% load exercise %}
 {% if status %}
 <span class="badge">
-    {{ status }}
+    {{ status|submission_status }}
 </span>
+
+{% elif confirm_the_level %}
+{% if submitted %}
+<span class="badge{% if graded %} badge-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}{% endif %} {{ classes }}">
+  {% if passed %}{% trans "Accepted" %}{% elif graded %}{% trans "Rejected" %}{% else %}{% trans "Submitted" %}{% endif %}
+</span>
+{% elif confirmable_points %}
+<span class="badge badge-danger" data-toggle="tooltip" title="{% trans 'You must submit here to confirm your points. Submissions are accepted even after the deadline.' %}">
+  {% trans "Missing" %}
+</span>
+{% elif exercise_page %}
+<span class="badge">
+  {% trans "Not submitted" %}
+</span>
+{% endif %}
+
 {% else %}
-<span class="badge{% if submitted %} badge-{% if full_score %}success{% elif passed %}info{% else %}warning{% endif %}{% endif %} {{ classes }}"
+{% if difficulty %}
+<span class="difficulty">{{ difficulty }}</span>
+{% endif %}
+<span class="badge{% if submitted %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
         data-toggle="tooltip" data-placement="bottom"
-        title="{% if passed %}{% if submitted %}{% trans 'Passed' %}{% else %}{% trans 'No submissions' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% else %}{% trans 'Required exercises are not passed' %}{% endif %}">
+        title="{% if passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
     {{ points }} / {{ max }}
 </span>
 {% endif %}

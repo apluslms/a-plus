@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from course.models import Course, CourseInstance
 from userprofile.models import User
+from .cache import CachedCourseMenu
 from .models import LinkService, LTIService, MenuItem
 from .templatetags import external_services as tags
 
@@ -14,6 +15,10 @@ class ExternalServicesTest(TestCase):
         self.user = User(username="testUser")
         self.user.set_password("testPassword")
         self.user.save()
+
+        self.assistant = User(username="testUser2")
+        self.assistant.set_password("testPassword")
+        self.assistant.save()
 
         self.link_service = LinkService.objects.create(
             url="http://www.external-service.com",
@@ -49,11 +54,13 @@ class ExternalServicesTest(TestCase):
             course=self.course,
             url="T-00.1000_2011"
         )
+        self.course_instance.enroll_student(self.user)
+        self.course_instance.assistants.add(self.assistant.userprofile)
 
         self.menu_item1 = MenuItem.objects.create(
             service=self.link_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT,
+            access=MenuItem.ACCESS.STUDENT,
             menu_label="Overriden Label",
             menu_icon_class="star"
         )
@@ -61,64 +68,51 @@ class ExternalServicesTest(TestCase):
         self.menu_item2 = MenuItem.objects.create(
             service=self.link_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT,
+            access=MenuItem.ACCESS.STUDENT,
             enabled=False
         )
 
         self.menu_item3 = MenuItem.objects.create(
             service=self.disabled_link_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT
+            access=MenuItem.ACCESS.STUDENT
         )
 
         self.menu_item4 = MenuItem.objects.create(
-            service=self.disabled_link_service,
+            service=self.lti_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT,
-            enabled=False
+            access=MenuItem.ACCESS.STUDENT
         )
 
         self.menu_item5 = MenuItem.objects.create(
             service=self.lti_service,
             course_instance=self.course_instance,
-            access=MenuItem.ACCESS_STUDENT
+            access=MenuItem.ACCESS.ASSISTANT
         )
-
-    def test_linkservice_string(self):
-        self.assertEqual("External Service: http://www.external-service.com", str(self.link_service))
-        self.assertEqual("[Disabled] Disabled External Service: http://www.disabled-external-service.com", str(self.disabled_link_service))
-        self.assertEqual("LTI Service: http://www.lti-service.com", str(self.lti_service))
 
     def test_menuitem_label(self):
         self.assertEqual("Overriden Label", self.menu_item1.label)
         self.assertEqual("External Service", self.menu_item2.label)
         self.assertEqual("Disabled External Service", self.menu_item3.label)
-        self.assertEqual("Disabled External Service", self.menu_item4.label)
+        self.assertEqual("LTI Service", self.menu_item4.label)
         self.assertEqual("LTI Service", self.menu_item5.label)
 
     def test_menuitem_icon_class(self):
         self.assertEqual("star", self.menu_item1.icon_class)
         self.assertEqual("globe", self.menu_item2.icon_class)
         self.assertEqual("globe", self.menu_item3.icon_class)
-        self.assertEqual("globe", self.menu_item4.icon_class)
+        self.assertEqual("star", self.menu_item4.icon_class)
         self.assertEqual("star", self.menu_item5.icon_class)
 
     def test_menuitem_url(self):
         self.assertEqual("http://www.external-service.com", self.menu_item1.url)
         self.assertEqual("http://www.external-service.com", self.menu_item2.url)
         self.assertEqual("http://www.disabled-external-service.com", self.menu_item3.url)
-        self.assertEqual("http://www.disabled-external-service.com", self.menu_item4.url)
+        self.assertEqual("/Course-Url/T-00.1000_2011/lti-login/4/", self.menu_item4.url)
         self.assertEqual("/Course-Url/T-00.1000_2011/lti-login/5/", self.menu_item5.url)
 
-    def test_menuitem_string(self):
-        self.assertEqual("123456 Fall 2011: ", str(self.menu_item1))
-        self.assertEqual("[Disabled] 123456 Fall 2011: ", str(self.menu_item2))
-        self.assertEqual("[Disabled] 123456 Fall 2011: ", str(self.menu_item3))
-        self.assertEqual("[Disabled] 123456 Fall 2011: ", str(self.menu_item4))
-        self.assertEqual("123456 Fall 2011: ", str(self.menu_item5))
-
     def test_view(self):
-        url = self.menu_item5.url
+        url = self.menu_item4.url
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
@@ -127,35 +121,25 @@ class ExternalServicesTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue("oauth_signature" in str(response.content))
 
-        self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 2)
-        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 0)
-
-        self.menu_item5.access = MenuItem.ACCESS_ASSISTANT
-        self.menu_item5.save()
-        self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 1)
-        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 1)
-        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, False).count(), 1)
-        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, False, False).count(), 0)
-
+        url = self.menu_item5.url
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
-        self.course_instance.assistants.add(self.user.userprofile)
+
+        self.client.login(username="testUser2", password="testPassword")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.menu_item5.access = MenuItem.ACCESS_TEACHER
+        self.menu_item5.access = MenuItem.ACCESS.TEACHER
         self.menu_item5.save()
-        self.assertEqual(tags.external_menu_entries(self.course_instance.id).count(), 1)
-        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, True).count(), 1)
-        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, True, False).count(), 0)
-        self.assertEqual(tags.external_staff_menu_entries(self.course_instance.id, False, False).count(), 0)
-
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
-        self.course.teachers.add(self.user.userprofile)
+        self.course.teachers.add(self.assistant.userprofile)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.client.logout()
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+    def test_cached(self):
+        menu = CachedCourseMenu(self.course_instance)
+        self.assertEqual(len(menu.student_link_groups()), 1)
+        self.assertEqual(len(menu.student_link_groups()[0]['items']), 4)
+        self.assertEqual(len(menu.staff_link_groups()), 1)
+        self.assertEqual(len(menu.staff_link_groups()[0]['items']), 1)

@@ -14,7 +14,8 @@ export APLUS_DB_FILE=$DIR/aplus.db
 rm -f $APLUS_DB_FILE
 
 $PYTHON manage.py migrate
-$PYTHON manage.py loaddata doc/selenium_test_data.json
+$PYTHON manage.py loaddata selenium_test/test_data.json
+$PYTHON manage.py shell < selenium_test/add_users.py
 
 cp $APLUS_DB_FILE ${APLUS_DB_FILE}_copy
 
@@ -22,10 +23,10 @@ $PYTHON manage.py runserver 8001 --noreload > $DIR/aplus.out 2>&1 &
 
 unset APLUS_DB_FILE
 
-cd doc
-$PYTHON example_grader.py 8889 > ../$DIR/example_grader.out 2>&1 &
+cd $DIR/grader
+$PYTHON manage.py runserver 8889 --noreload > ../example_grader.out 2>&1 &
 
-jobs -p > ../$DIR/server.ports
+jobs -p > ../server.ports
 
 echo "A+ running at port 8001 and example grader at port 8889."
 echo "Ready for Selenium browser tests. Use kill_servers.sh when finished."

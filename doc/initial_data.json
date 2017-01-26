@@ -1,234 +1,191 @@
 [
-  {
-    "pk": 1,
-    "model": "course.coursemodule",
-    "fields": {
-      "name": "First Exercise Round",
-      "url": "first-exercise-round",
-      "introduction": "",
-      "late_submission_deadline": "2025-09-27T10:47:09.000Z",
-      "late_submissions_allowed": false,
-      "course_instance": 1,
-      "points_to_pass": 0,
-      "closing_time": "2024-09-27T10:47:09.000Z",
-      "opening_time": "2013-09-27T10:47:09.000Z",
-      "late_submission_penalty": 0.5
-    }
-  },
-  {
-    "pk": 1,
-    "model": "course.learningobjectcategory",
-    "fields": {
-      "points_to_pass": 0,
-      "course_instance": 1,
-      "name": "Online Exercises",
-      "description": ""
-    }
-  },
-  {
-    "pk": 2,
-    "model": "course.coursemodule",
-    "fields": {
-      "name": "Exercises with Hook",
-      "url": "exercises-with-hook",
-      "introduction": "",
-      "late_submission_deadline": "2025-09-27T10:47:09.000Z",
-      "late_submissions_allowed": false,
-      "course_instance": 2,
-      "points_to_pass": 0,
-      "closing_time": "2024-09-27T10:47:09.000Z",
-      "opening_time": "2013-09-27T10:47:09.000Z",
-      "late_submission_penalty": 0.5
-    }
-  },
-  {
-    "pk": 2,
-    "model": "course.learningobjectcategory",
-    "fields": {
-      "points_to_pass": 0,
-      "course_instance": 2,
-      "name": "Online Exercises with Hooks",
-      "description": ""
-    }
-  },
-  {
-    "pk": 1,
-    "model": "exercise.learningobject",
-    "fields": {
-      "category": 1,
-      "description": "",
-      "name": "First exercise: Hello A+",
-      "course_module": 1,
-      "service_url": "http://localhost:8888/first_exercise/",
-      "order": 1,
-      "url": "1",
-      "content": ""
-    }
-  },
-  {
-    "pk": 1,
-    "model": "exercise.baseexercise",
-    "fields": {
-      "allow_assistant_grading": false,
-      "max_points": 100,
-      "points_to_pass": 40,
-      "min_group_size": 1,
-      "max_submissions": 10,
-      "max_group_size": 1
-    }
-  },
-  {
-    "pk": 2,
-    "model": "exercise.learningobject",
-    "fields": {
-      "category": 1,
-      "description": "",
-      "name": "File exercise (assistant graded)",
-      "course_module": 1,
-      "service_url": "http://localhost:8888/file_exercise/",
-      "order": 2,
-      "url": "2",
-      "content": ""
-    }
-  },
-  {
-    "pk": 2,
-    "model": "exercise.baseexercise",
-    "fields": {
-      "allow_assistant_grading": true,
-      "max_points": 100,
-      "points_to_pass": 40,
-      "min_group_size": 1,
-      "max_submissions": 10,
-      "max_group_size": 1
-    }
-  },
-  {
-    "pk": 3,
-    "model": "exercise.learningobject",
-    "fields": {
-      "category": 1,
-      "description": "",
-      "name": "AJAX exercise",
-      "course_module": 1,
-      "service_url": "http://localhost:8888/ajax_exercise/",
-      "parent": 1,
-      "order": 1,
-      "url": "3",
-      "content": ""
-    }
-  },
-  {
-    "pk": 3,
-    "model": "exercise.baseexercise",
-    "fields": {
-      "allow_assistant_grading": false,
-      "max_points": 100,
-      "points_to_pass": 40,
-      "min_group_size": 1,
-      "max_submissions": 10,
-      "max_group_size": 1
-    }
-  },
-  {
-    "pk": 4,
-    "model": "exercise.learningobject",
-    "fields": {
-      "category": 2,
-      "description": "",
-      "name": "First exercise: Hello A+",
-      "course_module": 2,
-      "service_url": "http://localhost:8888/first_exercise/",
-      "order": 1,
-      "url": 4,
-      "content": ""
-    }
-  },
-  {
-    "pk": 4,
-    "model": "exercise.baseexercise",
-    "fields": {
-      "allow_assistant_grading": false,
-      "max_points": 100,
-      "points_to_pass": 40,
-      "min_group_size": 1,
-      "max_submissions": 10,
-      "max_group_size": 1
-    }
-  },
-  {
-    "pk": 1,
-    "model": "course.course",
-    "fields": {
-      "url": "aplus1",
-      "code": "aplus-001",
-      "name": "My test course",
-      "teachers": [
-        1
-      ]
-    }
-  },
-  {
-    "pk": 1,
-    "model": "course.courseinstance",
-    "fields": {
-      "ending_time": "2024-09-27T10:47:18.000Z",
-      "url": "basic_instance",
-      "starting_time": "2013-09-27T10:47:17.000Z",
-      "instance_name": "A+ Test Course Instance",
-      "course": 1,
-      "assistants": [],
-      "visible_to_students": true
-    }
-  },
-  {
-    "pk": 2,
-    "model": "course.courseinstance",
-    "fields": {
-      "ending_time": "2024-09-27T10:47:18.000Z",
-      "url": "hook_instance",
-      "starting_time": "2013-09-27T10:47:17.000Z",
-      "instance_name": "Hook Example",
-      "course": 1,
-      "assistants": [],
-      "visible_to_students": true
-    }
-  },
-  {
-    "pk": 1,
-    "model": "inheritance.modelwithinheritance",
-    "fields": {
-      "content_type": ["exercise", "baseexercise"]
-    }
-  },
-  {
-    "pk": 2,
-    "model": "inheritance.modelwithinheritance",
-    "fields": {
-      "content_type": ["exercise", "baseexercise"]
-    }
-  },
-  {
-    "pk": 3,
-    "model": "inheritance.modelwithinheritance",
-    "fields": {
-      "content_type": ["exercise", "baseexercise"]
-    }
-  },
-  {
-    "pk": 4,
-    "model": "inheritance.modelwithinheritance",
-    "fields": {
-      "content_type": ["exercise", "baseexercise"]
-    }
-  },
-  {
-    "pk": 1,
-    "model": "course.coursehook",
-    "fields": {
-      "hook_type": "post-grading",
-      "hook_url": "http://localhost:8888/hook/",
-      "course_instance": 2
-    }
+{
+  "pk": 1,
+  "model": "inheritance.modelwithinheritance",
+  "fields": {
+    "content_type": [
+      "exercise",
+      "baseexercise"
+    ]
   }
+},
+{
+  "pk": 2,
+  "model": "inheritance.modelwithinheritance",
+  "fields": {
+    "content_type": [
+      "exercise",
+      "baseexercise"
+    ]
+  }
+},
+{
+  "pk": 3,
+  "model": "inheritance.modelwithinheritance",
+  "fields": {
+    "content_type": [
+      "exercise",
+      "baseexercise"
+    ]
+  }
+},
+{
+  "pk": 1,
+  "model": "course.course",
+  "fields": {
+    "name": "My test course",
+    "teachers": [],
+    "url": "aplus1",
+    "code": "aplus-001"
+  }
+},
+{
+  "pk": 1,
+  "model": "course.courseinstance",
+  "fields": {
+    "index_mode": 0,
+    "visible_to_students": true,
+    "module_numbering": 1,
+    "ending_time": "2020-09-27T09:00:00Z",
+    "url": "basic_instance",
+    "head_urls": "",
+    "view_content_to": 2,
+    "instance_name": "A+ Test Course Instance",
+    "course": 1,
+    "language": "",
+    "enrollment_audience": 1,
+    "description": "",
+    "image": "",
+    "configure_url": "",
+    "footer": "",
+    "enrollment_starting_time": null,
+    "enrollment_ending_time": null,
+    "starting_time": "2013-09-27T09:00:00Z",
+    "assistants": [],
+    "technical_error_emails": "",
+    "content_numbering": 1
+  }
+},
+{
+  "pk": 1,
+  "model": "course.coursemodule",
+  "fields": {
+    "name": "First Exercise Round",
+    "order": 1,
+    "status": "ready",
+    "url": "first-exercise-round",
+    "closing_time": "2023-09-27T09:00:00Z",
+    "course_instance": 1,
+    "late_submissions_allowed": false,
+    "late_submission_deadline": "2024-09-27T09:00:00Z",
+    "introduction": "",
+    "points_to_pass": 0,
+    "late_submission_penalty": 0.5,
+    "opening_time": "2013-09-27T09:00:00Z"
+  }
+},
+{
+  "pk": 1,
+  "model": "course.learningobjectcategory",
+  "fields": {
+    "name": "Online Exercises",
+    "status": "ready",
+    "points_to_pass": 0,
+    "description": "",
+    "course_instance": 1
+  }
+},
+{
+  "pk": 1,
+  "model": "exercise.learningobject",
+  "fields": {
+    "name": "First exercise: Hello A+",
+    "order": 1,
+    "status": "ready",
+    "url": "1",
+    "service_url": "http://localhost:8888/first_exercise/",
+    "model_answers": "",
+    "exercise_info": null,
+    "category": 1,
+    "description": "",
+    "parent": null,
+    "course_module": 1,
+    "use_wide_column": false
+  }
+},
+{
+  "pk": 2,
+  "model": "exercise.learningobject",
+  "fields": {
+    "name": "File exercise (assistant graded)",
+    "order": 2,
+    "status": "ready",
+    "url": "2",
+    "service_url": "http://localhost:8888/file_exercise/",
+    "model_answers": "",
+    "exercise_info": null,
+    "category": 1,
+    "description": "",
+    "parent": null,
+    "course_module": 1,
+    "use_wide_column": false
+  }
+},
+{
+  "pk": 3,
+  "model": "exercise.learningobject",
+  "fields": {
+    "name": "AJAX exercise",
+    "order": 3,
+    "status": "ready",
+    "url": "3",
+    "service_url": "http://localhost:8888/ajax_exercise/",
+    "model_answers": "",
+    "exercise_info": null,
+    "category": 1,
+    "description": "",
+    "parent": null,
+    "course_module": 1,
+    "use_wide_column": false
+  }
+},
+{
+  "pk": 1,
+  "model": "exercise.baseexercise",
+  "fields": {
+    "min_group_size": 1,
+    "allow_assistant_grading": false,
+    "points_to_pass": 39,
+    "max_submissions": 10,
+    "allow_assistant_viewing": true,
+    "max_group_size": 1,
+    "max_points": 100
+  }
+},
+{
+  "pk": 2,
+  "model": "exercise.baseexercise",
+  "fields": {
+    "min_group_size": 1,
+    "allow_assistant_grading": true,
+    "points_to_pass": 40,
+    "max_submissions": 10,
+    "allow_assistant_viewing": true,
+    "max_group_size": 1,
+    "max_points": 100
+  }
+},
+{
+  "pk": 3,
+  "model": "exercise.baseexercise",
+  "fields": {
+    "min_group_size": 1,
+    "allow_assistant_grading": false,
+    "points_to_pass": 40,
+    "max_submissions": 3,
+    "allow_assistant_viewing": true,
+    "max_group_size": 1,
+    "max_points": 100
+  }
+}
 ]

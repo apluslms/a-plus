@@ -1,82 +1,61 @@
 from django.db import models
 
 from course.models import CourseInstance
+from exercise.models import Submission
+from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
 
-class NotificationSet(object):
-    """
-    A result set of notifications.
-
-    """
-    @classmethod
-    def get_unread(cls, user):
-        return NotificationSet(
-            user.userprofile.received_notifications.filter(
-                seen=False))
-
-    @classmethod
-    def get_course(cls, course_instance, user, per_page=30, page=1):
-        skip = max(0, page - 1) * per_page
-        qs = user.userprofile.received_notifications.filter(
-            course_instance=course_instance)[skip:(skip + per_page)]
-        return NotificationSet(qs)
-
-    @classmethod
-    def get_course_new_count(cls, course_instance, user):
-        return user.userprofile.received_notifications.filter(
-            course_instance=course_instance, seen=False).count()
-
-    def __init__(self, queryset):
-        self.notifications = list(queryset)
-
-    @property
-    def count(self):
-        return len(self.notifications)
-
-    def count_and_mark_unseen(self):
-        """
-        Marks notifications seen in data base but keeps the set instances
-        in unseen state.
-        """
-        count = 0
-        for notification in self.notifications:
-            if not notification.seen:
-                count += 1
-                notification.seen = True
-                notification.save(update_fields=["seen"])
-
-                # Return the instance to previous state without saving.
-                notification.seen = False
-        return count
-
-
-class Notification(models.Model):
+class Notification(UrlMixin, models.Model):
     """
     A user notification of some event, for example manual assessment.
     """
-
-    @classmethod
-    def send(cls, sender, recipient, course_instance, subject, notification):
-        notification = Notification(
-            notification=notification,
-            subject=subject,
-            sender=sender,
-            recipient=recipient,
-            course_instance=course_instance
-        )
-        notification.save()
-
-    subject = models.CharField(max_length=255)
-    notification = models.TextField()
-    sender = models.ForeignKey(UserProfile, related_name="sent_notifications")
-    recipient = models.ForeignKey(UserProfile, related_name="received_notifications")
+    subject = models.CharField(max_length=255, blank=True)
+    notification = models.TextField(blank=True)
+    sender = models.ForeignKey(UserProfile,
+        related_name="sent_notifications", blank=True, null=True)
+    recipient = models.ForeignKey(UserProfile,
+        related_name="received_notifications")
     timestamp = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(default=False)
     course_instance = models.ForeignKey(CourseInstance)
+    submission = models.ForeignKey(Submission,
+        related_name="notifications", blank=True, null=True)
 
     class Meta:
         ordering = ['-timestamp']
 
     def __str__(self):
-        return "To:" + self.recipient.user.username + ", " + self.subject + ", " + self.notification[:100]
+        return (
+            "To:" + self.recipient.user.username + ", "
+            + (str(self.submission.exercise) if self.submission else self.subject)
+        )
+
+    @classmethod
+    def send(cls, sender, submission):
+        for recipient in submission.submitters.all():
+            if Notification.objects.filter(
+                submission=submission,
+                recipient=recipient,
+                seen=False,
+            ).count() == 0:
+                notification = Notification(
+                    sender=sender,
+                    recipient=recipient,
+                    course_instance=submission.exercise.course_instance,
+                    submission=submission,
+                )
+                notification.save()
+
+    @classmethod
+    def remove(cls, submission):
+        Notification.objects.filter(
+            submission=submission,
+            recipient__in=submission.submitters.all(),
+            seen=False,
+        ).delete()
+
+    ABSOLUTE_URL_NAME = "notify"
+
+    def get_url_kwargs(self):
+        return dict(notification_id=self.id, **self.course_instance.get_url_kwargs())

@@ -3,15 +3,15 @@
 <nav class="row siblings">
 
     {% if next %}
-    {% if next.is_after_open or not module.is_after_open %}
-    <a href="{{ next|url }}" class="pull-right btn btn-link">
-        {{ next }} &raquo;
+    {% if next|has_opened:now %}
+    <a href="{{ next.link }}" class="pull-right btn btn-link">
+        {{ next.name }} &raquo;
     </a>
     {% else %}
     <span class="pull-right btn btn-link disabled">
-        {{ next }} &raquo;
+        {{ next.name }} &raquo;
         {% if is_course_staff %}
-        <a href="{{ next|url }}" class="pull-right btn btn-default btn-xs">
+        <a href="{{ next.link }}" class="btn btn-default btn-xs">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
         </a>
@@ -21,8 +21,27 @@
     {% endif %}
 
     {% if previous %}
-    <a href="{{ previous|url }}" class="btn btn-link">
-        &laquo; {{ previous }}
+    {% if previous|has_opened:now %}
+    <a href="{{ previous.link }}" class="pull-left btn btn-link">
+        &laquo; {{ previous.name }}
     </a>
+    {% else %}
+    <span class="pull-left btn btn-link disabled">
+        &laquo; {{ previous.name }}
+        {% if is_course_staff %}
+        <a href="{{ previous.link }}" class="btn btn-default btn-xs">
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            {% trans "Early access" %}
+        </a>
+        {% endif %}
+    </span>
     {% endif %}
+    {% endif %}
+
+    <span class="hidden-md hidden-sm hidden-xs" style="display: block; margin: auto; text-align: center;">
+        <a href="{{ instance|url:'toc' }}">
+            {% trans "Course materials" %}
+        </a>
+    </span>
+
 </nav>

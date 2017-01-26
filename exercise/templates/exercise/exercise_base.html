@@ -4,29 +4,29 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{{ block.super }}: {{ exercise }}{% endblock %}
+{% block title %}{{ block.super }}: {{ current.name }}{% endblock %}
 
 {% block siblings %}
-{% include "course/_siblings.html" with next=exercise.next previous=exercise.previous %}
+{% include "course/_siblings.html" %}
 {% endblock %}
 {% block siblings_bottom %}
-{% include "course/_siblings.html" with next=exercise.next previous=exercise.previous %}
+{% include "course/_siblings.html" %}
 {% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
 <li><a href="{{ module|url }}">{{ module }}</a></li>
-{% for parent in exercise.parent_list %}
+{% for entry in breadcrumb %}
 <li>
-  {% if parent.is_empty %}
-  {{ parent }}
+  {% if entry.is_empty %}
+  {{ entry.name }}
   {% else %}
-  <a href="{{ parent|url }}">{{ parent }}</a>
+  <a href="{{ entry.link }}">{{ entry.name }}</a>
   {% endif %}
 </li>
 {% endfor %}
 {% block exercisebreadcrumblist %}
-<li><a href="{{ exercise|url }}">{{ exercise }}</a></li>
+<li><a href="{{ current.link }}">{{ current.name }}</a></li>
 {% endblock %}
 {% endblock %}
 
@@ -36,7 +36,7 @@
   {% if exercise.is_submittable %}
   <ul class="nav nav-tabs">
       <li class="menu-exercise">
-          <a href="{{ exercise|url }}">
+          <a href="{{ current.link }}">
               {% trans "Exercise description" %}
           </a>
       </li>
@@ -52,7 +52,7 @@
                   <a href="{{ submission|url }}">
                       {{ forloop.revcounter }}.
                       {{ submission.submission_time }}
-                      {% submission_points submission %}
+                      {% points_badge submission %}
                   </a>
               </li>
               {% empty %}
@@ -62,6 +62,15 @@
               {% endfor %}
           </ul>
       </li>
+      {% if is_course_staff or is_student and exercise.is_closed %}
+      {% if exercise.model_answers %}
+      <li class="menu-model">
+        <a href="{{ exercise|url:'exercise-model' }}">
+          {% trans "Model answer" %}
+        </a>
+      </li>
+      {% endif %}
+      {% endif %}
       {% if is_course_staff %}
       <li>
           <p class="navbar-text navbar-btn">

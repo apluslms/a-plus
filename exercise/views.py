@@ -1,26 +1,30 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
 from django.http.response import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic.base import View
 from django.views.static import serve
 
+from authorization.permissions import ACCESS
+from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView
-from lib.viewbase import BaseRedirectMixin
-from userprofile.viewbase import ACCESS
-from .models import LearningObjectDisplay
-from .presentation.summary import UserExerciseSummary
+from lib.remote_page import request_for_response
+from lib.viewbase import BaseRedirectMixin, BaseView
+from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin
 
 
-class ResultsView(CourseInstanceBaseView):
+class TableOfContentsView(CourseInstanceBaseView):
+    template_name = "exercise/toc.html"
+
+
+class ResultsView(TableOfContentsView):
     template_name = "exercise/results.html"
 
 
@@ -29,8 +33,7 @@ class ExerciseInfoView(ExerciseBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.summary = UserExerciseSummary(self.exercise, self.request.user)
-        self.note("summary")
+        self.get_summary_submissions()
 
 
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
@@ -43,25 +46,26 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def access_control(self):
-        if self.exercise.status == 'enrollment' and self.access_mode == ACCESS.STUDENT:
-            self.access_mode = ACCESS.ENROLL
-        super().access_control()
+    def get_access_mode(self):
+        access_mode = super().get_access_mode()
 
-    def get_after_new_submission(self):
-        self.submissions = self.exercise.get_submissions_for_student(
-            self.profile) if self.profile else []
-        self.summary = UserExerciseSummary(self.exercise, self.request.user)
-        self.note("submissions", "summary")
+        # Loosen the access mode if exercise is enrollment
+        if (self.exercise.status in (
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+              ) and access_mode == ACCESS.STUDENT):
+            access_mode = ACCESS.ENROLL
+
+        return access_mode
 
     def get(self, request, *args, **kwargs):
-        self.handle()
-        students = self.get_students()
-        if self.exercise.is_submittable():
-            self.submission_check(students)
-            self.get_after_new_submission()
+        students = [self.profile]
+        if self.exercise.is_submittable:
+            ok, students = self.submission_check()
+            self.get_summary_submissions()
 
-        if self.exercise.status == 'maintenance':
+        if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
+              or self.module.status == CourseModule.STATUS.MAINTENANCE):
             if self.is_course_staff:
                 messages.error(request,
                     _("Exercise is in maintenance and content is hidden from "
@@ -70,32 +74,31 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
                 page = ExercisePage(self.exercise)
                 page.content = _('Unfortunately this exercise is currently '
                                  'under maintenance.')
-                return self.response(page=page, students=students)
+                return super().get(request, *args, page=page, students=students, **kwargs)
+
+        if hasattr(self.exercise, 'generate_table_of_contents') \
+              and self.exercise.generate_table_of_contents:
+            self.toc = self.content.children_hierarchy(self.exercise)
+            self.note("toc")
 
         page = self.exercise.as_leaf_class().load(request, students,
             url_name=self.post_url_name)
 
         if self.profile:
-            try:
-                LearningObjectDisplay.objects.get_or_create(
-                    learning_object=self.exercise, profile=self.profile)
-            except MultipleObjectsReturned:
-                pass
+            LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
 
-        return self.response(page=page, students=students)
+        return super().get(request, *args, page=page, students=students, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.handle()
-
         # Stop submit trials for e.g. chapters.
         # However, allow posts from exercises switched to maintenance status.
-        if not self.exercise.is_submittable():
+        if not self.exercise.is_submittable:
             return self.http_method_not_allowed(request, *args, **kwargs)
 
-        students = self.get_students()
         new_submission = None
         page = ExercisePage(self.exercise)
-        if self.submission_check(students):
+        ok, students = self.submission_check(True)
+        if ok:
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)
             if new_submission:
@@ -103,8 +106,10 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
                     url_name=self.post_url_name)
 
                 # Enroll after succesfull enrollment exercise.
-                if self.exercise.status == 'enrollment' \
-                        and new_submission.status == Submission.STATUS_READY:
+                if self.exercise.status in (
+                    LearningObject.STATUS.ENROLLMENT,
+                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                ) and new_submission.status == Submission.STATUS.READY:
                     self.instance.enroll_student(self.request.user)
 
                 # Redirect non AJAX normally to submission page.
@@ -120,25 +125,26 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
             if not request.is_ajax() and "__r" in request.GET:
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
-        self.get_after_new_submission()
+        self.get_summary_submissions()
         return self.response(page=page, students=students,
             submission=new_submission)
 
-    def get_students(self):
-        # TODO: group support
-        if self.profile:
-            return (self.profile,)
-        return ()
-
-    def submission_check(self, students):
-        ok, issues = self.exercise.is_submission_allowed(students)
+    def submission_check(self, error=False):
+        if not self.profile:
+            messages.error(self.request,
+                _("You need to sign in and enroll to submit exercises."))
+            return False, []
+        ok, issues, students = self.exercise.is_submission_allowed(self.profile)
         if len(issues) > 0:
-            messages.warning(self.request, "\n".join(issues))
-        return ok
+            if error:
+                messages.error(self.request, "\n".join(issues))
+            else:
+                messages.warning(self.request, "\n".join(issues))
+        return ok, students
 
 
 class ExercisePlainView(ExerciseView):
-    login_redirect=False
+    raise_exception=True
     force_ajax_template=True
     post_url_name="exercise-plain"
 
@@ -150,6 +156,31 @@ class ExercisePlainView(ExerciseView):
         return super().dispatch(request, *args, **kwargs)
 
 
+class ExerciseModelView(ExerciseBaseView):
+    template_name = "exercise/model.html"
+    ajax_template_name = "exercise/_model_files.html"
+    access_mode = ACCESS.ENROLLED
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+
+        if not self.is_course_staff and not self.exercise.is_closed():
+            raise Http404()
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.get_summary_submissions()
+        self.models = []
+        for url,name in self.exercise.get_models():
+            response = request_for_response(url)
+            self.models.append({
+                'name': name,
+                'content': response.text,
+                'html': 'text/html' in response.headers.get('Content-Type'),
+            })
+        self.note('models')
+
+
 class SubmissionView(SubmissionBaseView):
     template_name = "exercise/submission.html"
     ajax_template_name = "exercise/submission_plain.html"
@@ -158,22 +189,12 @@ class SubmissionView(SubmissionBaseView):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
-        if not self.request.is_ajax():
-            self.get_submissions()
-
-    def get_submissions(self):
-        if self.submission.is_submitter(self.request.user):
-            profile = self.profile
-        else:
-            profile = self.submission.submitters.first()
-        self.submissions = self.exercise.get_submissions_for_student(profile)
-        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
-        self.summary = UserExerciseSummary(self.exercise, profile.user)
-        self.note("submissions", "index", "summary")
+        #if not self.request.is_ajax():
+        self.get_summary_submissions()
 
 
 class SubmissionPlainView(SubmissionView):
-    login_redirect=False
+    raise_exception=True
     force_ajax_template=True
 
     # Allow iframe in another domain.
@@ -182,14 +203,13 @@ class SubmissionPlainView(SubmissionView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class SubmissionPollView(SubmissionMixin, View):
+class SubmissionPollView(SubmissionMixin, BaseView):
 
     def get(self, request, *args, **kwargs):
-        self.handle()
         return HttpResponse(self.submission.status, content_type="text/plain")
 
 
-class SubmittedFileView(SubmissionMixin, View):
+class SubmittedFileView(SubmissionMixin, BaseView):
     file_kw = "file_id"
     file_name_kw = "file_name"
 
@@ -206,7 +226,6 @@ class SubmittedFileView(SubmissionMixin, View):
             raise Http404()
 
     def get(self, request, *args, **kwargs):
-        self.handle()
         with open(self.file.file_object.path, "rb") as f:
             bytedata = f.read()
 

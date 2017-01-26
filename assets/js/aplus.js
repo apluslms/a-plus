@@ -10,92 +10,333 @@ $(function() {
     }
 
     $('[data-toggle="tooltip"]').tooltip();
+    $('.menu-groups').aplusGroupSelect();
     $('.ajax-tail-list').aplusListTail();
-    $('.file-modal').aplusFileModal();
+    $('.page-modal').aplusModalLink();
+    $('.file-modal').aplusModalLink({file:true});
     $('.search-select').aplusSearchSelect();
     $('.filtered-table').aplusTableFilter();
 });
 
-/**
- * Open submitted file in a modal.
- */
-(function($, window, document, undefined) {
- 	"use strict";
+$(function() {
 
-    var pluginName = "aplusFileModal";
-    var defaults = {
-        modal_selector: "#default-modal",
-        title_selector: ".modal-title",
-        content_selector: ".modal-body"
+    // Keep the menu visible when scrolling
+
+    var menuHeight = $('#main-course-menu').height() + 100;
+    var menuFixed = false;
+
+    var modifyMenu = function() {
+        var menu =  $('#main-course-menu');
+        if ($(window).scrollTop() > menuHeight && !menuFixed) {
+            menu.addClass('fixed');
+            menuFixed = true;
+        } else if ($(window).scrollTop() < 50 && menuFixed) {
+            menu.removeClass('fixed');
+            menuFixed = false;
+        }
     };
 
-    function AplusFileModal(element, options) {
-		this.element = $(element);
-		this.settings = $.extend({}, defaults, options);
-		this.init();
-	}
+    $(window).bind('scroll', function () {
+      modifyMenu();
+    });
 
-    $.extend(AplusFileModal.prototype, {
-		init: function() {
-            var link  = this.element;
-            var settings = this.settings;
-            link.on("click", function(event) {
-                event.preventDefault();
-                $.get(link.attr("href"), function(data) {
-                    var modal = $(settings.modal_selector);
-                    var text = $("<pre/>").text(data);
-                    modal.find(settings.title_selector).text(link.text());
-                    modal.find(settings.content_selector).html(text);
-                    hljs.highlightBlock(text[0]);
+    $(window).bind('resize', function () {
+      modifyMenu();
+    });
 
-                    // Add line numbers.
-                    var lines = text.html().split(/\r\n|\r|\n/g);
-                    var list = $("<table/>").addClass("src");
-                    for (var i = 1; i <= lines.length; i++) {
-                        list.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
-                    }
-                    text.html(list);
+});
 
-        			modal.modal("show");
-                });
-            });
+/**
+ * Select group using ajax.
+ */
+(function($, window, document, undefined) {
+  "use strict";
+
+  var pluginName = "aplusGroupSelect";
+  var defaults = {};
+
+  function AplusGroupSelect(element, options) {
+    this.element = $(element);
+    this.selection = this.element.find(".selection");
+    this.loader = this.element.find(".loader");
+    this.settings = $.extend({}, defaults, options);
+    this.init();
+  }
+
+  $.extend(AplusGroupSelect.prototype, {
+    init: function() {
+      var self = this;
+      this.element.find("form").on("submit", function(event) {
+        event.preventDefault();
+        self.selection.hide();
+        self.loader.removeClass("hidden").show();
+        var form = $(this);
+        $.ajax(form.attr("action"), {
+          type: "POST",
+          data: {
+            csrfmiddlewaretoken: form.find('input[name="csrfmiddlewaretoken"]').val(),
+            group: form.find('button[name="group"]').val()
+          },
+          dataType: "html"
+        }).fail(function() {
+          self.selection.show().find("small").text("Error");
+          self.loader.hide();
+        }).done(function(data) {
+          self.selection.show().find("small").html(data);
+          self.loader.hide();
+        });
+      });
+    }
+  });
+
+  $.fn[pluginName] = function(options) {
+    return this.each(function() {
+      if (!$.data(this, "plugin_" + pluginName)) {
+        $.data(this, "plugin_" + pluginName, new AplusGroupSelect(this, options));
+      }
+    });
+  };
+})(jQuery, window, document);
+
+/**
+ * Highlights code element.
+ */
+
+var copyTargetCounter = 0;
+
+$.fn.highlightCode = function(options) {
+
+  return this.each(function() {
+    var codeBlock = $(this).clone();
+    var wrapper = $('<div></div>');
+    wrapper.append(codeBlock);
+    $(this).replaceWith(wrapper);
+
+    // Use $(element).highlightCode{noCopy: true} to prevent copy button
+    if (!options || !options.noCopy) {
+      var buttonContainer = $('<p></p>').prependTo(wrapper);
+      var copyButtonContent = $('<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>');
+      var copyButtonText = $('<span></span>').text('Copy to clipboard');
+      var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="btn btn-xs btn-primary" id="copy-button-' + copyTargetCounter + '"></button>');
+      copyButtonContent.appendTo(copyButton);
+      copyButtonText.appendTo(copyButton);
+      copyButton.appendTo(buttonContainer);
+
+      var hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
+      hiddenTextarea.appendTo(buttonContainer);
+
+      // clipboard.js cannot copy from invisible elements
+      copyButton.click(function() {
+        hiddenTextarea.show();
+      });
+
+      var clipboard = new Clipboard('#copy-button-' + copyTargetCounter);
+      clipboard.on("error", function(e) {
+          hiddenTextarea.hide();
+      });
+      clipboard.on("success", function(e) {
+          hiddenTextarea.hide();
+      });
+
+      copyTargetCounter += 1;
+
+    }
+
+    hljs.highlightBlock(codeBlock[0]);
+
+    // Add line numbers.
+    var pre = $(codeBlock);
+    var lines = pre.html().split(/\r\n|\r|\n/g);
+    var list = $("<table/>").addClass("src");
+    for (var i = 1; i <= lines.length; i++) {
+        list.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
+    }
+    pre.html(list);
+  });
+};
+
+/**
+ * Handle common modal dialog.
+ */
+(function($, window, document, undefined) {
+  "use strict";
+
+  var pluginName = "aplusModal";
+  var defaults = {
+    loader_selector: ".modal-progress",
+    loader_text_selector: ".progress-bar",
+    title_selector: ".modal-title",
+    content_selector: ".modal-body",
+    error_message_attribute: "data-msg-error",
+  };
+
+  function AplusModal(element, options) {
+    this.element = $(element);
+    this.settings = $.extend({}, defaults, options);
+    this.init();
+  }
+
+  $.extend(AplusModal.prototype, {
+
+    init: function() {
+      this.loader = this.element.find(this.settings.loader_selector);
+      this.loaderText = this.loader.find(this.settings.loader_text_selector);
+      this.title = this.element.find(this.settings.title_selector);
+      this.content = this.element.find(this.settings.content_selector);
+      this.messages = {
+        loading: this.loaderText.text(),
+        error: this.loaderText.attr(this.settings.error_message_attribute)
+      };
+    },
+
+    run: function(command, data) {
+      switch(command) {
+        case "open":
+          this.open(data);
+          break;
+        case "error":
+          this.showError(data);
+          break;
+        case "content":
+          this.showContent(data);
+          break;
+      }
+    },
+
+    open: function(data) {
+      this.title.hide();
+      this.content.hide();
+      this.loaderText
+        .removeClass('progress-bar-danger').addClass('active')
+        .text(data || this.messages.loading);
+      this.loader.show();
+      this.element.on("hidden.bs.modal", function(event) {
+        $(".dropdown-toggle").dropdown();
+      });
+      this.element.modal("show");
+    },
+
+    showError: function(data) {
+      this.loaderText
+        .removeClass('active').addClass('progress-bar-danger')
+        .text(data || this.messages.error);
+    },
+
+    showContent: function(data) {
+      this.loader.hide();
+      if (data.title) {
+        this.title.text(data.title);
+        this.title.show();
+      }
+      if (data.content instanceof jQuery) {
+        this.content.empty().append(data.content);
+      } else {
+        this.content.html(data.content);
+      }
+      this.content.show();
+      return this.content;
+    }
+  });
+
+  $.fn[pluginName] = function(command, data, options) {
+    return this.each(function() {
+      var modal = $.data(this, "plugin_" + pluginName);
+      if (!modal) {
+        modal = new AplusModal(this, options);
+        $.data(this, "plugin_" + pluginName, modal);
+      }
+      return modal.run(command, data);
+    });
+  };
+})(jQuery, window, document);
+
+/**
+ * Open links in a modal.
+ */
+(function($, window, document, undefined) {
+   "use strict";
+
+    var pluginName = "aplusModalLink";
+    var defaults = {
+        modal_selector: "#page-modal",
+        file_modal_selector: "#file-modal",
+        body_regexp: /<body[^>]*>(.|\n)*<\/body>/i,
+        file: false
+    };
+
+    function AplusModalLink(element, options) {
+    this.element = $(element);
+    this.settings = $.extend({}, defaults, options);
+    this.init();
+  }
+
+  $.extend(AplusModalLink.prototype, {
+    init: function() {
+      var link = this.element;
+      var settings = this.settings;
+      link.on("click", function(event) {
+        event.preventDefault();
+        var url = link.attr("href");
+        if (url === "" || url == "#") {
+          return false;
         }
-	});
+        var modal = $(settings.file ? settings.file_modal_selector : settings.modal_selector);
+        modal.aplusModal("open");
+        $.get(url, function(data) {
+          if (settings.file) {
+            var text = $("<pre/>").text(data);
+            modal.aplusModal("content", {
+              title: link.text(),
+              content: text,
+            });
+            text.highlightCode();
+          } else {
+            var match = data.match(settings.body_regexp);
+            var c = modal.aplusModal("content", { content: match || data });
+            c.find('.file-modal').aplusModalLink({file:true});
+            c.find('pre.hljs').highlightCode();
+          }
+        }).fail(function() {
+          modal.aplusModal("error");
+        });
+      });
+    }
+  });
 
-    $.fn[pluginName] = function(options) {
-		return this.each(function() {
-			if (!$.data(this, "plugin_" + pluginName)) {
-				$.data(this, "plugin_" + pluginName, new AplusFileModal(this, options));
-			}
-		});
-	};
+  $.fn[pluginName] = function(options) {
+    return this.each(function() {
+      if (!$.data(this, "plugin_" + pluginName)) {
+        $.data(this, "plugin_" + pluginName, new AplusModalLink(this, options));
+      }
+    });
+  };
 })(jQuery, window, document);
 
 /**
  * Ajax loaded list tail.
  */
 (function($, window, document, undefined) {
-	"use strict";
+  "use strict";
 
-	var pluginName = "aplusListTail";
-	var defaults = {
-		per_page_attr: "data-per-page",
+  var pluginName = "aplusListTail";
+  var defaults = {
+    per_page_attr: "data-per-page",
         entry_selector: ".list-entry",
         more_selector: ".more-link",
         link_selector: "a",
         loader_selector: ".progress",
         link_page_arg: "?page=",
-	};
+  };
 
-	function AplusListTail(element, options) {
-		this.element = $(element);
-		this.settings = $.extend({}, defaults, options);
-		this.init();
-	}
+  function AplusListTail(element, options) {
+    this.element = $(element);
+    this.settings = $.extend({}, defaults, options);
+    this.init();
+  }
 
-	$.extend(AplusListTail.prototype, {
+  $.extend(AplusListTail.prototype, {
 
-		init: function() {
+    init: function() {
             var settings = this.settings;
             var perPage = this.element.attr(settings.per_page_attr);
             if (this.element.find(settings.entry_selector).size() >= perPage) {
@@ -124,15 +365,15 @@ $(function() {
                 });
             }
         }
-	});
+  });
 
-	$.fn[pluginName] = function(options) {
-		return this.each(function() {
-			if (!$.data(this, "plugin_" + pluginName)) {
-				$.data(this, "plugin_" + pluginName, new AplusListTail(this, options));
-			}
-		});
-	};
+  $.fn[pluginName] = function(options) {
+    return this.each(function() {
+      if (!$.data(this, "plugin_" + pluginName)) {
+        $.data(this, "plugin_" + pluginName, new AplusListTail(this, options));
+      }
+    });
+  };
 })(jQuery, window, document);
 
 /**

@@ -1,0 +1,68 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load apps %}
+{% load diploma %}
+
+{% block title %}{{ block.super }}: {{ student.get_full_name }}{% endblock %}
+{% block view_tag %}participants{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'participants' }}">{% trans "Participants" %}</a></li>
+<li class="active">{{ student.get_full_name }}</li>
+{% endblock %}
+
+{% block coursecontent %}
+
+<table class="table table-bordered">
+  <tr>
+    <td rowspan="2">
+      <img src="{{ student.userprofile.avatar_url }}" alt="avatar" />
+    </td>
+    <th>{% trans "Student id" %}</th>
+    <th>{% trans "Last name" %}</th>
+    <th>{% trans "First name" %}</th>
+    <th>{% trans "Email" %}</th>
+  </tr>
+  <tr>
+    <td>{{ student.userprofile.student_id }}</td>
+    <td>{{ student.last_name }}</td>
+    <td>{{ student.first_name }}</td>
+    <td>
+      {% if student.email %}
+      <a href="mailto:{{ student.email }}">
+        {{ student.email }}
+      </a>
+      {% else %}
+      {{ student.username }}
+      {% endif %}
+    </td>
+  </tr>
+</table>
+
+<p>
+  {% for submission in enrollment_submissions %}
+  <a href="{{ submission|url }}" class="page-modal">
+    {{ enrollment_exercise }} {{ submission.submission_time }}
+  </a>
+  {% endfor %}
+  &nbsp;
+  {% tags student.userprofile instance %}
+</p>
+
+{% user_results student %}
+{% endblock %}
+
+{% block sidecontent %}
+
+{% diploma_button student %}
+{% category_points student %}
+
+{% plugin_renderers student instance "results" as plugins %}
+{% for plugin in plugins %}
+    {{ plugin.render|safe }}
+{% endfor %}
+
+{% endblock %}

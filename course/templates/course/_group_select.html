@@ -1,0 +1,39 @@
+{% load i18n %}
+{% load course %}
+{% if groups %}
+<li role="presentation" class="menu-groups">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="selection">
+      <small>
+        {{ selected }}
+      </small>
+      <span class="caret" aria-hidden="true"></span>
+    </span>
+    <span class="loader hidden">
+      <small>{% trans "Registering selection..." %}</small>
+    </span>
+  </a>
+  <ul class="dropdown-menu">
+    <li>
+      <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
+        {% csrf_token %}
+        <button type="submit" name="group" value="0">
+          {% trans "Submit alone" %}
+        </button>
+      </form>
+    </li>
+    {% for group in groups %}
+    <li>
+      <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
+        {% csrf_token %}
+        <button type="submit" name="group" value="{{ group.id }}">
+          {% blocktrans with collaborators=group.collaborators %}
+          Submit with {{ collaborators }}
+          {% endblocktrans %}
+        </button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</li>
+{% endif %}

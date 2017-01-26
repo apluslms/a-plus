@@ -1,0 +1,26 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load apps %}
+
+{% block title %}{{ block.super }}: {% trans "Course materials" %}{% endblock %}
+{% block view_tag %}toc{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Course materials" %}</li>
+{% endblock %}
+
+{% block coursecontent %}
+{% user_toc %}
+{% endblock %}
+
+{% block sidecontent %}
+{% category_points %}
+
+{% plugin_renderers user instance as plugins %}
+{% for plugin in plugins %}
+    {{ plugin.render|safe }}
+{% endfor %}
+{% endblock %}

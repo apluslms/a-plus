@@ -12,7 +12,8 @@ from mimetypes import guess_type
 from . import exercise_models
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
-    safe_file_name
+    safe_file_name, Enum
+from lib.models import UrlMixin
 from userprofile.models import UserProfile
 
 
@@ -41,24 +42,19 @@ class SubmissionManager(models.Manager):
         return new_submission
 
     def exclude_errors(self):
-        return self.exclude(status=Submission.STATUS_ERROR)
+        return self.exclude(status=Submission.STATUS.ERROR)
 
 
-class Submission(models.Model):
+class Submission(UrlMixin, models.Model):
     """
     A submission to some course exercise from one or more submitters.
     """
-    STATUS_INITIALIZED = "initialized"
-    STATUS_WAITING = "waiting"
-    STATUS_READY = "ready"
-    STATUS_ERROR = "error"
-    STATUS_CHOICES = (
-        (STATUS_INITIALIZED, _("Initialized")),
-        (STATUS_WAITING, _("Waiting")),
-        (STATUS_READY, _("Ready")),
-        (STATUS_ERROR, _("Error")),
-    )
-
+    STATUS = Enum([
+        ('INITIALIZED', 'initialized', _("Initialized")),
+        ('WAITING', 'waiting', _("Waiting")),
+        ('READY', 'ready', _("Ready")),
+        ('ERROR', 'error', _("Error")),
+    ])
     submission_time = models.DateTimeField(auto_now_add=True)
     hash = models.CharField(max_length=32, default=get_random_string)
 
@@ -74,7 +70,7 @@ class Submission(models.Model):
     feedback = models.TextField(blank=True)
     assistant_feedback = models.TextField(blank=True)
     status = models.CharField(max_length=32,
-        choices=STATUS_CHOICES, default=STATUS_INITIALIZED)
+        choices=STATUS.choices, default=STATUS.INITIALIZED)
     grade = models.IntegerField(default=0)
     grading_time = models.DateTimeField(blank=True, null=True)
     late_penalty_applied = PercentField(blank=True, null=True)
@@ -91,10 +87,16 @@ class Submission(models.Model):
 
     class Meta:
         app_label = 'exercise'
-        ordering = ['-submission_time']
+        ordering = ['-id']
 
     def __str__(self):
         return str(self.id)
+
+    def ordinal_number(self):
+        return self.submitters.first().submissions.exclude_errors().filter(
+            exercise=self.exercise,
+            submission_time__lt=self.submission_time
+        ).count() + 1
 
     def is_submitter(self, user):
         return user and user.is_authenticated() and \
@@ -132,12 +134,13 @@ class Submission(models.Model):
                 open(file.file_object.path, "rb")
             )
 
+        students = list(self.submitters.all())
         if self.is_submitter(request.user):
             user = request.user
         else:
-            user = self.submitters.first().user
+            user = students[0].user if students else None
         self.exercise.as_leaf_class().modify_post_parameters(
-            self._data, self._files, user, request.get_host(), url)
+            self._data, self._files, user, students, request.get_host(), url)
         return (self._data, self._files)
 
     def clean_post_parameters(self):
@@ -191,12 +194,17 @@ class Submission(models.Model):
         # Finally check that the grade is in bounds after all the math.
         assert 0 <= self.grade <= self.exercise.max_points
 
+    def scale_grade_to(self, percentage):
+        percentage = float(percentage)/100
+        self.grade = round(max(self.grade*percentage,0))
+        self.grade = min(self.grade,self.exercise.max_points)
+
     def set_waiting(self):
-        self.status = self.STATUS_WAITING
+        self.status = self.STATUS.WAITING
 
     def set_ready(self):
         self.grading_time = timezone.now()
-        self.status = self.STATUS_READY
+        self.status = self.STATUS.READY
 
         # Fire set hooks.
         for hook in self.exercise.course_module.course_instance \
@@ -204,37 +212,33 @@ class Submission(models.Model):
             hook.trigger({ "submission_id": self.id })
 
     def set_error(self):
-        self.status = self.STATUS_ERROR
+        self.status = self.STATUS.ERROR
 
     def is_late(self):
+        if self.exercise.confirm_the_level:
+            return False
         if self.submission_time <= self.exercise.course_module.closing_time:
             return False
         deviation = self.exercise.one_has_deadline_deviation(
-            self.submitters.all())
-        if deviation and deviation.without_late_penalty\
-                and self.submission_time <= deviation.get_new_deadline():
+            self.submitters.all()
+        )
+        if (
+            deviation
+            and deviation.without_late_penalty
+            and self.submission_time <= deviation.get_new_deadline()
+        ):
             return False
         return True
 
+    @property
     def is_graded(self):
-        return self.status == self.STATUS_READY
+        return self.status == self.STATUS.READY
 
-    def head(self):
-        return self.exercise.content_head
 
-    def get_url(self, name):
-        exercise = self.exercise
-        instance = exercise.course_instance
-        return reverse(name, kwargs={
-            "course": instance.course.url,
-            "instance": instance.url,
-            "module": exercise.course_module.url,
-            "exercise_path": exercise.get_path(),
-            "submission_id": self.id,
-        })
+    ABSOLUTE_URL_NAME = "submission"
 
-    def get_absolute_url(self):
-        return self.get_url("submission")
+    def get_url_kwargs(self):
+        return dict(submission_id=self.id, **self.exercise.get_url_kwargs())
 
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
@@ -261,7 +265,7 @@ def build_upload_dir(instance, filename):
     )
 
 
-class SubmittedFile(models.Model):
+class SubmittedFile(UrlMixin, models.Model):
     """
     Represents a file submitted by the student as a solution to an exercise.
     Submitted files are always linked to a certain submission through a
@@ -289,22 +293,14 @@ class SubmittedFile(models.Model):
     def is_passed(self):
         return self.get_mime() in SubmittedFile.PASS_MIME
 
-    def get_absolute_url(self):
-        """
-        Returns the URL for downloading this file.
-        """
-        submission = self.submission
-        exercise = submission.exercise
-        instance = exercise.course_instance
-        return reverse('submission-file', kwargs={
-            "course": instance.course.url,
-            "instance": instance.url,
-            "module": exercise.course_module.url,
-            "exercise_path": exercise.get_path(),
-            "submission_id": submission.id,
-            "file_id": self.id,
-            "file_name": self.filename
-        })
+
+    ABSOLUTE_URL_NAME = "submission-file"
+
+    def get_url_kwargs(self):
+        return dict(
+            file_id=self.id,
+            file_name=self.filename,
+            **self.submission.get_url_kwargs())
 
 
 def _delete_file(sender, instance, **kwargs):

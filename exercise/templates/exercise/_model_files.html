@@ -1,0 +1,16 @@
+{% load i18n %}
+<p>{{ current.name }}</p>
+{% for entry in models %}
+{% if entry.html %}
+{{ entry.content|safe }}
+{% else %}
+<h4>{{ entry.name }}</h4>
+<pre class="hljs">
+{{ entry.content }}
+</pre>
+{% endif %}
+{% empty %}
+{% blocktrans %}
+No model answer has been supplied for this exercise.
+{% endblocktrans %}
+{% endfor %}

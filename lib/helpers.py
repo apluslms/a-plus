@@ -1,8 +1,38 @@
-from django.conf import settings
-from random import choice
-from PIL import Image
+import socket
 import string
-import urllib
+import functools
+import warnings
+from cachetools import cached, TTLCache
+from collections import OrderedDict
+from urllib.parse import urlsplit, urlencode
+from PIL import Image
+from django.conf import settings
+from django.utils.crypto import get_random_string as django_get_random_string
+from django.utils.deprecation import RemovedInNextVersionWarning
+from django.utils.translation import get_language
+
+
+try:
+    from django.core.management.utils import get_random_secret_key
+except ImportError:
+    def get_random_secret_key():
+        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+        return django_get_random_string(50, chars)
+
+
+def deprecated(message):
+    '''
+    This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emitted
+    when the function is used.
+    '''
+    def wrapper(func):
+        @functools.wraps(func)
+        def new_func(*args, **kwargs):
+            warnings.warn(message, category=RemovedInNextVersionWarning, stacklevel=2)
+            return func(*args, **kwargs)
+        return new_func
+    return wrapper
 
 
 def extract_form_errors(form):
@@ -16,7 +46,7 @@ def extract_form_errors(form):
     return errors
 
 
-def get_random_string(length=32):
+def get_random_string(length=32, choices=None):
     """
     This function creates a random string with a given length.
     The strings consist of upper and lower case letters and numbers.
@@ -26,9 +56,9 @@ def get_random_string(length=32):
     """
 
     # Use all letters and numbers in the identifier
-    choices = string.ascii_letters + string.digits
-
-    return ''.join([choice(choices) for _ in range(length)])
+    if not choices:
+        choices = string.ascii_letters + string.digits
+    return django_get_random_string(length=length, allowed_chars=choices)
 
 
 def query_dict_to_list_of_tuples(query_dict):
@@ -50,12 +80,12 @@ def query_dict_to_list_of_tuples(query_dict):
 
 def update_url_params(url, params):
     delimiter = "&" if "?" in url else "?"
-    return url + delimiter + urllib.parse.urlencode(params)
+    return url + delimiter + urlencode(params)
 
 
 def has_same_domain(url1, url2):
-    uri1 = urllib.parse.urlparse(url1)
-    uri2 = urllib.parse.urlparse(url2)
+    uri1 = urlsplit(url1)
+    uri2 = urlsplit(url2)
     return uri1.netloc == uri2.netloc
 
 
@@ -85,9 +115,98 @@ def roman_numeral(number):
     return roman
 
 
-def settings_text(request, key):
+def settings_text(key):
     def get(name):
         if hasattr(settings, name):
             return getattr(settings, name)
         return None
-    return get('{}_{}'.format(key, request.LANGUAGE_CODE.upper())) or get(key)
+    return get('{}_{}'.format(key, get_language().upper())) or get(key)
+
+
+def create_secret_key_file(filename):
+    key = get_random_secret_key()
+    with open(filename, 'w') as f:
+        f.write('''"""
+Automatically generated SECRET_KEY for django.
+This needs to be unique and SECRET. It is also installation specific.
+You can change it here or in local_settings.py
+"""
+SECRET_KEY = '%s'
+''' % (key))
+
+
+@cached(TTLCache(100, ttl=30))
+def get_url_ip_address_list(url):
+    """
+    This function takes a full URL as a parameter and returns the IP addresses
+    of the host as a string.
+
+    It will cache results for 30 seconds, so repeated calls return fast
+    """
+    hostname = urlsplit(url).hostname
+    assert hostname, "Invalid url: no hostname found"
+    ips = (a[4][0] for a in socket.getaddrinfo(hostname, None, 0, socket.SOCK_STREAM, socket.IPPROTO_TCP))
+    return tuple(set(ips))
+
+
+def get_font_color_for_background(background_color):
+    data = background_color.lstrip('#')
+    ldata = len(data)
+    if ldata < 3:
+        R = G = B = data
+    elif ldata == 3:
+        R, G, B = data
+        R, G, B = R+R, G+G, B+B
+    if ldata == 6:
+        R, G, B = data[0:2], data[2:4], data[4:6]
+    else:
+        R, G, B = 255, 255, 255
+    R, G, B = int(R, 16)/255, int(G, 16)/255, int(B, 16)/255
+    L = 0.213*R + 0.715*G + 0.072*B
+    return '#FFF' if L < 0.5 else '#000'
+
+
+class Enum(object):
+    """
+    Represents constant enumeration.
+
+    Usage:
+        OPTS = Enum(
+            ('FOO', 1, 'help string for foo'),
+            ('BAR', 2, 'help string for bar'),
+        )
+
+        if OPTS.FOO == test_var:
+            return OPTS[test_var]
+
+        ChoicesField(choices=OPTS.choices)
+    """
+    def __init__(self, *choices):
+        if len(choices) == 1 and isinstance(choices[0], list):
+            choices = choices[0]
+        self._strings = OrderedDict()
+        self._keys = []
+        for name, value, string in choices:
+            assert value not in self._strings, "Multiple choices have same value"
+            self._strings[value] = string
+            self._keys.append(name)
+            setattr(self, name, value)
+
+    @property
+    def choices(self):
+        return tuple(sorted(self._strings.items()))
+
+    def keys(self):
+        return (x for x in self._keys)
+
+    def __getitem__(self, key):
+        return self._strings[key]
+
+    def __str__(self):
+        s = ["<%s([" % (self.__class__.__name__,)]
+        for key in self.keys():
+            val = getattr(self, key)
+            txt = self[val]
+            s.append("  (%s, %s, %s)," % (key, val, txt))
+        s.append("])>")
+        return '\n'.join(s)

@@ -23,12 +23,12 @@ class SubmissionsPageTest(unittest.TestCase):
         self.assertEqual(SubmissionPage(self.driver, exerciseId="1").getSubmissionCount(), 2)
 
         ajaxExercisePage = MyAjaxExerciseGrader(self.driver)
-        ajaxExercisePage.setText(-1)
+        ajaxExercisePage.setText("-1")
         ajaxExercisePage.submit()
         self.assertEqual(SubmissionPage(self.driver, exerciseId="3").getSubmissionCount(), 1)
 
         ajaxExercisePage = MyAjaxExerciseGrader(self.driver)
-        ajaxExercisePage.setText(50)
+        ajaxExercisePage.setText("50")
         ajaxExercisePage.submit()
         self.assertEqual(SubmissionPage(self.driver, exerciseId="3").getSubmissionCount(), 2)
 
@@ -38,7 +38,7 @@ class SubmissionsPageTest(unittest.TestCase):
         self.assertEqual(SubmissionPage(self.driver, exerciseId="1").getSubmissionCount(), 3)
 
         ajaxExercisePage = MyAjaxExerciseGrader(self.driver)
-        ajaxExercisePage.setText(100)
+        ajaxExercisePage.setText("100")
         ajaxExercisePage.submit()
         self.assertEqual(SubmissionPage(self.driver, exerciseId="3").getSubmissionCount(), 3)
 

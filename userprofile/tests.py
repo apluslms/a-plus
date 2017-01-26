@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from course.models import Course, CourseInstance
 from exercise.models import LearningObjectCategory
-from userprofile.models import UserProfile, StudentGroup
+from userprofile.models import UserProfile
 
 
 class UserProfileTest(TestCase):
@@ -34,32 +34,6 @@ class UserProfileTest(TestCase):
         self.superuser.set_password("superuserPassword")
         self.superuser.save()
         self.superuser_profile = self.superuser.userprofile
-
-        self.student_group1 = StudentGroup.objects.create(
-            name="group1",
-            description="testGroup1",
-            member_limit=1,
-            is_public=False
-        )
-        self.student_group1.members.add(self.student_profile)
-
-        self.student_group2 = StudentGroup.objects.create(
-            name="group2",
-            description="testGroup2",
-            member_limit=3,
-            is_public=False
-        )
-        self.student_group2.members.add(self.student_profile)
-        self.student_group2.members.add(self.grader_profile)
-
-        self.student_group3 = StudentGroup.objects.create(
-            name="group3",
-            description="testGroup3",
-            member_limit=3,
-            is_public=False
-        )
-        self.student_group3.members.add(self.student_profile)
-        self.student_group3.members.add(self.grader_profile)
 
         self.course = Course.objects.create(
             name="test course",
@@ -113,10 +87,10 @@ class UserProfileTest(TestCase):
         self.assertRaises(UserProfile.DoesNotExist, UserProfile.get_by_student_id, "111111")
 
     def test_userprofile_unicode_string(self):
-        self.assertEqual("12345X (testUser)", str(self.student_profile))
-        self.assertEqual("67890Y (grader)", str(self.grader_profile))
-        self.assertEqual("None (teacher)", str(self.teacher_profile))
-        self.assertEqual("None (superuser)", str(self.superuser_profile))
+        self.assertEqual("testUser (Superb Student, 12345X)", str(self.student_profile))
+        self.assertEqual("grader (Grumpy Grader, 67890Y)", str(self.grader_profile))
+        self.assertEqual("teacher (Tedious Teacher)", str(self.teacher_profile))
+        self.assertEqual("superuser (Super User)", str(self.superuser_profile))
 
     def test_userprofile_gravatar_url(self):
         self.assertEqual("http://www.gravatar.com/avatar/36eb57f675f34b81bd859c525cb2b676?d=identicon", self.student_profile.avatar_url)
@@ -160,34 +134,6 @@ class UserProfileTest(TestCase):
 #         self.assertEqual(0, len(self.teacher_profile.get_hidden_categories_cache()))
 #
 #         self.assertEqual(0, len(self.superuser_profile.get_hidden_categories_cache()))
-
-    def test_studentgroup_names(self):
-        self.assertEqual("group1", str(self.student_group1))
-        self.assertEqual("group2", str(self.student_group2))
-        self.assertEqual("group3", str(self.student_group3))
-
-    def test_studentgroup_student_names(self):
-        self.assertEqual("Superb S.", self.student_group1.get_names())
-        self.assertEqual("Superb S., Grumpy G.", self.student_group2.get_names())
-        self.assertEqual("Superb S., Grumpy G.", self.student_group3.get_names())
-
-    def test_studentgroup_has_space_left(self):
-        self.assertFalse(self.student_group1.has_space_left())
-        self.assertTrue(self.student_group2.has_space_left())
-        self.assertTrue(self.student_group3.has_space_left())
-
-    def test_studentgroup_add_member(self):
-        self.assertEqual(1, len(self.student_group1.members.all()))
-        self.assertFalse(self.student_group1.add_member(self.teacher_profile))
-        self.assertEqual(1, len(self.student_group1.members.all()))
-
-        self.assertEqual(2, len(self.student_group2.members.all()))
-        self.assertTrue(self.student_group2.add_member(self.teacher_profile))
-        self.assertEqual(3, len(self.student_group2.members.all()))
-
-        self.assertEqual(2, len(self.student_group3.members.all()))
-        self.assertFalse(self.student_group3.add_member(self.student_profile))
-        self.assertEqual(2, len(self.student_group3.members.all()))
 
 #     def test_studentgroup_students_from_request(self):
 #         requestWithGroup = HttpRequest()

@@ -1,15 +1,26 @@
 from django.contrib import messages
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http.response import Http404
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
-from course.models import CourseInstance
+from lib.viewbase import (
+    BaseViewMixin,
+    BaseTemplateMixin,
+    BaseTemplateView,
+    BaseRedirectMixin,
+    BaseRedirectView,
+    BaseFormView,
+)
+from authorization.permissions import ACCESS
+from course.models import CourseInstance, UserTag
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
-from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, \
-    BaseRedirectView
-from userprofile.viewbase import ACCESS
+from exercise.cache.exercise import invalidate_instance
+from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
-    CourseContentForm, CloneInstanceForm
+    CourseContentForm, CloneInstanceForm, UserTagForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 
 
@@ -48,18 +59,39 @@ class EditContentView(EditInstanceView):
     template_name = "edit_course/edit_content.html"
     form_class = CourseContentForm
 
+    def get_common_objects(self):
+        self.modules = list(self.instance.course_modules.all())
+        for module in self.modules:
+            module.flat_objects = [
+                LearningObject.objects.get(id=entry['id'])
+                for entry in self.content.flat_module(module, enclosed=False)
+                if entry['type'] != 'level'
+            ]
+        self.note('modules')
+
     def get_success_url(self):
         return self.instance.get_url('course-edit')
 
     def form_valid(self, form):
         if self.request.POST.get('renumbermodule') is not None:
-            for module in self.instance.course_modules.all():
-                module._children().renumber()
+            for module in self.content.modules():
+                self.renumber_recursion(module)
         elif self.request.POST.get('renumbercourse') is not None:
             n = 1
-            for module in self.instance.course_modules.exclude(status='hidden'):
-                n = module._children().renumber(n)
+            for module in self.content.modules():
+                nn = self.renumber_recursion(module, n)
+                if module['status'] != 'hidden':
+                    n = nn
         return super().form_valid(form)
+
+    def renumber_recursion(self, parent, n=1):
+        for entry in parent['children']:
+            model = LearningObject.objects.get(id=entry['id'])
+            model.order = n
+            model.save()
+            self.renumber_recursion(entry)
+            n += 1
+        return n
 
 
 class ModelBaseMixin(CourseInstanceMixin):
@@ -79,6 +111,10 @@ class ModelBaseMixin(CourseInstanceMixin):
             raise Http404()
         self.manager = MANAGERS[self.model]()
         self.model_name = self.manager.name
+        # FIXME: model is passed from kwargs in View.dispatch and from
+        # BaseMixin/BaseTemplateMixin to template context. As the value is
+        # same, this should break anything, but is still a problematic thing.
+        # Should be fixed one day.
         self.note("model", "model_name")
 
     def get_success_url(self):
@@ -153,10 +189,43 @@ class ModelDeleteView(ModelBaseMixin, BaseRedirectMixin, BaseTemplateView):
         self.note("object", "empty")
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         if self.empty:
             self.object.delete()
         return self.redirect(self.get_success_url())
+
+
+class UserTagMixin(CourseInstanceMixin, BaseTemplateMixin, BaseViewMixin):
+    access_mode = ACCESS.TEACHER
+    form_class = UserTagForm
+    pk_url_kwarg = "tag_id"
+    success_url_name = "course-tags"
+
+    def get_success_url(self):
+        return self.instance.get_url(self.success_url_name)
+
+    def get_queryset(self):
+        return self.instance.usertags.all()
+
+
+class UserTagListView(UserTagMixin, ListView):
+    template_name = "edit_course/usertag_list.html"
+
+class UserTagAddView(UserTagMixin, CreateView):
+    template_name = "edit_course/usertag_add.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if 'instance' not in kwargs or not kwargs['instance']:
+            kwargs.update({'instance': self.form_class.get_base_object(self.instance)})
+        return kwargs
+
+
+class UserTagEditView(UserTagMixin, UpdateView):
+    template_name = "edit_course/usertag_edit.html"
+
+
+class UserTagDeleteView(UserTagMixin, DeleteView):
+    template_name = "edit_course/usertag_delete.html"
 
 
 class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
@@ -164,7 +233,6 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
     template_name = "edit_course/batch_assess.html"
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         from .operations.batch import create_submissions
         errors = create_submissions(self.instance, self.profile,
             request.POST.get("submissions_json", "{}"))
@@ -197,7 +265,13 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
     access_mode = ACCESS.TEACHER
 
     def post(self, request, *args, **kwargs):
-        self.handle()
+        if 'apply' in request.POST:
+            self.configure(request)
+        elif 'cache' in request.POST:
+            self.clear_cache(request)
+        return self.redirect(self.instance.get_url('course-edit'))
+
+    def configure(self, request):
         try:
             from .operations.configure import configure_content
             errors = configure_content(self.instance, request.POST.get('url'))
@@ -208,4 +282,19 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
                 messages.success(request, _("Course content configured."))
         except Exception as e:
             messages.error(request, _("Server error: {}").format(str(e)))
-        return self.redirect(self.instance.get_url('course-edit'))
+
+    def clear_cache(self, request):
+        invalidate_instance(self.instance)
+        messages.success(request, _("Exercise caches have been cleared."))
+
+
+class SignInAsUser(BaseRedirectMixin, BaseTemplateView):
+    access_mode = ACCESS.SUPERUSER
+    template_name = "edit_course/signin_as_user.html"
+
+    def post(self, request, *args, **kwargs):
+        username = request.POST.get('username', None)
+        user = User.objects.get(username=username)
+        user.backend = "django.contrib.auth.backends.ModelBackend"
+        auth_login(request, user)
+        return self.redirect("/")

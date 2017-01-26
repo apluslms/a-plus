@@ -1,5 +1,4 @@
 import logging
-
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
@@ -11,21 +10,29 @@ from .exercise_page import ExercisePage
 logger = logging.getLogger("aplus.protocol")
 
 
-def load_exercise_page(request, url, exercise):
+def load_exercise_page(request, url, last_modified, exercise):
     """
     Loads the exercise page from the remote URL.
 
     """
     page = ExercisePage(exercise)
     try:
-        parse_page_content(page, RemotePage(url), exercise)
+        parse_page_content(
+            page,
+            RemotePage(url, stamp=last_modified),
+            exercise
+        )
     except RemotePageException:
         messages.error(request,
             _("Connecting to the exercise service failed!"))
-        if exercise.id and exercise.course_instance.visible_to_students:
+        if exercise.id:
+            instance = exercise.course_instance
             msg = "Failed to request {}".format(url)
-            logger.exception(msg)
-            email_course_error(request, exercise, msg)
+            if instance.visible_to_students and not instance.is_past():
+                logger.exception(msg)
+                email_course_error(request, exercise, msg)
+            else:
+                logger.warning(msg)
     return page
 
 
@@ -49,7 +56,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
             email_course_error(request, exercise, msg)
 
     if page.is_loaded:
-        submission.feedback = page.content
+        submission.feedback = page.clean_content
         if page.is_accepted:
             submission.set_waiting()
             if page.is_graded:
@@ -57,15 +64,16 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                     submission.set_points(
                         page.points, page.max_points, no_penalties)
                     submission.set_ready()
-                    msg = _("The exercise was submitted and graded "
-                        "successfully. Points: {points:d}/{max:d}").format(
-                        points=submission.grade,
-                        max=exercise.max_points
-                    )
-                    if submission.grade < exercise.max_points:
-                        messages.info(request, msg)
-                    else:
-                        messages.success(request, msg)
+                    # Hide unnecessary system wide messages when grader works as expected.
+                    # msg = _("The exercise was submitted and graded "
+                    #     "successfully. Points: {points:d}/{max:d}").format(
+                    #     points=submission.grade,
+                    #     max=exercise.max_points
+                    # )
+                    # if submission.grade < exercise.max_points:
+                    #     messages.info(request, msg)
+                    # else:
+                    #     messages.success(request, msg)
                 else:
                     submission.set_error()
                     messages.error(request,
@@ -85,10 +93,12 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                         logger.error(msg, extra={"request": request})
                         email_course_error(request, exercise, msg)
             else:
-                messages.success(request,
-                    _("The exercise was submitted successfully "
-                      "and is now waiting to be graded.")
-                )
+                pass
+                # Hide unnecessary system wide messages when grader works as expected.
+                # messages.success(request,
+                #     _("The exercise was submitted successfully "
+                #       "and is now waiting to be graded.")
+                # )
         else:
             submission.set_error()
             logger.info("No accept or points received: %s",
@@ -137,14 +147,18 @@ def parse_page_content(page, remote_page, exercise):
 
     remote_page.fix_relative_urls()
     remote_page.find_and_replace('data-aplus-exercise', [{
-        'data-aplus-order': i,
+        'id': ('chapter-exercise-' + str(o.order)),
         'data-aplus-exercise': o.get_absolute_url(),
     } for i,o in enumerate(exercise.children.all())])
 
     page.head = remote_page.head({'data-aplus':True})
-    page.content = remote_page.element_or_body((
+    element_selectors = (
         {'id':'aplus'},
         {'id':'exercise'},
         {'id':'chapter'},
         {'class':'entry-content'},
-    ))
+    )
+    page.content = remote_page.element_or_body(element_selectors)
+    page.clean_content = remote_page.clean_element_or_body(element_selectors)
+    page.last_modified = remote_page.last_modified()
+    page.expires = remote_page.expires()

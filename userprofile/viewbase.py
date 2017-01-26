@@ -1,68 +1,27 @@
+from django.core.exceptions import PermissionDenied
 from django.template.response import SimpleTemplateResponse
-from django.views.generic.base import View
 
 from lib.viewbase import BaseMixin, BaseTemplateView
+from authorization.permissions import ACCESS
 from .models import UserProfile
 
 
-# A class in later Django versions.
-try:
-    from django.contrib.auth.mixins import AccessMixin
-except ImportError:
-    from django.conf import settings
-    from django.contrib.auth.views import redirect_to_login
-    from django.contrib.auth import REDIRECT_FIELD_NAME
-    class AccessMixin(object):
-        def handle_no_permission(self):
-            return redirect_to_login(
-                self.request.get_full_path(),
-                settings.LOGIN_URL,
-                REDIRECT_FIELD_NAME
-            )
-
-
-class ACCESS(object):
-    ANONYMOUS = 0
-    ENROLL = 1
-    STUDENT = 3
-    ASSISTANT = 5
-    GRADING = 6
-    TEACHER = 10
-
-
-class LoginException(Exception):
-    pass
-
-
-class UserProfileMixin(BaseMixin, AccessMixin):
+class UserProfileMixin(BaseMixin):
     access_mode = ACCESS.STUDENT
     login_redirect = True
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        if self.request.user.is_authenticated():
-            self.profile = UserProfile.get_by_request(self.request)
+        user = self.request.user
+        if user.is_authenticated():
+            self.profile = profile = user.userprofile
+            self.is_external_student = profile.is_external
         else:
             self.profile = None
-        self.note("profile")
+            self.is_external_student = False
 
-    def access_control(self):
-        super().access_control()
-        if self.access_mode > ACCESS.ANONYMOUS \
-                and not self.request.user.is_authenticated():
-            raise LoginException()
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            return super().dispatch(request, *args, **kwargs)
-        except LoginException:
-            if self.login_redirect:
-                return self.handle_no_permission()
-            path = request.path
-            if path.endswith("/plain/"):
-                path = path[:-6]
-            return SimpleTemplateResponse("userprofile/login_plain.html",
-                { "path": path })
+        # Add available for template
+        self.note("profile", "is_external_student")
 
 
 class UserProfileView(UserProfileMixin, BaseTemplateView):

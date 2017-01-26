@@ -1,12 +1,16 @@
 from django.conf.urls import patterns, include, url
 from tastypie.api import Api
 
-from course.api import CourseResource, CourseInstanceResource, \
+from course.api.v1 import CourseResource, CourseInstanceResource, \
     CourseInstanceSummaryResource, CourseModuleResource
-from exercise.api import LearningObjectResource, ExerciseResource, \
+from exercise.api.v1 import LearningObjectResource, ExerciseResource, \
     SubmissionResource, SubmissionContentResource
-from userprofile.api import UserProfileResource
+from userprofile.api.v1 import UserProfileResource
 
+###
+# WARNING: this is deprecated v1 API. It will be reomved in the future.
+# Do not make additions to this api, instead use new API.
+###
 
 api = Api(api_name='v1')
 

@@ -5,9 +5,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseFormView, BaseRedirectView
-from userprofile.viewbase import ACCESS
+from authorization.permissions import ACCESS
 from .forms import DeadlineRuleDeviationForm
 from .models import DeadlineRuleDeviation
+from exercise.models import BaseExercise
 
 
 class ListDeadlinesView(CourseInstanceBaseView):
@@ -38,6 +39,14 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
         minutes = form.cleaned_data["minutes"]
         without_late_penalty = form.cleaned_data["without_late_penalty"]
         for profile in form.cleaned_data["submitter"]:
+            for module in form.cleaned_data["module"]:
+                exercises = BaseExercise.objects.filter(
+                    course_module = module
+                )
+                for exercise in exercises:
+                    self.add_deviation(
+                        exercise, profile, minutes, without_late_penalty)
+
             for exercise in form.cleaned_data["exercise"]:
                 self.add_deviation(
                     exercise, profile, minutes, without_late_penalty)
@@ -72,6 +81,5 @@ class RemoveDeadlineView(CourseInstanceMixin, BaseRedirectView):
         self.note("deviation")
 
     def post(self, request, *args, **kwargs):
-        self.handle()
         self.deviation.delete()
         return self.redirect(self.instance.get_url("deviations-list-dl"))

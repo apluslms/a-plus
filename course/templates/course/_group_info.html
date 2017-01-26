@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if id %}
+  {% blocktrans with collaborators=collaborators %}
+  You are now submitting with {{ collaborators }}
+  {% endblocktrans %}
+  {{ avatars }}
+{% else %}
+  {% trans "You are now submitting alone" %}
+{% endif %}
