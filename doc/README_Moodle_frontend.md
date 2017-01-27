@@ -52,16 +52,72 @@ For example:
 </p>
 ```
 
-## AJAX in learning objects
+## JavaScript and AJAX in learning objects
 
-There may be complications if a learning object (exercise or chapter) includes
-its own JavaScript code in the page. Moodle packages client-side JS code in
+Using JavaScript in learning objects (exercise descriptions and chapters) requires
+caution in order to make it work correctly. Moodle packages client-side JS code in
 AMD modules (Asynchronous Module Definition), however, the AMD libraries and
 APIs are not available until they have been loaded in the page. Moodle includes
 the libraries at the end of the page, after the content from the exercise service.
-This matter is under investigation, i.e., how exercise services can include
-JS code safely in the course content and should the JS code be packaged in the
-AMD format just for Moodle.
+If JS code in the learning object waits until the page has loaded, the Moodle AMD
+APIs become available and may be loaded for use. Moodle bundles jQuery JS library
+as an AMD module: jQuery should be used by loading the AMD module instead of
+loading it with a `<script src="jquery URL">` element.
+
+If the learning object HTML content includes inline JS code (code directly inside
+`<script>` elements), the script element may use an attribute `data-astra-jquery`
+so that Astra automatically wraps the JS code in a `require` call that enables jQuery.
+The JS code is embedded at the end of the page so that the AMD APIs are available.
+The data attribute may be given a value, which is used as the name for the jQuery
+module; '$' is used by default.
+
+```
+<script data-astra-jquery>
+    $('#exercise').after('<p>jQuery active</p>');
+</script>
+
+<script data-astra-jquery="jq">
+    jq('#exercise').prepend('<p>jQuery active</p>');
+</script>
+```
+
+JavaScript code that is included from a separate file (`src` attribute on
+`<script>` elements) must call `require` itself to enable jQuery. The `require`
+function is available once the page has been loaded.
+
+```javascript
+document.addEventListener("DOMContentLoaded", function(event) {
+    /* require call that works with Moodle AMD JS API and
+       enables the version of jQuery that is bundled with Moodle
+    */
+    require(["jquery"], function($) {
+        // insert your JS code here
+        $('#exercise').after('<p>jQuery active</p>');
+    });
+});
+```
+
+JavaScript code in the learning object may also define new AMD modules and
+use them with require.
+
+```javascript
+document.addEventListener("DOMContentLoaded", function(loadevent) {
+    // define a new module that uses jQuery
+    define('moocgrader/mymodule', ["jquery"], function($) {
+        return {
+            myprint: function() {
+                $('#exercise').prepend('<p>jQuery active in a new AMD module function</p>');
+            },
+        };
+    });
+
+    // use the new module
+    require(['moocgrader/mymodule'], function(mymodule) {
+        mymodule.myprint();
+    });
+});
+```
+
 
 ## Bootstrap frontend framework
 
