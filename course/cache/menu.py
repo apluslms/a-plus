@@ -2,8 +2,8 @@ from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
 
 from lib.cached import CachedAbstract
-from .models import StudentGroup, Enrollment, CourseInstance, Course
-from .renders import render_group_info
+from ..models import StudentGroup, Enrollment, CourseInstance, Course
+from ..renders import render_group_info
 
 
 class CachedTopMenu(CachedAbstract):
