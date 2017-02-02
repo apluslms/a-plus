@@ -42,6 +42,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'type': 'exercise',
                     'category': str(category),
                     'category_id': category.id,
+                    'category_status': category.status,
                     'module_id': module.id,
                     'module_status': module.status,
                     'id': o.id,

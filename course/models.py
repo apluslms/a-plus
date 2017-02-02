@@ -610,6 +610,7 @@ class LearningObjectCategory(models.Model):
     """
     STATUS = Enum([
         ('READY', 'ready', _("Ready")),
+        ('NOTOTAL', 'nototal', _("No total points")),
         ('HIDDEN', 'hidden', _("Hidden")),
     ])
     status = models.CharField(max_length=32,
