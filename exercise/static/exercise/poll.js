@@ -63,7 +63,7 @@
 		},
 
 		ready: function() {
-			this.element.hide();
+			//this.element.hide();
 			var suburl = this.url.substr(0, this.url.length - "poll/".length);
 			if (this.callback) {
 				this.callback(suburl);
@@ -90,8 +90,9 @@
 		});
 	};
 
-  $.aplusExerciseDetectWaits = function(callback) {
-    $(".exercise-wait").aplusExercisePoll(callback);
+  $.aplusExerciseDetectWaits = function(callback, selector) {
+    selector = selector || ".exercise-wait"
+    $(selector).aplusExercisePoll(callback);
   };
 
 })(jQuery, window, document);

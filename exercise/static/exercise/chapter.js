@@ -9,6 +9,7 @@
 	var defaults = {
 		chapter_url_attr: "data-aplus-chapter",
 		exercise_url_attr: "data-aplus-exercise",
+		active_element_attr: "data-aplus-active-element",
 		loading_selector: "#loading-indicator",
 		quiz_success_selector: "#quiz-success",
 		message_selector: ".progress-bar",
@@ -29,6 +30,7 @@
 		this.loader = null;
 		this.messages = null;
 		this.quizSuccess = null;
+		this.aeOutputs = {}; // Add active element outputs to chapter so they can be found by id later.
 		this.init();
 	}
 
@@ -41,11 +43,13 @@
 			this.ajaxForms = window.FormData ? true : false;
 			this.url = this.element.attr(this.settings.chapter_url_attr);
 			this.modalElement = $(this.settings.modal_selector);
-			this.loader = $(this.settings.loader_selector);
+			this.loader = $(this.settings.loader_selector); //----------- what is loader_selector?
 			this.messages = this.readMessages();
 			this.quizSuccess = $(this.settings.quiz_success_selector);
-			this.element.find("[" + this.settings.exercise_url_attr + "]")
+			this.element.find("[" + this.settings.exercise_url_attr + "][" + this.settings.active_element_attr +  "!='out']")//!!!! here
 				.aplusExercise(this);
+			this.element.find("[" + this.settings.active_element_attr +  "='out']").activeElement(this)
+			this.element.find("[" + this.settings.active_element_attr +  "='in']").activeElement(this, {input: true})
 		},
 
 		readMessages: function() {
@@ -160,7 +164,8 @@
 			this.element.append(this.loader);
 			this.load();
 
-			// Add an Ajax exercise event listener to refresh the summary.
+			// Add an Ajax exercise event listener to refresh the summary.  ---- note to self: The postMessage must be sent after sending the exersice for grading; 
+			//                                                                   this receives the message and retrieves results
 			if (this.ajax) {
 				var exercise = this;
 				window.addEventListener("message", function (event) {
@@ -347,6 +352,288 @@
 	};
 
 })(jQuery, window, document);
+
+
+
+
+
+
+
+/**
+ * Active element -----------------------------------------------------------------------------------------------
+ *
+ */
+;(function($, window, document, undefined) {
+	"use strict";
+
+	var pluginName = "activeElement";
+	//var reloadName = "aplusReload";
+	var defaults = {
+	  input: false,
+		ajax_attr: "data-aplus-ajax", // every active element must be
+		message_selector: ".progress-bar",
+		content_element: '<div class="exercise-content"></div>',
+		content_selector: '.exercise-content',
+		exercise_selector: '#exercise-all',
+		feedback_selector: '#feedback',
+		summary_selector: '.exercise-summary', // navbar is filtered out based on this
+		response_selector: '.exercise-response',
+		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a',
+		ae_result_selector: '.ae_result',
+	};
+
+	function ActiveElement(element, chapter, options) {
+		this.element = $(element);
+		this.chapter = chapter;
+		this.settings = $.extend({}, defaults, options);
+		this.url = null;
+		this.ajax = false;
+		this.loader = null;
+		this.messages = {};
+		this.init();
+	}
+
+	$.extend(ActiveElement.prototype, {
+
+		init: function() {
+			this.chapterID = this.element.attr("id");
+			this.url = this.element.attr(this.chapter.settings.exercise_url_attr);
+			this.url = this.url + "?__r=" + encodeURIComponent(
+				window.location.href + "#" + this.element.attr("id"));
+				
+			// Add all output elements to the chapters list of outputs
+		  if (!this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
+
+			// Do not mess up events in an Ajax exercise.
+			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
+
+			this.loader = this.chapter.cloneLoader();
+			this.element.height(this.element.height()).empty();
+			this.element.append(this.settings.content_element);
+			this.element.append(this.loader);
+			this.load();
+
+		},
+
+		load: function() {
+			this.showLoader("load");
+			var exercise = this;
+			var id = exercise.chapterID
+			var title = $("#" + id).attr("data-title") || "";
+			
+			// Create input form or request A+ for output field 
+			if (exercise.settings.input) {
+			  exercise.hideLoader();
+			  var $exercise_wrap = $("<div id='exercise-all'></div>");
+			  var $form = $('<form action="" method="post"></form>');
+			  $form.append('\
+			  	<div class="form-group">\
+		        <label class="control-label" for="' + id + '_input">\
+			        ' + title + '\
+		        </label>\
+		        <textarea class="form-control" id="' + id + '_input_id" name="' + id + '_input"></textarea>\
+	        </div>\
+          <div class="form-group">\
+		        <input class="btn btn-primary" value="Submit" type="submit">\
+	        </div>');
+        $exercise_wrap.append($form);
+			  exercise.update($exercise_wrap);			  
+			
+			} else {
+			  $.ajax(this.url, {dataType: "html"})
+				  .fail(function() {
+					  exercise.showLoader("error");
+				  })
+				  .done(function(data) {
+					  exercise.hideLoader();
+					  var cleaned_data = $(data)
+					  title = "<p><b>" + title + "</b></p>";
+					  // Remove submission summary bar from active elements
+					  cleaned_data.find(exercise.settings.summary_selector).remove();
+					  // Add the output element title
+					  cleaned_data.find("#exercise").prepend(title);
+					  exercise.update(cleaned_data);
+					  if (!exercise.input) {
+						  exercise.loadLastSubmission($(data));
+					  }
+				  });
+			}
+
+		},
+
+		update: function(input) {
+			var content = this.element.find(this.settings.content_selector)
+				.empty().append(
+					input.filter(this.settings.exercise_selector).contents()
+				);
+			this.element.height("auto");
+			if (this.settings.input) {
+			  this.bindFormEvents(content);
+			}
+			
+		},
+
+		bindFormEvents: function(content) {
+			var forms = content.find("form").attr("action", this.url);
+			var exercise = this;
+			if (this.chapter.ajaxForms) {
+				forms.on("submit", function(event) {
+					event.preventDefault();
+					exercise.submit(this);
+				});
+			}
+		},
+
+		submit: function(form_element) {
+		  var chapter = this.chapter;
+		  var input_id = this.chapterID;
+		  
+		  // For every output related to this input, try to evaluate the outputs
+		  // TODO: better to send everything and let server respond with error if fields are missing,
+		  // or should it be checked here that all the inputs have content?
+		  var outputs = $.find('[data-inputs~="' + input_id + '"]');
+		  $.each(outputs,  function(i, element) {
+		    element = $(element);
+		    var output_id = element.attr("id");
+		    var output = chapter.aeOutputs[output_id];    
+        // Find the ids of input elements required for this output
+		    var inputs = element.attr("data-inputs").split(" ");
+		    // Find the form field names the grader is expecting
+		    var expected_inputs = element.find(output.settings.ae_result_selector).attr("data-expected-inputs").trim().split(" ");
+		    
+		    // Form data to be sent for evaluation
+		    var data = new FormData();
+		    $.each(inputs, function(i, id) {
+		      var input_val = $("#" + id + "_input_id").val();
+		      data.append(expected_inputs[i], input_val);		      
+		    });
+		    
+		    $.ajax(output.url, {
+				  type: "POST",
+				  data: data,
+				  contentType: false,
+				  processData: false,
+				  dataType: "html"
+			  }).fail(function() {
+			    console.log('fail');
+				  this.chapter.modalError(exercise.chapter.messages.error);
+			  }).done(function(data) {
+			    var content = $(data);
+			    if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
+			      $("#" + output_id).find(output.settings.ae_result_selector).html("<p>Evaluating</p>");
+			      // Attach the poll url to the active element 
+			      var poll_url = content.find(".exercise-wait").attr("data-poll-url");
+			      $('#' + output_id).attr('data-poll-url', poll_url);
+			      output.updateSubmission(content);
+          } else {
+            $("#" + output_id).find(output.settings.ae_result_selector).html(
+              content.find('.alert-danger').contents()
+            );
+          }
+			  });
+		  });
+		},
+		
+		updateOutput: function(data) {
+		// Put data in this output box
+		  var exercise = this;
+		  var id = exercise.chapterID;
+		  var type = $("#" + id).attr("data-type") || "text"; // default output type is text
+		  var content = $(data).find(exercise.settings.feedback_selector).find(".grading-task").text();
+      
+      if (type == "image") {
+		    content = '<img src="data:image/png;base64, ' + content + '" />'		  
+		  }
+		  
+		  $("#" + id).find(exercise.settings.ae_result_selector).html(content);
+		},
+
+		updateSubmission: function(input) {
+			// Update asynchronous feedback.
+			if (typeof($.aplusExerciseDetectWaits) == "function") {			  
+				var exercise = this;
+				$.aplusExerciseDetectWaits(function(suburl) {
+					$.ajax(suburl).done(function(data) {
+					  exercise.updateOutput(data);
+					}).fail(function() {
+						exercise.chapter.modalError(exercise.chapter.messages.error); // TODO 
+					});
+				}, '#' + this.chapterID);
+			}
+		},
+
+		loadLastSubmission: function(input) {
+			var link = input.find(this.settings.last_submission_selector);
+			if (link.size() > 0) {
+				var url = link.attr("href");
+				if (url && url !== "#") {
+					this.showLoader("load");
+					var exercise = this;
+					$.ajax(link.attr("href"), {dataType: "html"})
+						.fail(function() {
+							exercise.showLoader("error");
+						})
+						.done(function(data) {
+							exercise.hideLoader();
+						  // Update the output box values
+							exercise.updateOutput(data);
+							
+							// Find the latest input values
+							var inspect_url = $(data).find('a[href*="inspect"]').attr("href"); // TODO can this fail?
+              $.ajax(inspect_url)
+                .done(function(inspect_data) {
+                  // Find submitted values from the inspect submission page
+                  var all_inputs = $(inspect_data).find('h4:contains("Submitted values")').next();
+                  var input_list = $("#" + exercise.chapterID).attr("data-inputs").split(" ");
+                  
+                  // Update the value of each related input field
+                  $.each(input_list, function(i, id) {
+                    // dd (i + 1) * 2 because dds are even elements and nth-child indexing starts at 1
+                    var in_i = all_inputs.find("dd:nth-child(" + ((i + 1) * 2) + ")"); 
+                    $("#" + input_list[i] + "_input_id").val(in_i.text());
+                  });
+                });
+						});
+				}
+			}
+		},
+
+		showLoader: function(messageType) {
+			this.loader.show().find(this.settings.message_selector)
+				.text(this.chapter.messages[messageType]);
+			if (messageType == "error") {
+				this.loader.removeClass("active").addClass("progress-bar-danger");
+			} else {
+				this.loader.addClass("active").removeClass("progress-bar-danger");
+			}
+		},
+
+		hideLoader: function() {
+			this.loader.hide();
+		}
+	});
+
+	$.fn[pluginName] = function(chapter, options) {
+		return this.each(function() {
+			if (!$.data(this, "plugin_" + pluginName)) {
+				$.data(this, "plugin_" + pluginName, new ActiveElement(this, chapter, options));
+			}
+		});
+	};
+
+	/*$.fn[reloadName] = function() {
+		return this.each(function() {
+			var exercise = $.data(this, "plugin_" + pluginName);
+			if (exercise) {
+				exercise.load();
+			}
+		});
+	};*/
+
+})(jQuery, window, document);
+
+
+
 
 // Construct the page chapter element.
 jQuery(function() { jQuery("#exercise").aplusChapter(); });
