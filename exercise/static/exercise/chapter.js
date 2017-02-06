@@ -57,7 +57,6 @@
 		},
 
 		nextExercise: function() {
-			console.log("next", this.exercisesIndex);
 			if (this.exercisesIndex > 0) {
 				$.augmentExerciseGroup(this.exercises.eq(this.exercisesIndex - 1));
 			}

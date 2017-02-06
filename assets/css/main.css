@@ -380,6 +380,10 @@ td.submissions-dropdown {
   margin-right: 20px;
   color: green;
 }
+.btn-group button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
 
 /* results table */
 

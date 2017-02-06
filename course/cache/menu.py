@@ -64,6 +64,7 @@ class CachedTopMenu(CachedAbstract):
         def group_entry(group):
             return {
                 'id': group.id,
+                'size': group.members.count(),
                 'collaborators': group.collaborator_names(profile),
             }
 
