@@ -97,7 +97,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
         new_submission = None
         page = ExercisePage(self.exercise)
-        ok, students = self.submission_check(True)
+        ok, students = self.submission_check(True, request)
         if ok:
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)
@@ -129,12 +129,12 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         return self.response(page=page, students=students,
             submission=new_submission)
 
-    def submission_check(self, error=False):
+    def submission_check(self, error=False, request=None):
         if not self.profile:
             messages.error(self.request,
                 _("You need to sign in and enroll to submit exercises."))
             return False, []
-        ok, issues, students = self.exercise.is_submission_allowed(self.profile)
+        ok, issues, students = self.exercise.is_submission_allowed(self.profile, request)
         if len(issues) > 0:
             if error:
                 messages.error(self.request, "\n".join(issues))

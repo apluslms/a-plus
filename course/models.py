@@ -104,15 +104,23 @@ class StudentGroup(models.Model):
                 return group
         return None
 
+    @classmethod
+    def filter_collaborators_of(cls, members, profile):
+        return [p for p in members if p != profile]
+
+    @classmethod
+    def format_collaborator_names(cls, members, profile):
+        return ", ".join(p.user.get_full_name()
+            for p in cls.filter_collaborators_of(members, profile))
+
     def equals(self, profiles):
         return set(self.members.all()) == set(profiles)
 
     def collaborators_of(self, profile):
-        return [p for p in self.members.all() if p != profile]
+        return self.filter_collaborators_of(self.members.all(), profile)
 
     def collaborator_names(self, profile):
-        return ", ".join(p.user.get_full_name()
-            for p in self.collaborators_of(profile))
+        return self.format_collaborator_names(self.members.all(), profile)
 
 
 class Enrollment(models.Model):
