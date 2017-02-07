@@ -181,6 +181,26 @@ def configure_learning_objects(category_map, module, config, parent,
                 lobject, seen, errors)
     return n
 
+
+def get_build_log(instance):
+    """
+    Request latest build log from the build log URL defined for instance.
+    """
+    if not instance.build_log_url:
+        return {'error': _("Cannot request build log from build_log_url when it is blank.")}
+    try:
+        response = requests.get(instance.build_log_url)
+    except Exception as e:
+        return {'error': _("Requesting build log failed: {}").format(str(e))}
+    try:
+        data = json.loads(response.text)
+    except Exception as e:
+        return {'error': _("Failed to parse the build log JSON: {}").format(str(e))}
+    if not data:
+        return {'error': _("Remote URL returned an empty build log.")}
+    return data
+
+
 def configure_content(instance, url):
     """
     Configures course content by trusted remote URL.
@@ -226,6 +246,8 @@ def configure_content(instance, url):
             except UserProfile.DoesNotExist as err:
                 errors.append(_("Assistant student ID was not found: {}")\
                     .format(str(err)))
+    if "build_log_url" in config:
+        instance.build_log_url = str(config["build_log_url"])
     instance.save()
 
     if not "categories" in config or not isinstance(config["categories"], dict):
