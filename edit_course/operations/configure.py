@@ -72,7 +72,7 @@ def parse_bool(value):
 def configure_learning_objects(category_map, module, config, parent,
         seen, errors, n=0):
     if not isinstance(config, list):
-        return start
+        return n
     for o in config:
         if not "key" in o:
             errors.append(_("Learning object requires a key."))
