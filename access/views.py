@@ -165,6 +165,9 @@ def aplus_json(request, course_key):
             mf["children"] = children_recursion(m)
             modules.append(mf)
     data["modules"] = modules
+
+    if "gitmanager" in settings.INSTALLED_APPS:
+        data["build_log_url"] = request.build_absolute_uri(reverse("build-log-json", args=(course_key, )))
     return JsonResponse(data)
 
 
