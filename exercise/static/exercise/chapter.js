@@ -57,9 +57,6 @@
 		},
 
 		nextExercise: function() {
-			if (this.exercisesIndex > 0) {
-				$.augmentExerciseGroup(this.exercises.eq(this.exercisesIndex - 1));
-			}
 			if (this.exercisesIndex < this.exercisesSize) {
 				this.exercises.eq(this.exercisesIndex).aplusExerciseLoad();
 				this.exercisesIndex++;
@@ -238,6 +235,7 @@
 					});
 				}
 			}
+			$.augmentExerciseGroup(content);
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID

@@ -12,6 +12,7 @@
     group_choice_selector: 'button',
     group_choice_size_attribute: "data-group-size",
     group_size_attribute: "data-aplus-group",
+    group_fixed_attribute: "data-aplus-group-fixed",
     applied_class: "group-augmented",
     submit_selector: ".aplus-submit"
   };
@@ -44,7 +45,7 @@
           });
         });
 
-        this.ui = $('<div class="btn-group">'
+        this.ui = $('<div class="submit-group-selector btn-group">'
           + '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="selected-group"></span> <span class="caret"></span></button>'
           + '<ul class="dropdown-menu"></ul>'
           + '<input type="hidden" name="_aplus_group" value="0" />'
@@ -61,24 +62,30 @@
       if (this.groups.length > 0) {
         var self = this;
         object.find(
-          "[" + this.settings.group_size_attribute
-          + "]:not(." + this.settings.applied_class + ")"
+          "[" + this.settings.group_size_attribute + "]:not(." + this.settings.applied_class + ")"
         ).each(function() {
-          var b = $(this).find(self.settings.submit_selector);
-          b.addClass(self.settings.applied_class);
+          var b = $(this).addClass(self.settings.applied_class).find(self.settings.submit_selector);
           if (b.size() > 0) {
-            var groupSize = $(this).attr(self.settings.group_size_attribute).split("-");
-
             var ui = self.ui.clone();
-            ui.find("li a").each(function() {
-              var link = $(this);
-              var size = link.attr("data-group-size");
-              if (size < groupSize[0] || size > groupSize[1]) {
-                link.remove();
-              } else {
-                link.on("click", self.selectGroup);
-              }
-            });
+            b.replaceWith(ui);
+            ui.append(b);
+
+            var groupFixed = $(this).attr(self.settings.group_fixed_attribute);
+            if (groupFixed) {
+              ui.find('li a:not([data-group-id="' + groupFixed + '"])').remove();
+              ui.find('li a').on("click", self.selectGroup);
+            } else {
+              var groupSize = $(this).attr(self.settings.group_size_attribute).split("-");
+              ui.find("li a").each(function() {
+                var link = $(this);
+                var size = link.attr("data-group-size");
+                if (size < groupSize[0] || size > groupSize[1]) {
+                  link.remove();
+                } else {
+                  link.on("click", self.selectGroup);
+                }
+              });
+            }
 
             var selected = ui.find('[data-group-id="' + self.selected + '"]');
             if (selected.size() > 0) {
@@ -86,9 +93,6 @@
             } else {
               ui.find('a').eq(0).trigger('click');
             }
-
-            b.replaceWith(ui);
-            ui.append(b);
           }
         });
       }

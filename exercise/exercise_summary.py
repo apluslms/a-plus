@@ -1,5 +1,6 @@
 from django.db.models import Max
 
+from course.models import StudentGroup
 from .models import BaseExercise, Submission
 
 
@@ -65,6 +66,20 @@ class UserExerciseSummary(object):
 
     def is_graded(self):
         return self.graded
+
+    def get_group(self):
+        if self.submission_count > 0:
+            s = self.submissions[0]
+            if s.submitters.count() > 0:
+                return StudentGroup.get_exact(
+                    self.exercise.course_instance,
+                    s.submitters.all()
+                )
+        return None
+
+    def get_group_id(self):
+        group = self.get_group()
+        return group.id if group else 0
 
 
 class ResultTable:
