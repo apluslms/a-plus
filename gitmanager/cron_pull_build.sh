@@ -27,6 +27,7 @@ if [ -e $dir ]; then
   fi
   git pull
   git submodule update --init --recursive
+  git --no-pager log --pretty=format:"------------;Commit metadata;;Hash:;%H;Subject:;%s;Body:;%b;Committer:;%ai;%ae;Author:;%ci;%cn;%ce;------------;" -1 | tr ';' '\n'
 else
   git clone -b $branch --recursive $url $dir
   cd $dir
