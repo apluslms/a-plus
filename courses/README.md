@@ -81,6 +81,11 @@ Durations are given in (int)(unit), where units are y, m, d, h or w.
 	* `max_points` (optional): The maximum exercise points (positive int).
 		Overrides any maximum points reported by test actions.
 	* `view_type`: A dotted name for an exercise implementation
+	* `submission_file_max_size`: (optional/Moodle frontend only) maximum accepted file size
+		for submissions (in bytes). The limit is checked for each file separately if
+		there are multiple files in a submission. Set zero for no limit.
+		Default value is 1048576 (1 MB). Moodle has sitewide configuration for
+		the maximum upper limit which cannot be exceeded.
 	* `personalized`: (optional) if true, personalized exercise instances must
 		be pregenerated and each user is then assigned an instance of the exercise
 	* `generated_files`: (required if personalized) set a list of generated files
