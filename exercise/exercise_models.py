@@ -416,8 +416,8 @@ class BaseExercise(LearningObject):
                 if s.submitters.count() == 1:
                     warnings.append(_("You have previously submitted to this exercise alone.") + " " + msg)
                 else:
-                    warnings.append(_("You have previously submitted to this exercise with {collaboratos}.").format(
-                        collaboratos=StudentGroup.format_collaborator_names(s.submitters.all(), profile)
+                    warnings.append(_("You have previously submitted to this exercise with {collaborators}.").format(
+                        collaborators=StudentGroup.format_collaborator_names(s.submitters.all(), profile)
                     ) + " " + msg)
                 return False, warnings, students
         elif self._detect_submissions(profile, group):

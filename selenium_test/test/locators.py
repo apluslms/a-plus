@@ -73,7 +73,7 @@ class SubmissionPageLocators(object):
 class StudentFeedbackPageLocators(object):
     ASSISTANT_FEEDBACK_LABEL = (By.XPATH, "//h4[text()='Assistant feedback']")
     ASSISTANT_FEEDBACK_TEXT = (By.XPATH, "//blockquote")
-    FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise']")
+    FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise-page-content']")
 
 class InspectionPageLocators(object):
     ASSESS_THIS_SUBMISSION_LINK = (By.XPATH, "//*a[contains(@href, '/aplus1/basic_instance/exercises/1/submissions/7/assess/')]")
@@ -89,13 +89,13 @@ class AssessmentPageLocators(object):
 
 class MyFirstExerciseLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My first exercise')]")
-    TEXT_INPUT = (By.XPATH, "//*[@id='exercise']/form//textarea")
-    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form//input[@type='submit']")
+    TEXT_INPUT = (By.XPATH, "//*[@id='exercise-page-content']/form//textarea")
+    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise-page-content']/form//input[@type='submit']")
 
 class FileUploadGraderLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'File exercise')]")
     BROWSE_BUTTON = (By.XPATH, "//*[@id='myfile_id']")
-    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise']/form//input[@type='submit']")
+    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise-page-content']/form//input[@type='submit']")
 
 class MyAjaxExerciseGraderLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My AJAX exercise')]")
