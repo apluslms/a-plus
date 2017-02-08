@@ -1,6 +1,6 @@
 import os, tempfile
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import CourseRepoForm
@@ -40,6 +40,21 @@ def updates(request, key):
         'repo': repo,
         'updates': repo.updates.order_by('-request_time').all(),
         'hook': request.build_absolute_uri(reverse('manager-hook', args=[key])),
+    })
+
+
+def build_log_json(request, key):
+    try:
+        repo = CourseRepo.objects.get(key=key)
+    except CourseRepo.DoesNotExist:
+        return JsonResponse({})
+    latest_update = repo.updates.order_by("-updated_time")[0]
+    return JsonResponse({
+        'build_log': latest_update.log_nl(),
+        'request_ip': latest_update.request_ip,
+        'request_time': latest_update.request_time,
+        'updated': latest_update.updated,
+        'updated_time': latest_update.updated_time
     })
 
 
