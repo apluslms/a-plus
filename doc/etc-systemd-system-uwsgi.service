@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI Emperor service
+
+[Service]
+ExecStart=/srv/grader/venv/bin/uwsgi --emperor /etc/uwsgi
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+
