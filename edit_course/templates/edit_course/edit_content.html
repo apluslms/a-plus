@@ -10,15 +10,22 @@
 
 {% block coursecontent %}
 <br>
-<form method="post" class="well form-inline" action="{{ instance|url:'course-configure' }}">
-  {% csrf_token %}
-  <div class="form-group">
-    <label class="control-label" for="id_url">{% trans 'Import and override content configuration from URL' %}</label>
-    <input type="text" class="form-control" id="id_url" name="url" value="{{ instance.configure_url }}">
-  </div>
-  <button class="btn btn-primary" type="submit" name="apply">{% trans 'Apply' %}</button>
-  <button class="btn btn-default" type="submit" name="cache">{% trans 'Clear content cache' %}</button>
-</form>
+<div class="well">
+  <form method="post" class="form-inline" action="{{ instance|url:'course-configure' }}">
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="control-label" for="id_url">{% trans 'Import and override content configuration from URL' %}</label>
+      <input type="text" class="form-control" id="id_url" name="url" value="{{ instance.configure_url }}">
+    </div>
+    <button class="btn btn-primary" type="submit" name="apply">{% trans 'Apply' %}</button>
+    <button class="btn btn-default" type="submit" name="cache">{% trans 'Clear content cache' %}</button>
+  </form>
+  {% if instance.build_log_url %}
+  <a class="btn btn-default page-modal" href="{{ instance|url:'course-build-log' }}">
+    {% trans "Retrieve latest build log" %}
+  </a>
+  {% endif %}
+</div>
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">{% trans "Exercise categories" %}</h3>
