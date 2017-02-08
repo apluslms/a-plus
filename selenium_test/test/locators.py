@@ -73,7 +73,7 @@ class SubmissionPageLocators(object):
 class StudentFeedbackPageLocators(object):
     ASSISTANT_FEEDBACK_LABEL = (By.XPATH, "//h4[text()='Assistant feedback']")
     ASSISTANT_FEEDBACK_TEXT = (By.XPATH, "//blockquote")
-    FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise-page-content']")
+    FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise']")
 
 class InspectionPageLocators(object):
     ASSESS_THIS_SUBMISSION_LINK = (By.XPATH, "//*a[contains(@href, '/aplus1/basic_instance/exercises/1/submissions/7/assess/')]")
