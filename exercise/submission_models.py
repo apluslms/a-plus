@@ -161,6 +161,10 @@ class Submission(UrlMixin, models.Model):
         applied.
         """
 
+        # Evade bad max points in remote service.
+        if max_points == 0 and points > 0:
+            max_points = self.exercise.max_points
+
         # The given points must be between zero and max points
         assert 0 <= points <= max_points
 
