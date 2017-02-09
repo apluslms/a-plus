@@ -14,7 +14,7 @@
     {% endif %}
     {% endwith %}
 </p>
-<table class="table table-bordered{% if all or count != default_limit %} filtered-table{% endif %}">
+<table class="table table-bordered{% if all or count < default_limit %} filtered-table{% endif %}">
     <thead>
         <tr>
             <th>{% trans "Submitters" %}</th>

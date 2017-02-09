@@ -16,6 +16,17 @@ $(function() {
     $('.file-modal').aplusModalLink({file:true});
     $('.search-select').aplusSearchSelect();
     $('.filtered-table').aplusTableFilter();
+
+    // Clear notifications once opened.
+    $('#notification-alert li a').on("click", function(event) {
+      var link = $(this);
+      if (!link.hasClass("notification-opened")) {
+        link.addClass("notification-opened");
+        var n = $('#notification-alert .dropdown-toggle .badge');
+        var i = parseInt(n.eq(0).text()) - 1;
+        n.text(i);
+      }
+    });
 });
 
 $(function() {
@@ -262,7 +273,7 @@ $.fn.highlightCode = function(options) {
     var defaults = {
         modal_selector: "#page-modal",
         file_modal_selector: "#file-modal",
-        body_regexp: /<body[^>]*>(.|\n)*<\/body>/i,
+        body_regexp: /<body[^>]*>([\s\S]*)<\/body>/i,
         file: false
     };
 
@@ -294,7 +305,10 @@ $.fn.highlightCode = function(options) {
             text.highlightCode();
           } else {
             var match = data.match(settings.body_regexp);
-            var c = modal.aplusModal("content", { content: match || data });
+            if (match.length == 2) {
+              data = match[1];
+            }
+            var c = modal.aplusModal("content", { content: data });
             c.find('.file-modal').aplusModalLink({file:true});
             c.find('pre.hljs').highlightCode();
           }
