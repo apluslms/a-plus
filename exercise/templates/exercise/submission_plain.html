@@ -85,9 +85,13 @@
 		<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
 		{% endif %}
 
-		{% if submission.feedback %}
-		<div id="exercise">
+		{% if submission.feedback and submission.feedback.strip %}
+		<div class="exercise-content">
 			{{ submission.feedback|safe }}
+		</div>
+		{% elif submission.status == "waiting" %}
+		<div class="alert alert-info">
+			{% trans "Your submission has been accepted for grading." %}
 		</div>
 		{% else %}
 		<div class="alert alert-info">

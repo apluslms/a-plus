@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-09 10:46+0200\n"
+"POT-Creation-Date: 2017-02-09 16:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2150,8 +2150,8 @@ msgid "Grader feedback"
 msgstr "Automaattinen palaute"
 
 #: exercise/templates/exercise/staff/inspect_submission.html:51
-#: exercise/templates/exercise/submission.html:37
-#: exercise/templates/exercise/submission_plain.html:94
+#: exercise/templates/exercise/submission.html:41
+#: exercise/templates/exercise/submission_plain.html:98
 msgid "No grader feedback available for this submission."
 msgstr "Tästä palautuksesta ei ole saatavilla palautetta."
 
@@ -2203,6 +2203,11 @@ msgstr "Palautus"
 #: exercise/templates/exercise/submission.html:15
 msgid "Files in this submission"
 msgstr "Tiedostot tässä palautuksessa"
+
+#: exercise/templates/exercise/submission.html:37
+#: exercise/templates/exercise/submission_plain.html:94
+msgid "Your submission has been accepted for grading."
+msgstr "Palautuksesi on vastaanotettu arvostelua varten."
 
 #: exercise/templates/exercise/submission_plain.html:34
 msgid "Return to exercise"

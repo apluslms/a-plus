@@ -28,10 +28,14 @@
     <blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
     {% endif %}
 
-    {% if submission.feedback %}
+    {% if submission.feedback and submission.feedback.strip %}
     <div id="exercise">
         {{ submission.feedback|safe }}
     </div>
+    {% elif submission.status == "waiting" %}
+    <div class="alert alert-info">
+			{% trans "Your submission has been accepted for grading." %}
+		</div>
     {% else %}
     <div class="alert alert-info">
         {% trans "No grader feedback available for this submission." %}
