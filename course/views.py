@@ -17,6 +17,7 @@ from exercise.models import LearningObject
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
 from userprofile.viewbase import UserProfileView
+from .cache.students import CachedStudents
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .renders import render_tags, group_info_context
@@ -186,26 +187,7 @@ class ParticipantsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        participants = self.instance.students.all()\
-            .select_related('taggings__tag')\
-            .prefetch_related('taggings')
-        self.participants = []
-        for participant in participants:
-            tags = [
-                t.tag for t in participant.taggings.all()
-                if t.course_instance == self.instance
-            ]
-            self.participants.append({
-                'id': participant.student_id or '',
-                'last_name': participant.user.last_name or '',
-                'first_name': participant.user.first_name or '',
-                'email': participant.user.email or participant.user.username,
-                'link': participant.get_url(self.instance),
-                'tags': render_tags(participant, tags),
-                'tag_ids': [t.id for t in tags],
-                'external': participant.is_external,
-            })
-        self.participants = json.dumps(self.participants)
+        self.participants = json.dumps(CachedStudents(self.instance).students())
         self.tags = self.instance.usertags.all()
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')

@@ -104,15 +104,23 @@ class StudentGroup(models.Model):
                 return group
         return None
 
+    @classmethod
+    def filter_collaborators_of(cls, members, profile):
+        return [p for p in members if p != profile]
+
+    @classmethod
+    def format_collaborator_names(cls, members, profile):
+        return ", ".join(p.user.get_full_name()
+            for p in cls.filter_collaborators_of(members, profile))
+
     def equals(self, profiles):
         return set(self.members.all()) == set(profiles)
 
     def collaborators_of(self, profile):
-        return [p for p in self.members.all() if p != profile]
+        return self.filter_collaborators_of(self.members.all(), profile)
 
     def collaborator_names(self, profile):
-        return ", ".join(p.user.get_full_name()
-            for p in self.collaborators_of(profile))
+        return self.format_collaborator_names(self.members.all(), profile)
 
 
 class Enrollment(models.Model):
@@ -386,8 +394,8 @@ class CourseInstance(UrlMixin, models.Model):
         return False
 
     def enroll_student(self, user):
-        if user and user.is_authenticated() and not self.is_course_staff(user):
-            Enrollment.objects.create(course_instance=self, user_profile=user.userprofile)
+        if user and user.is_authenticated():
+            Enrollment.objects.get_or_create(course_instance=self, user_profile=user.userprofile)
 
     def tag_user(self, user, tag):
         UserTagging.objects.create(tag=tag, user=user.userprofile, course_instance=self)
@@ -610,6 +618,7 @@ class LearningObjectCategory(models.Model):
     """
     STATUS = Enum([
         ('READY', 'ready', _("Ready")),
+        ('NOTOTAL', 'nototal', _("No total points")),
         ('HIDDEN', 'hidden', _("Hidden")),
     ])
     status = models.CharField(max_length=32,

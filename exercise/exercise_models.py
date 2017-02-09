@@ -14,7 +14,7 @@ from django.utils.formats import date_format
 from django.utils.translation import get_language, ugettext_lazy as _
 
 from aplus.api import api_reverse
-from course.models import CourseInstance, CourseModule, LearningObjectCategory
+from course.models import StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
@@ -360,17 +360,17 @@ class BaseExercise(LearningObject):
                 return True
         return False
 
-    def is_submission_allowed(self, profile):
+    def is_submission_allowed(self, profile, request=None):
         """
         Checks whether the submission to this exercise is allowed for the given
         user and generates a list of warnings.
 
         @return: (success_flag, warning_message_list)
         """
-        success, warnings, students = self._check_submission_allowed(profile)
+        success, warnings, students = self._check_submission_allowed(profile, request)
         return success, list(str(w) for w in warnings), students
 
-    def _check_submission_allowed(self, profile):
+    def _check_submission_allowed(self, profile, request=None):
         warnings = []
         students = [profile]
 
@@ -391,19 +391,42 @@ class BaseExercise(LearningObject):
             warnings.append(_('You must enroll at course home to submit exercises.'))
             return False, warnings, students
 
+        # Support group id from post or currently selected group.
+        group = None
+        group_id = request.POST.get("_aplus_group") if request else None
+        if not group_id is None:
+            try:
+                gid = int(group_id)
+                if gid > 0:
+                    group = profile.groups.filter(
+                        course_instance=self.course_instance,
+                        id=gid
+                    ).first()
+            except ValueError:
+                pass
+        elif enrollment and enrollment.selected_group:
+            group = enrollment.selected_group
+
         # Check groups cannot be changed after submitting.
         submissions = list(self.get_submissions_for_student(profile))
         if len(submissions) > 0:
-            if self._detect_group_changes(profile, enrollment, submissions[0]):
-                warnings.append(_('You have previously submitted to this exercise with a different group. Group can only change between different exercises.'))
+            s = submissions[0]
+            if self._detect_group_changes(profile, group, s):
+                msg = str(_("Group can only change between different exercises."))
+                if s.submitters.count() == 1:
+                    warnings.append(_("You have previously submitted to this exercise alone.") + " " + msg)
+                else:
+                    warnings.append(_("You have previously submitted to this exercise with {collaborators}.").format(
+                        collaborators=StudentGroup.format_collaborator_names(s.submitters.all(), profile)
+                    ) + " " + msg)
                 return False, warnings, students
-        elif self._detect_submissions(profile, enrollment):
-            warnings.append(_('Some members of the group have already submitted to this exercise in a different group.'))
+        elif self._detect_submissions(profile, group):
+            warnings.append(_('Some members of your group have already submitted to this exercise in a different group.'))
             return False, warnings, students
 
         # Get submitters.
-        if enrollment and enrollment.selected_group:
-            students = list(enrollment.selected_group.members.all())
+        if group:
+            students = list(group.members.all())
 
         if not self.one_has_access(students):
             warnings.append(_('This exercise is not open for submissions.'))
@@ -440,19 +463,19 @@ class BaseExercise(LearningObject):
 
         return success, warnings, students
 
-    def _detect_group_changes(self, profile, enrollment, submission):
+    def _detect_group_changes(self, profile, group, submission):
         submitters = list(submission.submitters.all())
-        if enrollment and enrollment.selected_group:
-            return not enrollment.selected_group.equals(submitters)
+        if group:
+            return not group.equals(submitters)
         else:
             return len(submitters) > 1 or submitters[0] != profile
 
-    def _detect_submissions(self, profile, enrollment):
-        if enrollment and enrollment.selected_group:
-            return not all(
+    def _detect_submissions(self, profile, group):
+        if group:
+            return not all((
                 len(self.get_submissions_for_student(p)) == 0
-                for p in enrollment.selected_group.members.all() if p != profile
-            )
+                for p in group.members.all() if p != profile
+            ))
         return False
 
     def get_total_submitter_count(self):

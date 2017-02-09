@@ -44,8 +44,23 @@
 			this.loader = $(this.settings.loader_selector);
 			this.messages = this.readMessages();
 			this.quizSuccess = $(this.settings.quiz_success_selector);
-			this.element.find("[" + this.settings.exercise_url_attr + "]")
+			this.exercises = this.element
+				.find("[" + this.settings.exercise_url_attr + "]")
 				.aplusExercise(this);
+			this.exercisesIndex = 0;
+			this.exercisesSize = this.exercises.size();
+			if (this.exercisesSize > 0) {
+				this.nextExercise();
+			} else {
+				$.augmentExerciseGroup($(".exercise-column"));
+			}
+		},
+
+		nextExercise: function() {
+			if (this.exercisesIndex < this.exercisesSize) {
+				this.exercises.eq(this.exercisesIndex).aplusExerciseLoad();
+				this.exercisesIndex++;
+			}
 		},
 
 		readMessages: function() {
@@ -113,7 +128,7 @@
 	"use strict";
 
 	var pluginName = "aplusExercise";
-	var reloadName = "aplusReload";
+	var loadName = "aplusExerciseLoad";
 	var defaults = {
 		quiz_attr: "data-aplus-quiz",
 		ajax_attr: "data-aplus-ajax",
@@ -158,7 +173,6 @@
 			this.element.height(this.element.height()).empty();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
-			this.load();
 
 			// Add an Ajax exercise event listener to refresh the summary.
 			if (this.ajax) {
@@ -180,12 +194,15 @@
 			$.ajax(this.url, {dataType: "html"})
 				.fail(function() {
 					exercise.showLoader("error");
+					exercise.chapter.nextExercise();
 				})
 				.done(function(data) {
 					exercise.hideLoader();
 					exercise.update($(data));
 					if (exercise.quiz) {
 						exercise.loadLastSubmission($(data));
+					} else {
+						exercise.chapter.nextExercise();
 					}
 				});
 		},
@@ -218,6 +235,7 @@
 					});
 				}
 			}
+			$.augmentExerciseGroup(content);
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID
@@ -300,6 +318,7 @@
 					$.ajax(link.attr("href"), {dataType: "html"})
 						.fail(function() {
 							exercise.showLoader("error");
+							exercise.chapter.nextExercise();
 						})
 						.done(function(data) {
 							exercise.hideLoader();
@@ -309,8 +328,13 @@
 								);
 							//f.find("table.submission-info").remove();
 							exercise.bindFormEvents(f);
+							exercise.chapter.nextExercise();
 						});
+				} else {
+					this.chapter.nextExercise();
 				}
+			} else {
+				this.chapter.nextExercise();
 			}
 		},
 
@@ -337,7 +361,7 @@
 		});
 	};
 
-	$.fn[reloadName] = function() {
+	$.fn[loadName] = function() {
 		return this.each(function() {
 			var exercise = $.data(this, "plugin_" + pluginName);
 			if (exercise) {
@@ -349,4 +373,4 @@
 })(jQuery, window, document);
 
 // Construct the page chapter element.
-jQuery(function() { jQuery("#exercise").aplusChapter(); });
+jQuery(function() { jQuery("#exercise-page-content").aplusChapter(); });
