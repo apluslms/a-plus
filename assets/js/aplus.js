@@ -305,7 +305,7 @@ $.fn.highlightCode = function(options) {
             text.highlightCode();
           } else {
             var match = data.match(settings.body_regexp);
-            if (match.length == 2) {
+            if (match !== null && match.length == 2) {
               data = match[1];
             }
             var c = modal.aplusModal("content", { content: data });
