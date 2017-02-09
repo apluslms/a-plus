@@ -51,7 +51,7 @@ class Submission(UrlMixin, models.Model):
     """
     STATUS = Enum([
         ('INITIALIZED', 'initialized', _("Initialized")),
-        ('WAITING', 'waiting', _("Waiting")),
+        ('WAITING', 'waiting', _("In grading")),
         ('READY', 'ready', _("Ready")),
         ('ERROR', 'error', _("Error")),
     ])
