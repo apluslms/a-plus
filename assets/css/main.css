@@ -277,6 +277,12 @@ html, body {
 .module-panel table {
     margin: 0;
 }
+.news-panel .list-group-item-text {
+  padding: 10px;
+}
+.news-panel .list-group-item-text *:last-child {
+  margin-bottom: 0;
+}
 
 /* point progress and badges */
 .progress {
