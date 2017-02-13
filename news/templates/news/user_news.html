@@ -28,10 +28,10 @@
         {% if not item|is_published:now %}<small><span class="label label-default">{% trans "Appears later" %}</span></small>{% endif %}
         {% if is_course_staff %}<small><span class="label label-default">{{ item.audience|news_audience }}</span></small>{% endif %}
       </h4>
-      <div class="list-group-item-text collapse{% if not item.collapsed %} in{% endif %}" id="news{{ item.id }}">
-        {{ item.body|safe }}
-      </div>
     </a>
+    <div class="list-group-item-text collapse{% if not item.collapsed %} in{% endif %}" id="news{{ item.id }}">
+      {{ item.body|safe }}
+    </div>
     {% if item.begin_more %}
     <a class="list-group-item" href="#more-news" data-toggle="collapse" role="button" aria-controls="more-news" aria-expanded="false">
       {% trans "Show more" %}
