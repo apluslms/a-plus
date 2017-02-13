@@ -96,7 +96,7 @@ $(function() {
           self.selection.show().find("small").html(data);
           self.loader.hide();
           var id = self.selection.find('[data-group-id]').attr("data-group-id");
-          $('.submit-group-selector a[data-group-id="' + id + '"]').trigger("click");
+          $('.submit-group-selector option[value="' + id + '"]').prop('selected', true);
         });
       });
     }

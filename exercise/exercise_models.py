@@ -421,7 +421,9 @@ class BaseExercise(LearningObject):
                     ) + " " + msg)
                 return False, warnings, students
         elif self._detect_submissions(profile, group):
-            warnings.append(_('Some members of your group have already submitted to this exercise in a different group.'))
+            warnings.append(_('{collaborators} already submitted to this exercise in a different group.').format(
+                collaborators=group.collaborator_names(profile)
+            ))
             return False, warnings, students
 
         # Get submitters.
@@ -440,11 +442,9 @@ class BaseExercise(LearningObject):
                 size = "{:d}".format(self.min_group_size)
             else:
                 size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
-            warnings.append(
-                _("This exercise can be submitted in groups of {size} students. "
-                  "The size of your current group is {current}.")\
-                .format(size=size, current=len(students))
-            )
+            warnings.append(_("This exercise must be submitted in groups of {size} students.").format(
+                size=size
+            ))
 
         success = len(warnings) == 0 \
             or all(self.course_instance.is_course_staff(p.user) for p in students)

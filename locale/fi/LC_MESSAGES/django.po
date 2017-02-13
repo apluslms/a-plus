@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-09 16:36+0200\n"
+"POT-Creation-Date: 2017-02-13 10:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -370,7 +370,7 @@ msgid ""
 "          "
 msgstr ""
 "\n"
-"          Palauta ryhmässä %(collaborators)s\n"
+"          Palauta ryhmässä: %(collaborators)s\n"
 "          "
 
 #: course/templates/course/_siblings.html:16
@@ -1519,7 +1519,7 @@ msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla.
 
 #: exercise/exercise_models.py:415
 msgid "Group can only change between different exercises."
-msgstr ""
+msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
 #: exercise/exercise_models.py:417
 msgid "You have previously submitted to this exercise alone."
@@ -1528,31 +1528,26 @@ msgstr "Olet palauttanut tämän tehtävän aiemmin yksin."
 #: exercise/exercise_models.py:419
 #, python-brace-format
 msgid "You have previously submitted to this exercise with {collaborators}."
-msgstr "Olet palauttanut tämän tehtävän aiemmin ryhmässä {collaborators}."
+msgstr "Olet palauttanut tämän tehtävän aiemmin ryhmässä: {collaborators}."
 
 #: exercise/exercise_models.py:424
+#, python-brace-format
 msgid ""
-"Some members of your group have already submitted to this exercise in a "
-"different group."
-msgstr ""
-"Jotkin ryhmäsi jäsenet ovat jo palauttaneet tämän tehtävän eri ryhmässä."
+"{collaborators} already submitted to this exercise in a different group."
+msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
 
-#: exercise/exercise_models.py:432
+#: exercise/exercise_models.py:434
 msgid "This exercise is not open for submissions."
 msgstr "Tämä tehtävä on suljettu, eikä sitä voi palauttaa."
 
-#: exercise/exercise_models.py:435
+#: exercise/exercise_models.py:437
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:444
+#: exercise/exercise_models.py:445
 #, python-brace-format
-msgid ""
-"This exercise can be submitted in groups of {size} students. The size of "
-"your current group is {current}."
-msgstr ""
-"Tämän tehtävän voi palauttaa {size} opiskelijan ryhmässä. Valitun ryhmän "
-"koko on {current}."
+msgid "This exercise must be submitted in groups of {size} students."
+msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 
 #: exercise/exercise_models.py:458
 #, python-brace-format

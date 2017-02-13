@@ -45,15 +45,14 @@
           });
         });
 
-        this.ui = $('<div class="submit-group-selector btn-group">'
-          + '<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="selected-group"></span> <span class="caret"></span></button>'
-          + '<ul class="dropdown-menu"></ul>'
-          + '<input type="hidden" name="_aplus_group" value="0" />'
+        this.ui = $('<div class="submit-group-selector input-group col-md-6">'
+          + '<select name="_aplus_group" class="form-control"></select>'
+          + '<span class="input-group-btn"></span>'
           + '</div>');
-        var ul = this.ui.find('ul');
+        var list = this.ui.find('select');
         for (var i = 0; i < this.groups.length; i++) {
           var group = this.groups[i];
-          ul.append($('<li><a href="#" data-group-id="' + group.id + '" data-group-size="' + group.size + '">' + group.text + '</a></li>'));
+          list.append($('<option value="' + group.id + '" data-group-size="' + group.size + '">' + group.text + '</option>'));
         }
       }
 		},
@@ -68,42 +67,29 @@
           if (b.size() > 0) {
             var ui = self.ui.clone();
             b.replaceWith(ui);
-            ui.append(b);
+            ui.find('.input-group-btn').append(b);
 
             var groupFixed = $(this).attr(self.settings.group_fixed_attribute);
             if (groupFixed) {
-              ui.find('li a:not([data-group-id="' + groupFixed + '"])').remove();
-              ui.find('li a').on("click", self.selectGroup);
+              ui.find('option:not([value="' + groupFixed + '"])').remove();
             } else {
               var groupSize = $(this).attr(self.settings.group_size_attribute).split("-");
-              ui.find("li a").each(function() {
-                var link = $(this);
-                var size = link.attr("data-group-size");
+              ui.find("option").each(function() {
+                var opt = $(this);
+                var size = opt.attr("data-group-size");
                 if (size < groupSize[0] || size > groupSize[1]) {
-                  link.remove();
-                } else {
-                  link.on("click", self.selectGroup);
+                  opt.remove();
                 }
               });
             }
 
-            var selected = ui.find('[data-group-id="' + self.selected + '"]');
-            if (selected.size() > 0) {
-              selected.trigger('click');
-            } else {
-              ui.find('a').eq(0).trigger('click');
+            var opt = ui.find('option[value="' + self.selected + '"]');
+            if (opt.size() > 0) {
+              opt.prop('selected', true);
             }
           }
         });
       }
-    },
-
-    selectGroup: function(event) {
-      event.preventDefault();
-      var a = $(this);
-      var group = a.parents('.btn-group');
-      group.find('.selected-group').text(a.text());
-      group.find('[name="_aplus_group"]').val(a.attr("data-group-id"));
     }
   });
 
