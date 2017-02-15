@@ -14,7 +14,7 @@
     group_size_attribute: "data-aplus-group",
     group_fixed_attribute: "data-aplus-group-fixed",
     applied_class: "group-augmented",
-    submit_selector: ".aplus-submit"
+    submit_selector: 'input[type="submit"],button[type="submit"]' /* ".aplus-submit" TODO once services support */
   };
 
   function AplusExerciseGroup(options) {
