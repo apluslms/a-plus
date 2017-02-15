@@ -91,6 +91,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'name': str(module),
                 'introduction': module.introduction,
                 'link': module.get_absolute_url(),
+                'requirements': [str(r) for r in module.requirements.all()],
                 'opening_time': module.opening_time,
                 'closing_time': module.closing_time,
                 'late_allowed': module.late_submissions_allowed,

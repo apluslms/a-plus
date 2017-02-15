@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from course.models import CourseModule
 from lib.errors import TagUsageError
 from ..cache.content import CachedContent
 from ..cache.points import CachedPoints
@@ -202,3 +203,12 @@ def max_group_size(context):
 def min_group_size(context):
     points = _prepare_context(context)
     return points.total()['min_group_size']
+
+
+@register.assignment_tag(takes_context=True)
+def module_requirements_passed(context, entry):
+    if entry.get('requirements'):
+        points = _prepare_context(context)
+        module = CourseModule.objects.get(id=entry['id'])
+        return module.are_requirements_passed(points)
+    return True
