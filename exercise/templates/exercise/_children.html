@@ -11,7 +11,7 @@
 {% endif %}
 {% elif entry|is_listed %}
 <li>
-  {% if after_open %}
+  {% if accessible %}
   {% if entry.is_empty %}
   {{ entry.name }}
   {% else %}

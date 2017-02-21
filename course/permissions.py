@@ -110,7 +110,7 @@ class CourseModulePermission(MessageMixin, Permission):
 
         if module.requirements.count() > 0:
             points = CachedPoints(module.course_instance, request.user, view.content)
-            return module.are_requirements_passed()
+            return module.are_requirements_passed(points)
         return True
 
 

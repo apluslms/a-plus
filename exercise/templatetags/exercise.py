@@ -16,12 +16,17 @@ from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExer
 register = template.Library()
 
 
+def _prepare_now(context):
+    if not 'now' in context:
+        context['now'] = timezone.now()
+    return context['now']
+
+
 def _prepare_context(context, student=None):
     if not 'instance' in context:
         raise TagUsageError()
     instance = context['instance']
-    if not 'now' in context:
-        context['now'] = timezone.now()
+    _prepare_now(context)
     if not 'content' in context:
         context['content'] = CachedContent(instance)
     def points(user, key):
@@ -35,13 +40,14 @@ def _prepare_context(context, student=None):
 
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
-    return {
-        'now': context['now'],
+    context = context.flatten()
+    context.update({
         'modules': points.modules_flatted(),
         'categories': points.categories(),
         'total': points.total(),
         'is_course_staff': context.get('is_course_staff', False),
-    }
+    })
+    return context
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
@@ -206,7 +212,10 @@ def min_group_size(context):
 
 
 @register.assignment_tag(takes_context=True)
-def module_requirements_passed(context, entry):
+def module_accessible(context, entry):
+    t = entry.get('opening_time')
+    if t and t > _prepare_now(context):
+        return False
     if entry.get('requirements'):
         points = _prepare_context(context)
         module = CourseModule.objects.get(id=entry['id'])

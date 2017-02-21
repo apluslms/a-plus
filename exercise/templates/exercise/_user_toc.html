@@ -5,9 +5,9 @@
 <ul class="toc">
   {% for module in modules %}
   {% if module|is_listed %}
-  {% with after_open=module|has_opened:now %}
+  {% module_accessible module as accessible %}
   <li>
-    {% if after_open %}
+    {% if accessible %}
     <h3>
       <a href="{{ module.link }}" class="{% if module|is_in_maintenance %}maintenance{% endif %}">{{ module.name }}</a>
     </h3>
@@ -40,9 +40,8 @@
       <span class="label label-info">{% trans 'Opens' %} {{ module.opening_time }}</span> <small>&ndash; {{ module.closing_time }}</small>
     </h4>
     {% endif %}
-    {% include "exercise/_children.html" with children=module.flatted after_open=after_open %}
+    {% include "exercise/_children.html" with children=module.flatted accessible=accessible %}
   </li>
-  {% endwith %}
   {% endif %}
   {% endfor %}
 </ul>
