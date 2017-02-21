@@ -43,8 +43,8 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'category': str(category),
                     'category_id': category.id,
                     'category_status': category.status,
-                    'module_id': module.id,
-                    'module_status': module.status,
+                    'module_id': module['id'],
+                    'module_status': module['status'],
                     'id': o.id,
                     'order': o.order,
                     'status': o.status,
@@ -52,8 +52,9 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'link': o.get_display_url(),
                     'submittable': False,
                     'submissions_link': o.get_submission_list_url(),
-                    'opening_time': module.opening_time,
-                    'closing_time': module.closing_time,
+                    'requirements': module['requirements'],
+                    'opening_time': module['opening_time'],
+                    'closing_time': module['closing_time'],
                     'is_empty': o.is_empty(),
                     'points_to_pass': 0,
                     'difficulty': '',
@@ -65,7 +66,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 container.append(entry)
                 idx = indexes + [j]
                 exercise_index[o.id] = idx
-                paths[module.id][o.get_path()] = o.id
+                paths[module['id']][o.get_path()] = o.id
                 if not category.id in categories:
                     categories[category.id] = {
                         'type': 'category',
@@ -91,6 +92,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'name': str(module),
                 'introduction': module.introduction,
                 'link': module.get_absolute_url(),
+                'requirements': [str(r) for r in module.requirements.all()],
                 'opening_time': module.opening_time,
                 'closing_time': module.closing_time,
                 'late_allowed': module.late_submissions_allowed,
@@ -107,7 +109,7 @@ class CachedContent(ContentMixin, CachedAbstract):
             module_index[module.id] = idx
             paths[module.id] = {}
             all_children = list(module.learning_objects.all())
-            recursion(module, all_children, [], idx, entry['children'])
+            recursion(entry, all_children, [], idx, entry['children'])
             i += 1
 
         # Augment submittable exercise parameters.

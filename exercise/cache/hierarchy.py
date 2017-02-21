@@ -139,6 +139,12 @@ class ContentMixin(object):
             return paths[path]
         raise NoSuchContent()
 
+    def find_category(self, category_id):
+        categories = self.data['categories']
+        if category_id in categories:
+            return categories[category_id]
+        raise NoSuchContent()
+
     def find(self, model):
         modules = self.modules()
         idx = self._model_idx(model)

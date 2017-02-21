@@ -21,10 +21,11 @@
 {% for module in modules %}
 {% if module|is_visible %}
 {% with open=module|is_open:now after_open=module|has_opened:now %}
+{% module_accessible module as accessible %}
 <div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
-  <a class="panel-heading{% if not open %} collapsed{% endif %}"
+  <a class="panel-heading{% if not open or not accessible %} collapsed{% endif %}"
     role="button" href="#module{{ module.id }}" data-toggle="collapse"
-    aria-expanded="{% if open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
+    aria-expanded="{% if open and accessible %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
     <h3 class="panel-title">
       {% points_badge module "pull-right" %}
       {% if not open and not after_open %}
@@ -32,11 +33,17 @@
         {% trans "Opens" %} {{ module.opening_time }}
       </span>
       {% endif %}
+      {% if module.requirements|length > 0 %}
+      <span class="badge pull-right">
+        {% trans "Requires" %}:
+        {% for requirement in module.requirements %}{{ requirement }}{% endfor %}
+      </span>
+      {% endif %}
       <span class="caret" aria-hidden="true"></span>
       {{ module.name }}
     </h3>
   </a>
-  <div class="collapse{% if open %} in{% endif %}" id="module{{ module.id }}">
+  <div class="collapse{% if open and accessible %} in{% endif %}" id="module{{ module.id }}">
   <div class="panel-body">
     <p>
       {{ module.opening_time }} &ndash; {{ module.closing_time }}
@@ -84,7 +91,7 @@
       {% if entry.submittable and entry|is_visible %}
       <tr data-category="{{ entry.category_id }}">
         <td>
-          {% if after_open %}
+          {% if accessible %}
           <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
           {% else %}
           {{ entry.name }}
@@ -126,7 +133,7 @@
         </td>
         {% if is_course_staff %}
         <td>
-          {% if not after_open %}
+          {% if not accessible %}
           <a class="btn btn-default btn-xs" href="{{ entry.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
@@ -143,7 +150,7 @@
       {% elif entry.type == 'exercise' and entry|is_visible %}
       <tr>
         <td colspan="4">
-          {% if after_open %}
+          {% if accessible %}
           <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a></strong>
           {% else %}
           <strong>{{ entry.name }}</strong>
@@ -151,7 +158,7 @@
         </td>
         {% if is_course_staff %}
         <td>
-          {% if not after_open %}
+          {% if not accessible %}
           <a class="btn btn-default btn-xs" href="{{ entry.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}

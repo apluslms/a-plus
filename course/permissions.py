@@ -1,7 +1,6 @@
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
-from userprofile.models import UserProfile
 from authorization.permissions import (
     ACCESS,
     Permission,
@@ -9,6 +8,9 @@ from authorization.permissions import (
     ObjectVisibleBasePermission,
     FilterBackend,
 )
+from exercise.cache.content import CachedContent
+from exercise.cache.points import CachedPoints
+from userprofile.models import UserProfile
 from .models import (
     CourseModule,
     CourseInstance,
@@ -105,6 +107,10 @@ class CourseModulePermission(MessageMixin, Permission):
                 _("The module will open for submissions at {date}").format(
                     date=module.opening_time))
             return False
+
+        if module.requirements.count() > 0:
+            points = CachedPoints(module.course_instance, request.user, view.content)
+            return module.are_requirements_passed(points)
         return True
 
 

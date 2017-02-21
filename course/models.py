@@ -597,6 +597,12 @@ class CourseModule(UrlMixin, models.Model):
             return when > self.late_submission_deadline
         return when > self.closing_time
 
+    def are_requirements_passed(self, cached_points):
+        for r in self.requirements.all():
+            if not r.is_passed(cached_points):
+                return False
+        return True
+
     def get_late_submission_point_worth(self):
         """
         Returns the percentage (0-100) that late submission points are worth.
