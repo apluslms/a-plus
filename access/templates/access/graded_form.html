@@ -1,5 +1,5 @@
 {% load i18n %}
-<form method="post" action="{{ post_url }}">
+<form method="post" action="{{ post_url }}"{% if result.form.multipart %} enctype="multipart/form-data"{% endif %}>
 	{% for field in result.form %}
 	{% if field.field.open_set %}
 	<fieldset id="{{ field.field.open_set }}"{% if result.accepted and field.field.group_errors %} class="alert {% if field.field.open_set in result.error_groups %}alert-danger{% else %}alert-success{% endif %}"{% endif %}>

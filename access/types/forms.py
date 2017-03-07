@@ -46,6 +46,7 @@ class GradedForm(forms.Form):
 
         self.disabled = self.show_correct
         self.randomized = False
+        self.multipart = False
         samples = []
         g = 0
         i = 0
@@ -119,6 +120,10 @@ class GradedForm(forms.Form):
                 elif t == "static":
                     i, f = self.add_field(i, field,
                         forms.CharField, custom_forms.PlainTextWidget)
+                elif t == "file":
+                    self.multipart = True
+                    i, f = self.add_field(i, field,
+                        forms.FileField, forms.ClearableFileInput)
                 else:
                     raise ConfigError("Unknown field type: %s" % (t))
 
@@ -430,7 +435,7 @@ class GradedForm(forms.Form):
             ok, hints, method = self.grade_radio(configuration, value)
         elif t == "text" or t == "textarea":
             ok, hints, method = self.grade_text(configuration, value)
-        elif t == "static":
+        elif t in ("static", "file"):
             ok, hints, method = True, [], 'string'
         else:
             raise ConfigError("Unknown field type for grading: %s" % (t))
