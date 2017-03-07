@@ -1,9 +1,11 @@
 import random
 import re
+import json
 
 from django import forms
 from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.files.uploadedfile import UploadedFile
 from django.forms.utils import ErrorDict
 from django.forms.widgets import CheckboxSelectMultiple, RadioSelect, Textarea
 from django.utils.safestring import mark_safe
@@ -544,3 +546,13 @@ class GradedForm(forms.Form):
         if not correct:
             self.append_hint(hints, configuration)
         return correct, hints, method
+
+    def json_and_files(self):
+        data = {}
+        files = {}
+        for key,val in self.cleaned_data.items():
+            if isinstance(val, UploadedFile):
+                files[key] = val
+            else:
+                data[key] = val
+        return json.dumps(data), files

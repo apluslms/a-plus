@@ -144,6 +144,11 @@ def createForm(request, course, exercise, post_url):
         (points, error_groups, error_fields) = form.grade()
         points = pointsInRange(points, exercise["max_points"])
 
+        # Allow passing to asynchronous grading.
+        if "actions" in exercise:
+            from .stdasync import _saveForm
+            return _saveForm(request, course, exercise, post_url, form)
+
         # If points are not granted by form fields.
         if points == 0 and not error_fields:
             points = exercise["max_points"]

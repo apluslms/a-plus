@@ -270,6 +270,15 @@ def _requireActions(exercise):
         raise ConfigError("Missing \"actions\" in exercise configuration.")
 
 
+def _saveForm(request, course, exercise, post_url, form):
+    data,files = form.json_and_files()
+    sdir = create_submission_dir(course, exercise)
+    write_submission_file(sdir, "data.json", data)
+    for name,uploaded in files.items():
+        save_submitted_file(sdir, name, uploaded)
+    return _acceptSubmission(request, course, exercise, post_url, sdir)
+
+
 def _acceptSubmission(request, course, exercise, post_url, sdir):
     '''
     Queues the submission for grading.
