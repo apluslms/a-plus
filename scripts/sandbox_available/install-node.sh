@@ -3,7 +3,7 @@
 # Installs nodejs using a third party Ubuntu repository.
 #
 if ! [ -x /usr/bin/nodejs ]; then
-	apt-get -qy install python-software-properties
+	apt-get -qy install software-properties-common
 	apt-add-repository -y ppa:chris-lea/node.js
 	if ! grep --quiet universe /etc/apt/sources.list
 	then
