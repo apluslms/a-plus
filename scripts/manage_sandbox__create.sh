@@ -40,7 +40,7 @@ else
   echo_ok "*** Getting and using debootstrap to create chroot system"
   apt-get -qy install debootstrap
   rm -rf "$sbd"
-  debootstrap precise "$sbd" ftp://ftp.funet.fi/pub/Linux/mirrors/ubuntu/archive
+  debootstrap trusty "$sbd" ftp://ftp.funet.fi/pub/Linux/mirrors/ubuntu/archive
   rv=$?
   if [ $rv -ne 0 ]; then
     echo_err "*** ERROR during debootstrap, try again!"
