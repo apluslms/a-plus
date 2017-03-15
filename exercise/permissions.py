@@ -88,7 +88,9 @@ class SubmissionVisiblePermission(ObjectVisibleBasePermission):
     obj_var = 'submission'
 
     def is_object_visible(self, request, view, submission):
-        if not (view.is_course_staff or submission.is_submitter(request.user)):
+        if not (view.is_teacher or
+                (view.is_assistant and submission.exercise.allow_assistant_viewing) or
+                submission.is_submitter(request.user)):
             self.error_msg(request, _("Only the submitter shall pass."))
             return False
         return True

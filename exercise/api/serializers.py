@@ -1,14 +1,15 @@
 from rest_framework import serializers
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
-from lib.api.serializers import AplusModelSerializer
+from lib.api.serializers import AplusModelSerializer, HtmlViewField
 
-from ..models import Submission, BaseExercise
+from ..models import Submission, SubmittedFile, BaseExercise
 
 
 __all__ = [
     'ExerciseBriefSerializer',
     'SubmissionBriefSerializer',
+    'SubmittedFileBriefSerializer',
 ]
 
 
@@ -42,3 +43,15 @@ class SubmissionBriefSerializer(AplusModelSerializer):
                 'lookup_map': 'exercise.api.views.SubmissionViewSet',
             }
         }
+
+
+class SubmittedFileBriefSerializer(AplusModelSerializer):
+    url = HtmlViewField()
+
+    class Meta(AplusModelSerializer.Meta):
+        model = SubmittedFile
+        fields = (
+            'url',
+            'filename',
+            'param_name',
+        )

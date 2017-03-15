@@ -11,7 +11,11 @@ from course.api.serializers import CourseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
 
 from ..models import Submission
-from .serializers import ExerciseBriefSerializer, SubmissionBriefSerializer
+from .serializers import (
+    ExerciseBriefSerializer,
+    SubmissionBriefSerializer,
+    SubmittedFileBriefSerializer,
+)
 
 
 __all__ = [
@@ -131,18 +135,33 @@ class UserListFieldWithStatsLink(AlwaysListSerializer, UserBriefSerializer):
         )
 
 
+class SubmittedFileLinks(AlwaysListSerializer, SubmittedFileBriefSerializer):
+    pass
+
+
 class SubmissionSerializer(SubmissionBriefSerializer):
     exercise = ExerciseBriefSerializer()
     submitters = UserListFieldWithStatsLink()
+    submission_data = serializers.JSONField()
+    files = SubmittedFileLinks()
+    grader = UserBriefSerializer()
+    grading_data = serializers.JSONField()
 
     class Meta(SubmissionBriefSerializer.Meta):
         fields = (
             'html_url',
             'exercise',
             'submitters',
+            'submission_data',
+            'files',
             'status',
             'grade',
+            'late_penalty_applied',
             'grading_time',
+            'grader',
+            'feedback',
+            'assistant_feedback',
+            'grading_data',
         )
 
 
