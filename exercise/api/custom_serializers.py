@@ -32,15 +32,15 @@ class UserWithTagsSerializer(UserBriefSerializer):
         return ser.data
 
 
-class UserPointsSerializer(UserWithTagsSerializer):
+class ExercisePointsSerializer(serializers.Serializer):
 
-    def to_representation(self, obj):
-        rep = super().to_representation(obj)
-        view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.content)
-
+    def to_representation(self, entry):
         request = self.context['request']
-        instance_id = view.instance.id
+
+        def exercise_url(exercise_id):
+            return reverse('api:exercise-detail', kwargs={
+                'exercise_id': exercise_id,
+            }, request=request)
 
         def submission_url(submission_id):
             if submission_id is None:
@@ -49,6 +49,26 @@ class UserPointsSerializer(UserWithTagsSerializer):
                 'submission_id': submission_id
             }, request=request)
 
+        exercise_data = {
+            'url': exercise_url(entry['id']),
+            'best_submission': submission_url(entry['best_submission']),
+            'submissions': [submission_url(s['id']) for s in entry['submissions']],
+        }
+        for key in [
+            'id', 'name',
+            'max_points', 'points_to_pass', 'difficulty',
+            'submission_count', 'points', 'passed',
+        ]:
+            exercise_data[key] = entry[key]
+        return exercise_data
+
+
+class UserPointsSerializer(UserWithTagsSerializer):
+
+    def to_representation(self, obj):
+        rep = super().to_representation(obj)
+        view = self.context['view']
+        points = CachedPoints(view.instance, obj.user, view.content)
         modules = []
         for module in points.modules_flatted():
             module_data = {}
@@ -62,21 +82,9 @@ class UserPointsSerializer(UserWithTagsSerializer):
             exercises = []
             for entry in module['flatted']:
                 if entry['type'] == 'exercise' and entry['submittable']:
-                    exercise_data = {
-                        'url': reverse('api:exercise-detail', kwargs={
-                            'exercise_id': entry['id'],
-                        }, request=request),
-                        'best_submission': submission_url(entry['best_submission']),
-                        'submissions': [submission_url(s['id']) for s in entry['submissions']],
-                    }
-                    for key in [
-                        'id', 'name',
-                        'max_points', 'points_to_pass', 'difficulty',
-                        'submission_count', 'points', 'passed',
-                    ]:
-                        exercise_data[key] = entry[key]
-                    exercises.append(exercise_data)
-
+                    exercises.append(
+                        ExercisePointsSerializer(entry, context=self.context).data
+                    )
             module_data['exercises'] = exercises
             modules.append(module_data)
 
@@ -85,6 +93,19 @@ class UserPointsSerializer(UserWithTagsSerializer):
             rep[key] = total[key]
         rep['modules'] = modules
 
+        return rep
+
+
+class SubmitterStatsSerializer(UserWithTagsSerializer):
+
+    def to_representation(self, obj):
+        rep = super().to_representation(obj)
+        view = self.context['view']
+        points = CachedPoints(view.instance, obj.user, view.content)
+        entry,_,_,_ = points.find(view.exercise)
+        data = ExercisePointsSerializer(entry, context=self.context).data
+        for key,value in data.items():
+            rep[key] = value
         return rep
 
 

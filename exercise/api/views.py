@@ -24,6 +24,7 @@ from ..models import (
     SubmissionManager,
 )
 from ..permissions import (
+    SubmissionVisiblePermission,
     SubmissionVisibleFilter,
 )
 from .mixins import (
@@ -32,6 +33,7 @@ from .mixins import (
 )
 from .serializers import *
 from .full_serializers import *
+from .custom_serializers import *
 
 
 GRADER_PERMISSION = api_settings.DEFAULT_PERMISSION_CLASSES + [
@@ -182,12 +184,31 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
-                                    ExerciseResourceMixin,
-                                    ListSerializerMixin,
+class ExerciseSubmissionsSheetViewSet(NestedViewSetMixin,
+                                 ExerciseResourceMixin,
+                                 mixins.ListModelMixin,
+                                 viewsets.GenericViewSet):
+    """
+    Exercise submissions as a data sheet.
+    """
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        SubmissionVisiblePermission,
+    ]
+    parent_lookup_map = {
+        'exercise_id': 'exercise.id',
+    }
+    serializer_class = SubmissionSerializer
+    queryset = Submission.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class ExerciseSubmitterStatsViewSet(ListSerializerMixin,
+                                    NestedViewSetMixin,
                                     MeUserMixin,
-                                    mixins.ListModelMixin,
-                                    viewsets.GenericViewSet):
+                                    ExerciseResourceMixin,
+                                    viewsets.ReadOnlyModelViewSet):
     """
     Viewset contains info about exercise stats per user
     this includes current grade and submission count
@@ -203,40 +224,9 @@ class ExerciseSubmitterStatsViewSet(NestedViewSetMixin,
     parent_lookup_map = {
         'exercise_id': 'submissions.exercise.id',
     }
-    listserializer_class = UserListFieldWithStatsLink
+    listserializer_class = SubmitterStatsBriefSerializer
     serializer_class = SubmitterStatsSerializer
     queryset = UserProfile.objects.all()
-
-    def get_serializer(self, queryset, **kwargs):
-        if self.action == 'list':
-            queryset = {
-                'submitters': queryset,
-                'exercise_id': self.kwargs['exercise_id'],
-            }
-            kwargs['source'] = 'submitters'
-        return super(ExerciseSubmitterStatsViewSet, self).get_serializer(queryset, **kwargs)
-
-    def retrieve(self, request, exercise_id, user_id, **kwargs):
-        # NOTE: user id's that do not exist in DB will raise 404 instead of permission denied
-        user = ( request.user.userprofile
-                 if user_id == request.user.id
-                 else get_object_or_404(UserProfile, user_id=user_id) )
-        self.check_object_permissions(request, user)
-        submissions = ( Submission.objects.all()
-            .filter(exercise_id=exercise_id, submitters=user)
-            .order_by('-grade', '-submission_time') )
-        submission_count = submissions.count()
-        best_submission = submissions[0] if submission_count > 0 else None
-        data = {
-            'exercise_id': exercise_id,
-            'user': user,
-            'submissions': submissions,
-            'submission_count': submission_count, # FIXME: doesn't skip false
-            'best_submission': best_submission,
-            'grade': best_submission.grade if best_submission else None,
-        }
-        serializer = self.get_serializer(data)
-        return Response(serializer.data)
 
 
 class SubmissionViewSet(mixins.RetrieveModelMixin,

@@ -15,14 +15,13 @@ from .serializers import (
     ExerciseBriefSerializer,
     SubmissionBriefSerializer,
     SubmittedFileBriefSerializer,
+    SubmitterStatsBriefSerializer,
 )
 
 
 __all__ = [
     'ExerciseSerializer',
     'ExerciseGraderSerializer',
-    'SubmitterStatsSerializer',
-    'UserListFieldWithStatsLink',
     'SubmissionSerializer',
     'SubmissionGraderSerializer',
 ]
@@ -44,7 +43,7 @@ class ExerciseSerializer(ExerciseBriefSerializer):
         },
     )
     my_stats = NestedHyperlinkedIdentityField(
-        view_name='api:exervise-submitter_stats-detail',
+        view_name='api:exercise-submitter_stats-detail',
         lookup_map={
             'exercise_id': 'id',
             'user_id': lambda o=None: 'me',
@@ -89,50 +88,8 @@ class ExerciseGraderSerializer(AplusModelSerializerBase):
         )
 
 
-class SubmitterStatsSerializer(serializers.Serializer):
-    url = NestedHyperlinkedIdentityField(
-        view_name='api:exervise-submitter_stats-detail',
-        lookup_map={
-            'exercise_id': 'exercise_id',
-            'user_id': 'user.user_id',
-        },
-    )
-    exercise = NestedHyperlinkedIdentityField(
-        view_name='api:exercise-detail',
-        lookup_map={ 'exercise_id': 'exercise_id' },
-    )
-    user = UserBriefSerializer()
-    submission_count = serializers.IntegerField()
-    best_submission = SubmissionBriefSerializer()
-    grade = serializers.IntegerField()
-
-    class Meta(AplusSerializerMeta):
-        fields = (
-            'url',
-            'exercise',
-            'user',
-            'submission_count',
-            'best_submission',
-            'grade',
-        )
-
-
-class UserListFieldWithStatsLink(AlwaysListSerializer, UserBriefSerializer):
-    exercise_stats = NestedHyperlinkedIdentityField(
-        view_name='api:exervise-submitter_stats-detail',
-        lookup_map={
-            'exercise_id': 'exercise_id',
-            'user_id': 'user_id',
-        },
-    )
-
-    class Meta(UserBriefSerializer.Meta):
-        list_serializer_class = CompositeListSerializer.with_extra({
-            'exercise_id': 'exercise_id',
-        })
-        fields = (
-            'exercise_stats',
-        )
+class SubmitterLinks(AlwaysListSerializer, SubmitterStatsBriefSerializer):
+    pass
 
 
 class SubmittedFileLinks(AlwaysListSerializer, SubmittedFileBriefSerializer):
@@ -141,7 +98,7 @@ class SubmittedFileLinks(AlwaysListSerializer, SubmittedFileBriefSerializer):
 
 class SubmissionSerializer(SubmissionBriefSerializer):
     exercise = ExerciseBriefSerializer()
-    submitters = UserListFieldWithStatsLink()
+    submitters = SubmitterLinks()
     submission_data = serializers.JSONField()
     files = SubmittedFileLinks()
     grader = UserBriefSerializer()
