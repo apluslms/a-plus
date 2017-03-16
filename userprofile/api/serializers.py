@@ -6,6 +6,7 @@ from ..models import UserProfile
 
 __all__ = [
     'UserBriefSerializer',
+    'UserBriefBaseSerializer',
     'UserListField',
 ]
 
@@ -23,6 +24,18 @@ class UserBriefSerializer(AplusModelSerializer):
         )
         extra_kwargs = {
             'url': {
+                'view_name': 'api:user-detail',
+                'lookup_map': 'userprofile.api.views.UserViewSet',
+            }
+        }
+
+
+class UserBriefBaseSerializer(UserBriefSerializer):
+    url_field_name = 'student_url'
+    
+    class Meta(UserBriefSerializer.Meta):
+        extra_kwargs = {
+            'student_url': {
                 'view_name': 'api:user-detail',
                 'lookup_map': 'userprofile.api.views.UserViewSet',
             }
