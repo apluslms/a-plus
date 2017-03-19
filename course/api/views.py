@@ -1,10 +1,10 @@
-from rest_framework import generics, permissions, viewsets
+from rest_framework import generics, permissions, viewsets, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_framework import status
 from rest_framework.reverse import reverse
+from rest_framework_extensions.mixins import NestedViewSetMixin
+from rest_framework_csv.renderers import CSVRenderer
 
 from lib.viewbase import BaseMixin
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
@@ -155,6 +155,9 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
     filter_backends = (
         IsCourseAdminOrUserObjIsSelf,
     )
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [
+        CSVRenderer,
+    ]
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     lookup_field = 'user__id'

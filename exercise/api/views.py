@@ -183,29 +183,6 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class ExerciseSubmissionsSheetViewSet(NestedViewSetMixin,
-                                 ExerciseResourceMixin,
-                                 mixins.ListModelMixin,
-                                 viewsets.GenericViewSet):
-    """
-    Exercise submissions as a data sheet.
-    """
-    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        IsCourseAdminOrUserObjIsSelf,
-    ]
-    filter_backends = (
-        SubmissionVisibleFilter,
-    )
-    parent_lookup_map = {
-        'exercise_id': 'exercise.id',
-    }
-    serializer_class = SubmissionSerializer
-    queryset = Submission.objects.all()
-
-    def retrieve(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-
 class ExerciseSubmitterStatsViewSet(ListSerializerMixin,
                                     NestedViewSetMixin,
                                     MeUserMixin,
