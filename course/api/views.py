@@ -73,10 +73,10 @@ class CourseStudentsViewSet(NestedViewSetMixin,
                             CourseResourceMixin,
                             viewsets.ReadOnlyModelViewSet):
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        IsAdminOrUserObjIsSelf,
+        IsCourseAdminOrUserObjIsSelf,
     ]
     filter_backends = (
-        IsAdminOrUserObjIsSelf,
+        IsCourseAdminOrUserObjIsSelf,
     )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
@@ -150,10 +150,10 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
                                   CourseResourceMixin,
                                   viewsets.ReadOnlyModelViewSet):
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        IsAdminOrUserObjIsSelf,
+        IsCourseAdminOrUserObjIsSelf,
     ]
     filter_backends = (
-        IsAdminOrUserObjIsSelf,
+        IsCourseAdminOrUserObjIsSelf,
     )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME

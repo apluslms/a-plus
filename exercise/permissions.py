@@ -100,7 +100,12 @@ class SubmissionVisibleFilter(FilterBackend):
     def filter_queryset(self, request, queryset, view):
         user = request.user
         is_super = user.is_staff or user.is_superuser
-        is_staff = view.is_course_staff
-        if issubclass(queryset.model, Submission) and not is_super and not is_staff:
-            queryset = queryset.filter(submitters=user.userprofile)
+        if (
+            issubclass(queryset.model, Submission) and
+            not view.is_teacher and not is_super
+        ):
+            if view.is_assistant:
+                queryset = queryset.filter(exercise__allow_assistant_viewing=True)
+            else:
+                queryset = queryset.filter(submitters=user.userprofile)
         return queryset

@@ -131,7 +131,6 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
     """
     filter_backends = (
         SubmissionVisibleFilter,
-        IsAdminOrUserObjIsSelf,
     )
     lookup_url_kwarg = 'user_id'
     lookup_field = 'submitters__user__id'
@@ -192,8 +191,11 @@ class ExerciseSubmissionsSheetViewSet(NestedViewSetMixin,
     Exercise submissions as a data sheet.
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        SubmissionVisiblePermission,
+        IsCourseAdminOrUserObjIsSelf,
     ]
+    filter_backends = (
+        SubmissionVisibleFilter,
+    )
     parent_lookup_map = {
         'exercise_id': 'exercise.id',
     }
@@ -214,16 +216,16 @@ class ExerciseSubmitterStatsViewSet(ListSerializerMixin,
     this includes current grade and submission count
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        IsAdminOrUserObjIsSelf,
+        IsCourseAdminOrUserObjIsSelf,
     ]
     filter_backends = (
         IsCourseAdminOrUserObjIsSelf,
     )
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    parent_lookup_map = {
-        'exercise_id': 'submissions.exercise.id',
-    }
+    lookup_field = 'user__id'
+    # Following produces duplicate profiles for each submission
+    #parent_lookup_map = {'exercise_id': 'submissions.exercise.id'}
     listserializer_class = SubmitterStatsBriefSerializer
     serializer_class = SubmitterStatsSerializer
     queryset = UserProfile.objects.all()
