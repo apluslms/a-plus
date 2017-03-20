@@ -15,7 +15,6 @@ from .serializers import (
     ExerciseBriefSerializer,
     SubmissionBriefSerializer,
     SubmittedFileBriefSerializer,
-    SubmitterStatsBriefSerializer,
 )
 
 
@@ -88,7 +87,7 @@ class ExerciseGraderSerializer(AplusModelSerializerBase):
         )
 
 
-class SubmitterLinks(AlwaysListSerializer, SubmitterStatsBriefSerializer):
+class SubmitterLinks(AlwaysListSerializer, UserBriefSerializer):
     pass
 
 

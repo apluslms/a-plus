@@ -3,7 +3,7 @@ from rest_framework.reverse import reverse
 from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
 from lib.api.serializers import AplusModelSerializer, HtmlViewField
-from userprofile.api.serializers import UserBriefBaseSerializer
+from userprofile.api.serializers import UserBriefSerializer
 from ..models import Submission, SubmittedFile, BaseExercise
 
 
@@ -59,11 +59,20 @@ class SubmittedFileBriefSerializer(AplusModelSerializer):
         )
 
 
-class SubmitterStatsBriefSerializer(UserBriefBaseSerializer):
-    url = serializers.SerializerMethodField()
+class SubmitterStatsBriefSerializer(UserBriefSerializer):
+    stats = serializers.SerializerMethodField()
 
-    def get_url(self, obj):
-        return reverse('api:exercise-submitter_stats-detail', kwargs={
-            'exercise_id': self.context['view'].exercise.id,
-            'user_id': obj.user.id,
-        }, request=self.context['request'])
+    def get_stats(self, profile):
+        return reverse(
+            'api:exercise-submitter_stats-detail',
+            kwargs={
+                'exercise_id': self.context['view'].exercise.id,
+                'user_id': profile.user.id,
+            },
+            request=self.context['request']
+        )
+
+    class Meta(UserBriefSerializer.Meta):
+        fields = UserBriefSerializer.Meta.fields + (
+            'stats',
+        )

@@ -11,7 +11,6 @@ from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
-from userprofile.api.serializers import UserBriefSerializer
 from course.permissions import OnlyCourseTeacherPermission, IsCourseAdminOrUserObjIsSelf
 
 from exercise.api.custom_serializers import UserPointsSerializer, SubmissionDataSerializer
@@ -82,27 +81,7 @@ class CourseStudentsViewSet(NestedViewSetMixin,
     lookup_value_regex = REGEX_INT_ME
     lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
-    serializer_class = UserBriefSerializer
-    queryset = UserProfile.objects.all()
-
-
-class CoursePointsViewSet(ListSerializerMixin,
-                          NestedViewSetMixin,
-                          MeUserMixin,
-                          CourseResourceMixin,
-                          viewsets.ReadOnlyModelViewSet):
-    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        IsCourseAdminOrUserObjIsSelf,
-    ]
-    filter_backends = (
-        IsCourseAdminOrUserObjIsSelf,
-    )
-    lookup_url_kwarg = 'user_id'
-    lookup_value_regex = REGEX_INT_ME
-    lookup_field = 'user__id'
-    parent_lookup_map = {'course_id': 'enrolled.id'}
-    listserializer_class = CoursePointsBriefSerializer
-    serializer_class = UserPointsSerializer
+    serializer_class = StudentBriefSerializer
     queryset = UserProfile.objects.all()
 
 
@@ -144,6 +123,26 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         return queryset
 
 
+class CoursePointsViewSet(ListSerializerMixin,
+                          NestedViewSetMixin,
+                          MeUserMixin,
+                          CourseResourceMixin,
+                          viewsets.ReadOnlyModelViewSet):
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        IsCourseAdminOrUserObjIsSelf,
+    ]
+    filter_backends = (
+        IsCourseAdminOrUserObjIsSelf,
+    )
+    lookup_url_kwarg = 'user_id'
+    lookup_value_regex = REGEX_INT_ME
+    lookup_field = 'user__id'
+    parent_lookup_map = {'course_id': 'enrolled.id'}
+    listserializer_class = StudentBriefSerializer
+    serializer_class = UserPointsSerializer
+    queryset = UserProfile.objects.all()
+
+
 class CourseSubmissionDataViewSet(ListSerializerMixin,
                                   NestedViewSetMixin,
                                   MeUserMixin,
@@ -162,7 +161,7 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
     lookup_value_regex = REGEX_INT_ME
     lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
-    listserializer_class = CourseSubmissionsBriefSerializer
+    listserializer_class = StudentBriefSerializer
     serializer_class = SubmissionDataSerializer
     queryset = UserProfile.objects.all()
 
