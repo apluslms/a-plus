@@ -31,11 +31,12 @@ def submitted_fields(submissions):
 
         if s.exercise != exercise:
             exercise = s.exercise
-            spec = exercise.exercise_info.get('form_spec')
-            if not spec is None:
-                for k in [e['key'] for e in spec]:
-                    if not k in fields:
-                        fields.append(k)
+            if exercise.exercise_info:
+                for e in exercise.exercise_info.get('form_spec', []):
+                    if e['type'] != 'file':
+                        k = e['key']
+                        if not k in fields:
+                            fields.append(k)
 
         if s.submission_data:
             for k,v in s.submission_data:
@@ -81,7 +82,12 @@ def serialize_submissions(request, fields, files, submissions):
         ])
 
         if s.submission_data:
-            m = {k: v for k,v in s.submission_data}
+            m = {}
+            for k,v in s.submission_data:
+                if k in m:
+                    m[k] += "|" + v
+                else:
+                    m[k] = v
             for k in fields:
                 row[k] = m.get(k, None)
 

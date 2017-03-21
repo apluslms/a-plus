@@ -29,10 +29,10 @@ with api.register(r'courses',
                      course.api.views.CourseUsertaggingsViewSet,
                      base_name='course-taggings')
     courses.register(r'points',
-                     course.api.views.CoursePointsViewSet,
+                     exercise.api.views.CoursePointsViewSet,
                      base_name='course-points')
     courses.register(r'submissiondata',
-                     course.api.views.CourseSubmissionDataViewSet,
+                     exercise.api.views.CourseSubmissionDataViewSet,
                      base_name='course-submissiondata')
 
 with api.register(r'exercises',
