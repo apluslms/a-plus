@@ -313,6 +313,13 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
                                   MeUserMixin,
                                   CourseResourceMixin,
                                   viewsets.ReadOnlyModelViewSet):
+    """
+    Lists submissions as data sheet.
+    Following GET parameters may be used to filter submissions:
+    category_id, module_id, exercise_id,
+    best ("no" includes all different submissions from same submitters),
+    field (a name of submitted value field to generate a simple value list)
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
     ]
