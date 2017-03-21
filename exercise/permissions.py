@@ -11,6 +11,7 @@ from .models import (
     LearningObject,
     BaseExercise,
     Submission,
+    SubmittedFile,
 )
 
 
@@ -109,3 +110,10 @@ class SubmissionVisibleFilter(FilterBackend):
             else:
                 queryset = queryset.filter(submitters=user.userprofile)
         return queryset
+
+
+class SubmittedFileVisiblePermission(SubmissionVisiblePermission):
+    model = SubmittedFile
+
+    def is_object_visible(self, request, view, file):
+        return super().is_object_visible(request, view, file.submission)

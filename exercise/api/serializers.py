@@ -48,7 +48,11 @@ class SubmissionBriefSerializer(AplusModelSerializer):
 
 
 class SubmittedFileBriefSerializer(AplusModelSerializer):
-    url = HtmlViewField()
+    #url = HtmlViewField()
+    url = NestedHyperlinkedIdentityField(
+        view_name='api:submission-files-detail',
+        lookup_map='exercise.api.views.SubmissionFileViewSet',
+    )
 
     class Meta(AplusModelSerializer.Meta):
         model = SubmittedFile

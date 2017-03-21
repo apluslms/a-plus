@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from rest_framework.reverse import reverse
 
 
 def filter_to_best(submissions):
@@ -58,8 +59,15 @@ DEFAULT_FIELDS = [
 
 def serialize_submissions(request, fields, files, submissions):
 
-    def url(obj):
-        return request.build_absolute_uri(obj.get_absolute_url())
+    def url(submission, obj):
+        return reverse(
+            'api:submission-files-detail',
+            kwargs={
+                'submission_id': submission.id,
+                'submittedfile_id': obj.id,
+            },
+            request=request
+        )
 
     sheet = []
     for s in submissions.order_by('exercise_id', 'id'):
@@ -91,7 +99,7 @@ def serialize_submissions(request, fields, files, submissions):
             for k in fields:
                 row[k] = m.get(k, None)
 
-        m = {f.param_name: url(f) for f in s.files.all()}
+        m = {f.param_name: url(s,f) for f in s.files.all()}
         for k in files:
             row[k] = m.get(k, None)
 

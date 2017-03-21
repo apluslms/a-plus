@@ -45,9 +45,12 @@ with api.register(r'exercises',
                        exercise.api.views.ExerciseSubmitterStatsViewSet,
                        base_name='exercise-submitter_stats')
 
-api.register(r'submissions',
-             exercise.api.views.SubmissionViewSet,
-             base_name='submission')
+with api.register(r'submissions',
+                  exercise.api.views.SubmissionViewSet,
+                  base_name='submission') as submissions:
+    submissions.register(r'files',
+                         exercise.api.views.SubmissionFileViewSet,
+                         base_name='submission-files'),
 
 urlpatterns = [
     url(r'^', include(api.urls, namespace='api')),

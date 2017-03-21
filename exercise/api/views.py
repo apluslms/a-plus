@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.http.response import HttpResponse
+from wsgiref.util import FileWrapper
 from rest_framework import mixins, permissions, viewsets
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
@@ -24,12 +26,14 @@ from exercise.async_views import _post_async_submission
 from ..cache.points import CachedPoints
 from ..models import (
     Submission,
+    SubmittedFile,
     BaseExercise,
     SubmissionManager,
 )
 from ..permissions import (
     SubmissionVisiblePermission,
     SubmissionVisibleFilter,
+    SubmittedFileVisiblePermission,
 )
 from .mixins import (
     ExerciseResourceMixin,
@@ -258,6 +262,30 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
             )
 
         return Response(_post_async_submission(request, exercise, submission))
+
+
+class SubmissionFileViewSet(NestedViewSetMixin,
+                            SubmissionResourceMixin,
+                            viewsets.ReadOnlyModelViewSet):
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        SubmittedFileVisiblePermission,
+    ]
+    lookup_url_kwarg = 'submittedfile_id'
+    lookup_value_regex = REGEX_INT_ME
+    parent_lookup_map = {
+        'submission_id': 'submission.id',
+    }
+    queryset = SubmittedFile.objects.all()
+
+    def list(self, request, version=None, submission_id=None):
+        return Response([])
+
+    def retrieve(self, request, version=None, submission_id=None, submittedfile_id=None):
+        sfile = self.get_object()
+        f = open(sfile.file_object.path, 'rb')
+        response = HttpResponse(FileWrapper(f), content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(sfile.filename)
+        return response
 
 
 class CoursePointsViewSet(ListSerializerMixin,
