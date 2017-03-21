@@ -107,16 +107,3 @@ class SubmitterStatsSerializer(UserWithTagsSerializer):
         for key,value in data.items():
             rep[key] = value
         return rep
-
-
-class SubmissionDataSerializer(SubmissionSerializer):
-    submitters = UserListField()
-    submission_data = serializers.JSONField()
-    grading_data = serializers.JSONField()
-
-    class Meta(SubmissionSerializer.Meta):
-        fields = (
-            'late_penalty_applied',
-            'submission_data',
-            'grading_data',
-        )

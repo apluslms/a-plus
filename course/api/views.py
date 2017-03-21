@@ -11,12 +11,11 @@ from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
-from course.permissions import OnlyCourseTeacherPermission, IsCourseAdminOrUserObjIsSelf
 
-from exercise.api.custom_serializers import UserPointsSerializer, SubmissionDataSerializer
+from exercise.api.custom_serializers import UserPointsSerializer
+from exercise.api.submission_sheet import *
 from exercise.cache.points import CachedPoints
-from exercise.models import BaseExercise, Submission
-from exercise.exercise_summary import ResultTable
+from exercise.models import Submission
 
 from ..models import (
     CourseInstance,
@@ -27,6 +26,10 @@ from ..models import (
 from .mixins import (
     CourseResourceMixin,
     CourseModuleResourceMixin,
+)
+from ..permissions import (
+    OnlyCourseTeacherPermission,
+    IsCourseAdminOrUserObjIsSelf,
 )
 from .serializers import *
 from .full_serializers import *
@@ -151,47 +154,61 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
     ]
-    filter_backends = (
-        IsCourseAdminOrUserObjIsSelf,
-    )
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [
+    renderer_classes = [
         CSVRenderer,
-    ]
+    ] + api_settings.DEFAULT_RENDERER_CLASSES
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
-    listserializer_class = StudentBriefSerializer
-    serializer_class = SubmissionDataSerializer
     queryset = UserProfile.objects.all()
 
-    def _int_or_none(self, value):
-        if value is None:
-            return None
-        return int(value)
+    def get_search_args(self, request):
+        def int_or_none(value):
+            if value is None:
+                return None
+            return int(value)
+        return {
+            'category_id': int_or_none(request.GET.get('category_id')),
+            'module_id': int_or_none(request.GET.get('module_id')),
+            'exercise_id': int_or_none(request.GET.get('exercise_id')),
+            'filter_for_assistant': not self.is_teacher,
+            'best': request.GET.get('best') != 'no',
+        }
 
-    def _submitted_field(self, submission, name):
-        for key,val in submission.submission_data:
-            if key == name:
-                return val
-        return ""
+    def list(self, request, version=None, course_id=None):
+        search_args = self.get_search_args(request)
+        ids = [e['id'] for e in self.content.search_exercises(**search_args)]
+        queryset = Submission.objects.filter(exercise_id__in=ids)
+        return self.serialize_submissions(request, queryset, best=search_args['best'])
 
-    def retrieve(self, request, course_id, version, user_id=None):
+    def retrieve(self, request, version=None, course_id=None, user_id=None):
         profile = self.get_object()
         points = CachedPoints(self.instance, profile.user, self.content)
-        ids = points.submission_ids(
-            category_id=self._int_or_none(request.GET.get('category_id')),
-            module_id=self._int_or_none(request.GET.get('module_id')),
-            exercise_id=self._int_or_none(request.GET.get('exercise_id')),
-            best=request.GET.get('best') != 'no',
-        )
-        submissions = Submission.objects.filter(id__in=ids)
+        ids = points.submission_ids(**self.get_search_args(request))
+        queryset = Submission.objects.filter(id__in=ids)
+        return self.serialize_submissions(request, queryset)
 
-        # Pick out a field.
+    def serialize_submissions(self, request, queryset, best=False):
+        if best:
+            queryset = filter_to_best(queryset)
+
+        # Pick out a single field.
         field = request.GET.get('field')
         if field:
-            vals = [self._submitted_field(s, field) for s in submissions.all()]
+            def submitted_field(submission, name):
+                for key,val in submission.submission_data:
+                    if key == name:
+                        return val
+                return ""
+            vals = [submitted_field(s, field) for s in queryset]
             return Response([v for v in vals if v != ""])
 
-        serializer = self.get_serializer(submissions, many=True)
-        return Response(serializer.data)
+        fields,files = submitted_fields(queryset)
+        self.renderer_fields = DEFAULT_FIELDS + fields + files
+        return Response(serialize_submissions(request, fields, files, queryset))
+
+    def get_renderer_context(self):
+        context = super().get_renderer_context()
+        context['header'] = getattr(self, 'renderer_fields', None)
+        return context

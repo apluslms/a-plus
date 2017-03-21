@@ -156,7 +156,8 @@ class ContentMixin(object):
             self._next(idx, tree),
         )
 
-    def search_exercises(self, category_id=None, module_id=None, exercise_id=None):
+    def search_exercises(self, category_id=None, module_id=None, exercise_id=None,
+                         filter_for_assistant=False, best=False):
         search = None
         if not exercise_id is None:
             search = { 'type': 'exercise', 'id': int(exercise_id) }
@@ -169,8 +170,10 @@ class ContentMixin(object):
             tree = [{ 'type': 'all', 'children': self.modules() }]
         exercises = []
         def recursion(entry):
-            if entry['type'] == 'exercise' and (
-                category_id is None or entry['category_id'] == category_id
+            if (
+                entry['type'] == 'exercise' and
+                (category_id is None or entry['category_id'] == category_id) and
+                (not filter_for_assistant or entry['allow_assistant_viewing'])
             ):
                 exercises.append(entry)
             for child in entry['children']:
