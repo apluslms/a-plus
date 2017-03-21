@@ -121,12 +121,7 @@ class OnlyCourseTeacherPermission(Permission):
         return self.has_object_permission(request, view, view.instance)
 
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        return (
-            view.is_teacher or
-            user.is_staff or
-            user.is_superuser
-        )
+        return view.is_teacher or request.user.is_superuser
 
 
 class OnlyCourseStaffPermission(Permission):
@@ -136,12 +131,7 @@ class OnlyCourseStaffPermission(Permission):
         return self.has_object_permission(request, view, view.instance)
 
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        return (
-            view.is_course_staff or
-            user.is_staff or
-            user.is_superuser
-        )
+        return view.is_course_staff or request.user.is_superuser
 
 
 class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
@@ -157,9 +147,10 @@ class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
         )
 
     def filter_queryset(self, request, queryset, view):
-        user = request.user
-        is_super = user.is_staff or user.is_superuser
-        is_staff = view.is_course_staff
-        if issubclass(queryset.model, UserProfile) and not is_super and not is_staff:
+        if (
+            issubclass(queryset.model, UserProfile) and
+            not view.is_course_staff and
+            not request.user.is_superuser
+        ):
             queryset = queryset.filter(user_id=user.id)
         return queryset
