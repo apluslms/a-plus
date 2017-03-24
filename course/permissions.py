@@ -115,21 +115,26 @@ class CourseModulePermission(MessageMixin, Permission):
 
 
 class OnlyCourseTeacherPermission(Permission):
+    message = _("Only course teacher is allowed")
+
+    def has_permission(self, request, view):
+        return self.has_object_permission(request, view, view.instance)
+
+    def has_object_permission(self, request, view, obj):
+        return view.is_teacher or request.user.is_superuser
+
+
+class OnlyCourseStaffPermission(Permission):
     message = _("Only course staff is allowed")
 
     def has_permission(self, request, view):
         return self.has_object_permission(request, view, view.instance)
 
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        return (
-            user.is_staff or
-            user.is_superuser or
-            view.is_teacher
-        )
+        return view.is_course_staff or request.user.is_superuser
 
 
-class IsCourseAdminOrUserObjIsSelf(OnlyCourseTeacherPermission, FilterBackend):
+class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
 
     def has_object_permission(self, request, view, obj):
         if not isinstance(obj, UserProfile):
@@ -142,9 +147,10 @@ class IsCourseAdminOrUserObjIsSelf(OnlyCourseTeacherPermission, FilterBackend):
         )
 
     def filter_queryset(self, request, queryset, view):
-        user = request.user
-        is_super = user.is_staff or user.is_superuser
-        is_staff = view.is_course_staff
-        if issubclass(queryset.model, UserProfile) and not is_super and not is_staff:
+        if (
+            issubclass(queryset.model, UserProfile) and
+            not view.is_course_staff and
+            not request.user.is_superuser
+        ):
             queryset = queryset.filter(user_id=user.id)
         return queryset

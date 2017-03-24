@@ -29,10 +29,10 @@ with api.register(r'courses',
                      course.api.views.CourseUsertaggingsViewSet,
                      base_name='course-taggings')
     courses.register(r'points',
-                     course.api.views.CoursePointsViewSet,
+                     exercise.api.views.CoursePointsViewSet,
                      base_name='course-points')
     courses.register(r'submissiondata',
-                     course.api.views.CourseSubmissionDataViewSet,
+                     exercise.api.views.CourseSubmissionDataViewSet,
                      base_name='course-submissiondata')
 
 with api.register(r'exercises',
@@ -40,14 +40,17 @@ with api.register(r'exercises',
                   base_name='exercise') as exercises:
     exercises.register(r'submissions',
                        exercise.api.views.ExerciseSubmissionsViewSet,
-                       base_name='exercise-submissions')
+                       base_name='exercise-submissions'),
     exercises.register(r'submitter_stats',
                        exercise.api.views.ExerciseSubmitterStatsViewSet,
-                       base_name='exervise-submitter_stats')
+                       base_name='exercise-submitter_stats')
 
-api.register(r'submissions',
-             exercise.api.views.SubmissionViewSet,
-             base_name='submission')
+with api.register(r'submissions',
+                  exercise.api.views.SubmissionViewSet,
+                  base_name='submission') as submissions:
+    submissions.register(r'files',
+                         exercise.api.views.SubmissionFileViewSet,
+                         base_name='submission-files'),
 
 urlpatterns = [
     url(r'^', include(api.urls, namespace='api')),

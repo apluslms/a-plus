@@ -13,12 +13,14 @@ __all__ = [
 class UserBriefSerializer(AplusModelSerializer):
     id = serializers.IntegerField(source='user.id', read_only=True) # NOTE: userprofile.id != user.id
     username = serializers.CharField(source='user.username')
+    email = serializers.CharField(source='user.email')
 
     class Meta(AplusModelSerializer.Meta):
         model = UserProfile
         fields = (
             'username',
             'student_id',
+            'email',
             'is_external',
         )
         extra_kwargs = {

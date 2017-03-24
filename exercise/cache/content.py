@@ -61,6 +61,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'max_submissions': 0,
                     'max_points': 0,
                     'confirm_the_level': False,
+                    'allow_assistant_viewing': False,
                     'children': [],
                 }
                 container.append(entry)
@@ -131,6 +132,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'max_submissions': exercise.max_submissions,
                 'max_points': exercise.max_points,
                 'confirm_the_level': exercise.confirm_the_level,
+                'allow_assistant_viewing': exercise.allow_assistant_viewing,
             })
 
             if exercise.confirm_the_level:
