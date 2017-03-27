@@ -6,7 +6,7 @@ def filter_to_best(submissions):
     best = {}
     eid = None
 
-    for s in submissions.order_by('exercise_id', 'submission_time'):
+    for i,s in enumerate(submissions):
         if s.exercise_id != eid:
             eid = s.exercise_id
             best[eid] = {}
@@ -16,48 +16,23 @@ def filter_to_best(submissions):
             uid = user.id if user else 0
             old = best[eid].get(uid)
             if not old or s.grade >= old[1]:
-                best[eid][uid] = (s.id,s.grade)
+                best[eid][uid] = (i,s.grade)
 
-    ids = []
+    filtered = []
     for ebest in best.values():
-        ids.extend([i for i,g in ebest.values()])
-    return submissions.filter(id__in=ids)
-
-
-def submitted_fields(submissions):
-    fields = []
-    files = []
-    exercise = None
-    for s in submissions.order_by('exercise_id', 'id'):
-
-        if s.exercise != exercise:
-            exercise = s.exercise
-            if exercise.exercise_info:
-                for e in exercise.exercise_info.get('form_spec', []):
-                    if e['type'] != 'file':
-                        k = e['key']
-                        if not k in fields:
-                            fields.append(k)
-
-        if s.submission_data:
-            for k,v in s.submission_data:
-                if not k in fields:
-                    fields.append(k)
-
-        for f in s.files.all():
-            if not f.param_name in files:
-                files.append(f.param_name)
-
-    return fields,files
+        for i,g in ebest.values():
+            filtered.append(submissions[i])
+    return filtered
 
 
 DEFAULT_FIELDS = [
-    'EID', 'Exercise', 'UID', 'StudentID', 'Email', 'ID', 'Time', 'Status',
+    'ExerciseID', 'Exercise', 'SubmissionID', 'Time',
+    'UserID', 'StudentID', 'Email', 'Status',
     'Grade', 'Penalty', 'Graded', 'Notified', 'NSeen',
 ]
 
 
-def serialize_submissions(request, fields, files, submissions):
+def serialize_submissions(request, submissions):
 
     def url(submission, obj):
         return reverse(
@@ -70,17 +45,31 @@ def serialize_submissions(request, fields, files, submissions):
         )
 
     sheet = []
-    for s in submissions.order_by('exercise_id', 'id'):
-        exercise = s.exercise
+    fields = []
+    files = []
+    exercise = None
+
+    for s in submissions:
+        if s.exercise != exercise:
+            exercise = s.exercise
+            if exercise.exercise_info:
+                for e in exercise.exercise_info.get('form_spec', []):
+                    k = e['key']
+                    if e['type'] == 'file':
+                        if not k in files:
+                            files.append(k)
+                    elif not k in fields:
+                        fields.append(k)
+
         n = s.notifications.first()
         row = OrderedDict([
-            ('EID', exercise.id),
+            ('ExerciseID', exercise.id),
             ('Exercise', str(exercise)),
-            ('UID', None),
+            ('SubmissionID', s.id),
+            ('Time', str(s.submission_time)),
+            ('UserID', None),
             ('StudentID', None),
             ('Email', None),
-            ('ID', s.id),
-            ('Time', str(s.submission_time)),
             ('Status', s.status),
             ('Grade', s.grade),
             ('Penalty', s.late_penalty_applied),
@@ -90,18 +79,18 @@ def serialize_submissions(request, fields, files, submissions):
         ])
 
         if s.submission_data:
-            m = {}
             for k,v in s.submission_data:
-                if k in m:
-                    m[k] += "|" + v
+                if not k in fields:
+                    fields.append(k)
+                if k in row:
+                    row[k] += "|" + str(v)
                 else:
-                    m[k] = v
-            for k in fields:
-                row[k] = m.get(k, None)
+                    row[k] = str(v)
 
-        m = {f.param_name: url(s,f) for f in s.files.all()}
-        for k in files:
-            row[k] = m.get(k, None)
+        for f in s.files.all():
+            if not f.param_name in files:
+                files.append(f.param_name)
+            row[f.param_name] = url(s,f)
 
         for profile in s.submitters.all():
             row['UID'] = profile.user.id
@@ -109,4 +98,4 @@ def serialize_submissions(request, fields, files, submissions):
             row['Email'] = profile.user.email
             sheet.append(row)
 
-    return sheet
+    return sheet,fields,files

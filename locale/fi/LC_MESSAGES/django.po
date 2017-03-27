@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-13 10:56+0200\n"
+"POT-Creation-Date: 2017-03-27 16:28+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,7 +78,7 @@ msgstr "Vain opettajille - only course teachers shall pass."
 msgid "Only course staff shall pass."
 msgstr "Vain kurssihenkilökunnalle - only course staff shall pass."
 
-#: authorization/permissions.py:105 course/permissions.py:65
+#: authorization/permissions.py:105 course/permissions.py:67
 msgid "Only enrolled students shall pass."
 msgstr "Vain ilmoittautuneille - only enrolled students shall pass."
 
@@ -208,7 +208,7 @@ msgstr ""
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:526 course/models.py:620 exercise/exercise_models.py:67
+#: course/models.py:526 course/models.py:626 exercise/exercise_models.py:67
 #: exercise/submission_models.py:55
 msgid "Ready"
 msgstr "Valmis"
@@ -217,7 +217,7 @@ msgstr "Valmis"
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:528 course/models.py:622 templates/base.html:77
+#: course/models.py:528 course/models.py:628 templates/base.html:77
 msgid "Hidden"
 msgstr "Piilotettu"
 
@@ -233,44 +233,48 @@ msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:621
+#: course/models.py:627
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/permissions.py:19
+#: course/permissions.py:21
 msgid "Permission denied by course visibility"
 msgstr "Pääsy kielletty kurssin näkyvyyden perusteella"
 
-#: course/permissions.py:45
+#: course/permissions.py:47
 msgid "The resource is not currently visible."
 msgstr "Materiaali ei ole tällä hetkellä nähtävissä."
 
-#: course/permissions.py:56
+#: course/permissions.py:58
 msgid "This course is not open for public."
 msgstr "Tälle kurssille ei ole vapaata pääsyä."
 
-#: course/permissions.py:78
+#: course/permissions.py:80
 msgid "This course is only for internal students."
 msgstr "Tämä kurssi on vain oppilaitoksen koulutusohjelmien opiskelijoille."
 
-#: course/permissions.py:81
+#: course/permissions.py:83
 msgid "This course is only for external students."
 msgstr "Tämä kurssi on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
-#: course/permissions.py:87
+#: course/permissions.py:89
 msgid "Permission denied by course module visibility"
 msgstr "Pääsy kielletty kurssimoduulin näkyvyyden perusteella."
 
-#: course/permissions.py:100
+#: course/permissions.py:102
 msgid "The module is not currently visible."
 msgstr "Tämä osio ei ole tällä hetkellä nähtävissä."
 
-#: course/permissions.py:105
+#: course/permissions.py:107
 #, python-brace-format
 msgid "The module will open for submissions at {date}"
 msgstr "Tämä osio avautuu {date}."
 
-#: course/permissions.py:112
+#: course/permissions.py:118
+msgid "Only course teacher is allowed"
+msgstr "Vain opettajalle - only teacher shall pass."
+
+#: course/permissions.py:128
 msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle - only course staff shall pass."
 
@@ -284,7 +288,7 @@ msgid "Course"
 msgstr "Kurssi"
 
 #: course/templates/course/_course_menu.html:19
-#: course/templates/course/_siblings.html:43
+#: course/templates/course/_siblings.html:46
 #: exercise/templates/exercise/toc.html:7
 #: exercise/templates/exercise/toc.html:12
 msgid "Course materials"
@@ -304,7 +308,7 @@ msgid "Apps"
 msgstr "Sovellukset"
 
 #: course/templates/course/_course_menu.html:75
-#: exercise/templates/exercise/_user_results.html:79
+#: exercise/templates/exercise/_user_results.html:86
 #: exercise/templates/exercise/submission_plain.html:41
 msgid "Course staff"
 msgstr "Kurssihenkilökunta"
@@ -373,12 +377,12 @@ msgstr ""
 "          Palauta ryhmässä: %(collaborators)s\n"
 "          "
 
-#: course/templates/course/_siblings.html:16
-#: course/templates/course/_siblings.html:34
+#: course/templates/course/_siblings.html:18
+#: course/templates/course/_siblings.html:37
 #: exercise/templates/exercise/_children.html:29
-#: exercise/templates/exercise/_user_results.html:132
-#: exercise/templates/exercise/_user_results.html:157
-#: exercise/templates/exercise/_user_toc.html:23
+#: exercise/templates/exercise/_user_results.html:139
+#: exercise/templates/exercise/_user_results.html:164
+#: exercise/templates/exercise/_user_toc.html:29
 msgid "Early access"
 msgstr "Aikainen pääsy"
 
@@ -707,7 +711,7 @@ msgstr "Palauttaja"
 
 #: deviations/templates/deviations/list_dl.html:28
 #: edit_course/templates/edit_course/edit_content.html:143
-#: exercise/templates/exercise/_user_results.html:74
+#: exercise/templates/exercise/_user_results.html:81
 msgid "Exercise"
 msgstr "Tehtävä"
 
@@ -760,12 +764,12 @@ msgstr "Avaa 0 arvosanan diplomi"
 #: diploma/templates/diploma/list.html:28
 #: exercise/templates/exercise/_submission_info.html:21
 #: exercise/templates/exercise/staff/_assess_info.html:17
-#: exercise/templates/exercise/staff/_submissions_table.html:23
+#: exercise/templates/exercise/staff/_submissions_table.html:28
 msgid "Grade"
 msgstr "Arvostelu"
 
 #: edit_course/course_forms.py:28
-#: exercise/templates/exercise/_user_results.html:75
+#: exercise/templates/exercise/_user_results.html:82
 msgid "Category"
 msgstr "Kategoria"
 
@@ -1079,7 +1083,7 @@ msgid "Open exercise"
 msgstr "Avaa tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:113
-#: exercise/templates/exercise/_user_results.html:137
+#: exercise/templates/exercise/_user_results.html:144
 msgid "View submissions"
 msgstr "Näytä palautukset"
 
@@ -1409,17 +1413,17 @@ msgstr ""
 msgid "Exercise caches have been cleared."
 msgstr "Tehtävien välimuisti on tyhjennetty."
 
-#: exercise/admin.py:34
+#: exercise/admin.py:40
 msgid "Real class"
 msgstr ""
 
-#: exercise/admin.py:35
+#: exercise/admin.py:41
 msgid "Course instance"
 msgstr "Kurssikerta"
 
-#: exercise/admin.py:36 exercise/templates/exercise/_submission_info.html:32
+#: exercise/admin.py:42 exercise/templates/exercise/_submission_info.html:32
 #: exercise/templates/exercise/staff/_assess_info.html:11
-#: exercise/templates/exercise/staff/_submissions_table.html:20
+#: exercise/templates/exercise/staff/_submissions_table.html:25
 msgid "Submitters"
 msgstr "Opiskelijat"
 
@@ -1630,43 +1634,43 @@ msgid ""
 "students_by_email"
 msgstr ""
 
-#: exercise/permissions.py:18
+#: exercise/permissions.py:19
 msgid "Permission denied by exercise visibility"
 msgstr "Pääsy kielletty tehtävänäkyvyyden perusteella"
 
-#: exercise/permissions.py:30
+#: exercise/permissions.py:31
 msgid "The exercise is not currently visible."
 msgstr "Tehtävä ei ole tällä hetkellä nähtävissä."
 
-#: exercise/permissions.py:36
+#: exercise/permissions.py:37
 msgid "The exercise is only for registered users."
 msgstr "Tämä tehtävä on vain rekisteröityneille opiskelijoille."
 
-#: exercise/permissions.py:41
+#: exercise/permissions.py:42
 msgid "The exercise is only for internal users."
 msgstr "Tämä tehtävä on vain oppilaitoksen koulutusohjelmien opiskelijoille."
 
-#: exercise/permissions.py:46
+#: exercise/permissions.py:47
 msgid "The exercise is only for external users."
 msgstr "Tämä tehtävä on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
-#: exercise/permissions.py:53
+#: exercise/permissions.py:54
 msgid "Permission denied by exercise assistant permission"
 msgstr "Pääsy kielletty tehtävän assistenttiasetuksen perusteella"
 
-#: exercise/permissions.py:73
+#: exercise/permissions.py:74
 msgid "Assistant viewing is not allowed for this exercise."
 msgstr "Assistentti ei voi nähdä tätä tehtävää."
 
-#: exercise/permissions.py:79
+#: exercise/permissions.py:80
 msgid "Assistant grading is not allowed for this exercise."
 msgstr "Assistentti ei voi arvostella tätä tehtävää."
 
-#: exercise/permissions.py:86
+#: exercise/permissions.py:87
 msgid "Permission denied by submission visibility"
 msgstr "Pääsy kielletty palautuksen näkyvyyden perusteella"
 
-#: exercise/permissions.py:92
+#: exercise/permissions.py:95
 msgid "Only the submitter shall pass."
 msgstr "Vain palautuksen tehneelle - only the submitter shall pass."
 
@@ -1839,7 +1843,7 @@ msgid "Required exercises are not passed"
 msgstr "Kaikkia pakollisia tehtäviä ei ole suoritettu"
 
 #: exercise/templates/exercise/_points_progress.html:3
-#: exercise/templates/exercise/_user_results.html:77
+#: exercise/templates/exercise/_user_results.html:84
 #: exercise/templates/exercise/exercise_plain.html:47
 #: exercise/templates/exercise/submission_plain.html:39
 msgid "Points"
@@ -1859,7 +1863,7 @@ msgstr "Palautusaika"
 
 #: exercise/templates/exercise/_submission_info.html:14
 #: exercise/templates/exercise/staff/_assess_info.html:13
-#: exercise/templates/exercise/staff/_submissions_table.html:22
+#: exercise/templates/exercise/staff/_submissions_table.html:27
 #: exercise/templates/exercise/submission_plain.html:39
 msgid "Status"
 msgstr "Tila"
@@ -1901,12 +1905,18 @@ msgstr "Piilota näkymästä"
 msgid "Show older assignments."
 msgstr "Näytä vanhemmat tehtävät"
 
-#: exercise/templates/exercise/_user_results.html:32
-#: exercise/templates/exercise/_user_toc.html:28
+#: exercise/templates/exercise/_user_results.html:33
+#: exercise/templates/exercise/_user_toc.html:40
 msgid "Opens"
 msgstr "Avautuu"
 
-#: exercise/templates/exercise/_user_results.html:47
+#: exercise/templates/exercise/_user_results.html:38
+#: exercise/templates/exercise/_user_toc.html:17
+#: exercise/templates/exercise/_user_toc.html:36
+msgid "Requires"
+msgstr "Vaaditaan"
+
+#: exercise/templates/exercise/_user_results.html:54
 #, python-format
 msgid ""
 "\n"
@@ -1916,7 +1926,7 @@ msgstr ""
 "\n"
 "Myöhästyneitä palautuksia vastaanotetaan %(deadline)s asti."
 
-#: exercise/templates/exercise/_user_results.html:51
+#: exercise/templates/exercise/_user_results.html:58
 #, python-format
 msgid ""
 "\n"
@@ -1926,7 +1936,7 @@ msgstr ""
 "\n"
 "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
 
-#: exercise/templates/exercise/_user_results.html:60
+#: exercise/templates/exercise/_user_results.html:67
 #, python-format
 msgid ""
 "\n"
@@ -1936,12 +1946,12 @@ msgstr ""
 "\n"
 "Osion suorittamiseen vaaditaan %(points)s pistettä."
 
-#: exercise/templates/exercise/_user_results.html:76
+#: exercise/templates/exercise/_user_results.html:83
 #: exercise/templates/exercise/staff/_assess_info.html:26
 msgid "Submissions"
 msgstr "Palautukset"
 
-#: exercise/templates/exercise/_user_results.html:119
+#: exercise/templates/exercise/_user_results.html:126
 #: exercise/templates/exercise/exercise_base.html:61
 #: exercise/templates/exercise/exercise_plain.html:73
 msgid "No submissions yet"
@@ -1996,6 +2006,12 @@ msgstr "Suoritukseen vaaditaan %(points)s pistettä."
 msgid "Show model answer"
 msgstr "Näytä malliratkaisu"
 
+#: exercise/templates/exercise/exercise_plain.html:122
+#: exercise/templates/exercise/submission.html:37
+#: exercise/templates/exercise/submission_plain.html:94
+msgid "Your submission has been accepted for grading."
+msgstr "Palautuksesi on vastaanotettu arvostelua varten."
+
 #: exercise/templates/exercise/model/_lti_button.html:10
 msgid "Launch exercise"
 msgstr "Avaa tehtävä"
@@ -2049,13 +2065,15 @@ msgstr "Arvostelun tiedot"
 #, python-format
 msgid ""
 "\n"
-"    %(limit)s latest submissions. <a href=\"%(url)s\">Show all</a>\n"
+"    %(limit)s latest submissions.\n"
+"    <a class=\"btn btn-default btn-sm\" href=\"%(url)s\">Show all</a>\n"
 "    "
 msgstr ""
 "\n"
-"%(limit)s viimeistä palautusta. <a href=\"%(url)s\">Näytä kaikki</a>"
+"%(limit)s viimeistä palautusta.\n"
+"<a class=\"btn btn-default btn-sm\" href=\"%(url)s\">Näytä kaikki</a>"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:11
+#: exercise/templates/exercise/staff/_submissions_table.html:12
 #, python-format
 msgid ""
 "\n"
@@ -2065,18 +2083,22 @@ msgstr ""
 "\n"
 "%(count)s palautusta"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:21
+#: exercise/templates/exercise/staff/_submissions_table.html:19
+msgid "Download CSV"
+msgstr "Lataa CSV"
+
+#: exercise/templates/exercise/staff/_submissions_table.html:26
 msgid "Time"
 msgstr "Aika"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:24
-#: exercise/templates/exercise/staff/_submissions_table.html:55
+#: exercise/templates/exercise/staff/_submissions_table.html:29
+#: exercise/templates/exercise/staff/_submissions_table.html:60
 #: exercise/templates/exercise/staff/inspect_submission.html:12
 #: exercise/templates/exercise/submission_plain.html:74
 msgid "Inspect"
 msgstr "Tutki"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:37
+#: exercise/templates/exercise/staff/_submissions_table.html:42
 #, python-format
 msgid ""
 "\n"
@@ -2086,11 +2108,11 @@ msgstr ""
 "\n"
 "Myöhässä <small>-%(percent)s%%</small>"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:49
+#: exercise/templates/exercise/staff/_submissions_table.html:54
 msgid "Assistant"
 msgstr "Assistentti"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:61
+#: exercise/templates/exercise/staff/_submissions_table.html:66
 msgid "No submissions"
 msgstr "Ei vielä palautuksia"
 
@@ -2199,11 +2221,6 @@ msgstr "Palautus"
 msgid "Files in this submission"
 msgstr "Tiedostot tässä palautuksessa"
 
-#: exercise/templates/exercise/submission.html:37
-#: exercise/templates/exercise/submission_plain.html:94
-msgid "Your submission has been accepted for grading."
-msgstr "Palautuksesi on vastaanotettu arvostelua varten."
-
 #: exercise/templates/exercise/submission_plain.html:34
 msgid "Return to exercise"
 msgstr "Palaa tehtävään"
@@ -2226,11 +2243,11 @@ msgstr ""
 "\n"
 "Myöhässä <small>-%(percent)s%%</small>"
 
-#: exercise/templatetags/exercise.py:94
+#: exercise/templatetags/exercise.py:101
 msgid "Latest submissions"
 msgstr "Viimeisimmät palautukset"
 
-#: exercise/templatetags/exercise.py:95
+#: exercise/templatetags/exercise.py:102
 msgid "No submissions for this course."
 msgstr "Ei vielä palautuksia tälle kurssille."
 
@@ -2643,6 +2660,14 @@ msgstr "Ei osumia"
 #: templates/base.html:228
 msgid "Search for..."
 msgstr "Etsi..."
+
+#: threshold/models.py:22
+msgid "Harder points are consumed by easier difficulty requirements."
+msgstr "Vaativammat pisteet käytetään helpompien vaatimuksien täyttöön."
+
+#: threshold/models.py:107
+msgid "{:d} points"
+msgstr "{:d} pisteet"
 
 #: userprofile/templates/userprofile/login.html:5
 #: userprofile/templates/userprofile/login.html:10

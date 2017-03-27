@@ -359,8 +359,9 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
         return self.serialize_submissions(request, queryset)
 
     def serialize_submissions(self, request, queryset, best=False):
+        submissions = list(queryset.order_by('exercise_id', 'id'))
         if best:
-            queryset = filter_to_best(queryset)
+            submissions = filter_to_best(submissions)
 
         # Pick out a single field.
         field = request.GET.get('field')
@@ -370,12 +371,15 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
                     if key == name:
                         return val
                 return ""
-            vals = [submitted_field(s, field) for s in queryset]
+            vals = [submitted_field(s, field) for s in submissions]
             return Response([v for v in vals if v != ""])
 
-        fields,files = submitted_fields(queryset)
+        data,fields,files = serialize_submissions(request, submissions)
         self.renderer_fields = DEFAULT_FIELDS + fields + files
-        return Response(serialize_submissions(request, fields, files, queryset))
+        response = Response(data)
+        if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
+            response['Content-Disposition'] = 'attachment; filename="submissions.csv"'
+        return response
 
     def get_renderer_context(self):
         context = super().get_renderer_context()
