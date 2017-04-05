@@ -147,10 +147,11 @@ class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
         )
 
     def filter_queryset(self, request, queryset, view):
+        user = request.user
         if (
             issubclass(queryset.model, UserProfile) and
             not view.is_course_staff and
-            not request.user.is_superuser
+            not user.is_superuser
         ):
             queryset = queryset.filter(user_id=user.id)
         return queryset
