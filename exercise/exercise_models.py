@@ -374,9 +374,10 @@ class BaseExercise(LearningObject):
         warnings = []
         students = [profile]
 
-        if self.course_instance.ending_time < timezone.now():
-            warnings.append(_('The course is archived. Exercises are offline.'))
-            return False, warnings, students
+        # Let course module settings decide submissionable state.
+        #if self.course_instance.ending_time < timezone.now():
+        #    warnings.append(_('The course is archived. Exercises are offline.'))
+        #    return False, warnings, students
 
         # Check enrollment requirements.
         enrollment = self.course_instance.get_enrollment_for(profile.user)
@@ -388,6 +389,7 @@ class BaseExercise(LearningObject):
                 warnings.append(_('You cannot enroll in the course.'))
                 return False, warnings, students
         elif not enrollment and not self.course_instance.is_course_staff(profile.user):
+            # TODO Provide button to enroll, should there be option to auto-enroll
             warnings.append(_('You must enroll at course home to submit exercises.'))
             return False, warnings, students
 
@@ -431,6 +433,7 @@ class BaseExercise(LearningObject):
             students = list(group.members.all())
 
         if not self.one_has_access(students):
+            # TODO implement module option to accept unofficial submissions
             warnings.append(_('This exercise is not open for submissions.'))
 
         if not self.one_has_submissions(students):
