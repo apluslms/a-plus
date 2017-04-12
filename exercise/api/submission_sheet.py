@@ -54,12 +54,14 @@ def serialize_submissions(request, submissions):
             exercise = s.exercise
             if exercise.exercise_info:
                 for e in exercise.exercise_info.get('form_spec', []):
+                    t = e['type']
                     k = e['key']
-                    if e['type'] == 'file':
+                    if t == 'file':
                         if not k in files:
                             files.append(k)
-                    elif not k in fields:
-                        fields.append(k)
+                    elif t != 'static':
+                        if not k in fields:
+                            fields.append(k)
 
         n = s.notifications.first()
         row = OrderedDict([
@@ -80,12 +82,13 @@ def serialize_submissions(request, submissions):
 
         if s.submission_data:
             for k,v in s.submission_data:
-                if not k in fields:
-                    fields.append(k)
-                if k in row:
-                    row[k] += "|" + str(v)
-                else:
-                    row[k] = str(v)
+                if v or not k in files:
+                    if not k in fields:
+                        fields.append(k)
+                    if k in row:
+                        row[k] += "|" + str(v)
+                    else:
+                        row[k] = str(v)
 
         for f in s.files.all():
             if not f.param_name in files:
