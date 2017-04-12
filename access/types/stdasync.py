@@ -59,7 +59,7 @@ def acceptPost(request, course, exercise, post_url):
                 entry["missing"] = True
                 miss = True
         if miss:
-            result = { "fields": fields, "error": True }
+            result = { "fields": fields, "rejected": True }
         else:
 
             # Store submitted values.
@@ -100,7 +100,7 @@ def acceptFiles(request, course, exercise, post_url):
             required = ("required" not in entry or entry["required"])
             if entry["field"] not in request.FILES:
                 if required:
-                    result = { "error": True, "missing_files": True }
+                    result = { "rejected": True, "missing_files": True }
                     break
             else:
                 files_submitted.append(entry)
@@ -108,7 +108,7 @@ def acceptFiles(request, course, exercise, post_url):
         if result is None:
             if "required_number_of_files" in exercise and \
                     exercise["required_number_of_files"] > len(files_submitted):
-                result = { "error": True, "missing_files": True }
+                result = { "rejected": True, "missing_files": True }
             else:
                 # Store submitted files.
                 sdir = create_submission_dir(course, exercise)
@@ -151,7 +151,7 @@ def acceptAttachedExercise(request, course, exercise, post_url):
 
         # Store submitted files.
         if not file_list:
-            result = { "error":True, "missing_files":True }
+            result = { "rejected":True, "missing_files":True }
         else:
             sdir = create_submission_dir(course, exercise)
             i = 0
