@@ -63,48 +63,71 @@ def form_fields(exercise):
     form = []
     t = exercise.get('view_type', None)
 
+    def field_spec(f, n):
+        field = {
+            'key': f.get('key', 'field_' + str(n)),
+            'type': f['type'],
+            'title': f['title'],
+            'required': f.get('required', False),
+        }
+
+        mods = f.get('compare_method', '').split('-')
+        if 'int' in mods:
+            field['type'] = 'number'
+        elif 'float' in mods:
+            field['type'] = 'number'
+        elif 'regexp' in mods:
+            field['pattern'] = f['correct']
+        if 'more' in f:
+            field['description'] = f['more']
+
+        if 'options' in f:
+            titleMap = {}
+            enum = []
+            m = 0
+            for o in f['options']:
+                v = o.get('value', 'option_' + str(m))
+                titleMap[v] = o.get('label|i18n', o.get('label', ['missing']))
+                enum.append(v)
+                m += 1
+            field['titleMap'] = titleMap
+            field['enum'] = enum
+
+        if 'extra_info' in f:
+            field.update(f['extra_info'])
+
+        if 'class' in field:
+            field['htmlClass'] = field['class']
+            del(field['class'])
+
+        return field
+
     if t == 'access.types.stdsync.createForm':
         n = 0
         for fg in exercise.get('fieldgroups', []):
             for f in fg.get('fields', []):
-                field = {
-                    'key': f.get('key', 'field_' + str(n)),
-                    'type': f['type'],
-                    'title': f['title'],
-                    'required': f.get('required', False),
-                }
+                t = f['type']
 
-                mods = f.get('compare_method', '').split('-')
-                if 'int' in mods:
-                    field['type'] = 'number'
-                elif 'float' in mods:
-                    field['type'] = 'number'
-                elif 'regexp' in mods:
-                    field['pattern'] = f['correct']
-                if 'more' in f:
-                    field['description'] = f['more']
+                if t == 'table-radio' or t == 'table-checkbox':
+                    for row in f.get('rows', []):
+                        rf = f.copy()
+                        rf['type'] = t[6:]
+                        if 'key' in row:
+                            rf['key'] = row['key']
+                        form.append(field_spec(rf, n))
+                        n += 1
 
-                if 'options' in f:
-                    titleMap = {}
-                    enum = []
-                    m = 0
-                    for o in f['options']:
-                        v = o.get('value', 'option_' + str(m))
-                        titleMap[v] = o.get('label|i18n', o.get('label', ['missing']))
-                        enum.append(v)
-                        m += 1
-                    field['titleMap'] = titleMap
-                    field['enum'] = enum
-
-                if 'extra_info' in f:
-                    field.update(f['extra_info'])
-
-                if 'class' in field:
-                    field['htmlClass'] = field['class']
-                    del(field['class'])
-
-                form.append(field)
-                n += 1
+                        if 'more_text' in rf:
+                            form.append({
+                                'key': rf.get('key', 'field_' + str(n)) + '_more',
+                                'type': 'text',
+                                'title': rf['more_text'],
+                                'required': False,
+                            })
+                            n += 1
+                else:
+                    form.append(field_spec(f, n))
+                    n += 1
 
     elif t == 'access.types.stdasync.acceptPost':
         for f in exercise.get('fields', []):
