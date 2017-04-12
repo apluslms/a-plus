@@ -2,19 +2,18 @@ import logging
 import os
 
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from mimetypes import guess_type
 
-from . import exercise_models
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
     safe_file_name, Enum
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
+from . import exercise_models
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -42,7 +41,10 @@ class SubmissionManager(models.Manager):
         return new_submission
 
     def exclude_errors(self):
-        return self.exclude(status=Submission.STATUS.ERROR)
+        return self.exclude(status__in=(
+            Submission.STATUS.ERROR,
+            Submission.STATUS.REJECTED,
+        ))
 
 
 class Submission(UrlMixin, models.Model):
@@ -52,8 +54,10 @@ class Submission(UrlMixin, models.Model):
     STATUS = Enum([
         ('INITIALIZED', 'initialized', _("Initialized")),
         ('WAITING', 'waiting', _("In grading")),
-        ('READY', 'ready', _("Ready")),
+        ('READY', 'ready', _("Ready")), # graded normally
         ('ERROR', 'error', _("Error")),
+        ('REJECTED', 'rejected', _("Rejected")), # missing fields etc
+        ('UNOFFICIAL', 'unofficial', _("Unofficial")), # graded after closing
     ])
     submission_time = models.DateTimeField(auto_now_add=True)
     hash = models.CharField(max_length=32, default=get_random_string)
@@ -206,14 +210,17 @@ class Submission(UrlMixin, models.Model):
     def set_waiting(self):
         self.status = self.STATUS.WAITING
 
-    def set_ready(self):
+    def set_ready(self, official=True):
         self.grading_time = timezone.now()
-        self.status = self.STATUS.READY
+        self.status = self.STATUS.READY if official else self.STATUS.UNOFFICIAL
 
         # Fire set hooks.
         for hook in self.exercise.course_module.course_instance \
                 .course_hooks.filter(hook_type="post-grading"):
             hook.trigger({ "submission_id": self.id })
+
+    def set_rejected(self):
+        self.status = self.STATUS.REJECTED
 
     def set_error(self):
         self.status = self.STATUS.ERROR
@@ -236,8 +243,7 @@ class Submission(UrlMixin, models.Model):
 
     @property
     def is_graded(self):
-        return self.status == self.STATUS.READY
-
+        return self.status in (self.STATUS.READY, self.STATUS.UNOFFICIAL)
 
     ABSOLUTE_URL_NAME = "submission"
 

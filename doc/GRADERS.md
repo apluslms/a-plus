@@ -2,7 +2,7 @@ A+ grader service protocols
 ===========================
 
 The philosophy of A+ is to integrate external grader services into the course environment.
-The graders should be stateless and need only to worry about grading a submission. 
+The graders should be stateless and need only to worry about grading a submission.
 
 
 ## BaseExercise (A+ HTTP protocol)
@@ -51,7 +51,7 @@ The FORM must use empty (or `post_url`) as ACTION.
 ### Upon receiving a student submission FORM POST, A+ issues a request:
 
 `HTTP POST service_url` with **user POST parameters** and additional **GET parameters**:
-	
+
 * `submission_url`
 
 	Unique address for asynchronously *grading this submission*.
@@ -84,7 +84,9 @@ submission it must use the `post_url` as ACTION. Additionally the following
 
 	`"accepted"`: The submission is accepted for grading.
 
-	`"error"`: The submission can not be graded.
+	`"rejected"`: The submission is invalid for grading.
+
+	`"error"`: Failed to grade the submission.
 
 * `points` (optional)
 
@@ -112,7 +114,7 @@ submission it must use the `post_url` as ACTION. Additionally the following
 ### Upon asynchronously grading, GRADER issues a request:
 
 `HTTP POST submission_url` with **POST parameters**:
-	
+
 * `points` (required)
 
 * `max_points` (required)
@@ -148,7 +150,7 @@ The grader service is not requested at this point.
 ### Upon receiving a student submission FORM POST, A+ issues a request:
 
 `HTTP POST service_url` as in *BaseExercise* with **POST parameters**:
-	
+
 * `content_0`
 
 	The trusted exercise attachment file.

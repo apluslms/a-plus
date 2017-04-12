@@ -99,6 +99,8 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 #     _("The exercise was submitted successfully "
                 #       "and is now waiting to be graded.")
                 # )
+        elif page.is_rejected:
+            submission.set_rejected()
         else:
             submission.set_error()
             logger.info("No accept or points received: %s",
@@ -123,10 +125,13 @@ def parse_page_content(page, remote_page, exercise):
     if max_points != None:
         page.max_points = int(max_points)
 
-    if remote_page.meta("status") == "accepted":
+    s = remote_page.meta("status")
+    if s == "accepted":
         page.is_accepted = True
         if remote_page.meta("wait"):
             page.is_wait = True
+    elif s == "rejected":
+        page.is_rejected = True
 
     meta_title = remote_page.meta("DC.Title")
     if meta_title:

@@ -10,6 +10,7 @@ class ExercisePage:
         self.is_loaded = False
         self.is_graded = False
         self.is_accepted = False
+        self.is_rejected = False
         self.is_wait = False
         self.points = 0
         self.max_points = exercise.max_points \

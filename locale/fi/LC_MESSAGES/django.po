@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-27 16:28+0300\n"
+"POT-Creation-Date: 2017-04-12 14:21+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -209,7 +209,7 @@ msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
 #: course/models.py:526 course/models.py:626 exercise/exercise_models.py:67
-#: exercise/submission_models.py:55
+#: exercise/submission_models.py:57
 msgid "Ready"
 msgstr "Valmis"
 
@@ -1691,7 +1691,7 @@ msgstr ""
 "Tehtävän pisteytyksessä on vikaa. Pisteet: {points:d}/{max:d} (exercise max "
 "{exercise_max:d})"
 
-#: exercise/protocol/aplus.py:107
+#: exercise/protocol/aplus.py:109
 msgid "Assessment service responded with error."
 msgstr "Tehtäväpalvelussa tapahtui virhe."
 
@@ -1714,17 +1714,26 @@ msgstr ""
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 
-#: exercise/submission_models.py:53
+#: exercise/submission_models.py:55
 msgid "Initialized"
 msgstr "Vastaanotettu"
 
-#: exercise/submission_models.py:54
+#: exercise/submission_models.py:56
 msgid "In grading"
 msgstr "Arvosteltavana"
 
-#: exercise/submission_models.py:56
+#: exercise/submission_models.py:58
 msgid "Error"
 msgstr "Virhe"
+
+#: exercise/submission_models.py:59
+#: exercise/templates/exercise/_points_badge.html:11
+msgid "Rejected"
+msgstr "Hylätty"
+
+#: exercise/submission_models.py:60
+msgid "Unofficial"
+msgstr "Epävirallinen"
 
 #: exercise/templates/exercise/_category_points.html:8
 msgid "Total points"
@@ -1804,10 +1813,6 @@ msgstr ""
 #: exercise/templates/exercise/_points_badge.html:11
 msgid "Accepted"
 msgstr "Hyväksytty"
-
-#: exercise/templates/exercise/_points_badge.html:11
-msgid "Rejected"
-msgstr "Hylätty"
 
 #: exercise/templates/exercise/_points_badge.html:11
 msgid "Submitted"

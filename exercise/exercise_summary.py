@@ -26,7 +26,10 @@ class UserExerciseSummary(object):
             self.submissions = list(exercise.get_submissions_for_student(
                 user.userprofile))
             for s in self.submissions:
-                if s.status != Submission.STATUS.ERROR:
+                if not s.status in (
+                    Submission.STATUS.ERROR,
+                    Submission.STATUS.REJECTED,
+                ):
                     self.submission_count += 1
                     if (
                         s.status == Submission.STATUS.READY and (
