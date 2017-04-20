@@ -1,0 +1,28 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load bootstrap %}
+
+{% block title %}{{ block.super }}: {% trans "Groups" %}: {% trans "Edit" %}{% endblock %}
+{% block view_tag %}groups-edit{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'groups-list' }}">{% trans "Groups" %}</a></li>
+<li class="active">{% trans "Edit" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+
+  <form method="post" class="well">
+      {% csrf_token %}
+      <legend>{% trans "Edit group members" %}</legend>
+      {{ form|bootstrap }}
+      <button type="submit" class="btn btn-primary">
+          {% trans "Save" %}
+      </button>
+  </form>
+
+</div>
+{% endblock %}

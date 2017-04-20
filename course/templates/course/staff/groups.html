@@ -1,0 +1,45 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ block.super }}: {% trans "Groups" %}{% endblock %}
+{% block view_tag %}groups-edit{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Groups" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+
+  <p>{% trans "Number of groups" %} <strong>{{ groups|length }}</strong></p>
+
+  <table class="table table-condensed">
+    <thead>
+      <tr>
+        <th>{% trans "ID" %}</th>
+        <th>{% trans "Members" %}</th>
+        <th>{% trans "Created" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group in groups %}
+      <tr>
+        <td>{{ group.id }}</td>
+        <td>{% profiles group.members.all instance %}</td>
+        <td>{{ group.timestamp }}</td>
+        <td>
+          <a class="btn btn-default btn-xs" href="{% url 'groups-edit' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
+            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+            {% trans "Edit" %}
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+{% endblock %}
