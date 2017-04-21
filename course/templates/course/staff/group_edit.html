@@ -15,7 +15,7 @@
 {% block columns %}
 <div class="col-md-12">
 
-  <form method="post" class="well">
+  <form method="post" class="well form">
       {% csrf_token %}
       <legend>{% trans "Edit group members" %}</legend>
       {{ form|bootstrap }}

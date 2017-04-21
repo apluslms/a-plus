@@ -26,7 +26,13 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'groups/$',
         staff_views.GroupsView.as_view(),
         name="groups-list"),
+    url(EDIT_URL_PREFIX + r'groups/new/$',
+        staff_views.GroupsEditView.as_view(),
+        name="groups-add"),
     url(EDIT_URL_PREFIX + r'groups/(?P<group_id>\d+)/$',
         staff_views.GroupsEditView.as_view(),
         name="groups-edit"),
+    url(EDIT_URL_PREFIX + r'groups/(?P<group_id>\d+)/delete/$',
+        staff_views.GroupsDeleteView.as_view(),
+        name="groups-delete"),
 ]

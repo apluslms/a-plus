@@ -13,7 +13,13 @@
 {% block columns %}
 <div class="col-md-12">
 
-  <p>{% trans "Number of groups" %} <strong>{{ groups|length }}</strong></p>
+  <p>
+    {% trans "Number of groups" %} <strong>{{ groups|length }}</strong>
+    <a class="btn btn-default btn-xs" href="{{ instance|url:'groups-add' }}">
+      <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+      {% trans "Add new" %}
+    </a>
+  </p>
 
   <table class="table table-condensed">
     <thead>
@@ -34,6 +40,10 @@
           <a class="btn btn-default btn-xs" href="{% url 'groups-edit' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
             {% trans "Edit" %}
+          </a>
+          <a class="btn btn-default btn-xs" href="{% url 'groups-delete' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            {% trans "Remove" %}
           </a>
         </td>
       </tr>
