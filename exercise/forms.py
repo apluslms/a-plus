@@ -108,9 +108,11 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
 class EditSubmittersForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        course_instance = kwargs.get('instance').exercise.course_instance
         super().__init__(*args, **kwargs)
         self.fields["submitters"].widget.attrs["class"] = "search-select"
         self.fields["submitters"].help_text = ""
+        self.fields["submitters"].queryset = course_instance.get_student_profiles()
 
     class Meta:
         model = Submission

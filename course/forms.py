@@ -84,9 +84,11 @@ class GroupSelectForm(forms.Form):
 class GroupEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        course_instance = kwargs.get('instance').course_instance
         super().__init__(*args, **kwargs)
         self.fields["members"].widget.attrs["class"] = "search-select"
         self.fields["members"].help_text = ""
+        self.fields["members"].queryset = course_instance.get_student_profiles()
 
     class Meta:
         model = StudentGroup

@@ -43,6 +43,4 @@ class DeadlineRuleDeviationForm(forms.Form):
         )
         self.fields["submitter"].widget.attrs["class"] = "search-select"
         self.fields["submitter"].help_text = ""
-        self.fields["submitter"].queryset = UserProfile.objects.filter(
-            submissions__exercise__course_module__course_instance=course_instance
-        ).distinct()
+        self.fields["submitter"].queryset = course_instance.get_student_profiles()
