@@ -8,7 +8,14 @@
     </div>
     <div class="panel-body">
         <dl>
-            <dt>{% trans "Submitters" %}</dt>
+            <dt>
+              {% trans "Submitters" %}
+              {% if is_teacher %}
+              <a href="{{ submission|url:'submission-edit-submitters' }}" class="btn btn-xs btn-primary">
+                {% trans "Edit" %}
+              </a>
+              {% endif %}
+            </dt>
             <dd>{% profiles submission.submitters.all instance %}</dd>
             <dt>{% trans "Status" %}</dt>
             <dd>{{ submission.status|submission_status }}</dd>
@@ -46,7 +53,7 @@
                 / {{ exercise|max_submissions:submission.submitters.first }}{% if is_teacher %}
                 <form method="post" action="{{ submission|url:'submission-increase-max' }}" style="display:inline;" title="{% trans 'Add one extra submission for the student in this exercise.' %}">
               		{% csrf_token %}
-              		<input class="btn btn-primary" type="submit" value="+1" />
+              		<input class="btn btn-xs btn-primary" type="submit" value="+1" />
               	</form>{% endif %}{% endif %}
             </dd>
         </dl>

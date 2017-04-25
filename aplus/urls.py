@@ -33,10 +33,10 @@ urlpatterns = [
     url(r'^', include(apps.urls)),
     url(r'^', include(news.urls)),
     url(r'^', include(external_services.urls)),
+    url(r'^', include(course.long_urls)),
     url(r'^', include(deviations.urls)),
     url(r'^', include(edit_course.urls)),
     url(r'^', include(notification.urls)),
-    url(r'^', include(course.long_urls)),
     url(r'^', include(exercise.urls)),
     url(r'^', include(course.urls)),
 ]

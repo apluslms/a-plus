@@ -426,34 +426,34 @@ $.fn.highlightCode = function(options) {
             this.selection = this.widget.find(this.settings.selection_selector);
             this.selection_li = this.selection.find("li").remove();
             this.element.find("option:selected").each(function(index) {
-                self.add_selection($(this).attr("value"), $(this).text());
+                self.addSelection($(this).attr("value"), $(this).text());
             });
             this.result = this.widget.find(this.settings.result_selector);
             this.field = this.widget.find(this.settings.field_selector)
                 .on("keypress", function(event) {
                     if (event.keyCode == 13) {
                         event.preventDefault();
-                        self.search_options(true);
+                        self.searchOptions(true);
                     }
                 }).on("keyup", function(event) {
                     if (event.keyCode != 13) {
                         clearTimeout(self.timeout);
                         self.timeout = setTimeout(function() {
-                            self.search_options(true);
+                            self.searchOptions(true);
                             self.field.focus();
                         }, 500);
                     }
                 });
             this.search = this.widget.find(this.settings.search_selector)
                 .on("show.bs.dropdown", function(event) {
-                    self.search_options();
+                    self.searchOptions();
                 });
             this.element.parents("form").on("submit", function(event) {
                 self.finish();
             });
         },
 
-        search_options: function(show_dropdown) {
+        searchOptions: function(show_dropdown) {
             if (show_dropdown && this.result.is(":visible") === false) {
                 this.search.find("button").dropdown("toggle");
                 return;
@@ -473,14 +473,14 @@ $.fn.highlightCode = function(options) {
                 opt.slice(0,20).each(function(index) {
                     var li = $('<li><a data-value="'+$(this).attr("value")+'">'+$(this).text()+'</a></li>');
                     li.find("a").on("click", function(event) {
-                        self.add_selection($(this).attr("data-value"), $(this).text());
+                        self.addSelection($(this).attr("data-value"), $(this).text());
                     });
                     self.result.append(li);
                 });
             }
         },
 
-        add_selection: function(value, name) {
+        addSelection: function(value, name) {
             if (this.selection.find('[data-value="'+value+'"]').size() === 0) {
                 var li = this.selection_li.clone();
                 var self = this;
@@ -490,6 +490,17 @@ $.fn.highlightCode = function(options) {
                 });
                 this.selection.append(li);
             }
+        },
+
+        resetSelection: function(values) {
+          this.selection.empty();
+          var self = this;
+          $.each(values, function(index, value) {
+            var opt = self.element.find('option[value="' + value + '"]');
+            if (opt.size() == 1) {
+              self.addSelection(value, opt.text());
+            }
+          });
         },
 
         finish: function() {
@@ -502,10 +513,13 @@ $.fn.highlightCode = function(options) {
         }
     });
 
-    $.fn[pluginName] = function(options) {
+    $.fn[pluginName] = function(options, selectValues) {
         return this.each(function() {
             if (!$.data(this, "plugin_" + pluginName)) {
                 $.data(this, "plugin_" + pluginName, new AplusSearchSelect(this, options));
+            }
+            if (selectValues) {
+              $.data(this, "plugin_" + pluginName).resetSelection(selectValues);
             }
         });
     };

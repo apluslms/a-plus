@@ -18,10 +18,18 @@ from notification.models import Notification
 from authorization.permissions import ACCESS
 from .exercise_summary import ResultTable
 from .models import LearningObject
-from .forms import SubmissionReviewForm, SubmissionCreateAndReviewForm
+from .forms import (
+    SubmissionReviewForm,
+    SubmissionCreateAndReviewForm,
+    EditSubmittersForm,
+)
 from .submission_models import Submission
-from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, \
-    ExerciseMixin
+from .viewbase import (
+    ExerciseBaseView,
+    SubmissionBaseView,
+    SubmissionMixin,
+    ExerciseMixin,
+)
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -232,3 +240,30 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
 
         messages.success(request, _("New submission stored."))
         return self.redirect(sub.get_absolute_url())
+
+
+class EditSubmittersView(SubmissionMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "exercise/staff/edit_submitters.html"
+    form_class = EditSubmittersForm
+
+    def get_common_objects(self):
+        self.groups = self.instance.groups.all()
+        self.note('groups')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.submission
+        return kwargs
+
+    def get_success_url(self):
+        return self.submission.get_inspect_url()
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _("Changes were saved succesfully."))
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Failed to save changes."))
+        return super().form_invalid(form)

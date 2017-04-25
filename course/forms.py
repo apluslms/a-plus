@@ -79,3 +79,15 @@ class GroupSelectForm(forms.Form):
         enrollment.selected_group = self.selected_group
         enrollment.save()
         return enrollment
+
+
+class GroupEditForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["members"].widget.attrs["class"] = "search-select"
+        self.fields["members"].help_text = ""
+
+    class Meta:
+        model = StudentGroup
+        fields = ['members']

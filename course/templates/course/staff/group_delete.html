@@ -1,0 +1,48 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load bootstrap %}
+
+{% block title %}{{ block.super }}: {% trans "Groups" %}: {% trans "Remove" %}{% endblock %}
+{% block view_tag %}groups-edit{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'groups-list' }}">{% trans "Groups" %}</a></li>
+<li class="active">{% trans "Remove" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+
+  <form method="post" class="well form">
+    {% csrf_token %}
+    <legend>{% trans "Confirm group removal" %}</legend>
+
+    <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>{% trans "ID" %}</th>
+          <th>{% trans "Members" %}</th>
+          <th>{% trans "Created" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ group.id }}</td>
+          <td>{% profiles group.members.all instance %}</td>
+          <td>{{ group.timestamp }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="form-group">
+  		<input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
+  		<a class="btn btn-default" href="{{ instance|url:'groups-list' }}">
+  			{% trans "Cancel" %}
+  		</a>
+  	</div>
+  </form>
+
+</div>
+{% endblock %}

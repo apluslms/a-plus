@@ -1,6 +1,5 @@
 import datetime
 import logging
-import json
 
 import icalendar
 from django.conf import settings
@@ -17,12 +16,10 @@ from exercise.models import LearningObject
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
 from userprofile.viewbase import UserProfileView
-from .cache.students import CachedStudents
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .renders import render_tags, group_info_context
-from .viewbase import CourseBaseView, CourseInstanceBaseView, \
-    CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
+from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
 
 
 logger = logging.getLogger("course.views")
@@ -179,19 +176,3 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
                 **group_info_context(enrollment.selected_group, self.profile)
             )
         return super().form_valid(form)
-
-
-class ParticipantsView(CourseInstanceBaseView):
-    access_mode = ACCESS.ASSISTANT
-    template_name = "course/participants.html"
-
-    def get_common_objects(self):
-        super().get_common_objects()
-        self.participants = json.dumps(CachedStudents(self.instance).students())
-        self.tags = self.instance.usertags.all()
-        self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
-        self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
-        self.note(
-            'participants', 'tags',
-            'internal_user_label', 'external_user_label',
-        )
