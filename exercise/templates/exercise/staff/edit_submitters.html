@@ -1,0 +1,60 @@
+{% extends "exercise/exercise_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load bootstrap %}
+
+{% block title %}{{ block.super }} / {% trans "Edit submitters SID " %} {{ submission.id}}{% endblock %}
+{% block view_tag %}assess{% endblock %}
+
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
+<li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
+<li class="active">{% trans "Edit submitters" %}</td>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+      <form method="post" class="well form">
+          {% csrf_token %}
+          {{ form|bootstrap }}
+          <div class="form-group">
+              <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+              <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default">{% trans "Cancel" %}</a>
+          </div>
+      </form>
+      {% if groups %}
+      <h4>{% trans "Quick select a group" %}</h4>
+      <table class="table table-condensed" id="group-select">
+        <tbody>
+          {% for group in groups %}
+          <tr>
+            <td class="col-md-1">
+              <a href="#" class="btn btn-xs btn-primary select" data-profiles="{% for profile in group.members.all %}{{ profile.id }},{% endfor %}">
+                {% trans "Select" %}
+              </a>
+            </td>
+            <td class="col-md-1">{{ group.id }}</td>
+            <td>{% profiles group.members.all instance %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+$(function() {
+  $('#group-select a.select').on('click', function(event) {
+    event.preventDefault();
+    $('select.search-select').aplusSearchSelect(
+      {},
+      $(this).attr("data-profiles").split(",").slice(0,-1)
+    );
+  });
+});
+</script>
+{% endblock %}

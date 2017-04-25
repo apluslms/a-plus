@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
+from exercise.models import Submission
 from userprofile.models import UserProfile
 
 
@@ -102,3 +103,15 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
             raise forms.ValidationError(
                 _("Only one student field can be given: students, students_by_student_id, students_by_email"))
         return self.cleaned_data
+
+
+class EditSubmittersForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["submitters"].widget.attrs["class"] = "search-select"
+        self.fields["submitters"].help_text = ""
+
+    class Meta:
+        model = Submission
+        fields = ['submitters']
