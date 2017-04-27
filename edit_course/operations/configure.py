@@ -117,6 +117,7 @@ def configure_learning_objects(category_map, module, config, parent,
                 obj_key = "lti_" + key
                 if obj_key in o:
                     setattr(lobject, key, o[obj_key])
+            lobject.aplus_get_and_post = o.get("lti_aplus_get_and_post", True)
 
         if lobject_cls in (LTIExercise, BaseExercise):
             for key in [
