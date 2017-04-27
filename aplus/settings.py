@@ -93,7 +93,6 @@ INSTALLED_APPS = (
 
     # 3rd party applications
     'bootstrapform',
-    'tastypie',
     'rest_framework',
     'rest_framework.authtoken',
 

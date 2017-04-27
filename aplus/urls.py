@@ -14,7 +14,7 @@ import external_services.urls
 import news.urls
 import diploma.urls
 import apps.urls
-import api.urls, api.urls_v2
+import api.urls_v2
 import redirect_old_urls.urls
 
 
@@ -25,7 +25,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^shibboleth/', include(shibboleth_login.urls)),
     url('', include(social.apps.django_app.urls, namespace='social')),
-    url(r'^api/', include(api.urls)), # ^api/v1/ only
     url(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
     url(r'^accounts/', include(userprofile.urls)),
     url(r'^diploma/', include(diploma.urls)),
