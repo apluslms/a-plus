@@ -292,18 +292,18 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.old_base_exercise.is_open(self.tomorrow))
 
     def test_base_exercise_one_has_access(self):
-        self.assertTrue(self.base_exercise.one_has_access([self.user.userprofile]))
-        self.assertTrue(self.static_exercise.one_has_access([self.user.userprofile]))
-        self.assertTrue(self.exercise_with_attachment.one_has_access([self.user.userprofile]))
-        self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile]))
-        self.assertFalse(self.base_exercise.one_has_access([self.user.userprofile], self.yesterday))
-        self.assertFalse(self.static_exercise.one_has_access([self.user.userprofile], self.yesterday))
-        self.assertFalse(self.exercise_with_attachment.one_has_access([self.user.userprofile], self.yesterday))
-        self.assertTrue(self.old_base_exercise.one_has_access([self.user.userprofile], self.yesterday))
-        self.assertTrue(self.base_exercise.one_has_access([self.user.userprofile], self.tomorrow))
-        self.assertTrue(self.static_exercise.one_has_access([self.user.userprofile], self.tomorrow))
-        self.assertTrue(self.exercise_with_attachment.one_has_access([self.user.userprofile], self.tomorrow))
-        self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile], self.tomorrow))
+        self.assertTrue(self.base_exercise.one_has_access([self.user.userprofile])[0])
+        self.assertTrue(self.static_exercise.one_has_access([self.user.userprofile])[0])
+        self.assertTrue(self.exercise_with_attachment.one_has_access([self.user.userprofile])[0])
+        self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile])[0])
+        self.assertFalse(self.base_exercise.one_has_access([self.user.userprofile], self.yesterday)[0])
+        self.assertFalse(self.static_exercise.one_has_access([self.user.userprofile], self.yesterday)[0])
+        self.assertFalse(self.exercise_with_attachment.one_has_access([self.user.userprofile], self.yesterday)[0])
+        self.assertTrue(self.old_base_exercise.one_has_access([self.user.userprofile], self.yesterday)[0])
+        self.assertTrue(self.base_exercise.one_has_access([self.user.userprofile], self.tomorrow)[0])
+        self.assertTrue(self.static_exercise.one_has_access([self.user.userprofile], self.tomorrow)[0])
+        self.assertTrue(self.exercise_with_attachment.one_has_access([self.user.userprofile], self.tomorrow)[0])
+        self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile], self.tomorrow)[0])
 
     def test_base_exercise_submission_allowed(self):
         ok, errors, students = self.base_exercise.is_submission_allowed(self.user.userprofile)
@@ -337,13 +337,13 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile]))
 
     def test_base_exercise_deadline_deviation(self):
-        self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile]))
+        self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile])[0])
         deviation = DeadlineRuleDeviation.objects.create(
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             extra_minutes=10*24*60
         )
-        self.assertTrue(self.old_base_exercise.one_has_access([self.user.userprofile]))
+        self.assertTrue(self.old_base_exercise.one_has_access([self.user.userprofile])[0])
 
     def test_base_exercise_total_submission_count(self):
         self.assertEqual(self.base_exercise.get_total_submitter_count(), 2)

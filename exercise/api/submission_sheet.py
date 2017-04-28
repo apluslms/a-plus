@@ -26,9 +26,9 @@ def filter_to_best(submissions):
 
 
 DEFAULT_FIELDS = [
-    'ExerciseID', 'Exercise', 'SubmissionID', 'Time',
+    'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
     'UserID', 'StudentID', 'Email', 'Status',
-    'Grade', 'Penalty', 'Graded', 'Notified', 'NSeen',
+    'Grade', 'Penalty', 'Graded', 'GraderEmail', 'Notified', 'NSeen',
 ]
 
 
@@ -63,9 +63,17 @@ def serialize_submissions(request, submissions):
                         if not k in fields:
                             fields.append(k)
 
+        grader = s.grader.user.email if s.grader else None
+
+        # Find reviewer email from rubyric feedback.
+        t = s.feedback
+        if not grader and t and t.startswith("\n<p>\nReviewer:"):
+            grader = t[t.find("<a href=\"mailto:")+16:t.find("\">")]
+
         n = s.notifications.first()
         row = OrderedDict([
             ('ExerciseID', exercise.id),
+            ('Category', exercise.category.name),
             ('Exercise', str(exercise)),
             ('SubmissionID', s.id),
             ('Time', str(s.submission_time)),
@@ -74,6 +82,7 @@ def serialize_submissions(request, submissions):
             ('Email', None),
             ('Status', s.status),
             ('Grade', s.grade),
+            ('GraderEmail', grader),
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
             ('Notified', not n is None),
@@ -96,7 +105,7 @@ def serialize_submissions(request, submissions):
             row[f.param_name] = url(s,f)
 
         for profile in s.submitters.all():
-            row['UID'] = profile.user.id
+            row['UserID'] = profile.user.id
             row['StudentID'] = profile.student_id
             row['Email'] = profile.user.email
             sheet.append(row)

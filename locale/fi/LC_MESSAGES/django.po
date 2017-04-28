@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-28 12:34+0300\n"
+"POT-Creation-Date: 2017-05-10 16:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -242,8 +242,8 @@ msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
 msgstr ""
-"Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki "
-"pisteet hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
+"Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
+"hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
 #: course/models.py:639
 msgid ""
@@ -1561,86 +1561,101 @@ msgstr "Moduulin ja kategorian pitää kuulua samaan kurssikertaan."
 msgid "Cannot select parent from another course module."
 msgstr "Et voi valita 'Parent'-viitettä toisesta kurssimoduulista."
 
-#: exercise/exercise_models.py:297
+#: exercise/exercise_models.py:304
 msgid "Points to pass cannot be greater than max_points."
 msgstr "'Points to pass' ei voi olla suurempi kuin 'max_points'."
 
-#: exercise/exercise_models.py:301
+#: exercise/exercise_models.py:308
 msgid "Minimum group size cannot exceed maximum size."
 msgstr "Ryhmän koon alaraja ei voi olla suurempi kuin yläraja."
 
-#: exercise/exercise_models.py:391
+#: exercise/exercise_models.py:349
+#, python-brace-format
+msgid ""
+"Deadline for the exercise has passed. Late submissions are allowed until "
+"{date} but points are only worth {percent:d}% of normal."
+msgstr ""
+"Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
+"asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
+
+#: exercise/exercise_models.py:354
+#, python-brace-format
+msgid ""
+"Deadline for the exercise has passed ({date}). You may still submit "
+"unofficially to receive feedback."
+msgstr ""
+"Tehtävän määräaika on mennyt ({date}). Voit edelleen palauttaa "
+"epävirallisesti saadaksesi palautetta."
+
+#: exercise/exercise_models.py:358
+#, python-brace-format
+msgid "The exercise opens {date} for submissions."
+msgstr "Tämän tehtävän voi palauttaa {date} alkaen."
+
+#: exercise/exercise_models.py:362
+#, python-brace-format
+msgid "Deadline for the exercise has passed ({date})."
+msgstr "Tehtävän määräaika on mennyt ({date})."
+
+#: exercise/exercise_models.py:429
 msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:395
+#: exercise/exercise_models.py:432
 msgid "You must enroll at course home to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
 
-#: exercise/exercise_models.py:419
+#: exercise/exercise_models.py:455
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:421
+#: exercise/exercise_models.py:457
 msgid "You have previously submitted to this exercise alone."
 msgstr "Olet palauttanut tämän tehtävän aiemmin yksin."
 
-#: exercise/exercise_models.py:423
+#: exercise/exercise_models.py:459
 #, python-brace-format
 msgid "You have previously submitted to this exercise with {collaborators}."
 msgstr "Olet palauttanut tämän tehtävän aiemmin ryhmässä: {collaborators}."
 
-#: exercise/exercise_models.py:428
+#: exercise/exercise_models.py:464
 #, python-brace-format
 msgid ""
 "{collaborators} already submitted to this exercise in a different group."
 msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
 
-#: exercise/exercise_models.py:439
-msgid "This exercise is not open for submissions."
-msgstr "Tämä tehtävä on suljettu, eikä sitä voi palauttaa."
-
-#: exercise/exercise_models.py:442
-msgid "You have used the allowed amount of submissions for this exercise."
-msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
-
-#: exercise/exercise_models.py:450
+#: exercise/exercise_models.py:479
 #, python-brace-format
 msgid "This exercise must be submitted in groups of {size} students."
 msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 
-#: exercise/exercise_models.py:463
-#, python-brace-format
-msgid ""
-"Deadline for the exercise has passed. Late submissions are allowed until "
-"{date} but points are only worth {percent:d}%."
-msgstr ""
-"Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
-"asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
+#: exercise/exercise_models.py:484
+msgid "You have used the allowed amount of submissions for this exercise."
+msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:561
+#: exercise/exercise_models.py:583
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:563
+#: exercise/exercise_models.py:585
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:565
+#: exercise/exercise_models.py:587
 msgid "Default: Launch exercise"
 msgstr "Oletus: Avaa tehtävä"
 
-#: exercise/exercise_models.py:567
+#: exercise/exercise_models.py:589
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:576
+#: exercise/exercise_models.py:598
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:682
+#: exercise/exercise_models.py:704
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -2782,6 +2797,3 @@ msgstr ""
 "\n"
 "Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
 "tietokonetta, sulje selain poistaaksesi istunnon tiedot."
-
-#~ msgid "The course is archived. Exercises are offline."
-#~ msgstr "Kurssi on arkistoitu, ja tehtävistä esitetään näköiskopio."
