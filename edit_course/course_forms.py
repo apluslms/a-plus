@@ -30,6 +30,8 @@ class LearningObjectCategoryForm(FieldsetModelForm):
             'status',
             'name',
             'points_to_pass',
+            'confirm_the_level',
+            'accept_unofficial_submits',
             'description'
         ]
 

@@ -283,8 +283,6 @@ class BaseExercise(LearningObject):
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
     difficulty = models.CharField(max_length=32, blank=True)
-    confirm_the_level = models.BooleanField(default=False,
-        help_text=_("Once this exercise is graded non zero it confirms all the points on this level. Implemented as a mandatory feedback feature."))
 
     class Meta:
         app_label = 'exercise'
@@ -314,14 +312,18 @@ class BaseExercise(LearningObject):
         """
         when = when or timezone.now()
         module = self.course_module
-        if self.confirm_the_level and self.course_instance.is_open(when=when):
-            return True
-        if module.is_open(when=when) or module.is_late_submission_open(when=when):
-            return True
         if module.is_after_open(when=when):
+            if (
+                module.is_open(when=when) or
+                module.is_late_submission_open(when=when) or
+                self.category.confirm_the_level
+            ):
+                return True
+
             deviation = self.one_has_deadline_deviation(students)
             if deviation and when <= deviation.get_new_deadline():
                 return True
+
         return False
 
     def one_has_deadline_deviation(self, students):
@@ -454,8 +456,8 @@ class BaseExercise(LearningObject):
 
         # If late submission is open, notify the student about point reduction.
         if (
-            not self.confirm_the_level
-            and self.course_module.is_late_submission_open()
+            self.course_module.is_late_submission_open() and
+            not self.category.confirm_the_level
         ):
             warnings.append(
                 _('Deadline for the exercise has passed. Late submissions are allowed until '

@@ -126,7 +126,7 @@ def _points_data(obj, classes=None):
             'max': exercise.max_points,
             'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
-            'confirm_the_level': exercise.confirm_the_level,
+            'confirm_the_level': exercise.category.confirm_the_level,
             'missing_points': obj.is_missing_points(),
             'passed': obj.is_passed(),
             'full_score': obj.is_full_points(),
@@ -141,7 +141,7 @@ def _points_data(obj, classes=None):
             'max': exercise.max_points,
             'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
-            'confirm_the_level': exercise.confirm_the_level,
+            'confirm_the_level': exercise.category.confirm_the_level,
             'missing_points': obj.grade < exercise.points_to_pass,
             'passed': obj.grade >= exercise.points_to_pass,
             'full_score': obj.grade >= exercise.max_points,
@@ -151,7 +151,7 @@ def _points_data(obj, classes=None):
         if (
             obj.status != Submission.STATUS.READY
             and (
-                not exercise.confirm_the_level
+                not exercise.category.confirm_the_level
                 or obj.status != Submission.STATUS.WAITING
             )
         ):

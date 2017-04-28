@@ -123,7 +123,6 @@ def configure_learning_objects(category_map, module, config, parent,
             for key in [
                 "allow_assistant_viewing",
                 "allow_assistant_grading",
-                "confirm_the_level",
             ]:
                 if key in o:
                     setattr(lobject, key, parse_bool(o[key]))
@@ -274,6 +273,12 @@ def configure_content(instance, url):
             i = parse_int(c["points_to_pass"], errors)
             if not i is None:
                 category.points_to_pass = i
+        for key in [
+            "confirm_the_level",
+            "accept_unofficial_submits",
+        ]:
+            if key in c:
+                setattr(category, key, parse_bool(o[key]))
         category.save()
         category_map[key] = category
         seen.append(category.id)
