@@ -307,6 +307,14 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         surl = request.build_absolute_uri(reverse('test-result'))
         surl_missing = True
 
+    # TODO: decide on a container flag to invoke code that builds containers.
+    #
+    # The container image etc can be set in exercise configuration (var. exercise).
+    #
+    # The var. sdir is the path to the written submission files. The grader code
+    # can decide to write files from HTTP POST or generate files e.g. from POST
+    # variables to conduct asynchronous grading.
+
     # Queue grader.
     tasks.grade.delay(course["key"], exercise["key"],
         translation.get_language(), surl, sdir, get_uid(request),
