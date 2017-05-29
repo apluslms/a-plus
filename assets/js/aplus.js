@@ -311,6 +311,7 @@ $.fn.highlightCode = function(options) {
             var c = modal.aplusModal("content", { content: data });
             c.find('.file-modal').aplusModalLink({file:true});
             c.find('pre.hljs').highlightCode();
+            modal.trigger("opened.aplus.modal");
           }
         }).fail(function() {
           modal.aplusModal("error");
