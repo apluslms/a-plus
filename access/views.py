@@ -10,6 +10,7 @@ import os
 import json
 
 from access.config import config
+from util.files import read_and_remove_submission_meta, clean_submission_dir
 from util.queue import queue_length as qlength
 from util.http import post_result
 from util.importer import import_named
@@ -277,3 +278,25 @@ def _type_dict(dict_item, dict_types):
     if "type" in base:
         del base["type"]
     return base
+
+
+def container_post(request):
+    '''
+    Proxies the grading result from inside container to A+
+    '''
+    sid = request.POST.get('sid', None)
+    if not sid:
+        return HttpResponseForbidden("Missing sid")
+    meta = read_and_remove_submission_meta(sid)
+    clean_submission_dir(meta["dir"])
+
+    course,exercise = config.exercise_entry(course_key, exercise_key, lang=meta["lang"])
+    template = None
+    if "feedback_template" in exercise:
+        template = exercise["feedback_template"]
+    else:
+        template = "access/task_success.html"
+    result = {
+        # TODO
+    }
+    post_result(meta["url"], course, exercise, template, result)
