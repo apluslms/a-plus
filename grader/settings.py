@@ -106,10 +106,11 @@ STATIC_URL = '/static/'
 DEFAULT_EXPIRY_MINUTES = 15
 
 #
-# Celery task queue settings:
+# Task queue settings:
 #
-CELERY_BROKER = False
-#CELERY_BROKER = 'amqp://guest@localhost/'
+CONTAINER_MODE = False
+CONTAINER_SCRIPT = os.path.join(BASE_DIR, "scripts/docker-run.sh")
+CELERY_BROKER = False #'amqp://guest@localhost/'
 RABBITMQ_MANAGEMENT = { "port": 55672, "password": "guest" }
 CELERY_TASK_LIMIT_SEC = 2 * 60
 CELERY_TASK_KILL_SEC = CELERY_TASK_LIMIT_SEC + 5
