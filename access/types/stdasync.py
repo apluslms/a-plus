@@ -325,11 +325,11 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         write_submission_meta(sid, {
             "url": surl,
             "dir": sdir,
-            "lang": translation.get_language(),
         })
         r = invoke([
             settings.CONTAINER_SCRIPT,
             sid,
+            request.get_host(),
             c["image"],
             os.path.join(DIR, course["key"], c["mount"]),
             sdir,

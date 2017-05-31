@@ -12,7 +12,7 @@ import json
 from access.config import config
 from util.files import read_and_remove_submission_meta, clean_submission_dir
 from util.queue import queue_length as qlength
-from util.http import post_result
+from util.http import post_data
 from util.importer import import_named
 from util.personalized import read_generated_exercise_file
 from util import export
@@ -284,19 +284,23 @@ def container_post(request):
     '''
     Proxies the grading result from inside container to A+
     '''
-    sid = request.POST.get('sid', None)
+    sid = request.POST.get("sid", None)
     if not sid:
         return HttpResponseForbidden("Missing sid")
+
     meta = read_and_remove_submission_meta(sid)
     clean_submission_dir(meta["dir"])
 
-    course,exercise = config.exercise_entry(course_key, exercise_key, lang=meta["lang"])
-    template = None
-    if "feedback_template" in exercise:
-        template = exercise["feedback_template"]
-    else:
-        template = "access/task_success.html"
-    result = {
-        # TODO
+    data = {
+        "points": int(request.POST.get("points", 0)),
+        "max_points": int(request.POST.get("max_points", 1))
+        "feedback": request.POST.get("feedback", ""),
     }
-    post_result(meta["url"], course, exercise, template, result)
+    for key in ["error", "grading_data"]:
+        if key in request.POST:
+            data[key] = request.POST[key]
+    if "error" in data and data["error"].lower() in ("no", "false"):
+        del data["error"]
+    if not post_data(meta["url"], data):
+        raise IOError("Failed to deliver results")
+    return HttpResponse("Ok")
