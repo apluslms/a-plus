@@ -15,5 +15,5 @@ docker run \
   -e "REC=$GRADER_HOST" \
   -v $EXERCISE_MOUNT:/exercise \
   -v $SUBMISSION_MOUNT:/submission \
-  $DOCKER_IMAGE
+  $DOCKER_IMAGE \
   $CMD

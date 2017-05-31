@@ -329,7 +329,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         r = invoke([
             settings.CONTAINER_SCRIPT,
             sid,
-            request.get_host(),
+            request.scheme + "://" + request.get_host(),
             c["image"],
             os.path.join(DIR, course["key"], c["mount"]),
             sdir,
