@@ -1,10 +1,19 @@
 #!/bin/bash
 # Orders a container using docker-run command.
+# The container command is responsible to call /aplus/grade in end.
 
 SID=$1
-DOCKER_IMAGE=$2
-EXERCISE_MOUNT=$3
-SUBMISSION_MOUNT=$4
-CMD=$5
+GRADER_HOST=$2
+DOCKER_IMAGE=$3
+EXERCISE_MOUNT=$4
+SUBMISSION_MOUNT=$5
+CMD=$6
 
-echo "TODO $DOCKER_IMAGE mounting ($EXERCISE_MOUNT and $SUBMISSION_MOUNT): $CMD"
+docker run \
+  --rm \
+  -e "SID=$SID" \
+  -e "REC=$GRADER_HOST" \
+  -v $EXERCISE_MOUNT:/exercise \
+  -v $SUBMISSION_MOUNT:/submission \
+  $DOCKER_IMAGE
+  $CMD
