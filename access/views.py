@@ -293,7 +293,7 @@ def container_post(request):
 
     data = {
         "points": int(request.POST.get("points", 0)),
-        "max_points": int(request.POST.get("max_points", 1))
+        "max_points": int(request.POST.get("max_points", 1)),
         "feedback": request.POST.get("feedback", ""),
     }
     for key in ["error", "grading_data"]:
