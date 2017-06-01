@@ -107,12 +107,7 @@ def exercise_model(request, course_key, exercise_key, parameter=None):
         raise Http404()
     response = None
 
-    try:
-        response = import_named(course, exercise['view_type'] + "Model")(
-            request, course, exercise, parameter)
-    except ImportError:
-        pass
-
+    path = None
     if 'model_files' in exercise:
         def find_name(paths, name):
             models = [(path,path.split('/')[-1]) for path in paths]
@@ -121,11 +116,16 @@ def exercise_model(request, course_key, exercise_key, parameter=None):
                     return path
             return None
         path = find_name(exercise['model_files'], parameter)
-        if path:
-            with open(os.path.join(course['dir'], path)) as f:
-                content = f.read()
-            response = HttpResponse(content, content_type='text/plain')
-
+    if path:
+        with open(os.path.join(course['dir'], path)) as f:
+            content = f.read()
+        response = HttpResponse(content, content_type='text/plain')
+    else:
+        try:
+            response = import_named(course, exercise['view_type'] + "Model")(
+                request, course, exercise, parameter)
+        except ImportError:
+            pass
     if response:
         return response
     else:

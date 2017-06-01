@@ -43,18 +43,16 @@ def exercise(request, course, exercise, of):
 
     if 'model_answer' in exercise:
         of['model_answer'] = exercise['model_answer']
-    elif exercise.get('view_type', None) == 'access.types.stdsync.createForm':
-        of['model_answer'] = url_to_model(
-            request, course['key'], exercise['key']
-        )
-    else:
-        file_names = [
-            path.split('/')[-1] for path in exercise.get('model_files', [])
-        ]
+    elif 'model_files' in exercise:
+        file_names = [path.split('/')[-1] for path in exercise['model_files']]
         of['model_answer'] = ' '.join([
             url_to_model(request, course['key'], exercise['key'], name)
             for name in file_names
         ])
+    elif exercise.get('view_type', None) == 'access.types.stdsync.createForm':
+        of['model_answer'] = url_to_model(
+            request, course['key'], exercise['key']
+        )
     return of
 
 
