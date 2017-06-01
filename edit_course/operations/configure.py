@@ -208,6 +208,7 @@ def configure_content(instance, url):
     if not url:
         return [_("Configuration URL required.")]
     try:
+        url = url.strip()
         response = requests.get(url)
     except Exception as e:
         return [_("Request failed: {}").format(str(e))]
