@@ -150,7 +150,7 @@ def aplus_json(request, course_key):
         for o in [o for o in parent["children"] if "key" in o]:
             of = _type_dict(o, course.get("exercise_types", {}))
             if "config" in of:
-                _, exercise = config.exercise_entry(course["key"], of["key"])
+                _, exercise = config.exercise_entry(course["key"], str(of["key"]))
                 of = export.exercise(request, course, exercise, of)
             elif "static_content" in of:
                 of = export.chapter(request, course, of)
