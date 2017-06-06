@@ -114,10 +114,10 @@ class Submission(UrlMixin, models.Model):
         """
         for key in files:
             for uploaded_file in files.getlist(key):
-                userfile = SubmittedFile()
-                userfile.file_object = uploaded_file
-                userfile.param_name = key
-                self.files.add(userfile)
+                self.files.create(
+                    file_object=uploaded_file,
+                    param_name=key,
+                )
 
     def get_post_parameters(self, request, url):
         """

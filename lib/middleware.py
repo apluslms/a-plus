@@ -15,8 +15,8 @@ from django.http import HttpResponseServerError
 class SqlInjectionMiddleware(object):
 
     def process_request(self, request):
-        for var in request.REQUEST:
-            val = request.REQUEST.get(var).lower()
+        for var in request.GET:
+            val = request.GET.get(var).lower()
             if "drop table" in val:
                 request.session["hack_attempt"] = val
             if "restore table" in val and "hack_attempt" in request.session:

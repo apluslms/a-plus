@@ -274,12 +274,12 @@ def configure_content(instance, url):
             i = parse_int(c["points_to_pass"], errors)
             if not i is None:
                 category.points_to_pass = i
-        for key in [
+        for field in [
             "confirm_the_level",
             "accept_unofficial_submits",
         ]:
-            if key in c:
-                setattr(category, key, parse_bool(o[key]))
+            if field in c:
+                setattr(category, field, parse_bool(o[field]))
         category.save()
         category_map[key] = category
         seen.append(category.id)
