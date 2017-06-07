@@ -500,7 +500,7 @@ class GradedForm(forms.Form):
                 if name not in value:
                     correct = False
                     self.append_hint(hints, opt)
-            elif name in value:
+            elif not value is None and name in value:
                 correct = False
                 self.append_hint(hints, opt)
             i += 1
