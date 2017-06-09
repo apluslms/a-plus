@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^test-result$', views.test_result, name='test-result'),
     url(r'^ajax/([\w-]+)/([\w-]+)$', views.exercise_ajax, name='ajax'),
     url(r'^model/([\w-]+)/([\w-]+)/([\w\d\_\-\.]*)$', views.exercise_model, name='model'),
-    url(r'^generatedfile/([\w-]+)/([\w-]+)/(\d+)/([\w-]+)$', views.generated_exercise_file,
+    url(r'^generatedfile/([\w-]+)/([\w-]+)/(\d+)/([\w-]+(?:\.\w+)?)$', views.generated_exercise_file,
         name='generated-file'),
     url(r'^([\w-]+)/$', views.course, name='course'),
     url(r'^([\w-]+)/aplus-json$', views.aplus_json, name='aplus-json'),
