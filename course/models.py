@@ -303,6 +303,8 @@ class CourseInstance(UrlMixin, models.Model):
                                           default=VIEW_ACCESS.ENROLLMENT_AUDIENCE)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
+    lifesupport_time = models.DateTimeField(blank=True, null=True)
+    archive_time = models.DateTimeField(blank=True, null=True)
     enrollment_starting_time = models.DateTimeField(blank=True, null=True)
     enrollment_ending_time = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)

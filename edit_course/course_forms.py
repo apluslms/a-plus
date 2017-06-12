@@ -75,6 +75,8 @@ class CourseInstanceForm(forms.ModelForm):
             'language',
             'starting_time',
             'ending_time',
+            'lifesupport_time',
+            'archive_time',
             'enrollment_starting_time',
             'enrollment_ending_time',
             'enrollment_audience',
