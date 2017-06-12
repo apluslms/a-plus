@@ -580,38 +580,46 @@ msgstr ""
 "\n"
 "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
 
-#: course/templates/course/profile.html:5
+#: userprofile/templates/userprofile/profile.html:5
 msgid "Profile"
 msgstr "Käyttäjätili"
 
-#: course/templates/course/profile.html:14
+#: userprofile/templates/userprofile/profile.html:14
 msgid "[Unknown name]"
 msgstr "[Tuntematon nimi]"
 
-#: course/templates/course/profile.html:24
+#: userprofile/templates/userprofile/profile.html:24
 msgid "[Missing]"
 msgstr "[Puuttuu]"
 
-#: course/templates/course/profile.html:25
+#: userprofile/templates/userprofile/profile.html:25
 msgid "Student ID"
 msgstr "Opiskelijanumero"
 
-#: course/templates/course/profile.html:27
+#: userprofile/templates/userprofile/profile.html:27
 msgid "E-mail"
 msgstr "Sähköposti"
 
-#: course/templates/course/profile.html:29
+#: userprofile/templates/userprofile/profile.html:29
 #: diploma/templates/diploma/list.html:26
 #: edit_course/templates/edit_course/signin_as_user.html:14
 #: userprofile/templates/userprofile/login.html:78
 msgid "Username"
 msgstr "Käyttäjätunnus"
 
-#: course/templates/course/profile.html:31
+#: userprofile/templates/userprofile/profile.html:31
 msgid "Token"
 msgstr ""
 
-#: course/templates/course/profile.html:37
+#: userprofile/templates/userprofile/profile.html:33
+msgid "Language"
+msgstr "Kieli"
+
+#: userprofile/templates/userprofile/profile.html:47
+# msgid "Save"
+# msgstr "Tallenna"
+
+#: userprofile/templates/userprofile/profile.html:54
 #, python-format
 msgid ""
 "\n"
@@ -623,10 +631,10 @@ msgid ""
 msgstr ""
 "\n"
 "Voit vaihtaa profiilikuvaasi <a href=\"http://gravatar.com\">gravatar.com-"
-"palvelussa</a>.Käytä palvelussa samaa sähköpostiosoitettasi, <strong>"
+"palvelussa</a>. Käytä palvelussa samaa sähköpostiosoitettasi, <strong>"
 "%(email)s</strong>."
 
-#: course/templates/course/profile.html:47
+#: userprofile/templates/userprofile/profile.html:64
 msgid ""
 "\n"
 "            To change your settings, such as <strong>e-mail</strong>\n"

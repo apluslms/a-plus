@@ -48,3 +48,6 @@ class PrivacyPolicyView(UserProfileView):
         super().get_common_objects()
         self.policy_text = settings_text('PRIVACY_POLICY_TEXT')
         self.note("policy_text")
+
+class ProfileView(UserProfileView):
+    template_name = "userprofile/profile.html"
