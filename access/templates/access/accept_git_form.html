@@ -18,7 +18,7 @@
 	{% endif %}
 </form>
 <script>
-$(function() {
+var aplusSetGitCookie = function($) { // supply jQuery as parameter
 
 	var id = document.cookie.replace(/(?:(?:^|.*;\s*)aplusgit\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 	if (id.length > 0) {
@@ -36,5 +36,18 @@ $(function() {
 				+ ";expires=" + expire.toGMTString();
 		}
 	});
+
+};
+
+document.addEventListener("DOMContentLoaded", function(event) {
+	if (typeof require === 'function') {
+		// in Moodle
+		require(["jquery"], function(jQuery) {
+			aplusSetGitCookie(jQuery);
+		});
+	} else {
+		// in A+
+		aplusSetGitCookie(jQuery);
+	}
 });
 </script>
