@@ -1,15 +1,16 @@
 ####
-# Default settings for A+ Django project. You should create
-# local_settings.py to override any settings like
-# SECRET_KEY, DEBUG and DATABASES.
+# Default settings for A+ Django project.
+# You should create local_settings.py to override any settings.
+# You can copy local_settings.example.py and start from there.
 ##
-import os, warnings
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from os.path import abspath, dirname, join
+from django.utils.translation import ugettext_lazy as _
+BASE_DIR = dirname(dirname(abspath(__file__)))
 
-# Critical (override in local_settings.py)
-# SECURITY WARNING: set debug to false and change production secret key
+
+# Base options, commonly overridden in local_settings.py
 ##########################################################################
-DEBUG = True
+DEBUG = False
 SECRET_KEY = None
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -162,8 +163,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'local_templates'),
-            os.path.join(BASE_DIR, 'templates'),
+            join(BASE_DIR, 'local_templates'),
+            join(BASE_DIR, 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -191,11 +192,10 @@ WSGI_APPLICATION = 'aplus.wsgi.application'
 # Database (override in local_settings.py)
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 ##########################################################################
-DATABASE_FILE = os.environ.get('APLUS_DB_FILE', default='aplus.db')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': os.path.join(BASE_DIR, DATABASE_FILE), # Or path to database file if using sqlite3.
+        'NAME': join(BASE_DIR, 'aplus.db'), # Or path to database file if using sqlite3.
         'USER': '', # Not used with sqlite3.
         'PASSWORD': '', # Not used with sqlite3.
         'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
@@ -210,8 +210,6 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        #'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        #'LOCATION': '127.0.0.1:11211',
         'TIMEOUT': None,
     }
 }
@@ -231,20 +229,20 @@ USE_L10N = True
 USE_TZ = True
 FORMAT_MODULE_PATH = 'aplus'
 LOCALE_PATHS = (
-    os.path.join(BASE_DIR, 'locale'),
+    join(BASE_DIR, 'locale'),
 )
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 STATICFILES_STORAGE = 'lib.storage.BumpStaticFilesStorage'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'assets'),
+    join(BASE_DIR, 'assets'),
 )
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = join(BASE_DIR, 'media')
 
 # Django REST Framework settings
 # http://www.django-rest-framework.org/api-guide/settings/
@@ -347,36 +345,24 @@ LOGGING = {
 
 ###############################################################################
 #
-# Settings logic to handle local settings and any reactions to them
+# Logic to load settings from other files and tune them based on DEBUG
 #
+from os import environ
+from r_django_essentials.conf import *
 
-# Overrides and appends settings defined in local_settings.py
-try:
-    from local_settings import *
-except ImportError:
-    try:
-        from aplus.local_settings import *
-    except ImportError:
-        # make a warning that there is no local_settings, but ignore the exception
-        warnings.warn("Couldn't find local_settings.py from project root nor under aplus/")
-        pass
+# get settings values from other sources
+update_settings_from_environment(__name__, 'DJANGO_') # Provide defaults before local_settings
+update_settings_from_module(__name__, 'local_settings')
+update_secret_from_file(__name__, environ.get('APLUS_SECRET_KEY_FILE', 'secret_key'))
+update_settings_from_environment(__name__, 'APLUS_')  # Provide overrides after local_settings
 
-if not SECRET_KEY:
-    try:
-        from .secret_key import *
-    except ImportError:
-        from lib.helpers import create_secret_key_file
-        settings_dir = os.path.abspath(os.path.dirname(__file__))
-        key_filename = os.path.join(settings_dir, 'secret_key.py')
-        create_secret_key_file(key_filename)
-        warnings.warn("SECRET_KEY not defined in local_settings.py, created one in %s" % (key_filename,))
-        del settings_dir
-        del create_secret_key_file
-        del key_filename
-        from .secret_key import *
-
+# update INSTALLED_APPS
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 
+# update template loaders for production
+use_cache_template_loader_in_production(__name__)
+
+# setup authentication backends based on installed_apps
 SOCIAL_AUTH = False
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -387,14 +373,7 @@ if 'social_django' in INSTALLED_APPS:
     SOCIAL_AUTH = True
     AUTHENTICATION_BACKENDS += ('social_core.backends.google.GoogleOAuth2',)
 
-# If debug is enabled allow basic auth for API
+
 if DEBUG:
+    # Allow basic auth for API when DEBUG is on
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
-else:
-    TEMPLATES[0]['APP_DIRS'] = False
-    TEMPLATES[0]['OPTIONS']['loaders'] = [
-        ('django.template.loaders.cached.Loader', [
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        ]),
-    ]

@@ -12,14 +12,6 @@ from django.utils.deprecation import RemovedInNextVersionWarning
 from django.utils.translation import get_language
 
 
-try:
-    from django.core.management.utils import get_random_secret_key
-except ImportError:
-    def get_random_secret_key():
-        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-        return django_get_random_string(50, chars)
-
-
 def deprecated(message):
     '''
     This is a decorator which can be used to mark functions
@@ -121,18 +113,6 @@ def settings_text(key):
             return getattr(settings, name)
         return None
     return get('{}_{}'.format(key, get_language().upper())) or get(key)
-
-
-def create_secret_key_file(filename):
-    key = get_random_secret_key()
-    with open(filename, 'w') as f:
-        f.write('''"""
-Automatically generated SECRET_KEY for django.
-This needs to be unique and SECRET. It is also installation specific.
-You can change it here or in local_settings.py
-"""
-SECRET_KEY = '%s'
-''' % (key))
 
 
 @cached(TTLCache(100, ttl=30))
