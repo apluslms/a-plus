@@ -192,6 +192,9 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
 
+    def can_show_solutions(self):
+        return (self.is_closed() and (not self.course_instance.is_on_lifesupport()) and (not self.course_instance.is_archived()))
+
     def get_path(self):
         return "/".join([o.url for o in self.parent_list()])
 
@@ -281,6 +284,7 @@ class BaseExercise(LearningObject):
         ('LATE', 2, ""),
         ('UNOFFICIAL', 3, ""),
         ('CLOSED_AFTER', 4, ""),
+        ('ARCHIVED', 5, ""),
     ])
     allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
@@ -321,6 +325,10 @@ class BaseExercise(LearningObject):
         if module.is_open(when=when) or category.confirm_the_level:
             return self.TIMING.OPEN, module.closing_time
 
+        dl = module.course_instance.archive_time
+        if dl and module.course_instance.is_archived(when=when):
+            return self.TIMING.ARCHIVED, dl
+
         deviation = self.one_has_deadline_deviation(students)
         dl = deviation.get_new_deadline() if deviation else None
         if dl and when <= dl:
@@ -335,6 +343,7 @@ class BaseExercise(LearningObject):
             if module.late_submissions_allowed else module.closing_time)
         if category.accept_unofficial_submits:
             return self.TIMING.UNOFFICIAL, dl
+
         return self.TIMING.CLOSED_AFTER, dl
 
     def one_has_access(self, students, when=None):
@@ -360,6 +369,10 @@ class BaseExercise(LearningObject):
             )]
         if timing == self.TIMING.CLOSED_AFTER:
             return False,[_("Deadline for the exercise has passed ({date}).").format(
+                date=date_format(d)
+            )]
+        if timing == self.TIMING.ARCHIVED:
+            return False,[_("This course has been archived ({date}).").format(
                 date=date_format(d)
             )]
         return False,["ERROR"]

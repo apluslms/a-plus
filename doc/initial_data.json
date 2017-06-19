@@ -64,8 +64,8 @@
     "assistants": [],
     "technical_error_emails": "",
     "content_numbering": 1,
-	"lifesupport_time": "2020-10-28T09:00:00Z",
-	"archive_time": "2020-12-31T09:00:00Z"
+    "lifesupport_time": "2020-10-28T09:00:00Z",
+    "archive_time": "2020-12-31T09:00:00Z"
   }
 },
 {
@@ -106,7 +106,7 @@
     "status": "ready",
     "url": "1",
     "service_url": "http://localhost:8888/first_exercise/",
-    "model_answers": "",
+    "model_answers": "http://google.com",
     "exercise_info": null,
     "category": 1,
     "description": "",
@@ -124,7 +124,7 @@
     "status": "ready",
     "url": "2",
     "service_url": "http://localhost:8888/file_exercise/",
-    "model_answers": "",
+    "model_answers": "http://bing.com",
     "exercise_info": null,
     "category": 1,
     "description": "",
@@ -142,7 +142,7 @@
     "status": "ready",
     "url": "3",
     "service_url": "http://localhost:8888/ajax_exercise/",
-    "model_answers": "",
+    "model_answers": "http://yle.fi",
     "exercise_info": null,
     "category": 1,
     "description": "",

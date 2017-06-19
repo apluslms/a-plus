@@ -355,6 +355,14 @@ class CourseInstance(UrlMixin, models.Model):
             raise ValidationError({
                 'ending_time': _("Ending time must be later than starting time.")
             })
+        if self.lifesupport_time <= self.ending_time:
+            raise ValidationError({
+                'lifesupport_time': _("Lifesupport time must be later than ending time.")
+            })
+        if self.archive_time <= self.lifesupport_time:
+            raise ValidationError({
+                'archive_time': _("Archive time must be later than lifesupport time.")
+            })
 
     def save(self, *args, **kwargs):
         """
@@ -428,6 +436,18 @@ class CourseInstance(UrlMixin, models.Model):
     def is_past(self, when=None):
         when = when or timezone.now()
         return self.ending_time < when
+
+    def is_on_lifesupport(self, when=None):
+        when = when or timezone.now()
+        return self.lifesupport_time < when
+
+    def is_archived(self, when=None):
+        when = when or timezone.now()
+        return self.archive_time < when
+
+    @property
+    def archive_start(self, when=None):
+        return self.archive_time
 
     @property
     def enrollment_start(self):
