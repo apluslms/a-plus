@@ -193,7 +193,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return self.course_module.is_closed(when=when)
 
     def can_show_solutions(self):
-        return (self.is_closed() and (not self.course_instance.is_on_lifesupport()) and (not self.course_instance.is_archived()))
+        return self.is_closed() and not self.course_instance.is_on_lifesupport() and not self.course_instance.is_archived()
 
     def get_path(self):
         return "/".join([o.url for o in self.parent_list()])
