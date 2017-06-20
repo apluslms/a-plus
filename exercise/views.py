@@ -164,7 +164,7 @@ class ExerciseModelView(ExerciseBaseView):
     def get_resource_objects(self):
         super().get_resource_objects()
 
-        if not self.is_course_staff and not self.exercise.is_closed():
+        if not self.is_course_staff and not self.exercise.can_show_solutions():
             raise Http404()
 
     def get_common_objects(self):

@@ -75,6 +75,8 @@ class CourseInstanceForm(forms.ModelForm):
             'language',
             'starting_time',
             'ending_time',
+            'lifesupport_time',
+            'archive_time',
             'enrollment_starting_time',
             'enrollment_ending_time',
             'enrollment_audience',
@@ -92,6 +94,10 @@ class CourseInstanceForm(forms.ModelForm):
             self.fields["url"].widget.attrs["readonly"] = "true"
             self.fields["url"].help_text = _("The URL identifier is locked "
                 "while the course is visible to students.")
+            self.fields["lifesupport_time"].help_text = _("Removes visibility "
+                "of model answers for students.")
+            self.fields["archive_time"].help_text = _("Removes possibility "
+                "for students to return answers.")
 
     def clean_url(self):
         if self.instance and self.instance.visible_to_students:
