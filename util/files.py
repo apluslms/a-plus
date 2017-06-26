@@ -3,7 +3,12 @@ Utility functions for exercise files.
 
 '''
 from django.conf import settings
-import datetime, random, string, os, shutil
+import datetime, random, string, os, shutil, json
+
+
+META_PATH = os.path.join(settings.SUBMISSION_PATH, "meta")
+if not os.path.exists(META_PATH):
+    os.makedirs(META_PATH)
 
 
 def random_ascii(length):
@@ -128,3 +133,21 @@ def read_meta(file_path):
             for key,val in [l.split('=') for l in f.readlines() if '=' in l]:
                 meta[key.strip()] = val.strip()
     return meta
+
+
+def _meta_dir(sid):
+    return os.path.join(META_PATH, sid)
+
+
+def write_submission_meta(sid, data):
+    with open(_meta_dir(sid), "w") as f:
+        f.write(json.dumps(data))
+        f.close()
+
+
+def read_and_remove_submission_meta(sid):
+    p = _meta_dir(sid)
+    with open(p, "r") as f:
+        data = json.loads(f.read())
+    os.unlink(p)
+    return data

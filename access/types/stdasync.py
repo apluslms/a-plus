@@ -21,19 +21,21 @@ Functions take arguments:
 '''
 import logging
 import copy
+import os
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.utils import translation
 
 from util.files import create_submission_dir, save_submitted_file, \
-    clean_submission_dir, write_submission_file
+    clean_submission_dir, write_submission_file, write_submission_meta
 from util.http import not_modified_since, not_modified_response, cache_headers
 from util.queue import queue_length
+from util.shell import invoke
 from util.templates import render_configured_template, render_template, \
     template_to_str
 from .auth import make_hash, get_uid
-from ..config import ConfigError
+from ..config import ConfigError, DIR
 from .. import tasks
 
 
@@ -270,6 +272,13 @@ def _requireActions(exercise):
         raise ConfigError("Missing \"actions\" in exercise configuration.")
 
 
+def _requireContainer(exercise):
+    c = exercise.get("container", {})
+    if not c or not "image" in c or not "mount" in c or not "cmd" in c:
+        raise ConfigError("Missing or invalid \"container\" in exercise configuration.")
+    return c
+
+
 def _saveForm(request, course, exercise, post_url, form):
     data,files = form.json_and_files()
     sdir = create_submission_dir(course, exercise)
@@ -285,7 +294,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     '''
 
     # Backup synchronous grading.
-    if not settings.CELERY_BROKER:
+    if not settings.CONTAINER_MODE and not settings.CELERY_BROKER:
         LOGGER.warning("No queue configured")
         from grader.runactions import runactions
         r = runactions(course, exercise, sdir, get_uid(request), int(request.GET.get("ordinal_number", 1)))
@@ -307,17 +316,39 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
         surl = request.build_absolute_uri(reverse('test-result'))
         surl_missing = True
 
-    # Queue grader.
-    tasks.grade.delay(course["key"], exercise["key"],
-        translation.get_language(), surl, sdir, get_uid(request),
-        int(request.GET.get("ordinal_number", 1)))
-
     _acceptSubmission.counter += 1
-    qlen = queue_length()
-    LOGGER.debug("Submission of %s/%s, queue counter %d, queue length %d",
-        course["key"], exercise["key"], _acceptSubmission.counter, qlen)
-    if qlen >= settings.QUEUE_ALERT_LENGTH:
-        LOGGER.error("Queue alert, length: %d", qlen)
+
+    # Order container for grading.
+    if settings.CONTAINER_MODE:
+        c = _requireContainer(exercise)
+        sid = os.path.basename(sdir)
+        write_submission_meta(sid, {
+            "url": surl,
+            "dir": sdir,
+        })
+        r = invoke([
+            settings.CONTAINER_SCRIPT,
+            sid,
+            request.scheme + "://" + request.get_host(),
+            c["image"],
+            os.path.join(DIR, course["key"], c["mount"]),
+            sdir,
+            c["cmd"],
+        ])
+        LOGGER.debug("Container order exit=%d out=%s err=%s",
+            r["code"], r["out"], r["err"])
+        qlen = 1
+
+    # Queue in celery & rabbitmq for chroot sandbox actions.
+    else:
+        tasks.grade.delay(course["key"], exercise["key"],
+            translation.get_language(), surl, sdir, get_uid(request),
+            int(request.GET.get("ordinal_number", 1)))
+        qlen = queue_length()
+        LOGGER.debug("Submission of %s/%s, queue counter %d, queue length %d",
+            course["key"], exercise["key"], _acceptSubmission.counter, qlen)
+        if qlen >= settings.QUEUE_ALERT_LENGTH:
+            LOGGER.error("Queue alert, length: %d", qlen)
 
     return render_template(request, course, exercise, post_url,
         "access/async_accepted.html", {
@@ -326,4 +357,5 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
             "missing_url": surl_missing,
             "queue": qlen
         })
+
 _acceptSubmission.counter = 0

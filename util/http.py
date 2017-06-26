@@ -62,7 +62,10 @@ def post_result(submission_url, course, exercise, template, result):
     if "grading_data" in result:
         data["grading_data"] = result["grading_data"]
 
-    # Try to send send the result.
+    post_data(submission_url, data)
+
+
+def post_data(submission_url, data):
     try:
         r = requests.post(submission_url, data=data)
         if r.status_code != 200:
@@ -71,8 +74,11 @@ def post_result(submission_url, course, exercise, template, result):
         if not "success" in rsp or not rsp["success"]:
             LOGGER.error("Result POST to \"%s\" got unexpected response: %s",
                 submission_url, rsp.body)
+        else:
+            return True
     except Exception:
         LOGGER.exception("Failed to submit \"%s\"", submission_url)
+    return False
 
 
 def post_system_error(submission_url, course=None, exercise=None):
