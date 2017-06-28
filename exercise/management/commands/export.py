@@ -128,6 +128,7 @@ class Command(BaseCommand):
         difficulties = sorted(difficulties)
 
         labels = ['UID','Student ID','Email','Name','Tags','Total']
+        labels.extend(c.name for c in table.categories)
         labels.extend(difficulties)
         def label(exercise):
             return "{} ({})".format(str(exercise), exercise.difficulty)
@@ -144,6 +145,8 @@ class Command(BaseCommand):
                 '/'.join([t.name for t in student.taggings.tags_for_instance(instance)]),
                 str(sum(points)),
             ]
+            for c in table.categories:
+                row.append(str(table.results_by_category[student.id][c.id]))
             for d in difficulties:
                 row.append(str(sum(p for i,p in enumerate(points) if table.exercises[i].difficulty == d)))
             row.extend([str(p) for p in points])
