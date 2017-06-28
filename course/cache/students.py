@@ -13,7 +13,6 @@ class CachedStudents(CachedAbstract):
 
     def _generate_data(self, instance, data=None):
         participants = instance.students.all()\
-            .select_related('taggings__tag')\
             .prefetch_related('taggings')
         data = []
         for participant in participants:
