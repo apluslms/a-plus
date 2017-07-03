@@ -147,14 +147,12 @@ def _points_data(obj, classes=None):
             'full_score': obj.grade >= exercise.max_points,
             'submitted': True,
             'graded': obj.is_graded,
+            'unofficial': obj.status == Submission.STATUS.UNOFFICIAL,
         }
-        if (
-            obj.status != Submission.STATUS.READY
-            and (
-                not exercise.category.confirm_the_level
-                or obj.status != Submission.STATUS.WAITING
-            )
-        ):
+        if not obj.is_graded and (
+                    not exercise.category.confirm_the_level
+                    or obj.status != Submission.STATUS.WAITING
+                ):
             data['status'] = obj.status
     else:
         points = obj.get('points', 0)
@@ -173,6 +171,7 @@ def _points_data(obj, classes=None):
             'graded': obj.get('graded', True),
             'status': obj.get('submission_status', False),
             'unconfirmed': obj.get('unconfirmed', False),
+            'unofficial': obj.get('unofficial', False),
             'confirmable_points': obj.get('confirmable_points', False),
         }
     percentage = 0
