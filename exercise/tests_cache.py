@@ -1,5 +1,5 @@
 from lib.testdata import CourseTestCase
-from course.models import CourseModule
+from course.models import CourseModule, LearningObjectCategory
 from .cache.content import CachedContent
 from .cache.hierarchy import PreviousIterator
 from .cache.points import CachedPoints
@@ -174,7 +174,13 @@ class CachedPointsTest(CourseTestCase):
         self.assertTrue(module['passed'])
 
     def test_unconfirmed(self):
-        self.exercise2.confirm_the_level = True
+        self.category2 = LearningObjectCategory.objects.create(
+            course_instance=self.instance,
+            name="Test Category 2",
+            points_to_pass=5,
+            confirm_the_level=True,
+        )
+        self.exercise2.category = self.category2
         self.exercise2.save()
         c = CachedContent(self.instance)
         p = CachedPoints(self.instance, self.student, c)

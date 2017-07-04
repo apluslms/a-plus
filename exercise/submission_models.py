@@ -114,10 +114,10 @@ class Submission(UrlMixin, models.Model):
         """
         for key in files:
             for uploaded_file in files.getlist(key):
-                userfile = SubmittedFile()
-                userfile.file_object = uploaded_file
-                userfile.param_name = key
-                self.files.add(userfile)
+                self.files.create(
+                    file_object=uploaded_file,
+                    param_name=key,
+                )
 
     def get_post_parameters(self, request, url):
         """
@@ -164,10 +164,11 @@ class Submission(UrlMixin, models.Model):
         exercise.course_module. If no_penalties is True, the penalty is not
         applied.
         """
+        exercise = self.exercise
 
         # Evade bad max points in remote service.
         if max_points == 0 and points > 0:
-            max_points = self.exercise.max_points
+            max_points = exercise.max_points
 
         # The given points must be between zero and max points
         assert 0 <= points <= max_points
@@ -179,23 +180,24 @@ class Submission(UrlMixin, models.Model):
 
         self.service_points = points
         self.service_max_points = max_points
+        self.late_penalty_applied = None
 
         # Scale the given points to the maximum points for the exercise
         if max_points > 0:
-            adjusted_grade = (1.0 * self.exercise.max_points * points / max_points)
+            adjusted_grade = (1.0 * exercise.max_points * points / max_points)
         else:
             adjusted_grade = 0.0
 
-        # Check if this submission was done late. If it was, reduce the points
-        # with late submission penalty. No less than 0 points are given. This
-        # is not done if no_penalties is True.
-        if not no_penalties and self.is_late():
-            self.late_penalty_applied = \
-                self.exercise.course_module.late_submission_penalty \
-                if self.exercise.course_module.late_submissions_allowed else 0
-            adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
-        else:
-            self.late_penalty_applied = None
+        if not no_penalties:
+            timing,_ = exercise.get_timing(self.submitters.all(), self.submission_time)
+            if timing in (exercise.TIMING.LATE, exercise.TIMING.CLOSED_AFTER):
+                self.late_penalty_applied = (
+                    exercise.course_module.late_submission_penalty if
+                    exercise.course_module.late_submissions_allowed else 0
+                )
+                adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
+            elif timing == exercise.TIMING.UNOFFICIAL:
+                self.status = self.STATUS.UNOFFICIAL
 
         self.grade = round(adjusted_grade)
 
@@ -210,9 +212,10 @@ class Submission(UrlMixin, models.Model):
     def set_waiting(self):
         self.status = self.STATUS.WAITING
 
-    def set_ready(self, official=True):
+    def set_ready(self):
         self.grading_time = timezone.now()
-        self.status = self.STATUS.READY if official else self.STATUS.UNOFFICIAL
+        if self.status != self.STATUS.UNOFFICIAL:
+            self.status = self.STATUS.READY
 
         # Fire set hooks.
         for hook in self.exercise.course_module.course_instance \
@@ -224,22 +227,6 @@ class Submission(UrlMixin, models.Model):
 
     def set_error(self):
         self.status = self.STATUS.ERROR
-
-    def is_late(self):
-        if self.exercise.confirm_the_level:
-            return False
-        if self.submission_time <= self.exercise.course_module.closing_time:
-            return False
-        deviation = self.exercise.one_has_deadline_deviation(
-            self.submitters.all()
-        )
-        if (
-            deviation
-            and deviation.without_late_penalty
-            and self.submission_time <= deviation.get_new_deadline()
-        ):
-            return False
-        return True
 
     @property
     def is_graded(self):

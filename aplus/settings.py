@@ -4,13 +4,12 @@
 # SECRET_KEY, DEBUG and DATABASES.
 ##
 import os, warnings
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Critical (override in local_settings.py)
 # SECURITY WARNING: set debug to false and change production secret key
 ##########################################################################
 DEBUG = True
-TEMPLATE_DEBUG = None
 SECRET_KEY = None
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -93,7 +92,6 @@ INSTALLED_APPS = (
 
     # 3rd party applications
     'bootstrapform',
-    'tastypie',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -143,6 +141,7 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 ##########################################################################
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -155,28 +154,39 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'local_templates'),
-    os.path.join(BASE_DIR, 'templates'),
-)
+ROOT_URLCONF = 'aplus.urls'
+LOGIN_REDIRECT_URL = "/"
+LOGIN_ERROR_URL = "/accounts/login/"
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages",
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'local_templates'),
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                'django.template.context_processors.request',
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
 
 FILE_UPLOAD_HANDLERS = (
     #"django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
 
-ROOT_URLCONF = 'aplus.urls'
-LOGIN_REDIRECT_URL = "/"
-LOGIN_ERROR_URL = "/accounts/login/"
+WSGI_APPLICATION = 'aplus.wsgi.application'
+
 
 # Database (override in local_settings.py)
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -346,26 +356,25 @@ if not SECRET_KEY:
         del key_filename
         from .secret_key import *
 
-if TEMPLATE_DEBUG is None:
-    TEMPLATE_DEBUG = DEBUG
-
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 
+SOCIAL_AUTH = False
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 if 'shibboleth_login' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('shibboleth_login.auth_backend.ShibbolethAuthBackend',)
 if 'social.apps.django_app.default' in INSTALLED_APPS:
+    SOCIAL_AUTH = True
     AUTHENTICATION_BACKENDS += ('social.backends.google.GoogleOAuth2',)
 
 # If debug is enabled allow basic auth for API
 if DEBUG:
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
 else:
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader', (
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
             'django.template.loaders.filesystem.Loader',
             'django.template.loaders.app_directories.Loader',
-        )),
-    )
+        ]),
+    ]

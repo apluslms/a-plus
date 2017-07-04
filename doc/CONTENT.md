@@ -33,7 +33,7 @@ the whole body element is embedded.
 
 ### Child exercise
 
-    <div data-aplus-exercise="1" data-aplus-quiz></div>
+    <div data-aplus-exercise="yes" data-aplus-quiz></div>
 
 Embeds a fully functioning other A+ exercise to the content including student
 submission status. The embedded exercise must be a child of the loaded exercise
@@ -41,7 +41,7 @@ in the exercise hierarchy.
 
 * `data-aplus-exercise`
 
-    The order number of the child exercise.
+    A flag to include a child exercise. Exercises are placed in the child order.
 
 * `data-aplus-quiz`
 

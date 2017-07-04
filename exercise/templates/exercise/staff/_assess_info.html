@@ -35,7 +35,7 @@
                 <ol>
                   {% for s in submissions reversed %}
                   <li>
-                    {% if s = submission %}
+                    {% if s == submission %}
                     {{ s.submission_time }}
                     {% points_badge s %}
                     {% else %}

@@ -2,7 +2,7 @@
 {% load exercise %}
 
 <div class="well">
-    {% if exercise.confirm_the_level %}
+    {% if exercise.category.confirm_the_level %}
     <p>{% trans "Current status" %}</p>
     <p class="exercise-info-points">
       {% points_badge summary %}

@@ -24,9 +24,9 @@
 {% if difficulty %}
 <span class="difficulty">{{ difficulty }}</span>
 {% endif %}
-<span class="badge{% if submitted %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
+<span class="badge{% if submitted %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% if unconfirmed or unofficial %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
         data-toggle="tooltip" data-placement="bottom"
-        title="{% if passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
+        title="{% if unofficial %}{% trans 'Submitted after deadline' %}{% elif passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
     {{ points }} / {{ max }}
 </span>
 {% endif %}

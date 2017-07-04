@@ -97,7 +97,7 @@
 			});
 			var content = this.quizSuccess.clone()
 				.attr("class", exercise.attr("class"))
-				.removeClass("exercise")
+				.removeClass("exercise hide")
 				.removeAttr("id");
 			content.find('.badge-placeholder').empty().append(badge);
 			if (badge.hasClass("badge-success") || badge.hasClass("badge-warning")) {

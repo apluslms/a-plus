@@ -83,6 +83,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'graded': submission.is_graded,
                     'passed': submission.grade >= entry['points_to_pass'],
                     'submission_status': submission.status if not submission.is_graded else False,
+                    'unofficial': submission.status == Submission.STATUS.UNOFFICIAL,
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
                 })

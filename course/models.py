@@ -3,7 +3,7 @@ import logging
 import urllib.request, urllib.parse
 
 from django.contrib import messages
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
@@ -325,9 +325,9 @@ class CourseInstance(UrlMixin, models.Model):
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
             "override the recipients."))
-    plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk",
+    plugins = GenericRelation(BasePlugin, object_id_field="container_pk",
                                       content_type_field="container_type")
-    tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",
+    tabs = GenericRelation(BaseTab, object_id_field="container_pk",
                                    content_type_field="container_type")
 
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
@@ -633,6 +633,11 @@ class LearningObjectCategory(models.Model):
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
     course_instance = models.ForeignKey(CourseInstance, related_name="categories")
+    confirm_the_level = models.BooleanField(default=False,
+        help_text=_("Once exercise is graded non zero it confirms all the points on the hierarchy level. Implemented as a mandatory feedback feature."))
+    accept_unofficial_submits = models.BooleanField(default=False,
+        help_text=_("Grade unofficial submits after deadlines have passed. The points are stored but not included in official records."))
+
     #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
     #    blank=True, null=True)
 

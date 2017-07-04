@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -77,7 +78,7 @@ class UserProfile(models.Model):
         """
         Is this an external rather than internal account.
         """
-        return hasattr(self.user, 'social_auth') and self.user.social_auth.exists()
+        return settings.SOCIAL_AUTH and self.user.social_auth.exists()
 
     def get_url(self, instance):
         kwargs = dict(user_id=self.user.id, **instance.get_url_kwargs())

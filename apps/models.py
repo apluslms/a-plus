@@ -9,7 +9,7 @@ field and naming AbstractApp fields container_pk & container_type for the link.
 
 import datetime
 
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.template import loader
@@ -27,7 +27,7 @@ class AbstractApp(ModelWithInheritance):
     # Generic foreign key implementation from Django contenttypes framework.
     container_type = models.ForeignKey(ContentType)
     container_pk = models.TextField(_('object ID'))
-    container = generic.GenericForeignKey(ct_field="container_type", fk_field="container_pk")
+    container = GenericForeignKey(ct_field="container_type", fk_field="container_pk")
 
     # Apps used to have an oembed reference which was removed in migration to Python 3
     # in favor of future implementations, for example LTI.

@@ -117,12 +117,12 @@ def configure_learning_objects(category_map, module, config, parent,
                 obj_key = "lti_" + key
                 if obj_key in o:
                     setattr(lobject, key, o[obj_key])
+            lobject.aplus_get_and_post = o.get("lti_aplus_get_and_post", True)
 
         if lobject_cls in (LTIExercise, BaseExercise):
             for key in [
                 "allow_assistant_viewing",
                 "allow_assistant_grading",
-                "confirm_the_level",
             ]:
                 if key in o:
                     setattr(lobject, key, parse_bool(o[key]))
@@ -274,6 +274,12 @@ def configure_content(instance, url):
             i = parse_int(c["points_to_pass"], errors)
             if not i is None:
                 category.points_to_pass = i
+        for field in [
+            "confirm_the_level",
+            "accept_unofficial_submits",
+        ]:
+            if field in c:
+                setattr(category, field, parse_bool(o[field]))
         category.save()
         category_map[key] = category
         seen.append(category.id)
