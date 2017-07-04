@@ -64,7 +64,6 @@ def save_submitted_file(submission_dir, file_name, post_file):
     with open(file_path, "wb+") as f:
         for chunk in post_file.chunks():
             f.write(chunk)
-        f.close()
 
 
 def write_submission_file(submission_dir, file_name, content):
@@ -81,7 +80,11 @@ def write_submission_file(submission_dir, file_name, content):
     file_path = submission_file_path(submission_dir, file_name)
     with open(file_path, "w+") as f:
         f.write(content)
-        f.close()
+
+def read_submission_file(submission_dir, file_name):
+    file_path = submission_file_path(submission_dir, file_name)
+    with open(file_path, "r") as f:
+        return f.read()
 
 
 def submission_file_path(submission_dir, file_name):

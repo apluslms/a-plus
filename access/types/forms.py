@@ -547,7 +547,7 @@ class GradedForm(forms.Form):
             self.append_hint(hints, configuration)
         return correct, hints, method
 
-    def json_and_files(self):
+    def json_and_files(self, post_url=None):
         data = {}
         files = {}
         for key,val in self.cleaned_data.items():
@@ -555,4 +555,6 @@ class GradedForm(forms.Form):
                 files[key] = val
             else:
                 data[key] = val
+        if post_url:
+            data["__aplus_post_url"] = post_url
         return json.dumps(data), files

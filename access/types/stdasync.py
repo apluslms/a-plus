@@ -280,7 +280,7 @@ def _requireContainer(exercise):
 
 
 def _saveForm(request, course, exercise, post_url, form):
-    data,files = form.json_and_files()
+    data,files = form.json_and_files(post_url)
     sdir = create_submission_dir(course, exercise)
     write_submission_file(sdir, "data.json", data)
     for name,uploaded in files.items():

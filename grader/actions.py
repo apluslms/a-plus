@@ -18,11 +18,14 @@ Functions take arguments:
 '''
 from django.conf import settings
 from access.config import ConfigError
-from util.shell import invoke_script, invoke_sandbox
-from util.xslt import transform
+from access.types.forms import GradedForm
+from util.files import read_submission_file
 from util.http import get_json
 from util.personalized import user_personal_directory_path, select_generated_exercise_instance
-import logging
+from util.shell import invoke_script, invoke_sandbox
+from util.templates import template_to_str
+from util.xslt import transform
+import logging, json
 
 LOGGER = logging.getLogger('main')
 
@@ -30,7 +33,7 @@ LOGGER = logging.getLogger('main')
 def prepare(course, exercise, action, submission_dir, user_ids='', submission_number=1):
     '''
     Runs the preparation script for the submitted files.
-    
+
     @type user_ids: C{str}
     @param user_ids: user ID(s) of the submitter(s) as string (format "1", "1-2-3")
     @type submission_number: C{int}
@@ -47,7 +50,7 @@ def prepare(course, exercise, action, submission_dir, user_ids='', submission_nu
         if not settings.ENABLE_PERSONAL_DIRECTORIES and "cp_personal" in action:
             cp_personal_error = 'settings.ENABLE_PERSONAL_DIRECTORIES is False but action grader.actions.prepare has "cp_personal" field'
             LOGGER.error(cp_personal_error)
-    
+
     result = _boolean(invoke_script(settings.PREPARE_SCRIPT,
         _collect_args(("attachment_pull", "attachment_unzip", "unzip",
             "charset", "cp_exercises", "cp", "mv", "cp_personal", "cp_generated"),
@@ -140,7 +143,7 @@ def store_user_files(course, exercise, action, submission_dir, user_ids, submiss
     args = {
         "target": user_personal_directory_path(course, exercise, user_ids),
     }
-    
+
     return _boolean(invoke_script(settings.STORE_USER_FILES_SCRIPT,
         _collect_args(("cp",),
             action, args),
@@ -186,6 +189,16 @@ def gitlabquery(course, exercise, action, submission_dir):
     except Exception:
         LOGGER.exception("Failed to check gitlab URL: %s", url)
     return { "points": 0, "max_points": 0, "out": "", "err": err, "stop": err != "" }
+
+
+def resubmit_form(course, exercise, action, submission_dir):
+    data = json.loads(read_submission_file(submission_dir, "data.json"))
+    form = GradedForm(data, exercise=exercise)
+    out = template_to_str(course, exercise, data.get("__aplus_post_url"), "access/task_resubmit.html", {
+        "form": form,
+        "instructions": action.get("instructions", False),
+    })
+    return { "points": 0, "max_points": 0, "out": out, "err": "", "stop": False }
 
 
 def _collect_args(arg_names, action, args={}):
