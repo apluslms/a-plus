@@ -275,12 +275,13 @@ class BaseExercise(LearningObject):
     """
     The common parts for all exercises.
     """
+    # Timing enumeration is only used as a return value.
     TIMING = Enum([
-        ('CLOSED_BEFORE', 0, ""),
-        ('OPEN', 1, ""),
-        ('LATE', 2, ""),
-        ('UNOFFICIAL', 3, ""),
-        ('CLOSED_AFTER', 4, ""),
+        ('CLOSED_BEFORE', 0, "Submissions are not yet accepted"),
+        ('OPEN', 1, "Normal submissions are accepted"),
+        ('LATE', 2, "Late submissions are accepted"),
+        ('UNOFFICIAL', 3, "Only unofficial submissions are accepted"),
+        ('CLOSED_AFTER', 4, "Submissions are not anymore accepted"),
     ])
     allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
