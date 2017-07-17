@@ -115,3 +115,22 @@ class SubmittedFileVisiblePermission(SubmissionVisiblePermission):
 
     def is_object_visible(self, request, view, file):
         return super().is_object_visible(request, view, file.submission)
+
+
+class ModelVisiblePermission(ObjectVisibleBasePermission):
+    message = _("Permission denied by exercise model answer visibility")
+    model = BaseExercise
+    obj_var = 'exercise'
+
+    def is_object_visible(self, request, view, exercise):
+        """
+        Find out if exercise's model answer is visible to user
+        """
+        if view.is_course_staff:
+            return True
+
+        if not exercise.can_show_solutions:
+            self.error_msg(_("You are not allowed to view model answers for this exercise."))
+            return False
+
+        return True

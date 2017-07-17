@@ -192,6 +192,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
 
+    @property
     def can_show_solutions(self):
         return self.is_closed() and not self.course_instance.is_on_lifesupport() and not self.course_instance.is_archived()
 
