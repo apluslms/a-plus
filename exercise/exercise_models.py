@@ -285,7 +285,7 @@ class BaseExercise(LearningObject):
         ('LATE', 2, "Late submissions are accepted"),
         ('UNOFFICIAL', 3, "Only unofficial submissions are accepted"),
         ('CLOSED_AFTER', 4, "Submissions are not anymore accepted"),
-        ('ARCHIVED', 5, ""),
+        ('ARCHIVED', 5, "Course is archived and so are exercises"),
     ])
     allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
