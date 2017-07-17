@@ -845,7 +845,7 @@ msgstr ""
 
 #: edit_course/course_forms.py:97
 msgid "Removes visibility of model answers for students."
-msgstr "Saattohoito poistaa mallivastaukset opiskelijoiden näkyviltä."
+msgstr "Saattohoito poistaa esimerkkiratkaisut opiskelijoiden näkyviltä."
 
 #: edit_course/course_forms.py:99
 msgid "Removes possibility for students to return answers."
@@ -1122,7 +1122,7 @@ msgstr "Kurssimoduulit"
 
 #: edit_course/templates/edit_course/edit_content.html:81
 msgid "Edit module"
-msgstr "Muokaa moduulia"
+msgstr "Muokkaa moduulia"
 
 #: edit_course/templates/edit_course/edit_content.html:89
 msgid "Open module"
@@ -1515,7 +1515,7 @@ msgstr "Poista kolmas tietopalsta tilan leventämiseksi."
 
 #: exercise/exercise_models.py:101
 msgid "List model answer files as protected URL addresses."
-msgstr "Luettele mallivastausten ei-julkiset URL-osoitteet."
+msgstr "Luettele esimerkkiratkaisujen ei-julkiset URL-osoitteet."
 
 #: exercise/exercise_models.py:119
 msgid "Course_module and category must belong to the same course instance."
@@ -1847,7 +1847,7 @@ msgid ""
 "No model answer has been supplied for this exercise.\n"
 msgstr ""
 "\n"
-"Tähän tehtävään ei ole malliratkaisua.\n"
+"Tähän tehtävään ei ole esimerkkiratkaisua.\n"
 
 #: exercise/templates/exercise/_points_badge.html:11
 msgid "Accepted"
@@ -2030,7 +2030,7 @@ msgstr "Palautukseni"
 #: exercise/templates/exercise/exercise_base.html:70
 #: exercise/templates/exercise/model.html:9
 msgid "Model answer"
-msgstr "Mallivastaus"
+msgstr "Esimerkkiratkaisu"
 
 #: exercise/templates/exercise/exercise_base.html:81
 msgid "Inspect submission"
@@ -2048,7 +2048,7 @@ msgstr "Suoritukseen vaaditaan %(points)s pistettä."
 
 #: exercise/templates/exercise/exercise_plain.html:102
 msgid "Show model answer"
-msgstr "Näytä malliratkaisu"
+msgstr "Näytä esimerkkiratkaisu"
 
 #: exercise/templates/exercise/exercise_plain.html:122
 #: exercise/templates/exercise/submission.html:37

@@ -28,23 +28,23 @@ class ExerciseVisiblePermission(ObjectVisibleBasePermission):
             return True
 
         if exercise.status == LearningObject.STATUS.HIDDEN:
-            self.error_msg(request, _("The exercise is not currently visible."))
+            self.error_msg(_("The exercise is not currently visible."))
             return False
 
         user = request.user
         if exercise.audience == LearningObject.AUDIENCE.REGISTERED_USERS:
             if not exercise.course_instance.is_student(user):
-                self.error_msg(request, _("The exercise is only for registered users."))
+                self.error_msg(_("The exercise is only for registered users."))
                 return False
         elif exercise.audience == LearningObject.AUDIENCE.INTERNAL_USERS:
             if (not exercise.course_instance.is_student(user)
                     or user.userprofile.is_external):
-                self.error_msg(request, _("The exercise is only for internal users."))
+                self.error_msg(_("The exercise is only for internal users."))
                 return False
         elif exercise.audience == LearningObject.AUDIENCE.EXTERNAL_USERS:
             if (not exercise.course_instance.is_student(user)
                     or not user.userprofile.is_external):
-                self.error_msg(request, _("The exercise is only for external users."))
+                self.error_msg(_("The exercise is only for external users."))
                 return False
 
         return True
@@ -70,14 +70,12 @@ class BaseExerciseAssistantPermission(ObjectVisibleBasePermission):
 
         if access_mode >= ACCESS.ASSISTANT:
             if not (is_teacher or exercise.allow_assistant_viewing):
-                self.error_msg(request,
-                    _("Assistant viewing is not allowed for this exercise."))
+                self.error_msg(_("Assistant viewing is not allowed for this exercise."))
                 return False
 
         if access_mode == ACCESS.GRADING:
             if not (is_teacher or exercise.allow_assistant_grading):
-                self.error_msg(request,
-                    _("Assistant grading is not allowed for this exercise."))
+                self.error_msg(_("Assistant grading is not allowed for this exercise."))
                 return False
 
         return True
@@ -92,7 +90,7 @@ class SubmissionVisiblePermission(ObjectVisibleBasePermission):
         if not (view.is_teacher or
                 (view.is_assistant and submission.exercise.allow_assistant_viewing) or
                 submission.is_submitter(request.user)):
-            self.error_msg(request, _("Only the submitter shall pass."))
+            self.error_msg(_("Only the submitter shall pass."))
             return False
         return True
 
@@ -117,3 +115,22 @@ class SubmittedFileVisiblePermission(SubmissionVisiblePermission):
 
     def is_object_visible(self, request, view, file):
         return super().is_object_visible(request, view, file.submission)
+
+
+class ModelVisiblePermission(ObjectVisibleBasePermission):
+    message = _("Permission denied by exercise model answer visibility")
+    model = BaseExercise
+    obj_var = 'exercise'
+
+    def is_object_visible(self, request, view, exercise):
+        """
+        Find out if exercise's model answer is visible to user
+        """
+        if view.is_course_staff:
+            return True
+
+        if not exercise.can_show_solutions:
+            self.error_msg(_("You are not allowed to view model answers for this exercise."))
+            return False
+
+        return True

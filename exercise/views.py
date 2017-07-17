@@ -17,7 +17,7 @@ from lib.viewbase import BaseRedirectMixin, BaseView
 from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
-from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin
+from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, ExerciseModelBaseView
 
 
 class TableOfContentsView(CourseInstanceBaseView):
@@ -156,16 +156,10 @@ class ExercisePlainView(ExerciseView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ExerciseModelView(ExerciseBaseView):
+class ExerciseModelView(ExerciseModelBaseView):
     template_name = "exercise/model.html"
     ajax_template_name = "exercise/_model_files.html"
     access_mode = ACCESS.ENROLLED
-
-    def get_resource_objects(self):
-        super().get_resource_objects()
-
-        if not self.is_course_staff and not self.exercise.can_show_solutions():
-            raise Http404()
 
     def get_common_objects(self):
         super().get_common_objects()

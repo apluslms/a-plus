@@ -14,6 +14,7 @@ from .permissions import (
     ExerciseVisiblePermission,
     BaseExerciseAssistantPermission,
     SubmissionVisiblePermission,
+    ModelVisiblePermission,
 )
 from .models import (
     LearningObject,
@@ -75,6 +76,20 @@ class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
+    pass
+
+
+class ExerciseModelMixin(ExerciseMixin):
+    model_permission_classes = (
+        ModelVisiblePermission,
+    )
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.model_permission_classes))
+        return perms
+
+class ExerciseModelBaseView(ExerciseModelMixin, BaseTemplateView):
     pass
 
 
