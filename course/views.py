@@ -56,11 +56,6 @@ class ArchiveView(UserProfileView):
         self.instances = CourseInstance.objects.get_visible(self.request.user)
         self.note("instances")
 
-
-class ProfileView(UserProfileView):
-    template_name = "course/profile.html"
-
-
 class InstanceView(EnrollableViewMixin, BaseTemplateView):
     template_name = "course/course.html"
 

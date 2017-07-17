@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib.auth import views as auth_views
 
 from . import views
@@ -12,4 +12,7 @@ urlpatterns = [
         name="logout"),
     url(r'^privacy-policy/$', views.PrivacyPolicyView.as_view(),
         name="privacy_policy"),
+    url(r'^accounts/$', views.ProfileView.as_view(),
+        name="profile"),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
 ]
