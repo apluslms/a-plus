@@ -34,15 +34,15 @@ class GroupsForm(forms.Form):
                     personal_code=self.cleaned_data[key].upper()
                 ).first()
                 if not enrollment:
-                    self.add_error(key, _('The code was not regocnized'))
+                    self.add_error(key, _('The code was not regocnized.'))
                 elif enrollment.user_profile in self.member_profiles:
-                    self.add_error(key, _('The user is already in the group'))
+                    self.add_error(key, _('The user is already in the group.'))
                 else:
                     self.member_profiles.append(enrollment.user_profile)
 
         if not self.errors and len(self.member_profiles) > 1:
             if StudentGroup.get_exact(self.instance, self.member_profiles):
-                self.add_error(None, _('The group already exists'))
+                self.add_error(None, _('The group already exists.'))
 
         return self.cleaned_data
 

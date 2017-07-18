@@ -77,7 +77,7 @@ class AccessModePermission(Permission):
     """
     If view has access_mode that is not anonymous, then require authentication
     """
-    message = _("Permission denied by access mode")
+    message = _("Permission denied by access mode.")
 
     def has_permission(self, request, view):
         access_mode = view.get_access_mode()

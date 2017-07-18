@@ -159,7 +159,7 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             self.object = form.save()
         except IntegrityError as e:
             messages.error(self.request,
-                _('Save failed: {error}').format(error=repr(e)))
+                _('Save failed: {error}.').format(error=repr(e)))
             return super().form_invalid(form)
         messages.success(self.request,
             _('The {name} was saved successfully.').format(
@@ -168,7 +168,7 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
 
     def form_invalid(self, form):
         messages.error(self.request,
-            _('Failed to save {name}').format(name=self.model_name))
+            _('Failed to save {name}.').format(name=self.model_name))
         return super().form_invalid(form)
 
 

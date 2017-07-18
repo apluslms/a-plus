@@ -17,7 +17,7 @@
   <form method="post" action="{{ instance|url:'enroll' }}">
     {% csrf_token %}
     {% if instance.view_content_to > 1 %}
-    {% trans "In order to submit exercises, you must enroll in the course." %}
+    {% trans "In order to submit exercises you must enroll in the course." %}
     {% else %}
     {% trans "In order to submit exercises and see material, you must enroll in the course." %}
     {% endif %}
@@ -26,7 +26,7 @@
     <div>
       <small>
         {% blocktrans with end=instance.enrollment_ending_time %}
-        The course enrollment is open until {{ end }}
+        The course enrollment is open until {{ end }}.
         {% endblocktrans %}
       </small>
     </div>
@@ -36,7 +36,7 @@
   {% trans "Unfortunately, enrolling in the course has ended." %}
   {% else %}
   {% blocktrans with start=instance.enrollment_start end=instance.enrollment_end %}
-  The course opens {{ start }}
+  The course opens {{ start }}.
   {% endblocktrans %}
   {% endif %}
 {% elif profile %}
