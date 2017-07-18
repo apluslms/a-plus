@@ -86,7 +86,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
 
 
 class CourseModulePermission(MessageMixin, Permission):
-    message = _("The module is not currently visible.")
+    message = _("The module is not currently visible")
 
     def has_permission(self, request, view):
         if not view.is_course_staff:
@@ -104,7 +104,7 @@ class CourseModulePermission(MessageMixin, Permission):
         if not module.is_after_open():
             # FIXME: use format from django settings
             self.error_msg(
-                _("The module will open for submissions at {date}"),
+                _("The module will open for submissions at {date}."),
                 format={'date': module.opening_time},
                 delim=' ',
             )

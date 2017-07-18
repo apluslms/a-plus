@@ -25,7 +25,7 @@
         <span class="dates">
             <em>
                 {% blocktrans with deadline=current.late_time %}
-                Late submission are allowed until {{ deadline }}
+                Late submissions are allowed until {{ deadline }}.
                 {% endblocktrans %}
                 {% if current.late_percent != 100 %}
                 {% blocktrans with percent=current.late_percent %}
