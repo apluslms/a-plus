@@ -451,11 +451,6 @@ msgid "Enroll"
 msgstr "Ilmoittaudu"
 
 #: course/templates/course/course.html:28
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "        The course enrollment is open until %(end)s\n"
-#| "        "
 msgid ""
 "\n"
 "        The course enrollment is open until %(end)s.\n"
@@ -843,7 +838,7 @@ msgstr ""
 
 #: edit_course/course_forms.py:97
 msgid "Removes visibility of model answers for students."
-msgstr "Saattohoito poistaa mallivastaukset opiskelijoiden näkyviltä."
+msgstr "Saattohoito poistaa esimerkkiratkaisut opiskelijoiden näkyviltä."
 
 #: edit_course/course_forms.py:99
 msgid "Removes possibility for students to return answers."
@@ -921,14 +916,12 @@ msgid "Learning object requires a category."
 msgstr "Oppimisolio vaatii kategorian."
 
 #: edit_course/operations/configure.py:84
-#, fuzzy
-#| msgid "Add new category"
 msgid "Unknown category {}."
-msgstr "Lisää uusi kategoria"
+msgstr "Tuntematon kategoria {}."
 
 #: edit_course/operations/configure.py:190
 msgid "Cannot request build log from build_log_url when it is blank."
-msgstr ""
+msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
 
 #: edit_course/operations/configure.py:194
 msgid "Requesting build log failed: {}."
@@ -944,17 +937,15 @@ msgstr "Etäpalvelin palautti tyhjän käännöslokin."
 
 #: edit_course/operations/configure.py:209
 msgid "Configuration URL required."
-msgstr ""
+msgstr "Konfiguraatio-URL vaaditaan."
 
 #: edit_course/operations/configure.py:214
-#, fuzzy
-#| msgid "Requesting build log failed: {}"
 msgid "Request failed: {}."
 msgstr "Käännöslokin hakeminen epäonnistui: {}."
 
 #: edit_course/operations/configure.py:241
 msgid "Assistants must be given as student ID array."
-msgstr "Assistentit tulee antaa oppilasnumero taulukkona."
+msgstr "Assistentit tulee antaa oppilasnumero-taulukkona."
 
 #: edit_course/operations/configure.py:248
 msgid "Assistant student ID was not found: {}."
@@ -970,7 +961,7 @@ msgstr "Moduulit vaaditaan taulukkona."
 
 #: edit_course/operations/configure.py:266
 msgid "Category requires a name."
-msgstr "Kategoria vaatii avaimen."
+msgstr "Kategoria vaatii nimen."
 
 #: edit_course/operations/configure.py:299
 msgid "Module requires a key."
@@ -1124,7 +1115,7 @@ msgstr "Kurssimoduulit"
 
 #: edit_course/templates/edit_course/edit_content.html:81
 msgid "Edit module"
-msgstr "Muokaa moduulia"
+msgstr "Muokkaa moduulia"
 
 #: edit_course/templates/edit_course/edit_content.html:89
 msgid "Open module"
@@ -1157,14 +1148,10 @@ msgid "Content chapter"
 msgstr "Sisältökappale"
 
 #: edit_course/templates/edit_course/edit_content.html:140
-#, fuzzy
-#| msgid "A remote content page loaded in as a chapter"
 msgid "A remote content page loaded in as a chapter."
 msgstr "Ulkoinen sisältösivu, joka ladataan luvuksi"
 
 #: edit_course/templates/edit_course/edit_content.html:144
-#, fuzzy
-#| msgid "A remote exercise page loaded in for posting submissions"
 msgid "A remote exercise page loaded in for posting submissions."
 msgstr "Ulkoinen tehtäväsivu, johon palautukset lähetetään"
 
@@ -1173,10 +1160,6 @@ msgid "LTI Exercise"
 msgstr "LTI-tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:148
-#, fuzzy
-#| msgid ""
-#| "A remote exercise page loaded in for posting submissions including signed "
-#| "LTI course and student information"
 msgid ""
 "A remote exercise page loaded in for posting submissions including signed "
 "LTI course and student information."
@@ -1189,10 +1172,6 @@ msgid "Exercise with attachment"
 msgstr "Tehtävä liitetiedostolla"
 
 #: edit_course/templates/edit_course/edit_content.html:152
-#, fuzzy
-#| msgid ""
-#| "A local page accepting files and initiating remote grading with teacher "
-#| "provided grading attachment"
 msgid ""
 "A local page accepting files and initiating remote grading with teacher "
 "provided grading attachment."
@@ -1205,8 +1184,6 @@ msgid "Static exercise"
 msgstr "Staattinen tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:156
-#, fuzzy
-#| msgid "A local page with editable markup content"
 msgid "A local page with editable markup content."
 msgstr "Paikallinen sivu muokattavalla HTML-sisällöllä"
 
@@ -1427,8 +1404,6 @@ msgid ""
 msgstr "Vähintään yksi kategoria pitää luoda ennen harjoitusten lisäämistä."
 
 #: edit_course/views.py:162
-#, fuzzy, python-brace-format
-#| msgid "Save failed: {error}"
 msgid "Save failed: {error}."
 msgstr "Tallentaminen epäonnistui: {error}"
 
@@ -1438,8 +1413,6 @@ msgid "The {name} was saved successfully."
 msgstr "Kohde {name} tallennettiin onnistuneesti."
 
 #: edit_course/views.py:171
-#, fuzzy, python-brace-format
-#| msgid "Failed to save {name}"
 msgid "Failed to save {name}."
 msgstr "Kohteen {name} tallennus epäonnistui."
 
@@ -1533,7 +1506,7 @@ msgstr "Poista kolmas tietopalsta tilan leventämiseksi."
 
 #: exercise/exercise_models.py:101
 msgid "List model answer files as protected URL addresses."
-msgstr "Luettele mallivastausten ei-julkiset URL-osoitteet."
+msgstr "Luettele esimerkkiratkaisujen ei-julkiset URL-osoitteet."
 
 #: exercise/exercise_models.py:119
 msgid "Course_module and category must belong to the same course instance."
@@ -1552,10 +1525,6 @@ msgid "Minimum group size cannot exceed maximum size."
 msgstr "Ryhmän koon alaraja ei voi olla suurempi kuin yläraja."
 
 #: exercise/exercise_models.py:359
-#, fuzzy, python-format, python-brace-format
-#| msgid ""
-#| "Deadline for the exercise has passed. Late submissions are allowed until "
-#| "{date} but points are only worth {percent:d}% of normal."
 msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed until "
 "{date} but points are only worth {percent:d}% of normal."
@@ -1696,8 +1665,6 @@ msgid ""
 msgstr ""
 
 #: exercise/permissions.py:19
-#, fuzzy
-#| msgid "Permission denied by exercise visibility"
 msgid "Permission denied by exercise visibility."
 msgstr "Pääsy kielletty tehtävänäkyvyyden perusteella"
 
@@ -1730,8 +1697,6 @@ msgid "Assistant grading is not allowed for this exercise."
 msgstr "Assistentti ei voi arvostella tätä tehtävää."
 
 #: exercise/permissions.py:87
-#, fuzzy
-#| msgid "Permission denied by submission visibility"
 msgid "Permission denied by submission visibility."
 msgstr "Pääsy kielletty palautuksen näkyvyyden perusteella"
 
@@ -1873,7 +1838,7 @@ msgid ""
 "No model answer has been supplied for this exercise.\n"
 msgstr ""
 "\n"
-"Tähän tehtävään ei ole malliratkaisua.\n"
+"Tähän tehtävään ei ole esimerkkiratkaisua.\n"
 
 #: exercise/templates/exercise/_points_badge.html:11
 msgid "Accepted"
@@ -1900,8 +1865,6 @@ msgid "Not submitted"
 msgstr "Ei palautuksia"
 
 #: exercise/templates/exercise/_points_badge.html:29
-#, fuzzy
-#| msgid "Submitted data"
 msgid "Submitted after deadline"
 msgstr "Palautuksen tiedot"
 
@@ -2080,7 +2043,7 @@ msgstr "Suoritukseen vaaditaan %(points)s pistettä."
 
 #: exercise/templates/exercise/exercise_plain.html:102
 msgid "Show model answer"
-msgstr "Näytä malliratkaisu"
+msgstr "Näytä esimerkkiratkaisu"
 
 #: exercise/templates/exercise/exercise_plain.html:122
 #: exercise/templates/exercise/submission.html:37
@@ -2249,14 +2212,10 @@ msgid "No assistant feedback available for this submission."
 msgstr "Assistentti ei ole vielä käsitellyt tätä palautusta."
 
 #: exercise/templates/exercise/staff/inspect_submission.html:36
-#, fuzzy
-#| msgid "Assistant assess this submission"
 msgid "Assess this submission as an assistant"
 msgstr "Arvostele tämä palautus"
 
 #: exercise/templates/exercise/staff/inspect_submission.html:38
-#, fuzzy
-#| msgid "Assistant assess this submission"
 msgid "Assess this submission as a teacher"
 msgstr "Arvostele tämä palautus"
 
@@ -2389,7 +2348,7 @@ msgstr ""
 
 #: external_services/models.py:32
 msgid "If not enabled, the service is disabled for all course instances."
-msgstr ""
+msgstr "Jos ei päällä, palvelu on poissa käytöstä kaikissa kurssi-instansseissa."
 
 #: external_services/models.py:51
 msgid ""
@@ -2574,15 +2533,13 @@ msgstr "Näytä jaetut tiedot"
 
 #: lib/api/authentication/grader.py:41
 msgid "Client address doesn't match service address."
-msgstr ""
+msgstr "Käyttäjän osoite ei vastaa palvelun osoitetta."
 
 #: lib/api/authentication/grader.py:60 lib/api/authentication/grader.py:66
 msgid "Authentication token isn't in correct format."
 msgstr ""
 
 #: lib/api/authentication/grader.py:71
-#, fuzzy
-#| msgid "No submissions for this course."
 msgid "No valid submission for authentication token."
 msgstr "Ei vielä palautuksia tälle kurssille."
 
@@ -2608,7 +2565,7 @@ msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
 #: lib/fields.py:47 lib/fields.py:71
 msgid "Enter valid JSON."
-msgstr ""
+msgstr "Syötä pätevää JSON:ia."
 
 #: lib/remote_page.py:77
 msgid "Connecting to the course service failed!"
