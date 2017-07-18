@@ -127,7 +127,7 @@ class CourseContentForm(forms.ModelForm):
 
 
 class CloneInstanceForm(forms.Form):
-    url = forms.CharField(label=_("New URL identifier for the course instance"),
+    url = forms.CharField(label=_("New URL identifier for the course instance:"),
         validators=[RegexValidator(regex="^[\w\-\.]+$")])
 
     def __init__(self, *args, **kwargs):

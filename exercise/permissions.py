@@ -16,7 +16,7 @@ from .models import (
 
 
 class ExerciseVisiblePermission(ObjectVisibleBasePermission):
-    message = _("Permission denied by exercise visibility")
+    message = _("Permission denied by exercise visibility.")
     model = LearningObject
     obj_var = 'exercise'
 
@@ -82,7 +82,7 @@ class BaseExerciseAssistantPermission(ObjectVisibleBasePermission):
 
 
 class SubmissionVisiblePermission(ObjectVisibleBasePermission):
-    message = _("Permission denied by submission visibility")
+    message = _("Permission denied by submission visibility.")
     model = Submission
     obj_var = 'submission'
 

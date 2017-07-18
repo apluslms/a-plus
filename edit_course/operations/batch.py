@@ -14,9 +14,9 @@ def create_submissions(instance, admin_profile, json_text):
     try:
         submissions_json = json.loads(json_text)
     except Exception as e:
-        return [_("Failed to parse the JSON: {}").format(str(e))]
+        return [_("Failed to parse the JSON: {}.").format(str(e))]
     if not "objects" in submissions_json:
-        return [_('Missing JSON field: objects')]
+        return [_('Missing JSON field: objects.')]
 
     errors = []
     validated_forms = []
@@ -45,7 +45,7 @@ def create_submissions(instance, admin_profile, json_text):
             validated_forms.append(form)
         else:
             errors.append(
-                _('Invalid fields in object {count:d}: {error}')\
+                _('Invalid fields in object {count:d}: {error}.')\
                     .format(count=count,
                         error="\n".join(extract_form_errors(form))))
 
