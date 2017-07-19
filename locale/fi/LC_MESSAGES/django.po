@@ -280,10 +280,6 @@ msgstr "Tämä kurssi on vain oppilaitoksen koulutusohjelmien opiskelijoille."
 msgid "This course is only for external students."
 msgstr "Tämä kurssi on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
-#: course/permissions.py:89
-msgid "Permission denied by course module visibility"
-msgstr "Pääsy kielletty kurssimoduulin näkyvyyden perusteella."
-
 #: course/permissions.py:102
 msgid "The module is not currently visible."
 msgstr "Tämä osio ei ole tällä hetkellä nähtävissä."

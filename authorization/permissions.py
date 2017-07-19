@@ -1,7 +1,14 @@
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import string_concat, ugettext_lazy as _
+
+try:
+    from django.utils.text import format_lazy
+except ImportError: # implemented in Django 1.11
+    from django.utils.functional import lazy as _lazy
+    def _format_lazy(format_string, *args, **kwargs):
+        return format_string.format(*args, **kwargs)
+    format_lazy = _lazy(_format_lazy, str)
 
 from lib.helpers import Enum
-from lib.messages import error as error_msg
 
 """
 Base permission classes.
@@ -57,6 +64,43 @@ class NoPermission(Permission):
         return False
 
 
+class MessageMixin(object):
+    """
+    Adds easy way to specify what exactly caused the PermissionDenied
+    """
+    def error_msg(self, message: str, delim=None, format=None, replace=False):
+        """
+        Add extra text to self.message about the reason why permission
+        was denied. Uses lazy object so the message string is evaluated
+        only when rendered.
+
+        If optional argument `format` is given, then it's used with format_lazy
+        to format the message with the dictionary arguments from `format` arg.
+
+        Optional argument `delim` can be used to change the string used to join
+        self.message and `message`.
+
+        If optional argument `replace` is true, then self.message is replaced with
+        the `message`.
+        """
+        if delim is None:
+            delim = ': '
+
+        if format:
+            message = format_lazy(message, **format)
+
+        if replace:
+            self.message = message
+        else:
+            assert 'message' not in self.__dict__, (
+                "You are calling error_msg without replace=True "
+                "after calling it with it firts. Fix your code by removing "
+                "firts method call add replace=True to second method call too."
+            )
+            permission_message = self.message # lazy object works funny with object refs
+            self.message = string_concat(permission_message, delim, message)
+
+
 # Access mode
 # ===========
 
@@ -73,7 +117,7 @@ ACCESS = Enum(
 )
 
 
-class AccessModePermission(Permission):
+class AccessModePermission(MessageMixin, Permission):
     """
     If view has access_mode that is not anonymous, then require authentication
     """
@@ -92,17 +136,17 @@ class AccessModePermission(Permission):
 
         if access_mode >= ACCESS.TEACHER:
             if not view.is_teacher:
-                error_msg(request, _("Only course teachers shall pass."))
+                self.error_msg(_("Only course teachers shall pass."))
                 return False
 
         elif access_mode >= ACCESS.ASSISTANT:
             if not view.is_course_staff:
-                error_msg(request, _("Only course staff shall pass."))
+                self.error_msg(_("Only course staff shall pass."))
                 return False
 
         elif access_mode == ACCESS.ENROLLED:
             if not view.is_course_staff and not view.is_student:
-                error_msg(request, _("Only enrolled students shall pass."))
+                self.error_msg(_("Only enrolled students shall pass."))
                 return False
 
         return True
@@ -110,12 +154,6 @@ class AccessModePermission(Permission):
 
 # Object permissions
 # ==================
-
-
-class MessageMixin(object):
-    def error_msg(self, request, msg):
-        self.message = msg
-        error_msg(request, msg)
 
 
 class ObjectVisibleBasePermission(MessageMixin, Permission):

@@ -16,12 +16,12 @@ class MenuVisiblePermission(ObjectVisibleBasePermission):
 
         if menu_item.access >= MenuItem.ACCESS.TEACHER:
             if not view.is_teacher:
-                self.error_msg(request, _("The link is only for teachers."))
+                self.error_msg(_("The link is only for teachers."))
                 return False
 
         elif menu_item.access >= MenuItem.ACCESS.ASSISTANT:
             if not view.is_course_staff:
-                self.error_msg(request, _("The link is only for course staff."))
+                self.error_msg(_("The link is only for course staff."))
                 return False
 
         return True
