@@ -3,6 +3,8 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+msgid ""
+msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-18 18:19+0300\n"
@@ -879,21 +881,21 @@ msgstr "Puuttuva JSON-kenttä: objects."
 #: edit_course/operations/batch.py:28
 #, python-brace-format
 msgid "Missing field \"exercise_id\" in object {count:d}."
-msgstr ""
+msgstr "Puuttuva kenttä \"exercise_id\" objektissa {count:d}."
 
 #: edit_course/operations/batch.py:37
 #, python-brace-format
 msgid "Unknown exercise_id {id:d} in object {count:d}."
-msgstr ""
+msgstr "Tuntematon exercise_id {id:d} objektissa {count:d}."
 
 #: edit_course/operations/batch.py:48
 #, python-brace-format
 msgid "Invalid fields in object {count:d}: {error}."
-msgstr ""
+msgstr "Objektissa kelvottomia kenttiä {count:d}: {error}."
 
 #: edit_course/operations/configure.py:20
 msgid "Unable to parse date: {}."
-msgstr ""
+msgstr "Päivämäärää ei voitu jäsentää: {}"
 
 #: edit_course/operations/configure.py:48
 msgid "Unable to parse duration: {}."
@@ -1337,13 +1339,15 @@ msgstr ""
 #: edit_course/templates/edit_course/signin_as_user.html:4
 #: edit_course/templates/edit_course/signin_as_user.html:7
 msgid "Sign in as given user"
-msgstr "Kirjaudu kyseisenä käyttäjänä"
+msgstr "Kirjaudu jonain käyttäjänä"
 
 #: edit_course/templates/edit_course/signin_as_user.html:9
 msgid ""
 "For debugging purposes, superusers may sign in here as any user. Consider "
 "your actions!"
 msgstr ""
+"Debuggaus-syistä pääkäyttäjät voivat kirjautua tänne minä tähänsa käyttäjänä. "
+"Mieti mitä teet!"
 
 #: edit_course/templates/edit_course/signin_as_user.html:17
 msgid "Change my session"
@@ -1430,7 +1434,7 @@ msgstr "Kurssin sisältö on konfiguroitu."
 
 #: edit_course/views.py:284
 msgid "Server error: {}"
-msgstr ""
+msgstr "Palvelinvirhe: {}"
 
 #: edit_course/views.py:288
 msgid "Exercise caches have been cleared."
@@ -1438,7 +1442,7 @@ msgstr "Tehtävien välimuisti on tyhjennetty."
 
 #: exercise/admin.py:40
 msgid "Real class"
-msgstr ""
+msgstr "Oikea luokka"
 
 #: exercise/admin.py:41
 msgid "Course instance"
@@ -1657,12 +1661,16 @@ msgid ""
 "One of the student fields must not be blank: students, "
 "students_by_student_id, students_by_email"
 msgstr ""
+"Yksi opiskelijakentistä ei saa olla tyhjä: students, "
+"students_by_student_id, students_by_email"
 
 #: exercise/forms.py:104
 msgid ""
 "Only one student field can be given: students, students_by_student_id, "
 "students_by_email"
 msgstr ""
+"Anna vain yksi opiskelijakenttä: students, students_by_student_id, "
+"students_by_email"
 
 #: exercise/permissions.py:19
 msgid "Permission denied by exercise visibility."
@@ -2338,31 +2346,35 @@ msgstr "Palvelun URL"
 
 #: external_services/models.py:23
 msgid "A default label to show in the course menu."
-msgstr ""
+msgstr "Oletusleima näytettäväski kurssin valikkoon."
 
 #: external_services/models.py:28
 msgid ""
 "A default menu icon style name, see http://getbootstrap.com/components/"
 "#glyphicons-glyphs"
 msgstr ""
+"Oletusmenuikonityylin nimi, katso http://getbootstrap.com/components/"
+"#glyphicons-glyphs"
 
 #: external_services/models.py:32
 msgid "If not enabled, the service is disabled for all course instances."
-msgstr "Jos ei päällä, palvelu on poissa käytöstä kaikissa kurssi-instansseissa."
+msgstr "Jos poissa päältä, palvelu on poissa käytöstä kaikissa kurssi-instansseissa."
 
 #: external_services/models.py:51
 msgid ""
 "Enable sharing user's api token and course api url in lti launch request. "
 "This grants api access with user's privileges for the lti tool."
 msgstr ""
+"Aktivoi käyttäjän API-avaimen ja kurssin API-URLin jakaminen LTI:n "
+"käynnistyspyynnössä. Tämä antaa käyttäjän oikeuksilla API-oikeudet LTI-työkaluun."
 
 #: external_services/models.py:55
 msgid "The consumer key provided by the LTI service."
-msgstr ""
+msgstr "LTI-palvelun tarjoama kuluttaja-avain."
 
 #: external_services/models.py:59
 msgid "The consumer secret provided by the LTI service."
-msgstr ""
+msgstr "LTI-palvelun tarjoama kuluttajasalaisuus."
 
 #: external_services/models.py:75
 msgid "All students, assistants and teachers can access."
@@ -2378,7 +2390,7 @@ msgstr "Vain opettajat pääsevät."
 
 #: external_services/models.py:82
 msgid "A course where the menu item exists."
-msgstr "Kurssi, missä valikkovaihtoehto on olemassa."
+msgstr "Kurssi, jossa valikkovaihtoehto on olemassa."
 
 #: external_services/models.py:92
 msgid "If preconfigured, an external service to link."
@@ -2537,7 +2549,7 @@ msgstr "Käyttäjän osoite ei vastaa palvelun osoitetta."
 
 #: lib/api/authentication/grader.py:60 lib/api/authentication/grader.py:66
 msgid "Authentication token isn't in correct format."
-msgstr ""
+msgstr "Tunnistautumisavain on väärässä formaatissa."
 
 #: lib/api/authentication/grader.py:71
 msgid "No valid submission for authentication token."
@@ -2545,19 +2557,19 @@ msgstr "Ei vielä palautuksia tälle kurssille."
 
 #: lib/api/authentication/grader.py:79
 msgid "Authentication token is corrupted: {}."
-msgstr ""
+msgstr "Tunnistautumisavain on korruptoitunut: {}."
 
 #: lib/api/authentication/grader.py:83
 msgid "Authentication token identifier isn't in correct format."
-msgstr ""
+msgstr "Tunnistautumisavaimen tunnus on väärässä formaatissa."
 
 #: lib/api/authentication/grader.py:89
-msgid "No valid exercise for authenticaion token."
-msgstr ""
+msgid "No valid exercise for authentication token."
+msgstr "Ei harjoitusta kyseiselle tunnistautumisavaimelle."
 
 #: lib/api/authentication/grader.py:94
 msgid "Authentication token is invalid."
-msgstr ""
+msgstr "Tunnistautumisavain on kelvoton."
 
 #: lib/fields.py:27
 msgid "The number must be between 0.0 and 1.0"
@@ -2565,7 +2577,7 @@ msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
 #: lib/fields.py:47 lib/fields.py:71
 msgid "Enter valid JSON."
-msgstr "Syötä pätevää JSON:ia."
+msgstr "Syötä kelvollista JSON:ia."
 
 #: lib/remote_page.py:77
 msgid "Connecting to the course service failed!"
