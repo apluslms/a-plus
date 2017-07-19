@@ -97,8 +97,7 @@ class MessageMixin(object):
                 "after calling it with it firts. Fix your code by removing "
                 "firts method call add replace=True to second method call too."
             )
-            permission_message = self.message # lazy object works funny with object refs
-            self.message = string_concat(permission_message, delim, message)
+            self.message = string_concat(self.message, delim, message)
 
 
 # Access mode
