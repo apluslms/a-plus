@@ -21,7 +21,7 @@
   <div class="alert alert-info">
     {% trans "[staff has none]" as staff_code %}
     {% blocktrans with code=enrollment.personal_code|default:staff_code %}
-    Your personal group <strong>join code</strong> is <strong>{{ code }}</strong>
+    Your personal group <strong>join code</strong> is <strong>{{ code }}</strong>.
     {% endblocktrans %}
   </div>
 

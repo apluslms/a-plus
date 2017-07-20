@@ -33,9 +33,9 @@
         <p>
             <a class="btn btn-primary" href="{{ submission|url:'submission-assess' }}">
                 {% if submission.exercise.allow_assistant_grading %}
-            	{% trans "Assistant assess this submission" %}
+            	{% trans "Assess this submission as an assistant" %}
                 {% else %}
-                {% trans "Teacher assess this submission" %}
+                {% trans "Assess this submission as a teacher" %}
                 {% endif %}
             </a>
         </p>

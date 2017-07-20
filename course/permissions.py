@@ -18,7 +18,7 @@ from .models import (
 
 
 class CourseVisiblePermission(ObjectVisibleBasePermission):
-    message = _("Permission denied by course visibility")
+    message = _("Permission denied by course visibility.")
     model = CourseInstance
     obj_var = 'instance'
 
@@ -104,7 +104,7 @@ class CourseModulePermission(MessageMixin, Permission):
         if not module.is_after_open():
             # FIXME: use format from django settings
             self.error_msg(
-                _("The module will open for submissions at {date}"),
+                _("The module will open for submissions at {date}."),
                 format={'date': module.opening_time},
                 delim=' ',
             )
@@ -117,7 +117,7 @@ class CourseModulePermission(MessageMixin, Permission):
 
 
 class OnlyCourseTeacherPermission(Permission):
-    message = _("Only course teacher is allowed")
+    message = _("Only course teacher is allowed.")
 
     def has_permission(self, request, view):
         return self.has_object_permission(request, view, view.instance)
@@ -127,7 +127,7 @@ class OnlyCourseTeacherPermission(Permission):
 
 
 class OnlyCourseStaffPermission(Permission):
-    message = _("Only course staff is allowed")
+    message = _("Only course staff is allowed.")
 
     def has_permission(self, request, view):
         return self.has_object_permission(request, view, view.instance)

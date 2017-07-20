@@ -17,7 +17,7 @@ def parse_date(value, errors):
                 timezone.get_current_timezone())
         except ValueError:
             pass
-    errors.append(_("Unable to parse date: {}").format(value))
+    errors.append(_("Unable to parse date: {}.").format(value))
     return None
 
 
@@ -45,7 +45,7 @@ def parse_duration(begin, value, errors):
                 return begin + timedelta(weeks=i)
         except ValueError:
             pass
-    errors.append(_("Unable to parse duration: {}").format(value))
+    errors.append(_("Unable to parse duration: {}.").format(value))
     return None
 
 
@@ -53,7 +53,7 @@ def parse_int(value, errors):
     try:
         return int(value)
     except ValueError:
-        errors.append(_("Unable to parse int: {}").format(value))
+        errors.append(_("Unable to parse int: {}.").format(value))
     return None
 
 
@@ -61,7 +61,7 @@ def parse_float(value, errors):
     try:
         return float(value)
     except ValueError:
-        errors.append(_("Unable to parse float: {}").format(value))
+        errors.append(_("Unable to parse float: {}.").format(value))
     return None
 
 
@@ -81,7 +81,7 @@ def configure_learning_objects(category_map, module, config, parent,
             errors.append(_("Learning object requires a category."))
             continue
         if not o["category"] in category_map:
-            errors.append(_("Unknown category {}").format(o["category"]))
+            errors.append(_("Unknown category {}.").format(o["category"]))
             continue
 
         lobject = LearningObject.objects.filter(
@@ -191,11 +191,11 @@ def get_build_log(instance):
     try:
         response = requests.get(instance.build_log_url)
     except Exception as e:
-        return {'error': _("Requesting build log failed: {}").format(str(e))}
+        return {'error': _("Requesting build log failed: {}.").format(str(e))}
     try:
         data = json.loads(response.text)
     except Exception as e:
-        return {'error': _("Failed to parse the build log JSON: {}").format(str(e))}
+        return {'error': _("Failed to parse the build log JSON: {}.").format(str(e))}
     if not data:
         return {'error': _("Remote URL returned an empty build log.")}
     return data
@@ -211,7 +211,7 @@ def configure_content(instance, url):
         url = url.strip()
         response = requests.get(url)
     except Exception as e:
-        return [_("Request failed: {}").format(str(e))]
+        return [_("Request failed: {}.").format(str(e))]
 
     instance.configure_url = url
     instance.save()
@@ -219,7 +219,7 @@ def configure_content(instance, url):
     try:
         config = json.loads(response.text)
     except Exception as e:
-        return [_("Failed to parse the JSON: {}").format(str(e))]
+        return [_("Failed to parse the JSON: {}.").format(str(e))]
 
     errors = []
 
@@ -245,7 +245,7 @@ def configure_content(instance, url):
                     for sid in config["assistants"]]
                 instance.assistants = profiles
             except UserProfile.DoesNotExist as err:
-                errors.append(_("Assistant student ID was not found: {}")\
+                errors.append(_("Assistant student ID was not found: {}.")\
                     .format(str(err)))
     if "build_log_url" in config:
         instance.build_log_url = str(config["build_log_url"])
