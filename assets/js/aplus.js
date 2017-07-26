@@ -592,6 +592,12 @@ $.fn.highlightCode = function(options) {
                 pass = false;
                 return false;
               }
+		      if (self.filters[i] && self.filters[3] !== "") {
+                if (self.filters[3] != $(this).text().toLowerCase().trim()) {
+                  pass = false;
+                  return false;
+                }
+              }
             });
             return pass;
           }).show();
