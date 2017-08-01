@@ -44,20 +44,20 @@
 				<ul class="nav navbar-nav exercise-nav">
 					<li>
 						<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
-							{% if not exercise.confirm_the_level %}{% trans "Points" %}{% endif %}
+							{% if not exercise.category.confirm_the_level %}{% trans "Points" %}{% endif %}
 							{% points_badge summary %}
 						</a>
 					</li>
 					<li class="dropdown">
 		    			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-							{% trans "Submissions" %}
-							<span class="badge">
-								{{ summary.get_submission_count }}
-				    			{% if exercise.max_submissions %}
-				    			/ {{ exercise|max_submissions:profile }}
-				    			{% endif %}
-							</span>
-		    				<b class="caret"></b>
+								{% trans "My submissions" %}
+								<span class="badge">
+									{{ summary.get_submission_count }}
+					    			{% if exercise.max_submissions %}
+					    			/ {{ exercise|max_submissions:profile }}
+					    			{% endif %}
+								</span>
+			    			<b class="caret"></b>
 		    			</a>
 				        <ul class="dropdown-menu">
 				        	{% for submission in submissions %}
@@ -75,7 +75,7 @@
 				        	{% endfor %}
 				        </ul>
 					</li>
-					{% if not exercise.confirm_the_level %}
+					{% if not exercise.category.confirm_the_level %}
 					<li class="navbar-text">
 						{% if not exercise.is_closed %}
 							<small>
@@ -95,7 +95,7 @@
 					</li>
 					{% endif %}
 				</ul>
-				{% if is_course_staff or is_student and exercise.is_closed %}
+				{% if is_course_staff or is_student and exercise.can_show_solutions %}
 				{% if exercise.model_answers %}
 				<a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-model' }}">
 					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
@@ -112,10 +112,16 @@
 			</nav>
       {% endif %}
 
-			<div class="exercise-response">
+			<div class="exercise-response" data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"{% if summary.get_submission_count > 0 %} data-aplus-group-fixed="{{ summary.get_group_id }}"{% endif %}>
 				{% include "_messages.html" %}
-				<div id="exercise">
+				<div>
+					{% if page.content.strip %}
 					{{ page.content|safe }}
+					{% elif submission and submission.status == "waiting" %}
+					<div class="alert alert-info">
+						{% trans "Your submission has been accepted for grading." %}
+					</div>
+					{% endif %}
 				</div>
 				{% include "exercise/_exercise_wait.html" %}
 			</div>

@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from course.models import CourseModule
 from lib.errors import TagUsageError
 from ..cache.content import CachedContent
 from ..cache.points import CachedPoints
@@ -15,12 +16,17 @@ from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExer
 register = template.Library()
 
 
+def _prepare_now(context):
+    if not 'now' in context:
+        context['now'] = timezone.now()
+    return context['now']
+
+
 def _prepare_context(context, student=None):
     if not 'instance' in context:
         raise TagUsageError()
     instance = context['instance']
-    if not 'now' in context:
-        context['now'] = timezone.now()
+    _prepare_now(context)
     if not 'content' in context:
         context['content'] = CachedContent(instance)
     def points(user, key):
@@ -34,13 +40,14 @@ def _prepare_context(context, student=None):
 
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
-    return {
-        'now': context['now'],
+    context = context.flatten()
+    context.update({
         'modules': points.modules_flatted(),
         'categories': points.categories(),
         'total': points.total(),
         'is_course_staff': context.get('is_course_staff', False),
-    }
+    })
+    return context
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
@@ -119,7 +126,7 @@ def _points_data(obj, classes=None):
             'max': exercise.max_points,
             'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
-            'confirm_the_level': exercise.confirm_the_level,
+            'confirm_the_level': exercise.category.confirm_the_level,
             'missing_points': obj.is_missing_points(),
             'passed': obj.is_passed(),
             'full_score': obj.is_full_points(),
@@ -134,20 +141,18 @@ def _points_data(obj, classes=None):
             'max': exercise.max_points,
             'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
-            'confirm_the_level': exercise.confirm_the_level,
+            'confirm_the_level': exercise.category.confirm_the_level,
             'missing_points': obj.grade < exercise.points_to_pass,
             'passed': obj.grade >= exercise.points_to_pass,
             'full_score': obj.grade >= exercise.max_points,
             'submitted': True,
             'graded': obj.is_graded,
+            'unofficial': obj.status == Submission.STATUS.UNOFFICIAL,
         }
-        if (
-            obj.status != Submission.STATUS.READY
-            and (
-                not exercise.confirm_the_level
-                or obj.status != Submission.STATUS.WAITING
-            )
-        ):
+        if not obj.is_graded and (
+                    not exercise.category.confirm_the_level
+                    or obj.status != Submission.STATUS.WAITING
+                ):
             data['status'] = obj.status
     else:
         points = obj.get('points', 0)
@@ -166,6 +171,7 @@ def _points_data(obj, classes=None):
             'graded': obj.get('graded', True),
             'status': obj.get('submission_status', False),
             'unconfirmed': obj.get('unconfirmed', False),
+            'unofficial': obj.get('unofficial', False),
             'confirmable_points': obj.get('confirmable_points', False),
         }
     percentage = 0
@@ -202,3 +208,15 @@ def max_group_size(context):
 def min_group_size(context):
     points = _prepare_context(context)
     return points.total()['min_group_size']
+
+
+@register.assignment_tag(takes_context=True)
+def module_accessible(context, entry):
+    t = entry.get('opening_time')
+    if t and t > _prepare_now(context):
+        return False
+    if entry.get('requirements'):
+        points = _prepare_context(context)
+        module = CourseModule.objects.get(id=entry['id'])
+        return module.are_requirements_passed(points)
+    return True

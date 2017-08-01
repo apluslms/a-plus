@@ -216,23 +216,26 @@ Walkthrough for Ubuntu
 			SSLEngine on
 			SSLCertificateFile    /etc/ssl/certs/aplus.domain.org.pem
 			SSLCertificateKeyFile /etc/ssl/private/aplus.domain.org.key
-			SSLCertificateChainFile /etc/apache2/ssl.crt/terena_chain.pem
+			SSLCertificateChainFile /etc/ssl/certs/aplus.chain.pem
 
 			# Static files served by Apache.
-			Alias /static/ /home/[shell-username]/a-plus/static/
-			Alias /favicon.ico /home/[shell-username]/a-plus/static/favicons/favicon.ico
-			AliasMatch ^/media/public/(.*)$ /home/[shell-username]/a-plus/media/public/$1
-			<Directory /home/[shell-username]/a-plus/static/>
-				Order allow,deny
-				Allow from all
+			Alias /static/ /srv/aplus/a-plus/static/
+			Alias /favicon.ico /srv/aplus/a-plus/static/favicons/favicon.ico
+			AliasMatch ^/media/public/(.*)$ /srv/aplus/a-plus/media/public/$1
+			<Directory /srv/aplus/a-plus/static/>
+				# Deprecated Apache 2.2
+				# Order allow,deny
+				# Allow from all
+				Require all granted
 			</Directory>
-			<Directory /home/[shell-username]/a-plus/media/public/>
-				Order allow,deny
-				Allow from all
+			<Directory /srv/aplus/a-plus/media/public/>
+				Require all granted
 			</Directory>
 
 			# Mapping to Python WSGI server.
 			<Location />
+				DirectoryIndex disabled
+				Options -Indexes
 				Options FollowSymLinks
 				SetHandler uwsgi-handler
 				uWSGISocket 127.0.0.1:3031

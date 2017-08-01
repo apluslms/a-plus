@@ -1,0 +1,32 @@
+{% load i18n %}
+
+{% if error %}
+  <div class="alert clearfix alert-danger" role="alert">{{ error }}</div>
+{% else %}
+  <table class="table table-sm table-bordered table-condensed">
+    <tbody>
+      <tr>
+        <td>{% trans 'Build initated by' %}</td>
+        <td>{{ request_ip }}</td>
+      </tr>
+      <tr>
+        <td>{% trans 'Build initated at' %}</td>
+        <td>{{ request_time }}</td>
+      </tr>
+      {% if not updated %}
+        <tr class="warning">
+          <td>{% trans 'Build finished' %}</td>
+          <td>{% trans 'Not yet built' %}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td>{% trans 'Build finished' %}</td>
+          <td>{{ updated_time }}</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  <pre>
+  {{ build_log }}
+  </pre>
+{% endif %}

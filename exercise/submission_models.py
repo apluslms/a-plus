@@ -2,19 +2,18 @@ import logging
 import os
 
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from mimetypes import guess_type
 
-from . import exercise_models
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
     safe_file_name, Enum
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
+from . import exercise_models
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -42,7 +41,10 @@ class SubmissionManager(models.Manager):
         return new_submission
 
     def exclude_errors(self):
-        return self.exclude(status=Submission.STATUS.ERROR)
+        return self.exclude(status__in=(
+            Submission.STATUS.ERROR,
+            Submission.STATUS.REJECTED,
+        ))
 
 
 class Submission(UrlMixin, models.Model):
@@ -51,9 +53,11 @@ class Submission(UrlMixin, models.Model):
     """
     STATUS = Enum([
         ('INITIALIZED', 'initialized', _("Initialized")),
-        ('WAITING', 'waiting', _("Waiting")),
-        ('READY', 'ready', _("Ready")),
+        ('WAITING', 'waiting', _("In grading")),
+        ('READY', 'ready', _("Ready")), # graded normally
         ('ERROR', 'error', _("Error")),
+        ('REJECTED', 'rejected', _("Rejected")), # missing fields etc
+        ('UNOFFICIAL', 'unofficial', _("Unofficial")), # graded after closing
     ])
     submission_time = models.DateTimeField(auto_now_add=True)
     hash = models.CharField(max_length=32, default=get_random_string)
@@ -110,10 +114,10 @@ class Submission(UrlMixin, models.Model):
         """
         for key in files:
             for uploaded_file in files.getlist(key):
-                userfile = SubmittedFile()
-                userfile.file_object = uploaded_file
-                userfile.param_name = key
-                self.files.add(userfile)
+                self.files.create(
+                    file_object=uploaded_file,
+                    param_name=key,
+                )
 
     def get_post_parameters(self, request, url):
         """
@@ -160,6 +164,11 @@ class Submission(UrlMixin, models.Model):
         exercise.course_module. If no_penalties is True, the penalty is not
         applied.
         """
+        exercise = self.exercise
+
+        # Evade bad max points in remote service.
+        if max_points == 0 and points > 0:
+            max_points = exercise.max_points
 
         # The given points must be between zero and max points
         assert 0 <= points <= max_points
@@ -171,23 +180,24 @@ class Submission(UrlMixin, models.Model):
 
         self.service_points = points
         self.service_max_points = max_points
+        self.late_penalty_applied = None
 
         # Scale the given points to the maximum points for the exercise
         if max_points > 0:
-            adjusted_grade = (1.0 * self.exercise.max_points * points / max_points)
+            adjusted_grade = (1.0 * exercise.max_points * points / max_points)
         else:
             adjusted_grade = 0.0
 
-        # Check if this submission was done late. If it was, reduce the points
-        # with late submission penalty. No less than 0 points are given. This
-        # is not done if no_penalties is True.
-        if not no_penalties and self.is_late():
-            self.late_penalty_applied = \
-                self.exercise.course_module.late_submission_penalty \
-                if self.exercise.course_module.late_submissions_allowed else 0
-            adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
-        else:
-            self.late_penalty_applied = None
+        if not no_penalties:
+            timing,_ = exercise.get_timing(self.submitters.all(), self.submission_time)
+            if timing in (exercise.TIMING.LATE, exercise.TIMING.CLOSED_AFTER):
+                self.late_penalty_applied = (
+                    exercise.course_module.late_submission_penalty if
+                    exercise.course_module.late_submissions_allowed else 0
+                )
+                adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
+            elif timing == exercise.TIMING.UNOFFICIAL:
+                self.status = self.STATUS.UNOFFICIAL
 
         self.grade = round(adjusted_grade)
 
@@ -204,36 +214,23 @@ class Submission(UrlMixin, models.Model):
 
     def set_ready(self):
         self.grading_time = timezone.now()
-        self.status = self.STATUS.READY
+        if self.status != self.STATUS.UNOFFICIAL:
+            self.status = self.STATUS.READY
 
         # Fire set hooks.
         for hook in self.exercise.course_module.course_instance \
                 .course_hooks.filter(hook_type="post-grading"):
             hook.trigger({ "submission_id": self.id })
 
+    def set_rejected(self):
+        self.status = self.STATUS.REJECTED
+
     def set_error(self):
         self.status = self.STATUS.ERROR
 
-    def is_late(self):
-        if self.exercise.confirm_the_level:
-            return False
-        if self.submission_time <= self.exercise.course_module.closing_time:
-            return False
-        deviation = self.exercise.one_has_deadline_deviation(
-            self.submitters.all()
-        )
-        if (
-            deviation
-            and deviation.without_late_penalty
-            and self.submission_time <= deviation.get_new_deadline()
-        ):
-            return False
-        return True
-
     @property
     def is_graded(self):
-        return self.status == self.STATUS.READY
-
+        return self.status in (self.STATUS.READY, self.STATUS.UNOFFICIAL)
 
     ABSOLUTE_URL_NAME = "submission"
 

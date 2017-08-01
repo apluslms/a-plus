@@ -46,10 +46,29 @@
 			this.loader = $(this.settings.loader_selector); //----------- what is loader_selector?
 			this.messages = this.readMessages();
 			this.quizSuccess = $(this.settings.quiz_success_selector);
-			this.element.find("[" + this.settings.exercise_url_attr + "][" + this.settings.active_element_attr +  "!='out']")//!!!! here
-				.aplusExercise(this);
+
+      // For now don't include active elements to group things
 			this.element.find("[" + this.settings.active_element_attr +  "='out']").activeElement(this)
 			this.element.find("[" + this.settings.active_element_attr +  "='in']").activeElement(this, {input: true})
+
+			this.exercises = this.element
+			  // So here search only elements that are just regular exercises
+				.find("[" + this.settings.exercise_url_attr + "][" + this.settings.active_element_attr +  "!='out']") 
+				.aplusExercise(this);
+			this.exercisesIndex = 0;
+			this.exercisesSize = this.exercises.size();
+			if (this.exercisesSize > 0) {
+				this.nextExercise();
+			} else {
+				$.augmentExerciseGroup($(".exercise-column"));
+			}
+		},
+
+		nextExercise: function() {
+			if (this.exercisesIndex < this.exercisesSize) {
+				this.exercises.eq(this.exercisesIndex).aplusExerciseLoad();
+				this.exercisesIndex++;
+			}
 		},
 
 		readMessages: function() {
@@ -86,7 +105,7 @@
 			});
 			var content = this.quizSuccess.clone()
 				.attr("class", exercise.attr("class"))
-				.removeClass("exercise")
+				.removeClass("exercise hide")
 				.removeAttr("id");
 			content.find('.badge-placeholder').empty().append(badge);
 			if (badge.hasClass("badge-success") || badge.hasClass("badge-warning")) {
@@ -117,7 +136,7 @@
 	"use strict";
 
 	var pluginName = "aplusExercise";
-	var reloadName = "aplusReload";
+	var loadName = "aplusExerciseLoad";
 	var defaults = {
 		quiz_attr: "data-aplus-quiz",
 		ajax_attr: "data-aplus-ajax",
@@ -162,7 +181,6 @@
 			this.element.height(this.element.height()).empty();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
-			this.load();
 
 			// Add an Ajax exercise event listener to refresh the summary.  ---- note to self: The postMessage must be sent after sending the exersice for grading; 
 			//                                                                   this receives the message and retrieves results
@@ -185,12 +203,15 @@
 			$.ajax(this.url, {dataType: "html"})
 				.fail(function() {
 					exercise.showLoader("error");
+					exercise.chapter.nextExercise();
 				})
 				.done(function(data) {
 					exercise.hideLoader();
 					exercise.update($(data));
 					if (exercise.quiz) {
 						exercise.loadLastSubmission($(data));
+					} else {
+						exercise.chapter.nextExercise();
 					}
 				});
 		},
@@ -223,6 +244,7 @@
 					});
 				}
 			}
+			$.augmentExerciseGroup(content);
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID
@@ -305,6 +327,7 @@
 					$.ajax(link.attr("href"), {dataType: "html"})
 						.fail(function() {
 							exercise.showLoader("error");
+							exercise.chapter.nextExercise();
 						})
 						.done(function(data) {
 							exercise.hideLoader();
@@ -314,8 +337,13 @@
 								);
 							//f.find("table.submission-info").remove();
 							exercise.bindFormEvents(f);
+							exercise.chapter.nextExercise();
 						});
+				} else {
+					this.chapter.nextExercise();
 				}
+			} else {
+				this.chapter.nextExercise();
 			}
 		},
 
@@ -342,7 +370,7 @@
 		});
 	};
 
-	$.fn[reloadName] = function() {
+	$.fn[loadName] = function() {
 		return this.each(function() {
 			var exercise = $.data(this, "plugin_" + pluginName);
 			if (exercise) {
@@ -636,4 +664,4 @@
 
 
 // Construct the page chapter element.
-jQuery(function() { jQuery("#exercise").aplusChapter(); });
+jQuery(function() { jQuery("#exercise-page-content").aplusChapter(); });

@@ -42,8 +42,10 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'type': 'exercise',
                     'category': str(category),
                     'category_id': category.id,
-                    'module_id': module.id,
-                    'module_status': module.status,
+                    'category_status': category.status,
+                    'confirm_the_level': category.confirm_the_level,
+                    'module_id': module['id'],
+                    'module_status': module['status'],
                     'id': o.id,
                     'order': o.order,
                     'status': o.status,
@@ -51,20 +53,21 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'link': o.get_display_url(),
                     'submittable': False,
                     'submissions_link': o.get_submission_list_url(),
-                    'opening_time': module.opening_time,
-                    'closing_time': module.closing_time,
+                    'requirements': module['requirements'],
+                    'opening_time': module['opening_time'],
+                    'closing_time': module['closing_time'],
                     'is_empty': o.is_empty(),
                     'points_to_pass': 0,
                     'difficulty': '',
                     'max_submissions': 0,
                     'max_points': 0,
-                    'confirm_the_level': False,
+                    'allow_assistant_viewing': False,
                     'children': [],
                 }
                 container.append(entry)
                 idx = indexes + [j]
                 exercise_index[o.id] = idx
-                paths[module.id][o.get_path()] = o.id
+                paths[module['id']][o.get_path()] = o.id
                 if not category.id in categories:
                     categories[category.id] = {
                         'type': 'category',
@@ -90,6 +93,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'name': str(module),
                 'introduction': module.introduction,
                 'link': module.get_absolute_url(),
+                'requirements': [str(r) for r in module.requirements.all()],
                 'opening_time': module.opening_time,
                 'closing_time': module.closing_time,
                 'late_allowed': module.late_submissions_allowed,
@@ -106,7 +110,7 @@ class CachedContent(ContentMixin, CachedAbstract):
             module_index[module.id] = idx
             paths[module.id] = {}
             all_children = list(module.learning_objects.all())
-            recursion(module, all_children, [], idx, entry['children'])
+            recursion(entry, all_children, [], idx, entry['children'])
             i += 1
 
         # Augment submittable exercise parameters.
@@ -127,10 +131,10 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'difficulty': exercise.difficulty,
                 'max_submissions': exercise.max_submissions,
                 'max_points': exercise.max_points,
-                'confirm_the_level': exercise.confirm_the_level,
+                'allow_assistant_viewing': exercise.allow_assistant_viewing,
             })
 
-            if exercise.confirm_the_level:
+            if tree[-1]['confirm_the_level']:
                 parent = tree[-2]
                 parent['unconfirmed'] = True
                 for entry in parent['children']:

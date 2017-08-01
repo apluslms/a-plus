@@ -1,5 +1,6 @@
 from django.db.models import Max
 
+from course.models import StudentGroup
 from .models import BaseExercise, Submission
 
 
@@ -25,7 +26,10 @@ class UserExerciseSummary(object):
             self.submissions = list(exercise.get_submissions_for_student(
                 user.userprofile))
             for s in self.submissions:
-                if s.status != Submission.STATUS.ERROR:
+                if not s.status in (
+                    Submission.STATUS.ERROR,
+                    Submission.STATUS.REJECTED,
+                ):
                     self.submission_count += 1
                     if (
                         s.status == Submission.STATUS.READY and (
@@ -66,6 +70,20 @@ class UserExerciseSummary(object):
     def is_graded(self):
         return self.graded
 
+    def get_group(self):
+        if self.submission_count > 0:
+            s = self.submissions[0]
+            if s.submitters.count() > 0:
+                return StudentGroup.get_exact(
+                    self.exercise.course_instance,
+                    s.submitters.all()
+                )
+        return None
+
+    def get_group_id(self):
+        group = self.get_group()
+        return group.id if group else 0
+
 
 class ResultTable:
     """
@@ -87,6 +105,7 @@ class ResultTable:
         self.exercises = list(BaseExercise.objects \
             .filter(course_module__course_instance=course_instance) \
             .order_by("course_module__closing_time", "course_module", "order"))
+        self.categories = course_instance.categories.all()
 
         # Students on the course.
         self.students = list(course_instance.get_student_profiles())
@@ -95,6 +114,11 @@ class ResultTable:
         self.results = {
             student.id: {
                 exercise.id: None for exercise in self.exercises
+            } for student in self.students
+        }
+        self.results_by_category = {
+            student.id: {
+                category.id: 0 for category in self.categories
             } for student in self.students
         }
 
@@ -109,13 +133,14 @@ class ResultTable:
         """
         submissions = list(Submission.objects \
             .filter(exercise__course_module__course_instance=self.course_instance) \
-            .values("submitters", "exercise") \
+            .values("submitters", "exercise", "exercise__category") \
             .annotate(best=Max("grade")) \
             .order_by()) # Remove default ordering.
         for submission in submissions:
             student_id = submission["submitters"]
             if student_id in self.results:
                 self.results[student_id][submission["exercise"]] = submission["best"]
+                self.results_by_category[student_id][submission["exercise__category"]] += submission["best"]
 
 
     def results_for_template(self):

@@ -29,7 +29,7 @@ class PercentField(models.FloatField):
         return value
 
 
-class JSONField(models.TextField, metaclass=models.SubfieldBase):
+class JSONField(models.TextField):
     """
     Stores JSON object in a text field.
     """
@@ -55,7 +55,7 @@ class JSONField(models.TextField, metaclass=models.SubfieldBase):
             return value
         return json.dumps(value)
 
-    def to_python(self, value):
+    def from_db_value(self, value, expression, connection, context):
         return JSONField.parse_json(value)
 
     def get_prep_value(self, value):

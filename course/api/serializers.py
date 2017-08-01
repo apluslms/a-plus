@@ -14,8 +14,8 @@ from ..models import (
 __all__ = [
     'CourseBriefSerializer',
     'CourseListField',
+    'StudentBriefSerializer',
     'CourseUsertagBriefSerializer',
-    'CourseSubmissionsBriefSerializer',
 ]
 
 
@@ -46,6 +46,33 @@ class CourseListField(AlwaysListSerializer, CourseBriefSerializer):
     pass
 
 
+class StudentBriefSerializer(UserBriefSerializer):
+    points = serializers.SerializerMethodField()
+    data = serializers.SerializerMethodField()
+
+    def get_points(self, profile):
+        return self._get_link_lookup('api:course-points-detail', profile)
+
+    def get_data(self, profile):
+        return self._get_link_lookup('api:course-submissiondata-detail', profile)
+
+    def _get_link_lookup(self, name, profile):
+        return reverse(
+            name,
+            kwargs={
+                'course_id': self.context['view'].instance.id,
+                'user_id': profile.user.id,
+            },
+            request=self.context['request']
+        )
+
+    class Meta(UserBriefSerializer.Meta):
+        fields = UserBriefSerializer.Meta.fields + (
+            'points',
+            'data',
+        )
+
+
 class CourseUsertagBriefSerializer(AplusModelSerializer):
     """
     BriefSerialzer for course UserTag objects
@@ -59,13 +86,3 @@ class CourseUsertagBriefSerializer(AplusModelSerializer):
                 'lookup_map': 'course.api.views.CourseUsertagsViewSet',
             }
         }
-
-
-class CourseSubmissionsBriefSerializer(UserBriefSerializer):
-    url = serializers.SerializerMethodField()
-
-    def get_url(self, obj):
-        return reverse('api:course-submissiondata-detail', kwargs={
-            'course_id': self.context['view'].instance.id,
-            'user_id': obj.user.id,
-        }, request=self.context['request'])

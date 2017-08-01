@@ -1,6 +1,5 @@
 import datetime
 import logging
-import json
 
 import icalendar
 from django.conf import settings
@@ -20,8 +19,7 @@ from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .renders import render_tags, group_info_context
-from .viewbase import CourseBaseView, CourseInstanceBaseView, \
-    CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
+from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
 
 
 logger = logging.getLogger("course.views")
@@ -57,11 +55,6 @@ class ArchiveView(UserProfileView):
         super().get_common_objects()
         self.instances = CourseInstance.objects.get_visible(self.request.user)
         self.note("instances")
-
-
-class ProfileView(UserProfileView):
-    template_name = "course/profile.html"
-
 
 class InstanceView(EnrollableViewMixin, BaseTemplateView):
     template_name = "course/course.html"
@@ -178,38 +171,3 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
                 **group_info_context(enrollment.selected_group, self.profile)
             )
         return super().form_valid(form)
-
-
-class ParticipantsView(CourseInstanceBaseView):
-    access_mode = ACCESS.ASSISTANT
-    template_name = "course/participants.html"
-
-    def get_common_objects(self):
-        super().get_common_objects()
-        participants = self.instance.students.all()\
-            .select_related('taggings__tag')\
-            .prefetch_related('taggings')
-        self.participants = []
-        for participant in participants:
-            tags = [
-                t.tag for t in participant.taggings.all()
-                if t.course_instance == self.instance
-            ]
-            self.participants.append({
-                'id': participant.student_id or '',
-                'last_name': participant.user.last_name or '',
-                'first_name': participant.user.first_name or '',
-                'email': participant.user.email or participant.user.username,
-                'link': participant.get_url(self.instance),
-                'tags': render_tags(participant, tags),
-                'tag_ids': [t.id for t in tags],
-                'external': participant.is_external,
-            })
-        self.participants = json.dumps(self.participants)
-        self.tags = self.instance.usertags.all()
-        self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
-        self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
-        self.note(
-            'participants', 'tags',
-            'internal_user_label', 'external_user_label',
-        )

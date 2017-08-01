@@ -1,9 +1,8 @@
+from django.contrib.auth.mixins import AccessMixin
+from django.contrib.auth.views import redirect_to_login
+from django.contrib.messages import error as error_message
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-
-try:
-    from django.contrib.auth.mixins import AccessMixin
-except ImportError:
-    from .djangobackports import AccessMixin_1_10 as AccessMixin
 
 from .exceptions import ValidationFailed
 from .permissions import NoPermission
@@ -53,9 +52,28 @@ class AuthenticationMixin(AccessMixin):
         request.user
 
     def handle_no_permission(self):
-        if self.request.user.is_authenticated():
-            self.raise_exception = True
-        return super(AuthenticationMixin, self).handle_no_permission()
+        """
+        Will be called by self.permission_denied() when user doesn't
+        have permission.
+
+        This method has logic copied from
+          django.contrib.auth.mixins.AccessMixin.handle_no_permission()
+        """
+        request = self.request
+        message = self.get_permission_denied_message()
+
+        # Add message to messages interface, so it will be rendered
+        # on login and error pages
+        error_message(request, message)
+
+        # For authenticated users, raise exception.
+        if request.user.is_authenticated:
+            raise PermissionDenied(message)
+
+        # Redirect not authenticated users to login
+        return redirect_to_login(request.get_full_path(),
+                                    self.get_login_url(),
+                                    self.get_redirect_field_name())
 
     def validate_request(self, request, *args, **kwargs):
         self.perform_authentication(request)

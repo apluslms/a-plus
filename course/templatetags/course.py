@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from exercise.cache.content import CachedContent
 from course.models import CourseInstance
-from ..cache import CachedTopMenu
+from ..cache.menu import CachedTopMenu
 from ..renders import tags_context
 
 

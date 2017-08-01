@@ -15,7 +15,7 @@
 {% include 'exercise/_user_toc.html' %}
 {% endif %}
 
-<div id="exercise" data-aplus-chapter="{{ exercise|url }}">
+<div id="exercise-page-content"{% if exercise.is_submittable %} data-aplus-chapter="{{ exercise|url }}" data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"{% if summary.get_submission_count > 0 %} data-aplus-group-fixed="{{ summary.get_group_id }}"{% endif %}{% endif %}>
     {{ page.content|safe }}
 </div>
 
@@ -47,11 +47,12 @@
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'exercise/poll.js' %}"></script>
+<script src="{% static 'exercise/group.js' %}"></script>
 <script src="{% static 'exercise/chapter.js' %}"></script>
 <script>
 // Visualize loading in case of slow POST operations.
 /*$(function() {
-    var forms = $("#exercise").find("form:not([data-aplus-exercise] form)");
+    var forms = $("#exercise-page-content").find("form:not([data-aplus-exercise] form)");
     forms.on("submit", function(event) {
         $("#submit-progress").removeClass("hide");
     });

@@ -83,6 +83,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'graded': submission.is_graded,
                     'passed': submission.grade >= entry['points_to_pass'],
                     'submission_status': submission.status if not submission.is_graded else False,
+                    'unofficial': submission.status == Submission.STATUS.UNOFFICIAL,
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
                 })
@@ -181,11 +182,13 @@ class CachedPoints(ContentMixin, CachedAbstract):
     def created(self):
         return self.data['points_created'], super().created()
 
-    def submission_ids(self, category_id=None, module_id=None, exercise_id=None, best=True):
+    def submission_ids(self, category_id=None, module_id=None, exercise_id=None,
+                       filter_for_assistant=False, best=True):
         exercises = self.search_exercises(
             category_id=category_id,
             module_id=module_id,
-            exercise_id=exercise_id
+            exercise_id=exercise_id,
+            filter_for_assistant=filter_for_assistant,
         )
         submissions = []
         if best:

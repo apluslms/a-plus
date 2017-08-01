@@ -1,7 +1,6 @@
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
-from userprofile.models import UserProfile
 from authorization.permissions import (
     ACCESS,
     Permission,
@@ -9,6 +8,9 @@ from authorization.permissions import (
     ObjectVisibleBasePermission,
     FilterBackend,
 )
+from exercise.cache.content import CachedContent
+from exercise.cache.points import CachedPoints
+from userprofile.models import UserProfile
 from .models import (
     CourseModule,
     CourseInstance,
@@ -42,7 +44,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
 
         # Course is not visible if it's hidden
         if not course.visible_to_students:
-            self.error_msg(request, _("The resource is not currently visible."))
+            self.error_msg(_("The resource is not currently visible."))
             return False
 
         user = request.user
@@ -53,7 +55,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
         # would break api permissiosn (requires get_access_mode)
         if show_for != VA.PUBLIC:
             if not user.is_authenticated():
-                self.error_msg(request, _("This course is not open for public."))
+                self.error_msg(_("This course is not open for public."))
                 return False
 
             # Handle enroll views separately
@@ -62,7 +64,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
 
             if show_for == VA.ENROLLED:
                 if not course.is_student(user):
-                    self.error_msg(request, _("Only enrolled students shall pass."))
+                    self.error_msg(_("Only enrolled students shall pass."))
                     return False
 
             elif show_for == VA.ENROLLMENT_AUDIENCE:
@@ -75,16 +77,16 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
         external = user.userprofile.is_external
         EA = course.ENROLLMENT_AUDIENCE
         if audience == EA.INTERNAL_USERS and external:
-            self.error_msg(request, _("This course is only for internal students."))
+            self.error_msg(_("This course is only for internal students."))
             return False
         elif audience == EA.EXTERNAL_USERS and not external:
-            self.error_msg(request, _("This course is only for external students."))
+            self.error_msg(_("This course is only for external students."))
             return False
         return True
 
 
 class CourseModulePermission(MessageMixin, Permission):
-    message = _("Permission denied by course module visibility")
+    message = _("The module is not currently visible.")
 
     def has_permission(self, request, view):
         if not view.is_course_staff:
@@ -97,33 +99,44 @@ class CourseModulePermission(MessageMixin, Permission):
             return True
 
         if module.status == CourseModule.STATUS.HIDDEN:
-            self.error_msg(request, _("The module is not currently visible."))
             return False
 
         if not module.is_after_open():
-            self.error_msg(request,
-                _("The module will open for submissions at {date}").format(
-                    date=module.opening_time))
+            # FIXME: use format from django settings
+            self.error_msg(
+                _("The module will open for submissions at {date}"),
+                format={'date': module.opening_time},
+                delim=' ',
+            )
             return False
+
+        if module.requirements.count() > 0:
+            points = CachedPoints(module.course_instance, request.user, view.content)
+            return module.are_requirements_passed(points)
         return True
 
 
 class OnlyCourseTeacherPermission(Permission):
+    message = _("Only course teacher is allowed")
+
+    def has_permission(self, request, view):
+        return self.has_object_permission(request, view, view.instance)
+
+    def has_object_permission(self, request, view, obj):
+        return view.is_teacher or request.user.is_superuser
+
+
+class OnlyCourseStaffPermission(Permission):
     message = _("Only course staff is allowed")
 
     def has_permission(self, request, view):
         return self.has_object_permission(request, view, view.instance)
 
     def has_object_permission(self, request, view, obj):
-        user = request.user
-        return (
-            user.is_staff or
-            user.is_superuser or
-            view.is_teacher
-        )
+        return view.is_course_staff or request.user.is_superuser
 
 
-class IsCourseAdminOrUserObjIsSelf(OnlyCourseTeacherPermission, FilterBackend):
+class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
 
     def has_object_permission(self, request, view, obj):
         if not isinstance(obj, UserProfile):
@@ -137,8 +150,10 @@ class IsCourseAdminOrUserObjIsSelf(OnlyCourseTeacherPermission, FilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         user = request.user
-        is_super = user.is_staff or user.is_superuser
-        is_staff = view.is_course_staff
-        if issubclass(queryset.model, UserProfile) and not is_super and not is_staff:
+        if (
+            issubclass(queryset.model, UserProfile) and
+            not view.is_course_staff and
+            not user.is_superuser
+        ):
             queryset = queryset.filter(user_id=user.id)
         return queryset

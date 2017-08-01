@@ -17,7 +17,7 @@ from lib.viewbase import BaseRedirectMixin, BaseView
 from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
-from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin
+from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, ExerciseModelBaseView
 
 
 class TableOfContentsView(CourseInstanceBaseView):
@@ -97,7 +97,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
         new_submission = None
         page = ExercisePage(self.exercise)
-        ok, students = self.submission_check(True)
+        ok, students = self.submission_check(True, request)
         if ok:
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)
@@ -129,12 +129,12 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         return self.response(page=page, students=students,
             submission=new_submission)
 
-    def submission_check(self, error=False):
+    def submission_check(self, error=False, request=None):
         if not self.profile:
             messages.error(self.request,
                 _("You need to sign in and enroll to submit exercises."))
             return False, []
-        ok, issues, students = self.exercise.is_submission_allowed(self.profile)
+        ok, issues, students = self.exercise.is_submission_allowed(self.profile, request)
         if len(issues) > 0:
             if error:
                 messages.error(self.request, "\n".join(issues))
@@ -156,16 +156,10 @@ class ExercisePlainView(ExerciseView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ExerciseModelView(ExerciseBaseView):
+class ExerciseModelView(ExerciseModelBaseView):
     template_name = "exercise/model.html"
     ajax_template_name = "exercise/_model_files.html"
     access_mode = ACCESS.ENROLLED
-
-    def get_resource_objects(self):
-        super().get_resource_objects()
-
-        if not self.is_course_staff and not self.exercise.is_closed():
-            raise Http404()
 
     def get_common_objects(self):
         super().get_common_objects()

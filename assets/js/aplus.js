@@ -16,6 +16,17 @@ $(function() {
     $('.file-modal').aplusModalLink({file:true});
     $('.search-select').aplusSearchSelect();
     $('.filtered-table').aplusTableFilter();
+
+    // Clear notifications once opened.
+    $('#notification-alert li a').on("click", function(event) {
+      var link = $(this);
+      if (!link.hasClass("notification-opened")) {
+        link.addClass("notification-opened");
+        var n = $('#notification-alert .dropdown-toggle .badge');
+        var i = parseInt(n.eq(0).text()) - 1;
+        n.text(i);
+      }
+    });
 });
 
 $(function() {
@@ -84,6 +95,8 @@ $(function() {
         }).done(function(data) {
           self.selection.show().find("small").html(data);
           self.loader.hide();
+          var id = self.selection.find('[data-group-id]').attr("data-group-id");
+          $('.submit-group-selector option[value="' + id + '"]').prop('selected', true);
         });
       });
     }
@@ -260,7 +273,7 @@ $.fn.highlightCode = function(options) {
     var defaults = {
         modal_selector: "#page-modal",
         file_modal_selector: "#file-modal",
-        body_regexp: /<body[^>]*>(.|\n)*<\/body>/i,
+        body_regexp: /<body[^>]*>([\s\S]*)<\/body>/i,
         file: false
     };
 
@@ -292,9 +305,13 @@ $.fn.highlightCode = function(options) {
             text.highlightCode();
           } else {
             var match = data.match(settings.body_regexp);
-            var c = modal.aplusModal("content", { content: match || data });
+            if (match !== null && match.length == 2) {
+              data = match[1];
+            }
+            var c = modal.aplusModal("content", { content: data });
             c.find('.file-modal').aplusModalLink({file:true});
             c.find('pre.hljs').highlightCode();
+            modal.trigger("opened.aplus.modal");
           }
         }).fail(function() {
           modal.aplusModal("error");
@@ -410,34 +427,34 @@ $.fn.highlightCode = function(options) {
             this.selection = this.widget.find(this.settings.selection_selector);
             this.selection_li = this.selection.find("li").remove();
             this.element.find("option:selected").each(function(index) {
-                self.add_selection($(this).attr("value"), $(this).text());
+                self.addSelection($(this).attr("value"), $(this).text());
             });
             this.result = this.widget.find(this.settings.result_selector);
             this.field = this.widget.find(this.settings.field_selector)
                 .on("keypress", function(event) {
                     if (event.keyCode == 13) {
                         event.preventDefault();
-                        self.search_options(true);
+                        self.searchOptions(true);
                     }
                 }).on("keyup", function(event) {
                     if (event.keyCode != 13) {
                         clearTimeout(self.timeout);
                         self.timeout = setTimeout(function() {
-                            self.search_options(true);
+                            self.searchOptions(true);
                             self.field.focus();
                         }, 500);
                     }
                 });
             this.search = this.widget.find(this.settings.search_selector)
                 .on("show.bs.dropdown", function(event) {
-                    self.search_options();
+                    self.searchOptions();
                 });
             this.element.parents("form").on("submit", function(event) {
                 self.finish();
             });
         },
 
-        search_options: function(show_dropdown) {
+        searchOptions: function(show_dropdown) {
             if (show_dropdown && this.result.is(":visible") === false) {
                 this.search.find("button").dropdown("toggle");
                 return;
@@ -457,14 +474,14 @@ $.fn.highlightCode = function(options) {
                 opt.slice(0,20).each(function(index) {
                     var li = $('<li><a data-value="'+$(this).attr("value")+'">'+$(this).text()+'</a></li>');
                     li.find("a").on("click", function(event) {
-                        self.add_selection($(this).attr("data-value"), $(this).text());
+                        self.addSelection($(this).attr("data-value"), $(this).text());
                     });
                     self.result.append(li);
                 });
             }
         },
 
-        add_selection: function(value, name) {
+        addSelection: function(value, name) {
             if (this.selection.find('[data-value="'+value+'"]').size() === 0) {
                 var li = this.selection_li.clone();
                 var self = this;
@@ -474,6 +491,17 @@ $.fn.highlightCode = function(options) {
                 });
                 this.selection.append(li);
             }
+        },
+
+        resetSelection: function(values) {
+          this.selection.empty();
+          var self = this;
+          $.each(values, function(index, value) {
+            var opt = self.element.find('option[value="' + value + '"]');
+            if (opt.size() == 1) {
+              self.addSelection(value, opt.text());
+            }
+          });
         },
 
         finish: function() {
@@ -486,10 +514,13 @@ $.fn.highlightCode = function(options) {
         }
     });
 
-    $.fn[pluginName] = function(options) {
+    $.fn[pluginName] = function(options, selectValues) {
         return this.each(function() {
             if (!$.data(this, "plugin_" + pluginName)) {
                 $.data(this, "plugin_" + pluginName, new AplusSearchSelect(this, options));
+            }
+            if (selectValues) {
+              $.data(this, "plugin_" + pluginName).resetSelection(selectValues);
             }
         });
     };

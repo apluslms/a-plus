@@ -139,6 +139,12 @@ class ContentMixin(object):
             return paths[path]
         raise NoSuchContent()
 
+    def find_category(self, category_id):
+        categories = self.data['categories']
+        if category_id in categories:
+            return categories[category_id]
+        raise NoSuchContent()
+
     def find(self, model):
         modules = self.modules()
         idx = self._model_idx(model)
@@ -150,7 +156,8 @@ class ContentMixin(object):
             self._next(idx, tree),
         )
 
-    def search_exercises(self, category_id=None, module_id=None, exercise_id=None):
+    def search_exercises(self, category_id=None, module_id=None, exercise_id=None,
+                         filter_for_assistant=False, best=False):
         search = None
         if not exercise_id is None:
             search = { 'type': 'exercise', 'id': int(exercise_id) }
@@ -163,8 +170,10 @@ class ContentMixin(object):
             tree = [{ 'type': 'all', 'children': self.modules() }]
         exercises = []
         def recursion(entry):
-            if entry['type'] == 'exercise' and (
-                category_id is None or entry['category_id'] == category_id
+            if (
+                entry['type'] == 'exercise' and
+                (category_id is None or entry['category_id'] == category_id) and
+                (not filter_for_assistant or entry['allow_assistant_viewing'])
             ):
                 exercises.append(entry)
             for child in entry['children']:
@@ -224,7 +233,8 @@ class ContentMixin(object):
         t = entry['type']
         if t == 'exercise':
             return (
-                entry['module_status'] != CourseModule.STATUS.HIDDEN
+                entry.get('category_status') != LearningObjectCategory.STATUS.HIDDEN
+                and entry.get('module_status') != CourseModule.STATUS.HIDDEN
                 and not entry['status'] in (
                     LearningObject.STATUS.HIDDEN,
                     LearningObject.STATUS.ENROLLMENT,
@@ -234,7 +244,10 @@ class ContentMixin(object):
         if t == 'module':
             return entry['status'] != CourseModule.STATUS.HIDDEN
         if t == 'category':
-            return entry['status'] != LearningObjectCategory.STATUS.HIDDEN
+            return not entry['status'] in (
+                LearningObjectCategory.STATUS.HIDDEN,
+                LearningObjectCategory.STATUS.NOTOTAL,
+            )
         return False
 
     @classmethod
@@ -244,11 +257,14 @@ class ContentMixin(object):
         t = entry['type']
         if t == 'exercise':
             return (
-                entry['module_status'] != CourseModule.STATUS.UNLISTED
+                entry.get('category_status') != LearningObjectCategory.STATUS.HIDDEN
+                and entry.get('module_status') != CourseModule.STATUS.UNLISTED
                 and entry['status'] != LearningObject.STATUS.UNLISTED
             )
         if t == 'module':
             return entry['status'] != CourseModule.STATUS.UNLISTED
+        if t == 'category':
+            return entry['status'] != LearningObjectCategory.STATUS.HIDDEN
         return True
 
     @classmethod

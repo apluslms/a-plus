@@ -48,7 +48,7 @@ table.src tr td.src {
 .modal-dialog .modal-progress {
   padding: 40px 60px 20px;
 }
-#exercise blockquote {
+#exercise-page-content blockquote {
   font-size:100%;
 }
 .unselectable {
@@ -277,6 +277,12 @@ html, body {
 .module-panel table {
     margin: 0;
 }
+.news-panel .list-group-item-text {
+  padding: 10px;
+}
+.news-panel .list-group-item-text *:last-child {
+  margin-bottom: 0;
+}
 
 /* point progress and badges */
 .progress {
@@ -321,7 +327,7 @@ td.submissions-dropdown {
 }
 
 /* exercise wells */
-.exercise {
+[data-aplus-exercise] {
     border: 1px solid #bce8f1;/*grey #e3e3e3;*/
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
@@ -334,7 +340,7 @@ td.submissions-dropdown {
     border-color: #bce8f1;/*primary #2e6da4;*/
     border-radius: 0;
 }
-.exercise .exercise-summary {
+[data-aplus-exercise] .exercise-summary {
     border-top: none;
     border-left: none;
     border-right: none;
@@ -379,6 +385,10 @@ td.submissions-dropdown {
   margin-left: -38px;
   margin-right: 20px;
   color: green;
+}
+.btn-group button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 /* results table */

@@ -1,11 +1,12 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
-<p>
+<p class="clearfix">
     {% with count=submissions.count %}
     {% if not all and count == default_limit %}
     {% blocktrans with limit=default_limit count=count url=all_url %}
-    {{ limit }} latest submissions. <a href="{{ url }}">Show all</a>
+    {{ limit }} latest submissions.
+    <a class="btn btn-default btn-sm" href="{{ url }}">Show all</a>
     {% endblocktrans %}
     {% else %}
     {% blocktrans with count=count %}
@@ -13,8 +14,12 @@
     {% endblocktrans %}
     {% endif %}
     {% endwith %}
+    <a class="btn btn-default btn-sm pull-right" href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&format=csv">
+      <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+      {% trans "Download CSV" %}
+    </a>
 </p>
-<table class="table table-bordered filtered-table">
+<table class="table table-bordered{% if all or count < default_limit %} filtered-table{% endif %}">
     <thead>
         <tr>
             <th>{% trans "Submitters" %}</th>

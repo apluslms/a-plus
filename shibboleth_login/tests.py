@@ -41,7 +41,7 @@ class ShibbolethTest(TestCase):
         self.user.userprofile.student_id = '000'
         self.user.userprofile.save()
 
-        self.login_url = reverse('shibboleth_login.views.login')
+        self.login_url = reverse('shibboleth-login')
 
     def test_invalid(self):
         meta = DEF_SHIBD_META.copy()

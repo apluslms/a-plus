@@ -82,6 +82,13 @@
 	</a>
 </li>
 
+<li role="presentation" class="menu-groups-edit">
+	<a href="{{ instance|url:'groups-list' }}">
+		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+		{% trans "Groups" %}
+	</a>
+</li>
+
 {% if instance.coursediplomadesign %}
 <li role="presentation" class="menu-grades">
 	<a href="{% url 'diploma-list' instance.coursediplomadesign.id %}">

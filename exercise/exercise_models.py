@@ -14,7 +14,7 @@ from django.utils.formats import date_format
 from django.utils.translation import get_language, ugettext_lazy as _
 
 from aplus.api import api_reverse
-from course.models import CourseInstance, CourseModule, LearningObjectCategory
+from course.models import StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
@@ -192,6 +192,10 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
 
+    @property
+    def can_show_solutions(self):
+        return self.is_closed() and not self.course_instance.is_on_lifesupport() and not self.course_instance.is_archived()
+
     def get_path(self):
         return "/".join([o.url for o in self.parent_list()])
 
@@ -275,6 +279,15 @@ class BaseExercise(LearningObject):
     """
     The common parts for all exercises.
     """
+    # Timing enumeration is only used as a return value.
+    TIMING = Enum([
+        ('CLOSED_BEFORE', 0, "Submissions are not yet accepted"),
+        ('OPEN', 1, "Normal submissions are accepted"),
+        ('LATE', 2, "Late submissions are accepted"),
+        ('UNOFFICIAL', 3, "Only unofficial submissions are accepted"),
+        ('CLOSED_AFTER', 4, "Submissions are not anymore accepted"),
+        ('ARCHIVED', 5, "Course is archived and so are exercises"),
+    ])
     allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
     min_group_size = models.PositiveIntegerField(default=1)
@@ -283,8 +296,6 @@ class BaseExercise(LearningObject):
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
     difficulty = models.CharField(max_length=32, blank=True)
-    confirm_the_level = models.BooleanField(default=False,
-        help_text=_("Once this exercise is graded non zero it confirms all the points on this level. Implemented as a mandatory feedback feature."))
 
     class Meta:
         app_label = 'exercise'
@@ -307,22 +318,66 @@ class BaseExercise(LearningObject):
     def is_submittable(self):
         return True
 
+    def get_timing(self, students, when):
+        module = self.course_module
+        if not module.is_after_open(when=when):
+            return self.TIMING.CLOSED_BEFORE, module.opening_time
+
+        category = self.category
+        if module.is_open(when=when) or category.confirm_the_level:
+            return self.TIMING.OPEN, module.closing_time
+
+        dl = module.course_instance.archive_time
+        if dl and module.course_instance.is_archived(when=when):
+            return self.TIMING.ARCHIVED, dl
+
+        deviation = self.one_has_deadline_deviation(students)
+        dl = deviation.get_new_deadline() if deviation else None
+        if dl and when <= dl:
+            if deviation.without_late_penalty:
+                return self.TIMING.OPEN, dl
+            return self.TIMING.LATE, dl
+
+        if module.is_late_submission_open(when=when):
+            return self.TIMING.LATE, module.late_submission_deadline
+
+        dl = dl or (module.late_submission_deadline
+            if module.late_submissions_allowed else module.closing_time)
+        if category.accept_unofficial_submits:
+            return self.TIMING.UNOFFICIAL, dl
+
+        return self.TIMING.CLOSED_AFTER, dl
+
     def one_has_access(self, students, when=None):
         """
         Checks if any of the users can submit taking the granted extra time
         in consideration.
         """
-        when = when or timezone.now()
-        module = self.course_module
-        if self.confirm_the_level and self.course_instance.is_open(when=when):
-            return True
-        if module.is_open(when=when) or module.is_late_submission_open(when=when):
-            return True
-        if module.is_after_open(when=when):
-            deviation = self.one_has_deadline_deviation(students)
-            if deviation and when <= deviation.get_new_deadline():
-                return True
-        return False
+        timing,d = self.get_timing(students, when or timezone.now())
+        if timing == self.TIMING.OPEN:
+            return True,[]
+        if timing == self.TIMING.LATE:
+            return True,[_("Deadline for the exercise has passed. Late submissions are allowed until {date} but points are only worth {percent:d}% of normal.").format(
+                date=date_format(d),
+                percent=self.course_module.get_late_submission_point_worth(),
+            )]
+        if timing == self.TIMING.UNOFFICIAL:
+            return True,[_("Deadline for the exercise has passed ({date}). You may still submit unofficially to receive feedback.").format(
+                date=date_format(d)
+            )]
+        if timing == self.TIMING.CLOSED_BEFORE:
+            return False,[_("The exercise opens {date} for submissions.").format(
+                date=date_format(d)
+            )]
+        if timing == self.TIMING.CLOSED_AFTER:
+            return False,[_("Deadline for the exercise has passed ({date}).").format(
+                date=date_format(d)
+            )]
+        if timing == self.TIMING.ARCHIVED:
+            return False,[_("This course has been archived ({date}).").format(
+                date=date_format(d)
+            )]
+        return False,["ERROR"]
 
     def one_has_deadline_deviation(self, students):
         deviation = None
@@ -360,23 +415,24 @@ class BaseExercise(LearningObject):
                 return True
         return False
 
-    def is_submission_allowed(self, profile):
+    def is_submission_allowed(self, profile, request=None):
         """
         Checks whether the submission to this exercise is allowed for the given
         user and generates a list of warnings.
 
         @return: (success_flag, warning_message_list)
         """
-        success, warnings, students = self._check_submission_allowed(profile)
+        success, warnings, students = self._check_submission_allowed(profile, request)
         return success, list(str(w) for w in warnings), students
 
-    def _check_submission_allowed(self, profile):
-        warnings = []
+    def _check_submission_allowed(self, profile, request=None):
         students = [profile]
+        warnings = []
 
-        if self.course_instance.ending_time < timezone.now():
-            warnings.append(_('The course is archived. Exercises are offline.'))
-            return False, warnings, students
+        # Let course module settings decide submissionable state.
+        #if self.course_instance.ending_time < timezone.now():
+        #    warnings.append(_('The course is archived. Exercises are offline.'))
+        #    return False, warnings, students
 
         # Check enrollment requirements.
         enrollment = self.course_instance.get_enrollment_for(profile.user)
@@ -385,31 +441,49 @@ class BaseExercise(LearningObject):
             LearningObject.STATUS.ENROLLMENT_EXTERNAL,
         ):
             if not self.course_instance.is_enrollable(profile.user):
-                warnings.append(_('You cannot enroll in the course.'))
-                return False, warnings, students
-        elif not enrollment and not self.course_instance.is_course_staff(profile.user):
-            warnings.append(_('You must enroll at course home to submit exercises.'))
-            return False, warnings, students
+                return False, [_('You cannot enroll in the course.')], students
+        elif not enrollment:
+            # TODO Provide button to enroll, should there be option to auto-enroll
+            return self.course_instance.is_course_staff(profile.user), [_('You must enroll at course home to submit exercises.')], students
+
+        # Support group id from post or currently selected group.
+        group = None
+        group_id = request.POST.get("_aplus_group") if request else None
+        if not group_id is None:
+            try:
+                gid = int(group_id)
+                if gid > 0:
+                    group = profile.groups.filter(
+                        course_instance=self.course_instance,
+                        id=gid
+                    ).first()
+            except ValueError:
+                pass
+        elif enrollment and enrollment.selected_group:
+            group = enrollment.selected_group
 
         # Check groups cannot be changed after submitting.
         submissions = list(self.get_submissions_for_student(profile))
         if len(submissions) > 0:
-            if self._detect_group_changes(profile, enrollment, submissions[0]):
-                warnings.append(_('You have previously submitted to this exercise with a different group. Group can only change between different exercises.'))
+            s = submissions[0]
+            if self._detect_group_changes(profile, group, s):
+                msg = str(_("Group can only change between different exercises."))
+                if s.submitters.count() == 1:
+                    warnings.append(_("You have previously submitted to this exercise alone.") + " " + msg)
+                else:
+                    warnings.append(_("You have previously submitted to this exercise with {collaborators}.").format(
+                        collaborators=StudentGroup.format_collaborator_names(s.submitters.all(), profile)
+                    ) + " " + msg)
                 return False, warnings, students
-        elif self._detect_submissions(profile, enrollment):
-            warnings.append(_('Some members of the group have already submitted to this exercise in a different group.'))
+        elif self._detect_submissions(profile, group):
+            warnings.append(_('{collaborators} already submitted to this exercise in a different group.').format(
+                collaborators=group.collaborator_names(profile)
+            ))
             return False, warnings, students
 
         # Get submitters.
-        if enrollment and enrollment.selected_group:
-            students = list(enrollment.selected_group.members.all())
-
-        if not self.one_has_access(students):
-            warnings.append(_('This exercise is not open for submissions.'))
-
-        if not self.one_has_submissions(students):
-            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
+        if group:
+            students = list(group.members.all())
 
         # Check group size.
         if not (self.min_group_size <= len(students) <= self.max_group_size):
@@ -417,42 +491,33 @@ class BaseExercise(LearningObject):
                 size = "{:d}".format(self.min_group_size)
             else:
                 size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
-            warnings.append(
-                _("This exercise can be submitted in groups of {size} students. "
-                  "The size of your current group is {current}.")\
-                .format(size=size, current=len(students))
-            )
+            warnings.append(_("This exercise must be submitted in groups of {size} students.").format(
+                size=size
+            ))
 
-        success = len(warnings) == 0 \
-            or all(self.course_instance.is_course_staff(p.user) for p in students)
+        if not self.one_has_submissions(students):
+            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
 
-        # If late submission is open, notify the student about point reduction.
-        if (
-            not self.confirm_the_level
-            and self.course_module.is_late_submission_open()
-        ):
-            warnings.append(
-                _('Deadline for the exercise has passed. Late submissions are allowed until '
-                  '{date} but points are only worth {percent:d}%.').format(
-                    date=date_format(self.course_module.late_submission_deadline),
-                    percent=self.course_module.get_late_submission_point_worth(),
-                ))
+        access_ok,access_warnings = self.one_has_access(students)
+        ok = (
+            (access_ok and len(warnings) == 0) or
+            all(self.course_instance.is_course_staff(p.user) for p in students)
+        )
+        return ok, warnings + access_warnings, students
 
-        return success, warnings, students
-
-    def _detect_group_changes(self, profile, enrollment, submission):
+    def _detect_group_changes(self, profile, group, submission):
         submitters = list(submission.submitters.all())
-        if enrollment and enrollment.selected_group:
-            return not enrollment.selected_group.equals(submitters)
+        if group:
+            return not group.equals(submitters)
         else:
             return len(submitters) > 1 or submitters[0] != profile
 
-    def _detect_submissions(self, profile, enrollment):
-        if enrollment and enrollment.selected_group:
-            return not all(
+    def _detect_submissions(self, profile, group):
+        if group:
+            return not all((
                 len(self.get_submissions_for_student(p)) == 0
-                for p in enrollment.selected_group.members.all() if p != profile
-            )
+                for p in group.members.all() if p != profile
+            ))
         return False
 
     def get_total_submitter_count(self):

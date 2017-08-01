@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.http.response import Http404
+from django.http.response import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
@@ -286,6 +286,17 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
     def clear_cache(self, request):
         invalidate_instance(self.instance)
         messages.success(request, _("Exercise caches have been cleared."))
+
+
+class BuildLogView(CourseInstanceMixin, BaseTemplateView):
+    access_mode = ACCESS.TEACHER
+    template_name = "edit_course/build_log.html"
+
+    def get_context_data(self, *args, **kwargs):
+        from .operations.configure import get_build_log
+        context = super().get_context_data(*args, **kwargs)
+        context.update(get_build_log(self.instance))
+        return context
 
 
 class SignInAsUser(BaseRedirectMixin, BaseTemplateView):

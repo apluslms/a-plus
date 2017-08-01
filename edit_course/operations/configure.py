@@ -72,7 +72,7 @@ def parse_bool(value):
 def configure_learning_objects(category_map, module, config, parent,
         seen, errors, n=0):
     if not isinstance(config, list):
-        return start
+        return n
     for o in config:
         if not "key" in o:
             errors.append(_("Learning object requires a key."))
@@ -117,12 +117,12 @@ def configure_learning_objects(category_map, module, config, parent,
                 obj_key = "lti_" + key
                 if obj_key in o:
                     setattr(lobject, key, o[obj_key])
+            lobject.aplus_get_and_post = o.get("lti_aplus_get_and_post", True)
 
         if lobject_cls in (LTIExercise, BaseExercise):
             for key in [
                 "allow_assistant_viewing",
                 "allow_assistant_grading",
-                "confirm_the_level",
             ]:
                 if key in o:
                     setattr(lobject, key, parse_bool(o[key]))
@@ -181,6 +181,26 @@ def configure_learning_objects(category_map, module, config, parent,
                 lobject, seen, errors)
     return n
 
+
+def get_build_log(instance):
+    """
+    Request latest build log from the build log URL defined for instance.
+    """
+    if not instance.build_log_url:
+        return {'error': _("Cannot request build log from build_log_url when it is blank.")}
+    try:
+        response = requests.get(instance.build_log_url)
+    except Exception as e:
+        return {'error': _("Requesting build log failed: {}").format(str(e))}
+    try:
+        data = json.loads(response.text)
+    except Exception as e:
+        return {'error': _("Failed to parse the build log JSON: {}").format(str(e))}
+    if not data:
+        return {'error': _("Remote URL returned an empty build log.")}
+    return data
+
+
 def configure_content(instance, url):
     """
     Configures course content by trusted remote URL.
@@ -188,6 +208,7 @@ def configure_content(instance, url):
     if not url:
         return [_("Configuration URL required.")]
     try:
+        url = url.strip()
         response = requests.get(url)
     except Exception as e:
         return [_("Request failed: {}").format(str(e))]
@@ -226,6 +247,8 @@ def configure_content(instance, url):
             except UserProfile.DoesNotExist as err:
                 errors.append(_("Assistant student ID was not found: {}")\
                     .format(str(err)))
+    if "build_log_url" in config:
+        instance.build_log_url = str(config["build_log_url"])
     instance.save()
 
     if not "categories" in config or not isinstance(config["categories"], dict):
@@ -251,6 +274,12 @@ def configure_content(instance, url):
             i = parse_int(c["points_to_pass"], errors)
             if not i is None:
                 category.points_to_pass = i
+        for field in [
+            "confirm_the_level",
+            "accept_unofficial_submits",
+        ]:
+            if field in c:
+                setattr(category, field, parse_bool(o[field]))
         category.save()
         category_map[key] = category
         seen.append(category.id)

@@ -1,8 +1,14 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from exercise.models import CourseChapter, BaseExercise, StaticExercise, \
-    ExerciseWithAttachment, Submission, SubmittedFile
+from exercise.models import (
+    CourseChapter,
+    BaseExercise,
+    StaticExercise,
+    ExerciseWithAttachment,
+    Submission,
+    SubmittedFile,
+)
 
 
 def real_class(obj):

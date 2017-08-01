@@ -31,7 +31,7 @@
 {% endblock %}
 
 {% block columns %}
-<div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %}">
+<div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %} exercise-column">
 
   {% if exercise.is_submittable %}
   <ul class="nav nav-tabs">
@@ -44,6 +44,7 @@
           <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"
               aria-haspopup="true" aria-expanded="false">
               {% trans "My submissions" %}
+              ({{ summary.get_submission_count }}{% if exercise.max_submissions %}/{{ exercise|max_submissions:profile }}{% endif %})
               <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
@@ -62,7 +63,7 @@
               {% endfor %}
           </ul>
       </li>
-      {% if is_course_staff or is_student and exercise.is_closed %}
+      {% if is_course_staff or is_student and exercise.can_show_solutions %}
       {% if exercise.model_answers %}
       <li class="menu-model">
         <a href="{{ exercise|url:'exercise-model' }}">

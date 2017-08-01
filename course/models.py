@@ -3,7 +3,7 @@ import logging
 import urllib.request, urllib.parse
 
 from django.contrib import messages
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
@@ -104,15 +104,23 @@ class StudentGroup(models.Model):
                 return group
         return None
 
+    @classmethod
+    def filter_collaborators_of(cls, members, profile):
+        return [p for p in members if p != profile]
+
+    @classmethod
+    def format_collaborator_names(cls, members, profile):
+        return ", ".join(p.user.get_full_name()
+            for p in cls.filter_collaborators_of(members, profile))
+
     def equals(self, profiles):
         return set(self.members.all()) == set(profiles)
 
     def collaborators_of(self, profile):
-        return [p for p in self.members.all() if p != profile]
+        return self.filter_collaborators_of(self.members.all(), profile)
 
     def collaborator_names(self, profile):
-        return ", ".join(p.user.get_full_name()
-            for p in self.collaborators_of(profile))
+        return self.format_collaborator_names(self.members.all(), profile)
 
 
 class Enrollment(models.Model):
@@ -295,6 +303,8 @@ class CourseInstance(UrlMixin, models.Model):
                                           default=VIEW_ACCESS.ENROLLMENT_AUDIENCE)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
+    lifesupport_time = models.DateTimeField(blank=True, null=True)
+    archive_time = models.DateTimeField(blank=True, null=True)
     enrollment_starting_time = models.DateTimeField(blank=True, null=True)
     enrollment_ending_time = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
@@ -312,13 +322,14 @@ class CourseInstance(UrlMixin, models.Model):
             "that are included on all course pages. "
             "Separate with white space."))
     configure_url = models.URLField(blank=True)
+    build_log_url = models.URLField(blank=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
             "override the recipients."))
-    plugins = generic.GenericRelation(BasePlugin, object_id_field="container_pk",
+    plugins = GenericRelation(BasePlugin, object_id_field="container_pk",
                                       content_type_field="container_type")
-    tabs = generic.GenericRelation(BaseTab, object_id_field="container_pk",
+    tabs = GenericRelation(BaseTab, object_id_field="container_pk",
                                    content_type_field="container_type")
 
     assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
@@ -343,6 +354,14 @@ class CourseInstance(UrlMixin, models.Model):
         if self.ending_time <= self.starting_time:
             raise ValidationError({
                 'ending_time': _("Ending time must be later than starting time.")
+            })
+        if self.lifesupport_time <= self.ending_time:
+            raise ValidationError({
+                'lifesupport_time': _("Lifesupport time must be later than ending time.")
+            })
+        if self.archive_time <= self.lifesupport_time:
+            raise ValidationError({
+                'archive_time': _("Archive time must be later than lifesupport time.")
             })
 
     def save(self, *args, **kwargs):
@@ -385,8 +404,8 @@ class CourseInstance(UrlMixin, models.Model):
         return False
 
     def enroll_student(self, user):
-        if user and user.is_authenticated() and not self.is_course_staff(user):
-            Enrollment.objects.create(course_instance=self, user_profile=user.userprofile)
+        if user and user.is_authenticated():
+            Enrollment.objects.get_or_create(course_instance=self, user_profile=user.userprofile)
 
     def tag_user(self, user, tag):
         UserTagging.objects.create(tag=tag, user=user.userprofile, course_instance=self)
@@ -417,6 +436,18 @@ class CourseInstance(UrlMixin, models.Model):
     def is_past(self, when=None):
         when = when or timezone.now()
         return self.ending_time < when
+
+    def is_on_lifesupport(self, when=None):
+        when = when or timezone.now()
+        return self.lifesupport_time < when
+
+    def is_archived(self, when=None):
+        when = when or timezone.now()
+        return self.archive_time < when
+
+    @property
+    def archive_start(self, when=None):
+        return self.archive_time
 
     @property
     def enrollment_start(self):
@@ -588,6 +619,12 @@ class CourseModule(UrlMixin, models.Model):
             return when > self.late_submission_deadline
         return when > self.closing_time
 
+    def are_requirements_passed(self, cached_points):
+        for r in self.requirements.all():
+            if not r.is_passed(cached_points):
+                return False
+        return True
+
     def get_late_submission_point_worth(self):
         """
         Returns the percentage (0-100) that late submission points are worth.
@@ -609,6 +646,7 @@ class LearningObjectCategory(models.Model):
     """
     STATUS = Enum([
         ('READY', 'ready', _("Ready")),
+        ('NOTOTAL', 'nototal', _("No total points")),
         ('HIDDEN', 'hidden', _("Hidden")),
     ])
     status = models.CharField(max_length=32,
@@ -617,6 +655,11 @@ class LearningObjectCategory(models.Model):
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
     course_instance = models.ForeignKey(CourseInstance, related_name="categories")
+    confirm_the_level = models.BooleanField(default=False,
+        help_text=_("Once exercise is graded non zero it confirms all the points on the hierarchy level. Implemented as a mandatory feedback feature."))
+    accept_unofficial_submits = models.BooleanField(default=False,
+        help_text=_("Grade unofficial submits after deadlines have passed. The points are stored but not included in official records."))
+
     #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
     #    blank=True, null=True)
 
