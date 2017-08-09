@@ -18,7 +18,7 @@
 			submit: "data-msg-submit",
 			error: "data-msg-error"
 		},
-		modal_selector: "#page-modal",
+		modal_selector: "#page-modal"
 	};
 
 	function AplusChapter(element, options) {
@@ -47,13 +47,11 @@
 			this.messages = this.readMessages();
 			this.quizSuccess = $(this.settings.quiz_success_selector);
 
-      // For now don't include active elements to group things
-			this.element.find("[" + this.settings.active_element_attr +  "='out']").activeElement(this)
-			this.element.find("[" + this.settings.active_element_attr +  "='in']").activeElement(this, {input: true})
+			// do not include active element ouputs to exercise groups
+			this.element.find("[" + this.settings.active_element_attr +  "='in']").aplusExercise(this, {input: true});
 
 			this.exercises = this.element
-			  // So here search only elements that are just regular exercises
-				.find("[" + this.settings.exercise_url_attr + "][" + this.settings.active_element_attr +  "!='out']") 
+				.find("[" + this.settings.exercise_url_attr + "]") 
 				.aplusExercise(this);
 			this.exercisesIndex = 0;
 			this.exercisesSize = this.exercises.size();
@@ -134,7 +132,7 @@
  */
 ;(function($, window, document, undefined) {
 	"use strict";
-
+	
 	var pluginName = "aplusExercise";
 	var loadName = "aplusExerciseLoad";
 	var defaults = {
@@ -148,8 +146,13 @@
 		response_selector: '.exercise-response',
 		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
 		dropdown_selector: 'ul.nav .dropdown-toggle',
-		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
+		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a',
+		// For active elements:
+		active_element_attr: "data-aplus-active-element",
+		ae_result_selector: '.ae_result',
+		input: false, // determines whether the active element is an input element or not
 	};
+
 
 	function AplusExercise(element, chapter, options) {
 		this.element = $(element);
@@ -158,6 +161,7 @@
 		this.url = null;
 		this.quiz = false;
 		this.ajax = false;
+		this.active_element = false;
 		this.loader = null;
 		this.messages = {};
 		this.init();
@@ -166,7 +170,7 @@
 	$.extend(AplusExercise.prototype, {
 
 		init: function() {
-			this.chapterID = this.element.attr("id");
+		  this.chapterID = this.element.attr("id");
 			this.url = this.element.attr(this.chapter.settings.exercise_url_attr);
 			this.url = this.url + "?__r=" + encodeURIComponent(
 				window.location.href + "#" + this.element.attr("id"));
@@ -176,58 +180,107 @@
 
 			// Do not mess up events in an Ajax exercise.
 			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
-
-			this.loader = this.chapter.cloneLoader();
+			
+			// Check if the exercise is an active element.
+			this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);
+			
+			// If the element is an output, add it to the chapters list of outputs
+		  if (this.active_element && !this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
+		  
+		  this.loader = this.chapter.cloneLoader();
 			this.element.height(this.element.height()).empty();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
-
-			// Add an Ajax exercise event listener to refresh the summary.  ---- note to self: The postMessage must be sent after sending the exersice for grading; 
-			//                                                                   this receives the message and retrieves results
-			if (this.ajax) {
-				var exercise = this;
-				window.addEventListener("message", function (event) {
-					if (event.data.type === "a-plus-refresh-stats") {
-						$.ajax(exercise.url, {dataType: "html"})
-							.done(function(data) {
-								exercise.updateSummary($(data));
-							});
-					}
-				});
+			
+			if (this.settings.input) this.load();
+			
+			if (!this.active_element) {
+			// Add an Ajax exercise event listener to refresh the summary.  
+			  if (this.ajax) {
+				  var exercise = this;
+				  window.addEventListener("message", function (event) {
+					  if (event.data.type === "a-plus-refresh-stats") {
+						  $.ajax(exercise.url, {dataType: "html"})
+							  .done(function(data) {
+								  exercise.updateSummary($(data));
+							  });
+					  }
+				  });
+			  }
 			}
 		},
 
 		load: function() {
-			this.showLoader("load");
+		  this.showLoader("load");
 			var exercise = this;
-			$.ajax(this.url, {dataType: "html"})
-				.fail(function() {
-					exercise.showLoader("error");
-					exercise.chapter.nextExercise();
-				})
-				.done(function(data) {
-					exercise.hideLoader();
-					exercise.update($(data));
-					if (exercise.quiz) {
-						exercise.loadLastSubmission($(data));
-					} else {
-						exercise.chapter.nextExercise();
-					}
-				});
+      var id; // FIXME is this bad?
+      var title;
+			
+			if (this.active_element) {
+			  id = exercise.chapterID;
+			  title = $("#" + id).attr("data-title") || "";
+			}
+			
+			var final_data = '';
+			
+			if (exercise.settings.input) {
+			  // Construct an input form if the exercise is an active element input
+		    exercise.hideLoader();
+		    var $exercise_wrap = $("<div id='exercise-all'></div>");
+		    var $form = $('<form action="" method="post"></form>');
+		    $form.append(
+		    	'<div class="form-group">' +
+	          '<label class="control-label" for="' + id + '_input">' + title + 
+	          '</label>' +
+	          '<textarea class="form-control" id="' + id + 
+          		'_input_id" name="' + id + '_input"></textarea>' +
+          '</div>' +
+          '<div class="form-group">' +
+	          '<input class="btn btn-primary" value="Submit" type="submit">' +
+           '</div>');
+        $exercise_wrap.append($form);
+        final_data = $exercise_wrap;
+        exercise.update(final_data);	
+        exercise.loadLastSubmission(final_data);
+        exercise.chapter.nextExercise();		  		
+			 } else {
+		    $.ajax(this.url, {dataType: "html"})
+			    .fail(function() {
+				    exercise.showLoader("error");
+				    exercise.chapter.nextExercise();
+			    })
+			    .done(function(data) {
+				    exercise.hideLoader();
+				    exercise.update($(data));
+	          if (exercise.quiz || exercise.active_element) {
+			        exercise.loadLastSubmission($(data));
+		        } else {
+		          exercise.chapter.nextExercise();
+		        }
+				   });
+			  }			  
 		},
 
 		update: function(input) {
-			var content = this.element.find(this.settings.content_selector)
-				.empty().append(
-					input.filter(this.settings.exercise_selector).contents()
-				);
+		  var exercise = this;
+		  input =input.filter(exercise.settings.exercise_selector).contents();
+		  var content = this.element.find(this.settings.content_selector)
+				.empty().append(input).hide();
+				
+			if (exercise.active_element) {
+			  var element = $("#" + exercise.chapterID);
+			  var title = "<p><b>" + element.attr("data-title") + "</b></p>";
+			  element.find(exercise.settings.summary_selector).remove();
+			  $(title).prependTo(element.find(".exercise-response"));
+			}
+			content.show();
+
 			this.element.height("auto");
-			this.bindNavEvents();
-			this.bindFormEvents(content);
+			this.bindNavEvents(); // Maybe only if not active element?
+			this.bindFormEvents(content); // Maybe only if not ae output?
 		},
 
 		bindNavEvents: function() {
-			var chapter = this.chapter;
 			this.element.find(this.settings.navigation_selector).aplusModalLink();
 			this.element.find(this.settings.dropdown_selector).dropdown();
 			this.element.find('.page-modal').aplusModalLink();
@@ -243,41 +296,119 @@
 						exercise.submit(this);
 					});
 				}
-			}
+			}		
+			// This is new stuff, no idea how affects active elements
 			$.augmentExerciseGroup(content);
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID
 			}, "*");
 		},
-
-		submit: function(form_element) {
-			//$(form_element).find(":input").prop("disabled", true);
-			//this.showLoader("submit");
-			this.chapter.openModal(this.chapter.messages.submit);
-			var exercise = this;
-			$.ajax($(form_element).attr("action"), {
+		
+		// Submits the formData to given url and then executes the callback.
+		submitAjax: function(url, formData, callback, retry) {
+		  var exercise = this;
+		  $.ajax(url, {
 				type: "POST",
-				data: new FormData(form_element),
+				data: formData,
 				contentType: false,
 				processData: false,
 				dataType: "html"
-			}).fail(function() {
+			}).fail(function(xhr, textStatus, errorThrown) {
+			
+			    // handle database lock exceptions
+			    retry = retry || 0;
+          if (xhr.responseText.indexOf("database is locked") >= 0 && retry < 5) {
+            console.log("Trying submitAjax again in 100ms");
+            setTimeout(
+              function() 
+              {
+                console.log("resubmit no.", retry + 1);
+                exercise.submitAjax(url, formData, callback, retry + 1);
+              }, 100);
+          } else {
+            console.log('error', xhr);
+          }
 				//$(form_element).find(":input").prop("disabled", false);
 				//exercise.showLoader("error");
 				this.chapter.modalError(exercise.chapter.messages.error);
-			}).done(function(data) {
-				//$(form_element).find(":input").prop("disabled", false);
-				//exercise.hideLoader();
-				var input = $(data);
-				if (exercise.quiz) {
-					var badge = input.find('.badge').eq(2).clone();
-					exercise.update(input);
-					exercise.chapter.modalSuccess(exercise.element, badge);
-				} else {
-					exercise.updateSubmission(input);
-				}
+			}).done(function (data) {
+			  callback(data);
 			});
+		},
+
+		submit: function(form_element) {
+		  var input = this;
+		  if (this.active_element) {
+			  var chapter = this.chapter;
+		    var input_id = this.chapterID;
+		    
+		    // For every output related to this input, try to evaluate the outputs
+		    // TODO: better to send everything and let server respond with error if fields are missing,
+		    // or should it be checked here that all the inputs have content?
+		    var outputs = $.find('[data-inputs~="' + input_id + '"]');
+		    
+		    $.each(outputs,  function(i, element) {
+		      element = $(element);
+		      var [exercise, inputs, expected_inputs] = input.matchInputs(element); 		      
+		      
+		      // Form data to be sent for evaluation
+		      var formData = new FormData();
+		      $.each(inputs, function(i, id) {
+		        var input_val = $("#" + id + "_input_id").val();
+		        formData.append(expected_inputs[i], input_val);		      
+		      });
+		      
+		      var url = exercise.url;
+		      
+		      exercise.submitAjax(url, formData, function(data) { // FIXME Maybe is the data here what it should be??
+		        var content = $(data);
+		        var id = exercise.chapterID;
+		        if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
+			        $("#" + id).find(exercise.settings.ae_result_selector)
+                .html("<p>Evaluating</p>");
+			        var poll_url = content.find(".exercise-wait")
+                              .attr("data-poll-url");
+			        $('#' + id).attr('data-poll-url', poll_url);
+			        
+			        exercise.updateSubmission(content);
+            } else {
+              $("#" + id).find(exercise.settings.ae_result_selector)
+              .html(content.find('.alert-danger').contents());
+            }
+          });
+		    });    
+		  } else {
+		    this.chapter.openModal(this.chapter.messages.submit);
+			  var exercise = this;
+			  var url = $(form_element).attr("action");
+			  var formData = new FormData(form_element);
+			  
+			  exercise.submitAjax(url, formData, function(data) {
+			    //$(form_element).find(":input").prop("disabled", false);
+				  //exercise.hideLoader();
+				  var input = $(data);
+				  if (exercise.quiz) {
+					  var badge = input.find('.badge').eq(2).clone();
+					  exercise.update(input);
+					  exercise.chapter.modalSuccess(exercise.element, badge);
+				  } else {
+					  exercise.updateSubmission(input);
+				  }
+			  });
+		  }
+		},
+		
+		// matchInputs finds for an active element the names of the input fields required and 
+		// the corresponding names that are used in mooc-grader exercise type config
+		matchInputs: function(element) {
+		  var output_id = element.attr("id");
+      var exercise = this.chapter.aeOutputs[output_id];    
+      // Find the ids of input elements required for this output
+      var inputs = element.attr("data-inputs").split(" ");
+      // Find the form field names the grader is expecting
+      var expected_inputs = element.find(exercise.settings.ae_result_selector).attr("data-expected-inputs").trim().split(" ");
+		  return  [exercise, inputs, expected_inputs];
 		},
 
 		updateSummary: function(input) {
@@ -289,37 +420,62 @@
 		},
 
 		updateSubmission: function(input) {
-			this.updateSummary(input);
-			this.chapter.modalContent(
-				input.filter(this.settings.exercise_selector).contents()
-			);
 
-			// Update asynchronous feedback.
-			if (typeof($.aplusExerciseDetectWaits) == "function") {
+		  if (!this.active_element) {
+		    this.updateSummary(input);
+			  this.chapter.modalContent(
+				  input.filter(this.settings.exercise_selector).contents()
+			  );
+		  }
+		  
+		  if (typeof($.aplusExerciseDetectWaits) == "function") {
 				var exercise = this;
+				var id;
+				if (this.active_element) id = "#" +  this.chapterID;
+				
 				$.aplusExerciseDetectWaits(function(suburl) {
-					$.ajax(suburl).done(function(data) {
-						var input2 = $(data);
-						var new_badges = input2.find(".badge");
-						var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
-						old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
-						old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
-						var content = input2.filter(exercise.settings.exercise_selector).contents();
-						if (content.text().trim() == "") {
-							exercise.chapter.modalSuccess(exercise.element, new_badges.eq(2).clone());
-						} else {
-							exercise.chapter.modalContent(content);
-						}
+					$.ajax(suburl).done(function(data) {					
+					  if (exercise.active_element) {
+					    exercise.updateOutput(data);
+					  } else {
+					    var input2 = $(data);
+						  var new_badges = input2.find(".badge");
+						  var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
+						  old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
+						  old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
+						  var content = input2.filter(exercise.settings.exercise_selector).contents();
+						  if (content.text().trim() == "") {
+							  exercise.chapter.modalSuccess(exercise.element, new_badges.eq(2).clone());
+						  } else {
+							  exercise.chapter.modalContent(content);
+						  }
+					  }
 					}).fail(function() {
 						exercise.chapter.modalError(exercise.chapter.messages.error);
 					});
-				});
+				}, id);
 			}
+		},
+		
+		updateOutput: function(data) {
+		  data = $(data);
+		  // Put data in this output box
+		  var exercise = this;
+		  var id = exercise.chapterID;
+		  var type = $("#" + id).attr("data-type") || "text"; // default output type is text
+		  var content = $(data).find(".grading-task").text();
+
+      if (type == "image") {
+		    content = '<img src="data:image/png;base64, ' + content + '" />';		  
+		  }
+		  
+		  $("#" + id).find(exercise.settings.ae_result_selector).html(content);
 		},
 
 		loadLastSubmission: function(input) {
-			var link = input.find(this.settings.last_submission_selector);
-			if (link.size() > 0) {
+		  var link = input.find(this.settings.last_submission_selector);
+		  
+		  if (link.size() > 0) {
 				var url = link.attr("href");
 				if (url && url !== "#") {
 					this.showLoader("load");
@@ -331,12 +487,37 @@
 						})
 						.done(function(data) {
 							exercise.hideLoader();
-							var f = exercise.element.find(exercise.settings.response_selector)
+							
+							if (!exercise.active_element) {
+							  var f = exercise.element.find(exercise.settings.response_selector)
 								.empty().append(
-									$(data).filter(exercise.settings.exercise_selector).contents()
-								);
-							//f.find("table.submission-info").remove();
-							exercise.bindFormEvents(f);
+									  $(data).filter(exercise.settings.exercise_selector).contents()
+								  );
+							  //f.find("table.submission-info").remove();
+							  exercise.bindFormEvents(f);
+							} else {
+							  // Update the output box values
+							  exercise.updateOutput(data);
+							
+							  // Find the latest input values
+							  var inspect_url = $(data).find('a[href*="inspect"]').attr("href"); // TODO can this fail?
+                $.ajax(inspect_url)
+                  .done(function(inspect_data) {
+                    // match the actual input names to the ones of the grader
+                    var [exer, input_list, expected_inputs] = exercise.matchInputs(exercise.element);
+                  
+                    // Find submitted values from the inspect submission page
+                    var all_inputs = $(inspect_data).find('h4:contains("Submitted values")').next();
+                 
+                    // Update the value of each related input field
+                    $.each(input_list, function(i, id) {
+                      // dd (i + 1) * 2 because dds are even elements and nth-child indexing starts at 1
+                      var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
+                      $("#" + input_list[i] + "_input_id").val(in_i.text());
+                    });
+                  });
+							 }
+							
 							exercise.chapter.nextExercise();
 						});
 				} else {
@@ -348,7 +529,7 @@
 		},
 
 		showLoader: function(messageType) {
-			this.loader.show().find(this.settings.message_selector)
+		  this.loader.show().find(this.settings.message_selector)
 				.text(this.chapter.messages[messageType]);
 			if (messageType == "error") {
 				this.loader.removeClass("active").addClass("progress-bar-danger");
@@ -380,287 +561,6 @@
 	};
 
 })(jQuery, window, document);
-
-
-
-
-
-
-
-/**
- * Active element -----------------------------------------------------------------------------------------------
- *
- */
-;(function($, window, document, undefined) {
-	"use strict";
-
-	var pluginName = "activeElement";
-	//var reloadName = "aplusReload";
-	var defaults = {
-	  input: false,
-		ajax_attr: "data-aplus-ajax", // every active element must be
-		message_selector: ".progress-bar",
-		content_element: '<div class="exercise-content"></div>',
-		content_selector: '.exercise-content',
-		exercise_selector: '#exercise-all',
-		feedback_selector: '#feedback',
-		summary_selector: '.exercise-summary', // navbar is filtered out based on this
-		response_selector: '.exercise-response',
-		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a',
-		ae_result_selector: '.ae_result',
-	};
-
-	function ActiveElement(element, chapter, options) {
-		this.element = $(element);
-		this.chapter = chapter;
-		this.settings = $.extend({}, defaults, options);
-		this.url = null;
-		this.ajax = false;
-		this.loader = null;
-		this.messages = {};
-		this.init();
-	}
-
-	$.extend(ActiveElement.prototype, {
-
-		init: function() {
-			this.chapterID = this.element.attr("id");
-			this.url = this.element.attr(this.chapter.settings.exercise_url_attr);
-			this.url = this.url + "?__r=" + encodeURIComponent(
-				window.location.href + "#" + this.element.attr("id"));
-				
-			// Add all output elements to the chapters list of outputs
-		  if (!this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
-
-			// Do not mess up events in an Ajax exercise.
-			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
-
-			this.loader = this.chapter.cloneLoader();
-			this.element.height(this.element.height()).empty();
-			this.element.append(this.settings.content_element);
-			this.element.append(this.loader);
-			this.load();
-
-		},
-
-		load: function() {
-			this.showLoader("load");
-			var exercise = this;
-			var id = exercise.chapterID
-			var title = $("#" + id).attr("data-title") || "";
-			
-			// Create input form or request A+ for output field 
-			if (exercise.settings.input) {
-			  exercise.hideLoader();
-			  var $exercise_wrap = $("<div id='exercise-all'></div>");
-			  var $form = $('<form action="" method="post"></form>');
-			  $form.append('\
-			  	<div class="form-group">\
-		        <label class="control-label" for="' + id + '_input">\
-			        ' + title + '\
-		        </label>\
-		        <textarea class="form-control" id="' + id + '_input_id" name="' + id + '_input"></textarea>\
-	        </div>\
-          <div class="form-group">\
-		        <input class="btn btn-primary" value="Submit" type="submit">\
-	        </div>');
-        $exercise_wrap.append($form);
-			  exercise.update($exercise_wrap);			  
-			
-			} else {
-			  $.ajax(this.url, {dataType: "html"})
-				  .fail(function() {
-					  exercise.showLoader("error");
-				  })
-				  .done(function(data) {
-					  exercise.hideLoader();
-					  var cleaned_data = $(data)
-					  title = "<p><b>" + title + "</b></p>";
-					  // Remove submission summary bar from active elements
-					  cleaned_data.find(exercise.settings.summary_selector).remove();
-					  // Add the output element title
-					  cleaned_data.find("#exercise").prepend(title);
-					  exercise.update(cleaned_data);
-					  if (!exercise.input) {
-						  exercise.loadLastSubmission($(data));
-					  }
-				  });
-			}
-
-		},
-
-		update: function(input) {
-			var content = this.element.find(this.settings.content_selector)
-				.empty().append(
-					input.filter(this.settings.exercise_selector).contents()
-				);
-			this.element.height("auto");
-			if (this.settings.input) {
-			  this.bindFormEvents(content);
-			}
-			
-		},
-
-		bindFormEvents: function(content) {
-			var forms = content.find("form").attr("action", this.url);
-			var exercise = this;
-			if (this.chapter.ajaxForms) {
-				forms.on("submit", function(event) {
-					event.preventDefault();
-					exercise.submit(this);
-				});
-			}
-		},
-
-		submit: function(form_element) {
-		  var chapter = this.chapter;
-		  var input_id = this.chapterID;
-		  
-		  // For every output related to this input, try to evaluate the outputs
-		  // TODO: better to send everything and let server respond with error if fields are missing,
-		  // or should it be checked here that all the inputs have content?
-		  var outputs = $.find('[data-inputs~="' + input_id + '"]');
-		  $.each(outputs,  function(i, element) {
-		    element = $(element);
-		    var output_id = element.attr("id");
-		    var output = chapter.aeOutputs[output_id];    
-        // Find the ids of input elements required for this output
-		    var inputs = element.attr("data-inputs").split(" ");
-		    // Find the form field names the grader is expecting
-		    var expected_inputs = element.find(output.settings.ae_result_selector).attr("data-expected-inputs").trim().split(" ");
-		    
-		    // Form data to be sent for evaluation
-		    var data = new FormData();
-		    $.each(inputs, function(i, id) {
-		      var input_val = $("#" + id + "_input_id").val();
-		      data.append(expected_inputs[i], input_val);		      
-		    });
-		    
-		    $.ajax(output.url, {
-				  type: "POST",
-				  data: data,
-				  contentType: false,
-				  processData: false,
-				  dataType: "html"
-			  }).fail(function() {
-			    console.log('fail');
-				  this.chapter.modalError(exercise.chapter.messages.error);
-			  }).done(function(data) {
-			    var content = $(data);
-			    if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
-			      $("#" + output_id).find(output.settings.ae_result_selector).html("<p>Evaluating</p>");
-			      // Attach the poll url to the active element 
-			      var poll_url = content.find(".exercise-wait").attr("data-poll-url");
-			      $('#' + output_id).attr('data-poll-url', poll_url);
-			      output.updateSubmission(content);
-          } else {
-            $("#" + output_id).find(output.settings.ae_result_selector).html(
-              content.find('.alert-danger').contents()
-            );
-          }
-			  });
-		  });
-		},
-		
-		updateOutput: function(data) {
-		// Put data in this output box
-		  var exercise = this;
-		  var id = exercise.chapterID;
-		  var type = $("#" + id).attr("data-type") || "text"; // default output type is text
-		  var content = $(data).find(exercise.settings.feedback_selector).find(".grading-task").text();
-      
-      if (type == "image") {
-		    content = '<img src="data:image/png;base64, ' + content + '" />'		  
-		  }
-		  
-		  $("#" + id).find(exercise.settings.ae_result_selector).html(content);
-		},
-
-		updateSubmission: function(input) {
-			// Update asynchronous feedback.
-			if (typeof($.aplusExerciseDetectWaits) == "function") {			  
-				var exercise = this;
-				$.aplusExerciseDetectWaits(function(suburl) {
-					$.ajax(suburl).done(function(data) {
-					  exercise.updateOutput(data);
-					}).fail(function() {
-						exercise.chapter.modalError(exercise.chapter.messages.error); // TODO 
-					});
-				}, '#' + this.chapterID);
-			}
-		},
-
-		loadLastSubmission: function(input) {
-			var link = input.find(this.settings.last_submission_selector);
-			if (link.size() > 0) {
-				var url = link.attr("href");
-				if (url && url !== "#") {
-					this.showLoader("load");
-					var exercise = this;
-					$.ajax(link.attr("href"), {dataType: "html"})
-						.fail(function() {
-							exercise.showLoader("error");
-						})
-						.done(function(data) {
-							exercise.hideLoader();
-						  // Update the output box values
-							exercise.updateOutput(data);
-							
-							// Find the latest input values
-							var inspect_url = $(data).find('a[href*="inspect"]').attr("href"); // TODO can this fail?
-              $.ajax(inspect_url)
-                .done(function(inspect_data) {
-                  // Find submitted values from the inspect submission page
-                  var all_inputs = $(inspect_data).find('h4:contains("Submitted values")').next();
-                  var input_list = $("#" + exercise.chapterID).attr("data-inputs").split(" ");
-                  
-                  // Update the value of each related input field
-                  $.each(input_list, function(i, id) {
-                    // dd (i + 1) * 2 because dds are even elements and nth-child indexing starts at 1
-                    var in_i = all_inputs.find("dd:nth-child(" + ((i + 1) * 2) + ")"); 
-                    $("#" + input_list[i] + "_input_id").val(in_i.text());
-                  });
-                });
-						});
-				}
-			}
-		},
-
-		showLoader: function(messageType) {
-			this.loader.show().find(this.settings.message_selector)
-				.text(this.chapter.messages[messageType]);
-			if (messageType == "error") {
-				this.loader.removeClass("active").addClass("progress-bar-danger");
-			} else {
-				this.loader.addClass("active").removeClass("progress-bar-danger");
-			}
-		},
-
-		hideLoader: function() {
-			this.loader.hide();
-		}
-	});
-
-	$.fn[pluginName] = function(chapter, options) {
-		return this.each(function() {
-			if (!$.data(this, "plugin_" + pluginName)) {
-				$.data(this, "plugin_" + pluginName, new ActiveElement(this, chapter, options));
-			}
-		});
-	};
-
-	/*$.fn[reloadName] = function() {
-		return this.each(function() {
-			var exercise = $.data(this, "plugin_" + pluginName);
-			if (exercise) {
-				exercise.load();
-			}
-		});
-	};*/
-
-})(jQuery, window, document);
-
-
 
 
 // Construct the page chapter element.

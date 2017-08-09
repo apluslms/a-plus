@@ -64,6 +64,12 @@
 
 		ready: function() {
 			//this.element.hide();
+			
+			// For active elements the element to which the poll plugin is attached remains the same, so to
+			// be able to submit the same form several times the plugin data needs to be removed when the 
+			// evaluation and polling is finished.
+			if ($.data(this.element.context, "plugin_" + pluginName)) $.removeData(this.element.context, "plugin_" + pluginName);
+			 
 			var suburl = this.url.substr(0, this.url.length - "poll/".length);
 			if (this.callback) {
 				this.callback(suburl);
@@ -84,9 +90,9 @@
 
 	$.fn[pluginName] = function(callback, options) {
 		return this.each(function() {
-			if (!$.data(this, "plugin_" + pluginName)) {
+			if (!$.data(this, "plugin_" + pluginName)) { // This apparently blocks re-polling for a same exercise multiple times
 				$.data(this, "plugin_" + pluginName, new AplusExercisePoll(this, callback, options));
-			}
+			} 
 		});
 	};
 
