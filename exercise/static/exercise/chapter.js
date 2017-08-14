@@ -47,7 +47,7 @@
 			this.messages = this.readMessages();
 			this.quizSuccess = $(this.settings.quiz_success_selector);
 
-			// do not include active element ouputs to exercise groups
+			// do not include active element inputs to exercise groups
 			this.element.find("[" + this.settings.active_element_attr +  "='in']").aplusExercise(this, {input: true});
 
 			this.exercises = this.element
@@ -218,7 +218,8 @@
 			
 			if (this.active_element) {
 			  id = exercise.chapterID;
-			  title = $("#" + id).attr("data-title") || "";
+			  title = "";
+			  if ($("#" + id).attr("data-title")) title = $("#" + id).attr("data-title");
 			}
 			
 			var final_data = '';
@@ -269,7 +270,9 @@
 				
 			if (exercise.active_element) {
 			  var element = $("#" + exercise.chapterID);
-			  var title = "<p><b>" + element.attr("data-title") + "</b></p>";
+			  var title = "";
+			  if (element.attr("data-title")) 
+			    title = "<p><b>" + element.attr("data-title") + "</b></p>";
 			  element.find(exercise.settings.summary_selector).remove();
 			  $(title).prependTo(element.find(".exercise-response"));
 			}
