@@ -300,7 +300,7 @@
 					});
 				}
 			}		
-			// This is new stuff, no idea how affects active elements
+			
 			$.augmentExerciseGroup(content);
 			window.postMessage({
 				type: "a-plus-bind-exercise",
@@ -339,6 +339,7 @@
 			  callback(data);
 			});
 		},
+		
 
 		submit: function(form_element) {
 		  var input = this;
@@ -358,13 +359,26 @@
 		      // Form data to be sent for evaluation
 		      var formData = new FormData();
 		      $.each(inputs, function(i, id) {
-		        var input_val = $("#" + id + "_input_id").val();
+		        var input_val;
+		        
+		        // Because changing an input value without submitting said input is possible, 
+		        // use the latest input value that has been submitted before for other inputs 
+		        // than the one being submitted now.
+		        if (id !== input_id) {
+		          input_val = $($.find("#" + id)).data("value");
+		          // Update the input box back to the value used in evaluation
+		          $("#" + id + "_input_id").val(input_val);
+		        } else {
+		          input_val = $("#" + id + "_input_id").val();
+		          // Update the saved value data
+		          $($.find("#" + id)).data("value", input_val);
+		        }
 		        formData.append(expected_inputs[i], input_val);		      
 		      });
 		      
 		      var url = exercise.url;
 		      
-		      exercise.submitAjax(url, formData, function(data) { // FIXME Maybe is the data here what it should be??
+		      exercise.submitAjax(url, formData, function(data) {
 		        var content = $(data);
 		        var id = exercise.chapterID;
 		        if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
@@ -514,10 +528,17 @@
                  
                     // Update the value of each related input field
                     $.each(input_list, function(i, id) {
-                      // dd (i + 1) * 2 because dds are even elements and nth-child indexing starts at 1
+             
                       var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
-                      $("#" + input_list[i] + "_input_id").val(in_i.text());
+                      // Store the value of the input to be used later for submitting active elemen evaluation requests
+                      $($.find("#" + id)).data("value", in_i.text())
+                      $("#" + id + "_input_id").val(in_i.text());
+                      
+                      
+			  
                     });
+                  }).fail(function(xhr) {
+                    console.log('error', xhr);                  
                   });
 							 }
 							
