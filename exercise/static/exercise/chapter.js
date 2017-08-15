@@ -354,6 +354,7 @@
 		    
 		    $.each(outputs,  function(i, element) {
 		      element = $(element);
+		      console.log("in submit");
 		      var [exercise, inputs, expected_inputs] = input.matchInputs(element); 		      
 		      
 		      // Form data to be sent for evaluation
@@ -420,11 +421,17 @@
 		// the corresponding names that are used in mooc-grader exercise type config
 		matchInputs: function(element) {
 		  var output_id = element.attr("id");
-      var exercise = this.chapter.aeOutputs[output_id];    
+      var exercise = this.chapter.aeOutputs[output_id];  
       // Find the ids of input elements required for this output
       var inputs = element.attr("data-inputs").split(" ");
       // Find the form field names the grader is expecting
-      var expected_inputs = element.find(exercise.settings.ae_result_selector).attr("data-expected-inputs").trim().split(" ");
+      var expected_inputs = element.find(exercise.settings.ae_result_selector).attr("data-expected-inputs");
+      // make sure there are expected inputs
+      if (expected_inputs) {
+        expected_inputs = expected_inputs.trim().split(" ");
+      } else {
+        expected_inputs = [];
+      }
 		  return  [exercise, inputs, expected_inputs];
 		},
 
