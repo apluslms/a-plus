@@ -43,7 +43,7 @@
 			this.ajaxForms = window.FormData ? true : false;
 			this.url = this.element.attr(this.settings.chapter_url_attr);
 			this.modalElement = $(this.settings.modal_selector);
-			this.loader = $(this.settings.loader_selector); //----------- what is loader_selector?
+			this.loader = $(this.settings.loader_selector);
 			this.messages = this.readMessages();
 			this.quizSuccess = $(this.settings.quiz_success_selector);
 
@@ -113,7 +113,6 @@
 			}
 			this.modalContent(content);
 		}
-
 	});
 
 	$.fn[pluginName] = function(options) {
@@ -209,11 +208,49 @@
 			  }
 			}
 		},
+		
+		// Construct an active element input form
+		makeInputForm: function(id, title) {
+		  var wrap = document.createElement("div");
+		  wrap.setAttribute("id", "exercise-all");
+		  
+		  var form = document.createElement("form");
+		  form.setAttribute("action", "");
+		  form.setAttribute("method", "post");
+		  
+		  var first_div = document.createElement("div");
+		  first_div.setAttribute("class", "form-group");
+		  
+		  var label = document.createElement("label");
+		  label.setAttribute("class", "control-label");
+		  label.setAttribute("for", id + "_input");
+		  label.innerHTML = title;
+		  
+		  var textarea = document.createElement("textarea");
+		  textarea.setAttribute("class", "form-control");
+		  textarea.setAttribute("id", id + "_input_id");
+		  textarea.setAttribute("name", id + "_input");
+		  
+		  var second_div = document.createElement("div");
+		  first_div.setAttribute("class", "form-group");
+		  
+		  var button = document.createElement("input");
+		  button.setAttribute("class", "btn btn-primary");
+		  button.setAttribute("value", "Submit");
+		  button.setAttribute("type", "submit");
+		  
+		  $(first_div).append(label, textarea);
+		  $(second_div).append(button);
+		  $(form).append(first_div, second_div);
+		  $(wrap).append(form);
+		  
+		  return $(wrap);
+		},
 
 		load: function() {
 		  this.showLoader("load");
 			var exercise = this;
-      var id; // FIXME is this bad?
+      var id;
       var title;
 			
 			if (this.active_element) {
@@ -222,27 +259,11 @@
 			  if ($("#" + id).attr("data-title")) title = $("#" + id).attr("data-title");
 			}
 			
-			var final_data = '';
-			
 			if (exercise.settings.input) {
-			  // Construct an input form if the exercise is an active element input
-		    exercise.hideLoader();
-		    var $exercise_wrap = $("<div id='exercise-all'></div>");
-		    var $form = $('<form action="" method="post"></form>');
-		    $form.append(
-		    	'<div class="form-group">' +
-	          '<label class="control-label" for="' + id + '_input">' + title + 
-	          '</label>' +
-	          '<textarea class="form-control" id="' + id + 
-          		'_input_id" name="' + id + '_input"></textarea>' +
-          '</div>' +
-          '<div class="form-group">' +
-	          '<input class="btn btn-primary" value="Submit" type="submit">' +
-           '</div>');
-        $exercise_wrap.append($form);
-        final_data = $exercise_wrap;
-        exercise.update(final_data);	
-        exercise.loadLastSubmission(final_data);
+		    exercise.hideLoader();		    
+        var input_form = exercise.makeInputForm(id, title);
+        exercise.update(input_form);	
+        exercise.loadLastSubmission(input_form);
         exercise.chapter.nextExercise();		  		
 			 } else {
 		    $.ajax(this.url, {dataType: "html"})
@@ -279,8 +300,8 @@
 			content.show();
 
 			this.element.height("auto");
-			this.bindNavEvents(); // Maybe only if not active element?
-			this.bindFormEvents(content); // Maybe only if not ae output?
+			this.bindNavEvents();
+			this.bindFormEvents(content);
 		},
 
 		bindNavEvents: function() {
@@ -308,7 +329,7 @@
 			}, "*");
 		},
 		
-		// Submits the formData to given url and then executes the callback.
+		// Submit the formData to given url and then execute the callback.
 		submitAjax: function(url, formData, callback, retry) {
 		  var exercise = this;
 		  $.ajax(url, {
@@ -318,15 +339,13 @@
 				processData: false,
 				dataType: "html"
 			}).fail(function(xhr, textStatus, errorThrown) {
-			
 			    // handle database lock exceptions
 			    retry = retry || 0;
           if (xhr.responseText.indexOf("database is locked") >= 0 && retry < 5) {
-            console.log("Trying submitAjax again in 100ms");
+            console.log("Database is locked: trying submitAjax again in 100ms");
             setTimeout(
-              function() 
-              {
-                console.log("resubmit no.", retry + 1);
+              function() {
+                console.log("Resubmit no.", retry + 1);
                 exercise.submitAjax(url, formData, callback, retry + 1);
               }, 100);
           } else {
@@ -340,7 +359,34 @@
 			});
 		},
 		
-
+		// Construct form data from input element values
+		generateFormData: function(output) {
+		  output = $(output);
+      var [exercise, inputs, expected_inputs] = this.matchInputs(output); 		      
+      
+      // Form data to be sent for evaluation
+      var formData = new FormData();
+      var input_id = this.chapterID;
+      $.each(inputs, function(i, id) {
+        var input_val;
+        
+        // Because changing an input value without submitting said input is possible, 
+        // use the latest input value that has been submitted before for other inputs 
+        // than the one being submitted now.
+        if (id !== input_id) {
+          input_val = $($.find("#" + id)).data("value");
+          // Update the input box back to the value used in evaluation
+          $("#" + id + "_input_id").val(input_val);
+        } else {
+          input_val = $("#" + id + "_input_id").val();
+          // Update the saved value data
+          $($.find("#" + id)).data("value", input_val);
+        }
+        formData.append(expected_inputs[i], input_val);		
+      });  
+      return [exercise, formData];
+		},
+		
 		submit: function(form_element) {
 		  var input = this;
 		  if (this.active_element) {
@@ -353,30 +399,7 @@
 		    var outputs = $.find('[data-inputs~="' + input_id + '"]');
 		    
 		    $.each(outputs,  function(i, element) {
-		      element = $(element);
-		      console.log("in submit");
-		      var [exercise, inputs, expected_inputs] = input.matchInputs(element); 		      
-		      
-		      // Form data to be sent for evaluation
-		      var formData = new FormData();
-		      $.each(inputs, function(i, id) {
-		        var input_val;
-		        
-		        // Because changing an input value without submitting said input is possible, 
-		        // use the latest input value that has been submitted before for other inputs 
-		        // than the one being submitted now.
-		        if (id !== input_id) {
-		          input_val = $($.find("#" + id)).data("value");
-		          // Update the input box back to the value used in evaluation
-		          $("#" + id + "_input_id").val(input_val);
-		        } else {
-		          input_val = $("#" + id + "_input_id").val();
-		          // Update the saved value data
-		          $($.find("#" + id)).data("value", input_val);
-		        }
-		        formData.append(expected_inputs[i], input_val);		      
-		      });
-		      
+		      var [exercise, formData] = input.generateFormData(element);		      
 		      var url = exercise.url;
 		      
 		      exercise.submitAjax(url, formData, function(data) {
@@ -417,7 +440,7 @@
 		  }
 		},
 		
-		// matchInputs finds for an active element the names of the input fields required and 
+		// Find for an active element the names of the input fields required and 
 		// the corresponding names that are used in mooc-grader exercise type config
 		matchInputs: function(element) {
 		  var output_id = element.attr("id");
@@ -444,7 +467,6 @@
 		},
 
 		updateSubmission: function(input) {
-
 		  if (!this.active_element) {
 		    this.updateSummary(input);
 			  this.chapter.modalContent(
@@ -495,19 +517,42 @@
 		  
 		  $("#" + id).find(exercise.settings.ae_result_selector).html(content);
 		},
+		
+		// Retrieve and update latest values of the input elements related to this element
+		updateInputs: function(inspect_url) {
+		  var exercise = this;
+      $.ajax(inspect_url)
+        .done(function(inspect_data) {
+          // match the actual input names to the ones of the grader
+          var [exer, input_list, expected_inputs] = exercise.matchInputs(exercise.element);
+        
+          // Find submitted values from the inspect submission page
+          var all_inputs = $(inspect_data).find('h4:contains("Submitted values")').next();
+       
+          // Update the value of each related input field
+          $.each(input_list, function(i, id) {
+   
+            var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
+            // Store the value of the input to be used later for submitting active elemen evaluation requests
+            $($.find("#" + id)).data("value", in_i.text())
+            $("#" + id + "_input_id").val(in_i.text());
+          });
+        }).fail(function(xhr) {
+          console.log('error', xhr);                  
+        });
+		
+		},
 
 		loadLastSubmission: function(input) {
 		  var link = input.find(this.settings.last_submission_selector);
-		  
+		  var exercise = this;
 		  if (link.size() > 0) {
 				var url = link.attr("href");
 				if (url && url !== "#") {
 					this.showLoader("load");
-					var exercise = this;
 					$.ajax(link.attr("href"), {dataType: "html"})
 						.fail(function() {
 							exercise.showLoader("error");
-							exercise.chapter.nextExercise();
 						})
 						.done(function(data) {
 							exercise.hideLoader();
@@ -523,40 +568,14 @@
 							  // Update the output box values
 							  exercise.updateOutput(data);
 							
-							  // Find the latest input values
-							  var inspect_url = $(data).find('a[href*="inspect"]').attr("href"); // TODO can this fail?
-                $.ajax(inspect_url)
-                  .done(function(inspect_data) {
-                    // match the actual input names to the ones of the grader
-                    var [exer, input_list, expected_inputs] = exercise.matchInputs(exercise.element);
-                  
-                    // Find submitted values from the inspect submission page
-                    var all_inputs = $(inspect_data).find('h4:contains("Submitted values")').next();
-                 
-                    // Update the value of each related input field
-                    $.each(input_list, function(i, id) {
-             
-                      var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
-                      // Store the value of the input to be used later for submitting active elemen evaluation requests
-                      $($.find("#" + id)).data("value", in_i.text())
-                      $("#" + id + "_input_id").val(in_i.text());
-                      
-                      
-			  
-                    });
-                  }).fail(function(xhr) {
-                    console.log('error', xhr);                  
-                  });
-							 }
-							
-							exercise.chapter.nextExercise();
+							  // Update the input values
+							  var inspect_url = $(data).find('a[href*="inspect"]').attr("href");
+                exercise.updateInputs(inspect_url);
+							}
 						});
-				} else {
-					this.chapter.nextExercise();
-				}
-			} else {
-				this.chapter.nextExercise();
-			}
+				} 
+			} 		
+			exercise.chapter.nextExercise();
 		},
 
 		showLoader: function(messageType) {
