@@ -13,13 +13,13 @@ CMD=$6
 TMP=/tmp/aplus
 TMP_EXERCISE_MOUNT=$TMP/_ex/${EXERCISE_MOUNT##/srv/courses/}
 TMP_SUBMISSION_MOUNT=$TMP/${SUBMISSION_MOUNT##/srv/uploads/}
-mkdir -p $(dirname $TMP_EXERCISE_MOUNT)
-mkdir -p $(dirname $TMP_SUBMISSION_MOUNT)
-cp -r $EXERCISE_MOUNT $TMP_EXERCISE_MOUNT
-cp -r $SUBMISSION_MOUNT $TMP_SUBMISSION_MOUNT
+mkdir -p $TMP_EXERCISE_MOUNT
+mkdir -p $TMP_SUBMISSION_MOUNT
+cp -r $EXERCISE_MOUNT $(dirname $TMP_EXERCISE_MOUNT)
+cp -r $SUBMISSION_MOUNT $(dirname $TMP_SUBMISSION_MOUNT)
 
 docker run \
-  -d \
+  -d --rm \
   -e "SID=$SID" \
   -e "REC=$GRADER_HOST" \
   -v $TMP_EXERCISE_MOUNT:/exercise \
