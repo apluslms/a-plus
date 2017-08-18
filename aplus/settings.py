@@ -276,6 +276,8 @@ REST_FRAMEWORK = {
     },
 }
 
+OVERRIDE_SUBMISSION_HOST = None
+
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"

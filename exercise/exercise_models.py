@@ -578,10 +578,15 @@ class BaseExercise(LearningObject):
         Generates complete URL with added parameters to the exercise service.
         """
         uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
+        auri = (
+            settings.OVERRIDE_SUBMISSION_HOST + submission_url
+            if settings.OVERRIDE_SUBMISSION_HOST
+            else request.build_absolute_uri(submission_url)
+        )
         return update_url_params(self.service_url, {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
-            "submission_url": request.build_absolute_uri(submission_url),
+            "submission_url": auri,
             "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
             "uid": uid_str,
             "ordinal_number": ordinal_number,
