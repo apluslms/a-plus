@@ -9,22 +9,16 @@ EXERCISE_MOUNT=$4
 SUBMISSION_MOUNT=$5
 CMD=$6
 
-# Manage for docker-compose setup, see test course for reference.
-# Docker cannot bind volume from inside docker so global /tmp is used.
-TMP=/tmp/aplus
-TMP_EXERCISE_MOUNT=$TMP/_ex/${EXERCISE_MOUNT##/srv/courses/}
-TMP_SUBMISSION_MOUNT=$TMP/${SUBMISSION_MOUNT##/srv/uploads/}
-mkdir -p $TMP_EXERCISE_MOUNT
-mkdir -p $TMP_SUBMISSION_MOUNT
-cp -r $EXERCISE_MOUNT $(dirname $TMP_EXERCISE_MOUNT)
-cp -r $SUBMISSION_MOUNT $(dirname $TMP_SUBMISSION_MOUNT)
+# Override host to enable local testing.
+IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -1)
+PORT=${GRADER_HOST##*:}
+GRADER_HOST=http://$IP:$PORT
 
 docker run \
   -d --rm \
   -e "SID=$SID" \
   -e "REC=$GRADER_HOST" \
-  -v $TMP_EXERCISE_MOUNT:/exercise \
-  -v $TMP_SUBMISSION_MOUNT:/submission \
-  --network=aplus_default \
+  -v $EXERCISE_MOUNT:/exercise \
+  -v $SUBMISSION_MOUNT:/submission \
   $DOCKER_IMAGE \
   $CMD
