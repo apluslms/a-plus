@@ -512,3 +512,7 @@ class ConfigParser:
 
 # An object that holds on to the latest exercise configuration.
 config = ConfigParser()
+
+# If testing one course preload configuration.
+if len(os.listdir(DIR)) == 1:
+    config.courses()
