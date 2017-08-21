@@ -375,7 +375,7 @@ def configure_content(instance, url):
                     not isinstance(exercise, BaseExercise)
                     or exercise.submissions.count() == 0
                 ):
-                    lobject.delete()
+                    exercise.delete()
                 else:
                     lobject.status = "hidden"
                     lobject.order = 9999
