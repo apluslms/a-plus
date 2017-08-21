@@ -187,7 +187,8 @@
 		  if (this.active_element && !this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
 		  
 		  this.loader = this.chapter.cloneLoader();
-			this.element.height(this.element.height()).empty();
+		  
+      this.element.height(this.element.height()).empty();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			
@@ -285,7 +286,7 @@
 
 		update: function(input) {
 		  var exercise = this;
-		  input =input.filter(exercise.settings.exercise_selector).contents();
+		  input = input.filter(exercise.settings.exercise_selector).contents();
 		  var content = this.element.find(this.settings.content_selector)
 				.empty().append(input).hide();
 				
@@ -297,9 +298,23 @@
 			  element.find(exercise.settings.summary_selector).remove();
 			  $(title).prependTo(element.find(".exercise-response"));
 			}
+			
 			content.show();
+			
+			// Set the active element heights
+			var cur_height = this.element.css('height');
+			// Here 150px is assumed to be the default height; the value used here must match with the default
+			// height of css class .active-element
+			if (this.active_element && this.element.css('height') !== '150px') {
+			  var target;
+			  if (this.settings.input) {
+			    target = $("#" + this.chapterID + "input[type=text], textarea").css("height", cur_height);
+			  } else {
+			    target = $('#' + this.chapterID + ' .ae_result').css("height", cur_height);
+			  }
+			}
 
-			this.element.height("auto");
+      this.element.height("auto");	
 			this.bindNavEvents();
 			this.bindFormEvents(content);
 		},
@@ -367,6 +382,7 @@
       // Form data to be sent for evaluation
       var formData = new FormData();
       var input_id = this.chapterID;
+      var valid = true;
       $.each(inputs, function(i, id) {
         var input_val;
         
@@ -382,9 +398,10 @@
           // Update the saved value data
           $($.find("#" + id)).data("value", input_val);
         }
+        if (!input_val) valid = false;
         formData.append(expected_inputs[i], input_val);		
       });  
-      return [exercise, formData];
+      return [exercise, valid, formData];
 		},
 		
 		submit: function(form_element) {
@@ -399,22 +416,30 @@
 		    var outputs = $.find('[data-inputs~="' + input_id + '"]');
 		    
 		    $.each(outputs,  function(i, element) {
-		      var [exercise, formData] = input.generateFormData(element);		      
+		      var [exercise, valid, formData] = input.generateFormData(element);		   
+		      var output_id = exercise.chapterID;
+		      
+		      if (!valid) {
+		        $("#" + output_id).find(exercise.settings.ae_result_selector)
+              .html('<p style="color:red;">Fill out all the inputs</p>');
+            return;
+		      }
+		        
 		      var url = exercise.url;
 		      
 		      exercise.submitAjax(url, formData, function(data) {
 		        var content = $(data);
-		        var id = exercise.chapterID;
+		        var output = $("#" + output_id);
 		        if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
-			        $("#" + id).find(exercise.settings.ae_result_selector)
+			        output.find(exercise.settings.ae_result_selector)
                 .html("<p>Evaluating</p>");
 			        var poll_url = content.find(".exercise-wait")
                               .attr("data-poll-url");
-			        $('#' + id).attr('data-poll-url', poll_url);
+			        output.attr('data-poll-url', poll_url);
 			        
 			        exercise.updateSubmission(content);
             } else {
-              $("#" + id).find(exercise.settings.ae_result_selector)
+              output.find(exercise.settings.ae_result_selector)
               .html(content.find('.alert-danger').contents());
             }
           });
