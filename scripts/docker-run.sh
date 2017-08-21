@@ -1,6 +1,10 @@
 #!/bin/bash
-# Orders a container using docker run command.
-# The container command is responsible to call /aplus/grade in end.
+# Orders a container using docker run command. Prerequisites:
+# 1. Docker is installed on the computer.
+# 2. Mooc-grader must listen at public IP (e.g. runserver 0.0.0.0:8080).
+#
+# The container must make an HTTP POST request including fields
+# points, max_points, and feedback (HTML) to $REC/container-post.
 
 SID=$1
 GRADER_HOST=$2
