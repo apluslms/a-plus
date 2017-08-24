@@ -211,7 +211,7 @@
 		},
 		
 		// Construct an active element input form
-		makeInputForm: function(id, title) {
+		makeInputForm: function(id, title, def_val) {
 		  var wrap = document.createElement("div");
 		  wrap.setAttribute("id", "exercise-all");
 		  
@@ -231,6 +231,7 @@
 		  textarea.setAttribute("class", "form-control");
 		  textarea.setAttribute("id", id + "_input_id");
 		  textarea.setAttribute("name", id + "_input");
+		  $(textarea).val(def_val);
 		  
 		  var second_div = document.createElement("div");
 		  first_div.setAttribute("class", "form-group");
@@ -261,8 +262,10 @@
 			}
 			
 			if (exercise.settings.input) {
+			  var def_val = $("#" + id).attr("data-default");
+			  if (!def_val) def_val = ''; 
 		    exercise.hideLoader();		    
-        var input_form = exercise.makeInputForm(id, title);
+        var input_form = exercise.makeInputForm(id, title, def_val);
         exercise.update(input_form);	
         exercise.loadLastSubmission(input_form);
         exercise.chapter.nextExercise();		  		
