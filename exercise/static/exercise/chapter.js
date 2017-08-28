@@ -183,7 +183,7 @@
 			// Check if the exercise is an active element.
 			this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);
 			
-			// If the element is an output, add it to the chapters list of outputs
+			// Add the active element outputs to a list so that the element can be found later
 		  if (this.active_element && !this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
 		  
 		  this.loader = this.chapter.cloneLoader();
@@ -192,6 +192,7 @@
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			
+			// Inputs are different from actual exercises and need only be loaded.
 			if (this.settings.input) this.load();
 			
 			if (!this.active_element) {
@@ -255,6 +256,7 @@
       var id;
       var title;
 			
+			// Id and title are needed for contructing the active elements
 			if (this.active_element) {
 			  id = exercise.chapterID;
 			  title = "";
@@ -304,7 +306,8 @@
 			
 			content.show();
 			
-			// Set the active element heights
+			// Active element can have height settings in the A+ exercise div that need to be
+			// attached to correct DOM-elements
 			var cur_height = this.element.css('height');
 			// Here 150px is assumed to be the default height; the value used here must match with the default
 			// height of css class .active-element
@@ -414,8 +417,6 @@
 		    var input_id = this.chapterID;
 		    
 		    // For every output related to this input, try to evaluate the outputs
-		    // TODO: better to send everything and let server respond with error if fields are missing,
-		    // or should it be checked here that all the inputs have content?
 		    var outputs = $.find('[data-inputs~="' + input_id + '"]');
 		    
 		    $.each(outputs,  function(i, element) {
@@ -567,8 +568,7 @@
           });
         }).fail(function(xhr) {
           console.log('error', xhr);                  
-        });
-		
+        });	
 		},
 
 		loadLastSubmission: function(input) {
