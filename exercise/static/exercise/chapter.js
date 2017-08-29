@@ -412,8 +412,8 @@
 		
 		submit: function(form_element) {
 		  var input = this;
+		  var chapter = this.chapter;
 		  if (this.active_element) {
-			  var chapter = this.chapter;
 		    var input_id = this.chapterID;
 		    
 		    // For every output related to this input, try to evaluate the outputs
@@ -434,9 +434,15 @@
 		      exercise.submitAjax(url, formData, function(data) {
 		        var content = $(data);
 		        var output = $("#" + output_id);
+		        
 		        if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
-			        output.find(exercise.settings.ae_result_selector)
-                .html("<p>Evaluating</p>");
+		          var out_content = output.find(exercise.settings.ae_result_selector);
+		          //var height = out_content.css("height");
+		          //console.log(height);
+		          //output.css({ 'height': height + "px" });
+		          out_content.css({ 'height' : (out_content.height())});
+			        out_content.html("<p>Evaluating</p>");
+			        console.log(out_content.css("height"));
 			        var poll_url = content.find(".exercise-wait")
                               .attr("data-poll-url");
 			        output.attr('data-poll-url', poll_url);
@@ -449,7 +455,7 @@
           });
 		    });    
 		  } else {
-		    this.chapter.openModal(this.chapter.messages.submit);
+		    chapter.openModal(chapter.messages.submit);
 			  var exercise = this;
 			  var url = $(form_element).attr("action");
 			  var formData = new FormData(form_element);
@@ -461,7 +467,7 @@
 				  if (exercise.quiz) {
 					  var badge = input.find('.badge').eq(2).clone();
 					  exercise.update(input);
-					  exercise.chapter.modalSuccess(exercise.element, badge);
+					  chapter.modalSuccess(exercise.element, badge);
 				  } else {
 					  exercise.updateSubmission(input);
 				  }
@@ -543,8 +549,9 @@
       if (type == "image") {
 		    content = '<img src="data:image/png;base64, ' + content + '" />';		  
 		  }
-		  
-		  $("#" + id).find(exercise.settings.ae_result_selector).html(content);
+		  var output_container = $("#" + id).find(exercise.settings.ae_result_selector);
+		  output_container.html(content);
+		  output_container.css({ "height" : "auto"});
 		},
 		
 		// Retrieve and update latest values of the input elements related to this element
@@ -563,7 +570,7 @@
    
             var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
             // Store the value of the input to be used later for submitting active elemen evaluation requests
-            $($.find("#" + id)).data("value", in_i.text())
+            $($.find("#" + id)).data("value", in_i.text());
             $("#" + id + "_input_id").val(in_i.text());
           });
         }).fail(function(xhr) {
