@@ -50,6 +50,9 @@
 						if (poller.count < poller.settings.poll_delays.length) {
 							poller.schedule();
 						} else {
+						  if ($.data(poller.element.context, "plugin_" + pluginName)) {
+						    $.removeData(poller.element.context, "plugin_" + pluginName);
+						  }
 							poller.message("timeout");
 						}
 					}

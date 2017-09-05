@@ -391,22 +391,38 @@
       var valid = true;
       $.each(inputs, function(i, id) {
         var input_val;
+        var input_elem = $.find("#" + id);
         
-        // Because changing an input value without submitting said input is possible, 
-        // use the latest input value that has been submitted before for other inputs 
-        // than the one being submitted now.
-        if (id !== input_id) {
-          input_val = $($.find("#" + id)).data("value");
+        // Input can be also an output element, in which case the content must be
+        // retrieved differently
+        if (input_elem[0].hasAttribute("data-inputs")) {
+        
+          // If an output uses another output as an input, the output used as an input can
+          // be in evaluation which means this output cannot be evaluated yet
+          if ($(input_elem).data('evaluating')) {
+            valid = false;
+            formData = false;
+            return;
+          } 
+          
+          input_val = $(input_elem).find(".ae_result").text().trim();
+        
+        } else if (id !== input_id) {        
+          // Because changing an input value without submitting said input is possible, 
+          // use the latest input value that has been submitted before for other inputs 
+          // than the one being submitted now.    
+          input_val = $(input_elem).data("value");
           // Update the input box back to the value used in evaluation
           $("#" + id + "_input_id").val(input_val);
         } else {
           input_val = $("#" + id + "_input_id").val();
           // Update the saved value data
-          $($.find("#" + id)).data("value", input_val);
+          $(input_elem).data("value", input_val);
         }
         if (!input_val) valid = false;
         formData.append(expected_inputs[i], input_val);		
       });  
+      
       return [exercise, valid, formData];
 		},
 		
@@ -415,13 +431,17 @@
 		  var chapter = this.chapter;
 		  if (this.active_element) {
 		    var input_id = this.chapterID;
-		    
 		    // For every output related to this input, try to evaluate the outputs
 		    var outputs = $.find('[data-inputs~="' + input_id + '"]');
 		    
 		    $.each(outputs,  function(i, element) {
 		      var [exercise, valid, formData] = input.generateFormData(element);		   
 		      var output_id = exercise.chapterID;
+		      
+		      // Indicates that one of inputs has not finished evaluation
+		      if (!valid && !formData) {
+		        return; // TODO should this do something else?
+		      }
 		      
 		      if (!valid) {
 		        $("#" + output_id).find(exercise.settings.ae_result_selector)
@@ -437,12 +457,9 @@
 		        
 		        if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
 		          var out_content = output.find(exercise.settings.ae_result_selector);
-		          //var height = out_content.css("height");
-		          //console.log(height);
-		          //output.css({ 'height': height + "px" });
+		          output.data('evaluating', true);
 		          out_content.css({ 'height' : (out_content.height())});
 			        out_content.html("<p>Evaluating</p>");
-			        console.log(out_content.css("height"));
 			        var poll_url = content.find(".exercise-wait")
                               .attr("data-poll-url");
 			        output.attr('data-poll-url', poll_url);
@@ -518,6 +535,7 @@
 					$.ajax(suburl).done(function(data) {					
 					  if (exercise.active_element) {
 					    exercise.updateOutput(data);
+					    exercise.submit(); // Active element outputs can be chained
 					  } else {
 					    var input2 = $(data);
 						  var new_badges = input2.find(".badge");
@@ -551,6 +569,7 @@
 		  }
 		  var output_container = $("#" + id).find(exercise.settings.ae_result_selector);
 		  output_container.html(content);
+		  $("#" + id).data('evaluating', false);
 		  output_container.css({ "height" : "auto"});
 		},
 		
