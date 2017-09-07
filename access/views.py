@@ -133,6 +133,40 @@ def exercise_model(request, course_key, exercise_key, parameter=None):
         raise Http404()
 
 
+def exercise_template(request, course_key, exercise_key, parameter=None):
+    '''
+    Presents the exercise template.
+    '''
+    (course, exercise) = config.exercise_entry(course_key, exercise_key)
+    if course is None or exercise is None:
+        raise Http404()
+    response = None
+
+    path = None
+    if 'template_files' in exercise:
+        def find_name(paths, name):
+            templates = [(path,path.split('/')[-1]) for path in paths]
+            for path,name in templates:
+                if name == parameter:
+                    return path
+            return None
+        path = find_name(exercise['template_files'], parameter)
+    if path:
+        with open(os.path.join(course['dir'], path)) as f:
+            content = f.read()
+        response = HttpResponse(content, content_type='text/plain')
+    else:
+        try:
+            response = import_named(course, exercise['view_type'] + "Template")(
+                request, course, exercise, parameter)
+        except ImportError:
+            pass
+    if response:
+        return response
+    else:
+        raise Http404()
+
+
 def aplus_json(request, course_key):
     '''
     Delivers the configuration as JSON for A+.

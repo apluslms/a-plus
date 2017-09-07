@@ -13,6 +13,12 @@ def url_to_model(request, course_key, exercise_key, parameter=None):
     )
 
 
+def url_to_template(request, course_key, exercise_key, parameter=None):
+    return request.build_absolute_uri(
+        reverse('template', args=[course_key, exercise_key, parameter or ''])
+    )
+
+
 def url_to_static(request, course_key, path):
     ''' Creates an URL for a path in static files '''
     return request.build_absolute_uri(
@@ -53,6 +59,15 @@ def exercise(request, course, exercise, of):
         of['model_answer'] = url_to_model(
             request, course['key'], exercise['key']
         )
+
+    if 'template' in exercise:
+        of['template'] = exercise['template']
+    elif 'template_files' in exercise:
+        file_names = [path.split('/')[-1] for path in exercise['template_files']]
+        of['template'] = ' '.join([
+            url_to_template(request, course['key'], exercise['key'], name)
+            for name in file_names
+        ])
     return of
 
 
