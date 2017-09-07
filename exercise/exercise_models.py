@@ -99,6 +99,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     exercise_info = JSONField(blank=True)
     model_answers = models.TextField(blank=True,
         help_text=_("List model answer files as protected URL addresses."))
+    templates = models.TextField(blank=True,
+        help_text=_("List template files as protected URL addresses."))
 
     # Keep this to support ExerciseWithAttachment
     # Maybe this should inject extra content to any exercise
@@ -244,6 +246,9 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
     def get_models(self):
         return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
+
+    def get_templates(self):
+        return [(url,url.split('/')[-1]) for url in self.templates.split()]
 
 
 def invalidate_exercise(sender, instance, **kwargs):
