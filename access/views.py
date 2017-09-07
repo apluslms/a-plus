@@ -47,12 +47,15 @@ def course(request, course_key):
             "course_name": course["name"],
             "exercises": _filter_fields(exercises, ["key", "title"]),
         })
-    return render(request, 'access/course.html', {
+    render_context = {
         'course': course,
         'exercises': exercises,
         'plus_config_url': request.build_absolute_uri(reverse(
             'aplus-json', args=[course['key']])),
-    })
+    }
+    if "gitmanager" in settings.INSTALLED_APPS:
+        render_context["build_log_url"] = request.build_absolute_uri(reverse("build-log-json", args=(course_key, )))
+    return render(request, 'access/course.html', render_context)
 
 
 def exercise(request, course_key, exercise_key):
