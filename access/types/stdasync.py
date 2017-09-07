@@ -269,7 +269,8 @@ def _requireActions(exercise):
     Checks that some actions are set.
     '''
     if "actions" not in exercise or len(exercise["actions"]) == 0:
-        raise ConfigError("Missing \"actions\" in exercise configuration.")
+        if not settings.CONTAINER_MODE or "container" not in exercise:
+            raise ConfigError("Missing \"actions\" in exercise configuration.")
 
 
 def _requireContainer(exercise):
@@ -292,9 +293,10 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     '''
     Queues the submission for grading.
     '''
+    container_flag = settings.CONTAINER_MODE and "container" in exercise
 
     # Backup synchronous grading.
-    if not settings.CONTAINER_MODE and not settings.CELERY_BROKER:
+    if not container_flag and not settings.CELERY_BROKER:
         LOGGER.warning("No queue configured")
         from grader.runactions import runactions
         r = runactions(course, exercise, sdir, get_uid(request), int(request.GET.get("ordinal_number", 1)))
@@ -319,7 +321,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     _acceptSubmission.counter += 1
 
     # Order container for grading.
-    if settings.CONTAINER_MODE:
+    if container_flag:
         c = _requireContainer(exercise)
         sid = os.path.basename(sdir)
         write_submission_meta(sid, {

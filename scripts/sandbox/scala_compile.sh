@@ -8,7 +8,7 @@
 SCRIPTDIR=`dirname $0`
 
 FSCPORT=30000
-ARGS="-encoding utf-8 -deprecation -feature -language:postfixOps"
+ARGS="-encoding utf-8 -deprecation:false -feature -language:postfixOps"
 CP=
 CLEAN=
 
