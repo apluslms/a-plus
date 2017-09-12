@@ -1,0 +1,19 @@
+{% extends "exercise/exercise_base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block view_tag %}template{% endblock %}
+
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Exercise template" %}</li>
+{% endblock %}
+
+{% block exercisecontent %}
+{% include "exercise/_template_files.html" %}
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>$(function() { $('pre.hljs').highlightCode(); });</script>
+{% endblock %}

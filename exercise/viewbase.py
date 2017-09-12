@@ -79,6 +79,10 @@ class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
     pass
 
 
+class ExerciseTemplateBaseView(ExerciseMixin, BaseTemplateView):
+    pass
+
+
 class ExerciseModelMixin(ExerciseMixin):
     model_permission_classes = (
         ModelVisiblePermission,

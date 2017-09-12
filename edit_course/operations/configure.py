@@ -174,6 +174,8 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.exercise_info = o["exercise_info"]
         if "model_answer" in o:
             lobject.model_answers = o["model_answer"]
+        if "template" in o:
+            lobject.templates = o["template"]
         lobject.save()
         seen.append(lobject.id)
         if "children" in o:

@@ -17,7 +17,7 @@ from lib.viewbase import BaseRedirectMixin, BaseView
 from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
-from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, ExerciseModelBaseView
+from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, ExerciseModelBaseView, ExerciseTemplateBaseView
 
 
 class TableOfContentsView(CourseInstanceBaseView):
@@ -173,6 +173,25 @@ class ExerciseModelView(ExerciseModelBaseView):
                 'html': 'text/html' in response.headers.get('Content-Type'),
             })
         self.note('models')
+
+
+class ExerciseTemplateView(ExerciseTemplateBaseView):
+    template_name = "exercise/template.html"
+    ajax_template_name = "exercise/_template_files.html"
+    access_mode = ACCESS.ENROLLED
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.get_summary_submissions()
+        self.templates = []
+        for url,name in self.exercise.get_templates():
+            response = request_for_response(url)
+            self.templates.append({
+                'name': name,
+                'content': response.text,
+                'html': 'text/html' in response.headers.get('Content-Type'),
+            })
+        self.note('templates')
 
 
 class SubmissionView(SubmissionBaseView):

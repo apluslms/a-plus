@@ -25,6 +25,12 @@
     {% trans "Retrieve latest build log" %}
   </a>
   {% endif %}
+  {% if instance.last_modified %}
+  <br>
+  <br>
+  <p>{% trans "Previous modification of this course instance took place at" %}:</p>
+  <b>{{ instance.last_modified }}.</b>
+  {% endif %}
 </div>
 <div class="panel panel-primary">
     <div class="panel-heading">

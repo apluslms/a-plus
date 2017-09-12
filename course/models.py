@@ -323,6 +323,7 @@ class CourseInstance(UrlMixin, models.Model):
             "Separate with white space."))
     configure_url = models.URLField(blank=True)
     build_log_url = models.URLField(blank=True)
+    last_modified = models.DateTimeField(auto_now=True, blank=True, null=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
