@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^container-post$', views.container_post, name='container-post'),
     url(r'^ajax/([\w-]+)/([\w-]+)$', views.exercise_ajax, name='ajax'),
     url(r'^model/([\w-]+)/([\w-]+)/([\w\d\_\-\.]*)$', views.exercise_model, name='model'),
+    url(r'^template/([\w-]+)/([\w-]+)/([\w\d\_\-\.]*)$', views.exercise_template, name='template'),
     url(r'^generatedfile/([\w-]+)/([\w-]+)/(\d+)/([\w-]+(?:\.\w+)?)$', views.generated_exercise_file,
         name='generated-file'),
     url(r'^([\w-]+)/$', views.course, name='course'),
