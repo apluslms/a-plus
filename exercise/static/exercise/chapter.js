@@ -212,7 +212,7 @@
 		},
 		
 		// Construct an active element input form
-		makeInputForm: function(id, title, def_val) {
+		makeInputForm: function(id, title, type, def_val) {
 		  var wrap = document.createElement("div");
 		  wrap.setAttribute("id", "exercise-all");
 		  
@@ -228,11 +228,20 @@
 		  label.setAttribute("for", id + "_input");
 		  label.innerHTML = title;
 		  
-		  var textarea = document.createElement("textarea");
-		  textarea.setAttribute("class", "form-control");
-		  textarea.setAttribute("id", id + "_input_id");
-		  textarea.setAttribute("name", id + "_input");
-		  $(textarea).val(def_val);
+		  var form_field;
+		  
+		  if (type === "file") {
+		    form_field = document.createElement("input");
+		    form_field.setAttribute("type", "file");
+		    form.setAttribute("enctype", "multipart/form-data");
+		  } else {
+		    form_field = document.createElement("textarea");
+		    $(form_field).val(def_val);  
+		  }
+		  
+	  	form_field.setAttribute("class", "form-control");
+	    form_field.setAttribute("id", id + "_input_id");
+	    form_field.setAttribute("name", id + "_input");
 		  
 		  var second_div = document.createElement("div");
 		  first_div.setAttribute("class", "form-group");
@@ -242,7 +251,7 @@
 		  button.setAttribute("value", "Submit");
 		  button.setAttribute("type", "submit");
 		  
-		  $(first_div).append(label, textarea);
+		  $(first_div).append(label, form_field);
 		  $(second_div).append(button);
 		  $(form).append(first_div, second_div);
 		  $(wrap).append(form);
@@ -253,21 +262,19 @@
 		load: function() {
 		  this.showLoader("load");
 			var exercise = this;
-      var id;
-      var title;
-			
-			// Id and title are needed for contructing the active elements
-			if (this.active_element) {
-			  id = exercise.chapterID;
-			  title = "";
-			  if ($("#" + id).attr("data-title")) title = $("#" + id).attr("data-title");
-			}
-			
+
 			if (exercise.settings.input) {
-			  var def_val = $("#" + id).attr("data-default");
-			  if (!def_val) def_val = ''; 
+				var id = exercise.chapterID;
+				var input_elem = $("#" + id)
+			  var title = input_elem.data("title");
+			  var type = input_elem.data("type");
+			  var def_val = input_elem.data("default");
+			  
+			  if (!title) title = '';
+			  if (!def_val) def_val = '';
+			   
 		    exercise.hideLoader();		    
-        var input_form = exercise.makeInputForm(id, title, def_val);
+        var input_form = exercise.makeInputForm(id, title, type, def_val);
         exercise.update(input_form);	
         exercise.loadLastSubmission(input_form);
         exercise.chapter.nextExercise();		  		
@@ -381,14 +388,21 @@
 		},
 		
 		// Construct form data from input element values
-		generateFormData: function(output) {
+		generateFormData: function(output, form_element) {
 		  output = $(output);
-      var [exercise, inputs, expected_inputs] = this.matchInputs(output); 		      
+      var [exercise, inputs, expected_inputs] = this.matchInputs(output); 	      
       
       // Form data to be sent for evaluation
       var formData = new FormData();
       var input_id = this.chapterID;
       var valid = true;
+      
+      // TODO for now file type inputs support only one input form and only file input 
+      if ($(form_element[0]).prop('type') === "file") {
+        formData = new FormData(form_element);
+        return [exercise, valid, formData];
+      }	
+      
       $.each(inputs, function(i, id) {
         var input_val;
         var input_elem = $.find("#" + id);
@@ -399,7 +413,7 @@
         
           // If an output uses another output as an input, the output used as an input can
           // be in evaluation which means this output cannot be evaluated yet
-          if ($(input_elem).data('evaluating')) {
+          if ($(input_elem).data("evaluating")) {
             valid = false;
             formData = false;
             return;
@@ -420,13 +434,13 @@
           $(input_elem).data("value", input_val);
         }
         if (!input_val) valid = false;
-        formData.append(expected_inputs[i], input_val);		
+        if (formData) formData.append(expected_inputs[i], input_val);		
       });  
       
       return [exercise, valid, formData];
 		},
 		
-		submit: function(form_element) {
+		submit: function(form_element) {  
 		  var input = this;
 		  var chapter = this.chapter;
 		  if (this.active_element) {
@@ -435,7 +449,7 @@
 		    var outputs = $.find('[data-inputs~="' + input_id + '"]');
 		    
 		    $.each(outputs,  function(i, element) {
-		      var [exercise, valid, formData] = input.generateFormData(element);		   
+		      var [exercise, valid, formData] = input.generateFormData(element, form_element);		   
 		      var output_id = exercise.chapterID;
 		      
 		      // Indicates that one of inputs has not finished evaluation
@@ -586,11 +600,13 @@
        
           // Update the value of each related input field
           $.each(input_list, function(i, id) {
-   
-            var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
-            // Store the value of the input to be used later for submitting active elemen evaluation requests
-            $($.find("#" + id)).data("value", in_i.text());
-            $("#" + id + "_input_id").val(in_i.text());
+					  if ($("#" + id).data("type") !== "file") {
+ 
+              var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
+              // Store the value of the input to be used later for submitting active elemen evaluation requests
+              $($.find("#" + id)).data("value", in_i.text());
+              $("#" + id + "_input_id").val(in_i.text());
+            }
           });
         }).fail(function(xhr) {
           console.log('error', xhr);                  
@@ -624,7 +640,7 @@
 							
 							  // Update the input values
 							  var inspect_url = $(data).find('a[href*="inspect"]').attr("href");
-                exercise.updateInputs(inspect_url);
+							  exercise.updateInputs(inspect_url);     
 							}
 						});
 				} 
