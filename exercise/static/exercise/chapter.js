@@ -229,15 +229,28 @@
 		  label.innerHTML = title;
 		  
 		  var form_field;
-		  
-		  if (type === "file") {
+
+		  if (!type) {
+		    form_field = document.createElement("textarea");
+		    $(form_field).val(def_val); 
+		  } else if (type === "file") {
 		    form_field = document.createElement("input");
 		    form_field.setAttribute("type", "file");
 		    form.setAttribute("enctype", "multipart/form-data");
-		  } else {
-		    form_field = document.createElement("textarea");
-		    $(form_field).val(def_val);  
-		  }
+		  } else if (type.substring(0, 8) == "dropdown") {
+		    form_field = document.createElement("select");
+		    // If the type is dropdown, the format of the type attribute 
+		    // should be "dropdown:option1,option2,option2,.."
+		    var options = type.split(":").pop().split(",");
+		    
+		    $.each(options, function(i, opt) {
+		      var option = document.createElement("option");
+          option.textContent = opt;
+          option.value = opt;
+          form_field.appendChild(option);
+		    });
+		    
+		  } 
 		  
 	  	form_field.setAttribute("class", "form-control");
 	    form_field.setAttribute("id", id + "_input_id");
@@ -381,7 +394,7 @@
           }
 				//$(form_element).find(":input").prop("disabled", false);
 				//exercise.showLoader("error");
-				this.chapter.modalError(exercise.chapter.messages.error);
+				exercise.chapter.modalError(exercise.chapter.messages.error);
 			}).done(function (data) {
 			  callback(data);
 			});
@@ -398,7 +411,9 @@
       var valid = true;
       
       // TODO for now file type inputs support only one input form and only file input 
-      if ($(form_element[0]).prop('type') === "file") {
+      var input_type;
+      if (form_element) input_type = $(form_element[0]).prop('type');
+      if (input_type === "file") {
         formData = new FormData(form_element);
         return [exercise, valid, formData];
       }	
