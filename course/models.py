@@ -356,11 +356,11 @@ class CourseInstance(UrlMixin, models.Model):
             raise ValidationError({
                 'ending_time': _("Ending time must be later than starting time.")
             })
-        if self.lifesupport_time <= self.ending_time:
+        if self.lifesupport_time and self.lifesupport_time <= self.ending_time:
             raise ValidationError({
                 'lifesupport_time': _("Lifesupport time must be later than ending time.")
             })
-        if self.archive_time <= self.lifesupport_time:
+        if self.archive_time and self.archive_time <= self.lifesupport_time:
             raise ValidationError({
                 'archive_time': _("Archive time must be later than lifesupport time.")
             })
