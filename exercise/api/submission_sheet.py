@@ -82,9 +82,9 @@ def serialize_submissions(request, submissions):
             ('Email', None),
             ('Status', s.status),
             ('Grade', s.grade),
-            ('GraderEmail', grader),
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
+            ('GraderEmail', grader),
             ('Notified', not n is None),
             ('NSeen', n.seen if n else False),
         ])
