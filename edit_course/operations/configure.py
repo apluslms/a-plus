@@ -176,6 +176,7 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.model_answers = o["model_answer"]
         if "template" in o:
             lobject.templates = o["template"]
+        lobject.clean()
         lobject.save()
         seen.append(lobject.id)
         if "children" in o:
@@ -234,7 +235,7 @@ def configure_content(instance, url):
         dt = parse_date(config["end"], errors)
         if dt:
             instance.ending_time = dt
-    if "lang" in config:
+    if "lang" in config and instance.is_valid_language(config["lang"]):
         instance.language = str(config["lang"])[:5]
     if "contact" in config:
         instance.technical_error_emails = str(config["contact"])
@@ -251,6 +252,7 @@ def configure_content(instance, url):
                     .format(str(err)))
     if "build_log_url" in config:
         instance.build_log_url = str(config["build_log_url"])
+    instance.clean()
     instance.save()
 
     if not "categories" in config or not isinstance(config["categories"], dict):
@@ -282,6 +284,7 @@ def configure_content(instance, url):
         ]:
             if field in c:
                 setattr(category, field, parse_bool(o[field]))
+        category.clean()
         category.save()
         category_map[key] = category
         seen.append(category.id)
@@ -356,6 +359,7 @@ def configure_content(instance, url):
             if not f is None:
                 module.late_submission_penalty = f
 
+        module.clean()
         module.save()
         seen_modules.append(module.id)
 
