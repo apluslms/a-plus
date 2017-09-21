@@ -117,24 +117,20 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        course_instance_error = ValidationError({
-            'category':_('Course_module and category must belong to the same course instance.')
-        })
-        try:
-            if (self.course_module.course_instance != self.category.course_instance):
-                raise course_instance_error
-        except (LearningObjectCategory.DoesNotExist, CourseModule.DoesNotExist):
-            raise course_instance_error
-        if self.parent and (self.parent.course_module != self.course_module
-                or self.parent.id == self.id):
-            raise ValidationError({
-                'parent':_('Cannot select parent from another course module.')
-            })
+        super().clean()
+        errors = {}
         RESERVED = ("submissions", "plain", "info")
         if self.url in RESERVED:
-            raise ValidationError({
-                'url':_("Taken words include: {}").format(", ".join(RESERVED))
-            })
+            errors['url'] = _("Taken words include: {}").format(", ".join(RESERVED))
+        if self.course_module.course_instance != self.category.course_instance:
+            errors['category'] = _('Course_module and category must belong to the same course instance.')
+        if self.parent:
+            if self.parent.course_module != self.course_module:
+                errors['parent'] = _('Cannot select parent from another course module.')
+            if self.parent.id == self.id:
+                errors['parent'] = _('Cannot select self as a parent.')
+        if errors:
+            raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -144,6 +140,15 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             cls = cls.__bases__[0]
             if cls.__name__ == 'LearningObject':
                 signals.post_save.send(sender=cls, instance=self)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        # Trigger LearningObject post delete signal for extending classes.
+        cls = self.__class__
+        while cls.__bases__:
+            cls = cls.__bases__[0]
+            if cls.__name__ == 'LearningObject':
+                signals.post_delete.send(sender=cls, instance=self)
 
     def __str__(self):
         if self.order >= 0:
@@ -310,14 +315,13 @@ class BaseExercise(LearningObject):
         Validates the model before saving (standard method used in Django admin).
         """
         super().clean()
+        errors = {}
         if self.points_to_pass > self.max_points:
-            raise ValidationError({
-                'points_to_pass':_("Points to pass cannot be greater than max_points.")
-            })
+            errors['points_to_pass'] = _("Points to pass cannot be greater than max_points.")
         if self.min_group_size > self.max_group_size:
-            raise ValidationError({
-                'min_group_size':_("Minimum group size cannot exceed maximum size.")
-            })
+            errors['min_group_size'] = _("Minimum group size cannot exceed maximum size.")
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def is_submittable(self):

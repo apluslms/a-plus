@@ -2,6 +2,7 @@ import datetime
 import logging
 import urllib.request, urllib.parse
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
@@ -51,9 +52,7 @@ class Course(UrlMixin, models.Model):
         return "{} {}".format(self.code, self.name)
 
     def clean(self):
-        """
-        Validates the model before saving (standard method used in Django admin).
-        """
+        super().clean()
         RESERVED = ("admin", "accounts", "shibboleth", "api",
             "archive", "course", "exercise", "diploma")
         if self.url in RESERVED:
@@ -349,21 +348,21 @@ class CourseInstance(UrlMixin, models.Model):
         return "{}: {}".format(str(self.course), self.instance_name)
 
     def clean(self):
-        """
-        Validates the model before saving (standard method used in Django admin).
-        """
+        super().clean()
+        errors = {}
         if self.ending_time <= self.starting_time:
-            raise ValidationError({
-                'ending_time': _("Ending time must be later than starting time.")
-            })
+            errors['ending_time'] = _("Ending time must be later than starting time.")
         if self.lifesupport_time and self.lifesupport_time <= self.ending_time:
-            raise ValidationError({
-                'lifesupport_time': _("Lifesupport time must be later than ending time.")
-            })
+            errors['lifesupport_time'] = _("Lifesupport time must be later than ending time.")
         if self.archive_time and self.archive_time <= self.lifesupport_time:
-            raise ValidationError({
-                'archive_time': _("Archive time must be later than lifesupport time.")
-            })
+            errors['archive_time'] = _("Archive time must be later than lifesupport time.")
+        if not self.is_valid_language(self.language):
+            errors['language'] = _("Language code missing from settings.")
+        if errors:
+            raise ValidationError(errors)
+
+    def is_valid_language(self, lang):
+        return lang == "" or lang in [key for key,name in settings.LANGUAGES]
 
     def save(self, *args, **kwargs):
         """
@@ -589,9 +588,7 @@ class CourseModule(UrlMixin, models.Model):
         return self.name
 
     def clean(self):
-        """
-        Validates the model before saving (standard method used in Django admin).
-        """
+        super().clean()
         RESERVED = ("toc", "teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
             raise ValidationError({
