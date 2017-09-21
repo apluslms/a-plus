@@ -11,7 +11,6 @@
 		exercise_url_attr: "data-aplus-exercise",
 		loading_selector: "#loading-indicator",
 		quiz_success_selector: "#quiz-success",
-		message_selector: ".progress-bar",
 		message_attr: {
 			load: "data-msg-load",
 			submit: "data-msg-submit",
@@ -41,8 +40,9 @@
 			this.ajaxForms = window.FormData ? true : false;
 			this.url = this.element.attr(this.settings.chapter_url_attr);
 			this.modalElement = $(this.settings.modal_selector);
-			this.loader = $(this.settings.loader_selector);
+			this.loader = $(this.settings.loading_selector);
 			this.messages = this.readMessages();
+			console.log(this.loader, this.messages);
 			this.quizSuccess = $(this.settings.quiz_success_selector);
 			this.exercises = this.element
 				.find("[" + this.settings.exercise_url_attr + "]")
@@ -65,9 +65,8 @@
 
 		readMessages: function() {
 			var messages = {};
-			var text = this.loader.find(this.settings.message_selector);
-			for (var key in this.message_attr) {
-				messages[key] = text.attr(this.message_attr[key]);
+			for (var key in this.settings.message_attr) {
+				messages[key] = this.loader.attr(this.settings.message_attr[key]);
 			}
 			return messages;
 		},
