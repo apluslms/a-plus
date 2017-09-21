@@ -439,11 +439,11 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_on_lifesupport(self, when=None):
         when = when or timezone.now()
-        return self.lifesupport_time < when
+        return self.lifesupport_time and self.lifesupport_time < when
 
     def is_archived(self, when=None):
         when = when or timezone.now()
-        return self.archive_time < when
+        return self.archive_time and self.archive_time < when
 
     @property
     def archive_start(self, when=None):
