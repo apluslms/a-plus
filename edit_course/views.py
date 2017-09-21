@@ -15,8 +15,10 @@ from lib.viewbase import (
     BaseFormView,
 )
 from authorization.permissions import ACCESS
+from course.cache.students import CachedStudents
 from course.models import CourseInstance, UserTag
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from exercise.cache.content import CachedContent
 from exercise.cache.exercise import invalidate_instance
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
@@ -291,6 +293,8 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
 
     def clear_cache(self, request):
         invalidate_instance(self.instance)
+        CachedContent.invalidate(self.instance)
+        CachedStudents.invalidate(self.instance)
         messages.success(request, _("Exercise caches have been cleared."))
 
 
