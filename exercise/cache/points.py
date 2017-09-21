@@ -70,7 +70,11 @@ class CachedPoints(ContentMixin, CachedAbstract):
                   .exclude_errors()\
                   .filter(exercise__course_module__course_instance=instance):
                   #.prefetch_related("notifications"): breaks things
-                tree = self._by_idx(modules, exercise_index[submission.exercise.id])
+                try:
+                    tree = self._by_idx(modules, exercise_index[submission.exercise.id])
+                except KeyError:
+                    self.dirty = True
+                    continue
                 entry = tree[-1]
                 entry['submission_count'] += 1 if submission.status != Submission.STATUS.ERROR else 0
                 entry['submissions'].append({

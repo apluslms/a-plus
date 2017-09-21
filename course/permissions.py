@@ -8,7 +8,6 @@ from authorization.permissions import (
     ObjectVisibleBasePermission,
     FilterBackend,
 )
-from exercise.cache.content import CachedContent
 from exercise.cache.points import CachedPoints
 from userprofile.models import UserProfile
 from .models import (

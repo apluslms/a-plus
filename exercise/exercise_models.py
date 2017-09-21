@@ -141,6 +141,15 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             if cls.__name__ == 'LearningObject':
                 signals.post_save.send(sender=cls, instance=self)
 
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        # Trigger LearningObject post delete signal for extending classes.
+        cls = self.__class__
+        while cls.__bases__:
+            cls = cls.__bases__[0]
+            if cls.__name__ == 'LearningObject':
+                signals.post_delete.send(sender=cls, instance=self)
+
     def __str__(self):
         if self.order >= 0:
             if self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:

@@ -21,6 +21,7 @@ class CachedContentTest(CourseTestCase):
         self.module0.status = CourseModule.STATUS.UNLISTED
         self.module0.save()
         c = CachedContent(self.instance)
+        self.assertFalse(c.dirty)
         total = c.total()
         self.assertEqual(total['min_group_size'], 1)
         self.assertEqual(total['max_group_size'], 2)
@@ -122,6 +123,7 @@ class CachedPointsTest(CourseTestCase):
     def test_invalidation(self):
         c = CachedContent(self.instance)
         p = CachedPoints(self.instance, self.student, c)
+        self.assertFalse(p.dirty)
         created = p.created()
         c = CachedContent(self.instance)
         p = CachedPoints(self.instance, self.student, c)
