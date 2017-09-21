@@ -27,7 +27,7 @@ def login(request):
         template_name="userprofile/login.html",
         extra_context={
             'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
-            'mooc_login': 'social.apps.django_app.default' in settings.INSTALLED_APPS,
+            'mooc_login': 'social_django' in settings.INSTALLED_APPS,
             'login_title_text': settings_text('LOGIN_TITLE_TEXT'),
             'login_body_text': settings_text('LOGIN_BODY_TEXT'),
             'login_button_text': settings_text('LOGIN_BUTTON_TEXT'),
