@@ -397,6 +397,10 @@ class BaseExercise(LearningObject):
                     deviation = d
         return deviation
 
+    def number_of_submitters(self):
+        return self.course_instance.students\
+            .filter(submissions__exercise=self).distinct().count()
+
     def get_submissions_for_student(self, user_profile, exclude_errors=False):
         if exclude_errors:
             submissions = user_profile.submissions.exclude_errors()

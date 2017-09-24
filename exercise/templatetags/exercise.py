@@ -223,3 +223,23 @@ def module_accessible(context, entry):
         module = CourseModule.objects.get(id=entry['id'])
         return module.are_requirements_passed(points)
     return True
+
+
+@register.inclusion_tag("exercise/_text_stats.html", takes_context=True)
+def exercise_text_stats(context, exercise):
+    if not 'instance' in context:
+        raise TagUsageError()
+    instance = context['instance']
+
+    if not 'student_count' in context:
+        context['student_count'] = instance.students.count()
+    total = context['student_count']
+
+    if isinstance(exercise, int):
+        num = instance.students.filter(submissions__exercise_id=exercise).distinct().count()
+    else:
+        num = exercise.number_of_submitters() if exercise else 0
+    return {
+        "number": num,
+        "percentage": int(100 * num / total) if total else 0,
+    }
