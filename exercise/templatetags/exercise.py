@@ -132,6 +132,7 @@ def _points_data(obj, classes=None):
             'full_score': obj.is_full_points(),
             'submitted': obj.is_submitted(),
             'graded': obj.is_graded(),
+            'official': not obj.is_unofficial(),
             'exercise_page': True,
         }
     elif isinstance(obj, Submission):
@@ -147,7 +148,7 @@ def _points_data(obj, classes=None):
             'full_score': obj.grade >= exercise.max_points,
             'submitted': True,
             'graded': obj.is_graded,
-            'unofficial': obj.status == Submission.STATUS.UNOFFICIAL,
+            'official': obj.status != Submission.STATUS.UNOFFICIAL,
         }
         if not obj.is_graded and (
                     not exercise.category.confirm_the_level
@@ -158,6 +159,8 @@ def _points_data(obj, classes=None):
         points = obj.get('points', 0)
         max_points = obj.get('max_points', 0)
         required = obj.get('points_to_pass', 0)
+        if (points == 3):
+            print(obj)
         data = {
             'points': points,
             'max': max_points,
@@ -171,7 +174,7 @@ def _points_data(obj, classes=None):
             'graded': obj.get('graded', True),
             'status': obj.get('submission_status', False),
             'unconfirmed': obj.get('unconfirmed', False),
-            'unofficial': obj.get('unofficial', False),
+            'official': not obj.get('unofficial', False),
             'confirmable_points': obj.get('confirmable_points', False),
         }
     percentage = 0

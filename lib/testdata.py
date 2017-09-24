@@ -27,6 +27,7 @@ class CourseTestCase(TestCase):
         self.now = timezone.now()
         self.tomorrow = self.now + timedelta(days=1)
         self.two_days_after = self.now + timedelta(days=2)
+        self.three_days_after = self.now + timedelta(days=3)
         self.yesterday = self.now - timedelta(days=1)
         self.two_days_before = self.now - timedelta(days=2)
 
