@@ -424,9 +424,18 @@ class BaseExercise(LearningObject):
             return True
         for profile in students:
             if self.get_submissions_for_student(profile, True).count() \
-                < self.max_submissions_for_student(profile):
+                    < self.max_submissions_for_student(profile):
                 return True
         return False
+
+    def no_submissions_left(self, students):
+        if self.max_submissions == 0:
+            return False
+        for profile in students:
+            if self.get_submissions_for_student(profile, True).count() \
+                    <= self.max_submissions_for_student(profile):
+                return False
+        return True
 
     def is_submission_allowed(self, profile, request=None):
         """
