@@ -632,6 +632,10 @@ class CourseModule(UrlMixin, models.Model):
             point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth
 
+    def number_of_submitters(self):
+        return self.course_instance.students\
+            .filter(submissions__exercise__course_module=self).distinct().count()
+
     ABSOLUTE_URL_NAME = "module"
 
     def get_url_kwargs(self):

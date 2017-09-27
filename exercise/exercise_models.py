@@ -397,6 +397,10 @@ class BaseExercise(LearningObject):
                     deviation = d
         return deviation
 
+    def number_of_submitters(self):
+        return self.course_instance.students\
+            .filter(submissions__exercise=self).distinct().count()
+
     def get_submissions_for_student(self, user_profile, exclude_errors=False):
         if exclude_errors:
             submissions = user_profile.submissions.exclude_errors()
@@ -504,10 +508,14 @@ class BaseExercise(LearningObject):
                 size=size
             ))
 
-        if not self.one_has_submissions(students):
-            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
-
         access_ok,access_warnings = self.one_has_access(students)
+
+        if not self.one_has_submissions(students):
+            if self.course_module.late_submissions_allowed:
+                access_warnings.append(_('You have used the allowed amount of submissions for this exercise. You may still submit unofficially to receive feedback.'))
+            else:
+                warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
+
         ok = (
             (access_ok and len(warnings) == 0) or
             all(self.course_instance.is_course_staff(p.user) for p in students)
