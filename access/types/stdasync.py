@@ -22,6 +22,7 @@ Functions take arguments:
 import logging
 import copy
 import os
+import json
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
@@ -336,6 +337,8 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
             os.path.join(DIR, course["key"], c["mount"]),
             sdir,
             c["cmd"],
+            json.dumps({"name": course["name"], "key": course["key"]}),
+            json.dumps(exercise)
         ])
         LOGGER.debug("Container order exit=%d out=%s err=%s",
             r["code"], r["out"], r["err"])
