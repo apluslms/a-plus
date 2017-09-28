@@ -396,27 +396,33 @@
 				//exercise.showLoader("error");
 				exercise.chapter.modalError(exercise.chapter.messages.error);
 			}).done(function (data) {
-			  callback(data);
+			  /* Bad fix for database locked problem when saving submitted files:
+			     test if the data contains message that the submission was not saved and resubmit
+			  */
+			  retry = retry || 0;
+			  if ($(data).find("div:contains('The submission could not be saved for some reason')").length > 0 && retry < 5) {
+			    console.log("Submission not saved: trying submitAjax again in 100ms");
+          setTimeout(
+            function() {
+              console.log("Resubmit no.", retry + 1);
+              exercise.submitAjax(url, formData, callback, retry + 1);
+            }, 100);
+			  } else {
+			    // This should be the only necessary thing to do here.
+			    callback(data); 
+			  }
 			});
 		},
 		
 		// Construct form data from input element values
 		generateFormData: function(output, form_element) {
 		  output = $(output);
+		  
       var [exercise, inputs, expected_inputs] = this.matchInputs(output); 	      
-      
       // Form data to be sent for evaluation
       var formData = new FormData();
       var input_id = this.chapterID;
       var valid = true;
-      
-      // TODO for now file type inputs support only one input form and only file input 
-      var input_type;
-      if (form_element) input_type = $(form_element[0]).prop('type');
-      if (input_type === "file") {
-        formData = new FormData(form_element);
-        return [exercise, valid, formData];
-      }	
       
       $.each(inputs, function(i, id) {
         var input_val;
@@ -435,6 +441,9 @@
           } 
           
           input_val = $(input_elem).find(".ae_result").text().trim();
+        
+        } else if ($(input_elem).data("type") === "file") {
+          input_val = $("#" + id + "_input_id").get(0).files[0];
         
         } else if (id !== input_id) {        
           // Because changing an input value without submitting said input is possible, 
@@ -479,7 +488,7 @@
 		      }
 		        
 		      var url = exercise.url;
-		      
+
 		      exercise.submitAjax(url, formData, function(data) {
 		        var content = $(data);
 		        var output = $("#" + output_id);
@@ -533,6 +542,11 @@
       // make sure there are expected inputs
       if (expected_inputs) {
         expected_inputs = expected_inputs.trim().split(" ");
+        // There might be extra whitespace or line breaks in the expected inputs data-attribute
+        // because of how the template is generated
+        expected_inputs = $.grep(expected_inputs, function( a ) {
+          return a != "" || a != "\n";
+        });
       } else {
         expected_inputs = [];
       }
