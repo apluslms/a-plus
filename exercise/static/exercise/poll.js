@@ -44,7 +44,7 @@
 				})
 				.done(function(data) {
 					poller.count++;
-					if (data.trim() === "ready" || data.trim() === "error") {
+					if (data.trim() === "ready" || data.trim() === "error" || data.trim() === "unofficial") {
 						poller.ready();
 					} else if (poller.element.is(":visible")) {
 						if (poller.count < poller.settings.poll_delays.length) {
