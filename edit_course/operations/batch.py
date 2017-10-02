@@ -49,7 +49,7 @@ def create_submissions(instance, admin_profile, json_text):
             errors.append(
                 _("Object number {ordinal:d} has invalid fields:\n {errors}")
                     .format(ordinal=count,
-                            errors='\n '.joint(extract_form_errors(form))))
+                            errors='\n '.join(extract_form_errors(form))))
 
     if not errors:
         for form in validated_forms:
