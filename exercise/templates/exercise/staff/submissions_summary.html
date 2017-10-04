@@ -34,10 +34,12 @@ $(function () {
       url: '{% url "api:exercise-detail" version=2 exercise_id=exercise.id %}',
       navigate: 'exercise_info.form_spec',
       prepend: [
+        {% if exercise.max_points > 0 %}
         {
           key: 'Grade',
           type: 'number',
         },
+        {% endif %}
       ],
     },
     posts: {

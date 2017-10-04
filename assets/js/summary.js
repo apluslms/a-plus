@@ -97,6 +97,7 @@ var summaryjs = function ($element, model) {
         return init(element, outWidth, outHeight, update, vals);
 
         function update(vals) {
+          vals = vals.map(help.toNumber).filter(help.isNotNaN);
           var min = d3.min(vals), max = d3.max(vals), d = max - min;
           var bins = d3.histogram()
             .domain([d > 0 ? min : (min - 0.5), d > 0 ? max : (max + 0.5)])
@@ -256,8 +257,12 @@ var summaryjs = function ($element, model) {
         return val && (val.trim === undefined || val.trim() !== '');
       },
 
-      isInteger: function (val) {
-        return val === parseInt(val, 10);
+      toNumber: function (val) {
+        return parseFloat(val);
+      },
+
+      isNotNaN: function (val) {
+        return !isNaN(val);
       },
 
       isIn: function (value, list) {

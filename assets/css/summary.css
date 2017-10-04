@@ -18,11 +18,11 @@
   top: 0;
 }
 .text-values-minimized  {
-  max-height: 200px;
+  max-height: 195px;
   overflow: hidden;
 }
 .text-values .handle {
-  top: 160px;
+  bottom: -15px;
   font-size: 2em;
   left: 50%;
   position: absolute;

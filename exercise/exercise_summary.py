@@ -31,6 +31,7 @@ class UserExerciseSummary(object):
                     Submission.STATUS.ERROR,
                     Submission.STATUS.REJECTED,
                 ):
+                    self.submission_count += 1
                     if (
                         s.status == Submission.STATUS.READY and (
                             self.best_submission is None
@@ -38,7 +39,6 @@ class UserExerciseSummary(object):
                             or s.grade > self.best_submission.grade
                         )
                     ):
-                        self.submission_count += 1
                         self.best_submission = s
                         self.unofficial = False
                         self.graded = True
