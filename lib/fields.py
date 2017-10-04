@@ -56,10 +56,16 @@ class JSONField(models.TextField):
         return json.dumps(value)
 
     def from_db_value(self, value, expression, connection, context):
-        return JSONField.parse_json(value)
+        try:
+            return JSONField.parse_json(value)
+        except (exceptions.ValidationError):
+            return None
 
     def get_prep_value(self, value):
         return JSONField.print_json(value)
+
+    def to_python(self, value):
+        return JSONField.parse_json(value)
 
     def formfield(self, **kwargs):
         defaults = {
