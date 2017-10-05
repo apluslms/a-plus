@@ -199,6 +199,9 @@ class ConfigParser:
         data["mtime"] = t
         data["dir"] = self._conf_dir(DIR, course_key, {})
 
+        if "static_url" not in data:
+            data["static_url"] = "{}{}/".format(settings.STATIC_URL, course_key)
+
         if "language" in data:
             data["lang"] = data["language"]
 

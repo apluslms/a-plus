@@ -127,6 +127,8 @@ def form_fields(exercise):
                         rf['type'] = t[6:]
                         if 'key' in row:
                             rf['key'] = row['key']
+                        if 'label' in row:
+                            rf['title'] += ': ' + row['label']
                         form.append(field_spec(rf, n))
                         n += 1
 
