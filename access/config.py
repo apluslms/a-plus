@@ -200,7 +200,11 @@ class ConfigParser:
         data["dir"] = self._conf_dir(DIR, course_key, {})
 
         if "static_url" not in data:
-            data["static_url"] = "{}{}/".format(settings.STATIC_URL, course_key)
+            data["static_url"] = "{}{}{}/".format(
+                settings.STATIC_URL_HOST_INJECT,
+                settings.STATIC_URL,
+                course_key
+            )
 
         if "language" in data:
             data["lang"] = data["language"]
