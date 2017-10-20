@@ -2,7 +2,7 @@ from collections import OrderedDict
 from rest_framework.reverse import reverse
 
 
-def filter_to_best(submissions):
+def filter_best_submissions(submissions):
     best = {}
     eid = None
 
@@ -25,14 +25,15 @@ def filter_to_best(submissions):
     return filtered
 
 
-DEFAULT_FIELDS = [
-    'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
-    'UserID', 'StudentID', 'Email', 'Status',
-    'Grade', 'Penalty', 'Graded', 'GraderEmail', 'Notified', 'NSeen',
-]
-
-
-def serialize_submissions(request, submissions):
+def submissions_sheet(request, submissions):
+    DEFAULT_FIELDS = [
+        'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
+        'UserID', 'StudentID', 'Email', 'Status',
+        'Grade', 'Penalty', 'Graded', 'GraderEmail', 'Notified', 'NSeen',
+    ]
+    sheet = []
+    fields = []
+    files = []
 
     def url(submission, obj):
         return reverse(
@@ -44,11 +45,7 @@ def serialize_submissions(request, submissions):
             request=request
         )
 
-    sheet = []
-    fields = []
-    files = []
     exercise = None
-
     for s in submissions:
         if s.exercise != exercise:
             exercise = s.exercise
@@ -111,4 +108,4 @@ def serialize_submissions(request, submissions):
             r['Email'] = profile.user.email
             sheet.append(r)
 
-    return sheet,fields,files
+    return sheet, DEFAULT_FIELDS + fields + files
