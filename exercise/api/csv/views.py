@@ -126,11 +126,7 @@ class CourseAggregateDataViewSet(ListSerializerMixin,
         return self.serialize_profiles(request, [self.get_object()])
 
     def serialize_profiles(self, request, profiles):
-        pp = [
-            (profile, CachedPoints(self.instance, profile.user, self.content))
-            for profile in profiles
-        ]
-        data,fields = aggregate_sheet(request, self.content, pp)
+        data,fields = aggregate_sheet(request, self.instance, self.content, profiles)
         self.renderer_fields = fields
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):

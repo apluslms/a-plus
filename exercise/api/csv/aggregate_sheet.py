@@ -1,7 +1,9 @@
 from collections import OrderedDict
 
+from ...cache.points import CachedPoints
 
-def aggregate_sheet(request, content, profiles_and_points):
+
+def aggregate_sheet(request, instance, content, profiles):
     DEFAULT_FIELDS = [
       'UserID', 'StudentID', 'Email', 'Total', 'Max',
     ]
@@ -24,7 +26,8 @@ def aggregate_sheet(request, content, profiles_and_points):
         for name,key in OBJECT_FIELDS:
           fields.append(name.format(entry['number']))
 
-    for profile,points in profiles_and_points:
+    for profile in profiles:
+        points = CachedPoints(instance, profile.user, content)
         total = points.total()
         row = OrderedDict([
             ('UserID', profile.user.id),
