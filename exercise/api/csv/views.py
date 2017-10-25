@@ -19,8 +19,7 @@ from .submission_sheet import *
 from .aggregate_sheet import *
 
 
-class CourseSubmissionDataViewSet(ListSerializerMixin,
-                                  NestedViewSetMixin,
+class CourseSubmissionDataViewSet(NestedViewSetMixin,
                                   MeUserMixin,
                                   CourseResourceMixin,
                                   viewsets.ReadOnlyModelViewSet):
@@ -34,6 +33,9 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
     ]
+    filter_backends = (
+        IsCourseAdminOrUserObjIsSelf,
+    )
     renderer_classes = [
         CSVRenderer,
     ] + api_settings.DEFAULT_RENDERER_CLASSES
@@ -57,9 +59,13 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
         }
 
     def list(self, request, version=None, course_id=None):
+        profiles = self.get_queryset()
         search_args = self.get_search_args(request)
         ids = [e['id'] for e in self.content.search_exercises(**search_args)]
-        queryset = Submission.objects.filter(exercise_id__in=ids)
+        queryset = Submission.objects.filter(
+            exercise_id__in=ids,
+            submitters__in=profiles
+        )
         return self.serialize_submissions(request, queryset, best=search_args['best'])
 
     def retrieve(self, request, version=None, course_id=None, user_id=None):
@@ -98,8 +104,7 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
         return context
 
 
-class CourseAggregateDataViewSet(ListSerializerMixin,
-                                 NestedViewSetMixin,
+class CourseAggregateDataViewSet(NestedViewSetMixin,
                                  MeUserMixin,
                                  CourseResourceMixin,
                                  viewsets.ReadOnlyModelViewSet):
@@ -110,6 +115,9 @@ class CourseAggregateDataViewSet(ListSerializerMixin,
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
     ]
+    filter_backends = (
+        IsCourseAdminOrUserObjIsSelf,
+    )
     renderer_classes = [
         CSVRenderer,
     ] + api_settings.DEFAULT_RENDERER_CLASSES
