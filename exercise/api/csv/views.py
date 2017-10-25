@@ -59,7 +59,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         }
 
     def list(self, request, version=None, course_id=None):
-        profiles = self.get_queryset()
+        profiles = self.filter_queryset(self.get_queryset())
         search_args = self.get_search_args(request)
         ids = [e['id'] for e in self.content.search_exercises(**search_args)]
         queryset = Submission.objects.filter(
@@ -128,7 +128,8 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     queryset = UserProfile.objects.all()
 
     def list(self, request, version=None, course_id=None):
-        return self.serialize_profiles(request, self.get_queryset())
+        profiles = self.filter_queryset(self.get_queryset())
+        return self.serialize_profiles(request, profiles)
 
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
