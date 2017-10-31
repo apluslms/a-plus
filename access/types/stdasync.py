@@ -210,7 +210,7 @@ def acceptGitAddress(request, course, exercise, post_url):
                     url_start_len = len(url_start)
                     url_parts = source[url_start_len:].split("/")
                     if len(url_parts) > 1:
-                        source = "git@%s:%s/%s" % (exercise["require_gitlab"], url_parts[0], url_parts[1])
+                        source = "git@%s:%s/%s" % (exercise["require_gitlab"], url_parts[-2], url_parts[-1])
                         if not source.endswith(".git"):
                             source += ".git"
                     else:
