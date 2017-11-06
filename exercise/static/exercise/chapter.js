@@ -327,16 +327,13 @@
 			content.show();
 			
 			// Active element can have height settings in the A+ exercise div that need to be
-			// attached to correct DOM-elements
+			// attached to correct DOM-elements before setting the exercise container div height to auto
 			var cur_height = this.element.css('height');
-			// Here 150px is assumed to be the default height; the value used here must match with the default
-			// height of css class .active-element
-			if (this.active_element && this.element.css('height') !== '150px') {
-			  var target;
+			if (this.active_element) {			  
 			  if (this.settings.input) {
-			    target = $("#" + this.chapterID + "input[type=text], textarea").css("height", cur_height);
+			    $("#" + this.chapterID + " textarea").css("height", cur_height);
 			  } else {
-			    target = $('#' + this.chapterID + ' .ae_result').css("height", cur_height);
+			    $('#' + this.chapterID + ' .ae_result').css("height", cur_height);		    
 			  }
 			}
 
@@ -496,7 +493,13 @@
 		        if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
 		          var out_content = output.find(exercise.settings.ae_result_selector);
 		          output.data('evaluating', true);
-		          out_content.css({ 'height' : (out_content.height())});
+		          // TODO: change this to check scaling option (if the ouput is not text (e.g. img, svg) the div should be auto heigth for responsiveness
+		          // can we assume all images are like this or should there be yet another indicator for resposiveness)
+		          
+		          // If the element has no height defined they should keep the height they had with content
+		          if (output.data("type")  === "svg") { 
+		            out_content.css({ 'height' : (out_content.height())});
+		          }
 			        out_content.html("<p>Evaluating</p>");
 			        var poll_url = content.find(".exercise-wait")
                               .attr("data-poll-url");
@@ -613,7 +616,13 @@
 		  var output_container = $("#" + id).find(exercise.settings.ae_result_selector);
 		  output_container.html(content);
 		  $("#" + id).data('evaluating', false);
-		  output_container.css({ "height" : "auto"});
+	          // TODO: change to check the option (if the ouput is not text (e.g. img, svg) the div should be auto heigth for responsiveness
+      // can we assume all images are like this or should there be yet another indicator for resposiveness)
+      
+      // Some result divs should scale to match the content
+		  if ($("#" + id).data("type") === "svg" ) {
+		    output_container.css({ "height" : "auto"});
+		    }
 		},
 		
 		// Retrieve and update latest values of the input elements related to this element
