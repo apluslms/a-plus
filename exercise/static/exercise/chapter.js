@@ -188,7 +188,7 @@
 		  
 		  this.loader = this.chapter.cloneLoader();
 		  
-      this.element.height(this.element.height()).empty();
+      this.element.height(this.element.height()).empty();   
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 			
@@ -208,7 +208,7 @@
 					  }
 				  });
 			  }
-			}
+			} 			
 		},
 		
 		// Construct an active element input form
@@ -333,7 +333,12 @@
 			  if (this.settings.input) {
 			    $("#" + this.chapterID + " textarea").css("height", cur_height);
 			  } else {
-			    $('#' + this.chapterID + ' .ae_result').css("height", cur_height);		    
+		      if (typeof $("#" + this.chapterID ).data("scale") != "undefined") {
+		        var cont_height = $('#' + this.chapterID + ' ' + this.settings.ae_result_selector)[0].scrollHeight;
+		        $('#' + this.chapterID + ' ' +  this.settings.ae_result_selector).css({ "height" : cont_height +"px"});
+		      } else {
+		        $('#' + this.chapterID, this.settings.ae_result_selector).css("height", cur_height);		    
+		      }		    
 			  }
 			}
 
@@ -493,11 +498,9 @@
 		        if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
 		          var out_content = output.find(exercise.settings.ae_result_selector);
 		          output.data('evaluating', true);
-		          // TODO: change this to check scaling option (if the ouput is not text (e.g. img, svg) the div should be auto heigth for responsiveness
-		          // can we assume all images are like this or should there be yet another indicator for resposiveness)
 		          
 		          // If the element has no height defined they should keep the height they had with content
-		          if (output.data("type")  === "svg") { 
+		          if (typeof output.data("scale") != "undefined") { 
 		            out_content.css({ 'height' : (out_content.height())});
 		          }
 			        out_content.html("<p>Evaluating</p>");
@@ -616,11 +619,9 @@
 		  var output_container = $("#" + id).find(exercise.settings.ae_result_selector);
 		  output_container.html(content);
 		  $("#" + id).data('evaluating', false);
-	          // TODO: change to check the option (if the ouput is not text (e.g. img, svg) the div should be auto heigth for responsiveness
-      // can we assume all images are like this or should there be yet another indicator for resposiveness)
       
       // Some result divs should scale to match the content
-		  if ($("#" + id).data("type") === "svg" ) {
+		  if (typeof $("#" + id).data("scale") != "undefined" ) {
 		    output_container.css({ "height" : "auto"});
 		    }
 		},
