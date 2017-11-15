@@ -31,6 +31,8 @@ from django.utils import translation
 from util.files import create_submission_dir, save_submitted_file, \
     clean_submission_dir, write_submission_file, write_submission_meta
 from util.http import not_modified_since, not_modified_response, cache_headers
+from util.personalized import select_generated_exercise_instance, \
+    user_personal_directory_path
 from util.queue import queue_length
 from util.shell import invoke
 from util.templates import render_configured_template, render_template, \
@@ -294,13 +296,15 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     '''
     Queues the submission for grading.
     '''
+    uids = get_uid(request)
+    attempt = int(request.GET.get("ordinal_number", 1))
     container_flag = settings.CONTAINER_MODE and "container" in exercise
 
     # Backup synchronous grading.
     if not container_flag and not settings.CELERY_BROKER:
         LOGGER.warning("No queue configured")
         from grader.runactions import runactions
-        r = runactions(course, exercise, sdir, get_uid(request), int(request.GET.get("ordinal_number", 1)))
+        r = runactions(course, exercise, sdir, uids, attempt)
         html = template_to_str(course, exercise, "", r["template"], r["result"])
         return render_template(request, course, exercise, post_url,
             "access/async_accepted.html", {
@@ -324,6 +328,22 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     # Order container for grading.
     if container_flag:
         c = _requireContainer(exercise)
+
+        course_extra = {
+            "key": course["key"],
+            "name": course["name"],
+        }
+        exercise_extra = {
+            "key": exercise["key"],
+            "title": exercise.get("title", None),
+        }
+        if exercise.get("personalized", False):
+            exercise_extra["personalized_exercise"] \
+                = select_generated_exercise_instance(course, exercise, uids, attempt)
+            if settings.ENABLE_PERSONAL_DIRECTORIES:
+                exercise_extra["personal_directory"] \
+                    = user_personal_directory_path(course, exercise, uids)
+
         sid = os.path.basename(sdir)
         write_submission_meta(sid, {
             "url": surl,
@@ -337,8 +357,8 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
             os.path.join(DIR, course["key"], c["mount"]),
             sdir,
             c["cmd"],
-            json.dumps({"name": course["name"], "key": course["key"]}),
-            json.dumps(exercise)
+            json.dumps(course_extra),
+            json.dumps(exercise_extra),
         ])
         LOGGER.debug("Container order exit=%d out=%s err=%s",
             r["code"], r["out"], r["err"])
@@ -347,8 +367,7 @@ def _acceptSubmission(request, course, exercise, post_url, sdir):
     # Queue in celery & rabbitmq for chroot sandbox actions.
     else:
         tasks.grade.delay(course["key"], exercise["key"],
-            translation.get_language(), surl, sdir, get_uid(request),
-            int(request.GET.get("ordinal_number", 1)))
+            translation.get_language(), surl, sdir, uids, attempt)
         qlen = queue_length()
         LOGGER.debug("Submission of %s/%s, queue counter %d, queue length %d",
             course["key"], exercise["key"], _acceptSubmission.counter, qlen)
