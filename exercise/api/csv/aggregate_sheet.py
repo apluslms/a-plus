@@ -3,45 +3,54 @@ from collections import OrderedDict
 from ...cache.points import CachedPoints
 
 
-def aggregate_sheet(request, instance, content, profiles):
+def aggregate_sheet(request, profiles, exercises, aggregate, number):
     DEFAULT_FIELDS = [
-      'UserID', 'StudentID', 'Email', 'Total', 'Max',
+      'UserID', 'StudentID', 'Email',
     ]
-    DIFFICULTY_FIELD = "Total {}"
     OBJECT_FIELDS = [
-      ("{} Count", 'submission_count'),
-      ("{} Total", 'points'),
-      ("{} Max", 'max_points'),
+      '{} Count', '{} Total',
     ]
+
+    d = 1 + (len(number.split('.')) if number else 0)
+    exercise_map = {}
+    exercise_nums = []
+    exercise_fields = []
+    num = None
+    for e in exercises:
+        if len(e['number'].split('.')) == d:
+            num = e['number']
+            exercise_nums.append(num)
+            for n in OBJECT_FIELDS:
+                exercise_fields.append(n.format(e['number']))
+            if e['type'] == 'exercise':
+                exercise_map[e['id']] = num
+        elif e['type'] == 'exercise':
+            exercise_map[e['id']] = num
+
+    agg = {}
+    for row in aggregate:
+        uid = row['submitters__user_id']
+        num = exercise_map[row['exercise_id']]
+        user_row = agg.get(uid, {})
+        values = user_row.get(num, [0,0])
+        values[0] += row['count']
+        values[1] += row['total']
+        user_row[num] = values
+        agg[uid] = user_row
+
     sheet = []
-    fields = DEFAULT_FIELDS.copy()
-
-    difficulties = []
-    for key in content.total()['max_points_by_difficulty']:
-      if key:
-        difficulties.append(key)
-        fields.append(DIFFICULTY_FIELD.format(key))
-    for entry in content.flat_full():
-      if entry['type'] != 'level':
-        for name,key in OBJECT_FIELDS:
-          fields.append(name.format(entry['number']))
-
     for profile in profiles:
-        points = CachedPoints(instance, profile.user, content)
-        total = points.total()
+        uid = profile.user.id
+        user_row = agg.get(uid, {})
         row = OrderedDict([
-            ('UserID', profile.user.id),
+            ('UserID', uid),
             ('StudentID', profile.student_id),
             ('Email', profile.user.email),
-            ('Total', total['points']),
-            ('Max', total['max_points']),
         ])
-        for key in difficulties:
-            row[DIFFICULTY_FIELD.format(key)] = total['points_by_difficulty'].get(key, 0)
-        for entry in points.flat_full():
-            if entry['type'] != 'level':
-                for name,key in OBJECT_FIELDS:
-                    row[name.format(entry['number'])] = entry[key]
+        for i,num in enumerate(exercise_nums):
+            values = user_row.get(num, [0,0])
+            for j in [0,1]:
+                row[exercise_fields[2 * i + j]] = values[j]
         sheet.append(row)
 
-    return sheet,fields
+    return sheet, DEFAULT_FIELDS + exercise_fields

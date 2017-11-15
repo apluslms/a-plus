@@ -1,3 +1,4 @@
+from django.db.models.aggregates import Max, Count
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -11,6 +12,7 @@ from course.cache.students import CachedStudents
 from course.permissions import IsCourseAdminOrUserObjIsSelf
 from userprofile.models import UserProfile
 
+from ...cache.hierarchy import NoSuchContent
 from ...cache.points import CachedPoints
 from ...models import (
     Submission,
@@ -26,7 +28,8 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     """
     Lists submissions as data sheet.
     Following GET parameters may be used to filter submissions:
-    category_id, module_id, exercise_id,
+    number, category_id, module_id, exercise_id,
+    filter (N.N where first module id, then optional exercise ids),
     best ("no" includes all different submissions from same submitters),
     field (a name of submitted value field to generate a simple value list)
     """
@@ -51,6 +54,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
                 return None
             return int(value)
         return {
+            'number': request.GET.get('filter'),
             'category_id': int_or_none(request.GET.get('category_id')),
             'module_id': int_or_none(request.GET.get('module_id')),
             'exercise_id': int_or_none(request.GET.get('exercise_id')),
@@ -110,6 +114,9 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
                                  viewsets.ReadOnlyModelViewSet):
     """
     List aggregate submission data as data sheet.
+    Following GET parameters may be used to filter submissions:
+    category_id, module_id, exercise_id,
+    filter (N.N where first module id, then optional exercise ids)
     """
     # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
@@ -127,6 +134,19 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     parent_lookup_map = {'course_id': 'enrolled.id'}
     queryset = UserProfile.objects.all()
 
+    def get_search_args(self, request):
+        def int_or_none(value):
+            if value is None:
+                return None
+            return int(value)
+        return {
+            'number': request.GET.get('filter'),
+            'category_id': int_or_none(request.GET.get('category_id')),
+            'module_id': int_or_none(request.GET.get('module_id')),
+            'exercise_id': int_or_none(request.GET.get('exercise_id')),
+            'filter_for_assistant': not self.is_teacher,
+        }
+
     def list(self, request, version=None, course_id=None):
         profiles = self.filter_queryset(self.get_queryset())
         return self.serialize_profiles(request, profiles)
@@ -135,7 +155,16 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
         return self.serialize_profiles(request, [self.get_object()])
 
     def serialize_profiles(self, request, profiles):
-        data,fields = aggregate_sheet(request, self.instance, self.content, profiles)
+        search_args = self.get_search_args(request)
+        entry, exercises = self.content.search_entries(**search_args)
+        ids = [e['id'] for e in exercises if e['type'] == 'exercise']
+        aggr = Submission.objects\
+            .filter(exercise__in=ids, submitters__in=profiles)\
+            .values('submitters__user_id','exercise_id')\
+            .annotate(total=Max('grade'),count=Count('id'))\
+            .order_by()
+        data,fields = aggregate_sheet(request, profiles, exercises, aggr,
+            entry['number'] if entry else "")
         self.renderer_fields = fields
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
