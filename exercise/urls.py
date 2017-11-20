@@ -59,7 +59,7 @@ urlpatterns = [
         staff_views.AssessSubmissionView.as_view(),
         name="submission-assess"),
     url(EDIT_URL_PREFIX + r'results/$',
-        staff_views.AllResultsView.as_view(),
+        staff_views.AnalyticsView.as_view(),
         name="all-results"),
     url(EDIT_URL_PREFIX + r'participants/(?P<user_id>[\d]+)$',
         staff_views.UserResultsView.as_view(),

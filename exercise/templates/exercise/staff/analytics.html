@@ -1,0 +1,147 @@
+{% extends "course/course_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{{ block.super }}: {% trans "All results" %}{% endblock %}
+{% block view_tag %}all-results{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "All results" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12 llama-client">
+
+  <div id="llama-unit-select">
+    <ul class="nav nav-tabs">
+      <li role="presentation" class="placeholder hidden">
+        <a href="#"></a>
+      </li>
+      <li role="presentation" class="all active">
+        <a href="#all">{% trans "All" %}</a>
+      </li>
+    </ul>
+  </div>
+
+  <div id="llama-view-select">
+    <ul class="nav nav-tabs">
+      <li role="presentation" class="active">
+        <a href="#llama-view-progress">{% trans "Collective Progress" %}</a>
+      </li>
+      <li role="presentation">
+        <a href="#llama-view-trajectories">{% trans "Learning Trajectories" %}</a>
+      </li>
+      <li role="presentation">
+        <a href="#llama-view-table">{% trans "Table" %}</a>
+      </li>
+    </ul>
+  </div>
+
+  <p id="llama-filter-tags">
+    <button class="btn btn-success btn-xs" data-id="aalto">
+      <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+      {{ internal_user_label|safe }}
+    </button>
+    <button class="btn btn-info btn-xs" data-id="mooc">
+      <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+      {{ external_user_label|safe }}
+    </button>
+    {% for tag in tags %}
+    <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.text_color }};" data-id="{{ tag.id }}">
+      <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+      {{ tag.name }}
+    </button>
+    {% endfor %}
+  </p>
+
+  <div id="llama-view-progress" class="llama-view">
+    <div class="llama-detail">
+      <span class="number">N</span> learners<br>
+      <span class="submissions">N - N</span> submissions<br>
+      <span class="ratio">N% - N%</span> grade
+    </div>
+  </div>
+
+  <div id="llama-view-trajectories">
+  </div>
+
+  <div id="llama-view-table">
+    <div class="btn-group">
+      <a class="btn btn-default btn-sm" href="#">
+        <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+        {% trans "Download CSV" %}
+      </a>
+      <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">{% trans "Toggle Dropdown" %}</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a href="#">{% trans "Open API" %}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="llama-view-learners">
+    <div>
+      <button class="btn btn-default btn-xs">{% trans "Clear selection" %}</button>
+    </div>
+    <div class="placeholder hidden llama-beacon">
+      <a href="#">
+        <div class="header">
+          <small>
+            <span class="studentid">123456</span>
+            <span class="name">N. N.</span>
+          </small>
+        </div>
+        <div class="chart">
+          <div class="up"></div>
+          <div class="down"></div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="{% static 'js/d3Stream.min.js' %}"></script>
+<script src="{% static 'js/llama.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/d3Stream.min.css' %}" />
+<link rel="stylesheet" href="{% static 'css/llama.min.css' %}" />
+<script>
+$(function () {
+  new LlamaClient({
+
+    apiUrl: function (filter, download) {
+      var url = '{% url "api:course-aggregatedata-list" version=2 course_id=instance.id %}';
+      var a = '?';
+      if (filter && filter != '#all') {
+        url += '?filter=' + filter.substr(1);
+        a = '&';
+      }
+      if (download) {
+        url += a + 'format=csv';
+      }
+      return url;
+    },
+
+    userUrl: function (uid) {
+      var url = '{% url "user-results" course_slug=course.url instance_slug=instance.url user_id=0 %}';
+      return url.substr(0, url.length - 1) + uid;
+    },
+
+    progressLabels: [
+      '{% trans "Not submitted" %}',
+      '{% trans "< 90% points" %}',
+      '{% trans ">= 90% points" %}'
+    ],
+
+  });
+});
+</script>
+{% endblock %}

@@ -163,8 +163,8 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
             .values('submitters__user_id','exercise_id')\
             .annotate(total=Max('grade'),count=Count('id'))\
             .order_by()
-        data,fields = aggregate_sheet(request, profiles, exercises, aggr,
-            entry['number'] if entry else "")
+        data,fields = aggregate_sheet(request, profiles, self.instance.taggings.all(),
+            exercises, aggr, entry['number'] if entry else "")
         self.renderer_fields = fields
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
