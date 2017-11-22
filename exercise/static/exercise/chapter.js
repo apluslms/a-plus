@@ -627,29 +627,22 @@
 		},
 		
 		// Retrieve and update latest values of the input elements related to this element
-		updateInputs: function(inspect_url) {
+		updateInputs: function(data) {
+			data = data.submission_data;
 			var exercise = this;
-			$.ajax(inspect_url)
-				.done(function(inspect_data) {
-					// match the actual input names to the ones of the grader
-					var [exer, input_list, expected_inputs] = exercise.matchInputs(exercise.element);
-				
-					// Find submitted values from the inspect submission page
-					var all_inputs = $(inspect_data).find('h4:contains("Submitted values")').next();
-			 
-					// Update the value of each related input field
-					$.each(input_list, function(i, id) {
-						if ($("#" + id).data("type") !== "file") {
- 
-							var in_i = all_inputs.find("dt:contains(" + expected_inputs[i] + ")").next(); 
-							// Store the value of the input to be used later for submitting active elemen evaluation requests
-							$($.find("#" + id)).data("value", in_i.text());
-							$("#" + id + "_input_id").val(in_i.text());
-						}
-					});
-				}).fail(function(xhr) {
-					console.log('error', xhr);									
-				});	
+			var [exer, input_list, grader_inputs] = exercise.matchInputs(exercise.element);
+			// Submission data can contain many inputs
+			$(data).each(function(i, input) {
+				var grader_id = input[0];
+				var input_id = input_list[$.inArray(grader_id, grader_inputs)];
+				var input_data = input[1];
+				if ($("#" + input_id).data("type") !== "file") {
+					// Store the value of the input to be used later for submitting active 
+					// element evaluation requests
+					$($.find("#" + input_id)).data("value", input_data);
+					$("#" +input_id + "_input_id").val(input_data);	
+				}
+			})
 		},
 
 		loadLastSubmission: function(input) {
@@ -657,9 +650,19 @@
 			var exercise = this;
 			if (link.size() > 0) {
 				var url = link.attr("href");
+
 				if (url && url !== "#") {
+					var data_type = "html";
+					if (exercise.active_element) {
+						// Active element input values are retrieved from the API, so 
+						// we must extract the submission number from the submission url
+						var submission = url.match(/submissions\/\d+/)[0].split('/')[1];
+						url = '/api/v2/submissions/' + submission;
+						data_type = "json";
+					} 
+				
 					this.showLoader("load");
-					$.ajax(link.attr("href"), {dataType: "html"})
+					$.ajax(url, {dataType: data_type})
 						.fail(function() {
 							exercise.showLoader("error");
 						})
@@ -675,11 +678,10 @@
 								exercise.bindFormEvents(f);
 							} else {
 								// Update the output box values
-								exercise.updateOutput(data);
+								exercise.updateOutput(data.feedback);
 							
 								// Update the input values
-								var inspect_url = $(data).find('a[href*="inspect"]').attr("href");
-								exercise.updateInputs(inspect_url);		 
+								exercise.updateInputs(data);
 							}
 						});
 				} 
