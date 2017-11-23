@@ -477,7 +477,8 @@
 				$.each(outputs,	function(i, element) {
 					var [exercise, valid, formData] = input.generateFormData(element, form_element);			 
 					var output_id = exercise.chapterID;
-					
+					var output = $("#" + output_id);
+					var out_content = output.find(exercise.settings.ae_result_selector);					
 					// Indicates that one of inputs has not finished evaluation
 					if (!valid && !formData) {
 						return; // TODO should this do something else?
@@ -488,27 +489,29 @@
 							.html('<p style="color:red;">Fill out all the inputs</p>');
 						return;
 					}
+					
+					output.data('evaluating', true);							
+					// If the element has no height defined it should keep the height it had with content
+					if (typeof output.data("scale") != "undefined") { 
+						out_content.css({ 'height' : (out_content.height())});
+					}
+					out_content.html("<p>Evaluating</p>");
 						
 					var url = exercise.url;
-
 					exercise.submitAjax(url, formData, function(data) {
 						var content = $(data);
-						var output = $("#" + output_id);
 						
-						if (! content.find('.alert-danger').length) { // TODO are there other possible error-indicating responses?
-							var out_content = output.find(exercise.settings.ae_result_selector);
-							output.data('evaluating', true);
-							
-							// If the element has no height defined they should keep the height they had with content
-							if (typeof output.data("scale") != "undefined") { 
-								out_content.css({ 'height' : (out_content.height())});
-							}
-							out_content.html("<p>Evaluating</p>");
+						if (! content.find('.alert-danger').length) { 
 							var poll_url = content.find(".exercise-wait")
 															.attr("data-poll-url");
 							output.attr('data-poll-url', poll_url);
-							
+
 							exercise.updateSubmission(content);
+						} else if (content.find('.alert-danger').contents().text()
+						.indexOf("The grading queue is not configured.") >= 0) {
+							output.find(exercise.settings.ae_result_selector)
+							.html(content.find(".alert").text()); 
+							output.find(exercise.settings.ae_result_selector).append(content.find(".grading-task").text());
 						} else {
 							output.find(exercise.settings.ae_result_selector)
 							.html(content.find('.alert-danger').contents());
