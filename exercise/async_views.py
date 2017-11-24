@@ -53,7 +53,7 @@ def _post_async_submission(request, exercise, submission, errors=None):
         if form.cleaned_data["error"]:
             submission.set_error()
         else:
-            submission.set_ready()
+            submission.set_ready(request)
         submission.save()
 
         if form.cleaned_data["notify"]:

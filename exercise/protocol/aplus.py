@@ -63,7 +63,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 if page.is_sane():
                     submission.set_points(
                         page.points, page.max_points, no_penalties)
-                    submission.set_ready()
+                    submission.set_ready(request)
                     # Hide unnecessary system wide messages when grader works as expected.
                     # msg = _("The exercise was submitted and graded "
                     #     "successfully. Points: {points:d}/{max:d}").format(

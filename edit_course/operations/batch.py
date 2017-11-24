@@ -7,7 +7,7 @@ from lib.helpers import extract_form_errors
 from ..submission_forms import BatchSubmissionCreateAndReviewForm
 
 
-def create_submissions(instance, admin_profile, json_text):
+def create_submissions(request, instance, admin_profile, json_text):
     """
     Batch creates submissions and feedback from formatted JSON.
     """
@@ -63,7 +63,7 @@ def create_submissions(instance, admin_profile, json_text):
             sub.submission_time = form.cleaned_data.get("submission_time")
             sub.grading_time = timezone.now()
             sub.grader = form.cleaned_data.get("grader") or admin_profile
-            sub.set_ready()
+            sub.set_ready(request)
             sub.save()
 
     return errors

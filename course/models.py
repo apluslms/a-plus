@@ -1,6 +1,6 @@
 import datetime
 import logging
-import urllib.request, urllib.parse
+import requests
 
 from django.conf import settings
 from django.contrib import messages
@@ -498,25 +498,46 @@ class CourseHook(models.Model):
 
     HOOK_CHOICES = (
         ("post-grading", "Post grading"),
+        ("xapi", "xAPI logging to remote LRS"),
     )
 
     hook_url = models.URLField()
+    username = models.CharField(max_length=128, blank=True, help_text=_('Basic access authentication'))
+    password = models.CharField(max_length=128, blank=True, help_text=_('Basic access authentication'))
     hook_type = models.CharField(max_length=12, choices=HOOK_CHOICES, default="post-grading")
     course_instance = models.ForeignKey(CourseInstance, related_name="course_hooks")
 
     def __str__(self):
         return "{} -> {}".format(self.course_instance, self.hook_url)
 
-    def trigger(self, data):
-        logger = logging.getLogger("plus.hooks")
-        try:
-            urllib.request.urlopen(self.hook_url,
-                urllib.parse.urlencode(data).encode('utf-8'), timeout=10)
-            logger.info("%s posted to %s on %s with %s",
-                        self.hook_type, self.hook_url, self.course_instance, data)
-        except:
-            logger.error("HTTP POST failed on %s hook to %s (%s)",
-                         self.hook_type, self.hook_url, self.course_instance)
+    def trigger(self, payload):
+        if self.hook_type == "xapi":
+            response = requests.post(
+                self.hook_url + "statements",
+                **self.kwargs_http_auth(
+                    headers={ 'X-Experience-API-Version': '1.0.0' },
+                    json=payload,
+                    timeout=4,
+                )
+            )
+        else:
+            response = requests.get(
+                self.hook_url,
+                **self.kwargs_http_auth(
+                    data=payload,
+                    timeout=4,
+                )
+            )
+        msg = "Hook {} {:d}".format(self.hook_url, response.status_code)
+        if response.status_code != 200:
+            logger.error(msg + " " + response.text)
+        else:
+            logger.info(msg)
+
+    def kwargs_http_auth(self, **kwargs):
+        if self.username != "":
+            kwargs['auth'] = (self.username, self.password)
+        return kwargs
 
 
 class CourseModuleManager(models.Manager):

@@ -14,6 +14,7 @@ from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView
 from lib.remote_page import request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
+from lib.xapi import statement_viewed
 from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
@@ -86,6 +87,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
         if self.profile:
             LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
+            for hook in self.exercise.course_instance.course_hooks.filter(hook_type="xapi"):
+                hook.trigger(statement_viewed(request, self.profile.user, self.exercise))
 
         return super().get(request, *args, page=page, students=students, **kwargs)
 

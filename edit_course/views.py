@@ -243,7 +243,7 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
 
     def post(self, request, *args, **kwargs):
         from .operations.batch import create_submissions
-        errors = create_submissions(self.instance, self.profile,
+        errors = create_submissions(request, self.instance, self.profile,
             request.POST.get("submissions_json", "{}"))
         if errors:
             for error in errors:

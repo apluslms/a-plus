@@ -133,7 +133,7 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
         self.submission.grader = self.profile
         self.submission.assistant_feedback = assistant_feedback
         self.submission.feedback = feedback
-        self.submission.set_ready()
+        self.submission.set_ready(self.request)
         self.submission.save()
 
         #sub = _('Feedback to {name}').format(name=self.exercise)
@@ -255,7 +255,7 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
         sub.submission_time = form.cleaned_data.get("submission_time")
         sub.grader = self.profile
         sub.grading_time = timezone.now()
-        sub.set_ready()
+        sub.set_ready(request)
         sub.save()
 
         messages.success(request, _("New submission stored."))

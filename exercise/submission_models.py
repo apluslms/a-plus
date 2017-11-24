@@ -12,6 +12,7 @@ from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
     safe_file_name, Enum
 from lib.models import UrlMixin
+from lib.xapi import statement_graded
 from userprofile.models import UserProfile
 from . import exercise_models
 
@@ -214,15 +215,17 @@ class Submission(UrlMixin, models.Model):
     def set_waiting(self):
         self.status = self.STATUS.WAITING
 
-    def set_ready(self):
+    def set_ready(self, request=None):
         self.grading_time = timezone.now()
         if self.status != self.STATUS.UNOFFICIAL:
             self.status = self.STATUS.READY
 
         # Fire set hooks.
-        for hook in self.exercise.course_module.course_instance \
-                .course_hooks.filter(hook_type="post-grading"):
+        for hook in self.exercise.course_instance.course_hooks.filter(hook_type="post-grading"):
             hook.trigger({ "submission_id": self.id })
+        for hook in self.exercise.course_instance.course_hooks.filter(hook_type="xapi"):
+            for profile in self.submitters.all():
+                hook.trigger(statement_graded(request, profile.user, self))
 
     def set_rejected(self):
         self.status = self.STATUS.REJECTED
