@@ -81,7 +81,7 @@ def statement_object(request, exercise):
         "definition": {
             "name": { "en": str(exercise) },
             "description": { "en": exercise.description },
-            "type": "https://apluslms.github.io/type/a-plus/exercise",
+            "type": "https://apluslms.github.io/type/exercise",
         },
     }
 
