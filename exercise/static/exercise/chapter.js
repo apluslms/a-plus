@@ -609,12 +609,15 @@
 		},
 		
 		updateOutput: function(data) {
-			data = $(data);
 			// Put data in this output box
 			var exercise = this;
 			var id = exercise.chapterID;
 			var type = $("#" + id).attr("data-type") || "text"; // default output type is text
-			var content = $(data).find(".grading-task").text();
+			var content = $(data);
+			if (!content.is("#feedback")) {
+				content = content.find("#feedback");
+			}
+			content = content.text()
 
 			if (type == "image") {
 				content = '<img src="data:image/png;base64, ' + content + '" />';			
@@ -622,7 +625,6 @@
 			var output_container = $("#" + id).find(exercise.settings.ae_result_selector);
 			output_container.html(content);
 			$("#" + id).data('evaluating', false);
-			
 			// Some result divs should scale to match the content
 			if (typeof $("#" + id).data("scale") != "undefined" ) {
 				output_container.css({ "height" : "auto"});
