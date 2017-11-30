@@ -213,56 +213,53 @@
 		
 		// Construct an active element input form
 		makeInputForm: function(id, title, type, def_val) {
-			var wrap = document.createElement("div");
-			wrap.setAttribute("id", "exercise-all");
+			var wrap = $("<div>");
+			wrap.attr("id", "exercise-all");
 			
-			var form = document.createElement("form");
-			form.setAttribute("action", "");
-			form.setAttribute("method", "post");
+			var form = $("<form>");
+			form.attr("action", "");
+			form.attr("method", "post");
 			
-			var first_div = document.createElement("div");
-			first_div.setAttribute("class", "form-group");
+			var first_div = $("<div>");
+			first_div.attr("class", "form-group");
 			
-			var label = document.createElement("label");
-			label.setAttribute("class", "control-label");
-			label.setAttribute("for", id + "_input");
-			label.innerHTML = title;
+			var label = $("<label>");
+			label.attr("class", "control-label");
+			label.attr("for", id + "_input");
+			label.html(title);
 			
 			var form_field;
-
 			if (!type) {
-				form_field = document.createElement("textarea");
-				$(form_field).val(def_val); 
+				form_field = $("<textarea>");
+				form_field.val(def_val); 
 			} else if (type === "file") {
-				form_field = document.createElement("input");
-				form_field.setAttribute("type", "file");
-				form.setAttribute("enctype", "multipart/form-data");
+				form_field = $("<input>");
+				form_field.attr("type", "file");
+				form.attr("enctype", "multipart/form-data");
 			} else if (type.substring(0, 8) == "dropdown") {
-				form_field = document.createElement("select");
+				form_field = $("<select>");
 				// If the type is dropdown, the format of the type attribute 
 				// should be "dropdown:option1,option2,option2,.."
 				var options = type.split(":").pop().split(",");
-				
 				$.each(options, function(i, opt) {
-					var option = document.createElement("option");
-					option.textContent = opt;
-					option.value = opt;
-					form_field.appendChild(option);
+					var option = $("<option>");
+					option.text(opt);
+					option.val(opt);
+					form_field.append(option);
 				});
-				
 			} 
 			
-			form_field.setAttribute("class", "form-control");
-			form_field.setAttribute("id", id + "_input_id");
-			form_field.setAttribute("name", id + "_input");
+			form_field.attr("class", "form-control");
+			form_field.attr("id", id + "_input_id");
+			form_field.attr("name", id + "_input");
 			
-			var second_div = document.createElement("div");
-			first_div.setAttribute("class", "form-group");
+			var second_div = $("<div>");
+			first_div.attr("class", "form-group");
 			
-			var button = document.createElement("input");
-			button.setAttribute("class", "btn btn-primary");
-			button.setAttribute("value", "Submit");
-			button.setAttribute("type", "submit");
+			var button = $("<input>");
+			button.attr("class", "btn btn-primary");
+			button.attr("value", "Submit");
+			button.attr("type", "submit");
 			
 			$(first_div).append(label, form_field);
 			$(second_div).append(button);
