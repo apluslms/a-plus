@@ -277,17 +277,15 @@
 			var exercise = this;
 
 			if (exercise.settings.input) {
-				var id = exercise.chapterID;
-				var input_elem = $("#" + id)
-				var title = input_elem.data("title");
-				var type = input_elem.data("type");
-				var def_val = input_elem.data("default");
+				var title = exercise.element.data("title");
+				var type = exercise.element.data("type");
+				var def_val = exercise.element.data("default");
 				
 				if (!title) title = '';
 				if (!def_val) def_val = '';
 				 
 				exercise.hideLoader();				
-				var input_form = exercise.makeInputForm(id, title, type, def_val);
+				var input_form = exercise.makeInputForm(exercise.chapterID, title, type, def_val);
 				exercise.update(input_form);	
 				exercise.loadLastSubmission(input_form);
 				exercise.chapter.nextExercise();					
@@ -312,32 +310,31 @@
 		update: function(input) {
 			var exercise = this;
 			input = input.filter(exercise.settings.exercise_selector).contents();
-			var content = this.element.find(this.settings.content_selector)
+			var content = exercise.element.find(exercise.settings.content_selector)
 				.empty().append(input).hide();
 				
 			if (exercise.active_element) {
-				var element = $("#" + exercise.chapterID);
 				var title = "";
-				if (element.attr("data-title")) 
-					title = "<p><b>" + element.attr("data-title") + "</b></p>";
-				element.find(exercise.settings.summary_selector).remove();
-				$(title).prependTo(element.find(".exercise-response"));
+				if (exercise.element.attr("data-title")) 
+					title = "<p><b>" + exercise.element.attr("data-title") + "</b></p>";
+				exercise.element.find(exercise.settings.summary_selector).remove();
+				$(title).prependTo(exercise.element.find(".exercise-response"));
 			}
 			
 			content.show();
 			
 			// Active element can have height settings in the A+ exercise div that need to be
 			// attached to correct DOM-elements before setting the exercise container div height to auto
-			var cur_height = this.element.css('height');
-			if (this.active_element) {				
-				if (this.settings.input) {
-					$("#" + this.chapterID + " textarea").css("height", cur_height);
+			var cur_height = exercise.element.css('height');
+			if (exercise.active_element) {				
+				if (exercise.settings.input) {
+					$("#" + exercise.chapterID + " textarea").css("height", cur_height);
 				} else {
-					if (typeof $("#" + this.chapterID ).data("scale") != "undefined") {
-						var cont_height = $('#' + this.chapterID + ' ' + this.settings.ae_result_selector)[0].scrollHeight;
-						$('#' + this.chapterID + ' ' +	this.settings.ae_result_selector).css({ "height" : cont_height +"px"});
+					if (typeof $("#" + exercise.chapterID ).data("scale") != "undefined") {
+						var cont_height = $('#' + exercise.chapterID + ' ' + exercise.settings.ae_result_selector)[0].scrollHeight;
+						$('#' + exercise.chapterID + ' ' +	exercise.settings.ae_result_selector).css({ "height" : cont_height +"px"});
 					} else {
-						$('#' + this.chapterID, this.settings.ae_result_selector).css("height", cur_height);				
+						$('#' + exercise.chapterID, exercise.settings.ae_result_selector).css("height", cur_height);				
 					}				
 				}
 			}
@@ -554,7 +551,7 @@
 				// There might be extra whitespace or line breaks in the expected inputs data-attribute
 				// because of how the template is generated
 				expected_inputs = $.grep(expected_inputs, function( a ) {
-					return a != "" || a != "\n";
+					return a !== "" || a !== "\n";
 				});
 			} else {
 				expected_inputs = [];
@@ -611,22 +608,21 @@
 		updateOutput: function(data) {
 			// Put data in this output box
 			var exercise = this;
-			var id = exercise.chapterID;
-			var type = $("#" + id).attr("data-type") || "text"; // default output type is text
+			var type = exercise.element.attr("data-type") || "text"; // default output type is text
 			var content = $(data);
 			if (!content.is("#feedback")) {
 				content = content.find("#feedback");
 			}
-			content = content.text()
+			content = content.text();
 
 			if (type == "image") {
 				content = '<img src="data:image/png;base64, ' + content + '" />';			
 			}
-			var output_container = $("#" + id).find(exercise.settings.ae_result_selector);
+			var output_container = exercise.element.find(exercise.settings.ae_result_selector);
 			output_container.html(content);
-			$("#" + id).data('evaluating', false);
+			exercise.element.data('evaluating', false);
 			// Some result divs should scale to match the content
-			if (typeof $("#" + id).data("scale") != "undefined" ) {
+			if (typeof exercise.element.data("scale") != "undefined" ) {
 				output_container.css({ "height" : "auto"});
 				}
 		},
@@ -647,7 +643,7 @@
 					$($.find("#" + input_id)).data("value", input_data);
 					$("#" +input_id + "_input_id").val(input_data);	
 				}
-			})
+			});
 		},
 
 		loadLastSubmission: function(input) {
