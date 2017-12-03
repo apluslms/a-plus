@@ -167,7 +167,8 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             self.object = form.save()
         except IntegrityError as e:
             messages.error(self.request,
-                _('Save failed: {error}').format(error=repr(e)))
+                _("Failed to save {name} due to an error '{error}'.").format(
+                    name=self.model_name, error=e))
             return super().form_invalid(form)
         messages.success(self.request,
             _('The {name} was saved successfully.').format(
@@ -176,7 +177,7 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
 
     def form_invalid(self, form):
         messages.error(self.request,
-            _('Failed to save {name}').format(name=self.model_name))
+            _('Failed to save {name}.').format(name=self.model_name))
         return super().form_invalid(form)
 
 
@@ -289,7 +290,7 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
             else:
                 messages.success(request, _("Course content configured."))
         except Exception as e:
-            messages.error(request, _("Server error: {}").format(str(e)))
+            messages.error(request, _("Server returned error '{error!s}'.").format(error=e))
 
     def clear_cache(self, request):
         invalidate_instance(self.instance)

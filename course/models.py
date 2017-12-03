@@ -150,7 +150,7 @@ class UserTag(UrlMixin, models.Model):
     course_instance = models.ForeignKey('CourseInstance', related_name="usertags", on_delete=models.CASCADE)
     description = models.CharField(max_length=164,
                                    blank=True,
-                                   help_text=_("Describe the usage or meaning of this usertag"))
+                                   help_text=_("Describe the usage or meaning of this usertag."))
     visible_to_students = models.BooleanField(default=False)
     color = ColorField(default="#CD0000",
                        help_text=_("Color that is used for this tag."))
@@ -280,7 +280,7 @@ class CourseInstance(UrlMixin, models.Model):
     INDEX_TYPE = Enum([
         ('RESULTS', 0, _('User results')),
         ('TOC', 1, _("Table of contents")),
-        ('LAST', 2, _("Link last visited content")),
+        ('LAST', 2, _("Link to last visited content")),
         ('EXPERIMENT', 10, _("Experimental setup (hard-coded)")),
     ])
     CONTENT_NUMBERING = Enum([
