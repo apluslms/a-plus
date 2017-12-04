@@ -104,10 +104,11 @@ def serialize_submissions(request, submissions):
                 files.append(f.param_name)
             row[f.param_name] = url(s,f)
 
-        for profile in s.submitters.all():
-            row['UserID'] = profile.user.id
-            row['StudentID'] = profile.student_id
-            row['Email'] = profile.user.email
-            sheet.append(row)
+        for i,profile in enumerate(s.submitters.all()):
+            r = row.copy() if i > 0 else row
+            r['UserID'] = profile.user.id
+            r['StudentID'] = profile.student_id
+            r['Email'] = profile.user.email
+            sheet.append(r)
 
     return sheet,fields,files

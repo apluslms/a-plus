@@ -226,7 +226,7 @@ def configure_content(instance, url):
         config = json.loads(response.text)
     except Exception as e:
         return [_("JSON parser raised error '{error!s}'. "
-                  "Configuration of course aborted.".format(error=e))]
+                  "Configuration of course aborted.").format(error=e)]
 
     errors = []
 

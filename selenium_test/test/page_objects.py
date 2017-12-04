@@ -39,7 +39,8 @@ class AbstractPage(object):
         self.driver.get(url)
         if loaded_check:
             self.waitForElement(loaded_check)
-        self.checkBrowserErrors()
+        # The log command is not supported.
+        #self.checkBrowserErrors()
 
     def clickThrough(self, element, timeout=None):
         try:

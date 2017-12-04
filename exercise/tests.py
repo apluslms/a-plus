@@ -209,7 +209,7 @@ class ExerciseTest(TestCase):
         self.late_late_submission_when_late_allowed.submitters.add(self.user.userprofile)
 
         self.course_hook = CourseHook.objects.create(
-            hook_url="test_hook_url",
+            hook_url="http://localhost/test_hook_url",
             course_instance=self.course_instance
         )
 
@@ -484,7 +484,7 @@ class ExerciseTest(TestCase):
         self.assertEqual(self.late_submission_when_late_allowed.grade, 100)
         self.assertEqual(self.late_submission_when_late_allowed.status, Submission.STATUS.UNOFFICIAL)
         summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
-        self.assertEqual(summary.get_submission_count(), 0)
+        self.assertEqual(summary.get_submission_count(), 3)
         self.assertEqual(summary.get_points(), 100)
         self.assertFalse(summary.is_graded())
         self.assertTrue(summary.is_unofficial())

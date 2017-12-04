@@ -346,9 +346,13 @@ class CourseSubmissionDataViewSet(ListSerializerMixin,
         }
 
     def list(self, request, version=None, course_id=None):
+        profiles = self.filter_queryset(self.get_queryset())
         search_args = self.get_search_args(request)
         ids = [e['id'] for e in self.content.search_exercises(**search_args)]
-        queryset = Submission.objects.filter(exercise_id__in=ids)
+        queryset = Submission.objects.filter(
+            exercise_id__in=ids,
+            submitters__in=profiles
+        )
         return self.serialize_submissions(request, queryset, best=search_args['best'])
 
     def retrieve(self, request, version=None, course_id=None, user_id=None):
