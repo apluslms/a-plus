@@ -607,21 +607,26 @@
 			var exercise = this;
 			var type = exercise.element.attr("data-type") || "text"; // default output type is text
 			var content = $(data);
+			
+			// The data organisation is different depending on whether it is a new submission or
+			// the latest submission that is loaded back
 			if (!content.is("#feedback")) {
 				content = content.find("#feedback");
 			}
-			content = content.text();
+			
+			if (type == "text") {
+				content = content.text();
+			} else if (type == "image") {
+				content = '<img src="data:image/png;base64, ' + content.text() + '" />';			
+			} 
 
-			if (type == "image") {
-				content = '<img src="data:image/png;base64, ' + content + '" />';			
-			}
 			var output_container = exercise.element.find(exercise.settings.ae_result_selector);
 			output_container.html(content);
 			exercise.element.data('evaluating', false);
 			// Some result divs should scale to match the content
 			if (typeof exercise.element.data("scale") != "undefined" ) {
 				output_container.css({ "height" : "auto"});
-				}
+			}
 		},
 		
 		// Retrieve and update latest values of the input elements related to this element
