@@ -3,12 +3,12 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super }}: {% trans "All results" %}{% endblock %}
-{% block view_tag %}all-results{% endblock %}
+{% block title %}{{ block.super }}: {% trans "Visualizations" %}{% endblock %}
+{% block view_tag %}analytics{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "All results" %}</li>
+<li class="active">{% trans "Visualizations" %}</li>
 {% endblock %}
 
 {% block columns %}

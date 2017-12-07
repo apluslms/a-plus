@@ -100,8 +100,15 @@
 
 <li role="presentation" class="menu-all-results">
 	<a href="{{ instance|url:'all-results' }}">
-		<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+		<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
 		{% trans "All results" %}
+	</a>
+</li>
+
+<li role="presentation" class="menu-analytics">
+	<a href="{{ instance|url:'analytics' }}">
+		<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+		{% trans "Visualizations" %}
 	</a>
 </li>
 

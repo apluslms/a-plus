@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-04 12:05+0200\n"
+"POT-Creation-Date: 2017-12-07 18:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -368,19 +368,23 @@ msgid "Grades"
 msgstr "Arvosanat"
 
 #: course/templates/course/_course_menu.html:104
-#: exercise/templates/exercise/staff/analytics.html:6
-#: exercise/templates/exercise/staff/analytics.html:11
 #: exercise/templates/exercise/staff/results.html:5
 #: exercise/templates/exercise/staff/results.html:10
 msgid "All results"
 msgstr "Kaikki pisteet"
 
-#: course/templates/course/_course_menu.html:112
+#: course/templates/course/_course_menu.html:111
+#: exercise/templates/exercise/staff/analytics.html:6
+#: exercise/templates/exercise/staff/analytics.html:11
+msgid "Visualizations"
+msgstr "Visualisoinnit"
+
+#: course/templates/course/_course_menu.html:119
 #: news/templates/news/edit.html:11 news/templates/news/list.html:11
 msgid "Edit news"
 msgstr "Muokkaa kurssiuutisia"
 
-#: course/templates/course/_course_menu.html:118
+#: course/templates/course/_course_menu.html:125
 #: edit_course/templates/edit_course/edit_content.html:8
 #: edit_course/templates/edit_course/edit_course_base.html:5
 #: edit_course/templates/edit_course/edit_course_base.html:11
@@ -1635,8 +1639,9 @@ msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 msgid ""
 "You have used the allowed amount of submissions for this exercise. You may "
 "still submit unofficially to receive feedback."
-msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat. Voit edelleen "
-"palauttaa epävirallisesti saadaksesi palautetta."
+msgstr ""
+"Olet käyttänyt kaikki tehtävän palautuskerrat. Voit edelleen palauttaa "
+"epävirallisesti saadaksesi palautetta."
 
 #: exercise/exercise_models.py:526
 msgid "You have used the allowed amount of submissions for this exercise."
