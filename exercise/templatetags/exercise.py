@@ -159,8 +159,6 @@ def _points_data(obj, classes=None):
         points = obj.get('points', 0)
         max_points = obj.get('max_points', 0)
         required = obj.get('points_to_pass', 0)
-        if (points == 3):
-            print(obj)
         data = {
             'points': points,
             'max': max_points,
