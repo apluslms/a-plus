@@ -124,7 +124,11 @@ class CachedContent(ContentMixin, CachedAbstract):
             )
         for exercise in BaseExercise.objects\
               .filter(course_module__course_instance=instance):
-            tree = self._by_idx(modules, exercise_index[exercise.id])
+            try:
+                tree = self._by_idx(modules, exercise_index[exercise.id])
+            except KeyError:
+                self.dirty = True
+                continue
             tree[-1].update({
                 'submittable': True,
                 'points_to_pass': exercise.points_to_pass,

@@ -15,16 +15,22 @@ oauthlib==2.0.2
 Pillow==2.9.0
 python-dateutil==2.4.2
 python-mimeparse==0.1.4
-python-social-auth==0.3.6
 social-auth-app-django==1.2.0
 pytz==2017.2
 reportlab==3.3.0
-requests==2.17.3
-six==1.10.0
+requests==2.18.4
+six==1.11.0
 South==0.8.2
 unittest-xml-reporting==1.11.0
 
-# Required to run browser tests.
+# Abandoned:
+#django-tastypie==0.12.1
+#python-social-auth==0.2.21
+
+# Required for memcached:
+#python-memcached==1.58
+
+# Required to run browser tests:
 #selenium
 #pyvirtualdisplay
 #nose

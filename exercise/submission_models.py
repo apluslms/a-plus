@@ -198,6 +198,8 @@ class Submission(UrlMixin, models.Model):
                 adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
             elif timing == exercise.TIMING.UNOFFICIAL:
                 self.status = self.STATUS.UNOFFICIAL
+            if self.exercise.no_submissions_left(self.submitters.all()):
+                self.status = self.STATUS.UNOFFICIAL
 
         self.grade = round(adjusted_grade)
 

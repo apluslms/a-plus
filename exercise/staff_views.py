@@ -54,6 +54,11 @@ class ListSubmissionsView(ExerciseBaseView):
         self.note("all", "all_url", "submissions", "default_limit")
 
 
+class SubmissionsSummaryView(ExerciseBaseView):
+    access_mode = ACCESS.ASSISTANT
+    template_name = "exercise/staff/submissions_summary.html"
+
+
 class InspectSubmissionView(SubmissionBaseView):
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/inspect_submission.html"

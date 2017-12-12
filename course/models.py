@@ -2,6 +2,7 @@ import datetime
 import logging
 import urllib.request, urllib.parse
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
@@ -51,9 +52,7 @@ class Course(UrlMixin, models.Model):
         return "{} {}".format(self.code, self.name)
 
     def clean(self):
-        """
-        Validates the model before saving (standard method used in Django admin).
-        """
+        super().clean()
         RESERVED = ("admin", "accounts", "shibboleth", "api",
             "archive", "course", "exercise", "diploma")
         if self.url in RESERVED:
@@ -151,7 +150,7 @@ class UserTag(UrlMixin, models.Model):
     course_instance = models.ForeignKey('CourseInstance', related_name="usertags", on_delete=models.CASCADE)
     description = models.CharField(max_length=164,
                                    blank=True,
-                                   help_text=_("Describe the usage or meaning of this usertag"))
+                                   help_text=_("Describe the usage or meaning of this usertag."))
     visible_to_students = models.BooleanField(default=False)
     color = ColorField(default="#CD0000",
                        help_text=_("Color that is used for this tag."))
@@ -281,7 +280,7 @@ class CourseInstance(UrlMixin, models.Model):
     INDEX_TYPE = Enum([
         ('RESULTS', 0, _('User results')),
         ('TOC', 1, _("Table of contents")),
-        ('LAST', 2, _("Link last visited content")),
+        ('LAST', 2, _("Link to last visited content")),
         ('EXPERIMENT', 10, _("Experimental setup (hard-coded)")),
     ])
     CONTENT_NUMBERING = Enum([
@@ -323,6 +322,7 @@ class CourseInstance(UrlMixin, models.Model):
             "Separate with white space."))
     configure_url = models.URLField(blank=True)
     build_log_url = models.URLField(blank=True)
+    last_modified = models.DateTimeField(auto_now=True, blank=True, null=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
         help_text=_("By default exercise errors are reported to teacher "
             "email addresses. Set this field as comma separated emails to "
@@ -348,21 +348,21 @@ class CourseInstance(UrlMixin, models.Model):
         return "{}: {}".format(str(self.course), self.instance_name)
 
     def clean(self):
-        """
-        Validates the model before saving (standard method used in Django admin).
-        """
+        super().clean()
+        errors = {}
         if self.ending_time <= self.starting_time:
-            raise ValidationError({
-                'ending_time': _("Ending time must be later than starting time.")
-            })
-        if self.lifesupport_time <= self.ending_time:
-            raise ValidationError({
-                'lifesupport_time': _("Lifesupport time must be later than ending time.")
-            })
-        if self.archive_time <= self.lifesupport_time:
-            raise ValidationError({
-                'archive_time': _("Archive time must be later than lifesupport time.")
-            })
+            errors['ending_time'] = _("Ending time must be later than starting time.")
+        if self.lifesupport_time and self.lifesupport_time <= self.ending_time:
+            errors['lifesupport_time'] = _("Lifesupport time must be later than ending time.")
+        if self.archive_time and self.archive_time <= self.lifesupport_time:
+            errors['archive_time'] = _("Archive time must be later than lifesupport time.")
+        if not self.is_valid_language(self.language):
+            errors['language'] = _("Language code missing from settings.")
+        if errors:
+            raise ValidationError(errors)
+
+    def is_valid_language(self, lang):
+        return lang == "" or lang in [key for key,name in settings.LANGUAGES]
 
     def save(self, *args, **kwargs):
         """
@@ -439,11 +439,11 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_on_lifesupport(self, when=None):
         when = when or timezone.now()
-        return self.lifesupport_time < when
+        return self.lifesupport_time and self.lifesupport_time < when
 
     def is_archived(self, when=None):
         when = when or timezone.now()
-        return self.archive_time < when
+        return self.archive_time and self.archive_time < when
 
     @property
     def archive_start(self, when=None):
@@ -588,9 +588,7 @@ class CourseModule(UrlMixin, models.Model):
         return self.name
 
     def clean(self):
-        """
-        Validates the model before saving (standard method used in Django admin).
-        """
+        super().clean()
         RESERVED = ("toc", "teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
             raise ValidationError({
@@ -633,6 +631,10 @@ class CourseModule(UrlMixin, models.Model):
         if self.late_submissions_allowed:
             point_worth = int((1.0 - self.late_submission_penalty) * 100.0)
         return point_worth
+
+    def number_of_submitters(self):
+        return self.course_instance.students\
+            .filter(submissions__exercise__course_module=self).distinct().count()
 
     ABSOLUTE_URL_NAME = "module"
 

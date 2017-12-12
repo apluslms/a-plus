@@ -16,6 +16,7 @@ from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory
 from deviations.models import DeadlineRuleDeviation, \
     MaxSubmissionsRuleDeviation
+from exercise.exercise_summary import UserExerciseSummary
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject
 from exercise.protocol.exercise_page import ExercisePage
@@ -208,7 +209,7 @@ class ExerciseTest(TestCase):
         self.late_late_submission_when_late_allowed.submitters.add(self.user.userprofile)
 
         self.course_hook = CourseHook.objects.create(
-            hook_url="test_hook_url",
+            hook_url="http://localhost/test_hook_url",
             course_instance=self.course_instance
         )
 
@@ -470,6 +471,56 @@ class ExerciseTest(TestCase):
         submission.submitters.add(self.grader.userprofile)
         submission.set_points(10, 10)
         self.assertFalse(submission.late_penalty_applied)
+
+    def test_unofficial_submission(self):
+        self.course_module_with_late_submissions_allowed.late_submissions_allowed = False
+        self.course_module_with_late_submissions_allowed.save()
+        self.learning_object_category.accept_unofficial_submits = True
+        self.learning_object_category.save()
+
+        self.late_submission_when_late_allowed.set_points(10, 10)
+        self.late_submission_when_late_allowed.set_ready()
+        self.late_submission_when_late_allowed.save()
+        self.assertEqual(self.late_submission_when_late_allowed.grade, 100)
+        self.assertEqual(self.late_submission_when_late_allowed.status, Submission.STATUS.UNOFFICIAL)
+        summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
+        self.assertEqual(summary.get_submission_count(), 3)
+        self.assertEqual(summary.get_points(), 100)
+        self.assertFalse(summary.is_graded())
+        self.assertTrue(summary.is_unofficial())
+
+        self.submission_when_late_allowed.set_points(5, 10)
+        self.submission_when_late_allowed.set_ready()
+        self.submission_when_late_allowed.save()
+        self.assertEqual(self.submission_when_late_allowed.grade, 50)
+        self.assertEqual(self.submission_when_late_allowed.status, Submission.STATUS.READY)
+        summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
+        self.assertEqual(summary.get_points(), 50)
+        self.assertTrue(summary.is_graded())
+        self.assertFalse(summary.is_unofficial())
+
+        sub = Submission.objects.create(
+            exercise=self.base_exercise_with_late_submission_allowed,
+            grader=self.grader.userprofile
+        )
+        sub.submission_time = self.two_days_from_now + timedelta(days = 1)
+        sub.save()
+        sub.submitters.add(self.user.userprofile)
+        sub.set_points(10, 10)
+        sub.save()
+        summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
+        self.assertEqual(summary.get_points(), 50)
+        self.assertTrue(summary.is_graded())
+        self.assertFalse(summary.is_unofficial())
+
+    def test_unofficial_max_submissions(self):
+        self.learning_object_category.accept_unofficial_submits = True
+        self.learning_object_category.save()
+        self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))
+        self.submission.set_points(1, 10)
+        self.submission.set_ready()
+        self.submission.save()
+        self.assertEqual(self.submission.status, Submission.STATUS.UNOFFICIAL)
 
     def test_submission_unicode_string(self):
         self.assertEqual("1", str(self.submission))

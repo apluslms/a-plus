@@ -17,6 +17,7 @@ class DeadlineRuleDeviationForm(forms.Form):
     )
     submitter = forms.ModelMultipleChoiceField(
         queryset=UserProfile.objects.none(),
+        required=False,
     )
     minutes = forms.IntegerField(
         min_value=1,

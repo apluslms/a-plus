@@ -138,6 +138,8 @@
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
           </a>
+          {% else %}
+          {% exercise_text_stats entry.id %}
           {% endif %}
           <a class="btn btn-default btn-xs" href="{{ entry.submissions_link }}">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span>

@@ -3,7 +3,7 @@ from course.models import CourseModule, LearningObjectCategory
 from .cache.content import CachedContent
 from .cache.hierarchy import PreviousIterator
 from .cache.points import CachedPoints
-from .models import BaseExercise, StaticExercise
+from .models import BaseExercise, StaticExercise, Submission
 
 
 class CachedContentTest(CourseTestCase):
@@ -21,6 +21,7 @@ class CachedContentTest(CourseTestCase):
         self.module0.status = CourseModule.STATUS.UNLISTED
         self.module0.save()
         c = CachedContent(self.instance)
+        self.assertFalse(c.dirty)
         total = c.total()
         self.assertEqual(total['min_group_size'], 1)
         self.assertEqual(total['max_group_size'], 2)
@@ -122,6 +123,7 @@ class CachedPointsTest(CourseTestCase):
     def test_invalidation(self):
         c = CachedContent(self.instance)
         p = CachedPoints(self.instance, self.student, c)
+        self.assertFalse(p.dirty)
         created = p.created()
         c = CachedContent(self.instance)
         p = CachedPoints(self.instance, self.student, c)
@@ -205,3 +207,32 @@ class CachedPointsTest(CourseTestCase):
         self.assertEqual(module['points'], 50)
         category = p.categories()[0]
         self.assertEqual(category['points'], 50)
+
+    def test_unofficial(self):
+        self.module.late_submissions_allowed = False
+        self.module.save()
+        self.category.accept_unofficial_submits = True
+        self.category.save()
+
+        sub = Submission.objects.create(exercise=self.exercise3)
+        sub.submitters.add(self.student.userprofile)
+        sub.submission_time = self.three_days_after
+        sub.set_points(1,2)
+        sub.set_ready()
+        sub.save()
+
+        self.submission2.submission_time = self.three_days_after
+        self.submission2.set_points(2,2)
+        self.submission2.set_ready()
+        self.submission2.save()
+
+        c = CachedContent(self.instance)
+        p = CachedPoints(self.instance, self.student, c)
+        entry,_,_,_ = p.find(self.exercise3)
+        self.assertFalse(entry['graded'])
+        self.assertTrue(entry['unofficial'])
+        self.assertEqual(entry['points'], 50)
+        entry,_,_,_ = p.find(self.exercise)
+        self.assertTrue(entry['graded'])
+        self.assertFalse(entry['unofficial'])
+        self.assertEqual(entry['points'], 50)

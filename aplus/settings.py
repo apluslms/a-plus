@@ -116,7 +116,7 @@ INSTALLED_APPS = (
 ##########################################################################
 INSTALLED_LOGIN_APPS = (
     'shibboleth_login',
-    #'social.apps.django_app.default',
+    #'social_django',
 )
 
 # Apache module mod_uwsgi was unable to create UTF-8 environment variables.
@@ -136,7 +136,7 @@ SHIBBOLETH_VARIABLES_URL_ENCODED = True
 # Google OAuth2 settings
 #SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 #SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 ##########################################################################
 
@@ -150,7 +150,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
@@ -276,6 +276,8 @@ REST_FRAMEWORK = {
     },
 }
 
+OVERRIDE_SUBMISSION_HOST = None
+
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
@@ -364,14 +366,15 @@ AUTHENTICATION_BACKENDS = (
 )
 if 'shibboleth_login' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('shibboleth_login.auth_backend.ShibbolethAuthBackend',)
-if 'social.apps.django_app.default' in INSTALLED_APPS:
+if 'social_django' in INSTALLED_APPS:
     SOCIAL_AUTH = True
-    AUTHENTICATION_BACKENDS += ('social.backends.google.GoogleOAuth2',)
+    AUTHENTICATION_BACKENDS += ('social_core.backends.google.GoogleOAuth2',)
 
 # If debug is enabled allow basic auth for API
 if DEBUG:
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
 else:
+    TEMPLATES[0]['APP_DIRS'] = False
     TEMPLATES[0]['OPTIONS']['loaders'] = [
         ('django.template.loaders.cached.Loader', [
             'django.template.loaders.filesystem.Loader',

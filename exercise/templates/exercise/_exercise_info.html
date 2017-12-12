@@ -18,6 +18,11 @@
                 {% trans "Late" %} -{{ summary.get_penalty|percent }} %
             </span>
             {% endif %}
+            {% if summary.is_unofficial %}
+            <span class="badge">
+                {% trans "Unofficial" %}
+            </span>
+            {% endif %}
         </small>
     </strong></p>
     {% points_progress summary %}

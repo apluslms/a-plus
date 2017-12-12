@@ -14,9 +14,10 @@ def create_submissions(instance, admin_profile, json_text):
     try:
         submissions_json = json.loads(json_text)
     except Exception as e:
-        return [_("Failed to parse the JSON: {}").format(str(e))]
+        return [_("Parsing the submission JSON raised an error '{error!s}'.")
+                    .format(error=e)]
     if not "objects" in submissions_json:
-        return [_('Missing JSON field: objects')]
+        return [_('Missing JSON field: objects.')]
 
     errors = []
     validated_forms = []
@@ -25,7 +26,7 @@ def create_submissions(instance, admin_profile, json_text):
         count += 1
         if not "exercise_id" in submission_json:
             errors.append(
-                _('Missing field "exercise_id" in object {count:d}.')\
+                _('Missing field "exercise_id" in object {count:d}.')
                     .format(count=count))
             continue
 
@@ -34,8 +35,9 @@ def create_submissions(instance, admin_profile, json_text):
             course_module__course_instance=instance).first()
         if not exercise:
             errors.append(
-                _('Unknown exercise_id {id:d} in object {count:d}.')\
-                    .format(id=submission_json["exercise_id"], count=count))
+                _('Unknown exercise_id {id:d} in object {count:d}.')
+                    .format(id=submission_json["exercise_id"],
+                            count=count))
             continue
 
         # Use form to parse and validate object data.
@@ -45,9 +47,9 @@ def create_submissions(instance, admin_profile, json_text):
             validated_forms.append(form)
         else:
             errors.append(
-                _('Invalid fields in object {count:d}: {error}')\
-                    .format(count=count,
-                        error="\n".join(extract_form_errors(form))))
+                _("Object number {ordinal:d} has invalid fields:\n {errors}")
+                    .format(ordinal=count,
+                            errors='\n '.join(extract_form_errors(form))))
 
     if not errors:
         for form in validated_forms:

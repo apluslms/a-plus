@@ -1,0 +1,51 @@
+{% extends "exercise/exercise_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+{% block title %}{{ block.super }} / {% trans "Submissions summary" %}{% endblock %}
+{% block view_tag %}all-submissions{% endblock %}
+
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions" %}</a></li>
+<li class="active">{% trans "Summary" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+  <p>
+    {% exercise_text_stats exercise %}
+  </p>
+  <div id="exercise-summary" class="summary"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="{% static 'js/summary.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/summary.css' %}" />
+<script>
+$(function () {
+  var summary = summaryjs($('#exercise-summary'), {
+    fields: {
+      url: '{% url "api:exercise-detail" version=2 exercise_id=exercise.id %}',
+      navigate: 'exercise_info.form_spec',
+      prepend: [
+        {% if exercise.max_points > 0 %}
+        {
+          key: 'Grade',
+          type: 'number',
+        },
+        {% endif %}
+      ],
+    },
+    posts: {
+      url: '{% url "api:course-submissiondata-list" version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}',
+    },
+  });
+});
+</script>
+{% endblock %}

@@ -38,6 +38,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'points': 0,
                         'passed': entry['points_to_pass'] == 0,
                         'graded': False,
+                        'unofficial': False,
                     })
                 r_augment(entry.get('children'))
         for module in modules:
@@ -70,9 +71,14 @@ class CachedPoints(ContentMixin, CachedAbstract):
                   .exclude_errors()\
                   .filter(exercise__course_module__course_instance=instance):
                   #.prefetch_related("notifications"): breaks things
-                tree = self._by_idx(modules, exercise_index[submission.exercise.id])
+                try:
+                    tree = self._by_idx(modules, exercise_index[submission.exercise.id])
+                except KeyError:
+                    self.dirty = True
+                    continue
                 entry = tree[-1]
-                entry['submission_count'] += 1 if submission.status != Submission.STATUS.ERROR else 0
+                entry['submission_count'] += 1 if not submission.status in (Submission.STATUS.ERROR, Submission.STATUS.UNOFFICIAL) else 0
+                unofficial = submission.status == Submission.STATUS.UNOFFICIAL
                 entry['submissions'].append({
                     'id': submission.id,
                     'max_points': entry['max_points'],
@@ -83,19 +89,27 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'graded': submission.is_graded,
                     'passed': submission.grade >= entry['points_to_pass'],
                     'submission_status': submission.status if not submission.is_graded else False,
-                    'unofficial': submission.status == Submission.STATUS.UNOFFICIAL,
+                    'unofficial': unofficial,
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
                 })
                 if (
-                    submission.status == Submission.STATUS.READY
-                    and submission.grade >= entry['points']
+                    submission.status == Submission.STATUS.READY and (
+                        entry['unofficial']
+                        or submission.grade >= entry['points']
+                    )
+                ) or (
+                    unofficial and (
+                        not entry['graded']
+                        or (entry['unofficial'] and submission.grade > entry['points'])
+                    )
                 ):
                     entry.update({
                         'best_submission': submission.id,
                         'points': submission.grade,
-                        'passed': submission.grade >= entry['points_to_pass'],
-                        'graded': True,
+                        'passed': not unofficial and submission.grade >= entry['points_to_pass'],
+                        'graded': submission.status == Submission.STATUS.READY,
+                        'unofficial': unofficial,
                     })
                 if submission.notifications.count() > 0:
                     entry['notified'] = True
@@ -122,7 +136,9 @@ class CachedPoints(ContentMixin, CachedAbstract):
         # Collect points and check limits.
         def add_to(target, entry):
             target['submission_count'] += entry['submission_count']
-            if entry.get('unconfirmed', False):
+            if entry.get('unofficial', False):
+                pass
+            elif entry.get('unconfirmed', False):
                 self._add_by_difficulty(
                     target['unconfirmed_points_by_difficulty'],
                     entry['difficulty'],

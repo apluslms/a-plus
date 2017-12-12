@@ -99,6 +99,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     exercise_info = JSONField(blank=True)
     model_answers = models.TextField(blank=True,
         help_text=_("List model answer files as protected URL addresses."))
+    templates = models.TextField(blank=True,
+        help_text=_("List template files as protected URL addresses."))
 
     # Keep this to support ExerciseWithAttachment
     # Maybe this should inject extra content to any exercise
@@ -115,24 +117,20 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         """
         Validates the model before saving (standard method used in Django admin).
         """
-        course_instance_error = ValidationError({
-            'category':_('Course_module and category must belong to the same course instance.')
-        })
-        try:
-            if (self.course_module.course_instance != self.category.course_instance):
-                raise course_instance_error
-        except (LearningObjectCategory.DoesNotExist, CourseModule.DoesNotExist):
-            raise course_instance_error
-        if self.parent and (self.parent.course_module != self.course_module
-                or self.parent.id == self.id):
-            raise ValidationError({
-                'parent':_('Cannot select parent from another course module.')
-            })
+        super().clean()
+        errors = {}
         RESERVED = ("submissions", "plain", "info")
         if self.url in RESERVED:
-            raise ValidationError({
-                'url':_("Taken words include: {}").format(", ".join(RESERVED))
-            })
+            errors['url'] = _("Taken words include: {}").format(", ".join(RESERVED))
+        if self.course_module.course_instance != self.category.course_instance:
+            errors['category'] = _('Course_module and category must belong to the same course instance.')
+        if self.parent:
+            if self.parent.course_module != self.course_module:
+                errors['parent'] = _('Cannot select parent from another course module.')
+            if self.parent.id == self.id:
+                errors['parent'] = _('Cannot select self as a parent.')
+        if errors:
+            raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -142,6 +140,15 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             cls = cls.__bases__[0]
             if cls.__name__ == 'LearningObject':
                 signals.post_save.send(sender=cls, instance=self)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        # Trigger LearningObject post delete signal for extending classes.
+        cls = self.__class__
+        while cls.__bases__:
+            cls = cls.__bases__[0]
+            if cls.__name__ == 'LearningObject':
+                signals.post_delete.send(sender=cls, instance=self)
 
     def __str__(self):
         if self.order >= 0:
@@ -245,6 +252,9 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_models(self):
         return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
 
+    def get_templates(self):
+        return [(url,url.split('/')[-1]) for url in self.templates.split()]
+
 
 def invalidate_exercise(sender, instance, **kwargs):
     for language,_ in settings.LANGUAGES:
@@ -305,14 +315,13 @@ class BaseExercise(LearningObject):
         Validates the model before saving (standard method used in Django admin).
         """
         super().clean()
+        errors = {}
         if self.points_to_pass > self.max_points:
-            raise ValidationError({
-                'points_to_pass':_("Points to pass cannot be greater than max_points.")
-            })
+            errors['points_to_pass'] = _("Points to pass cannot be greater than max_points.")
         if self.min_group_size > self.max_group_size:
-            raise ValidationError({
-                'min_group_size':_("Minimum group size cannot exceed maximum size.")
-            })
+            errors['min_group_size'] = _("Minimum group size cannot exceed maximum size.")
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def is_submittable(self):
@@ -388,6 +397,10 @@ class BaseExercise(LearningObject):
                     deviation = d
         return deviation
 
+    def number_of_submitters(self):
+        return self.course_instance.students\
+            .filter(submissions__exercise=self).distinct().count()
+
     def get_submissions_for_student(self, user_profile, exclude_errors=False):
         if exclude_errors:
             submissions = user_profile.submissions.exclude_errors()
@@ -411,9 +424,18 @@ class BaseExercise(LearningObject):
             return True
         for profile in students:
             if self.get_submissions_for_student(profile, True).count() \
-                < self.max_submissions_for_student(profile):
+                    < self.max_submissions_for_student(profile):
                 return True
         return False
+
+    def no_submissions_left(self, students):
+        if self.max_submissions == 0:
+            return False
+        for profile in students:
+            if self.get_submissions_for_student(profile, True).count() \
+                    <= self.max_submissions_for_student(profile):
+                return False
+        return True
 
     def is_submission_allowed(self, profile, request=None):
         """
@@ -495,10 +517,14 @@ class BaseExercise(LearningObject):
                 size=size
             ))
 
-        if not self.one_has_submissions(students):
-            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
-
         access_ok,access_warnings = self.one_has_access(students)
+
+        if not self.one_has_submissions(students):
+            if self.course_module.late_submissions_allowed:
+                access_warnings.append(_('You have used the allowed amount of submissions for this exercise. You may still submit unofficially to receive feedback.'))
+            else:
+                warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
+
         ok = (
             (access_ok and len(warnings) == 0) or
             all(self.course_instance.is_course_staff(p.user) for p in students)
@@ -578,10 +604,15 @@ class BaseExercise(LearningObject):
         Generates complete URL with added parameters to the exercise service.
         """
         uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
+        auri = (
+            settings.OVERRIDE_SUBMISSION_HOST + submission_url
+            if settings.OVERRIDE_SUBMISSION_HOST
+            else request.build_absolute_uri(submission_url)
+        )
         return update_url_params(self.service_url, {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
-            "submission_url": request.build_absolute_uri(submission_url),
+            "submission_url": auri,
             "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
             "uid": uid_str,
             "ordinal_number": ordinal_number,

@@ -3,7 +3,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 import shibboleth_login.urls
-import social.apps.django_app.urls
+import social_django.urls
 import userprofile.urls
 import course.urls, course.long_urls
 import exercise.urls
@@ -24,7 +24,7 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^shibboleth/', include(shibboleth_login.urls)),
-    url('', include(social.apps.django_app.urls, namespace='social')),
+    url('', include(social_django.urls, namespace='social')),
     url(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
     url(r'^accounts/', include(userprofile.urls)),
     url(r'^diploma/', include(diploma.urls)),

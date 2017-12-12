@@ -32,8 +32,8 @@
 
 			{% if model == "exercise" %}
 			<p>
-				{% blocktrans %}
-				If you remove this exercise, <strong>all the submissions
+				{% blocktrans with num=object.submissions.count %}
+				If you remove this exercise, <strong>all the {{ num }} submissions
 				to the exercise will also be removed</strong>.
 				{% endblocktrans %}
 			</p>

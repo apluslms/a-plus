@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 
 from lib.cached import CachedAbstract
-from ..models import Enrollment
+from ..models import Enrollment, UserTagging
 from ..renders import render_tags
 
 
@@ -44,3 +44,5 @@ def invalidate_content(sender, instance, **kwargs):
 
 post_save.connect(invalidate_content, sender=Enrollment)
 post_delete.connect(invalidate_content, sender=Enrollment)
+post_save.connect(invalidate_content, sender=UserTagging)
+post_delete.connect(invalidate_content, sender=UserTagging)

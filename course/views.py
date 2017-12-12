@@ -5,6 +5,7 @@ import icalendar
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -12,6 +13,7 @@ from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
+from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
@@ -65,7 +67,7 @@ class Enroll(EnrollableViewMixin, BaseRedirectView):
     def post(self, request, *args, **kwargs):
 
         if self.is_student or not self.enrollable:
-            messages.error(self.request, _("You cannot enroll, or have already enrolled, to this course."))
+            messages.error(self.request, _("You cannot enroll, or have already enrolled, in this course."))
             raise PermissionDenied()
 
         if not self.instance.is_enrollment_open():
@@ -89,11 +91,14 @@ class ModuleView(CourseModuleBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.now = timezone.now()
-        self.children = self.content.flat_module(self.module)
-        cur, tree, prev, nex = self.content.find(self.module)
-        self.previous = prev
-        self.current = cur
-        self.next = nex
+        try:
+            self.children = self.content.flat_module(self.module)
+            cur, tree, prev, nex = self.content.find(self.module)
+            self.previous = prev
+            self.current = cur
+            self.next = nex
+        except NoSuchContent:
+            raise Http404
         self.note('now', 'children', 'previous', 'current', 'next')
 
 

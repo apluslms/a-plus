@@ -9,7 +9,7 @@ TEST_COPY = os.path.join(TEST_PATH, 'aplus.db_copy')
 class TestInitializer(object):
 
     def getDefaultDriver(self):
-        driver = self.getChromeDriver()
+        driver = self.getFirefoxDriver()
         driver.set_window_size(1024,768)
         return driver
 
@@ -23,12 +23,7 @@ class TestInitializer(object):
         return webdriver.Chrome()
 
     def getFirefoxDriver(self):
-        firefoxCapabilities =  DesiredCapabilities.FIREFOX
-        firefoxCapabilities['marionette'] = True
-        firefoxCapabilities['loggingPrefs'] = {'Browser': 'ALL'}
-        profile = webdriver.FirefoxProfile()
-        profile.set_preference('startup.homepage_welcome_url.additional', '')
-        return webdriver.Firefox(profile, capabilities=firefoxCapabilities)
+        return webdriver.Firefox()
 
     # This just replaces the current database with a copy.
     # TODO Should use Django unit tests that run selenium.

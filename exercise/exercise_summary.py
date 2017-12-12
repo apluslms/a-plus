@@ -21,6 +21,7 @@ class UserExerciseSummary(object):
         self.submission_count = 0
         self.best_submission = None
         self.graded = False
+        self.unofficial = False
 
         if self.user and self.user.is_authenticated():
             self.submissions = list(exercise.get_submissions_for_student(
@@ -34,11 +35,24 @@ class UserExerciseSummary(object):
                     if (
                         s.status == Submission.STATUS.READY and (
                             self.best_submission is None
+                            or self.unofficial
                             or s.grade > self.best_submission.grade
                         )
                     ):
-                          self.best_submission = s
-                          self.graded = True
+                        self.best_submission = s
+                        self.unofficial = False
+                        self.graded = True
+                    elif (
+                        s.status == Submission.STATUS.UNOFFICIAL and (
+                            not self.graded
+                            or (
+                                self.unofficial
+                                and s.grade > self.best_submission.grade
+                            )
+                        )
+                    ):
+                        self.best_submission = s
+                        self.unofficial = True
 
     def get_submission_count(self):
         return self.submission_count
@@ -69,6 +83,9 @@ class UserExerciseSummary(object):
 
     def is_graded(self):
         return self.graded
+
+    def is_unofficial(self):
+        return self.unofficial
 
     def get_group(self):
         if self.submission_count > 0:
@@ -132,8 +149,10 @@ class ResultTable:
         This method puts the data from the database in to the results table.
         """
         submissions = list(Submission.objects \
-            .filter(exercise__course_module__course_instance=self.course_instance) \
-            .values("submitters", "exercise", "exercise__category") \
+            .filter(
+                exercise__course_module__course_instance=self.course_instance,
+                status=Submission.STATUS.READY
+            ).values("submitters", "exercise", "exercise__category") \
             .annotate(best=Max("grade")) \
             .order_by()) # Remove default ordering.
         for submission in submissions:

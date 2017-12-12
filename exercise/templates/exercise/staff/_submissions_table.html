@@ -1,8 +1,22 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
-<p class="clearfix">
-    {% with count=submissions.count %}
+{% with count=submissions.count %}
+<div class="clearfix">
+  <div class="pull-right">
+    <p>
+      <a class="btn btn-default btn-sm" href="{{ exercise|url:'submission-summary' }}">
+        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+        {% trans "Summary" %}
+      </a>
+      <a class="btn btn-default btn-sm" href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&format=csv">
+        <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+        {% trans "Download CSV" %}
+      </a>
+    </p>
+  </div>
+  <p>
+    {% exercise_text_stats exercise %} |
     {% if not all and count == default_limit %}
     {% blocktrans with limit=default_limit count=count url=all_url %}
     {{ limit }} latest submissions.
@@ -13,12 +27,8 @@
     {{ count }} submissions
     {% endblocktrans %}
     {% endif %}
-    {% endwith %}
-    <a class="btn btn-default btn-sm pull-right" href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&format=csv">
-      <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-      {% trans "Download CSV" %}
-    </a>
-</p>
+  </p>
+</div>
 <table class="table table-bordered{% if all or count < default_limit %} filtered-table{% endif %}">
     <thead>
         <tr>
@@ -68,3 +78,4 @@
         {% endfor %}
     </tbody>
 </table>
+{% endwith %}

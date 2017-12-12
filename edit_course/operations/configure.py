@@ -17,7 +17,7 @@ def parse_date(value, errors):
                 timezone.get_current_timezone())
         except ValueError:
             pass
-    errors.append(_("Unable to parse date: {}").format(value))
+    errors.append(_("Unable to parse value '{value}' as a date.").format(value=value))
     return None
 
 
@@ -45,7 +45,7 @@ def parse_duration(begin, value, errors):
                 return begin + timedelta(weeks=i)
         except ValueError:
             pass
-    errors.append(_("Unable to parse duration: {}").format(value))
+    errors.append(_("Unable to parse value '{value}' as a time duration.").format(value=value))
     return None
 
 
@@ -53,7 +53,7 @@ def parse_int(value, errors):
     try:
         return int(value)
     except ValueError:
-        errors.append(_("Unable to parse int: {}").format(value))
+        errors.append(_("Unable to parse value '{value}' as an int.").format(value=value))
     return None
 
 
@@ -61,7 +61,7 @@ def parse_float(value, errors):
     try:
         return float(value)
     except ValueError:
-        errors.append(_("Unable to parse float: {}").format(value))
+        errors.append(_("Unable to parse value '{value}' as a float.").format(value=value))
     return None
 
 
@@ -81,7 +81,7 @@ def configure_learning_objects(category_map, module, config, parent,
             errors.append(_("Learning object requires a category."))
             continue
         if not o["category"] in category_map:
-            errors.append(_("Unknown category {}").format(o["category"]))
+            errors.append(_("Unknown category '{category}'.").format(category=o["category"]))
             continue
 
         lobject = LearningObject.objects.filter(
@@ -174,6 +174,9 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.exercise_info = o["exercise_info"]
         if "model_answer" in o:
             lobject.model_answers = o["model_answer"]
+        if "template" in o:
+            lobject.templates = o["template"]
+        lobject.clean()
         lobject.save()
         seen.append(lobject.id)
         if "children" in o:
@@ -191,11 +194,13 @@ def get_build_log(instance):
     try:
         response = requests.get(instance.build_log_url)
     except Exception as e:
-        return {'error': _("Requesting build log failed: {}").format(str(e))}
+        return {'error': _("Requesting build log failed with error '{error!s}'.")\
+                .format(error=e)}
     try:
         data = json.loads(response.text)
     except Exception as e:
-        return {'error': _("Failed to parse the build log JSON: {}").format(str(e))}
+        return {'error': _("Parsing the build log JSON raised error '{error!s}'.")\
+                .format(error=e)}
     if not data:
         return {'error': _("Remote URL returned an empty build log.")}
     return data
@@ -211,7 +216,8 @@ def configure_content(instance, url):
         url = url.strip()
         response = requests.get(url)
     except Exception as e:
-        return [_("Request failed: {}").format(str(e))]
+        return [_("Request for a course configuration failed with error '{error!s}'. "
+                  "Configuration of course aborted.").format(error=e)]
 
     instance.configure_url = url
     instance.save()
@@ -219,7 +225,8 @@ def configure_content(instance, url):
     try:
         config = json.loads(response.text)
     except Exception as e:
-        return [_("Failed to parse the JSON: {}").format(str(e))]
+        return [_("JSON parser raised error '{error!s}'. "
+                  "Configuration of course aborted.").format(error=e)]
 
     errors = []
 
@@ -232,30 +239,34 @@ def configure_content(instance, url):
         dt = parse_date(config["end"], errors)
         if dt:
             instance.ending_time = dt
-    if "lang" in config:
+    if "lang" in config and instance.is_valid_language(config["lang"]):
         instance.language = str(config["lang"])[:5]
     if "contact" in config:
         instance.technical_error_emails = str(config["contact"])
     if "assistants" in config:
         if not isinstance(config["assistants"], list):
-            errors.append(_("Assistants must be given as student ID array."))
+            errors.append(_("Assistants must be given as a student ID array."))
         else:
-            try:
-                profiles = [UserProfile.objects.get(student_id=sid)
-                    for sid in config["assistants"]]
-                instance.assistants = profiles
-            except UserProfile.DoesNotExist as err:
-                errors.append(_("Assistant student ID was not found: {}")\
-                    .format(str(err)))
+            assistants = []
+            for sid in config["assistants"]:
+                try:
+                    profile = UserProfile.objects.get(student_id=sid)
+                except UserProfile.DoesNotExist as err:
+                    errors.append(_("Adding the assistant failed, because an associated "
+                                    "user with student ID {id} does not exist.").format(id=sid))
+                else:
+                    assistants.append(profile)
+            instance.assistants.set(assistants)
     if "build_log_url" in config:
         instance.build_log_url = str(config["build_log_url"])
+    instance.clean()
     instance.save()
 
     if not "categories" in config or not isinstance(config["categories"], dict):
-        errors.append(_("Categories required as object."))
+        errors.append(_("Categories required as an object."))
         return errors
     if not "modules" in config or not isinstance(config["modules"], list):
-        errors.append(_("Modules required as array."))
+        errors.append(_("Modules required as an array."))
         return errors
 
     # Configure learning object categories.
@@ -280,6 +291,7 @@ def configure_content(instance, url):
         ]:
             if field in c:
                 setattr(category, field, parse_bool(o[field]))
+        category.clean()
         category.save()
         category_map[key] = category
         seen.append(category.id)
@@ -354,6 +366,7 @@ def configure_content(instance, url):
             if not f is None:
                 module.late_submission_penalty = f
 
+        module.clean()
         module.save()
         seen_modules.append(module.id)
 
@@ -375,7 +388,7 @@ def configure_content(instance, url):
                     not isinstance(exercise, BaseExercise)
                     or exercise.submissions.count() == 0
                 ):
-                    lobject.delete()
+                    exercise.delete()
                 else:
                     lobject.status = "hidden"
                     lobject.order = 9999

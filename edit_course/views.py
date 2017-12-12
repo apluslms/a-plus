@@ -15,9 +15,12 @@ from lib.viewbase import (
     BaseFormView,
 )
 from authorization.permissions import ACCESS
+from course.cache.students import CachedStudents
 from course.models import CourseInstance, UserTag
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from exercise.cache.content import CachedContent
 from exercise.cache.exercise import invalidate_instance
+from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, UserTagForm
@@ -62,11 +65,16 @@ class EditContentView(EditInstanceView):
     def get_common_objects(self):
         self.modules = list(self.instance.course_modules.all())
         for module in self.modules:
-            module.flat_objects = [
-                LearningObject.objects.get(id=entry['id'])
-                for entry in self.content.flat_module(module, enclosed=False)
-                if entry['type'] != 'level'
-            ]
+            module.flat_objects = []
+            try:
+                for entry in self.content.flat_module(module, enclosed=False):
+                    if entry['type'] != 'level':
+                        try:
+                            module.flat_objects.append(LearningObject.objects.get(id=entry['id']))
+                        except LearningObject.DoesNotExist:
+                            continue
+            except NoSuchContent:
+                continue
         self.note('modules')
 
     def get_success_url(self):
@@ -159,7 +167,8 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             self.object = form.save()
         except IntegrityError as e:
             messages.error(self.request,
-                _('Save failed: {error}').format(error=repr(e)))
+                _("Failed to save {name} due to an error '{error}'.").format(
+                    name=self.model_name, error=e))
             return super().form_invalid(form)
         messages.success(self.request,
             _('The {name} was saved successfully.').format(
@@ -168,7 +177,7 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
 
     def form_invalid(self, form):
         messages.error(self.request,
-            _('Failed to save {name}').format(name=self.model_name))
+            _('Failed to save {name}.').format(name=self.model_name))
         return super().form_invalid(form)
 
 
@@ -281,10 +290,12 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
             else:
                 messages.success(request, _("Course content configured."))
         except Exception as e:
-            messages.error(request, _("Server error: {}").format(str(e)))
+            messages.error(request, _("Server returned error '{error!s}'.").format(error=e))
 
     def clear_cache(self, request):
         invalidate_instance(self.instance)
+        CachedContent.invalidate(self.instance)
+        CachedStudents.invalidate(self.instance)
         messages.success(request, _("Exercise caches have been cleared."))
 
 
