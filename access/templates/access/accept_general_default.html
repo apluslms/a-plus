@@ -1,0 +1,19 @@
+{% extends 'access/exercise_frame.html' %}
+{% load i18n %}
+
+
+{% block exercise %}
+{% if not result.error %}
+{% if exercise.instructions %}
+<div class="instructions">
+  {{ exercise.instructions|safe }}
+</div>
+{% else %}
+<h1>{% trans "Enter your submission" %}</h1>
+{% endif %}
+
+{% include 'access/personalized_content_default.html' %}
+
+{% include 'access/accept_general_form.html' %}
+{% endif %}
+{% endblock %}
