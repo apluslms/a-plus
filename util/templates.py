@@ -91,6 +91,7 @@ def _exercise_context(course, exercise, post_url, result=None, request=None):
         "course": course,
         "exercise": exercise,
         "post_url": post_url or "",
+        "static_url": course['static_url'],
         "result": result,
     }
     if 'instructions_file' in exercise and exercise['instructions_file'].startswith('./'):

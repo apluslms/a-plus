@@ -31,6 +31,13 @@ fi
 
 cd `dirname $0`/..
 ROOT=`pwd`
+
+if [ -d "$ROOT/exercises" ]; then
+    CDIR=exercises
+else
+    CDIR=courses
+fi
+
 CMD=
 
 # Working dir.
@@ -40,7 +47,7 @@ else
     cd /tmp
 fi
 
-export PATH=".:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$ROOT/scripts/sandbox:$ROOT/exercises/$6/sandbox"
+export PATH=".:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:$ROOT/scripts/sandbox:$ROOT/$CDIR/$6/sandbox"
 
 # Limit process.
 function parse_size

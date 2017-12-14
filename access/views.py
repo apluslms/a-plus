@@ -47,12 +47,15 @@ def course(request, course_key):
             "course_name": course["name"],
             "exercises": _filter_fields(exercises, ["key", "title"]),
         })
-    return render(request, 'access/course.html', {
+    render_context = {
         'course': course,
         'exercises': exercises,
         'plus_config_url': request.build_absolute_uri(reverse(
             'aplus-json', args=[course['key']])),
-    })
+    }
+    if "gitmanager" in settings.INSTALLED_APPS:
+        render_context["build_log_url"] = request.build_absolute_uri(reverse("build-log-json", args=(course_key, )))
+    return render(request, 'access/course.html', render_context)
 
 
 def exercise(request, course_key, exercise_key):
@@ -124,6 +127,40 @@ def exercise_model(request, course_key, exercise_key, parameter=None):
     else:
         try:
             response = import_named(course, exercise['view_type'] + "Model")(
+                request, course, exercise, parameter)
+        except ImportError:
+            pass
+    if response:
+        return response
+    else:
+        raise Http404()
+
+
+def exercise_template(request, course_key, exercise_key, parameter=None):
+    '''
+    Presents the exercise template.
+    '''
+    (course, exercise) = config.exercise_entry(course_key, exercise_key)
+    if course is None or exercise is None:
+        raise Http404()
+    response = None
+
+    path = None
+    if 'template_files' in exercise:
+        def find_name(paths, name):
+            templates = [(path,path.split('/')[-1]) for path in paths]
+            for path,name in templates:
+                if name == parameter:
+                    return path
+            return None
+        path = find_name(exercise['template_files'], parameter)
+    if path:
+        with open(os.path.join(course['dir'], path)) as f:
+            content = f.read()
+        response = HttpResponse(content, content_type='text/plain')
+    else:
+        try:
+            response = import_named(course, exercise['view_type'] + "Template")(
                 request, course, exercise, parameter)
         except ImportError:
             pass
@@ -289,7 +326,7 @@ def container_post(request):
         return HttpResponseForbidden("Missing sid")
 
     meta = read_and_remove_submission_meta(sid)
-    clean_submission_dir(meta["dir"])
+    #clean_submission_dir(meta["dir"])
 
     data = {
         "points": int(request.POST.get("points", 0)),

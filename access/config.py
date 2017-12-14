@@ -11,6 +11,7 @@ import copy
 from util.dict import iterate_kvp_with_dfs, get_rst_as_html
 from util.files import read_meta
 from util.importer import import_named
+from util.static import symbolic_link
 
 
 META = "apps.meta"
@@ -198,6 +199,13 @@ class ConfigParser:
         data["mtime"] = t
         data["dir"] = self._conf_dir(DIR, course_key, {})
 
+        if "static_url" not in data:
+            data["static_url"] = "{}{}{}/".format(
+                settings.STATIC_URL_HOST_INJECT,
+                settings.STATIC_URL,
+                course_key
+            )
+
         if "language" in data:
             data["lang"] = data["language"]
 
@@ -240,6 +248,7 @@ class ConfigParser:
             "exercise_loader": exercise_loader,
             "exercises": {}
         }
+        symbolic_link(DIR, data)
         return course_root
 
 
@@ -510,3 +519,7 @@ class ConfigParser:
 
 # An object that holds on to the latest exercise configuration.
 config = ConfigParser()
+
+# If testing one course preload configuration.
+if len(os.listdir(DIR)) == 1:
+    config.courses()
