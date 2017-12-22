@@ -17,7 +17,7 @@
 			submit: "data-msg-submit",
 			error: "data-msg-error"
 		},
-		modal_selector: "#page-modal"
+		modal_selector: "#page-modal",
 	};
 
 	function AplusChapter(element, options) {
@@ -51,7 +51,7 @@
 			this.element.find("[" + this.settings.active_element_attr +	"='in']").aplusExercise(this, {input: true});
 
 			this.exercises = this.element
-				.find("[" + this.settings.exercise_url_attr + "]") 
+				.find("[" + this.settings.exercise_url_attr + "]")
 				.aplusExercise(this);
 			this.exercisesIndex = 0;
 			this.exercisesSize = this.exercises.size();
@@ -130,7 +130,7 @@
  */
 ;(function($, window, document, undefined) {
 	"use strict";
-	
+
 	var pluginName = "aplusExercise";
 	var loadName = "aplusExerciseLoad";
 	var defaults = {
@@ -178,24 +178,24 @@
 
 			// Do not mess up events in an Ajax exercise.
 			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
-			
+
 			// Check if the exercise is an active element.
 			this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);
-			
+
 			// Add the active element outputs to a list so that the element can be found later
 			if (this.active_element && !this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
-			
+
 			this.loader = this.chapter.cloneLoader();
-			
-			this.element.height(this.element.height()).empty();	 
+
+			this.element.height(this.element.height()).empty();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
-			
+
 			// Inputs are different from actual exercises and need only be loaded.
 			if (this.settings.input) this.load();
-			
+
 			if (!this.active_element) {
-			// Add an Ajax exercise event listener to refresh the summary.	
+			// Add an Ajax exercise event listener to refresh the summary.
 				if (this.ajax) {
 					var exercise = this;
 					window.addEventListener("message", function (event) {
@@ -207,37 +207,37 @@
 						}
 					});
 				}
-			} 			
+			}
 		},
-		
+
 		// Construct an active element input form
 		makeInputForm: function(id, title, type, def_val) {
 			var wrap = $("<div>");
 			wrap.attr("id", "exercise-all");
-			
+
 			var form = $("<form>");
 			form.attr("action", "");
 			form.attr("method", "post");
-			
+
 			var first_div = $("<div>");
 			first_div.attr("class", "form-group");
-			
+
 			var label = $("<label>");
 			label.attr("class", "control-label");
 			label.attr("for", id + "_input");
 			label.html(title);
-			
+
 			var form_field;
 			if (!type) {
 				form_field = $("<textarea>");
-				form_field.val(def_val); 
+				form_field.val(def_val);
 			} else if (type === "file") {
 				form_field = $("<input>");
 				form_field.attr("type", "file");
 				form.attr("enctype", "multipart/form-data");
 			} else if (type.substring(0, 8) == "dropdown") {
 				form_field = $("<select>");
-				// If the type is dropdown, the format of the type attribute 
+				// If the type is dropdown, the format of the type attribute
 				// should be "dropdown:option1,option2,option2,.."
 				var options = type.split(":").pop().split(",");
 				$.each(options, function(i, opt) {
@@ -246,25 +246,25 @@
 					option.val(opt);
 					form_field.append(option);
 				});
-			} 
-			
+			}
+
 			form_field.attr("class", "form-control");
 			form_field.attr("id", id + "_input_id");
 			form_field.attr("name", id + "_input");
-			
+
 			var second_div = $("<div>");
 			first_div.attr("class", "form-group");
-			
+
 			var button = $("<input>");
 			button.attr("class", "btn btn-primary");
 			button.attr("value", "Submit");
 			button.attr("type", "submit");
-			
+
 			$(first_div).append(label, form_field);
 			$(second_div).append(button);
 			$(form).append(first_div, second_div);
 			$(wrap).append(form);
-			
+
 			return $(wrap);
 		},
 
@@ -276,15 +276,15 @@
 				var title = exercise.element.data("title");
 				var type = exercise.element.data("type");
 				var def_val = exercise.element.data("default");
-				
+
 				if (!title) title = '';
 				if (!def_val) def_val = '';
-				 
-				exercise.hideLoader();				
+
+				exercise.hideLoader();
 				var input_form = exercise.makeInputForm(exercise.chapterID, title, type, def_val);
-				exercise.update(input_form);	
+				exercise.update(input_form);
 				exercise.loadLastSubmission(input_form);
-				exercise.chapter.nextExercise();					
+				exercise.chapter.nextExercise();
 			 } else {
 				$.ajax(this.url, {dataType: "html"})
 					.fail(function() {
@@ -300,7 +300,7 @@
 							exercise.chapter.nextExercise();
 						}
 					 });
-				}				
+				}
 		},
 
 		update: function(input) {
@@ -308,21 +308,21 @@
 			input = input.filter(exercise.settings.exercise_selector).contents();
 			var content = exercise.element.find(exercise.settings.content_selector)
 				.empty().append(input).hide();
-				
+
 			if (exercise.active_element) {
 				var title = "";
-				if (exercise.element.attr("data-title")) 
+				if (exercise.element.attr("data-title"))
 					title = "<p><b>" + exercise.element.attr("data-title") + "</b></p>";
 				exercise.element.find(exercise.settings.summary_selector).remove();
 				$(title).prependTo(exercise.element.find(".exercise-response"));
 			}
-			
+
 			content.show();
-			
+
 			// Active element can have height settings in the A+ exercise div that need to be
 			// attached to correct DOM-elements before setting the exercise container div height to auto
 			var cur_height = exercise.element.css('height');
-			if (exercise.active_element) {				
+			if (exercise.active_element) {
 				if (exercise.settings.input) {
 					$("#" + exercise.chapterID + " textarea").css("height", cur_height);
 				} else {
@@ -330,12 +330,12 @@
 						var cont_height = $('#' + exercise.chapterID + ' ' + exercise.settings.ae_result_selector)[0].scrollHeight;
 						$('#' + exercise.chapterID + ' ' +	exercise.settings.ae_result_selector).css({ "height" : cont_height +"px"});
 					} else {
-						$('#' + exercise.chapterID, exercise.settings.ae_result_selector).css("height", cur_height);				
-					}				
+						$('#' + exercise.chapterID, exercise.settings.ae_result_selector).css("height", cur_height);
+					}
 				}
 			}
 
-			this.element.height("auto");	
+			this.element.height("auto");
 			this.bindNavEvents();
 			this.bindFormEvents(content);
 		},
@@ -356,15 +356,15 @@
 						exercise.submit(this);
 					});
 				}
-			}		
-			
+			}
+
 			$.augmentExerciseGroup(content);
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID
 			}, "*");
 		},
-		
+
 		// Submit the formData to given url and then execute the callback.
 		submitAjax: function(url, formData, callback, retry) {
 			var exercise = this;
@@ -375,21 +375,27 @@
 				processData: false,
 				dataType: "html"
 			}).fail(function(xhr, textStatus, errorThrown) {
-					// handle database lock exceptions
+					// Retry a few times if submission is not successful
 					retry = retry || 0;
-					if (xhr.responseText.indexOf("database is locked") >= 0 && retry < 5) {
-						console.log("Database is locked: trying submitAjax again in 100ms");
+					if (xhr.status !== 200 && retry < 5) {
 						setTimeout(
 							function() {
-								console.log("Resubmit no.", retry + 1);
 								exercise.submitAjax(url, formData, callback, retry + 1);
 							}, 100);
-					} else {
-						console.log('error', xhr);
 					}
 				//$(form_element).find(":input").prop("disabled", false);
 				//exercise.showLoader("error");
-				exercise.chapter.modalError(exercise.chapter.messages.error);
+
+				if (!exercise.active_element) {
+					exercise.chapter.modalError(exercise.chapter.messages.error);
+				} else {
+					// active elements don't use loadbar so the error message must be shown
+					// in the element container
+					var feedback = $("<div>");
+					feedback.attr('id', 'feedback');			
+					feedback.append(exercise.chapter.messages.error);
+					exercise.updateOutput(feedback);
+				}
 			}).done(function (data) {
 				/* Bad fix for database locked problem when saving submitted files:
 					 test if the data contains message that the submission was not saved and resubmit
@@ -404,46 +410,46 @@
 						}, 100);
 				} else {
 					// This should be the only necessary thing to do here.
-					callback(data); 
+					callback(data);
 				}
 			});
 		},
-		
+
 		// Construct form data from input element values
 		generateFormData: function(output, form_element) {
 			output = $(output);
-			
-			var [exercise, inputs, expected_inputs] = this.matchInputs(output); 				
+
+			var [exercise, inputs, expected_inputs] = this.matchInputs(output);
 			// Form data to be sent for evaluation
 			var formData = new FormData();
 			var input_id = this.chapterID;
 			var valid = true;
-			
+
 			$.each(inputs, function(i, id) {
 				var input_val;
 				var input_elem = $.find("#" + id);
-				
+
 				// Input can be also an output element, in which case the content must be
 				// retrieved differently
 				if (input_elem[0].hasAttribute("data-inputs")) {
-				
+
 					// If an output uses another output as an input, the output used as an input can
 					// be in evaluation which means this output cannot be evaluated yet
 					if ($(input_elem).data("evaluating")) {
 						valid = false;
 						formData = false;
 						return;
-					} 
-					
+					}
+
 					input_val = $(input_elem).find(".ae_result").text().trim();
-				
+
 				} else if ($(input_elem).data("type") === "file") {
 					input_val = $("#" + id + "_input_id").get(0).files[0];
-				
-				} else if (id !== input_id) {				
-					// Because changing an input value without submitting said input is possible, 
-					// use the latest input value that has been submitted before for other inputs 
-					// than the one being submitted now.		
+
+				} else if (id !== input_id) {
+					// Because changing an input value without submitting said input is possible,
+					// use the latest input value that has been submitted before for other inputs
+					// than the one being submitted now.
 					input_val = $(input_elem).data("value");
 					// Update the input box back to the value used in evaluation
 					$("#" + id + "_input_id").val(input_val);
@@ -453,70 +459,69 @@
 					$(input_elem).data("value", input_val);
 				}
 				if (!input_val) valid = false;
-				if (formData) formData.append(expected_inputs[i], input_val);		
-			});	
-			
+				if (formData) formData.append(expected_inputs[i], input_val);
+			});
+
 			return [exercise, valid, formData];
 		},
-		
-		submit: function(form_element) {	
+
+		submit: function(form_element) {
 			var input = this;
 			var chapter = this.chapter;
 			if (this.active_element) {
 				var input_id = this.chapterID;
 				// For every output related to this input, try to evaluate the outputs
 				var outputs = $.find('[data-inputs~="' + input_id + '"]');
-				
+
 				$.each(outputs,	function(i, element) {
-					var [exercise, valid, formData] = input.generateFormData(element, form_element);			 
+					var [exercise, valid, formData] = input.generateFormData(element, form_element);
 					var output_id = exercise.chapterID;
 					var output = $("#" + output_id);
-					var out_content = output.find(exercise.settings.ae_result_selector);					
+					var out_content = output.find(exercise.settings.ae_result_selector);
 					// Indicates that one of inputs has not finished evaluation
 					if (!valid && !formData) {
 						return; // TODO should this do something else?
 					}
-					
+
 					if (!valid) {
 						$("#" + output_id).find(exercise.settings.ae_result_selector)
 							.html('<p style="color:red;">Fill out all the inputs</p>');
 						return;
 					}
-					
-					output.data('evaluating', true);							
+
+					output.data('evaluating', true);
 					// If the element has no height defined it should keep the height it had with content
-					if (typeof output.data("scale") != "undefined") { 
+					if (typeof output.data("scale") != "undefined") {
 						out_content.css({ 'height' : (out_content.height())});
 					}
 					out_content.html("<p>Evaluating</p>");
-						
+
 					var url = exercise.url;
 					exercise.submitAjax(url, formData, function(data) {
 						var content = $(data);
-						
-						if (! content.find('.alert-danger').length) { 
-							var poll_url = content.find(".exercise-wait")
-															.attr("data-poll-url");
+
+						if (! content.find('.alert-danger').length) {
+							var poll_url = content.find(".exercise-wait").attr("data-poll-url");
 							output.attr('data-poll-url', poll_url);
 
 							exercise.updateSubmission(content);
 						} else if (content.find('.alert-danger').contents().text()
 						.indexOf("The grading queue is not configured.") >= 0) {
 							output.find(exercise.settings.ae_result_selector)
-							.html(content.find(".alert").text()); 
+							.html(content.find(".alert").text());
 							output.find(exercise.settings.ae_result_selector).append(content.find(".grading-task").text());
 						} else {
 							output.find(exercise.settings.ae_result_selector)
 							.html(content.find('.alert-danger').contents());
 						}
 					});
-				});		
+				});
 			} else {
 				chapter.openModal(chapter.messages.submit);
 				var exercise = this;
 				var url = $(form_element).attr("action");
 				var formData = new FormData(form_element);
-				
+
 				exercise.submitAjax(url, formData, function(data) {
 					//$(form_element).find(":input").prop("disabled", false);
 					//exercise.hideLoader();
@@ -531,12 +536,12 @@
 				});
 			}
 		},
-		
-		// Find for an active element the names of the input fields required and 
+
+		// Find for an active element the names of the input fields required and
 		// the corresponding names that are used in mooc-grader exercise type config
 		matchInputs: function(element) {
 			var output_id = element.attr("id");
-			var exercise = this.chapter.aeOutputs[output_id];	
+			var exercise = this.chapter.aeOutputs[output_id];
 			// Find the ids of input elements required for this output
 			var inputs = element.attr("data-inputs").split(" ");
 			// Find the form field names the grader is expecting
@@ -570,14 +575,14 @@
 					input.filter(this.settings.exercise_selector).contents()
 				);
 			}
-			
+
 			if (typeof($.aplusExerciseDetectWaits) == "function") {
 				var exercise = this;
 				var id;
 				if (this.active_element) id = "#" +	this.chapterID;
-				
+
 				$.aplusExerciseDetectWaits(function(suburl) {
-					$.ajax(suburl).done(function(data) {					
+					$.ajax(suburl).done(function(data) {
 						if (exercise.active_element) {
 							exercise.updateOutput(data);
 							exercise.submit(); // Active element outputs can be chained
@@ -600,24 +605,24 @@
 				}, id);
 			}
 		},
-		
+
 		updateOutput: function(data) {
 			// Put data in this output box
 			var exercise = this;
 			var type = exercise.element.attr("data-type") || "text"; // default output type is text
 			var content = $(data);
-			
+
 			// The data organisation is different depending on whether it is a new submission or
 			// the latest submission that is loaded back
 			if (!content.is("#feedback")) {
 				content = content.find("#feedback");
 			}
-			
+
 			if (type == "text") {
 				content = content.text();
 			} else if (type == "image") {
-				content = '<img src="data:image/png;base64, ' + content.text() + '" />';			
-			} 
+				content = '<img src="data:image/png;base64, ' + content.text() + '" />';
+			}
 
 			var output_container = exercise.element.find(exercise.settings.ae_result_selector);
 			output_container.html(content);
@@ -627,7 +632,7 @@
 				output_container.css({ "height" : "auto"});
 			}
 		},
-		
+
 		// Retrieve and update latest values of the input elements related to this element
 		updateInputs: function(data) {
 			data = data.submission_data;
@@ -639,10 +644,10 @@
 				var input_id = input_list[$.inArray(grader_id, grader_inputs)];
 				var input_data = input[1];
 				if ($("#" + input_id).data("type") !== "file") {
-					// Store the value of the input to be used later for submitting active 
+					// Store the value of the input to be used later for submitting active
 					// element evaluation requests
 					$($.find("#" + input_id)).data("value", input_data);
-					$("#" +input_id + "_input_id").val(input_data);	
+					$("#" +input_id + "_input_id").val(input_data);
 				}
 			});
 		},
@@ -656,13 +661,13 @@
 				if (url && url !== "#") {
 					var data_type = "html";
 					if (exercise.active_element) {
-						// Active element input values are retrieved from the API, so 
+						// Active element input values are retrieved from the API, so
 						// we must extract the submission number from the submission url
 						var submission = url.match(/submissions\/\d+/)[0].split('/')[1];
 						url = '/api/v2/submissions/' + submission;
 						data_type = "json";
-					} 
-				
+					}
+
 					this.showLoader("load");
 					$.ajax(url, {dataType: data_type})
 						.fail(function() {
@@ -670,7 +675,7 @@
 						})
 						.done(function(data) {
 							exercise.hideLoader();
-							
+
 							if (!exercise.active_element) {
 								var f = exercise.element.find(exercise.settings.response_selector)
 								.empty().append(
@@ -681,13 +686,13 @@
 							} else {
 								// Update the output box values
 								exercise.updateOutput(data.feedback);
-							
+
 								// Update the input values
 								exercise.updateInputs(data);
 							}
 						});
-				} 
-			} 		
+				}
+			}
 			exercise.chapter.nextExercise();
 		},
 
