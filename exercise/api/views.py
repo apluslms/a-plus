@@ -8,7 +8,6 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.settings import api_settings
-from rest_framework_csv.renderers import CSVRenderer
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
@@ -23,7 +22,6 @@ from course.api.mixins import CourseResourceMixin
 from course.api.serializers import StudentBriefSerializer
 from exercise.async_views import _post_async_submission
 
-from ..cache.points import CachedPoints
 from ..models import (
     Submission,
     SubmittedFile,
@@ -42,7 +40,6 @@ from .mixins import (
 from .serializers import *
 from .full_serializers import *
 from .custom_serializers import *
-from .submission_sheet import *
 
 
 GRADER_PERMISSION = api_settings.DEFAULT_PERMISSION_CLASSES + [
@@ -306,86 +303,3 @@ class CoursePointsViewSet(ListSerializerMixin,
     listserializer_class = StudentBriefSerializer
     serializer_class = UserPointsSerializer
     queryset = UserProfile.objects.all()
-
-
-class CourseSubmissionDataViewSet(ListSerializerMixin,
-                                  NestedViewSetMixin,
-                                  MeUserMixin,
-                                  CourseResourceMixin,
-                                  viewsets.ReadOnlyModelViewSet):
-    """
-    Lists submissions as data sheet.
-    Following GET parameters may be used to filter submissions:
-    category_id, module_id, exercise_id,
-    best ("no" includes all different submissions from same submitters),
-    field (a name of submitted value field to generate a simple value list)
-    """
-    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        IsCourseAdminOrUserObjIsSelf,
-    ]
-    renderer_classes = [
-        CSVRenderer,
-    ] + api_settings.DEFAULT_RENDERER_CLASSES
-    lookup_url_kwarg = 'user_id'
-    lookup_value_regex = REGEX_INT_ME
-    lookup_field = 'user__id'
-    parent_lookup_map = {'course_id': 'enrolled.id'}
-    queryset = UserProfile.objects.all()
-
-    def get_search_args(self, request):
-        def int_or_none(value):
-            if value is None:
-                return None
-            return int(value)
-        return {
-            'category_id': int_or_none(request.GET.get('category_id')),
-            'module_id': int_or_none(request.GET.get('module_id')),
-            'exercise_id': int_or_none(request.GET.get('exercise_id')),
-            'filter_for_assistant': not self.is_teacher,
-            'best': request.GET.get('best') != 'no',
-        }
-
-    def list(self, request, version=None, course_id=None):
-        profiles = self.filter_queryset(self.get_queryset())
-        search_args = self.get_search_args(request)
-        ids = [e['id'] for e in self.content.search_exercises(**search_args)]
-        queryset = Submission.objects.filter(
-            exercise_id__in=ids,
-            submitters__in=profiles
-        )
-        return self.serialize_submissions(request, queryset, best=search_args['best'])
-
-    def retrieve(self, request, version=None, course_id=None, user_id=None):
-        profile = self.get_object()
-        points = CachedPoints(self.instance, profile.user, self.content)
-        ids = points.submission_ids(**self.get_search_args(request))
-        queryset = Submission.objects.filter(id__in=ids)
-        return self.serialize_submissions(request, queryset)
-
-    def serialize_submissions(self, request, queryset, best=False):
-        submissions = list(queryset.order_by('exercise_id', 'id'))
-        if best:
-            submissions = filter_to_best(submissions)
-
-        # Pick out a single field.
-        field = request.GET.get('field')
-        if field:
-            def submitted_field(submission, name):
-                for key,val in submission.submission_data:
-                    if key == name:
-                        return val
-                return ""
-            vals = [submitted_field(s, field) for s in submissions]
-            return Response([v for v in vals if v != ""])
-
-        data,fields,files = serialize_submissions(request, submissions)
-        self.renderer_fields = DEFAULT_FIELDS + fields + files
-        response = Response(data)
-        if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
-            response['Content-Disposition'] = 'attachment; filename="submissions.csv"'
-        return response
-
-    def get_renderer_context(self):
-        context = super().get_renderer_context()
-        context['header'] = getattr(self, 'renderer_fields', None)
-        return context

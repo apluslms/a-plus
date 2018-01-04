@@ -66,6 +66,7 @@ class CourseSerializer(CourseBriefSerializer):
         },
     )
     data = NestedHyperlinkedIdentityField(view_name='api:course-submissiondata-list')
+    aggregate_data = NestedHyperlinkedIdentityField(view_name='api:course-aggregatedata-list')
 
     class Meta(CourseBriefSerializer.Meta):
         fields = (
@@ -80,6 +81,7 @@ class CourseSerializer(CourseBriefSerializer):
             'my_points',
             'my_data',
             'data',
+            'aggregate_data',
         )
 
 

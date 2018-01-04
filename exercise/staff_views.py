@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from deviations.models import MaxSubmissionsRuleDeviation
+from lib.helpers import settings_text
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from authorization.permissions import ACCESS
@@ -179,6 +180,20 @@ class AllResultsView(CourseInstanceBaseView):
         super().get_common_objects()
         self.table = ResultTable(self.instance)
         self.note("table")
+
+
+class AnalyticsView(CourseInstanceBaseView):
+    access_mode = ACCESS.TEACHER
+    template_name = "exercise/staff/analytics.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.tags = list(self.instance.usertags.all())
+        self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
+        self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
+        self.note(
+            'tags', 'internal_user_label', 'external_user_label',
+        )
 
 
 class UserResultsView(CourseInstanceBaseView):
