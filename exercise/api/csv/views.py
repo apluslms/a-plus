@@ -49,10 +49,6 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     queryset = UserProfile.objects.all()
 
     def get_search_args(self, request):
-        def int_or_none(value):
-            if value is None:
-                return None
-            return int(value)
         return {
             'number': request.GET.get('filter'),
             'category_id': int_or_none(request.GET.get('category_id')),
@@ -135,10 +131,6 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     queryset = UserProfile.objects.all()
 
     def get_search_args(self, request):
-        def int_or_none(value):
-            if value is None:
-                return None
-            return int(value)
         return {
             'number': request.GET.get('filter'),
             'category_id': int_or_none(request.GET.get('category_id')),
@@ -175,3 +167,12 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
         context = super().get_renderer_context()
         context['header'] = getattr(self, 'renderer_fields', None)
         return context
+
+
+def int_or_none(value):
+    if not value is None:
+        try:
+            return int(value)
+        except ValueError:
+            pass
+    return None
