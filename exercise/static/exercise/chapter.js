@@ -326,11 +326,11 @@
 				if (exercise.settings.input) {
 					$("#" + exercise.chapterID + " textarea").css("height", cur_height);
 				} else {
-					if (typeof $("#" + exercise.chapterID ).data("scale") != "undefined") {
-						var cont_height = $('#' + exercise.chapterID + ' ' + exercise.settings.ae_result_selector)[0].scrollHeight;
-						$('#' + exercise.chapterID + ' ' +	exercise.settings.ae_result_selector).css({ "height" : cont_height +"px"});
+					if (typeof $("#" + exercise.chapterID).data("scale") != "undefined") {
+						var cont_height = $(exercise.settings.ae_result_selector, exercise.element)[0].scrollHeight;
+						$(exercise.settings.ae_result_selector, exercise.element).css({ "height" : cont_height +"px"});
 					} else {
-						$('#' + exercise.chapterID, exercise.settings.ae_result_selector).css("height", cur_height);
+						$(exercise.settings.ae_result_selector, exercise.element).css("height", cur_height);
 					}
 				}
 			}
