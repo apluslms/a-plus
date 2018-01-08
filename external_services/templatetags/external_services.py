@@ -19,7 +19,7 @@ def prepare_course_menu(context):
 
 @register.filter
 def is_assistant_link(entry):
-    return CachedCourseMenu.is_assistant_link(entry['access'])
+    return CachedCourseMenu.is_assistant_link(entry)
 
 
 @register.filter
