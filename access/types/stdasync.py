@@ -267,6 +267,70 @@ def acceptGitUser(request, course, exercise, post_url):
         })
 
 
+def acceptGeneralForm(request, course, exercise, post_url):
+    '''
+    Presents a template and accepts form containing any input types 
+    (text, file, etc) for grading queue.
+    '''
+
+    _requireActions(exercise)
+    if not_modified_since(request, exercise):
+        return not_modified_response(request, exercise)
+
+    fields = copy.deepcopy(exercise.get("fields", []))
+    result = None
+    miss = False
+    
+    if request.method == "POST":
+        # Parse submitted values.
+        for entry in fields:        
+            entry["value"] = request.POST.get(entry["name"], "").strip()
+            if "required" in entry and entry["required"] and not entry["value"]:
+                entry["missing"] = True
+                miss = True
+        
+        files_submitted = [] 
+        if "files" in exercise:
+            # Confirm that all required files were submitted.
+            #files_submitted = [] # exercise["files"] entries for the files that were really submitted
+            for entry in exercise["files"]:
+                # by default, all fields are required
+                required = ("required" not in entry or entry["required"])
+                if entry["field"] not in request.FILES:
+                    if required:
+                        result = { "rejected": True, "missing_files": True }
+                        break
+                else:
+                    files_submitted.append(entry)
+                   
+        if miss:
+            result = { "fields": fields, "rejected": True }
+        elif result is None:
+            # Store submitted values.
+            sdir = create_submission_dir(course, exercise)
+            for entry in fields:
+                write_submission_file(sdir, entry["name"], entry["value"])
+                               
+            if "files" in exercise:
+                if "required_number_of_files" in exercise and \
+                        exercise["required_number_of_files"] > len(files_submitted):
+                    result = { "rejected": True, "missing_files": True }
+                else:
+                    # Store submitted files.
+                    for entry in files_submitted:
+                        save_submitted_file(sdir, entry["name"], request.FILES[entry["field"]])             
+            return _acceptSubmission(request, course, exercise, post_url, sdir)
+    
+    return cache_headers(
+        render_configured_template(
+            request, course, exercise, post_url,
+            "access/accept_general_default.html", result
+        ),
+        request,
+        exercise
+    )    
+
+
 def _requireActions(exercise):
     '''
     Checks that some actions are set.

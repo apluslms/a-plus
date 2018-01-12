@@ -188,7 +188,16 @@ course specific exercise view in a course specific Python module.
 		(Format is used by A+ exercises with attachments).
 	* `accepted_message` etc as in type 1.
 
-5. ### access.types.stdsync.createForm
+5. ### access.types.stdsync.acceptGeneralForm
+  Accepts a general form submission (can also include files) asynchronous 
+  grading queue. Extended attributes:
+	* `files`: list of expected files as in type 1
+	* `fields`: list of text fields as in type 2
+	* `template` (default `access/accept_general_default.html`):
+		name of a template to present
+	* `accepted_message` etc as in type 1.
+			
+6. ### access.types.stdsync.createForm
 	Synchronous form checker. Requires `max_points` in the
 	exercise configuration. If form has no points configured then maximum
 	points are granted on errorless submission. Extended attributes:
@@ -232,7 +241,7 @@ course specific exercise view in a course specific Python module.
 	* `accepted_message` (optional): overrides the default message displayed when
 		submission is accepted
 
-6. ### access.types.stdsync.comparePostValues
+7. ### access.types.stdsync.comparePostValues
 	Synchronous check against posted values. Requires `max_points` in the
 	exercise configuration. If values have no points configured then maximum
 	points are granted on errorless submission. Extended attributes:
@@ -243,7 +252,7 @@ course specific exercise view in a course specific Python module.
 	* `template`: name of a template to present. Template should manually
 		include a form that produces the expected POST values.
 
-7. ### access.types.stdsync.noGrading
+8. ### access.types.stdsync.noGrading
 	Presents a template and does not grade anything. Extended attributes:
 	* `template`: name of a template to present
 
