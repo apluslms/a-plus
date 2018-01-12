@@ -23,7 +23,7 @@ class FileUploadGraderTest(unittest.TestCase):
         #self.assertEqual(fileUploadPage.getAverageSubmissionsPerStudent(), '1.00')
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

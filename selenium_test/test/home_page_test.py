@@ -15,7 +15,7 @@ class HomePageTest(unittest.TestCase):
         self.assertEqual("0 / 300", HomePage(self.driver).getMainScore())
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
