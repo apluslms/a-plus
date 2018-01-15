@@ -30,6 +30,12 @@
 {% endblock %}
 {% endblock %}
 
+{% block exercise_title %}
+<div>
+	<h3 class="exercise_title">{{ current.name }}</h3>
+</div>
+{% endblock %}
+
 {% block columns %}
 <div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %} exercise-column">
 
