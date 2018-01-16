@@ -1,0 +1,29 @@
+{% extends 'grader_frame.html' %}
+
+{% block title %}{{ block.super }} :: Manager{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h1>Cloned course repositories</h1>
+</div>
+<p>
+  <a href="{% url 'manager-edit' %}" class="btn btn-default btn-sm">Add new</a>
+</p>
+<table class="table table-bordered">
+  <tr>
+    <th>Updates</th>
+    <th>Origin</th>
+    <th>Branch</th>
+    <th>Hook</th>
+    <th>&nbsp;</th>
+  {% for repo in repos %}
+  <tr>
+    <td><a href="{% url 'manager-updates' repo.key %}">{{ repo.key }}</a></td>
+    <td>{{ repo.git_origin }}</td>
+    <td>{{ repo.git_branch }}</td>
+    <td>{% if repo.update_hook %}x{% endif %}</td>
+    <td><a href="{% url 'manager-edit' repo.key %}" class="btn btn-default btn-sm">Edit</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

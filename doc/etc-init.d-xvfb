@@ -1,0 +1,36 @@
+#!/bin/sh -e
+
+XVFB=/usr/bin/Xvfb
+XVFBARGS=":0 -screen 0 1024x768x24 -ac +extension GLX +render -noreset -nolisten tcp"
+PIDFILE=/var/run/xvfb.pid
+
+### BEGIN INIT INFO
+# Provides:          xvfb
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: X virtual frame buffer
+### END INIT INFO
+
+case "$1" in
+  start)
+    echo -n "Starting virtual X frame buffer: Xvfb"
+    start-stop-daemon --start --quiet --pidfile $PIDFILE --make-pidfile --background --exec $XVFB -- $XVFBARGS
+    echo "."
+    ;;
+  stop)
+    echo -n "Stopping virtual X frame buffer: Xvfb"
+    start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    echo "."
+    ;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  *)
+        echo "Usage: /etc/init.d/xvfb {start|stop|restart}"
+        exit 1
+esac
+ 
+exit 0

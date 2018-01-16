@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Usage: pip install -r requirements.txt
 beautifulsoup4==4.6.0
 Django==1.10
@@ -35,3 +36,13 @@ unittest-xml-reporting==1.11.0
 #pyvirtualdisplay
 #nose
 #coverage
+=======
+Django==1.9.7
+celery==3.1.23
+pyrabbit==1.1.0
+requests==2.10.0
+lxml==3.6.0
+PyYAML==3.11
+docutils==0.12
+python-magic==0.4.11
+>>>>>>> 6084eaa985868bc28e2c48fd1d9fa2b2462c7ca0

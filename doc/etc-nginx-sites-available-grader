@@ -1,0 +1,46 @@
+upstream django {
+    server 127.0.0.1:3031;
+}
+server {
+    listen 80;
+    server_name grader.domain.none;
+    return 301 https://$server_name$request_uri;
+}
+server {
+    listen 443 ssl;
+    server_name grader.domain.none;
+
+    ssl on;
+    ssl_certificate /etc/ssl/certs/grader.domain.none.pem;
+    ssl_certificate_key /etc/ssl/private/grader.domain.none.key;
+
+    charset utf-8;
+    client_max_body_size 50M;
+
+    location /static {
+        add_header 'Access-Control-Allow-Origin' '*';
+      	add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+        alias /srv/grader/mooc-grader/static;
+    }
+    location /robots.txt {
+        alias /srv/grader/mooc-grader/static/robots.txt;
+    }
+    location /ajax {
+        uwsgi_pass django;
+        include uwsgi_params;
+    }
+    location /generatedfile {
+        # client web browsers may need to download generated files in personalized exercises
+        uwsgi_pass django;
+        include uwsgi_params;
+    }
+    location / {
+
+        # If the static content is served public limit grading separately.
+        #allow 192.168.1.0/24;
+        #deny all;
+
+        uwsgi_pass django;
+        include uwsgi_params;
+    }
+}

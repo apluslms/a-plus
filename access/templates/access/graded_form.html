@@ -1,0 +1,145 @@
+{% load i18n %}
+<form method="post" action="{{ post_url }}"{% if result.form.multipart %} enctype="multipart/form-data"{% endif %}>
+	{% for field in result.form %}
+	{% if field.field.open_set %}
+	<fieldset id="{{ field.field.open_set }}"{% if result.accepted and field.field.group_errors %} class="alert {% if field.field.open_set in result.error_groups %}alert-danger{% else %}alert-success{% endif %}"{% endif %}>
+		{% if field.field.set_title %}<legend>{{ field.field.set_title }}</legend>{% endif %}
+	{% endif %}
+
+		{% if field.field.type == "static" %}
+		{{ field.field.more|safe }}
+		{% else %}
+
+		{% if not field.field.row_label or field.field.open_table %}
+		<div class="{{ field.field.html_class }} {% if field.errors %} has-error{% elif not field.field.group_errors and field.field.name in result.error_fields %} has-error{% endif %}">
+
+			{% if field.field.required %}<span class="required">*</span>{% endif %}
+
+			{% if field.label %}
+			{% if field.field.choice_list %}
+			<label>{{ field.label }}</label>
+			{% else %}
+			{{ field.label_tag }}
+			{% endif %}
+			{% endif %}
+
+			{% if result.accepted and not field.field.group_errors and field.field.max_points > 0 %}
+			<span class="badge badge-{% if field.field.name in result.error_fields %}danger{% else %}success{% endif %}">{{ field.field.grade_points }} / {{ field.field.max_points }}</span>
+			{% endif %}
+
+			{% if field.field.more %}
+			{{ field.field.more|safe }}
+			{% endif %}
+		{% endif %}
+
+			{% if field.field.row_label %}
+			{% if field.field.open_table %}
+			<table class="table">
+			<tr>
+				<td>&nbsp;</td>
+				{% for choice in field %}
+				<td>{{ choice.choice_label|safe }}</td>
+				{% endfor %}
+				{% if field.field.more_text %}
+				<td>{{ field.field.more_text|safe }}</td>
+				{% endif %}
+			</tr>
+			{% endif %}
+
+			{% if field.field.table_more %}
+				<td>{{ field }}</td>
+			</tr>
+			{% else %}
+			<tr>
+				<td>{{ field.field.row_label|safe }}</td>
+				{% for choice in field %}
+				<td>{{ choice.tag }}</td>
+				{% endfor %}
+			{% if not field.field.more_text %}
+			</tr>
+			{% endif %}
+			{% endif %}
+
+			{% if field.errors %}
+			<tr>
+				<td>&nbsp;</td>
+				<td colspan="{{ field|length }}">
+					<div class="alert alert-danger">
+						{{ field.errors|safe }}
+					</div>
+				</td>
+			</tr>
+			{% endif %}
+			{% if field.field.close_table %}
+			</table>
+			{% endif %}
+
+			{% elif field.field.choice_list %}
+			{% for choice in field %}
+			<div class="{{ field.field.type }}">
+				<label>
+					{% if choice.choice_value in field.field.correct %}
+					<span data-aplus-once="yes" class="correct-option glyphicon glyphicon-ok" aria-hidden="true"></span>
+					{% endif %}
+					{{ choice.tag }}
+					{{ choice.choice_label|safe }}
+				</label>
+			</div>
+			{% endfor %}
+			{% if field.errors %}
+			<div class="alert alert-danger">
+				{{ field.errors|safe }}
+			</div>
+			{% endif %}
+
+			{% else %}
+			{{ field }}
+
+			{% if field.errors %}
+			<div class="alert alert-danger">
+				{{ field.errors|safe }}
+			</div>
+			{% endif %}
+
+			{% if field.field.correct %}
+			<ul data-aplus-once="yes" class="question-feedback-item">
+				<li class="question-feedback-item">
+					{% trans "Correct answer" %}:
+					{{ field.field.correct }}
+				</li>
+			</ul>
+			{% endif %}
+
+			{% endif %}
+
+		{% if not field.field.row_label or field.field.close_table %}
+			{% if field.field.hints %}
+			<ul class="question-feedback">
+				{% for hint in field.field.hints %}
+				<li class="question-feedback-item">{{ hint|safe }}</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+		</div>
+		{% endif %}
+
+		{% endif %}
+
+	{% if field.field.close_set %}
+	</fieldset>
+	{% endif %}
+	{% endfor %}
+
+	{% if post_url or not result.accepted %}
+	<div class="form-group">
+		{% if result.form.nonce or result.form.sample or result.form.checksum %}
+		<input type="hidden" name="_nonce" value="{{ result.form.nonce }}" />
+		<input type="hidden" name="_sample" value="{{ result.form.sample }}" />
+		<input type="hidden" name="_checksum" value="{{ result.form.checksum }}" />
+		{% endif %}
+		{% if not result.form.disabled %}
+		<input type="submit" value="{% trans 'Submit' %}" class="btn btn-primary aplus-submit" />
+		{% endif %}
+	</div>
+	{% endif %}
+</form>

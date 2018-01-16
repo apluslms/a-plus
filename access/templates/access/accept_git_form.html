@@ -1,0 +1,53 @@
+{% load i18n %}
+<form method="post" action="{{ post_url }}">
+	<div class="form-group">
+		<label for="git_id">
+			<strong>{% trans "Enter your Git repository address for grading" %}</strong>
+		</label>
+		<input type="text" id="git_id" name="git" class="form-control" />
+		{% if not exercise.no_git_reminder %}
+		<p class="help-block">
+			{% trans "Did you remember git add - git commit - git push?" %}
+		</p>
+		{% endif %}
+	</div>
+	{% if post_url or not result.accepted %}
+	<div class="form-group">
+		<input type="submit" id="git_submit" value="{% trans 'Submit' %}" class="btn btn-primary aplus-submit" />
+	</div>
+	{% endif %}
+</form>
+<script>
+var aplusSetGitCookie = function($) { // supply jQuery as parameter
+
+	var id = document.cookie.replace(/(?:(?:^|.*;\s*)aplusgit\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+	if (id.length > 0) {
+		$("#git_id").val(decodeURIComponent(id));
+	}
+
+	$("#git_submit").on("click", function() {
+		var id = $("#git_id").val();
+		if (id.trim().length > 0) {
+			var expire = new Date();
+			expire.setFullYear(expire.getFullYear() + 1);
+			var path = document.location.href.split("/");
+			document.cookie = "aplusgit=" + encodeURIComponent(id)
+				+ ";path=/" + path[3] + "/" + path[4] + "/"
+				+ ";expires=" + expire.toGMTString();
+		}
+	});
+
+};
+
+document.addEventListener("DOMContentLoaded", function(event) {
+	if (typeof require === 'function') {
+		// in Moodle
+		require(["jquery"], function(jQuery) {
+			aplusSetGitCookie(jQuery);
+		});
+	} else {
+		// in A+
+		aplusSetGitCookie(jQuery);
+	}
+});
+</script>

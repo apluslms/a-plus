@@ -3,11 +3,19 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+<<<<<<< HEAD
+=======
+#, fuzzy
+>>>>>>> 6084eaa985868bc28e2c48fd1d9fa2b2462c7ca0
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2017-08-03 17:51+0300\n"
+=======
+"POT-Creation-Date: 2016-10-10 09:17+0000\n"
+>>>>>>> 6084eaa985868bc28e2c48fd1d9fa2b2462c7ca0
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+<<<<<<< HEAD
 #: apps/models.py:29
 msgid "object ID"
 msgstr "objektin ID"
@@ -2867,3 +2876,268 @@ msgstr ""
 
 #~ msgid "Teacher assess this submission"
 #~ msgstr "Arvostele tämä palautus"
+=======
+#: access/templates/access/accept_files_default.html:8
+msgid "Select your files for grading"
+msgstr "Valitse arvosteltavat tiedostot"
+
+#: access/templates/access/accept_files_form.html:6
+#, fuzzy, python-format
+#| msgid ""
+#| "Submit only %(exercise.required_number_of_files)s of the following files."
+msgid ""
+"\n"
+"\t\t\tSubmit only %(num_files)s of the following files.\n"
+"\t\t"
+msgstr "Palauta vain %(num_files)s seuraavista tiedostoista."
+
+#: access/templates/access/accept_files_form.html:23
+#: access/templates/access/accept_git_form.html:16
+#: access/templates/access/accept_post_form.html:17
+#: access/templates/access/graded_form.html:123
+msgid "Submit"
+msgstr "Lähetä"
+
+#: access/templates/access/accept_git_form.html:5
+msgid "Enter your Git repository address for grading"
+msgstr "Syötä arvosteltavan projektisi Git-osoite"
+
+#: access/templates/access/accept_git_form.html:10
+#: access/templates/access/accept_git_user.html:26
+msgid "Did you remember git add - git commit - git push?"
+msgstr "Muistitko git add - git commit - git push?"
+
+#: access/templates/access/accept_git_user.html:19
+msgid "Enter your user id for grading"
+msgstr "Anna käyttäjätunnuksesi arvostelua varten"
+
+#: access/templates/access/accept_git_user.html:31
+msgid "Request grading of my repository"
+msgstr "Pyydä Git-repositoryni arvostelua"
+
+#: access/templates/access/accept_post_default.html:10
+msgid "Enter your submission"
+msgstr "Kirjoita ratkaisusi"
+
+#: access/templates/access/ajax.html:2
+#, python-format
+msgid ""
+"\n"
+"You got %(points)s/%(max_points)s for your answer.\n"
+msgstr ""
+"\n"
+"Sait %(points)s/%(max_points)s pistettä tästä monivalintatehtävästä.\n"
+
+#: access/templates/access/async_accepted.html:7
+msgid ""
+"\n"
+"\tThe grading queue is not configured. This submission was graded\n"
+"\tsynchronously while blocking other services. NOT READY FOR PRODUCTION!\n"
+"\t"
+msgstr ""
+
+#: access/templates/access/async_accepted.html:17
+msgid "Submission accepted"
+msgstr "Palautus on vastaanotettu"
+
+#: access/templates/access/async_accepted.html:22
+#, python-format
+msgid ""
+"\n"
+"\tMissing the <code>%(key)s</code> for result delivery!\n"
+"  The result can be temporarily seen at <a href=\"%(url)s\">%(url)s</a>.\n"
+"\t"
+msgstr ""
+
+#: access/templates/access/async_accepted.html:34
+msgid ""
+"\n"
+"\t\tYour submission is being graded. The result will be available on this "
+"page\n"
+"\t\twhen the grading process completes. Note that grading may take a while.\n"
+"\t\tYou might also need to update the page manually in order to see the "
+"results.\n"
+"\t\t"
+msgstr ""
+"\n"
+"Palautuksesi on arvosteltavana. Tulos on mahdollista nähdä tällä\n"
+"sivulla, kun arvosteluprosessi on suoritettu loppuun.\n"
+"Huomioi, että arvostelu voi kestää useita kymmeniä sekunteja.\n"
+"Voit lisäksi joutua lataamaan tämän sivun uudestaan nähdäksesi palautteen."
+
+#: access/templates/access/async_accepted.html:40
+#, python-format
+msgid ""
+"\n"
+"\t\tYour submission is in the grading queue. There are %(queue)s other\n"
+"\t\tsubmissions before. The result will be available on this page\n"
+"\t\twhen the grading process completes. The page must be updated manually "
+"to\n"
+"\t\tsee the results.\n"
+"\t\t"
+msgstr ""
+"\n"
+"Palautuksesi on arvostelujonossa. Jonossa on edellä %(queue)s palautusta.\n"
+"Tulos näytetään tällä sivulla, kun arvosteluprosessi on suoritettu.\n"
+"Joudut lataamaan sivun uudelleen nähdäksesi palautteen."
+
+#: access/templates/access/course.html:15
+msgid "Available exercises"
+msgstr ""
+
+#: access/templates/access/create_form_default.html:12
+#, python-format
+msgid ""
+"\n"
+"    You got %(points)s/%(max_points)s points from this questionnaire.\n"
+"    "
+msgstr ""
+"\n"
+"Sait %(points)s/%(max_points)s pistettä tästä tehtävästä."
+
+#: access/templates/access/create_form_default.html:19
+msgid ""
+"\n"
+"    Note that the whole section of questions is marked as being incorrect "
+"if\n"
+"    one of the questions in that section is incorrect.\n"
+"    "
+msgstr ""
+"\n"
+"Huomaa, että koko kysymysosio merkitään virheelliseksi, jos yksikin osion\n"
+"vastauksista on virheellinen."
+
+#: access/templates/access/create_form_default.html:25
+msgid ""
+"\n"
+"    You can change your answers and submit them for regrading.\n"
+"    However, notice the number of allowed submissions left!\n"
+"    "
+msgstr ""
+"\n"
+"Voit vaihtaa vastauksiasi ja lähettää ne uudelleen arvosteltavaksi.\n"
+"Huomaa kuitenkin jäljellä olevien palautuskertojen määrä!"
+
+#: access/templates/access/exercise_frame.html:21
+#, fuzzy, python-format
+#| msgid "You must submit %(exercise.required_number_of_files)s file(s)."
+msgid ""
+"\n"
+"\t\t\tYou must submit %(num_files)s file.\n"
+"\t\t\t"
+msgid_plural ""
+"\n"
+"\t\t\tYou must submit %(num_files)s files.\n"
+"\t\t\t"
+msgstr[0] "Sinun täytyy palauttaa %(num_files)s tiedosto."
+msgstr[1] "Sinun täytyy palauttaa %(num_files)s tiedostoa."
+
+#: access/templates/access/exercise_frame.html:27
+msgid "Every file is required for a submission."
+msgstr "Palautus vaatii kaikki tiedostot."
+
+#: access/templates/access/exercise_frame.html:33
+msgid "Unknown file received (no file name configured)."
+msgstr "Tuntematon tiedosto vastaanotettu (tiedostonimeä ei ole asetuksissa)."
+
+#: access/templates/access/exercise_frame.html:37
+msgid "Invalid address entered."
+msgstr "Syötetty osoite ei kelpaa."
+
+#: access/templates/access/exercise_frame.html:41
+msgid ""
+"The same form can obly be submitted once. Start again from exercise "
+"description."
+msgstr ""
+"Sama lomake voidaan lähettää vain kerran. Aloita uudelleen tehtävänannosta."
+
+#: access/templates/access/exercise_frame.html:45
+msgid "Missing required fields."
+msgstr "Täytä kaikki pakolliset kentät."
+
+#: access/templates/access/graded_form.html:91
+msgid "Correct answer"
+msgstr "Oikea vastaus"
+
+#: access/templates/access/personalized_content_default.html:6
+msgid "Download"
+msgstr "Lataa"
+
+#: access/templates/access/ready.html:6
+msgid "Grader ready"
+msgstr ""
+
+#: access/templates/access/ready.html:10
+msgid "Current queue length"
+msgstr ""
+
+#: access/templates/access/ready.html:14
+msgid "Git manager"
+msgstr ""
+
+#: access/templates/access/ready.html:18
+msgid "Available courses"
+msgstr ""
+
+#: access/templates/access/task_success.html:4
+#, python-format
+msgid ""
+"\n"
+"\t\tTotal points %(points)s/%(max_points)s\n"
+"\t\t"
+msgstr ""
+"\n"
+"Kokonaispisteet %(points)s/%(max_points)s"
+
+#: access/templates/access/task_success.html:16
+#, python-format
+msgid ""
+"\n"
+"\t\tPoints %(points)s/%(max_points)s\n"
+"\t\t"
+msgstr ""
+"\n"
+"Pisteet %(points)s/%(max_points)s"
+
+#: access/templates/access/task_success.html:38
+msgid "Appendixes"
+msgstr "Liitteet"
+
+#: access/templates/access/task_system_error.html:3
+msgid "Internal server error"
+msgstr "Järjestelmävirhe"
+
+#: access/templates/access/task_system_error.html:5
+msgid ""
+"\n"
+"        Ooops, there seems to be problems in the system!\n"
+"        Sorry for your inconvenience.\n"
+"        Please try again later or contact course support.\n"
+"        "
+msgstr ""
+"\n"
+"Hups, järjestelmässä näyttää olevan ongelmia!\n"
+"Pahoittelemme häiriötä.\n"
+"Yritä myöhemmin uudelleen tai ota yhteyttä kurssihenkilökuntaan."
+
+#: access/templates/access/task_timeout.html:3
+msgid "Time out while grading"
+msgstr "Arvostelu katkaistiin"
+
+#: access/templates/access/task_timeout.html:5
+msgid ""
+"\n"
+"        Ooops, the grading of your submission timed out!\n"
+"        Sorry for your inconvenience.\n"
+"        Please try again later or contact course support.\n"
+"        "
+msgstr ""
+"\n"
+"Hups, palautuksesi arvostelu kesti yli maksimiajan!\n"
+"Pahoittelemme häiriötä.\n"
+"Yritä myöhemmin uudelleen tai ota yhteyttä kurssihenkilökuntaan."
+
+#: access/types/forms.py:484
+msgid "Multiple choices are selectable."
+msgstr "Voit valita useita vaihtoehtoja."
+>>>>>>> 6084eaa985868bc28e2c48fd1d9fa2b2462c7ca0

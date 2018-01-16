@@ -1,0 +1,24 @@
+{% extends 'access/exercise_frame.html' %}
+{% load i18n %}
+
+{% block exercise %}
+{% if not result.error %}
+
+{% if not exercise.instructions and not exercise.instructions_file %}
+<p>{% trans "Select your files for grading" %}</p>
+
+{% else %}
+<div class="instructions">
+{% if exercise.instructions %}
+  {{ exercise.instructions|safe }}
+{% endif %}
+{% if exercise.instructions_file %}
+  {% include exercise.instructions_file %}
+{% endif %}
+</div>
+{% endif %}
+
+{% include 'access/personalized_content_default.html' %}
+{% include 'access/accept_files_form.html' %}
+{% endif %}
+{% endblock %}

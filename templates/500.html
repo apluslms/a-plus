@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
     <head>
@@ -21,3 +22,20 @@
         </div>
     </body>
 </html>
+=======
+{% extends 'grader_frame.html' %}
+
+{% block head %}
+{{ block.super }}
+		<meta name="status" value="error" />
+{% endblock %}
+
+{% block body %}
+	<h1>500 Internal server error</h1>
+	<p>
+		Ooops, there seems to be problems in the system!
+		Sorry for your inconvenience.
+		Please try again later or contact course support.
+	</p>
+{% endblock %}
+>>>>>>> 6084eaa985868bc28e2c48fd1d9fa2b2462c7ca0

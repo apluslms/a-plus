@@ -1,0 +1,54 @@
+{% extends 'frame.html' %}
+{% load i18n %}
+
+{% block head %}
+{% include 'access/exercise_head.html' %}
+{% endblock %}
+
+{% block body %}
+<div id="exercise">
+
+	{% if exercise.title %}
+	<h3 class="exercise-title">{{ exercise.title }}</h3>
+	{% endif %}
+
+	{% if result.error %}
+	<div class="alert alert-danger">
+
+		{% if result.missing_files %}
+		<p>
+		{% if exercise.required_number_of_files %}
+			{% blocktrans count num_files=exercise.required_number_of_files %}
+			You must submit {{ num_files }} file.
+			{% plural %}
+			You must submit {{ num_files }} files.
+			{% endblocktrans %}
+		{% else %}
+			{% trans "Every file is required for a submission." %}
+		{% endif %}
+		</p>
+		{% endif %}
+
+		{% if result.missing_file_name %}
+		<p>{% trans "Unknown file received (no file name configured)." %}</p>
+		{% endif %}
+
+		{% if result.invalid_address %}
+		<p>{% trans "Invalid address entered." %}</p>
+		{% endif %}
+
+		{% if result.nonce_used %}
+		<p>{% trans "The same form can obly be submitted once. Start again from exercise description." %}</p>
+		{% endif %}
+
+		{% if result.fields %}
+		<p>{% trans "Missing required fields." %}</p>
+		{% endif %}
+
+	</div>
+	{% endif %}
+
+	{% block exercise %}
+	{% endblock %}
+</div>
+{% endblock %}

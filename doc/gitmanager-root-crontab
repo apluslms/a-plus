@@ -1,0 +1,7 @@
+# crontab for mooc-grader gitmanager
+# Required for automatic course content updates via git
+# Must be run as root (because it updates the chroot sandbox)
+# Install: $ sudo crontab -u root this_file
+
+* * * * * /srv/grader/mooc-grader/gitmanager/cron.sh
+

@@ -1,0 +1,50 @@
+{% extends 'access/exercise_frame.html' %}
+{% load i18n %}
+
+{% block exercise %}
+{% if result.synchronous %}
+<div class="alert alert-danger">
+	{% blocktrans %}
+	The grading queue is not configured. This submission was graded
+	synchronously while blocking other services. NOT READY FOR PRODUCTION!
+	{% endblocktrans %}
+</div>
+<div id="feedback">
+	{{ result.feedback }}
+</div>
+
+{% else %}
+<h1>{% trans "Submission accepted" %}</h1>
+
+{% if result.missing_url %}
+<div class="alert alert-danger">
+  {% url 'test-result' as surl %}
+	{% blocktrans with key="submission_url" url=surl %}
+	Missing the <code>{{ key }}</code> for result delivery!
+  The result can be temporarily seen at <a href="{{ url }}">{{ url }}</a>.
+	{% endblocktrans %}
+</div>
+{% endif %}
+
+<div id="feedback">
+	<p>
+		{% if exercise.accepted_message %}
+		{{ exercise.accepted_message|safe }}
+		{% elif result.queue < 3 %}
+		{% blocktrans %}
+		Your submission is being graded. The result will be available on this page
+		when the grading process completes. Note that grading may take a while.
+		You might also need to update the page manually in order to see the results.
+		{% endblocktrans %}
+		{% else %}
+		{% blocktrans with queue=result.queue %}
+		Your submission is in the grading queue. There are {{ queue }} other
+		submissions before. The result will be available on this page
+		when the grading process completes. The page must be updated manually to
+		see the results.
+		{% endblocktrans %}
+		{% endif %}
+	</p>
+</div>
+{% endif %}
+{% endblock %}
