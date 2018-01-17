@@ -624,13 +624,15 @@ $(function() {
     } else {
       // Mark it so that the next submit can be ignored
       $form.data('submitted', true);
+      //disable the button
+      $form.find('[type="submit"]').prop('disabled', 'disabled')
     }
   });
 
   // Keep chainability
   return this;
 };
-
-$('form').preventDoubleSubmission();
+//prevent double submisssion of exercise form
+$('#exercise-page-content').preventDoubleSubmission();
 
 });
