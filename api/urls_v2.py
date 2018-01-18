@@ -63,7 +63,7 @@ urlpatterns = [
 ]
 
 
-if settings.DEBUG:
+if getattr(settings, 'API_DEBUG', False):
     # Print list of api urls
     _urls = [(url.callback.cls.__name__, url.name, url.regex.pattern) for url in api.urls]
     _lens = {'v': max(len(v) for v, n, p in _urls), 'n': max(len(url.name) for url in api.urls)}
