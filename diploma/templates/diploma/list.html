@@ -1,7 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 
-{% block title %}{{ block.super }}: {% trans "Grades" %}{% endblock %}
+{% block title %}{% trans "Grades" %} | {{ block.super }}{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}

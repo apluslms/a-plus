@@ -4,7 +4,7 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{{ block.super }}: {{ current.name }}{% endblock %}
+{% block title %}{{ current.name }} | {{ block.super }}{% endblock %}
 
 {% block siblings %}
 {% include "course/_siblings.html" %}

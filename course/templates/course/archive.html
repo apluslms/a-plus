@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super }} {% trans "Course archive" %}{% endblock %}
+{% block title %}{% trans "Course archive" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}archive{% endblock %}
 
 {% block content %}
