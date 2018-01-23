@@ -18,17 +18,18 @@
         <h3 class="panel-title">{% trans "Batch create and assess submissions" %}</h3>
     </div>
     <div class="panel-body">
-        {% blocktrans %}
+        {% blocktrans with profile.id as id %}
 <p><em>Use only if you know what you are doing!</em></p>
 <p>By submitting json to the form below you can try to create and assess multiple exercises for students automatically.</p>
 <dl>
 	<dt>XXXXX1 and XXXXX2</dt>
     <dd>the real student ids</dd>
 	<dt>X1 (integer)</dt>
-    <dd>the system userprofile id of the desired grader</dd>
+    <dd>the system userprofile id of the desired grader. Your userprofile id is <b>{{id}}.</b></dd>
 	<dt>Z1 and Z2 (integers)</dt>
     <dd>the system exercise ids</dd>
 </dl>
+{% endblocktrans %}
 <pre>{
   "objects": [
     {
@@ -64,7 +65,6 @@
   ]
 }
 </pre>
-       {% endblocktrans %}
         <form method="post">
         	{% csrf_token %}
             <div class="form-group">
