@@ -3,7 +3,7 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block title %}{{ block.super }}: {% trans "Groups" %}: {% trans "Edit" %}{% endblock %}
+{% block title %}{% trans "Edit" %} | {% trans "Groups" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups-edit{% endblock %}
 
 {% block breadcrumblist %}

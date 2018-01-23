@@ -4,7 +4,7 @@
 {% load course %}
 {% load exercise %}
 
-{% block title %}{{ block.super }} / {% trans "Submissions summary" %}{% endblock %}
+{% block title %}{% trans "Submissions summary" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}all-submissions{% endblock %}
 
 {% block exercisebreadcrumblist %}

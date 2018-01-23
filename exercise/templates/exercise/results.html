@@ -5,7 +5,7 @@
 {% load apps %}
 {% load diploma %}
 
-{% block title %}{{ block.super }}: {% trans "Results" %}{% endblock %}
+{% block title %}{% trans "Results" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}results{% endblock %}
 
 {% block breadcrumblist %}

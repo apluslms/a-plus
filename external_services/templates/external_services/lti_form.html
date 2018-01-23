@@ -1,7 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 
-{% block title %}{{ block.super }}: {{ service.menu_label }}{% endblock %}
+{% block title %}{{ service.menu_label }} | {{ block.super }}{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}

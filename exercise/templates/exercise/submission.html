@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{{ block.super }} / {% trans "Submission" %} {{ index }}{% endblock %}
+{% block title %}{% trans "Submission" %} {{ index }} | {{ block.super }}{% endblock %}
 {% block view_tag %}submission{% endblock %}
 
 {% block exercisebreadcrumblist %}

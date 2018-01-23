@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super }} / {% trans "Inspect SID " %} {{ submission.id}}{% endblock %}
+{% block title %}{% trans "Inspect SID " %} {{ submission.id}} | {{ block.super }}{% endblock %}
 {% block view_tag %}inspect{% endblock %}
 
 {% block exercisebreadcrumblist %}

@@ -4,7 +4,7 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{{ block.super }}: {% trans "Course materials" %}{% endblock %}
+{% block title %}{% trans "Course materials" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}toc{% endblock %}
 
 {% block breadcrumblist %}
