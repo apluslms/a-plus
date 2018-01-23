@@ -615,19 +615,11 @@ $.fn.highlightCode = function(options) {
 $(function () {
     $('#exercise-page-content form').each(function () {
         $(this).on('submit', function (e) {
-            var $form = $(this);
-            if ($form.data('submitted') === true) {
-                // Previously submitted - don't submit again
-                e.preventDefault();
-            } else {
-                // Mark it so that the next submit can be ignored
-                $form.data('submitted', true);
-                //disable the button
-                $form.find('[type="submit"]').prop('disabled', 'disabled')
-            }
+            var $form = $(this)
+            //disable the button
+            $form.find('[type="submit"]').prop('disabled', 'disabled')
+            // Keep chainability
+            return this;
         });
-
-        // Keep chainability
-        return this;
     });
 });
