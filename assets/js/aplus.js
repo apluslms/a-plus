@@ -606,3 +606,20 @@ $.fn.highlightCode = function(options) {
         });
     };
 })(jQuery, window, document);
+
+
+/**
+ * prevent double submit of exercise forms
+ */
+
+$(function () {
+    $('#exercise-page-content form').each(function () {
+        $(this).on('submit', function (e) {
+            var $form = $(this)
+            //disable the button
+            $form.find('[type="submit"]').prop('disabled', 'disabled')
+            // Keep chainability
+            return this;
+        });
+    });
+});
