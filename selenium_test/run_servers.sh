@@ -9,6 +9,7 @@ if [ "$VENV_HOME" != "" ]; then
 	PYTHON=$VENV_HOME/python
 fi
 
+export APLUS_DEBUG=True
 export APLUS_DB_FILE=$DIR/aplus.db
 export APLUS_DATABASES="{\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \"$APLUS_DB_FILE\"}}"
 export APLUS_CACHES='{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}'
@@ -24,8 +25,7 @@ cp $APLUS_DB_FILE ${APLUS_DB_FILE}_copy
 
 $PYTHON manage.py runserver 8001 --noreload > $DIR/aplus.out 2>&1 &
 
-unset APLUS_DB_FILE
-unset APLUS_DATABASES APLUS_CACHES APLUS_SECRET_KEY
+unset APLUS_DEBUG APLUS_DB_FILE APLUS_DATABASES APLUS_CACHES APLUS_SECRET_KEY
 
 cd $DIR/grader
 $PYTHON manage.py runserver 8889 --noreload > ../example_grader.out 2>&1 &
