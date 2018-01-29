@@ -1,0 +1,6 @@
+# Usage: pip install -r requirements.txt
+coverage
+# Required to run browser tests:
+selenium
+pyvirtualdisplay
+nose

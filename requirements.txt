@@ -24,15 +24,5 @@ six==1.11.0
 South==0.8.2
 unittest-xml-reporting==1.11.0
 
-# Abandoned:
-#django-tastypie==0.12.1
-#python-social-auth==0.2.21
-
 # Required for memcached:
 #python-memcached==1.58
-
-# Required to run browser tests:
-#selenium
-#pyvirtualdisplay
-#nose
-#coverage
