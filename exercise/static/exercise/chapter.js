@@ -194,19 +194,17 @@
 			// Inputs are different from actual exercises and need only be loaded.
 			if (this.settings.input) this.load();
 
-			if (!this.active_element) {
+			if (!this.active_element && this.ajax) {
 			// Add an Ajax exercise event listener to refresh the summary.
-				if (this.ajax) {
-					var exercise = this;
-					window.addEventListener("message", function (event) {
-						if (event.data.type === "a-plus-refresh-stats") {
-							$.ajax(exercise.url, {dataType: "html"})
-								.done(function(data) {
-									exercise.updateSummary($(data));
-								});
-						}
-					});
-				}
+				var exercise = this;
+				window.addEventListener("message", function (event) {
+					if (event.data.type === "a-plus-refresh-stats") {
+						$.ajax(exercise.url, {dataType: "html"})
+							.done(function(data) {
+								exercise.updateSummary($(data));
+							});
+					}
+				});
 			}
 		},
 
@@ -375,14 +373,14 @@
 				processData: false,
 				dataType: "html"
 			}).fail(function(xhr, textStatus, errorThrown) {
-					// Retry a few times if submission is not successful
-					retry = retry || 0;
-					if (xhr.status !== 200 && retry < 5) {
-						setTimeout(
-							function() {
-								exercise.submitAjax(url, formData, callback, retry + 1);
-							}, 100);
-					}
+				// Retry a few times if submission is not successful
+				retry = retry || 0;
+				if (xhr.status !== 200 && retry < 5) {
+					setTimeout(
+						function() {
+							exercise.submitAjax(url, formData, callback, retry + 1);
+						}, 100);
+				}
 				//$(form_element).find(":input").prop("disabled", false);
 				//exercise.showLoader("error");
 
@@ -416,7 +414,7 @@
 		},
 
 		// Construct form data from input element values
-		generateFormData: function(output, form_element) {
+		collectFormData: function(output, form_element) {
 			output = $(output);
 
 			var [exercise, inputs, expected_inputs] = this.matchInputs(output);
@@ -474,7 +472,7 @@
 				var outputs = $.find('[data-inputs~="' + input_id + '"]');
 
 				$.each(outputs,	function(i, element) {
-					var [exercise, valid, formData] = input.generateFormData(element, form_element);
+					var [exercise, valid, formData] = input.collectFormData(element, form_element);
 					var output_id = exercise.chapterID;
 					var output = $("#" + output_id);
 					var out_content = output.find(exercise.settings.ae_result_selector);

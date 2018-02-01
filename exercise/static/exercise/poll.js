@@ -82,20 +82,18 @@
 
 			this.element.removeClass("active").find(this.settings.message_selector)
 			.text(this.element.attr(this.settings.message_attr[messageType]));
-			if (this.element.data("aplus-active-element")) {
+			if (this.element.attr(this.settings.active_element_attr)) {
 				var message = "There was an error while evaluating the element."
 				if (messageType == "timeout") {
-				 message = "Evaluation was timed out.";
+					message = "Evaluation was timed out.";
 				}
 				var res_elem = this.element.find(".ae_result").text(message);
 				if (res_elem.height() === 0) res_elem.height("auto");
 				if ($.data(this.element.context, "plugin_" + pluginName)) {
 					$.removeData(this.element.context, "plugin_" + pluginName);
 				}
-			} else {
-				if (messageType == "error") {
-					this.element.addClass("progress-bar-danger");
-				}
+			} else if (messageType == "error") {
+				this.element.addClass("progress-bar-danger");
 			}			
 		},
 
