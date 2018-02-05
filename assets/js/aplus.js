@@ -613,7 +613,7 @@ $.fn.highlightCode = function(options) {
  */
 
 $(function () {
-    $('#exercise-page-content form').each(function () {
+    $('#exercise-page-content form, #exercise form').each(function () {
         $(this).on('submit', function (e) {
             var $form = $(this)
             //disable the button
