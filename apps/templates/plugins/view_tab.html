@@ -1,7 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 
-{% block title %}{{ course.name }}: {{ tab.title }}{% endblock %}
+{% block title %}{{ tab.title }} | {{ course.name }}{% endblock %}
 {% block view_tag %}tab{{ tab.id }}{% endblock %}
 
 {% block coursecontent %}

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{ block.super }} {% trans "Sign in as given user" %}{% endblock %}
+{% block title %}{% trans "Sign in as given user" %} | {{ block.super }}{% endblock %}
 
 {% block content %}
 <h2 class="page-title">{% trans "Sign in as given user" %}</h2>

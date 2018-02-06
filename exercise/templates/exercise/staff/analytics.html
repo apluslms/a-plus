@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super }}: {% trans "Visualizations" %}{% endblock %}
+{% block title %}{% trans "Visualizations" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}analytics{% endblock %}
 
 {% block breadcrumblist %}

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{{ block.super }}: {% trans "Participants" %}{% endblock %}
+{% block title %}{% trans "Participants" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}participants{% endblock %}
 
 {% block breadcrumblist %}
