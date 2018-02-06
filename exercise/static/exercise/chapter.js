@@ -395,21 +395,7 @@
 					exercise.updateOutput(feedback);
 				}
 			}).done(function (data) {
-				/* Bad fix for database locked problem when saving submitted files:
-					 test if the data contains message that the submission was not saved and resubmit
-				*/
-				retry = retry || 0;
-				if ($(data).find("div:contains('The submission could not be saved for some reason')").length > 0 && retry < 5) {
-					console.log("Submission not saved: trying submitAjax again in 100ms");
-					setTimeout(
-						function() {
-							console.log("Resubmit no.", retry + 1);
-							exercise.submitAjax(url, formData, callback, retry + 1);
-						}, 100);
-				} else {
-					// This should be the only necessary thing to do here.
-					callback(data);
-				}
+				callback(data);
 			});
 		},
 
