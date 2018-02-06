@@ -3,7 +3,7 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block title %}{{ block.super }} / {% trans "Assess SID " %} {{ submission.id}}{% endblock %}
+{% block title %}{% trans "Assess SID " %} {{ submission.id}} | {{ block.super }}{% endblock %}
 {% block view_tag %}assess{% endblock %}
 
 {% block exercisebreadcrumblist %}

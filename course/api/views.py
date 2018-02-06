@@ -117,4 +117,7 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         tag_id = self.request.GET.get('tag_id')
         if tag_id is not None:
             queryset = queryset.filter(tag__id=tag_id)
+        user_id = self.request.GET.get('user_id')
+        if user_id is not None:
+            queryset = queryset.filter(user_id=user_id)
         return queryset

@@ -105,6 +105,13 @@
 	</a>
 </li>
 
+<li role="presentation" class="menu-analytics">
+	<a href="{{ instance|url:'analytics' }}">
+		<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+		{% trans "Visualizations" %}
+	</a>
+</li>
+
 {% if is_teacher %}
 <li role="presentation" class="menu-edit-news">
 		<a href="{{ instance|url:'news-list' }}">

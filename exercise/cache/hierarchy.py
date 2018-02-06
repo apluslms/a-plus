@@ -139,6 +139,21 @@ class ContentMixin(object):
             return paths[path]
         raise NoSuchContent()
 
+    def find_number(self, number):
+        hit = None
+        search = self.modules()
+        parts = number.split('.')
+        for i in range(len(parts)):
+            number = '.'.join(parts[0:i+1])
+            for s in search:
+                if s['number'] == number:
+                    hit = s
+                    search = hit['children']
+                    break
+            if not hit:
+                raise NoSuchContent()
+        return hit
+
     def find_category(self, category_id):
         categories = self.data['categories']
         if category_id in categories:
@@ -156,8 +171,22 @@ class ContentMixin(object):
             self._next(idx, tree),
         )
 
-    def search_exercises(self, category_id=None, module_id=None, exercise_id=None,
-                         filter_for_assistant=False, best=False):
+    def search_exercises(self, **kwargs):
+        _, entries = self.search_entries(**kwargs)
+        return [e for e in entries if e['type'] == 'exercise']
+
+    def search_entries(self, number=None, category_id=None, module_id=None,
+                       exercise_id=None, filter_for_assistant=False, best=False):
+        entry = None
+        if number:
+            try:
+                entry = self.find_number(number)
+                if entry['type'] == 'module':
+                    module_id = entry['id']
+                elif entry['type'] == 'exercise':
+                    exercise_id = entry['id']
+            except NoSuchContent:
+                pass
         search = None
         if not exercise_id is None:
             search = { 'type': 'exercise', 'id': int(exercise_id) }
@@ -171,15 +200,17 @@ class ContentMixin(object):
         exercises = []
         def recursion(entry):
             if (
-                entry['type'] == 'exercise' and
-                (category_id is None or entry['category_id'] == category_id) and
-                (not filter_for_assistant or entry['allow_assistant_viewing'])
+                entry['type'] == 'module' or (
+                    entry['type'] == 'exercise' and
+                    (category_id is None or entry['category_id'] == category_id) and
+                    (not filter_for_assistant or entry['allow_assistant_viewing'])
+                )
             ):
                 exercises.append(entry)
             for child in entry['children']:
                 recursion(child)
         recursion(tree[-1])
-        return exercises
+        return entry, exercises
 
     def _previous(self, idx, tree):
         for entry in PreviousIterator(self.modules(), idx, tree, visited=True):

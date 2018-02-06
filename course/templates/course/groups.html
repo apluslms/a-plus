@@ -5,7 +5,7 @@
 {% load exercise %}
 {% load bootstrap %}
 
-{% block title %}{{ block.super }}: {% trans "My groups" %}{% endblock %}
+{% block title %}{% trans "My groups" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups{% endblock %}
 
 {% block breadcrumblist %}

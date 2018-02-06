@@ -31,7 +31,7 @@ class LoginTest(unittest.TestCase):
         self.fail("There should have been an exception")
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -198,9 +198,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
     def created(self):
         return self.data['points_created'], super().created()
 
-    def submission_ids(self, category_id=None, module_id=None, exercise_id=None,
-                       filter_for_assistant=False, best=True):
+    def submission_ids(self, number=None, category_id=None, module_id=None,
+                       exercise_id=None, filter_for_assistant=False, best=True):
         exercises = self.search_exercises(
+            number=number,
             category_id=category_id,
             module_id=module_id,
             exercise_id=exercise_id,

@@ -18,7 +18,7 @@ class StaffPageTest(unittest.TestCase):
             self.assertTrue('/first-exercise-round/' + str(x + 1) + "/submissions/" in str(self.driver.current_url))
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

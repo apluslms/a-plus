@@ -28,7 +28,7 @@ class MainNavigationTest(unittest.TestCase):
     #    self.assertEqual("Download calendar (ics)", str(self.driver.switch_to.active_element.text))
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

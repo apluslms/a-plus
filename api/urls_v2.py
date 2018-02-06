@@ -5,6 +5,7 @@ from rest_framework_extensions.routers import ExtendedDefaultRouter
 import userprofile.api.views
 import course.api.views
 import exercise.api.views
+import exercise.api.csv.views
 
 
 api = ExtendedDefaultRouter()
@@ -32,8 +33,11 @@ with api.register(r'courses',
                      exercise.api.views.CoursePointsViewSet,
                      base_name='course-points')
     courses.register(r'submissiondata',
-                     exercise.api.views.CourseSubmissionDataViewSet,
+                     exercise.api.csv.views.CourseSubmissionDataViewSet,
                      base_name='course-submissiondata')
+    courses.register(r'aggregatedata',
+                     exercise.api.csv.views.CourseAggregateDataViewSet,
+                     base_name='course-aggregatedata')
 
 with api.register(r'exercises',
                   exercise.api.views.ExerciseViewSet,
@@ -59,7 +63,7 @@ urlpatterns = [
 ]
 
 
-if settings.DEBUG:
+if getattr(settings, 'API_DEBUG', False):
     # Print list of api urls
     _urls = [(url.callback.cls.__name__, url.name, url.regex.pattern) for url in api.urls]
     _lens = {'v': max(len(v) for v, n, p in _urls), 'n': max(len(url.name) for url in api.urls)}

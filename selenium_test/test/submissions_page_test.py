@@ -43,7 +43,7 @@ class SubmissionsPageTest(unittest.TestCase):
         self.assertEqual(SubmissionPage(self.driver, exerciseId="3").getSubmissionCount(), 3)
 
     def tearDown(self):
-        self.driver.close()
+        self.driver.quit()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
