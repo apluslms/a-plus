@@ -307,7 +307,7 @@ class CourseInstance(UrlMixin, models.Model):
     enrollment_starting_time = models.DateTimeField(blank=True, null=True)
     enrollment_ending_time = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
-    language = models.CharField(max_length=5, blank=True, default="")
+    language = models.CharField(max_length=255, blank=True, default="")
     description = models.TextField(blank=True)
     footer = models.TextField(blank=True)
     index_mode = models.IntegerField(choices=INDEX_TYPE.choices, default=INDEX_TYPE.RESULTS,
@@ -356,7 +356,16 @@ class CourseInstance(UrlMixin, models.Model):
             errors['lifesupport_time'] = _("Lifesupport time must be later than ending time.")
         if self.archive_time and self.archive_time <= self.lifesupport_time:
             errors['archive_time'] = _("Archive time must be later than lifesupport time.")
-        if not self.is_valid_language(self.language):
+        if self.language.startswith("|"):
+            langs = list(filter(None, self.language.split("|"))) # remove empty strings
+            for lang in langs:
+                if not self.is_valid_language(lang):
+                    if "language" in errors:
+                        errors['language'] = "%s%s" % (errors['language'], (", " + lang))
+                    else:
+                        # TODO: add translation for new sentence. Support for variables?
+                        errors['language'] = _("Language code(s) missing from settings: " + lang)
+        elif not self.is_valid_language(self.language):
             errors['language'] = _("Language code missing from settings.")
         if errors:
             raise ValidationError(errors)

@@ -2,6 +2,7 @@ from datetime import timedelta
 from django import template
 from django.conf import settings
 from django.utils import timezone
+from django.utils.translation import get_language
 
 from exercise.cache.content import CachedContent
 from course.models import CourseInstance
@@ -38,6 +39,22 @@ def group_select(context):
         'selected': selected,
     }
 
+@register.filter
+def parse_localization(text):
+    """Pick the currently selected language's value from |lang:value|lang:value| -format text"""
+    if "|" in text:
+        variants = text.split("|")
+        exercise_number = variants[0] # Leading numbers or an empty string
+        for variant in variants:
+            lang = get_language()
+            if variant.startswith(lang + ":"):
+                return exercise_number + variant[(len(lang)+1):]
+        # TODO: determine return value when language was not found
+        return exercise_number
+    else:
+        return text
+
+# TODO: pick the right localised URL
 
 @register.filter
 def is_visible(entry):
