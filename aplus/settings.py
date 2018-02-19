@@ -274,7 +274,11 @@ REST_FRAMEWORK = {
     },
 }
 
+
+# Test environment url fixes are implemented using these. Typically not required for production
 OVERRIDE_SUBMISSION_HOST = None
+REMOTE_PAGE_HOSTS_MAP = None
+
 
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
