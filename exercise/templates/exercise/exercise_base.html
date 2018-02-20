@@ -4,7 +4,7 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{{ current.name }} | {{ block.super }}{% endblock %}
+{% block title %}{{ current.name|parse_localization }} | {{ block.super }}{% endblock %}
 
 {% block siblings %}
 {% include "course/_siblings.html" %}
@@ -15,18 +15,18 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ module|url }}">{{ module }}</a></li>
+<li><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
 {% for entry in breadcrumb %}
 <li>
   {% if entry.is_empty %}
-  {{ entry.name }}
+  {{ entry.name|parse_localization }}
   {% else %}
-  <a href="{{ entry.link }}">{{ entry.name }}</a>
+  <a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
   {% endif %}
 </li>
 {% endfor %}
 {% block exercisebreadcrumblist %}
-<li><a href="{{ current.link }}">{{ current.name }}</a></li>
+<li><a href="{{ current.link }}">{{ current.name|parse_localization }}</a></li>
 {% endblock %}
 {% endblock %}
 

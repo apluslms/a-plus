@@ -1,10 +1,10 @@
 {% load i18n %}
-<p>{{ current.name }}</p>
+<p>{{ current.name|parse_localization }}</p>
 {% for entry in models %}
 {% if entry.html %}
 {{ entry.content|safe }}
 {% else %}
-<h4>{{ entry.name }}</h4>
+<h4>{{ entry.name|parse_localization }}</h4>
 <pre class="hljs">
 {{ entry.content }}
 </pre>

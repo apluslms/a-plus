@@ -357,7 +357,7 @@ class CourseInstance(UrlMixin, models.Model):
         if self.archive_time and self.archive_time <= self.lifesupport_time:
             errors['archive_time'] = _("Archive time must be later than lifesupport time.")
         if self.language.startswith("|"):
-            langs = list(filter(None, self.language.split("|"))) # remove empty strings
+            langs = list(filter(None, self.language.split("|"))) # remove pipes & empty strings
             for lang in langs:
                 if not self.is_valid_language(lang):
                     if "language" in errors:

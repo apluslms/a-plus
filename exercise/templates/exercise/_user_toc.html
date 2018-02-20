@@ -9,7 +9,7 @@
   <li>
     {% if accessible %}
     <h3>
-      <a href="{{ module.link }}" class="{% if module|is_in_maintenance %}maintenance{% endif %}">{{ module.name }}</a>
+      <a href="{{ module.link }}" class="{% if module|is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
     </h3>
     <h4>
       {% if module.requirements|length > 0 %}
@@ -22,7 +22,7 @@
     </h4>
     {% else %}
     <h3>
-      {{ module.name }}
+      {{ module.name|parse_localization }}
       {% if is_course_staff %}
       <a class="btn btn-default btn-xs" href="{{ module.link }}">
         <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>

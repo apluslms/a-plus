@@ -6,7 +6,7 @@
 {% block view_tag %}exercise{% endblock %}
 
 {% block exercisebreadcrumblist %}
-<li class="active">{{ current.name }}</li>
+<li class="active">{{ current.name|parse_localization }}</li>
 {% endblock %}
 
 {% block exercisecontent %}

@@ -77,7 +77,6 @@ def format_localization(element):
         concat += "|"
         return concat
     else:
-        # TODO: surround simple strings with |-characters as well?
         return str(element)
 
 def configure_learning_objects(category_map, module, config, parent,
@@ -250,11 +249,9 @@ def configure_content(instance, url):
         dt = parse_date(config["end"], errors)
         if dt:
             instance.ending_time = dt
-    # TODO: pick each valid language OR fail if even one is wrong?
     if "lang" in config:
         langs = config["lang"]
         if isinstance(langs, list):
-            # NB: edited model's charfield to hold |lang|lang| -format strings
             formatted = ""
             for lang in langs:
                 if instance.is_valid_language(lang):
@@ -264,8 +261,6 @@ def configure_content(instance, url):
                 instance.language = str(formatted)
         elif instance.is_valid_language(langs):
             instance.language = str(config["lang"])[:5]
-    # if "lang" in config and instance.is_valid_language(config["lang"]):
-    #     instance.language = str(config["lang"])[:5]
     if "contact" in config:
         instance.technical_error_emails = str(config["contact"])
     if "assistants" in config:

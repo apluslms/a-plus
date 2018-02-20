@@ -11,7 +11,7 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{{ current.name }}</li>
+<li class="active">{{ current.name|parse_localization }}</li>
 {% endblock %}
 
 {% block coursecontent %}

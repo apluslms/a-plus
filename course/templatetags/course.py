@@ -40,21 +40,23 @@ def group_select(context):
     }
 
 @register.filter
-def parse_localization(text):
+def parse_localization(entry):
     """Pick the currently selected language's value from |lang:value|lang:value| -format text"""
+    text = ""
+    if isinstance(entry, str):
+        text = entry
+    else:
+        text = str(entry) # if not a string, assume entry is a model
     if "|" in text:
         variants = text.split("|")
         exercise_number = variants[0] # Leading numbers or an empty string
+        lang = get_language()
         for variant in variants:
-            lang = get_language()
             if variant.startswith(lang + ":"):
                 return exercise_number + variant[(len(lang)+1):]
-        # TODO: determine return value when language was not found
         return exercise_number
     else:
         return text
-
-# TODO: pick the right localised URL
 
 @register.filter
 def is_visible(entry):
