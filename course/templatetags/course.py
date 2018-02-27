@@ -41,7 +41,10 @@ def group_select(context):
 
 @register.filter
 def parse_localization(entry):
-    """Pick the currently selected language's value from |lang:value|lang:value| -format text"""
+    """
+    Picks the currently selected language's value from
+    |lang:value|lang:value| -format text.
+    """
     text = ""
     if isinstance(entry, str):
         text = entry
@@ -57,6 +60,11 @@ def parse_localization(entry):
         return exercise_number
     else:
         return text
+
+@register.filter
+def list_unselected(langs):
+    listed = list(filter(lambda x: x and x != get_language(), langs.split("|")))
+    return listed
 
 @register.filter
 def is_visible(entry):

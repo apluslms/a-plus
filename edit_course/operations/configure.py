@@ -69,7 +69,9 @@ def parse_bool(value):
     return value in [True, "true", "yes", "True", "Yes"]
 
 def format_localization(element):
-    """Parse localised elements into |lang:val|lang:val| -format strings"""
+    """
+    Parse localised elements into |lang:val|lang:val| -format strings
+    """
     if isinstance(element, dict):
         concat = ""
         for pair in element.items():
@@ -164,7 +166,7 @@ def configure_learning_objects(category_map, module, config, parent,
             n += 1
             lobject.order = n
         if "url" in o:
-            lobject.service_url = str(o["url"])
+            lobject.service_url = format_localization(o["url"])
         if "status" in o:
             lobject.status = str(o["status"])[:32]
         if "audience" in o:
@@ -260,7 +262,7 @@ def configure_content(instance, url):
                 formatted += "|"
                 instance.language = str(formatted)
         elif instance.is_valid_language(langs):
-            instance.language = str(config["lang"])[:5]
+            instance.language = str(langs)[:5]
     if "contact" in config:
         instance.technical_error_emails = str(config["contact"])
     if "assistants" in config:

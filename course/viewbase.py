@@ -73,7 +73,7 @@ class CourseInstanceBaseMixin(object):
                     if "|" + active + "|" in lang:
                         translation.activate(active)
                 else:
-                    translation.activate(self.instance.language)
+                    translation.activate(lang)
 
     def get_access_mode(self):
         access_mode = super().get_access_mode()
