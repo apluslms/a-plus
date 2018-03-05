@@ -16,13 +16,18 @@ def create_submissions(instance, admin_profile, json_text):
     except Exception as e:
         return [_("Parsing the submission JSON raised an error '{error!s}'.")
                     .format(error=e)]
-    if not "objects" in submissions_json:
-        return [_('Missing JSON field: objects.')]
+
+    if isinstance(submissions_json, dict):
+        if not "objects" in submissions_json:
+            return [_('Missing JSON field: objects.')]
+        submissions_json = submissions_json["objects"]
+    if not isinstance(submissions_json, list):
+        return [_("Invalid JSON. Expected list or list in objects field")]
 
     errors = []
     validated_forms = []
     count = 0
-    for submission_json in submissions_json["objects"]:
+    for submission_json in submissions_json:
         count += 1
         if not "exercise_id" in submission_json:
             errors.append(
@@ -54,9 +59,7 @@ def create_submissions(instance, admin_profile, json_text):
     if not errors:
         for form in validated_forms:
             sub = Submission.objects.create(exercise=form.exercise)
-            sub.submitters = form.cleaned_data.get("students") \
-                or (form.cleaned_data.get("students_by_student_id")
-                    or form.cleaned_data.get("students_by_email"))
+            sub.submitters = form.cleaned_students
             sub.feedback = form.cleaned_data.get("feedback")
             sub.set_points(form.cleaned_data.get("points"),
                 sub.exercise.max_points, no_penalties=True)

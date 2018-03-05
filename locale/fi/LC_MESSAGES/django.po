@@ -301,11 +301,11 @@ msgstr "Vain opettajalle."
 msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle."
 
-#: course/staff_views.py:68 edit_course/views.py:45 exercise/staff_views.py:284
+#: course/staff_views.py:68 edit_course/views.py:45 exercise/staff_views.py:283
 msgid "Changes were saved succesfully."
 msgstr "Muutokset tallennettiin onnistuneesti."
 
-#: course/staff_views.py:72 edit_course/views.py:49 exercise/staff_views.py:288
+#: course/staff_views.py:72 edit_course/views.py:49 exercise/staff_views.py:287
 msgid "Failed to save changes."
 msgstr "Muutosten tallentaminen epäonnistui."
 
@@ -754,7 +754,7 @@ msgid "Add new deadline deviations"
 msgstr "Lisää uusia määräajan muutoksia"
 
 #: deviations/templates/deviations/add_dl.html:23
-#: edit_course/templates/edit_course/batch_assess.html:74
+#: edit_course/templates/edit_course/batch_assess.html:85
 #: edit_course/templates/edit_course/edit_model.html:66
 #: exercise/templates/exercise/model/_file_submit_form.html:4
 #: exercise/templates/exercise/model/_file_submit_form.html:14
@@ -883,28 +883,34 @@ msgstr "oppimissisältö"
 
 #: edit_course/operations/batch.py:17
 msgid "Parsing the submission JSON raised an error '{error!s}'."
-msgstr ""
+msgstr "Palautus JSONin tulkitseminen tuotti virheet '{error!s}'."
 
-#: edit_course/operations/batch.py:20
+#: edit_course/operations/batch.py:22
 msgid "Missing JSON field: objects."
 msgstr "Puuttuva JSON-kenttä: objects."
 
-#: edit_course/operations/batch.py:29
+#: edit_course/operations/batch.py:25
+msgid "Invalid JSON. Expected list or list in objects field"
+msgstr "Virheellinen JSON. Odotettiin listaa tai object kentässä listaa."
+
+#: edit_course/operations/batch.py:34
 #, python-brace-format
 msgid "Missing field \"exercise_id\" in object {count:d}."
 msgstr "Puuttuva kenttä \"exercise_id\" objektissa {count:d}."
 
-#: edit_course/operations/batch.py:38
+#: edit_course/operations/batch.py:43
 #, python-brace-format
 msgid "Unknown exercise_id {id:d} in object {count:d}."
 msgstr "Tuntematon exercise_id {id:d} objektissa {count:d}."
 
-#: edit_course/operations/batch.py:50
+#: edit_course/operations/batch.py:55
 #, python-brace-format
 msgid ""
 "Object number {ordinal:d} has invalid fields:\n"
 " {errors}"
 msgstr ""
+"Arvostelulla numero {ordinal:d} on virheellisiä kenttiä:\n"
+" {errors}"
 
 #: edit_course/operations/configure.py:20
 #, python-brace-format
@@ -1686,21 +1692,13 @@ msgid ""
 "than that."
 msgstr "Annetut pisteet ylittävät tehtävän enimmäispisteet, {max:d}."
 
-#: exercise/forms.py:101
-msgid ""
-"One of the student fields must not be blank: students, "
-"students_by_student_id, students_by_email"
-msgstr ""
-"Yksi opiskelijakentistä ei saa olla tyhjä: students, students_by_student_id, "
-"students_by_email"
+#: exercise/forms.py:100
+msgid "One of the student fields must not be blank"
+msgstr "Ainakin yksi opiskelijakentistä tulee antaa"
 
-#: exercise/forms.py:104
-msgid ""
-"Only one student field can be given: students, students_by_student_id, "
-"students_by_email"
-msgstr ""
-"Anna vain yksi opiskelijakenttä: students, students_by_student_id, "
-"students_by_email"
+#: exercise/forms.py:102
+msgid "Only one student field can be given"
+msgstr "Voidaan antaa vain yksi opiskelijakenttä"
 
 #: exercise/permissions.py:19
 msgid "Permission denied by exercise visibility"
@@ -1786,7 +1784,7 @@ msgid ""
 "{error}"
 msgstr ""
 
-#: exercise/staff_views.py:261
+#: exercise/staff_views.py:260
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 

@@ -60,49 +60,56 @@ class SubmissionReviewForm(forms.Form):
 
 
 class SubmissionCreateAndReviewForm(SubmissionReviewForm):
+    STUDENT_FIELDS = ('students', 'students_by_user_id', 'students_by_student_id', 'students_by_email')
 
     submission_time = forms.DateTimeField()
     students = forms.ModelMultipleChoiceField(
         queryset=UserProfile.objects.none(), required=False)
+    students_by_user_id = forms.TypedMultipleChoiceField(
+        empty_value=UserProfile.objects.none(),
+        coerce=lambda user_id: User.objects.get(id=user_id).userprofile,
+        choices=[],
+        required=False)
     students_by_student_id = forms.TypedMultipleChoiceField(
         empty_value=UserProfile.objects.none(),
         coerce=lambda student_id: UserProfile.get_by_student_id(student_id),
-        choices=[(p.student_id, p.student_id) for p in UserProfile.objects.none()],
+        choices=[],
         required=False)
     students_by_email = forms.TypedMultipleChoiceField(
         empty_value=UserProfile.objects.none(),
         coerce=lambda email: UserProfile.get_by_email(email),
-        choices=[(u.email, u.email) for u in User.objects.none()],
+        choices=[],
         required=False)
 
     def __init__(self, *args, **kwargs):
         super(SubmissionCreateAndReviewForm, self).__init__(*args, **kwargs)
         self.fields["students"].queryset = \
             UserProfile.objects.all()
-            #self.exercise.course_instance.get_student_profiles()
+        self.fields["students_by_user_id"].choices = \
+            [ (p.user_id, p) for p in UserProfile.objects.all() ]
         self.fields["students_by_student_id"].choices = \
-            [ (p.student_id, p.student_id) for p in UserProfile.objects.all()
-              #self.exercise.course_instance.get_student_profiles()
-            ]
+            [ (p.student_id, p.student_id) for p in UserProfile.objects.all() ]
         self.fields["students_by_email"].choices = \
             [ (u.email, u.email) for u in User.objects.all() ]
 
     def clean(self):
-        self.cleaned_data = super(SubmissionCreateAndReviewForm, self).clean()
-        n = 0
-        if self.cleaned_data.get("students"):
-            n += 1
-        if self.cleaned_data.get("students_by_student_id"):
-            n += 1
-        if self.cleaned_data.get("students_by_email"):
-            n += 1
+        self.cleaned_data = data = super(SubmissionCreateAndReviewForm, self).clean()
+        fields = self.STUDENT_FIELDS
+        n = sum((1 if data.get(k) else 0) for k in fields)
         if n == 0:
-            raise forms.ValidationError(
-                _("One of the student fields must not be blank: students, students_by_student_id, students_by_email"))
+            raise forms.ValidationError(_("One of the student fields must not be blank"))
         if n > 1:
-            raise forms.ValidationError(
-                _("Only one student field can be given: students, students_by_student_id, students_by_email"))
-        return self.cleaned_data
+            raise forms.ValidationError(_("Only one student field can be given"))
+        return data
+
+    @property
+    def cleaned_students(self):
+        data = self.cleaned_data
+        for field in self.STUDENT_FIELDS:
+            s = data.get(field)
+            if s:
+                return s
+        raise RuntimeError("Didn't find any students")
 
 
 class EditSubmittersForm(forms.ModelForm):
