@@ -452,6 +452,11 @@ $.fn.highlightCode = function(options) {
             this.element.parents("form").on("submit", function(event) {
                 self.finish();
             });
+            /* Browser can't validate if valid selection is done, so leave that work for django
+             * FIXME: instead of setting the selection in the end, we should add selection in .addSelection
+             *        and we should remove it when li button is clicked (anom. in .addSelection).
+             */
+            this.element.removeAttr('required');
         },
 
         searchOptions: function(show_dropdown) {
