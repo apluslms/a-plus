@@ -30,7 +30,7 @@ class Command(BaseCommand):
 
         errors = configure_content(instance, conf_url)
         if errors:
-            self.stdout.write(self.style.ERROR("\n".join(errors)))
+            self.stdout.write(self.style.ERROR("\n".join((str(e) for e in errors))))
             raise CommandError("Configuration failed!")
         else:
             self.stdout.write(self.style.SUCCESS("Course update done!"))
