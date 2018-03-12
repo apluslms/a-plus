@@ -649,9 +649,9 @@ class LTIExercise(BaseExercise):
         """
         super().clean()
         if self.service_url and not has_same_domain(self.service_url, self.lti_service.url):
-                raise ValidationError({
-                    'service_url':_("Exercise must be located in the LTI domain.")
-                })
+            raise ValidationError({
+                'service_url':_("Exercise must be located in the LTI domain.")
+            })
 
     def load(self, request, students, url_name="exercise"):
         if self.aplus_get_and_post:

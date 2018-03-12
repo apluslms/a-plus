@@ -363,7 +363,6 @@ class CourseInstance(UrlMixin, models.Model):
                     if "language" in errors:
                         errors['language'] = "%s%s" % (errors['language'], (", " + lang))
                     else:
-                        # TODO: add translation for new sentence. Support for variables?
                         errors['language'] = _("Language code(s) missing from settings: " + lang)
         elif not self.is_valid_language(self.language):
             errors['language'] = _("Language code missing from settings.")

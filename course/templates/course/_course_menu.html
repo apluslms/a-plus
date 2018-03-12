@@ -43,7 +43,7 @@
 		{% csrf_token %}
 		<input name="next" type="hidden" value="{{ request.get_full_path }}" />
 		<input name="language" type="hidden" value="{{ language }}" />
-		<button type="submit" class="btn btn-xs btn-primary">{{ language }}</button>
+		<button type="submit" class="btn btn-xs btn-primary">{{ language|language_name_local }}</button>
 	</form>
 </li>
 {% endfor %}
