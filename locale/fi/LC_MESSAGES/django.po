@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 12:52+0200\n"
+"POT-Creation-Date: 2018-03-14 12:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -106,7 +106,7 @@ msgstr "Tämä ryhmä on jo olemassa."
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:60 course/models.py:604 exercise/exercise_models.py:124
+#: course/models.py:60 course/models.py:603 exercise/exercise_models.py:124
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -215,44 +215,44 @@ msgstr "Saattohoito tulee alkaa loppumisajan jälkeen."
 msgid "Archive time must be later than lifesupport time."
 msgstr "Arkistointiajan tulee olla saattohoidon jälkeen."
 
-#: course/models.py:367
+#: course/models.py:366
 msgid "Language code(s) missing from settings: "
 msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t): "
 
-#: course/models.py:369
+#: course/models.py:368
 msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
-#: course/models.py:557 course/models.py:659 exercise/exercise_models.py:67
+#: course/models.py:556 course/models.py:658 exercise/exercise_models.py:67
 #: exercise/submission_models.py:57
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:558 exercise/exercise_models.py:68
+#: course/models.py:557 exercise/exercise_models.py:68
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:559 course/models.py:661 templates/base.html:77
+#: course/models.py:558 course/models.py:660 templates/base.html:77
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:560 exercise/exercise_models.py:72
+#: course/models.py:559 exercise/exercise_models.py:72
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:568
+#: course/models.py:567
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:583
+#: course/models.py:582
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:660
+#: course/models.py:659
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/models.py:670
+#: course/models.py:669
 msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
@@ -260,7 +260,7 @@ msgstr ""
 "Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
 "hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: course/models.py:672
+#: course/models.py:671
 msgid ""
 "Grade unofficial submits after deadlines have passed. The points are stored "
 "but not included in official records."
@@ -936,73 +936,73 @@ msgstr "Arvoa '{value}' ei voitu jäsentää kokonaislukuna."
 msgid "Unable to parse value '{value}' as a float."
 msgstr "Arvoa '{value}' ei voitu jäsentää liukulukuna."
 
-#: edit_course/operations/configure.py:90
+#: edit_course/operations/configure.py:87
 msgid "Learning object requires a key."
 msgstr "Oppimisolio vaatii avaimen."
 
-#: edit_course/operations/configure.py:93
+#: edit_course/operations/configure.py:90
 msgid "Learning object requires a category."
 msgstr "Oppimisolio vaatii kategorian."
 
-#: edit_course/operations/configure.py:96
+#: edit_course/operations/configure.py:93
 #, python-brace-format
 msgid "Unknown category '{category}'."
 msgstr "Tuntematon kategoria '{category}'."
 
-#: edit_course/operations/configure.py:205
+#: edit_course/operations/configure.py:202
 msgid "Cannot request build log from build_log_url when it is blank."
 msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
 
-#: edit_course/operations/configure.py:209
+#: edit_course/operations/configure.py:206
 msgid "Requesting build log failed with error '{error!s}'."
 msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
 
-#: edit_course/operations/configure.py:214
+#: edit_course/operations/configure.py:211
 msgid "Parsing the build log JSON raised error '{error!s}'."
 msgstr "Rakentamislokin jäsentäminen palautti virheen '{error!s}'."
 
-#: edit_course/operations/configure.py:217
+#: edit_course/operations/configure.py:214
 msgid "Remote URL returned an empty build log."
 msgstr "Etäpalvelin palautti tyhjän käännöslokin."
 
-#: edit_course/operations/configure.py:226
+#: edit_course/operations/configure.py:223
 msgid "Configuration URL required."
 msgstr "Konfiguraatio-URL vaaditaan."
 
-#: edit_course/operations/configure.py:231
+#: edit_course/operations/configure.py:228
 msgid ""
 "Request for a course configuration failed with error '{error!s}'. "
 "Configuration of course aborted."
 msgstr ""
 
-#: edit_course/operations/configure.py:240
+#: edit_course/operations/configure.py:237
 msgid "JSON parser raised error '{error!s}'. Configuration of course aborted."
 msgstr ""
 
-#: edit_course/operations/configure.py:270
+#: edit_course/operations/configure.py:263
 msgid "Assistants must be given as a student ID array."
 msgstr "Assistentit tulee antaa oppilasnumero-taulukkona."
 
-#: edit_course/operations/configure.py:277
+#: edit_course/operations/configure.py:270
 #, python-brace-format
 msgid ""
 "Adding the assistant failed, because an associated user with student ID {id} "
 "does not exist."
 msgstr ""
 
-#: edit_course/operations/configure.py:288
+#: edit_course/operations/configure.py:281
 msgid "Categories required as an object."
 msgstr "Kategoriat vaaditaan objektina."
 
-#: edit_course/operations/configure.py:291
+#: edit_course/operations/configure.py:284
 msgid "Modules required as an array."
 msgstr "Moduulit vaaditaan taulukkona."
 
-#: edit_course/operations/configure.py:299
+#: edit_course/operations/configure.py:292
 msgid "Category requires a name."
 msgstr "Kategoria vaatii nimen."
 
-#: edit_course/operations/configure.py:333
+#: edit_course/operations/configure.py:326
 msgid "Module requires a key."
 msgstr "Moduuli vaatii avaimen."
 
@@ -1985,23 +1985,23 @@ msgstr ""
 msgid ""
 "\n"
 "  You have last visited\n"
-"  <a href=\"%(link)s\">%(name|parse_localization)s</a>\n"
+"  <a href=\"%(link)s\">%(name)s</a>\n"
 msgstr ""
 "\n"
 "  Olet ollut oppimateriaalissa viimeksi kohdassa\n"
-"  <a href=\"%(link)s\">%(name|parse_localization)s</a>\n"
+"  <a href=\"%(link)s\">%(name)s</a>\n"
 
 #: exercise/templates/exercise/_user_last.html:12
 #, python-format
 msgid ""
 "\n"
 "  You can start from\n"
-"  <a href=\"%(link)s\">%(name|parse_localization)s</a>\n"
+"  <a href=\"%(link)s\">%(name)s</a>\n"
 "  or browse the <a href=\"%(toc_link)s\">course materials</a>.\n"
 msgstr ""
 "\n"
 "  Voit aloittaa täältä\n"
-"  <a href=\"%(link)s\">%(name|parse_localization)s</a>\n"
+"  <a href=\"%(link)s\">%(name)s</a>\n"
 "  tai selata <a href=\"%(toc_link)s\">kurssimateriaalia</a>.\n"
 
 #: exercise/templates/exercise/_user_results.html:7

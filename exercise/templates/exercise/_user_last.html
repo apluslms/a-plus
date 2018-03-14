@@ -4,14 +4,14 @@
 
 <p>
 {% if last %}
-{% blocktrans with time=last_time name=last.name link=last.link %}
+{% blocktrans with time=last_time name=last.name|parse_localization link=last.link %}
   You have last visited
-  <a href="{{ link }}">{{ name|parse_localization }}</a>
+  <a href="{{ link }}">{{ name }}</a>
 {% endblocktrans %}
 {% else %}
-{% blocktrans with name=begin.name link=begin.link toc_link=instance|url:'toc' %}
+{% blocktrans with name=begin.name|parse_localization link=begin.link toc_link=instance|url:'toc' %}
   You can start from
-  <a href="{{ link }}">{{ name|parse_localization }}</a>
+  <a href="{{ link }}">{{ name }}</a>
   or browse the <a href="{{ toc_link }}">course materials</a>.
 {% endblocktrans %}
 {% endif %}

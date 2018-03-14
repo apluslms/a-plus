@@ -45,11 +45,7 @@ def parse_localization(entry):
     Picks the currently selected language's value from
     |lang:value|lang:value| -format text.
     """
-    text = ""
-    if isinstance(entry, str):
-        text = entry
-    else:
-        text = str(entry) # if not a string, assume entry is a model
+    text = entry if isinstance(entry, str) else str(entry)
     if "|" in text:
         variants = text.split("|")
         exercise_number = variants[0] # Leading numbers or an empty string

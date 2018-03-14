@@ -361,9 +361,9 @@ class CourseInstance(UrlMixin, models.Model):
             for lang in langs:
                 if not self.is_valid_language(lang):
                     if "language" in errors:
-                        errors['language'] = "%s%s" % (errors['language'], (", " + lang))
+                        errors['language'] += (", " + lang)
                     else:
-                        errors['language'] = _("Language code(s) missing from settings: " + lang)
+                        errors['language'] = _("Language code(s) missing from settings: ") + lang
         elif not self.is_valid_language(self.language):
             errors['language'] = _("Language code missing from settings.")
         if errors:

@@ -64,7 +64,7 @@
                         </button>
                         <a class="navbar-brand hidden-xs" href="{% url 'home' %}">{% brand_name %}</a>
                         <span class="navbar-brand visible-xs">
-                        {% brand_name %}{% if instance %} &nbsp; {{ course.name }}{% endif %}
+                        {% brand_name %}{% if instance %} &nbsp; {{ course.name|parse_localization }}{% endif %}
                         </span>
                     </div>
                     <div class="collapse navbar-collapse" id="bs-navbar-collapse">
@@ -72,7 +72,7 @@
                             <li role="presentation" class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                     {% if instance %}
-                                    {{ course }}
+                                    {{ course|parse_localization }}
                                     {% if not instance.visible_to_students %}
                                     <span class="label label-danger">{% trans "Hidden" %}</span>
                                     {% endif %}

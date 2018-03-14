@@ -73,11 +73,8 @@ def format_localization(element):
     Parse localised elements into |lang:val|lang:val| -format strings
     """
     if isinstance(element, dict):
-        concat = ""
-        for pair in element.items():
-            concat += ("|" + ":".join(pair))
-        concat += "|"
-        return concat
+        strings = ("{}:{}".format(k, v) for k, v in element.items())
+        return "|{}|".format("|".join(strings))
     else:
         return str(element)
 
@@ -254,13 +251,9 @@ def configure_content(instance, url):
     if "lang" in config:
         langs = config["lang"]
         if isinstance(langs, list):
-            formatted = ""
-            for lang in langs:
-                if instance.is_valid_language(lang):
-                    formatted += ("|" + lang)
-            if len(formatted) > 1:
-                formatted += "|"
-                instance.language = str(formatted)
+            langs = [lang for lang in langs if instance.is_valid_language(lang)]
+            if langs:
+               instance.language = "|{}|".format("|".join(langs))
         elif instance.is_valid_language(langs):
             instance.language = str(langs)[:5]
     if "contact" in config:
