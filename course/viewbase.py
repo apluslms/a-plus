@@ -73,7 +73,8 @@ class CourseInstanceBaseMixin(object):
                     if "|" + active + "|" in lang:
                         translation.activate(active)
                     else:
-                        translation.activate('en')
+                        fallback = lang[1:lang.find("|", 1)]
+                        translation.activate(fallback)
                 else:
                     translation.activate(lang)
 
