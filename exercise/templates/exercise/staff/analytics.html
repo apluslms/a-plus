@@ -49,7 +49,7 @@
       {{ external_user_label|safe }}
     </button>
     {% for tag in tags %}
-    <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.text_color }};" data-id="{{ tag.id }}">
+    <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
       <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
       {{ tag.name }}
     </button>
