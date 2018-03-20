@@ -366,6 +366,7 @@ class BaseExercise(LearningObject):
         if timing == self.TIMING.OPEN:
             return True,[]
         if timing == self.TIMING.LATE:
+            # xgettext:no-python-format
             return True,[_("Deadline for the exercise has passed. Late submissions are allowed until {date} but points are only worth {percent:d}% of normal.").format(
                 date=date_format(d),
                 percent=self.course_module.get_late_submission_point_worth(),

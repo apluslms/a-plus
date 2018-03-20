@@ -3,11 +3,11 @@ import posixpath
 import re
 import requests
 import time
-import urllib.parse
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.utils.http import parse_http_date_safe
 from django.utils.translation import ugettext_lazy as _
+from urllib.parse import urlparse, urljoin
 
 
 logger = logging.getLogger("aplus.remote_page")
@@ -82,15 +82,19 @@ class RemotePage:
     Represents a page that can be loaded over HTTP for further processing.
     """
     def __init__(self, url, post=False, data=None, files=None, stamp=None):
-        self.url = urllib.parse.urlparse(url)
+        self.url = urlparse(url)
         self.response = request_for_response(url, post, data, files, stamp)
         self.response.encoding = "utf-8"
         self.soup = BeautifulSoup(self.response.text, 'html5lib')
 
     def base_address(self):
-        domain = urllib.parse.urlunparse((self.url.scheme, self.url.netloc, '', '', '', ''))
-        path = posixpath.dirname(self.url.path)
-        return domain, path + '/' if not path or path[-1] != '/' else path
+        path = posixpath.dirname(self.url.path).rstrip('/') + '/'
+        url = self.url._replace(path=path, params='', query='', fragment='')
+        if settings.REMOTE_PAGE_HOSTS_MAP:
+            auth, sep, domain = url.netloc.rpartition('@')
+            domain = settings.REMOTE_PAGE_HOSTS_MAP.get(domain, domain)
+            url = url._replace(netloc=auth+sep+domain)
+        return url.geturl()
 
     def meta(self, name):
         if self.soup:
@@ -144,7 +148,7 @@ class RemotePage:
         return self.element_or_body([])
 
     def fix_relative_urls(self):
-        domain, path = self.base_address()
+        url = self.base_address()
         for tag,attr in [
             ("img","src"),
             ("script","src"),
@@ -154,9 +158,9 @@ class RemotePage:
             ("video","poster"),
             ("source","src"),
         ]:
-            self._fix_relative_urls(domain, path, tag, attr)
+            self._fix_relative_urls(url, tag, attr)
 
-    def _fix_relative_urls(self, domain, path, tag_name, attr_name):
+    def _fix_relative_urls(self, url, tag_name, attr_name):
         test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE)
         chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
         for element in self.soup.findAll(tag_name, {attr_name:True}):
@@ -182,15 +186,12 @@ class RemotePage:
                 if element.has_attr('data-aplus-path'):
                     fix_path = element['data-aplus-path'].replace(
                         '{course}',
-                        path.split('/')[1]
+                        url.path.split('/', 2)[1]
                     )
                     fix_value = value[2:] if value.startswith('../') else value
-                    element[attr_name] = domain + fix_path + fix_value
+                    value = fix_path + fix_value
 
-                elif value[0] == '/':
-                    element[attr_name] = domain + value
-                else:
-                    element[attr_name] = domain + path + value
+                element[attr_name] = urljoin(url, value)
 
     def find_and_replace(self, attr_name, list_of_attributes):
         l = len(list_of_attributes)

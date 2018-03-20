@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-07 18:51+0200\n"
+"POT-Creation-Date: 2018-03-05 17:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -301,11 +301,11 @@ msgstr "Vain opettajalle."
 msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle."
 
-#: course/staff_views.py:68 edit_course/views.py:45 exercise/staff_views.py:284
+#: course/staff_views.py:68 edit_course/views.py:45 exercise/staff_views.py:283
 msgid "Changes were saved succesfully."
 msgstr "Muutokset tallennettiin onnistuneesti."
 
-#: course/staff_views.py:72 edit_course/views.py:49 exercise/staff_views.py:288
+#: course/staff_views.py:72 edit_course/views.py:49 exercise/staff_views.py:287
 msgid "Failed to save changes."
 msgstr "Muutosten tallentaminen epäonnistui."
 
@@ -754,7 +754,7 @@ msgid "Add new deadline deviations"
 msgstr "Lisää uusia määräajan muutoksia"
 
 #: deviations/templates/deviations/add_dl.html:23
-#: edit_course/templates/edit_course/batch_assess.html:74
+#: edit_course/templates/edit_course/batch_assess.html:85
 #: edit_course/templates/edit_course/edit_model.html:66
 #: exercise/templates/exercise/model/_file_submit_form.html:4
 #: exercise/templates/exercise/model/_file_submit_form.html:14
@@ -883,28 +883,34 @@ msgstr "oppimissisältö"
 
 #: edit_course/operations/batch.py:17
 msgid "Parsing the submission JSON raised an error '{error!s}'."
-msgstr ""
+msgstr "Palautus JSONin tulkitseminen tuotti virheet '{error!s}'."
 
-#: edit_course/operations/batch.py:20
+#: edit_course/operations/batch.py:22
 msgid "Missing JSON field: objects."
 msgstr "Puuttuva JSON-kenttä: objects."
 
-#: edit_course/operations/batch.py:29
+#: edit_course/operations/batch.py:25
+msgid "Invalid JSON. Expected list or list in objects field"
+msgstr "Virheellinen JSON. Odotettiin listaa tai object kentässä listaa."
+
+#: edit_course/operations/batch.py:34
 #, python-brace-format
 msgid "Missing field \"exercise_id\" in object {count:d}."
 msgstr "Puuttuva kenttä \"exercise_id\" objektissa {count:d}."
 
-#: edit_course/operations/batch.py:38
+#: edit_course/operations/batch.py:43
 #, python-brace-format
 msgid "Unknown exercise_id {id:d} in object {count:d}."
 msgstr "Tuntematon exercise_id {id:d} objektissa {count:d}."
 
-#: edit_course/operations/batch.py:50
+#: edit_course/operations/batch.py:55
 #, python-brace-format
 msgid ""
 "Object number {ordinal:d} has invalid fields:\n"
 " {errors}"
 msgstr ""
+"Arvostelulla numero {ordinal:d} on virheellisiä kenttiä:\n"
+" {errors}"
 
 #: edit_course/operations/configure.py:20
 #, python-brace-format
@@ -1006,6 +1012,7 @@ msgid "Batch create and assess submissions"
 msgstr "Luo ja arvostele palautusjoukkoja"
 
 #: edit_course/templates/edit_course/batch_assess.html:21
+#, python-format
 msgid ""
 "\n"
 "<p><em>Use only if you know what you are doing!</em></p>\n"
@@ -1015,47 +1022,25 @@ msgid ""
 "\t<dt>XXXXX1 and XXXXX2</dt>\n"
 "    <dd>the real student ids</dd>\n"
 "\t<dt>X1 (integer)</dt>\n"
-"    <dd>the system userprofile id of the desired grader</dd>\n"
+"    <dd>the system userprofile id of the desired grader. Your userprofile id "
+"is <b>%(id)s.</b></dd>\n"
 "\t<dt>Z1 and Z2 (integers)</dt>\n"
 "    <dd>the system exercise ids</dd>\n"
 "</dl>\n"
-"<pre>{\n"
-"  \"objects\": [\n"
-"    {\n"
-"      \"students_by_student_id\": [\n"
-"        \"XXXXX1\"\n"
-"      ],\n"
-"      \"feedback\": \"Nicely solved exercise!\",\n"
-"      \"grader\": X1,\n"
-"      \"exercise_id\": Z1,\n"
-"      \"submission_time\": \"2014-09-24 11:50\",\n"
-"      \"points\": 100\n"
-"    },\n"
-"    {\n"
-"      \"students_by_student_id\": [\n"
-"        \"XXXXX2\"\n"
-"      ],\n"
-"      \"feedback\": \"You can do better!\",\n"
-"      \"grader\": X1,\n"
-"      \"exercise_id\": Z2,\n"
-"      \"submission_time\": \"2014-09-24 11:50\",\n"
-"      \"points\": 20\n"
-"    },\n"
-"    {\n"
-"      \"students_by_email\": [\n"
-"        \"none@no.email\"\n"
-"      ],\n"
-"      \"feedback\": \"Last one.\",\n"
-"      \"grader\": X1,\n"
-"      \"exercise_id\": Z2,\n"
-"      \"submission_time\": \"2014-09-24 11:50\",\n"
-"      \"points\": 1\n"
-"    }\n"
-"  ]\n"
-"}\n"
-"</pre>\n"
-"       "
 msgstr ""
+"\n"
+"<p><em>Käytä vain jos tiedät, mitä olet tekemässä!</em></p>\n"
+"<p>Lähettämällä tämän voit yrittää luoda ja arvostella useita tehtäviä "
+"automaattisesti.</p>\n"
+"<dl>\n"
+"\t<dt>XXXXX1 ja XXXXX2</dt>\n"
+"    <dd>oikeat opiskelijanumerot</dd>\n"
+"\t<dt>X1 (integer)</dt>\n"
+"    <dd>Toivotun arvostelijan userprofile id. Sinun userprofile id on <b>"
+"%(id)s</b>.</dd>\n"
+"\t<dt>Z1 ja Z2 (integers)</dt>\n"
+"    <dd>tehtävien IDt</dd>\n"
+"</dl>\n"
 
 #: edit_course/templates/edit_course/build_log.html:9
 msgid "Build initated by"
@@ -1570,8 +1555,8 @@ msgstr "'Points to pass' ei voi olla suurempi kuin 'max_points'."
 msgid "Minimum group size cannot exceed maximum size."
 msgstr "Ryhmän koon alaraja ei voi olla suurempi kuin yläraja."
 
-#: exercise/exercise_models.py:369
-#, python-brace-format
+#: exercise/exercise_models.py:370
+#, no-python-format, python-brace-format
 msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed until "
 "{date} but points are only worth {percent:d}% of normal."
@@ -1579,7 +1564,7 @@ msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:374
+#: exercise/exercise_models.py:375
 #, python-brace-format
 msgid ""
 "Deadline for the exercise has passed ({date}). You may still submit "
@@ -1588,54 +1573,54 @@ msgstr ""
 "Tehtävän määräaika on mennyt ({date}). Voit edelleen palauttaa "
 "epävirallisesti saadaksesi palautetta."
 
-#: exercise/exercise_models.py:378
+#: exercise/exercise_models.py:379
 #, python-brace-format
 msgid "The exercise opens {date} for submissions."
 msgstr "Tämän tehtävän voi palauttaa {date} alkaen."
 
-#: exercise/exercise_models.py:382
+#: exercise/exercise_models.py:383
 #, python-brace-format
 msgid "Deadline for the exercise has passed ({date})."
 msgstr "Tehtävän määräaika on mennyt ({date})."
 
-#: exercise/exercise_models.py:386
+#: exercise/exercise_models.py:387
 #, python-brace-format
 msgid "This course has been archived ({date})."
 msgstr "Tämä kurssi on arkistoitu ({date})."
 
-#: exercise/exercise_models.py:466
+#: exercise/exercise_models.py:467
 msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:469
+#: exercise/exercise_models.py:470
 msgid "You must enroll at course home to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
 
-#: exercise/exercise_models.py:492
+#: exercise/exercise_models.py:493
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:494
+#: exercise/exercise_models.py:495
 msgid "You have previously submitted to this exercise alone."
 msgstr "Olet palauttanut tämän tehtävän aiemmin yksin."
 
-#: exercise/exercise_models.py:496
+#: exercise/exercise_models.py:497
 #, python-brace-format
 msgid "You have previously submitted to this exercise with {collaborators}."
 msgstr "Olet palauttanut tämän tehtävän aiemmin ryhmässä: {collaborators}."
 
-#: exercise/exercise_models.py:501
+#: exercise/exercise_models.py:502
 #, python-brace-format
 msgid ""
 "{collaborators} already submitted to this exercise in a different group."
 msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
 
-#: exercise/exercise_models.py:516
+#: exercise/exercise_models.py:517
 #, python-brace-format
 msgid "This exercise must be submitted in groups of {size} students."
 msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 
-#: exercise/exercise_models.py:524
+#: exercise/exercise_models.py:525
 msgid ""
 "You have used the allowed amount of submissions for this exercise. You may "
 "still submit unofficially to receive feedback."
@@ -1643,33 +1628,33 @@ msgstr ""
 "Olet käyttänyt kaikki tehtävän palautuskerrat. Voit edelleen palauttaa "
 "epävirallisesti saadaksesi palautetta."
 
-#: exercise/exercise_models.py:526
+#: exercise/exercise_models.py:527
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:629
+#: exercise/exercise_models.py:630
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:631
+#: exercise/exercise_models.py:632
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:633
+#: exercise/exercise_models.py:634
 msgid "Default: Launch exercise"
 msgstr "Oletus: Avaa tehtävä"
 
-#: exercise/exercise_models.py:635
+#: exercise/exercise_models.py:636
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:644
+#: exercise/exercise_models.py:645
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:750
+#: exercise/exercise_models.py:751
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -1707,21 +1692,13 @@ msgid ""
 "than that."
 msgstr "Annetut pisteet ylittävät tehtävän enimmäispisteet, {max:d}."
 
-#: exercise/forms.py:101
-msgid ""
-"One of the student fields must not be blank: students, "
-"students_by_student_id, students_by_email"
-msgstr ""
-"Yksi opiskelijakentistä ei saa olla tyhjä: students, students_by_student_id, "
-"students_by_email"
+#: exercise/forms.py:100
+msgid "One of the student fields must not be blank"
+msgstr "Ainakin yksi opiskelijakentistä tulee antaa"
 
-#: exercise/forms.py:104
-msgid ""
-"Only one student field can be given: students, students_by_student_id, "
-"students_by_email"
-msgstr ""
-"Anna vain yksi opiskelijakenttä: students, students_by_student_id, "
-"students_by_email"
+#: exercise/forms.py:102
+msgid "Only one student field can be given"
+msgstr "Voidaan antaa vain yksi opiskelijakenttä"
 
 #: exercise/permissions.py:19
 msgid "Permission denied by exercise visibility"
@@ -1807,7 +1784,7 @@ msgid ""
 "{error}"
 msgstr ""
 
-#: exercise/staff_views.py:261
+#: exercise/staff_views.py:260
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 

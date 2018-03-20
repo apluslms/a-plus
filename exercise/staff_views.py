@@ -247,8 +247,7 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
             return self.redirect(self.exercise.get_submission_list_url())
 
         sub = Submission.objects.create(exercise=self.exercise)
-        sub.submitters = form.cleaned_data.get("students") \
-            or form.cleaned_data.get("students_by_student_id")
+        sub.submitters = form.cleaned_students
         sub.feedback = form.cleaned_data.get("feedback")
         sub.set_points(form.cleaned_data.get("points"),
             self.exercise.max_points, no_penalties=True)
