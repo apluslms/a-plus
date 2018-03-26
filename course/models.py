@@ -14,7 +14,7 @@ from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from colorfield.fields import ColorField
+from django_colortag.models import ColorTag
 
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
@@ -145,22 +145,12 @@ def create_enrollment_code(sender, instance, created, **kwargs):
 post_save.connect(create_enrollment_code, sender=Enrollment)
 
 
-class UserTag(UrlMixin, models.Model):
-    name = models.CharField(max_length=200)
+class UserTag(UrlMixin, ColorTag):
     course_instance = models.ForeignKey('CourseInstance', related_name="usertags", on_delete=models.CASCADE)
-    description = models.CharField(max_length=164,
-                                   blank=True,
-                                   help_text=_("Describe the usage or meaning of this usertag."))
     visible_to_students = models.BooleanField(default=False)
-    color = ColorField(default="#CD0000",
-                       help_text=_("Color that is used for this tag."))
 
     class Meta:
         ordering = ['course_instance', 'name']
-
-    @cached_property
-    def font_color(self):
-        return get_font_color_for_background(self.color)
 
     def get_url_kwargs(self):
         return dict(tag_id=self.id, **self.course_instance.get_url_kwargs())
