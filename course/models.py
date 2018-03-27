@@ -24,7 +24,6 @@ from lib.helpers import (
     resize_image,
     roman_numeral,
     get_random_string,
-    get_font_color_for_background,
     Enum,
 )
 from lib.remote_page import RemotePage, RemotePageException
