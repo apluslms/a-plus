@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-14 12:24+0200\n"
+"POT-Creation-Date: 2018-04-09 14:54+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -216,8 +216,10 @@ msgid "Archive time must be later than lifesupport time."
 msgstr "Arkistointiajan tulee olla saattohoidon jälkeen."
 
 #: course/models.py:366
+#, fuzzy
+#| msgid "Language code missing from settings."
 msgid "Language code(s) missing from settings: "
-msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t): "
+msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
 #: course/models.py:368
 msgid "Language code missing from settings."
@@ -609,7 +611,7 @@ msgstr ""
 #: edit_course/templates/edit_course/usertag_delete.html:28
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: external_services/templates/external_services/list_menu.html:64
-#: news/templates/news/list.html:53 templates/base.html:217
+#: news/templates/news/list.html:53 templates/base.html:221
 msgid "Remove"
 msgstr "Poista"
 
@@ -733,11 +735,19 @@ msgstr "Ilmoittautuminen ei ole avoinna."
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
-#: deviations/forms.py:24
-msgid "Amount of extra time given in minutes."
+#: deviations/forms.py:25
+#, fuzzy
+#| msgid "Amount of extra time given in minutes."
+msgid ""
+"Amount of extra time given in minutes. Leave blank if you fill in the date "
+"below."
 msgstr "Annettu ylimääräinen palautusaika minuuteissa."
 
-#: deviations/forms.py:29
+#: deviations/forms.py:30
+msgid "New submission deadline in the future in format YYYY-MM-DD HH:MM."
+msgstr "Uusi eräpäivä formaatissa YYYY-MM-DD HH:MM."
+
+#: deviations/forms.py:35
 msgid "Do not apply late penalty during extra time."
 msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 
@@ -798,7 +808,11 @@ msgstr "Toiminnot"
 msgid "No deadline deviations."
 msgstr "Ei yhtään määräajan muutosta."
 
-#: deviations/views.py:65
+#: deviations/views.py:43
+msgid "You have to provide either minutes or a date in the future."
+msgstr "Sinun on määriteltävä joko minuutit tai päivämäärä."
+
+#: deviations/views.py:74
 #, python-brace-format
 msgid ""
 "Deadline deviation already exists for {user} in {exercise}!Remove it before "
@@ -1559,7 +1573,7 @@ msgstr "'Points to pass' ei voi olla suurempi kuin 'max_points'."
 msgid "Minimum group size cannot exceed maximum size."
 msgstr "Ryhmän koon alaraja ei voi olla suurempi kuin yläraja."
 
-#: exercise/exercise_models.py:378
+#: exercise/exercise_models.py:391
 #, no-python-format, python-brace-format
 msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed until "
@@ -1568,7 +1582,7 @@ msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:383
+#: exercise/exercise_models.py:396
 #, python-brace-format
 msgid ""
 "Deadline for the exercise has passed ({date}). You may still submit "
@@ -1577,54 +1591,54 @@ msgstr ""
 "Tehtävän määräaika on mennyt ({date}). Voit edelleen palauttaa "
 "epävirallisesti saadaksesi palautetta."
 
-#: exercise/exercise_models.py:387
+#: exercise/exercise_models.py:400
 #, python-brace-format
 msgid "The exercise opens {date} for submissions."
 msgstr "Tämän tehtävän voi palauttaa {date} alkaen."
 
-#: exercise/exercise_models.py:391
+#: exercise/exercise_models.py:404
 #, python-brace-format
 msgid "Deadline for the exercise has passed ({date})."
 msgstr "Tehtävän määräaika on mennyt ({date})."
 
-#: exercise/exercise_models.py:395
+#: exercise/exercise_models.py:408
 #, python-brace-format
 msgid "This course has been archived ({date})."
 msgstr "Tämä kurssi on arkistoitu ({date})."
 
-#: exercise/exercise_models.py:475
+#: exercise/exercise_models.py:488
 msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:478
+#: exercise/exercise_models.py:491
 msgid "You must enroll at course home to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
 
-#: exercise/exercise_models.py:501
+#: exercise/exercise_models.py:514
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:503
+#: exercise/exercise_models.py:516
 msgid "You have previously submitted to this exercise alone."
 msgstr "Olet palauttanut tämän tehtävän aiemmin yksin."
 
-#: exercise/exercise_models.py:505
+#: exercise/exercise_models.py:518
 #, python-brace-format
 msgid "You have previously submitted to this exercise with {collaborators}."
 msgstr "Olet palauttanut tämän tehtävän aiemmin ryhmässä: {collaborators}."
 
-#: exercise/exercise_models.py:510
+#: exercise/exercise_models.py:523
 #, python-brace-format
 msgid ""
 "{collaborators} already submitted to this exercise in a different group."
 msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
 
-#: exercise/exercise_models.py:525
+#: exercise/exercise_models.py:538
 #, python-brace-format
 msgid "This exercise must be submitted in groups of {size} students."
 msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 
-#: exercise/exercise_models.py:533
+#: exercise/exercise_models.py:546
 msgid ""
 "You have used the allowed amount of submissions for this exercise. You may "
 "still submit unofficially to receive feedback."
@@ -1632,33 +1646,33 @@ msgstr ""
 "Olet käyttänyt kaikki tehtävän palautuskerrat. Voit edelleen palauttaa "
 "epävirallisesti saadaksesi palautetta."
 
-#: exercise/exercise_models.py:535
+#: exercise/exercise_models.py:548
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:638
+#: exercise/exercise_models.py:651
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:640
+#: exercise/exercise_models.py:653
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:642
+#: exercise/exercise_models.py:655
 msgid "Default: Launch exercise"
 msgstr "Oletus: Avaa tehtävä"
 
-#: exercise/exercise_models.py:644
+#: exercise/exercise_models.py:657
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:653
+#: exercise/exercise_models.py:666
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:759
+#: exercise/exercise_models.py:772
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -2619,6 +2633,16 @@ msgstr ""
 "ylläpitäjälle."
 
 #: external_services/templates/external_services/lti_form.html:23
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "\t\t\tFor this service also API token is tranferred,\n"
+#| "\t\t\tthus giving this service access to A+ API with your privileges.\n"
+#| "\t\t\tThat means service can for example read your student number,\n"
+#| "\t\t\tcourse progress and submit solutions to exercises.\n"
+#| "\t\t\tCourse staff has enabled this feature and have checked that\n"
+#| "\t\t\tthe service behaves with your best interest in mind.\n"
+#| "\t\t\t"
 msgid ""
 "\n"
 "\t\t\tFor this service also API token is tranferred,\n"
@@ -2626,6 +2650,16 @@ msgid ""
 "\t\t\tIf this was not intended, change 'Enable api access' in django admin.\n"
 "\t\t\t"
 msgstr ""
+"\n"
+"\t\t\tTälle palvelulle annetaan mahdollisuus toimia A+-järjestelmässä\n"
+"\t\t\tsinun käyttöoikeuksillasi.\n"
+"\t\t\tTämä tarkoittaa, että ulkoinen palvelu voi esimerkiksi lukea "
+"opiskelijanumerosi ja\n"
+"\t\t\ttarkastella etenemistäsi kurssilla.\n"
+"\t\t\tKurssihenkilökunta on kytkenyt ominaisuuden käyttöön ja tarkistanut, "
+"että\n"
+"\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
+"\t\t\t"
 
 #: external_services/templates/external_services/lti_form.html:29
 msgid ""
@@ -2771,48 +2805,52 @@ msgstr "Näytä valikko"
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:100 templates/base.html:136
+#: templates/base.html:97 userprofile/templates/userprofile/profile.html:5
+msgid "Profile"
+msgstr "Käyttäjätili"
+
+#: templates/base.html:102 templates/base.html:140
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:107 templates/base.html:143
+#: templates/base.html:111 templates/base.html:147
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:118
+#: templates/base.html:122
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:122
+#: templates/base.html:126
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:169 userprofile/templates/userprofile/privacy.html:4
+#: templates/base.html:173 userprofile/templates/userprofile/privacy.html:4
 #: userprofile/templates/userprofile/privacy.html:9
 msgid "Privacy Policy"
 msgstr "Tietosuojaseloste"
 
-#: templates/base.html:181 templates/base.html:200
+#: templates/base.html:185 templates/base.html:204
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:182 templates/base.html:201
+#: templates/base.html:186 templates/base.html:205
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:189 templates/base.html:206
+#: templates/base.html:193 templates/base.html:210
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:221
+#: templates/base.html:225
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:225
+#: templates/base.html:229
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:228
+#: templates/base.html:232
 msgid "Search for..."
 msgstr "Etsi..."
 
@@ -2863,10 +2901,6 @@ msgstr ""
 "\n"
 "Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
 "tietokonetta, sulje selain poistaaksesi istunnon tiedot."
-
-#: userprofile/templates/userprofile/profile.html:5
-msgid "Profile"
-msgstr "Käyttäjätili"
 
 #: userprofile/templates/userprofile/profile.html:14
 msgid "[Unknown name]"
