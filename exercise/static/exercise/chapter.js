@@ -9,6 +9,7 @@
 	var defaults = {
 		chapter_url_attr: "data-aplus-chapter",
 		exercise_url_attr: "data-aplus-exercise",
+		active_element_attr: "data-aplus-active-element",
 		loading_selector: "#loading-indicator",
 		quiz_success_selector: "#quiz-success",
 		message_attr: {
@@ -28,6 +29,7 @@
 		this.loader = null;
 		this.messages = null;
 		this.quizSuccess = null;
+		this.aeOutputs = {}; // Add active element outputs to chapter so they can be found by id later.
 		this.init();
 	}
 
@@ -44,6 +46,10 @@
 			this.messages = this.readMessages();
 			console.log(this.loader, this.messages);
 			this.quizSuccess = $(this.settings.quiz_success_selector);
+
+			// do not include active element inputs to exercise groups
+			this.element.find("[" + this.settings.active_element_attr +	"='in']").aplusExercise(this, {input: true});
+
 			this.exercises = this.element
 				.find("[" + this.settings.exercise_url_attr + "]")
 				.aplusExercise(this);
@@ -106,7 +112,6 @@
 			}
 			this.modalContent(content);
 		}
-
 	});
 
 	$.fn[pluginName] = function(options) {
@@ -139,8 +144,13 @@
 		response_selector: '.exercise-response',
 		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
 		dropdown_selector: 'ul.nav .dropdown-toggle',
-		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a'
+		last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a',
+		// For active elements:
+		active_element_attr: "data-aplus-active-element",
+		ae_result_selector: '.ae_result',
+		input: false, // determines whether the active element is an input element or not
 	};
+
 
 	function AplusExercise(element, chapter, options) {
 		this.element = $(element);
@@ -149,6 +159,7 @@
 		this.url = null;
 		this.quiz = false;
 		this.ajax = false;
+		this.active_element = false;
 		this.loader = null;
 		this.messages = {};
 		this.init();
@@ -168,13 +179,23 @@
 			// Do not mess up events in an Ajax exercise.
 			this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
 
+			// Check if the exercise is an active element.
+			this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);
+
+			// Add the active element outputs to a list so that the element can be found later
+			if (this.active_element && !this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
+
 			this.loader = this.chapter.cloneLoader();
+
 			this.element.height(this.element.height()).empty();
 			this.element.append(this.settings.content_element);
 			this.element.append(this.loader);
 
+			// Inputs are different from actual exercises and need only be loaded.
+			if (this.settings.input) this.load();
+
+			if (!this.active_element && this.ajax) {
 			// Add an Ajax exercise event listener to refresh the summary.
-			if (this.ajax) {
 				var exercise = this;
 				window.addEventListener("message", function (event) {
 					if (event.data.type === "a-plus-refresh-stats") {
@@ -187,37 +208,137 @@
 			}
 		},
 
+		// Construct an active element input form
+		makeInputForm: function(id, title, type, def_val) {
+			var wrap = $("<div>");
+			wrap.attr("id", "exercise-all");
+
+			var form = $("<form>");
+			form.attr("action", "");
+			form.attr("method", "post");
+
+			var first_div = $("<div>");
+			first_div.attr("class", "form-group");
+
+			var label = $("<label>");
+			label.attr("class", "control-label");
+			label.attr("for", id + "_input");
+			label.html(title);
+
+			var form_field;
+			if (!type) {
+				form_field = $("<textarea>");
+				form_field.val(def_val);
+			} else if (type === "file") {
+				form_field = $("<input>");
+				form_field.attr("type", "file");
+				form.attr("enctype", "multipart/form-data");
+			} else if (type.substring(0, 8) == "dropdown") {
+				form_field = $("<select>");
+				// If the type is dropdown, the format of the type attribute
+				// should be "dropdown:option1,option2,option2,.."
+				var options = type.split(":").pop().split(",");
+				$.each(options, function(i, opt) {
+					var option = $("<option>");
+					option.text(opt);
+					option.val(opt);
+					form_field.append(option);
+				});
+			}
+
+			form_field.attr("class", "form-control");
+			form_field.attr("id", id + "_input_id");
+			form_field.attr("name", id + "_input");
+
+			var second_div = $("<div>");
+			first_div.attr("class", "form-group");
+
+			var button = $("<input>");
+			button.attr("class", "btn btn-primary");
+			button.attr("value", "Submit");
+			button.attr("type", "submit");
+
+			$(first_div).append(label, form_field);
+			$(second_div).append(button);
+			$(form).append(first_div, second_div);
+			$(wrap).append(form);
+
+			return $(wrap);
+		},
+
 		load: function() {
 			this.showLoader("load");
 			var exercise = this;
-			$.ajax(this.url, {dataType: "html"})
-				.fail(function() {
-					exercise.showLoader("error");
-					exercise.chapter.nextExercise();
-				})
-				.done(function(data) {
-					exercise.hideLoader();
-					exercise.update($(data));
-					if (exercise.quiz) {
-						exercise.loadLastSubmission($(data));
-					} else {
+
+			if (exercise.settings.input) {
+				var title = exercise.element.data("title");
+				var type = exercise.element.data("type");
+				var def_val = exercise.element.data("default");
+
+				if (!title) title = '';
+				if (!def_val) def_val = '';
+
+				exercise.hideLoader();
+				var input_form = exercise.makeInputForm(exercise.chapterID, title, type, def_val);
+				exercise.update(input_form);
+				exercise.loadLastSubmission(input_form);
+				exercise.chapter.nextExercise();
+			 } else {
+				$.ajax(this.url, {dataType: "html"})
+					.fail(function() {
+						exercise.showLoader("error");
 						exercise.chapter.nextExercise();
-					}
-				});
+					})
+					.done(function(data) {
+						exercise.hideLoader();
+						exercise.update($(data));
+						if (exercise.quiz || exercise.active_element) {
+							exercise.loadLastSubmission($(data));
+						} else {
+							exercise.chapter.nextExercise();
+						}
+					 });
+				}
 		},
 
 		update: function(input) {
-			var content = this.element.find(this.settings.content_selector)
-				.empty().append(
-					input.filter(this.settings.exercise_selector).contents()
-				);
+			var exercise = this;
+			input = input.filter(exercise.settings.exercise_selector).contents();
+			var content = exercise.element.find(exercise.settings.content_selector)
+				.empty().append(input).hide();
+
+			if (exercise.active_element) {
+				var title = "";
+				if (exercise.element.attr("data-title"))
+					title = "<p><b>" + exercise.element.attr("data-title") + "</b></p>";
+				exercise.element.find(exercise.settings.summary_selector).remove();
+				$(title).prependTo(exercise.element.find(".exercise-response"));
+			}
+
+			content.show();
+
+			// Active element can have height settings in the A+ exercise div that need to be
+			// attached to correct DOM-elements before setting the exercise container div height to auto
+			var cur_height = exercise.element.css('height');
+			if (exercise.active_element) {
+				if (exercise.settings.input) {
+					$("#" + exercise.chapterID + " textarea").css("height", cur_height);
+				} else {
+					if (typeof $("#" + exercise.chapterID).data("scale") != "undefined") {
+						var cont_height = $(exercise.settings.ae_result_selector, exercise.element)[0].scrollHeight;
+						$(exercise.settings.ae_result_selector, exercise.element).css({ "height" : cont_height +"px"});
+					} else {
+						$(exercise.settings.ae_result_selector, exercise.element).css("height", cur_height);
+					}
+				}
+			}
+
 			this.element.height("auto");
 			this.bindNavEvents();
 			this.bindFormEvents(content);
 		},
 
 		bindNavEvents: function() {
-			var chapter = this.chapter;
 			this.element.find(this.settings.navigation_selector).aplusModalLink();
 			this.element.find(this.settings.dropdown_selector).dropdown();
 			this.element.find('.page-modal').aplusModalLink();
@@ -234,6 +355,7 @@
 					});
 				}
 			}
+
 			$.augmentExerciseGroup(content);
 			window.postMessage({
 				type: "a-plus-bind-exercise",
@@ -241,33 +363,185 @@
 			}, "*");
 		},
 
-		submit: function(form_element) {
-			//$(form_element).find(":input").prop("disabled", true);
-			//this.showLoader("submit");
-			this.chapter.openModal(this.chapter.messages.submit);
+		// Submit the formData to given url and then execute the callback.
+		submitAjax: function(url, formData, callback, retry) {
 			var exercise = this;
-			$.ajax($(form_element).attr("action"), {
+			$.ajax(url, {
 				type: "POST",
-				data: new FormData(form_element),
+				data: formData,
 				contentType: false,
 				processData: false,
 				dataType: "html"
-			}).fail(function() {
+			}).fail(function(xhr, textStatus, errorThrown) {
+				// Retry a few times if submission is not successful
+				retry = retry || 0;
+				if (xhr.status !== 200 && retry < 5) {
+					setTimeout(
+						function() {
+							exercise.submitAjax(url, formData, callback, retry + 1);
+						}, 100);
+				}
 				//$(form_element).find(":input").prop("disabled", false);
 				//exercise.showLoader("error");
-				this.chapter.modalError(exercise.chapter.messages.error);
-			}).done(function(data) {
-				//$(form_element).find(":input").prop("disabled", false);
-				//exercise.hideLoader();
-				var input = $(data);
-				if (exercise.quiz) {
-					var badge = input.find('.badge').eq(2).clone();
-					exercise.update(input);
-					exercise.chapter.modalSuccess(exercise.element, badge);
+
+				if (!exercise.active_element) {
+					exercise.chapter.modalError(exercise.chapter.messages.error);
 				} else {
-					exercise.updateSubmission(input);
+					// active elements don't use loadbar so the error message must be shown
+					// in the element container
+					var feedback = $("<div>");
+					feedback.attr('id', 'feedback');			
+					feedback.append(exercise.chapter.messages.error);
+					exercise.updateOutput(feedback);
 				}
+			}).done(function (data) {
+				callback(data);
 			});
+		},
+
+		// Construct form data from input element values
+		collectFormData: function(output, form_element) {
+			output = $(output);
+
+			var [exercise, inputs, expected_inputs] = this.matchInputs(output);
+			// Form data to be sent for evaluation
+			var formData = new FormData();
+			var input_id = this.chapterID;
+			var valid = true;
+
+			$.each(inputs, function(i, id) {
+				var input_val;
+				var input_elem = $.find("#" + id);
+
+				// Input can be also an output element, in which case the content must be
+				// retrieved differently
+				if (input_elem[0].hasAttribute("data-inputs")) {
+
+					// If an output uses another output as an input, the output used as an input can
+					// be in evaluation which means this output cannot be evaluated yet
+					if ($(input_elem).data("evaluating")) {
+						valid = false;
+						formData = false;
+						return;
+					}
+
+					input_val = $(input_elem).find(".ae_result").text().trim();
+
+				} else if ($(input_elem).data("type") === "file") {
+					input_val = $("#" + id + "_input_id").get(0).files[0];
+
+				} else if (id !== input_id) {
+					// Because changing an input value without submitting said input is possible,
+					// use the latest input value that has been submitted before for other inputs
+					// than the one being submitted now.
+					input_val = $(input_elem).data("value");
+					// Update the input box back to the value used in evaluation
+					$("#" + id + "_input_id").val(input_val);
+				} else {
+					input_val = $("#" + id + "_input_id").val();
+					// Update the saved value data
+					$(input_elem).data("value", input_val);
+				}
+				if (!input_val) valid = false;
+				if (formData) formData.append(expected_inputs[i], input_val);
+			});
+
+			return [exercise, valid, formData];
+		},
+
+		submit: function(form_element) {
+			var input = this;
+			var chapter = this.chapter;
+			if (this.active_element) {
+				var input_id = this.chapterID;
+				// For every output related to this input, try to evaluate the outputs
+				var outputs = $.find('[data-inputs~="' + input_id + '"]');
+
+				$.each(outputs,	function(i, element) {
+					var [exercise, valid, formData] = input.collectFormData(element, form_element);
+					var output_id = exercise.chapterID;
+					var output = $("#" + output_id);
+					var out_content = output.find(exercise.settings.ae_result_selector);
+					// Indicates that one of inputs has not finished evaluation
+					if (!valid && !formData) {
+						return; // TODO should this do something else?
+					}
+
+					if (!valid) {
+						$("#" + output_id).find(exercise.settings.ae_result_selector)
+							.html('<p style="color:red;">Fill out all the inputs</p>');
+						return;
+					}
+
+					output.data('evaluating', true);
+					// If the element has no height defined it should keep the height it had with content
+					if (typeof output.data("scale") != "undefined") {
+						out_content.css({ 'height' : (out_content.height())});
+					}
+					out_content.html("<p>Evaluating</p>");
+
+					var url = exercise.url;
+					exercise.submitAjax(url, formData, function(data) {
+						var content = $(data);
+
+						if (! content.find('.alert-danger').length) {
+							var poll_url = content.find(".exercise-wait").attr("data-poll-url");
+							output.attr('data-poll-url', poll_url);
+
+							exercise.updateSubmission(content);
+						} else if (content.find('.alert-danger').contents().text()
+						.indexOf("The grading queue is not configured.") >= 0) {
+							output.find(exercise.settings.ae_result_selector)
+							.html(content.find(".alert").text());
+							output.find(exercise.settings.ae_result_selector).append(content.find(".grading-task").text());
+						} else {
+							output.find(exercise.settings.ae_result_selector)
+							.html(content.find('.alert-danger').contents());
+						}
+					});
+				});
+			} else {
+				chapter.openModal(chapter.messages.submit);
+				var exercise = this;
+				var url = $(form_element).attr("action");
+				var formData = new FormData(form_element);
+
+				exercise.submitAjax(url, formData, function(data) {
+					//$(form_element).find(":input").prop("disabled", false);
+					//exercise.hideLoader();
+					var input = $(data);
+					if (exercise.quiz) {
+						var badge = input.find('.badge').eq(2).clone();
+						exercise.update(input);
+						chapter.modalSuccess(exercise.element, badge);
+					} else {
+						exercise.updateSubmission(input);
+					}
+				});
+			}
+		},
+
+		// Find for an active element the names of the input fields required and
+		// the corresponding names that are used in mooc-grader exercise type config
+		matchInputs: function(element) {
+			var output_id = element.attr("id");
+			var exercise = this.chapter.aeOutputs[output_id];
+			// Find the ids of input elements required for this output
+			var inputs = element.attr("data-inputs").split(" ");
+			// Find the form field names the grader is expecting
+			var expected_inputs = element.find(exercise.settings.ae_result_selector).attr("data-expected-inputs");
+			// make sure there are expected inputs
+			if (expected_inputs) {
+				expected_inputs = expected_inputs.trim().split(" ");
+				// There might be extra whitespace or line breaks in the expected inputs data-attribute
+				// because of how the template is generated
+				expected_inputs = $.grep(expected_inputs, function( a ) {
+					return a !== "" || a !== "\n";
+				});
+			} else {
+				expected_inputs = [];
+			}
+			return	[exercise, inputs, expected_inputs];
 		},
 
 		updateSummary: function(input) {
@@ -279,62 +553,131 @@
 		},
 
 		updateSubmission: function(input) {
-			this.updateSummary(input);
-			this.chapter.modalContent(
-				input.filter(this.settings.exercise_selector).contents()
-			);
+			if (!this.active_element) {
+				this.updateSummary(input);
+				this.chapter.modalContent(
+					input.filter(this.settings.exercise_selector).contents()
+				);
+			}
 
-			// Update asynchronous feedback.
 			if (typeof($.aplusExerciseDetectWaits) == "function") {
 				var exercise = this;
+				var id;
+				if (this.active_element) id = "#" +	this.chapterID;
+
 				$.aplusExerciseDetectWaits(function(suburl) {
 					$.ajax(suburl).done(function(data) {
-						var input2 = $(data);
-						var new_badges = input2.find(".badge");
-						var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
-						old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
-						old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
-						var content = input2.filter(exercise.settings.exercise_selector).contents();
-						if (content.text().trim() == "") {
-							exercise.chapter.modalSuccess(exercise.element, new_badges.eq(2).clone());
+						if (exercise.active_element) {
+							exercise.updateOutput(data);
+							exercise.submit(); // Active element outputs can be chained
 						} else {
-							exercise.chapter.modalContent(content);
+							var input2 = $(data);
+							var new_badges = input2.find(".badge");
+							var old_badges = exercise.element.find(exercise.settings.summary_selector + " .badge");
+							old_badges.eq(0).replaceWith(new_badges.eq(0).clone());
+							old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
+							var content = input2.filter(exercise.settings.exercise_selector).contents();
+							if (content.text().trim() == "") {
+								exercise.chapter.modalSuccess(exercise.element, new_badges.eq(2).clone());
+							} else {
+								exercise.chapter.modalContent(content);
+							}
 						}
 					}).fail(function() {
 						exercise.chapter.modalError(exercise.chapter.messages.error);
 					});
-				});
+				}, id);
 			}
+		},
+
+		updateOutput: function(data) {
+			// Put data in this output box
+			var exercise = this;
+			var type = exercise.element.attr("data-type") || "text"; // default output type is text
+			var content = $(data);
+
+			// The data organisation is different depending on whether it is a new submission or
+			// the latest submission that is loaded back
+			if (!content.is("#feedback")) {
+				content = content.find("#feedback");
+			}
+
+			if (type == "text") {
+				content = content.text();
+			} else if (type == "image") {
+				content = '<img src="data:image/png;base64, ' + content.text() + '" />';
+			}
+
+			var output_container = exercise.element.find(exercise.settings.ae_result_selector);
+			output_container.html(content);
+			exercise.element.data('evaluating', false);
+			// Some result divs should scale to match the content
+			if (typeof exercise.element.data("scale") != "undefined" ) {
+				output_container.css({ "height" : "auto"});
+			}
+		},
+
+		// Retrieve and update latest values of the input elements related to this element
+		updateInputs: function(data) {
+			data = data.submission_data;
+			var exercise = this;
+			var [exer, input_list, grader_inputs] = exercise.matchInputs(exercise.element);
+			// Submission data can contain many inputs
+			$(data).each(function(i, input) {
+				var grader_id = input[0];
+				var input_id = input_list[$.inArray(grader_id, grader_inputs)];
+				var input_data = input[1];
+				if ($("#" + input_id).data("type") !== "file") {
+					// Store the value of the input to be used later for submitting active
+					// element evaluation requests
+					$($.find("#" + input_id)).data("value", input_data);
+					$("#" +input_id + "_input_id").val(input_data);
+				}
+			});
 		},
 
 		loadLastSubmission: function(input) {
 			var link = input.find(this.settings.last_submission_selector);
+			var exercise = this;
 			if (link.size() > 0) {
 				var url = link.attr("href");
+
 				if (url && url !== "#") {
+					var data_type = "html";
+					if (exercise.active_element) {
+						// Active element input values are retrieved from the API, so
+						// we must extract the submission number from the submission url
+						var submission = url.match(/submissions\/\d+/)[0].split('/')[1];
+						url = '/api/v2/submissions/' + submission;
+						data_type = "json";
+					}
+
 					this.showLoader("load");
-					var exercise = this;
-					$.ajax(link.attr("href"), {dataType: "html"})
+					$.ajax(url, {dataType: data_type})
 						.fail(function() {
 							exercise.showLoader("error");
-							exercise.chapter.nextExercise();
 						})
 						.done(function(data) {
 							exercise.hideLoader();
-							var f = exercise.element.find(exercise.settings.response_selector)
+
+							if (!exercise.active_element) {
+								var f = exercise.element.find(exercise.settings.response_selector)
 								.empty().append(
-									$(data).filter(exercise.settings.exercise_selector).contents()
-								);
-							//f.find("table.submission-info").remove();
-							exercise.bindFormEvents(f);
-							exercise.chapter.nextExercise();
+										$(data).filter(exercise.settings.exercise_selector).contents()
+									);
+								//f.find("table.submission-info").remove();
+								exercise.bindFormEvents(f);
+							} else {
+								// Update the output box values
+								exercise.updateOutput(data.feedback);
+
+								// Update the input values
+								exercise.updateInputs(data);
+							}
 						});
-				} else {
-					this.chapter.nextExercise();
 				}
-			} else {
-				this.chapter.nextExercise();
 			}
+			exercise.chapter.nextExercise();
 		},
 
 		showLoader: function(messageType) {
@@ -370,6 +713,7 @@
 	};
 
 })(jQuery, window, document);
+
 
 // Construct the page chapter element.
 jQuery(function() { jQuery("#exercise-page-content").aplusChapter(); });
