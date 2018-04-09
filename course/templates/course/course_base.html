@@ -12,7 +12,7 @@
 {% endfor %}
 {% endblock %}
 
-{% block title %}{{ course.name }} | {{ block.super }} {% endblock %}
+{% block title %}{{ course.name|parse_localization }} | {{ block.super }} {% endblock %}
 
 {% block content %}
 <div class="row">

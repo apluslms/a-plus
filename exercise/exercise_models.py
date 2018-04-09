@@ -95,7 +95,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     use_wide_column = models.BooleanField(default=False,
         help_text=_("Remove the third info column for more space."))
 
-    service_url = models.URLField(blank=True)
+    service_url = models.CharField(max_length=255, blank=True)
     exercise_info = JSONField(blank=True)
     model_answers = models.TextField(blank=True,
         help_text=_("List model answer files as protected URL addresses."))
@@ -244,8 +244,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             self
         )
 
+    def pick_service_url(self, language):
+        if "|" in self.service_url:
+            variants = self.service_url.split("|")
+            for variant in variants:
+                if variant.startswith(language + ":"):
+                    return variant[(len(language)+1):]
+        return self.service_url
+
     def get_load_url(self, language, request, students, url_name="exercise"):
-        return update_url_params(self.service_url, {
+        return update_url_params(self.pick_service_url(language), {
             'lang': language,
         })
 
@@ -610,7 +618,7 @@ class BaseExercise(LearningObject):
             if settings.OVERRIDE_SUBMISSION_HOST
             else request.build_absolute_uri(submission_url)
         )
-        return update_url_params(self.service_url, {
+        return update_url_params(self.pick_service_url(language), {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
             "submission_url": auri,

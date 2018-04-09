@@ -68,6 +68,15 @@ def parse_float(value, errors):
 def parse_bool(value):
     return value in [True, "true", "yes", "True", "Yes"]
 
+def format_localization(element):
+    """
+    Parse localised elements into |lang:val|lang:val| -format strings
+    """
+    if isinstance(element, dict):
+        strings = ("{}:{}".format(k, v) for k, v in element.items())
+        return "|{}|".format("|".join(strings))
+    else:
+        return str(element)
 
 def configure_learning_objects(category_map, module, config, parent,
         seen, errors, n=0):
@@ -154,16 +163,16 @@ def configure_learning_objects(category_map, module, config, parent,
             n += 1
             lobject.order = n
         if "url" in o:
-            lobject.service_url = str(o["url"])
+            lobject.service_url = format_localization(o["url"])
         if "status" in o:
             lobject.status = str(o["status"])[:32]
         if "audience" in o:
             words = { 'internal':1, 'external':2, 'registered':3 }
             lobject.audience = words.get(o['audience'], 0)
         if "title" in o:
-            lobject.name = str(o["title"])
+            lobject.name = format_localization(o["title"])
         elif "name" in o:
-            lobject.name = str(o["name"])
+            lobject.name = format_localization(o["name"])
         if not lobject.name:
             lobject.name = "-"
         if "description" in o:
@@ -239,8 +248,14 @@ def configure_content(instance, url):
         dt = parse_date(config["end"], errors)
         if dt:
             instance.ending_time = dt
-    if "lang" in config and instance.is_valid_language(config["lang"]):
-        instance.language = str(config["lang"])[:5]
+    if "lang" in config:
+        langs = config["lang"]
+        if isinstance(langs, list):
+            langs = [lang for lang in langs if instance.is_valid_language(lang)]
+            if langs:
+               instance.language = "|{}|".format("|".join(langs))
+        elif instance.is_valid_language(langs):
+            instance.language = str(langs)[:5]
     if "contact" in config:
         instance.technical_error_emails = str(config["contact"])
     if "assistants" in config:
@@ -276,7 +291,7 @@ def configure_content(instance, url):
         if not "name" in c:
             errors.append(_("Category requires a name."))
             continue
-        category, flag = instance.categories.get_or_create(name=str(c["name"]))
+        category, flag = instance.categories.get_or_create(name=format_localization(c["name"]))
         if "status" in c:
             category.status = str(c["status"])[:32]
         if "description" in c:
@@ -319,9 +334,9 @@ def configure_content(instance, url):
             module.order = n
 
         if "title" in m:
-            module.name = str(m["title"])
+            module.name = format_localization(m["title"])
         elif "name" in m:
-            module.name = str(m["name"])
+            module.name = format_localization(m["name"])
         if not module.name:
             module.name = "-"
         if "status" in m:

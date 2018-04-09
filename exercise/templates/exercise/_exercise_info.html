@@ -38,7 +38,7 @@
             {% if exercise.category.status != "hidden" %}
               <dt>{% trans "Exercise category" %}</dt>
               <dd class="exercise-info-category">
-              	{{ exercise.category }}
+              	{{ exercise.category|parse_localization }}
               </dd>
             {% endif %}
             <dt>{% trans "Your submissions" %}</dt>

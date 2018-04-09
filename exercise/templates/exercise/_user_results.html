@@ -9,7 +9,7 @@
   {% if entry|is_listed %}
   <button class="btn btn-default btn-xs" data-category="{{ entry.id }}">
     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-    {{ entry.name }}
+    {{ entry.name|parse_localization }}
   </button>
   {% endif %}
   {% endfor %}
@@ -40,7 +40,7 @@
       </span>
       {% endif %}
       <span class="caret" aria-hidden="true"></span>
-      {{ module.name }}
+      {{ module.name|parse_localization }}
     </h3>
   </a>
   <div class="collapse{% if open and accessible %} in{% endif %}" id="module{{ module.id }}">
@@ -92,13 +92,13 @@
       <tr data-category="{{ entry.category_id }}">
         <td>
           {% if accessible %}
-          <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a>
+          <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
           {% else %}
-          {{ entry.name }}
+          {{ entry.name|parse_localization }}
           {% endif %}
         </td>
         <td>
-          <small>{{ entry.category }}</small>
+          <small>{{ entry.category|parse_localization }}</small>
         </td>
         <td class="submissions-dropdown dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -153,9 +153,9 @@
       <tr>
         <td colspan="4">
           {% if accessible %}
-          <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name }}</a></strong>
+          <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
           {% else %}
-          <strong>{{ entry.name }}</strong>
+          <strong>{{ entry.name|parse_localization }}</strong>
           {% endif %}
         </td>
         {% if is_course_staff %}

@@ -4,6 +4,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language
 
 from authorization.permissions import ACCESS
 from exercise.cache.content import CachedContent
@@ -66,7 +67,16 @@ class CourseInstanceBaseMixin(object):
 
             # Apply course instance language.
             if self.instance.language:
-                translation.activate(self.instance.language)
+                lang = self.instance.language
+                if lang.startswith("|"):
+                    active = get_language()
+                    if "|" + active + "|" in lang:
+                        translation.activate(active)
+                    else:
+                        fallback = lang[1:lang.find("|", 1)]
+                        translation.activate(fallback)
+                else:
+                    translation.activate(lang)
 
     def get_access_mode(self):
         access_mode = super().get_access_mode()
