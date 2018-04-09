@@ -37,6 +37,12 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         minutes = form.cleaned_data["minutes"]
+        new_date = form.cleaned_data["new_date"]
+        if not minutes and not new_date:
+            messages.warning(self.request,
+                    _("You have to provide either minutes or a date in the future."))
+            return super().form_valid(form)
+
         without_late_penalty = form.cleaned_data["without_late_penalty"]
         for profile in form.cleaned_data["submitter"]:
             for module in form.cleaned_data["module"]:
@@ -44,6 +50,9 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
                     course_module = module
                 )
                 for exercise in exercises:
+                    if new_date:
+                        minutes = exercise.delta_in_minutes_from_closing_to_date(
+                                new_date)
                     self.add_deviation(
                         exercise, profile, minutes, without_late_penalty)
 
