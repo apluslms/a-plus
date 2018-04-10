@@ -1,11 +1,20 @@
 $(function() {
 
     // Mark active menu item
-    $("#main-course-menu li a").each(function() {
+    $("[class^=menu-] a").each(function() {
        if ($(this)[0].pathname === location.pathname) {
         $(this).parent().addClass("active");
        }
     });
+
+    // Mark additional menu items based on data-view-tags
+    var tag = $("body").attr("data-view-tag");
+    if (tag) {
+        var entries = tag.split(",");
+        for (var i = 0; i < entries.length; i++) {
+            $(".menu-" + entries[i]).addClass("active");
+        }
+    }
 
     $('[data-toggle="tooltip"]').tooltip();
     $('.menu-groups').aplusGroupSelect();
