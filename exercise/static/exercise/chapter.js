@@ -92,6 +92,7 @@
 
 		modalContent: function(content) {
 			this.modalElement.aplusModal("content", { content: content });
+			this.renderMath();
 		},
 
 		modalSuccess: function(exercise, badge) {
@@ -111,7 +112,14 @@
 				content.find('.btn-success').hide();
 			}
 			this.modalContent(content);
-		}
+		},
+		
+		renderMath: function() {
+			if (typeof window.MathJax === "undefined") {
+				return;
+			}
+			window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, this.modalElement.get(0)]);
+		},
 	});
 
 	$.fn[pluginName] = function(options) {
@@ -295,6 +303,7 @@
 						if (exercise.quiz || exercise.active_element) {
 							exercise.loadLastSubmission($(data));
 						} else {
+							exercise.renderMath();
 							exercise.chapter.nextExercise();
 						}
 					 });
@@ -514,6 +523,7 @@
 						var badge = input.find('.badge').eq(2).clone();
 						exercise.update(input);
 						chapter.modalSuccess(exercise.element, badge);
+						exercise.renderMath();
 					} else {
 						exercise.updateSubmission(input);
 					}
@@ -674,7 +684,12 @@
 								// Update the input values
 								exercise.updateInputs(data);
 							}
+							
+							exercise.renderMath();
 						});
+				} else {
+					// the math must be rendered here even if there is no submission to load
+					exercise.renderMath();
 				}
 			}
 			exercise.chapter.nextExercise();
@@ -692,7 +707,14 @@
 
 		hideLoader: function() {
 			this.loader.hide();
-		}
+		},
+		
+		renderMath: function() {
+			if (typeof window.MathJax === "undefined") {
+				return;
+			}
+			window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, this.element.get(0)]);
+		},
 	});
 
 	$.fn[pluginName] = function(chapter, options) {
