@@ -31,6 +31,7 @@ from lib.helpers import (
     roman_numeral,
 )
 from lib.models import UrlMixin
+from lib.localization_syntax import pick_localized
 from userprofile.models import UserProfile
 
 from .cache.exercise import ExerciseCache
@@ -244,24 +245,18 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             self
         )
 
-    def pick_service_url(self, language):
-        if "|" in self.service_url:
-            variants = self.service_url.split("|")
-            for variant in variants:
-                if variant.startswith(language + ":"):
-                    return variant[(len(language)+1):]
-        return self.service_url
-
     def get_load_url(self, language, request, students, url_name="exercise"):
-        return update_url_params(self.pick_service_url(language), {
+        return update_url_params(pick_localized(self.service_url, language), {
             'lang': language,
         })
 
     def get_models(self):
-        return [(url,url.split('/')[-1]) for url in self.model_answers.split()]
+        entries = pick_localized(self.model_answers, get_language())
+        return [(url,url.split('/')[-1]) for url in entries.split()]
 
     def get_templates(self):
-        return [(url,url.split('/')[-1]) for url in self.templates.split()]
+        entries = pick_localized(self.templates, get_language())
+        return [(url,url.split('/')[-1]) for url in entries.split()]
 
 
 def invalidate_exercise(sender, instance, **kwargs):
@@ -631,7 +626,7 @@ class BaseExercise(LearningObject):
             if settings.OVERRIDE_SUBMISSION_HOST
             else request.build_absolute_uri(submission_url)
         )
-        return update_url_params(self.pick_service_url(language), {
+        return update_url_params(pick_localized(self.service_url, language), {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
             "submission_url": auri,
