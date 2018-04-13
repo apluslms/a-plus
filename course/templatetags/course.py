@@ -6,6 +6,7 @@ from django.utils.translation import get_language
 
 from exercise.cache.content import CachedContent
 from course.models import CourseInstance
+from lib.localization_syntax import pick_localized
 from ..cache.menu import CachedTopMenu
 from ..renders import tags_context
 
@@ -39,28 +40,17 @@ def group_select(context):
         'selected': selected,
     }
 
+
 @register.filter
 def parse_localization(entry):
-    """
-    Picks the currently selected language's value from
-    |lang:value|lang:value| -format text.
-    """
-    text = entry if isinstance(entry, str) else str(entry)
-    if "|" in text:
-        variants = text.split("|")
-        exercise_number = variants[0] # Leading numbers or an empty string
-        lang = get_language()
-        for variant in variants:
-            if variant.startswith(lang + ":"):
-                return exercise_number + variant[(len(lang)+1):]
-        return exercise_number
-    else:
-        return text
+    return pick_localized(entry, get_language())
+
 
 @register.filter
 def list_unselected(langs):
     listed = list(filter(lambda x: x and x != get_language(), langs.split("|")))
     return listed
+
 
 @register.filter
 def is_visible(entry):

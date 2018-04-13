@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
 from external_services.models import LTIService
 from userprofile.models import UserProfile
+from lib.localization_syntax import format_localization
 
 
 def parse_date(value, errors):
@@ -68,15 +69,6 @@ def parse_float(value, errors):
 def parse_bool(value):
     return value in [True, "true", "yes", "True", "Yes"]
 
-def format_localization(element):
-    """
-    Parse localised elements into |lang:val|lang:val| -format strings
-    """
-    if isinstance(element, dict):
-        strings = ("{}:{}".format(k, v) for k, v in element.items())
-        return "|{}|".format("|".join(strings))
-    else:
-        return str(element)
 
 def configure_learning_objects(category_map, module, config, parent,
         seen, errors, n=0):
@@ -182,9 +174,9 @@ def configure_learning_objects(category_map, module, config, parent,
         if "exercise_info" in o:
             lobject.exercise_info = o["exercise_info"]
         if "model_answer" in o:
-            lobject.model_answers = o["model_answer"]
+            lobject.model_answers = format_localization(o["model_answer"])
         if "exercise_template" in o:
-            lobject.templates = o["exercise_template"]
+            lobject.templates = format_localization(o["exercise_template"])
         lobject.clean()
         lobject.save()
         seen.append(lobject.id)
