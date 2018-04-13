@@ -22,7 +22,7 @@
                 </th>
                 {% for exercise in table.exercises %}
                 <th scope="col">
-                	<a href="{{ exercise|url }}">{{ exercise.name }}</a>
+                	<a href="{{ exercise|url }}">{{ exercise.name|parse_localization }}</a>
                 </th>
                 {% endfor %}
                 <th>{% trans "Sum" %}</th>

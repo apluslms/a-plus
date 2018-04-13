@@ -64,7 +64,7 @@
                         </button>
                         <a class="navbar-brand hidden-xs" href="{% url 'home' %}">{% brand_name %}</a>
                         <span class="navbar-brand visible-xs">
-                        {% brand_name %}{% if instance %} &nbsp; {{ course.name }}{% endif %}
+                        {% brand_name %}{% if instance %} &nbsp; {{ course.name|parse_localization }}{% endif %}
                         </span>
                     </div>
                     <div class="collapse navbar-collapse" id="bs-navbar-collapse">
@@ -72,7 +72,7 @@
                             <li role="presentation" class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                     {% if instance %}
-                                    {{ course }}
+                                    {{ course|parse_localization }}
                                     {% if not instance.visible_to_students %}
                                     <span class="label label-danger">{% trans "Hidden" %}</span>
                                     {% endif %}
@@ -88,17 +88,21 @@
                             {% if user.is_authenticated %}
                             {% group_select %}
                             {% notification_menu %}
-                            <li role="presentation" class="menu-profile">
-                                <a href="{% url 'profile' %}">
-                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                                    {{ user.username }}
-                                </a>
-                            </li>
-                            <li role="presentation">
-                                <a href="{% url 'logout' %}">
+                            <li class="dropdown">
+                              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                                {{ user.first_name }} {{ user.last_name }} <span class="caret"></span>
+                              </a>
+                              <ul class="dropdown-menu">
+                                <li><a href="{% url 'profile' %}">{% trans "Profile" %}</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                  <a href="{% url 'logout' %}">
                                     <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
                                     {% trans "Log out"%}
-                                </a>
+                                  </a>
+                                </li>
+                              </ul>
                             </li>
                             {% else %}
                             <li role="presentation">
@@ -127,7 +131,7 @@
                             <li role="presentation">
                                 <a href="{% url 'profile' %}">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                            	    {{ user.username }}
+                            	    {{ user.first_name }} {{ user.last_name }}
                                 </a>
                             </li>
                             <li role="presentation">

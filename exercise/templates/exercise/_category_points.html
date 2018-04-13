@@ -18,7 +18,7 @@
 {% for entry in categories %}
 {% if entry|is_visible and entry.max_points > 0 %}
 <div class="well">
-    <p>{{ entry.name }}</p>
+    <p>{{ entry.name|parse_localization }}</p>
     <p><strong class="h2">
     	{{ entry.points }}
     	<small>/ {{ entry.max_points }}</small>

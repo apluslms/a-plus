@@ -41,7 +41,7 @@
             {% for category in instance.categories.all %}
             <tr>
                 <td>
-                    {{ category.name }}
+                    {{ category.name|parse_localization }}
                 </td>
                 <td>
                     <a class="btn btn-default btn-xs" href="{{ category|editurl:'category' }}">
@@ -77,7 +77,7 @@
             {% for module in modules %}
             <tr class="success">
                 <th>
-                  <strong>{{ module }}</strong>
+                  <strong>{{ module|parse_localization }}</strong>
                   {% if module.status != 'ready' %}
                   <span class="label label-default">{{ module.status }}</span>
                   {% endif %}
@@ -99,7 +99,7 @@
             {% for lobject in module.flat_objects %}
             <tr>
                 <td>
-                    {{ lobject }}
+                    {{ lobject|parse_localization }}
                     {% if lobject.status != 'ready' %}
                     <span class="label label-default">{{ lobject.status }}</span>
                     {% endif %}

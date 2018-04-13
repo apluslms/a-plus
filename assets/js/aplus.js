@@ -1,13 +1,11 @@
 $(function() {
 
-    // Mark active menu based on body attribute data-view-tag.
-    var tag = $("body").attr("data-view-tag");
-    if (tag) {
-        var entries = tag.split(",");
-        for (var i = 0; i < entries.length; i++) {
-            $(".menu-" + entries[i]).addClass("active");
-        }
-    }
+    // Mark active menu item
+    $("#main-course-menu li a").each(function() {
+       if ($(this)[0].pathname === location.pathname) {
+        $(this).parent().addClass("active");
+       }
+    });
 
     $('[data-toggle="tooltip"]').tooltip();
     $('.menu-groups').aplusGroupSelect();

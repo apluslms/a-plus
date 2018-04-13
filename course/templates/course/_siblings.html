@@ -7,11 +7,11 @@
     {% module_accessible next as accessible %}
     {% if accessible %}
     <a href="{{ next.link }}" class="pull-right btn btn-link">
-        {{ next.name }} &raquo;
+        {{ next.name|parse_localization }} &raquo;
     </a>
     {% else %}
     <span class="pull-right btn btn-link disabled">
-        {{ next.name }} &raquo;
+        {{ next.name|parse_localization }} &raquo;
         {% if is_course_staff %}
         <a href="{{ next.link }}" class="btn btn-default btn-xs">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
@@ -26,11 +26,11 @@
     {% module_accessible previous as accessible %}
     {% if accessible %}
     <a href="{{ previous.link }}" class="pull-left btn btn-link">
-        &laquo; {{ previous.name }}
+        &laquo; {{ previous.name|parse_localization }}
     </a>
     {% else %}
     <span class="pull-left btn btn-link disabled">
-        &laquo; {{ previous.name }}
+        &laquo; {{ previous.name|parse_localization }}
         {% if is_course_staff %}
         <a href="{{ previous.link }}" class="btn btn-default btn-xs">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>

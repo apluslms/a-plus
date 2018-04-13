@@ -20,8 +20,14 @@ class DeadlineRuleDeviationForm(forms.Form):
         required=False,
     )
     minutes = forms.IntegerField(
+        required=False,
         min_value=1,
-        help_text=_("Amount of extra time given in minutes."),
+        help_text=_("Amount of extra time given in minutes. Leave blank if you fill in the date below."),
+    )
+    new_date = forms.DateTimeField(
+        required=False,
+        input_formats=['%Y-%m-%d %H:%M'],
+        help_text=_("New submission deadline in the future in format YYYY-MM-DD HH:MM."),
     )
     without_late_penalty = forms.BooleanField(
         required=False,

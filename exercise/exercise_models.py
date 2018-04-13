@@ -95,7 +95,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     use_wide_column = models.BooleanField(default=False,
         help_text=_("Remove the third info column for more space."))
 
-    service_url = models.URLField(blank=True)
+    service_url = models.CharField(max_length=255, blank=True)
     exercise_info = JSONField(blank=True)
     model_answers = models.TextField(blank=True,
         help_text=_("List model answer files as protected URL addresses."))
@@ -244,8 +244,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             self
         )
 
+    def pick_service_url(self, language):
+        if "|" in self.service_url:
+            variants = self.service_url.split("|")
+            for variant in variants:
+                if variant.startswith(language + ":"):
+                    return variant[(len(language)+1):]
+        return self.service_url
+
     def get_load_url(self, language, request, students, url_name="exercise"):
-        return update_url_params(self.service_url, {
+        return update_url_params(self.pick_service_url(language), {
             'lang': language,
         })
 
@@ -356,6 +364,19 @@ class BaseExercise(LearningObject):
             return self.TIMING.UNOFFICIAL, dl
 
         return self.TIMING.CLOSED_AFTER, dl
+
+    def delta_in_minutes_from_closing_to_date(self, future_date):
+        module_close = self.course_module.closing_time
+        # module_close is in utc format 2018-04-10 23:59:00+00:00
+        # while future_date from the teacher submitted form might
+        # be in different formet, eg. 2018-05-15 23:59:00+03:00
+        # -> convert future_date to same format as module_close
+        string_date = str(future_date)[:16]
+        converted = timezone.make_aware(
+                datetime.datetime.strptime(string_date, '%Y-%m-%d %H:%M'),
+                timezone.get_current_timezone())
+        delta = converted - module_close
+        return delta.days * 24 * 60 + delta.seconds // 60
 
     def one_has_access(self, students, when=None):
         """
@@ -610,7 +631,7 @@ class BaseExercise(LearningObject):
             if settings.OVERRIDE_SUBMISSION_HOST
             else request.build_absolute_uri(submission_url)
         )
-        return update_url_params(self.service_url, {
+        return update_url_params(self.pick_service_url(language), {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
             "submission_url": auri,
