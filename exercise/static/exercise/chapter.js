@@ -54,7 +54,7 @@
 				.find("[" + this.settings.exercise_url_attr + "]")
 				.aplusExercise(this);
 			this.exercisesIndex = 0;
-			this.exercisesSize = this.exercises.size();
+			this.exercisesSize = this.exercises.length;
 			if (this.exercisesSize > 0) {
 				this.nextExercise();
 			} else {
@@ -639,7 +639,7 @@
 		loadLastSubmission: function(input) {
 			var link = input.find(this.settings.last_submission_selector);
 			var exercise = this;
-			if (link.size() > 0) {
+			if (link.length > 0) {
 				var url = link.attr("href");
 
 				if (url && url !== "#") {
