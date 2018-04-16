@@ -319,6 +319,10 @@ $.fn.highlightCode = function(options) {
             c.find('.file-modal').aplusModalLink({file:true});
             c.find('pre.hljs').highlightCode();
             modal.trigger("opened.aplus.modal");
+            // render math in the modal
+            if (typeof window.MathJax !== "undefined") {
+              window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, modal.get(0)]);
+            }
           }
         }).fail(function() {
           modal.aplusModal("error");
