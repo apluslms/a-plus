@@ -111,6 +111,9 @@ INSTALLED_APPS = (
     'diploma',
     'apps',
     'redirect_old_urls',
+
+    'js_jquery_toggle',
+    'django_colortag',
 )
 
 # Different login options (may override in local_settings.py)
