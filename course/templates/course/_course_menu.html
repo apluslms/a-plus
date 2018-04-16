@@ -3,10 +3,44 @@
 {% load exercise %}
 {% load notification %}
 {% load external_services %}
+{% load static %}
 
 {% prepare_course_menu %}
 
-<li role="presentation" class="header"><h4>{% trans "Course" %}</h4></li>
+{% if instance.language|first == "|" %}
+<li role="presentation" class="header">
+	<div class="row">
+    <div class="col-sm-10">
+			<h4>{% trans "Course" %}</h4>
+    </div>
+    <div class="col-sm">
+			<div class="dropdown">
+			  <h4>
+					<input type="image" src="{% static 'images/uls.svg' %}" alt="{% trans 'Language' %}"
+					class="btn btn-xs" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+					<div class="dropdown-menu dropdown-menu-right">
+						{% for language in instance.language|list_unselected %}
+						<li>
+							<form action="{% url 'set_language' %}" method="post">
+								{% csrf_token %}
+								<input name="next" type="hidden" value="{{ request.get_full_path }}" />
+								<input name="language" type="hidden" value="{{ language }}" />
+								<button type="submit" class="btn">{{ language|language_name_local }}</button>
+							</form>
+						</li>
+						{% endfor %}
+				  </div>
+			</h4>
+			</div>
+    </div>
+  </div>
+</li>
+{% else %}
+<li role="presentation" class="header">
+	<h4>{% trans "Course" %}</h4>
+</li>
+{% endif %}
+
 <li role="presentation" class="menu-home">
 	<a href="{{ instance|url }}">
 		<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
@@ -36,18 +70,6 @@
 </li>
 {% endif %}
 
-{% if instance.language|first == "|" %}
-{% for language in instance.language|list_unselected %}
-<li role="presentation">
-	<form action="{% url 'set_language' %}" method="post">
-		{% csrf_token %}
-		<input name="next" type="hidden" value="{{ request.get_full_path }}" />
-		<input name="language" type="hidden" value="{{ language }}" />
-		<button type="submit" class="btn btn-xs btn-primary">{{ language|language_name_local }}</button>
-	</form>
-</li>
-{% endfor %}
-{% endif %}
 
 {% for group in course_menu.student_link_groups %}
 {% if group.label %}
