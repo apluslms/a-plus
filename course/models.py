@@ -1,10 +1,13 @@
 import datetime
+import json
 import logging
 import urllib.request, urllib.parse
+from random import randint, choice
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
@@ -32,6 +35,9 @@ from userprofile.models import User, UserProfile, GraderUser
 
 logger = logging.getLogger("course.models")
 
+# Read pseudonymization data from file
+with open(finders.find('pseudonym.json')) as json_file:
+    data = json.load(json_file)
 
 class Course(UrlMixin, models.Model):
     """
@@ -130,7 +136,8 @@ class Enrollment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     personal_code = models.CharField(max_length=10, blank=True, default='')
     selected_group = models.ForeignKey(StudentGroup, blank=True, null=True, default=None, on_delete=models.SET_NULL)
-
+    anon_name = models.CharField(max_length=50, blank=True, default='')
+    anon_id = models.CharField(max_length=50, null=True, unique=True)
 
 def create_enrollment_code(sender, instance, created, **kwargs):
     if created:
@@ -141,7 +148,47 @@ def create_enrollment_code(sender, instance, created, **kwargs):
         instance.personal_code = code
         instance.save()
 
+def create_anon_id(sender, instance, created, **kwargs):
+    if created or not instance.anon_id:
+        nums = '0123456789'
+        course_id = instance.course_instance.course.code + instance.course_instance.instance_name
+        code = course_id + get_random_string(16, nums)
+        for i in range(10000):
+            if Enrollment.objects.filter(course_instance=instance.course_instance, anon_id=code).exists():
+                code = course_id + get_random_string(16, nums)
+            else:
+                break
+        if Enrollment.objects.filter(course_instance=instance.course_instance, anon_id=code).exists():
+            raise RuntimeError("No anonymous user ids available")
+        instance.anon_id = code
+        instance.save(update_fields=['anon_id'])
+
+def pseudonymize(sender, instance, created, **kwargs):
+    if created or not instance.anon_name:
+        def namegen():
+            '''
+             If the color-animal pairs are starting to run out, add another color.
+             This is highly unlikely, as there are roughly 140*68=9520 possible combinations
+            '''
+            second_name = ""
+            if Enrollment.objects.filter(course_instance=instance.course_instance).count() > len(data["colors"]) * len(data["animals"]) * 0.75:
+                second_name = choice(data["colors"])["name"]
+            return choice(data["colors"])["name"] + second_name + " " + choice(data["animals"])
+
+        codename = namegen()
+        for i in range(10000):
+            if Enrollment.objects.filter(course_instance=instance.course_instance, anon_name=codename).exists():
+                codename = namegen()
+            else:
+                break
+        if Enrollment.objects.filter(course_instance=instance.course_instance, anon_name=codename).exists():
+            raise RuntimeError("No anonymous usernames available")
+        instance.anon_name = codename
+        instance.save(update_fields=['anon_name'])
+
 post_save.connect(create_enrollment_code, sender=Enrollment)
+post_save.connect(create_anon_id, sender=Enrollment)
+post_save.connect(pseudonymize, sender=Enrollment)
 
 
 class UserTag(UrlMixin, ColorTag):
