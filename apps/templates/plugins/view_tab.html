@@ -1,5 +1,6 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
+{% load course %}
 
 {% block title %}{{ tab.title }} | {{ course.name|parse_localization }}{% endblock %}
 {% block view_tag %}tab{{ tab.id }}{% endblock %}
