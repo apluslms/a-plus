@@ -228,6 +228,8 @@ def get_grading_errors(submission):
     grading_data = submission.grading_data.get('grading_data')
     if grading_data is None:
         return ""
+    if grading_data.startswith('<pre>'):
+        return grading_data[5:-6]
     try:
         grading_data = json.loads(grading_data)
     except (TypeError, ValueError):
