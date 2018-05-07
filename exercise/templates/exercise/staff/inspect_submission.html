@@ -1,6 +1,7 @@
 {% extends "exercise/exercise_base.html" %}
 {% load i18n %}
 {% load course %}
+{% load exercise %}
 
 {% block title %}{% trans "Inspect SID " %} {{ submission.id}} | {{ block.super }}{% endblock %}
 {% block view_tag %}inspect{% endblock %}
@@ -70,5 +71,11 @@
         </p>
 
     </div>
+
+    {% get_grading_errors submission as errors %}
+    {% if errors %}
+        <h3>{% trans "Grader errors" %}</h3>
+        <pre>{{ errors }}</pre>
+    {% endif %}
 </div>
 {% endblock %}

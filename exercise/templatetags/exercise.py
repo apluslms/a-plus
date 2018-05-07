@@ -223,6 +223,18 @@ def module_accessible(context, entry):
     return True
 
 
+@register.assignment_tag
+def get_grading_errors(submission):
+    grading_data = submission.grading_data.get('grading_data')
+    if grading_data is None:
+        return ""
+    try:
+        grading_data = json.loads(grading_data)
+    except (TypeError, ValueError):
+        return ""
+    return grading_data.get('errors', "")
+
+
 @register.inclusion_tag("exercise/_text_stats.html", takes_context=True)
 def exercise_text_stats(context, exercise):
     if not 'instance' in context:
