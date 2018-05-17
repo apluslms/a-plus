@@ -35,7 +35,6 @@ class GraderAuthentication(BaseAuthentication):
                 ip,
                 ips,
                 service_url,
-                extra={'request': request},
             )
             raise AuthenticationFailed("Client address does not match service address.")
 
