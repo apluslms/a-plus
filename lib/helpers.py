@@ -129,6 +129,16 @@ def get_url_ip_address_list(url):
     return tuple(set(ips))
 
 
+def get_remote_addr(request):
+    real_ip = request.META.get('HTTP_X_REAL_IP')
+    if real_ip:
+        return real_ip
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_for:
+        return forwarded_for.split(',', 1)[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
 def get_font_color_for_background(background_color):
     data = background_color.lstrip('#')
     ldata = len(data)

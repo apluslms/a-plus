@@ -3,7 +3,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import BaseAuthentication
 
 from lib.crypto import get_valid_message
-from lib.helpers import get_url_ip_address_list
+from lib.helpers import get_url_ip_address_list, get_remote_addr
 from exercise.models import BaseExercise, Submission
 from userprofile.models import GraderUser
 from . import GRADER_AUTH_TOKEN
@@ -28,8 +28,8 @@ class GraderAuthentication(BaseAuthentication):
         # Make sure that remote address matches service address
         service_url = user._exercise.service_url
         ips = get_url_ip_address_list(service_url)
-        ip = request.META["REMOTE_ADDR"]
-        if ip not in ips:
+        ip = get_remote_addr(request)
+        if ip not in ips and ip != '127.0.0.1':
             logger.error(
                 "Request IP does not match exercise service URL: %s not in %s (%s)",
                 ip,
