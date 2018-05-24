@@ -1,0 +1,22 @@
+{
+  "name": "aplus-translate-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "sh -c \"node_modules/browserify/bin/cmd.js main.js -s _ -t [ babelify --presets [ \\\"env\\\" ] ] -o ../../assets/js/translate.js && node_modules/uglify-es/bin/uglifyjs ../../assets/js/translate.js --compress --mangle -o ../../assets/js/translate.min.js --source-map \\\"url='/static/js/translate.min.js.map'\\\"\" && sed -i s!../../assets!/static! ../../assets/js/translate.min.js.map",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "node-polyglot": "^2.2.2"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babelify": "^8.0.0",
+    "browserify": "^16.2.0",
+    "uglify-es": "^3.3.9"
+  }
+}

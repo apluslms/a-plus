@@ -4,7 +4,7 @@
 {% load course %}
 {% load notification %}
 <!DOCTYPE html>
-    <html>
+<html lang="{{ request.LANGUAGE_CODE }}">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,6 +25,7 @@
         <link rel="stylesheet" href="{% static 'css/submission.css' %}" />
         <link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
         <script src="{% static 'js/aplus.js' %}"></script>
+        <script src="{% static 'js/translate.min.js' %}"></script>
 
         {% block scripts %}
             {# Put all additional scripts inside this block. #}
