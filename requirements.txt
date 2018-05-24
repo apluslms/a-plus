@@ -7,6 +7,8 @@ djangorestframework==3.6.3
 djangorestframework-csv==2.0.0
 git+https://github.com/raphendyr/drf-extensions.git@2175f4f5486fab3e132a72abed48b8e8e37fd8b8#egg=drf_extensions==0.3.2
 raphendyr-django-essentials==1.2.0
+git+https://github.com/Aalto-LeTech/js-jquery-toggle.git@1.0.0#egg=js-jquery-toggle-django==1.0.0&subdirectory=django
+git+https://github.com/Aalto-LeTech/django-colortag.git@1.2.1#egg=django-colortag==1.2.1
 feedparser==5.2.1
 html5lib
 cachetools==1.1.6

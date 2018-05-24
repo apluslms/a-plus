@@ -1,9 +1,4 @@
+{% load colortag %}
 {% spaceless %}
-<span
-  class="label label-default label-xs"
-  {% if not hide_tooltip %}
-  data-toggle="tooltip" title="{{tag.description}}"
-  {% endif %}
-  style="background-color: {{tag.color}}; color: {{tag.font_color}};"
->{{ tag.name }}</span>
+{{ tag|colortag }}
 {% endspaceless %}

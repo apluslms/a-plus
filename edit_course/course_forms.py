@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
+from django_colortag.forms import ColorTagForm
 
 from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
 
@@ -141,12 +142,13 @@ class CloneInstanceForm(forms.Form):
             raise ValidationError(_("The URL is already taken."))
         return url
 
-class UserTagForm(forms.ModelForm):
+class UserTagForm(ColorTagForm):
 
-    class Meta:
+    class Meta(ColorTagForm.Meta):
         model = UserTag
         fields = [
             'name',
+            'slug',
             'description',
             'visible_to_students',
             'color',
