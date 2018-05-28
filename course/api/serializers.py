@@ -80,6 +80,7 @@ class CourseUsertagBriefSerializer(AplusModelSerializer):
 
     class Meta(AplusModelSerializer.Meta):
         model = UserTag
+        fields = ('slug',)
         extra_kwargs = {
             'url': {
                 'view_name': 'api:course-usertags-detail',

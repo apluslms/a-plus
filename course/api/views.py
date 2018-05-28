@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, viewsets, status
+from rest_framework import generics, permissions, viewsets, status, mixins
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -98,7 +98,11 @@ class CourseUsertagsViewSet(NestedViewSetMixin,
 class CourseUsertaggingsViewSet(NestedViewSetMixin,
                                 CourseModuleResourceMixin,
                                 CourseResourceMixin,
-                                viewsets.ReadOnlyModelViewSet):
+                                mixins.CreateModelMixin,
+                                mixins.RetrieveModelMixin,
+                                mixins.DestroyModelMixin,
+                                mixins.ListModelMixin,
+                                viewsets.GenericViewSet):
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         OnlyCourseTeacherPermission,
     ]
@@ -106,11 +110,16 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
     serializer_class = CourseUsertaggingsSerializer
     queryset = ( UserTagging.objects
                  .select_related('tag', 'user', 'user__user')
-                 .only('tag__id', 'tag__course_instance',
+                 .only('tag__id', 'tag__course_instance', 'tag__name', 'tag__slug',
                        'user__user__id', 'user__user__username', 'user__student_id',
                        'course_instance__id')
                  .all() )
     parent_lookup_map = {'course_id': 'course_instance_id'}
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({ 'course_id': self.kwargs['course_id'] })
+        return context
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)

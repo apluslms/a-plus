@@ -35,3 +35,7 @@ def tags_context(profile, tags):
 def render_tags(profile, tags):
     template = loader.get_template("course/_tags.html")
     return template.render(Context(tags_context(profile, tags)))
+
+def render_usertag(tag):
+    template = loader.get_template("course/_usertag.html")
+    return template.render(Context({ 'tag': tag })).strip()

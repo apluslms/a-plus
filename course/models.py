@@ -208,7 +208,7 @@ class UserTaggingManager(models.Manager):
         return [t.tag for t in ts]
 
     def set(self, profile, tag):
-        self.get_or_create(
+        return self.get_or_create(
             tag=tag,
             user=profile,
             course_instance=tag.course_instance,
