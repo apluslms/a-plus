@@ -1,9 +1,11 @@
 """
 Provides LTI access to external services with current course and user identity.
 """
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -12,7 +14,6 @@ from .forms import MenuItemForm
 from .lti import LTIRequest
 from .models import MenuItem
 from .permissions import MenuVisiblePermission, LTIServicePermission
-
 
 class LTILoginView(CourseInstanceBaseView):
     """
@@ -44,13 +45,17 @@ class LTILoginView(CourseInstanceBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.service = self.menu_item.service.as_leaf_class()
-        lti = LTIRequest(
-            self.service,
-            self.request.user,
-            self.instance,
-            self.request.get_host(),
-            self.menu_item.label,
-        )
+        try:
+            lti = LTIRequest(
+                self.service,
+                self.request.user,
+                self.instance,
+                self.request.get_host(),
+                self.menu_item.label,
+            )
+        except PermissionDenied:
+            messages.error(self.request, _('You need to be enrolled to access an anonymous service.'))
+            raise
         self.parameters_hash = lti.get_checksum_of_parameters()
         self.parameters = lti.sign_post_parameters()
         self.site = '/'.join(self.service.url.split('/')[:3])

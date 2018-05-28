@@ -46,9 +46,15 @@ class LTIService(LinkService):
     '''
     A provider of an LTI service.
     '''
-    enable_api_access = models.BooleanField(
-        default=False,
-        help_text=_("Enable sharing user's api token and course api url in lti launch request. This grants api access with user's privileges for the lti tool."),
+    LTI_ACCESS = Enum([
+        ('ANON_API_NO', 0, _('Anonymous service, no API access')),
+        ('PUBLIC_API_NO', 5, _('Public service, no API access')),
+        ('PUBLIC_API_YES', 10, _('Public service, allow API access')),
+    ])
+    access_settings = models.IntegerField(
+        choices=LTI_ACCESS.choices,
+        default=LTI_ACCESS.ANON_API_NO,
+        help_text=_("Select whether to pass pseudonymised user data to the LTI service.</br>Public services can also enable sharing the user's API token and course API URL in the LTI launch request. This grants the LTI tool API access with the user's privileges.")
     )
     consumer_key = models.CharField(
         max_length=128,
@@ -58,7 +64,13 @@ class LTIService(LinkService):
         max_length=128,
         help_text=_("The consumer secret provided by the LTI service.")
     )
+    @property
+    def is_anonymous(self):
+        return self.access_settings == self.LTI_ACCESS.ANON_API_NO
 
+    @property
+    def api_access(self):
+        return self.access_settings == self.LTI_ACCESS.PUBLIC_API_YES
 
 class MenuItemManager(models.Manager):
 
