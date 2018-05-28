@@ -4,7 +4,9 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.utils.translation import ungettext_lazy as ungettext
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, \
+    FormView
 
 from lib.viewbase import (
     BaseViewMixin,
@@ -16,14 +18,14 @@ from lib.viewbase import (
 )
 from authorization.permissions import ACCESS
 from course.cache.students import CachedStudents
-from course.models import CourseInstance, UserTag
+from course.models import CourseInstance, UserTag, UserTagging
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from exercise.cache.content import CachedContent
 from exercise.cache.exercise import invalidate_instance
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
-    CourseContentForm, CloneInstanceForm, UserTagForm
+    CourseContentForm, CloneInstanceForm, UserTagForm, SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 
 
@@ -232,9 +234,38 @@ class UserTagAddView(UserTagMixin, CreateView):
 class UserTagEditView(UserTagMixin, UpdateView):
     template_name = "edit_course/usertag_edit.html"
 
-
 class UserTagDeleteView(UserTagMixin, DeleteView):
     template_name = "edit_course/usertag_delete.html"
+
+class UserTaggingAddView(UserTagMixin, FormView):
+    form_class = SelectUsersForm
+    template_name = "edit_course/usertagging_add.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def form_valid(self, form):
+        user_set = form.cleaned_data['user']
+        tag_id = self.kwargs['tag_id']
+        tag = UserTag.objects.get(pk=tag_id)
+
+        for user in user_set:
+            UserTagging.objects.set(user, tag)
+
+        user_name = ', '.join([ user.user.username for user in user_set ])
+        tag_name = tag.name
+        messages.success(
+            self.request,
+            ungettext(
+                "Tagged user {user_name} with tag {tag_name}.",
+                "Tagged users {user_name} with tag {tag_name}.",
+                user_set.count()
+            ).format(user_name=user_name, tag_name=tag_name)
+        )
+
+        return super().form_valid(form)
 
 
 class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
