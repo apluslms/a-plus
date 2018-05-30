@@ -31,7 +31,7 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'tags/new/$',
         views.UserTagAddView.as_view(),
         name='course-tags-add'),
-    url(EDIT_URL_PREFIX + r'tags/(?P<tag_id>\d+)i/edit$',
+    url(EDIT_URL_PREFIX + r'tags/(?P<tag_id>\d+)/edit$',
         views.UserTagEditView.as_view(),
         name='course-tags-edit'),
     url(EDIT_URL_PREFIX + r'tags/(?P<tag_id>\d+)/remove$',
