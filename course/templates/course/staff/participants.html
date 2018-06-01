@@ -93,7 +93,6 @@
         $('<td></td>').append(link.clone().text(participant.id)).appendTo(row);
         $('<td></td>').append(link.clone().text(participant.last_name)).appendTo(row);
         $('<td></td>').append(link.clone().text(participant.first_name)).appendTo(row);
-        //link = $('<a></a>').attr('href', 'mailto:' + participant.email);
         $('<td></td>').append(link.clone().text(participant.email)).appendTo(row);
         $('<td></td>').html(participant.tags).appendTo(row);
       });
