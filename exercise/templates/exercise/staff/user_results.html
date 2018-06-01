@@ -4,9 +4,23 @@
 {% load exercise %}
 {% load apps %}
 {% load diploma %}
+{% load static %}
 
 {% block title %}{{ student.get_full_name }} | {{ block.super }}{% endblock %}
 {% block view_tag %}participants{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% if is_teacher %}
+<script src="{% static 'django_colortag.js' %}"></script>
+<script src="{% static 'add_tagging_dropdown.js' %}"></script>
+<script>
+    const create_tagging_dropdown = get_create_tagging_dropdown_closure({
+        api_url: "{% url 'api:course-detail' 2 instance.id %}",
+    });
+</script>
+{% endif %}
+{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}

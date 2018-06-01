@@ -4,3 +4,43 @@
 <span class="label label-success label-xs">{{ internal_user_label|safe }}</span>
 {% endif %}
 {% for tag in tags %}{% include "course/_usertag.html" %}{% endfor %}
+<span class="dropdown" id="add-taggings-{{ user_id }}"></span>
+
+<script>
+ $(function() {
+     if (typeof create_tagging_dropdown === 'function') {
+         const user_id = {{ user_id }};
+         const tag_ids = {{ tag_ids }};
+         const get_users =
+             (typeof get_users_for_user === 'function') ?
+             get_users_for_user(user_id) :
+             function () { return [user_id] };
+
+         const add_taggings_id = 'add-taggings-' + user_id
+         const $dropdown = $('span#' + add_taggings_id);
+         create_tagging_dropdown(
+             tag_ids,
+             get_users,
+             _('Add new tagging'),
+             add_taggings_id,
+             function ($elem) { $dropdown.replaceWith($elem); },
+             function (jqXHRs, tags_xhr) { tags_xhr.done(function (data_tags) {
+                 const tags = data_tags.results;
+                 jqXHRs.forEach(function (jqXHR) {
+                     jqXHR.done(function (data) {
+                         // TODO: replace filter with find once IE11 isn't relevant
+                         const tag = tags.filter(function (tag) {
+                             return tag.id === data.tag.id;
+                         })[0];
+                         const $elem = $('#add-taggings-' + data.user.id);
+                         $elem.parent().before('\n', django_colortag_label(tag));
+                         if (typeof extra_click_handler === 'function') {
+                             extra_click_handler(data);
+                         }
+                     })
+                 })
+             })}
+         );
+     }
+ });
+</script>

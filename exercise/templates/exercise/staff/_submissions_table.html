@@ -1,7 +1,9 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
+{% load static %}
 {% with count=submissions.count %}
+
 <div class="clearfix">
   <div class="pull-right">
     <p>
@@ -43,7 +45,7 @@
         {% for submission in submissions %}
         <tr>
             <td>
-                {% profiles submission.submitters.all instance %}
+                {% profiles submission.submitters.all instance is_teacher %}
             </td>
             <td>
                 {{ submission.submission_time }}

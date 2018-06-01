@@ -689,7 +689,11 @@ msgstr "Suodata listaa"
 msgid "Number of students"
 msgstr "Opiskelijoiden määrä"
 
-#: course/templates/course/staff/participants.html:39
+#: course/templates/course/staff/participants.html:37
+msgid "of which selected"
+msgstr "joista valittuna"
+
+#: course/templates/course/staff/participants.html:48
 #: diploma/templates/diploma/list.html:27
 #: exercise/templates/exercise/staff/user_results.html:24
 msgid "Student id"

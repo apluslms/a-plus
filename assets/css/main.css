@@ -73,6 +73,7 @@ html, body {
     position: absolute;
     bottom: 0;
     min-height: 50px;
+    z-index: 990;
 }
 
 /* site header */

@@ -22,11 +22,13 @@ class CachedStudents(CachedAbstract):
             ]
             data.append({
                 'id': participant.student_id or '',
+                'user_id': participant.user.id,
                 'last_name': participant.user.last_name or '',
                 'first_name': participant.user.first_name or '',
-                'email': participant.user.email or participant.user.username,
+                'username': participant.user.username,
+                'email': participant.user.email or '',
                 'link': participant.get_url(instance),
-                'tags': render_tags(participant, tags),
+                'tags': render_tags(participant, tags, instance),
                 'tag_ids': [t.id for t in tags],
                 'external': participant.is_external,
             })

@@ -1,7 +1,12 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
+{% load static %}
 
+{% if is_teacher %}
+<script src="{% static 'django_colortag.js' %}"></script>
+<script src="{% static 'add_tagging_dropdown.js' %}"></script>
+{% endif %}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">{% trans "Submitted data" %}</h3>
@@ -16,7 +21,7 @@
               </a>
               {% endif %}
             </dt>
-            <dd>{% profiles submission.submitters.all instance %}</dd>
+            <dd>{% profiles submission.submitters.all instance is_teacher %}</dd>
             <dt>{% trans "Status" %}</dt>
             <dd>{{ submission.status|submission_status }}</dd>
             <dt>{% trans "Submission time" %}</dt>
