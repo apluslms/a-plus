@@ -20,7 +20,7 @@ from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseV
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
-from .renders import render_tags, group_info_context
+from .renders import group_info_context
 from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
 
 
