@@ -110,73 +110,59 @@
     }
 
     var filterItems = function(participants) {
-      var out = participants;
-      var filters = [];
-      $('.filter-users button:has(.glyphicon-check)').each(function() {
-        filters.push($(this).attr('data-id'));
-      });
-      if (filters.length > 0) {
-        out = out.filter(function(user) {
-          for (var i in filters) {
-            var typ = filters[i];
-            var id = parseInt(typ);
-            if (
-              (typ == 'aalto' && user.external)
-              || (typ == 'mooc' && !user.external)
-              || (!isNaN(id) && user.tag_ids.indexOf(id) < 0)
-            ) return false;
-          }
-          return true;
+      const filters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
+        .map(function (elem) {
+          return $(elem).attr('data-id');
         });
-      }
-      return out;
-    };
-
-    var insertItems = function() {
-      $('#participants-number').text(participants.length);
-      get_participants().remove();
-      participants.forEach(function(participant) {
-        const user_id = participant.user_id;
-        const tags_id = 'tags-' + user_id;
-        const row = $('<tr></tr>')
-          .attr({ id: 'participant-' + user_id })
-          .appendTo('tbody');
-        var link = $('<a></a>').attr('href', participant.link);
-
-        if (is_teacher) {
-          $('<td></td>').append(
-            $('<input>').attr({
-              id: 'students-select-' + user_id,
-              type: 'checkbox',
-              name: 'students',
-              value: user_id,
-            })
-          ).appendTo(row);
-        }
-
-        $('<td></td>')
-          .append(link.clone().text(participant.id))
-          .addClass('order-id')
-          .attr({ 'data-order-by': participant.id })
-          .appendTo(row);
-        $('<td></td>')
-          .append(link.clone().text(participant.last_name))
-          .addClass('order-last')
-          .attr({ 'data-order-by': participant.last_name })
-          .appendTo(row);
-        $('<td></td>')
-          .append(link.clone().text(participant.first_name))
-          .addClass('order-first')
-          .attr({ 'data-order-by': participant.first_name })
-          .appendTo(row);
-        $('<td></td>').append(
-          link.clone().text(participant.email || participant.username)
-        ).appendTo(row);
-        $('<td></td>').html(participant.tags).appendTo(row);
+      return participants.map(function (participant) {
+        const tags = participant.tag_ids.map(function (id) {
+          return id.toString();
+        }).concat(participant.external ? 'mooc' : 'aalto');
+        // Set intercetion tags ∩ filters
+        const intersect = tags.filter(function (tag) {
+          return filters.indexOf(tag) >= 0;
+        });
+        return intersect.length === filters.length;
       });
     };
 
-    insertItems();
+    $('#participants-number').text(participants.length);
+    get_participants().remove();
+    participants.forEach(function(participant) {
+      const user_id = participant.user_id;
+      const tags_id = 'tags-' + user_id;
+      const row = $('<tr></tr>')
+        .attr({ id: 'participant-' + user_id })
+        .appendTo('tbody');
+      var link = $('<a></a>').attr('href', participant.link);
+      $('<td></td>').append(
+        $('<input>').attr({
+          id: 'students-select-' + user_id,
+          type: 'checkbox',
+          name: 'students',
+          value: user_id,
+        })
+      ).appendTo(row);
+      $('<td></td>')
+        .append(link.clone().text(participant.id))
+        .addClass('order-id')
+        .attr({ 'data-order-by': participant.id })
+        .appendTo(row);
+      $('<td></td>')
+        .append(link.clone().text(participant.last_name))
+        .addClass('order-last')
+        .attr({ 'data-order-by': participant.last_name })
+        .appendTo(row);
+      $('<td></td>')
+        .append(link.clone().text(participant.first_name))
+        .addClass('order-first')
+        .attr({ 'data-order-by': participant.first_name })
+        .appendTo(row);
+      $('<td></td>').append(
+        link.clone().text(participant.email || participant.username)
+      ).appendTo(row);
+      $('<td></td>').html(participant.tags).appendTo(row);
+    });
 
     if (is_teacher) {
       const $all_box = $('#students-select-all');
@@ -208,17 +194,18 @@
 
       $('.order-marker').remove();
       $(this).append($('<span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span>'));
+      const order_by_class = '.' + $(this).attr('id');
 
-      if ($(this).attr('id') === 'order-id') {
-        participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
-        insertItems();
-      } else if ($(this).attr('id') === 'order-last') {
-        participants.sort(function(a, b) { return a.last_name.localeCompare(b.last_name); });
-        insertItems();
-      } else if ($(this).attr('id') === 'order-first') {
-        participants.sort(function(a, b) { return a.first_name.localeCompare(b.first_name); });
-        insertItems();
-      }
+      const $sortedParticipants = get_participants().sort(function (a, b) {
+        const $a = $(a);
+        const $b = $(b);
+        return $a.children(order_by_class).attr('data-order-by')
+                 .localeCompare(
+                   $b.children(order_by_class).attr('data-order-by')
+                 );
+      });
+      get_participants().remove();
+      $('#participants').append($sortedParticipants);
     });
 
     $('.filter-users button').on('click', function(event) {
@@ -229,7 +216,15 @@
       } else {
         icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
       }
-      insertItems();
+      const show = filterItems(participants);
+      participants.forEach(function (participant, i) {
+          const $row = $('tr#participant-' + participant.user_id);
+          if (show[i]) {
+              $row.removeClass('hidden');
+          } else {
+              $row.addClass('hidden');
+          }
+        });
     });
 
   });
