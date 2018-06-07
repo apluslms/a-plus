@@ -10,7 +10,9 @@
 </ul>
 {% endif %}
 {% elif entry|is_listed %}
-<li>
+
+<li{% if entry.number|length > 4 %} class="third-level-entry"{% endif %}>
+
   {% if accessible %}
   {% if entry.is_empty %}
   {{ entry.name|parse_localization }}

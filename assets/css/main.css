@@ -236,6 +236,9 @@ html, body {
 .toc li {
     list-style: none;
 }
+.third-level-entry {
+  margin-left: 25px;
+}
 
 /* index thumbnails */
 .course-thumbnail {
