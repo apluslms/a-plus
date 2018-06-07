@@ -13,17 +13,27 @@
 	<p>
 		{% blocktrans with name=service.menu_label %}
 		You are about to use an external service, {{ name }}, for the first time.
-		To use the service, your name and email address will be transferred
-		to the provider of this service.
 		{% endblocktrans %}
+		{% if service.is_anonymous %}
+			{% blocktrans %}
+			Your name and email address will be pseudonymised and transferred
+			to the provider of this service. This means that the service cannot
+			identify you, but A+ administration can.
+			{% endblocktrans %}
+		{% else %}
+			{% blocktrans %}
+			To use the service, your name and email address will be transferred
+			to the provider of this service.
+			{% endblocktrans %}
+		{% endif %}
 	</p>
-	{% if service.enable_api_access %}
+	{% if service.api_access %}
 	<p>
 		{% if is_course_staff %}
 			{% blocktrans %}
 			For this service also API token is transferred,
 			thus giving this service access to A+ API with your privileges.
-			If this was not intended, change 'Enable api access' in django admin.
+			If this was not intended, change access settings in django admin.
 			{% endblocktrans %}
 		{% else %}
 			{% blocktrans %}
@@ -36,16 +46,21 @@
 			{% endblocktrans %}
 		{% endif %}
 	</p>
-	</p>
 	{% endif %}
 	<p>
 		<a href="{{ site }}" target="_new">{{ site }}</a>
 	</p>
+	<p>
+		{% url 'privacy_policy' as policy_url %}
+		{% if policy_url %}
+		<a href="{% url 'privacy_policy' %}" target="_new">A+ {% trans "Privacy Policy" %}</a>
+		{% endif %}
+	</p>
 </div>
 <div>
 	<p>
-		<input id="auto_accept" type="checkbox" value"1" checked="checked" />
-		<label for="auto_accept">{% trans "Remember this and automatically redirect next time." %}</label>
+		<input id="auto_accept" type="checkbox" value"1" />
+		<label for="auto_accept">{% trans "Remember this and automatically redirect next time. The selection is saved as a cookie." %}</label>
 	</p>
 	<p>
 		<form id="lti_login_form" method="POST" action="{{ service.url }}">

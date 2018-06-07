@@ -1,4 +1,5 @@
 from hashlib import md5
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import get_language
 from oauthlib.common import urldecode
 from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY, \
@@ -8,6 +9,7 @@ import json
 
 from aplus.api import api_reverse
 from lib.helpers import update_url_params
+from course.models import Enrollment
 
 
 class LTIRequest(object):
@@ -15,13 +17,33 @@ class LTIRequest(object):
     def __init__(self, service, user, instance, host, title, context_id=None, link_id=None, add=None):
         self.service = service
         course = instance.course
-
         # Context and resource parameters.
         context_id = context_id or (host + instance.get_absolute_url())
         link_id = link_id or "aplus{:d}".format(service.pk)
         title = title or link_id
 
-        student_id = self.external_student_id(user)
+        # Gather user information
+        if service.is_anonymous:
+            # Anonymize user information
+            enrollment = Enrollment.objects.filter(course_instance=instance, user_profile=user.userprofile).first()
+            if not enrollment:
+                raise PermissionDenied()
+            # Creates anon name and id for pre-pseudonymisation Enrollments
+            if not (enrollment.anon_name or enrollment.anon_id):
+                # the model's post_save functions take care of the creation
+                enrollment.save()
+            student_id = "a" + enrollment.anon_id # a for anonymous
+            full_name = enrollment.anon_name
+            given_name, sep, family_name = full_name.rpartition(" ")
+            if not given_name:
+                given_name = "Anonymous"
+            email = "anonymous-{}@aplus.invalid".format(enrollment.anon_id)
+        else:
+            student_id = "i" + self.external_student_id(user) # i for internal
+            full_name = "{} {}".format(user.first_name, user.last_name)
+            given_name = user.first_name
+            family_name = user.last_name
+            email = user.email
 
         # Determine user role.
         role = "Student"
@@ -42,10 +64,10 @@ class LTIRequest(object):
             # User.
             "user_id": student_id,
             "roles": role,
-            "lis_person_name_full": "{} {}".format(user.first_name, user.last_name),
-            "lis_person_name_given": user.first_name,
-            "lis_person_name_family": user.last_name,
-            "lis_person_contact_email_primary": user.email,
+            "lis_person_name_full": full_name,
+            "lis_person_name_given": given_name,
+            "lis_person_name_family": family_name,
+            "lis_person_contact_email_primary": email,
 
             # Selected course.
             "context_id": context_id,
@@ -58,7 +80,7 @@ class LTIRequest(object):
             "tool_consumer_instance_name": "A+ LMS",
         })
 
-        if service.enable_api_access:
+        if service.api_access:
             self.parameters.update({
                 # FIXME: we need request or full host with protocol here!
                 'custom_context_api': '//' + host + api_reverse("course-detail", kwargs={'course_id': instance.id}),

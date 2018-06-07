@@ -684,17 +684,20 @@ class LTIExercise(BaseExercise):
         return page
 
     def _get_lti(self, user, students, host, add=None):
-        return CustomStudentInfoLTIRequest(
-            self.lti_service,
-            user,
-            students,
-            self.course_instance,
-            host,
-            self.resource_link_title or self.name,
-            self.context_id or None,
-            self.resource_link_id or "aplusexercise{:d}".format(self.id or 0),
-            add,
-        )
+        try:
+            return CustomStudentInfoLTIRequest(
+                self.lti_service,
+                user,
+                students,
+                self.course_instance,
+                host,
+                self.resource_link_title or self.name,
+                self.context_id or None,
+                self.resource_link_id or "aplusexercise{:d}".format(self.id or 0),
+                add,
+            )
+        except PermissionDenied:
+            raise
 
     def get_load_url(self, language, request, students, url_name="exercise"):
         url = super().get_load_url(language, request, students, url_name)

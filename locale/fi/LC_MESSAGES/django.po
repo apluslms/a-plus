@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-07 07:38+0300\n"
+"POT-Creation-Date: 2018-06-07 14:48+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -102,91 +102,83 @@ msgstr "Käyttäjä on jo tässä ryhmässä."
 msgid "The group already exists."
 msgstr "Tämä ryhmä on jo olemassa."
 
-#: course/models.py:47
+#: course/models.py:53
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:60 course/models.py:603 exercise/exercise_models.py:125
+#: course/models.py:66 course/models.py:637 exercise/exercise_models.py:125
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
-#: course/models.py:153
-msgid "Describe the usage or meaning of this usertag."
-msgstr "Kuvaile merkinnän käyttötarkoitus."
-
-#: course/models.py:156
-msgid "Color that is used for this tag."
-msgstr "Merkinnän yhteydessä käytettävä väri."
-
-#: course/models.py:270
+#: course/models.py:304
 msgid "Internal users"
 msgstr "Paikalliset käyttäjät"
 
-#: course/models.py:271
+#: course/models.py:305
 msgid "External users"
 msgstr "Ulkoiset käyttäjät"
 
-#: course/models.py:272
+#: course/models.py:306
 msgid "Internal and external users"
 msgstr "Paikalliset ja ulkoiset käyttäjät"
 
-#: course/models.py:275
+#: course/models.py:309
 msgid "Enrolled students"
 msgstr "Ilmoittautuneet opiskelijat"
 
-#: course/models.py:276
+#: course/models.py:310
 msgid "Enrollment audience"
 msgstr "Ilmoittautumisen kohdeyleisö"
 
-#: course/models.py:277
+#: course/models.py:311
 msgid "All registered users"
 msgstr "Kaikki rekisteröityneet käyttäjät"
 
-#: course/models.py:278
+#: course/models.py:312
 msgid "Public to internet"
 msgstr "Julkisesti internetissä"
 
-#: course/models.py:281
+#: course/models.py:315
 msgid "User results"
 msgstr "Pistetilanne"
 
-#: course/models.py:282
+#: course/models.py:316
 msgid "Table of contents"
 msgstr "Sisällysluettelo"
 
-#: course/models.py:283
+#: course/models.py:317
 msgid "Link to last visited content"
 msgstr "Linkki viimeksi vierailtuun sisältöön"
 
-#: course/models.py:284
+#: course/models.py:318
 msgid "Experimental setup (hard-coded)"
 msgstr "Koeasetelma (kovakoodattu)"
 
-#: course/models.py:287
+#: course/models.py:321
 msgid "No numbering"
 msgstr "Ei numerointia"
 
-#: course/models.py:288
+#: course/models.py:322
 msgid "Arabic"
 msgstr "arabialainen"
 
-#: course/models.py:289
+#: course/models.py:323
 msgid "Roman"
 msgstr "roomalainen"
 
-#: course/models.py:290
+#: course/models.py:324
 msgid "Hidden arabic"
 msgstr "piilotettu arabialainen"
 
-#: course/models.py:297
+#: course/models.py:331
 msgid "Input an URL identifier for this course instance."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssikerralle."
 
-#: course/models.py:314
+#: course/models.py:348
 msgid "Select content for the course index page."
 msgstr "Valitse sisältö kurssin etusivulle."
 
-#: course/models.py:320
+#: course/models.py:354
 msgid ""
 "External CSS and JS resources that are included on all course pages. "
 "Separate with white space."
@@ -194,7 +186,7 @@ msgstr ""
 "Ulkoiset CSS- ja JS-resurssit, jotka sisällytetään kurssisivuihin. Erottele "
 "osoitteet rivinvaihdoilla."
 
-#: course/models.py:327
+#: course/models.py:361
 msgid ""
 "By default exercise errors are reported to teacher email addresses. Set this "
 "field as comma separated emails to override the recipients."
@@ -203,58 +195,56 @@ msgstr ""
 "sähköposteihin. Syötä pilkuilla erotettuja sähköpostiosoitteita korvaamaan "
 "oletusvastaanottajat."
 
-#: course/models.py:354
+#: course/models.py:388
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:356
+#: course/models.py:390
 msgid "Lifesupport time must be later than ending time."
 msgstr "Saattohoito tulee alkaa loppumisajan jälkeen."
 
-#: course/models.py:358
+#: course/models.py:392
 msgid "Archive time must be later than lifesupport time."
 msgstr "Arkistointiajan tulee olla saattohoidon jälkeen."
 
-#: course/models.py:366
-#, fuzzy
-#| msgid "Language code missing from settings."
+#: course/models.py:400
 msgid "Language code(s) missing from settings: "
-msgstr "Kielikoodi puuttuu palvelun asetuksista."
+msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t):"
 
-#: course/models.py:368
+#: course/models.py:402
 msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
-#: course/models.py:556 course/models.py:658 exercise/exercise_models.py:68
+#: course/models.py:590 course/models.py:692 exercise/exercise_models.py:68
 #: exercise/submission_models.py:57
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:557 exercise/exercise_models.py:69
+#: course/models.py:591 exercise/exercise_models.py:69
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:558 course/models.py:660 templates/base.html:77
+#: course/models.py:592 course/models.py:694 templates/base.html:79
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:559 exercise/exercise_models.py:73
+#: course/models.py:593 exercise/exercise_models.py:73
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:567
+#: course/models.py:601
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:582
+#: course/models.py:616
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:659
+#: course/models.py:693
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/models.py:669
+#: course/models.py:703
 msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
@@ -262,7 +252,7 @@ msgstr ""
 "Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
 "hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: course/models.py:671
+#: course/models.py:705
 msgid ""
 "Grade unofficial submits after deadlines have passed. The points are stored "
 "but not included in official records."
@@ -617,7 +607,7 @@ msgstr ""
 #: edit_course/templates/edit_course/usertag_delete.html:28
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: external_services/templates/external_services/list_menu.html:64
-#: news/templates/news/list.html:53 templates/base.html:221
+#: news/templates/news/list.html:53 templates/base.html:223
 msgid "Remove"
 msgstr "Poista"
 
@@ -847,43 +837,43 @@ msgstr "Käyttäjätunnus"
 msgid "Grade"
 msgstr "Arvostelu"
 
-#: edit_course/course_forms.py:28
+#: edit_course/course_forms.py:29
 #: exercise/templates/exercise/_user_results.html:82
 msgid "Category"
 msgstr "Kategoria"
 
-#: edit_course/course_forms.py:59 edit_course/exercise_forms.py:58
+#: edit_course/course_forms.py:60 edit_course/exercise_forms.py:58
 msgid "Hierarchy"
 msgstr "Hierarkia"
 
-#: edit_course/course_forms.py:60 edit_course/exercise_forms.py:62
+#: edit_course/course_forms.py:61 edit_course/exercise_forms.py:62
 #: edit_course/templates/edit_course/edit_course_base.html:36
 msgid "Content"
 msgstr "Sisältö"
 
-#: edit_course/course_forms.py:61
+#: edit_course/course_forms.py:62
 msgid "Schedule"
 msgstr "Aikataulu"
 
-#: edit_course/course_forms.py:95
+#: edit_course/course_forms.py:96
 msgid "The URL identifier is locked while the course is visible to students."
 msgstr ""
 "URL-osoitteessa käytetty tunniste on lukittu, kun kurssi näkyy "
 "opiskelijoille."
 
-#: edit_course/course_forms.py:97
+#: edit_course/course_forms.py:98
 msgid "Removes visibility of model answers for students."
 msgstr "Saattohoito poistaa esimerkkiratkaisut opiskelijoiden näkyviltä."
 
-#: edit_course/course_forms.py:99
+#: edit_course/course_forms.py:100
 msgid "Removes possibility for students to return answers."
 msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista."
 
-#: edit_course/course_forms.py:130
+#: edit_course/course_forms.py:131
 msgid "New URL identifier for the course instance:"
 msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
 
-#: edit_course/course_forms.py:141
+#: edit_course/course_forms.py:142
 msgid "The URL is already taken."
 msgstr "URL on jo käytössä."
 
@@ -1676,7 +1666,7 @@ msgstr ""
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:767
+#: exercise/exercise_models.py:770
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -2500,59 +2490,73 @@ msgid "If not enabled, the service is disabled for all course instances."
 msgstr ""
 "Jos poissa päältä, palvelu on poissa käytöstä kaikissa kurssi-instansseissa."
 
-#: external_services/models.py:51
-msgid ""
-"Enable sharing user's api token and course api url in lti launch request. "
-"This grants api access with user's privileges for the lti tool."
-msgstr ""
-"Aktivoi käyttäjän API-avaimen ja kurssin API-URLin jakaminen LTI:n "
-"käynnistyspyynnössä. Tämä antaa käyttäjän oikeuksilla API-oikeudet LTI-"
-"työkaluun."
+#: external_services/models.py:50
+msgid "Anonymous service, no API access"
+msgstr "Anonyymi palvelu, ei API-käyttöoikeutta"
 
-#: external_services/models.py:55
+#: external_services/models.py:51
+msgid "Public service, no API access"
+msgstr "Julkinen palvelu, ei API-käyttöoikeutta"
+
+#: external_services/models.py:52
+msgid "Public service, allow API access"
+msgstr "Julkinen palvelu, API-käyttöoikeus"
+
+#: external_services/models.py:57
+msgid ""
+"Select whether to pass pseudonymised user data to the LTI service.</"
+"br>Public services can also enable sharing the user's API token and course "
+"API URL in the LTI launch request. This grants the LTI tool API access with "
+"the user's privileges."
+msgstr ""
+"Valitse lähetetäänkö palvelulle pseudonymisoidut käyttäjätiedot.</"
+"br>Julkisille palveluille voidaan myös myöntää käyttöoikeus käyttäjän API-"
+"avaimeen ja kurssin API-URL:ään."
+
+#: external_services/models.py:61
 msgid "The consumer key provided by the LTI service."
 msgstr "LTI-palvelun tarjoama kuluttaja-avain."
 
-#: external_services/models.py:59
+#: external_services/models.py:65
 msgid "The consumer secret provided by the LTI service."
 msgstr "LTI-palvelun tarjoama kuluttajasalaisuus."
 
-#: external_services/models.py:75
+#: external_services/models.py:87
 msgid "All students, assistants and teachers can access."
 msgstr "Kaikki opiskelijat, assistentit ja opettajat pääsevät."
 
-#: external_services/models.py:76
+#: external_services/models.py:88
 msgid "Only assistants and teachers can access."
 msgstr "Vain assistentit ja opettajat pääsevät."
 
-#: external_services/models.py:77
+#: external_services/models.py:89
 msgid "Only teachers can access."
 msgstr "Vain opettajat pääsevät."
 
-#: external_services/models.py:82
+#: external_services/models.py:94
 msgid "A course where the menu item exists."
 msgstr "Kurssi, jossa valikkovaihtoehto on olemassa."
 
-#: external_services/models.py:92
+#: external_services/models.py:104
 msgid "If preconfigured, an external service to link."
 msgstr "Linkitettävä ulkoinen palvelu, jos etukäteen määritelty."
 
-#: external_services/models.py:98
+#: external_services/models.py:110
 msgid ""
 "A link URL (else service default). Relative URLs are relative to course root."
 msgstr ""
 "Linkitettävä osoite (muuten palvelun oletus). Suhteelliset osoitteet ovat "
 "suhteellisia kurssin juureen."
 
-#: external_services/models.py:104
+#: external_services/models.py:116
 msgid "Places menu item under a group label."
 msgstr "Sijoittaa linkin annetun väliotsikon alle."
 
-#: external_services/models.py:110
+#: external_services/models.py:122
 msgid "Label for the menu link (else service default)."
 msgstr "Nimi (muuten palvelun oletus)."
 
-#: external_services/models.py:116
+#: external_services/models.py:128
 msgid ""
 "Menu icon style name (else service default), e.g. star see http://"
 "getbootstrap.com/components/#glyphicons-glyphs"
@@ -2560,11 +2564,11 @@ msgstr ""
 "Ikonin tyyli (muuten palvelun oletus), esim. star katso http://getbootstrap."
 "com/components/#glyphicons-glyphs"
 
-#: external_services/models.py:120
+#: external_services/models.py:132
 msgid "Heavier menu entries are placed after lighter ones."
 msgstr "Painavammat linkit sijoittuvat kevyempien jälkeen."
 
-#: external_services/models.py:135
+#: external_services/models.py:147
 msgid ""
 "Either preconfigured service or custom URL and label needs to be provided."
 msgstr ""
@@ -2631,55 +2635,50 @@ msgstr "Lisää uusi linkki"
 msgid ""
 "\n"
 "\t\tYou are about to use an external service, %(name)s, for the first time.\n"
-"\t\tTo use the service, your name and email address will be transferred\n"
-"\t\tto the provider of this service.\n"
 "\t\t"
 msgstr ""
 "\n"
-"Olet siirtymässä ensimmäistä kertaa ulkoiseen palveluun %(name)s. Palvelun "
-"käyttämiseksi nimesi ja sähköpostiosoitteesi lähetetään tämän palvelun "
-"ylläpitäjälle."
+"Olet siirtymässä ensimmäistä kertaa ulkoiseen palveluun %(name)s."
 
-#: external_services/templates/external_services/lti_form.html:23
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\t\t\tFor this service also API token is tranferred,\n"
-#| "\t\t\tthus giving this service access to A+ API with your privileges.\n"
-#| "\t\t\tThat means service can for example read your student number,\n"
-#| "\t\t\tcourse progress and submit solutions to exercises.\n"
-#| "\t\t\tCourse staff has enabled this feature and have checked that\n"
-#| "\t\t\tthe service behaves with your best interest in mind.\n"
-#| "\t\t\t"
+#: external_services/templates/external_services/lti_form.html:18
+msgid ""
+"\n"
+"\t\t\tYour name and email address will be pseudonymised and transferred\n"
+"\t\t\tto the provider of this service. This means that the service cannot\n"
+"\t\t\tidentify you, but A+ administration can.\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"Nimesi ja sähköpostiosoitteesi pseudonymisoidaan ja lähetetään palvelulle. "
+"Tämä tarkoittaa, että palvelu ei voi identifioida sinua, mutta A+ ylläpito "
+"voi."
+
+#: external_services/templates/external_services/lti_form.html:24
+msgid ""
+"\n"
+"\t\t\tTo use the service, your name and email address will be transferred\n"
+"\t\t\tto the provider of this service.\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"Palvelun käyttämiseksi nimesi ja sähköpostiosoitteesi lähetetään tämän "
+"palvelun ylläpitäjälle."
+
+#: external_services/templates/external_services/lti_form.html:33
 msgid ""
 "\n"
 "\t\t\tFor this service also API token is transferred,\n"
 "\t\t\tthus giving this service access to A+ API with your privileges.\n"
-"\t\t\tIf this was not intended, change 'Enable api access' in django admin.\n"
+"\t\t\tIf this was not intended, change access settings in django admin.\n"
 "\t\t\t"
 msgstr ""
 "\n"
 "\t\t\tTälle palvelulle annetaan mahdollisuus toimia A+-järjestelmässä\n"
 "\t\t\tsinun käyttöoikeuksillasi.\n"
-"\t\t\tTämä tarkoittaa, että ulkoinen palvelu voi esimerkiksi lukea "
-"opiskelijanumerosi ja\n"
-"\t\t\ttarkastella etenemistäsi kurssilla.\n"
-"\t\t\tKurssihenkilökunta on kytkenyt ominaisuuden käyttöön ja tarkistanut, "
-"että\n"
-"\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
-"\t\t\t"
+"\t\t\tJos tämä ei ole tarkoituksellista, vaihda käyttöoikeusasetuksia \t\t"
+"\tdjangon admin-näkymässä."
 
-#: external_services/templates/external_services/lti_form.html:29
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "\t\t\tFor this service also API token is tranferred,\n"
-#| "\t\t\tthus giving this service access to A+ API with your privileges.\n"
-#| "\t\t\tThat means service can for example read your student number,\n"
-#| "\t\t\tcourse progress and submit solutions to exercises.\n"
-#| "\t\t\tCourse staff has enabled this feature and have checked that\n"
-#| "\t\t\tthe service behaves with your best interest in mind.\n"
-#| "\t\t\t"
+#: external_services/templates/external_services/lti_form.html:39
 msgid ""
 "\n"
 "\t\t\tFor this service also API token is transferred,\n"
@@ -2701,18 +2700,32 @@ msgstr ""
 "\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
 "\t\t\t"
 
-#: external_services/templates/external_services/lti_form.html:48
-msgid "Remember this and automatically redirect next time."
-msgstr "Muista valinta ja siirry automaattisesti seuraavalla kerralla."
+#: external_services/templates/external_services/lti_form.html:56
+#: templates/base.html:175 userprofile/templates/userprofile/privacy.html:4
+#: userprofile/templates/userprofile/privacy.html:9
+msgid "Privacy Policy"
+msgstr "Tietosuojaseloste"
 
-#: external_services/templates/external_services/lti_form.html:55
+#: external_services/templates/external_services/lti_form.html:63
+msgid ""
+"Remember this and automatically redirect next time. The selection is saved "
+"as a cookie."
+msgstr ""
+"Muista valinta ja siirry automaattisesti seuraavalla kerralla. Valinta "
+"tallennetaan evästeisiin."
+
+#: external_services/templates/external_services/lti_form.html:70
 #, python-format
 msgid "Accept and continue to %(name)s"
 msgstr "Hyväksy ja jatka palveluun %(name)s"
 
-#: external_services/templates/external_services/lti_form.html:59
+#: external_services/templates/external_services/lti_form.html:74
 msgid "Show shared variables"
 msgstr "Näytä jaetut tiedot"
+
+#: external_services/views.py:57
+msgid "You need to be enrolled to access an anonymous service."
+msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille."
 
 #: lib/fields.py:27
 msgid "The number must be between 0.0 and 1.0"
@@ -2815,60 +2828,55 @@ msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa.Ole "
 "ystävällinen, ja yritä uudelleen."
 
-#: templates/base.html:56
+#: templates/base.html:58
 msgid "Toggle navigation"
 msgstr "Näytä valikko"
 
-#: templates/base.html:80
+#: templates/base.html:82
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:97 userprofile/templates/userprofile/profile.html:5
+#: templates/base.html:99 userprofile/templates/userprofile/profile.html:5
 msgid "Profile"
 msgstr "Käyttäjätili"
 
-#: templates/base.html:102 templates/base.html:140
+#: templates/base.html:104 templates/base.html:142
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:111 templates/base.html:147
+#: templates/base.html:113 templates/base.html:149
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:122
+#: templates/base.html:124
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:126
+#: templates/base.html:128
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:173 userprofile/templates/userprofile/privacy.html:4
-#: userprofile/templates/userprofile/privacy.html:9
-msgid "Privacy Policy"
-msgstr "Tietosuojaseloste"
-
-#: templates/base.html:185 templates/base.html:204
+#: templates/base.html:187 templates/base.html:206
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:186 templates/base.html:205
+#: templates/base.html:188 templates/base.html:207
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:193 templates/base.html:210
+#: templates/base.html:195 templates/base.html:212
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:225
+#: templates/base.html:227
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:229
+#: templates/base.html:231
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:232
+#: templates/base.html:234
 msgid "Search for..."
 msgstr "Etsi..."
 
@@ -2969,3 +2977,17 @@ msgstr ""
 "Käyttäjätilisi tietoja, kuten <strong>sähköpostiosoitetta</strong> tai "
 "<strong>salasanaa</strong>, voit muokata kirjautumiseen käyttämässäsi "
 "palvelussa."
+
+#~ msgid "Describe the usage or meaning of this usertag."
+#~ msgstr "Kuvaile merkinnän käyttötarkoitus."
+
+#~ msgid "Color that is used for this tag."
+#~ msgstr "Merkinnän yhteydessä käytettävä väri."
+
+#~ msgid ""
+#~ "Enable sharing user's api token and course api url in lti launch request. "
+#~ "This grants api access with user's privileges for the lti tool."
+#~ msgstr ""
+#~ "Aktivoi käyttäjän API-avaimen ja kurssin API-URLin jakaminen LTI:n "
+#~ "käynnistyspyynnössä. Tämä antaa käyttäjän oikeuksilla API-oikeudet LTI-"
+#~ "työkaluun."
