@@ -11,8 +11,7 @@
 {% endif %}
 {% elif entry|is_listed %}
 
-<li{% if entry.number|length > 4 %} class="third-level-entry"{% endif %}>
-
+<li>
   {% if accessible %}
   {% if entry.is_empty %}
   {{ entry.name|parse_localization }}
@@ -32,6 +31,13 @@
   </a>
   {% endif %}
   {% endif %}
+
+  {% if entry.children %}
+    <ul>
+      {% include "exercise/_children.html" with children=entry.children accessible=accessible %}
+    </ul>
+  {% endif %}
 </li>
+
 {% endif %}
 {% endfor %}
