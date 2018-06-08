@@ -3,13 +3,14 @@
 {% load exercise %}
 {% for entry in children %}
 
-{% if entry.down == 'level' %}
+{% if entry.type == 'level' %}
 {% if entry.down %}
 <ul class="toc">
 {% elif entry.up %}
 </ul>
 {% endif %}
 {% elif entry|is_listed %}
+
 <li>
   {% if accessible %}
   {% if entry.is_empty %}
@@ -31,5 +32,6 @@
   {% endif %}
   {% endif %}
 </li>
+
 {% endif %}
 {% endfor %}
