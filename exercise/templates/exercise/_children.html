@@ -3,7 +3,7 @@
 {% load exercise %}
 {% for entry in children %}
 
-{% if entry.down == 'level' %}
+{% if entry.type == 'level' %}
 {% if entry.down %}
 <ul class="toc">
 {% elif entry.up %}
@@ -30,12 +30,6 @@
     {% trans "Early access" %}
   </a>
   {% endif %}
-  {% endif %}
-
-  {% if entry.children %}
-    <ul>
-      {% include "exercise/_children.html" with children=entry.children accessible=accessible %}
-    </ul>
   {% endif %}
 </li>
 

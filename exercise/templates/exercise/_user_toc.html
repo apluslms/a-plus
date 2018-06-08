@@ -41,7 +41,7 @@
     </h4>
     {% endif %}
 
-    {% include "exercise/_children.html" with children=module.children accessible=accessible %}
+    {% include "exercise/_children.html" with children=module.flatted accessible=accessible %}
   </li>
   {% endif %}
   {% endfor %}
