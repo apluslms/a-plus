@@ -1,0 +1,15 @@
+[Unit]
+Description=Shibboleth FastCGI Responder
+After=network.target shibd.service
+Wants=shibd.service
+Requires=shibresponder.socket
+
+[Service]
+User=_shibd
+Group=_shibd
+WorkingDirectory=/etc/shibboleth
+ExecStart=/usr/lib/x86_64-linux-gnu/shibboleth/shibresponder
+StandardInput=socket
+
+[Install]
+WantedBy=multi-user.target
