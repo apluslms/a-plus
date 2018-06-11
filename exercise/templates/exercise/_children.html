@@ -3,7 +3,7 @@
 {% load exercise %}
 {% for entry in children %}
 
-{% if entry.down == 'level' %}
+{% if entry.type == 'level' %}
 {% if entry.down %}
 <ul class="toc">
 {% elif entry.up %}
