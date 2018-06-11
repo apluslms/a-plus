@@ -144,7 +144,7 @@ class Submission(UrlMixin, models.Model):
         else:
             user = students[0].user if students else None
         self.exercise.as_leaf_class().modify_post_parameters(
-            self._data, self._files, user, students, request.get_host(), url)
+            self._data, self._files, user, students, request, url)
         return (self._data, self._files)
 
     def clean_post_parameters(self):

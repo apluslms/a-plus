@@ -140,3 +140,9 @@ class GraderUser(AnonymousUser):
     @cached_property
     def _course(self):
         return self._course_instance.course
+
+
+class LTIServiceUser(GraderUser):
+    def __init__(self, submission=None, exercise=None, lti_service=None, **kwargs):
+        self.lti_service = lti_service
+        super().__init__(submission=submission, exercise=exercise, **kwargs)

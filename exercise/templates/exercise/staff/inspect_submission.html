@@ -54,13 +54,14 @@
     	{% endif %}
 
         <hr/>
-        <p>
+        {% if exercise.can_regrade %}
         	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
         		{% csrf_token %}
         		<input class="btn btn-primary" type="submit" value="{% trans 'Re-submit to service' %}" />
         	</form>
-        </p>
+        {% endif %}
         <p>
+        {% if exercise.can_regrade %}
         	{% blocktrans %}
             Click this button to re-submit this submission to the assessment
             service. This is meant to be used only in situations where the
@@ -68,6 +69,9 @@
             data is incorrect or the status of the submission never became
             ready. Caution! Re-submitting overwrites the current grading data.
             {% endblocktrans %}
+        {% else %}
+            {% trans "Exercises of this type can not be re-submitted to the assessment service." %}
+        {% endif %}
         </p>
 
     </div>

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
 
 from lib.cached import CachedAbstract
@@ -224,6 +224,29 @@ def invalidate_content(sender, instance, **kwargs):
     for profile in instance.submitters.all():
         CachedPoints.invalidate(course, profile.user)
 
+def invalidate_content_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
+    # many-to-many field Submission.submitters may be modified without
+    # triggering the Submission post save hook
+    if action not in ('post_add', 'pre_remove'):
+        return
+    if reverse:
+        # instance is a UserProfile
+        if model == Submission:
+            seen_courses = set()
+            for submission_pk in pk_set:
+                try:
+                    submission = Submission.objects.get(pk=submission_pk)
+                    course_instance = submission.exercise.course_instance
+                    if course_instance.pk not in seen_courses:
+                        CachedPoints.invalidate(course_instance, instance.user)
+                    else:
+                        seen_courses.add(course_instance.pk)
+                except Submission.DoesNotExist:
+                    pass
+    else:
+        # instance is a Submission
+        invalidate_content(Submission, instance)
+
 def invalidate_notification(sender, instance, **kwargs):
     course = instance.course_instance
     if not course and instance.submission:
@@ -236,3 +259,7 @@ post_save.connect(invalidate_content, sender=Submission)
 post_delete.connect(invalidate_content, sender=Submission)
 post_save.connect(invalidate_notification, sender=Notification)
 post_delete.connect(invalidate_notification, sender=Notification)
+# listen to the m2m_changed signal since submission.submitters is a many-to-many
+# field and instances must be saved before the many-to-many fields may be modified,
+# that is to say, the submission post save hook may see an empty submitters list
+m2m_changed.connect(invalidate_content_m2m, sender=Submission.submitters.through)
