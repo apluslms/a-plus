@@ -199,6 +199,13 @@ class UserTag(UrlMixin, ColorTag):
     def get_url_kwargs(self):
         return dict(tag_id=self.id, **self.course_instance.get_url_kwargs())
 
+    def is_valid_slug(self, slug_candidate):
+        assert self.course_instance
+        return slug_candidate != '' and not UserTag.objects.filter(
+            course_instance=self.course_instance,
+            slug=slug_candidate,
+        ).exists()
+
 
 class UserTaggingManager(models.Manager):
 
