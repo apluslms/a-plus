@@ -35,7 +35,7 @@
               </a>
             </td>
             <td class="col-md-1">{{ group.id }}</td>
-            <td>{% profiles group.members.all instance %}</td>
+            <td>{% profiles group.members.all instance is_teacher %}</td>
           </tr>
           {% endfor %}
         </tbody>

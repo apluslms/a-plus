@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
+{% load static %}
 
 <div class="panel panel-primary">
     <div class="panel-heading">
@@ -33,7 +34,11 @@
             </dt>
             <dd>
               {% if is_course_staff %}
-              {% profiles submission.submitters.all instance %}
+              {% if is_teacher %}
+              <script src="{% static 'django_colortag.js' %}"></script>
+              <script src="{% static 'add_tagging_dropdown.js' %}"></script>
+              {% endif %}
+              {% profiles submission.submitters.all instance is_teacher %}
               {% else %}
               {{ submission.submitters.all|names }}
               {% endif %}

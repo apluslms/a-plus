@@ -1,4 +1,14 @@
 {% load course %}
+{% if is_teacher %}
+<script>
+ if (typeof get_create_tagging_dropdown_closure === 'function' &&
+     typeof create_tagging_dropdown !== 'function') {
+     create_tagging_dropdown = get_create_tagging_dropdown_closure({
+         api_url: "{% url 'api:course-detail' 2 instance.id %}",
+     });
+ }
+</script>
+{% endif %}
 {% for p in profiles %}
 <div>
   <a href="{{ p|url:instance }}">

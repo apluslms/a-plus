@@ -42,6 +42,10 @@ def group_select(context):
 
 
 @register.filter
+def escape_slashes(string):
+    return str(string).replace('/', '\/')
+
+@register.filter
 def parse_localization(entry):
     return pick_localized(entry, get_language())
 
@@ -100,10 +104,14 @@ def avatars(profiles):
 
 
 @register.inclusion_tag("course/_profiles.html")
-def profiles(profiles, instance):
-    return { 'instance': instance, 'profiles': profiles }
+def profiles(profiles, instance, is_teacher):
+    return {
+        'instance': instance,
+        'profiles': profiles,
+        'is_teacher': is_teacher,
+    }
 
 
 @register.inclusion_tag("course/_tags.html")
 def tags(profile, instance):
-    return tags_context(profile, profile.taggings.tags_for_instance(instance))
+    return tags_context(profile, profile.taggings.tags_for_instance(instance), instance)

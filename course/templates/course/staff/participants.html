@@ -1,6 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 {% load course %}
+{% load static %}
 
 {% block title %}{% trans "Participants" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}participants{% endblock %}
@@ -31,11 +32,19 @@
       {% endfor %}
     </p>
 
-    <p>{% trans "Number of students" %} <strong id="participants-number"></strong></p>
+    <p>
+        {% trans "Number of students" %} <strong id="participants-number"></strong>
+        {% trans "of which selected" %} <strong id="selected-number">0</strong>
+    </p>
 
     <table class="table table-condensed">
         <thead>
             <tr>
+                {% if is_teacher %}
+                <th>
+                    <input type="checkbox" id="students-select-all" name="students" value="all" >
+                </th>
+                {% endif %}
                 <th><a href="#" class="order-toggle" id="order-id">{% trans "Student id" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
                 <th><a href="#" class="order-toggle" id="order-last">{% trans "Last name" %} </a></th>
                 <th><a href="#" class="order-toggle" id="order-first">{% trans "First name" %} </a></th>
@@ -52,71 +61,151 @@
 
 {% block scripts %}
 {{ block.super }}
+{% if is_teacher %}
+<script src="{% static 'django_colortag.js' %}"></script>
+<script src="{% static 'add_tagging_dropdown.js' %}"></script>
+{% endif %}
 
 <script>
   $(function() {
 
-    var participants = {{ participants|safe }};
+    const participants = {{ participants|escape_slashes|safe }};
+    const api_url = "{% url 'api:course-detail' 2 course_id %}";
+    const is_teacher = {{ is_teacher|yesno:"true,false" }};
 
     participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
 
-    var filterItems = function(participants) {
-      var out = participants;
-      var filters = [];
-      $('.filter-users button:has(.glyphicon-check)').each(function() {
-        filters.push($(this).attr('data-id'));
-      });
-      if (filters.length > 0) {
-        out = out.filter(function(user) {
-          for (var i in filters) {
-            var typ = filters[i];
-            var id = parseInt(typ);
-            if (
-              (typ == 'aalto' && user.external)
-              || (typ == 'mooc' && !user.external)
-              || (!isNaN(id) && user.tag_ids.indexOf(id) < 0)
-            ) return false;
+    function get_participants() {
+      return $('#participants').children();
+    }
+
+    if (is_teacher) {
+      create_tagging_dropdown =
+        get_create_tagging_dropdown_closure({ api_url: api_url });
+      get_users_for_user = function (user_id) {
+        return function () {
+          const $user_box = get_participants()
+            .find('#students-select-' + user_id);
+          if (!$user_box.prop('checked')) {
+            return [user_id]
+          } else {
+            const checked = $.makeArray(get_participants()
+              .find('input:checked'));
+            return checked.map(function (box) {
+              return parseInt(box.getAttribute('value'), 10);
+            });
           }
-          return true;
-        });
+        }
       }
-      return out;
-    };
+      extra_click_handler = function (data) {
+        // Append tag id to participant's tag_ids
+        // TODO: reimplement with Array.prototype.findIndex once IE11 isn't relevant
+        for (let i = 0; i < participants.length; ++i) {
+          if (participants[i].user_id === data.user.id) {
+            participants[i].tag_ids.push(data.tag.id);
+            break;
+          }
+        }
+      }
+    }
 
-    var insertItems = function() {
-      var filtered = filterItems(participants);
-      $('#participants-number').text(filtered.length);
-      $('#participants').children().remove();
-      filtered.forEach(function(participant) {
-        var row = $('<tr></tr>').appendTo('tbody');
-        var link = $('<a></a>').attr('href', participant.link);
-        $('<td></td>').append(link.clone().text(participant.id)).appendTo(row);
-        $('<td></td>').append(link.clone().text(participant.last_name)).appendTo(row);
-        $('<td></td>').append(link.clone().text(participant.first_name)).appendTo(row);
-        //link = $('<a></a>').attr('href', 'mailto:' + participant.email);
-        $('<td></td>').append(link.clone().text(participant.email)).appendTo(row);
-        $('<td></td>').html(participant.tags).appendTo(row);
+    var filterItems = function(participants) {
+      const filters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
+        .map(function (elem) {
+          return $(elem).attr('data-id');
+        });
+      return participants.map(function (participant) {
+        const tags = participant.tag_ids.map(function (id) {
+          return id.toString();
+        }).concat(participant.external ? 'mooc' : 'aalto');
+        // Set intercetion tags ∩ filters
+        const intersect = tags.filter(function (tag) {
+          return filters.indexOf(tag) >= 0;
+        });
+        return intersect.length === filters.length;
       });
     };
 
-    insertItems();
+    $('#participants-number').text(participants.length);
+    get_participants().remove();
+    participants.forEach(function(participant) {
+      const user_id = participant.user_id;
+      const tags_id = 'tags-' + user_id;
+      const row = $('<tr></tr>')
+        .attr({ id: 'participant-' + user_id })
+        .appendTo('tbody');
+      var link = $('<a></a>').attr('href', participant.link);
+      $('<td></td>').append(
+        $('<input>').attr({
+          id: 'students-select-' + user_id,
+          type: 'checkbox',
+          name: 'students',
+          value: user_id,
+        })
+      ).appendTo(row);
+      $('<td></td>')
+        .append(link.clone().text(participant.id))
+        .addClass('order-id')
+        .attr({ 'data-order-by': participant.id })
+        .appendTo(row);
+      $('<td></td>')
+        .append(link.clone().text(participant.last_name))
+        .addClass('order-last')
+        .attr({ 'data-order-by': participant.last_name })
+        .appendTo(row);
+      $('<td></td>')
+        .append(link.clone().text(participant.first_name))
+        .addClass('order-first')
+        .attr({ 'data-order-by': participant.first_name })
+        .appendTo(row);
+      $('<td></td>').append(
+        link.clone().text(participant.email || participant.username)
+      ).appendTo(row);
+      $('<td></td>').html(participant.tags).appendTo(row);
+    });
 
-    $('a.order-toggle').click(function(event) {
+    if (is_teacher) {
+      const $all_box = $('#students-select-all');
+      const $individual_boxes = get_participants().find('input:checkbox');
+
+      $all_box.prop('checked', false);
+
+      function set_checkbox_status() {
+        const $checked_boxes = $individual_boxes.filter(':checked');
+        const at_least_one_checked = $individual_boxes.is(':checked');
+        const all_checked = $individual_boxes.length === $checked_boxes.length;
+        $all_box.prop('checked', all_checked);
+        $all_box.prop('indeterminate', at_least_one_checked && !all_checked);
+        $('#selected-number').text($checked_boxes.length);
+        return false;
+      }
+
+      $individual_boxes.on('change', set_checkbox_status);
+      $all_box.on('change', function () {
+        $individual_boxes.filter(function (i, elem) {
+          return $(elem).parent().parent().is(':not(.hidden)');
+        }).prop('checked', $all_box.prop('checked'));
+        return set_checkbox_status()
+      });
+    }
+
+    $('a.order-toggle').on('click', function(event) {
       event.preventDefault();
 
       $('.order-marker').remove();
       $(this).append($('<span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span>'));
+      const order_by_class = '.' + $(this).attr('id');
 
-      if ($(this).attr('id') === 'order-id') {
-        participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
-        insertItems();
-      } else if ($(this).attr('id') === 'order-last') {
-        participants.sort(function(a, b) { return a.last_name.localeCompare(b.last_name); });
-        insertItems();
-      } else if ($(this).attr('id') === 'order-first') {
-        participants.sort(function(a, b) { return a.first_name.localeCompare(b.first_name); });
-        insertItems();
-      }
+      const $sortedParticipants = get_participants().sort(function (a, b) {
+        const $a = $(a);
+        const $b = $(b);
+        return $a.children(order_by_class).attr('data-order-by')
+                 .localeCompare(
+                   $b.children(order_by_class).attr('data-order-by')
+                 );
+      });
+      get_participants().remove();
+      $('#participants').append($sortedParticipants);
     });
 
     $('.filter-users button').on('click', function(event) {
@@ -127,7 +216,15 @@
       } else {
         icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
       }
-      insertItems();
+      const show = filterItems(participants);
+      participants.forEach(function (participant, i) {
+          const $row = $('tr#participant-' + participant.user_id);
+          if (show[i]) {
+              $row.removeClass('hidden');
+          } else {
+              $row.addClass('hidden');
+          }
+        });
     });
 
   });

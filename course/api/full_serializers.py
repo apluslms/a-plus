@@ -9,6 +9,7 @@ from ..models import (
     UserTag,
     UserTagging,
 )
+from userprofile.models import UserProfile
 from .serializers import *
 
 
@@ -99,10 +100,12 @@ class CourseUsertagSerializer(CourseUsertagBriefSerializer):
         model = UserTag
         fields = (
             'name',
+            'slug',
             'description',
             'visible_to_students',
             'color',
             'font_color',
+            'font_white',
             'taggings',
         )
 
@@ -110,6 +113,7 @@ class CourseUsertagSerializer(CourseUsertagBriefSerializer):
 class CourseUsertaggingsSerializer(AplusModelSerializer):
     user = UserBriefSerializer()
     tag = CourseUsertagBriefSerializer()
+    _required = [ 'id', 'student_id', 'username', 'email' ]
 
     class Meta(AplusModelSerializer.Meta):
         model = UserTagging
@@ -122,3 +126,49 @@ class CourseUsertaggingsSerializer(AplusModelSerializer):
                 'view_name': 'api:course-taggings-detail',
             }
         }
+
+    def validate(self, data):
+        """
+        Check that data.user has at least one of the fields in required.
+        """
+        user = data['user']
+        if 'user' in user:
+            user.update(user['user'])
+            del user['user']
+
+        for field in self._required:
+            if field in user and not user[field]: del user[field]
+
+        fields_in_user = { f for f in self._required if f in user }
+        if not fields_in_user:
+            raise serializers.ValidationError(
+                'At least one of {} is required'.format(required)
+            )
+        return data
+
+
+    def create(self, validated_data):
+        user_dict = validated_data['user']
+        tag_dict = validated_data['tag']
+
+        first_in_required = [ f for f in self._required if f in user_dict ][0]
+        user = {
+            'id': lambda: UserProfile.objects.get(user__id=user_dict['id']),
+            'student_id': lambda: UserProfile.get_by_student_id(user_dict['student_id']),
+            'username': lambda: UserProfile.objects.get(user__username=user_dict['username']),
+            'email': lambda: UserProfile.get_by_email(user_dict['email']),
+        }[first_in_required]()
+        tag = UserTag.objects.get(
+            slug=tag_dict['slug'],
+            course_instance=self.context['course_id']
+        )
+
+        obj, created = UserTagging.objects.set(user, tag)
+        if not created:
+            raise serializers.ValidationError(
+                'User {user} already has tag {slug}'.format(
+                    user=user.user.username,
+                    slug=tag.slug,
+                )
+            )
+        return obj

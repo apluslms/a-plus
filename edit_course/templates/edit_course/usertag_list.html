@@ -43,6 +43,10 @@
 					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 					{% trans "Remove" %}
 				</a>
+        <a href="{{ tag|url:'course-taggings-add' }}" class="btn btn-primary btn-xs">
+          <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+          {% trans "Tag students" %}
+        </a>
 			</td>
 		</tr>
 		{% empty %}

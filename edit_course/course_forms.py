@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_colortag.forms import ColorTagForm
 
 from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
+from userprofile.models import UserProfile
 
 
 class FieldsetModelForm(forms.ModelForm):
@@ -159,3 +160,15 @@ class UserTagForm(ColorTagForm):
         obj = self.Meta.model()
         obj.course_instance = course_instance
         return obj
+
+class SelectUsersForm(forms.Form):
+    user = forms.ModelMultipleChoiceField(queryset=UserProfile.objects.none())
+
+    def __init__(self, *args, **kwargs):
+        # This is copied from deviations/forms.py, which itself is not DRY.
+        # TODO: refactor this and the aforementioned form to avoid repetition
+        course_instance = kwargs.pop('instance')
+        super(SelectUsersForm, self).__init__(*args, **kwargs)
+        self.fields['user'].widget.attrs['class'] = 'search-select'
+        self.fields['user'].help_text = ''
+        self.fields['user'].queryset = course_instance.get_student_profiles()
