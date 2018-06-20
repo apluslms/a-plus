@@ -5,6 +5,7 @@ from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from lib.api.renderers import CSVExcelRenderer
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from course.api.mixins import CourseResourceMixin
@@ -41,6 +42,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     )
     renderer_classes = [
         CSVRenderer,
+        CSVExcelRenderer,
     ] + api_settings.DEFAULT_RENDERER_CLASSES
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
