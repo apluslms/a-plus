@@ -257,3 +257,28 @@ def exercise_text_stats(context, exercise):
         "number": num,
         "percentage": int(100 * num / total) if total else 0,
     }
+
+@register.simple_tag
+def get_format_info(format):
+    format_infos = {
+        'json' : {
+            'name': 'json',
+            'verbose_name': 'JSON',
+        },
+        'csv': {
+            'name': 'csv',
+            'verbose_name': 'CSV',
+        },
+        'excel.csv': {
+            'name': 'excel.csv',
+            'verbose_name': _('Excel compatible CSV'),
+        },
+    }
+    try:
+        return format_infos[format]
+    except KeyError as e:
+        raise RuntimeError('Invalid format: \'{}\''.format(format)) from e
+
+@register.simple_tag
+def get_format_info_list(formats):
+    return [get_format_info(format) for format in formats.split()]

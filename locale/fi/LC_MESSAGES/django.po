@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-07 14:48+0300\n"
+"POT-Creation-Date: 2018-06-26 14:40+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2205,10 +2205,9 @@ msgstr "Arvostelun tiedot"
 msgid "Summary"
 msgstr "Yhteenveto"
 
-#: exercise/templates/exercise/staff/_submissions_table.html:14
-#: exercise/templates/exercise/staff/analytics.html:74
-msgid "Download CSV"
-msgstr "Lataa CSV"
+#: exercise/templates/exercise/staff/_submissions_table.html:18
+msgid "Download"
+msgstr "Lataa"
 
 #: exercise/templates/exercise/staff/_submissions_table.html:21
 #, python-format
@@ -2276,6 +2275,10 @@ msgstr "Oppimiskäyrät"
 #: exercise/templates/exercise/staff/analytics.html:37
 msgid "Table"
 msgstr "Taulukko"
+
+#: exercise/templates/exercise/staff/analytics.html:74
+msgid "Download CSV"
+msgstr "Lataa CSV"
 
 #: exercise/templates/exercise/staff/analytics.html:78
 msgid "Toggle Dropdown"
@@ -2464,6 +2467,10 @@ msgstr "Viimeisimmät palautukset"
 #: exercise/templatetags/exercise.py:102
 msgid "No submissions for this course."
 msgstr "Ei vielä palautuksia tälle kurssille."
+
+#: exercise/templatetags/exercise.py:274
+msgid "Excel compatible CSV"
+msgstr "Excel-yhteensopiva CSV"
 
 #: exercise/views.py:71
 msgid "Exercise is in maintenance and content is hidden from students."
