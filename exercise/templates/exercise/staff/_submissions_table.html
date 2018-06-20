@@ -6,16 +6,30 @@
 
 <div class="clearfix">
   <div class="pull-right">
-    <p>
-      <a class="btn btn-default btn-sm" href="{{ exercise|url:'submission-summary' }}">
-        <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-        {% trans "Summary" %}
-      </a>
-      <a class="btn btn-default btn-sm" href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&format=csv">
-        <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-        {% trans "Download CSV" %}
-      </a>
-    </p>
+    <a class="btn btn-default btn-sm" href="{{ exercise|url:'submission-summary' }}">
+      <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+      {% trans "Summary" %}
+    </a>
+    <span class="dropdown pull-right">
+      <button
+        class="btn btn-default btn-sm dropdown-toggle"
+        type="button"
+        data-toggle="dropdown"
+        id="download-data"
+      >
+        {% trans "Download" %} <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labeledby="download-data">
+        {% get_format_info_list "json csv excel.csv" as formats %}
+        {% for format in formats %}
+        <li>
+          <a href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&amp;format={{ format.name }}">
+            {{ format.verbose_name }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </span>
   </div>
   <p>
     {% exercise_text_stats exercise %} |
