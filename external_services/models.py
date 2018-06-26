@@ -54,7 +54,7 @@ class LTIService(LinkService):
     access_settings = models.IntegerField(
         choices=LTI_ACCESS.choices,
         default=LTI_ACCESS.ANON_API_NO,
-        help_text=_("Select whether to pass pseudonymised user data to the LTI service.</br>Public services can also enable sharing the user's API token and course API URL in the LTI launch request. This grants the LTI tool API access with the user's privileges.")
+        help_text=_("Select whether to pass pseudonymised user data to the LTI service.<br>Public services can also enable sharing the user's API token and course API URL in the LTI launch request. This grants the LTI tool API access with the user's privileges.")
     )
     consumer_key = models.CharField(
         max_length=128,
