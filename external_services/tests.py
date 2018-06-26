@@ -34,6 +34,7 @@ class ExternalServicesTest(TestCase):
             url="http://www.lti-service.com",
             menu_label="LTI Service",
             menu_icon_class="star",
+            access_settings = LTIService.LTI_ACCESS.PUBLIC_API_NO,
             consumer_key="123456789",
             consumer_secret="987654321"
         )
