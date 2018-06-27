@@ -59,6 +59,7 @@
     </table>
 
 </div>
+{% include 'course/staff/_tag_remove_modal.html' %}
 {% endblock %}
 
 {% block scripts %}
@@ -66,9 +67,10 @@
 {% if is_teacher %}
 <script src="{% static 'django_colortag.js' %}"></script>
 <script src="{% static 'add_tagging_dropdown.js' %}"></script>
+<script src="{% static 'js/buttons_popover.js' %}"></script>
+<script src="{% static 'js/tag_popover.js' %}"></script>
 {% endif %}
 
-<script src="{% static 'js/buttons_popover.js' %}"></script>
 <script src="{% static 'js/participants.js' %}"></script>
 <script>
  $(function () {

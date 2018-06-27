@@ -9,6 +9,8 @@ function participants_list(participants, api_url, is_teacher) {
     create_tagging_dropdown =
       get_create_tagging_dropdown_closure({ api_url: api_url });
     get_users_for_user = function (user_id) {
+      // If this user's box is not checked, return this user.
+      // Else, return all checked users.
       return function () {
         const $user_box = get_participants()
           .find('#students-select-' + user_id);
@@ -54,7 +56,7 @@ function participants_list(participants, api_url, is_teacher) {
     const user_id = participant.user_id;
     const tags_id = 'tags-' + user_id;
     const row = $('<tr></tr>')
-      .attr({ id: 'participant-' + user_id })
+      .attr({ id: 'participant-' + user_id, 'data-user-id': user_id })
       .appendTo('tbody');
     var link = $('<a></a>').attr('href', participant.link);
     if (is_teacher) {
@@ -89,6 +91,7 @@ function participants_list(participants, api_url, is_teacher) {
   });
 
   if (is_teacher) {
+    // Toggle select all checkbox status automatically
     const $all_box = $('#students-select-all');
     const $individual_boxes = get_participants().find('input:checkbox');
 
@@ -111,8 +114,15 @@ function participants_list(participants, api_url, is_teacher) {
       }).prop('checked', $all_box.prop('checked'));
       return set_checkbox_status()
     });
-  }
 
+    $(document).on('aplus:translation-ready', function () {
+      add_colortag_buttons(
+        api_url,
+        document.getElementById('participants'),
+        participants
+      );
+    });
+  }
   $('a.order-toggle').on('click', function(event) {
     event.preventDefault();
 
