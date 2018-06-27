@@ -34,7 +34,9 @@
 
     <p>
         {% trans "Number of students" %} <strong id="participants-number"></strong>
+        {% if is_teacher %}
         {% trans "of which selected" %} <strong id="selected-number">0</strong>
+        {% endif %}
     </p>
 
     <table class="table table-condensed">

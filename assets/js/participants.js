@@ -57,14 +57,16 @@ function participants_list(participants, api_url, is_teacher) {
       .attr({ id: 'participant-' + user_id })
       .appendTo('tbody');
     var link = $('<a></a>').attr('href', participant.link);
-    $('<td></td>').append(
-      $('<input>').attr({
-        id: 'students-select-' + user_id,
-        type: 'checkbox',
-        name: 'students',
-        value: user_id,
-      })
-    ).appendTo(row);
+    if (is_teacher) {
+      $('<td></td>').append(
+        $('<input>').attr({
+          id: 'students-select-' + user_id,
+          type: 'checkbox',
+          name: 'students',
+          value: user_id,
+        })
+      ).appendTo(row);
+    }
     $('<td></td>')
       .append(link.clone().text(participant.id))
       .addClass('order-id')
