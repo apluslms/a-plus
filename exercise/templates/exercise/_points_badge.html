@@ -5,28 +5,33 @@
     {{ status|submission_status }}
 </span>
 
-{% elif confirm_the_level %}
-{% if submitted %}
-<span class="badge{% if graded and official %} badge-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}{% endif %} {{ classes }}">
-  {% if not official %}{% trans 'Submitted after deadline' %}{% elif passed %}{% trans "Accepted" %}{% elif graded %}{% trans "Rejected" %}{% else %}{% trans "Submitted" %}{% endif %}
-</span>
-{% elif confirmable_points %}
-<span class="badge badge-danger" data-toggle="tooltip" title="{% trans 'You must submit here to confirm your points. Submissions are accepted even after the deadline.' %}">
-  {% trans "Missing" %}
-</span>
-{% elif exercise_page %}
-<span class="badge">
-  {% trans "Not submitted" %}
-</span>
-{% endif %}
-
 {% else %}
-{% if difficulty %}
-<span class="difficulty">{{ difficulty }}</span>
-{% endif %}
-<span class="badge{% if submitted and official %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
-        data-toggle="tooltip" data-placement="bottom"
-        title="{% if not official %}{% trans 'Submitted after deadline' %}{% elif passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
-    {{ points }} / {{ max }}
+    {% if difficulty and difficulty != "-" and not confirm_the_level %}
+    <span class="difficulty">{{ difficulty }}</span>
+    {% endif %}
+    <span class="badge {% get_points_class %} {% if classes %} {{ classes }}{% endif %}"
+      data-toggle="tooltip"
+      {% if confirm_the_level and confirmable_points %}
+        title="{% trans 'You must submit here to confirm your points. Submissions are accepted even after the deadline.' %}"
+      {% else %}
+        data-placement="bottom"
+        title="
+          {% if not official %}
+            {% trans 'Submitted after deadline' %}
+          {% elif passed %}
+            {% if required > 0 %}
+              {% trans 'Passed' %}
+            {% endif %}
+          {% elif missing_points %}
+            {% if difficulty != "-" %}
+              {% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}
+            {% else %}
+              {% trans 'No submissions' %}
+            {% endif %}
+          {% elif submitted %}
+            {% trans 'Required exercises are not passed' %}
+          {% endif %}"
+      {% endif %}>
+		{% get_points_text %}
 </span>
 {% endif %}

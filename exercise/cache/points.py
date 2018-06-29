@@ -84,6 +84,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'max_points': entry['max_points'],
                     'points_to_pass': entry['points_to_pass'],
                     'confirm_the_level': entry.get('confirm_the_level', False),
+                    'difficulty': entry['difficulty'],
                     'submission_count': 1, # to fool points badge
                     'points': submission.grade,
                     'graded': submission.is_graded,

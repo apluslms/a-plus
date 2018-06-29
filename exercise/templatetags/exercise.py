@@ -41,6 +41,7 @@ def _prepare_context(context, student=None):
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
     context = context.flatten()
+
     context.update({
         'modules': points.modules_flatted(),
         'categories': points.categories(),
@@ -48,7 +49,6 @@ def _get_toc(context, student=None):
         'is_course_staff': context.get('is_course_staff', False),
     })
     return context
-
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
 def user_results(context, student=None):
@@ -117,6 +117,68 @@ def percent(decimal):
 def submission_status(status):
     return Submission.STATUS[status]
 
+def _get_points_type(context):
+    class_name = ""
+
+    if ((context['confirm_the_level']) or
+        context['difficulty'] == "-" and context['max'] <= 2):
+
+        if (context['full_score'] or
+            (context['passed'] and context['confirm_the_level'])):
+            class_name = "accepted"
+        elif context['passed'] and not context['confirm_the_level']:
+            class_name = "ok"
+        elif ((context['points'] == 0 and context['submitted'])
+            or context['graded']):
+            class_name = "rejected"
+        elif context.get('confirmable_points'):
+            class_name = "missing"
+        else:
+            class_name = "not_submitted"
+    else: # normal exercise without textual status
+        if context['full_score']:
+            class_name = "full"
+        elif context['passed']:
+            class_name = "passed"
+        elif context['submitted']:
+            class_name = "not_passed"
+
+    unconfirmed = not context['confirm_the_level'] and context.get('unconfirmed')
+    return (class_name, unconfirmed)
+"""
+    Used for adding relevant classes to the
+    points_badge to enable textual status.
+"""
+@register.simple_tag(takes_context=True)
+def get_points_class(context):
+    points_type, unconfirmed = _get_points_type(context)
+    options = {
+        'accepted': 'badge-success aplus-points accepted',
+        'ok': 'badge-warning aplus-points ok',
+        'rejected': 'badge-danger aplus-points rejected',
+        'full': 'badge-success',
+        'passed': 'badge-warning',
+        'not_passed': 'badge-danger',
+        'missing': 'badge-danger',
+    }
+    class_name = options.get(points_type, "")
+    if unconfirmed:
+        class_name += " unconfirmed-points"
+    return class_name
+
+# Adds the content of the points_badge.
+@register.simple_tag(takes_context=True)
+def get_points_text(context):
+    points_string = str(context['points']) + " / " + str(context['max'])
+    points_type, _uc = _get_points_type(context)
+    options = {
+        'accepted': _("Accepted"),
+        'ok': _("OK"),
+        'rejected': _("Rejected"),
+        'missing': _("Missing"),
+        'not_submitted': _("Not submitted")
+    }
+    return options.get(points_type, points_string)
 
 def _points_data(obj, classes=None):
     if isinstance(obj, UserExerciseSummary):
