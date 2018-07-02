@@ -21,15 +21,31 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
 
+        {% if is_teacher %}
+        <meta
+            data-translation-lang="fi"
+            data-src="{{ STATIC_URL }}js-translations/teacher.fi.json"
+        >
+        {% endif %}
+
+        {% block js-translations %}
+        {# Put all additional translation files inside this block. #}
+        {% endblock %}
+
+
         <link rel="stylesheet" href="{% static 'css/main.css' %}" />
         <link rel="stylesheet" href="{% static 'css/submission.css' %}" />
         <link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
+        <script src="{% static 'js/polyfill-find.js' %}"></script>
         <script src="{% static 'js/aplus.js' %}"></script>
-        <script src="{% static 'js/translate.min.js' %}"></script>
 
         {% block scripts %}
             {# Put all additional scripts inside this block. #}
         {% endblock %}
+
+        {# Translation has to be after any additional scripts so that they #}
+        {# have time to register aplus:translation-ready listeners #}
+        <script src="{% static 'js/translate.min.js' %}"></script>
 
         <!-- Some favicons courtesy of http://realfavicongenerator.net/ -->
         <link rel="apple-touch-icon" sizes="57x57" href="{{ STATIC_URL }}favicons/apple-touch-icon-57x57.png">

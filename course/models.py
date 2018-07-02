@@ -242,6 +242,12 @@ class UserTagging(models.Model):
                                         db_index=True)
     objects = UserTaggingManager()
 
+    def __str__(self):
+        return 'tag: {tag}, user: {user}'.format(
+            tag=self.tag.name,
+            user=self.user.user.username
+        )
+
     class Meta:
         unique_together = ('tag', 'user', 'course_instance')
         index_together = (

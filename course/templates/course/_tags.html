@@ -1,9 +1,15 @@
 {% if external %}
-<span class="colortag-active colortag-dark colortag label label-info label-xs">
+<span
+    class="colortag-active colortag-dark colortag label label-info label-xs"
+    data-tag-removable="false"
+>
     {{ external_user_label|safe }}
 </span>
 {% else %}
-<span class="colortag-active colortag-dark colortag label label-success label-xs">
+<span
+    class="colortag-active colortag-dark colortag label label-success label-xs"
+    data-tag-removable="false"
+>
     {{ internal_user_label|safe }}
 </span>
 {% endif %}
@@ -11,7 +17,7 @@
 <span class="dropdown" id="add-taggings-{{ user_id }}"></span>
 
 <script>
- $(function() {
+ $(document).on('aplus:translation-ready', function() {
      if (typeof create_tagging_dropdown === 'function') {
          const user_id = {{ user_id }};
          const tag_ids = {{ tag_ids }};
@@ -20,7 +26,7 @@
              get_users_for_user(user_id) :
              function () { return [user_id] };
 
-         const add_taggings_id = 'add-taggings-' + user_id
+         const add_taggings_id = 'add-taggings-' + user_id;
          const $dropdown = $('span#' + add_taggings_id);
          create_tagging_dropdown(
              tag_ids,
@@ -32,10 +38,9 @@
                  const tags = data_tags.results;
                  jqXHRs.forEach(function (jqXHR) {
                      jqXHR.done(function (data) {
-                         // TODO: replace filter with find once IE11 isn't relevant
-                         const tag = tags.filter(function (tag) {
+                         const tag = tags.find(function (tag) {
                              return tag.id === data.tag.id;
-                         })[0];
+                         });
                          const $elem = $('#add-taggings-' + data.user.id);
                          $elem.parent().before('\n', django_colortag_label(tag));
                          if (typeof extra_click_handler === 'function') {

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-26 18:11+0300\n"
+"POT-Creation-Date: 2018-06-29 14:17+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -594,6 +594,30 @@ msgid ""
 msgstr ""
 "\n"
 "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
+
+#: course/templates/course/staff/_tag_remove_modal.html:21
+msgid "Untag multiple users"
+msgstr "Poista merkintä usealta käyttäjältä"
+
+#: course/templates/course/staff/_tag_remove_modal.html:25
+msgid ""
+"\n"
+"                Remove tagging\n"
+"                <span id=\"tag-remove-modal-tagging\"></span>\n"
+"                from <span id=\"tag-remove-modal-amount\"></span> users:\n"
+"                <ul id=\"tag-remove-modal-users\"></ul>\n"
+"                "
+msgstr ""
+"\n"
+"               Poistetaan merkintä\n"
+"                <span id=\"tag-remove-modal-tagging\"></span>\n"
+"                <span id=\"tag-remove-modal-amount\"></span> käyttäjältä:\n"
+"                <ul id=\"tag-remove-modal-users\"></ul>\n"
+"                "
+
+#: course/templates/course/staff/_tag_remove_modal.html:46
+msgid "Remove all"
+msgstr "Poista kaikki"
 
 #: course/templates/course/staff/group_delete.html:6
 #: course/templates/course/staff/group_delete.html:12
