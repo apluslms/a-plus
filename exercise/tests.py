@@ -307,26 +307,38 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile], self.tomorrow)[0])
 
     def test_base_exercise_submission_allowed(self):
-        ok, errors, students = self.base_exercise.is_submission_allowed(self.user.userprofile)
-        self.assertFalse(ok)
+        status, errors, students = (
+            self.base_exercise.check_submission_allowed(self.user.userprofile))
+        self.assertNotEqual(status, self.base_exercise.SUBMIT_STATUS.ALLOWED)
         self.assertEqual(len(errors), 1)
         json.dumps(errors)
-        self.assertFalse(self.static_exercise.is_submission_allowed(self.user.userprofile)[0])
+        self.assertNotEqual(
+            self.static_exercise.check_submission_allowed(self.user.userprofile)[0],
+            self.static_exercise.SUBMIT_STATUS.ALLOWED)
         self.course_instance.enroll_student(self.user)
-        self.assertTrue(self.static_exercise.is_submission_allowed(self.user.userprofile)[0])
-        self.assertTrue(self.exercise_with_attachment.is_submission_allowed(self.user.userprofile)[0])
-        self.assertFalse(self.old_base_exercise.is_submission_allowed(self.user.userprofile)[0])
+        self.assertEqual(
+            self.static_exercise.check_submission_allowed(self.user.userprofile)[0],
+            self.static_exercise.SUBMIT_STATUS.ALLOWED)
+        self.assertEqual(
+            self.exercise_with_attachment.check_submission_allowed(self.user.userprofile)[0],
+            self.static_exercise.SUBMIT_STATUS.ALLOWED)
+        self.assertNotEqual(
+            self.old_base_exercise.check_submission_allowed(self.user.userprofile)[0],
+            self.old_base_exercise.SUBMIT_STATUS.ALLOWED)
 
-        # TODO in group with self.grader
-        #self.assertFalse(self.base_exercise.is_submission_allowed(self.user.userprofile)[0])
-        #self.assertFalse(self.static_exercise.is_submission_allowed(self.user.userprofile)[0])
-        #self.assertFalse(self.exercise_with_attachment.is_submission_allowed(self.user.userprofile)[0])
-        #self.assertFalse(self.old_base_exercise.is_submission_allowed(self.user.userprofile)[0])
-
-        self.assertTrue(self.base_exercise.is_submission_allowed(self.grader.userprofile)[0])
-        self.assertTrue(self.static_exercise.is_submission_allowed(self.grader.userprofile)[0])
-        self.assertTrue(self.exercise_with_attachment.is_submission_allowed(self.grader.userprofile)[0])
-        self.assertTrue(self.old_base_exercise.is_submission_allowed(self.grader.userprofile)[0])
+        self.assertEqual(
+            self.base_exercise.check_submission_allowed(self.grader.userprofile)[0],
+            self.base_exercise.SUBMIT_STATUS.ALLOWED)
+        self.assertEqual(
+            self.static_exercise.check_submission_allowed(self.grader.userprofile)[0],
+            self.static_exercise.SUBMIT_STATUS.ALLOWED)
+        self.assertEqual(
+            self.exercise_with_attachment \
+                .check_submission_allowed(self.grader.userprofile)[0],
+            self.exercise_with_attachment.SUBMIT_STATUS.ALLOWED)
+        self.assertEqual(
+            self.old_base_exercise.check_submission_allowed(self.grader.userprofile)[0],
+            self.old_base_exercise.SUBMIT_STATUS.ALLOWED)
 
     def test_base_exercise_submission_deviation(self):
         self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))

@@ -59,17 +59,20 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         return access_mode
 
     def get(self, request, *args, **kwargs):
+        submission_allowed = False
+        issues = []
         students = [self.profile]
         if self.exercise.is_submittable:
-            ok, students = self.submission_check()
+            submission_status, submission_allowed, issues, students = self.submission_check()
             self.get_summary_submissions()
 
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):
             if self.is_course_staff:
-                messages.error(request,
-                    _("Exercise is in maintenance and content is hidden from "
-                      "students."))
+                issue = _("Exercise is in maintenance and content is hidden "
+                          "from students.")
+                messages.error(request, issue)
+                issues.append(issue)
             else:
                 page = ExercisePage(self.exercise)
                 page.content = _('Unfortunately this exercise is currently '
@@ -97,8 +100,10 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
         new_submission = None
         page = ExercisePage(self.exercise)
-        ok, students = self.submission_check(True, request)
-        if ok:
+        submission_status, submission_allowed, issues, students = (
+            self.submission_check(True, request)
+        )
+        if submission_allowed:
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)
             if new_submission:
@@ -131,16 +136,21 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def submission_check(self, error=False, request=None):
         if not self.profile:
-            messages.error(self.request,
-                _("You need to sign in and enroll to submit exercises."))
-            return False, []
-        ok, issues, students = self.exercise.is_submission_allowed(self.profile, request)
+            issue = _("You need to sign in and enroll to submit exercises.")
+            messages.error(self.request, issue)
+            return False, [issue], []
+        submission_status, issues, students = (
+            self.exercise.check_submission_allowed(self.profile, request)
+        )
         if len(issues) > 0:
             if error:
                 messages.error(self.request, "\n".join(issues))
             else:
                 messages.warning(self.request, "\n".join(issues))
-        return ok, students
+        submission_allowed = (
+            submission_status == self.exercise.SUBMIT_STATUS.ALLOWED
+        )
+        return submission_status, submission_allowed, issues, students
 
 
 class ExercisePlainView(ExerciseView):

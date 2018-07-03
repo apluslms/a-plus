@@ -301,6 +301,16 @@ class BaseExercise(LearningObject):
         ('CLOSED_AFTER', 4, "Submissions are not anymore accepted"),
         ('ARCHIVED', 5, "Course is archived and so are exercises"),
     ])
+
+    SUBMIT_STATUS = Enum([
+        ('ALLOWED', 1, ''),
+        ('CANNOT_ENROLL', 2, 'You cannot enroll in the course.'),
+        ('NOT_ENROLLED', 3, 'You must enroll at course home.'),
+        ('INVALID_GROUP', 4, 'The selected group is not acceptable.'),
+        ('AMOUNT_EXCEEDED', 5, 'You have used the allowed amount of submissions.'),
+        ('INVALID', 999, 'You cannot submit for an unspecified reason.'),
+    ])
+
     allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
     min_group_size = models.PositiveIntegerField(default=1)
@@ -454,7 +464,7 @@ class BaseExercise(LearningObject):
                 return False
         return True
 
-    def is_submission_allowed(self, profile, request=None):
+    def check_submission_allowed(self, profile, request=None):
         """
         Checks whether the submission to this exercise is allowed for the given
         user and generates a list of warnings.
@@ -480,10 +490,18 @@ class BaseExercise(LearningObject):
             LearningObject.STATUS.ENROLLMENT_EXTERNAL,
         ):
             if not self.course_instance.is_enrollable(profile.user):
-                return False, [_('You cannot enroll in the course.')], students
+                return (self.SUBMIT_STATUS.CANNOT_ENROLL,
+                        [_('You cannot enroll in the course.')],
+                        students)
         elif not enrollment:
             # TODO Provide button to enroll, should there be option to auto-enroll
-            return self.course_instance.is_course_staff(profile.user), [_('You must enroll at course home to submit exercises.')], students
+            if self.course_instance.is_course_staff(profile.user):
+                return (self.SUBMIT_STATUS.ALLOWED,
+                        [_('Staff can submit exercises without enrolling.')],
+                        students)
+            return (self.SUBMIT_STATUS.NOT_ENROLLED,
+                    [_('You must enroll at course home to submit exercises.')],
+                    students)
 
         # Support group id from post or currently selected group.
         group = None
@@ -494,8 +512,7 @@ class BaseExercise(LearningObject):
                 if gid > 0:
                     group = profile.groups.filter(
                         course_instance=self.course_instance,
-                        id=gid
-                    ).first()
+                        id=gid).first()
             except ValueError:
                 pass
         elif enrollment and enrollment.selected_group:
@@ -511,14 +528,13 @@ class BaseExercise(LearningObject):
                     warnings.append(_("You have previously submitted to this exercise alone.") + " " + msg)
                 else:
                     warnings.append(_("You have previously submitted to this exercise with {collaborators}.").format(
-                        collaborators=StudentGroup.format_collaborator_names(s.submitters.all(), profile)
-                    ) + " " + msg)
-                return False, warnings, students
+                        collaborators=StudentGroup.format_collaborator_names(
+                            s.submitters.all(), profile)) + " " + msg)
+                return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
         elif self._detect_submissions(profile, group):
             warnings.append(_('{collaborators} already submitted to this exercise in a different group.').format(
-                collaborators=group.collaborator_names(profile)
-            ))
-            return False, warnings, students
+                collaborators=group.collaborator_names(profile)))
+            return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
         # Get submitters.
         if group:
@@ -530,23 +546,35 @@ class BaseExercise(LearningObject):
                 size = "{:d}".format(self.min_group_size)
             else:
                 size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
-            warnings.append(_("This exercise must be submitted in groups of {size} students.").format(
-                size=size
-            ))
+            warnings.append(
+                _("This exercise must be submitted in groups of {size} students.")
+                .format(size=size))
 
         access_ok,access_warnings = self.one_has_access(students)
 
         if not self.one_has_submissions(students):
             if self.course_module.late_submissions_allowed:
                 access_warnings.append(_('You have used the allowed amount of submissions for this exercise. You may still submit unofficially to receive feedback.'))
-            else:
-                warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
+                return (self.SUBMIT_STATUS.ALLOWED,
+                        warnings + access_warnings,
+                        students)
+            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
+            return (self.SUBMIT_STATUS.AMOUNT_EXCEEDED,
+                    warnings + access_warnings,
+                    students)
 
         ok = (
             (access_ok and len(warnings) == 0) or
             all(self.course_instance.is_course_staff(p.user) for p in students)
         )
-        return ok, warnings + access_warnings, students
+        all_warnings = warnings + access_warnings
+        if not ok:
+            if len(all_warnings) == 0:
+                all_warnings.append(_(
+                    'Cannot submit exercise due to unknown reason. If you '
+                    'think this is an error, please contact course staff.'))
+            return self.SUBMIT_STATUS.INVALID, all_warnings, students
+        return self.SUBMIT_STATUS.ALLOWED, all_warnings, students
 
     def _detect_group_changes(self, profile, group, submission):
         submitters = list(submission.submitters.all())
