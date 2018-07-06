@@ -16,6 +16,11 @@
 {% endif %}
 
 <div id="exercise-page-content"{% if exercise.is_submittable %} data-aplus-chapter="{{ exercise|url }}" data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"{% if summary.get_submission_count > 0 %} data-aplus-group-fixed="{{ summary.get_group_id }}"{% endif %}{% endif %}>
+  <div class="overlay-parent">
+    {% if issues and not submission_allowed %}
+        {% include 'exercise/_warnings_overlay.html' %}
+    {% endif %}
+
     {{ page.content|safe }}
 </div>
 

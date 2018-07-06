@@ -2148,8 +2148,16 @@ msgstr "Palautukset"
 msgid "No submissions yet"
 msgstr "Ei vielä palautuksia"
 
-#: exercise/templates/exercise/exercise.html:24
-#: exercise/templates/exercise/exercise.html:32
+#: exercise/templates/exercise/_warnings_overlay.html:6
+msgid "You cannot submit this exercise"
+msgstr "Et voi palauttaa tätä tehtävää"
+
+#: exercise/templates/exercise/_warnings_overlay.html:18
+msgid "Show anyway"
+msgstr "Näytä kuitenkin"
+
+#: exercise/templates/exercise/exercise.html:29
+#: exercise/templates/exercise/exercise.html:37
 msgid "Posting submission..."
 msgstr "Palautusta lähetetään..."
 

@@ -11,7 +11,7 @@ from django.views.static import serve
 
 from authorization.permissions import ACCESS
 from course.models import CourseModule
-from course.viewbase import CourseInstanceBaseView
+from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
 from lib.remote_page import request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
 from .models import LearningObject, LearningObjectDisplay
@@ -36,7 +36,7 @@ class ExerciseInfoView(ExerciseBaseView):
         self.get_summary_submissions()
 
 
-class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
+class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
     template_name = "exercise/exercise.html"
     ajax_template_name = "exercise/exercise_plain.html"
     post_url_name = "exercise"
@@ -60,11 +60,13 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
 
     def get(self, request, *args, **kwargs):
         submission_allowed = False
+        should_enroll = False
         issues = []
         students = [self.profile]
         if self.exercise.is_submittable:
             submission_status, submission_allowed, issues, students = self.submission_check()
             self.get_summary_submissions()
+            should_enroll = submission_status == self.exercise.SUBMIT_STATUS.NOT_ENROLLED
 
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):
@@ -90,7 +92,14 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView):
         if self.profile:
             LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
 
-        return super().get(request, *args, page=page, students=students, **kwargs)
+        return super().get(request,
+                           *args,
+                           page=page,
+                           students=students,
+                           submission_allowed=submission_allowed,
+                           should_enroll=should_enroll,
+                           issues=issues,
+                           **kwargs)
 
     def post(self, request, *args, **kwargs):
         # Stop submit trials for e.g. chapters.

@@ -1,0 +1,48 @@
+{% load i18n %}
+{% load course %}
+<div class="overlay exercise-warnings-overlay" id="overlay-{{ exercise.id }}">
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            {% trans "You cannot submit this exercise" %}
+        </div>
+        <div class="panel-body">
+            {% for issue in issues %}
+            <p>{{ issue }}</p>
+            {% endfor %}
+            <div class="btn-toolbar" role="toolbar">
+                <button
+                    type="button"
+                    class="btn btn-default"
+                    id="overlay-dismiss-{{ exercise.id }}"
+                >
+                    {% trans "Show anyway" %}
+                </button>
+                {% if should_enroll and enrollable and instance.is_enrollment_open %}
+                {# TODO: Remove partial duplication with course/course.html #}
+                <form
+                    method="post"
+                    action="{{ instance|url:'enroll' }}"
+                    data-aplus-overlay="true"
+                >
+                    {% csrf_token %}
+                    <button
+                        type="submit"
+                        class="btn btn-info"
+                        id="overlay-enroll-{{ exercise.id }}"
+                    >
+                        {% trans 'Enroll' %}
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script>
+     $(function () {
+         $('#overlay-dismiss-{{ exercise.id }}').on('click', function () {
+             $('#overlay-{{ exercise.id }}').remove();
+             return false;
+         });
+     });
+    </script>
+</div>

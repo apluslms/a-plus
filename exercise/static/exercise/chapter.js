@@ -356,7 +356,7 @@
 
 		bindFormEvents: function(content) {
 			if (!this.ajax) {
-				var forms = content.find("form").attr("action", this.url);
+				var forms = content.find("form[data-aplus-overlay!='true']").attr("action", this.url);
 				var exercise = this;
 				if (this.chapter.ajaxForms) {
 					forms.on("submit", function(event) {
