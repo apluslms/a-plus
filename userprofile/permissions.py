@@ -1,6 +1,6 @@
 from authorization.permissions import SAFE_METHODS, Permission, FilterBackend
 
-from .models import UserProfile, GraderUser
+from .models import UserProfile, GraderUser, LTIServiceUser
 
 class IsAdminOrUserObjIsSelf(Permission, FilterBackend):
     def is_super(self, user):
@@ -33,3 +33,8 @@ class GraderUserCanOnlyRead(Permission):
             not isinstance(request.user, GraderUser) or
             request.method in SAFE_METHODS
         )
+
+
+class IsLTIServiceUser(Permission):
+    def has_permission(self, request, view):
+        return isinstance(request.user, LTIServiceUser)

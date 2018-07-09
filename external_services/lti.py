@@ -1,10 +1,11 @@
 from hashlib import md5
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import get_language
+from rest_framework.reverse import reverse
+from rest_framework.settings import api_settings
 from oauthlib.common import urldecode
 from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY, \
     SIGNATURE_TYPE_QUERY
-import hashlib
 import json
 
 from aplus.api import api_reverse
@@ -14,43 +15,24 @@ from course.models import Enrollment
 
 class LTIRequest(object):
 
-    def __init__(self, service, user, instance, host, title, context_id=None, link_id=None, add=None):
+    def __init__(self, service, user, instance, request, title, context_id=None, link_id=None, add=None, exercise=None):
         self.service = service
         course = instance.course
         # Context and resource parameters.
-        context_id = context_id or (host + instance.get_absolute_url())
+        context_id = context_id or (request.get_host() + instance.get_absolute_url())
         link_id = link_id or "aplus{:d}".format(service.pk)
         title = title or link_id
 
         # Gather user information
-        if service.is_anonymous:
-            # Anonymize user information
-            enrollment = Enrollment.objects.filter(course_instance=instance, user_profile=user.userprofile).first()
-            if not enrollment:
-                raise PermissionDenied()
-            # Creates anon name and id for pre-pseudonymisation Enrollments
-            if not (enrollment.anon_name or enrollment.anon_id):
-                # the model's post_save functions take care of the creation
-                enrollment.save()
-            student_id = "a" + enrollment.anon_id # a for anonymous
-            full_name = enrollment.anon_name
-            given_name, sep, family_name = full_name.rpartition(" ")
-            if not given_name:
-                given_name = "Anonymous"
-            email = "anonymous-{}@aplus.invalid".format(enrollment.anon_id)
-        else:
-            student_id = "i" + self.external_student_id(user) # i for internal
-            full_name = "{} {}".format(user.first_name, user.last_name)
-            given_name = user.first_name
-            family_name = user.last_name
-            email = user.email
+        user_id, given_name, family_name, full_name, email = self.user_info(instance, user)
 
         # Determine user role.
-        role = "Student"
+        role = "Learner,Student"
+        # Student is not a standard role name, but it has been used here before
         if course.is_teacher(user):
             role = "Instructor"
         elif instance.is_assistant(user):
-            role = "TA,TeachingAssistant"
+            role = "TA,TeachingAssistant" # "TA" is not a standard role
 
         self.parameters = add or {}
         self.parameters.update({
@@ -62,7 +44,7 @@ class LTIRequest(object):
             "resource_link_title": title,
 
             # User.
-            "user_id": student_id,
+            "user_id": user_id,
             "roles": role,
             "lis_person_name_full": full_name,
             "lis_person_name_given": given_name,
@@ -75,27 +57,55 @@ class LTIRequest(object):
             "context_label": course.code,
 
             "launch_presentation_locale": get_language(),
+            "launch_presentation_document_target": "window",
+            "launch_presentation_return_url": request.scheme + '://' + request.get_host() + instance.get_absolute_url(),
 
-            "tool_consumer_instance_guid": host + "/aplus",
+            "tool_consumer_instance_guid": request.get_host() + "/aplus",
             "tool_consumer_instance_name": "A+ LMS",
         })
 
         if service.api_access:
             self.parameters.update({
-                # FIXME: we need request or full host with protocol here!
-                'custom_context_api': '//' + host + api_reverse("course-detail", kwargs={'course_id': instance.id}),
+                'custom_context_api': request.scheme + '://' + request.get_host() + api_reverse("course-detail", kwargs={'course_id': instance.id}),
                 'custom_context_api_id': str(instance.id),
                 'custom_user_api_token': user.userprofile.api_token,
             })
 
-    def external_student_id(self, user):
-        student_id = user.userprofile.student_id \
-            if user.userprofile.student_id \
-            else "aplusuid{:d}".format(user.pk)
+        if exercise:
+            # LTI 1.1 Tool Provider may return grades to A+ (Tool Consumer)
+            self.parameters.update({
+                # Outcome Service requests from the LTI Tool Provider include the
+                # sourcedid from the launch request. It is used to create new submissions
+                # for storing the points of the user.
+                "lis_result_sourcedid": "{}-{}".format(exercise.pk, user_id),
+                # The LTI Tool Provider posts Outcome Service requests to this URL (i.e., points for a submission)
+                "lis_outcome_service_url": reverse('lti-outcomes', request=request,
+                                                   kwargs={'version': api_settings.DEFAULT_VERSION}),
+            })
 
-        # MD5 the id so that the real student id and names or emails
-        # are not linked in external services.
-        return hashlib.md5(student_id.encode('utf-8')).hexdigest()
+    def user_info(self, course_instance, user):
+        if self.service.is_anonymous:
+            # Anonymize user information
+            enrollment = Enrollment.objects.filter(course_instance=course_instance, user_profile=user.userprofile).first()
+            if not enrollment:
+                raise PermissionDenied()
+            # Creates anon name and id for pre-pseudonymisation Enrollments
+            if not (enrollment.anon_name or enrollment.anon_id):
+                # the model's post_save functions take care of the creation
+                enrollment.save()
+            user_id = "a" + enrollment.anon_id # a for anonymous
+            full_name = enrollment.anon_name
+            given_name, sep, family_name = full_name.rpartition(" ")
+            if not given_name:
+                given_name = "Anonymous"
+            email = "anonymous-{}@aplus.invalid".format(enrollment.anon_id)
+        else:
+            user_id = "i" + str(user.pk) # i for internal
+            full_name = "{} {}".format(user.first_name, user.last_name)
+            given_name = user.first_name
+            family_name = user.last_name
+            email = user.email
+        return user_id, given_name, family_name, full_name, email
 
     def get_checksum_of_parameters(self):
         sum = md5()
@@ -126,26 +136,31 @@ class LTIRequest(object):
 
 class CustomStudentInfoLTIRequest(LTIRequest):
 
-    def __init__(self, service, user, profiles, instance, host, title, context_id=None, link_id=None, add=None):
+    def __init__(self, service, user, profiles, instance, request, title, context_id=None, link_id=None, add=None, exercise=None):
+        self.service = service
+        self.course_instance = instance
         parameters = add or {}
-        parameters['custom_student_id'] = self.true_student_id(user.userprofile)
+        if not service.is_anonymous:
+            parameters['custom_student_id'] = self.true_student_id(user.userprofile)
         if len(profiles) > 1:
             parameters['custom_group_members'] = self.group_json(profiles)
-        super().__init__(service, user, instance, host, title, context_id, link_id, parameters)
+        super().__init__(service, user, instance, request, title, context_id, link_id, parameters, exercise)
 
     def true_student_id(self, profile):
         return profile.student_id or "A{:d}".format(profile.id)
 
     def group_json(self, profiles):
-        data = [];
+        data = []
         for profile in profiles:
-            user = profile.user
-            data.append({
-                'user': self.external_student_id(user),
-                'student_id': self.true_student_id(profile),
-                'given_name': user.first_name,
-                'family_name': user.last_name,
-                'full_name': "{} {}".format(user.first_name, user.last_name),
-                'email': user.email,
-            })
+            user_id, given_name, family_name, full_name, email = self.user_info(self.course_instance, profile.user)
+            d = {
+                'user': user_id,
+                'given_name': given_name,
+                'family_name': family_name,
+                'full_name': full_name,
+                'email': email,
+            }
+            if not self.service.is_anonymous:
+                d['student_id'] = self.true_student_id(profile)
+            data.append(d)
         return json.dumps(data)

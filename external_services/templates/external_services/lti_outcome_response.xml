@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+  <imsx_POXHeader>
+    <imsx_POXResponseHeaderInfo>
+      <imsx_version>{{ version|default:"V1.0" }}</imsx_version>
+      <imsx_messageIdentifier>{{ msg_id }}</imsx_messageIdentifier>
+      <imsx_statusInfo>
+        <imsx_codeMajor>{{ code_major }}</imsx_codeMajor>
+        <imsx_severity>{{ severity }}</imsx_severity>
+        <imsx_description>{{ description }}</imsx_description>
+        <imsx_messageRefIdentifier>{{ msg_ref_id }}</imsx_messageRefIdentifier>
+        <imsx_operationRefIdentifier>{{ operation }}</imsx_operationRefIdentifier>
+        {% if code_minor %}
+        <imsx_codeMinor>{{ code_minor }}</imsx_codeMinor>
+        {% endif %}
+      </imsx_statusInfo>
+    </imsx_POXResponseHeaderInfo>
+  </imsx_POXHeader>
+  {% if code_major == SUCCESS %}
+  <imsx_POXBody>
+    {% if operation == READ_RESULT %}
+    <readResultResponse>
+      <result>
+        <resultScore>
+          <language>en</language>
+          <textString>{{ score }}</textString>
+        </resultScore>
+      </result>
+    </readResultResponse>
+    {% else %}
+    <{{ operation }}Response/>
+    {% endif %}
+  </imsx_POXBody>
+  {% else %}
+  <imsx_POXBody/>
+  {% endif %}
+</imsx_POXEnvelopeResponse>

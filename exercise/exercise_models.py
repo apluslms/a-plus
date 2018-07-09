@@ -1,7 +1,7 @@
 import datetime
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
@@ -609,7 +609,7 @@ class BaseExercise(LearningObject):
             request, url, self, submission, no_penalties=no_penalties
         )
 
-    def modify_post_parameters(self, data, files, user, students, host, url):
+    def modify_post_parameters(self, data, files, user, students, request, url):
         """
         Allows to modify submission POST parameters before they are sent to
         the grader. Extending classes may implement this function.
@@ -635,6 +635,12 @@ class BaseExercise(LearningObject):
             "ordinal_number": ordinal_number,
             "lang": language,
         })
+    
+    @property
+    def can_regrade(self):
+        """Can this exercise be regraded in the assessment service, i.e.,
+        can previous submissions be uploaded again for grading?"""
+        return True
 
 
 class LTIExercise(BaseExercise):
@@ -669,7 +675,7 @@ class LTIExercise(BaseExercise):
             return ExercisePage(self)
 
         url = self.service_url or self.lti_service.url
-        lti = self._get_lti(students[0].user, students, request.get_host())
+        lti = self._get_lti(students[0].user, students, request)
 
         # Render launch button.
         page = ExercisePage(self)
@@ -683,18 +689,19 @@ class LTIExercise(BaseExercise):
         }))
         return page
 
-    def _get_lti(self, user, students, host, add=None):
+    def _get_lti(self, user, students, request, add=None):
         try:
             return CustomStudentInfoLTIRequest(
                 self.lti_service,
                 user,
                 students,
                 self.course_instance,
-                host,
+                request,
                 self.resource_link_title or self.name,
                 self.context_id or None,
                 self.resource_link_id or "aplusexercise{:d}".format(self.id or 0),
                 add,
+                exercise=self,
             )
         except PermissionDenied:
             raise
@@ -702,14 +709,20 @@ class LTIExercise(BaseExercise):
     def get_load_url(self, language, request, students, url_name="exercise"):
         url = super().get_load_url(language, request, students, url_name)
         if self.lti_service and students:
-            lti = self._get_lti(students[0].user, [], request.get_host())
+            lti = self._get_lti(students[0].user, [], request)
             return lti.sign_get_query(url)
         return url
 
-    def modify_post_parameters(self, data, files, user, students, host, url):
+    def modify_post_parameters(self, data, files, user, students, request, url):
         literals = {key: str(val[0]) for key,val in data.items()}
-        lti = self._get_lti(user, students, host, add=literals)
+        lti = self._get_lti(user, students, request, add=literals)
         data.update(lti.sign_post_parameters(url))
+    
+    @property
+    def can_regrade(self):
+        # the LTI protocol does not support regrading in the A+ way
+        # (A+ would upload a submission to the service and expect it to be graded)
+        return False
 
 
 class StaticExercise(BaseExercise):
@@ -737,6 +750,10 @@ class StaticExercise(BaseExercise):
 
     def _is_empty(self):
         return not bool(self.exercise_page_content)
+    
+    @property
+    def can_regrade(self):
+        return False
 
 
 def build_upload_dir(instance, filename):
@@ -796,7 +813,7 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
-    def modify_post_parameters(self, data, files, user, students, host, url):
+    def modify_post_parameters(self, data, files, user, students, request, url):
         """
         Adds the attachment file to post parameters.
         """

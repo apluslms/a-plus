@@ -50,7 +50,7 @@ class LTILoginView(CourseInstanceBaseView):
                 self.service,
                 self.request.user,
                 self.instance,
-                self.request.get_host(),
+                self.request,
                 self.menu_item.label,
             )
         except PermissionDenied:

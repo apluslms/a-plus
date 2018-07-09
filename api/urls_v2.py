@@ -6,6 +6,7 @@ import userprofile.api.views
 import course.api.views
 import exercise.api.views
 import exercise.api.csv.views
+import external_services.api.views
 
 
 api = ExtendedDefaultRouter()
@@ -60,6 +61,7 @@ urlpatterns = [
     url(r'^', include(api.urls, namespace='api')),
 
     url(r'^me', userprofile.api.views.MeDetail.as_view()),
+    url(r'^lti-outcomes', external_services.api.views.LTIExerciseBasicOutcomesView.as_view(), name='lti-outcomes'),
 ]
 
 
