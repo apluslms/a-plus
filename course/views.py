@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils import html
 from django.utils import timezone
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
@@ -61,6 +62,18 @@ class ArchiveView(UserProfileView):
 class InstanceView(EnrollableViewMixin, BaseTemplateView):
     template_name = "course/course.html"
 
+    def get(self, request, *args, **kwargs):
+        # external LTI Tool Providers may return the user to the course instance view
+        # with a message given in GET query parameters
+        lti_error_msg = request.GET.get('lti_errormsg')
+        lti_msg = request.GET.get('lti_msg')
+        # message HTML is not escaped in the templates so escape it here
+        if lti_error_msg:
+            messages.error(request, html.escape(lti_error_msg))
+        elif lti_msg:
+            messages.info(request, html.escape(lti_msg))
+
+        return super().get(request, *args, **kwargs)
 
 class Enroll(EnrollableViewMixin, BaseRedirectView):
 
