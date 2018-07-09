@@ -670,6 +670,10 @@ class LTIExercise(BaseExercise):
             })
 
     def load(self, request, students, url_name="exercise"):
+        if not self.lti_service.enabled:
+            messages.error(request, _("The exercise can not be loaded because the external LTI service has been disabled."))
+            raise PermissionDenied("The LTI service is disabled.")
+
         if self.aplus_get_and_post:
             return super().load(request, students, url_name=url_name)
 
