@@ -1701,8 +1701,8 @@ msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
 #: exercise/exercise_models.py:656
-msgid "Default: Launch exercise"
-msgstr "Oletus: Avaa tehtävä"
+msgid "Default: the menu label of the LTI service"
+msgstr "Oletus: LTI-palvelun nimi"
 
 #: exercise/exercise_models.py:658
 msgid ""
@@ -1710,7 +1710,12 @@ msgid ""
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:667
+#: exercise/exercise_models.py:660
+msgid ""
+"Open the exercise in an iframe inside the A+ page instead of a new window."
+msgstr "Avaa tehtävä iframe-kehyksessä A+-sivun sisällä uuden ikkunan sijasta."
+
+#: exercise/exercise_models.py:669
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
@@ -2178,10 +2183,6 @@ msgstr "Näytä pohjatiedosto"
 #: exercise/templates/exercise/submission_plain.html:94
 msgid "Your submission has been accepted for grading."
 msgstr "Palautuksesi on vastaanotettu arvostelua varten."
-
-#: exercise/templates/exercise/model/_lti_button.html:10
-msgid "Launch exercise"
-msgstr "Avaa tehtävä"
 
 #: exercise/templates/exercise/results.html:8
 msgid "Results"

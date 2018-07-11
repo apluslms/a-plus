@@ -653,9 +653,11 @@ class LTIExercise(BaseExercise):
     resource_link_id = models.CharField(max_length=128, blank=True,
         help_text=_('Default: [aplusexercise:id]'))
     resource_link_title = models.CharField(max_length=128, blank=True,
-        help_text=_('Default: Launch exercise'))
+        help_text=_('Default: the menu label of the LTI service'))
     aplus_get_and_post = models.BooleanField(default=False,
         help_text=_('Perform GET and POST from A+ to custom service URL with LTI data appended.'))
+    open_in_iframe = models.BooleanField(default=False,
+        help_text=_('Open the exercise in an iframe inside the A+ page instead of a new window.'))
 
     def clean(self):
         """
@@ -680,12 +682,15 @@ class LTIExercise(BaseExercise):
         # Render launch button.
         page = ExercisePage(self)
         page.content = self.content
-        template = loader.get_template('exercise/model/_lti_button.html')
+        template = loader.get_template('external_services/_lti_launch.html')
         page.content += template.render(Context({
             'service': self.lti_service,
             'url': url,
             'parameters': lti.sign_post_parameters(url),
-            'title': self.resource_link_title,
+            'parameters_hash': lti.get_checksum_of_parameters(only_user_and_course_level_params=True),
+            'exercise': self,
+            'is_course_staff': self.course_instance.is_course_staff(request.user),
+            'site': '/'.join(url.split('/')[:3]),
         }))
         return page
 
@@ -697,7 +702,7 @@ class LTIExercise(BaseExercise):
                 students,
                 self.course_instance,
                 request,
-                self.resource_link_title or self.name,
+                self.resource_link_title or self.lti_service.menu_label or self.name,
                 self.context_id or None,
                 self.resource_link_id or "aplusexercise{:d}".format(self.id or 0),
                 add,

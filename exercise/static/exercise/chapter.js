@@ -157,6 +157,7 @@
 		active_element_attr: "data-aplus-active-element",
 		ae_result_selector: '.ae_result',
 		input: false, // determines whether the active element is an input element or not
+		external_launcher_selector: '[data-external-launch]', // external services (LTI)
 	};
 
 
@@ -366,6 +367,9 @@
 			}
 
 			$.augmentExerciseGroup(content);
+			this.element
+				.find(this.settings.external_launcher_selector)
+				.aplusExternalLauncher();
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID
