@@ -77,6 +77,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     self.dirty = True
                     continue
                 entry = tree[-1]
+                if entry['best_submission'] == None:
+                  entry['best_submission'] = submission.id
                 entry['submission_count'] += 1 if not submission.status in (Submission.STATUS.ERROR, Submission.STATUS.UNOFFICIAL) else 0
                 unofficial = submission.status == Submission.STATUS.UNOFFICIAL
                 entry['submissions'].append({
@@ -96,12 +98,12 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 if (
                     submission.status == Submission.STATUS.READY and (
                         entry['unofficial']
-                        or submission.grade >= entry['points']
+                        or submission.id >= int(entry['best_submission'])
                     )
                 ) or (
                     unofficial and (
                         not entry['graded']
-                        or (entry['unofficial'] and submission.grade > entry['points'])
+                        or (entry['unofficial'] and (submission.id >= int(entry['best_submission'])))
                     )
                 ):
                     entry.update({
