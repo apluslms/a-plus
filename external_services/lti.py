@@ -57,7 +57,8 @@ class LTIRequest(object):
             "context_label": course.code,
 
             "launch_presentation_locale": get_language(),
-            "launch_presentation_document_target": "window",
+            "launch_presentation_document_target":
+                "iframe" if exercise and exercise.open_in_iframe else "window",
             "launch_presentation_return_url": request.scheme + '://' + request.get_host() + instance.get_absolute_url(),
 
             "tool_consumer_instance_guid": request.get_host() + "/aplus",
@@ -107,9 +108,24 @@ class LTIRequest(object):
             email = user.email
         return user_id, given_name, family_name, full_name, email
 
-    def get_checksum_of_parameters(self):
+    def get_checksum_of_parameters(self, only_user_and_course_level_params=False):
+        if only_user_and_course_level_params:
+            # do not include parameters that change between different exercises for the same LTI service
+            included_keys = (
+                "lti_version",
+                "lti_message_type",
+                "user_id",
+                "lis_person_name_full",
+                "lis_person_contact_email_primary",
+                "context_id",
+                "context_label",
+                "tool_consumer_instance_guid",
+            )
+            params = [(key, value) for key, value in self.parameters.items() if key in included_keys]
+        else:
+            params = self.parameters.items()
         sum = md5()
-        for key, value in sorted(self.parameters.items()):
+        for key, value in sorted(params):
             sum.update("{}={};".format(key, value).encode('utf-8'))
         return sum.hexdigest()
 

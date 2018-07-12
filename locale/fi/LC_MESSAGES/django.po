@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-06 19:36+0300\n"
+"POT-Creation-Date: 2018-07-09 12:54+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1701,8 +1701,8 @@ msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
 #: exercise/exercise_models.py:656
-msgid "Default: Launch exercise"
-msgstr "Oletus: Avaa tehtävä"
+msgid "Default: the menu label of the LTI service"
+msgstr "Oletus: LTI-palvelun nimi"
 
 #: exercise/exercise_models.py:658
 msgid ""
@@ -1710,11 +1710,23 @@ msgid ""
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:667
+#: exercise/exercise_models.py:660
+msgid ""
+"Open the exercise in an iframe inside the A+ page instead of a new window."
+msgstr "Avaa tehtävä iframe-kehyksessä A+-sivun sisällä uuden ikkunan sijasta."
+
+#: exercise/exercise_models.py:669
 msgid "Exercise must be located in the LTI domain."
 msgstr "Tehtävän tulee sijaita LTI-palvelun domainissa."
 
-#: exercise/exercise_models.py:787
+#: exercise/exercise_models.py:674
+msgid ""
+"The exercise can not be loaded because the external LTI service has been "
+"disabled."
+msgstr ""
+"Tehtävää ei voi ladata, koska ulkoinen LTI-palvelu on poistettu käytöstä."
+
+#: exercise/exercise_models.py:796
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -2178,10 +2190,6 @@ msgstr "Näytä pohjatiedosto"
 #: exercise/templates/exercise/submission_plain.html:94
 msgid "Your submission has been accepted for grading."
 msgstr "Palautuksesi on vastaanotettu arvostelua varten."
-
-#: exercise/templates/exercise/model/_lti_button.html:10
-msgid "Launch exercise"
-msgstr "Avaa tehtävä"
 
 #: exercise/templates/exercise/results.html:8
 msgid "Results"
