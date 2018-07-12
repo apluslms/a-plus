@@ -523,14 +523,19 @@ class BaseExercise(LearningObject):
         if len(submissions) > 0:
             s = submissions[0]
             if self._detect_group_changes(profile, group, s):
-                msg = str(_("Group can only change between different exercises."))
+                msg = _("Group can only change between different exercises.")
+                warning = _('You have previously submitted this '
+                            'exercise {with_group}. {msg}')
                 if s.submitters.count() == 1:
-                    warnings.append(_("You have previously submitted to this exercise alone.") + " " + msg)
+                    warning = warning.format(with_group=_('alone'), msg=msg)
                 else:
-                    warnings.append(_("You have previously submitted to this exercise with {collaborators}.").format(
-                        collaborators=StudentGroup.format_collaborator_names(
-                            s.submitters.all(), profile)) + " " + msg)
+                    collaborators = StudentGroup.format_collaborator_names(
+                            s.submitters.all(), profile)
+                    with_group = _('with {}').format(collaborators)
+                    warning = warning.format(with_group=with_group, msg=msg)
+                warnings.append(warning)
                 return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+
         elif self._detect_submissions(profile, group):
             warnings.append(_('{collaborators} already submitted to this exercise in a different group.').format(
                 collaborators=group.collaborator_names(profile)))

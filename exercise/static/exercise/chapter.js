@@ -679,8 +679,9 @@
 								.empty().append(
 										$(data).filter(exercise.settings.exercise_selector).contents()
 									);
-								//f.find("table.submission-info").remove();
-								exercise.bindFormEvents(f);
+                // TODO: remove magic constant (variable defined in group.js)
+                f.removeClass('group-augmented');
+								exercise.bindFormEvents(exercise.element);
 							} else {
 								// Update the output box values
 								exercise.updateOutput(data.feedback);

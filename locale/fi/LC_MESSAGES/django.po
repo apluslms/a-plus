@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-12 19:29+0300\n"
+"POT-Creation-Date: 2018-07-13 16:08+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1664,14 +1664,18 @@ msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla.
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:511
-msgid "You have previously submitted to this exercise alone."
-msgstr "Olet palauttanut tämän tehtävän aiemmin yksin."
-
-#: exercise/exercise_models.py:513
+#: exercise/exercise_models.py:527
 #, python-brace-format
-msgid "You have previously submitted to this exercise with {collaborators}."
-msgstr "Olet palauttanut tämän tehtävän aiemmin ryhmässä: {collaborators}."
+msgid "You have previously submitted this exercise {with_group}. {msg}"
+msgstr "Olet palauttanut tämän tehtävän aiemmin {with_group}. {msg}"
+
+#: exercise/exercise_models.py:530
+msgid "alone"
+msgstr "yksin"
+
+#: exercise/exercise_models.py:534
+msgid "with {}"
+msgstr "ryhmässä {}"
 
 #: exercise/exercise_models.py:518
 #, python-brace-format
