@@ -60,13 +60,19 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
     def get(self, request, *args, **kwargs):
         submission_allowed = False
+        disable_submit = False
         should_enroll = False
         issues = []
         students = [self.profile]
         if self.exercise.is_submittable:
+            SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
             submission_status, submission_allowed, issues, students = self.submission_check()
             self.get_summary_submissions()
-            should_enroll = submission_status == self.exercise.SUBMIT_STATUS.NOT_ENROLLED
+            disable_submit = submission_status in [
+                SUBMIT_STATUS.CANNOT_ENROLL,
+                SUBMIT_STATUS.NOT_ENROLLED,
+            ]
+            should_enroll = submission_status == SUBMIT_STATUS.NOT_ENROLLED
 
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):
@@ -97,6 +103,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                            page=page,
                            students=students,
                            submission_allowed=submission_allowed,
+                           disable_submit=disable_submit,
                            should_enroll=should_enroll,
                            issues=issues,
                            **kwargs)

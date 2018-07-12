@@ -90,14 +90,18 @@
           }
         });
       }
+
+      object
+        .find('[data-aplus-disable-submit="true"] :submit')
+        .prop('disabled', true);
     }
   });
 
-  $.augmentExerciseGroup = function(object) {
-    if ($.augmentExerciseGroup_class === undefined) {
-      $.augmentExerciseGroup_class = new AplusExerciseGroup();
+  $.augmentSubmitButton = function(object) {
+    if ($.augmentSubmitButton_class === undefined) {
+      $.augmentSubmitButton_class = new AplusExerciseGroup();
     }
-    $.augmentExerciseGroup_class.decorate(object);
+    $.augmentSubmitButton_class.decorate(object);
   };
 
 })(jQuery, window, document);

@@ -49,7 +49,9 @@
 			    <ul class="nav navbar-nav exercise-nav">
 			      <li>
 				      <a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
-				        {% if not exercise.category.confirm_the_level %}{% trans "Points" %}{% endif %}
+				        {% if not exercise.category.confirm_the_level %}
+                  {% trans "Points" %}
+                {% endif %}
 				        {% points_badge summary %}
 				      </a>
 			      </li>
@@ -57,10 +59,10 @@
 		  	      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
 					      {% trans "My submissions" %}
 					        <span class="badge">
-					            {{ summary.get_submission_count }}
-			  		          {% if exercise.max_submissions %}
-			  		          / {{ exercise|max_submissions:profile }}
-			  		          {% endif %}
+					          {{ summary.get_submission_count }}
+			  		        {% if exercise.max_submissions %}
+			  		        / {{ exercise|max_submissions:profile }}
+			  		        {% endif %}
 					        </span>
 					        <b class="caret"></b>
 		  	      </a>
@@ -125,7 +127,16 @@
 			  </nav>
         {% endif %}
 
-			  <div class="exercise-response" data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"{% if summary.get_submission_count > 0 %} data-aplus-group-fixed="{{ summary.get_group_id }}"{% endif %}>
+			  <div
+            class="exercise-response"
+            data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"
+            {% if summary.get_submission_count > 0 %}
+            data-aplus-group-fixed="{{ summary.get_group_id }}"
+            {% endif %}
+            {% if disable_submit %}
+            data-aplus-disable-submit="true"
+            {% endif %}
+        >
 			    {% include "_messages.html" %}
 			    <div>
 			      {% if page.content.strip %}

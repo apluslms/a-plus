@@ -58,7 +58,7 @@
 			if (this.exercisesSize > 0) {
 				this.nextExercise();
 			} else {
-				$.augmentExerciseGroup($(".exercise-column"));
+				$.augmentSubmitButton($(".exercise-column"));
 			}
 		},
 
@@ -366,7 +366,7 @@
 				}
 			}
 
-			$.augmentExerciseGroup(content);
+			$.augmentSubmitButton(content);
 			this.element
 				.find(this.settings.external_launcher_selector)
 				.aplusExternalLauncher();
