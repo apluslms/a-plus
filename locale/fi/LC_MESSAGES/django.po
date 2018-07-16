@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-09 12:54+0300\n"
+"POT-Creation-Date: 2018-07-13 16:08+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1652,7 +1652,11 @@ msgstr "Tämä kurssi on arkistoitu ({date})."
 msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:486
+#: exercise/exercise_models.py:500
+msgid "Staff can submit exercises without enrolling."
+msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
+
+#: exercise/exercise_models.py:503
 msgid "You must enroll at course home to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
 
@@ -1660,14 +1664,18 @@ msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla.
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:511
-msgid "You have previously submitted to this exercise alone."
-msgstr "Olet palauttanut tämän tehtävän aiemmin yksin."
-
-#: exercise/exercise_models.py:513
+#: exercise/exercise_models.py:527
 #, python-brace-format
-msgid "You have previously submitted to this exercise with {collaborators}."
-msgstr "Olet palauttanut tämän tehtävän aiemmin ryhmässä: {collaborators}."
+msgid "You have previously submitted this exercise {with_group}. {msg}"
+msgstr "Olet palauttanut tämän tehtävän aiemmin {with_group}. {msg}"
+
+#: exercise/exercise_models.py:530
+msgid "alone"
+msgstr "yksin"
+
+#: exercise/exercise_models.py:534
+msgid "with {}"
+msgstr "ryhmässä {}"
 
 #: exercise/exercise_models.py:518
 #, python-brace-format
@@ -1692,7 +1700,15 @@ msgstr ""
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:652
+#: exercise/exercise_models.py:574
+msgid ""
+"Cannot submit exercise due to unknown reason. If you think this is an error, "
+"please contact course staff."
+msgstr ""
+"Tehtävää ei voitu palauttaa tuntemattomasta syystä. Jos uskot tämän olevan "
+"virhe, ota ystävällisesti yhteyttä kurssihenkilökuntaan."
+
+#: exercise/exercise_models.py:680
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
@@ -2132,8 +2148,16 @@ msgstr "Palautukset"
 msgid "No submissions yet"
 msgstr "Ei vielä palautuksia"
 
-#: exercise/templates/exercise/exercise.html:24
-#: exercise/templates/exercise/exercise.html:32
+#: exercise/templates/exercise/_warnings_overlay.html:6
+msgid "You cannot submit this exercise"
+msgstr "Et voi palauttaa tätä tehtävää"
+
+#: exercise/templates/exercise/_warnings_overlay.html:18
+msgid "Show anyway"
+msgstr "Näytä kuitenkin"
+
+#: exercise/templates/exercise/exercise.html:29
+#: exercise/templates/exercise/exercise.html:37
 msgid "Posting submission..."
 msgstr "Palautusta lähetetään..."
 
