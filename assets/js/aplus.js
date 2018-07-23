@@ -45,23 +45,30 @@ $(function() {
 
     var modifyMenu = function() {
         var menu =  $('#main-course-menu');
-        if ($(window).scrollTop() > menuHeight && !menuFixed) {
+        if (!menuFixed && $(window).scrollTop() > menuHeight) {
+            var w = menu.width();
             menu.addClass('fixed');
+            menu.css('width', ""+w+"px");
             menuFixed = true;
-        } else if ($(window).scrollTop() < 50 && menuFixed) {
+        } else if (menuFixed && $(window).scrollTop() < 50) {
             menu.removeClass('fixed');
+            menu.css('width', '');
             menuFixed = false;
         }
     };
 
-    $(window).bind('scroll', function () {
-      modifyMenu();
-    });
+    var updateMenu = function() {
+        var menu = $('#main-course-menu');
+        if (menuFixed) {
+            menu.removeClass('fixed');
+            menu.css('width', '');
+            menuFixed = false;
+            modifyMenu();
+        }
+    };
 
-    $(window).bind('resize', function () {
-      modifyMenu();
-    });
-
+    $(window).bind('scroll', modifyMenu);
+    $(window).bind('resize', updateMenu);
 });
 
 /**
