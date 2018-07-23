@@ -67,14 +67,16 @@ urlpatterns = [
 
 if getattr(settings, 'API_DEBUG', False):
     # Print list of api urls
-    _urls = [(url.callback.cls.__name__, url.name, url.regex.pattern) for url in api.urls]
+    _urls = [(url.callback.cls.__name__, url.name or '-', url.regex.pattern) for url in api.urls if url.callback]
+    _urls += [(url.callback.cls.__name__, url.name or '-', url.regex.pattern) for url in urlpatterns if url.callback]
     _lens = {'v': max(len(v) for v, n, p in _urls), 'n': max(len(url.name) for url in api.urls)}
     _urls = ("  - {:<{v:d}s} {:<{n:d}s} {:s}".format(*a, **_lens) for a in _urls)
     print(" API URLS:", *_urls, sep='\n')
 
     # Print list of api view permissions
     _vseen = set()
-    _views = (url.callback.cls  for url in api.urls)
+    _views = [url.callback.cls for url in api.urls if url.callback]
+    _views += [url.callback.cls for url in urlpatterns if url.callback]
     _methods = ('list', 'create', 'retrieve', 'update', 'partial_update', 'destroy')
     _get_methods = lambda v: ' '.join(((m[0].upper() if hasattr(v, m) else ' ') for m in _methods))
     _get_perms = lambda v: ', '.join(p.__class__.__name__ for p in v().get_permissions())
