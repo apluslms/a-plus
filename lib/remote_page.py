@@ -94,7 +94,7 @@ class RemotePage:
             auth, sep, domain = url.netloc.rpartition('@')
             domain = settings.REMOTE_PAGE_HOSTS_MAP.get(domain, domain)
             url = url._replace(netloc=auth+sep+domain)
-        return url.geturl()
+        return url
 
     def meta(self, name):
         if self.soup:
@@ -191,7 +191,7 @@ class RemotePage:
                     fix_value = value[2:] if value.startswith('../') else value
                     value = fix_path + fix_value
 
-                element[attr_name] = urljoin(url, value)
+                element[attr_name] = urljoin(url.geturl(), value)
 
     def find_and_replace(self, attr_name, list_of_attributes):
         l = len(list_of_attributes)
