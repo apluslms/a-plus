@@ -19,6 +19,7 @@ def backwards_autoselect(apps, schema_editor):
         service.save()
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('external_services', '0006_ltiservice_enable_api_access'),
