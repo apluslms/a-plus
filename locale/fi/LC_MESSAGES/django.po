@@ -2597,12 +2597,6 @@ msgid "Public service, allow API access"
 msgstr "Julkinen palvelu, API-käyttöoikeus"
 
 #: external_services/models.py:57
-#, fuzzy
-#| msgid ""
-#| "Select whether to pass pseudonymised user data to the LTI service.</"
-#| "br>Public services can also enable sharing the user's API token and "
-#| "course API URL in the LTI launch request. This grants the LTI tool API "
-#| "access with the user's privileges."
 msgid ""
 "Select whether to pass pseudonymised user data to the LTI service.<br>Public "
 "services can also enable sharing the user's API token and course API URL in "
