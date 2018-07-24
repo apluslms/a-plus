@@ -154,7 +154,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         if not self.profile:
             issue = _("You need to sign in and enroll to submit exercises.")
             messages.error(self.request, issue)
-            return False, [issue], []
+            return self.exercise.SUBMIT_STATUS.INVALID, False, [issue], []
         submission_status, issues, students = (
             self.exercise.check_submission_allowed(self.profile, request)
         )
