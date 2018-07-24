@@ -301,6 +301,12 @@ class BaseExercise(LearningObject):
         ('CLOSED_AFTER', 4, "Submissions are not anymore accepted"),
         ('ARCHIVED', 5, "Course is archived and so are exercises"),
     ])
+
+    POINTS_CATEGORIES = (
+        ('L', _("Latest submission is in effect")),
+        ('B', _("Best submission is in effect"))
+    )
+
     allow_assistant_viewing = models.BooleanField(default=True)
     allow_assistant_grading = models.BooleanField(default=False)
     min_group_size = models.PositiveIntegerField(default=1)
@@ -309,7 +315,7 @@ class BaseExercise(LearningObject):
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
     difficulty = models.CharField(max_length=32, blank=True)
-
+    submission_in_effect = models.CharField(max_length=1, blank=False, choices=POINTS_CATEGORIES, default="B")
     class Meta:
         app_label = 'exercise'
 
