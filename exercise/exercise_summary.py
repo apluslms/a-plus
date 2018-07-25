@@ -1,6 +1,10 @@
+import itertools
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 
 from course.models import StudentGroup
+from .cache.content import CachedContent
 from .models import BaseExercise, Submission
 
 
@@ -119,9 +123,7 @@ class ResultTable:
         self.course_instance = course_instance
 
         # Exercises on the course.
-        self.exercises = list(BaseExercise.objects \
-            .filter(course_module__course_instance=course_instance) \
-            .order_by("course_module__closing_time", "course_module", "order"))
+        self.exercises = list(self.__get_exercises())
         self.categories = course_instance.categories.all()
 
         # Students on the course.
@@ -141,6 +143,28 @@ class ResultTable:
 
         # Fill the results with the data from the database.
         self.__collect_student_grades()
+
+
+    def __get_exercises(self):
+        content = CachedContent(self.course_instance)
+
+        def get_descendant_ids(node):
+            children = node['children']
+            if children:
+                return itertools.chain.from_iterable(
+                    [get_descendant_ids(child) for child in children])
+            return (node['id'],)
+
+        root_node = { 'children': content.modules() }
+        ids = get_descendant_ids(root_node)
+
+        # Loop until end of ids raises StopIteration
+        while True:
+            id = next(ids)
+            try:
+                yield BaseExercise.objects.get(learningobject_ptr_id=id)
+            except ObjectDoesNotExist:
+                continue
 
 
     def __collect_student_grades(self):
