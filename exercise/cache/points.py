@@ -64,12 +64,20 @@ class CachedPoints(ContentMixin, CachedAbstract):
             'points_by_difficulty': {},
             'unconfirmed_points_by_difficulty': {},
         })
-
+        def update_entry(submission):
+            entry.update({
+                'best_submission': submission.id,
+                'points': submission.grade,
+                'passed': submission.grade >= entry['points_to_pass'],
+                'graded': submission.status == Submission.STATUS.READY,
+            })
         # Augment submission data.
         if user.is_authenticated():
-            for submission in user.userprofile.submissions\
-                  .exclude_errors()\
-                  .filter(exercise__course_module__course_instance=instance):
+            submissions = user.userprofile.submissions\
+                .exclude_errors()\
+                .filter(exercise__course_module__course_instance=instance)
+
+            for submission in submissions:
                   #.prefetch_related("notifications"): breaks things
                 try:
                     tree = self._by_idx(modules, exercise_index[submission.exercise.id])
@@ -77,8 +85,6 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     self.dirty = True
                     continue
                 entry = tree[-1]
-                if entry['best_submission'] == None:
-                  entry['best_submission'] = submission.id
                 entry['submission_count'] += 1 if not submission.status in (Submission.STATUS.ERROR, Submission.STATUS.UNOFFICIAL) else 0
                 unofficial = submission.status == Submission.STATUS.UNOFFICIAL
                 entry['submissions'].append({
@@ -95,24 +101,25 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
                 })
+
+                # If the effective submission is the latest one (signified by'L'),
+                # set the best_submission to be the last one.
+                if entry['best_submission'] == None and entry['submission_in_effect'] == 'L':
+                    update_entry(submissions.filter(exercise=submission.exercise).first())
+
+                is_new_best = submission.grade >= entry['points'] and entry['submission_in_effect'] == 'B'
                 if (
                     submission.status == Submission.STATUS.READY and (
-                        entry['unofficial']
-                        or submission.id >= int(entry['best_submission'])
+                        unofficial or is_new_best
                     )
                 ) or (
                     unofficial and (
-                        not entry['graded']
-                        or (entry['unofficial'] and (submission.id >= int(entry['best_submission'])))
+                        not entry['graded'] or is_new_best
                     )
                 ):
-                    entry.update({
-                        'best_submission': submission.id,
-                        'points': submission.grade,
-                        'passed': not unofficial and submission.grade >= entry['points_to_pass'],
-                        'graded': submission.status == Submission.STATUS.READY,
-                        'unofficial': unofficial,
-                    })
+                    update_entry(submission)
+
+
                 if submission.notifications.count() > 0:
                     entry['notified'] = True
                     if submission.notifications.filter(seen=False).count() > 0:

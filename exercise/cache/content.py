@@ -138,6 +138,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'max_submissions': exercise.max_submissions,
                 'max_points': exercise.max_points,
                 'allow_assistant_viewing': exercise.allow_assistant_viewing,
+                'submission_in_effect': exercise.submission_in_effect
             })
 
             if tree[-1]['confirm_the_level']:
