@@ -157,6 +157,7 @@ class RemotePage:
             ("a","href"),
             ("video","poster"),
             ("source","src"),
+            ("meta", "data-src"),
         ]:
             self._fix_relative_urls(url, tag, attr)
 
