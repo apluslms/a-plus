@@ -29,13 +29,9 @@
     {% if issues and not submission_allowed %}
         {% include 'exercise/_warnings_overlay.html' %}
     {% endif %}
-      <div
-          {% if disable_submit %}
-              data-aplus-disable-submit="true"
-          {% endif %}
-      >
-          {{ page.content|safe }}
-      </div>
+    <div {% if disable_submit %}data-aplus-disable-submit="true"{% endif %}>
+      {{ page.content|safe }}
+    </div>
   </div>
 </div>
 
