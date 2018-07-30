@@ -148,18 +148,26 @@ class ResultTable:
         Helper for the __init__.
         This method puts the data from the database in to the results table.
         """
-        submissions = list(Submission.objects \
-            .filter(
-                exercise__course_module__course_instance=self.course_instance,
-                status=Submission.STATUS.READY
-            ).values("submitters", "exercise", "exercise__category") \
-            .annotate(best=Max("grade")) \
-            .order_by()) # Remove default ordering.
-        for submission in submissions:
+
+        # Submissions for a given course instance.
+        course_submissions = Submission.objects.filter(exercise__course_module__course_instance=self.course_instance,
+            status=Submission.STATUS.READY)
+
+        # Group the data by given attributes and compute best score and id of latest submission.
+        submissions = course_submissions \
+            .values("submitters", "exercise", "exercise__category", "exercise__submission_in_effect") \
+            .annotate(best=Max("grade"), newest=Max("id")) \
+            .order_by() # Remove default ordering.
+
+        for submission in list(submissions):
             student_id = submission["submitters"]
             if student_id in self.results:
-                self.results[student_id][submission["exercise"]] = submission["best"]
-                self.results_by_category[student_id][submission["exercise__category"]] += submission["best"]
+                # Get the score for the latest submission or the already computed best score,
+                # based on the exercise configuration.
+                grade = (course_submissions.get(id=submission["newest"]).grade
+                 if submission["exercise__submission_in_effect"] == "L" else submission["best"])
+                self.results[student_id][submission["exercise"]] = grade
+                self.results_by_category[student_id][submission["exercise__category"]] += grade
 
 
     def results_for_template(self):
