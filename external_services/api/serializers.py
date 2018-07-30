@@ -11,7 +11,7 @@ from .renderers import LTIOutcomeResponseRenderer
 class LTIOutcomeSerializer(serializers.Serializer):
     # parameters that are parsed from the XML of the request body
     version = serializers.CharField(default='1.0')
-    msgid = serializers.CharField(max_length=32)
+    msgid = serializers.CharField(max_length=127)
     req_type = serializers.ChoiceField(choices=[
         LTIOutcomeXMLParser.TYPE_REPLACE, LTIOutcomeXMLParser.TYPE_READ, LTIOutcomeXMLParser.TYPE_DELETE
     ])
@@ -102,4 +102,4 @@ class LTIOutcomeSerializer(serializers.Serializer):
         validated_data['submitter'] = user_profile
         
         return validated_data
-    
+
