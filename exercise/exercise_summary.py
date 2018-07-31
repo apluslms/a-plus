@@ -15,17 +15,23 @@ class UserExerciseSummary(object):
         self.exercise = exercise
         self.max_points = getattr(exercise, 'max_points', 0)
         self.difficulty = getattr(exercise, 'difficulty', '')
+        self.points_strategy = exercise.submission_in_effect
         self.points_to_pass = getattr(exercise, 'points_to_pass', 0)
         self.user = user
         self.submissions = []
         self.submission_count = 0
-        self.best_submission = None
+        self.effective_submission = None
         self.graded = False
         self.unofficial = False
 
         if self.user and self.user.is_authenticated():
             self.submissions = list(exercise.get_submissions_for_student(
                 user.userprofile))
+
+            # If latest submission should be in effect, make it such.
+            if self.submissions and self.points_strategy == "L":
+                self.effective_submission = self.submissions[0]
+
             for s in self.submissions:
                 if not s.status in (
                     Submission.STATUS.ERROR,
@@ -34,12 +40,12 @@ class UserExerciseSummary(object):
                     self.submission_count += 1
                     if (
                         s.status == Submission.STATUS.READY and (
-                            self.best_submission is None
+                            self.effective_submission is None
                             or self.unofficial
-                            or s.grade > self.best_submission.grade
+                            or (s.grade > self.effective_submission.grade and self.points_strategy == "B")
                         )
                     ):
-                        self.best_submission = s
+                        self.effective_submission = s
                         self.unofficial = False
                         self.graded = True
                     elif (
@@ -47,11 +53,11 @@ class UserExerciseSummary(object):
                             not self.graded
                             or (
                                 self.unofficial
-                                and s.grade > self.best_submission.grade
+                                and s.grade > self.effective_submission.grade and self.points_strategy == "B"
                             )
                         )
                     ):
-                        self.best_submission = s
+                        self.effective_submission = s
                         self.unofficial = True
 
     def get_submission_count(self):
@@ -61,13 +67,13 @@ class UserExerciseSummary(object):
         return self.submissions
 
     def get_best_submission(self):
-        return self.best_submission
+        return self.effective_submission
 
     def get_points(self):
-        return self.best_submission.grade if self.best_submission else 0
+        return self.effective_submission.grade if self.effective_submission else 0
 
     def get_penalty(self):
-        return self.best_submission.late_penalty_applied if self.best_submission else None
+        return self.effective_submission.late_penalty_applied if self.effective_submission else None
 
     def is_missing_points(self):
         return self.get_points() < self.points_to_pass
