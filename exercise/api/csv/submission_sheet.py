@@ -10,13 +10,16 @@ def filter_best_submissions(submissions):
         if s.exercise_id != eid:
             eid = s.exercise_id
             best[eid] = {}
+            points_strategy = s.exercise.submission_in_effect
 
         if s.status == 'ready':
             user = s.submitters.first()
             uid = user.id if user else 0
             old = best[eid].get(uid)
-            if not old or s.grade >= old[1]:
+            if not old or (s.grade >= old[1] and points_strategy == "B"):
                 best[eid][uid] = (i,s.grade)
+            elif points_strategy == "L":
+                best[eid][uid] = (i, s.grade)
 
     filtered = []
     for ebest in best.values():
