@@ -1,6 +1,7 @@
 import base64
 import hashlib
 from io import BytesIO
+import logging
 
 from django.contrib.auth.models import User
 from rest_framework.parsers import BaseParser
@@ -10,6 +11,8 @@ from lxml import etree
 from course.models import Enrollment
 from exercise.exercise_models import LTIExercise
 
+
+logger = logging.getLogger(__name__)
 
 def parse_sourced_id(sourced_id_str):
     '''Parse a sourcedId value from an LTI 1.1 Outcomes Service request.
@@ -73,10 +76,12 @@ class LTIOutcomeXMLParser(BaseParser):
         try:
             tree = etree.parse(stream)
         except etree.XMLSyntaxError as e:
+            logger.warning('XML syntax error in LTI Outcomes request: %s', str(e))
             raise ParseError(str(e))
         
         root = tree.getroot()
         if root.tag != '{ns}imsx_POXEnvelopeRequest'.format(ns=self.NS):
+            logger.warning('Unexpected root element in LTI Outcomes request: %s', root.tag)
             raise ParseError('The XML root element is not "{ns}imsx_POXEnvelopeRequest"'.format(ns=self.NS))
         
         data = {}
