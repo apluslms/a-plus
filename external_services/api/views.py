@@ -26,8 +26,8 @@ class LTIExerciseBasicOutcomesView(APIView):
             if serializer.validated_data['req_type'] == LTIOutcomeXMLParser.TYPE_REPLACE:
                 exercise = serializer.validated_data['exercise']
                 student = serializer.validated_data['submitter']
-                ok, errors, students = exercise.is_submission_allowed(student)
-                if not ok:
+                sbms_status, errors, students = exercise.check_submission_allowed(student)
+                if sbms_status != exercise.SUBMIT_STATUS.ALLOWED:
                     return Response({'detail': errors}, status=status.HTTP_200_OK)
                     # the key "detail" is also used by raised exceptions in authentication and parsing
                 serializer.save() # creates a new submission

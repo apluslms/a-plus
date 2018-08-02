@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.contrib.auth.models import User
 import lxml
@@ -11,6 +12,8 @@ from exercise.models import LTIExercise, Submission
 from external_services.models import LTIService
 from userprofile.models import UserProfile, LTIServiceUser
 
+# disable logging so that the log messages do not clutter the test output
+logging.disable(logging.CRITICAL)
 
 class LTIOutcomesBaseTest(APITestCase):
     OUTCOMES_API_URL = '/api/v2/lti-outcomes'

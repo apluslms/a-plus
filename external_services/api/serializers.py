@@ -1,3 +1,5 @@
+import logging
+
 from django.utils import timezone
 
 from rest_framework import serializers
@@ -8,10 +10,12 @@ from .parsers import parse_sourced_id, LTIOutcomeXMLParser
 from .renderers import LTIOutcomeResponseRenderer
 
 
+logger = logging.getLogger(__name__)
+
 class LTIOutcomeSerializer(serializers.Serializer):
     # parameters that are parsed from the XML of the request body
     version = serializers.CharField(default='1.0')
-    msgid = serializers.CharField(max_length=32)
+    msgid = serializers.CharField(max_length=127)
     req_type = serializers.ChoiceField(choices=[
         LTIOutcomeXMLParser.TYPE_REPLACE, LTIOutcomeXMLParser.TYPE_READ, LTIOutcomeXMLParser.TYPE_DELETE
     ])
@@ -80,10 +84,15 @@ class LTIOutcomeSerializer(serializers.Serializer):
         '''
         # this runs the default validators for the defined serializer fields
         # it raises serializers.ValidationError if there are errors
-        validated_data = super().to_internal_value(data)
+        try:
+            validated_data = super().to_internal_value(data)
+        except serializers.ValidationError as e:
+            logger.warning('Validation error in LTI Outcomes request: %s', str(e.detail))
+            raise
         
         if (validated_data['req_type'] == LTIOutcomeXMLParser.TYPE_REPLACE
                 and 'score' not in validated_data):
+            logger.warning('LTI Outcomes replaceResultRequest did not contain the result score')
             raise serializers.ValidationError({
                 'score': [LTIOutcomeXMLParser.TYPE_REPLACE + ' request must include the new result score.']
             })
@@ -102,4 +111,4 @@ class LTIOutcomeSerializer(serializers.Serializer):
         validated_data['submitter'] = user_profile
         
         return validated_data
-    
+

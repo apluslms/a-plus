@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 import oauthlib.oauth1.rfc5849
 from rest_framework.authentication import BaseAuthentication
@@ -9,6 +10,8 @@ from .oauth_nonce_cache import OAuthNonceCache
 from .parsers import parse_sourced_id
 from userprofile.models import LTIServiceUser
 
+
+logger = logging.getLogger(__name__)
 
 def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=None):
     '''
@@ -98,20 +101,28 @@ class OAuthBodyHashAuthentication(BaseAuthentication):
         exercise, user_profile = parse_sourced_id(data.get('sourced_id', ''))
         if exercise is None or user_profile is None:
             # can not find the exercise or user corresponding to the sourced id
+            logger.warning('Invalid sourcedId in LTI Outcomes request: %s',
+                           data.get('sourced_id', ''))
             raise AuthenticationFailed('Invalid sourcedId')
         data['exercise'] = exercise
         data['submitter'] = user_profile
         
         req_body_hash = data.get('body_hash')
         if not req_body_hash:
-            raise AuthenticationFailed('Request body hash can not be verified')
+            error_msg = 'Request body hash can not be verified'
+            logger.error(error_msg)
+            raise AuthenticationFailed(error_msg)
         
         if not exercise.lti_service:
-            raise AuthenticationFailed('No LTI service set for the exercise')
+            error_msg = 'No LTI service set for the exercise'
+            logger.error(error_msg)
+            raise AuthenticationFailed(error_msg)
         
         oauth_ok, msg = verify_oauth_body_hash_and_signature(request, req_body_hash, exercise)
         if not oauth_ok:
-            raise AuthenticationFailed('OAuth verification failed: ' + msg)
+            error_msg = 'OAuth verification failed: ' + msg
+            logger.warning(error_msg)
+            raise AuthenticationFailed(error_msg)
         
         user = LTIServiceUser(exercise=exercise, lti_service=exercise.lti_service, student_id=user_profile.user.id)
         return (user, None)
