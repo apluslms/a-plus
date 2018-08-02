@@ -16,10 +16,10 @@ def filter_best_submissions(submissions):
             user = s.submitters.first()
             uid = user.id if user else 0
             old = best[eid].get(uid)
-            if not old or (s.grade >= old[1] and points_strategy == "B"):
+            if (not old or
+                (s.grade >= old[1] and points_strategy == "B") or
+                (points_strategy == "L")):
                 best[eid][uid] = (i,s.grade)
-            elif points_strategy == "L":
-                best[eid][uid] = (i, s.grade)
 
     filtered = []
     for ebest in best.values():
