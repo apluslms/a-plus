@@ -113,8 +113,8 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
             )
 
         # find out if student can submit new exercise and if ok create submission template
-        ok, errors, students = exercise.is_submission_allowed(student)
-        if not ok:
+        status, errors, students = exercise.check_submission_allowed(student)
+        if status != exercise.SUBMIT_STATUS.ALLOWED:
             return Response({'success': False, 'errors': errors})
         submission = Submission.objects.create(exercise=exercise)
         submission.submitters = students
@@ -178,7 +178,8 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
 
         print(exercice_to_submit)
 
-        if exercice_to_submit.is_submission_allowed([submitter]):
+        status, _, _ = exercise_to_submit.check_submission_allowed([submitter])
+        if status == exercise_to_submit.SUBMIT_STATUS.ALLOWED:
             print("Submission is available.")
 
             #serializer = SubmissionSerializer(data=request.data)

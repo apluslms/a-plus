@@ -22,7 +22,7 @@ class LTILoginView(CourseInstanceBaseView):
     Tested for use with Piazza, https://piazza.com/product/lti
     """
     access_mode = ACCESS.ENROLLED
-    template_name = "external_services/lti_form.html"
+    template_name = "external_services/lti_service_launch.html"
     id_kw = "menu_id"
     menu_permission_classes = (
         MenuVisiblePermission,
@@ -50,16 +50,17 @@ class LTILoginView(CourseInstanceBaseView):
                 self.service,
                 self.request.user,
                 self.instance,
-                self.request.get_host(),
+                self.request,
                 self.menu_item.label,
             )
         except PermissionDenied:
             messages.error(self.request, _('You need to be enrolled to access an anonymous service.'))
             raise
-        self.parameters_hash = lti.get_checksum_of_parameters()
-        self.parameters = lti.sign_post_parameters()
-        self.site = '/'.join(self.service.url.split('/')[:3])
-        self.note("service", "parameters_hash", "parameters", "site")
+        self.url = self.service.url
+        self.parameters_hash = lti.get_checksum_of_parameters(only_user_and_course_level_params=True)
+        self.parameters = lti.sign_post_parameters(self.url)
+        self.site = '/'.join(self.url.split('/')[:3])
+        self.note("service", "parameters_hash", "parameters", "site", "url")
 
 
 class ListMenuItemsView(CourseInstanceBaseView):

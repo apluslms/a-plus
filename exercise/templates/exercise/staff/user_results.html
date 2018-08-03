@@ -13,10 +13,18 @@
 {{ block.super }}
 {% if is_teacher %}
 <script src="{% static 'django_colortag.js' %}"></script>
+<script src="{% static 'js/buttons_popover.js' %}"></script>
+<script src="{% static 'js/tag_popover.js' %}"></script>
 <script src="{% static 'add_tagging_dropdown.js' %}"></script>
 <script>
+    const api_url = "{% url 'api:course-detail' 2 instance.id %}"
     const create_tagging_dropdown = get_create_tagging_dropdown_closure({
-        api_url: "{% url 'api:course-detail' 2 instance.id %}",
+        api_url: api_url,
+    });
+    $(document).on('aplus:translation-ready', function () {
+        add_colortag_buttons(
+            api_url, document.getElementById('enrollment-and-tags')
+        );
     });
 </script>
 {% endif %}
@@ -56,7 +64,7 @@
   </tr>
 </table>
 
-<p>
+<p id="enrollment-and-tags" data-user-id="{{ student.id }}">
   {% for submission in enrollment_submissions %}
   <a href="{{ submission|url }}" class="page-modal">
     {{ enrollment_exercise }} {{ submission.submission_time }}

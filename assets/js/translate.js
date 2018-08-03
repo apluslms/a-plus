@@ -67,14 +67,27 @@ function djangoToPolyglot(data) {
   return transformedInterpolations;
 }
 
-// Load the translation files from the URLs specified in the data-src attributes of the meta
-// tags which have a data-translation-lang attribute matching the current language.
-var translationFiles = $('meta[data-translation-lang=' + lang + ']').map(function (i, e) {
-  return $(e).attr('data-src');
-});
-translationFiles.each(function (i, path) {
-  $.ajax(path, { dataType: 'json' }).done(function (data) {
-    return polyglot.extend(djangoToPolyglot(data));
+$(function () {
+  // Load the translation files from the URLs specified in the data-src attributes of the
+  // meta tags which have a data-translation-lang attribute matching the current language.
+  var translationFiles = $('meta[data-translation-lang=' + lang + ']').map(function (i, e) {
+    return $(e).attr('data-src');
+  });
+
+  var readyEvent = 'aplus:translation-ready';
+  if (translationFiles.length === 0) {
+    $(document).trigger(readyEvent);
+  }
+
+  var filesLoaded = 0;
+  translationFiles.each(function (i, path) {
+    $.ajax(path, { dataType: 'json' }).done(function (data) {
+      polyglot.extend(djangoToPolyglot(data));
+      filesLoaded += 1;
+      if (filesLoaded === translationFiles.length) {
+        $(document).trigger(readyEvent);
+      }
+    });
   });
 });
 

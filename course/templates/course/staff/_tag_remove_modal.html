@@ -1,0 +1,51 @@
+{% load i18n %}
+<div
+    class="modal"
+    id="tag-remove-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="tag-remove-modal-label"
+>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="close"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="tag-remove-modal-label">
+                    {% trans "Untag multiple users" %}
+                </h4>
+            </div>
+            <div class="modal-body">
+                {% blocktrans %}
+                Remove tagging
+                <span id="tag-remove-modal-tagging"></span>
+                from <span id="tag-remove-modal-amount"></span> users:
+                <ul id="tag-remove-modal-users"></ul>
+                {% endblocktrans %}
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-default"
+                    data-dismiss="modal"
+                >
+                    {% trans "Cancel" %}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    data-dismiss="modal"
+                    id="tag-remove-modal-button"
+                >
+                    {% trans "Remove all" %}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

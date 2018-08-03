@@ -58,7 +58,7 @@
 			if (this.exercisesSize > 0) {
 				this.nextExercise();
 			} else {
-				$.augmentExerciseGroup($(".exercise-column"));
+				$.augmentSubmitButton($(".exercise-column"));
 			}
 		},
 
@@ -157,6 +157,7 @@
 		active_element_attr: "data-aplus-active-element",
 		ae_result_selector: '.ae_result',
 		input: false, // determines whether the active element is an input element or not
+		external_launcher_selector: '[data-external-launch]', // external services (LTI)
 	};
 
 
@@ -355,7 +356,7 @@
 
 		bindFormEvents: function(content) {
 			if (!this.ajax) {
-				var forms = content.find("form").attr("action", this.url);
+				var forms = content.find("form[data-aplus-overlay!='true']").attr("action", this.url);
 				var exercise = this;
 				if (this.chapter.ajaxForms) {
 					forms.on("submit", function(event) {
@@ -365,7 +366,10 @@
 				}
 			}
 
-			$.augmentExerciseGroup(content);
+			$.augmentSubmitButton(content);
+			this.element
+				.find(this.settings.external_launcher_selector)
+				.aplusExternalLauncher();
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID
@@ -675,8 +679,9 @@
 								.empty().append(
 										$(data).filter(exercise.settings.exercise_selector).contents()
 									);
-								//f.find("table.submission-info").remove();
-								exercise.bindFormEvents(f);
+                // TODO: remove magic constant (variable defined in group.js)
+                f.removeClass('group-augmented');
+								exercise.bindFormEvents(exercise.element);
 							} else {
 								// Update the output box values
 								exercise.updateOutput(data.feedback);

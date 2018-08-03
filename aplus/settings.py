@@ -359,11 +359,13 @@ LOGGING = {
 from os import environ
 from r_django_essentials.conf import *
 
-# get settings values from other sources
-update_settings_from_environment(__name__, 'DJANGO_') # Provide defaults before local_settings
-update_settings_from_module(__name__, 'local_settings')
+# Load settings from: local_settings, secret_key and environment
+update_settings_with_file(__name__,
+                          environ.get('APLUS_LOCAL_SETTINGS', 'local_settings'),
+                          quiet='APLUS_LOCAL_SETTINGS' in environ)
 update_secret_from_file(__name__, environ.get('APLUS_SECRET_KEY_FILE', 'secret_key'))
-update_settings_from_environment(__name__, 'APLUS_')  # Provide overrides after local_settings
+update_settings_from_environment(__name__, 'DJANGO_') # FIXME: deprecated. was used with containers before, so keep it here for now.
+update_settings_from_environment(__name__, 'APLUS_')
 
 # update INSTALLED_APPS
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS

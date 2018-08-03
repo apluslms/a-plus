@@ -1,0 +1,24 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block title %}{{ service.menu_label }} | {{ block.super }}{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{{ service.menu_label }}</li>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/external_launcher.js' %}"></script>
+<script>
+$(function() {
+    $('[data-external-launch]').aplusExternalLauncher();
+});
+</script>
+{% endblock %}
+
+{% block coursecontent %}
+{% include "./_lti_launch.html" %}
+{% endblock %}

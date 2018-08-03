@@ -117,6 +117,7 @@ class LTIExerciseForm(BaseExerciseForm):
             'resource_link_id',
             'resource_link_title',
             'aplus_get_and_post',
+            'open_in_iframe',
         ]
 
     @property
@@ -126,7 +127,7 @@ class LTIExerciseForm(BaseExerciseForm):
     def get_content_fieldset(self, *add):
         return super().get_content_fieldset('lti_service','context_id',
             'resource_link_id','resource_link_title',
-            'aplus_get_and_post','service_url')
+            'aplus_get_and_post','open_in_iframe','service_url')
 
 
 class ExerciseWithAttachmentForm(BaseExerciseForm):
