@@ -235,7 +235,7 @@
 			label.html(title);
 
 			var form_field;
-			if (!type) {
+			if (!type || type === "clickable") {
 				form_field = $("<textarea>");
 				form_field.val(def_val);
 			} else if (type === "file") {
@@ -403,7 +403,7 @@
 					// active elements don't use loadbar so the error message must be shown
 					// in the element container
 					var feedback = $("<div>");
-					feedback.attr('id', 'feedback');			
+					feedback.attr('id', 'feedback');
 					feedback.append(exercise.chapter.messages.error);
 					exercise.updateOutput(feedback);
 				}
@@ -496,7 +496,6 @@
 					var url = exercise.url;
 					exercise.submitAjax(url, formData, function(data) {
 						var content = $(data);
-
 						if (! content.find('.alert-danger').length) {
 							var poll_url = content.find(".exercise-wait").attr("data-poll-url");
 							output.attr('data-poll-url', poll_url);
@@ -645,7 +644,7 @@
 					// Store the value of the input to be used later for submitting active
 					// element evaluation requests
 					$($.find("#" + input_id)).data("value", input_data);
-					$("#" +input_id + "_input_id").val(input_data);
+					$("#" +input_id + "_input_id").val(input_data).trigger('change');
 				}
 			});
 		},
