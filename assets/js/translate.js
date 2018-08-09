@@ -67,7 +67,7 @@ function djangoToPolyglot(data) {
   return transformedInterpolations;
 }
 
-$(function () {
+function on_ready() {
   // Load the translation files from the URLs specified in the data-src attributes of the
   // meta tags which have a data-translation-lang attribute matching the current language.
   var translationFiles = $('meta[data-translation-lang=' + lang + ']').map(function (i, e) {
@@ -89,6 +89,11 @@ $(function () {
       }
     });
   });
+}
+
+/* double wrap.. first ready will be on top of the stack and will add the second as last */
+$(function () {
+  $(on_ready);
 });
 
 module.exports = polyglot.t.bind(polyglot);

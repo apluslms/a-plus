@@ -18,7 +18,7 @@ How to use
 Install dependencies if you haven't done so already
 
 ```
-npm install
+npm install --no-save
 ```
 
 Build the bundle, which will be put to A+'s `assets/js` folder, and run
