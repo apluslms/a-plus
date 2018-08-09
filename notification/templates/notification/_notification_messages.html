@@ -1,3 +1,4 @@
+{% load course %}
 {% load i18n %}
 {% if count > 0 %}
 <div class="alert alert-danger visible-xs">
@@ -7,7 +8,7 @@
         <ul>
             {% for entry in notifications %}
             <li><a href="{{ entry.link }}" class="page-modal">
-                {{ entry.name }}
+                {{ entry.name|parse_localization }}
             </a></li>
             {% endfor %}
         </ul>

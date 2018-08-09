@@ -1,3 +1,4 @@
+{% load course %}
 {% if count > 0 %}
 <li role="presentation" class="menu-notification dropdown" id="notification-alert">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -9,7 +10,7 @@
     {% for entry in notifications %}
     <li>
       <a href="{{ entry.link }}" class="page-modal">
-        {{ entry.name }}
+        {{ entry.name|parse_localization }}
       </a>
     </li>
     {% endfor %}

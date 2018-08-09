@@ -23,8 +23,8 @@
 	</head>
 	<body>
 		<p class="submission-title">
-			{% if exercise.parent %}{{ exercise.parent }}:{% endif %}
-			{{ exercise }}
+			{% if exercise.parent %}{{ exercise.parent|parse_localization }}:{% endif %}
+			{{ exercise|parse_localization }}
 		</p>
 		<table class="submission-info table table-bordered table-condensed">
 			<tr>
