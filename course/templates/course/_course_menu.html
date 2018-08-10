@@ -14,23 +14,21 @@
 			<h4>{% trans "Course" %}</h4>
     </div>
     <div class="col-sm">
-			<div class="dropdown">
-			  <h4>
-					<input type="image" src="{% static 'images/uls.svg' %}" alt="{% trans 'Language' %}"
-					class="btn btn-xs" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
-					<div class="dropdown-menu dropdown-menu-right">
-						{% for language in instance.language|list_unselected %}
-						<li>
-							<form action="{% url 'set_language' %}" method="post">
-								{% csrf_token %}
-								<input name="next" type="hidden" value="{{ request.get_full_path }}" />
-								<input name="language" type="hidden" value="{{ language }}" />
-								<button type="submit" class="btn">{{ language|language_name_local }}</button>
-							</form>
-						</li>
-						{% endfor %}
-				  </div>
-			</h4>
+			<div class="dropdown h4">
+				<input type="image" src="{% static 'images/uls.svg' %}" alt="{% trans 'Language' %}"
+				class="btn btn-xs" id="lang-dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+				<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown">
+					{% for language in instance.language|list_unselected %}
+					<li>
+						<form action="{% url 'set_language' %}" method="post">
+							{% csrf_token %}
+							<input name="next" type="hidden" value="{{ request.get_full_path }}" />
+							<input name="language" type="hidden" value="{{ language }}" />
+							<button type="submit" class="btn">{{ language|language_name_local }}</button>
+						</form>
+					</li>
+					{% endfor %}
+				</ul>
 			</div>
     </div>
   </div>
