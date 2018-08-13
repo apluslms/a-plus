@@ -71,11 +71,10 @@ function djangoToPolyglot(data) {
 }
 
 function on_ready() {
-  // Load the translation files from the URLs specified in the data-src attributes of the
-  // meta tags which have a data-translation-lang attribute matching the current language.
-  const translationFiles = $( `meta[data-translation-lang=${lang}]` ).map((i, e) =>
-    $( e ).attr('data-src')
-  )
+  // Load the translation files from the URLs specified in the link tags which
+  // have a data-translation attribute and hreflang matching the current language.
+  const translationFiles = $( `link[data-translation][hreflang=${lang}]` )
+    .map((i, e) => $( e ).attr('href'))
 
   const readyEvent = 'aplus:translation-ready'
   if (translationFiles.length === 0) {

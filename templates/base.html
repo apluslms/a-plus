@@ -21,14 +21,15 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
 
-        {# Translation has to be after any additional scripts so that they #}
-        {# have time to register aplus:translation-ready listeners #}
         <script src="{% static 'js/translate.min.js' %}"></script>
 
         {% if is_teacher %}
-        <meta
-            data-translation-lang="fi"
-            data-src="{{ STATIC_URL }}js-translations/teacher.fi.json"
+        <link
+            data-translation
+            rel="preload"
+            as="fetch"
+            hreflang="fi"
+            href="{{ STATIC_URL }}js-translations/teacher.fi.json"
         >
         {% endif %}
 

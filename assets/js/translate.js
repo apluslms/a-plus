@@ -68,10 +68,10 @@ function djangoToPolyglot(data) {
 }
 
 function on_ready() {
-  // Load the translation files from the URLs specified in the data-src attributes of the
-  // meta tags which have a data-translation-lang attribute matching the current language.
-  var translationFiles = $('meta[data-translation-lang=' + lang + ']').map(function (i, e) {
-    return $(e).attr('data-src');
+  // Load the translation files from the URLs specified in the link tags which
+  // have a data-translation attribute and hreflang matching the current language.
+  var translationFiles = $('link[data-translation][hreflang=' + lang + ']').map(function (i, e) {
+    return $(e).attr('href');
   });
 
   var readyEvent = 'aplus:translation-ready';
