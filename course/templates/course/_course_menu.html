@@ -72,7 +72,7 @@
 {% for group in course_menu.student_link_groups %}
 {% if group.label %}
 <li role="presentation" class="header">
-	<h4>{{ group.label }}</h4>
+	<h4>{{ group.label|parse_localization }}</h4>
 </li>
 {% endif %}
 {% for entry in group.items %}
@@ -82,7 +82,7 @@
 		{% if entry.icon_class %}
 		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
 		{% endif %}
-		{{ entry.label }}
+		{{ entry.label|parse_localization }}
 	</a>
 </li>
 {% endif %}
@@ -163,7 +163,7 @@
 {% for group in course_menu.staff_link_groups %}
 {% if group.label %}
 <li role="presentation" class="header">
-	<h4>{{ group.label }}</h4>
+	<h4>{{ group.label|parse_localization }}</h4>
 </li>
 {% endif %}
 {% for entry in group.items %}
@@ -174,7 +174,7 @@
 		{% if entry.icon_class %}
 		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
 		{% endif %}
-		{{ entry.label }}
+		{{ entry.label|parse_localization }}
 	</a>
 </li>
 {% endif %}

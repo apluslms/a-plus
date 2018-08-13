@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load external_services %}
+{% load course %}
 {% comment %}
 aplus/assets/js/external_launcher.js defines a jQuery plugin that is used with
 this template. The page that includes this partial template should also
@@ -19,7 +20,7 @@ $(function() {
 <div data-hide-after-launch>
 <div class="alert alert-warning">
 	<p>
-		{% blocktrans with name=service.menu_label %}
+		{% blocktrans with name=service.menu_label|parse_localization %}
 		You are about to use an external service, {{ name }}, for the first time.
 		{% endblocktrans %}
 		{% if service.is_anonymous %}
@@ -79,7 +80,7 @@ $(function() {
 		{% for entry in parameters %}
 		<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />
 		{% endfor %}
-		<input type="submit" value="{% blocktrans with name=service.menu_label %}Accept and continue to {{ name }}{% endblocktrans %}" class="btn btn-primary" />
+		<input type="submit" value="{% blocktrans with name=service.menu_label|parse_localization %}Accept and continue to {{ name }}{% endblocktrans %}" class="btn btn-primary" />
 		<a class="btn btn-default" data-toggle="collapse"
 		   aria-expanded="false" aria-controls="{{ collapse_id }}"
 		   href="#{{ collapse_id }}"

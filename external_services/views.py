@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from course.templatetags.course import parse_localization
 from lib.viewbase import BaseFormView, BaseRedirectView
 from .forms import MenuItemForm
 from .lti import LTIRequest
@@ -51,7 +52,7 @@ class LTILoginView(CourseInstanceBaseView):
                 self.request.user,
                 self.instance,
                 self.request,
-                self.menu_item.label,
+                parse_localization(self.menu_item.label),
             )
         except PermissionDenied:
             messages.error(self.request, _('You need to be enrolled to access an anonymous service.'))
