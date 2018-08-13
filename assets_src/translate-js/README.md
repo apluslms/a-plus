@@ -37,13 +37,13 @@ In the HTML file, include JQuery and `translate.js`
 <script src="{% static 'js/translate.min.js' %}"></script>
 ```
 
-Include your translation files in meta tags in HTML. The translation files may
+Include your translation files in link tags in HTML. The translation files may
 be either in [polyglot's](http://airbnb.io/polyglot.js/) native format or in 
 [Django JSONCatalog](https://docs.djangoproject.com/en/2.0/topics/i18n/translation/#the-jsoncatalog-view)
 format.
 
 ```
-<meta data-aplus="yes" data-translation-lang="fi" data-src="foo.fi.json">
+<link data-aplus="yes" data-translation rel="preload" as="fetch" hreflang="fi" href="foo.fi.json">
 etc.
 ```
 
