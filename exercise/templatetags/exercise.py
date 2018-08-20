@@ -233,10 +233,9 @@ def get_grading_errors(submission):
     if grading_data.startswith('<pre>'):
         return grading_data[5:-6]
     try:
-        grading_data = json.loads(grading_data)
-    except (TypeError, ValueError):
+        return json.loads(grading_data).get('errors', "")
+    except (AttributeError, TypeError, ValueError):
         return ""
-    return grading_data.get('errors', "")
 
 
 @register.inclusion_tag("exercise/_text_stats.html", takes_context=True)
