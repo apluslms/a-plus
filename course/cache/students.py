@@ -30,6 +30,7 @@ class CachedStudents(CachedAbstract):
                 'link': participant.get_url(instance),
                 'tags': render_tags(participant, tags, instance),
                 'tag_ids': [t.id for t in tags],
+                'tag_slugs': [t.slug for t in tags],
                 'external': participant.is_external,
             })
         return {
