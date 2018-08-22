@@ -101,6 +101,11 @@ Walkthrough for Ubuntu
 		# You may create local superuser for testing or manual user management.
 		./manage.py createsuperuser
 
+7. Compile localisation files
+
+        source venv/bin/activate
+        cd a-plus; ./manage.py compilemessages
+
 7. Collect static files for serving via Apache.
 
 		source venv/bin/activate
