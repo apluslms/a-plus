@@ -113,7 +113,7 @@
 			}
 			this.modalContent(content);
 		},
-		
+
 		renderMath: function() {
 			if (typeof window.MathJax === "undefined") {
 				return;
@@ -425,6 +425,7 @@
 			$.each(inputs, function(i, id) {
 				var input_val;
 				var input_elem = $.find("#" + id);
+				var input_field = $("#" + id + "_input_id");
 
 				// Input can be also an output element, in which case the content must be
 				// retrieved differently
@@ -441,17 +442,18 @@
 					input_val = $(input_elem).find(".ae_result").text().trim();
 
 				} else if ($(input_elem).data("type") === "file") {
-					input_val = $("#" + id + "_input_id").get(0).files[0];
+					input_val = input_field.get(0).files[0];
 
 				} else if (id !== input_id) {
+					input_val = input_field.val();
 					// Because changing an input value without submitting said input is possible,
-					// use the latest input value that has been submitted before for other inputs
-					// than the one being submitted now.
-					input_val = $(input_elem).data("value");
+					// use the latest input value that has been submitted before, if there is one,
+					// for other inputs than the one being submitted now.
+					if ($(input_elem).data("value")) input_val = $(input_elem).data("value");
 					// Update the input box back to the value used in evaluation
-					$("#" + id + "_input_id").val(input_val);
+					input_field.val(input_val);
 				} else {
-					input_val = $("#" + id + "_input_id").val();
+					input_val = input_field.val();
 					// Update the saved value data
 					$(input_elem).data("value", input_val);
 				}
@@ -688,7 +690,7 @@
 								// Update the input values
 								exercise.updateInputs(data);
 							}
-							
+
 							exercise.renderMath();
 						});
 				} else {
@@ -712,7 +714,7 @@
 		hideLoader: function() {
 			this.loader.hide();
 		},
-		
+
 		renderMath: function() {
 			if (typeof window.MathJax === "undefined") {
 				return;
