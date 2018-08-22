@@ -19,7 +19,7 @@ class LinkService(ModelWithInheritance):
         help_text=_("The service URL")
     )
     menu_label = models.CharField(
-        max_length=32,
+        max_length=255,
         help_text=_("A default label to show in the course menu.")
     )
     menu_icon_class = models.CharField(
@@ -110,13 +110,13 @@ class MenuItem(UrlMixin, models.Model):
         help_text=_("A link URL (else service default). Relative URLs are relative to course root.")
     )
     menu_group_label = models.CharField(
-        max_length=32,
+        max_length=255,
         blank=True,
         null=True,
         help_text=_("Places menu item under a group label.")
     )
     menu_label = models.CharField(
-        max_length=32,
+        max_length=255,
         blank=True,
         null=True,
         help_text=_("Label for the menu link (else service default).")
