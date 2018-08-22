@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-19 02:42+0300\n"
+"POT-Creation-Date: 2018-09-19 02:43+0300\n"
 "PO-Revision-Date: 2018-09-19 02:42+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -648,7 +648,7 @@ msgstr "Poista kaikki"
 #: edit_course/templates/edit_course/usertag_delete.html:28
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: external_services/templates/external_services/list_menu.html:64
-#: news/templates/news/list.html:53 templates/base.html:240
+#: news/templates/news/list.html:53 templates/base.html:237
 msgid "Remove"
 msgstr "Poista"
 
@@ -2768,13 +2768,7 @@ msgstr ""
 "\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
 "\t\t\t"
 
-#: external_services/templates/external_services/_lti_launch.html:65
-#: templates/base.html:192 userprofile/templates/userprofile/privacy.html:4
-#: userprofile/templates/userprofile/privacy.html:9
-msgid "Privacy Policy"
-msgstr "Tietosuojaseloste"
-
-#: external_services/templates/external_services/_lti_launch.html:73
+#: external_services/templates/external_services/_lti_launch.html:67
 msgid ""
 "Remember this and automatically redirect next time. The selection is saved "
 "as a cookie."
@@ -2782,12 +2776,12 @@ msgstr ""
 "Muista valinta ja siirry automaattisesti seuraavalla kerralla. Valinta "
 "tallennetaan evästeisiin."
 
-#: external_services/templates/external_services/_lti_launch.html:83
+#: external_services/templates/external_services/_lti_launch.html:77
 #, python-format
 msgid "Accept and continue to %(name)s"
 msgstr "Hyväksy ja jatka palveluun %(name)s"
 
-#: external_services/templates/external_services/_lti_launch.html:87
+#: external_services/templates/external_services/_lti_launch.html:81
 msgid "Show shared variables"
 msgstr "Näytä jaetut tiedot"
 
@@ -2965,27 +2959,32 @@ msgstr "Sivusto"
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:204 templates/base.html:223
+#: templates/base.html:190 userprofile/templates/userprofile/privacy.html:4
+#: userprofile/templates/userprofile/privacy.html:9
+msgid "Privacy Notice"
+msgstr "Tietosuojailmoitus"
+
+#: templates/base.html:201 templates/base.html:220
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:205 templates/base.html:224
+#: templates/base.html:202 templates/base.html:221
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:212 templates/base.html:229
+#: templates/base.html:209 templates/base.html:226
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:244
+#: templates/base.html:241
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:248
+#: templates/base.html:245
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:251
+#: templates/base.html:248
 msgid "Search for..."
 msgstr "Etsi..."
 
@@ -3010,15 +3009,15 @@ msgstr "Kirjaudu Google-tunnuksella"
 msgid "Password"
 msgstr "Salasana"
 
-#: userprofile/templates/userprofile/login.html:95
+#: userprofile/templates/userprofile/login.html:94
 #, python-format
 msgid ""
 "\n"
-"  You may want to read our privacy policy <a href=\"%(url)s\">here</a>.\n"
+"  You may want to read our <a href=\"%(url)s\">privacy notice</a>.\n"
 "  "
 msgstr ""
 "\n"
-"Voit olla kiinnostunut <a href=\"%(url)s\">tietosuojaselosteestamme</a>."
+"Voit olla kiinnostunut <a href=\"%(url)s\">tietosuojailmoituksestamme</a>."
 
 #: userprofile/templates/userprofile/logout.html:4
 #: userprofile/templates/userprofile/logout.html:9
@@ -3086,3 +3085,7 @@ msgstr ""
 "Käyttäjätilisi tietoja, kuten <strong>sähköpostiosoitetta</strong> tai "
 "<strong>salasanaa</strong>, voit muokata kirjautumiseen käyttämässäsi "
 "palvelussa."
+
+#: userprofile/views.py:80
+msgid "No privacy notice. Please notify administration!"
+msgstr "Ei tietosuojailmoitusta. Ota yhteys ylläpitäjään!"

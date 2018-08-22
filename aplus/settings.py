@@ -53,8 +53,6 @@ LOGIN_BUTTON_TEXT_FI = 'Ylläpidon kirjautuminen'
 TRACKING_HTML = ''
 
 EXCEL_CSV_DEFAULT_DELIMITER = ';'
-
-from .privacy_policy import PRIVACY_POLICY_TEXT, PRIVACY_POLICY_TEXT_FI
 ##########################################################################
 
 # Exercise loading settings

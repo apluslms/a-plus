@@ -2,7 +2,6 @@
 *.pot
 *.pyc
 local_settings.py
-local_privacy_policy.py
 local_templates/
 aplus/local_settings.py
 aplus/secret_key.py

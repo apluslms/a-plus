@@ -189,10 +189,7 @@
                 <div class="container-fluid">
                     <ul class="nav navbar-nav">
                         {% block footercontent %}{% endblock %}
-                        {% url 'privacy_policy' as policy_url %}
-                        {% if policy_url %}
-                        <li role="presentation"><a href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a></li>
-                        {% endif %}
+                        <li role="presentation"><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
                     </ul>
                 </div>
             </nav>

@@ -59,12 +59,6 @@ $(function() {
 	<p>
 		<a href="{{ site }}" target="_blank" rel="noopener nofollow">{{ site }}</a>
 	</p>
-	<p>
-		{% url 'privacy_policy' as policy_url %}
-		{% if policy_url %}
-		<a href="{% url 'privacy_policy' %}" target="_blank">A+ {% trans "Privacy Policy" %}</a>
-		{% endif %}
-	</p>
 </div>
 <div>
 	<p>
