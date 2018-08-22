@@ -167,7 +167,6 @@
 		active_element_attr: "data-aplus-active-element",
 		ae_result_selector: '.ae_result',
 		input: false, // determines whether the active element is an input element or not
-		external_launcher_selector: '[data-external-launch]', // external services (LTI)
 	};
 
 
@@ -379,7 +378,17 @@
 
 		bindFormEvents: function(content) {
 			if (!this.ajax) {
-				var forms = content.find("form[data-aplus-overlay!='true']").attr("action", this.url);
+				var forms = content.find("form[data-aplus-overlay!='true']")
+					.filter(function() {
+						/* rewrite form action only when it directs to our site */
+						if (!this.action) return true;
+						const a = document.createElement('a');
+						a.href = this.action;
+						const the_same = a.host === window.location.host;
+						a.remove();
+						return the_same;
+					})
+					.attr("action", this.url);
 				var exercise = this;
 				if (this.chapter.ajaxForms) {
 					forms.on("submit", function(event) {
@@ -390,9 +399,6 @@
 			}
 
 			$.augmentSubmitButton(content);
-			this.element
-				.find(this.settings.external_launcher_selector)
-				.aplusExternalLauncher();
 			window.postMessage({
 				type: "a-plus-bind-exercise",
 				id: this.chapterID

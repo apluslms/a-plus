@@ -2,22 +2,24 @@
 {% load external_services %}
 {% load course %}
 {% comment %}
-aplus/assets/js/external_launcher.js defines a jQuery plugin that is used with
-this template. The page that includes this partial template should also
-activate the JavaScript code, for example, in the following way:
-
-<script src="{% static 'js/external_launcher.js' %}"></script>
-<script>
-$(function() {
-    $('[data-external-launch]').aplusExternalLauncher();
-});
-</script>
+  expected parameters:
+    service - LinkService
+    parameters_hash - hash of form fields
+	[exercise] - exercise that holds this link
 {% endcomment %}
-<div data-external-launch
+{% comment %}
+static/js/external_launcher.js defines a jQuery plugin that should be used with
+this template. The page that includes this partial template should also
+activate the JavaScript code.
+{% endcomment %}
+<div class="external-service"
      data-ext-service-pk="{{ service.pk }}"
+	 data-ext-service-title="{{ course.name|parse_localization }} ({{ instance.instance_name|parse_localization }}) &gt; {{ service.menu_label|parse_localization }} ({{ site }})"
      data-ext-params-hash="{{ parameters_hash }}"
 >
-<div data-hide-after-launch>
+{% random_id as iframe_name %}
+{% random_id as collapse_id %}
+<div class="external-service-launch">
 <div class="alert alert-warning">
 	<p>
 		{% blocktrans with name=service.menu_label|parse_localization %}
@@ -61,15 +63,13 @@ $(function() {
 	</p>
 </div>
 <div>
-	<p>
-		<label data-auto-accept>
+	<p class="external-service-auto">
+		<label>
 			<input name="auto_accept" type="checkbox" value="1" />
 			{% trans "Remember this and automatically redirect next time. The selection is saved as a cookie." %}
 		</label>
 	</p>
-	{% random_id as iframe_name %}
-	{% random_id as collapse_id %}
-	<form data-ext-launch-form method="POST" action="{{ url }}"
+	<form method="POST" action="{{ url }}"
 	      target="{% if exercise %}{% if exercise.open_in_iframe %}{{ iframe_name }}{% else %}_blank{% endif %}{% else %}_self{% endif %}">
 		{% for entry in parameters %}
 		<input type="hidden" name="{{ entry.0 }}" value="{{ entry.1 }}" />

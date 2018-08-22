@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-19 02:43+0300\n"
-"PO-Revision-Date: 2018-09-19 02:42+0200\n"
+"POT-Creation-Date: 2018-09-19 02:44+0300\n"
+"PO-Revision-Date: 2018-09-19 02:35+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
 "Language: fi_FI\n"
@@ -316,7 +316,7 @@ msgid "Course"
 msgstr "Kurssi"
 
 #: course/templates/course/_course_menu.html:18
-#: userprofile/templates/userprofile/profile.html:33
+#: userprofile/templates/userprofile/profile.html:39
 msgid "Language"
 msgstr "Kieli"
 
@@ -694,7 +694,7 @@ msgstr "Muokkaa ryhmän jäseniä"
 #: edit_course/templates/edit_course/usertagging_add.html:22
 #: exercise/templates/exercise/staff/assess_submission.html:27
 #: exercise/templates/exercise/staff/edit_submitters.html:22
-#: userprofile/templates/userprofile/profile.html:47
+#: userprofile/templates/userprofile/profile.html:55
 msgid "Save"
 msgstr "Tallenna"
 
@@ -859,7 +859,7 @@ msgstr "Avaa 0 arvosanan diplomi"
 #: diploma/templates/diploma/list.html:26
 #: edit_course/templates/edit_course/signin_as_user.html:14
 #: userprofile/templates/userprofile/login.html:78
-#: userprofile/templates/userprofile/profile.html:29
+#: userprofile/templates/userprofile/profile.html:35
 msgid "Username"
 msgstr "Käyttäjätunnus"
 
@@ -2698,7 +2698,7 @@ msgstr "Tämä linkki on vain kurssihenkilökunnalle."
 msgid "Not LTI service"
 msgstr "Ei LTI-palvelu"
 
-#: external_services/templates/external_services/_lti_launch.html:23
+#: external_services/templates/external_services/_lti_launch.html:25
 #, python-format
 msgid ""
 "\n"
@@ -2708,7 +2708,7 @@ msgstr ""
 "\n"
 "Olet siirtymässä ensimmäistä kertaa ulkoiseen palveluun %(name)s."
 
-#: external_services/templates/external_services/_lti_launch.html:27
+#: external_services/templates/external_services/_lti_launch.html:29
 msgid ""
 "\n"
 "\t\t\tYour name and email address will be pseudonymised and transferred\n"
@@ -2721,7 +2721,7 @@ msgstr ""
 "Tämä tarkoittaa, että palvelu ei voi identifioida sinua, mutta A+ ylläpito "
 "voi."
 
-#: external_services/templates/external_services/_lti_launch.html:33
+#: external_services/templates/external_services/_lti_launch.html:35
 msgid ""
 "\n"
 "\t\t\tTo use the service, your name and email address will be transferred\n"
@@ -2732,7 +2732,7 @@ msgstr ""
 "Palvelun käyttämiseksi nimesi ja sähköpostiosoitteesi lähetetään tämän "
 "palvelun ylläpitäjälle."
 
-#: external_services/templates/external_services/_lti_launch.html:42
+#: external_services/templates/external_services/_lti_launch.html:44
 msgid ""
 "\n"
 "\t\t\tFor this service also API token is transferred,\n"
@@ -2746,7 +2746,7 @@ msgstr ""
 "\t\t\tJos tämä ei ole tarkoituksellista, vaihda käyttöoikeusasetuksia \t\t"
 "\tdjangon admin-näkymässä."
 
-#: external_services/templates/external_services/_lti_launch.html:48
+#: external_services/templates/external_services/_lti_launch.html:50
 msgid ""
 "\n"
 "\t\t\tFor this service also API token is transferred,\n"
@@ -2768,7 +2768,7 @@ msgstr ""
 "\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
 "\t\t\t"
 
-#: external_services/templates/external_services/_lti_launch.html:67
+#: external_services/templates/external_services/_lti_launch.html:69
 msgid ""
 "Remember this and automatically redirect next time. The selection is saved "
 "as a cookie."
@@ -2939,7 +2939,7 @@ msgstr "Näytä valikko"
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:116 userprofile/templates/userprofile/profile.html:5
+#: templates/base.html:116 userprofile/templates/userprofile/profile.html:6
 msgid "Profile"
 msgstr "Käyttäjätili"
 
@@ -3036,29 +3036,29 @@ msgstr ""
 "Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
 "tietokonetta, sulje selain poistaaksesi istunnon tiedot."
 
-#: userprofile/templates/userprofile/profile.html:14
+#: userprofile/templates/userprofile/profile.html:20
 msgid "[Unknown name]"
 msgstr "[Tuntematon nimi]"
 
-#: userprofile/templates/userprofile/profile.html:24
+#: userprofile/templates/userprofile/profile.html:30
 msgid "[Missing]"
 msgstr "[Puuttuu]"
 
-#: userprofile/templates/userprofile/profile.html:25
+#: userprofile/templates/userprofile/profile.html:31
 msgid "Student ID"
 msgstr "Opiskelijanumero"
 
-#: userprofile/templates/userprofile/profile.html:27
+#: userprofile/templates/userprofile/profile.html:33
 msgid "E-mail"
 msgstr "Sähköposti"
 
-#: userprofile/templates/userprofile/profile.html:31
+#: userprofile/templates/userprofile/profile.html:37
 msgid "API Access Token"
 msgstr "API pääsyavain"
 
 # msgid "Save"
 # msgstr "Tallenna"
-#: userprofile/templates/userprofile/profile.html:54
+#: userprofile/templates/userprofile/profile.html:64
 #, python-format
 msgid ""
 "\n"
@@ -3073,7 +3073,7 @@ msgstr ""
 "palvelussa</a>. Käytä palvelussa samaa sähköpostiosoitettasi, <strong>"
 "%(email)s</strong>."
 
-#: userprofile/templates/userprofile/profile.html:64
+#: userprofile/templates/userprofile/profile.html:74
 msgid ""
 "\n"
 "            To change your settings, such as <strong>e-mail</strong>\n"
@@ -3085,6 +3085,31 @@ msgstr ""
 "Käyttäjätilisi tietoja, kuten <strong>sähköpostiosoitetta</strong> tai "
 "<strong>salasanaa</strong>, voit muokata kirjautumiseen käyttämässäsi "
 "palvelussa."
+
+#: userprofile/templates/userprofile/profile.html:81
+msgid "Automatic service redirections"
+msgstr "Automaattiset uudelleenohjaukset palveluihin"
+
+#: userprofile/templates/userprofile/profile.html:83
+msgid ""
+"\n"
+"\t\t\t\tThese are all services that you have marked for automatic "
+"redirection on this device.\n"
+"\t\t\t\tYou can remove automatic redirection here and you will be shown the "
+"privacy information next time you are being redirected to the service.\n"
+"\t\t\t\t"
+msgstr ""
+"\n"
+"\t\t\t\tOlen merkinnyt nämä kaikki palvelut automaattisesti "
+"uudelleenohjattaviksi tällä laitteella.\n"
+"\t\t\t\tVoit poistaa automaattisen uudelleenohjauksen. Sinulle näytetään "
+"yksityisyydensuojasta tieto ensikerralla kun sinut ollaan ohjaamassa "
+"palveluun.\n"
+"\t\t\t\t"
+
+#: userprofile/templates/userprofile/profile.html:88
+msgid "Forget automatic redirection"
+msgstr "Unohda automaattinen uudelleenohjaus."
 
 #: userprofile/views.py:80
 msgid "No privacy notice. Please notify administration!"

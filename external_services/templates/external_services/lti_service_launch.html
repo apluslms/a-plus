@@ -13,10 +13,6 @@
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'js/external_launcher.js' %}"></script>
-<script>
-$(function() {
-    $('[data-external-launch]').aplusExternalLauncher();
-});
 </script>
 {% endblock %}
 

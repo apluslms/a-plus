@@ -78,11 +78,6 @@
     });
 });*/
 
-$(function() {
-    // LTI exercises
-    $('[data-external-launch]').aplusExternalLauncher();
-});
-
 // Add an Ajax exercise event listener to refresh the info column.
 window.addEventListener("message", function (event) {
     if (event.data.type === "a-plus-refresh-stats") {
