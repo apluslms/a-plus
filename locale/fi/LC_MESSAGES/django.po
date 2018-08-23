@@ -3053,8 +3053,8 @@ msgid "E-mail"
 msgstr "Sähköposti"
 
 #: userprofile/templates/userprofile/profile.html:31
-msgid "Token"
-msgstr "Poletti"
+msgid "API Access Token"
+msgstr "API pääsyavain"
 
 # msgid "Save"
 # msgstr "Tallenna"

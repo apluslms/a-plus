@@ -28,8 +28,8 @@
             <dd>{% firstof user.email miss %}</dd>
             <dt>{% trans "Username" %}</dt>
             <dd>{% firstof user.username miss %}</dd>
-            <dt>{% trans "Token" %}</dt>
-            <dd>{{ profile.api_token }}</dd>
+            <dt>{% trans "API Access Token" %}</dt>
+            <dd><input value="{{ profile.api_token }}" class="form-control"></dd>
 			<dt>{% trans "Language" %}</dt>
 			<dd>
 			<form action="{% url 'set_language' %}" method="post">{% csrf_token %}
