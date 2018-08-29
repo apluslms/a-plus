@@ -1,6 +1,7 @@
 import logging
 import os
 
+from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
@@ -222,7 +223,12 @@ class Submission(UrlMixin, models.Model):
         # Fire set hooks.
         for hook in self.exercise.course_module.course_instance \
                 .course_hooks.filter(hook_type="post-grading"):
-            hook.trigger({ "submission_id": self.id })
+            hook.trigger({
+                "submission_id": self.id,
+                "exercise_id": self.exercise.id,
+                "course_id": self.exercise.course_module.course_instance.id,
+                "site": settings.BASE_URL,
+            })
 
     def set_rejected(self):
         self.status = self.STATUS.REJECTED
