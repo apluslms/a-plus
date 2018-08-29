@@ -367,6 +367,13 @@ update_secret_from_file(__name__, environ.get('APLUS_SECRET_KEY_FILE', 'secret_k
 update_settings_from_environment(__name__, 'DJANGO_') # FIXME: deprecated. was used with containers before, so keep it here for now.
 update_settings_from_environment(__name__, 'APLUS_')
 
+# Complain if BASE_URL is not set
+try:
+    if not BASE_URL:
+        raise RuntimeError('Local setting BASE_URL should be non-empty')
+except NameError as e:
+    raise RuntimeError('BASE_URL must be specified in local settings') from e
+
 # update INSTALLED_APPS
 INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 
