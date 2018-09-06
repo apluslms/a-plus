@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse
+from django.utils import timezone
 from wsgiref.util import FileWrapper
 from rest_framework import mixins, permissions, viewsets
 from rest_framework import status
@@ -37,6 +38,11 @@ from .mixins import (
     ExerciseResourceMixin,
     SubmissionResourceMixin,
 )
+
+from ..forms import (
+    SubmissionCreateAndReviewForm,
+)
+
 from .serializers import *
 from .full_serializers import *
 from .custom_serializers import *
@@ -158,36 +164,60 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
     def retrieve(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    # For POSTing a submission. An extra parameter exercise_id comes
-    # from url. UNDER CONSTRUCTION!
     def create(self, request, exercise_id, version):
-        # SubmissionManager.create_from_post(exercise, request.user, request)
-        # Kts. myös a-plus/exercise/views.py rivi 99
-        # First parse the request
+
+        # TODO:
+        # this currently works *ONLY* using a teacher API key
+
         submitter = request.user.userprofile
         data = request.data
-        print(data)
-        print(exercise_id)
-        print(submitter)
 
-        # Before submission we need to check if user is able to make a submission
         try:
-            exercice_to_submit = BaseExercise.objects.get(id=exercise_id)
+            exercise = BaseExercise.objects.get(id=exercise_id)
         except BaseExercise.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        print(exercice_to_submit)
+        allowed_to_submit_status, msg1, msg2 = exercise.check_submission_allowed(submitter)
+        if allowed_to_submit_status != exercise.SUBMIT_STATUS.ALLOWED:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-        status, _, _ = exercise_to_submit.check_submission_allowed([submitter])
-        if status == exercise_to_submit.SUBMIT_STATUS.ALLOWED:
-            print("Submission is available.")
+        if not exercise.course_instance.is_teacher(request.user):
+            return Response('Only a teacher can make submissions via this API',
+                            status=status.HTTP_403_FORBIDDEN)
 
-            #serializer = SubmissionSerializer(data=request.data)
-            #if serializer.is_valid():
-            #    serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
+        data = request.data
+
+        if "submission_time" not in data:
+            data['submission_time'] = timezone.now()
+
+        form = SubmissionCreateAndReviewForm(data, exercise=exercise)
+
+        if not form.is_valid():
+            return Response({'status': 'error', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+
+            # check that submitters in whose name the submission is made are enrolled
+            if not exercise.course_module.course_instance.get_student_profiles() \
+                           .filter(pk__in=[s.pk for s in form.cleaned_students]) \
+                           .count() == len(form.cleaned_students):
+               return HttpResponse('Submitters must be enrolled to the course.',
+                                   status=status.HTTP_400_BAD_REQUEST)
+
+            sub = Submission.objects.create(exercise=self.exercise)
+            sub.submitters = form.cleaned_students
+            sub.feedback = form.cleaned_data.get("feedback")
+            sub.assistant_feedback = form.cleaned_data.get("assistant_feedback")
+            sub.grading_data = form.cleaned_data.get("grading_data")
+            sub.set_points(form.cleaned_data.get("points"),
+                           self.exercise.max_points, no_penalties=True)
+            sub.submission_time = form.cleaned_data.get("submission_time")
+            sub.grader = submitter
+            sub.grading_time = timezone.now()
+            sub.set_ready()
+            sub.save()
+
+            return Response(status=status.HTTP_201_CREATED)
 
 
 class ExerciseSubmitterStatsViewSet(ListSerializerMixin,
