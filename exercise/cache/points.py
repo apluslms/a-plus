@@ -69,6 +69,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         if user.is_authenticated():
             for submission in user.userprofile.submissions\
                   .exclude_errors()\
+                  .defer('feedback')\
                   .filter(exercise__course_module__course_instance=instance):
                   #.prefetch_related("notifications"): breaks things
                 try:
