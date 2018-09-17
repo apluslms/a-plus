@@ -57,6 +57,9 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
                         exercise, profile, minutes, without_late_penalty)
 
             for exercise in form.cleaned_data["exercise"]:
+                if new_date:
+                    minutes = exercise.delta_in_minutes_from_closing_to_date(
+                                new_date)
                 self.add_deviation(
                     exercise, profile, minutes, without_late_penalty)
         return super().form_valid(form)
