@@ -116,6 +116,8 @@ INSTALLED_APPS = (
 
     'js_jquery_toggle',
     'django_colortag',
+
+    'silk',
 )
 
 # Different login options (may override in local_settings.py)
@@ -147,6 +149,7 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 ##########################################################################
 
 MIDDLEWARE_CLASSES = (
+    'silk.middleware.SilkyMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -159,6 +162,13 @@ MIDDLEWARE_CLASSES = (
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
+
+SILKY_PYTHON_PROFILER = True
+SILKY_PYTHON_PROFILER_BINARY = True
+SILKY_DYNAMIC_PROFILING = [{
+    'module': 'django.views.generic.base',
+    'function': 'View.dispatch'
+}]
 
 ROOT_URLCONF = 'aplus.urls'
 LOGIN_REDIRECT_URL = "/"
@@ -307,6 +317,7 @@ LOGGING = {
       'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s',
       'colors': {
         'django.db.backends': {'fg': 'cyan'},
+        'silk.middleware': {'fg': 'red'},
       },
     },
   },

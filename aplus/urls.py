@@ -23,6 +23,7 @@ admin.autodiscover()
 #  Pay attention to the order the URL patterns will be matched!
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^silk/', include('silk.urls', namespace='silk')),
     url(r'^shibboleth/', include(shibboleth_login.urls)),
     url('', include(social_django.urls, namespace='social')),
     url(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
