@@ -30,6 +30,9 @@ def menu_access(access):
 
 
 @register.simple_tag
-def random_id(length=11):
+def random_id(*parts, length=11):
+    parts = [str(p) for p in parts]
     # start HTML ids with an alphabet, not a digit
-    return 'r' + get_random_string(length - 1, choices=string.ascii_lowercase + string.digits)
+    parts.append(get_random_string(1, choices=string.ascii_lowercase))
+    parts.append(get_random_string(length - 1, choices=string.ascii_lowercase + string.digits))
+    return "".join(parts)

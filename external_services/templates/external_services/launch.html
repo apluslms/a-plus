@@ -1,0 +1,21 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% load course %}
+
+{% block title %}{{ service.menu_label|parse_localization }} | {{ block.super }}{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{{ service.menu_label|parse_localization }}</li>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/external_launcher.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/external_services.css' %}">
+{% endblock %}
+
+{% block coursecontent %}
+{% include "./_launch.html" %}
+{% endblock %}

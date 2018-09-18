@@ -5,6 +5,9 @@ from . import views
 
 
 urlpatterns = [
+    url(INSTANCE_URL_PREFIX + r'external-link/(?P<menu_id>\d+)/$',
+        views.ExternalLinkView.as_view(),
+        name="external-service-link"),
     url(INSTANCE_URL_PREFIX + r'lti-login/(?P<menu_id>\d+)/$',
         views.LTILoginView.as_view(),
         name="lti-login"),

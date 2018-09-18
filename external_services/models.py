@@ -1,8 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-import re
+from urllib.parse import urljoin, urlsplit
 
 from course.models import CourseInstance
 from inheritance.models import ModelWithInheritance
@@ -10,14 +11,35 @@ from lib.helpers import Enum
 from lib.models import UrlMixin
 
 
+def validate_no_domain(value):
+    if value and '://' in value:
+        raise ValidationError(_("Url can not contain scheme or domain part."))
+
+
 class LinkService(ModelWithInheritance):
     '''
     A link to an external service.
     '''
+    DESTINATION_REGION = Enum([
+        ('INTERNAL', 0, _('Destination is hosted internally. Link to internal privacy notice.')),
+        ('ORGANIZATION', 1, _('Destination is hosted in the same organization. Link to a privacy notice.')),
+        ('EEA', 3, _('Destination is hosted in European Economic Area. Link to a privacy notice.')),
+        ('PRIVACYSHIELD', 5, _('Destination is hosted out side of European Economic Area, but certified under EU-US Privacy Shield. Link to an extended privacy notice.')),
+        ('GLOBAL', 6, _('Destination is hosted out side of European Economic Area. Link to an extended privacy notice.')),
+    ])
     url = models.CharField(
         max_length=256,
         help_text=_("The service URL")
     )
+    destination_region = models.PositiveSmallIntegerField(
+        choices=DESTINATION_REGION.choices,
+        default=DESTINATION_REGION.GLOBAL,
+        help_text=_("The geographical area of the destination. Will display correct user notice."),
+    )
+    privacy_notice_url = models.CharField(
+        max_length=512,
+        blank=True,
+        help_text=_("A link to the service privacy notice. This is mandatory for services outside organization!"))
     menu_label = models.CharField(
         max_length=255,
         help_text=_("A default label to show in the course menu.")
@@ -40,6 +62,37 @@ class LinkService(ModelWithInheritance):
         if not self.enabled:
             return "[Disabled] " + out
         return out
+
+    def clean(self):
+        errors = {}
+        if self.destination_region > self.DESTINATION_REGION.ORGANIZATION and not self.privacy_notice_url:
+            errors['privacy_notice_url'] = ValidationError(_('Privacy notice URL is mandatory for services outside organization.'))
+        if errors:
+            raise ValidationError(errors)
+
+    @property
+    def url_parts(self):
+        return urlsplit(self.url)
+
+    @property
+    def method(self):
+        return 'GET'
+
+    @property
+    def sends_user_info(self):
+        return False
+
+    def get_url(self, replace=None, kwargs={}):
+        if self.destination_region > self.DESTINATION_REGION.INTERNAL:
+            return reverse('external-service-link', kwargs=kwargs)
+        return self.get_final_url(replace)
+
+    def get_final_url(self, replace=None):
+        url = self.url
+        if replace:
+            assert '://' not in replace and not replace.startswith('//'), "Replace can't include domain"
+            url = urljoin(url, replace)
+        return url
 
 
 class LTIService(LinkService):
@@ -64,6 +117,21 @@ class LTIService(LinkService):
         max_length=128,
         help_text=_("The consumer secret provided by the LTI service.")
     )
+
+    def __str__(self):
+        out = "(LTI) {}: {}".format(self.menu_label, self.url)
+        if not self.enabled:
+            return "[Disabled] " + out
+        return out
+
+    @property
+    def method(self):
+        return 'POST'
+
+    @property
+    def sends_user_info(self):
+        return True
+
     @property
     def is_anonymous(self):
         return self.access_settings == self.LTI_ACCESS.ANON_API_NO
@@ -71,6 +139,10 @@ class LTIService(LinkService):
     @property
     def api_access(self):
         return self.access_settings == self.LTI_ACCESS.PUBLIC_API_YES
+
+    def get_url(self, replace=None, kwargs={}):
+        return reverse('lti-login', kwargs=kwargs)
+
 
 class MenuItemManager(models.Manager):
 
@@ -101,13 +173,17 @@ class MenuItem(UrlMixin, models.Model):
         LinkService,
         blank=True,
         null=True,
-        help_text=_("If preconfigured, an external service to link.")
+        help_text=_("An external service to link to. These are configured by administrators.")
     )
     menu_url = models.CharField(
         max_length=256,
         blank=True,
         null=True,
-        help_text=_("A link URL (else service default). Relative URLs are relative to course root.")
+        validators=[validate_no_domain],
+        help_text=_("""URL that is a) relative to the service URL or b) this course if no service is selected.
+Case a: url starting with / overwrites path in service url and extends it otherwise.
+case b: url starting with / is absolute within this service and relative to the course path otherwise.
+Note that URL entered here can not include scheme or domain.""")
     )
     menu_group_label = models.CharField(
         max_length=255,
@@ -143,22 +219,30 @@ class MenuItem(UrlMixin, models.Model):
         return out
 
     def clean(self):
-        if not self.service and not (self.menu_url and self.menu_label):
-            raise ValidationError(_("Either preconfigured service or custom URL and label needs to be provided."))
+        errors = {}
+        if not self.service:
+            if not self.menu_url:
+                errors['menu_url'] = ValidationError(_('Relative URL is required when there is no preconfigured service selected.'))
+            if not self.menu_label:
+                errors['menu_label'] = ValidationError(_('Menu label is required when there is no preconfigured service selected.'))
+        if errors:
+            raise ValidationError(errors)
 
-    @property
+    @cached_property
     def is_enabled(self):
         if self.service:
             return self.service.enabled and self.enabled
         return self.enabled
 
-    @property
+    @cached_property
     def label(self):
         if self.menu_label:
             return self.menu_label
-        return self.service.menu_label
+        if self.service:
+            return self.service.menu_label
+        return ""
 
-    @property
+    @cached_property
     def icon_class(self):
         if self.menu_icon_class:
             return self.menu_icon_class
@@ -166,29 +250,26 @@ class MenuItem(UrlMixin, models.Model):
             return self.service.menu_icon_class
         return ""
 
-    @property
+    @cached_property
     def url(self):
-        if self.menu_url:
-            if re.search(r"^\w+:\/\/", self.menu_url):
-                return self.menu_url
-            return "{}{}".format(
-                self.course_instance.get_absolute_url(),
-                self.menu_url[1:] if self.menu_url.startswith("/") else self.menu_url
-            )
-        if self.is_lti_service():
-            instance = self.course_instance
-            return reverse('lti-login', kwargs={
-                "course_slug": instance.course.url,
-                "instance_slug": instance.url,
+        if self.service:
+            kwargs = {
+                "course_slug": self.course_instance.course.url,
+                "instance_slug": self.course_instance.url,
                 "menu_id": self.id,
-            })
-        return self.service.url
+            }
+            return self.service.as_leaf_class().get_url(replace=self.menu_url, kwargs=kwargs)
+        if '://' in self.menu_url:
+            # Deprecated, but DB can have old urls
+            return self.menu_url
+        return urljoin(self.course_instance.get_absolute_url(), self.menu_url)
 
-    def is_lti_service(self):
-        if not hasattr(self, '_is_lti'):
-            self._is_lti = (self.service
-                and isinstance(self.service.as_leaf_class(), LTIService))
-        return self._is_lti
+    @cached_property
+    def final_url(self):
+        if self.service:
+            return self.service.as_leaf_class().get_final_url(self.menu_url)
+        else:
+            return urljoin(self.course_instance.get_absolute_url(), self.menu_url)
 
     def get_url_kwargs(self):
         return dict(menu_id=self.id, **self.course_instance.get_url_kwargs())

@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+from urllib.parse import urlsplit, parse_qsl
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -16,6 +17,38 @@ from .lti import LTIRequest
 from .models import MenuItem
 from .permissions import MenuVisiblePermission, LTIServicePermission
 
+class ExternalLinkView(CourseInstanceBaseView):
+    template_name = "external_services/launch.html"
+    id_kw = "menu_id"
+    menu_permission_classes = (
+        MenuVisiblePermission,
+    )
+
+    def get_permissions(self):
+        perms = super().get_permissions()
+        perms.extend((Perm() for Perm in self.menu_permission_classes))
+        return perms
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        self.menu_item = get_object_or_404(
+            MenuItem,
+            pk=self._get_kwarg(self.id_kw),
+            course_instance=self.instance
+        )
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.service = service = self.menu_item.service.as_leaf_class()
+        self.service_label = self.menu_item.label
+        url = urlsplit(self.menu_item.final_url)
+        self.url = url._replace(query='', fragment='').geturl()
+        self.site = site = '/'.join(self.url.split('/')[:3])
+        self.parameters = parse_qsl(url.query)
+        self.parameters_hash = site
+        self.note("service", "service_label", "parameters_hash", "parameters", "site", "url")
+
+
 class LTILoginView(CourseInstanceBaseView):
     """
     Generates an LTI POST form for a service.
@@ -23,7 +56,7 @@ class LTILoginView(CourseInstanceBaseView):
     Tested for use with Piazza, https://piazza.com/product/lti
     """
     access_mode = ACCESS.ENROLLED
-    template_name = "external_services/lti_service_launch.html"
+    template_name = "external_services/launch.html"
     id_kw = "menu_id"
     menu_permission_classes = (
         MenuVisiblePermission,
@@ -57,11 +90,12 @@ class LTILoginView(CourseInstanceBaseView):
         except PermissionDenied:
             messages.error(self.request, _('You need to be enrolled to access an anonymous service.'))
             raise
-        self.url = self.service.url
+        self.service_label = self.menu_item.label
+        self.url = self.menu_item.final_url
         self.parameters_hash = lti.get_checksum_of_parameters(only_user_and_course_level_params=True)
         self.parameters = lti.sign_post_parameters(self.url)
         self.site = '/'.join(self.url.split('/')[:3])
-        self.note("service", "parameters_hash", "parameters", "site", "url")
+        self.note("service", "service_label", "parameters_hash", "parameters", "site", "url")
 
 
 class ListMenuItemsView(CourseInstanceBaseView):

@@ -22,16 +22,19 @@ class ExternalServicesTest(TestCase):
 
         self.link_service = LinkService.objects.create(
             url="http://www.external-service.com",
+            destination_region=LinkService.DESTINATION_REGION.INTERNAL,
             menu_label="External Service"
         )
 
         self.disabled_link_service = LinkService.objects.create(
             url="http://www.disabled-external-service.com",
+            destination_region=LinkService.DESTINATION_REGION.INTERNAL,
             menu_label="Disabled External Service",
             enabled=False
         )
         self.lti_service = LTIService.objects.create(
             url="http://www.lti-service.com",
+            destination_region=LinkService.DESTINATION_REGION.INTERNAL,
             menu_label="LTI Service",
             menu_icon_class="star",
             access_settings = LTIService.LTI_ACCESS.PUBLIC_API_NO,

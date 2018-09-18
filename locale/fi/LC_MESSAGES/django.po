@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-19 02:44+0300\n"
-"PO-Revision-Date: 2018-09-19 02:35+0200\n"
+"PO-Revision-Date: 2018-09-19 02:21+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
 "Language: fi_FI\n"
@@ -82,6 +82,7 @@ msgid "Only enrolled students shall pass."
 msgstr "Vain ilmoittautuneille."
 
 #: course/admin.py:24
+#: external_services/templates/external_services/list_menu.html:22
 msgid "URL"
 msgstr "URL"
 
@@ -224,7 +225,7 @@ msgstr "Valmis"
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:605 course/models.py:707 templates/base.html:96
+#: course/models.py:605 course/models.py:707 templates/base.html:99
 msgid "Hidden"
 msgstr "Piilotettu"
 
@@ -647,8 +648,8 @@ msgstr "Poista kaikki"
 #: edit_course/templates/edit_course/remove_model.html:51
 #: edit_course/templates/edit_course/usertag_delete.html:28
 #: edit_course/templates/edit_course/usertag_list.html:44
-#: external_services/templates/external_services/list_menu.html:64
-#: news/templates/news/list.html:53 templates/base.html:237
+#: external_services/templates/external_services/list_menu.html:68
+#: news/templates/news/list.html:53 templates/base.html:240
 msgid "Remove"
 msgstr "Poista"
 
@@ -676,7 +677,7 @@ msgstr "Luotu"
 #: course/templates/course/staff/groups.html:42
 #: edit_course/templates/edit_course/usertag_list.html:40
 #: exercise/templates/exercise/staff/_assess_info.html:20
-#: external_services/templates/external_services/list_menu.html:56
+#: external_services/templates/external_services/list_menu.html:60
 #: news/templates/news/list.html:45
 msgid "Edit"
 msgstr "Muokkaa"
@@ -2576,15 +2577,70 @@ msgstr ""
 msgid "External"
 msgstr "Ulkoiset palvelut"
 
-#: external_services/models.py:19
+#: external_services/models.py:16
+msgid "Url can not contain scheme or domain part."
+msgstr "Url ei voi sisältää skeema- tai verkkotunnusosaa."
+
+#: external_services/models.py:24
+msgid "Destination is hosted internally. Link to internal privacy notice."
+msgstr ""
+"Määränpää on ylläpidetty sisäisesti. Linkataan sisäiseen "
+"tietosuojailmoitukseen."
+
+#: external_services/models.py:25
+msgid ""
+"Destination is hosted in the same organization. Link to a privacy notice."
+msgstr ""
+"Määränpää on ylläpidetty samassa organisaatiossa Linkataan "
+"tietosuojailmoitukseen."
+
+#: external_services/models.py:26
+msgid ""
+"Destination is hosted in European Economic Area. Link to a privacy notice."
+msgstr ""
+"Määränpää on ylläpidetty Euroopaan talousalueella. Linkataan "
+"tietosuojailmoitukseen."
+
+#: external_services/models.py:27
+msgid ""
+"Destination is hosted out side of European Economic Area, but certified "
+"under EU-US Privacy Shield. Link to an extended privacy notice."
+msgstr ""
+"Määränpää on ylläpidetty Euroopaan talousalueen ulkopuolella, mutta se on EU-"
+"US Privacy Shield -sertifioitu. Linkataan tietosuojailmoitukseen."
+
+#: external_services/models.py:28
+msgid ""
+"Destination is hosted out side of European Economic Area. Link to an "
+"extended privacy notice."
+msgstr ""
+"Määränpää on ylläpidetty Euroopaan talousalueen ulkopuolella. Linkataan "
+"tietosuojailmoitukseen."
+
+#: external_services/models.py:32
 msgid "The service URL"
 msgstr "Palvelun URL"
 
-#: external_services/models.py:23
+#: external_services/models.py:37
+msgid ""
+"The geographical area of the destination. Will display correct user notice."
+msgstr ""
+"Määränpään maantieteellinen sijainti. Tämän perusteella näytetään "
+"käyttäjälle sopiva ilmoitus."
+
+#: external_services/models.py:42
+msgid ""
+"A link to the service privacy notice. This is mandatory for services outside "
+"organization!"
+msgstr ""
+"Linkki palvelun tietosuojailmoitukseen. Tämä on pakollinen palveluille "
+"organisaation ulkopuolella!"
+
+#: external_services/models.py:45
 msgid "A default label to show in the course menu."
 msgstr "Oletusleima näytettäväski kurssin valikkoon."
 
-#: external_services/models.py:28
+#: external_services/models.py:50
 msgid ""
 "A default menu icon style name, see http://getbootstrap.com/components/"
 "#glyphicons-glyphs"
@@ -2592,24 +2648,30 @@ msgstr ""
 "Oletusmenuikonityylin nimi, katso http://getbootstrap.com/components/"
 "#glyphicons-glyphs"
 
-#: external_services/models.py:32
+#: external_services/models.py:54
 msgid "If not enabled, the service is disabled for all course instances."
 msgstr ""
 "Jos poissa päältä, palvelu on poissa käytöstä kaikissa kurssi-instansseissa."
 
-#: external_services/models.py:50
+#: external_services/models.py:69
+msgid "Privacy notice URL is mandatory for services outside organization."
+msgstr ""
+"URL tietosuojailmoitukseen on pakollinen organisaation ulkopuolisilla "
+"palveluilla."
+
+#: external_services/models.py:103
 msgid "Anonymous service, no API access"
 msgstr "Anonyymi palvelu, ei API-käyttöoikeutta"
 
-#: external_services/models.py:51
+#: external_services/models.py:104
 msgid "Public service, no API access"
 msgstr "Julkinen palvelu, ei API-käyttöoikeutta"
 
-#: external_services/models.py:52
+#: external_services/models.py:105
 msgid "Public service, allow API access"
 msgstr "Julkinen palvelu, API-käyttöoikeus"
 
-#: external_services/models.py:57
+#: external_services/models.py:110
 msgid ""
 "Select whether to pass pseudonymised user data to the LTI service.<br>Public "
 "services can also enable sharing the user's API token and course API URL in "
@@ -2620,50 +2682,61 @@ msgstr ""
 "<br>Julkisille palveluille voidaan myös myöntää käyttöoikeus käyttäjän API-"
 "avaimeen ja kurssin API-URL:ään."
 
-#: external_services/models.py:61
+#: external_services/models.py:114
 msgid "The consumer key provided by the LTI service."
 msgstr "LTI-palvelun tarjoama kuluttaja-avain."
 
-#: external_services/models.py:65
+#: external_services/models.py:118
 msgid "The consumer secret provided by the LTI service."
 msgstr "LTI-palvelun tarjoama kuluttajasalaisuus."
 
-#: external_services/models.py:87
+#: external_services/models.py:160
 msgid "All students, assistants and teachers can access."
 msgstr "Kaikki opiskelijat, assistentit ja opettajat pääsevät."
 
-#: external_services/models.py:88
+#: external_services/models.py:161
 msgid "Only assistants and teachers can access."
 msgstr "Vain assistentit ja opettajat pääsevät."
 
-#: external_services/models.py:89
+#: external_services/models.py:162
 msgid "Only teachers can access."
 msgstr "Vain opettajat pääsevät."
 
-#: external_services/models.py:94
+#: external_services/models.py:167
 msgid "A course where the menu item exists."
 msgstr "Kurssi, jossa valikkovaihtoehto on olemassa."
 
-#: external_services/models.py:104
-msgid "If preconfigured, an external service to link."
-msgstr "Linkitettävä ulkoinen palvelu, jos etukäteen määritelty."
+#: external_services/models.py:177
+msgid "An external service to link to. These are configured by administrators."
+msgstr "Ulkopuolinen palvelu johon linkataan. Nämä määrittelee ylläpitäjä."
 
-#: external_services/models.py:110
+#: external_services/models.py:184
 msgid ""
-"A link URL (else service default). Relative URLs are relative to course root."
+"URL that is a) relative to the service URL or b) this course if no service "
+"is selected.\n"
+"Case a: url starting with / overwrites path in service url and extends it "
+"otherwise.\n"
+"case b: url starting with / is absolute within this service and relative to "
+"the course path otherwise.\n"
+"Note that URL entered here can not include scheme or domain."
 msgstr ""
-"Linkitettävä osoite (muuten palvelun oletus). Suhteelliset osoitteet ovat "
-"suhteellisia kurssin juureen."
+"URL joka on a) relatiivinen palvelun URL:n tai b) tähän kurssiin, mikäli "
+"palvelua ei ole valittu.\n"
+"Tilanne a: url joka alkaa / ylikirjoittaa palvelun koko polun ja jos ei niin "
+"jatkaa sitä.\n"
+"Tilanne b: url joka alkaa / on absoluuttinen tämän palvelun suhteen ja jos "
+"ei niin relatiivinen kurssin polkuun.\n"
+"Huomaa ettei tämä URL voi sisältää skeemaa tai domainnimeä."
 
-#: external_services/models.py:116
+#: external_services/models.py:193
 msgid "Places menu item under a group label."
 msgstr "Sijoittaa linkin annetun väliotsikon alle."
 
-#: external_services/models.py:122
+#: external_services/models.py:199
 msgid "Label for the menu link (else service default)."
 msgstr "Nimi (muuten palvelun oletus)."
 
-#: external_services/models.py:128
+#: external_services/models.py:205
 msgid ""
 "Menu icon style name (else service default), e.g. star see http://"
 "getbootstrap.com/components/#glyphicons-glyphs"
@@ -2671,16 +2744,22 @@ msgstr ""
 "Ikonin tyyli (muuten palvelun oletus), esim. star katso http://getbootstrap."
 "com/components/#glyphicons-glyphs"
 
-#: external_services/models.py:132
+#: external_services/models.py:209
 msgid "Heavier menu entries are placed after lighter ones."
 msgstr "Painavammat linkit sijoittuvat kevyempien jälkeen."
 
-#: external_services/models.py:147
+#: external_services/models.py:226
 msgid ""
-"Either preconfigured service or custom URL and label needs to be provided."
-msgstr ""
-"Joko ennalta määritelty palvelu tai vaihtoehtoisesti oma URL ja nimi "
-"vaaditaan."
+"Relative URL is required when there is no preconfigured service selected."
+msgstr "Relatiivinen URL on pakollinen, kun esiluotua palvelua ei ole valittu."
+
+#: external_services/models.py:228
+msgid "Menu label is required when there is no preconfigured service selected."
+msgstr "Nimi on pakollinen, kun esiluotua palvelua ei ole valittu."
+
+#: external_services/models.py:230
+msgid "Relative URL is not possible with LTI services."
+msgstr "Relatiivinin URL ei ole mahdollinen LTI palveluiden kanssa."
 
 #: external_services/permissions.py:8
 msgid "Permission denied by menu visibility"
@@ -2698,92 +2777,265 @@ msgstr "Tämä linkki on vain kurssihenkilökunnalle."
 msgid "Not LTI service"
 msgstr "Ei LTI-palvelu"
 
-#: external_services/templates/external_services/_lti_launch.html:25
+#: external_services/templates/external_services/_launch.html:28
+#, python-format
+msgid "You are leaving %(brand)s and entering %(name)s"
+msgstr ""
+"Olet poistumassa palvelusta %(brand)s ja siirtymässä palveluun %(name)s"
+
+#: external_services/templates/external_services/_launch.html:30
+#, python-format
+msgid "This exercise is hosted on %(name)s"
+msgstr "Tämä tehtävä tulee ulkopuoliselta palvelulta %(name)s"
+
+#: external_services/templates/external_services/_launch.html:40
+msgid "Don't show this and automatically load the exercise next time."
+msgstr "Älä näytä tätä ja automaattisesti lataa tehtävä ensikerralla."
+
+#: external_services/templates/external_services/_launch.html:42
+msgid "Don't show this and automatically open the exercise next time."
+msgstr "Älä näytä tätä ja automaattisesti avaa tehtävä ensikerralla."
+
+#: external_services/templates/external_services/_launch.html:45
+msgid "Don't show this and automatically continue to the service next time."
+msgstr "Älä näytä tätä ja automaattisesti jatka palveluun ensikerralla."
+
+#: external_services/templates/external_services/_launch.html:48
+msgid ""
+"This choice is saved on your device and you can remove it on your profile "
+"page."
+msgstr ""
+"Tämä valinta tallennetaan laitteellesi ja voit poistaa sen profiilisivullasi."
+
+#: external_services/templates/external_services/_launch.html:58
+msgid "Load the exercise"
+msgstr "Lataa tehtävä"
+
+#: external_services/templates/external_services/_launch.html:58
+msgid "Open the exercise in a new window"
+msgstr "Avaa tehtävä uudessa ikkunassa"
+
+#: external_services/templates/external_services/_launch.html:58
+msgid "Continue to the service"
+msgstr "Jatka palveluun"
+
+#: external_services/templates/external_services/_launch.html:62
+msgid "Show details"
+msgstr "Näytä tiedot"
+
+#: external_services/templates/external_services/_privacy.html:11
+msgid "No personal data is send to this service."
+msgstr "Mitään henkilötietoja ei lähetetä tähän palveluun."
+
+#: external_services/templates/external_services/_privacy.html:15
 #, python-format
 msgid ""
 "\n"
-"\t\tYou are about to use an external service, %(name)s, for the first time.\n"
+"\t\t\tYour name and email address will be pseudonymised and send to the "
+"service.\n"
+"\t\t\tThis means that the service’s administration can not identify you, but "
+"%(brand)s's administration can if necessary.\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"\t\t\tNimesi ja sähköpostiosoitteesi pseudonymisoidaan ja lähetetään "
+"palveluun.\n"
+"\t\t\tTämä tarkoittaa sitä, että palvelun ylläpitäjä ei saa tietoonsa "
+"henkilöllisyyttäsi, mutta %(brand)s:n ylläpito pystyy tarvittaessa "
+"tunnistamaan sinut palvelussa.\n"
+"\t\t\t"
+
+#: external_services/templates/external_services/_privacy.html:26
+msgid ""
+"\n"
+"\t\tInformation including your name and email address will be sent to the "
+"service.\n"
+"\t\tThis means that at least the service’s administrators can identify you.\n"
+"\t\tYou can see the full list of information below.\n"
 "\t\t"
 msgstr ""
 "\n"
-"Olet siirtymässä ensimmäistä kertaa ulkoiseen palveluun %(name)s."
+"\t\tTietoja kuten nimesi ja sähköpostiosoitteesi lähetetään palveluun,\n"
+"\t\t joten vähintään palvelun ylläpitäjä saa tietoonsa henkilöllisyytesi.\n"
+"\t\tVoit alta tarkistaa koko listan lähetettävistä tiedoista.\n"
+"\t\t"
 
-#: external_services/templates/external_services/_lti_launch.html:29
+#: external_services/templates/external_services/_privacy.html:32
 msgid ""
 "\n"
-"\t\t\tYour name and email address will be pseudonymised and transferred\n"
-"\t\t\tto the provider of this service. This means that the service cannot\n"
-"\t\t\tidentify you, but A+ administration can.\n"
+"\t\t\tWe use this external service to help you and other students learn.\n"
+"\t\t\tNevertheless, you aren't absolutely required to use it in order to "
+"pass the course.\n"
+"\t\t\tIf you want to avoid using the service, please discuss alternative "
+"solutions with the course staff.\n"
 "\t\t\t"
 msgstr ""
 "\n"
-"Nimesi ja sähköpostiosoitteesi pseudonymisoidaan ja lähetetään palvelulle. "
-"Tämä tarkoittaa, että palvelu ei voi identifioida sinua, mutta A+ ylläpito "
-"voi."
-
-#: external_services/templates/external_services/_lti_launch.html:35
-msgid ""
-"\n"
-"\t\t\tTo use the service, your name and email address will be transferred\n"
-"\t\t\tto the provider of this service.\n"
-"\t\t\t"
-msgstr ""
-"\n"
-"Palvelun käyttämiseksi nimesi ja sähköpostiosoitteesi lähetetään tämän "
-"palvelun ylläpitäjälle."
-
-#: external_services/templates/external_services/_lti_launch.html:44
-msgid ""
-"\n"
-"\t\t\tFor this service also API token is transferred,\n"
-"\t\t\tthus giving this service access to A+ API with your privileges.\n"
-"\t\t\tIf this was not intended, change access settings in django admin.\n"
-"\t\t\t"
-msgstr ""
-"\n"
-"\t\t\tTälle palvelulle annetaan mahdollisuus toimia A+-järjestelmässä\n"
-"\t\t\tsinun käyttöoikeuksillasi.\n"
-"\t\t\tJos tämä ei ole tarkoituksellista, vaihda käyttöoikeusasetuksia \t\t"
-"\tdjangon admin-näkymässä."
-
-#: external_services/templates/external_services/_lti_launch.html:50
-msgid ""
-"\n"
-"\t\t\tFor this service also API token is transferred,\n"
-"\t\t\tthus giving this service access to A+ API with your privileges.\n"
-"\t\t\tThat means service can for example read your student number,\n"
-"\t\t\tcourse progress and submit solutions to exercises.\n"
-"\t\t\tCourse staff has enabled this feature and have checked that\n"
-"\t\t\tthe service behaves with your best interest in mind.\n"
-"\t\t\t"
-msgstr ""
-"\n"
-"\t\t\tTälle palvelulle annetaan mahdollisuus toimia A+-järjestelmässä\n"
-"\t\t\tsinun käyttöoikeuksillasi.\n"
-"\t\t\tTämä tarkoittaa, että ulkoinen palvelu voi esimerkiksi lukea "
-"opiskelijanumerosi ja\n"
-"\t\t\ttarkastella etenemistäsi kurssilla.\n"
-"\t\t\tKurssihenkilökunta on kytkenyt ominaisuuden käyttöön ja tarkistanut, "
-"että\n"
-"\t\t\tulkoinen palvelu toimii etujesi mukaisesti.\n"
+"\t\t\tTämän palvelun tarkoitus on parantaa sinun ja muiden opiskelijoiden "
+"oppimista.\n"
+"\t\t\tTästä huolimatta palvelun käyttö ei ole täysin pakollista kurssin "
+"suorittamiseksi.\n"
+"\t\t\tJos haluat välttää palvelun käytön, niin keskustele kurssin "
+"henkilökunnan kanssa vaihtoehtoisista ratkaisuista.\n"
 "\t\t\t"
 
-#: external_services/templates/external_services/_lti_launch.html:69
-msgid ""
-"Remember this and automatically redirect next time. The selection is saved "
-"as a cookie."
-msgstr ""
-"Muista valinta ja siirry automaattisesti seuraavalla kerralla. Valinta "
-"tallennetaan evästeisiin."
-
-#: external_services/templates/external_services/_lti_launch.html:77
+#: external_services/templates/external_services/_privacy.html:49
 #, python-format
-msgid "Accept and continue to %(name)s"
-msgstr "Hyväksy ja jatka palveluun %(name)s"
+msgid ""
+"\n"
+"\t\t\tMoreover, we send this service a so-called <a href=\"https://en."
+"wikipedia.org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank"
+"\" class=\"alert-link\">access token</a>, which gives the service access to "
+"the %(brand)s API at your privilege level.\n"
+"\t\t\tIf you don't want that to happen, please contact %(brand)s "
+"administration.\n"
+"\t\t\t"
+msgstr ""
+"\n"
+"\t\t\tMoreover, we send this service a so-called <a href=\"https://en."
+"wikipedia.org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank"
+"\" class=\"alert-link\">access token</a>, which gives the service access to "
+"the %(brand)s API at your privilege level.\n"
+"\t\t\tIf you don't want that to happen, please contact %(brand)s "
+"administration.\n"
+"\t\t\t \n"
+"\t\t\tLisäksi palvelulle lähetetään <a href=\"https://en.wikipedia.org/wiki/"
+"Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
+"\">pääsyavain</a>, joka mahdollistaa palvelun pääsyn {{brand}}:n API:n sinun "
+"oikeuksillasi.\n"
+"\t\t\tMikäli näin ei pitäisi tapahtua, niin ota yhteyttä {{brand}}:n "
+"ylläpitoon.\n"
+"\t\t\t"
 
-#: external_services/templates/external_services/_lti_launch.html:81
-msgid "Show shared variables"
-msgstr "Näytä jaetut tiedot"
+#: external_services/templates/external_services/_privacy.html:56
+#, python-format
+msgid ""
+"\n"
+"\t\t\t\tMoreover, we send this service a so-called <a href=\"https://en."
+"wikipedia.org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank"
+"\" class=\"alert-link\">access token</a>, which gives the service access to "
+"the %(brand)s API at your privilege level.\n"
+"\t\t\t\tThis means that the service can, for example, access your student ID "
+"number and your progress in the course, and submit solutions to "
+"assignments.\n"
+"\t\t\t\tThe course staff has enabled this feature and trust the service to "
+"operate with your best interests in mind.\n"
+"\t\t\t\t"
+msgstr ""
+"\n"
+"\t\t\t\tLisäksi palvelulle lähetetään <a href=\"https://en.wikipedia.org/"
+"wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class="
+"\"alert-link\">pääsyavain</a>, joka mahdollistaa palvelun pääsyn %(brand)s:n "
+"API:n sinun oikeuksillasi.\n"
+"\t\t\t\tTämä tarkoittaa sitä, että palvelu voi mm. selvittää "
+"opiskelijanumerosi, nähdä kurssisuorituksiasi ja palauttaa tehtäviä "
+"puolestasi.\n"
+"\t\t\t\tKurssin henkilökunta on mahdollistanut tämän ja luottaa palvelun "
+"toimivan etujesi mukaisesti.\n"
+"\t\t\t\t"
+
+#: external_services/templates/external_services/_privacy.html:70
+#, python-format
+msgid ""
+"\n"
+"\tThis service is hosted by us (%(brand)s administrators) and thus our <a "
+"href=\"%(url)s\" target=\"_blank\">privacy notice</a> covers it too.\n"
+"\t"
+msgstr ""
+"\n"
+"\tTämä palvelu on meidän ylläpitämämme (%(brand)s), joten meidän <a href="
+"\"%(url)s\" target=\"_blank\">tietosuojailmoituksemme</a> kattaa myös sen.\n"
+"\t "
+
+#: external_services/templates/external_services/_privacy.html:75
+#, python-format
+msgid ""
+"\n"
+"\tThis service is hosted within our organization, but it's not maintained by "
+"us (%(brand)s administrators).\n"
+"\t"
+msgstr ""
+"\n"
+"\tTätä palvelua ylläpitävät eri toimijat samassa organisaatiossa meidän "
+"({{brand}}) kanssamme.\n"
+"\t "
+
+#: external_services/templates/external_services/_privacy.html:84
+msgid ""
+"\n"
+"\tThis service is hosted within the European Economics Area and is thus "
+"subject to <a href=\"https://ec.europa.eu/info/law/law-topic/data-protection/"
+"reform_en\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
+"\">the European Union's General Data Protection Regulation</a>.\n"
+"\t"
+msgstr ""
+"\n"
+"\tTämä palvelu sijaitsee Euroopan talousalueella, joten sitä koskee <a href="
+"\"https://ec.europa.eu/info/law/law-topic/data-protection/reform_fi\" rel="
+"\"noopener nofollow\" target=\"_blank\" class=\"alert-link\">Euroopan "
+"unionin yleinen tietosuoja-asetus</a>.\n"
+"\t"
+
+#: external_services/templates/external_services/_privacy.html:94
+msgid ""
+"\n"
+"\tThis service is hosted outside of the European Economics Area and is thus "
+"not covered by <a href=\"https://ec.europa.eu/info/law/law-topic/data-"
+"protection/reform_en\" rel=\"noopener nofollow\" target=\"_blank\" class="
+"\"alert-link\">the European Union's General Data Protection Regulation</a> "
+"(GDPR).\n"
+"\tHowever, the service is certified under <a href=\"https://www."
+"privacyshield.gov/Individuals-in-Europe\" rel=\"noopener nofollow\" target="
+"\"_blank\" class=\"alert-link\">the EU-U.S. Privacy Shield</a>, which "
+"provides similar protection as GDPR.\n"
+"\t"
+msgstr ""
+"\n"
+"\tTämä palvelu sijaitsee Euroopan talousalueen ulkopuolella, joten sitä ei "
+"koske <a href=\"https://ec.europa.eu/info/law/law-topic/data-protection/"
+"reform_fi\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
+"\">Euroopan unionin yleinen tietosuoja-asetus</a> (GDPR).\n"
+"\tPalvelu on kuitenkin <a href=\"https://www.privacyshield.gov/Individuals-"
+"in-Europe\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
+"\">EU-U.S. Privacy Shield</a> -sertifioitu, joten se tarjoaa samankaltaisen "
+"yksityisyydensuojan kuin GDPR.\n"
+"\t "
+
+#: external_services/templates/external_services/_privacy.html:105
+msgid ""
+"This service is not covered by any privacy regulations, thus there isn’t any "
+"lawful entity to enforce it."
+msgstr ""
+"Mikään tietosuoja-asetus ei kata tätä palvelua, joten tietosuojasi ei ole "
+"taattu."
+
+#: external_services/templates/external_services/_privacy.html:108
+#, python-format
+msgid ""
+"\n"
+"\tPlease see <a href=\"%(url)s\" rel=\"noopener nofollow\" target=\"_blank\" "
+"class=\"alert-link\">the service's privacy notice</a> for more details.\n"
+"\t"
+msgstr ""
+"\n"
+"\tVoit katsoa yksityiskohdat palvelun <a href=\"%(url)s\" rel=\"noopener "
+"nofollow\" target=\"_blank\" class=\"alert-link\">tietosuojailmoituksesta</"
+"a>.\n"
+"\t "
+
+#: external_services/templates/external_services/_privacy.html:117
+#, python-format
+msgid ""
+"\n"
+"\t\tYou can first take a look at the external service without sending data: "
+"<a href=\"%(url)s\" rel=\"noopener nofollow\" target=\"_blank\">services’ "
+"front page</a>.\n"
+"\t\t"
+msgstr ""
+"\n"
+"\t\tVoit vierailla palvelussa lähettämättä dataa: <a href=\"%(url)s\" rel="
+"\"noopener nofollow\" target=\"_blank\">palvelun etusivu</a>.\n"
+"\t\t"
 
 #: external_services/templates/external_services/edit_menu.html:6
 #: external_services/templates/external_services/edit_menu.html:19
@@ -2809,22 +3061,22 @@ msgid "Weight"
 msgstr "Paino"
 
 #: external_services/templates/external_services/list_menu.html:21
-msgid "Preconfigured service"
-msgstr "Ennalta määritelty palvelu"
+msgid "Service"
+msgstr "Palvelu"
 
-#: external_services/templates/external_services/list_menu.html:22
+#: external_services/templates/external_services/list_menu.html:23
 msgid "Access"
 msgstr "Pääsy"
 
-#: external_services/templates/external_services/list_menu.html:49
+#: external_services/templates/external_services/list_menu.html:53
 msgid "Disabled"
 msgstr "Piilotettu"
 
-#: external_services/templates/external_services/list_menu.html:75
+#: external_services/templates/external_services/list_menu.html:79
 msgid "Add new menu item"
 msgstr "Lisää uusi linkki"
 
-#: external_services/views.py:58
+#: external_services/views.py:90
 msgid "You need to be enrolled to access an anonymous service."
 msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille."
 
@@ -2931,60 +3183,60 @@ msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa.Ole "
 "ystävällinen, ja yritä uudelleen."
 
-#: templates/base.html:75
+#: templates/base.html:78
 msgid "Toggle navigation"
 msgstr "Näytä valikko"
 
-#: templates/base.html:99
+#: templates/base.html:102
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:116 userprofile/templates/userprofile/profile.html:6
+#: templates/base.html:119 userprofile/templates/userprofile/profile.html:6
 msgid "Profile"
 msgstr "Käyttäjätili"
 
-#: templates/base.html:121 templates/base.html:159
+#: templates/base.html:124 templates/base.html:162
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:130 templates/base.html:166
+#: templates/base.html:133 templates/base.html:169
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:141
+#: templates/base.html:144
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:145
+#: templates/base.html:148
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:190 userprofile/templates/userprofile/privacy.html:4
+#: templates/base.html:193 userprofile/templates/userprofile/privacy.html:4
 #: userprofile/templates/userprofile/privacy.html:9
 msgid "Privacy Notice"
 msgstr "Tietosuojailmoitus"
 
-#: templates/base.html:201 templates/base.html:220
+#: templates/base.html:204 templates/base.html:223
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:202 templates/base.html:221
+#: templates/base.html:205 templates/base.html:224
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:209 templates/base.html:226
+#: templates/base.html:212 templates/base.html:229
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:241
+#: templates/base.html:244
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:245
+#: templates/base.html:248
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:248
+#: templates/base.html:251
 msgid "Search for..."
 msgstr "Etsi..."
 

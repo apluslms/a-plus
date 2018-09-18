@@ -1,0 +1,81 @@
+{% load i18n %}
+{% load external_services %}
+{% load course %}
+{% load base %}
+{% comment %}
+  expected parameters:
+    service - LinkService
+	site - service front page
+	[parameters] - key/value pairs for post form, can be ommitted for get
+    parameters_hash - hash of form fields
+	[exercise] - exercise that holds this link
+	is_course_staff
+{% endcomment %}
+{% comment %}
+The page that includes this partial template should also load a JavaScript code,
+which adds redirection automation and removes launch button for iframe case.
+E.g. {% static 'js/external_launcher.js' ‰}
+{% endcomment %}
+{% brand_name as brand %}
+{% random_id service.pk "-" as form_id %}
+<div class="external-service"
+	data-ext-service-pk="{{ service.pk }}"
+	data-ext-service-title="{{ service.menu_label|parse_localization }} ({{ site }})"
+	data-ext-params-hash="{{ parameters_hash }}"
+>
+	<div class="external-service-launch">
+		{% if not exercise %}
+			<h1>{% blocktrans with brand=brand name=service_label|parse_localization %}You are leaving {{ brand }} and entering {{ name }}{% endblocktrans %}</h1>
+		{% else %}
+			<h4>{% blocktrans with name=service_label|parse_localization %}This exercise is hosted on {{ name }}{% endblocktrans %}</h4>
+		{% endif %}
+		<div class="well">
+			{% include "external_services/_privacy.html" %}
+		</div>
+		<p class="external-service-auto">
+			<input id="extserv-auto-{{ form_id }}" name="auto_accept" type="checkbox" value="1" />
+			<label for="extserv-auto-{{ form_id }}">
+				{% if exercise %}
+					{% if exercise.open_in_iframe %}
+						{% trans "Don't show this and automatically load the exercise next time." %}
+					{% else %}
+						{% trans "Don't show this and automatically open the exercise next time." %}
+					{% endif %}
+				{% else %}
+					{% trans "Don't show this and automatically continue to the service next time." %}
+				{% endif %}
+				<br>
+				{% trans "This choice is saved on your device and you can remove it on your profile page." %}
+			</label>
+		</p>
+		<p>
+			<form method="{{ service.method }}" action="{{ url }}"
+			      target="{% if exercise %}{% if exercise.open_in_iframe %}extserv-frame-{{ form_id }}{% else %}_blank{% endif %}{% else %}_self{% endif %}">
+				{% for name, value in parameters %}
+					<input type="hidden" name="{{ name }}" value="{{ value }}">
+				{% endfor %}
+				<input type="submit" class="btn btn-primary"
+				       value="{% if exercise %}{% if exercise.open_in_iframe %}{% trans "Load the exercise" %}{% else %}{% trans "Open the exercise in a new window" %}{% endif %}{% else %}{% trans "Continue to the service" %}{% endif %}">
+				{% if parameters %}
+					<a href="#extserv-more-{{ form_id }}" class="btn btn-default"
+					   aria-controls="{{ collapse_id }}" aria-expanded="false" data-toggle="collapse"
+					>{% trans "Show details" %}</a>
+				{% endif %}
+			</form>
+		</p>
+		{% if parameters %}
+			<div class="collapse well" id="extserv-more-{{ form_id }}">
+				<p>{{ service.method }} {{ url }}</p>
+				<table class="card card-block table">
+					{% for name, value in parameters|dictsort:"0.lower" %}
+						<tr><th>{{ name }}</th><td>{{ value }}</td></tr>
+					{% endfor %}
+				</table>
+			</div>
+		{% endif %}
+	</div>
+
+	{% if exercise.open_in_iframe %}
+		<iframe name="extserv-frame-{{ form_id }}" src="about:blank" height="500" style="width: 100%; display: none;"></iframe>
+	{% endif %}
+</div>
