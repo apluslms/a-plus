@@ -1,6 +1,6 @@
 # Usage: pip install -r requirements.txt
 beautifulsoup4==4.6.0
-Django==1.10
+Django>=1.10.8, <1.11
 django-bootstrap-form==3.2.1
 django-html5-colorfield==1.0
 djangorestframework==3.6.3
