@@ -11,6 +11,7 @@ fi
 
 export APLUS_DEBUG=True
 export APLUS_DB_FILE=$DIR/aplus.db
+export APLUS_BASE_URL='http://localhost:8001'
 export APLUS_DATABASES="{\"default\": {\"ENGINE\": \"django.db.backends.sqlite3\", \"NAME\": \"$APLUS_DB_FILE\"}}"
 export APLUS_CACHES='{"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}'
 export APLUS_SECRET_KEY="secret-key"
