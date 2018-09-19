@@ -142,7 +142,7 @@ class CourseUsertaggingsSerializer(AplusModelSerializer):
         fields_in_user = { f for f in self._required if f in user }
         if not fields_in_user:
             raise serializers.ValidationError(
-                'At least one of {} is required'.format(required)
+                'At least one of {} is required'.format(self._required)
             )
         return data
 
