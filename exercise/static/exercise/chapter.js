@@ -776,6 +776,28 @@
 
 })(jQuery, window, document);
 
+/**
+ * Prevent double submit of exercise forms
+ */
+(function ($) {
+	$(document).on('aplus:exercise-loaded', function(e) {
+		$(e.target).find('form').each(function () {
+			const $form = $(this);
+			if ($form.prop('method') == 'post') {
+				$form.on('submit', function (e) {
+					$(this).find('[type="submit"]')
+						.prop('disabled', true)
+						.attr('data-aplus-submit-disabled', 'yes');
+				});
+			}
+		});
+	});
+	$(document).on('aplus:exercise-submission-failure', function(e) {
+		$(e.target).find('[data-aplus-submit-disabled]')
+			.prop('disabled', false)
+			.attr('data-aplus-submit-disabled', '');
+	});
+})(jQuery);
 
 // Construct the page chapter element.
 jQuery(function() { jQuery("#exercise-page-content").aplusChapter(); });

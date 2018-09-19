@@ -645,23 +645,6 @@ $.fn.highlightCode = function(options) {
     };
 })(jQuery, window, document);
 
-
-/**
- * prevent double submit of exercise forms
- */
-
-$(function () {
-    $('#exercise-page-content form, #exercise form').each(function () {
-        $(this).on('submit', function (e) {
-            var $form = $(this)
-            //disable the button
-            $form.find('[type="submit"]').prop('disabled', true)
-            // Keep chainability
-            return this;
-        });
-    });
-});
-
 /**
  * Add CSRF token on AJAX requests, copied from
  * https://docs.djangoproject.com/en/2.0/ref/csrf/#ajax
