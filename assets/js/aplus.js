@@ -1,3 +1,18 @@
+/* add CustomEvent for IE 11 */
+(function () {
+ if (typeof window.CustomEvent === "function") return false;
+ function CustomEvent(event, params) {
+  const bubbles = params.bubbles !== undefined ? params.bubbles : false;
+  const cancelable = params.cancelable !== undefined ? params.cancelable : false;
+  const detail = params.detail !== undefined ? params.detail : undefined;
+  const evt = document.createEvent( 'CustomEvent' );
+  evt.initCustomEvent(event, bubbles, cancelable, detail);
+  return evt;
+ }
+ CustomEvent.prototype = window.Event.prototype;
+ window.CustomEvent = CustomEvent;
+})();
+
 $(function() {
 
     // Mark active menu item

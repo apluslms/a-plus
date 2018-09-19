@@ -21,6 +21,7 @@
 	};
 
 	function AplusChapter(element, options) {
+		this.dom_element = element;
 		this.element = $(element);
 		this.settings = $.extend({}, defaults, options);
 		this.ajaxForms = false;
@@ -44,21 +45,28 @@
 			this.modalElement = $(this.settings.modal_selector);
 			this.loader = $(this.settings.loading_selector);
 			this.messages = this.readMessages();
-			console.log(this.loader, this.messages);
 			this.quizSuccess = $(this.settings.quiz_success_selector);
 
 			// do not include active element inputs to exercise groups
 			this.element.find("[" + this.settings.active_element_attr +	"='in']").aplusExercise(this, {input: true});
 
-			this.exercises = this.element
-				.find("[" + this.settings.exercise_url_attr + "]")
-				.aplusExercise(this);
-			this.exercisesIndex = 0;
-			this.exercisesSize = this.exercises.length;
-			if (this.exercisesSize > 0) {
+			const exercises = this.element.find("[" + this.settings.exercise_url_attr + "]");
+			if (exercises.length > 0) {
+				this.dom_element.dispatchEvent(
+					new CustomEvent("aplus:chapter-loaded", {bubbles: true}));
+
+				exercises.aplusExercise(this);
+				this.exercises = exercises
+				this.exercisesIndex = 0;
+				this.exercisesSize = exercises.length;
 				this.nextExercise();
 			} else {
+				const type = 'text/x.aplus-exercise';
+				this.dom_element.dispatchEvent(
+					new CustomEvent("aplus:exercise-loaded", {bubbles: true, detail: {type: type}}));
 				$.augmentSubmitButton($(".exercise-column"));
+				this.dom_element.dispatchEvent(
+					new CustomEvent("aplus:exercise-ready", {bubbles: true, detail: {type: type}}));
 			}
 		},
 
@@ -67,6 +75,8 @@
 				this.exercises.eq(this.exercisesIndex).aplusExerciseLoad();
 				this.exercisesIndex++;
 			}
+			this.dom_element.dispatchEvent(
+				new CustomEvent("aplus:chapter-ready", {bubbles: true}));
 		},
 
 		readMessages: function() {
@@ -162,6 +172,7 @@
 
 
 	function AplusExercise(element, chapter, options) {
+		this.dom_element = element;
 		this.element = $(element);
 		this.chapter = chapter;
 		this.settings = $.extend({}, defaults, options);
@@ -190,6 +201,13 @@
 
 			// Check if the exercise is an active element.
 			this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);
+
+			// set exercise mime type
+			this.exercise_type =
+				this.quiz ? 'text/x.aplus-exercise.quiz.v1' :
+				this.ajax ? 'text/x.aplus-exercise.iframe.v1' :
+				this.active_element ? 'text/x.aplus-exercise.active-element.v1' :
+				'text/x.aplus-exercise';
 
 			// Add the active element outputs to a list so that the element can be found later
 			if (this.active_element && !this.settings.input) this.chapter.aeOutputs[this.chapterID] = this;
@@ -317,6 +335,9 @@
 			var content = exercise.element.find(exercise.settings.content_selector)
 				.empty().append(input).hide();
 
+			this.dom_element.dispatchEvent(
+				new CustomEvent("aplus:exercise-loaded", {bubbles: true, detail: {type: this.exercise_type}}));
+
 			if (exercise.active_element) {
 				var title = "";
 				if (exercise.element.attr("data-title"))
@@ -346,6 +367,8 @@
 			this.element.height("auto");
 			this.bindNavEvents();
 			this.bindFormEvents(content);
+			this.dom_element.dispatchEvent(
+				new CustomEvent("aplus:exercise-ready", {bubbles: true, detail: {type: this.exercise_type}}));
 		},
 
 		bindNavEvents: function() {
@@ -398,6 +421,9 @@
 				//exercise.showLoader("error");
 
 				if (!exercise.active_element) {
+					exercise.dom_element.dispatchEvent(
+						new CustomEvent("aplus:exercise-submission-failure",
+							{bubbles: true, detail: {type: exercise.exercise_type}}));
 					exercise.chapter.modalError(exercise.chapter.messages.error);
 				} else {
 					// active elements don't use loadbar so the error message must be shown
@@ -598,6 +624,9 @@
 							}
 						}
 					}).fail(function() {
+						exercise.dom_element.dispatchEvent(
+							new CustomEvent("aplus:exercise-submission-failure",
+								{bubbles: true, detail: {type: exercise.exercise_type}}));
 						exercise.chapter.modalError(exercise.chapter.messages.error);
 					});
 				}, id);
@@ -679,9 +708,15 @@
 								.empty().append(
 										$(data).filter(exercise.settings.exercise_selector).contents()
 									);
+								exercise.dom_element.dispatchEvent(
+									new CustomEvent("aplus:exercise-loaded",
+										{bubbles: true, detail: {type: exercise.exercise_type}}));
                 // TODO: remove magic constant (variable defined in group.js)
                 f.removeClass('group-augmented');
 								exercise.bindFormEvents(exercise.element);
+								exercise.dom_element.dispatchEvent(
+									new CustomEvent("aplus:exercise-ready",
+										{bubbles: true, detail: {type: exercise.exercise_type}}));
 							} else {
 								// Update the output box values
 								exercise.updateOutput(data.feedback);
