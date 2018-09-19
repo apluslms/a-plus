@@ -1,3 +1,4 @@
+{% load colortag %}
 {% if external %}
 <span
     class="colortag-active colortag-dark colortag label label-info label-xs"
@@ -13,7 +14,7 @@
     {{ internal_user_label|safe }}
 </span>
 {% endif %}
-{% for tag in tags %}{% include "course/_usertag.html" %}{% endfor %}
+{% for tag in tags %}{{ tag|colortag }}{% endfor %}
 <span class="dropdown" id="add-taggings-{{ user_id }}"></span>
 
 <script>
