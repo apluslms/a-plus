@@ -72,10 +72,11 @@
 {% endif %}
 
 <script src="{% static 'js/participants.js' %}"></script>
+<script src="{% static 'course/usertagdropdown.js' %}"></script>
 <script>
  $(function () {
      const participants = {{ participants|escape_slashes|safe }};
-     const api_url = "{% url 'api:course-detail' 2 course_id %}";
+     const api_url = "{% url 'api:course-detail' 2 instance.id %}";
      const is_teacher = {{ is_teacher|yesno:"true,false" }};
      participants_list(participants, api_url, is_teacher);
  });

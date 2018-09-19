@@ -20,11 +20,10 @@ class ParticipantsView(CourseInstanceBaseView):
         super().get_common_objects()
         self.participants = json.dumps(CachedStudents(self.instance).students())
         self.tags = list(self.instance.usertags.all())
-        self.course_id = self.instance.id
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
         self.note(
-            'participants', 'tags', 'course_id',
+            'participants', 'tags',
             'internal_user_label', 'external_user_label',
         )
 
