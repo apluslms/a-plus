@@ -138,7 +138,7 @@ class Enrollment(models.Model):
     personal_code = models.CharField(max_length=10, blank=True, default='')
     selected_group = models.ForeignKey(StudentGroup, blank=True, null=True, default=None, on_delete=models.SET_NULL)
     anon_name = models.CharField(max_length=50, blank=True, default='')
-    anon_id = models.CharField(max_length=50, null=True, unique=True)
+    anon_id = models.CharField(max_length=50, blank=True, null=True, unique=True)
 
 def create_enrollment_code(sender, instance, created, **kwargs):
     if created:
