@@ -28,9 +28,11 @@
 #        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
 #        'LOCATION': 'django_cache_default',
 #
-#        # For development local memory
-#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#        # Local testing with max size
+#        'BACKEND': 'lib.cache.LocMemCache',
 #        'LOCATION': 'unique-snowflake',
+#        'OPTIONS': {'MAX_SIZE': 1000000}, # simulate memcached value limit
+#
 #        # or dummy
 #        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
 #    }

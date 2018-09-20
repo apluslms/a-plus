@@ -212,8 +212,9 @@ DATABASES = {
 ##########################################################################
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'lib.cache.LocMemCache',
         'TIMEOUT': None,
+        'OPTIONS': {'MAX_SIZE': 1000000}, # simulate memcached value limit
     }
 }
 #SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
@@ -305,6 +306,7 @@ LOGGING = {
       'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s',
       'colors': {
         'django.db.backends': {'fg': 'cyan'},
+        'cached': {'fg': 'red'},
       },
     },
   },
