@@ -15,7 +15,7 @@
 {% block title %}{{ course.name|parse_localization }} | {{ block.super }} {% endblock %}
 
 {% block content %}
-<div data-taggings="{{ taggings|join:' ' }}"  class="row">
+<div data-taggings="{{ get_taggings|join:' ' }}"  class="row">
     <div class="col-sm-2 hidden-xs">
         <nav class="course-menu" id="main-course-menu">
             <ul class="nav nav-pills nav-stacked">

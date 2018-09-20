@@ -61,14 +61,16 @@ class CourseInstanceBaseMixin(object):
             self.is_assistant = self.instance.is_assistant(user)
             self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
-            self.taggings = [tag
-                             for student in CachedStudents(instance).students()
-                             if student['user_id'] == user.id
-                             for tag in student['tag_slugs']]
+            def get_taggings():
+                return [tag
+                        for student in CachedStudents(instance).students()
+                        if student['user_id'] == user.id
+                        for tag in student['tag_slugs']]
+            self.get_taggings = get_taggings
 
             self.note(
                 "course", "instance", "content", "is_student", "is_assistant",
-                "is_teacher", "is_course_staff", "taggings",
+                "is_teacher", "is_course_staff", "get_taggings",
             )
 
             # Apply course instance language.
