@@ -81,6 +81,18 @@ def has_same_domain(url1, url2):
     return uri1.netloc == uri2.netloc
 
 
+def drop_domain_from_url(url='', parsed=None):
+    """Return a URL as a string without any domain (netloc) part, i.e.,
+    with only the path, query and fragment. Supply only one of the two
+    arguments: url as a string, or if you have already parsed the URL with
+    either urllib.parse.urlparse or urllib.parse.urlsplit, then its return
+    value may be used here.
+    """
+    if url:
+        parsed = urlsplit(url)
+    return parsed._replace(scheme='', netloc='').geturl()
+
+
 FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-0123456789"
 
 def safe_file_name(name):

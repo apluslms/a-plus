@@ -1,4 +1,5 @@
 import datetime
+import urllib.parse
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError, PermissionDenied
@@ -27,6 +28,7 @@ from lib.helpers import (
     Enum,
     update_url_params,
     has_same_domain,
+    drop_domain_from_url,
     safe_file_name,
     roman_numeral,
 )
@@ -697,10 +699,19 @@ class LTIExercise(BaseExercise):
         Validates the model before saving (standard method used in Django admin).
         """
         super().clean()
-        if self.service_url and not has_same_domain(self.service_url, self.lti_service.url):
-            raise ValidationError({
-                'service_url':_("Exercise must be located in the LTI domain.")
-            })
+        # If service_url is defined and is an absolute URL, it must be in the
+        # same domain as the LTI service.
+        # Relative URLs are joined to the URL of the LTI service.
+        if self.service_url:
+            parsed = urllib.parse.urlsplit(self.service_url)
+            if parsed.netloc and \
+                    not has_same_domain(self.service_url, self.lti_service.get_final_url()):
+                raise ValidationError({
+                    'service_url':_("Exercise must be located in the LTI domain.")
+                })
+            elif parsed.netloc:
+                # Save only the URL path in the database without the domain
+                self.service_url = drop_domain_from_url(parsed=parsed)
 
     def load(self, request, students, url_name="exercise"):
         if not self.lti_service.enabled:
@@ -713,7 +724,21 @@ class LTIExercise(BaseExercise):
         if not students:
             return ExercisePage(self)
 
-        url = self.service_url or self.lti_service.url
+        replace_url = None
+        if self.service_url:
+            parsed = urllib.parse.urlsplit(self.service_url)
+            if parsed.netloc:
+                # Deprecated: absolute URL stored in the database. Drop the domain now.
+                # Typically, LTI exercises do not need to specify a service URL since
+                # they usually use the launch URL of the LTI service. If a custom
+                # service URL is needed, it must be in the same domain as the
+                # LTI service. Previously, LTI exercises stored service URLs in the
+                # absolute form, but now only the URL path is stored.
+                replace_url = drop_domain_from_url(parsed=parsed)
+            else:
+                # Relative URL
+                replace_url = self.service_url
+        url = self.lti_service.get_final_url(replace=replace_url)
         lti = self._get_lti(students[0].user, students, request)
 
         # Render launch button.
