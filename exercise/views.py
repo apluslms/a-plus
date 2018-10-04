@@ -12,7 +12,7 @@ from django.views.static import serve
 from authorization.permissions import ACCESS
 from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
-from lib.remote_page import request_for_response
+from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
 from .models import LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
@@ -192,12 +192,16 @@ class ExerciseModelView(ExerciseModelBaseView):
         self.get_summary_submissions()
         self.models = []
         for url,name in self.exercise.get_models():
-            response = request_for_response(url)
-            self.models.append({
-                'name': name,
-                'content': response.text,
-                'html': 'text/html' in response.headers.get('Content-Type'),
-            })
+            try:
+                response = request_for_response(url)
+            except RemotePageNotFound:
+                self.models.append({'name': name})
+            else:
+                self.models.append({
+                    'name': name,
+                    'content': response.text,
+                    'html': 'text/html' in response.headers.get('Content-Type'),
+                })
         self.note('models')
 
 

@@ -9,14 +9,27 @@ from django.utils.http import parse_http_date_safe
 from django.utils.translation import ugettext_lazy as _
 from urllib.parse import urlparse, urljoin
 
+try:
+    from django.utils.text import format_lazy
+except ImportError: # implemented in Django 1.11
+    from django.utils.functional import lazy as _lazy
+    def _format_lazy(format_string, *args, **kwargs):
+        return format_string.format(*args, **kwargs)
+    format_lazy = _lazy(_format_lazy, str)
+
 
 logger = logging.getLogger("aplus.remote_page")
 
 
 class RemotePageException(Exception):
-
-    def __init__(self, message):
+    def __init__(self, message, code=500):
         self.message = message
+        self.code = code
+
+
+class RemotePageNotFound(RemotePageException):
+    def __init__(self, message):
+        super().__init__(message, 404)
 
 
 class RemotePageNotModified(Exception):
@@ -73,8 +86,13 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
             n += 1
         logger.error("HTTP request loop ended in unexpected state")
         assert False
-    except requests.exceptions.RequestException:
-        raise RemotePageException(_("Connecting to the course service failed!"))
+    except requests.exceptions.RequestException as e:
+        if e.response and e.response.status_code == 404:
+            raise RemotePageNotFound(_("The requested resource was not found from the course service!"))
+        raise RemotePageException(format_lazy(
+            _("Connecting to the course service failed with {code}!"),
+            code=e.response.status_code if e.response else '-1',
+        ))
 
 
 class RemotePage:
