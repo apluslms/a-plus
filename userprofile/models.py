@@ -48,13 +48,13 @@ class UserProfile(models.Model):
         else:
             return "{} ({} {}, {})".format(self.user.username, self.user.first_name, self.user.last_name, self.student_id)
 
-    @property
+    @cached_property
     def api_token(self):
         # FIXME: implement support for more than 1 token
         token, created = Token.objects.get_or_create(user=self.user)
         return token.key
 
-    @property
+    @cached_property
     def avatar_url(self):
         """
         URL address for gravatar image based on the user email.
@@ -63,7 +63,7 @@ class UserProfile(models.Model):
         hash_key = hashlib.md5(self.user.email.encode('utf-8')).hexdigest()
         return "http://www.gravatar.com/avatar/" + hash_key + "?d=identicon"
 
-    @property
+    @cached_property
     def shortname(self):
         """
         A short version of the user's name in form "John D."
@@ -73,7 +73,7 @@ class UserProfile(models.Model):
         except:
             return self.user.username
 
-    @property
+    @cached_property
     def is_external(self):
         """
         Is this an external rather than internal account.

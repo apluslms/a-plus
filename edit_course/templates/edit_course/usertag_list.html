@@ -3,6 +3,7 @@
 {% load bootstrap %}
 {% load course %}
 {% load editcourse %}
+{% load colortag %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
@@ -29,9 +30,10 @@
 			<th>{% trans "Visible to students" %}</th>
 			<th>{% trans "Actions" %}</th>
 		</tr>
+		{% with hide_tooltip=True %}
 		{% for tag in object_list %}
 		<tr>
-			<td>{% include "course/_usertag.html" with tag=tag hide_tooltip=True only %}</td>
+			<td>{{ tag|colortag }}</td>
 			<td>{{ tag.description }}</td>
 			<td>{% if tag.visible_to_students %}<span style="color: #00B000;">yes</span>{% else %}<span style="color: #B00000;">no</span>{% endif %}</td>
 			<td>
@@ -54,6 +56,7 @@
 			<td colspan="4">{% trans "No student tags." %}</td>
 		</tr>
 		{% endfor %}
+		{% endwith %}
 	</table>
 </div>
 {% endblock %}

@@ -87,7 +87,11 @@ function participants_list(participants, api_url, is_teacher) {
     $('<td></td>').append(
       link.clone().text(participant.email || participant.username)
     ).appendTo(row);
-    $('<td></td>').html(participant.tags).appendTo(row);
+    $('<td></td>')
+      .addClass('usertags-container')
+      .attr({ 'data-user-id': participant.user_id })
+      .html(participant.tags)
+      .appendTo(row);
   });
 
   if (is_teacher) {

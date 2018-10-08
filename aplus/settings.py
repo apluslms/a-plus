@@ -316,6 +316,9 @@ LOGGING = {
     'require_debug_true': {
       '()': 'django.utils.log.RequireDebugTrue',
     },
+    'require_debug_false': {
+      '()': 'django.utils.log.RequireDebugFalse',
+    },
   },
   'handlers': {
     'debug_console': {
@@ -333,15 +336,29 @@ LOGGING = {
     },
     'email': {
       'level': 'ERROR',
-      'filters': ['skip_unreadable_post'],
+      'filters': ['require_debug_false', 'skip_unreadable_post'],
+      'class': 'django.utils.log.AdminEmailHandler',
+    },
+    'mail_admins': {
+      # Duplicate of above, so if django internally refers it, we will use our filters
+      'level': 'ERROR',
+      'filters': ['require_debug_false', 'skip_unreadable_post'],
       'class': 'django.utils.log.AdminEmailHandler',
     },
   },
   'loggers': {
     '': {
       'level': 'INFO',
-      'handlers': ['email', 'console'],
+      'handlers': ['console', 'email'],
       'propagate': True
+    },
+    # Django defines these loggers internally, so we need to reconfigure them.
+    'django': {
+      'level': 'INFO',
+      'handlers': ['console', 'email'],
+    },
+    'py.warnings': {
+      'handlers': ['console'],
     },
   },
 }

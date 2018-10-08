@@ -3,6 +3,7 @@
 {% load bootstrap %}
 {% load course %}
 {% load editcourse %}
+{% load colortag %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
@@ -21,7 +22,7 @@
 
 	<div class="alert alert-danger">
 		{% trans "Are you sure you want to remove following user tag?" %}
-		{% include "course/_usertag.html" with tag=object only %}
+		{{ object|colortag }}
 	</div>
 
 	<div class="form-group">

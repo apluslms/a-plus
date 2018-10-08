@@ -114,4 +114,5 @@ def profiles(profiles, instance, is_teacher):
 
 @register.inclusion_tag("course/_tags.html")
 def tags(profile, instance):
+    # FIXME: get tags from cache
     return tags_context(profile, profile.taggings.tags_for_instance(instance), instance)
