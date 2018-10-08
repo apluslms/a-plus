@@ -9,6 +9,7 @@ class LinkServiceAdmin(admin.ModelAdmin):
         "id",
         "menu_label",
         "url",
+        "destination_region",
         "content_type",
         "enabled",
     ]
@@ -20,6 +21,7 @@ class LTIServiceAdmin(admin.ModelAdmin):
         "id",
         "menu_label",
         "url",
+        "destination_region",
     ]
 
 class MenuItemAdmin(admin.ModelAdmin):

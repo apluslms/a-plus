@@ -1,13 +1,22 @@
+import logging
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import login as django_login
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import resolve_url
+from django.template.loader import TemplateDoesNotExist, get_template
 from django.utils.http import is_safe_url
+from django.utils.translation import get_language
+from django.utils.translation import ugettext_lazy as _
 
 from lib.helpers import settings_text
 from authorization.permissions import ACCESS
 from .viewbase import UserProfileView
+
+
+logger = logging.getLogger('userprofile.views')
 
 
 def login(request):
@@ -40,14 +49,38 @@ def login(request):
     )
 
 
-class PrivacyPolicyView(UserProfileView):
+def try_get_template(name):
+    try:
+        return get_template(name)
+    except TemplateDoesNotExist:
+        logger.info("Template %s not found", name)
+        return None
+
+
+class PrivacyNoticeView(UserProfileView):
     access_mode=ACCESS.ANONYMOUS
     template_name="userprofile/privacy.html"
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.policy_text = settings_text('PRIVACY_POLICY_TEXT')
-        self.note("policy_text")
+        lang = "_" + get_language().lower()
+        key = make_template_fragment_key('privacy_notice', [lang])
+        privacy_text = cache.get(key)
+        if not privacy_text:
+            template_name = "privacy_notice{}.html"
+            template = try_get_template(template_name.format(lang))
+            if not template and len(lang) > 3:
+                template = try_get_template(template_name.format(lang[:3]))
+            if not template:
+                logger.warning("No localized privacy notice for language %s", lang)
+                template = try_get_template(template_name.format(''))
+            if not template:
+                logger.error("No privacy notice at all!")
+
+            privacy_text = template.render() if template else _("No privacy notice. Please notify administration!")
+            cache.set(key, privacy_text)
+        self.privacy_text = privacy_text
+        self.note("privacy_text")
 
 class ProfileView(UserProfileView):
     template_name = "userprofile/profile.html"

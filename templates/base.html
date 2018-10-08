@@ -11,10 +11,13 @@
 
         <title>{% block title %}{% brand_name %}{% endblock %}</title>
 
-        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
 
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+        <link href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css" rel="stylesheet" integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW" crossorigin="anonymous">
+        <link href="https://use.fontawesome.com/releases/v5.3.1/css/regular.css" rel="stylesheet" integrity="sha384-ZlNfXjxAqKFWCwMwQFGhmMh3i89dWDnaFU2/VZg9CvsMGA7hXHQsPIqS+JIAmgEq" crossorigin="anonymous">
 
         <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
@@ -189,10 +192,7 @@
                 <div class="container-fluid">
                     <ul class="nav navbar-nav">
                         {% block footercontent %}{% endblock %}
-                        {% url 'privacy_policy' as policy_url %}
-                        {% if policy_url %}
-                        <li role="presentation"><a href="{% url 'privacy_policy' %}">{% trans "Privacy Policy" %}</a></li>
-                        {% endif %}
+                        <li role="presentation"><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
                     </ul>
                 </div>
             </nav>

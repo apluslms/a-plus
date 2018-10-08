@@ -18,7 +18,8 @@
 		<th>{% trans "Link" %}</th>
 		<th>{% trans "Group" %}</th>
 		<th>{% trans "Weight" %}</th>
-		<th>{% trans "Preconfigured service" %}</th>
+		<th>{% trans "Service" %}</th>
+		<th>{% trans "URL" %}</th>
 		<th>{% trans "Access" %}</th>
 		<th></th>
 		<th></th>
@@ -41,8 +42,11 @@
 		</td>
 		<td>
 			{% if menu.service %}
-			{{ menu.service }}
+			{{ menu.service.menu_label|parse_localization}}
 			{% endif %}
+		</td>
+		<td>
+			{{ menu.final_url }}
 		</td>
 		<td>
 			{% if not menu.enabled %}

@@ -89,13 +89,11 @@
     </div>
 </div>
 
-{% url 'privacy_policy' as policy_url %}
-{% if policy_url %}
+{% url 'privacy_notice' as privacy_url %}
 <p>
-  {% blocktrans with url=policy_url %}
-  You may want to read our privacy policy <a href="{{ url }}">here</a>.
+  {% blocktrans with url=privacy_url %}
+  You may want to read our <a href="{{ url }}">privacy notice</a>.
   {% endblocktrans %}
 </p>
-{% endif %}
 
 {% endblock %}

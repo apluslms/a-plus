@@ -1,3 +1,18 @@
+/* add CustomEvent for IE 11 */
+(function () {
+ if (typeof window.CustomEvent === "function") return false;
+ function CustomEvent(event, params) {
+  const bubbles = params.bubbles !== undefined ? params.bubbles : false;
+  const cancelable = params.cancelable !== undefined ? params.cancelable : false;
+  const detail = params.detail !== undefined ? params.detail : undefined;
+  const evt = document.createEvent( 'CustomEvent' );
+  evt.initCustomEvent(event, bubbles, cancelable, detail);
+  return evt;
+ }
+ CustomEvent.prototype = window.Event.prototype;
+ window.CustomEvent = CustomEvent;
+})();
+
 $(function() {
 
     // Mark active menu item
@@ -629,23 +644,6 @@ $.fn.highlightCode = function(options) {
         });
     };
 })(jQuery, window, document);
-
-
-/**
- * prevent double submit of exercise forms
- */
-
-$(function () {
-    $('#exercise-page-content form, #exercise form').each(function () {
-        $(this).on('submit', function (e) {
-            var $form = $(this)
-            //disable the button
-            $form.find('[type="submit"]').prop('disabled', true)
-            // Keep chainability
-            return this;
-        });
-    });
-});
 
 /**
  * Add CSRF token on AJAX requests, copied from

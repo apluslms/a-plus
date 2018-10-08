@@ -1,0 +1,75 @@
+/* warning glyphs in alert boxes */
+
+.external-service .alert .glyphicon {
+    display: table-cell;
+}
+
+.external-service .alert div,
+.external-service .alert span {
+    padding-left: 0.6em;
+    display: table-cell;
+}
+
+.external-service .well p:last-child {
+    margin-bottom: 0;
+}
+
+/* Fancy checkbox */
+
+.external-service .external-service-auto input {
+  display: block;
+  height: 53px;
+  margin: 0 0 -53px -9999px;
+  outline: none;
+}
+
+.external-service .external-service-auto label {
+  display: block;
+  position: relative;
+  min-height: 60px;
+  padding: 10px 5px 10px 45px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  -webkit-transition: background-color 200ms linear;
+  -ms-transition: background-color 200ms linear;
+  transition: background-color 200ms linear;
+}
+
+.external-service .external-service-auto label::before {
+  font-weight: 400;
+  content: '\f111'; /* circle outline */
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  font: 2em 'Font Awesome 5 Free';
+}
+
+.external-service .external-service-auto input:checked + label::before {
+  content: '\f058'; /* circle checkmark */
+  font-weight: 900;
+}
+
+.external-service .external-service-auto input:focus + label {
+  background-color: #f2f2f2;
+}
+
+.external-service .external-service-auto input:focus + label:hover,
+.external-service .external-service-auto label:hover {
+  background-color: #e6e6e6;
+}
+
+.external-service .external-service-auto input:checked + label {
+  background-color: #a0ffa0;
+}
+
+.external-service .external-service-auto input:checked:focus + label {
+  background-color: #a8f5a8;
+}
+
+.external-service .external-service-auto input:checked:focus + label:hover,
+.external-service .external-service-auto input:checked + label:hover {
+  background-color: #c7fdc7;
+}
+

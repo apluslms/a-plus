@@ -719,9 +719,10 @@ class LTIExercise(BaseExercise):
         # Render launch button.
         page = ExercisePage(self)
         page.content = self.content
-        template = loader.get_template('external_services/_lti_launch.html')
+        template = loader.get_template('external_services/_launch.html')
         page.content += template.render(Context({
             'service': self.lti_service,
+            'service_label': self.lti_service.menu_label,
             'url': url,
             'parameters': lti.sign_post_parameters(url),
             'parameters_hash': lti.get_checksum_of_parameters(only_user_and_course_level_params=True),

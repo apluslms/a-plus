@@ -63,6 +63,7 @@
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'js/external_launcher.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/external_services.css' %}">
 <script src="{% static 'exercise/poll.js' %}"></script>
 <script src="{% static 'exercise/group.js' %}"></script>
 <script src="{% static 'exercise/chapter.js' %}"></script>
@@ -77,11 +78,6 @@
         $("#submit-progress").removeClass("hide");
     });
 });*/
-
-$(function() {
-    // LTI exercises
-    $('[data-external-launch]').aplusExternalLauncher();
-});
 
 // Add an Ajax exercise event listener to refresh the info column.
 window.addEventListener("message", function (event) {

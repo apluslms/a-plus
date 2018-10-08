@@ -35,7 +35,7 @@ class CachedCourseMenu(CachedAbstract):
                 'label': menu.label,
                 'icon_class': menu.icon_class,
                 'url': url,
-                'blank': menu.is_lti_service() or url.startswith("http://"),
+                'blank': bool(menu.service),
             }
 
             group = menu.menu_group_label
