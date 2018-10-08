@@ -14,13 +14,13 @@ class LoginTest(unittest.TestCase):
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
         homePage = HomePage(self.driver, CourseName.APLUS)
         self.assertEqual(homePage.getCourseBanner(), 'aplus-001 My test course')
-        self.assertTrue(LoginPage.defaultUsername in homePage.getLoggedInText())
+        self.assertTrue(LoginPage.defaultFullname in homePage.getLoggedInText())
 
     def testLoginToExampleHookCourseInstance(self):
         LoginPage(self.driver).loginToCourse(CourseName.HOOK)
         homePage = HomePage(self.driver, CourseName.HOOK)
         self.assertEqual(homePage.getCourseBanner(), 'aplus-001 My test course')
-        self.assertTrue(LoginPage.defaultUsername in homePage.getLoggedInText())
+        self.assertTrue(LoginPage.defaultFullname in homePage.getLoggedInText())
 
     def testShouldThrowTimeoutExceptionOnWrongCredentials(self):
         loginPage = LoginPage(self.driver)

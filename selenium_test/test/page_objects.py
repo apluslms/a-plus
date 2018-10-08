@@ -42,6 +42,10 @@ class AbstractPage(object):
         # The log command is not supported.
         #self.checkBrowserErrors()
 
+    def openDropdown(self, link, dest, timeout=None):
+        self.getElement(link).click()
+        self.waitForVisibleElement(dest)
+
     def clickThrough(self, element, timeout=None):
         try:
             self.clickThroughElement(self.getElement(element), timeout)
@@ -125,7 +129,8 @@ class AbstractPage(object):
 
 
 class LoginPage(AbstractPage):
-    defaultUsername = "jenkins"
+    defaultFullname = "Default User"
+    defaultUsername = "user"
     defaultPassword = "admin"
     studentUsername = "student_user"
     assistantUsername = "assistant_user"
@@ -175,6 +180,7 @@ class BasePage(AbstractPage):
         self.waitForElement(BasePageLocators.FOOTER)
 
     def logout(self):
+        self.openDropdown(BasePageLocators.LOGGED_USER_LINK, BasePageLocators.LOGOUT_LINK)
         self.clickThrough(BasePageLocators.LOGOUT_LINK)
         self.waitForPage()
 
@@ -253,6 +259,10 @@ class ExercisePage(BasePage):
 
     def getMySubmissionsList(self):
         return self.getElements(ExercisePageLocators.MY_SUBMISSIONS_LIST)
+
+    def dismissWarning(self):
+        if self.isElementPresent(ExercisePageLocators.WARNING_DIALOG_BUTTON):
+            self.clickThrough(ExercisePageLocators.WARNING_DIALOG_BUTTON)
 
 
 class StaffPage(BasePage):

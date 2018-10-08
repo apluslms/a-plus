@@ -2,9 +2,11 @@ from django.contrib.auth.models import User
 from course.models import CourseInstance
 
 jenkins = User.objects.create(
-    username="jenkins",
+    username="user",
     is_staff=True,
     is_superuser=True,
+    first_name="Default",
+    last_name="User",
 )
 jenkins.set_password("admin")
 jenkins.save()
@@ -12,7 +14,7 @@ jenkins.save()
 teacher = User.objects.create(
     username="teacher_user",
     password="admin",
-    first_name="Admin",
+    first_name="Teacher",
     last_name="User",
 )
 teacher.set_password("admin")

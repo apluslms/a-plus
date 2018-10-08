@@ -19,8 +19,8 @@ class BasePageLocators(object):
     RESULTS_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-results')]/a")
     USER_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-notifications')]/a")
     TEACHERS_VIEW_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-edit-course')]/a")
-    LOGGED_USER_LINK = (By.XPATH, "//*[contains(@class, 'user-menu')]/li[contains(@class, 'menu-profile')]/a")
-    LOGOUT_LINK = (By.XPATH, "//*[contains(@class, 'user-menu')]/li/a[contains(@href, '/accounts/logout/')]")
+    LOGGED_USER_LINK = (By.XPATH, "//*[contains(@class, 'user-menu')]/*[contains(@class, 'profile-menu')]/a")
+    LOGOUT_LINK = (By.XPATH, "//*[contains(@class, 'user-menu')]//a[contains(@href, '/accounts/logout/')]")
     LOGOUT_BANNER = (By.XPATH, "//div[contains(@class, 'alert alert-success')]")
     WARNING_BANNER = (By.XPATH, "//div[contains(@class, 'alert alert-warning')]")
     NOTIFICATION_ALERT = (By.XPATH, "//*[contains(@class, 'menu-notification')]//span[contains(@class, 'badge-danger')]")
@@ -35,6 +35,7 @@ class ExercisePageLocators(object):
     ALLOWED_SUBMISSIONS = (By.XPATH, "//*[@id='exercise-info']//dl/dd[contains(@class, 'exercise-info-submissions')]")
     MY_SUBMISSIONS_LIST = (By.XPATH, "//li[contains(@class, 'menu-submission')]/ul[@class='dropdown-menu']/li")
     RECEIVED_BANNER = (By.XPATH, "//*[contains(@class, 'alert')]")
+    WARNING_DIALOG_BUTTON = (By.XPATH, "//*[contains(@class, 'exercise-warnings-overlay')]//button")
 
 class CourseArchiveLocators(object):
     APLUS_LINK = (By.XPATH, "//*[@id='course1']/ul/li/a[contains(@href, '/aplus1/basic_instance/')]")
@@ -89,13 +90,13 @@ class AssessmentPageLocators(object):
 
 class MyFirstExerciseLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My first exercise')]")
-    TEXT_INPUT = (By.XPATH, "//*[@id='exercise-page-content']/form//textarea")
-    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise-page-content']/form//input[@type='submit']")
+    TEXT_INPUT = (By.XPATH, "//*[@id='exercise-page-content']//form//textarea")
+    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise-page-content']//form//input[@type='submit']")
 
 class FileUploadGraderLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'File exercise')]")
     BROWSE_BUTTON = (By.XPATH, "//*[@id='myfile_id']")
-    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise-page-content']/form//input[@type='submit']")
+    SUBMIT_BUTTON = (By.XPATH, "//*[@id='exercise-page-content']//form//input[@type='submit']")
 
 class MyAjaxExerciseGraderLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My AJAX exercise')]")

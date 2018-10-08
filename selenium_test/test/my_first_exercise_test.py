@@ -58,6 +58,7 @@ class MyFirstExerciseTest(unittest.TestCase):
         i = 0
         while (i <= 4):
             exercisePage = MyFirstExerciseGrader(self.driver)
+            exercisePage.dismissWarning()
             exercisePage.submit()
             i += 1
 
