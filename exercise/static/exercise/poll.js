@@ -64,12 +64,12 @@
 
 		ready: function() {
 			//this.element.hide();
-			
+
 			// For active elements the element to which the poll plugin is attached remains the same, so to
-			// be able to submit the same form several times the plugin data needs to be removed when the 
+			// be able to submit the same form several times the plugin data needs to be removed when the
 			// evaluation and polling is finished.
 			if ($.data(this.element.context, "plugin_" + pluginName)) $.removeData(this.element.context, "plugin_" + pluginName);
-			 
+
 			var suburl = this.url.substr(0, this.url.length - "poll/".length);
 			if (this.callback) {
 				this.callback(suburl);
@@ -79,11 +79,10 @@
 	    },
 
 		message: function(messageType) {
-
 			this.element.removeClass("active").find(this.settings.message_selector)
 			.text(this.element.attr(this.settings.message_attr[messageType]));
-			if (this.element.attr(this.settings.active_element_attr)) {
-				var message = "There was an error while evaluating the element."
+			if (this.element.attr('data-aplus-active-element')) {
+				var message = "There was an error while evaluating the element.";
 				if (messageType == "timeout") {
 					message = "Evaluation was timed out.";
 				}
@@ -94,21 +93,20 @@
 				}
 			} else if (messageType == "error") {
 				this.element.addClass("progress-bar-danger");
-			}			
+			}
 		},
-
 	});
 
 	$.fn[pluginName] = function(callback, options) {
 		return this.each(function() {
 			if (!$.data(this, "plugin_" + pluginName)) { // This apparently blocks re-polling for a same exercise multiple times
 				$.data(this, "plugin_" + pluginName, new AplusExercisePoll(this, callback, options));
-			} 
+			}
 		});
 	};
 
   $.aplusExerciseDetectWaits = function(callback, selector) {
-    selector = selector || ".exercise-wait"
+    selector = selector || ".exercise-wait";
     $(selector).aplusExercisePoll(callback);
   };
 

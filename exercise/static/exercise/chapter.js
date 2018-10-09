@@ -123,7 +123,7 @@
 			}
 			this.modalContent(content);
 		},
-		
+
 		renderMath: function() {
 			if (typeof window.MathJax === "undefined") {
 				return;
@@ -252,7 +252,7 @@
 			label.html(title);
 
 			var form_field;
-			if (!type) {
+			if (!type || type === "clickable") {
 				form_field = $("<textarea>");
 				form_field.val(def_val);
 			} else if (type === "file") {
@@ -435,7 +435,7 @@
 					// active elements don't use loadbar so the error message must be shown
 					// in the element container
 					var feedback = $("<div>");
-					feedback.attr('id', 'feedback');			
+					feedback.attr('id', 'feedback');
 					feedback.append(exercise.chapter.messages.error);
 					exercise.updateOutput(feedback);
 				}
@@ -457,6 +457,7 @@
 			$.each(inputs, function(i, id) {
 				var input_val;
 				var input_elem = $.find("#" + id);
+				var input_field = $("#" + id + "_input_id");
 
 				// Input can be also an output element, in which case the content must be
 				// retrieved differently
@@ -473,17 +474,18 @@
 					input_val = $(input_elem).find(".ae_result").text().trim();
 
 				} else if ($(input_elem).data("type") === "file") {
-					input_val = $("#" + id + "_input_id").get(0).files[0];
+					input_val = input_field.get(0).files[0];
 
 				} else if (id !== input_id) {
+					input_val = input_field.val();
 					// Because changing an input value without submitting said input is possible,
-					// use the latest input value that has been submitted before for other inputs
-					// than the one being submitted now.
-					input_val = $(input_elem).data("value");
+					// use the latest input value that has been submitted before, if there is one,
+					// for other inputs than the one being submitted now.
+					if ($(input_elem).data("value")) input_val = $(input_elem).data("value");
 					// Update the input box back to the value used in evaluation
-					$("#" + id + "_input_id").val(input_val);
+					input_field.val(input_val);
 				} else {
-					input_val = $("#" + id + "_input_id").val();
+					input_val = input_field.val();
 					// Update the saved value data
 					$(input_elem).data("value", input_val);
 				}
@@ -528,7 +530,6 @@
 					var url = exercise.url;
 					exercise.submitAjax(url, formData, function(data) {
 						var content = $(data);
-
 						if (! content.find('.alert-danger').length) {
 							var poll_url = content.find(".exercise-wait").attr("data-poll-url");
 							output.attr('data-poll-url', poll_url);
@@ -680,7 +681,7 @@
 					// Store the value of the input to be used later for submitting active
 					// element evaluation requests
 					$($.find("#" + input_id)).data("value", input_data);
-					$("#" +input_id + "_input_id").val(input_data);
+					$("#" +input_id + "_input_id").val(input_data).trigger('change');
 				}
 			});
 		},
@@ -730,7 +731,7 @@
 								// Update the input values
 								exercise.updateInputs(data);
 							}
-							
+
 							exercise.renderMath();
 						});
 				} else {
@@ -754,7 +755,7 @@
 		hideLoader: function() {
 			this.loader.hide();
 		},
-		
+
 		renderMath: function() {
 			if (typeof window.MathJax === "undefined") {
 				return;
