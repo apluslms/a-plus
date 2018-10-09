@@ -29,7 +29,7 @@ def install_defer_logger():
     logger = logging.getLogger('django.db.deferred')
     orig_get = DeferredAttribute.__get__
 
-    logger.warning(" ------ Installing deferred logger ------ ")
+    logger.warning("Installing logger for deferred model fields...")
 
     def get(self, instance, cls=None):
         if instance is None:
