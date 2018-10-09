@@ -7,6 +7,7 @@ from notification.models import Notification
 from ..models import LearningObject, Submission
 from .hierarchy import ContentMixin
 
+
 class CachedPoints(ContentMixin, CachedAbstract):
     KEY_PREFIX = 'points'
 
@@ -67,11 +68,13 @@ class CachedPoints(ContentMixin, CachedAbstract):
 
         # Augment submission data.
         if user.is_authenticated():
-            for submission in user.userprofile.submissions\
-                  .exclude_errors()\
-                  .defer('feedback')\
-                  .filter(exercise__course_module__course_instance=instance):
-                  #.prefetch_related("notifications"): breaks things
+            submissions = (
+                user.userprofile.submissions.exclude_errors()
+                .filter(exercise__course_module__course_instance=instance)
+                .prefetch_related('exercise')
+                .only('id', 'exercise', 'submission_time', 'status', 'grade')
+            )
+            for submission in submissions:
                 try:
                     tree = self._by_idx(modules, exercise_index[submission.exercise.id])
                 except KeyError:
