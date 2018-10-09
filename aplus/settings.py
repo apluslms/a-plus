@@ -306,6 +306,7 @@ LOGGING = {
       'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s',
       'colors': {
         'django.db.backends': {'fg': 'cyan'},
+        'django.db.deferred': {'fg': 'yellow'},
         'cached': {'fg': 'red'},
       },
     },
@@ -409,6 +410,10 @@ if 'social_django' in INSTALLED_APPS:
     AUTHENTICATION_BACKENDS += ('social_core.backends.google.GoogleOAuth2',)
 
 
+
 if DEBUG:
     # Allow basic auth for API when DEBUG is on
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
+    # Enable defer logging
+    from lib.models import install_defer_logger
+    install_defer_logger()
