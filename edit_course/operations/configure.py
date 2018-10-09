@@ -109,7 +109,23 @@ def configure_learning_objects(category_map, module, config, parent,
 
         if lobject_cls == LTIExercise:
             lti = LTIService.objects.filter(menu_label=str(o["lti"])).first()
-            if not lti is None:
+            if lti is None:
+                errors.append(
+                    _("The site has no configuration for the LTI service '{lti_label}' "
+                    "used by the LTI exercise '{exercise_key}'. You may have misspelled "
+                    "the value for the field 'lti' or the site administrator has not yet "
+                    "added the configuration for the LTI service. The exercise was not "
+                    "created/updated due to the error.")
+                    .format(lti_label=str(o["lti"]), exercise_key=str(o["key"]))
+                )
+                if hasattr(lobject, 'id'):
+                    # Avoid deleting LTI exercises from A+ since the LTI parameters
+                    # may have been used with an external tool.
+                    seen.append(lobject.id)
+                # The learning object can not be saved without an LTI service
+                # since the foreign key is required.
+                continue
+            else:
                 lobject.lti_service = lti
             for key in [
                 "context_id",

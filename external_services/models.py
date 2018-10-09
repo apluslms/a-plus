@@ -83,11 +83,17 @@ class LinkService(ModelWithInheritance):
         return False
 
     def get_url(self, replace=None, kwargs={}):
+        '''Return the URL to the launch page of this service.'''
         if self.destination_region > self.DESTINATION_REGION.INTERNAL:
             return reverse('external-service-link', kwargs=kwargs)
         return self.get_final_url(replace)
 
     def get_final_url(self, replace=None):
+        '''Return the launch URL for this service.
+
+        The optional replace parameter may be a relative URL that is joined to
+        the URL path of this service. The relative URL must not include a domain.
+        '''
         url = self.url
         if replace:
             assert '://' not in replace and not replace.startswith('//'), "Replace can't include domain"
