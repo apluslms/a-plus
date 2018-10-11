@@ -85,7 +85,7 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
             time.sleep(settings.EXERCISE_HTTP_RETRIES[n])
             n += 1
         logger.error("HTTP request loop ended in unexpected state")
-        assert False
+        raise RuntimeError("HTTP request loop ended in unexpected state")
     except requests.exceptions.RequestException as e:
         if e.response and e.response.status_code == 404:
             raise RemotePageNotFound(_("The requested resource was not found from the course service!"))
