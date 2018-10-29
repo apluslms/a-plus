@@ -7,7 +7,7 @@ aplus/local_settings.py
 aplus/secret_key.py
 .svn
 .DS_Store
-locales/*.mo
+*.mo
 
 .idea
 .settings
