@@ -78,7 +78,7 @@ class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
 
 
 class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
-    access_mode = ACCESS.TEACHER
+    access_mode = ACCESS.GRADING
 
     def post(self, request, *args, **kwargs):
         deviation,_ = MaxSubmissionsRuleDeviation.objects.get_or_create(
