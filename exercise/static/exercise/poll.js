@@ -41,6 +41,7 @@
 			$.ajax(this.url, {dataType: "html"})
 				.fail(function() {
 					poller.message("error");
+					poller.ready(true);
 				})
 				.done(function(data) {
 					poller.count++;
@@ -51,6 +52,7 @@
 							poller.schedule();
 						} else {
 							poller.message("timeout");
+							poller.ready(true);
 						}
 					}
 				});
@@ -62,7 +64,8 @@
 				this.settings.poll_delays[this.count] * 1000);
 		},
 
-		ready: function() {
+		ready: function(error) {
+			// If there were no errors, the error parameter is undefined.
 			//this.element.hide();
 
 			// For active elements the element to which the poll plugin is attached remains the same, so to
@@ -72,7 +75,7 @@
 
 			var suburl = this.url.substr(0, this.url.length - "poll/".length);
 			if (this.callback) {
-				this.callback(suburl);
+				this.callback(suburl, error);
 			} else {
 				window.location = suburl;
 			}
