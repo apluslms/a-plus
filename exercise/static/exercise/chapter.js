@@ -851,6 +851,15 @@
 			.prop('disabled', false)
 			.removeAttr('data-aplus-submit-disabled');
 	});
+	$(document).on('hidden.bs.modal', function(e) {
+		// If the user closes the feedback modal while it is polling for
+		// the grading of the submission, the submit button remains disabled.
+		// The modal hidden event does not specify which exercise is open in
+		// the modal, so we can only enable all disabled buttons in the page.
+		$('[data-aplus-submit-disabled]')
+			.prop('disabled', false)
+			.removeAttr('data-aplus-submit-disabled');
+	});
 })(jQuery);
 
 // Construct the page chapter element.
