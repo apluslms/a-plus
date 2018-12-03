@@ -5,9 +5,10 @@ from exercise.models import LearningObject, CourseChapter, \
     BaseExercise, LTIExercise, StaticExercise, ExerciseWithAttachment
 from course.models import LearningObjectCategory, CourseModule
 from .exercise_forms import CourseChapterForm, BaseExerciseForm, \
-    LTIExerciseForm, ExerciseWithAttachmentForm, StaticExerciseForm
+    LTIExerciseForm, ExerciseWithAttachmentForm, StaticExerciseForm, \
+    ExerciseCollectionExerciseForm
 from .course_forms import LearningObjectCategoryForm, CourseModuleForm
-
+from exercise.exercisecollection_models import ExerciseCollection
 
 class ModelManager(object):
     object_class = None
@@ -98,6 +99,8 @@ class ExerciseManager(ModelManager):
             LTIExercise: LTIExerciseForm,
             StaticExercise: StaticExerciseForm,
             ExerciseWithAttachment: ExerciseWithAttachmentForm,
+            ExerciseCollection: ExerciseCollectionExerciseForm,
+
         }
         if obj.__class__ not in FORMS:
             raise TypeError("No form known for the object type: %s",

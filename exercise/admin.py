@@ -75,6 +75,16 @@ class SubmissionAdmin(admin.ModelAdmin):
             .prefetch_related('submitters')
 
 
+
+from exercise.exercisecollection_models import ExerciseCollection
+admin.site.register(ExerciseCollection)
+class ExerciseCollectionExerciseAdmin(admin.ModelAdmin):
+    list_display_links = ["__str__"]
+    list_display = ["course_instance", "__str__", "max_points", "target_category"]
+    list_filter = ["course_module___course_instance", "course_module"]
+    fields = ["target_category", "max_points"]
+
+
 admin.site.register(CourseChapter, CourseChapterAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(StaticExercise)

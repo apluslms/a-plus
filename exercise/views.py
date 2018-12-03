@@ -19,6 +19,10 @@ from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, ExerciseModelBaseView, ExerciseTemplateBaseView
 
+from .exercisecollection_models import ExerciseCollection
+from .exercise_summary import UserExerciseSummary
+from django.urls import reverse
+
 
 class TableOfContentsView(CourseInstanceBaseView):
     template_name = "exercise/toc.html"
@@ -59,11 +63,14 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         return access_mode
 
     def get(self, request, *args, **kwargs):
+        exercisecollection = None
+        exercisecollection_title = None
         submission_allowed = False
         disable_submit = False
         should_enroll = False
         issues = []
         students = [self.profile]
+
         if self.exercise.is_submittable:
             SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
             submission_status, submission_allowed, issues, students = self.submission_check()
@@ -98,6 +105,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         if self.profile:
             LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
 
+        if isinstance(self.exercise, ExerciseCollection):
+            exercisecollection, exercisecollection_title = self.__load_exercisecollection(request)
+
         return super().get(request,
                            *args,
                            page=page,
@@ -106,6 +116,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                            disable_submit=disable_submit,
                            should_enroll=should_enroll,
                            issues=issues,
+                           exercisecollection=exercisecollection,
+                           exercisecollection_title=exercisecollection_title,
                            **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -167,6 +179,46 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             submission_status == self.exercise.SUBMIT_STATUS.ALLOWED
         )
         return submission_status, submission_allowed, issues, students
+
+
+    def __load_exercisecollection(self, request):
+        user = self.profile.user
+
+        if user.is_authenticated():
+            self.exercise.check_submission(user, no_update=True)
+
+        target_exercises = []
+        for t_exercise in self.exercise.exercises:
+            it = t_exercise.parent
+            ex_url = it.url
+            it = it.parent
+            while it is not None:
+                ex_url = it.url + '/' + ex_url
+                it = it.parent
+
+            ex_name = t_exercise.name
+            for candidate in t_exercise.name.split('|'):
+                if request.LANGUAGE_CODE in candidate:
+                    ex_name = candidate[len('{}:'.format(request.LANGUAGE_CODE)):]
+
+            data = {"exercise": t_exercise,
+                    "url": reverse("exercise", kwargs={
+                        "course_slug": t_exercise.course_module.course_instance.course.url,
+                        "instance_slug": t_exercise.course_module.course_instance.url,
+                        "module_slug": t_exercise.course_module.url,
+                        "exercise_path": ex_url,
+                    }),
+                    "title": ex_name,
+                    "max_points": t_exercise.max_points,
+                    "user_points": UserExerciseSummary(t_exercise, request.user).get_points(),
+                    }
+            target_exercises.append(data)
+
+        title = "{}: {} - {}".format(t_exercise.course_module.course_instance.course.name,
+                                     t_exercise.course_module.course_instance.instance_name,
+                                     t_exercise.category.name)
+
+        return target_exercises, title
 
 
 class ExercisePlainView(ExerciseView):
