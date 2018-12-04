@@ -1,0 +1,24 @@
+{% load i18n %}
+{% block exercisecontent %}
+
+    {# Content goes here #}
+    <h3 class="ec-title">{{ exercisecollection_title }}:</h3>
+    <ul style="list-style-type: disc">
+    {% for exercise_data in exercisecollection %}
+        <li class="ec-list">
+            <a href={{ exercise_data.url }} >
+                {{ exercise_data.title }}
+            </a>
+            <ul style="list-style-type: none">
+                <li>
+                    <p style="font-weight: bold;font-style: italic">
+                    {% trans "Current score" %}: {{ exercise_data.user_points }}
+                    / {{ exercise_data.max_points }}
+                    </p>
+                </li>
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}

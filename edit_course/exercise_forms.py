@@ -8,6 +8,7 @@ from exercise.models import LearningObject, CourseChapter, BaseExercise, \
     LTIExercise, StaticExercise, ExerciseWithAttachment
 from .course_forms import FieldsetModelForm
 
+from exercise.exercisecollection_models import ExerciseCollection
 
 logger = logging.getLogger("aplus.exercise")
 
@@ -163,3 +164,13 @@ class StaticExerciseForm(BaseExerciseForm):
     def get_content_fieldset(self, *add):
         return super().get_content_fieldset(
             'exercise_page_content', 'submission_page_content')
+
+class ExerciseCollectionExerciseForm(BaseExerciseForm):
+
+    class Meta:
+        model = ExerciseCollection
+        fields = COMMON_FIELDS + EXERCISE_FIELDS + SERVICE_FIELDS + \
+                 ['target_category']
+
+    def get_content_fieldset(self, *add):
+        return super().get_content_fieldset('target_category')

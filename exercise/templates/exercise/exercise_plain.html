@@ -44,7 +44,10 @@
                     {% include 'exercise/_warnings_overlay.html' %}
                 {% endif %}
 
-                {% if exercise.is_submittable %}
+                {% if exercisecollection %}
+                    {% include 'exercise/_exercisecollection.html' %}
+
+                {% elif exercise.is_submittable %}
                     <nav class="exercise-summary navbar navbar-default">
                         <ul class="nav navbar-nav exercise-nav">
                             <li>
