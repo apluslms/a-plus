@@ -86,7 +86,7 @@ class AssessmentPageLocators(object):
     POINTS_INPUT = (By.XPATH, "//*[@id='id_points']")
     ASSISTANT_FEEDBACK_INPUT = (By.XPATH, "//*[@id='id_assistant_feedback']")
     FEEDBACK_INPUT = (By.XPATH, "//*[@id='id_feedback']")
-    SAVE_BUTTON = (By.XPATH, "//form//*[@type='submit']")
+    SAVE_BUTTON = (By.XPATH, "//div[contains(@class, 'assistant-feedback')]//*[@type='submit']")
 
 class MyFirstExerciseLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My first exercise')]")
