@@ -13,6 +13,7 @@ from exercise.exercisecollection_models import ExerciseCollection
 from course.models import CourseInstance
 from course.models import Course
 from django.core.exceptions import ObjectDoesNotExist
+from aplus import settings
 
 
 def parse_date(value, errors):
@@ -101,7 +102,7 @@ def configure_learning_objects(category_map, module, config, parent,
         # Select exercise class.
         lobject_cls = (
             LTIExercise if "lti" in o
-            else ExerciseCollection if "collection_course" in o
+            else ExerciseCollection if "collection_category" in o
             else BaseExercise if "max_submissions" in o
             else CourseChapter
         )
@@ -178,8 +179,12 @@ def configure_learning_objects(category_map, module, config, parent,
         lobject.parent = parent
 
         if lobject_cls == ExerciseCollection:
-            target_category, error_msg = get_target_category(o["collection_course"],
-                                                             o["collection_category"])
+            if 'collection_course' in o and not o['collection_course'] is None:
+                target_category, error_msg = get_target_category(o["collection_category"],
+                                                                 course=o["collection_course"],)
+            else:
+                target_category, error_msg = get_target_category(o["collection_category"],
+                                                                 course_url=o["collection_url"], )
             if error_msg:
                 errors.append("{} | {}".format(o["key"], error_msg))
                 continue
@@ -200,10 +205,10 @@ def configure_learning_objects(category_map, module, config, parent,
                 errors.append("ExerciseCollection can't have max_points <= 0")
                 continue
 
-            setattr(lobject, "target_category", target_category)
-            setattr(lobject, "min_group_size", 1)
-            setattr(lobject, "max_group_size", 1)
-            setattr(lobject, "max_submissions", 1)
+            lobject.target_category = target_category
+            lobject.min_group_size = 1
+            lobject.max_group_size = 1
+            lobject.max_submissions = 1
 
         if "order" in o:
             lobject.order = parse_int(o["order"], errors)
@@ -464,24 +469,49 @@ def configure_content(instance, url):
 
     return errors
 
-def get_target_category(course, category):
+def get_target_category(category, course=None, course_url=None):
+
+    course_name = None
+    instance_name = None
+
 
     if not category:
         return None, _("ExerciseCollection object requires collection_category.")
 
+    if (course or course_url) and not (course and course_url):
+        return None, _("ExerciseCollection object must have either identified or URL")
 
-    course_name, instance_name = course.split(";")
+    if course:
+        course_name, instance_name = course.split(";")
 
-    try:
-        Course.objects.get(name=course_name)
-    except:
-        return None, _('Course: {} does not exist'.format(course_name))
+        try:
+            Course.objects.get(name=course_name)
+        except:
+            return None, _('Course: {} does not exist'.format(course_name))
 
-    try:
-        course_instance = CourseInstance.objects.get(instance_name=instance_name,
-                                                     course__name=course_name)
-    except ObjectDoesNotExist:
-        return None, _("Course: {}, Instance: {}, not found.".format(course_name, instance_name))
+        try:
+            course_instance = CourseInstance.objects.get(instance_name=instance_name,
+                                                         course__name=course_name)
+        except ObjectDoesNotExist:
+            return None, _("Course: {}, Instance: {}, not found.".format(course_name, instance_name))
+
+    else:
+        course_slug_begin = 0
+        if not settings.BASE_URL in course_url:
+            return None, _('ExerciseColletion URL "{}" not in correct domain {}.'.format(course_url,settings.BASE_URL))
+
+        course_slug_begin = len(settings.BASE_URL)
+        instance_slug_begin = course_url.find('/', course_slug_begin) + 1
+        course_slug = course_url[course_slug_begin : instance_slug_begin - 1]
+        instance_slug = course_url[instance_slug_begin: course_url.find('/', instance_slug_begin)]
+        
+        try:
+            course_instance = CourseInstance.objects.get(url=instance_slug,
+                                                         course__url=course_slug)
+        except ObjectDoesNotExist:
+            return None, _('No course found with URL "{}"'.format(course_url))
+
+
     try:
         target_category = course_instance.categories.get(name=category)
     except ObjectDoesNotExist:
