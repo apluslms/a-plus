@@ -9,6 +9,11 @@ from external_services.models import LTIService
 from userprofile.models import UserProfile
 from lib.localization_syntax import format_localization
 
+from exercise.exercisecollection_models import ExerciseCollection
+from course.models import CourseInstance
+from course.models import Course
+from django.core.exceptions import ObjectDoesNotExist
+
 
 def parse_date(value, errors):
     for fmt in ['%Y-%m-%dT%H:%M:%SZ','%Y-%m-%dT%H:%M:%S','%Y-%m-%d %H:%M:%S',
@@ -96,6 +101,7 @@ def configure_learning_objects(category_map, module, config, parent,
         # Select exercise class.
         lobject_cls = (
             LTIExercise if "lti" in o
+            else ExerciseCollection if "collection_course" in o
             else BaseExercise if "max_submissions" in o
             else CourseChapter
         )
@@ -170,6 +176,34 @@ def configure_learning_objects(category_map, module, config, parent,
 
         lobject.category = category_map[o["category"]]
         lobject.parent = parent
+
+        if lobject_cls == ExerciseCollection:
+            target_category, error_msg = get_target_category(o["collection_course"],
+                                                             o["collection_category"])
+            if error_msg:
+                errors.append("{} | {}".format(o["key"], error_msg))
+                continue
+
+            if target_category.id == lobject.category.id:
+                errors.append("ExerciseCollection can't target its own category")
+                continue
+
+            for key in [
+                "min_group_size",
+                "max_group_size",
+                "max_submissions",
+            ]:
+                if key in o:
+                    errors.append("Can't define '{}' for ExerciseCollection".format(key))
+
+            if "max_points" in o and o["max_points"] <= 0:
+                errors.append("ExerciseCollection can't have max_points <= 0")
+                continue
+
+            setattr(lobject, "target_category", target_category)
+            setattr(lobject, "min_group_size", 1)
+            setattr(lobject, "max_group_size", 1)
+            setattr(lobject, "max_submissions", 1)
 
         if "order" in o:
             lobject.order = parse_int(o["order"], errors)
@@ -429,3 +463,29 @@ def configure_content(instance, url):
             category.delete()
 
     return errors
+
+def get_target_category(course, category):
+
+    if not category:
+        return None, _("ExerciseCollection object requires collection_category.")
+
+
+    course_name, instance_name = course.split(";")
+
+    try:
+        Course.objects.get(name=course_name)
+    except:
+        return None, _('Course: {} does not exist'.format(course_name))
+
+    try:
+        course_instance = CourseInstance.objects.get(instance_name=instance_name,
+                                                     course__name=course_name)
+    except ObjectDoesNotExist:
+        return None, _("Course: {}, Instance: {}, not found.".format(course_name, instance_name))
+    try:
+        target_category = course_instance.categories.get(name=category)
+    except ObjectDoesNotExist:
+        return None, _("Category: {}, not found in Course: {}, Instance: {}.".format(
+            category, course_name, instance_name))
+
+    return target_category, None
