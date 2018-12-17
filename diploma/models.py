@@ -34,6 +34,9 @@ class CourseDiplomaDesign(models.Model):
     exercises_to_pass = models.ManyToManyField(BaseExercise, blank=True)
     modules_to_pass = models.ManyToManyField(CourseModule, blank=True)
 
+    def __str__(self):
+        return "CourseDiplomaDesign {} for {}".format(self.pk, str(self.course))
+
 
 class StudentDiploma(UrlMixin, models.Model):
     design = models.ForeignKey(CourseDiplomaDesign, on_delete=models.CASCADE)
