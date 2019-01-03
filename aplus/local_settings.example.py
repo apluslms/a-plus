@@ -5,6 +5,8 @@
 #    ('Your Name', 'your_email@domain.com'),
 #)
 #SERVER_EMAIL = 'your_email@domain.com'
+#SITEWIDE_ALERT_TEXT = "Maintenance on Monday"
+#SITEWIDE_ALERT_TEXT = {'en': "Maintenance on Monday", 'fi': "Maanantaina on palvelukatko"}
 
 ## Database
 #DATABASES = {
