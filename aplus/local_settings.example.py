@@ -8,6 +8,12 @@
 #SITEWIDE_ALERT_TEXT = "Maintenance on Monday"
 #SITEWIDE_ALERT_TEXT = {'en': "Maintenance on Monday", 'fi': "Maanantaina on palvelukatko"}
 
+## Authentication backends
+#INSTALLED_APPS += (
+#    'shibboleth_login',
+#    'social_django',
+#)
+
 ## Database
 #DATABASES = {
 #    'default': {

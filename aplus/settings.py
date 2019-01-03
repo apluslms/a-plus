@@ -118,10 +118,10 @@ INSTALLED_APPS = (
 
 # Different login options (may override in local_settings.py)
 ##########################################################################
-INSTALLED_LOGIN_APPS = (
-    'shibboleth_login',
-    #'social_django',
-)
+
+## Shibboleth
+
+#INSTALLED_APPS += ('shibboleth_login',)
 
 # Apache module mod_uwsgi was unable to create UTF-8 environment variables.
 # Problem was avoided by URL encoding in Shibboleth:
@@ -137,11 +137,15 @@ SHIBBOLETH_VARIABLES_URL_ENCODED = True
 #SHIB_MAIL_KEY = 'SHIB_mail'
 #SHIB_STUDENT_ID_KEY = 'SHIB_schacPersonalUniqueCode'
 
-# Google OAuth2 settings
+
+## Google OAuth2 settings
+
+#INSTALLED_APPS += ('social_django',)
 #SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 #SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+
 ##########################################################################
 
 MIDDLEWARE_CLASSES = (
@@ -393,7 +397,8 @@ except NameError as e:
     raise RuntimeError('BASE_URL must be specified in local settings') from e
 
 # update INSTALLED_APPS
-INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
+if 'INSTALLED_LOGIN_APPS' in globals():
+    INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
 
 # update template loaders for production
 use_cache_template_loader_in_production(__name__)
