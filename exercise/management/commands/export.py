@@ -10,6 +10,9 @@ class Command(BaseCommand):
     args = 'exercise/exercises/category/course/json/views/results id(s)'
     help = 'Exports submission data.'
 
+    def add_arguments(self, parser):
+        parser.add_argument('args', nargs='*')
+
     def handle(self, *args, **options):
         if len(args) < 2:
             raise CommandError('Missing arguments: ' + self.args)
