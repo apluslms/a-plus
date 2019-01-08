@@ -778,7 +778,7 @@ class LTIExercise(BaseExercise):
         url = super().get_load_url(language, request, students, url_name)
         if self.lti_service and students:
             lti = self._get_lti(students[0].user, [], request)
-            return lti.sign_get_query(url)
+            return lti.sign_get_query(self.lti_service.get_final_url(url))
         return url
 
     def modify_post_parameters(self, data, files, user, students, request, url):

@@ -145,8 +145,11 @@ class LTIRequest(object):
             client_secret=self.service.consumer_secret,
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_QUERY)
-        uri = update_url_params(url or self.service.service.url, self.parameters)
-        query, headers, body = client.sign(uri, http_method="GET")
+        uri = update_url_params(url or self.service.url, self.parameters)
+        try:
+            query, headers, body = client.sign(uri, http_method="GET")
+        except ValueError as e:
+            raise ValueError("Invalid url %r for %r: %s" % (uri, self.service, e))
         return query
 
 
