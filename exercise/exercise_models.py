@@ -769,6 +769,12 @@ class LTIExercise(BaseExercise):
         lti = self._get_lti(user, students, request, add=literals)
         data.update(lti.sign_post_parameters(url))
     
+    def _build_service_url(self, *args, **kwargs):
+        url = super()._build_service_url(*args, **kwargs)
+        if url and url.startswith('//') or '://' in url:
+            return url
+        return self.lti_service.get_final_url(url)
+
     @property
     def can_regrade(self):
         # the LTI protocol does not support regrading in the A+ way
