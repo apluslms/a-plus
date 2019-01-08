@@ -134,7 +134,7 @@ class LTIRequest(object):
             client_secret=self.service.consumer_secret,
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_BODY)
-        uri, headers, body = client.sign(url or self.service.url,
+        uri, headers, body = client.sign(self._get_url(url),
             http_method="POST",
             body=self.parameters,
             headers={"Content-Type": "application/x-www-form-urlencoded"})
@@ -145,12 +145,17 @@ class LTIRequest(object):
             client_secret=self.service.consumer_secret,
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_QUERY)
-        uri = update_url_params(url or self.service.url, self.parameters)
+        uri = update_url_params(self._get_url(url), self.parameters)
         try:
             query, headers, body = client.sign(uri, http_method="GET")
         except ValueError as e:
             raise ValueError("Invalid url %r for %r: %s" % (uri, self.service, e))
         return query
+
+    def _get_url(self, url=None):
+        if url and url.startswith('//') or '://' in url:
+            return url
+        return self.service.get_final_url(url)
 
 
 class CustomStudentInfoLTIRequest(LTIRequest):
