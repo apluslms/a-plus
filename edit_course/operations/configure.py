@@ -311,6 +311,9 @@ def configure_content(instance, url):
             instance.language = str(langs)[:5]
     if "contact" in config:
         instance.technical_error_emails = str(config["contact"])
+    if "head_urls" in config:
+        head_urls = config["head_urls"]
+        instance.head_urls = "\n".join(head_urls) if isinstance(head_urls, list) else str(head_urls)
     if "assistants" in config:
         if not isinstance(config["assistants"], list):
             errors.append(_("Assistants must be given as a student ID array."))
