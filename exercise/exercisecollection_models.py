@@ -5,6 +5,8 @@ from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from django.core.exceptions import ValidationError
+
 from exercise.exercise_summary import UserExerciseSummary
 from .exercise_models import BaseExercise, LearningObject
 from .submission_models import Submission
@@ -27,17 +29,20 @@ class ExerciseCollection(BaseExercise):
 
     # Clearing possible sources for erronous functionality
     def clean(self):
-        self.max_submissions = 1
-        self.min_group_size = 1
-        self.max_group_size = 1
-        if self.target_category.id == self.category.id:
-            self.target_category = None
-
-        if self.max_points <= 0:
-            self.max_points = 100
-        self.save()
         super().clean()
+        errors = {}
+        if self.target_category.id == self.category.id:
+            errors['target_category'] = 'Cannot set own category as target category.'
 
+        if self.max_submissions != 1:
+            errors['max_submissions'] = 'Exercise Collection can have only 1 submission.'
+        if self.max_group_size != 1:
+            errors['max_group_size'] = 'Exercise Collection can have only 1 submitter'
+        if self.min_group_size != 1:
+            errors['min_group_size'] = 'Exercise Collection can have only 1 submitter'
+
+        if errors:
+            raise ValidationError(errors)
 
     # Allows viewing of submissions
     # Not actually user submittable
@@ -160,7 +165,7 @@ class ExerciseCollection(BaseExercise):
     def exercises(self):
         return BaseExercise.objects.filter(
             category=self.target_category
-        )
+        ).order_by('id')
 
 
     # Generates feedback and grading_data

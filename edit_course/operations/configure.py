@@ -13,7 +13,9 @@ from exercise.exercisecollection_models import ExerciseCollection
 from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from django.core.exceptions import ObjectDoesNotExist
 from aplus import settings
+from urllib.parse import urlparse
 
+from lib.remote_page import format_lazy
 
 def parse_date(value, errors):
     for fmt in ['%Y-%m-%dT%H:%M:%SZ','%Y-%m-%dT%H:%M:%S','%Y-%m-%d %H:%M:%S',
@@ -559,17 +561,18 @@ def configure_content(instance, url):
 
     return errors
 
+
 def get_target_category(category, course=None, course_url=None):
 
     course_name = None
     instance_name = None
 
-
     if not category:
         return None, _("ExerciseCollection object requires collection_category.")
 
-    if (course or course_url) and not (course and course_url):
-        return None, _("ExerciseCollection object must have either identified or URL")
+    if not( (course or course_url) and not (course and course_url) ):
+        return None, _("ExerciseCollection object must identify \
+            course and instance EOR provide URL")
 
     if course:
         course_name, instance_name = course.split(";")
@@ -577,35 +580,42 @@ def get_target_category(category, course=None, course_url=None):
         try:
             Course.objects.get(name=course_name)
         except:
-            return None, _('Course: {} does not exist'.format(course_name))
+            return None, format_lazy(_('Course: {} does not exist'), course_name)
 
         try:
             course_instance = CourseInstance.objects.get(instance_name=instance_name,
                                                          course__name=course_name)
         except ObjectDoesNotExist:
-            return None, _("Course: {}, Instance: {}, not found.".format(course_name, instance_name))
+            return None, format_lazy(_("Course: {}, Instance: {}, not found."
+                ), course_name, instance_name)
 
     else:
-        course_slug_begin = 0
-        if not settings.BASE_URL in course_url:
-            return None, _('ExerciseColletion URL "{}" not in correct domain {}.'.format(course_url,settings.BASE_URL))
+        parsed_url = urlparse(course_url)
+        service_hostname = urlparse(settings.BASE_URL).hostname
 
-        course_slug_begin = len(settings.BASE_URL)
-        instance_slug_begin = course_url.find('/', course_slug_begin) + 1
-        course_slug = course_url[course_slug_begin : instance_slug_begin - 1]
-        instance_slug = course_url[instance_slug_begin: course_url.find('/', instance_slug_begin)]
+        if parsed_url.hostname != service_hostname:
+            return None, format_lazy(_("Course URL '{}' doesn't match \
+                service's hostname '{}'"), course_url, service_hostname)
+
+        try:
+            course_slug, instance_slug = parsed_url.path.split('/')[1:3]
+        except ValueError:
+            return None, format_lazy(_("Couldn't determine course and/or \
+                instance from URL '{}'"), course_url)
 
         try:
             course_instance = CourseInstance.objects.get(url=instance_slug,
                                                          course__url=course_slug)
         except ObjectDoesNotExist:
-            return None, _('No course found with URL "{}"'.format(course_url))
+            return None, format_lazy(_("No course found with URL '{}'.  \
+                course_slug: '{}', \
+                instance_slug: '{}'"), course_url, course_slug, instance_slug)
 
 
     try:
         target_category = course_instance.categories.get(name=category)
     except ObjectDoesNotExist:
-        return None, _("Category: {}, not found in Course: {}, Instance: {}.".format(
-            category, course_name, instance_name))
+        return None, format_lazy(_("Category: {}, not found in \
+            Course: {}, Instance: {}."), category, course_name, instance_name)
 
     return target_category, None
