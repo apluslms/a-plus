@@ -26,7 +26,8 @@ class GraderAuthentication(BaseAuthentication):
         user = self.authenticate_credentials(token)
 
         # Make sure that remote address matches service address
-        service_url = user._exercise.service_url
+        # TODO: we do not know the language, but we expect that all versions of service_url are within the same domain
+        service_url = user._exercise.as_leaf_class().get_service_url('en')
         ips = get_url_ip_address_list(service_url)
         ip = get_remote_addr(request)
         if ip not in ips and ip != '127.0.0.1':

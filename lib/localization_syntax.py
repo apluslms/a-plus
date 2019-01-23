@@ -17,12 +17,15 @@ def pick_localized(entry, lang):
     |lang:value|lang:value| -format text.
     """
     text = entry if isinstance(entry, str) else str(entry)
-    if "|" in text:
-        variants = text.split("|")
-        exercise_number = variants[0] # Leading numbers or an empty string
+    variants = text.split('|')
+    if len(variants) > 2:
+        prefix = variants[0]
+        suffix = variants[-1]
+        variants = variants[1:-1]
         for variant in variants:
             if variant.startswith(lang + ":"):
-                return exercise_number + variant[(len(lang)+1):]
-        return exercise_number
-    else:
-        return text
+                return prefix + variant[(len(lang)+1):] + suffix
+        for variant in variants:
+            if ':' in variant:
+                return prefix + variant.split(':', 1)[1] + suffix
+    return text
