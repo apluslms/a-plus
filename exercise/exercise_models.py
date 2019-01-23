@@ -262,8 +262,11 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             self
         )
 
+    def get_service_url(self, language):
+        return pick_localized(self.service_url, language)
+
     def get_load_url(self, language, request, students, url_name="exercise"):
-        return update_url_params(pick_localized(self.service_url, language), {
+        return update_url_params(self.get_service_url(language), {
             'lang': language,
         })
 
@@ -709,7 +712,7 @@ class BaseExercise(LearningObject):
             if settings.OVERRIDE_SUBMISSION_HOST
             else request.build_absolute_uri(submission_url)
         )
-        return update_url_params(pick_localized(self.service_url, language), {
+        return update_url_params(self.get_service_url(language), {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
             "submission_url": auri,
@@ -795,7 +798,8 @@ class LTIExercise(BaseExercise):
         if not students:
             return ExercisePage(self)
 
-        url = self.lti_service.get_final_url(self.service_url)
+        language = get_language()
+        url = self.get_service_url(language)
         lti = self._get_lti(students[0].user, students, request)
 
         # Render launch button.
@@ -843,8 +847,8 @@ class LTIExercise(BaseExercise):
         lti = self._get_lti(user, students, request, add=literals)
         data.update(lti.sign_post_parameters(url))
 
-    def _build_service_url(self, *args, **kwargs):
-        url = super()._build_service_url(*args, **kwargs)
+    def get_service_url(self, language):
+        url = super().get_service_url(language)
         if url and url.startswith('//') or '://' in url:
             return url
         return self.lti_service.get_final_url(url)
