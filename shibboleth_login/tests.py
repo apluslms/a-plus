@@ -3,7 +3,7 @@ import urllib.parse
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, modify_settings
 from django.utils import timezone
 
 
@@ -26,7 +26,10 @@ DEF_SHIBD_META = {
     'SHIB_eppn': 'teekkarit@aalto.fi',
 }
 
-
+@modify_settings(
+    INSTALLED_APPS={'append': 'shibboleth_login'},
+    AUTHENTICATION_BACKENDS={'append': 'shibboleth_login.auth_backend.ShibbolethAuthBackend'},
+)
 class ShibbolethTest(TestCase):
 
     def setUp(self):
