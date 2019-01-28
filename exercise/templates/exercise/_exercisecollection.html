@@ -2,9 +2,9 @@
 {% block exercisecontent %}
 
     {# Content goes here #}
-    <h3 class="ec-title">{{ exercisecollection_title }}:</h3>
+    <h3 class="ec-title">{{ exercisecollection_data.title }}:</h3>
     <ul style="list-style-type: disc">
-    {% for exercise_data in exercisecollection %}
+    {% for exercise_data in exercisecollection_data.exercises %}
         <li class="ec-list">
             <a href={{ exercise_data.url }} >
                 {{ exercise_data.title }}
@@ -18,7 +18,16 @@
                 </li>
             </ul>
         </li>
-    {% endfor %}
+      {% endfor %}
     </ul>
+
+    <p style="font-weight: bold;font-style: italic">
+      {% trans "Total score" %}: {{exercisecollection_data.user_total_points}}
+      / {{exercisecollection_data.target_max_points}}
+    </p>
+    <p style="font-weight: bold;font-style: italic">
+      {% trans "Score on this course"%}: {{exercisecollection_data.ec_points}}
+      / {{exercisecollection_data.ec_max_points}}
+    </p>
 
 {% endblock %}

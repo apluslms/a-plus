@@ -112,7 +112,7 @@ class ExerciseCollection(BaseExercise):
             current_submission = Submission.objects.create(
             exercise=self,
             feedback="",
-            grade=0,
+            grade=-1,
             )
             current_submission.clean()
             current_submission.save()
@@ -122,9 +122,6 @@ class ExerciseCollection(BaseExercise):
 
 
         new_grade = self.get_points(user)
-
-        if new_grade is None:
-            return
 
         if new_grade == current_submission.grade and not forced:
             return
@@ -167,6 +164,9 @@ class ExerciseCollection(BaseExercise):
             category=self.target_category
         ).order_by('id')
 
+    # There are always submissions left from system's point of view
+    def one_has_submissions(self, students):
+        return True
 
     # Generates feedback and grading_data
     # Feedback is in HTML format
