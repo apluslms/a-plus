@@ -104,7 +104,7 @@ def configure_learning_objects(category_map, module, config, parent,
         # Select exercise class.
         lobject_cls = (
             LTIExercise if "lti" in o
-            else ExerciseCollection if "collection_category" in o
+            else ExerciseCollection if "target_category" in o
             else BaseExercise if "max_submissions" in o
             else CourseChapter
         )
@@ -181,18 +181,14 @@ def configure_learning_objects(category_map, module, config, parent,
         lobject.parent = parent
 
         if lobject_cls == ExerciseCollection:
-            if 'collection_course' in o and not o['collection_course'] is None:
-                target_category, error_msg = get_target_category(o["collection_category"],
-                                                                 course=o["collection_course"],)
-            else:
-                target_category, error_msg = get_target_category(o["collection_category"],
-                                                                 course_url=o["collection_url"], )
+            target_category, error_msg = get_target_category(o["target_category"],
+                                                             o["target_url"],)
             if error_msg:
                 errors.append("{} | {}".format(o["key"], error_msg))
                 continue
 
             if target_category.id == lobject.category.id:
-                errors.append("ExerciseCollection can't target its own category")
+                errors.append("{} | ExerciseCollection can't target its own category".format(o["key"]))
                 continue
 
             for key in [
@@ -206,6 +202,9 @@ def configure_learning_objects(category_map, module, config, parent,
             if "max_points" in o and o["max_points"] <= 0:
                 errors.append("ExerciseCollection can't have max_points <= 0")
                 continue
+
+            lobject.max_points = o['max_points']
+            lobject.points_to_pass = o['points_to_pass']
 
             lobject.target_category = target_category
             lobject.min_group_size = 1
@@ -474,62 +473,38 @@ def configure_content(instance, url):
 
     return errors
 
-def get_target_category(category, course=None, course_url=None):
-
-    course_name = None
-    instance_name = None
-
+def get_target_category(category, course_url):
 
     if not category:
-        return None, _("ExerciseCollection object requires collection_category.")
+        return None, _("ExerciseCollection requires collection_category.")
 
-    if not( (course or course_url) and not (course and course_url) ):
-        return None, _("ExerciseCollection object must identify \
-            course and instance EOR provide URL")
+    if not course_url:
+        return None, _("ExerciseCollection requires URL to target course instance.")
 
-    if course:
-        course_name, instance_name = course.split(";")
+    parsed_url = urlparse(course_url)
+    service_hostname = urlparse(settings.BASE_URL).hostname
 
-        try:
-            Course.objects.get(name=course_name)
-        except:
-            return None, format_lazy(_('Course: {} does not exist'), course_name)
+    if parsed_url.hostname != service_hostname:
+        return None, format_lazy(_("Course URL '{}' doesn't match \
+            service's hostname '{}'"), course_url, service_hostname)
 
-        try:
-            course_instance = CourseInstance.objects.get(instance_name=instance_name,
-                                                         course__name=course_name)
-        except ObjectDoesNotExist:
-            return None, format_lazy(_("Course: {}, Instance: {}, not found."
-                ), course_name, instance_name)
+    try:
+        course_slug, instance_slug = parsed_url.path.split('/')[1:3]
+    except ValueError:
+        return None, format_lazy(_("Couldn't determine course and/or \
+            instance from URL '{}'"), course_url)
 
-    else:
-
-        parsed_url = urlparse(course_url)
-        service_hostname = urlparse(settings.BASE_URL).hostname
-
-        if parsed_url.hostname != service_hostname:
-            return None, format_lazy(_("Course URL '{}' doesn't match \
-                service's hostname '{}'"), course_url, service_hostname)
-
-        try:
-            course_slug, instance_slug = parsed_url.path.split('/')[1:3]
-        except ValueError:
-            return None, format_lazy(_("Couldn't determine course and/or \
-                instance from URL '{}'"), course_url)
-
-        try:
-            course_instance = CourseInstance.objects.get(url=instance_slug,
-                                                         course__url=course_slug)
-        except ObjectDoesNotExist:
-            return None, format_lazy(_("No course found with URL '{}'.  \
-                course_slug: '{}', \
-                instance_slug: '{}'"), course_url, course_slug, instance_slug)
-
+    try:
+        course_instance = CourseInstance.objects.get(url=instance_slug,
+                                                     course__url=course_slug)
+    except ObjectDoesNotExist:
+        return None, format_lazy(_("No course found with URL '{}'.  \
+            course_slug: '{}', \
+            instance_slug: '{}'"), course_url, course_slug, instance_slug)
 
     try:
         target_category = course_instance.categories.get(name=category)
     except ObjectDoesNotExist:
-        return None, format_lazy(_("Category: {}, not found in \
-            Course: {}, Instance: {}."), category, course_name, instance_name)
+        return None, format_lazy(_("Category '{}' not found in target course."), category)
 
     return target_category, None
