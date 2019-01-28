@@ -63,8 +63,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         return access_mode
 
     def get(self, request, *args, **kwargs):
-        exercisecollection = None
-        exercisecollection_title = None
+        exercisecollection_data = None
         submission_allowed = False
         disable_submit = False
         should_enroll = False
@@ -106,7 +105,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
 
         if isinstance(self.exercise, ExerciseCollection):
-            exercisecollection, exercisecollection_title = self.__load_exercisecollection(request)
+            exercisecollection_data = self._load_exercisecollection(request, disable_submit)
 
         return super().get(request,
                            *args,
@@ -116,8 +115,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                            disable_submit=disable_submit,
                            should_enroll=should_enroll,
                            issues=issues,
-                           exercisecollection=exercisecollection,
-                           exercisecollection_title=exercisecollection_title,
+                           exercisecollection_data=exercisecollection_data,
                            **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -181,13 +179,15 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         return submission_status, submission_allowed, issues, students
 
 
-    def __load_exercisecollection(self, request):
+    def _load_exercisecollection(self, request, submission_disabled):
         user = self.profile.user
 
-        if user.is_authenticated():
+        if not submission_disabled:
             self.exercise.check_submission(user, no_update=True)
 
         target_exercises = []
+        target_mp = 0
+        user_tp = 0
         for t_exercise in self.exercise.exercises:
             it = t_exercise.parent
             ex_url = it.url
@@ -213,12 +213,23 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     "user_points": UserExerciseSummary(t_exercise, request.user).get_points(),
                     }
             target_exercises.append(data)
+            target_mp += data['max_points']
+            user_tp += data['user_points']
 
         title = "{}: {} - {}".format(t_exercise.course_module.course_instance.course.name,
                                      t_exercise.course_module.course_instance.instance_name,
                                      t_exercise.category.name)
 
-        return target_exercises, title
+        loaded_content = {
+            'exercises': target_exercises,
+            'title': title,
+            'target_max_points': target_mp,
+            'user_total_points': user_tp,
+            'ec_max_points': self.exercise.max_points,
+            'ec_points': UserExerciseSummary(self.exercise, request.user).best_submission.grade,
+            }
+
+        return loaded_content
 
 
 class ExercisePlainView(ExerciseView):
