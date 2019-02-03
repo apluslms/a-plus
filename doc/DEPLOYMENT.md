@@ -385,3 +385,15 @@ Final steps
           ../venv/bin/python3 ./manage.py set_superuser"
 
     **NOTE:** You might need to use `--first-name`, `--last-name` or `--email` to limit the number of users.
+
+ 1. Create privacy notices
+
+    Copy privacy notice templates
+
+        sudo -Hu aplus sh -c "
+          mkdir -p /srv/aplus/a-plus/local_templates/
+          cp /srv/aplus/a-plus/templates/privacy_notice_* \
+             /srv/aplus/a-plus/local_templates/
+        "
+
+    Edit your local templates in `/srv/aplus/a-plus/local_templates/` to match your local information.
