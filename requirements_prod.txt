@@ -1,0 +1,1 @@
+python-memcached <2, >=1.58

@@ -1,0 +1,100 @@
+<SPConfig xmlns="urn:mace:shibboleth:2.0:native:sp:config"
+	xmlns:conf="urn:mace:shibboleth:2.0:native:sp:config"
+	xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+	xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+	xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+	clockSkew="180">
+
+	<!-- Request mapping is done in Apahce 2 configuration -->
+	<RequestMapper type="Native">
+		<RequestMap applicationId="default" encoding="URL" />
+	</RequestMapper>
+
+	<ApplicationDefaults
+		entityID="https://__HOSTNAME__/shibboleth"
+		homeURL="https://__HOSTNAME__"
+		REMOTE_USER="eppn persistent-id targeted-id"
+		signing="front"
+		encryption="false">
+
+		<!--
+		Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
+		You MUST supply an effectively unique handlerURL value for each of your applications.
+		The value defaults to /Shibboleth.sso, and should be a relative path, with the SP computing
+		a relative value based on the virtual host. Using handlerSSL="true", the default, will force
+		the protocol to be https. You should also set cookieProps to "https" for SSL-only sites.
+		Note that while we default checkAddress to "false", this has a negative impact on the
+		security of your site. Stealing sessions via cookie theft is much easier with this disabled.
+		-->
+		<Sessions
+			lifetime="28800"
+			timeout="3600"
+			relayState="ss:mem"
+			checkAddress="false"
+			handlerSSL="true"
+			cookieProps="https">
+
+			<!--
+			Configures SSO for a default IdP. To allow for >1 IdP, remove
+			entityID property and adjust discoveryURL to point to discovery service.
+			(Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
+			You can also override entityID on /Login query string, or in RequestMap/htaccess.
+			-->
+			<SSO
+				entityID="https://idp.aalto.fi/idp/shibboleth"
+				discoveryProtocol="SAMLDS"
+				discoveryURL="https://haka.funet.fi/shibboleth/WAYF">
+				SAML2
+			</SSO>
+
+			<!-- SAML and local-only logout. -->
+			<Logout>SAML2 Local</Logout>
+
+			<!-- Extension service that generates "approximate" metadata based on SP configuration. -->
+			<Handler type="MetadataGenerator" Location="/Metadata" signing="true"/>
+
+			<!-- Status reporting service. -->
+			<Handler type="Status" Location="/Status" acl="127.0.0.1 ::1"/>
+
+			<!-- Session diagnostic service. -->
+			<Handler type="Session" Location="/Session" showAttributeValues="false"/>
+
+			<!-- JSON feed of discovery information. -->
+			<Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+		</Sessions>
+
+		<Errors supportContact="webmaster@__HOSTNAME__" helpLocation="/about.html" styleSheet="/shibboleth-sp/main.css"/>
+
+		<!-- Metadata is requested from HAKA and cached for an hour -->
+		<MetadataProvider type="XML"
+			uri="https://haka.funet.fi/metadata/haka-metadata.xml"
+			backingFilePath="haka_metadata_signed.xml"
+			reloadInterval="3600">
+			<SignatureMetadataFilter certificate="/etc/shibboleth/haka-sign-v4.pem"/>
+			<MetadataFilter type="Whitelist">
+				<Include>https://idp.aalto.fi/idp/shibboleth</Include>
+			</MetadataFilter>
+			<MetadataFilter type="RequireValidUntil" maxValidityInterval="2592000"/>
+		</MetadataProvider>
+
+		<!-- Map to extract attributes from SAML assertions. -->
+		<AttributeExtractor type="XML" validate="true" reloadChanges="false" path="attribute-map.xml"/>
+
+		<!-- Use a SAML query if no attributes are supplied during SSO. -->
+		<AttributeResolver type="Query" subjectMatch="true"/>
+
+		<!-- Default filtering policy for recognized attributes, lets other data pass. -->
+		<AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
+
+		<!-- Simple file-based resolver for using a single keypair. -->
+		<CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"/>
+
+	</ApplicationDefaults>
+
+	<!-- Policies that determine how to process and authenticate runtime messages. -->
+	<SecurityPolicyProvider type="XML" validate="true" path="security-policy.xml"/>
+
+	<!-- Low-level configuration about protocols and bindings available for use. -->
+	<ProtocolProvider type="XML" validate="true" reloadChanges="false" path="protocols.xml"/>
+
+</SPConfig>

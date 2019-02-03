@@ -1,0 +1,18 @@
+[Unit]
+Description=An uWSGI Python Web Server for the A+ LMS Web
+PartOf=nginx.service
+
+[Service]
+User=aplus
+Group=aplus
+SyslogIdentifier=aplus
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=/srv/aplus/a-plus/
+ExecStart=/usr/bin/uwsgi-core --plugin=python3 --single-interpreter --master --master-fifo=/run/aplus/web-uwsgi.master --socket=/run/aplus/web-uwsgi.socket --chmod=666 --ini /srv/aplus/uwsgi-aplus-web.ini --touch-chain-reload /srv/aplus/uwsgi-aplus-web.ini
+ExecReload=/bin/sh -c "echo c > /run/aplus/web-uwsgi.master"
+Restart=always
+KillSignal=SIGQUIT
+
+[Install]
+WantedBy=multi-user.target

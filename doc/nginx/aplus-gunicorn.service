@@ -1,0 +1,20 @@
+[Unit]
+Description=A Gunicorn Python Web Server for the A+ LMS Web
+PartOf=nginx.service
+
+[Service]
+User=aplus
+Group=aplus
+SyslogIdentifier=aplus
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=/srv/aplus/a-plus/
+ExecStart=/srv/aplus/venv/bin/gunicorn --workers=3 --pid /run/aplus/gunicorn.pid --bind unix:/run/aplus/gunicorn.sock aplus.wsgi:application
+PIDFile=/run/aplus/gunicorn.pid
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+RestartSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
