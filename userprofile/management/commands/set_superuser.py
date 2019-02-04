@@ -24,7 +24,7 @@ class Command(BaseCommand):
         elif count > 1:
             users = list(query)
             for i, user in enumerate(users):
-                self.stdout.write(" {}: {}".format(user))
+                self.stdout.write(" {}: {}".format(i, user))
             selection = int(input("Select user by number: "))
             user = users[selection]
         elif count == 1:
