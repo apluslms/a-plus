@@ -1,4 +1,5 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
+from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
 from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, NestedHyperlinkedIdentityFieldWithQuery
@@ -152,17 +153,31 @@ class CourseUsertaggingsSerializer(AplusModelSerializer):
         tag_dict = validated_data['tag']
 
         first_in_required = [ f for f in self._required if f in user_dict ][0]
-        user = {
-            'id': lambda: UserProfile.objects.get(user__id=user_dict['id']),
-            'student_id': lambda: UserProfile.get_by_student_id(user_dict['student_id']),
-            'username': lambda: UserProfile.objects.get(user__username=user_dict['username']),
-            'email': lambda: UserProfile.get_by_email(user_dict['email']),
-        }[first_in_required]()
-        tag = UserTag.objects.get(
-            slug=tag_dict['slug'],
-            course_instance=self.context['course_id']
-        )
-
+        try:    
+            user = {
+                'id': lambda: UserProfile.objects.get(user__id=user_dict['id']),
+                'student_id': lambda: UserProfile.get_by_student_id(user_dict['student_id']),
+                'username': lambda: UserProfile.objects.get(user__username=user_dict['username']),
+                'email': lambda: UserProfile.get_by_email(user_dict['email']),
+            }[first_in_required]()
+            tag = UserTag.objects.get(
+               slug=tag_dict['slug'],
+               course_instance=self.context['course_id']
+            )
+        except UserTag.DoesNotExist:
+            # 404 with description
+            raise exceptions.NotFound(
+                 'Tag with slug {slug} was not found'.format(
+                     slug=tag_dict['slug']
+                 )
+            )
+        except UserProfile.DoesNotExist:
+            raise exceptions.NotFound(
+                 'User identified with {key}:{value} was not found'.format(
+                     key=first_in_required,
+                     value=user_dict[first_in_required]
+                 )
+            )
         obj, created = UserTagging.objects.set(user, tag)
         if not created:
             raise serializers.ValidationError(
