@@ -21,7 +21,7 @@ python-dateutil==2.4.2
 python-mimeparse==0.1.4
 social-auth-app-django==1.2.0
 pytz==2017.2
-reportlab==3.3.0
+reportlab >=3.3.0, <4
 requests==2.18.4
 six==1.11.0
 South==0.8.2
