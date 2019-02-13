@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 
-from lib.cached import CachedAbstract
+from lib.cache import CachedAbstract
 from .models import Notification
 
 

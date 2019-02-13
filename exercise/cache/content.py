@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
-from lib.cached import CachedAbstract
+from lib.cache import CachedAbstract
 from ..models import LearningObject, BaseExercise
 from .hierarchy import ContentMixin
 

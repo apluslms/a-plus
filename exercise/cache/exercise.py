@@ -2,7 +2,7 @@ import time
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
 
-from lib.cached import CachedAbstract
+from lib.cache import CachedAbstract
 from lib.remote_page import RemotePageNotModified
 from ..protocol.aplus import load_exercise_page
 
