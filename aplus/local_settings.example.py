@@ -37,7 +37,7 @@
 #        'LOCATION': 'django_cache_default',
 #
 #        # Local testing with max size
-#        'BACKEND': 'lib.cache.LocMemCache',
+#        'BACKEND': 'lib.cache.backends.LocMemCache',
 #        'LOCATION': 'unique-snowflake',
 #        'OPTIONS': {'MAX_SIZE': 1000000}, # simulate memcached value limit
 #

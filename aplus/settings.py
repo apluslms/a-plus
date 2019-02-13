@@ -216,7 +216,7 @@ DATABASES = {
 ##########################################################################
 CACHES = {
     'default': {
-        'BACKEND': 'lib.cache.LocMemCache',
+        'BACKEND': 'lib.cache.backends.LocMemCache',
         'TIMEOUT': None,
         'OPTIONS': {'MAX_SIZE': 1000000}, # simulate memcached value limit
     }
