@@ -103,7 +103,7 @@ class CachedAbstract(object):
                 curr_dt = curr_updated
             logger.debug("Cache %s was updated at %s, before generation of a new data with ts %s was completed. Updating the cache with our newer value!", cache_name, curr_dt, gen_start_dt)
             cache.set(cache_key, (gen_start, data), None)
-            # NOTE: there is a change that the cache was invalidated between
+            # NOTE: there is a chance that the cache was invalidated between
             # get and this set. To fix that, we would require operation
             # check-and-set (CAS), which is not supported by Django
         return data
