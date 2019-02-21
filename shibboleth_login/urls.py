@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls import url
 
 from . import views
@@ -5,5 +6,7 @@ from . import views
 
 urlpatterns = [
     url(r'^login/$', views.login, name="shibboleth-login"),
-    url(r'^debug/$', views.debug),
 ]
+
+if settings.DEBUG:
+    urlpatterns.append(url(r'^debug/$', views.debug))

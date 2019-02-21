@@ -1,5 +1,7 @@
 import logging
 
+from urllib.parse import unquote
+
 from django.conf import settings
 from django.contrib.auth import login as django_login, authenticate, \
     REDIRECT_FIELD_NAME
@@ -52,6 +54,16 @@ def login(request):
 
 
 def debug(request):
-    return render_to_response('shibboleth/meta.html', {
-        'meta_data': list(request.META.items())
-    })
+    meta = [
+        (k.replace('-', '_').upper(), v)
+        for k, v in request.META.items()
+        if '.' not in k
+    ]
+    if settings.SHIBBOLETH_VARIABLES_URL_ENCODED:
+        # FIXME: shibboleth variables might not start with SHIB, use settings values here
+        meta = [
+            (k, (unquote(v) if k.startswith('SHIB') else v))
+            for k, v in meta
+        ]
+    meta.sort()
+    return render_to_response('shibboleth/meta.html', {'meta_data': meta})
