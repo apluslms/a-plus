@@ -556,8 +556,9 @@ class BaseExercise(LearningObject):
                 .format(size=size))
 
         access_ok,access_warnings = self.one_has_access(students)
+        is_staff = all(self.course_instance.is_course_staff(p.user) for p in students)
 
-        if not self.one_has_submissions(students):
+        if not self.one_has_submissions(students) and not is_staff:
             if self.course_module.late_submissions_allowed:
                 access_warnings.append(_('You have used the allowed amount of submissions for this exercise. You may still submit unofficially to receive feedback.'))
                 return (self.SUBMIT_STATUS.ALLOWED,
@@ -568,10 +569,7 @@ class BaseExercise(LearningObject):
                     warnings + access_warnings,
                     students)
 
-        ok = (
-            (access_ok and len(warnings) == 0) or
-            all(self.course_instance.is_course_staff(p.user) for p in students)
-        )
+        ok = (access_ok and len(warnings) == 0) or is_staff
         all_warnings = warnings + access_warnings
         if not ok:
             if len(all_warnings) == 0:
