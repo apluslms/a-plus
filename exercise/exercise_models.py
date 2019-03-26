@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
-from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_delete, post_save
@@ -32,6 +31,7 @@ from lib.helpers import (
 )
 from lib.models import UrlMixin
 from lib.localization_syntax import pick_localized
+from lib.validators import generate_url_key_validator
 from userprofile.models import UserProfile
 
 from .cache.exercise import ExerciseCache
@@ -88,7 +88,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         blank=True, null=True, related_name='children')
     order = models.IntegerField(default=1)
     url = models.CharField(max_length=255,
-        validators=[RegexValidator(regex="^[\w\-\.]*$")],
+        validators=[generate_url_key_validator()],
         help_text=_("Input an URL identifier for this object."))
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True,
