@@ -1,10 +1,10 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 from django_colortag.forms import ColorTagForm
 
 from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
+from lib.validators import generate_url_key_validator
 from userprofile.models import UserProfile
 
 
@@ -103,7 +103,17 @@ class CourseInstanceForm(forms.ModelForm):
 
     def clean_url(self):
         if self.instance and self.instance.visible_to_students:
+            # URL must not be changed for visible course instances.
             return self.instance.url
+        # ModelForm runs form validation before the model validation.
+        # The URL validator is copied here from the model definition because
+        # the cleaned data returned here is used in the rendering of the form
+        # POST target page. Even though the model validation would stop invalid
+        # data from being saved to the database, the next page rendering could
+        # crash due to invalid data if this method returned an invalid value.
+        # Raising a ValidationError here prevents the course instance from
+        # having invalid values.
+        generate_url_key_validator()(self.cleaned_data["url"])
         return self.cleaned_data["url"]
 
 
@@ -130,7 +140,7 @@ class CourseContentForm(forms.ModelForm):
 
 class CloneInstanceForm(forms.Form):
     url = forms.CharField(label=_("New URL identifier for the course instance:"),
-        validators=[RegexValidator(regex="^[\w\-\.]+$")])
+        validators=[generate_url_key_validator()])
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')

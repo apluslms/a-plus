@@ -11,7 +11,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q, Count
 from django.db.models.signals import post_save
@@ -32,6 +31,7 @@ from lib.helpers import (
 )
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
+from lib.validators import generate_url_key_validator
 from userprofile.models import User, UserProfile, GraderUser
 
 logger = logging.getLogger("course.models")
@@ -49,7 +49,7 @@ class Course(UrlMixin, models.Model):
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=255)
     url = models.CharField(unique=True, max_length=255, blank=False,
-        validators=[RegexValidator(regex="^[\w\-\.]*$")],
+        validators=[generate_url_key_validator()],
         help_text=_("Input an URL identifier for this course."))
     teachers = models.ManyToManyField(UserProfile,
         related_name="teaching_courses", blank=True)
@@ -340,7 +340,7 @@ class CourseInstance(UrlMixin, models.Model):
     course = models.ForeignKey(Course, related_name="instances")
     instance_name = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=False,
-        validators=[RegexValidator(regex="^[\w\-\.]*$")],
+        validators=[generate_url_key_validator()],
         help_text=_("Input an URL identifier for this course instance."))
     visible_to_students = models.BooleanField(default=True)
     enrollment_audience = models.IntegerField(choices=ENROLLMENT_AUDIENCE.choices,
@@ -610,7 +610,7 @@ class CourseModule(UrlMixin, models.Model):
     order = models.IntegerField(default=1)
     name = models.CharField(max_length=255)
     url = models.CharField(max_length=255,
-                       validators=[RegexValidator(regex="^[\w\-\.]*$")],
+                       validators=[generate_url_key_validator()],
                        help_text=_("Input an URL identifier for this module."))
     points_to_pass = models.PositiveIntegerField(default=0)
     introduction = models.TextField(blank=True)

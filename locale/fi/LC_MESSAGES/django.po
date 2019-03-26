@@ -3142,6 +3142,11 @@ msgstr "Haettua resurssia ei löytynyt kurssipalvelusta!"
 msgid "Connecting to the course service failed with {code}!"
 msgstr "Yhteys kurssipalveluun epäonnistui virheellä {code}!"
 
+#: lib/validators.py:12
+msgid "URL keys may consist of alphanumeric characters, hyphen and period."
+msgstr ""
+"URL-avaimet voivat sisältää kirjaimia, numeroita, yhdysmerkin ja pisteen."
+
 #: news/models.py:13
 msgid "No alert"
 msgstr "Ei hälytystä"
