@@ -10,8 +10,7 @@ from userprofile.models import UserProfile
 from lib.localization_syntax import format_localization
 
 from exercise.exercisecollection_models import ExerciseCollection
-from course.models import CourseInstance
-from course.models import Course
+from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from django.core.exceptions import ObjectDoesNotExist
 from aplus import settings
 
@@ -238,7 +237,7 @@ def configure_learning_objects(category_map, module, config, parent,
             lobject.model_answers = format_localization(o["model_answer"])
         if "exercise_template" in o:
             lobject.templates = format_localization(o["exercise_template"])
-        lobject.clean()
+        lobject.full_clean()
         lobject.save()
         seen.append(lobject.id)
         if "children" in o:
@@ -330,7 +329,9 @@ def configure_content(instance, url):
             instance.assistants.set(assistants)
     if "build_log_url" in config:
         instance.build_log_url = str(config["build_log_url"])
-    instance.clean()
+    # configure_url excluded from validation because the default Django URL
+    # validation does not accept dotless domain names such as "grader"
+    instance.full_clean(exclude=['configure_url'])
     instance.save()
 
     if not "categories" in config or not isinstance(config["categories"], dict):
@@ -347,7 +348,11 @@ def configure_content(instance, url):
         if not "name" in c:
             errors.append(_("Category requires a name."))
             continue
-        category, flag = instance.categories.get_or_create(name=format_localization(c["name"]))
+        try:
+            category = instance.categories.get(name=format_localization(c["name"]))
+        except LearningObjectCategory.DoesNotExist:
+            category = LearningObjectCategory(course_instance=instance,
+                name=format_localization(c["name"]))
         if "status" in c:
             category.status = str(c["status"])[:32]
         if "description" in c:
@@ -362,7 +367,7 @@ def configure_content(instance, url):
         ]:
             if field in c:
                 setattr(category, field, parse_bool(o[field]))
-        category.clean()
+        category.full_clean()
         category.save()
         category_map[key] = category
         seen.append(category.id)
@@ -381,7 +386,10 @@ def configure_content(instance, url):
         if not "key" in m:
             errors.append(_("Module requires a key."))
             continue
-        module, flag = instance.course_modules.get_or_create(url=str(m["key"]))
+        try:
+            module = instance.course_modules.get(url=str(m["key"]))
+        except CourseModule.DoesNotExist:
+            module = CourseModule(course_instance=instance, url=str(m["key"]))
 
         if "order" in m:
             module.order = parse_int(m["order"], errors)
@@ -437,7 +445,7 @@ def configure_content(instance, url):
             if not f is None:
                 module.late_submission_penalty = f
 
-        module.clean()
+        module.full_clean()
         module.save()
         seen_modules.append(module.id)
 
