@@ -143,6 +143,7 @@ The Application
         processes=4
         threads=2
         max-requests=10000
+        harakiri=40
         env=LANG=en_US.UTF-8
         EOF
 
@@ -154,6 +155,7 @@ The Application
         processes=2
         threads=1
         max-requests=10000
+        harakiri=40
         env=LANG=en_US.UTF-8
         EOF
 
