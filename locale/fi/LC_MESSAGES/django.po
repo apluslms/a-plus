@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-08 17:16+0200\n"
+"POT-Creation-Date: 2019-04-03 10:09+0300\n"
 "PO-Revision-Date: 2019-01-08 17:15+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -261,15 +261,15 @@ msgstr ""
 "Arvostele epäviralliset palautukset tehtävän sulkeuduttua. Pisteet "
 "tallennetaan, mutta ne eivät sisälly virallisiin tuloksiin."
 
-#: course/permissions.py:20
+#: course/permissions.py:20 course/permissions.py:88
 msgid "Permission denied by course visibility"
 msgstr "Pääsy kielletty kurssin näkyvyyden perusteella"
 
-#: course/permissions.py:46
+#: course/permissions.py:46 course/permissions.py:99
 msgid "The resource is not currently visible."
 msgstr "Materiaali ei ole tällä hetkellä nähtävissä."
 
-#: course/permissions.py:57
+#: course/permissions.py:57 course/permissions.py:105
 msgid "This course is not open for public."
 msgstr "Tälle kurssille ei ole vapaata pääsyä."
 
@@ -394,6 +394,72 @@ msgstr "Muokkaa kurssiuutisia"
 msgid "Edit course"
 msgstr "Muokkaa kurssia"
 
+#: course/templates/course/_enroll_form.html:11
+msgid "In order to submit exercises you must enroll in the course."
+msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
+
+#: course/templates/course/_enroll_form.html:13
+msgid ""
+"In order to submit exercises and see material, you must enroll in the course."
+msgstr ""
+"Palauttaaksesi tehtäviä ja nähdäksesi materiaalin sinun pitää ilmoittautua "
+"kurssille."
+
+#: course/templates/course/_enroll_form.html:15
+#: exercise/templates/exercise/_warnings_overlay.html:37
+msgid "Enroll"
+msgstr "Ilmoittaudu"
+
+#: course/templates/course/_enroll_form.html:19
+#, python-format
+msgid ""
+"\n"
+"        The course enrollment is open until %(end)s.\n"
+"        "
+msgstr ""
+"\n"
+"        Kurssille ilmoittautuminen on avoinna %(end)s asti.\n"
+"        "
+
+#: course/templates/course/_enroll_form.html:27
+msgid "Unfortunately, enrolling in the course has ended."
+msgstr "Valitettavasti kurssille ilmoittautuminen on päättynyt."
+
+#: course/templates/course/_enroll_form.html:29
+#, python-format
+msgid ""
+"\n"
+"  The course opens %(start)s.\n"
+"  "
+msgstr ""
+"\n"
+"  Kurssi  avautuu %(start)s\n"
+"  "
+
+#: course/templates/course/_enroll_form.html:35
+msgid ""
+"Unfortunately, you may not enroll in this course and you may not explore the "
+"contents either."
+msgstr ""
+"Valitettavasti et voi ilmoittautua tälle kurssille etkä voi myöskään "
+"selailla kurssimateriaalia."
+
+#: course/templates/course/_enroll_form.html:37
+msgid ""
+"Unfortunately, you cannot enroll in this course, but you may explore the "
+"course material."
+msgstr ""
+"Valitettavasti et voi ilmoittautua tälle kurssille, mutta voit selailla "
+"kurssimateriaalia."
+
+#: course/templates/course/_enroll_form.html:40
+msgid ""
+"Login is required to submit exercises, but you may anonymously explore the "
+"course material."
+msgstr ""
+"Tehtävien palauttaminen vaatii kirjautumisen järjestelmään, mutta voit "
+"selailla kurssimateriaalia tunnistautumatta."
+
 #: course/templates/course/_group_info.html:4
 #, python-format
 msgid ""
@@ -447,64 +513,6 @@ msgstr "Kurssiarkisto"
 msgid "Hidden from students"
 msgstr "Piilotettu opiskelijoilta"
 
-#: course/templates/course/course.html:20
-msgid "In order to submit exercises you must enroll in the course."
-msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
-
-#: course/templates/course/course.html:22
-msgid ""
-"In order to submit exercises and see material, you must enroll in the course."
-msgstr ""
-"Palauttaaksesi tehtäviä ja nähdäksesi materiaalin sinun pitää ilmoittautua "
-"kurssille."
-
-#: course/templates/course/course.html:24
-#: exercise/templates/exercise/_warnings_overlay.html:33
-msgid "Enroll"
-msgstr "Ilmoittaudu"
-
-#: course/templates/course/course.html:28
-#, python-format
-msgid ""
-"\n"
-"        The course enrollment is open until %(end)s.\n"
-"        "
-msgstr ""
-"\n"
-"        Kurssille ilmoittautuminen on avoinna %(end)s asti.\n"
-"        "
-
-#: course/templates/course/course.html:36
-msgid "Unfortunately, enrolling in the course has ended."
-msgstr "Valitettavasti kurssille ilmoittautuminen on päättynyt."
-
-#: course/templates/course/course.html:38
-#, python-format
-msgid ""
-"\n"
-"  The course opens %(start)s.\n"
-"  "
-msgstr ""
-"\n"
-"  Kurssi  avautuu %(start)s\n"
-"  "
-
-#: course/templates/course/course.html:43
-msgid ""
-"Unfortunately, you cannot enroll in this course, but you may explore the "
-"course material."
-msgstr ""
-"Valitettavasti et voi ilmoittautua tälle kurssille, mutta voit selailla "
-"kurssimateriaalia."
-
-#: course/templates/course/course.html:45
-msgid ""
-"Login is required to submit exercises, but you may anonymously explore the "
-"course material."
-msgstr ""
-"Tehtävien palauttaminen vaatii kirjautumisen järjestelmään, mutta voit "
-"selailla kurssimateriaalia tunnistautumatta."
-
 #: course/templates/course/course_base.html:27
 msgid "Calendar"
 msgstr "Kalenteri"
@@ -512,6 +520,31 @@ msgstr "Kalenteri"
 #: course/templates/course/course_base.html:31
 msgid "Download calendar (ics)"
 msgstr "Lataa kalenteri (ics)"
+
+#: course/templates/course/enroll.html:6 course/templates/course/enroll.html:10
+msgid "Enrollment"
+msgstr "Ilmoittautuminen"
+
+#: course/templates/course/enroll.html:16
+msgid "You are already enrolled in this course."
+msgstr "Olet jo ilmoittautunut tälle kurssille."
+
+#: course/templates/course/enroll.html:23
+msgid "Enrollment target group"
+msgstr "Ilmoittautumisen kohderyhmä"
+
+#: course/templates/course/enroll.html:24
+#, python-format
+msgid ""
+"\n"
+"Enrollment is open from %(start)s to %(end)s.\n"
+msgstr ""
+"\n"
+"Ilmoittautuminen on avoinna alkaen %(start)s ja päättyen %(end)s.\n"
+
+#: course/templates/course/enroll.html:27
+msgid "Course visibility"
+msgstr "Kurssin näkyvyys"
 
 #: course/templates/course/groups.html:8 course/templates/course/groups.html:13
 #: course/templates/course/groups.html:53
@@ -753,15 +786,15 @@ msgstr "Sähköposti"
 msgid "Tags"
 msgstr "Merkinnät"
 
-#: course/views.py:83
+#: course/views.py:99
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:87
+#: course/views.py:103 exercise/exercise_models.py:494
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:161
+#: course/views.py:177
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
@@ -1703,9 +1736,9 @@ msgstr "Et voi ilmoittautua kurssille."
 msgid "Staff can submit exercises without enrolling."
 msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
 
-#: exercise/exercise_models.py:503
-msgid "You must enroll at course home to submit exercises."
-msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssin etusivulla."
+#: exercise/exercise_models.py:506
+msgid "You must enroll in the course to submit exercises."
+msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
 #: exercise/exercise_models.py:526
 msgid "Group can only change between different exercises."
@@ -2212,6 +2245,10 @@ msgstr "Et voi palauttaa tätä tehtävää"
 #: exercise/templates/exercise/_warnings_overlay.html:18
 msgid "Show anyway"
 msgstr "Näytä kuitenkin"
+
+#: exercise/templates/exercise/_warnings_overlay.html:43
+msgid "Enrollment information"
+msgstr "Ilmoittautumisen tiedot"
 
 #: exercise/templates/exercise/exercise.html:40
 #: exercise/templates/exercise/exercise.html:48

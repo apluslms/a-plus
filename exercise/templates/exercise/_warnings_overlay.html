@@ -18,7 +18,10 @@
                     {% trans "Show anyway" %}
                 </button>
                 {% if should_enroll and enrollable and instance.is_enrollment_open %}
-                {# TODO: Remove partial duplication with course/course.html #}
+                {% comment %}
+                TODO: The enrollment form has partial duplication with
+                course/_enroll_form.html that maybe could be removed
+                {% endcomment %}
                 <form
                     method="post"
                     action="{{ instance|url:'enroll' }}"
@@ -33,6 +36,11 @@
                         {% trans 'Enroll' %}
                     </button>
                 </form>
+                {% elif should_enroll %}
+                {# The enrollment page informs the user about why he/she can not enroll. #}
+                <a class="btn btn-info" href="{{ instance|url:'enroll' }}">
+                  {% trans "Enrollment information" %}
+                </a>
                 {% endif %}
             </div>
         </div>

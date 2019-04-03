@@ -1,0 +1,44 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load apps %}
+
+{% block title %}{% trans "Enrollment" %} | {{ block.super }}{% endblock %}
+{% block view_tag %}enroll{% endblock %}
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Enrollment" %}</li>
+{% endblock %}
+
+{% block coursecontent %}
+{% if is_student %}
+  <div class="alert alert-info">
+  {% trans "You are already enrolled in this course." %}
+  </div>
+{% else %}
+  {% include "course/_enroll_form.html" %}
+{% endif %}
+
+<p>
+{% trans "Enrollment target group" %}: {{ instance.enrollment_audience|enrollment_audience }}<br>
+{% blocktrans with start=instance.enrollment_start end=instance.enrollment_end %}
+Enrollment is open from {{ start }} to {{ end }}.
+{% endblocktrans %}<br>
+{% trans "Course visibility" %}: {{ instance.view_content_to|view_content_to }}
+</p>
+
+<div class="index">
+  {{ instance.description|safe }}
+</div>
+
+<div class="index">
+  {{ instance.footer|safe }}
+</div>
+{% endblock %}
+
+{% block sidecontent %}
+    {% plugin_renderers user instance as plugins %}
+    {% for plugin in plugins %}
+        {{ plugin.render|safe }}
+    {% endfor %}
+{% endblock %}

@@ -44,6 +44,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
     template_name = "exercise/exercise.html"
     ajax_template_name = "exercise/exercise_plain.html"
     post_url_name = "exercise"
+    access_mode = ACCESS.STUDENT
 
     # Allow form posts without the cross-site-request-forgery key.
     @method_decorator(csrf_exempt)

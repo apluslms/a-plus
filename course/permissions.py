@@ -58,7 +58,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
                 return False
 
             # Handle enroll views separately
-            if getattr(view, 'access_mode', None) == ACCESS.ENROLL:
+            if view.get_access_mode() == ACCESS.ENROLL:
                 return self.enrollment_audience_check(request, course, user)
 
             if show_for == VA.ENROLLED:
@@ -81,6 +81,30 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
         elif audience == EA.EXTERNAL_USERS and not external:
             self.error_msg(_("This course is only for external students."))
             return False
+        return True
+
+
+class EnrollInfoVisiblePermission(ObjectVisibleBasePermission):
+    message = _("Permission denied by course visibility")
+    model = CourseInstance
+    obj_var = 'instance'
+
+    def is_object_visible(self, request, view, course_instance):
+        # Course is always visible to staff members
+        if view.is_course_staff:
+            return True
+
+        # Course is not visible if it's hidden
+        if not course_instance.visible_to_students:
+            self.error_msg(_("The resource is not currently visible."))
+            return False
+
+        # Only public courses may be browsed without logging in.
+        if course_instance.view_content_to != course_instance.VIEW_ACCESS.PUBLIC \
+                and not request.user.is_authenticated:
+            self.error_msg(_("This course is not open for public."))
+            return False
+
         return True
 
 

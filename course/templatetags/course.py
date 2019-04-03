@@ -116,3 +116,15 @@ def profiles(profiles, instance, is_teacher):
 def tags(profile, instance):
     # FIXME: get tags from cache
     return tags_context(profile, profile.taggings.tags_for_instance(instance), instance)
+
+
+@register.filter
+def enrollment_audience(enrollment_audience_val):
+    # convert enrollment audience Enum value to the string description
+    return CourseInstance.ENROLLMENT_AUDIENCE[enrollment_audience_val]
+
+
+@register.filter
+def view_content_to(view_content_to_val):
+    # convert "view content to" Enum value to the string description
+    return CourseInstance.VIEW_ACCESS[view_content_to_val]

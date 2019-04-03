@@ -489,18 +489,21 @@ class BaseExercise(LearningObject):
             LearningObject.STATUS.ENROLLMENT,
             LearningObject.STATUS.ENROLLMENT_EXTERNAL,
         ):
+            if not self.course_instance.is_enrollment_open():
+                return (self.SUBMIT_STATUS.CANNOT_ENROLL,
+                        [_('The enrollment is not open.')],
+                        students)
             if not self.course_instance.is_enrollable(profile.user):
                 return (self.SUBMIT_STATUS.CANNOT_ENROLL,
                         [_('You cannot enroll in the course.')],
                         students)
         elif not enrollment:
-            # TODO Provide button to enroll, should there be option to auto-enroll
             if self.course_instance.is_course_staff(profile.user):
                 return (self.SUBMIT_STATUS.ALLOWED,
                         [_('Staff can submit exercises without enrolling.')],
                         students)
             return (self.SUBMIT_STATUS.NOT_ENROLLED,
-                    [_('You must enroll at course home to submit exercises.')],
+                    [_('You must enroll in the course to submit exercises.')],
                     students)
 
         # Support group id from post or currently selected group.

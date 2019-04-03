@@ -450,7 +450,7 @@ class CourseInstance(UrlMixin, models.Model):
         )
 
     def is_enrollable(self, user):
-        if user and user.is_authenticated():
+        if user and user.is_authenticated and self.visible_to_students:
             if self.enrollment_audience == self.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
                 return not user.userprofile.is_external
             if self.enrollment_audience == self.ENROLLMENT_AUDIENCE.EXTERNAL_USERS:

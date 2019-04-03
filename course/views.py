@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import html
 from django.utils import timezone
 from django.utils.http import is_safe_url
@@ -17,10 +17,11 @@ from authorization.permissions import ACCESS
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
 from lib.helpers import settings_text
-from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseFormView, BaseView
+from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
+from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
 from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
 
@@ -60,7 +61,19 @@ class ArchiveView(UserProfileView):
         self.note("instances")
 
 class InstanceView(EnrollableViewMixin, BaseTemplateView):
+    access_mode = ACCESS.STUDENT
+    # ACCESS.STUDENT requires users to log in, but the access mode is dropped
+    # in public courses. CourseVisiblePermission has more restrictions as well.
     template_name = "course/course.html"
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated \
+                and self.instance.view_content_to == CourseInstance.VIEW_ACCESS.ENROLLED:
+            # The course instance is visible to only enrolled students, so
+            # redirect the user to the enroll page instead of showing
+            # a 403 Forbidden error.
+            return redirect(self.instance.get_url('enroll'))
+        return super().handle_no_permission()
 
     def get(self, request, *args, **kwargs):
         # external LTI Tool Providers may return the user to the course instance view
@@ -75,7 +88,10 @@ class InstanceView(EnrollableViewMixin, BaseTemplateView):
 
         return super().get(request, *args, **kwargs)
 
-class Enroll(EnrollableViewMixin, BaseRedirectView):
+class Enroll(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
+    permission_classes = [EnrollInfoVisiblePermission]
+    course_permission_classes = []
+    template_name = "course/enroll.html"
 
     def post(self, request, *args, **kwargs):
 
