@@ -108,7 +108,10 @@
                                 </li>
                             {% endif %}
                         </ul>
-                        {% if is_course_staff or is_student and exercise.can_show_solutions %}
+                        {% if is_course_staff or is_student and exercise.can_show_model_solutions %}
+                            {% comment %} The model solution link is shown even if the student can not
+                            open it due to personal extensions. However, this saves some database queries.
+                            {% endcomment %}
                             {% if exercise.model_answers %}
                                 <a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-model' }}">
                                     <span class="glyphicon glyphicon-file" aria-hidden="true"></span>

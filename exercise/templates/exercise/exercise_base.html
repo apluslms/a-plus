@@ -63,7 +63,10 @@
               {% endfor %}
           </ul>
       </li>
-      {% if is_course_staff or is_student and exercise.can_show_solutions %}
+      {% if is_course_staff or is_student and exercise.can_show_model_solutions %}
+      {% comment %} The model solution link is shown even if the student can not
+      open it due to personal extensions. However, this saves some database queries.
+      {% endcomment %}
       {% if exercise.model_answers %}
       <li class="menu-model">
         <a href="{{ exercise|url:'exercise-model' }}">

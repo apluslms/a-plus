@@ -201,8 +201,23 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return self.course_module.is_closed(when=when)
 
     @property
-    def can_show_solutions(self):
+    def can_show_model_solutions(self):
+        """Can model solutions be shown to students?
+        This method checks only the module deadline and ignores personal
+        deadline extensions.
+        """
         return self.is_closed() and not self.course_instance.is_on_lifesupport() and not self.course_instance.is_archived()
+
+    def can_show_model_solutions_to_student(self, student):
+        """Can model solutions be shown to the given student (User)?
+        This method checks personal deadline extensions in addition to
+        the common module deadline.
+        """
+        # The old version of this method was defined in this LearningObject class
+        # even though only exercises could be submitted to and have model solutions.
+        # Class BaseExercise overrides this method since deadline deviations are
+        # defined only for them, not learning objects.
+        return student.is_authenticated and self.can_show_model_solutions
 
     def get_path(self):
         return "/".join([o.url for o in self.parent_list()])
@@ -674,6 +689,28 @@ class BaseExercise(LearningObject):
     def can_regrade(self):
         """Can this exercise be regraded in the assessment service, i.e.,
         can previous submissions be uploaded again for grading?"""
+        return True
+
+    def can_show_model_solutions_to_student(self, student):
+        result = super().can_show_model_solutions_to_student(student)
+        if not result:
+            return False
+
+        submission = self.get_submissions_for_student(student.userprofile).first()
+        if submission:
+            # When the exercise uses group submissions, a deadline deviation
+            # may be granted to only one group member, but it affects the whole
+            # group. Therefore, we must check deadline deviations for all group
+            # members. All submissions to one exercise are made with the same group.
+            students = list(submission.submitters.all())
+        else:
+            students = [student.userprofile]
+
+        # Student may not view model solutions if he can still submit and gain
+        # points due to a personal deadline extension.
+        deviation = self.one_has_deadline_deviation(students)
+        if deviation:
+            return timezone.now() > deviation.get_new_deadline()
         return True
 
 

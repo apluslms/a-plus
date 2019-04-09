@@ -727,3 +727,110 @@ class ExerciseTest(TestCase):
         self.assertTrue(response["Content-Disposition"].startswith("attachment; filename="))
 
         exercise.delete()
+
+    def test_can_show_model_solutions(self):
+        course_module_with_late_submissions_open = CourseModule.objects.create(
+            name="test module late open",
+            url="test-module-late-open",
+            points_to_pass=50,
+            course_instance=self.course_instance,
+            opening_time=self.yesterday - timedelta(days=1),
+            closing_time=self.yesterday,
+            late_submissions_allowed=True,
+            late_submission_deadline=self.tomorrow,
+            late_submission_penalty=0.4,
+        )
+        course_module_with_late_submissions_closed = CourseModule.objects.create(
+            name="test module late closed",
+            url="test-module-late-closed",
+            points_to_pass=50,
+            course_instance=self.course_instance,
+            opening_time=self.yesterday - timedelta(days=1),
+            closing_time=self.yesterday,
+            late_submissions_allowed=True,
+            late_submission_deadline=self.today - timedelta(hours=1),
+            late_submission_penalty=0.4,
+        )
+        base_exercise_with_late_open = BaseExercise.objects.create(
+            name="test exercise late open",
+            course_module=course_module_with_late_submissions_open,
+            category=self.learning_object_category,
+            url="blateopen",
+            max_submissions=5,
+        )
+        base_exercise_with_late_closed = BaseExercise.objects.create(
+            name="test exercise late closed",
+            course_module=course_module_with_late_submissions_closed,
+            category=self.learning_object_category,
+            url="blateclosed",
+            max_submissions=5,
+        )
+
+        self.assertFalse(self.base_exercise.can_show_model_solutions) # module is open
+        self.assertFalse(self.base_exercise.can_show_model_solutions_to_student(self.user))
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions) # module is closed
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
+        self.assertFalse(self.base_exercise_with_late_submission_allowed.can_show_model_solutions) # module is open
+        self.assertFalse(self.base_exercise_with_late_submission_allowed.can_show_model_solutions_to_student(self.user))
+        self.assertFalse(base_exercise_with_late_open.can_show_model_solutions)
+        self.assertFalse(base_exercise_with_late_open.can_show_model_solutions_to_student(self.user))
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
+
+        # The user has submitted alone and has no deadline extension.
+        self.assertEqual(self.old_base_exercise.get_submissions_for_student(self.user.userprofile).count(), 0)
+        submission1 = Submission.objects.create(
+            exercise=self.old_base_exercise,
+        )
+        submission1.submitters.add(self.user.userprofile)
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions) # module is closed
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
+        # Add a deadline extension that is still active.
+        deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
+            exercise=self.old_base_exercise,
+            submitter=self.user.userprofile,
+            extra_minutes=1440, # One day
+        )
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions)
+        self.assertFalse(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
+        # Change the deadline extension so that it is not active anymore.
+        self.old_course_module.closing_time = self.today - timedelta(hours=2)
+        self.old_course_module.save()
+        deadline_rule_deviation_old_base_exercise.delete()
+        deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
+            exercise=self.old_base_exercise,
+            submitter=self.user.userprofile,
+            extra_minutes=10,
+        )
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions)
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
+
+        # Group submission
+        submission2 = Submission.objects.create(
+            exercise=base_exercise_with_late_closed,
+        )
+        submission2.submitters.add(self.user.userprofile, self.user2.userprofile)
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
+        # Add a deadline extension to one group member. It affects all group members.
+        # Note: deadline deviations are relative to the module closing time, not the late submission deadline.
+        deadline_rule_deviation_ex_late_closed = DeadlineRuleDeviation.objects.create(
+            exercise=base_exercise_with_late_closed,
+            submitter=self.user.userprofile,
+            extra_minutes=60*24*2,
+        )
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
+        self.assertFalse(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
+        self.assertFalse(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
+        # Change the deadline extension so that it is not active anymore.
+        deadline_rule_deviation_ex_late_closed.delete()
+        deadline_rule_deviation_ex_late_closed = DeadlineRuleDeviation.objects.create(
+            exercise=base_exercise_with_late_closed,
+            submitter=self.user.userprofile,
+            extra_minutes=10,
+        )
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
+        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
+

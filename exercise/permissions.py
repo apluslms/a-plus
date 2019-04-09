@@ -129,7 +129,7 @@ class ModelVisiblePermission(ObjectVisibleBasePermission):
         if view.is_course_staff:
             return True
 
-        if not exercise.can_show_solutions:
+        if not exercise.can_show_model_solutions_to_student(request.user):
             self.error_msg(_("You are not allowed to view model answers for this exercise."))
             return False
 
