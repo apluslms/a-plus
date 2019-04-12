@@ -346,7 +346,7 @@ class CourseInstance(UrlMixin, models.Model):
     enrollment_audience = models.IntegerField(choices=ENROLLMENT_AUDIENCE.choices,
                                               default=ENROLLMENT_AUDIENCE.INTERNAL_USERS)
     view_content_to = models.IntegerField(choices=VIEW_ACCESS.choices,
-                                          default=VIEW_ACCESS.ENROLLMENT_AUDIENCE)
+                                          default=VIEW_ACCESS.ENROLLED)
     starting_time = models.DateTimeField()
     ending_time = models.DateTimeField()
     lifesupport_time = models.DateTimeField(blank=True, null=True)

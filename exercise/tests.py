@@ -58,7 +58,8 @@ class ExerciseTest(TestCase):
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
-            url="T-00.1000_d1"
+            url="T-00.1000_d1",
+            view_content_to=CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
         )
         self.course_instance.assistants.add(self.grader.userprofile)
 

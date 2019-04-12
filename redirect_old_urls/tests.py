@@ -23,7 +23,8 @@ class RedirectTest(TestCase):
             starting_time=timezone.now(),
             ending_time=timezone.now() + timedelta(days=5),
             course=self.course,
-            url="T-00.1000_2011"
+            url="T-00.1000_2011",
+            view_content_to=CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
         )
         self.course_module = CourseModule.objects.create(
             name="test module",
