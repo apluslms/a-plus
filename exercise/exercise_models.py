@@ -357,16 +357,18 @@ class BaseExercise(LearningObject):
 
     def get_timing(self, students, when):
         module = self.course_module
+        # Check the course instance archive time first so that submissions
+        # are never accepted after it.
+        dl = module.course_instance.archive_start
+        if module.course_instance.is_archived(when=when):
+            return self.TIMING.ARCHIVED, dl
+
         if not module.is_after_open(when=when):
             return self.TIMING.CLOSED_BEFORE, module.opening_time
 
         category = self.category
         if module.is_open(when=when) or category.confirm_the_level:
             return self.TIMING.OPEN, module.closing_time
-
-        dl = module.course_instance.archive_time
-        if dl and module.course_instance.is_archived(when=when):
-            return self.TIMING.ARCHIVED, dl
 
         deviation = self.one_has_deadline_deviation(students)
         dl = deviation.get_new_deadline() if deviation else None

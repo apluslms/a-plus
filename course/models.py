@@ -399,9 +399,15 @@ class CourseInstance(UrlMixin, models.Model):
         errors = {}
         if self.ending_time <= self.starting_time:
             errors['ending_time'] = _("Ending time must be later than starting time.")
-        if self.lifesupport_time and self.lifesupport_time <= self.ending_time:
+        if self.lifesupport_time and self.lifesupport_time < self.ending_time:
             errors['lifesupport_time'] = _("Lifesupport time must be later than ending time.")
-        if self.archive_time and self.archive_time <= self.lifesupport_time:
+        if (self.archive_time and not self.lifesupport_time) \
+                or (self.lifesupport_time and not self.archive_time):
+            # Must not set only one of lifesupport and archive time since their
+            # default values could change their order. Lifesupport time must not
+            # be earlier than archive time.
+            errors['archive_time'] = _("Lifesupport time and archive time must be either both set or both unset.")
+        elif self.archive_time and self.archive_time < self.lifesupport_time:
             errors['archive_time'] = _("Archive time must be later than lifesupport time.")
         if self.language.startswith("|"):
             langs = list(filter(None, self.language.split("|"))) # remove pipes & empty strings
@@ -494,15 +500,23 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_on_lifesupport(self, when=None):
         when = when or timezone.now()
-        return self.lifesupport_time and self.lifesupport_time < when
+        return self.lifesupport_start < when
 
     def is_archived(self, when=None):
         when = when or timezone.now()
-        return self.archive_time and self.archive_time < when
+        return self.archive_start < when
 
     @property
-    def archive_start(self, when=None):
-        return self.archive_time
+    def archive_start(self):
+        if self.archive_time: # not null
+            return self.archive_time
+        return self.ending_time + datetime.timedelta(days=365)
+
+    @property
+    def lifesupport_start(self):
+        if self.lifesupport_time: # not null
+            return self.lifesupport_time
+        return self.ending_time + datetime.timedelta(days=365)
 
     @property
     def enrollment_start(self):
@@ -644,11 +658,16 @@ class CourseModule(UrlMixin, models.Model):
 
     def clean(self):
         super().clean()
+        errors = {}
         RESERVED = ("toc", "teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
-            raise ValidationError({
-                'url':_("Taken words include: {}").format(", ".join(RESERVED))
-            })
+            errors['url'] = _("Taken words include: {}").format(", ".join(RESERVED))
+        if self.opening_time > self.closing_time:
+            errors['opening_time'] = _("Opening time must be earlier than the closing time.")
+        if self.late_submissions_allowed and self.late_submission_deadline <= self.closing_time:
+            errors['late_submission_deadline'] = _("Late submission deadline must be later than the closing time.")
+        if errors:
+            raise ValidationError(errors)
 
     def is_open(self, when=None):
         when = when or timezone.now()

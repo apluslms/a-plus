@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-03 10:09+0300\n"
+"POT-Creation-Date: 2019-04-12 15:43+0300\n"
 "PO-Revision-Date: 2019-01-08 17:15+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -202,50 +202,66 @@ msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
 #: course/models.py:403
 msgid "Lifesupport time must be later than ending time."
-msgstr "Saattohoito tulee alkaa loppumisajan jälkeen."
+msgstr "Saattohoitoajan tulee alkaa loppumisajan jälkeen."
 
-#: course/models.py:405
+#: course/models.py:409
+msgid ""
+"Lifesupport time and archive time must be either both set or both unset."
+msgstr ""
+"Saattohoitoaika ja arkistointiaika pitää molemmat asettaa tai muutoin "
+"kumpaakaan ei voi asettaa."
+
+#: course/models.py:411
 msgid "Archive time must be later than lifesupport time."
 msgstr "Arkistointiajan tulee olla saattohoidon jälkeen."
 
-#: course/models.py:413
+#: course/models.py:419
 msgid "Language code(s) missing from settings: "
 msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t):"
 
-#: course/models.py:415
+#: course/models.py:421
 msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
-#: course/models.py:603 course/models.py:705 exercise/exercise_models.py:68
+#: course/models.py:617 course/models.py:724 exercise/exercise_models.py:68
 #: exercise/submission_models.py:58
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:604 exercise/exercise_models.py:69
+#: course/models.py:618 exercise/exercise_models.py:69
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:605 course/models.py:707 templates/base.html:99
+#: course/models.py:619 course/models.py:726 templates/base.html:99
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:606 exercise/exercise_models.py:73
+#: course/models.py:620 exercise/exercise_models.py:73
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:614
+#: course/models.py:628
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:629
+#: course/models.py:643
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:706
+#: course/models.py:666
+msgid "Opening time must be earlier than the closing time."
+msgstr "Alkamisajan tulee olla aikaisempi kuin päättymisaika."
+
+#: course/models.py:668
+msgid "Late submission deadline must be later than the closing time."
+msgstr ""
+"Myöhäisten palautusten määräajan tulee olla myöhäisempi kuin sulkeutumisajan."
+
+#: course/models.py:725
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/models.py:716
+#: course/models.py:735
 msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
@@ -253,7 +269,7 @@ msgstr ""
 "Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
 "hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: course/models.py:718
+#: course/models.py:737
 msgid ""
 "Grade unofficial submits after deadlines have passed. The points are stored "
 "but not included in official records."
