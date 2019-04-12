@@ -537,18 +537,17 @@ class BaseExercise(LearningObject):
             group = enrollment.selected_group
 
         # Check groups cannot be changed after submitting.
-        submissions = list(self.get_submissions_for_student(profile))
-        if len(submissions) > 0:
-            s = submissions[0]
-            if self._detect_group_changes(profile, group, s):
+        submission = self.get_submissions_for_student(profile).first()
+        if submission:
+            if self._detect_group_changes(profile, group, submission):
                 msg = _("Group can only change between different exercises.")
                 warning = _('You have previously submitted this '
                             'exercise {with_group}. {msg}')
-                if s.submitters.count() == 1:
+                if submission.submitters.count() == 1:
                     warning = warning.format(with_group=_('alone'), msg=msg)
                 else:
                     collaborators = StudentGroup.format_collaborator_names(
-                            s.submitters.all(), profile)
+                            submission.submitters.all(), profile)
                     with_group = _('with {}').format(collaborators)
                     warning = warning.format(with_group=with_group, msg=msg)
                 warnings.append(warning)
