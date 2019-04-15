@@ -254,16 +254,16 @@ class ExerciseTest(TestCase):
         self.assertEqual(self.course_instance, self.broken_learning_object.course_instance)
 
     def test_base_exercise_one_has_submissions(self):
-        self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))
-        self.assertTrue(self.static_exercise.one_has_submissions([self.user.userprofile]))
-        self.assertTrue(self.exercise_with_attachment.one_has_submissions([self.user.userprofile]))
+        self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile])[0])
+        self.assertTrue(self.static_exercise.one_has_submissions([self.user.userprofile])[0])
+        self.assertTrue(self.exercise_with_attachment.one_has_submissions([self.user.userprofile])[0])
         self.submission.set_error()
         self.submission.save()
         self.submission_with_two_submitters.set_error()
         self.submission_with_two_submitters.save()
         self.late_submission.set_error()
         self.late_submission.save()
-        self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile]))
+        self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile])[0])
 
     def test_base_exercise_max_submissions(self):
         self.assertEqual(1, self.base_exercise.max_submissions_for_student(self.user.userprofile))
@@ -342,13 +342,13 @@ class ExerciseTest(TestCase):
             self.old_base_exercise.SUBMIT_STATUS.ALLOWED)
 
     def test_base_exercise_submission_deviation(self):
-        self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))
+        self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile])[0])
         deviation = MaxSubmissionsRuleDeviation.objects.create(
             exercise=self.base_exercise,
             submitter=self.user.userprofile,
             extra_submissions=3
         )
-        self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile]))
+        self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile])[0])
 
     def test_base_exercise_deadline_deviation(self):
         self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile])[0])
@@ -529,7 +529,8 @@ class ExerciseTest(TestCase):
     def test_unofficial_max_submissions(self):
         self.learning_object_category.accept_unofficial_submits = True
         self.learning_object_category.save()
-        self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile]))
+        res = self.base_exercise.one_has_submissions([self.user.userprofile])
+        self.assertFalse(res[0] and len(res[1]) == 0)
         self.submission.set_points(1, 10)
         self.submission.set_ready()
         self.submission.save()

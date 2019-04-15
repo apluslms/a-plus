@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-12 15:43+0300\n"
+"POT-Creation-Date: 2019-04-15 18:07+0300\n"
 "PO-Revision-Date: 2019-01-08 17:15+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -271,11 +271,13 @@ msgstr ""
 
 #: course/models.py:737
 msgid ""
-"Grade unofficial submits after deadlines have passed. The points are stored "
-"but not included in official records."
+"Grade unofficial submissions after deadlines have passed or submission "
+"limits have been exceeded. The points are stored but not included in "
+"official records."
 msgstr ""
-"Arvostele epäviralliset palautukset tehtävän sulkeuduttua. Pisteet "
-"tallennetaan, mutta ne eivät sisälly virallisiin tuloksiin."
+"Arvostele epäviralliset palautukset tehtävän sulkeuduttua tai kun "
+"palautuskertojen raja on ylitetty. Pisteet tallennetaan, mutta ne "
+"eivät sisälly virallisiin tuloksiin."
 
 #: course/permissions.py:20 course/permissions.py:88
 msgid "Permission denied by course visibility"
@@ -1729,62 +1731,22 @@ msgstr ""
 "Tehtävän määräaika on mennyt ({date}). Voit edelleen palauttaa "
 "epävirallisesti saadaksesi palautetta."
 
-#: exercise/exercise_models.py:405
+#: exercise/exercise_models.py:422
 #, python-brace-format
 msgid "The exercise opens {date} for submissions."
 msgstr "Tämän tehtävän voi palauttaa {date} alkaen."
 
-#: exercise/exercise_models.py:409
+#: exercise/exercise_models.py:426
 #, python-brace-format
 msgid "Deadline for the exercise has passed ({date})."
 msgstr "Tehtävän määräaika on mennyt ({date})."
 
-#: exercise/exercise_models.py:413
+#: exercise/exercise_models.py:430
 #, python-brace-format
 msgid "This course has been archived ({date})."
 msgstr "Tämä kurssi on arkistoitu ({date})."
 
-#: exercise/exercise_models.py:494
-msgid "You cannot enroll in the course."
-msgstr "Et voi ilmoittautua kurssille."
-
-#: exercise/exercise_models.py:500
-msgid "Staff can submit exercises without enrolling."
-msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
-
-#: exercise/exercise_models.py:506
-msgid "You must enroll in the course to submit exercises."
-msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
-
-#: exercise/exercise_models.py:526
-msgid "Group can only change between different exercises."
-msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
-
-#: exercise/exercise_models.py:527
-#, python-brace-format
-msgid "You have previously submitted this exercise {with_group}. {msg}"
-msgstr "Olet palauttanut tämän tehtävän aiemmin {with_group}. {msg}"
-
-#: exercise/exercise_models.py:530
-msgid "alone"
-msgstr "yksin"
-
-#: exercise/exercise_models.py:534
-msgid "with {}"
-msgstr "ryhmässä {}"
-
-#: exercise/exercise_models.py:540
-#, python-brace-format
-msgid ""
-"{collaborators} already submitted to this exercise in a different group."
-msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
-
-#: exercise/exercise_models.py:555
-#, python-brace-format
-msgid "This exercise must be submitted in groups of {size} students."
-msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
-
-#: exercise/exercise_models.py:562
+#: exercise/exercise_models.py:483
 msgid ""
 "You have used the allowed amount of submissions for this exercise. You may "
 "still submit unofficially to receive feedback."
@@ -1792,11 +1754,51 @@ msgstr ""
 "Olet käyttänyt kaikki tehtävän palautuskerrat. Voit edelleen palauttaa "
 "epävirallisesti saadaksesi palautetta."
 
-#: exercise/exercise_models.py:566
+#: exercise/exercise_models.py:484
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:579
+#: exercise/exercise_models.py:526
+msgid "You cannot enroll in the course."
+msgstr "Et voi ilmoittautua kurssille."
+
+#: exercise/exercise_models.py:531
+msgid "Staff can submit exercises without enrolling."
+msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
+
+#: exercise/exercise_models.py:534
+msgid "You must enroll in the course to submit exercises."
+msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
+
+#: exercise/exercise_models.py:556
+msgid "Group can only change between different exercises."
+msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
+
+#: exercise/exercise_models.py:557
+#, python-brace-format
+msgid "You have previously submitted this exercise {with_group}. {msg}"
+msgstr "Olet palauttanut tämän tehtävän aiemmin {with_group}. {msg}"
+
+#: exercise/exercise_models.py:560
+msgid "alone"
+msgstr "yksin"
+
+#: exercise/exercise_models.py:564
+msgid "with {}"
+msgstr "ryhmässä {}"
+
+#: exercise/exercise_models.py:570
+#, python-brace-format
+msgid ""
+"{collaborators} already submitted to this exercise in a different group."
+msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
+
+#: exercise/exercise_models.py:585
+#, python-brace-format
+msgid "This exercise must be submitted in groups of {size} students."
+msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
+
+#: exercise/exercise_models.py:595
 msgid ""
 "Cannot submit exercise due to unknown reason. If you think this is an error, "
 "please contact course staff."
@@ -2081,8 +2083,8 @@ msgstr "Tälle tehtävälle ei ole annettu malliratkaisua."
 
 #: exercise/templates/exercise/_points_badge.html:11
 #: exercise/templates/exercise/_points_badge.html:29
-msgid "Submitted after deadline"
-msgstr "Palautettu määräajan jälkeen"
+msgid "Submitted after deadline or exceeded submission limit"
+msgstr "Palautettu määräajan jälkeen tai palautuskertojen määrä ylitetty"
 
 #: exercise/templates/exercise/_points_badge.html:11
 msgid "Accepted"

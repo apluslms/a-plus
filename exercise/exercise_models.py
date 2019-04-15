@@ -465,12 +465,23 @@ class BaseExercise(LearningObject):
 
     def one_has_submissions(self, students):
         if self.max_submissions == 0:
-            return True
+            return True, []
+        submission_count = 0
         for profile in students:
-            if self.get_submissions_for_student(profile, True).count() \
-                    < self.max_submissions_for_student(profile):
-                return True
-        return False
+            # The students are in the same group, therefore, each student should
+            # have the same submission count. However, max submission deviation
+            # may be set for only one group member.
+            submission_count = self.get_submissions_for_student(profile, True).count()
+            if submission_count < self.max_submissions_for_student(profile):
+                return True, []
+        max_unofficial_submissions = settings.MAX_UNOFFICIAL_SUBMISSIONS
+        if self.category.accept_unofficial_submits and \
+                (max_unofficial_submissions == 0 or submission_count < max_unofficial_submissions):
+            # Note: time is not checked here, but unofficial submissions are
+            # not allowed if the course archive time has passed.
+            # The caller must check the time limits too.
+            return True, [_('You have used the allowed amount of submissions for this exercise. You may still submit unofficially to receive feedback.')]
+        return False, [_('You have used the allowed amount of submissions for this exercise.')]
 
     def no_submissions_left(self, students):
         if self.max_submissions == 0:
@@ -576,18 +587,6 @@ class BaseExercise(LearningObject):
 
         access_ok,access_warnings = self.one_has_access(students)
         is_staff = all(self.course_instance.is_course_staff(p.user) for p in students)
-
-        if not self.one_has_submissions(students) and not is_staff:
-            if self.course_module.late_submissions_allowed:
-                access_warnings.append(_('You have used the allowed amount of submissions for this exercise. You may still submit unofficially to receive feedback.'))
-                return (self.SUBMIT_STATUS.ALLOWED,
-                        warnings + access_warnings,
-                        students)
-            warnings.append(_('You have used the allowed amount of submissions for this exercise.'))
-            return (self.SUBMIT_STATUS.AMOUNT_EXCEEDED,
-                    warnings + access_warnings,
-                    students)
-
         ok = (access_ok and len(warnings) == 0) or is_staff
         all_warnings = warnings + access_warnings
         if not ok:
@@ -596,7 +595,15 @@ class BaseExercise(LearningObject):
                     'Cannot submit exercise due to unknown reason. If you '
                     'think this is an error, please contact course staff.'))
             return self.SUBMIT_STATUS.INVALID, all_warnings, students
-        return self.SUBMIT_STATUS.ALLOWED, all_warnings, students
+
+        submit_limit_ok, submit_limit_warnings = self.one_has_submissions(students)
+        if not submit_limit_ok and not is_staff:
+            # access_warnings are not needed here
+            return (self.SUBMIT_STATUS.AMOUNT_EXCEEDED,
+                    submit_limit_warnings,
+                    students)
+
+        return self.SUBMIT_STATUS.ALLOWED, all_warnings + submit_limit_warnings, students
 
     def _detect_group_changes(self, profile, group, submission):
         submitters = list(submission.submitters.all())

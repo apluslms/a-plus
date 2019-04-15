@@ -8,7 +8,7 @@
 {% elif confirm_the_level %}
 {% if submitted %}
 <span class="badge{% if graded and official %} badge-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}{% endif %} {{ classes }}">
-  {% if not official %}{% trans 'Submitted after deadline' %}{% elif passed %}{% trans "Accepted" %}{% elif graded %}{% trans "Rejected" %}{% else %}{% trans "Submitted" %}{% endif %}
+  {% if not official %}{% trans 'Submitted after deadline or exceeded submission limit' %}{% elif passed %}{% trans "Accepted" %}{% elif graded %}{% trans "Rejected" %}{% else %}{% trans "Submitted" %}{% endif %}
 </span>
 {% elif confirmable_points %}
 <span class="badge badge-danger" data-toggle="tooltip" title="{% trans 'You must submit here to confirm your points. Submissions are accepted even after the deadline.' %}">
@@ -26,7 +26,7 @@
 {% endif %}
 <span class="badge{% if submitted and official %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
         data-toggle="tooltip" data-placement="bottom"
-        title="{% if not official %}{% trans 'Submitted after deadline' %}{% elif passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
+        title="{% if not official %}{% trans 'Submitted after deadline or exceeded submission limit' %}{% elif passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
     {{ points }} / {{ max }}
 </span>
 {% endif %}

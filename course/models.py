@@ -734,7 +734,7 @@ class LearningObjectCategory(models.Model):
     confirm_the_level = models.BooleanField(default=False,
         help_text=_("Once exercise is graded non zero it confirms all the points on the hierarchy level. Implemented as a mandatory feedback feature."))
     accept_unofficial_submits = models.BooleanField(default=False,
-        help_text=_("Grade unofficial submits after deadlines have passed. The points are stored but not included in official records."))
+        help_text=_("Grade unofficial submissions after deadlines have passed or submission limits have been exceeded. The points are stored but not included in official records."))
 
     #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
     #    blank=True, null=True)

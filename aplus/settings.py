@@ -287,6 +287,11 @@ REST_FRAMEWORK = {
 OVERRIDE_SUBMISSION_HOST = None
 REMOTE_PAGE_HOSTS_MAP = None
 
+# Maximum submissions limit for exercises that allow unofficial submissions.
+# The exercise-specific max submissions limit may then be exceeded, however,
+# this limit will prevent students from spamming massive amounts of submissions.
+# Set this value to zero in order to remove the limit.
+MAX_UNOFFICIAL_SUBMISSIONS = 200
 
 # Testing
 # https://docs.djangoproject.com/en/1.7/topics/testing/advanced/
