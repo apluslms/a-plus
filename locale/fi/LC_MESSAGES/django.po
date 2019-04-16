@@ -1999,7 +1999,7 @@ msgstr "Hylätty"
 
 #: exercise/submission_models.py:61
 #: exercise/templates/exercise/_exercise_info.html:24
-msgid "No points gained"
+msgid "No effect on grading"
 msgstr "Ei vaikuta arvosteluun"
 
 #: exercise/templates/exercise/_category_points.html:8

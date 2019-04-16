@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='submission',
             name='status',
-            field=models.CharField(choices=[('error', 'Error'), ('initialized', 'Initialized'), ('ready', 'Ready'), ('rejected', 'Rejected'), ('unofficial', 'No points gained'), ('waiting', 'In grading')], default='initialized', max_length=32),
+            field=models.CharField(choices=[('error', 'Error'), ('initialized', 'Initialized'), ('ready', 'Ready'), ('rejected', 'Rejected'), ('unofficial', 'No effect on grading'), ('waiting', 'In grading')], default='initialized', max_length=32),
         ),
     ]
