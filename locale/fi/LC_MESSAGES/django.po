@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-15 18:07+0300\n"
+"POT-Creation-Date: 2019-04-16 11:29+0300\n"
 "PO-Revision-Date: 2019-01-08 17:15+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -276,8 +276,8 @@ msgid ""
 "official records."
 msgstr ""
 "Arvostele epäviralliset palautukset tehtävän sulkeuduttua tai kun "
-"palautuskertojen raja on ylitetty. Pisteet tallennetaan, mutta ne "
-"eivät sisälly virallisiin tuloksiin."
+"palautuskertojen raja on ylitetty. Pisteet tallennetaan, mutta ne eivät "
+"sisälly virallisiin tuloksiin."
 
 #: course/permissions.py:20 course/permissions.py:88
 msgid "Permission denied by course visibility"
@@ -1722,14 +1722,14 @@ msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:401
+#: exercise/exercise_models.py:418
 #, python-brace-format
 msgid ""
-"Deadline for the exercise has passed ({date}). You may still submit "
-"unofficially to receive feedback."
+"Deadline for the exercise has passed ({date}). You may still submit to "
+"receive feedback, but your current grade will not change."
 msgstr ""
-"Tehtävän määräaika on mennyt ({date}). Voit edelleen palauttaa "
-"epävirallisesti saadaksesi palautetta."
+"Tehtävän määräaika on mennyt ({date}). Voit edelleen palauttaa saadaksesi "
+"palautetta, mutta nykyinen arvosanasi ei muutu."
 
 #: exercise/exercise_models.py:422
 #, python-brace-format
@@ -1749,10 +1749,10 @@ msgstr "Tämä kurssi on arkistoitu ({date})."
 #: exercise/exercise_models.py:483
 msgid ""
 "You have used the allowed amount of submissions for this exercise. You may "
-"still submit unofficially to receive feedback."
+"still submit to receive feedback, but your current grade will not change."
 msgstr ""
 "Olet käyttänyt kaikki tehtävän palautuskerrat. Voit edelleen palauttaa "
-"epävirallisesti saadaksesi palautetta."
+"saadaksesi palautetta, mutta nykyinen arvosanasi ei muutu."
 
 #: exercise/exercise_models.py:484
 msgid "You have used the allowed amount of submissions for this exercise."
@@ -1999,8 +1999,8 @@ msgstr "Hylätty"
 
 #: exercise/submission_models.py:61
 #: exercise/templates/exercise/_exercise_info.html:24
-msgid "Unofficial"
-msgstr "Epävirallinen"
+msgid "No points gained"
+msgstr "Ei vaikuta arvosteluun"
 
 #: exercise/templates/exercise/_category_points.html:8
 msgid "Total points"

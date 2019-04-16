@@ -415,7 +415,7 @@ class BaseExercise(LearningObject):
                 percent=self.course_module.get_late_submission_point_worth(),
             )]
         if timing == self.TIMING.UNOFFICIAL:
-            return True,[_("Deadline for the exercise has passed ({date}). You may still submit unofficially to receive feedback.").format(
+            return True,[_("Deadline for the exercise has passed ({date}). You may still submit to receive feedback, but your current grade will not change.").format(
                 date=date_format(d)
             )]
         if timing == self.TIMING.CLOSED_BEFORE:
@@ -480,7 +480,7 @@ class BaseExercise(LearningObject):
             # Note: time is not checked here, but unofficial submissions are
             # not allowed if the course archive time has passed.
             # The caller must check the time limits too.
-            return True, [_('You have used the allowed amount of submissions for this exercise. You may still submit unofficially to receive feedback.')]
+            return True, [_('You have used the allowed amount of submissions for this exercise. You may still submit to receive feedback, but your current grade will not change.')]
         return False, [_('You have used the allowed amount of submissions for this exercise.')]
 
     def no_submissions_left(self, students):
