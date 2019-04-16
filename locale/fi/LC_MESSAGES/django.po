@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-16 11:29+0300\n"
+"POT-Creation-Date: 2019-04-16 18:43+0300\n"
 "PO-Revision-Date: 2019-01-08 17:15+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1009,40 +1009,45 @@ msgstr ""
 "Arvostelulla numero {ordinal:d} on virheellisiä kenttiä:\n"
 " {errors}"
 
-#: edit_course/operations/configure.py:27
+#: edit_course/operations/configure.py:26
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a date."
 msgstr "Arvoa '{value}' ei voitu jäsentää päivämääränä."
 
-#: edit_course/operations/configure.py:55
+#: edit_course/operations/configure.py:54
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a time duration."
 msgstr "Arvoa '{value}' ei voitu jäsentää ajankestona."
 
-#: edit_course/operations/configure.py:63
+#: edit_course/operations/configure.py:62
 #, python-brace-format
 msgid "Unable to parse value '{value}' as an int."
 msgstr "Arvoa '{value}' ei voitu jäsentää kokonaislukuna."
 
-#: edit_course/operations/configure.py:71
+#: edit_course/operations/configure.py:70
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a float."
 msgstr "Arvoa '{value}' ei voitu jäsentää liukulukuna."
 
 #: edit_course/operations/configure.py:85
+#, python-brace-format
+msgid "Field '{field}' has an unknown value '{value}'."
+msgstr "Kentällä '{field}' on tuntematon arvo '{value}'."
+
+#: edit_course/operations/configure.py:97
 msgid "Learning object requires a key."
 msgstr "Oppimisolio vaatii avaimen."
 
-#: edit_course/operations/configure.py:88
+#: edit_course/operations/configure.py:100
 msgid "Learning object requires a category."
 msgstr "Oppimisolio vaatii kategorian."
 
-#: edit_course/operations/configure.py:91
+#: edit_course/operations/configure.py:103
 #, python-brace-format
 msgid "Unknown category '{category}'."
 msgstr "Tuntematon kategoria '{category}'."
 
-#: edit_course/operations/configure.py:121
+#: edit_course/operations/configure.py:133
 #, python-brace-format
 msgid ""
 "The site has no configuration for the LTI service '{lti_label}' used by the "
@@ -1055,27 +1060,27 @@ msgstr ""
 "'lti' arvon tai sivuston ylläpitäjä ei ole vielä lisännyt tämän LTI-palvelun "
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
 
-#: edit_course/operations/configure.py:255
+#: edit_course/operations/configure.py:267
 msgid "Cannot request build log from build_log_url when it is blank."
 msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
 
-#: edit_course/operations/configure.py:259
+#: edit_course/operations/configure.py:271
 msgid "Requesting build log failed with error '{error!s}'."
 msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
 
-#: edit_course/operations/configure.py:264
+#: edit_course/operations/configure.py:276
 msgid "Parsing the build log JSON raised error '{error!s}'."
 msgstr "Rakentamislokin jäsentäminen palautti virheen '{error!s}'."
 
-#: edit_course/operations/configure.py:267
+#: edit_course/operations/configure.py:279
 msgid "Remote URL returned an empty build log."
 msgstr "Etäpalvelin palautti tyhjän käännöslokin."
 
-#: edit_course/operations/configure.py:276
+#: edit_course/operations/configure.py:288
 msgid "Configuration URL required."
 msgstr "Konfiguraatio-URL vaaditaan."
 
-#: edit_course/operations/configure.py:281
+#: edit_course/operations/configure.py:293
 msgid ""
 "Request for a course configuration failed with error '{error!s}'. "
 "Configuration of course aborted."
@@ -1083,15 +1088,15 @@ msgstr ""
 "Kurssikonfigurointipyyntö epäonnistui virheellä '{error!s}'. Konfigurointi "
 "keskeytettiin."
 
-#: edit_course/operations/configure.py:290
+#: edit_course/operations/configure.py:302
 msgid "JSON parser raised error '{error!s}'. Configuration of course aborted."
 msgstr "JSON parseri tuotti virheen '{error!s}'. Konfigurointi keskeytettiin."
 
-#: edit_course/operations/configure.py:316
+#: edit_course/operations/configure.py:397
 msgid "Assistants must be given as a student ID array."
 msgstr "Assistentit tulee antaa oppilasnumero-taulukkona."
 
-#: edit_course/operations/configure.py:323
+#: edit_course/operations/configure.py:404
 #, python-brace-format
 msgid ""
 "Adding the assistant failed, because an associated user with student ID {id} "
@@ -1100,47 +1105,47 @@ msgstr ""
 "Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
 "ei ole olemassa."
 
-#: edit_course/operations/configure.py:334
+#: edit_course/operations/configure.py:417
 msgid "Categories required as an object."
 msgstr "Kategoriat vaaditaan objektina."
 
-#: edit_course/operations/configure.py:337
+#: edit_course/operations/configure.py:420
 msgid "Modules required as an array."
 msgstr "Moduulit vaaditaan taulukkona."
 
-#: edit_course/operations/configure.py:345
+#: edit_course/operations/configure.py:428
 msgid "Category requires a name."
 msgstr "Kategoria vaatii nimen."
 
-#: edit_course/operations/configure.py:379
+#: edit_course/operations/configure.py:466
 msgid "Module requires a key."
 msgstr "Moduuli vaatii avaimen."
 
-#: edit_course/operations/configure.py:479
+#: edit_course/operations/configure.py:569
 msgid "ExerciseCollection object requires collection_category."
 msgstr "Tehtäväkokoelmaolio tarvitsee collection_category:n."
 
-#: edit_course/operations/configure.py:482
+#: edit_course/operations/configure.py:572
 msgid "ExerciseCollection object must have either identified or URL"
 msgstr "Tehtäväkokoelmaolion täytyy omata joko määrittely identified tai URL."
 
-#: edit_course/operations/configure.py:490
+#: edit_course/operations/configure.py:580
 msgid "Course: {} does not exist"
 msgstr "Kurssi: {} ei ole olemassa"
 
-#: edit_course/operations/configure.py:496
+#: edit_course/operations/configure.py:586
 msgid "Course: {}, Instance: {}, not found."
 msgstr "Kurssi: {}, Instanssi: {}, ei löytynyt."
 
-#: edit_course/operations/configure.py:501
+#: edit_course/operations/configure.py:591
 msgid "ExerciseColletion URL \"{}\" not in correct domain {}."
 msgstr "Tehtäväkokoelman URL \"{}\" ei ole oikeassa domainissa {}."
 
-#: edit_course/operations/configure.py:512
+#: edit_course/operations/configure.py:602
 msgid "No course found with URL \"{}\""
 msgstr "Kurssia ei löytynyt URLla \"{}\""
 
-#: edit_course/operations/configure.py:518
+#: edit_course/operations/configure.py:608
 msgid "Category: {}, not found in Course: {}, Instance: {}."
 msgstr "Kategoria: {}, ei löytynyt kurssista: {}, instanssista: {}."
 

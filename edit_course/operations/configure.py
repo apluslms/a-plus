@@ -75,6 +75,19 @@ def parse_bool(value):
     return value in [True, "true", "yes", "True", "Yes"]
 
 
+def parse_choices(value, choices, field_name, errors):
+    # value is the value in the JSON.
+    # choices is a dict of accepted values:
+    # it maps expected JSON values to the corresponding model/database field values.
+    # field_name is the name of the JSON field.
+    parsed_value = choices.get(value, None)
+    if parsed_value is None:
+        errors.append(_("Field '{field}' has an unknown value '{value}'.").format(
+                field=field_name, value=str(value)))
+        return None
+    return parsed_value
+
+
 def configure_learning_objects(category_map, module, config, parent,
         seen, errors, n=0):
     if not isinstance(config, list):
@@ -300,6 +313,72 @@ def configure_content(instance, url):
         dt = parse_date(config["end"], errors)
         if dt:
             instance.ending_time = dt
+    if "enrollment_start" in config:
+        dt = parse_date(config["enrollment_start"], errors)
+        if dt:
+            instance.enrollment_starting_time = dt
+    if "enrollment_end" in config:
+        dt = parse_date(config["enrollment_end"], errors)
+        if dt:
+            instance.enrollment_ending_time = dt
+    if "lifesupport_time" in config:
+        dt = parse_date(config["lifesupport_time"], errors)
+        if dt:
+            instance.lifesupport_time = dt
+    if "archive_time" in config:
+        dt = parse_date(config["archive_time"], errors)
+        if dt:
+            instance.archive_time = dt
+    if "enrollment_audience" in config:
+        enroll_audience = parse_choices(config["enrollment_audience"], {
+                'internal': CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
+                'external': CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS,
+                'all': CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS,
+            }, "enrollment_audience", errors)
+        if enroll_audience is not None:
+            instance.enrollment_audience = enroll_audience
+    if "view_content_to" in config:
+        view_content_to = parse_choices(config["view_content_to"], {
+                'enrolled': CourseInstance.VIEW_ACCESS.ENROLLED,
+                'enrollment_audience': CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
+                'all_registered': CourseInstance.VIEW_ACCESS.ALL_REGISTERED,
+                'public': CourseInstance.VIEW_ACCESS.PUBLIC,
+            }, "view_content_to", errors)
+        if view_content_to is not None:
+            instance.view_content_to = view_content_to
+    if "index_mode" in config:
+        index_mode = parse_choices(config["index_mode"], {
+                'results': CourseInstance.INDEX_TYPE.RESULTS,
+                'toc': CourseInstance.INDEX_TYPE.TOC,
+                'last': CourseInstance.INDEX_TYPE.LAST,
+                'experimental': CourseInstance.INDEX_TYPE.EXPERIMENT,
+            }, "index_mode", errors)
+        if index_mode is not None:
+            instance.index_mode = index_mode
+
+    numbering_choices = {
+        'none': CourseInstance.CONTENT_NUMBERING.NONE,
+        'arabic': CourseInstance.CONTENT_NUMBERING.ARABIC,
+        'roman': CourseInstance.CONTENT_NUMBERING.ROMAN,
+        'hidden': CourseInstance.CONTENT_NUMBERING.HIDDEN,
+    }
+    if "content_numbering" in config:
+        numbering = parse_choices(config["content_numbering"], numbering_choices,
+            "content_numbering", errors)
+        if numbering is not None:
+            instance.content_numbering = numbering
+    if "module_numbering" in config:
+        numbering = parse_choices(config["module_numbering"], numbering_choices,
+            "module_numbering", errors)
+        if numbering is not None:
+            instance.module_numbering = numbering
+    if "course_description" in config:
+        # Course index.yaml files have previously used the field "description"
+        # for a hidden description, so we use "course_description" for
+        # the visible description.
+        instance.description = str(config["course_description"])
+    if "course_footer" in config:
+        instance.footer = str(config["course_footer"])
     if "lang" in config:
         langs = config["lang"]
         if isinstance(langs, list):
