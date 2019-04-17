@@ -445,7 +445,7 @@ def configure_content(instance, url):
             "accept_unofficial_submits",
         ]:
             if field in c:
-                setattr(category, field, parse_bool(o[field]))
+                setattr(category, field, parse_bool(c[field]))
         category.full_clean()
         category.save()
         category_map[key] = category
