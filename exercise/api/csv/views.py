@@ -154,6 +154,9 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
         ids = [e['id'] for e in exercises if e['type'] == 'exercise']
         aggr = Submission.objects\
             .filter(exercise__in=ids, submitters__in=profiles)\
+            .exclude(status__in=(
+                Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
+            ))\
             .values('submitters__user_id','exercise_id')\
             .annotate(total=Max('grade'),count=Count('id'))\
             .order_by()
