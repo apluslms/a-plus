@@ -68,7 +68,7 @@ class UserExerciseSummary(object):
         return self.best_submission
 
     def get_points(self):
-        return self.best_submission.grade if self.best_submission else 0
+        return self.best_submission.grade if self.best_submission and not self.unofficial else 0
 
     def get_penalty(self):
         return self.best_submission.late_penalty_applied if self.best_submission else None

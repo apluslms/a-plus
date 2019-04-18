@@ -498,7 +498,7 @@ class ExerciseTest(TestCase):
         self.assertEqual(self.late_submission_when_late_allowed.status, Submission.STATUS.UNOFFICIAL)
         summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
         self.assertEqual(summary.get_submission_count(), 3)
-        self.assertEqual(summary.get_points(), 100)
+        self.assertEqual(summary.get_points(), 0) # unofficial points are not shown here
         self.assertFalse(summary.is_graded())
         self.assertTrue(summary.is_unofficial())
 
