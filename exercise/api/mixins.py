@@ -1,6 +1,7 @@
 from django.http import Http404
 
 from authorization.api.mixins import ApiResourceMixin
+from authorization.permissions import ACCESS
 from course.viewbase import (
     CourseInstanceBaseMixin,
     CourseModuleBaseMixin,
@@ -34,7 +35,15 @@ class ExerciseBaseResourceMixin(CourseInstanceBaseMixin,
 
 
 class ExerciseResourceMixin(ExerciseBaseResourceMixin, ApiResourceMixin):
-    pass
+    access_mode = ACCESS.ANONYMOUS # not really used, see get_access_mode() below
+
+    def get_access_mode(self):
+        # This method is defined here because some permissions expect view classes
+        # to have this method. Access mode was not really intended to be used by
+        # the API, though. Class CourseInstanceBaseMixin actually defines this
+        # method, but it calls super(), which would crash unless this class
+        # defined this method.
+        return self.access_mode
 
 
 class SubmissionBaseResourceMixin(ExerciseBaseResourceMixin,
