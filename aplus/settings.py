@@ -16,6 +16,7 @@ ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 #SERVER_EMAIL = 'root@'
+EMAIL_TIMEOUT = 30 # Do not block web workers when email backend is broken
 ALLOWED_HOSTS = ["*"]
 ##########################################################################
 
