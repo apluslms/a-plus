@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_delete, post_save
-from django.template import loader, Context
+from django.template import loader
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import get_language, ugettext_lazy as _
@@ -782,7 +782,7 @@ class LTIExercise(BaseExercise):
         page = ExercisePage(self)
         page.content = self.content
         template = loader.get_template('external_services/_launch.html')
-        page.content += template.render(Context({
+        page.content += template.render({
             'service': self.lti_service,
             'service_label': self.lti_service.menu_label,
             'url': url,
@@ -791,7 +791,7 @@ class LTIExercise(BaseExercise):
             'exercise': self,
             'is_course_staff': self.course_instance.is_course_staff(request.user),
             'site': '/'.join(url.split('/')[:3]),
-        }))
+        })
         return page
 
     def _get_lti(self, user, students, request, add=None):
@@ -923,7 +923,7 @@ class ExerciseWithAttachment(BaseExercise):
         # submitted. A template is used to avoid hard-coded HTML here.
         if self.get_files_to_submit():
             template = loader.get_template('exercise/model/_file_submit_form.html')
-            context = Context({'files' : self.get_files_to_submit()})
+            context = {'files' : self.get_files_to_submit()}
             page.content += template.render(context)
 
         return page

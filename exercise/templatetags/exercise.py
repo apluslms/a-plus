@@ -199,19 +199,19 @@ def points_badge(obj, classes=None):
     return _points_data(obj, classes)
 
 
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def max_group_size(context):
     points = _prepare_context(context)
     return points.total()['max_group_size']
 
 
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def min_group_size(context):
     points = _prepare_context(context)
     return points.total()['min_group_size']
 
 
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def module_accessible(context, entry):
     t = entry.get('opening_time')
     if t and t > _prepare_now(context):
@@ -223,7 +223,7 @@ def module_accessible(context, entry):
     return True
 
 
-@register.assignment_tag
+@register.simple_tag
 def get_grading_errors(submission):
     if not isinstance(submission.grading_data, dict):
         return ""

@@ -23,6 +23,7 @@ class TabView(CourseInstanceBaseView):
         else:
             raise TypeError("Unexptected tab container: {}".format(
                 self.container.__class__))
+        self.note('container')
 
     def get(self, request, *args, **kwargs):
         tab_renderer = self.tab_object.get_renderer_class()(
@@ -30,4 +31,5 @@ class TabView(CourseInstanceBaseView):
            self.profile,
            self.container
         )
-        return self.response(tab=tab_renderer, container=self.container)
+        return super().get(request, *args, **kwargs, tab=tab_renderer)
+

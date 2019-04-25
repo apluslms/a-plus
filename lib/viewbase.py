@@ -2,27 +2,13 @@
 Defines base views for extending and mixing to higher level views.
 The structure was created for handling nested models.
 """
-from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponseRedirect
 from django.utils.http import is_safe_url
 from django.views.generic.base import TemplateResponseMixin, TemplateView, View
 from django.views.generic.edit import FormMixin, FormView
 
-from lib.helpers import deprecated
 from authorization.views import AuthorizedResourceMixin
-from authorization.permissions import (
-    Permission,
-    AccessModePermission,
-)
-
-
-class AccessControlPermission(Permission):
-    def has_permission(self, request, view):
-        try:
-            view.access_control()
-            return True
-        except PermissionDenied:
-            return False
+from authorization.permissions import AccessModePermission
 
 
 class BaseMixin(object):
@@ -36,7 +22,6 @@ class BaseMixin(object):
     #access_mode = ACCESS.ANONYMOUS
     base_permission_classes = [
         AccessModePermission,
-        AccessControlPermission,
     ]
 
     def get_permissions(self):
@@ -46,17 +31,6 @@ class BaseMixin(object):
 
     def get_access_mode(self):
         return self.access_mode
-
-    @deprecated("access_control is deprecated and should be replaced with correct permission_classes")
-    def access_control(self):
-        """
-        Support old access_control system with AccessControlPermission
-        """
-        pass
-
-    @deprecated("self.handle() is deprecated. There is no need to call it anymore.")
-    def handle(self):
-        pass
 
     def _get_kwarg(self, kw, **kwargs):
         arg = self.kwargs.get(kw)
@@ -82,10 +56,6 @@ class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
     ajax_template_name = None
     force_ajax_template = False
 
-    @deprecated("self.response() is deprecated and should be replaced with super().get(...)")
-    def response(self, **kwargs):
-        return self.render_to_response(self.get_context_data(**kwargs))
-
     def get_template_names(self):
         if self.force_ajax_template or self.request.is_ajax() or not self.template_name:
             if self.ajax_template_name:
@@ -104,7 +74,7 @@ class BaseRedirectMixin(BaseMixin):
         return self.redirect(to, backup)
 
     def redirect(self, to, backup=None):
-        if not is_safe_url(url=to, host=self.request.get_host()):
+        if not is_safe_url(url=to, allowed_hosts={self.request.get_host()}):
             if backup:
                 to = backup.get_absolute_url()
             else:

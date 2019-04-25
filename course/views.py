@@ -10,7 +10,6 @@ from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import html
 from django.utils import timezone
-from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
@@ -201,7 +200,7 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
     def form_valid(self, form):
         enrollment = form.save()
         if self.request.is_ajax():
-            return self.response(
-                **group_info_context(enrollment.selected_group, self.profile)
-            )
+            return self.render_to_response(self.get_context_data(
+                **group_info_context(enrollment.selected_group, self.profile)))
         return super().form_valid(form)
+

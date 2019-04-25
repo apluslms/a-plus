@@ -1,8 +1,11 @@
+import html
+
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy as ungettext
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, \
@@ -281,7 +284,7 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
                 messages.error(request, error)
         else:
             messages.success(request, _("New submissions stored."))
-        return self.response()
+        return self.render_to_response(self.get_context_data())
 
 
 class CloneInstanceView(CourseInstanceMixin, BaseFormView):
@@ -347,7 +350,10 @@ class SignInAsUser(BaseRedirectMixin, BaseTemplateView):
 
     def post(self, request, *args, **kwargs):
         username = request.POST.get('username', None)
-        user = User.objects.get(username=username)
-        user.backend = "django.contrib.auth.backends.ModelBackend"
-        auth_login(request, user)
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, _('Username "{username}" does not exist.').format(username=html.escape(username)))
+            return self.redirect(reverse('signin-as-user'))
+        auth_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         return self.redirect("/")

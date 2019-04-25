@@ -27,7 +27,7 @@ class ShibbolethException(Exception):
 
 def login(request):
     try:
-        user = authenticate(shibd_meta=request.META)
+        user = authenticate(request=request, shibd_meta=request.META)
         if not user:
             raise ShibbolethException(
                 _("Failed to login the user. "
@@ -35,7 +35,7 @@ def login(request):
                   "Check the Apache mod_shibd is active and /shibboleth is protected.")
             )
         if not user.is_active:
-            logger.warn("Shibboleth login attempt for inactive user: {}".format(user.username))
+            logger.warning("Shibboleth login attempt for inactive user: {}".format(user.username))
             raise ShibbolethException(
                 _("The user account has been disabled.")
             )
@@ -44,7 +44,7 @@ def login(request):
         logger.debug("Shibboleth login: {}".format(user.username))
         
         redirect_to = request.GET.get(REDIRECT_FIELD_NAME, '')
-        if not is_safe_url(url=redirect_to, host=request.get_host()):
+        if not is_safe_url(url=redirect_to, allowed_hosts={request.get_host()}):
             redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
         
         return HttpResponseRedirect(redirect_to)

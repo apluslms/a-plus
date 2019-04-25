@@ -112,6 +112,8 @@ class ExerciseTest(TestCase):
             url="l1",
         )
 
+        # Learning object names are not unique, so this object really is not
+        # broken despite the variable name.
         self.broken_learning_object = LearningObject.objects.create(
             name="test learning object",
             course_module=self.course_module_with_late_submissions_allowed,
@@ -245,9 +247,9 @@ class ExerciseTest(TestCase):
     def test_learning_object_clean(self):
         try:
             self.learning_object.clean()
+            self.broken_learning_object.clean() # should validate since it really is not broken
         except ValidationError:
             self.fail()
-        self.assertRaises(ValidationError, self.broken_learning_object.clean())
 
     def test_learning_object_course_instance(self):
         self.assertEqual(self.course_instance, self.learning_object.course_instance)

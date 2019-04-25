@@ -5,10 +5,8 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^login/$', views.login,
-        name="login"),
-    url(r'^logout/$', auth_views.logout,
-        { "template_name": "userprofile/logout.html" },
+    url(r'^login/$', views.CustomLoginView.as_view(), name="login"),
+    url(r'^logout/$', auth_views.LogoutView.as_view(template_name="userprofile/logout.html"),
         name="logout"),
     url(r'^privacy-notice/$', views.PrivacyNoticeView.as_view(),
         name="privacy_notice"),

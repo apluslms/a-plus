@@ -160,8 +160,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
         self.get_summary_submissions()
-        return self.response(page=page, students=students,
-            submission=new_submission)
+        return self.render_to_response(self.get_context_data(
+            page=page, students=students, submission=new_submission))
 
     def submission_check(self, error=False, request=None):
         if not self.profile:

@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
+from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, NestedHyperlinkedIdentityFieldWithQuery
 from exercise.api.serializers import ExerciseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer

@@ -2,6 +2,8 @@ import datetime
 import logging
 
 from django.contrib.auth.models import User
+from django.utils.formats import date_format
+from django.utils import timezone
 import lxml
 import oauthlib.oauth1
 from rest_framework import status
@@ -129,6 +131,10 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
     
     @classmethod
     def setUpTestData(cls):
+        cls.now = timezone.now()
+        cls.year_before = cls.now - datetime.timedelta(days=365)
+        cls.year_after = cls.now + datetime.timedelta(days=365)
+
         cls.student1 = User.objects.create_user(username='student1', password='123456')
         cls.student1_profile = UserProfile.objects.get(user=cls.student1)
         cls.student1_profile.student_id = '123456'
@@ -149,8 +155,8 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             course=cls.course,
             instance_name='Test',
             url='test',
-            starting_time=datetime.datetime(year=2018, month=1, day=1),
-            ending_time=datetime.datetime(year=2030, month=1, day=1),
+            starting_time=cls.year_before,
+            ending_time=cls.year_after,
         )
         cls.student1_enrollment = Enrollment.objects.create(
             course_instance=cls.course_instance,
@@ -160,7 +166,8 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             name='Module 1',
             url='module1',
             course_instance=cls.course_instance,
-            closing_time=datetime.datetime(year=2029, month=1, day=1),
+            opening_time=cls.year_before,
+            closing_time=cls.year_after,
         )
         cls.category = LearningObjectCategory.objects.create(
             name='LTI exercises',
@@ -243,7 +250,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         self.assertEqual(submission.status, 'ready')
         self.assertEqual(submission.submitters.count(), 1)
         self.assertEqual(submission.submitters.first(), self.student1_profile)
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2)))
+        now = timezone.now()
         self.assertTrue(submission.submission_time < now + datetime.timedelta(minutes=1))
         self.assertTrue(submission.submission_time > now - datetime.timedelta(minutes=1))
         self.assertEqual(submission.grading_data, {
@@ -259,14 +266,14 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             exercise=self.lti_exercise,
             status=Submission.STATUS.READY,
             grade=46,
-            grading_time=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2))),
+            grading_time=self.now,
             grading_data={
                 'score': '0.46',
                 'lti_msgid': 'ifhdye73yjdnhwy',
                 'sourced_id': sourced_id1,
             },
         )
-        submission1.submitters = [self.student1_profile]
+        submission1.submitters.set([self.student1_profile])
         
         # second submission in the same exercise
         sourced_id2 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -274,14 +281,14 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             exercise=self.lti_exercise,
             status=Submission.STATUS.READY,
             grade=20,
-            grading_time=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2))),
+            grading_time=self.now,
             grading_data={
                 'score': '0.20',
                 'lti_msgid': 'kfofi8ey7dbndu',
                 'sourced_id': sourced_id2,
             },
         )
-        submission2.submitters = [self.student1_profile]
+        submission2.submitters.set([self.student1_profile])
         
         # different exercise
         sourced_id3 = self.mk_sourced_id(self.lti_exercise2, enrollment=self.student1_enrollment)
@@ -289,14 +296,14 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             exercise=self.lti_exercise2,
             status=Submission.STATUS.READY,
             grade=48,
-            grading_time=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2))),
+            grading_time=self.now,
             grading_data={
                 'score': '0.96',
                 'lti_msgid': 'i8463yrfjdbdye63hdksHFisk',
                 'sourced_id': sourced_id3,
             },
         )
-        submission3.submitters = [self.student1_profile]
+        submission3.submitters.set([self.student1_profile])
         
         # make the test request
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
@@ -386,14 +393,14 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             exercise=self.lti_exercise,
             status=Submission.STATUS.READY,
             grade=86,
-            grading_time=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2))),
+            grading_time=self.now,
             grading_data={
                 'score': '0.86',
                 'lti_msgid': 'khnsdnsdi2743j2',
                 'sourced_id': sourced_id1,
             },
         )
-        submission1.submitters = [self.student1_profile]
+        submission1.submitters.set([self.student1_profile])
         
         # make the test request
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
@@ -1073,7 +1080,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
                 status=Submission.STATUS.READY,
                 grade=40,
             )
-            submission.submitters = [self.student1_profile]
+            submission.submitters.set([self.student1_profile])
         
         # try to make a new submission
         sourced_id1 = self.mk_sourced_id(self.lti_exercise2, enrollment=self.student1_enrollment)
@@ -1107,6 +1114,10 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
     
     @classmethod
     def setUpTestData(cls):
+        cls.now = timezone.now()
+        cls.year_before = cls.now - datetime.timedelta(days=365)
+        cls.year_after = cls.now + datetime.timedelta(days=365)
+
         cls.student1 = User.objects.create_user(username='student1', password='123456')
         cls.student1_profile = UserProfile.objects.get(user=cls.student1)
         cls.student1_profile.student_id = '123456'
@@ -1127,8 +1138,8 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             course=cls.course,
             instance_name='Test',
             url='test',
-            starting_time=datetime.datetime(year=2018, month=1, day=1),
-            ending_time=datetime.datetime(year=2030, month=1, day=1),
+            starting_time=cls.year_before,
+            ending_time=cls.year_after,
         )
         
         cls.category = LearningObjectCategory.objects.create(
@@ -1141,10 +1152,8 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             name='Module 1',
             url='module1',
             course_instance=self.course_instance,
-            opening_time=datetime.datetime(year=2018, month=1, day=1,
-                                           tzinfo=datetime.timezone(datetime.timedelta(hours=2))),
-            closing_time=datetime.datetime(year=2030, month=1, day=2,
-                                           tzinfo=datetime.timezone(datetime.timedelta(hours=2))),
+            opening_time=self.year_before,
+            closing_time=self.year_after,
         )
         lti_exercise = LTIExercise.objects.create(
             name='LTI exercise 1',
@@ -1193,10 +1202,8 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             name='Module 1',
             url='module1',
             course_instance=self.course_instance,
-            opening_time=datetime.datetime(year=2018, month=1, day=1,
-                                           tzinfo=datetime.timezone(datetime.timedelta(hours=2))),
-            closing_time=datetime.datetime(year=2018, month=1, day=2,
-                                           tzinfo=datetime.timezone(datetime.timedelta(hours=2))), # deadline has passed
+            opening_time=self.year_before,
+            closing_time=self.now - datetime.timedelta(days=1), # deadline has passed
         )
         lti_exercise = LTIExercise.objects.create(
             name='LTI exercise 1',
@@ -1226,7 +1233,8 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             msg_id='xxxx', # random, can not know beforehand
             code_major='failure',
             severity='status',
-            description='Deadline for the exercise has passed (Jan. 1, 2018).',
+            description='Deadline for the exercise has passed ({date}).'.format(
+                date=date_format(course_module.closing_time)),
             msg_ref_id='vbxhsgsy764y3dg',
             operation_ref='replaceResult',
             extra_status='',
@@ -1242,6 +1250,10 @@ class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
     
     @classmethod
     def setUpTestData(cls):
+        cls.now = timezone.now()
+        cls.year_before = cls.now - datetime.timedelta(days=365)
+        cls.year_after = cls.now + datetime.timedelta(days=365)
+
         cls.student1 = User.objects.create_user(username='student1', password='123456')
         cls.student1_profile = UserProfile.objects.get(user=cls.student1)
         cls.student1_profile.student_id = '123456'
@@ -1262,8 +1274,8 @@ class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
             course=cls.course,
             instance_name='Test',
             url='test',
-            starting_time=datetime.datetime(year=2018, month=1, day=1),
-            ending_time=datetime.datetime(year=2030, month=1, day=1),
+            starting_time=cls.year_before,
+            ending_time=cls.year_after,
         )
         cls.student1_enrollment = Enrollment.objects.create(
             course_instance=cls.course_instance,
@@ -1273,7 +1285,8 @@ class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
             name='Module 1',
             url='module1',
             course_instance=cls.course_instance,
-            closing_time=datetime.datetime(year=2029, month=1, day=1),
+            opening_time=cls.now,
+            closing_time=cls.year_after,
         )
         cls.category = LearningObjectCategory.objects.create(
             name='LTI exercises',

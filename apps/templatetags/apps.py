@@ -12,7 +12,7 @@ logger = logging.getLogger("aplus.apps")
 register = template.Library()
 
 
-@register.assignment_tag
+@register.simple_tag
 def plugin_renderers(user, some_model, view_name=None):
     """
     Builds the plugin renderers for a view.
@@ -44,6 +44,6 @@ def plugin_renderers(user, some_model, view_name=None):
             exercise=some_model.exercise,
             course_instance=course_instance,
         )
-    logger.warn("Unrecognized model type received for plugin_renderers tag: {}" \
+    logger.warning("Unrecognized model type received for plugin_renderers tag: {}" \
                 .format(str(type(some_model))))
     return []

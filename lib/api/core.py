@@ -15,12 +15,9 @@ APLUS_JSON_TYPE = 'application/vnd.aplus+json'
 
 class _MediaType(mediatypes._MediaType):
     """
-    local fix to work in our classes
-    Should be removed when upstream version works
+    Slightly modified private _MediaType class from Django REST framework.
+    This version has full_type property for convenience.
     """
-    def __init__(self, *args, **kwargs):
-        super(_MediaType, self).__init__(*args, **kwargs)
-        self.params = dict(((k, unicode_http_header(v)) for k, v in self.params.items()))
 
     @property
     def full_type(self):
@@ -68,7 +65,9 @@ class APlusVersioning(URLPathVersioning):
         # update the version so the respond content type has the correct version
         media_type = _MediaType(request.accepted_media_type)
         accept_version = unicode_http_header(media_type.params.get(self.version_param, ''))
-        media_type.params[self.version_param] = api_version
+        media_type.params[self.version_param] = api_version.encode('ascii')
+        # dict values in _MediaType.params must be of type bytes.
+        # DRF calls val.decode('ascii') on them in _MediaType.__str__
         request.accepted_media_type = str(media_type)
 
         if accept_version:

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-16 18:43+0300\n"
+"POT-Creation-Date: 2019-05-06 14:59+0300\n"
 "PO-Revision-Date: 2019-01-08 17:15+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1575,52 +1575,56 @@ msgstr "Ei opiskelijamerkintöjä."
 msgid "Add new user tagging"
 msgstr "Merkitse opiskelijoita"
 
-#: edit_course/views.py:155
+#: edit_course/views.py:158
 msgid ""
 "At least one exercise category must be created before creating exercises."
 msgstr "Vähintään yksi kategoria pitää luoda ennen harjoitusten lisäämistä."
 
-#: edit_course/views.py:172
+#: edit_course/views.py:175
 #, python-brace-format
 msgid "Failed to save {name} due to an error '{error}'."
 msgstr "Kohteen {name} tallennus epäonnistui virheen '{error}' takia."
 
-#: edit_course/views.py:176
+#: edit_course/views.py:179
 #, python-brace-format
 msgid "The {name} was saved successfully."
 msgstr "Kohde {name} tallennettiin onnistuneesti."
 
-#: edit_course/views.py:182
+#: edit_course/views.py:185
 #, python-brace-format
 msgid "Failed to save {name}."
 msgstr "Kohteen {name} tallennus epäonnistui."
 
-#: edit_course/views.py:262
+#: edit_course/views.py:265
 #, python-brace-format
 msgid "Tagged user {user_name} with tag {tag_name}."
 msgid_plural "Tagged users {user_name} with tag {tag_name}."
 msgstr[0] "Lisättiin käyttäjälle {user_name} merkintä {tag_name}"
 msgstr[1] "Lisättiin käyttäjille {user_name} merkintä {tag_name}"
 
-#: edit_course/views.py:283
+#: edit_course/views.py:286
 msgid "New submissions stored."
 msgstr "Uudet palautukset tallennettiin."
 
-#: edit_course/views.py:300
+#: edit_course/views.py:303
 msgid "Course instance is now cloned."
 msgstr "Kurssikerta on nyt kopioitu."
 
-#: edit_course/views.py:322
+#: edit_course/views.py:325
 msgid "Course content configured."
 msgstr "Kurssin sisältö on konfiguroitu."
 
-#: edit_course/views.py:324
+#: edit_course/views.py:327
 msgid "Server returned error '{error!s}'."
 msgstr "Palvelin palautti virheen: '{error!s}'"
 
-#: edit_course/views.py:330
+#: edit_course/views.py:333
 msgid "Exercise caches have been cleared."
 msgstr "Tehtävien välimuisti on tyhjennetty."
+
+#: edit_course/views.py:356
+msgid "Username \"{username}\" does not exist."
+msgstr "Käyttäjätunnusta \"{username}\" ei ole olemassa."
 
 #: exercise/admin.py:40
 msgid "Real class"

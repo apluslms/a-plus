@@ -13,52 +13,52 @@ api = ExtendedDefaultRouter()
 
 api.register(r'users',
              userprofile.api.views.UserViewSet,
-             base_name='user')
+             basename='user')
 
 with api.register(r'courses',
                   course.api.views.CourseViewSet,
-                  base_name='course') as courses:
+                  basename='course') as courses:
     courses.register(r'exercises',
                      course.api.views.CourseExercisesViewSet,
-                     base_name='course-exercises')
+                     basename='course-exercises')
     courses.register(r'students',
                      course.api.views.CourseStudentsViewSet,
-                     base_name='course-students')
+                     basename='course-students')
     courses.register(r'usertags',
                      course.api.views.CourseUsertagsViewSet,
-                     base_name='course-usertags')
+                     basename='course-usertags')
     courses.register(r'taggings',
                      course.api.views.CourseUsertaggingsViewSet,
-                     base_name='course-taggings')
+                     basename='course-taggings')
     courses.register(r'points',
                      exercise.api.views.CoursePointsViewSet,
-                     base_name='course-points')
+                     basename='course-points')
     courses.register(r'submissiondata',
                      exercise.api.csv.views.CourseSubmissionDataViewSet,
-                     base_name='course-submissiondata')
+                     basename='course-submissiondata')
     courses.register(r'aggregatedata',
                      exercise.api.csv.views.CourseAggregateDataViewSet,
-                     base_name='course-aggregatedata')
+                     basename='course-aggregatedata')
 
 with api.register(r'exercises',
                   exercise.api.views.ExerciseViewSet,
-                  base_name='exercise') as exercises:
+                  basename='exercise') as exercises:
     exercises.register(r'submissions',
                        exercise.api.views.ExerciseSubmissionsViewSet,
-                       base_name='exercise-submissions'),
+                       basename='exercise-submissions'),
     exercises.register(r'submitter_stats',
                        exercise.api.views.ExerciseSubmitterStatsViewSet,
-                       base_name='exercise-submitter_stats')
+                       basename='exercise-submitter_stats')
 
 with api.register(r'submissions',
                   exercise.api.views.SubmissionViewSet,
-                  base_name='submission') as submissions:
+                  basename='submission') as submissions:
     submissions.register(r'files',
                          exercise.api.views.SubmissionFileViewSet,
-                         base_name='submission-files'),
+                         basename='submission-files'),
 
 urlpatterns = [
-    url(r'^', include(api.urls, namespace='api')),
+    url(r'^', include((api.urls, 'api'), namespace='api')),
 
     url(r'^me', userprofile.api.views.MeDetail.as_view()),
     url(r'^lti-outcomes', external_services.api.views.LTIExerciseBasicOutcomesView.as_view(), name='lti-outcomes'),

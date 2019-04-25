@@ -59,7 +59,7 @@ def create_submissions(instance, admin_profile, json_text):
     if not errors:
         for form in validated_forms:
             sub = Submission.objects.create(exercise=form.exercise)
-            sub.submitters = form.cleaned_students
+            sub.submitters.set(form.cleaned_students)
             sub.feedback = form.cleaned_data.get("feedback")
             sub.set_points(form.cleaned_data.get("points"),
                 sub.exercise.max_points, no_penalties=True)

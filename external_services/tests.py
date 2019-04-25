@@ -123,7 +123,7 @@ class ExternalServicesTest(TestCase):
         self.client.login(username="testUser", password="testPassword")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("oauth_signature" in str(response.content))
+        self.assertTrue("oauth_signature" in str(response.content, encoding='utf-8'))
 
         url = self.menu_item5.url
         response = self.client.get(url)

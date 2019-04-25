@@ -7,7 +7,7 @@ from rest_framework import mixins, permissions, viewsets
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.settings import api_settings
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
@@ -67,8 +67,10 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
     serializer_class = ExerciseSerializer
     queryset = BaseExercise.objects.all()
 
-    @detail_route(
+    @action(
+        detail=True,
         url_path='grader',
+        url_name='grader',
         methods=['get', 'post'],
         permission_classes = GRADER_PERMISSION,
         serializer_class = ExerciseGraderSerializer,
@@ -123,7 +125,7 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
         if status != exercise.SUBMIT_STATUS.ALLOWED:
             return Response({'success': False, 'errors': errors})
         submission = Submission.objects.create(exercise=exercise)
-        submission.submitters = students
+        submission.submitters.set(students)
 
         # grade and update submission with data
         return Response(_post_async_submission(request, exercise, submission, errors))
@@ -205,7 +207,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                                    status=status.HTTP_400_BAD_REQUEST)
 
             sub = Submission.objects.create(exercise=self.exercise)
-            sub.submitters = form.cleaned_students
+            sub.submitters.set(form.cleaned_students)
             sub.feedback = form.cleaned_data.get("feedback")
             sub.assistant_feedback = form.cleaned_data.get("assistant_feedback")
             sub.grading_data = form.cleaned_data.get("grading_data")
@@ -258,8 +260,10 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
     serializer_class = SubmissionSerializer
     queryset = Submission.objects.all()
 
-    @detail_route(
+    @action(
+        detail=True,
         url_path='grader',
+        url_name='grader',
         methods=['get', 'post'],
         permission_classes = GRADER_PERMISSION,
         serializer_class = SubmissionGraderSerializer,

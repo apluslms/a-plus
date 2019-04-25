@@ -21,25 +21,25 @@ class GradeTest(TestCase):
     GRADE_5 = { 'points':100, 'points_by_difficulty':{'A':1700,'B':0,'C':1775}}
 
     def test_normal_points(self):
-        self.assertEquals(calculate_grade(self.GRADE_0, self.NORMAL_BOUNDS, False), 0)
-        self.assertEquals(calculate_grade(self.GRADE_1, self.NORMAL_BOUNDS, False), 1)
-        self.assertEquals(calculate_grade(self.GRADE_2, self.NORMAL_BOUNDS, False), 2)
-        self.assertEquals(calculate_grade(self.GRADE_3, self.NORMAL_BOUNDS, True), 3)
-        self.assertEquals(calculate_grade(self.GRADE_4, self.NORMAL_BOUNDS, False), 4)
-        self.assertEquals(calculate_grade(self.GRADE_5, self.NORMAL_BOUNDS, False), 5)
+        self.assertEqual(calculate_grade(self.GRADE_0, self.NORMAL_BOUNDS, False), 0)
+        self.assertEqual(calculate_grade(self.GRADE_1, self.NORMAL_BOUNDS, False), 1)
+        self.assertEqual(calculate_grade(self.GRADE_2, self.NORMAL_BOUNDS, False), 2)
+        self.assertEqual(calculate_grade(self.GRADE_3, self.NORMAL_BOUNDS, True), 3)
+        self.assertEqual(calculate_grade(self.GRADE_4, self.NORMAL_BOUNDS, False), 4)
+        self.assertEqual(calculate_grade(self.GRADE_5, self.NORMAL_BOUNDS, False), 5)
 
     def test_difficulty_points(self):
-        self.assertEquals(calculate_grade(self.GRADE_0, self.DIFFICULTY_BOUNDS, False), 0)
-        self.assertEquals(calculate_grade(self.GRADE_1, self.DIFFICULTY_BOUNDS, False), 1)
-        self.assertEquals(calculate_grade(self.GRADE_2, self.DIFFICULTY_BOUNDS, False), 2)
-        self.assertEquals(calculate_grade(self.GRADE_3, self.DIFFICULTY_BOUNDS, False), 3)
-        self.assertEquals(calculate_grade(self.GRADE_4, self.DIFFICULTY_BOUNDS, False), 1)
-        self.assertEquals(calculate_grade(self.GRADE_5, self.DIFFICULTY_BOUNDS, False), 0)
+        self.assertEqual(calculate_grade(self.GRADE_0, self.DIFFICULTY_BOUNDS, False), 0)
+        self.assertEqual(calculate_grade(self.GRADE_1, self.DIFFICULTY_BOUNDS, False), 1)
+        self.assertEqual(calculate_grade(self.GRADE_2, self.DIFFICULTY_BOUNDS, False), 2)
+        self.assertEqual(calculate_grade(self.GRADE_3, self.DIFFICULTY_BOUNDS, False), 3)
+        self.assertEqual(calculate_grade(self.GRADE_4, self.DIFFICULTY_BOUNDS, False), 1)
+        self.assertEqual(calculate_grade(self.GRADE_5, self.DIFFICULTY_BOUNDS, False), 0)
 
     def test_padded_difficulty_points(self):
-        self.assertEquals(calculate_grade(self.GRADE_0, self.DIFFICULTY_BOUNDS, True), 0)
-        self.assertEquals(calculate_grade(self.GRADE_1, self.DIFFICULTY_BOUNDS, True), 1)
-        self.assertEquals(calculate_grade(self.GRADE_2, self.DIFFICULTY_BOUNDS, True), 2)
-        self.assertEquals(calculate_grade(self.GRADE_3, self.DIFFICULTY_BOUNDS, True), 3)
-        self.assertEquals(calculate_grade(self.GRADE_4, self.DIFFICULTY_BOUNDS, True), 4)
-        self.assertEquals(calculate_grade(self.GRADE_5, self.DIFFICULTY_BOUNDS, True), 5)
+        self.assertEqual(calculate_grade(self.GRADE_0, self.DIFFICULTY_BOUNDS, True), 0)
+        self.assertEqual(calculate_grade(self.GRADE_1, self.DIFFICULTY_BOUNDS, True), 1)
+        self.assertEqual(calculate_grade(self.GRADE_2, self.DIFFICULTY_BOUNDS, True), 2)
+        self.assertEqual(calculate_grade(self.GRADE_3, self.DIFFICULTY_BOUNDS, True), 3)
+        self.assertEqual(calculate_grade(self.GRADE_4, self.DIFFICULTY_BOUNDS, True), 4)
+        self.assertEqual(calculate_grade(self.GRADE_5, self.DIFFICULTY_BOUNDS, True), 5)

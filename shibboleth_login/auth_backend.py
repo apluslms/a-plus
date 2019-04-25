@@ -30,7 +30,7 @@ class ShibbolethAuthBackend(ModelBackend):
     Creates a new user or updates changed fields on an existing user.
 
     """
-    def authenticate(self, shibd_meta=None):
+    def authenticate(self, request, shibd_meta=None):
         if not shibd_meta:
             return None
         user_save_flag = False

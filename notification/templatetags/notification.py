@@ -38,7 +38,7 @@ def notification_menu(context):
     return _unread_messages(context)
 
 
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def notification_count(context):
     notifications = _context_unread(context)
     return notifications.count()

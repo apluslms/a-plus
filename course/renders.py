@@ -1,11 +1,11 @@
-from django.template import loader, Context
+from django.template import loader
 
 from lib.helpers import settings_text
 
 
 def render_avatars(profiles):
     template = loader.get_template("course/_avatars.html")
-    return template.render(Context({ 'profiles': profiles }))
+    return template.render({ 'profiles': profiles })
 
 
 def group_info_context(group, profile):
@@ -20,7 +20,7 @@ def group_info_context(group, profile):
 
 def render_group_info(group, profile):
     template = loader.get_template("course/_group_info.html")
-    return template.render(Context(group_info_context(group, profile)))
+    return template.render(group_info_context(group, profile))
 
 
 def tags_context(profile, tags, instance):
@@ -37,4 +37,4 @@ def tags_context(profile, tags, instance):
 
 def render_tags(profile, tags, instance):
     template = loader.get_template("course/_tags.html")
-    return template.render(Context(tags_context(profile, tags, instance)))
+    return template.render(tags_context(profile, tags, instance))

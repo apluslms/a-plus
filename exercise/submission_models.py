@@ -31,7 +31,7 @@ class SubmissionManager(models.Manager):
             exercise=exercise,
             submission_data=query_dict_to_list_of_tuples(request.POST)
         )
-        new_submission.submitters = submitters
+        new_submission.submitters.set(submitters)
         try:
             new_submission.add_files(request.FILES)
         except DatabaseError:

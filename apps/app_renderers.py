@@ -31,7 +31,6 @@ import logging
 import urllib.request
 
 from bs4 import BeautifulSoup
-from django.template import Context
 from django.template.loader import get_template
 
 from lib.helpers import update_url_params
@@ -111,13 +110,13 @@ class ExternalIFramePluginRenderer(object):
     def render(self):
         try:
             t = get_template("plugins/iframe_to_service_plugin.html")
-            return t.render(Context({
+            return t.render({
                 "height": self.plugin.height,
                 "width": self.plugin.width,
                 "src": self._build_src(),
                 "title": self.plugin.title,
                 "view_name": self.view_name
-            }))
+            })
         except Exception:
             # If anything goes wrong, just return an empty string so that this
             # isn't a show-stopper for the A+ core functionality.
@@ -141,11 +140,11 @@ class ExternalIFrameTabRenderer(object):
 
     def render(self):
         t = get_template("plugins/external_iframe_tab.html")
-        return t.render(Context({
+        return t.render({
             "height": self.tab.height,
             "width": self.tab.width,
             "src": self._build_src(),
-        }))
+        })
 
 
 class TabRenderer(object):

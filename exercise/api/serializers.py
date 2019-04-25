@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from rest_framework_extensions.fields import NestedHyperlinkedIdentityField
 
+from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, HtmlViewField
 from userprofile.api.serializers import UserBriefSerializer
 from ..models import Submission, SubmittedFile, BaseExercise
