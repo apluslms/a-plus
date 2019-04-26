@@ -46,7 +46,7 @@ def calculate_grade(total_points, point_limits, pad_points):
 
 def assign_grade(cached_points, diploma_design):
 
-    if not (diploma_design and cached_points.user.is_authenticated()):
+    if not (diploma_design and cached_points.user.is_authenticated):
         return -1
 
     if not diploma_design.course.is_course_staff(cached_points.user):

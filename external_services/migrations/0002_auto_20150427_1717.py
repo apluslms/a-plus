@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='menuitem',
             name='course_instance',
-            field=models.ForeignKey(related_name='ext_services', help_text='A course instance where the service is used.', to='course.CourseInstance'),
+            field=models.ForeignKey(related_name='ext_services', help_text='A course instance where the service is used.', to='course.CourseInstance', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(

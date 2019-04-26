@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
                 ('hashkey', models.CharField(unique=True, max_length=32)),
                 ('name', models.CharField(max_length=255)),
                 ('grade', models.PositiveIntegerField(default=0)),
-                ('design', models.ForeignKey(to='diploma.CourseDiplomaDesign')),
+                ('design', models.ForeignKey(to='diploma.CourseDiplomaDesign', on_delete=models.CASCADE)),
                 ('profile', models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, to='userprofile.UserProfile', null=True)),
             ],
             options={

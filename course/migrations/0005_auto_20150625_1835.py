@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('late_submissions_allowed', models.BooleanField(default=False)),
                 ('late_submission_deadline', models.DateTimeField(default=django.utils.timezone.now)),
                 ('late_submission_penalty', lib.fields.PercentField(default=0.5, help_text='Multiplier of points to reduce, as decimal. 0.1 = 10%')),
-                ('course_instance', models.ForeignKey(related_name='course_modules', to='course.CourseInstance')),
+                ('course_instance', models.ForeignKey(related_name='course_modules', to='course.CourseInstance', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['closing_time', 'id'],
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=35)),
                 ('description', models.TextField(blank=True)),
                 ('points_to_pass', models.PositiveIntegerField(default=0)),
-                ('course_instance', models.ForeignKey(related_name='categories', to='course.CourseInstance')),
+                ('course_instance', models.ForeignKey(related_name='categories', to='course.CourseInstance', on_delete=models.CASCADE)),
                 ('hidden_to', models.ManyToManyField(blank=True, related_name='hidden_categories', null=True, to='userprofile.UserProfile')),
             ],
             options={

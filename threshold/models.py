@@ -14,7 +14,8 @@ class Threshold(models.Model):
     """
     Course may set thresholds that signify module access or course grades.
     """
-    course_instance = models.ForeignKey(CourseInstance, related_name="thresholds")
+    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
+        related_name="thresholds")
     name = models.CharField(max_length=255)
     passed_modules = models.ManyToManyField(CourseModule, blank=True)
     passed_categories = models.ManyToManyField(LearningObjectCategory, blank=True)
@@ -97,7 +98,8 @@ class Threshold(models.Model):
 
 
 class ThresholdPoints(models.Model):
-    threshold = models.ForeignKey(Threshold, related_name="points")
+    threshold = models.ForeignKey(Threshold, on_delete=models.CASCADE,
+        related_name="points")
     limit = models.PositiveIntegerField()
     difficulty = models.CharField(max_length=32, blank=True)
     order = models.PositiveIntegerField(default=1)
@@ -112,8 +114,9 @@ class ThresholdPoints(models.Model):
 
 
 class CourseModuleRequirement(models.Model):
-    module = models.ForeignKey(CourseModule, related_name="requirements")
-    threshold = models.ForeignKey(Threshold)
+    module = models.ForeignKey(CourseModule, on_delete=models.CASCADE,
+        related_name="requirements")
+    threshold = models.ForeignKey(Threshold, on_delete=models.CASCADE)
     negative = models.BooleanField(default=False)
 
     def __str__(self):

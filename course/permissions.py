@@ -53,7 +53,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
         # FIXME: we probably should test if access_mode is ANONYMOUS (public), but that
         # would break api permissiosn (requires get_access_mode)
         if show_for != VA.PUBLIC:
-            if not user.is_authenticated():
+            if not user.is_authenticated:
                 self.error_msg(_("This course is not open for public."))
                 return False
 

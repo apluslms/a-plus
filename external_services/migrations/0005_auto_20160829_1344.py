@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='menuitem',
             name='course_instance',
-            field=models.ForeignKey(help_text='A course where the menu item exists.', to='course.CourseInstance', related_name='ext_services'),
+            field=models.ForeignKey(help_text='A course where the menu item exists.', to='course.CourseInstance', related_name='ext_services', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='menuitem',
             name='service',
-            field=models.ForeignKey(help_text='If preconfigured, an external service to link.', to='external_services.LinkService', null=True, blank=True),
+            field=models.ForeignKey(help_text='If preconfigured, an external service to link.', to='external_services.LinkService', null=True, blank=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

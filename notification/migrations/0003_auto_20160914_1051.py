@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='notification',
             name='submission',
-            field=models.ForeignKey(blank=True, related_name='notifications', null=True, to='exercise.Submission'),
+            field=models.ForeignKey(blank=True, related_name='notifications', null=True, to='exercise.Submission', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

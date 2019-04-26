@@ -20,9 +20,9 @@ class Migration(migrations.Migration):
                 ('notification', models.TextField()),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('seen', models.BooleanField(default=False)),
-                ('course_instance', models.ForeignKey(to='course.CourseInstance')),
-                ('recipient', models.ForeignKey(related_name='received_notifications', to='userprofile.UserProfile')),
-                ('sender', models.ForeignKey(related_name='sent_notifications', to='userprofile.UserProfile')),
+                ('course_instance', models.ForeignKey(to='course.CourseInstance', on_delete=models.CASCADE)),
+                ('recipient', models.ForeignKey(related_name='received_notifications', to='userprofile.UserProfile', on_delete=models.CASCADE)),
+                ('sender', models.ForeignKey(related_name='sent_notifications', to='userprofile.UserProfile', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['-timestamp'],

@@ -24,7 +24,7 @@ def login(request):
     Wraps the default login view in Django. Additionally redirects already
     authenticated users automatically to the target.
     """
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         redirect_to = request.POST.get(REDIRECT_FIELD_NAME,
                                        request.GET.get(REDIRECT_FIELD_NAME, ''))
         if not is_safe_url(url=redirect_to, host=request.get_host()):

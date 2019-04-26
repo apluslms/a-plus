@@ -32,7 +32,10 @@ class ModelWithInheritance(models.Model):
     # This ModelManager may be used for retrieving the exercises as instances of their leaf classes.
     # Alternatively each exercise may be fetched individually as leaf instance by calling the as_leaf_class method.
     leaf_objects            = LeafManager()
-    content_type            = models.ForeignKey(ContentType, editable=False, null=True)
+    content_type            = models.ForeignKey(ContentType,
+                                                on_delete=models.CASCADE,
+                                                editable=False,
+                                                null=True)
 
     class Meta:
         abstract = False

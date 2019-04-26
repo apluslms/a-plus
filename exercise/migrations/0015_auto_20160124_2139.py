@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('learning_object', models.ForeignKey(to='exercise.LearningObject')),
-                ('profile', models.ForeignKey(to='userprofile.UserProfile')),
+                ('learning_object', models.ForeignKey(to='exercise.LearningObject', on_delete=models.CASCADE)),
+                ('profile', models.ForeignKey(to='userprofile.UserProfile', on_delete=models.CASCADE)),
             ],
             options={
             },

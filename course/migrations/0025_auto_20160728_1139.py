@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('course_instance', models.ForeignKey(related_name='groups', to='course.CourseInstance')),
+                ('course_instance', models.ForeignKey(related_name='groups', to='course.CourseInstance', on_delete=models.CASCADE)),
                 ('members', models.ManyToManyField(to='userprofile.UserProfile', related_name='groups')),
             ],
             options={

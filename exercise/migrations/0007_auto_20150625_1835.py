@@ -16,13 +16,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='learningobject',
             name='category',
-            field=models.ForeignKey(related_name='learning_objects', to='course.LearningObjectCategory'),
+            field=models.ForeignKey(related_name='learning_objects', to='course.LearningObjectCategory', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='learningobject',
             name='course_module',
-            field=models.ForeignKey(related_name='learning_objects', to='course.CourseModule'),
+            field=models.ForeignKey(related_name='learning_objects', to='course.CourseModule', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

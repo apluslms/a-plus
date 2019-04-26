@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -168,6 +168,7 @@ class MenuItem(UrlMixin, models.Model):
     ])
     course_instance = models.ForeignKey(
         CourseInstance,
+        on_delete=models.CASCADE,
         related_name="ext_services",
         help_text=_("A course where the menu item exists.")
     )
@@ -177,6 +178,7 @@ class MenuItem(UrlMixin, models.Model):
     )
     service = models.ForeignKey(
         LinkService,
+        on_delete=models.CASCADE,
         blank=True,
         null=True,
         help_text=_("An external service to link to. These are configured by administrators.")

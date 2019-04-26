@@ -1,5 +1,5 @@
 from django import template
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from exercise.templatetags.exercise import _prepare_context
 from ..grade import assign_grade
@@ -14,7 +14,7 @@ def diploma_button(context, student=None):
     points = _prepare_context(context, student)
     design = CourseDiplomaDesign.objects.filter(course=points.instance).first()
     url = None
-    if design and points.user.is_authenticated():
+    if design and points.user.is_authenticated:
         url = reverse('diploma-create', kwargs={
             'coursediploma_id': design.id,
             'userprofile_id': points.user.userprofile.id,

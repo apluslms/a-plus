@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('extra_minutes', models.IntegerField()),
-                ('exercise', models.ForeignKey(to='exercise.BaseExercise')),
-                ('submitter', models.ForeignKey(to='userprofile.UserProfile')),
+                ('exercise', models.ForeignKey(to='exercise.BaseExercise', on_delete=models.CASCADE)),
+                ('submitter', models.ForeignKey(to='userprofile.UserProfile', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -30,8 +30,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('extra_submissions', models.IntegerField()),
-                ('exercise', models.ForeignKey(to='exercise.BaseExercise')),
-                ('submitter', models.ForeignKey(to='userprofile.UserProfile')),
+                ('exercise', models.ForeignKey(to='exercise.BaseExercise', on_delete=models.CASCADE)),
+                ('submitter', models.ForeignKey(to='userprofile.UserProfile', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
             unique_together=set([('exercise', 'submitter')]),
         ),
     ]
-    
+
     operations = [
         migrations.SeparateDatabaseAndState(state_operations=state_operations)
     ]

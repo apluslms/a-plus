@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='notification',
             name='submission',
-            field=models.ForeignKey(to='exercise.Submission', blank=True, null=True),
+            field=models.ForeignKey(to='exercise.Submission', blank=True, null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='notification',
             name='sender',
-            field=models.ForeignKey(related_name='sent_notifications', to='userprofile.UserProfile', blank=True, null=True),
+            field=models.ForeignKey(related_name='sent_notifications', to='userprofile.UserProfile', blank=True, null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(

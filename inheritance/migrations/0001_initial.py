@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='ModelWithInheritance',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('content_type', models.ForeignKey(editable=False, to='contenttypes.ContentType', null=True)),
+                ('content_type', models.ForeignKey(editable=False, to='contenttypes.ContentType', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,

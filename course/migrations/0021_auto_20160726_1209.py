@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
                 ('personal_code', models.CharField(max_length=10, blank=True, default='')),
-                ('course_instance', models.ForeignKey(to='course.CourseInstance')),
-                ('user_profile', models.ForeignKey(to='userprofile.UserProfile')),
+                ('course_instance', models.ForeignKey(to='course.CourseInstance', on_delete=models.CASCADE)),
+                ('user_profile', models.ForeignKey(to='userprofile.UserProfile', on_delete=models.CASCADE)),
             ],
             options={
             },

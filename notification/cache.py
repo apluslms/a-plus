@@ -11,7 +11,7 @@ class CachedNotifications(CachedAbstract):
         super().__init__(user)
 
     def _generate_data(self, user, data=None):
-        if not user or not user.is_authenticated():
+        if not user or not user.is_authenticated:
             return {
                 'count': 0,
                 'notifications': [],

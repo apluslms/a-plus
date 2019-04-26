@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import Q, Count
 from django.db.models.signals import post_save
@@ -70,7 +70,7 @@ class Course(UrlMixin, models.Model):
     def is_teacher(self, user):
         return (
             user and
-            user.is_authenticated() and (
+            user.is_authenticated and (
                 user.is_superuser or (
                     isinstance(user, User) and
                     self.teachers.filter(id=user.userprofile.id).exists()
@@ -92,7 +92,8 @@ class StudentGroup(models.Model):
     """
     Stores a user group for a course instance.
     """
-    course_instance = models.ForeignKey('CourseInstance', related_name='groups')
+    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE,
+        related_name='groups')
     members = models.ManyToManyField(UserProfile, related_name='groups')
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -136,7 +137,8 @@ class Enrollment(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     personal_code = models.CharField(max_length=10, blank=True, default='')
-    selected_group = models.ForeignKey(StudentGroup, blank=True, null=True, default=None, on_delete=models.SET_NULL)
+    selected_group = models.ForeignKey(StudentGroup, on_delete=models.SET_NULL,
+        blank=True, null=True, default=None)
     anon_name = models.CharField(max_length=50, blank=True, default='')
     anon_id = models.CharField(max_length=50, blank=True, null=True, unique=True)
 
@@ -190,7 +192,8 @@ post_save.connect(pseudonymize, sender=Enrollment)
 
 
 class UserTag(UrlMixin, ColorTag):
-    course_instance = models.ForeignKey('CourseInstance', related_name="usertags", on_delete=models.CASCADE)
+    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE,
+        related_name="usertags")
     visible_to_students = models.BooleanField(default=False)
 
     class Meta:
@@ -230,15 +233,15 @@ class UserTaggingManager(models.Manager):
 
 class UserTagging(models.Model):
     tag = models.ForeignKey(UserTag,
-                            related_name="taggings",
-                            on_delete=models.CASCADE)
+                            on_delete=models.CASCADE,
+                            related_name="taggings")
     user = models.ForeignKey(UserProfile,
-                             related_name="taggings",
                              on_delete=models.CASCADE,
+                             related_name="taggings",
                              db_index=True)
     course_instance = models.ForeignKey('CourseInstance',
-                                        related_name="taggings",
                                         on_delete=models.CASCADE,
+                                        related_name="taggings",
                                         db_index=True)
     objects = UserTaggingManager()
 
@@ -289,7 +292,7 @@ class CourseInstanceManager(models.Manager):
         return super().get_queryset().select_related('course').order_by('-starting_time')
 
     def get_visible(self, user=None):
-        if not user or not user.is_authenticated():
+        if not user or not user.is_authenticated:
             return self.filter(visible_to_students=True)
         if not user.is_superuser:
             return self.filter(get_course_visibility_filter(user)).distinct()
@@ -337,7 +340,7 @@ class CourseInstance(UrlMixin, models.Model):
         ('HIDDEN', 3, _("Hidden arabic")),
     ])
 
-    course = models.ForeignKey(Course, related_name="instances")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="instances")
     instance_name = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=False,
         validators=[generate_url_key_validator()],
@@ -436,7 +439,7 @@ class CourseInstance(UrlMixin, models.Model):
     def is_assistant(self, user):
         return (
             user and
-            user.is_authenticated() and
+            user.is_authenticated and
             isinstance(user, User) and
             self.assistants.filter(id=user.userprofile.id).exists()
         )
@@ -450,7 +453,7 @@ class CourseInstance(UrlMixin, models.Model):
     def is_student(self, user):
         return (
             user and
-            user.is_authenticated() and
+            user.is_authenticated and
             isinstance(user, User) and
             self.students.filter(id=user.userprofile.id).exists()
         )
@@ -465,7 +468,7 @@ class CourseInstance(UrlMixin, models.Model):
         return False
 
     def enroll_student(self, user):
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             Enrollment.objects.get_or_create(course_instance=self, user_profile=user.userprofile)
 
     def tag_user(self, user, tag):
@@ -571,7 +574,8 @@ class CourseHook(models.Model):
 
     hook_url = models.URLField()
     hook_type = models.CharField(max_length=12, choices=HOOK_CHOICES, default="post-grading")
-    course_instance = models.ForeignKey(CourseInstance, related_name="course_hooks")
+    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
+        related_name="course_hooks")
 
     def __str__(self):
         return "{} -> {}".format(self.course_instance, self.hook_url)
@@ -594,7 +598,7 @@ class CourseModuleManager(models.Manager):
             'course_instance', 'course_instance__course')
 
     def get_visible(self, user=None):
-        if not user or not user.is_authenticated():
+        if not user or not user.is_authenticated:
             return self.filter(
                 course_instance__visible_to_students=True,
                 opening_time__lte=timezone.now(),
@@ -628,7 +632,8 @@ class CourseModule(UrlMixin, models.Model):
                        help_text=_("Input an URL identifier for this module."))
     points_to_pass = models.PositiveIntegerField(default=0)
     introduction = models.TextField(blank=True)
-    course_instance = models.ForeignKey(CourseInstance, related_name="course_modules")
+    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
+        related_name="course_modules")
     opening_time = models.DateTimeField(default=timezone.now)
     closing_time = models.DateTimeField(default=timezone.now)
 
@@ -730,7 +735,8 @@ class LearningObjectCategory(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     points_to_pass = models.PositiveIntegerField(default=0)
-    course_instance = models.ForeignKey(CourseInstance, related_name="categories")
+    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
+        related_name="categories")
     confirm_the_level = models.BooleanField(default=False,
         help_text=_("Once exercise is graded non zero it confirms all the points on the hierarchy level. Implemented as a mandatory feedback feature."))
     accept_unofficial_submits = models.BooleanField(default=False,

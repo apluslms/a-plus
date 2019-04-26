@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('url', models.CharField(help_text='Input an URL identifier for this chapter.', validators=[django.core.validators.RegexValidator(regex='^[\\w\\-\\.]*$')], max_length=255)),
                 ('content_url', models.URLField(help_text='The resource to show.')),
-                ('course_module', models.ForeignKey(related_name='chapters', to='course.CourseModule')),
+                ('course_module', models.ForeignKey(related_name='chapters', to='course.CourseModule', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['course_module', 'order', 'id'],

@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='coursechapter',
             name='parent',
-            field=models.ForeignKey(to='course.CourseChapter', blank=True, null=True, related_name='children'),
+            field=models.ForeignKey(to='course.CourseChapter', blank=True, null=True, related_name='children', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(

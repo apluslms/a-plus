@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.functional import cached_property
@@ -29,11 +29,11 @@ class UserProfile(models.Model):
     @classmethod
     def get_by_request(cls, request):
         user = request.user
-        if user.is_authenticated():
+        if user.is_authenticated:
             return user.userprofile
         raise RuntimeError("Seeking user profile without authenticated user.")
 
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     # FIXME: refactor lang to selected_language which by default is blank
     lang = models.CharField(max_length=5, default="en_US")
     student_id = models.CharField(max_length=25, null=True, blank=True)
@@ -116,10 +116,12 @@ class GraderUser(AnonymousUser):
             self._exercise = exercise
         self._extra = extra
 
+    @property
     def is_anonymous(self):
         """GraderUser is anonymous, but not AnonymousUser"""
         return True
 
+    @property
     def is_authenticated(self):
         return True
 

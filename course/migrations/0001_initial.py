@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('ending_time', models.DateTimeField()),
                 ('visible_to_students', models.BooleanField(default=True)),
                 ('assistants', models.ManyToManyField(related_name='assisting_courses', to='userprofile.UserProfile', blank=True)),
-                ('course', models.ForeignKey(related_name='instances', to='course.Course')),
+                ('course', models.ForeignKey(related_name='instances', to='course.Course', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='coursehook',
             name='course_instance',
-            field=models.ForeignKey(related_name='course_hooks', to='course.CourseInstance'),
+            field=models.ForeignKey(related_name='course_hooks', to='course.CourseInstance', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

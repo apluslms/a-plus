@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 
 from exercise.exercise_models import BaseExercise
@@ -19,8 +19,8 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
     default bounds, all of the submitters must have an allowing instance of
     SubmissionRuleDeviation subclass in order for the submission to be allowed.
     """
-    exercise = models.ForeignKey(BaseExercise)
-    submitter = models.ForeignKey(UserProfile)
+    exercise = models.ForeignKey(BaseExercise, on_delete=models.CASCADE)
+    submitter = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True

@@ -33,13 +33,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='deadlineruledeviation',
             name='exercise',
-            field=models.ForeignKey(to='exercise.BaseExercise'),
+            field=models.ForeignKey(to='exercise.BaseExercise', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='maxsubmissionsruledeviation',
             name='exercise',
-            field=models.ForeignKey(to='exercise.BaseExercise'),
+            field=models.ForeignKey(to='exercise.BaseExercise', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

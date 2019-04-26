@@ -13,7 +13,7 @@ class UserProfileMixin(BaseMixin):
     def get_resource_objects(self):
         super().get_resource_objects()
         user = self.request.user
-        if user.is_authenticated():
+        if user.is_authenticated:
             self.profile = profile = user.userprofile
             self.is_external_student = profile.is_external
         else:

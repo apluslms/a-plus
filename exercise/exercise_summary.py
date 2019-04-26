@@ -27,7 +27,7 @@ class UserExerciseSummary(object):
         self.graded = False
         self.unofficial = False
 
-        if self.user and self.user.is_authenticated():
+        if self.user and self.user.is_authenticated:
             self.submissions = list(exercise.get_submissions_for_student(
                 user.userprofile))
             for s in self.submissions:

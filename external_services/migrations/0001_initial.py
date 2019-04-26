@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LinkService',
             fields=[
-                ('modelwithinheritance_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='inheritance.ModelWithInheritance')),
+                ('modelwithinheritance_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='inheritance.ModelWithInheritance', on_delete=models.CASCADE)),
                 ('url', models.CharField(help_text=b'The service URL', max_length=256)),
                 ('menu_label', models.CharField(help_text=b'A default label to show in the course menu.', max_length=32)),
                 ('menu_icon_class', models.CharField(default=b'icon-globe', help_text=b'A default menu icon style name, see http://getbootstrap.com/components/#glyphicons-glyphs', max_length=32)),
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LTIService',
             fields=[
-                ('linkservice_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='external_services.LinkService')),
+                ('linkservice_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='external_services.LinkService', on_delete=models.CASCADE)),
                 ('consumer_key', models.CharField(help_text=b'The consumer key provided by the LTI service.', max_length=128)),
                 ('consumer_secret', models.CharField(help_text=b'The consumer secret provided by the LTI service.', max_length=128)),
             ],
@@ -45,8 +45,8 @@ class Migration(migrations.Migration):
                 ('menu_icon_class', models.CharField(help_text=b'Overrides service default menu icon style, e.g. icon-star see http://getbootstrap.com/components/#glyphicons-glyphs', max_length=32, null=True, blank=True)),
                 ('menu_weight', models.IntegerField(default=0, help_text=b'Heavier menu entries are placed after lighter ones.')),
                 ('enabled', models.BooleanField(default=True)),
-                ('course_instance', models.ForeignKey(related_name='ext_services', to='course.CourseInstance', help_text=b'A course instance where the service is used.')),
-                ('service', models.ForeignKey(to='external_services.LinkService')),
+                ('course_instance', models.ForeignKey(related_name='ext_services', to='course.CourseInstance', help_text=b'A course instance where the service is used.', on_delete=models.CASCADE)),
+                ('service', models.ForeignKey(to='external_services.LinkService', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['course_instance', 'menu_weight', 'menu_label'],

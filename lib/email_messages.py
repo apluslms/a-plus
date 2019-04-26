@@ -2,7 +2,7 @@ import logging
 import traceback
 from django.conf import settings
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 logger = logging.getLogger('lib.email_messages')
 

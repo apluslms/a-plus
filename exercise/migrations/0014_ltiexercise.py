@@ -15,8 +15,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='LTIExercise',
             fields=[
-                ('baseexercise_ptr', models.OneToOneField(auto_created=True, primary_key=True, serialize=False, parent_link=True, to='exercise.BaseExercise')),
-                ('lti_service', models.ForeignKey(to='external_services.LTIService')),
+                ('baseexercise_ptr', models.OneToOneField(
+                    to='exercise.BaseExercise', on_delete=models.CASCADE,
+                    auto_created=True, primary_key=True, serialize=False, parent_link=True)),
+                ('lti_service', models.ForeignKey(to='external_services.LTIService', on_delete=models.CASCADE)),
             ],
             options={
             },

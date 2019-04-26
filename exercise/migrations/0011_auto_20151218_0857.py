@@ -15,7 +15,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='CourseChapter',
             fields=[
-                ('learningobject_ptr', models.OneToOneField(parent_link=True, primary_key=True, to='exercise.LearningObject', serialize=False, auto_created=True)),
+                ('learningobject_ptr', models.OneToOneField(
+                    to='exercise.LearningObject', on_delete=models.CASCADE,
+                    parent_link=True, primary_key=True, serialize=False, auto_created=True)),
                 ('generate_table_of_contents', models.BooleanField(default=False)),
             ],
             options={
@@ -31,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='learningobject',
             name='parent',
-            field=models.ForeignKey(related_name='children', null=True, to='exercise.LearningObject', blank=True),
+            field=models.ForeignKey(related_name='children', null=True, to='exercise.LearningObject', blank=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(

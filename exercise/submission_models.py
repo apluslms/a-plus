@@ -66,10 +66,11 @@ class Submission(UrlMixin, models.Model):
 
     # Relations
     exercise = models.ForeignKey(exercise_models.BaseExercise,
+        on_delete=models.CASCADE,
         related_name="submissions")
     submitters = models.ManyToManyField(UserProfile,
         related_name="submissions")
-    grader = models.ForeignKey(UserProfile,
+    grader = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
         related_name="graded_submissions", blank=True, null=True)
 
     # Grading and feedback
@@ -105,7 +106,7 @@ class Submission(UrlMixin, models.Model):
         ).count() + 1
 
     def is_submitter(self, user):
-        return user and user.is_authenticated() and \
+        return user and user.is_authenticated and \
             self.submitters.filter(id=user.userprofile.id).exists()
 
     def add_files(self, files):
@@ -279,7 +280,8 @@ class SubmittedFile(UrlMixin, models.Model):
     stored in the database.
     """
     PASS_MIME = ( "image/jpeg", "image/png", "image/gif", "application/pdf" )
-    submission = models.ForeignKey(Submission, related_name="files")
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE,
+        related_name="files")
     param_name = models.CharField(max_length=128)
     file_object = models.FileField(upload_to=build_upload_dir, max_length=255)
 

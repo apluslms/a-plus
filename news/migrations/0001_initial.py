@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('body', models.TextField()),
                 ('pin', models.BooleanField(default=False)),
                 ('alert', models.CharField(choices=[('', 'No alert'), ('danger', 'Red / Danger'), ('info', 'Blue / Info'), ('success', 'Green / Success'), ('warning', 'Yellow / Warning')], max_length=8, blank=True, default='')),
-                ('course_instance', models.ForeignKey(to='course.CourseInstance', related_name='news')),
+                ('course_instance', models.ForeignKey(to='course.CourseInstance', related_name='news', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['course_instance', '-pin', '-publish'],

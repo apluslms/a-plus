@@ -15,7 +15,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BasePlugin',
             fields=[
-                ('modelwithinheritance_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='inheritance.ModelWithInheritance')),
+                ('modelwithinheritance_ptr', models.OneToOneField(
+                    to='inheritance.ModelWithInheritance',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('container_pk', models.TextField(verbose_name='object ID')),
                 ('title', models.CharField(max_length=64)),
                 ('views', models.CharField(blank=True, max_length=255)),
@@ -28,7 +32,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BaseTab',
             fields=[
-                ('modelwithinheritance_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='inheritance.ModelWithInheritance')),
+                ('modelwithinheritance_ptr', models.OneToOneField(
+                    to='inheritance.ModelWithInheritance',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('container_pk', models.TextField(verbose_name='object ID')),
                 ('label', models.CharField(max_length=12)),
                 ('title', models.CharField(max_length=64)),
@@ -43,7 +51,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EmbeddedTab',
             fields=[
-                ('basetab_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='apps.BaseTab')),
+                ('basetab_ptr', models.OneToOneField(
+                    to='apps.BaseTab',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('content_url', models.URLField(max_length=128)),
                 ('element_id', models.CharField(blank=True, max_length=32)),
             ],
@@ -55,7 +67,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ExternalIFramePlugin',
             fields=[
-                ('baseplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='apps.BasePlugin')),
+                ('baseplugin_ptr', models.OneToOneField(
+                    to='apps.BasePlugin',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('service_url', models.URLField(max_length=255)),
                 ('width', models.IntegerField()),
                 ('height', models.IntegerField()),
@@ -68,7 +84,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ExternalIFrameTab',
             fields=[
-                ('basetab_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='apps.BaseTab')),
+                ('basetab_ptr', models.OneToOneField(
+                    to='apps.BaseTab',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('content_url', models.URLField(max_length=255)),
                 ('width', models.IntegerField()),
                 ('height', models.IntegerField()),
@@ -81,7 +101,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='HTMLPlugin',
             fields=[
-                ('baseplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='apps.BasePlugin')),
+                ('baseplugin_ptr', models.OneToOneField(
+                    to='apps.BasePlugin',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('content', models.TextField()),
             ],
             options={
@@ -92,7 +116,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='HTMLTab',
             fields=[
-                ('basetab_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='apps.BaseTab')),
+                ('basetab_ptr', models.OneToOneField(
+                    to='apps.BaseTab',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('content', models.TextField()),
             ],
             options={
@@ -103,7 +131,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RSSPlugin',
             fields=[
-                ('baseplugin_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='apps.BasePlugin')),
+                ('baseplugin_ptr', models.OneToOneField(
+                    to='apps.BasePlugin',
+                    on_delete=models.CASCADE,
+                    parent_link=True, auto_created=True, primary_key=True,
+                    serialize=False)),
                 ('feed_url', models.URLField(max_length=256)),
             ],
             options={
@@ -114,13 +146,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='basetab',
             name='container_type',
-            field=models.ForeignKey(to='contenttypes.ContentType'),
+            field=models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='baseplugin',
             name='container_type',
-            field=models.ForeignKey(to='contenttypes.ContentType'),
+            field=models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

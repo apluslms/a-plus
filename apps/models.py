@@ -25,7 +25,7 @@ from inheritance.models import ModelWithInheritance
 class AbstractApp(ModelWithInheritance):
 
     # Generic foreign key implementation from Django contenttypes framework.
-    container_type = models.ForeignKey(ContentType)
+    container_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     container_pk = models.TextField(_('object ID'))
     container = GenericForeignKey(ct_field="container_type", fk_field="container_pk")
 

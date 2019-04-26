@@ -68,7 +68,7 @@ def user_toc(context, student=None):
 def user_last(context):
     user = context['request'].user
     points = _prepare_context(context)
-    if user.is_authenticated():
+    if user.is_authenticated:
         last = LearningObjectDisplay.objects.filter(
             profile=user.userprofile,
             learning_object__status=LearningObject.STATUS.READY,

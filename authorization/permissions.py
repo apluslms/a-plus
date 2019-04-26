@@ -127,7 +127,7 @@ class AccessModePermission(MessageMixin, Permission):
 
         if access_mode == ACCESS.ANONYMOUS:
             return True
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return False
 
         if access_mode >= ACCESS.SUPERUSER:

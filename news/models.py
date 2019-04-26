@@ -16,7 +16,8 @@ class News(models.Model, UrlMixin):
         ('WARNING', 'warning', _('Yellow / Warning')),
         ('DANGER', 'danger', _('Red / Danger')),
     ])
-    course_instance = models.ForeignKey(CourseInstance, related_name="news")
+    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
+        related_name="news")
     audience = models.IntegerField(choices=AUDIENCE.choices, default=AUDIENCE.ALL_USERS)
     publish = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=255)

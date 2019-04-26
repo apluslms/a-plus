@@ -185,7 +185,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
     def __load_exercisecollection(self, request):
         user = self.profile.user
 
-        if user.is_authenticated():
+        if user.is_authenticated:
             self.exercise.check_submission(user, no_update=True)
 
         target_exercises = []

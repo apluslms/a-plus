@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_delete, post_save
@@ -82,8 +82,10 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         choices=STATUS.choices, default=STATUS.READY)
     audience = models.IntegerField(choices=AUDIENCE.choices,
         default=AUDIENCE.COURSE_AUDIENCE)
-    category = models.ForeignKey(LearningObjectCategory, related_name="learning_objects")
-    course_module = models.ForeignKey(CourseModule, related_name="learning_objects")
+    category = models.ForeignKey(LearningObjectCategory, on_delete=models.CASCADE,
+            related_name="learning_objects")
+    course_module = models.ForeignKey(CourseModule, on_delete=models.CASCADE,
+            related_name="learning_objects")
     parent = models.ForeignKey('self', on_delete=models.SET_NULL,
         blank=True, null=True, related_name='children')
     order = models.IntegerField(default=1)
@@ -288,8 +290,8 @@ class LearningObjectDisplay(models.Model):
     """
     Records views of learning objects.
     """
-    learning_object = models.ForeignKey(LearningObject)
-    profile = models.ForeignKey(UserProfile)
+    learning_object = models.ForeignKey(LearningObject, on_delete=models.CASCADE)
+    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
@@ -298,6 +300,8 @@ class CourseChapter(LearningObject):
     Chapters can offer and organize learning material as one page chapters.
     """
     generate_table_of_contents = models.BooleanField(default=False)
+
+    objects = models.Manager()
 
     def _is_empty(self):
         return not self.generate_table_of_contents
@@ -334,6 +338,8 @@ class BaseExercise(LearningObject):
     max_points = models.PositiveIntegerField(default=100)
     points_to_pass = models.PositiveIntegerField(default=40)
     difficulty = models.CharField(max_length=32, blank=True)
+
+    objects = models.Manager()
 
     class Meta:
         app_label = 'exercise'
@@ -627,7 +633,7 @@ class BaseExercise(LearningObject):
 
     def get_load_url(self, language, request, students, url_name="exercise"):
         if self.id:
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 user = request.user
                 submission_count = self.get_submissions_for_student(user.userprofile).count()
             else:
@@ -692,7 +698,7 @@ class BaseExercise(LearningObject):
             "ordinal_number": ordinal_number,
             "lang": language,
         })
-    
+
     @property
     def can_regrade(self):
         """Can this exercise be regraded in the assessment service, i.e.,
@@ -726,7 +732,7 @@ class LTIExercise(BaseExercise):
     """
     Exercise launched by LTI or optionally amending A+ protocol with LTI data.
     """
-    lti_service = models.ForeignKey(LTIService)
+    lti_service = models.ForeignKey(LTIService, on_delete=models.CASCADE)
     context_id = models.CharField(max_length=128, blank=True,
         help_text=_('Default: [hostname]/[course:url]/[instance:url]/'))
     resource_link_id = models.CharField(max_length=128, blank=True,
@@ -737,6 +743,8 @@ class LTIExercise(BaseExercise):
         help_text=_('Perform GET and POST from A+ to custom service URL with LTI data appended.'))
     open_in_iframe = models.BooleanField(default=False,
         help_text=_('Open the exercise in an iframe inside the A+ page instead of a new window.'))
+
+    objects = models.Manager()
 
     def clean(self):
         """
@@ -814,7 +822,7 @@ class LTIExercise(BaseExercise):
         literals = {key: str(val[0]) for key,val in data.items()}
         lti = self._get_lti(user, students, request, add=literals)
         data.update(lti.sign_post_parameters(url))
-    
+
     def _build_service_url(self, *args, **kwargs):
         url = super()._build_service_url(*args, **kwargs)
         if url and url.startswith('//') or '://' in url:
@@ -840,6 +848,8 @@ class StaticExercise(BaseExercise):
     exercise_page_content = models.TextField()
     submission_page_content = models.TextField()
 
+    objects = models.Manager()
+
     def load(self, request, students, url_name="exercise"):
         page = ExercisePage(self)
         page.content = self.exercise_page_content
@@ -853,7 +863,7 @@ class StaticExercise(BaseExercise):
 
     def _is_empty(self):
         return not bool(self.exercise_page_content)
-    
+
     @property
     def can_regrade(self):
         return False
@@ -889,6 +899,8 @@ class ExerciseWithAttachment(BaseExercise):
     files_to_submit = models.CharField(max_length=200, blank=True,
         help_text=_("File names that user should submit, use pipe character to separate files"))
     attachment = models.FileField(upload_to=build_upload_dir)
+
+    objects = models.Manager()
 
     class Meta:
         verbose_name_plural = "exercises with attachment"

@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=164, help_text='Describe the usage or meaning of this usertag')),
                 ('visible_to_students', models.BooleanField(default=False)),
                 ('color', colorfield.fields.ColorField(default='#CD0000', help_text='Color that is used for this tag.', max_length=10)),
-                ('course_instance', models.ForeignKey(related_name='usertags', to='course.CourseInstance')),
+                ('course_instance', models.ForeignKey(related_name='usertags', to='course.CourseInstance', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -32,9 +32,9 @@ class Migration(migrations.Migration):
             name='UserTagging',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
-                ('course_instance', models.ForeignKey(related_name='taggings', to='course.CourseInstance')),
-                ('tag', models.ForeignKey(related_name='taggings', to='course.UserTag')),
-                ('user', models.ForeignKey(related_name='taggings', to='userprofile.UserProfile')),
+                ('course_instance', models.ForeignKey(related_name='taggings', to='course.CourseInstance', on_delete=models.CASCADE)),
+                ('tag', models.ForeignKey(related_name='taggings', to='course.UserTag', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(related_name='taggings', to='userprofile.UserProfile', on_delete=models.CASCADE)),
             ],
             options={
             },

@@ -17,7 +17,7 @@ def plugin_renderers(user, some_model, view_name=None):
     """
     Builds the plugin renderers for a view.
     """
-    profile = user.userprofile if user.is_authenticated() else None
+    profile = user.userprofile if user.is_authenticated else None
     if isinstance(some_model, CourseInstance):
         return build_plugin_renderers(
             some_model.plugins.all(),

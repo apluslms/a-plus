@@ -12,14 +12,14 @@ class Notification(UrlMixin, models.Model):
     """
     subject = models.CharField(max_length=255, blank=True)
     notification = models.TextField(blank=True)
-    sender = models.ForeignKey(UserProfile,
+    sender = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
         related_name="sent_notifications", blank=True, null=True)
-    recipient = models.ForeignKey(UserProfile,
+    recipient = models.ForeignKey(UserProfile, on_delete=models.CASCADE,
         related_name="received_notifications")
     timestamp = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(default=False)
-    course_instance = models.ForeignKey(CourseInstance)
-    submission = models.ForeignKey(Submission,
+    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE,
         related_name="notifications", blank=True, null=True)
 
     class Meta:

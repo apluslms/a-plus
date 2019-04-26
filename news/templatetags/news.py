@@ -24,7 +24,7 @@ def user_news(context, num, more=0):
     else:
         user = context['request'].user
         alerts,news = news.for_user(
-            not user.is_authenticated()
+            not user.is_authenticated
             or user.userprofile.is_external
         )
 
