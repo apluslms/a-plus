@@ -6,16 +6,9 @@ import time
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.utils.http import parse_http_date_safe
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from urllib.parse import urlparse, urljoin
-
-try:
-    from django.utils.text import format_lazy
-except ImportError: # implemented in Django 1.11
-    from django.utils.functional import lazy as _lazy
-    def _format_lazy(format_string, *args, **kwargs):
-        return format_string.format(*args, **kwargs)
-    format_lazy = _lazy(_format_lazy, str)
 
 
 logger = logging.getLogger("aplus.remote_page")
@@ -153,14 +146,14 @@ class RemotePage:
 
     def element_or_body(self, search_attributes):
         element = self.select_element_or_body(search_attributes)
-        return element.renderContents() if element else ""
+        return str(element) if element else ""
 
     def clean_element_or_body(self, search_attributes):
         element = self.select_element_or_body(search_attributes)
         if element:
-            for once in element.findAll(True, {'data-aplus-once':True}):
+            for once in element.find_all(True, {'data-aplus-once':True}):
                 once.extract()
-        return element.renderContents() if element else ""
+        return str(element) if element else ""
 
     def body(self):
         return self.element_or_body([])
@@ -181,7 +174,7 @@ class RemotePage:
     def _fix_relative_urls(self, url, tag_name, attr_name):
         test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE)
         chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
-        for element in self.soup.findAll(tag_name, {attr_name:True}):
+        for element in self.soup.find_all(tag_name, {attr_name:True}):
             value = element[attr_name]
             if not value:
                 continue
@@ -216,7 +209,7 @@ class RemotePage:
         if l == 0:
             return
         i = 0
-        for element in self.soup.findAll(True, {attr_name:True}):
+        for element in self.soup.find_all(True, {attr_name:True}):
             for name,value in list_of_attributes[i].items():
                 if name.startswith('?'):
                     if name[1:] in element:

@@ -55,7 +55,7 @@ class JSONField(models.TextField):
             return value
         return json.dumps(value)
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         try:
             return JSONField.parse_json(value)
         except (exceptions.ValidationError):

@@ -7,7 +7,7 @@ from django.contrib.auth import login as django_login, authenticate, \
     REDIRECT_FIELD_NAME
 from django.http import HttpResponseRedirect
 from django.http.response import HttpResponse
-from django.shortcuts import render_to_response, resolve_url
+from django.shortcuts import render, resolve_url
 from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 
@@ -66,4 +66,4 @@ def debug(request):
             for k, v in meta
         ]
     meta.sort()
-    return render_to_response('shibboleth/meta.html', {'meta_data': meta})
+    return render(request, 'shibboleth/meta.html', {'meta_data': meta})

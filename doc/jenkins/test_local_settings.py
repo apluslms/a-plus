@@ -6,7 +6,7 @@ SITEWIDE_ALERT_TEXT = '''<strong>Test version of A+</strong>: Real courses at
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'aplus',
     }
 }

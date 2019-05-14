@@ -5,6 +5,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
+    # Django 2.0: Because of a table alteration limitation of SQLite,
+    # it is prohibited to perform RenameModel and RenameField operations on models
+    # or fields referenced by other models in a transaction.
+    # In order to allow migrations containing these operations to be applied,
+    # you must set the Migration.atomic attribute to False.
+    # This migration renames the table exercise_coursemodule to course_coursemodule
+    # (model definition was moved from the exercise app to the course app).
+    atomic = False
 
     dependencies = [
         ('exercise', '0005_auto_20150625_1821'),

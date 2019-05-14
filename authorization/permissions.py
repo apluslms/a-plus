@@ -1,12 +1,5 @@
-from django.utils.translation import string_concat, ugettext_lazy as _
-
-try:
-    from django.utils.text import format_lazy
-except ImportError: # implemented in Django 1.11
-    from django.utils.functional import lazy as _lazy
-    def _format_lazy(format_string, *args, **kwargs):
-        return format_string.format(*args, **kwargs)
-    format_lazy = _lazy(_format_lazy, str)
+from django.utils.text import format_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from lib.helpers import Enum
 
@@ -94,10 +87,10 @@ class MessageMixin(object):
         else:
             assert 'message' not in self.__dict__, (
                 "You are calling error_msg without replace=True "
-                "after calling it with it firts. Fix your code by removing "
-                "firts method call add replace=True to second method call too."
+                "after calling it with it first. Fix your code by removing "
+                "the first method call and add replace=True to the second method call too."
             )
-            self.message = string_concat(self.message, delim, message)
+            self.message = format_lazy('{}{}{}', self.message, delim, message)
 
 
 # Access mode

@@ -170,7 +170,7 @@ class TabRenderer(object):
 
         # If there's no element specified, use the BODY.
         if self.tab.element_id == "":
-            html = soup.find("body").renderContents()
+            html = str(soup.find("body"))
         else:
             html = str(soup.find(id=self.tab.element_id))
 
