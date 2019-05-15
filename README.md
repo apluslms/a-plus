@@ -12,7 +12,7 @@ The system has since been developed by various contributors at Aalto University,
 Requirements
 ------------
 
-A+ is a Django 1.7+ and Python 3.4+ application which has been run in production using Postgresql database, Apache 2 and uwsgi.
+A+ is a Django 2.2 and Python 3.5+ application which has been run in production using Postgresql database, Apache 2 (or Nginx) and uwsgi.
 See [doc/DEPLOYMENT.md](doc/DEPLOYMENT.md) for further deployment instructions.
 Consider using `virtualenv` and `pip3 install -r requirements.txt`.
 Create `local_settings.py` and override necessary Django settings from `aplus/settings.py`.
@@ -33,18 +33,18 @@ Code Organization
 
 * [aplus/](aplus) : Django main settings
 * [userprofile/](userprofile) : User information and authentication
-* [django_shibboleth/](django_shibboleth) : Handles users for Apache Shibboleth request headers
+* [shibboleth_login/](shibboleth_login) : User authentication via external Shibboleth login. Requires Shibboleth configuration for the Apache/Nginx web server.
 * [course/](course) : The course instances, modules and chapters
 * [exercise/](exercise) : Exercises and submissions to them
-* [deviations/](deviations) : Student deviations to submission rules
+* [deviations/](deviations) : Student deviations to submission rules (deadline extensions and extra submission attempts)
 * [notification/](notification) : User messaging framework
 * [edit_course/](edit_course) : The course editing for teachers
 * [inheritance/](inheritance) : Utilities for model class hierarchy
 * [external_services/](external_services) : Linking to external services, optionally LTI authenticated
 * [apps/](apps) : Provides plugins that can integrate additional content to course instances
-* [api/](api) : An HTTP service API for accessing A+ data
+* [api/](api) : An HTTP REST service API for accessing A+ data
 * [redirect_old_urls/](redirect_old_urls) : Redirections from the most important old URL targets
 * [lib/](lib) : General library code
 * [templates/](templates) : General site templates
-* [assets/](assets) : Static web server assets e.g. javascript, styles and images
+* [assets/](assets) : Static web server assets, e.g., JavaScript, styles and images
 * [media/](media) : User uploaded files

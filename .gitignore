@@ -33,6 +33,7 @@ test_results/
 selenium_test/aplus.out
 selenium_test/example_grader.out
 selenium_test/server.ports
+selenium_test/grader/db.sqlite3
 
 *~
 *.swp

@@ -9,7 +9,7 @@ class Command(BaseCommand):
         parser.add_argument('-f', '--fmt', metavar="FMT",
                             default="{c.url}/{i.url}  {i}",
                             help="Python format string used to print a single instance. "
-                                 "Course is in car 'c' and instance in var 'i'. "
+                                 "Course is in var 'c' and instance in var 'i'. "
                                  "(e.g. '{c.id}:{i.id} {i}')")
 
     def handle(self, *args, **options):

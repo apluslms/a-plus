@@ -7,15 +7,16 @@ from ...exercise_summary import ResultTable
 
 
 class Command(BaseCommand):
-    args = 'exercise/exercises/category/course/json/views/results id(s)'
     help = 'Exports submission data.'
 
     def add_arguments(self, parser):
-        parser.add_argument('args', nargs='*')
+        parser.add_argument('args', nargs='+',
+            help='One of exercise/exercises/category/course/json/views/results '
+                 'followed by object id(s)')
 
     def handle(self, *args, **options):
         if len(args) < 2:
-            raise CommandError('Missing arguments: ' + self.args)
+            raise CommandError('Missing arguments! Check --help')
         if args[0] == 'exercise':
             self.export_exercise(args[1])
         elif args[0] == 'exercises':
@@ -180,7 +181,7 @@ class Command(BaseCommand):
                     'Submission data': submission.submission_data or [],
                     'Grading data': submission.grading_data or {},
                 })
-        print(json.dumps(data))
+        self.stdout.write(json.dumps(data))
 
     def export_views(self, cid):
         instance = CourseInstance.objects.filter(id=cid).first()
@@ -206,7 +207,7 @@ class Command(BaseCommand):
     def print_row(self, fields, quote=False):
         if quote:
             fields = ['"{}"'.format(self.quote(f)) for f in fields]
-        print(','.join(fields))
+        self.stdout.write(','.join(fields))
 
     def quote(self, value):
         for m,s in [('"','\''),('\n','\\n'),('\r','\\r'),('\t','\\t')]:

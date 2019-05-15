@@ -29,6 +29,8 @@ $PYTHON manage.py runserver 8001 --noreload > $DIR/aplus.out 2>&1 &
 unset APLUS_DEBUG APLUS_DB_FILE APLUS_DATABASES APLUS_CACHES APLUS_SECRET_KEY
 
 cd $DIR/grader
+rm -f 'db.sqlite3'
+$PYTHON manage.py migrate
 $PYTHON manage.py runserver 8889 --noreload > ../example_grader.out 2>&1 &
 
 jobs -p > ../server.ports

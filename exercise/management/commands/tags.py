@@ -5,25 +5,33 @@ from userprofile.models import UserProfile
 
 
 class Command(BaseCommand):
-    args = 'course_id [set|setone tag_id] filename'
-    help = 'Operates on student tags. File format has "user_id tag_id" per line.'
+    help = 'Operates on student tags.'
+
+    def add_arguments(self, parser):
+        parser.add_argument('course_instance_id', help='Course instance id')
+        parser.add_argument('set', choices=['set', 'setone'],
+            help='Use "set" for setting tags to users based on a user-tag mapping file OR '
+                 '"setone" to set the same tag to all users in the user list file.')
+        parser.add_argument('tag_id', nargs='?', default=None,
+            help='With "setone", this defines the id of the tag.')
+        parser.add_argument('filename',
+            help='File path to the user-tag mapping file with "set" '
+                 '(file format: "user_id tag_id" per line) OR '
+                 'user list file with "setone" (file format: one user id per line)')
 
     def handle(self, *args, **options):
-        if len(args) < 1:
-            raise CommandError('Missing arguments: ' + self.args)
-        instance = CourseInstance.objects.filter(id=args[0]).first()
+        instance = CourseInstance.objects.filter(id=options['course_instance_id']).first()
         if not instance:
             raise CommandError('Course instance not found.')
-        if args[1] == 'set':
-            if len(args) != 3:
-                raise CommandError('Missing arguments: ' + self.args)
-            self.set_tags(instance, args[2])
-        elif args[1] == "setone":
-            if len(args) != 4:
-                raise CommandError('Missing arguments: ' + self.args)
-            self.set_tags(instance, args[2], args[3])
+        if options['set'] == 'set':
+            if options.get('tag_id') is not None:
+                raise CommandError('You may not use the tag id argument with "set"!')
+            self.set_tags(instance, options['filename'])
         else:
-            raise CommandError('Unknown argument!')
+            # setone command
+            if options.get('tag_id') is None:
+                raise CommandError('You must supply the tag id argument with "setone"!')
+            self.set_tagone(instance, options['tag_id'], options['filename'])
 
     def set_tags(self, instance, filename):
         for tid,users in self.read_user_tag(filename).items():
@@ -32,7 +40,7 @@ class Command(BaseCommand):
     def set_tagone(self, instance, tid, filename):
         self.tag_users(instance, tid, self.read_user(filename))
 
-    def tag_users(instance, tid, users):
+    def tag_users(self, instance, tid, users):
         tag = UserTag.objects.filter(id=tid, course_instance=instance).first()
         if not tag:
             raise CommandError('Tag was not found in this course: ' + tid)

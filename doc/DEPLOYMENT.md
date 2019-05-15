@@ -160,7 +160,7 @@ The Application
         EOF
 
     **NOTE**: Select number of processes and threads based on number of of CPUs.
-    Probably a good number is around two times cpus for the web (as there is a lot of io wiat) and number of cpus for the API.
+    Probably a good number is around two times cpus for the web (as there is a lot of io wait) and number of cpus for the API.
 
     You can gracefully chain reload uWSGI services by touching (editing) above files.
     In addition, `sudo systemctl restart aplus-*-uwsgi.service` will also do a chain reload.
@@ -352,7 +352,7 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
 
  1. Shibboleth configuration in The `local_settings.py`
 
-    Shibboleth under NGINX delivers shibboleth variables via the request envirnment,
+    Shibboleth under NGINX delivers shibboleth variables via the request environment,
     thus following mapping is required.
     If your federation uses different variables, remember to change them.
 
