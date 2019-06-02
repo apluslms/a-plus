@@ -67,10 +67,10 @@ urlpatterns = [
 
 if getattr(settings, 'API_DEBUG', False):
     # Print list of api urls
-    _urls = [(url.callback.cls.__name__, url.name or '-', url.regex.pattern) for url in api.urls if url.callback]
-    _urls += [(url.callback.cls.__name__, url.name or '-', url.regex.pattern) for url in urlpatterns if url.callback]
+    _urls = [(url.callback.cls.__name__, url.name or '-', url.pattern) for url in api.urls if url.callback]
+    _urls += [(url.callback.cls.__name__, url.name or '-', url.pattern) for url in urlpatterns if url.callback]
     _lens = {'v': max(len(v) for v, n, p in _urls), 'n': max(len(url.name) for url in api.urls)}
-    _urls = ("  - {:<{v:d}s} {:<{n:d}s} {:s}".format(*a, **_lens) for a in _urls)
+    _urls = ("  - {:<{v:d}s} {:<{n:d}s} {!s:s}".format(*a, **_lens) for a in _urls)
     print(" API URLS:", *_urls, sep='\n')
 
     # Print list of api view permissions
