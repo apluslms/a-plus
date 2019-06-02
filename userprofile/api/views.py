@@ -21,7 +21,8 @@ class UserViewSet(ListSerializerMixin,
     filter_backends = (
         IsAdminOrUserObjIsSelf,
     )
-    lookup_field = 'user_id'
+    lookup_field = 'user_id' # UserProfile.user.id
+    lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     listserializer_class = UserBriefSerializer
     serializer_class = UserSerializer

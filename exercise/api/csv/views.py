@@ -44,9 +44,9 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         CSVRenderer,
         CSVExcelRenderer,
     ] + api_settings.DEFAULT_RENDERER_CLASSES
+    lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
     queryset = UserProfile.objects.all()
 
@@ -126,9 +126,9 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     renderer_classes = [
         CSVRenderer,
     ] + api_settings.DEFAULT_RENDERER_CLASSES
+    lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
     queryset = UserProfile.objects.all()
 

@@ -73,9 +73,9 @@ class CourseStudentsViewSet(NestedViewSetMixin,
     filter_backends = (
         IsCourseAdminOrUserObjIsSelf,
     )
+    lookup_field = 'user_id' # UserPofile.user.id
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    lookup_field = 'user__id'
     parent_lookup_map = {'course_id': 'enrolled.id'}
     serializer_class = StudentBriefSerializer
     queryset = UserProfile.objects.all()
@@ -88,6 +88,7 @@ class CourseUsertagsViewSet(NestedViewSetMixin,
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         OnlyCourseTeacherPermission,
     ]
+    lookup_field = 'id'
     lookup_url_kwarg = 'usertag_id'
     serializer_class = CourseUsertagSerializer
     queryset = UserTag.objects.all()
@@ -105,6 +106,7 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         OnlyCourseTeacherPermission,
     ]
+    lookup_field = 'id'
     lookup_url_kwarg = 'usertag_id'
     serializer_class = CourseUsertaggingsSerializer
     queryset = ( UserTagging.objects
@@ -127,5 +129,5 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
             queryset = queryset.filter(tag__id=tag_id)
         user_id = self.request.GET.get('user_id')
         if user_id is not None:
-            queryset = queryset.filter(user_id=user_id)
+            queryset = queryset.filter(user__user__id=user_id)
         return queryset
