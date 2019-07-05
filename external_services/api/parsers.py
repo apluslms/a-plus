@@ -12,7 +12,8 @@ from course.models import Enrollment
 from exercise.exercise_models import LTIExercise
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aplus.external_services.api')
+
 
 def parse_sourced_id(sourced_id_str):
     '''Parse a sourcedId value from an LTI 1.1 Outcomes Service request.

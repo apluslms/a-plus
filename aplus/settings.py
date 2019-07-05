@@ -316,7 +316,9 @@ LOGGING = {
       'colors': {
         'django.db.backends': {'fg': 'cyan'},
         'django.db.deferred': {'fg': 'yellow'},
-        'cached': {'fg': 'red'},
+        'aplus': {'fg': 'blue'},
+        'aplus.cached': {'fg': 'red'},
+        'aplus.shibboleth': {'fg': 'red'},
       },
     },
   },

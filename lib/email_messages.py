@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 
-logger = logging.getLogger('lib.email_messages')
+logger = logging.getLogger('aplus.lib.email_messages')
 
 
 def email_course_error(request, exercise, message, exception=True):

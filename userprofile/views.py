@@ -12,7 +12,7 @@ from authorization.permissions import ACCESS
 from .viewbase import UserProfileView
 
 
-logger = logging.getLogger('userprofile.views')
+logger = logging.getLogger('aplus.userprofile')
 
 
 class CustomLoginView(LoginView):

@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from urllib.parse import urlparse, urljoin
 
 
-logger = logging.getLogger("aplus.remote_page")
+logger = logging.getLogger('aplus.remote_page')
 
 
 class RemotePageException(Exception):

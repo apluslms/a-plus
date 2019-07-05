@@ -34,7 +34,7 @@ from lib.models import UrlMixin
 from lib.validators import generate_url_key_validator
 from userprofile.models import User, UserProfile, GraderUser
 
-logger = logging.getLogger("course.models")
+logger = logging.getLogger('aplus.course')
 
 # Read pseudonymization data from file
 with open(finders.find('pseudonym.json')) as json_file:
@@ -581,7 +581,7 @@ class CourseHook(models.Model):
         return "{} -> {}".format(self.course_instance, self.hook_url)
 
     def trigger(self, data):
-        logger = logging.getLogger("plus.hooks")
+        logger = logging.getLogger('aplus.hooks')
         try:
             urllib.request.urlopen(self.hook_url,
                 urllib.parse.urlencode(data).encode('utf-8'), timeout=10)

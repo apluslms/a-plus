@@ -11,7 +11,8 @@ from .parsers import parse_sourced_id
 from userprofile.models import LTIServiceUser
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aplus.external_services.api')
+
 
 def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=None):
     '''

@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 import icalendar
 from django.conf import settings
@@ -23,9 +22,6 @@ from .models import CourseInstance, Enrollment
 from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
 from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
-
-
-logger = logging.getLogger("course.views")
 
 
 class HomeView(UserProfileView):

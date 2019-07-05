@@ -10,7 +10,8 @@ from .parsers import parse_sourced_id, LTIOutcomeXMLParser
 from .renderers import LTIOutcomeResponseRenderer
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('aplus.external_services.api')
+
 
 class LTIOutcomeSerializer(serializers.Serializer):
     # parameters that are parsed from the XML of the request body

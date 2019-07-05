@@ -4,7 +4,7 @@ from time import time
 import logging
 
 
-logger = logging.getLogger("cached")
+logger = logging.getLogger('aplus.cached')
 
 
 class CachedAbstract(object):
