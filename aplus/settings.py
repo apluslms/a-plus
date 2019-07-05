@@ -124,19 +124,38 @@ INSTALLED_APPS = (
 
 #INSTALLED_APPS += ('shibboleth_login',)
 
-# Apache module mod_uwsgi was unable to create UTF-8 environment variables.
-# Problem was avoided by URL encoding in Shibboleth:
-# <RequestMapper type="Native">
-#   <RequestMap applicationId="default" encoding="URL" />
-# </RequestMapper>
-SHIBBOLETH_VARIABLES_URL_ENCODED = True
+# Shibboleth Login configs
+#SHIBBOLETH_LOGIN = {
+#    # users, who do not exists, are created
+#    'ALLOW_CREATE_NEW_USERS': True,
+#    # if user is not found using USER_ID, then we can try with EMAIL
+#    # the search must yield only single user for it to succeed
+#    'ALLOW_SEARCH_WITH_EMAIL': False,
+#}
 
 # Fields to receive from the Shibboleth (defaults).
-#SHIB_USER_ID_KEY = 'SHIB_eppn'
-#SHIB_FIRST_NAME_KEY = 'SHIB_displayName'
-#SHIB_LAST_NAME_KEY = 'SHIB_sn'
-#SHIB_MAIL_KEY = 'SHIB_mail'
-#SHIB_STUDENT_ID_KEY = 'SHIB_schacPersonalUniqueCode'
+#SHIBBOLETH_ENVIRONMENT_VARS = {
+#    # Apache module mod_uwsgi is unable to create UTF-8 environment variables.
+#    # Problem is avoided by enabling URL encoding in Shibboleth:
+#    #   <RequestMapper type="Native">
+#    #     <RequestMap applicationId="default" encoding="URL" />
+#    #   </RequestMapper>
+#    # This is also recommended for nginx
+#    'URL_DECODE': True, # set to False, if you are passing values in UTF-8
+#    # required:
+#    'PREFIX': 'SHIB_',
+#    'STUDENT_DOMAIN': 'example.com',  # currently only student numbers from this domain are used
+#    # optional:
+#    'USER_ID': 'eppn',
+#    'FIRST_NAME': 'givenName',
+#    'LAST_NAME': 'sn',
+#    'COMMON_NAME': 'cn',        # used if first or last name is missing
+#    'FULL_NAME': 'displayName', # used if first or last name is missing
+#    'EMAIL': 'mail',
+#    'STUDENT_IDS': 'schacPersonalUniqueCode',
+#    'STUDENT_URN': ':schac:personalUniqueCode:',
+#    'STUDENT_FILTERS': {3: 'int', 2: 'studentID'},
+#}
 
 
 ## Google OAuth2 settings
@@ -399,7 +418,7 @@ update_secret_from_file(__name__, environ.get('APLUS_SECRET_KEY_FILE', 'secret_k
 # Complain if BASE_URL is not set
 try:
     if not BASE_URL:
-        raise RuntimeError('Local setting BASE_URL should be non-empty')
+        raise RuntimeError('Local setting BASE_URL can not be empty')
 except NameError as e:
     raise RuntimeError('BASE_URL must be specified in local settings') from e
 

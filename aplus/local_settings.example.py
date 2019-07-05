@@ -14,6 +14,14 @@
 #    'social_django',
 #)
 
+## Shibboleth options
+#SHIBBOLETH_ENVIRONMENT_VARS = {
+#    # required for the shibboleth system:
+#    'PREFIX': 'SHIB_', # apache2: SHIB_, nginx: HTTP_SHIB_ (NOTE: client can inject HTTP_ vars!)
+#    'STUDENT_DOMAIN': 'example.com', # domain where student numbers are selected
+#    # ..more options in aplus/settings.py
+#}
+
 ## Database
 #DATABASES = {
 #    'default': {
