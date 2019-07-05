@@ -3,6 +3,7 @@ beautifulsoup4~=4.7.1
 Django~=2.2.1
 django-bootstrap-form==3.4
 django-html5-colorfield==1.0
+django-settingsdict ~= 1.1.1
 djangorestframework~=3.9.4
 djangorestframework-csv~=2.1.0
 -e git+https://github.com/raphendyr/drf-extensions.git@reimplement_nested_routes_v4#egg=drf_extensions==0.5.1

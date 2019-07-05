@@ -1,16 +1,64 @@
 <html>
-	<head>
-		<title>Shibboleth Debug</title>
-	</head>
-	<body>
-		<p>META</p>
-		<table>
-		  {% for name,value in meta_data %}
-		  <tr>
-		  	<td>{{ name }}</td>
-		  	<td>{{ value }}</td>
-		  </tr>
-		  {% endfor %}
-		</table>
-	</body>
+<head>
+	<title>Shibboleth Debug</title>
+	<style>
+		table {
+			border-collapse: collapse;
+		}
+		table, th, td {
+			border: 1px solid black;
+			text-align: left;
+		}
+		ul {
+			list-style: square inside;
+			margin-block-start: 0;
+			margin-block-end: 0;
+			margin-inline-start: 0;
+			margin-inline-end: 0;
+			padding-inline-start: 0;
+		}
+	</style>
+</head>
+<body>
+	<p>Shibboleth variables</p>
+	<table>
+	{% for name, values in shib_meta %}
+		<tr>
+			<th>{{ name }}</th>
+			<td>
+			{% if not values %}
+			{% elif values|length == 1 %}
+				{{ values.0 }}
+			{% else %}
+				<ul>
+				{% for value in values %}
+					<li>{{ value }}</li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+
+	<p>Headers</p>
+	<table>
+	{% for name, value in headers %}
+		<tr>
+			<th>{{ name }}</th>
+			<td>{{ value }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+
+	<p>request.META</p>
+	<table>
+	{% for name, value in meta %}
+		<tr>
+			<th>{{ name }}</th>
+			<td>{{ value }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+</body>
 </html>

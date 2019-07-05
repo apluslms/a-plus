@@ -232,14 +232,17 @@ If you are using shibboleth
  1. Shibboleth configuration in The `local_settings.py`
 
     Map your federations variables to ones used in A+.
-    Here is the default mapping, which you can override in `local_settings.py`:
+    Most of the values are common, so only defining `PREFIX` should be enough.
+    Currently, `STUDENT_DOMAIN` is a required variable, as A+ presumes student numbers to be from a single domain.
+    Rest of the options are documented in `settings.py`.
 
-        SHIB_USER_ID_KEY = 'SHIB_eppn'
-        SHIB_FIRST_NAME_KEY = 'SHIB_givenName'
-        SHIB_LAST_NAME_KEY = 'SHIB_sn'
-        SHIB_MAIL_KEY = 'SHIB_mail'
-        SHIB_STUDENT_ID_KEY = 'SHIB_schacPersonalUniqueCode'
-
+        sudo tee -a /srv/aplus/a-plus/aplus/local_settings.py << EOF
+        # Shibboleth
+        SHIBBOLETH_ENVIRONMENT_VARS = {
+            'PREFIX': 'SHIB_',
+            'STUDENT_DOMAIN': 'example.com', # XXX: change this!
+        }
+        EOF
 
  1. Reload shibboleth
 
@@ -352,17 +355,17 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
 
  1. Shibboleth configuration in The `local_settings.py`
 
-    Shibboleth under NGINX delivers shibboleth variables via the request environment,
-    thus following mapping is required.
-    If your federation uses different variables, remember to change them.
+    Map your federations variables to ones used in A+.
+    Most of the values are common, so only defining `PREFIX` should be enough.
+    Currently, `STUDENT_DOMAIN` is a required variable, as A+ presumes student numbers to be from a single domain.
+    Rest of the options are documented in `settings.py`.
 
         sudo tee -a /srv/aplus/a-plus/aplus/local_settings.py << EOF
         # Shibboleth
-        SHIB_USER_ID_KEY = 'HTTP_SHIB_EPPN'
-        SHIB_FIRST_NAME_KEY = 'HTTP_SHIB_GIVENNAME'
-        SHIB_LAST_NAME_KEY = 'HTTP_SHIB_SN'
-        SHIB_MAIL_KEY = 'HTTP_SHIB_MAIL'
-        SHIB_STUDENT_ID_KEY = 'HTTP_SHIB_SCHACPERSONALUNIQUECODE'
+        SHIBBOLETH_ENVIRONMENT_VARS = {
+            'PREFIX': 'HTTP_SHIB_',
+            'STUDENT_DOMAIN': 'example.com', # XXX: change this!
+        }
         EOF
 
  1. Reload shibboleth
