@@ -1,5 +1,9 @@
 {
   "Toggle filtering by tag": "Suodata merkinnällä",
   "Remove tagging": "Poista merkintä",
-  "Add new tagging": "Lisää merkintä"
+  "Add new tagging": "Lisää merkintä",
+  "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200. Datetime comparison is available in format yyyy-mm-dd hh:mm:ss — e.g. >=0918-09-20 15:00. Regex is available — e.g. /^\\d+$/g. Use dot as decimal seperator — e.g. 2.1.":
+  "Vertailuoperaattorit >, <, >=, <=, !=, == ovat käytettävissä, esimerkiksi >=200. Ajan vertailu on mahdollista muodossa yyyy-mm-dd hh:mm:ss, esimerkiksi >=0918-09-20 15:00. Regex on myös käytettävissä, esimerkiksi /^\\d+$/g. Käytä desimaalierottimena pistettä, esimerkiksi 2.1.",
+  "There might be something wrong with the filter. Some comparison operators only accept numbers. If you are using datetime, make sure the format is correct. If you are using regex, make sure it is correct.":
+  "Suodattimissa voi olla virhe. Jotkut vertailuoperaattorit hyväksyvät vain numeroita. Mikäli vertailet aikaa, varmista että formaatti on oikea. Mikäli käytät regexiä, niin varmista että se on oikein."
 }
