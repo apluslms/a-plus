@@ -115,6 +115,8 @@ INSTALLED_APPS = (
 
     'js_jquery_toggle',
     'django_colortag',
+
+    'exammode',
 )
 
 # Different login options (may override in local_settings.py)
