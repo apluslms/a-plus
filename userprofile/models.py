@@ -38,6 +38,8 @@ class UserProfile(models.Model):
     lang = models.CharField(max_length=5, default="en_US")
     student_id = models.CharField(max_length=25, null=True, blank=True)
     objects = UserProfileManager()
+    active_exam = models.ForeignKey(
+        'exammode.ExamAttempt', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         ordering = ['id']
@@ -96,6 +98,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     """
     if created:
         UserProfile.objects.get_or_create(user=instance)
+
 
 # Attach to the post_save signal.
 post_save.connect(create_user_profile, sender=User)

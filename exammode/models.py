@@ -14,25 +14,24 @@ class ExamSession(models.Model):
 
     course_instance = models.ForeignKey(
         CourseInstance, on_delete=models.CASCADE)
-    start_time = models.DateTimeField(editable=True, default=timezone.now)
-    end_time = models.DateTimeField(editable=True, default=timezone.now)
+    can_start = models.DateTimeField(editable=True, default=timezone.now)
+    duration = models.IntegerField()
     start_time_actual = models.DateTimeField(
         editable=True, default=timezone.now)
-    end_time_actual = models.DateTimeField(editable=True, default=timezone.now)
     may_leave_time = models.DateTimeField(editable=True, default=timezone.now)
     room = models.CharField(max_length=255)
 
 
-class ExamTaken(models.Model):
-    """
-    Represents one student taking part in one exam session.
-    """
-
+class ExamAttempt(models.Model):
     exam_taken = models.ForeignKey(ExamSession, on_delete=models.CASCADE)
     student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     exam_started = models.DateTimeField(
         auto_now_add=True)
     exam_finished = models.DateTimeField(editable=True, default=timezone.now)
+
+    # Placeholder to store system / hw indentifying data. Could be used for invigilating purposes
+    # TODO: Implement how this is collected and used.
+    system_identifier = models.CharField(max_length=255)
 
     """
     Stores reference to a specific set of exam questions. Allows personalisation of exams

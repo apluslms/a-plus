@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ExamSession, ExamTaken
+from .models import ExamSession, ExamAttempt
 
 # Register your models here.
 
@@ -9,4 +9,4 @@ class ExamSessionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ExamSession, ExamSessionAdmin)
-admin.site.register(ExamTaken)
+admin.site.register(ExamAttempt)
