@@ -184,6 +184,30 @@ In addition, you can start from [apache2/shibboleth2.xml](apache2/shibboleth2.xm
 More details below for both web servers.
 
 
+### Key generation
+
+Here is a command to create `sp-key.pem` and `sp-cert.pem` files.
+As of writing, `shib-keygen` does create too small keys and uses sha1 for hashing.
+Due to security considerations, you should use following instead:
+
+    # set your domain here and then copy-paste command below
+    host=$(hostname)
+    entityid=https://$host
+
+    cd /etc/shibboleth
+    printf '[req]\ndistinguished_name=req\n[san]\nsubjectAltName=DNS:%s, URI:%s\n' "$host" "$entityid" | \
+    openssl req -x509 -sha256 -nodes \
+      -newkey rsa:4096 -keyout sp-key.pem \
+      -days 3650 -out sp-cert.pem \
+      -subj "/CN=$host" -extensions san -config /dev/stdin
+    chown _shibd:_shibd sp-cert.pem sp-key.pem
+    chmod 0400 sp-key.pem
+
+You can print the certificate information with this command:
+
+    openssl x509 -in /etc/shibboleth/sp-cert.pem -noout -text
+
+
 Apache 2 configuration
 ----------------------
 
