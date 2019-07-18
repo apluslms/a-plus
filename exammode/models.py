@@ -21,6 +21,13 @@ class ExamSession(models.Model):
     may_leave_time = models.DateTimeField(editable=True, default=timezone.now)
     room = models.CharField(max_length=255)
 
+    def __str__(self):
+        # return self.course_instance
+        return " ".join([str(self.course_instance), str(self.can_start)])
+
+    def can_start_now(self):
+        return self.can_start <= timezone.now() and timezone.now() <= self.can_start + timezone.timedelta(self.duration)
+
 
 class ExamAttempt(models.Model):
     exam_taken = models.ForeignKey(ExamSession, on_delete=models.CASCADE)
@@ -38,3 +45,6 @@ class ExamAttempt(models.Model):
     TODO: needs to be changed into actual model of exam which is unimplemented
     """
     exam_version = models.CharField(max_length=255)
+
+    def __str__(self):
+        return " ".join([str(self.exam_taken), str(self.student)])

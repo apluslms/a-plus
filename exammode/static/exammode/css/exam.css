@@ -1,0 +1,83 @@
+/* Exam customizations */
+
+
+/* Split
+https://split.js.org/ 
+*/
+.split, .gutter.gutter-horizontal {
+    float: left;
+  }
+  
+  .gutter.gutter-horizontal {
+    cursor: ew-resize;
+  }
+  
+  
+  /* Progress bar */
+  .exam-progress-outer {
+    margin: 15px 0 15px 0;
+  }
+  
+  .exam-progress {
+    min-width: 2em;
+    vertical-align: middle;
+  }
+  
+  
+  
+  /* Add padding to the whole window */
+  .col-sm-12 {
+    padding: 0 5% 0 5%;
+  }
+  
+  
+  
+  /* Accordion */
+  .panel-body {
+    padding: 0;
+    margin: 0;
+  }
+  
+  .accordion-item {
+    cursor: pointer;
+  }
+  
+  
+  
+  /* Vertically center submit button */
+  .vertical-center {
+    margin: 8px;
+  }
+  
+  .nav-submit {
+    height: 100%;
+  }
+  
+  
+  
+  /* Checkbox color
+  https://www.glyphicons.com/
+  */
+  .glyphicon-ok {
+    color: rgb(0, 80, 0);
+    margin-left: 10px;
+  }
+  
+  
+  
+  /* Exercise directives */
+  .exercise-response {
+    height: auto;
+  }
+  
+  .exercise {
+    margin: 0;
+  }
+  
+  .jsav-iframe {
+    height: 1365;
+  }
+  
+  .jsavcanvas {
+    min-height: 385px;
+  }

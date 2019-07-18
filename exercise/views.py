@@ -41,8 +41,10 @@ class ExerciseInfoView(ExerciseBaseView):
 
 
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
-    template_name = "exercise/exercise.html"
-    ajax_template_name = "exercise/exercise_plain.html"
+    template_name = "exammode/exam.html"
+    # template_name = "exercise/exercise.html"
+    ajax_template_name = "exammode/exam_question_plain.html"
+    # ajax_template_name = "exercise/exercise_plain.html"
     post_url_name = "exercise"
     access_mode = ACCESS.STUDENT
 
