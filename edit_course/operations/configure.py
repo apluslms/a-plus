@@ -230,7 +230,7 @@ def configure_learning_objects(category_map, module, config, parent,
         if "url" in o:
             lobject.service_url = format_localization(o["url"])
         if "status" in o:
-            lobject.status = str(o["status"])[:32]
+            lobject.status = str(o["status"])
         if "audience" in o:
             words = { 'internal':1, 'external':2, 'registered':3 }
             lobject.audience = words.get(o['audience'], 0)
@@ -433,7 +433,7 @@ def configure_content(instance, url):
             category = LearningObjectCategory(course_instance=instance,
                 name=format_localization(c["name"]))
         if "status" in c:
-            category.status = str(c["status"])[:32]
+            category.status = str(c["status"])
         if "description" in c:
             category.description = str(c["description"])
         if "points_to_pass" in c:
@@ -453,7 +453,7 @@ def configure_content(instance, url):
 
     for category in instance.categories.all():
         if not category.id in seen:
-            category.status = 'hidden'
+            category.status = LearningObjectCategory.STATUS.HIDDEN
             category.save()
 
     # Configure course modules.
@@ -483,7 +483,7 @@ def configure_content(instance, url):
         if not module.name:
             module.name = "-"
         if "status" in m:
-            module.status = str(m["status"])[:32]
+            module.status = str(m["status"])
         if "points_to_pass" in m:
             i = parse_int(m["points_to_pass"], errors)
             if not i is None:
@@ -537,7 +537,7 @@ def configure_content(instance, url):
 
     for module in list(instance.course_modules.all()):
         if not module.id in seen_modules:
-            module.status = "hidden"
+            module.status = CourseModule.STATUS.HIDDEN
             module.save()
         for lobject in list(module.learning_objects.all()):
             if not lobject.id in seen_objects:
@@ -548,12 +548,12 @@ def configure_content(instance, url):
                 ):
                     exercise.delete()
                 else:
-                    lobject.status = "hidden"
+                    lobject.status = LearningObject.STATUS.HIDDEN
                     lobject.order = 9999
                     lobject.save()
 
     # Clean up obsolete categories.
-    for category in instance.categories.filter(status="hidden"):
+    for category in instance.categories.filter(status=LearningObjectCategory.STATUS.HIDDEN):
         if category.learning_objects.count() == 0:
             category.delete()
 
@@ -594,7 +594,7 @@ def get_target_category(category, course=None, course_url=None):
         instance_slug_begin = course_url.find('/', course_slug_begin) + 1
         course_slug = course_url[course_slug_begin : instance_slug_begin - 1]
         instance_slug = course_url[instance_slug_begin: course_url.find('/', instance_slug_begin)]
-        
+
         try:
             course_instance = CourseInstance.objects.get(url=instance_slug,
                                                          course__url=course_slug)

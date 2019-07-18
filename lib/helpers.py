@@ -165,6 +165,12 @@ class Enum(object):
 
     def keys(self):
         return (x for x in self._keys)
+        
+    def values(self):
+        return (x for x in self._strings)
+
+    def __contains__(self, value):
+        return value in self._strings
 
     def __getitem__(self, key):
         return self._strings[key]
