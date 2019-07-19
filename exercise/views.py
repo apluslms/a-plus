@@ -41,10 +41,9 @@ class ExerciseInfoView(ExerciseBaseView):
 
 
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
-    template_name = "exammode/exam.html"
-    # template_name = "exercise/exercise.html"
-    ajax_template_name = "exammode/exam_question_plain.html"
-    # ajax_template_name = "exercise/exercise_plain.html"
+    template_name = None
+    ajax_template_name = None
+    
     post_url_name = "exercise"
     access_mode = ACCESS.STUDENT
 
@@ -73,6 +72,14 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         issues = []
         students = [self.profile]
         all_enroll_data = None
+
+        userprofile = self.request.user.userprofile
+        if userprofile.active_exam:
+            self.template_name = "exammode/exam.html"
+            self.ajax_template_name = "exammode/exam_question_plain.html"
+        else:
+            self.template_name = "exercise/exercise.html"
+            self.ajax_template_name = "exercise/exercise_plain.html"
 
         if self.exercise.is_submittable:
             SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
@@ -145,6 +152,15 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         submission_status, submission_allowed, issues, students = (
             self.submission_check(True, request)
         )
+
+        userprofile = self.request.user.userprofile
+        if userprofile.active_exam:
+            self.template_name = "exammode/exam.html"
+            self.ajax_template_name = "exammode/exam_question_plain.html"
+        else:
+            self.template_name = "exercise/exercise.html"
+            self.ajax_template_name = "exercise/exercise_plain.html"
+
         if submission_allowed:
             new_submission = Submission.objects.create_from_post(
                 self.exercise, students, request)

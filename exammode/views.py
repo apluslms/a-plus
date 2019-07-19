@@ -26,7 +26,7 @@ class ExamStartView(BaseTemplateView):
         return context
 
     #queryset = ExamSession.active_exams.all()
-    queryset = ExamSession.active_exams.is_active()
+    #queryset = ExamSession.active_exams.is_active()
 
 
 class ExamDetailView(generic.DetailView):
