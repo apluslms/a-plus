@@ -1,0 +1,52 @@
+/*
+ * Navigation
+ */
+
+.nav-tabs>li.active>a,
+.nav-tabs>li.active>a:hover,
+.nav-tabs>li.active>a:focus {
+    background-color: #A9A9A9 !important;
+}
+
+/*
+ * Table export
+ */
+
+#export-button-menu {
+    background-color : #A9A9A9;
+}
+
+caption.tableexport-caption button {
+    margin: 0px 10px 0px 10px;
+}
+
+/*
+ * Table
+ */
+
+.student-id,
+.student-name,
+#table-body td.indicator-heading {
+    background-color: rgb(188, 232, 241);
+    font-weight: bold;
+}
+
+#table-body td.indicator-heading {
+    filter: brightness(85%);
+}
+
+
+.indi-normal-val,
+.indi-pct-val {
+    background-color: white;
+    font-weight: bold;
+}
+.indi-normal-val {
+    text-align: left;
+    border-bottom: none !important;
+}
+
+.indi-pct-val {
+    text-align: right;
+    border-top: none !important;
+}
