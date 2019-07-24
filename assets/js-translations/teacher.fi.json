@@ -1,9 +1,104 @@
 {
-  "Toggle filtering by tag": "Suodata merkinnällä",
-  "Remove tagging": "Poista merkintä",
-  "Add new tagging": "Lisää merkintä",
-  "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200. Datetime comparison is available in format yyyy-mm-dd hh:mm:ss — e.g. >=0918-09-20 15:00. Regex is available — e.g. /^\\d+$/g. Use dot as decimal seperator — e.g. 2.1.":
-  "Vertailuoperaattorit >, <, >=, <=, !=, == ovat käytettävissä, esimerkiksi >=200. Ajan vertailu on mahdollista muodossa yyyy-mm-dd hh:mm:ss, esimerkiksi >=0918-09-20 15:00. Regex on myös käytettävissä, esimerkiksi /^\\d+$/g. Käytä desimaalierottimena pistettä, esimerkiksi 2.1.",
+  "Toggle filtering by tag":
+  "Suodata merkinnällä",
+
+  "Remove tagging":
+  "Poista merkintä",
+
+  "Add new tagging":
+  "Lisää merkintä",
+
+  "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200. Datetime comparison is available in format yyyy-mm-dd hh:mm — e.g. >=0918-09-20 15:00. Regex is available — e.g. /^\\d+$/g. Use dot as decimal seperator — e.g. 2.1.":
+  "Vertailuoperaattorit >, <, >=, <=, !=, == ovat käytettävissä, esimerkiksi >=200. Ajan vertailu on mahdollista muodossa yyyy-mm-dd hh:mm, esimerkiksi >=0918-09-20 15:00. Regex on myös käytettävissä, esimerkiksi /^\\d+$/g. Käytä desimaalierottimena pistettä, esimerkiksi 2.1.",
+
   "There might be something wrong with the filter. Some comparison operators only accept numbers. If you are using datetime, make sure the format is correct. If you are using regex, make sure it is correct.":
-  "Suodattimissa voi olla virhe. Jotkut vertailuoperaattorit hyväksyvät vain numeroita. Mikäli vertailet aikaa, varmista että formaatti on oikea. Mikäli käytät regexiä, niin varmista että se on oikein."
+  "Suodattimissa voi olla virhe. Jotkut vertailuoperaattorit hyväksyvät vain numeroita. Mikäli vertailet aikaa, varmista että formaatti on oikea. Mikäli käytät regexiä, niin varmista että se on oikein.",
+
+  "Total":
+  "Yhteensä",
+
+  "Tags":
+  "Merkinnät",
+
+  "Student name":
+  "Opiskelijan nimi",
+
+  "Student ID":
+  "Opiskelijanumero",
+
+  " students selected":
+  " opiskelijaa valittuna",
+
+  "No difficulty":
+  "Ei vaikeusastetta",
+
+  "Total submissions":
+  "Palautuksia yhteensä",
+
+  "Average submissions per student with submissions":
+  "Palautusten keskiarvo per opiskelija, jolla on vähintään yksi palautus",
+
+  "Maximum submissions":
+  "Palautusmahdollisuuksia",
+
+  "Students with submissions":
+  "Tehtävän palauttaneet opiskelijat",
+
+  "Students with max points":
+  "Opiskelijoiden lkm joilla on täydet pisteet",
+
+  "Average points per student with submissions":
+  "Pisteiden keskiarvo per opiskelija jolla on vähintään yksi palautus",
+
+  "Maximum points":
+  "Enimmäispisteet",
+
+  "Total number of submissions. Calculates all student submission counts together.":
+  "Palautusten lukumäärä. Laskee kaikkien opiskelijoiden kaikkien palautusten lukumäärän yhteen.",
+
+  "How many submissions a single student has used on the exercise on average. Only accounts for students with one or more submissions.":
+  "Kuinka monta palautusta opiskelija on käyttänyt tehtävään keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
+
+  "Maximum number of available submissions for the exercise.":
+  "Kuinka monta palautusta tehtävässä on mahdollista käyttää.",
+
+  "Number of students that have one or more exercise submissions.":
+  "Opiskelijoiden lukumäärä, joilla on vähintään yksi palautus.",
+
+  "Number of students that have received maximum points from the exercise.":
+  "Opiskeljoiden lukumäärä, jotka ovat saaneet täydet pisteet tehtävästä.",
+
+  "Average points received for the exercise. Only accounts for students with one or more submissions.":
+  "Kuinka monta pistettä opiskelijat ovat saaneet tehtävästä keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
+
+  "Maximum points for the exercise.":
+  "Tehtävän enimmäispisteet.",
+
+  "Export to xlsx (Excel)":
+  "Vie xlsx tiedostoon (Excel)",
+
+  "Export to csv (LibreOffice)":
+  "Vie csv tiedostoon (LibreOffice)",
+
+  "Export to txt":
+  "Vie txt tiedostoon",
+
+  "None selected":
+  "Nolla valintaa",
+
+  "All selected":
+  "Kaikki valittu",
+
+  "selected":
+  "valittu",
+
+  "Select all":
+  "Valitse kaikki",
+
+  "student_results":
+  "opiskelijoiden_tulokset",
+
+  "Some students have unofficial points that are greater than zero. However, they are calculated as zero in the table until they are confirmed. This may be caused for example by missing feedback form.":
+  "Osalla opiskelijoista on epävirallisia pisteitä, jotka ovat enemmän kuin nolla. Nämä pisteet on silti laskettu nollana taulukossa, kunnes ne on vahvistettu. Tämä voi johtua esimerkiksi puuttuvasta palautelomakkeesta."
+
 }

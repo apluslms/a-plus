@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 12:17+0300\n"
+"POT-Creation-Date: 2019-08-19 17:48+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -248,7 +248,7 @@ msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
 #: course/models.py:667 course/models.py:775 exercise/exercise_models.py:68
-#: exercise/submission_models.py:58
+#: exercise/submission_models.py:106
 msgid "Ready"
 msgstr "Valmis"
 
@@ -341,12 +341,12 @@ msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle."
 
 #: course/staff_views.py:102 edit_course/views.py:49
-#: exercise/staff_views.py:283
+#: exercise/staff_views.py:289
 msgid "Changes were saved succesfully."
 msgstr "Muutokset tallennettiin onnistuneesti."
 
 #: course/staff_views.py:106 edit_course/views.py:53
-#: exercise/staff_views.py:287
+#: exercise/staff_views.py:293
 msgid "Failed to save changes."
 msgstr "Muutosten tallentaminen epäonnistui."
 
@@ -415,8 +415,8 @@ msgid "Grades"
 msgstr "Arvosanat"
 
 #: course/templates/course/_course_menu.html:137
-#: exercise/templates/exercise/staff/results.html:5
-#: exercise/templates/exercise/staff/results.html:10
+#: exercise/templates/exercise/staff/results.html:6
+#: exercise/templates/exercise/staff/results.html:11
 msgid "All results"
 msgstr "Kaikki pisteet"
 
@@ -788,6 +788,7 @@ msgstr "Lisää"
 
 #: course/templates/course/staff/participants.html:18
 #: diploma/templates/diploma/list.html:13
+#: exercise/templates/exercise/staff/results.html:137
 msgid "Filter users"
 msgstr "Suodata listaa"
 
@@ -834,7 +835,7 @@ msgstr "Merkinnät"
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:98 exercise/exercise_models.py:528
+#: course/views.py:98 exercise/exercise_models.py:548
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
@@ -1739,15 +1740,15 @@ msgstr "Et voi valita 'Parent'-viitettä toisesta kurssimoduulista."
 msgid "Cannot select self as a parent."
 msgstr "Kohdetta ei voi valita itsensä 'Parent'-viitteeksi."
 
-#: exercise/exercise_models.py:354
+#: exercise/exercise_models.py:374
 msgid "Points to pass cannot be greater than max_points."
 msgstr "'Points to pass' ei voi olla suurempi kuin 'max_points'."
 
-#: exercise/exercise_models.py:356
+#: exercise/exercise_models.py:376
 msgid "Minimum group size cannot exceed maximum size."
 msgstr "Ryhmän koon alaraja ei voi olla suurempi kuin yläraja."
 
-#: exercise/exercise_models.py:419
+#: exercise/exercise_models.py:439
 #, no-python-format, python-brace-format
 msgid ""
 "Deadline for the exercise has passed. Late submissions are allowed until "
@@ -1756,7 +1757,7 @@ msgstr ""
 "Tehtävän määräaika on mennyt. Myöhäisiä palautuksia vastaanotetaan {date} "
 "asti, mutta pisteiden arvo on ainoastaan {percent:d}% normaalista."
 
-#: exercise/exercise_models.py:424
+#: exercise/exercise_models.py:444
 #, python-brace-format
 msgid ""
 "Deadline for the exercise has passed ({date}). You may still submit to "
@@ -1765,22 +1766,22 @@ msgstr ""
 "Tehtävän määräaika on mennyt ({date}). Voit edelleen palauttaa saadaksesi "
 "palautetta, mutta nykyinen arvosanasi ei muutu."
 
-#: exercise/exercise_models.py:428
+#: exercise/exercise_models.py:448
 #, python-brace-format
 msgid "The exercise opens {date} for submissions."
 msgstr "Tämän tehtävän voi palauttaa {date} alkaen."
 
-#: exercise/exercise_models.py:432
+#: exercise/exercise_models.py:452
 #, python-brace-format
 msgid "Deadline for the exercise has passed ({date})."
 msgstr "Tehtävän määräaika on mennyt ({date})."
 
-#: exercise/exercise_models.py:436
+#: exercise/exercise_models.py:456
 #, python-brace-format
 msgid "This course has been archived ({date})."
 msgstr "Tämä kurssi on arkistoitu ({date})."
 
-#: exercise/exercise_models.py:489
+#: exercise/exercise_models.py:509
 msgid ""
 "You have used the allowed amount of submissions for this exercise. You may "
 "still submit to receive feedback, but your current grade will not change."
@@ -1788,51 +1789,51 @@ msgstr ""
 "Olet käyttänyt kaikki tehtävän palautuskerrat. Voit edelleen palauttaa "
 "saadaksesi palautetta, mutta nykyinen arvosanasi ei muutu."
 
-#: exercise/exercise_models.py:490
+#: exercise/exercise_models.py:510
 msgid "You have used the allowed amount of submissions for this exercise."
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
-#: exercise/exercise_models.py:532
+#: exercise/exercise_models.py:552
 msgid "You cannot enroll in the course."
 msgstr "Et voi ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:537
+#: exercise/exercise_models.py:557
 msgid "Staff can submit exercises without enrolling."
 msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
 
-#: exercise/exercise_models.py:540
+#: exercise/exercise_models.py:560
 msgid "You must enroll in the course to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:562
+#: exercise/exercise_models.py:582
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
-#: exercise/exercise_models.py:563
+#: exercise/exercise_models.py:583
 #, python-brace-format
 msgid "You have previously submitted this exercise {with_group}. {msg}"
 msgstr "Olet palauttanut tämän tehtävän aiemmin {with_group}. {msg}"
 
-#: exercise/exercise_models.py:566
+#: exercise/exercise_models.py:586
 msgid "alone"
 msgstr "yksin"
 
-#: exercise/exercise_models.py:570
+#: exercise/exercise_models.py:590
 msgid "with {}"
 msgstr "ryhmässä {}"
 
-#: exercise/exercise_models.py:576
+#: exercise/exercise_models.py:596
 #, python-brace-format
 msgid ""
 "{collaborators} already submitted to this exercise in a different group."
 msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
 
-#: exercise/exercise_models.py:591
+#: exercise/exercise_models.py:611
 #, python-brace-format
 msgid "This exercise must be submitted in groups of {size} students."
 msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 
-#: exercise/exercise_models.py:601
+#: exercise/exercise_models.py:621
 msgid ""
 "Cannot submit exercise due to unknown reason. If you think this is an error, "
 "please contact course staff."
@@ -1840,30 +1841,30 @@ msgstr ""
 "Tehtävää ei voitu palauttaa tuntemattomasta syystä. Jos uskot tämän olevan "
 "virhe, ota ystävällisesti yhteyttä kurssihenkilökuntaan."
 
-#: exercise/exercise_models.py:737
+#: exercise/exercise_models.py:757
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:739
+#: exercise/exercise_models.py:759
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:741
+#: exercise/exercise_models.py:761
 msgid "Default: the menu label of the LTI service"
 msgstr "Oletus: LTI-palvelun nimi"
 
-#: exercise/exercise_models.py:743
+#: exercise/exercise_models.py:763
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:745
+#: exercise/exercise_models.py:765
 msgid ""
 "Open the exercise in an iframe inside the A+ page instead of a new window."
 msgstr "Avaa tehtävä iframe-kehyksessä A+-sivun sisällä uuden ikkunan sijasta."
 
-#: exercise/exercise_models.py:762
+#: exercise/exercise_models.py:782
 msgid ""
 "Domain of Service URL must match the domain of LTI Service or it should only "
 "be the path."
@@ -1871,14 +1872,14 @@ msgstr ""
 "Palveluosoitteen domainin täytyy vastata LTI-palvelun domainia tai osoitteen "
 "tulee olla vain polku."
 
-#: exercise/exercise_models.py:769
+#: exercise/exercise_models.py:789
 msgid ""
 "The exercise can not be loaded because the external LTI service has been "
 "disabled."
 msgstr ""
 "Tehtävää ei voi ladata, koska ulkoinen LTI-palvelu on poistettu käytöstä."
 
-#: exercise/exercise_models.py:900
+#: exercise/exercise_models.py:920
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -1993,15 +1994,15 @@ msgstr ""
 msgid "Assessment service responded with error."
 msgstr "Tehtäväpalvelussa tapahtui virhe."
 
-#: exercise/staff_views.py:148
+#: exercise/staff_views.py:151
 msgid "The review was saved successfully and the submitters were notified."
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
 
-#: exercise/staff_views.py:169
+#: exercise/staff_views.py:172
 msgid "Failed to load the resource."
 msgstr "Lataus epäonnistui."
 
-#: exercise/staff_views.py:245
+#: exercise/staff_views.py:251
 #, python-brace-format
 msgid ""
 "Invalid POST data:\n"
@@ -2010,28 +2011,28 @@ msgstr ""
 "Epäkelvollinen POST sisältö:\n"
 "{error}"
 
-#: exercise/staff_views.py:260
+#: exercise/staff_views.py:266
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 
-#: exercise/submission_models.py:56
+#: exercise/submission_models.py:104
 msgid "Initialized"
 msgstr "Vastaanotettu"
 
-#: exercise/submission_models.py:57
+#: exercise/submission_models.py:105
 msgid "In grading"
 msgstr "Arvosteltavana"
 
-#: exercise/submission_models.py:59
+#: exercise/submission_models.py:107
 msgid "Error"
 msgstr "Virhe"
 
-#: exercise/submission_models.py:60
+#: exercise/submission_models.py:108
 #: exercise/templates/exercise/_points_badge.html:11
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: exercise/submission_models.py:61
+#: exercise/submission_models.py:109
 msgid "No effect on grading"
 msgstr "Ei vaikuta arvosteluun"
 
@@ -2086,7 +2087,7 @@ msgid "Total number of submitters"
 msgstr "Palauttaneita opiskelijoita yhteensä"
 
 #: exercise/templates/exercise/_exercise_wait.html:6
-#: exercise/templates/exercise/exercise.html:49
+#: exercise/templates/exercise/exercise.html:52
 msgid "Communication error with the exercise."
 msgstr "Yhteys tehtäväpalveluun epäonnistui."
 
@@ -2309,20 +2310,20 @@ msgstr "Näytä kuitenkin"
 msgid "Enrollment information"
 msgstr "Ilmoittautumisen tiedot"
 
-#: exercise/templates/exercise/exercise.html:40
-#: exercise/templates/exercise/exercise.html:48
+#: exercise/templates/exercise/exercise.html:43
+#: exercise/templates/exercise/exercise.html:51
 msgid "Posting submission..."
 msgstr "Palautusta lähetetään..."
 
-#: exercise/templates/exercise/exercise.html:47
+#: exercise/templates/exercise/exercise.html:50
 msgid "Loading exercise..."
 msgstr "Tehtävää ladataan..."
 
-#: exercise/templates/exercise/exercise.html:54
+#: exercise/templates/exercise/exercise.html:57
 msgid "Submission received."
 msgstr "Palautus on vastaanotettu."
 
-#: exercise/templates/exercise/exercise.html:57
+#: exercise/templates/exercise/exercise.html:60
 msgid "Go to feedback"
 msgstr "Katso palaute"
 
@@ -2629,23 +2630,115 @@ msgstr ""
 msgid "Grader errors"
 msgstr "Virheet tarkistimelta"
 
-#: exercise/templates/exercise/staff/results.html:19
-#, python-format
+#: exercise/templates/exercise/staff/results.html:57
+msgid "Select modules: "
+msgstr "Valitse moduulit: "
+
+#: exercise/templates/exercise/staff/results.html:67
+msgid "Select exercises: "
+msgstr "Valitse tehtävät: "
+
+#: exercise/templates/exercise/staff/results.html:80
+msgid "Summaries"
+msgstr "Yhteenvedot"
+
+#: exercise/templates/exercise/staff/results.html:82
 msgid ""
-"\n"
-"                \tStudent (N=%(num)s)\n"
-"                \t"
+"Total number of submissions. Calculates all student submission counts "
+"together."
 msgstr ""
-"\n"
-"Opiskelija (N=%(num)s)"
+"Palautusten lukumäärä. Laskee kaikkien opiskelijoiden kaikkien palautusten "
+"lukumäärän yhteen."
 
-#: exercise/templates/exercise/staff/results.html:28
-msgid "Sum"
-msgstr "Yhteensä"
+#: exercise/templates/exercise/staff/results.html:84
+msgid "Total submissions"
+msgstr "Palautuksia yhteensä"
 
-#: exercise/templates/exercise/staff/results.html:44
+#: exercise/templates/exercise/staff/results.html:88
+msgid ""
+"How many submissions a single student has used on the exercise on average. "
+"Only accounts for students with one or more submissions."
+msgstr ""
+"Kuinka monta palautusta opiskelija on käyttänyt tehtävään keskimäärin. "
+"Lasketaan vain opiskelijat, joilla on vähintään yksi palautus."
+
+#: exercise/templates/exercise/staff/results.html:90
+msgid "Average submissions per student"
+msgstr "Palautuskertojen keskiarvo per opiskelija"
+
+#: exercise/templates/exercise/staff/results.html:94
+msgid "Maximum number of available submissions for the exercise."
+msgstr "Kuinka monta palautusta tehtävässä on mahdollista käyttää."
+
+#: exercise/templates/exercise/staff/results.html:96
+msgid "Maximum submissions"
+msgstr "Palautusmahdollisuuksia"
+
+#: exercise/templates/exercise/staff/results.html:100
+msgid "Number of students that have one or more exercise submissions."
+msgstr "Opiskelijat, joilla on vähintään yksi palautus."
+
+#: exercise/templates/exercise/staff/results.html:102
+msgid "Students with submissions"
+msgstr "Tehtävän palauttaneet opiskelijat"
+
+#: exercise/templates/exercise/staff/results.html:106
+msgid "Number of students that have received maximum points from the exercise."
+msgstr "Opiskelijat, jotka ovat saaneet täydet pisteet tehtävästä."
+
+#: exercise/templates/exercise/staff/results.html:108
+msgid "Students with max points"
+msgstr "Opiskelijat, joilla on täydet pisteet"
+
+#: exercise/templates/exercise/staff/results.html:112
+msgid ""
+"Average points received for the exercise per student. Only accounts for "
+"students with one or more submissions."
+msgstr ""
+"Kuinka monta pistettä opiskelijat ovat saaneet tehtävästä keskimäärin. "
+"Lasketaan vain opiskelijat, joilla on vähintään yksi palautus."
+
+#: exercise/templates/exercise/staff/results.html:114
+msgid "Average points per student"
+msgstr "Pisteiden keskiarvo per opiskelija"
+
+#: exercise/templates/exercise/staff/results.html:118
+msgid "Maximum points for the exercise."
+msgstr "Tehtävän enimmäispisteet."
+
+#: exercise/templates/exercise/staff/results.html:120
 msgid "Maximum points"
 msgstr "Enimmäispisteet"
+
+#: exercise/templates/exercise/staff/results.html:126
+msgid ""
+"Points are official if the submission is within deadline and submission "
+"count limits. Submission must be also accepted and confirmed (for example, "
+"in case of mandatory feedback)."
+msgstr ""
+"Pisteet ovar virallisia jos palautus on tehty määräajassa ja sallittujen "
+"palautuskertojen sisällä. Palautus täytyy olla myös hyväksytty ja "
+"varmistettu (esimerkiksi pakollisen palautteen yhteydessä)."
+
+#: exercise/templates/exercise/staff/results.html:128
+msgid "Show only official points"
+msgstr "Näytä vain viralliset pisteet"
+
+#: exercise/templates/exercise/staff/results.html:150
+msgid "Show exercises by difficulty"
+msgstr "Näytä tehtävät vaikeusasteittain"
+
+#: exercise/templates/exercise/staff/results.html:153
+msgid "Show exercises by module"
+msgstr "Näytä tehtävät moduulettain"
+
+#: exercise/templates/exercise/staff/results.html:156
+msgid "Show all exercises"
+msgstr "Näytä kaikki tehtävät"
+
+#: exercise/templates/exercise/staff/results.html:163
+msgid "Export Data"
+msgstr "Vie Tiedostoon"
 
 #: exercise/templates/exercise/staff/submissions_summary.html:7
 msgid "Submissions summary"
@@ -2698,21 +2791,21 @@ msgstr "Ei vielä palautuksia tälle kurssille."
 msgid "Excel compatible CSV"
 msgstr "Excel-yhteensopiva CSV"
 
-#: exercise/views.py:87
+#: exercise/views.py:88
 msgid "Exercise is in maintenance and content is hidden from students."
 msgstr "Tehtävässä on huoltokatko, ja sisältö on piilotettu opiskelijoilta."
 
-#: exercise/views.py:93
+#: exercise/views.py:94
 msgid "Unfortunately this exercise is currently under maintenance."
 msgstr "Valitettavasti tässä tehtävässä on juuri nyt huoltokatko."
 
-#: exercise/views.py:153
+#: exercise/views.py:166
 msgid ""
 "The submission could not be saved for some reason. The submission was not "
 "registered."
 msgstr "Palautuksen tallentaminen epäonnistui. Palautusta ei ole huomioitu."
 
-#: exercise/views.py:166
+#: exercise/views.py:179
 msgid "You need to sign in and enroll to submit exercises."
 msgstr ""
 "Palauttaaksesi tehtäviä sinun pitää rekisteröityä ja ilmoittautua kurssin "

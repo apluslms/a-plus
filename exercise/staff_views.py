@@ -12,12 +12,15 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from course.models import (
+    USERTAG_EXTERNAL,
+    USERTAG_INTERNAL,
+)
 from deviations.models import MaxSubmissionsRuleDeviation
 from lib.helpers import settings_text
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from authorization.permissions import ACCESS
-from .exercise_summary import ResultTable
 from .models import LearningObject
 from .forms import (
     SubmissionReviewForm,
@@ -178,8 +181,11 @@ class AllResultsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.table = ResultTable(self.instance)
-        self.note("table")
+        self.tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        self.tags.extend(self.instance.usertags.all())
+        self.note(
+            'tags',
+        )
 
 
 class AnalyticsView(CourseInstanceBaseView):
