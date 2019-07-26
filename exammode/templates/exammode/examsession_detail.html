@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{examsession.course_instance.course}}</h1>
+<p>Exams starts at {{examsession.can_start}}</p>
+<a class="btn btn-success" href="">Start exam</a>
+{% endblock %}

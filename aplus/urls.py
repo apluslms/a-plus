@@ -1,11 +1,14 @@
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.urls import path
 
 import shibboleth_login.urls
 import social_django.urls
 import userprofile.urls
-import course.urls, course.long_urls
+import course.urls
+import course.long_urls
+import exammode.urls
 import exercise.urls
 import edit_course.urls
 import deviations.urls
@@ -23,9 +26,11 @@ admin.autodiscover()
 #  Pay attention to the order the URL patterns will be matched!
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    path('exam/', include(exammode.urls)),
     url(r'^shibboleth/', include(shibboleth_login.urls)),
     url('', include(social_django.urls, namespace='social')),
-    url(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
+    # why version in url? doc/api_versioning.md
+    url(r'^api/v(?P<version>(2))/', include(api.urls_v2)),
     url(r'^accounts/', include(userprofile.urls)),
     url(r'^diploma/', include(diploma.urls)),
     url(r'^', include(redirect_old_urls.urls)),
@@ -43,4 +48,4 @@ urlpatterns = [
 if settings.DEBUG:
     import django.views.static
     urlpatterns.insert(0, url(r'^media/(?P<path>.*)$', django.views.static.serve,
-        { 'document_root': settings.MEDIA_ROOT }))
+                              {'document_root': settings.MEDIA_ROOT}))

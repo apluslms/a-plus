@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>List of active exams</h1>
+{% if active_exams %}
+<ul>
+    {% for exam in active_exams %}
+    <div class="container">
+        {{exam.course_instance.course}} {{exam.can_start}}
+        <a class="btn btn-success" href="{% url 'exam_details' exam.id %}">Start exam</a>
+    </div>
+    {% endfor %}
+</ul>
+{% else %}
+<p>There are no active exams at the moment.</p>
+{% endif %}
+{% endblock %}

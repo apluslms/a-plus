@@ -7,6 +7,24 @@ from userprofile.models import UserProfile
 # Create your models here.
 
 
+class ExamSessionManager(models.Manager):
+    def get_queryset(self):
+        initial_queryset = super().get_queryset()
+        # queryset = [q for q in initial_queryset if (q.can_start <= timezone.now() and timezone.now() <= q.can_start + timezone.timedelta(q.duration))]
+
+        queryset = [q for q in initial_queryset if (
+            q.can_start <= timezone.now())]
+        return queryset
+
+    def is_active(self):
+        initial_queryset = super().get_queryset()
+        queryset = [q for q in initial_queryset if (q.can_start <= timezone.now(
+        ) and (timezone.now() <= q.can_start + timezone.timedelta(hours=q.duration)))]
+
+        #queryset = [q for q in initial_queryset if (q.can_start <= timezone.now())]
+        return queryset
+
+
 class ExamSession(models.Model):
     """
     Represents one instance of a course exam
@@ -21,12 +39,18 @@ class ExamSession(models.Model):
     may_leave_time = models.DateTimeField(editable=True, default=timezone.now)
     room = models.CharField(max_length=255)
 
+    objects = models.Manager()
+    active_exams = ExamSessionManager()
+
     def __str__(self):
         # return self.course_instance
         return " ".join([str(self.course_instance), str(self.can_start)])
 
-    def can_start_now(self):
-        return self.can_start <= timezone.now() and timezone.now() <= self.can_start + timezone.timedelta(self.duration)
+    def start_exam(self, user):
+        attempt = ExamAttempt(exam_taken=self, student=user,
+                              exam_started=timezone.now())
+        attempt.full_clean()
+        attempt.save()
 
 
 class ExamAttempt(models.Model):
