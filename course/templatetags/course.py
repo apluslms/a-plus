@@ -2,13 +2,13 @@ from datetime import timedelta
 from django import template
 from django.conf import settings
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 
 from exercise.cache.content import CachedContent
-from course.models import CourseInstance
+from course.models import CourseInstance, UserTagging
 from lib.localization_syntax import pick_localized
 from ..cache.menu import CachedTopMenu
-from ..renders import tags_context
 
 
 register = template.Library()
@@ -112,10 +112,10 @@ def profiles(profiles, instance, is_teacher):
     }
 
 
-@register.inclusion_tag("course/_tags.html")
+@register.simple_tag
 def tags(profile, instance):
-    # FIXME: get tags from cache
-    return tags_context(profile, profile.taggings.tags_for_instance(instance), instance)
+    tags = UserTagging.objects.get_all(profile, instance)
+    return mark_safe(' '.join(tag.html_label for tag in tags))
 
 
 @register.filter

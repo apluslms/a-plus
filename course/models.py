@@ -210,12 +210,54 @@ class UserTag(UrlMixin, ColorTag):
         ).exists()
 
 
+class HardcodedUserTag(UserTag):
+    class Meta:
+        proxy = True
+
+    data_attrs = {
+        '-removable': 'false'
+    }
+
+    def __init__(self, **kwargs):
+        from django.db.models.base import DEFERRED
+        kwargs.setdefault('course_instance', DEFERRED)
+        kwargs.setdefault('visible_to_students', True)
+        super().__init__(**kwargs)
+
+    def save(self, *args, **kwargs):
+        raise RuntimeError("Hardcoded tags can not be saved!")
+
+
+USERTAG_INTERNAL = HardcodedUserTag(
+    name=getattr(settings, 'INTERNAL_USER_LABEL', _('internal')),
+    slug='user-internal',
+    description=_("The user profile contains a student number and has logged in via local organisation authentication"),
+    color='#006cb4',
+)
+
+
+USERTAG_EXTERNAL = HardcodedUserTag(
+    name=getattr(settings, 'EXTERNAL_USER_LABEL', _('external')),
+    slug='user-external',
+    description=_("The user profile doesn't have a student number, thus the user has logged in from a different organization or via social authentication"),
+    color='#545454',
+)
+
+
 class UserTaggingManager(models.Manager):
 
     def tags_for_instance(self, course_instance):
         ts = self.filter(course_instance=course_instance)\
             .select_related('tag')
         return [t.tag for t in ts]
+
+    def get_all(self, profile, course_instance):
+        qs = (self.filter(user=profile,
+                          course_instance=course_instance)
+              .select_related('tag'))
+        tags = [USERTAG_EXTERNAL if profile.is_external else USERTAG_INTERNAL]
+        tags.extend(t.tag for t in qs.all())
+        return tags
 
     def set(self, profile, tag):
         return self.get_or_create(

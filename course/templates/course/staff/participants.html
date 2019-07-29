@@ -16,16 +16,8 @@
 
     <p class="filter-users">
       <small>{% trans "Filter users" %}:</small>
-      <button class="btn btn-success btn-xs" data-id="aalto">
-        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
-        {{ internal_user_label|safe }}
-      </button>
-      <button class="btn btn-info btn-xs" data-id="mooc">
-        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
-        {{ external_user_label|safe }}
-      </button>
       {% for tag in tags %}
-      <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
+      <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
         <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
         {{ tag.name }}
       </button>

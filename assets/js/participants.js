@@ -36,14 +36,11 @@ function participants_list(participants, api_url, is_teacher) {
   var filterItems = function (participants) {
     const filters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
       .map(function (elem) {
-        return $(elem).attr('data-id');
+        return $(elem).attr('data-tagslug');
       });
     return participants.map(function (participant) {
-      const tags = participant.tag_ids.map(function (id) {
-        return id.toString();
-      }).concat(participant.external ? 'mooc' : 'aalto');
       // Set intercetion tags ∩ filters
-      const intersect = tags.filter(function (tag) {
+      const intersect = participant.tag_slugs.filter(function (tag) {
         return filters.indexOf(tag) >= 0;
       });
       return intersect.length === filters.length;
