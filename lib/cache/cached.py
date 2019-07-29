@@ -12,10 +12,10 @@ class CachedAbstract(object):
 
     @classmethod
     def _key(cls, *models, modifiers):
-        return "{}:{}".format(cls.KEY_PREFIX, ",".join(
-            [str(m.pk if hasattr(m, 'pk') else 0) for m in models]
-            + modifiers
-        ))
+        keys = [str(m if isinstance(m, int) else getattr(m, 'pk', None))
+                for m in models]
+        keys.extend(modifiers)
+        return "%s:%s" % (cls.KEY_PREFIX, ','.join(keys))
 
     @classmethod
     def invalidate(cls, *models, modifiers=[]):
