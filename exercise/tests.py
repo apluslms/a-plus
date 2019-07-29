@@ -27,6 +27,8 @@ class ExerciseTest(TestCase):
         self.user = User(username="testUser", first_name="First", last_name="Last")
         self.user.set_password("testPassword")
         self.user.save()
+        self.user.userprofile.student_id = '123456'
+        self.user.userprofile.save()
 
         self.grader = User(username="grader")
         self.grader.set_password("graderPassword")
@@ -39,6 +41,8 @@ class ExerciseTest(TestCase):
         self.user2 = User(username="testUser2", first_name="Strange", last_name="Fellow")
         self.user2.set_password("testPassword2")
         self.user2.save()
+        self.user2.userprofile.student_id = '654321'
+        self.user2.userprofile.save()
 
         self.course = Course.objects.create(
             name="test course",

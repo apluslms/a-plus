@@ -37,6 +37,8 @@ student = User.objects.create(
 )
 student.set_password("admin")
 student.save()
+student.userprofile.student_id = '123456'
+student.userprofile.save()
 
 instance = CourseInstance.objects.get(id=1)
 instance.course.teachers.add(teacher.userprofile)

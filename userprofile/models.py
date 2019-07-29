@@ -78,7 +78,7 @@ class UserProfile(models.Model):
         """
         Is this an external rather than internal account.
         """
-        return settings.SOCIAL_AUTH and self.user.social_auth.exists()
+        return not bool(self.student_id)
 
     def get_url(self, instance):
         kwargs = dict(user_id=self.user.id, **instance.get_url_kwargs())

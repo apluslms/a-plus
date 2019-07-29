@@ -21,10 +21,14 @@ class CourseVisibilityTest(TestCase):
         self.user = User(username="testUser") # not enrolled in the course
         self.user.set_password("testUser")
         self.user.save()
+        self.user.userprofile.student_id = '123456'
+        self.user.userprofile.save()
 
         self.student = User(username="student") # enrolled in the course
         self.student.set_password("student")
         self.student.save()
+        self.student.userprofile.student_id = '654321'
+        self.student.userprofile.save()
 
         self.course = Course.objects.create(
             name="Test course",
