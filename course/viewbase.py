@@ -10,7 +10,7 @@ from authorization.permissions import ACCESS
 from exercise.cache.content import CachedContent
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
-from .cache.students import CachedStudents
+from .cache.students import CachedStudent
 from .permissions import (
     CourseVisiblePermission,
     CourseModulePermission,
@@ -61,12 +61,7 @@ class CourseInstanceBaseMixin(object):
             self.is_assistant = self.instance.is_assistant(user)
             self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
-            def get_taggings():
-                return [tag
-                        for student in CachedStudents(instance).students()
-                        if student['user_id'] == user.id
-                        for tag in student['tag_slugs']]
-            self.get_taggings = get_taggings
+            self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
 
             self.note(
                 "course", "instance", "content", "is_student", "is_assistant",

@@ -9,7 +9,6 @@ from lib.api.renderers import CSVExcelRenderer
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from course.api.mixins import CourseResourceMixin
-from course.cache.students import CachedStudents
 from course.permissions import IsCourseAdminOrUserObjIsSelf
 from userprofile.models import UserProfile
 

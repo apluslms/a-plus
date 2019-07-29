@@ -1,14 +1,19 @@
 import json
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
 from lib.helpers import settings_text
 from lib.viewbase import BaseFormView, BaseTemplateView, BaseRedirectMixin
-from .cache.students import CachedStudents
+from .cache.students import CachedStudent
 from .forms import GroupEditForm
-from .models import StudentGroup
+from .models import (
+    USERTAG_EXTERNAL,
+    USERTAG_INTERNAL,
+    StudentGroup,
+)
 from .viewbase import CourseInstanceBaseView, CourseInstanceMixin
 
 
@@ -18,14 +23,43 @@ class ParticipantsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.participants = json.dumps(CachedStudents(self.instance).students())
-        self.tags = list(self.instance.usertags.all())
+        self.tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        self.tags.extend(self.instance.usertags.all())
+        self.participants = json.dumps(self._get_students_with_tags())
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
         self.note(
             'participants', 'tags',
             'internal_user_label', 'external_user_label',
         )
+
+    def _get_students_with_tags(self):
+        ci = self.instance
+        fake = '10' * 32
+        link = (reverse('user-results',
+                         kwargs={'user_id': fake, **ci.get_url_kwargs()})
+                .replace(fake, r'%s'))
+        tags = {t.slug: t for t in self.tags}
+
+        participants = ci.students.all()
+        data = []
+        for participant in participants:
+            user_id = participant.user.id
+            user_tags = CachedStudent(ci, user_id).data
+            user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags['tag_slugs'] if slug in tags)
+            data.append({
+                'id': participant.student_id or '',
+                'user_id': user_id,
+                'last_name': participant.user.last_name or '',
+                'first_name': participant.user.first_name or '',
+                'username': participant.user.username,
+                'email': participant.user.email or '',
+                'external': participant.is_external,
+                'link': link % (user_id,),
+                **user_tags,
+                'tags': user_tags_html,
+            })
+        return data
 
 
 class GroupsView(CourseInstanceBaseView):
