@@ -10,6 +10,7 @@ from ..models import (
     CourseModule,
     UserTag,
 )
+from ..cache.students import CachedStudent
 
 
 __all__ = [
@@ -48,8 +49,13 @@ class CourseListField(AlwaysListSerializer, CourseBriefSerializer):
 
 
 class StudentBriefSerializer(UserBriefSerializer):
+    tag_slugs = serializers.SerializerMethodField()
     points = serializers.SerializerMethodField()
     data = serializers.SerializerMethodField()
+
+    def get_tag_slugs(self, profile):
+        cached = CachedStudent(self.context['view'].instance.id, profile.user.id)
+        return cached.data['tag_slugs']
 
     def get_points(self, profile):
         return self._get_link_lookup('api:course-points-detail', profile)
@@ -69,6 +75,7 @@ class StudentBriefSerializer(UserBriefSerializer):
 
     class Meta(UserBriefSerializer.Meta):
         fields = UserBriefSerializer.Meta.fields + (
+            'tag_slugs',
             'points',
             'data',
         )
