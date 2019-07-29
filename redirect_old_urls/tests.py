@@ -13,6 +13,8 @@ class RedirectTest(TestCase):
         self.user = User(username="testUser")
         self.user.set_password("testPassword")
         self.user.save()
+        self.user.userprofile.student_id = '123456'
+        self.user.userprofile.save()
         self.course = Course.objects.create(
             name="test course",
             code="123456",

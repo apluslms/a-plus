@@ -35,13 +35,13 @@ class UserProfileAPITest(TestCase):
                  'username': 'teacher',
                  'student_id': None,
                  'email': 'teacher@aplus.com',
-                 'is_external': False},
+                 'is_external': True},
                 {'id': 4,
                  'url': 'http://testserver/api/v2/users/4/',
                  'username': 'superuser',
                  'student_id': None,
                  'email': 'superuser@aplus.com',
-                 'is_external': False},
+                 'is_external': True},
                 ]
             })
 
