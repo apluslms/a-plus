@@ -165,7 +165,7 @@ class Enum(object):
 
     def keys(self):
         return (x for x in self._keys)
-        
+
     def values(self):
         return (x for x in self._strings)
 
