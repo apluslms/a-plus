@@ -11,6 +11,8 @@ from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 
 from ..models import (
+    USERTAG_EXTERNAL,
+    USERTAG_INTERNAL,
     CourseInstance,
     CourseModule,
     UserTag,
@@ -93,6 +95,12 @@ class CourseUsertagsViewSet(NestedViewSetMixin,
     serializer_class = CourseUsertagSerializer
     queryset = UserTag.objects.all()
     parent_lookup_map = {'course_id': 'course_instance_id'}
+
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(queryset.all())
+        return tags
 
 
 class CourseUsertaggingsViewSet(NestedViewSetMixin,
