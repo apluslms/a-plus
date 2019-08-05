@@ -1,4 +1,4 @@
-{% extends 'exammode/course_exam_base.html' %}
+{% extends 'exammode/base.html' %}
 {% load i18n %}
 {% load static %}
 {% load course %}
@@ -7,29 +7,61 @@
 
 {% block title %}{{ current.name|parse_localization }} | {{ block.super }}{% endblock %}
 
-{% block siblings %}
-{% include "course/_siblings.html" %}
-{% endblock %}
-{% block siblings_bottom %}
-{% include "course/_siblings.html" %}
-{% endblock %}
+{% block siblings %}{% include "course/_siblings.html" %}{% endblock %}
+
+{% block siblings_bottom %}{% include "course/_siblings.html" %}{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
-{% for entry in breadcrumb %}
-<li>
-  {% if entry.is_empty %}
-  {{ entry.name|parse_localization }}
-  {% else %}
-  <a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
-  {% endif %}
-</li>
-{% endfor %}
-{% block exercisebreadcrumblist %}
-<li class="active">{{ current.name|parse_localization }}</li>
+    <li><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
+    {% for entry in breadcrumb %}
+    <li>
+    {% if entry.is_empty %}
+    {{ entry.name|parse_localization }}
+    {% else %}
+    <a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
+    {% endif %}
+    </li>
+    {% endfor %}
+    {% block exercisebreadcrumblist %}
+    <li class="active">{{ current.name|parse_localization }}</li>
+    {% endblock %}
 {% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+    <script src="{% static 'js/external_launcher.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/external_services.css' %}">
+    <script src="{% static 'exercise/poll.js' %}"></script>
+    <script src="{% static 'exercise/group.js' %}"></script>
+    <script src="{% static 'exercise/chapter.js' %}" ></script>
+    <script
+        src="{% static 'exercise/language_link.js' %}"
+        data-set-lang="{% url 'set_language' %}"></script>
+    <script>
+    // Visualize loading in case of slow POST operations.
+    /*$(function() {
+        var forms = $("#exercise-page-content").find("form:not([data-aplus-exercise] form)");
+        forms.on("submit", function(event) {
+            $("#submit-progress").removeClass("hide");
+        });
+    });*/
+
+    // Add an Ajax exercise event listener to refresh the info column.
+    window.addEventListener("message", function (event) {
+        if (event.data.type === "a-plus-refresh-stats") {
+            $("#submit-progress").addClass("hide");
+            var $stats = $("#exercise-info"),
+                url = $stats.data("url");
+            $stats.load(url, function() {
+                $stats.find('[data-toggle="tooltip"]').tooltip();
+            });
+        }
+    });
+    </script>
+{{ page.head|safe }}
 {% endblock %}
+
 
 {% block columns %}
 <div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %} exercise-column">
@@ -149,46 +181,7 @@
         {% trans "Go to feedback" %}
     </button>
     </div>
-
-
-    {% endblock %}
-
-
-    {% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/external_launcher.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/external_services.css' %}">
-    <script src="{% static 'exercise/poll.js' %}"></script>
-    <script src="{% static 'exercise/group.js' %}"></script>
-    <script src="{% static 'exercise/chapter.js' %}" ></script>
-    <script
-        src="{% static 'exercise/language_link.js' %}"
-        data-set-lang="{% url 'set_language' %}"></script>
-    <script>
-    // Visualize loading in case of slow POST operations.
-    /*$(function() {
-        var forms = $("#exercise-page-content").find("form:not([data-aplus-exercise] form)");
-        forms.on("submit", function(event) {
-            $("#submit-progress").removeClass("hide");
-        });
-    });*/
-
-    // Add an Ajax exercise event listener to refresh the info column.
-    window.addEventListener("message", function (event) {
-        if (event.data.type === "a-plus-refresh-stats") {
-            $("#submit-progress").addClass("hide");
-            var $stats = $("#exercise-info"),
-                url = $stats.data("url");
-            $stats.load(url, function() {
-                $stats.find('[data-toggle="tooltip"]').tooltip();
-            });
-        }
-    });
-    </script>
-    {{ page.head|safe }}
 </div>
-
-
 
 {% if not exercise.use_wide_column %}
 <div class="col-lg-3">

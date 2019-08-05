@@ -1,7 +1,16 @@
-{% extends "base.html" %}
+{% extends "exammode/base.html" %}
+{% load course %}
+{% load static %}
 
 {% block content %}
 <h1>{{examsession.course_instance.course}}</h1>
 <p>Exams starts at {{examsession.can_start}}</p>
-<a class="btn btn-success" href="">Start exam</a>
+<form action="" method="post">
+    {% csrf_token %}
+    <button
+        type="submit" 
+        class="btn btn-success">
+        Start exam
+    </button>
+</form>
 {% endblock %}

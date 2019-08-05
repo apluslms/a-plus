@@ -237,13 +237,20 @@
 			let prevHeading = this.element.prev("h1, h2, h3, h4, h5, h6");
 			let name = prevHeading.text();
 
-			this.element.wrap('<div class="panel-group"><div class="panel panel-primary module-panel"><div id="'
-						 + "wrap-" + this.element.attr("id")
-						 + '" class="panel-collapse collapse"><div class="panel-body"></div></div></div></div>');
+			this.element.wrap(
+				'<div class="panel-group"><div class="panel panel-primary module-panel"><div id="'
+				+ "wrap-" + this.element.attr("id")
+				+ '" class="panel-collapse collapse">' + 
+				'<div class="panel-body"></div></div></div></div>'
+			);
 
-			$("[id=" + "wrap-" + this.element.attr("id") + "]").before('<div class="panel-heading collapsed" data-toggle="collapse" data-target="#wrap-' + this.element.attr("id")
-			+ '" aria-expanded="false"><h4 class="panel-title">' + '<span class="caret" aria-hidden="true"></span>' 
-			+ name + '</h4></div>');
+			$("[id=" + "wrap-" + this.element.attr("id") + "]").before(
+				'<div class="panel-heading collapsed"' + 
+				'data-toggle="collapse" data-target="#wrap-' + this.element.attr("id") +
+				'" aria-expanded="false"><h4 class="panel-title">' +
+				'<span class="caret" aria-hidden="true"></span>' + name +
+				'</h4></div>'
+			);
 			
 		},
 

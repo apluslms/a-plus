@@ -76,7 +76,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         userprofile = self.request.user.userprofile
         if userprofile.active_exam:
             self.template_name = "exammode/exam.html"
-            self.ajax_template_name = "exammode/exam_question_plain.html"
+            self.ajax_template_name = "exammode/exam_question.html"
         else:
             self.template_name = "exercise/exercise.html"
             self.ajax_template_name = "exercise/exercise_plain.html"
@@ -156,7 +156,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         userprofile = self.request.user.userprofile
         if userprofile.active_exam:
             self.template_name = "exammode/exam.html"
-            self.ajax_template_name = "exammode/exam_question_plain.html"
+            self.ajax_template_name = "exammode/exam_question.html"
         else:
             self.template_name = "exercise/exercise.html"
             self.ajax_template_name = "exercise/exercise_plain.html"
