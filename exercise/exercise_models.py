@@ -275,6 +275,26 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         entries = pick_localized(self.templates, get_language())
         return [(url,url.split('/')[-1]) for url in entries.split()]
 
+    def get_form_spec_keys(self, include_static_fields=False):
+        """Return the keys of the form fields of this exercise.
+        This is based on the form_spec structure of the exercise_info, which
+        is saved in the course JSON import.
+        """
+        form_spec = (
+            self.exercise_info.get('form_spec', [])
+            if isinstance(self.exercise_info, dict)
+            else []
+        )
+        keys = set()
+        for item in form_spec:
+            key = item.get('key')
+            typ = item.get('type')
+            if not include_static_fields and typ == 'static':
+                continue
+            if key: # avoid empty or missing values
+                keys.add(key)
+        return keys
+
 
 def invalidate_exercise(sender, instance, **kwargs):
     for language,_ in settings.LANGUAGES:

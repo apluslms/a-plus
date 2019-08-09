@@ -25,6 +25,9 @@
         {% endif %}
     {% endif %}
 >
+  {% if latest_enrollment_submission_data %}
+    {{ latest_enrollment_submission_data|json_script:"enroll-submission-data" }}
+  {% endif %}
   <div class="overlay-parent">
     {% if issues and not submission_allowed %}
         {% include 'exercise/_warnings_overlay.html' %}

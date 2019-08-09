@@ -1,3 +1,4 @@
+import itertools
 import logging
 import os
 
@@ -46,6 +47,53 @@ class SubmissionManager(models.Manager):
             Submission.STATUS.ERROR,
             Submission.STATUS.REJECTED,
         ))
+
+    def get_combined_enrollment_submission_data(self, user):
+        """Retrieve the user's submissions to enrollment exercises and combine
+        their submission data into a single dictionary.
+        The most recent value (based on submission time) is used for data keys
+        that are present in multiple submissions.
+
+        The values in the returned dictionary are lists since some form inputs
+        accept multiple values (e.g., checkboxes). (The original submission_data
+        is stored as a list of key-value pairs, but multiple pairs may repeat
+        the same key.)
+        """
+        submissions = Submission.objects.filter(
+            exercise__status__in=(
+                exercise_models.LearningObject.STATUS.ENROLLMENT,
+                exercise_models.LearningObject.STATUS.ENROLLMENT_EXTERNAL
+            ),
+            submitters__user__id=user.id
+        ).order_by('submission_time').only('submission_data')[:10]
+        # Retrieve the ten latest submissions since older submissions likely
+        # do not have any useful data.
+        enrollment_data = {}
+        keyfunc = lambda t: t[0] # the key in a key-value pair
+        for sbms in submissions:
+            # submission_data should be a list of key-value pairs, but
+            # nothing guarantees it in the database level.
+            # Checkbox inputs may produce multiple values for the same key, thus
+            # the list of pairs may use the same key in different pairs.
+            # For each submission, group the submission data by the keys so that
+            # multiple values can be preserved for a key when all submissions
+            # are combined.
+            single_sbms_grouped_data = {} # dict maps keys to the list of one or more values
+            try:
+                for key, pairs in itertools.groupby(
+                        sorted(sbms.submission_data, key=keyfunc),
+                        key=keyfunc):
+                    single_sbms_grouped_data[key] = [val for k, val in pairs]
+
+                # Update the combined enrollment submission data.
+                # Later submissions overwrite previous values for the same keys.
+                # The keys are combined from many submissions, but the value list
+                # for one key always originates from one submission.
+                enrollment_data.update(single_sbms_grouped_data)
+            except Exception:
+                # submission_data was not a list of pairs
+                pass
+        return enrollment_data
 
 
 class Submission(UrlMixin, models.Model):
