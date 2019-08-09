@@ -7,6 +7,6 @@ urlpatterns = [
     url(r'^$',
         views.ExamStartView.as_view(),
         name='home'),
-    path('exam/', views.ExamStartView.as_view()),
+    path('exam/', views.ExamStartView.as_view(), name='exam_start'),
     path('<int:pk>', views.ExamDetailView.as_view(), name='exam_details'),
 ]
