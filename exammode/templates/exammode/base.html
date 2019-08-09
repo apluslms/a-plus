@@ -3,6 +3,7 @@
 {% load base %}
 {% load course %}
 {% load notification %}
+{% load external_services %}
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE }}">
     <head>
@@ -81,15 +82,43 @@
     <body class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %} lang-{{ request.LANGUAGE_CODE }}" data-view-tag="{% block view_tag %}{% endblock %}">
         <div class="page-wrap">
             <nav class="topbar navbar navbar-inverse navbar-static-top">
-                <div class="container-fluid">
-                    <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
-                        {% group_select %}
-                        {% notification_menu %}
-                        <li role="presentation" class="profile-menu dropdown">
-                            <a href="#"><span>{{ user.userprofile.student_id }} {{ user.first_name }} {{ user.last_name }}</span></a>
-                        </li>
-                    </ul>
-                </div>
+                    {% if instance.language|first == "|" %}
+                    <div class="container-fluid">
+                        <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+                            {% group_select %}
+                            {% notification_menu %}
+                            <li role="presentation" class="header">
+                                <input style="margin: 15px" type="image" src="{% static 'images/uls.svg' %}" alt="{% trans 'Language' %}"
+                                class="btn btn-xs" id="lang-dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown">
+                                    {% for language in instance.language|list_unselected %}
+                                    <li>
+                                        <form action="{% url 'set_language' %}" method="post">
+                                            {% csrf_token %}
+                                            <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+                                            <input name="language" type="hidden" value="{{ language }}" />
+                                            <button type="submit" class="btn">{{ language|language_name_local }}</button>
+                                        </form>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li role="presentation" class="profile-menu dropdown">
+                                <span>{{ user.userprofile.student_id }} {{ user.first_name }} {{ user.last_name }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="container-fluid">
+                        <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+                            {% group_select %}
+                            {% notification_menu %}
+                            <li role="presentation" class="profile-menu dropdown">
+                                <span>{{ user.userprofile.student_id }} {{ user.first_name }} {{ user.last_name }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    {% endif %}
             </nav>
 
             <div class="site-content container-fluid">
@@ -110,6 +139,10 @@
                                 </div>
                                 {% endblock %}
                             </div>
+                        </div>
+                        <div class="col-lg-3">
+                            {% block sidecontent %}
+                            {% endblock %}
                         </div>
                     </div>
                 {% endblock %}
@@ -170,6 +203,8 @@
                 <input type="text" class="form-control" placeholder="{% trans 'Search for...' %}" />
             </div>
         </div>
-        {% if not is_course_staff %}{% tracking_html %}{% endif %}
-    </body>
+    </div>
+    {% if not is_course_staff %}{% tracking_html %}{% endif %}
+</body>
+
 </html>

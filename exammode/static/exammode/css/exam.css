@@ -90,3 +90,19 @@ https://www.glyphicons.com/
   margin-bottom: 0;
   min-height: 0;
 }
+
+/* Add white background to language dropdown */
+#lang-dropdown {
+  background-color: white;
+  margin: 0px 5px 0px 5px;
+}
+
+.nav>li>span {
+  display: inline-block;
+  color: #ffffff;
+  padding: 15px;
+}
+
+.nav>li>input {
+  margin: 15px;
+}
