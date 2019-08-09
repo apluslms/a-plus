@@ -1,21 +1,21 @@
 import json
 import requests
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from aplus import settings
+from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
+from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
 from external_services.models import LTIService
-from userprofile.models import UserProfile
 from lib.localization_syntax import format_localization
-
-from exercise.exercisecollection_models import ExerciseCollection
-from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
-from django.core.exceptions import ObjectDoesNotExist
-from aplus import settings
-from urllib.parse import urlparse
-
 from lib.remote_page import format_lazy
+from userprofile.models import UserProfile
+
 
 def parse_date(value, errors):
     for fmt in ['%Y-%m-%dT%H:%M:%SZ','%Y-%m-%dT%H:%M:%S','%Y-%m-%d %H:%M:%S',
@@ -559,6 +559,7 @@ def configure_content(instance, url):
             category.delete()
 
     return errors
+
 
 def get_target_category(category, course_url):
 
