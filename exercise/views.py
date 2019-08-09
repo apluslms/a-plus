@@ -70,6 +70,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         should_enroll = False
         issues = []
         students = [self.profile]
+        all_enroll_data = None
 
         if self.exercise.is_submittable:
             SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
@@ -93,6 +94,17 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 page.content = _('Unfortunately this exercise is currently '
                                  'under maintenance.')
                 return super().get(request, *args, page=page, students=students, **kwargs)
+        elif self.exercise.status in \
+                (LearningObject.STATUS.ENROLLMENT, LearningObject.STATUS.ENROLLMENT_EXTERNAL):
+            # Retrieve the data of the user's latest enrollment exercise submissions
+            # in case the data could be reused in this enrollment exercise.
+            all_enroll_data = Submission.objects.get_combined_enrollment_submission_data(self.request.user)
+            # Find the intersection of form field keys that are used by the current
+            # exercise and all_enroll_data.
+            # Filter all_enroll_data to only contain these keys.
+            include_fields = self.exercise.get_form_spec_keys().intersection(all_enroll_data.keys())
+            all_enroll_data = {key: value for key, value in all_enroll_data.items()
+                               if key in include_fields}
 
         if hasattr(self.exercise, 'generate_table_of_contents') \
               and self.exercise.generate_table_of_contents:
@@ -117,6 +129,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                            should_enroll=should_enroll,
                            issues=issues,
                            exercisecollection_data=exercisecollection_data,
+                           latest_enrollment_submission_data=all_enroll_data,
                            **kwargs)
 
     def post(self, request, *args, **kwargs):
