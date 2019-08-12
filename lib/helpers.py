@@ -4,7 +4,7 @@ import functools
 import warnings
 from cachetools import cached, TTLCache
 from collections import OrderedDict
-from urllib.parse import urlsplit, urlencode
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from PIL import Image
 from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
@@ -68,6 +68,17 @@ def query_dict_to_list_of_tuples(query_dict):
         for val in query_dict.getlist(key):
             list_of_tuples.append((key, val))
     return list_of_tuples
+
+
+def url_with_query_in_data(url: str, data: dict = {}):
+    """
+    Take an url with (or without) query parameters and a dictionary of data.
+    Return url without query parameters and a dictionary with merged values from the query and the data.
+    """
+    scheme, netloc, path, query = urlsplit(url)[:4]
+    query = dict(parse_qsl(query))
+    query.update(data)
+    return urlunsplit((scheme, netloc, path, None, None)), query
 
 
 def update_url_params(url, params):

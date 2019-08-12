@@ -23,11 +23,12 @@ from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import (
-    safe_file_name,
+    Enum,
+    get_random_string,
     resize_image,
     roman_numeral,
-    get_random_string,
-    Enum,
+    safe_file_name,
+    url_with_query_in_data
 )
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
@@ -625,8 +626,11 @@ class CourseHook(models.Model):
     def trigger(self, data):
         logger = logging.getLogger('aplus.hooks')
         try:
-            urllib.request.urlopen(self.hook_url,
-                urllib.parse.urlencode(data).encode('utf-8'), timeout=10)
+            urllib.request.urlopen(
+                url,
+                urllib.parse.urlencode(data).encode('ascii'),
+                timeout=10,
+            )
             logger.info("%s posted to %s on %s with %s",
                         self.hook_type, self.hook_url, self.course_instance, data)
         except:
