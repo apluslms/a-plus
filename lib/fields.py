@@ -6,16 +6,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-try:
-    # If South is used, it requires additional rules for processing
-    # custom fields. In this case we add empty inspection rules for the
-    # percent field.
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ["^lib\.fields\.PercentField"])
-except:
-    pass
-
-
 class PercentField(models.FloatField):
     """
     A float in range 0.0 to 1.0
