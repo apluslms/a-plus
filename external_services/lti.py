@@ -1,4 +1,5 @@
 from hashlib import md5
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import get_language
 from rest_framework.reverse import reverse
@@ -67,7 +68,7 @@ class LTIRequest(object):
 
         if service.api_access:
             self.parameters.update({
-                'custom_context_api': request.scheme + '://' + request.get_host() + api_reverse("course-detail", kwargs={'course_id': instance.id}),
+                'custom_context_api': settings.BASE_URL + api_reverse("course-detail", kwargs={'course_id': instance.id}),
                 'custom_context_api_id': str(instance.id),
                 'custom_user_api_token': user.userprofile.api_token,
             })
