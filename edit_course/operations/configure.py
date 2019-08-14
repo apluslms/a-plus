@@ -573,26 +573,27 @@ def get_target_category(category, course_url):
     service_hostname = urlparse(settings.BASE_URL).hostname
 
     if parsed_url.hostname != service_hostname:
-        return None, format_lazy(_("Course URL '{}' doesn't match \
-            service's hostname '{}'"), course_url, service_hostname)
+        return None, format_lazy(_("Course URL '{}' doesn't match "
+            "service's hostname '{}'"), course_url, service_hostname)
 
     try:
         course_slug, instance_slug = parsed_url.path.split('/')[1:3]
     except ValueError:
-        return None, format_lazy(_("Couldn't determine course and/or \
-            instance from URL '{}'"), course_url)
+        return None, format_lazy(_("Couldn't determine course and/or "
+            "instance from URL '{}'"), course_url)
 
     try:
         course_instance = CourseInstance.objects.get(url=instance_slug,
                                                      course__url=course_slug)
     except ObjectDoesNotExist:
-        return None, format_lazy(_("No course found with URL '{}'.  \
-            course_slug: '{}', \
-            instance_slug: '{}'"), course_url, course_slug, instance_slug)
+        return None, format_lazy(_("No course found with URL '{}'. "
+            "course_slug: '{}', instance_slug: '{}'"),
+            course_url, course_slug, instance_slug)
 
     try:
         target_category = course_instance.categories.get(name=category)
     except ObjectDoesNotExist:
-        return None, format_lazy(_("Category '{}' not found in target course."), category)
+        return None, format_lazy(_("Category '{}' not found in target course."),
+            category)
 
     return target_category, None

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-29 15:04+0300\n"
-"PO-Revision-Date: 2019-01-08 17:15+0200\n"
+"POT-Creation-Date: 2019-08-14 12:17+0300\n"
+"PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
 "Language: fi_FI\n"
@@ -103,19 +103,19 @@ msgstr "Käyttäjä on jo tässä ryhmässä."
 msgid "The group already exists."
 msgstr "Tämä ryhmä on jo olemassa."
 
-#: course/models.py:53
+#: course/models.py:54
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:66 course/models.py:711 exercise/exercise_models.py:127
+#: course/models.py:67 course/models.py:715 exercise/exercise_models.py:127
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
-#: course/models.py:232
+#: course/models.py:233
 msgid "internal"
 msgstr "sisäinen"
 
-#: course/models.py:234
+#: course/models.py:235
 msgid ""
 "The user profile contains a student number and has logged in via local "
 "organisation authentication"
@@ -123,11 +123,11 @@ msgstr ""
 "Käyttäjän profiililla on opiskelijanumero ja hän on kirjautunut sisään "
 "organisaation kirjautumisen kautta"
 
-#: course/models.py:240
+#: course/models.py:241
 msgid "external"
 msgstr "ulkoinen"
 
-#: course/models.py:242
+#: course/models.py:243
 msgid ""
 "The user profile doesn't have a student number, thus the user has logged in "
 "from a different organization or via social authentication"
@@ -135,75 +135,75 @@ msgstr ""
 "Käyttäjän profiililla ei ole opiskelijanumeroa, joten hän on kirjautunut "
 "sisään toisesta organisaatiosta tai sosiaalisen palvelun kautta"
 
-#: course/models.py:362
+#: course/models.py:363
 msgid "Internal users"
 msgstr "Paikalliset käyttäjät"
 
-#: course/models.py:363
+#: course/models.py:364
 msgid "External users"
 msgstr "Ulkoiset käyttäjät"
 
-#: course/models.py:364
+#: course/models.py:365
 msgid "Internal and external users"
 msgstr "Paikalliset ja ulkoiset käyttäjät"
 
-#: course/models.py:367
+#: course/models.py:368
 msgid "Enrolled students"
 msgstr "Ilmoittautuneet opiskelijat"
 
-#: course/models.py:368
+#: course/models.py:369
 msgid "Enrollment audience"
 msgstr "Ilmoittautumisen kohdeyleisö"
 
-#: course/models.py:369
+#: course/models.py:370
 msgid "All registered users"
 msgstr "Kaikki rekisteröityneet käyttäjät"
 
-#: course/models.py:370
+#: course/models.py:371
 msgid "Public to internet"
 msgstr "Julkisesti internetissä"
 
-#: course/models.py:373
+#: course/models.py:374
 msgid "User results"
 msgstr "Pistetilanne"
 
-#: course/models.py:374
+#: course/models.py:375
 msgid "Table of contents"
 msgstr "Sisällysluettelo"
 
-#: course/models.py:375
+#: course/models.py:376
 msgid "Link to last visited content"
 msgstr "Linkki viimeksi vierailtuun sisältöön"
 
-#: course/models.py:376
+#: course/models.py:377
 msgid "Experimental setup (hard-coded)"
 msgstr "Koeasetelma (kovakoodattu)"
 
-#: course/models.py:379
+#: course/models.py:380
 msgid "No numbering"
 msgstr "Ei numerointia"
 
-#: course/models.py:380
+#: course/models.py:381
 msgid "Arabic"
 msgstr "arabialainen"
 
-#: course/models.py:381
+#: course/models.py:382
 msgid "Roman"
 msgstr "roomalainen"
 
-#: course/models.py:382
+#: course/models.py:383
 msgid "Hidden arabic"
 msgstr "piilotettu arabialainen"
 
-#: course/models.py:389
+#: course/models.py:390
 msgid "Input an URL identifier for this course instance."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssikerralle."
 
-#: course/models.py:406
+#: course/models.py:407
 msgid "Select content for the course index page."
 msgstr "Valitse sisältö kurssin etusivulle."
 
-#: course/models.py:412
+#: course/models.py:413
 msgid ""
 "External CSS and JS resources that are included on all course pages. "
 "Separate with white space."
@@ -211,7 +211,7 @@ msgstr ""
 "Ulkoiset CSS- ja JS-resurssit, jotka sisällytetään kurssisivuihin. Erottele "
 "osoitteet rivinvaihdoilla."
 
-#: course/models.py:419
+#: course/models.py:420
 msgid ""
 "By default exercise errors are reported to teacher email addresses. Set this "
 "field as comma separated emails to override the recipients."
@@ -220,72 +220,72 @@ msgstr ""
 "sähköposteihin. Syötä pilkuilla erotettuja sähköpostiosoitteita korvaamaan "
 "oletusvastaanottajat."
 
-#: course/models.py:446
+#: course/models.py:447
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
-#: course/models.py:448
+#: course/models.py:449
 msgid "Lifesupport time must be later than ending time."
 msgstr "Saattohoitoajan tulee alkaa loppumisajan jälkeen."
 
-#: course/models.py:454
+#: course/models.py:455
 msgid ""
 "Lifesupport time and archive time must be either both set or both unset."
 msgstr ""
 "Saattohoitoaika ja arkistointiaika pitää molemmat asettaa tai muutoin "
 "kumpaakaan ei voi asettaa."
 
-#: course/models.py:456
+#: course/models.py:457
 msgid "Archive time must be later than lifesupport time."
 msgstr "Arkistointiajan tulee olla saattohoidon jälkeen."
 
-#: course/models.py:464
+#: course/models.py:465
 msgid "Language code(s) missing from settings: "
 msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t):"
 
-#: course/models.py:466
+#: course/models.py:467
 msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
-#: course/models.py:663 course/models.py:771 exercise/exercise_models.py:68
+#: course/models.py:667 course/models.py:775 exercise/exercise_models.py:68
 #: exercise/submission_models.py:58
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:664 exercise/exercise_models.py:69
+#: course/models.py:668 exercise/exercise_models.py:69
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:665 course/models.py:773 templates/base.html:99
+#: course/models.py:669 course/models.py:777 templates/base.html:100
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:666 exercise/exercise_models.py:73
+#: course/models.py:670 exercise/exercise_models.py:73
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:674
+#: course/models.py:678
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:690
+#: course/models.py:694
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:713
+#: course/models.py:717
 msgid "Opening time must be earlier than the closing time."
 msgstr "Alkamisajan tulee olla aikaisempi kuin päättymisaika."
 
-#: course/models.py:715
+#: course/models.py:719
 msgid "Late submission deadline must be later than the closing time."
 msgstr ""
 "Myöhäisten palautusten määräajan tulee olla myöhäisempi kuin sulkeutumisajan."
 
-#: course/models.py:772
+#: course/models.py:776
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/models.py:783
+#: course/models.py:787
 msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
@@ -293,7 +293,7 @@ msgstr ""
 "Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
 "hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: course/models.py:785
+#: course/models.py:789
 msgid ""
 "Grade unofficial submissions after deadlines have passed or submission "
 "limits have been exceeded. The points are stored but not included in "
@@ -726,7 +726,7 @@ msgstr "Poista kaikki"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:46
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:53 templates/base.html:242
+#: news/templates/news/list.html:53 templates/base.html:243
 msgid "Remove"
 msgstr "Poista"
 
@@ -1035,45 +1035,45 @@ msgstr ""
 "Arvostelulla numero {ordinal:d} on virheellisiä kenttiä:\n"
 " {errors}"
 
-#: edit_course/operations/configure.py:26
+#: edit_course/operations/configure.py:28
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a date."
 msgstr "Arvoa '{value}' ei voitu jäsentää päivämääränä."
 
-#: edit_course/operations/configure.py:54
+#: edit_course/operations/configure.py:56
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a time duration."
 msgstr "Arvoa '{value}' ei voitu jäsentää ajankestona."
 
-#: edit_course/operations/configure.py:62
+#: edit_course/operations/configure.py:64
 #, python-brace-format
 msgid "Unable to parse value '{value}' as an int."
 msgstr "Arvoa '{value}' ei voitu jäsentää kokonaislukuna."
 
-#: edit_course/operations/configure.py:70
+#: edit_course/operations/configure.py:72
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a float."
 msgstr "Arvoa '{value}' ei voitu jäsentää liukulukuna."
 
-#: edit_course/operations/configure.py:85
+#: edit_course/operations/configure.py:87
 #, python-brace-format
 msgid "Field '{field}' has an unknown value '{value}'."
 msgstr "Kentällä '{field}' on tuntematon arvo '{value}'."
 
-#: edit_course/operations/configure.py:97
+#: edit_course/operations/configure.py:99
 msgid "Learning object requires a key."
 msgstr "Oppimisolio vaatii avaimen."
 
-#: edit_course/operations/configure.py:100
+#: edit_course/operations/configure.py:102
 msgid "Learning object requires a category."
 msgstr "Oppimisolio vaatii kategorian."
 
-#: edit_course/operations/configure.py:103
+#: edit_course/operations/configure.py:105
 #, python-brace-format
 msgid "Unknown category '{category}'."
 msgstr "Tuntematon kategoria '{category}'."
 
-#: edit_course/operations/configure.py:133
+#: edit_course/operations/configure.py:135
 #, python-brace-format
 msgid ""
 "The site has no configuration for the LTI service '{lti_label}' used by the "
@@ -1086,27 +1086,27 @@ msgstr ""
 "'lti' arvon tai sivuston ylläpitäjä ei ole vielä lisännyt tämän LTI-palvelun "
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
 
-#: edit_course/operations/configure.py:267
+#: edit_course/operations/configure.py:268
 msgid "Cannot request build log from build_log_url when it is blank."
 msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
 
-#: edit_course/operations/configure.py:271
+#: edit_course/operations/configure.py:272
 msgid "Requesting build log failed with error '{error!s}'."
 msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
 
-#: edit_course/operations/configure.py:276
+#: edit_course/operations/configure.py:277
 msgid "Parsing the build log JSON raised error '{error!s}'."
 msgstr "Rakentamislokin jäsentäminen palautti virheen '{error!s}'."
 
-#: edit_course/operations/configure.py:279
+#: edit_course/operations/configure.py:280
 msgid "Remote URL returned an empty build log."
 msgstr "Etäpalvelin palautti tyhjän käännöslokin."
 
-#: edit_course/operations/configure.py:288
+#: edit_course/operations/configure.py:289
 msgid "Configuration URL required."
 msgstr "Konfiguraatio-URL vaaditaan."
 
-#: edit_course/operations/configure.py:293
+#: edit_course/operations/configure.py:294
 msgid ""
 "Request for a course configuration failed with error '{error!s}'. "
 "Configuration of course aborted."
@@ -1114,15 +1114,15 @@ msgstr ""
 "Kurssikonfigurointipyyntö epäonnistui virheellä '{error!s}'. Konfigurointi "
 "keskeytettiin."
 
-#: edit_course/operations/configure.py:302
+#: edit_course/operations/configure.py:303
 msgid "JSON parser raised error '{error!s}'. Configuration of course aborted."
 msgstr "JSON parseri tuotti virheen '{error!s}'. Konfigurointi keskeytettiin."
 
-#: edit_course/operations/configure.py:397
+#: edit_course/operations/configure.py:398
 msgid "Assistants must be given as a student ID array."
 msgstr "Assistentit tulee antaa oppilasnumero-taulukkona."
 
-#: edit_course/operations/configure.py:404
+#: edit_course/operations/configure.py:405
 #, python-brace-format
 msgid ""
 "Adding the assistant failed, because an associated user with student ID {id} "
@@ -1131,49 +1131,47 @@ msgstr ""
 "Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
 "ei ole olemassa."
 
-#: edit_course/operations/configure.py:417
+#: edit_course/operations/configure.py:418
 msgid "Categories required as an object."
 msgstr "Kategoriat vaaditaan objektina."
 
-#: edit_course/operations/configure.py:420
+#: edit_course/operations/configure.py:421
 msgid "Modules required as an array."
 msgstr "Moduulit vaaditaan taulukkona."
 
-#: edit_course/operations/configure.py:428
+#: edit_course/operations/configure.py:429
 msgid "Category requires a name."
 msgstr "Kategoria vaatii nimen."
 
-#: edit_course/operations/configure.py:466
+#: edit_course/operations/configure.py:467
 msgid "Module requires a key."
 msgstr "Moduuli vaatii avaimen."
 
-#: edit_course/operations/configure.py:569
-msgid "ExerciseCollection object requires collection_category."
-msgstr "Tehtäväkokoelmaolio tarvitsee collection_category:n."
+#: edit_course/operations/configure.py:567
+msgid "ExerciseCollection requires collection_category."
+msgstr "Tehtäväkokoelma tarvitsee collection_category:n."
 
-#: edit_course/operations/configure.py:572
-msgid "ExerciseCollection object must have either identified or URL"
-msgstr "Tehtäväkokoelmaolion täytyy omata joko määrittely identified tai URL."
+#: edit_course/operations/configure.py:570
+msgid "ExerciseCollection requires URL to target course instance."
+msgstr "Tehtäväkokoelma tarvitsee kohde kurssin URL:n."
 
-#: edit_course/operations/configure.py:580
-msgid "Course: {} does not exist"
-msgstr "Kurssi: {} ei ole olemassa"
+#: edit_course/operations/configure.py:576
+msgid "Course URL '{}' doesn't match service's hostname '{}'"
+msgstr "Kurssin URL '{}' ei vastaa palvelun domain nimeä '{}'"
 
-#: edit_course/operations/configure.py:586
-msgid "Course: {}, Instance: {}, not found."
-msgstr "Kurssi: {}, Instanssi: {}, ei löytynyt."
+#: edit_course/operations/configure.py:582
+msgid "Couldn't determine course and/or instance from URL '{}'"
+msgstr "Kurssin ja/tai instanssin selvittäminen ei onnistunut URLsta '{}'"
 
-#: edit_course/operations/configure.py:591
-msgid "ExerciseColletion URL \"{}\" not in correct domain {}."
-msgstr "Tehtäväkokoelman URL \"{}\" ei ole oikeassa domainissa {}."
+#: edit_course/operations/configure.py:589
+msgid "No course found with URL '{}'. course_slug: '{}', instance_slug: '{}'"
+msgstr ""
+"Yhtään kurssia ei löytynyt URLlla '{}' (course_slug: '{}', instance_slug: "
+"'{}')"
 
-#: edit_course/operations/configure.py:602
-msgid "No course found with URL \"{}\""
-msgstr "Kurssia ei löytynyt URLla \"{}\""
-
-#: edit_course/operations/configure.py:608
-msgid "Category: {}, not found in Course: {}, Instance: {}."
-msgstr "Kategoria: {}, ei löytynyt kurssista: {}, instanssista: {}."
+#: edit_course/operations/configure.py:596
+msgid "Category '{}' not found in target course."
+msgstr "Kategoriaa '{}' ei löytynyt kohde kurssista."
 
 #: edit_course/templates/edit_course/batch_assess.html:6
 msgid "Batch assess submissions"
@@ -2108,6 +2106,14 @@ msgstr "Palautusta arvostellaan..."
 msgid "Current score"
 msgstr "Nykyiset pisteet"
 
+#: exercise/templates/exercise/_exercisecollection.html:25
+msgid "Total score"
+msgstr "Yhteispisteet"
+
+#: exercise/templates/exercise/_exercisecollection.html:29
+msgid "Score on this course"
+msgstr "Pisteet tällä kurssilla"
+
 #: exercise/templates/exercise/_model_files.html:14
 msgid "File not found."
 msgstr "Tiedostoa ei löytynyt."
@@ -2692,21 +2698,21 @@ msgstr "Ei vielä palautuksia tälle kurssille."
 msgid "Excel compatible CSV"
 msgstr "Excel-yhteensopiva CSV"
 
-#: exercise/views.py:88
+#: exercise/views.py:87
 msgid "Exercise is in maintenance and content is hidden from students."
 msgstr "Tehtävässä on huoltokatko, ja sisältö on piilotettu opiskelijoilta."
 
-#: exercise/views.py:94
+#: exercise/views.py:93
 msgid "Unfortunately this exercise is currently under maintenance."
 msgstr "Valitettavasti tässä tehtävässä on juuri nyt huoltokatko."
 
-#: exercise/views.py:155
+#: exercise/views.py:153
 msgid ""
 "The submission could not be saved for some reason. The submission was not "
 "registered."
 msgstr "Palautuksen tallentaminen epäonnistui. Palautusta ei ole huomioitu."
 
-#: exercise/views.py:168
+#: exercise/views.py:166
 msgid "You need to sign in and enroll to submit exercises."
 msgstr ""
 "Palauttaaksesi tehtäviä sinun pitää rekisteröityä ja ilmoittautua kurssin "
@@ -3215,11 +3221,11 @@ msgstr "Lisää uusi linkki"
 msgid "You need to be enrolled to access an anonymous service."
 msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille."
 
-#: lib/fields.py:27
+#: lib/fields.py:17
 msgid "The number must be between 0.0 and 1.0"
 msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
-#: lib/fields.py:47 lib/fields.py:77
+#: lib/fields.py:37 lib/fields.py:67
 msgid "Enter valid JSON."
 msgstr "Syötä kelvollista JSON:ia."
 
@@ -3304,7 +3310,7 @@ msgid_plural "new notifications"
 msgstr[0] "uusi ilmoitus"
 msgstr[1] "uutta ilmoitusta"
 
-#: shibboleth_login/views.py:33
+#: shibboleth_login/views.py:50
 msgid ""
 "Failed to login the user. Shibboleth META headers missing. Check the Apache "
 "mod_shibd is active and /shibboleth is protected."
@@ -3312,7 +3318,7 @@ msgstr ""
 "Käyttäjän kirjaaminen sisään epäonnistui. Shibboleth META otsikot puuttuvat. "
 "Tarkista että Apache mod_shibd on aktiivinen ja /shibboleth on suojattu."
 
-#: shibboleth_login/views.py:40
+#: shibboleth_login/views.py:57
 msgid "The user account has been disabled."
 msgstr "Käyttäjätunnus on suljettu."
 
@@ -3328,60 +3334,60 @@ msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa.Ole "
 "ystävällinen, ja yritä uudelleen."
 
-#: templates/base.html:78
+#: templates/base.html:79
 msgid "Toggle navigation"
 msgstr "Näytä valikko"
 
-#: templates/base.html:102
+#: templates/base.html:103
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:120 userprofile/templates/userprofile/profile.html:6
+#: templates/base.html:121 userprofile/templates/userprofile/profile.html:6
 msgid "Profile"
 msgstr "Käyttäjätili"
 
-#: templates/base.html:126 templates/base.html:164
+#: templates/base.html:127 templates/base.html:165
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:135 templates/base.html:171
+#: templates/base.html:136 templates/base.html:172
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:146
+#: templates/base.html:147
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:150
+#: templates/base.html:151
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:195 userprofile/templates/userprofile/privacy.html:4
+#: templates/base.html:196 userprofile/templates/userprofile/privacy.html:4
 #: userprofile/templates/userprofile/privacy.html:9
 msgid "Privacy Notice"
 msgstr "Tietosuojailmoitus"
 
-#: templates/base.html:206 templates/base.html:225
+#: templates/base.html:207 templates/base.html:226
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:207 templates/base.html:226
+#: templates/base.html:208 templates/base.html:227
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:214 templates/base.html:231
+#: templates/base.html:215 templates/base.html:232
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:246
+#: templates/base.html:247
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:250
+#: templates/base.html:251
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:253
+#: templates/base.html:254
 msgid "Search for..."
 msgstr "Etsi..."
 
