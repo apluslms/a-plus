@@ -7,9 +7,11 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db.models import F
 from django.http.response import JsonResponse, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic.edit import DeleteView, UpdateView
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (
@@ -17,6 +19,8 @@ from course.models import (
     USERTAG_INTERNAL,
 )
 from deviations.models import MaxSubmissionsRuleDeviation
+from exammode.forms import ExamSessionForm
+from exammode.models import ExamSession
 from lib.helpers import settings_text, extract_form_errors
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
@@ -34,7 +38,6 @@ from .viewbase import (
     SubmissionMixin,
     ExerciseMixin,
 )
-
 
 logger = logging.getLogger('aplus.exercise')
 
@@ -200,6 +203,55 @@ class AnalyticsView(CourseInstanceBaseView):
         self.note(
             'tags', 'internal_user_label', 'external_user_label',
         )
+
+
+class ExamSessionEdit(UpdateView):
+    template_name = 'exammode/staff/edit_session_form.html'
+    form_class = ExamSessionForm
+    model = ExamSession
+
+    def get_success_url(self):
+        redirect_kwargs = {
+            'course_slug': self.kwargs['course_slug'], 
+            'instance_slug': self.kwargs['instance_slug']
+        }
+        return reverse('exam-management', kwargs=redirect_kwargs)
+
+class ExamSessionDelete(DeleteView):
+    model = ExamSession
+
+    def get_success_url(self):
+        redirect_kwargs = {
+            'course_slug': self.kwargs['course_slug'], 
+            'instance_slug': self.kwargs['instance_slug']
+        }
+        return reverse('exam-management', kwargs=redirect_kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if "cancel" in request.POST:
+            url = self.get_success_url()
+            return redirect(url)
+        if "confirm" in request.POST:
+            return super(ExamSessionDelete, self).post(request, *args, **kwargs)
+
+
+class ExamManagementView(CourseInstanceBaseView):
+    access_mode = ACCESS.TEACHER
+    template_name = "exammode/staff/exam_management.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.exam_sessions = list(self.exam_sessions)
+        self.add_form = ExamSessionForm()
+        self.note(
+            'exam_sessions', 'add_form',
+        )
+
+    def post(self, request, *args, **kwargs):
+        form = ExamSessionForm(request.POST)
+        if form.is_valid:
+            form.save()
+        return redirect(self.request.path_info)
 
 
 class UserResultsView(CourseInstanceBaseView):

@@ -16,6 +16,7 @@ from .permissions import (
     CourseModulePermission,
 )
 from .models import Course, CourseInstance, CourseModule, UserTagging
+from exammode.models import ExamSession
 
 
 class CourseMixin(UserProfileMixin):
@@ -57,6 +58,7 @@ class CourseInstanceBaseMixin(object):
             self.instance = instance
             self.course = self.instance.course
             self.content = CachedContent(self.instance)
+            self.exam_sessions = ExamSession.objects.all()
             self.is_student = self.instance.is_student(user)
             self.is_assistant = self.instance.is_assistant(user)
             self.is_teacher = self.course.is_teacher(user)

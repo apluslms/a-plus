@@ -145,6 +145,13 @@
 	</a>
 </li>
 
+<li role="presentation" class="menu-exam-management">
+	<a href="{{ instance|url:'exam-management' }}">
+		<span class="glyphicon glyphicon-education" aria-hidden="true"></span>
+		{% trans "Exam management" %}
+	</a>
+</li>
+
 {% if is_teacher %}
 <li role="presentation" class="menu-edit-news">
 		<a href="{{ instance|url:'news-list' }}">
