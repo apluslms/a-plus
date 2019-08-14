@@ -102,10 +102,11 @@ module.exports = polyglot.t.bind(polyglot);
 'use strict';
 
 var keys = require('object-keys');
-var foreach = require('foreach');
-var hasSymbols = typeof Symbol === 'function' && typeof Symbol() === 'symbol';
+var hasSymbols = typeof Symbol === 'function' && typeof Symbol('foo') === 'symbol';
 
 var toStr = Object.prototype.toString;
+var concat = Array.prototype.concat;
+var origDefineProperty = Object.defineProperty;
 
 var isFunction = function (fn) {
 	return typeof fn === 'function' && toStr.call(fn) === '[object Function]';
@@ -114,23 +115,24 @@ var isFunction = function (fn) {
 var arePropertyDescriptorsSupported = function () {
 	var obj = {};
 	try {
-		Object.defineProperty(obj, 'x', { enumerable: false, value: obj });
-        /* eslint-disable no-unused-vars, no-restricted-syntax */
-        for (var _ in obj) { return false; }
-        /* eslint-enable no-unused-vars, no-restricted-syntax */
+		origDefineProperty(obj, 'x', { enumerable: false, value: obj });
+		// eslint-disable-next-line no-unused-vars, no-restricted-syntax
+		for (var _ in obj) { // jscs:ignore disallowUnusedVariables
+			return false;
+		}
 		return obj.x === obj;
 	} catch (e) { /* this is IE 8. */
 		return false;
 	}
 };
-var supportsDescriptors = Object.defineProperty && arePropertyDescriptorsSupported();
+var supportsDescriptors = origDefineProperty && arePropertyDescriptorsSupported();
 
 var defineProperty = function (object, name, value, predicate) {
 	if (name in object && (!isFunction(predicate) || !predicate())) {
 		return;
 	}
 	if (supportsDescriptors) {
-		Object.defineProperty(object, name, {
+		origDefineProperty(object, name, {
 			configurable: true,
 			enumerable: false,
 			value: value,
@@ -145,20 +147,206 @@ var defineProperties = function (object, map) {
 	var predicates = arguments.length > 2 ? arguments[2] : {};
 	var props = keys(map);
 	if (hasSymbols) {
-		props = props.concat(Object.getOwnPropertySymbols(map));
+		props = concat.call(props, Object.getOwnPropertySymbols(map));
 	}
-	foreach(props, function (name) {
-		defineProperty(object, name, map[name], predicates[name]);
-	});
+	for (var i = 0; i < props.length; i += 1) {
+		defineProperty(object, props[i], map[props[i]], predicates[props[i]]);
+	}
 };
 
 defineProperties.supportsDescriptors = !!supportsDescriptors;
 
 module.exports = defineProperties;
 
-},{"foreach":11,"object-keys":18}],3:[function(require,module,exports){
+},{"object-keys":19}],3:[function(require,module,exports){
 'use strict';
 
+/* globals
+	Set,
+	Map,
+	WeakSet,
+	WeakMap,
+
+	Promise,
+
+	Symbol,
+	Proxy,
+
+	Atomics,
+	SharedArrayBuffer,
+
+	ArrayBuffer,
+	DataView,
+	Uint8Array,
+	Float32Array,
+	Float64Array,
+	Int8Array,
+	Int16Array,
+	Int32Array,
+	Uint8ClampedArray,
+	Uint16Array,
+	Uint32Array,
+*/
+
+var undefined; // eslint-disable-line no-shadow-restricted-names
+
+var ThrowTypeError = Object.getOwnPropertyDescriptor
+	? (function () { return Object.getOwnPropertyDescriptor(arguments, 'callee').get; }())
+	: function () { throw new TypeError(); };
+
+var hasSymbols = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol';
+
+var getProto = Object.getPrototypeOf || function (x) { return x.__proto__; }; // eslint-disable-line no-proto
+
+var generator; // = function * () {};
+var generatorFunction = generator ? getProto(generator) : undefined;
+var asyncFn; // async function() {};
+var asyncFunction = asyncFn ? asyncFn.constructor : undefined;
+var asyncGen; // async function * () {};
+var asyncGenFunction = asyncGen ? getProto(asyncGen) : undefined;
+var asyncGenIterator = asyncGen ? asyncGen() : undefined;
+
+var TypedArray = typeof Uint8Array === 'undefined' ? undefined : getProto(Uint8Array);
+
+var INTRINSICS = {
+	'$ %Array%': Array,
+	'$ %ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer,
+	'$ %ArrayBufferPrototype%': typeof ArrayBuffer === 'undefined' ? undefined : ArrayBuffer.prototype,
+	'$ %ArrayIteratorPrototype%': hasSymbols ? getProto([][Symbol.iterator]()) : undefined,
+	'$ %ArrayPrototype%': Array.prototype,
+	'$ %ArrayProto_entries%': Array.prototype.entries,
+	'$ %ArrayProto_forEach%': Array.prototype.forEach,
+	'$ %ArrayProto_keys%': Array.prototype.keys,
+	'$ %ArrayProto_values%': Array.prototype.values,
+	'$ %AsyncFromSyncIteratorPrototype%': undefined,
+	'$ %AsyncFunction%': asyncFunction,
+	'$ %AsyncFunctionPrototype%': asyncFunction ? asyncFunction.prototype : undefined,
+	'$ %AsyncGenerator%': asyncGen ? getProto(asyncGenIterator) : undefined,
+	'$ %AsyncGeneratorFunction%': asyncGenFunction,
+	'$ %AsyncGeneratorPrototype%': asyncGenFunction ? asyncGenFunction.prototype : undefined,
+	'$ %AsyncIteratorPrototype%': asyncGenIterator && hasSymbols && Symbol.asyncIterator ? asyncGenIterator[Symbol.asyncIterator]() : undefined,
+	'$ %Atomics%': typeof Atomics === 'undefined' ? undefined : Atomics,
+	'$ %Boolean%': Boolean,
+	'$ %BooleanPrototype%': Boolean.prototype,
+	'$ %DataView%': typeof DataView === 'undefined' ? undefined : DataView,
+	'$ %DataViewPrototype%': typeof DataView === 'undefined' ? undefined : DataView.prototype,
+	'$ %Date%': Date,
+	'$ %DatePrototype%': Date.prototype,
+	'$ %decodeURI%': decodeURI,
+	'$ %decodeURIComponent%': decodeURIComponent,
+	'$ %encodeURI%': encodeURI,
+	'$ %encodeURIComponent%': encodeURIComponent,
+	'$ %Error%': Error,
+	'$ %ErrorPrototype%': Error.prototype,
+	'$ %eval%': eval, // eslint-disable-line no-eval
+	'$ %EvalError%': EvalError,
+	'$ %EvalErrorPrototype%': EvalError.prototype,
+	'$ %Float32Array%': typeof Float32Array === 'undefined' ? undefined : Float32Array,
+	'$ %Float32ArrayPrototype%': typeof Float32Array === 'undefined' ? undefined : Float32Array.prototype,
+	'$ %Float64Array%': typeof Float64Array === 'undefined' ? undefined : Float64Array,
+	'$ %Float64ArrayPrototype%': typeof Float64Array === 'undefined' ? undefined : Float64Array.prototype,
+	'$ %Function%': Function,
+	'$ %FunctionPrototype%': Function.prototype,
+	'$ %Generator%': generator ? getProto(generator()) : undefined,
+	'$ %GeneratorFunction%': generatorFunction,
+	'$ %GeneratorPrototype%': generatorFunction ? generatorFunction.prototype : undefined,
+	'$ %Int8Array%': typeof Int8Array === 'undefined' ? undefined : Int8Array,
+	'$ %Int8ArrayPrototype%': typeof Int8Array === 'undefined' ? undefined : Int8Array.prototype,
+	'$ %Int16Array%': typeof Int16Array === 'undefined' ? undefined : Int16Array,
+	'$ %Int16ArrayPrototype%': typeof Int16Array === 'undefined' ? undefined : Int8Array.prototype,
+	'$ %Int32Array%': typeof Int32Array === 'undefined' ? undefined : Int32Array,
+	'$ %Int32ArrayPrototype%': typeof Int32Array === 'undefined' ? undefined : Int32Array.prototype,
+	'$ %isFinite%': isFinite,
+	'$ %isNaN%': isNaN,
+	'$ %IteratorPrototype%': hasSymbols ? getProto(getProto([][Symbol.iterator]())) : undefined,
+	'$ %JSON%': JSON,
+	'$ %JSONParse%': JSON.parse,
+	'$ %Map%': typeof Map === 'undefined' ? undefined : Map,
+	'$ %MapIteratorPrototype%': typeof Map === 'undefined' || !hasSymbols ? undefined : getProto(new Map()[Symbol.iterator]()),
+	'$ %MapPrototype%': typeof Map === 'undefined' ? undefined : Map.prototype,
+	'$ %Math%': Math,
+	'$ %Number%': Number,
+	'$ %NumberPrototype%': Number.prototype,
+	'$ %Object%': Object,
+	'$ %ObjectPrototype%': Object.prototype,
+	'$ %ObjProto_toString%': Object.prototype.toString,
+	'$ %ObjProto_valueOf%': Object.prototype.valueOf,
+	'$ %parseFloat%': parseFloat,
+	'$ %parseInt%': parseInt,
+	'$ %Promise%': typeof Promise === 'undefined' ? undefined : Promise,
+	'$ %PromisePrototype%': typeof Promise === 'undefined' ? undefined : Promise.prototype,
+	'$ %PromiseProto_then%': typeof Promise === 'undefined' ? undefined : Promise.prototype.then,
+	'$ %Promise_all%': typeof Promise === 'undefined' ? undefined : Promise.all,
+	'$ %Promise_reject%': typeof Promise === 'undefined' ? undefined : Promise.reject,
+	'$ %Promise_resolve%': typeof Promise === 'undefined' ? undefined : Promise.resolve,
+	'$ %Proxy%': typeof Proxy === 'undefined' ? undefined : Proxy,
+	'$ %RangeError%': RangeError,
+	'$ %RangeErrorPrototype%': RangeError.prototype,
+	'$ %ReferenceError%': ReferenceError,
+	'$ %ReferenceErrorPrototype%': ReferenceError.prototype,
+	'$ %Reflect%': typeof Reflect === 'undefined' ? undefined : Reflect,
+	'$ %RegExp%': RegExp,
+	'$ %RegExpPrototype%': RegExp.prototype,
+	'$ %Set%': typeof Set === 'undefined' ? undefined : Set,
+	'$ %SetIteratorPrototype%': typeof Set === 'undefined' || !hasSymbols ? undefined : getProto(new Set()[Symbol.iterator]()),
+	'$ %SetPrototype%': typeof Set === 'undefined' ? undefined : Set.prototype,
+	'$ %SharedArrayBuffer%': typeof SharedArrayBuffer === 'undefined' ? undefined : SharedArrayBuffer,
+	'$ %SharedArrayBufferPrototype%': typeof SharedArrayBuffer === 'undefined' ? undefined : SharedArrayBuffer.prototype,
+	'$ %String%': String,
+	'$ %StringIteratorPrototype%': hasSymbols ? getProto(''[Symbol.iterator]()) : undefined,
+	'$ %StringPrototype%': String.prototype,
+	'$ %Symbol%': hasSymbols ? Symbol : undefined,
+	'$ %SymbolPrototype%': hasSymbols ? Symbol.prototype : undefined,
+	'$ %SyntaxError%': SyntaxError,
+	'$ %SyntaxErrorPrototype%': SyntaxError.prototype,
+	'$ %ThrowTypeError%': ThrowTypeError,
+	'$ %TypedArray%': TypedArray,
+	'$ %TypedArrayPrototype%': TypedArray ? TypedArray.prototype : undefined,
+	'$ %TypeError%': TypeError,
+	'$ %TypeErrorPrototype%': TypeError.prototype,
+	'$ %Uint8Array%': typeof Uint8Array === 'undefined' ? undefined : Uint8Array,
+	'$ %Uint8ArrayPrototype%': typeof Uint8Array === 'undefined' ? undefined : Uint8Array.prototype,
+	'$ %Uint8ClampedArray%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray,
+	'$ %Uint8ClampedArrayPrototype%': typeof Uint8ClampedArray === 'undefined' ? undefined : Uint8ClampedArray.prototype,
+	'$ %Uint16Array%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array,
+	'$ %Uint16ArrayPrototype%': typeof Uint16Array === 'undefined' ? undefined : Uint16Array.prototype,
+	'$ %Uint32Array%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array,
+	'$ %Uint32ArrayPrototype%': typeof Uint32Array === 'undefined' ? undefined : Uint32Array.prototype,
+	'$ %URIError%': URIError,
+	'$ %URIErrorPrototype%': URIError.prototype,
+	'$ %WeakMap%': typeof WeakMap === 'undefined' ? undefined : WeakMap,
+	'$ %WeakMapPrototype%': typeof WeakMap === 'undefined' ? undefined : WeakMap.prototype,
+	'$ %WeakSet%': typeof WeakSet === 'undefined' ? undefined : WeakSet,
+	'$ %WeakSetPrototype%': typeof WeakSet === 'undefined' ? undefined : WeakSet.prototype
+};
+
+module.exports = function GetIntrinsic(name, allowMissing) {
+	if (arguments.length > 1 && typeof allowMissing !== 'boolean') {
+		throw new TypeError('"allowMissing" argument must be a boolean');
+	}
+
+	var key = '$ ' + name;
+	if (!(key in INTRINSICS)) {
+		throw new SyntaxError('intrinsic ' + name + ' does not exist!');
+	}
+
+	// istanbul ignore if // hopefully this is impossible to test :-)
+	if (typeof INTRINSICS[key] === 'undefined' && !allowMissing) {
+		throw new TypeError('intrinsic ' + name + ' exists, but is not available. Please file an issue!');
+	}
+	return INTRINSICS[key];
+};
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('./GetIntrinsic');
+
+var $Object = GetIntrinsic('%Object%');
+var $TypeError = GetIntrinsic('%TypeError%');
+var $String = GetIntrinsic('%String%');
+
+var assertRecord = require('./helpers/assertRecord');
 var $isNaN = require('./helpers/isNaN');
 var $isFinite = require('./helpers/isFinite');
 
@@ -178,7 +366,7 @@ var ES5 = {
 		return !!value;
 	},
 	ToNumber: function ToNumber(value) {
-		return Number(value);
+		return +value; // eslint-disable-line no-implicit-coercion
 	},
 	ToInteger: function ToInteger(value) {
 		var number = this.ToNumber(value);
@@ -199,16 +387,16 @@ var ES5 = {
 		return mod(posInt, 0x10000);
 	},
 	ToString: function ToString(value) {
-		return String(value);
+		return $String(value);
 	},
 	ToObject: function ToObject(value) {
 		this.CheckObjectCoercible(value);
-		return Object(value);
+		return $Object(value);
 	},
 	CheckObjectCoercible: function CheckObjectCoercible(value, optMessage) {
 		/* jshint eqnull:true */
 		if (value == null) {
-			throw new TypeError(optMessage || 'Cannot call method on ' + value);
+			throw new $TypeError(optMessage || 'Cannot call method on ' + value);
 		}
 		return value;
 	},
@@ -221,7 +409,7 @@ var ES5 = {
 		return $isNaN(x) && $isNaN(y);
 	},
 
-	// http://www.ecma-international.org/ecma-262/5.1/#sec-8
+	// https://www.ecma-international.org/ecma-262/5.1/#sec-8
 	Type: function Type(x) {
 		if (x === null) {
 			return 'Null';
@@ -243,7 +431,7 @@ var ES5 = {
 		}
 	},
 
-	// http://ecma-international.org/ecma-262/6.0/#sec-property-descriptor-specification-type
+	// https://ecma-international.org/ecma-262/6.0/#sec-property-descriptor-specification-type
 	IsPropertyDescriptor: function IsPropertyDescriptor(Desc) {
 		if (this.Type(Desc) !== 'Object') {
 			return false;
@@ -256,30 +444,28 @@ var ES5 = {
 			'[[Value]]': true,
 			'[[Writable]]': true
 		};
-		// jscs:disable
+
 		for (var key in Desc) { // eslint-disable-line
 			if (has(Desc, key) && !allowed[key]) {
 				return false;
 			}
 		}
-		// jscs:enable
+
 		var isData = has(Desc, '[[Value]]');
 		var IsAccessor = has(Desc, '[[Get]]') || has(Desc, '[[Set]]');
 		if (isData && IsAccessor) {
-			throw new TypeError('Property Descriptors may not be both accessor and data descriptors');
+			throw new $TypeError('Property Descriptors may not be both accessor and data descriptors');
 		}
 		return true;
 	},
 
-	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.1
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.1
 	IsAccessorDescriptor: function IsAccessorDescriptor(Desc) {
 		if (typeof Desc === 'undefined') {
 			return false;
 		}
 
-		if (!this.IsPropertyDescriptor(Desc)) {
-			throw new TypeError('Desc must be a Property Descriptor');
-		}
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
 
 		if (!has(Desc, '[[Get]]') && !has(Desc, '[[Set]]')) {
 			return false;
@@ -288,15 +474,13 @@ var ES5 = {
 		return true;
 	},
 
-	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.2
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.2
 	IsDataDescriptor: function IsDataDescriptor(Desc) {
 		if (typeof Desc === 'undefined') {
 			return false;
 		}
 
-		if (!this.IsPropertyDescriptor(Desc)) {
-			throw new TypeError('Desc must be a Property Descriptor');
-		}
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
 
 		if (!has(Desc, '[[Value]]') && !has(Desc, '[[Writable]]')) {
 			return false;
@@ -305,15 +489,13 @@ var ES5 = {
 		return true;
 	},
 
-	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.3
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.3
 	IsGenericDescriptor: function IsGenericDescriptor(Desc) {
 		if (typeof Desc === 'undefined') {
 			return false;
 		}
 
-		if (!this.IsPropertyDescriptor(Desc)) {
-			throw new TypeError('Desc must be a Property Descriptor');
-		}
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
 
 		if (!this.IsAccessorDescriptor(Desc) && !this.IsDataDescriptor(Desc)) {
 			return true;
@@ -322,15 +504,13 @@ var ES5 = {
 		return false;
 	},
 
-	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.4
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.4
 	FromPropertyDescriptor: function FromPropertyDescriptor(Desc) {
 		if (typeof Desc === 'undefined') {
 			return Desc;
 		}
 
-		if (!this.IsPropertyDescriptor(Desc)) {
-			throw new TypeError('Desc must be a Property Descriptor');
-		}
+		assertRecord(this, 'Property Descriptor', 'Desc', Desc);
 
 		if (this.IsDataDescriptor(Desc)) {
 			return {
@@ -347,14 +527,14 @@ var ES5 = {
 				configurable: !!Desc['[[Configurable]]']
 			};
 		} else {
-			throw new TypeError('FromPropertyDescriptor must be called with a fully populated Property Descriptor');
+			throw new $TypeError('FromPropertyDescriptor must be called with a fully populated Property Descriptor');
 		}
 	},
 
-	// http://ecma-international.org/ecma-262/5.1/#sec-8.10.5
+	// https://ecma-international.org/ecma-262/5.1/#sec-8.10.5
 	ToPropertyDescriptor: function ToPropertyDescriptor(Obj) {
 		if (this.Type(Obj) !== 'Object') {
-			throw new TypeError('ToPropertyDescriptor requires an object');
+			throw new $TypeError('ToPropertyDescriptor requires an object');
 		}
 
 		var desc = {};
@@ -380,13 +560,13 @@ var ES5 = {
 		if (has(Obj, 'set')) {
 			var setter = Obj.set;
 			if (typeof setter !== 'undefined' && !this.IsCallable(setter)) {
-				throw new TypeError('setter must be a function');
+				throw new $TypeError('setter must be a function');
 			}
 			desc['[[Set]]'] = setter;
 		}
 
 		if ((has(desc, '[[Get]]') || has(desc, '[[Set]]')) && (has(desc, '[[Value]]') || has(desc, '[[Writable]]'))) {
-			throw new TypeError('Invalid property descriptor. Cannot both specify accessors and a value or writable attribute');
+			throw new $TypeError('Invalid property descriptor. Cannot both specify accessors and a value or writable attribute');
 		}
 		return desc;
 	}
@@ -394,28 +574,79 @@ var ES5 = {
 
 module.exports = ES5;
 
-},{"./helpers/isFinite":4,"./helpers/isNaN":5,"./helpers/mod":6,"./helpers/sign":7,"es-to-primitive/es5":8,"has":14,"is-callable":15}],4:[function(require,module,exports){
+},{"./GetIntrinsic":3,"./helpers/assertRecord":5,"./helpers/isFinite":6,"./helpers/isNaN":7,"./helpers/mod":8,"./helpers/sign":9,"es-to-primitive/es5":10,"has":15,"is-callable":16}],5:[function(require,module,exports){
+'use strict';
+
+var GetIntrinsic = require('../GetIntrinsic');
+
+var $TypeError = GetIntrinsic('%TypeError%');
+var $SyntaxError = GetIntrinsic('%SyntaxError%');
+
+var has = require('has');
+
+var predicates = {
+  // https://ecma-international.org/ecma-262/6.0/#sec-property-descriptor-specification-type
+  'Property Descriptor': function isPropertyDescriptor(ES, Desc) {
+    if (ES.Type(Desc) !== 'Object') {
+      return false;
+    }
+    var allowed = {
+      '[[Configurable]]': true,
+      '[[Enumerable]]': true,
+      '[[Get]]': true,
+      '[[Set]]': true,
+      '[[Value]]': true,
+      '[[Writable]]': true
+    };
+
+    for (var key in Desc) { // eslint-disable-line
+      if (has(Desc, key) && !allowed[key]) {
+        return false;
+      }
+    }
+
+    var isData = has(Desc, '[[Value]]');
+    var IsAccessor = has(Desc, '[[Get]]') || has(Desc, '[[Set]]');
+    if (isData && IsAccessor) {
+      throw new $TypeError('Property Descriptors may not be both accessor and data descriptors');
+    }
+    return true;
+  }
+};
+
+module.exports = function assertRecord(ES, recordType, argumentName, value) {
+  var predicate = predicates[recordType];
+  if (typeof predicate !== 'function') {
+    throw new $SyntaxError('unknown record type: ' + recordType);
+  }
+  if (!predicate(ES, value)) {
+    throw new $TypeError(argumentName + ' must be a ' + recordType);
+  }
+  console.log(predicate(ES, value), value);
+};
+
+},{"../GetIntrinsic":3,"has":15}],6:[function(require,module,exports){
 var $isNaN = Number.isNaN || function (a) { return a !== a; };
 
 module.exports = Number.isFinite || function (x) { return typeof x === 'number' && !$isNaN(x) && x !== Infinity && x !== -Infinity; };
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports = Number.isNaN || function isNaN(a) {
 	return a !== a;
 };
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function mod(number, modulo) {
 	var remain = number % modulo;
 	return Math.floor(remain >= 0 ? remain : remain + modulo);
 };
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = function sign(number) {
 	return number >= 0 ? 1 : -1;
 };
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -424,10 +655,15 @@ var isPrimitive = require('./helpers/isPrimitive');
 
 var isCallable = require('is-callable');
 
-// https://es5.github.io/#x8.12
+// http://ecma-international.org/ecma-262/5.1/#sec-8.12.8
 var ES5internalSlots = {
-	'[[DefaultValue]]': function (O, hint) {
-		var actualHint = hint || (toStr.call(O) === '[object Date]' ? String : Number);
+	'[[DefaultValue]]': function (O) {
+		var actualHint;
+		if (arguments.length > 1) {
+			actualHint = arguments[1];
+		} else {
+			actualHint = toStr.call(O) === '[object Date]' ? String : Number;
+		}
 
 		if (actualHint === String || actualHint === Number) {
 			var methods = actualHint === String ? ['toString', 'valueOf'] : ['valueOf', 'toString'];
@@ -446,92 +682,87 @@ var ES5internalSlots = {
 	}
 };
 
-// https://es5.github.io/#x9
-module.exports = function ToPrimitive(input, PreferredType) {
+// http://ecma-international.org/ecma-262/5.1/#sec-9.1
+module.exports = function ToPrimitive(input) {
 	if (isPrimitive(input)) {
 		return input;
 	}
-	return ES5internalSlots['[[DefaultValue]]'](input, PreferredType);
+	if (arguments.length > 1) {
+		return ES5internalSlots['[[DefaultValue]]'](input, arguments[1]);
+	}
+	return ES5internalSlots['[[DefaultValue]]'](input);
 };
 
-},{"./helpers/isPrimitive":9,"is-callable":15}],9:[function(require,module,exports){
+},{"./helpers/isPrimitive":11,"is-callable":16}],11:[function(require,module,exports){
 module.exports = function isPrimitive(value) {
 	return value === null || (typeof value !== 'function' && typeof value !== 'object');
 };
 
-},{}],10:[function(require,module,exports){
-var isFunction = require('is-function')
+},{}],12:[function(require,module,exports){
+'use strict';
 
-module.exports = forEach
+var isCallable = require('is-callable');
 
-var toString = Object.prototype.toString
-var hasOwnProperty = Object.prototype.hasOwnProperty
+var toStr = Object.prototype.toString;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function forEach(list, iterator, context) {
-    if (!isFunction(iterator)) {
-        throw new TypeError('iterator must be a function')
-    }
-
-    if (arguments.length < 3) {
-        context = this
-    }
-    
-    if (toString.call(list) === '[object Array]')
-        forEachArray(list, iterator, context)
-    else if (typeof list === 'string')
-        forEachString(list, iterator, context)
-    else
-        forEachObject(list, iterator, context)
-}
-
-function forEachArray(array, iterator, context) {
+var forEachArray = function forEachArray(array, iterator, receiver) {
     for (var i = 0, len = array.length; i < len; i++) {
         if (hasOwnProperty.call(array, i)) {
-            iterator.call(context, array[i], i, array)
-        }
-    }
-}
-
-function forEachString(string, iterator, context) {
-    for (var i = 0, len = string.length; i < len; i++) {
-        // no such thing as a sparse string.
-        iterator.call(context, string.charAt(i), i, string)
-    }
-}
-
-function forEachObject(object, iterator, context) {
-    for (var k in object) {
-        if (hasOwnProperty.call(object, k)) {
-            iterator.call(context, object[k], k, object)
-        }
-    }
-}
-
-},{"is-function":16}],11:[function(require,module,exports){
-
-var hasOwn = Object.prototype.hasOwnProperty;
-var toString = Object.prototype.toString;
-
-module.exports = function forEach (obj, fn, ctx) {
-    if (toString.call(fn) !== '[object Function]') {
-        throw new TypeError('iterator must be a function');
-    }
-    var l = obj.length;
-    if (l === +l) {
-        for (var i = 0; i < l; i++) {
-            fn.call(ctx, obj[i], i, obj);
-        }
-    } else {
-        for (var k in obj) {
-            if (hasOwn.call(obj, k)) {
-                fn.call(ctx, obj[k], k, obj);
+            if (receiver == null) {
+                iterator(array[i], i, array);
+            } else {
+                iterator.call(receiver, array[i], i, array);
             }
         }
     }
 };
 
+var forEachString = function forEachString(string, iterator, receiver) {
+    for (var i = 0, len = string.length; i < len; i++) {
+        // no such thing as a sparse string.
+        if (receiver == null) {
+            iterator(string.charAt(i), i, string);
+        } else {
+            iterator.call(receiver, string.charAt(i), i, string);
+        }
+    }
+};
 
-},{}],12:[function(require,module,exports){
+var forEachObject = function forEachObject(object, iterator, receiver) {
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            if (receiver == null) {
+                iterator(object[k], k, object);
+            } else {
+                iterator.call(receiver, object[k], k, object);
+            }
+        }
+    }
+};
+
+var forEach = function forEach(list, iterator, thisArg) {
+    if (!isCallable(iterator)) {
+        throw new TypeError('iterator must be a function');
+    }
+
+    var receiver;
+    if (arguments.length >= 3) {
+        receiver = thisArg;
+    }
+
+    if (toStr.call(list) === '[object Array]') {
+        forEachArray(list, iterator, receiver);
+    } else if (typeof list === 'string') {
+        forEachString(list, iterator, receiver);
+    } else {
+        forEachObject(list, iterator, receiver);
+    }
+};
+
+module.exports = forEach;
+
+},{"is-callable":16}],13:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -585,37 +816,36 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":12}],14:[function(require,module,exports){
+},{"./implementation":13}],15:[function(require,module,exports){
+'use strict';
+
 var bind = require('function-bind');
 
 module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
-},{"function-bind":13}],15:[function(require,module,exports){
+},{"function-bind":14}],16:[function(require,module,exports){
 'use strict';
 
 var fnToStr = Function.prototype.toString;
 
-var constructorRegex = /^\s*class /;
-var isES6ClassFn = function isES6ClassFn(value) {
+var constructorRegex = /^\s*class\b/;
+var isES6ClassFn = function isES6ClassFunction(value) {
 	try {
 		var fnStr = fnToStr.call(value);
-		var singleStripped = fnStr.replace(/\/\/.*\n/g, '');
-		var multiStripped = singleStripped.replace(/\/\*[.\s\S]*\*\//g, '');
-		var spaceStripped = multiStripped.replace(/\n/mg, ' ').replace(/ {2}/g, ' ');
-		return constructorRegex.test(spaceStripped);
+		return constructorRegex.test(fnStr);
 	} catch (e) {
 		return false; // not a function
 	}
 };
 
-var tryFunctionObject = function tryFunctionObject(value) {
+var tryFunctionObject = function tryFunctionToStr(value) {
 	try {
 		if (isES6ClassFn(value)) { return false; }
 		fnToStr.call(value);
@@ -632,31 +862,15 @@ var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag =
 module.exports = function isCallable(value) {
 	if (!value) { return false; }
 	if (typeof value !== 'function' && typeof value !== 'object') { return false; }
+	if (typeof value === 'function' && !value.prototype) { return true; }
 	if (hasToStringTag) { return tryFunctionObject(value); }
 	if (isES6ClassFn(value)) { return false; }
 	var strClass = toStr.call(value);
 	return strClass === fnClass || strClass === genClass;
 };
 
-},{}],16:[function(require,module,exports){
-module.exports = isFunction
-
-var toString = Object.prototype.toString
-
-function isFunction (fn) {
-  var string = toString.call(fn)
-  return string === '[object Function]' ||
-    (typeof fn === 'function' && string !== '[object RegExp]') ||
-    (typeof window !== 'undefined' &&
-     // IE8 and below
-     (fn === window.setTimeout ||
-      fn === window.alert ||
-      fn === window.confirm ||
-      fn === window.prompt))
-};
-
 },{}],17:[function(require,module,exports){
-//     (c) 2012-2016 Airbnb, Inc.
+//     (c) 2012-2018 Airbnb, Inc.
 //
 //     polyglot.js may be freely distributed under the terms of the BSD
 //     license. For all licensing information, details, and documention:
@@ -689,22 +903,38 @@ var split = String.prototype.split;
 
 // #### Pluralization methods
 // The string that separates the different phrase possibilities.
-var delimeter = '||||';
+var delimiter = '||||';
+
+var russianPluralGroups = function (n) {
+  var lastTwo = n % 100;
+  var end = lastTwo % 10;
+  if (lastTwo !== 11 && end === 1) {
+    return 0;
+  }
+  if (2 <= end && end <= 4 && !(lastTwo >= 12 && lastTwo <= 14)) {
+    return 1;
+  }
+  return 2;
+};
 
 // Mapping from pluralization group plural logic.
 var pluralTypes = {
   arabic: function (n) {
     // http://www.arabeyes.org/Plural_Forms
     if (n < 3) { return n; }
-    if (n % 100 >= 3 && n % 100 <= 10) return 3;
-    return n % 100 >= 11 ? 4 : 5;
+    var lastTwo = n % 100;
+    if (lastTwo >= 3 && lastTwo <= 10) return 3;
+    return lastTwo >= 11 ? 4 : 5;
   },
+  bosnian_serbian: russianPluralGroups,
   chinese: function () { return 0; },
-  german: function (n) { return n !== 1 ? 1 : 0; },
+  croatian: russianPluralGroups,
   french: function (n) { return n > 1 ? 1 : 0; },
-  russian: function (n) {
+  german: function (n) { return n !== 1 ? 1 : 0; },
+  russian: russianPluralGroups,
+  lithuanian: function (n) {
     if (n % 10 === 1 && n % 100 !== 11) { return 0; }
-    return n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2;
+    return n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19) ? 1 : 2;
   },
   czech: function (n) {
     if (n === 1) { return 0; }
@@ -712,21 +942,42 @@ var pluralTypes = {
   },
   polish: function (n) {
     if (n === 1) { return 0; }
-    return n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2;
+    var end = n % 10;
+    return 2 <= end && end <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2;
   },
-  icelandic: function (n) { return (n % 10 !== 1 || n % 100 === 11) ? 1 : 0; }
+  icelandic: function (n) { return (n % 10 !== 1 || n % 100 === 11) ? 1 : 0; },
+  slovenian: function (n) {
+    var lastTwo = n % 100;
+    if (lastTwo === 1) {
+      return 0;
+    }
+    if (lastTwo === 2) {
+      return 1;
+    }
+    if (lastTwo === 3 || lastTwo === 4) {
+      return 2;
+    }
+    return 3;
+  }
 };
 
-// Mapping from pluralization group to individual locales.
+
+// Mapping from pluralization group to individual language codes/locales.
+// Will look up based on exact match, if not found and it's a locale will parse the locale
+// for language code, and if that does not exist will default to 'en'
 var pluralTypeToLanguages = {
   arabic: ['ar'],
-  chinese: ['fa', 'id', 'ja', 'ko', 'lo', 'ms', 'th', 'tr', 'zh'],
-  german: ['da', 'de', 'en', 'es', 'fi', 'el', 'he', 'hu', 'it', 'nl', 'no', 'pt', 'sv'],
+  bosnian_serbian: ['bs-Latn-BA', 'bs-Cyrl-BA', 'srl-RS', 'sr-RS'],
+  chinese: ['id', 'id-ID', 'ja', 'ko', 'ko-KR', 'lo', 'ms', 'th', 'th-TH', 'zh'],
+  croatian: ['hr', 'hr-HR'],
+  german: ['fa', 'da', 'de', 'en', 'es', 'fi', 'el', 'he', 'hi-IN', 'hu', 'hu-HU', 'it', 'nl', 'no', 'pt', 'sv', 'tr'],
   french: ['fr', 'tl', 'pt-br'],
-  russian: ['hr', 'ru', 'lt'],
-  czech: ['cs', 'sk'],
+  russian: ['ru', 'ru-RU'],
+  lithuanian: ['lt'],
+  czech: ['cs', 'cs-CZ', 'sk'],
   polish: ['pl'],
-  icelandic: ['is']
+  icelandic: ['is'],
+  slovenian: ['sl-SL']
 };
 
 function langToTypeMap(mapping) {
@@ -750,9 +1001,22 @@ function pluralTypeIndex(locale, count) {
   return pluralTypes[pluralTypeName(locale)](count);
 }
 
-var dollarRegex = /\$/g;
-var dollarBillsYall = '$$';
-var tokenRegex = /%\{(.*?)\}/g;
+function escape(token) {
+  return token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function constructTokenRegex(opts) {
+  var prefix = (opts && opts.prefix) || '%{';
+  var suffix = (opts && opts.suffix) || '}';
+
+  if (prefix === delimiter || suffix === delimiter) {
+    throw new RangeError('"' + delimiter + '" token is reserved for pluralization');
+  }
+
+  return new RegExp(escape(prefix) + '(.*?)' + escape(suffix), 'g');
+}
+
+var defaultTokenRegex = /%\{(.*?)\}/g;
 
 // ### transformPhrase(phrase, substitutions, locale)
 //
@@ -777,7 +1041,7 @@ var tokenRegex = /%\{(.*?)\}/g;
 //
 // You should pass in a third argument, the locale, to specify the correct plural type.
 // It defaults to `'en'` with 2 plural forms.
-function transformPhrase(phrase, substitutions, locale) {
+function transformPhrase(phrase, substitutions, locale, tokenRegex) {
   if (typeof phrase !== 'string') {
     throw new TypeError('Polyglot.transformPhrase expects argument #1 to be string');
   }
@@ -787,23 +1051,23 @@ function transformPhrase(phrase, substitutions, locale) {
   }
 
   var result = phrase;
+  var interpolationRegex = tokenRegex || defaultTokenRegex;
 
   // allow number as a pluralization shortcut
   var options = typeof substitutions === 'number' ? { smart_count: substitutions } : substitutions;
 
   // Select plural form: based on a phrase text that contains `n`
-  // plural forms separated by `delimeter`, a `locale`, and a `substitutions.smart_count`,
+  // plural forms separated by `delimiter`, a `locale`, and a `substitutions.smart_count`,
   // choose the correct plural form. This is only done if `count` is set.
   if (options.smart_count != null && result) {
-    var texts = split.call(result, delimeter);
+    var texts = split.call(result, delimiter);
     result = trim(texts[pluralTypeIndex(locale || 'en', options.smart_count)] || texts[0]);
   }
 
   // Interpolate: Creates a `RegExp` object for each interpolation placeholder.
-  result = replace.call(result, tokenRegex, function (expression, argument) {
+  result = replace.call(result, interpolationRegex, function (expression, argument) {
     if (!has(options, argument) || options[argument] == null) { return expression; }
-    // Ensure replacement value is escaped to prevent special $-prefixed regex replace tokens.
-    return replace.call(options[argument], dollarRegex, dollarBillsYall);
+    return options[argument];
   });
 
   return result;
@@ -818,6 +1082,7 @@ function Polyglot(options) {
   var allowMissing = opts.allowMissing ? transformPhrase : null;
   this.onMissingKey = typeof opts.onMissingKey === 'function' ? opts.onMissingKey : allowMissing;
   this.warn = opts.warn || warn;
+  this.tokenRegex = constructTokenRegex(opts.interpolation);
 }
 
 // ### polyglot.locale([locale])
@@ -968,13 +1233,13 @@ Polyglot.prototype.t = function (key, options) {
     phrase = opts._;
   } else if (this.onMissingKey) {
     var onMissingKey = this.onMissingKey;
-    result = onMissingKey(key, opts, this.currentLocale);
+    result = onMissingKey(key, opts, this.currentLocale, this.tokenRegex);
   } else {
     this.warn('Missing translation for key: "' + key + '"');
     result = key;
   }
   if (typeof phrase === 'string') {
-    result = transformPhrase(phrase, opts, this.currentLocale);
+    result = transformPhrase(phrase, opts, this.currentLocale, this.tokenRegex);
   }
   return result;
 };
@@ -988,142 +1253,160 @@ Polyglot.prototype.has = function (key) {
 };
 
 // export transformPhrase
-Polyglot.transformPhrase = transformPhrase;
+Polyglot.transformPhrase = function transform(phrase, substitutions, locale) {
+  return transformPhrase(phrase, substitutions, locale);
+};
 
 module.exports = Polyglot;
 
-},{"for-each":10,"has":14,"string.prototype.trim":22,"warning":25}],18:[function(require,module,exports){
+},{"for-each":12,"has":15,"string.prototype.trim":23,"warning":26}],18:[function(require,module,exports){
 'use strict';
 
-// modified from https://github.com/es-shims/es5-shim
-var has = Object.prototype.hasOwnProperty;
-var toStr = Object.prototype.toString;
-var slice = Array.prototype.slice;
-var isArgs = require('./isArguments');
-var isEnumerable = Object.prototype.propertyIsEnumerable;
-var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
-var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
-var dontEnums = [
-	'toString',
-	'toLocaleString',
-	'valueOf',
-	'hasOwnProperty',
-	'isPrototypeOf',
-	'propertyIsEnumerable',
-	'constructor'
-];
-var equalsConstructorPrototype = function (o) {
-	var ctor = o.constructor;
-	return ctor && ctor.prototype === o;
-};
-var excludedKeys = {
-	$console: true,
-	$external: true,
-	$frame: true,
-	$frameElement: true,
-	$frames: true,
-	$innerHeight: true,
-	$innerWidth: true,
-	$outerHeight: true,
-	$outerWidth: true,
-	$pageXOffset: true,
-	$pageYOffset: true,
-	$parent: true,
-	$scrollLeft: true,
-	$scrollTop: true,
-	$scrollX: true,
-	$scrollY: true,
-	$self: true,
-	$webkitIndexedDB: true,
-	$webkitStorageInfo: true,
-	$window: true
-};
-var hasAutomationEqualityBug = (function () {
-	/* global window */
-	if (typeof window === 'undefined') { return false; }
-	for (var k in window) {
+var keysShim;
+if (!Object.keys) {
+	// modified from https://github.com/es-shims/es5-shim
+	var has = Object.prototype.hasOwnProperty;
+	var toStr = Object.prototype.toString;
+	var isArgs = require('./isArguments'); // eslint-disable-line global-require
+	var isEnumerable = Object.prototype.propertyIsEnumerable;
+	var hasDontEnumBug = !isEnumerable.call({ toString: null }, 'toString');
+	var hasProtoEnumBug = isEnumerable.call(function () {}, 'prototype');
+	var dontEnums = [
+		'toString',
+		'toLocaleString',
+		'valueOf',
+		'hasOwnProperty',
+		'isPrototypeOf',
+		'propertyIsEnumerable',
+		'constructor'
+	];
+	var equalsConstructorPrototype = function (o) {
+		var ctor = o.constructor;
+		return ctor && ctor.prototype === o;
+	};
+	var excludedKeys = {
+		$applicationCache: true,
+		$console: true,
+		$external: true,
+		$frame: true,
+		$frameElement: true,
+		$frames: true,
+		$innerHeight: true,
+		$innerWidth: true,
+		$onmozfullscreenchange: true,
+		$onmozfullscreenerror: true,
+		$outerHeight: true,
+		$outerWidth: true,
+		$pageXOffset: true,
+		$pageYOffset: true,
+		$parent: true,
+		$scrollLeft: true,
+		$scrollTop: true,
+		$scrollX: true,
+		$scrollY: true,
+		$self: true,
+		$webkitIndexedDB: true,
+		$webkitStorageInfo: true,
+		$window: true
+	};
+	var hasAutomationEqualityBug = (function () {
+		/* global window */
+		if (typeof window === 'undefined') { return false; }
+		for (var k in window) {
+			try {
+				if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
+					try {
+						equalsConstructorPrototype(window[k]);
+					} catch (e) {
+						return true;
+					}
+				}
+			} catch (e) {
+				return true;
+			}
+		}
+		return false;
+	}());
+	var equalsConstructorPrototypeIfNotBuggy = function (o) {
+		/* global window */
+		if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
+			return equalsConstructorPrototype(o);
+		}
 		try {
-			if (!excludedKeys['$' + k] && has.call(window, k) && window[k] !== null && typeof window[k] === 'object') {
-				try {
-					equalsConstructorPrototype(window[k]);
-				} catch (e) {
-					return true;
+			return equalsConstructorPrototype(o);
+		} catch (e) {
+			return false;
+		}
+	};
+
+	keysShim = function keys(object) {
+		var isObject = object !== null && typeof object === 'object';
+		var isFunction = toStr.call(object) === '[object Function]';
+		var isArguments = isArgs(object);
+		var isString = isObject && toStr.call(object) === '[object String]';
+		var theKeys = [];
+
+		if (!isObject && !isFunction && !isArguments) {
+			throw new TypeError('Object.keys called on a non-object');
+		}
+
+		var skipProto = hasProtoEnumBug && isFunction;
+		if (isString && object.length > 0 && !has.call(object, 0)) {
+			for (var i = 0; i < object.length; ++i) {
+				theKeys.push(String(i));
+			}
+		}
+
+		if (isArguments && object.length > 0) {
+			for (var j = 0; j < object.length; ++j) {
+				theKeys.push(String(j));
+			}
+		} else {
+			for (var name in object) {
+				if (!(skipProto && name === 'prototype') && has.call(object, name)) {
+					theKeys.push(String(name));
 				}
 			}
-		} catch (e) {
-			return true;
 		}
-	}
-	return false;
-}());
-var equalsConstructorPrototypeIfNotBuggy = function (o) {
-	/* global window */
-	if (typeof window === 'undefined' || !hasAutomationEqualityBug) {
-		return equalsConstructorPrototype(o);
-	}
-	try {
-		return equalsConstructorPrototype(o);
-	} catch (e) {
-		return false;
-	}
-};
 
-var keysShim = function keys(object) {
-	var isObject = object !== null && typeof object === 'object';
-	var isFunction = toStr.call(object) === '[object Function]';
-	var isArguments = isArgs(object);
-	var isString = isObject && toStr.call(object) === '[object String]';
-	var theKeys = [];
+		if (hasDontEnumBug) {
+			var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
 
-	if (!isObject && !isFunction && !isArguments) {
-		throw new TypeError('Object.keys called on a non-object');
-	}
-
-	var skipProto = hasProtoEnumBug && isFunction;
-	if (isString && object.length > 0 && !has.call(object, 0)) {
-		for (var i = 0; i < object.length; ++i) {
-			theKeys.push(String(i));
-		}
-	}
-
-	if (isArguments && object.length > 0) {
-		for (var j = 0; j < object.length; ++j) {
-			theKeys.push(String(j));
-		}
-	} else {
-		for (var name in object) {
-			if (!(skipProto && name === 'prototype') && has.call(object, name)) {
-				theKeys.push(String(name));
+			for (var k = 0; k < dontEnums.length; ++k) {
+				if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
+					theKeys.push(dontEnums[k]);
+				}
 			}
 		}
-	}
+		return theKeys;
+	};
+}
+module.exports = keysShim;
 
-	if (hasDontEnumBug) {
-		var skipConstructor = equalsConstructorPrototypeIfNotBuggy(object);
+},{"./isArguments":20}],19:[function(require,module,exports){
+'use strict';
 
-		for (var k = 0; k < dontEnums.length; ++k) {
-			if (!(skipConstructor && dontEnums[k] === 'constructor') && has.call(object, dontEnums[k])) {
-				theKeys.push(dontEnums[k]);
-			}
-		}
-	}
-	return theKeys;
-};
+var slice = Array.prototype.slice;
+var isArgs = require('./isArguments');
+
+var origKeys = Object.keys;
+var keysShim = origKeys ? function keys(o) { return origKeys(o); } : require('./implementation');
+
+var originalKeys = Object.keys;
 
 keysShim.shim = function shimObjectKeys() {
 	if (Object.keys) {
 		var keysWorksWithArguments = (function () {
 			// Safari 5.0 bug
-			return (Object.keys(arguments) || '').length === 2;
+			var args = Object.keys(arguments);
+			return args && args.length === arguments.length;
 		}(1, 2));
 		if (!keysWorksWithArguments) {
-			var originalKeys = Object.keys;
-			Object.keys = function keys(object) {
+			Object.keys = function keys(object) { // eslint-disable-line func-name-matching
 				if (isArgs(object)) {
 					return originalKeys(slice.call(object));
-				} else {
-					return originalKeys(object);
 				}
+				return originalKeys(object);
 			};
 		}
 	} else {
@@ -1134,7 +1417,7 @@ keysShim.shim = function shimObjectKeys() {
 
 module.exports = keysShim;
 
-},{"./isArguments":19}],19:[function(require,module,exports){
+},{"./implementation":18,"./isArguments":20}],20:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
@@ -1153,7 +1436,7 @@ module.exports = function isArguments(value) {
 	return isArgs;
 };
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -1339,22 +1622,24 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
 var ES = require('es-abstract/es5');
 var replace = bind.call(Function.call, String.prototype.replace);
 
+/* eslint-disable no-control-regex */
 var leftWhitespace = /^[\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF]+/;
 var rightWhitespace = /[\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF]+$/;
+/* eslint-enable no-control-regex */
 
 module.exports = function trim() {
 	var S = ES.ToString(ES.CheckObjectCoercible(this));
 	return replace(replace(S, leftWhitespace, ''), rightWhitespace, '');
 };
 
-},{"es-abstract/es5":3,"function-bind":13}],22:[function(require,module,exports){
+},{"es-abstract/es5":4,"function-bind":14}],23:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -1374,7 +1659,7 @@ define(boundTrim, {
 
 module.exports = boundTrim;
 
-},{"./implementation":21,"./polyfill":23,"./shim":24,"define-properties":2,"function-bind":13}],23:[function(require,module,exports){
+},{"./implementation":22,"./polyfill":24,"./shim":25,"define-properties":2,"function-bind":14}],24:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
@@ -1388,7 +1673,7 @@ module.exports = function getPolyfill() {
 	return implementation;
 };
 
-},{"./implementation":21}],24:[function(require,module,exports){
+},{"./implementation":22}],25:[function(require,module,exports){
 'use strict';
 
 var define = require('define-properties');
@@ -1396,19 +1681,21 @@ var getPolyfill = require('./polyfill');
 
 module.exports = function shimStringTrim() {
 	var polyfill = getPolyfill();
-	define(String.prototype, { trim: polyfill }, { trim: function () { return String.prototype.trim !== polyfill; } });
+	define(String.prototype, { trim: polyfill }, {
+		trim: function testTrim() {
+			return String.prototype.trim !== polyfill;
+		}
+	});
 	return polyfill;
 };
 
-},{"./polyfill":23,"define-properties":2}],25:[function(require,module,exports){
+},{"./polyfill":24,"define-properties":2}],26:[function(require,module,exports){
 (function (process){
 /**
- * Copyright 2014-2015, Facebook, Inc.
- * All rights reserved.
+ * Copyright (c) 2014-present, Facebook, Inc.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 'use strict';
@@ -1420,9 +1707,33 @@ module.exports = function shimStringTrim() {
  * same logic and follow the same code paths.
  */
 
+var __DEV__ = process.env.NODE_ENV !== 'production';
+
 var warning = function() {};
 
-if (process.env.NODE_ENV !== 'production') {
+if (__DEV__) {
+  var printWarning = function printWarning(format, args) {
+    var len = arguments.length;
+    args = new Array(len > 1 ? len - 1 : 0);
+    for (var key = 1; key < len; key++) {
+      args[key - 1] = arguments[key];
+    }
+    var argIndex = 0;
+    var message = 'Warning: ' +
+      format.replace(/%s/g, function() {
+        return args[argIndex++];
+      });
+    if (typeof console !== 'undefined') {
+      console.error(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  }
+
   warning = function(condition, format, args) {
     var len = arguments.length;
     args = new Array(len > 2 ? len - 2 : 0);
@@ -1431,32 +1742,12 @@ if (process.env.NODE_ENV !== 'production') {
     }
     if (format === undefined) {
       throw new Error(
-        '`warning(condition, format, ...args)` requires a warning ' +
-        'message argument'
+          '`warning(condition, format, ...args)` requires a warning ' +
+          'message argument'
       );
     }
-
-    if (format.length < 10 || (/^[s\W]*$/).test(format)) {
-      throw new Error(
-        'The warning format should be able to uniquely identify this ' +
-        'warning. Please, use a more descriptive format than: ' + format
-      );
-    }
-
     if (!condition) {
-      var argIndex = 0;
-      var message = 'Warning: ' +
-        format.replace(/%s/g, function() {
-          return args[argIndex++];
-        });
-      if (typeof console !== 'undefined') {
-        console.error(message);
-      }
-      try {
-        // This error was thrown as a convenience so that you can use this stack
-        // to find the callsite that caused this warning to fire.
-        throw new Error(message);
-      } catch(x) {}
+      printWarning.apply(null, [format].concat(args));
     }
   };
 }
@@ -1464,5 +1755,5 @@ if (process.env.NODE_ENV !== 'production') {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"_process":20}]},{},[1])(1)
+},{"_process":21}]},{},[1])(1)
 });
