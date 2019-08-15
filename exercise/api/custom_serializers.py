@@ -55,11 +55,21 @@ class ExercisePointsSerializer(serializers.Serializer):
             'submissions': [submission_url(s['id']) for s in entry['submissions']],
         }
         for key in [
-            'id', 'name',
-            'max_points', 'points_to_pass', 'difficulty',
-            'submission_count', 'points', 'passed',
+            # exercise
+            'id',
+            'name',
+            'difficulty',
+            'max_points',
+            'points_to_pass',
+            'submission_count',
+            # best submission
+            'points',
+            'passed',
+            # 'official',
         ]:
             exercise_data[key] = entry[key]
+        exercise_data['official'] = (entry['graded'] and
+                                     not entry.get('unconfirmed', False))
         return exercise_data
 
 
