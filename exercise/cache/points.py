@@ -8,6 +8,10 @@ from ..models import LearningObject, Submission
 from .hierarchy import ContentMixin
 
 
+def has_more_points(submission, current_entry):
+    return submission.grade >= current_entry['points']
+
+
 class CachedPoints(ContentMixin, CachedAbstract):
     KEY_PREFIX = 'points'
 
@@ -82,6 +86,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     continue
                 entry = tree[-1]
                 entry['submission_count'] += 1 if not submission.status in (Submission.STATUS.ERROR, Submission.STATUS.UNOFFICIAL) else 0
+                ready = submission.status == Submission.STATUS.READY
                 unofficial = submission.status == Submission.STATUS.UNOFFICIAL
                 entry['submissions'].append({
                     'id': submission.id,
@@ -90,29 +95,38 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'confirm_the_level': entry.get('confirm_the_level', False),
                     'submission_count': 1, # to fool points badge
                     'points': submission.grade,
-                    'graded': submission.is_graded,
+                    'graded': submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
                     'passed': submission.grade >= entry['points_to_pass'],
                     'submission_status': submission.status if not submission.is_graded else False,
                     'unofficial': unofficial,
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
                 })
+                # TODO: implement way to select algorithm for the best
+                is_better_than = has_more_points
+                # Update best submission if one of these is true
+                # 1) current submission in ready (thus is not unofficial) AND
+                #    a) current best is an unofficial OR
+                #    b) current submission has better grade
+                # 2) All of:
+                #    - current submission is unofficial AND
+                #    - current best is unofficial
+                #    - current submission has better grade
                 if (
-                    submission.status == Submission.STATUS.READY and (
-                        entry['unofficial']
-                        or submission.grade >= entry['points']
+                    ready and (
+                        entry['unofficial'] or
+                        is_better_than(submission, entry)
                     )
                 ) or (
-                    unofficial and (
-                        not entry['graded']
-                        or (entry['unofficial'] and submission.grade > entry['points'])
-                    )
+                    unofficial and
+                    entry['unofficial'] and
+                    is_better_than(submission, entry)
                 ):
                     entry.update({
                         'best_submission': submission.id,
                         'points': submission.grade,
-                        'passed': not unofficial and submission.grade >= entry['points_to_pass'],
-                        'graded': submission.status == Submission.STATUS.READY,
+                        'passed': ready and submission.grade >= entry['points_to_pass'],
+                        'graded': ready, # != unofficial
                         'unofficial': unofficial,
                     })
                 if submission.notifications.count() > 0:
@@ -128,11 +142,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     and entry['confirm_the_level']
                     and entry['passed']
                 ):
-                    if 'unconfirmed' in parent:
-                        del(parent['unconfirmed'])
+                    parent.pop('unconfirmed', None)
                     for child in parent.get('children', []):
-                        if 'unconfirmed' in child:
-                            del(child['unconfirmed'])
+                        child.pop('unconfirmed', None)
+                        # TODO: should recurse to all descendants
                 r_check(entry, entry.get('children', []))
         for module in modules:
             r_check(module, module['children'])
@@ -140,14 +153,19 @@ class CachedPoints(ContentMixin, CachedAbstract):
         # Collect points and check limits.
         def add_to(target, entry):
             target['submission_count'] += entry['submission_count']
+            # NOTE: entry can be only ready or unofficial (exercise level
+            # points are only copied, only if submission is in ready or
+            # unofficial state)
             if entry.get('unofficial', False):
                 pass
+            # thus, all points are now ready..
             elif entry.get('unconfirmed', False):
                 self._add_by_difficulty(
                     target['unconfirmed_points_by_difficulty'],
                     entry['difficulty'],
                     entry['points']
                 )
+            # and finally, only remaining points are official (not unofficial & not unconfirmed)
             else:
                 target['points'] += entry['points']
                 self._add_by_difficulty(
