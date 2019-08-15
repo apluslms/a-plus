@@ -50,9 +50,10 @@ class CourseSerializer(CourseBriefSerializer):
     ...
     """
     exercises = NestedHyperlinkedIdentityField(view_name='api:course-exercises-list', format='html')
+    points = NestedHyperlinkedIdentityField(view_name='api:course-points-list', format='html')
     students = NestedHyperlinkedIdentityField(view_name='api:course-students-list', format='html')
-    usertags = NestedHyperlinkedIdentityField(view_name='api:course-usertags-list', format='html')
     taggings = NestedHyperlinkedIdentityField(view_name='api:course-taggings-list', format='html')
+    usertags = NestedHyperlinkedIdentityField(view_name='api:course-usertags-list', format='html')
     my_points = NestedHyperlinkedIdentityField(
         view_name='api:course-points-detail',
         lookup_map={
@@ -76,10 +77,12 @@ class CourseSerializer(CourseBriefSerializer):
             'starting_time',
             'ending_time',
             'visible_to_students',
+            # links
             'exercises',
+            'points',
             'students',
-            'usertags',
             'taggings',
+            'usertags',
             'my_points',
             'my_data',
             'data',
