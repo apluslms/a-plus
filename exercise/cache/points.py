@@ -43,7 +43,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'points': 0,
                         'passed': entry['points_to_pass'] == 0,
                         'graded': False,
-                        'unofficial': False,
+                        'unofficial': False, # TODO: this should be True, but we need to ensure nothing breaks when it's changed
                     })
                 r_augment(entry.get('children'))
         for module in modules:
@@ -119,7 +119,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     )
                 ) or (
                     unofficial and
-                    entry['unofficial'] and
+                    not entry['graded'] and # NOTE: == entry['unofficial'], but before any submissions entry['unofficial'] is False
                     is_better_than(submission, entry)
                 ):
                     entry.update({
