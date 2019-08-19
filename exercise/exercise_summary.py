@@ -152,15 +152,11 @@ class ResultTable:
             children = node['children']
             if children:
                 return itertools.chain.from_iterable(
-                    [get_descendant_ids(child) for child in children])
+                    get_descendant_ids(child) for child in children)
             return (node['id'],)
 
         root_node = { 'children': content.modules() }
-        ids = get_descendant_ids(root_node)
-
-        # Loop until end of ids raises StopIteration
-        while True:
-            id = next(ids)
+        for id in get_descendant_ids(root_node):
             try:
                 yield BaseExercise.objects.get(learningobject_ptr_id=id)
             except ObjectDoesNotExist:
