@@ -85,9 +85,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     self.dirty = True
                     continue
                 entry = tree[-1]
-                entry['submission_count'] += 1 if not submission.status in (Submission.STATUS.ERROR, Submission.STATUS.UNOFFICIAL) else 0
                 ready = submission.status == Submission.STATUS.READY
                 unofficial = submission.status == Submission.STATUS.UNOFFICIAL
+                if ready:
+                    entry['submission_count'] += 1
                 entry['submissions'].append({
                     'id': submission.id,
                     'max_points': entry['max_points'],
