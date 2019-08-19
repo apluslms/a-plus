@@ -50,12 +50,17 @@ class CourseListField(AlwaysListSerializer, CourseBriefSerializer):
 
 class StudentBriefSerializer(UserBriefSerializer):
     tag_slugs = serializers.SerializerMethodField()
+    summary_html = serializers.SerializerMethodField()
     points = serializers.SerializerMethodField()
     data = serializers.SerializerMethodField()
 
     def get_tag_slugs(self, profile):
         cached = CachedStudent(self.context['view'].instance.id, profile.user.id)
         return cached.data['tag_slugs']
+
+    def get_summary_html(self, profile):
+        path = profile.get_url(self.context['view'].instance)
+        return self.context['request'].build_absolute_uri(path)
 
     def get_points(self, profile):
         return self._get_link_lookup('api:course-points-detail', profile)
@@ -76,6 +81,7 @@ class StudentBriefSerializer(UserBriefSerializer):
     class Meta(UserBriefSerializer.Meta):
         fields = UserBriefSerializer.Meta.fields + (
             'tag_slugs',
+            'summary_html',
             'points',
             'data',
         )
