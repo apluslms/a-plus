@@ -4,23 +4,22 @@
 
 {% block content %}
 <div class="text-center">
-    <p>Please confirm that you selected the correct exam.<br>
-        You can go back to exam selection with the button below.
-    </p>
-    <a class="btn btn-success btn-lg" href="{% url 'exam_start' %}">
-        Return
-    </a>
-
-    <h1>{{examsession.course_instance.course}}</h1>
-    <p>Exams starts at {{examsession.can_start}}</p>
-    <form action="" method="post">
-        {% csrf_token %}
-        <button
-            type="submit" 
-            class="btn btn-success">
-            Start exam
-        </button>
-    </form>
+	<p>
+		Please confirm that you selected the correct exam.
+		<br>You can go back to exam selection with the button below.
+	</p>
+	<a class="btn btn-danger btn-lg" href="{% url 'exam_start' %}">
+		Return
+	</a>
+	<h1>{{examsession.course_instance.course}}</h1>
+	<p>Exams starts at {{examsession.can_start}}</p>
+	<form action="" method="post">
+		{% csrf_token %}
+		<input 
+			type="submit"
+			name="start-exam"
+			value="Start exam"
+			class="btn btn-success">
+	</form>
 </div>
-
-{% endblock %}
+{% endblock content %}

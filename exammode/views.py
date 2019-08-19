@@ -27,8 +27,6 @@ class ExamStartView(BaseTemplateView):
 
 
 class ExamDetailView(generic.DetailView):
-    #access_mode = ACCESS.STUDENT
-    #template_name = "exammode/exam_details.html"
     model = ExamSession
 
     def post(self, request, *args, **kwargs):

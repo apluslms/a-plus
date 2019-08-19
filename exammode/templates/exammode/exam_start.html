@@ -2,27 +2,30 @@
 
 {% block content %}
 <div class="text-center">
-    <h1>List of active exams</h1>
-    <br style="line-height: 2;">
-    {% if active_exams %}
-    <ul class="list-unstyled">
-        {% for exam in active_exams %}
-        <li>
-            <p style="display: inline-block;">
-                <b>{{exam.course_instance.course}}
-                <br>{{exam.can_start}}</b>
-            </p>
-
-            <a style="display: inline-block; vertical-align: top;" 
-               class="btn btn-success" 
-               href="{% url 'exam_details' exam.id %}">
-                Start exam
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>There are no active exams at the moment.</p>
-    {% endif %}
+	<h1>List of active exams</h1>
+	<br style="line-height: 2;">
+	{% if active_exams %}
+		<ul class="list-unstyled">
+			{% for exam in active_exams %}
+			<li>
+				<p style="display: inline-block;">
+					<b>
+						{{exam.course_instance.course}}
+						<br>
+						{{exam.can_start}}
+					</b>
+				</p>    
+				<a
+					style="display: inline-block; vertical-align: top;" 
+					class="btn btn-success" 
+					href="{% url 'exam_details' exam.id %}">
+					Start exam
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<p>There are no active exams at the moment.</p>
+	{% endif %}
 </div>
-{% endblock %}
+{% endblock content %}

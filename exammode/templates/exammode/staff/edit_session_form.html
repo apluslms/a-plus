@@ -3,11 +3,11 @@
 {% block content %}
 
 <form method="post">
-    {% csrf_token %}
-    <ul class="list-unstyled">
-        {{ form.as_ul }}
-    </ul>
-    <input class="btn btn-primary" name="edit" type="submit" value="Submit"/>
+	{% csrf_token %}
+	<ul class="list-unstyled">
+		{{ form.as_ul }}
+	</ul>
+	<input class="btn btn-primary" name="edit" type="submit" value="Submit"/>
 </form>
 
 {% endblock %}

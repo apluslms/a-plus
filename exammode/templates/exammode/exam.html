@@ -5,204 +5,211 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{{ current.name|parse_localization }} | {{ block.super }}{% endblock %}
+{% block title %}
+	{{ current.name|parse_localization }} | {{ block.super }}
+{% endblock title %}
 
-{% block siblings %}{% include "course/_siblings.html" %}{% endblock %}
+{% block siblings %}
+	{% include "course/_siblings.html" %}
+{% endblock siblings %}
 
-{% block siblings_bottom %}{% include "course/_siblings.html" %}{% endblock %}
+{% block siblings_bottom %}
+	{% include "course/_siblings.html" %}
+{% endblock siblings_bottom %}
 
 {% block breadcrumblist %}
-{{ block.super }}
-    <li><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
-    {% for entry in breadcrumb %}
-    <li>
-    {% if entry.is_empty %}
-    {{ entry.name|parse_localization }}
-    {% else %}
-    <a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
-    {% endif %}
-    </li>
-    {% endfor %}
-    {% block exercisebreadcrumblist %}
-    <li class="active">{{ current.name|parse_localization }}</li>
-    {% endblock %}
-{% endblock %}
+	{{ block.super }}
+	<li><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
+	{% for entry in breadcrumb %}
+		<li>
+		{% if entry.is_empty %}
+			{{ entry.name|parse_localization }}
+		{% else %}
+			<a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
+		{% endif %}
+		</li>
+	{% endfor %}
+	{% block exercisebreadcrumblist %}
+		<li class="active">{{ current.name|parse_localization }}</li>
+	{% endblock %}
+{% endblock breadcrumblist %}
 
 {% block scripts %}
 {{ block.super }}
-    <script src="{% static 'js/external_launcher.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/external_services.css' %}">
-    <script src="{% static 'exercise/poll.js' %}"></script>
-    <script src="{% static 'exercise/group.js' %}"></script>
-    <script src="{% static 'exercise/chapter.js' %}" ></script>
-    <script
-        src="{% static 'exercise/language_link.js' %}"
-        data-set-lang="{% url 'set_language' %}"></script>
-    <script>
-    // Visualize loading in case of slow POST operations.
-    /*$(function() {
-        var forms = $("#exercise-page-content").find("form:not([data-aplus-exercise] form)");
-        forms.on("submit", function(event) {
-            $("#submit-progress").removeClass("hide");
-        });
-    });*/
-
-    // Add an Ajax exercise event listener to refresh the info column.
-    window.addEventListener("message", function (event) {
-        if (event.data.type === "a-plus-refresh-stats") {
-            $("#submit-progress").addClass("hide");
-            var $stats = $("#exercise-info"),
-                url = $stats.data("url");
-            $stats.load(url, function() {
-                $stats.find('[data-toggle="tooltip"]').tooltip();
-            });
-        }
-    });
-    </script>
+<script src="{% static 'js/external_launcher.js' %}"></script>
+<link
+	rel="stylesheet"
+	href="{% static 'css/external_services.css' %}">
+<script src="{% static 'exercise/poll.js' %}"></script>
+<script src="{% static 'exercise/group.js' %}"></script>
+<script src="{% static 'exercise/chapter.js' %}" ></script>
+<script
+	src="{% static 'exercise/language_link.js' %}"
+	data-set-lang="{% url 'set_language' %}">
+</script>
+<script>
+// Visualize loading in case of slow POST operations.
+/*$(function() {
+	var forms = $("#exercise-page-content").find("form:not([data-aplus-exercise] form)");
+	forms.on("submit", function(event) {
+		$("#submit-progress").removeClass("hide");
+	});
+});*/	
+// Add an Ajax exercise event listener to refresh the info column.
+window.addEventListener("message", function (event) {
+	if (event.data.type === "a-plus-refresh-stats") {
+		$("#submit-progress").addClass("hide");
+		var $stats = $("#exercise-info"),
+		url = $stats.data("url");
+		$stats.load(url, function() {
+			$stats.find('[data-toggle="tooltip"]').tooltip();
+		});
+	}
+});
+</script>
 {{ page.head|safe }}
-{% endblock %}
-
+{% endblock scripts %}
 
 {% block columns %}
 <div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %} exercise-column">
+{% if exercise.is_submittable %}
+	<ul class="nav nav-tabs">
+		<li class="menu-exercise">
+			<a href="{{ current.link }}">
+				{% trans "Exercise description" %}
+			</a>
+		</li>
+		<li class="dropdown menu-submission">
+			<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+				aria-haspopup="true" aria-expanded="false">
+				{% trans "My submissions" %}
+				({{ summary.get_submission_count }}{% if exercise.max_submissions %}/{{ exercise|max_submissions:profile }}{% endif %})
+				<span class="caret"></span>
+			</a>
+			<ul class="dropdown-menu">
+				{% for submission in submissions %}
+				<li>
+					<a href="{{ submission|url }}">
+						{{ forloop.revcounter }}.
+						{{ submission.submission_time }}
+						{% points_badge submission %}
+					</a>
+				</li>
+				{% empty %}
+				<li>
+					<a href="#">{% trans "No submissions yet" %}</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</li>
+		{% if is_course_staff or is_student and exercise.can_show_model_solutions %}
+		{% comment %} The model solution link is shown even if the student can not
+		open it due to personal extensions. However, this saves some database queries.
+		{% endcomment %}
+		{% if exercise.model_answers %}
+		<li class="menu-model">
+		<a href="{{ exercise|url:'exercise-model' }}">
+			{% trans "Model answer" %}
+		</a>
+		</li>
+		{% endif %}
+		{% endif %}
+		{% if is_course_staff %}
+		<li>
+			<p class="navbar-text navbar-btn">
+				{% if submission %}
+				<a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+					<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+					{% trans "Inspect submission" %}
+				</a>
+				{% elif is_teacher %}
+				{% load editcourse %}
+				<a href="{{ exercise|editurl:'exercise' }}" class="btn btn-default btn-xs">
+					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+					{% trans "Edit exercise" %}
+				</a>
+				{% endif %}
+				{% if is_teacher or exercise.allow_assistant_viewing %}
+				<a href="{{ exercise|url:'submission-list' }}" class="btn btn-default btn-xs">
+					<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+					{% trans "View all submissions" %}
+				</a>
+				{% endif %}
+			</p>
+		</li>
+		{% endif %}
+	</ul>
+{% endif %}
 
-    {% if exercise.is_submittable %}
-    <ul class="nav nav-tabs">
-        <li class="menu-exercise">
-            <a href="{{ current.link }}">
-                {% trans "Exercise description" %}
-            </a>
-        </li>
-        <li class="dropdown menu-submission">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"
-                aria-haspopup="true" aria-expanded="false">
-                {% trans "My submissions" %}
-                ({{ summary.get_submission_count }}{% if exercise.max_submissions %}/{{ exercise|max_submissions:profile }}{% endif %})
-                <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-                {% for submission in submissions %}
-                <li>
-                    <a href="{{ submission|url }}">
-                        {{ forloop.revcounter }}.
-                        {{ submission.submission_time }}
-                        {% points_badge submission %}
-                    </a>
-                </li>
-                {% empty %}
-                <li>
-                    <a href="#">{% trans "No submissions yet" %}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </li>
-        {% if is_course_staff or is_student and exercise.can_show_model_solutions %}
-        {% comment %} The model solution link is shown even if the student can not
-        open it due to personal extensions. However, this saves some database queries.
-        {% endcomment %}
-        {% if exercise.model_answers %}
-        <li class="menu-model">
-        <a href="{{ exercise|url:'exercise-model' }}">
-            {% trans "Model answer" %}
-        </a>
-        </li>
-        {% endif %}
-        {% endif %}
-        {% if is_course_staff %}
-        <li>
-            <p class="navbar-text navbar-btn">
-                {% if submission %}
-                <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
-                    <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-                    {% trans "Inspect submission" %}
-                </a>
-                {% elif is_teacher %}
-                {% load editcourse %}
-                <a href="{{ exercise|editurl:'exercise' }}" class="btn btn-default btn-xs">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                    {% trans "Edit exercise" %}
-                </a>
-                {% endif %}
-                {% if is_teacher or exercise.allow_assistant_viewing %}
-                <a href="{{ exercise|url:'submission-list' }}" class="btn btn-default btn-xs">
-                    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                    {% trans "View all submissions" %}
-                </a>
-                {% endif %}
-            </p>
-        </li>
-        {% endif %}
-    </ul>
-    {% endif %}
+{% if toc %}
+	{% include 'exercise/_user_toc.html' %}
+{% endif %}
 
-    {% if toc %}
-    {% include 'exercise/_user_toc.html' %}
-    {% endif %}
-
-    <div
-        id="exercise-page-content"
-        {% if exercise.is_submittable %}
-            data-aplus-chapter="{{ exercise|url }}"
-            data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"
-            {% if summary.get_submission_count > 0 %}
-                data-aplus-group-fixed="{{ summary.get_group_id }}"
-            {% endif %}
-        {% endif %}
-    >
-    <div class="overlay-parent">
-        {% if issues and not submission_allowed %}
-            {% include 'exercise/_warnings_overlay.html' %}
-        {% endif %}
-        <div {% if disable_submit %}data-aplus-disable-submit="true"{% endif %}>
-        {{ page.content|safe }}
-        </div>
-    </div>
-    </div>
-
-    <div id="submit-progress" class="hide progress">
-    <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
-        {% trans "Posting submission..." %}
-    </div>
-    </div>
-
-    {% include "exercise/_exercise_wait.html" %}
-
-    <div id="loading-indicator" class="hide progress"
-    data-msg-load="{% trans 'Loading exercise...' %}"
-    data-msg-submit="{% trans 'Posting submission...' %}"
-    data-msg-error="{% trans 'Communication error with the exercise.' %}">
-    <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;"></div>
-    </div>
-
-    <div id="quiz-success" class="hide">
-    <h3 class="text-center">{% trans "Submission received." %}</h3>
-    <p class="text-center badge-placeholder"></p>
-    <button type="button" class="btn btn-success center-block read-feedback" data-dismiss="modal">
-        {% trans "Go to feedback" %}
-    </button>
-    </div>
+	<div
+		id="exercise-page-content"
+		{% if exercise.is_submittable %}data-aplus-chapter="{{ exercise|url }}"
+	    	data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"
+	    	{% if summary.get_submission_count > 0 %}
+	    		data-aplus-group-fixed="{{ summary.get_group_id }}"
+	    	{% endif %}
+		{% endif %}
+		>
+		<div class="overlay-parent">
+			{% if issues and not submission_allowed %}
+				{% include 'exercise/_warnings_overlay.html' %}
+			{% endif %}
+			<div {% if disable_submit %}data-aplus-disable-submit="true"{% endif %}>
+				{{ page.content|safe }}
+			</div>
+		</div>
+	</div>	
+	<div id="submit-progress" class="hide progress">
+		<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
+			{% trans "Posting submission..." %}
+		</div>
+	</div>	
+	{% include "exercise/_exercise_wait.html" %}	
+	<div 
+		id="loading-indicator"
+		class="hide progress"
+		data-msg-load="{% trans 'Loading exercise...' %}"
+		data-msg-submit="{% trans 'Posting submission...' %}"
+		data-msg-error="{% trans 'Communication error with the exercise.' %}">
+		<div
+			class="progress-bar progress-bar-striped active"
+			role="progressbar"
+			style="width:100%;">
+		</div>
+	</div>	
+	<div id="quiz-success" class="hide">
+		<h3 class="text-center">{% trans "Submission received." %}</h3>
+		<p class="text-center badge-placeholder"></p>
+		<button type="button" class="btn btn-success center-block read-feedback" data-dismiss="modal">
+			{% trans "Go to feedback" %}
+		</button>
+	</div>
 </div>
 
 {% if not exercise.use_wide_column %}
 <div class="col-lg-3">
-
     {% if exercise.is_submittable %}
-    {% block exerciseinfo %}
-    <div id="exercise-info" data-url="{{ exercise|url:'exercise-info' }}">
-        {% include "exercise/_exercise_info.html" %}
-    </div>
-    {% endblock %}
+		{% block exerciseinfo %}
+		<div id="exercise-info" data-url="{{ exercise|url:'exercise-info' }}">
+			{% include "exercise/_exercise_info.html" %}
+		</div>
+		{% endblock exerciseinfo %}
     {% endif %}
 
     {% if submission %}
-      {% plugin_renderers user submission as plugins %}
+    	{% plugin_renderers user submission as plugins %}
     {% else %}
-      {% plugin_renderers user exercise as plugins %}
-    {% endif %}
+    	{% plugin_renderers user exercise as plugins %}
+	{% endif %}
+
     {% for plugin in plugins %}
         {{ plugin.render|safe }}
     {% endfor %}
 </div>
 {% endif %}
 
-{% endblock %}
+{% endblock columns %}

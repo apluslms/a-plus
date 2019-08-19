@@ -4,179 +4,177 @@
 {% load exercise %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ current.name|parse_localization }}</title>
+<head>
 
-        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ current.name|parse_localization }}</title>
 
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-        <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-        <link rel="stylesheet" href="{% static 'css/submission.css' %}" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
 
-        <script>
-         // Add an Ajax exercise event listener to refresh the summary.
-             window.addEventListener("message", function (event) {
-                 console.log(event);
-                 if (event.data.type === "a-plus-refresh-stats") {
-                     $.ajax(window.location.href, {dataType: "html"})
-                      .done(function(data) {
-                          $(".exercise-summary").empty().append(
-                              $(data).find(".exercise-summary").contents());
-                      });
-                 }
-             });
-        </script>
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
 
-        
+<script>
+	// Add an Ajax exercise event listener to refresh the summary.
+		window.addEventListener("message", function (event) {
+			console.log(event);
+			if (event.data.type === "a-plus-refresh-stats") {
+				$.ajax(window.location.href, {dataType: "html"})
+				.done(function(data) {
+					$(".exercise-summary").empty().append(
+						$(data).find(".exercise-summary").contents());
+				});
+			}
+		});
+</script>
+{{ page.head|safe }}
 
-        {{ page.head|safe }}
-    </head>
-    <body>
-        <div id="exercise-all">
-            <div class="panel-group">
-                <div class="panel panel-primary module-panel">
-                    <div class="panel-heading collapsed" data-toggle="collapse" data-target="#wrap-exercise-{{exercise.id}}"
-                    aria-expanded="false">
-                        <h4 class="panel-title">
-                            {% points_badge summary "pull-right" %}
-                            <span class="caret" aria-hidden="true"></span>
-                            {{exercise.name}}
-                        </h4>
-                    </div>
-                    <div id="wrap-exercise-{{exercise.id}}" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <div id="exercise-{{exercise.id}}" class="overlay-parent">
-                                {% if issues and not submission_allowed %}
-                                    {% include 'exercise/_warnings_overlay.html' %}
-                                {% endif %}
-                
-                                {% if exercisecollection %}
-                                    {% include 'exercise/_exercisecollection.html' %}
-                
-                                {% elif exercise.is_submittable %}
-                                    <nav class="exercise-summary navbar navbar-default">
-                                        <ul class="nav navbar-nav exercise-nav">
-                                            <li>
-                                                <a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
-                                                    {% if not exercise.category.confirm_the_level %}
-                                                        {% trans "Points" %}
-                                                    {% endif %}
-                                                    {% points_badge summary %}
-                                                </a>
-                                            </li>
-                                            <li class="dropdown">
-                                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                                    {% trans "My submissions" %}
-                                                    <span class="badge">
-                                                        {{ summary.get_submission_count }}
-                                                        {% if exercise.max_submissions %}
-                                                            / {{ exercise|max_submissions:profile }}
-                                                        {% endif %}
-                                                    </span>
-                                                    <b class="caret"></b>
-                                                </a>
-                                                <ul class="dropdown-menu">
-                                                    {% for submission in submissions %}
-                                                        <li>
-                                                            <a href="{{ submission|url:'submission-plain' }}">
-                                                                {{ forloop.revcounter }}.
-                                                                {{ submission.submission_time }}
-                                                                {% points_badge submission %}
-                                                            </a>
-                                                        </li>
-                                                    {% empty %}
-                                                        <li>
-                                                            <a href="#">{% trans "No submissions yet" %}</a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </li>
-                                            {% if not exercise.category.confirm_the_level %}
-                                                <li class="navbar-text">
-                                                    {% if not exercise.is_closed %}
-                                                        <small>
-                                                            {% if exercise.points_to_pass > 0 %}
-                                                            {% blocktrans with points=exercise.points_to_pass %}
-                                                                {{ points }} points required to pass.
-                                                            {% endblocktrans %}
-                                                            {% endif %}
-                                                            {% if exercise.is_late_submission_open %}
-                                                                {% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
-                                                                {% if module.late_submission_penalty > 0 %}
-                                                                (-{{ module.late_submission_penalty|percent }}%)
-                                                                {% endif %}
-                                                            {% else %}
-                                                                {% trans "Deadline" %}
-                                                                {{ module.closing_time }}
-                                                            {% endif %}
-                                                        </small>
-                                                    {% endif %}
-                                                </li>
-                                            {% endif %}
-                                        </ul>
-                                        {% if is_course_staff or is_student and exercise.can_show_model_solutions %}
-                                            {% comment %} The model solution link is shown even if the student can not
-                                            open it due to personal extensions. However, this saves some database queries.
-                                            {% endcomment %}
-                                            {% if exercise.model_answers %}
-                                                <a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-model' }}">
-                                                    <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                                                    {% trans "Show model answer" %}
-                                                </a>
-                                            {% endif %}
-                                        {% endif %}
-                                        {% if is_course_staff or is_student %}
-                                            {% if exercise.templates %}
-                                                <a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-template' }}">
-                                                    <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                                                    {% trans "Show exercise template" %}
-                                                </a>
-                                            {% endif %}
-                                        {% endif %}
-                                        {% if is_course_staff %}
-                                            <a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'submission-list' }}">
-                                                <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                                                {% trans "View all submissions" %}
-                                            </a>
-                                        {% endif %}
-                                    </nav>
-                                {% endif %}
-                
-                                <div
-                                    class="exercise-response"
-                                    data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"
-                                    {% if summary.get_submission_count > 0 %}
-                                        data-aplus-group-fixed="{{ summary.get_group_id }}"
-                                    {% endif %}
-                                    {% if disable_submit %}
-                                        data-aplus-disable-submit="true"
-                                    {% endif %}
-                                >
-                                    {% include "_messages.html" %}
-                                    <div>
-                                        {% if page.content.strip %}
-                                            {{ page.content|safe }}
-                                        {% elif submission and submission.status == "waiting" %}
-                                            <div class="alert alert-info">
-                                                {% trans "Your submission has been accepted for grading." %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    {% include "exercise/_exercise_wait.html" %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
+</head>
+
+<body>
+<div id="exercise-all" class="panel-group">
+	<div class="panel panel-primary module-panel">
+		<div class="panel-heading collapsed" data-toggle="collapse" data-target="#wrap-exercise-{{exercise.id}}"
+		aria-expanded="false">
+			<h4 class="panel-title">
+				{% points_badge summary "pull-right" %}
+				<span class="caret" aria-hidden="true"></span>
+				{{exercise.name}}
+			</h4>
+		</div>
+
+		<div id="wrap-exercise-{{exercise.id}}" class="panel-collapse collapse">
+			<div class="panel-body">
+				<div id="exercise-{{exercise.id}}" class="overlay-parent">
+					{% if issues and not submission_allowed %}
+						{% include 'exercise/_warnings_overlay.html' %}
+					{% endif %}
+	
+					{% if exercisecollection %}
+						{% include 'exercise/_exercisecollection.html' %}
+					{% elif exercise.is_submittable %}
+						<nav class="exercise-summary navbar navbar-default">
+							<ul class="nav navbar-nav exercise-nav">
+								<li>
+									<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
+										{% if not exercise.category.confirm_the_level %}
+											{% trans "Points" %}
+										{% endif %}
+										{% points_badge summary %}
+									</a>
+								</li>
+								<li class="dropdown">
+									<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+										{% trans "My submissions" %}
+										<span class="badge">
+											{{ summary.get_submission_count }}
+											{% if exercise.max_submissions %}
+												/ {{ exercise|max_submissions:profile }}
+											{% endif %}
+										</span>
+										<b class="caret"></b>
+									</a>
+									<ul class="dropdown-menu">
+										{% for submission in submissions %}
+											<li>
+												<a href="{{ submission|url:'submission-plain' }}">
+													{{ forloop.revcounter }}.
+													{{ submission.submission_time }}
+													{% points_badge submission %}
+												</a>
+											</li>
+										{% empty %}
+											<li>
+												<a href="#">{% trans "No submissions yet" %}</a>
+											</li>
+										{% endfor %}
+									</ul>
+								</li>
+								{% if not exercise.category.confirm_the_level %}
+									<li class="navbar-text">
+										{% if not exercise.is_closed %}
+											<small>
+												{% if exercise.points_to_pass > 0 %}
+												{% blocktrans with points=exercise.points_to_pass %}
+													{{ points }} points required to pass.
+												{% endblocktrans %}
+												{% endif %}
+												{% if exercise.is_late_submission_open %}
+													{% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
+													{% if module.late_submission_penalty > 0 %}
+													(-{{ module.late_submission_penalty|percent }}%)
+													{% endif %}
+												{% else %}
+													{% trans "Deadline" %}
+													{{ module.closing_time }}
+												{% endif %}
+											</small>
+										{% endif %}
+									</li>
+								{% endif %}
+							</ul>
+							{% if is_course_staff or is_student and exercise.can_show_model_solutions %}
+								{% comment %} The model solution link is shown even if the student can not
+								open it due to personal extensions. However, this saves some database queries.
+								{% endcomment %}
+								{% if exercise.model_answers %}
+									<a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-model' }}">
+										<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+										{% trans "Show model answer" %}
+									</a>
+								{% endif %}
+							{% endif %}
+							{% if is_course_staff or is_student %}
+								{% if exercise.templates %}
+									<a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'exercise-template' }}">
+										<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+										{% trans "Show exercise template" %}
+									</a>
+								{% endif %}
+							{% endif %}
+							{% if is_course_staff %}
+								<a class="btn btn-default btn-xs page-modal" href="{{ exercise|url:'submission-list' }}">
+									<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+									{% trans "View all submissions" %}
+								</a>
+							{% endif %}
+						</nav>
+					{% endif %}
+	
+					<div
+						class="exercise-response"
+						data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"
+						{% if summary.get_submission_count > 0 %}
+							data-aplus-group-fixed="{{ summary.get_group_id }}"
+						{% endif %}
+						{% if disable_submit %}
+							data-aplus-disable-submit="true"
+						{% endif %}
+					>
+						{% include "_messages.html" %}
+						<div>
+							{% if page.content.strip %}
+								{{ page.content|safe }}
+							{% elif submission and submission.status == "waiting" %}
+								<div class="alert alert-info">
+									{% trans "Your submission has been accepted for grading." %}
+								</div>
+							{% endif %}
+						</div>
+						{% include "exercise/_exercise_wait.html" %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
 </html>

@@ -7,14 +7,13 @@ from userprofile.models import UserProfile
 
 # Create your models here.
 
-
 class ExamSessionManager(models.Manager):
+
     def get_queryset(self):
         initial_queryset = super().get_queryset()
-        # queryset = [q for q in initial_queryset if (q.can_start <= timezone.now() and timezone.now() <= q.can_start + timezone.timedelta(q.duration))]
-
         queryset = [q for q in initial_queryset if (
             q.can_start <= timezone.now())]
+
         return queryset
 
     def is_active(self):
@@ -22,7 +21,6 @@ class ExamSessionManager(models.Manager):
         queryset = [q for q in initial_queryset if (q.can_start <= timezone.now(
         ) and (timezone.now() <= q.can_start + timezone.timedelta(hours=q.duration)))]
 
-        #queryset = [q for q in initial_queryset if (q.can_start <= timezone.now())]
         return queryset
 
 
@@ -55,7 +53,6 @@ class ExamSession(models.Model):
             student=user.userprofile,
             exam_started=timezone.now()
         )
-        #attempt.full_clean()
         attempt.save()
 
         user.userprofile.active_exam = attempt

@@ -16,27 +16,31 @@
 <h3>Add new exam session</h3>
 
 <form method="post">
-    {% csrf_token %}
-    <ul class="list-unstyled">
-        {{ add_form.as_ul }}
-    </ul>
-    <input class="btn btn-primary" name="add" type="submit" value="Submit"/>
+	{% csrf_token %}
+	<ul class="list-unstyled">
+		{{ add_form.as_ul }}
+	</ul>
+	<input class="btn btn-primary" name="add" type="submit" value="Submit"/>
 </form>
 
 <br style="line-height: 5;">
 
 <ul class="list-group">
-    {% for exam_session in exam_sessions %}
-        <li class="list-group-item">
-            {{exam_session.course_instance.course}}
-            {{exam_session.can_start}}
-            <a class="btn btn-warning" 
-               href="{% url 'edit-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
-            Edit</a>
-            <a class="btn btn-danger" 
-               href="{% url 'delete-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
-            Delete</a>
-        </li>
+	{% for exam_session in exam_sessions %}
+	<li class="list-group-item">
+		{{exam_session.course_instance.course}}
+		{{exam_session.can_start}}
+		<a 	
+			class="btn btn-warning" 
+			href="{% url 'edit-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
+			Edit
+		</a>
+		<a
+			class="btn btn-danger" 
+			href="{% url 'delete-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
+			Delete
+		</a>
+	</li>
     {% endfor %}
 </ul>
 
