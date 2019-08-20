@@ -149,11 +149,11 @@ class CachedPointsTest(CourseTestCase):
         self.assertTrue(entry['passed'])
         self.assertEqual(entry['points'], 50)
         total = p.total()
-        self.assertEqual(total['submission_count'], 2)
+        self.assertEqual(total['submission_count'], 1)
         self.assertEqual(total['points'], 50)
         self.assertEqual(total['points_by_difficulty'].get('',0), 50)
         module = p.modules()[1]
-        self.assertEqual(module['submission_count'], 2)
+        self.assertEqual(module['submission_count'], 1)
         self.assertEqual(module['points'], 50)
         self.assertEqual(module['points_by_difficulty'].get('',0), 50)
         self.assertFalse(module['passed'])
@@ -164,14 +164,18 @@ class CachedPointsTest(CourseTestCase):
         self.submission2.save()
         p = CachedPoints(self.instance, self.student, c)
         total = p.total()
+        self.assertEqual(total['submission_count'], 2)
         self.assertEqual(total['points'], 100)
+        self.assertEqual(total['points_by_difficulty'].get('',0), 100)
 
         self.submission3.set_points(10,100)
         self.submission3.set_ready()
         self.submission3.save()
         p = CachedPoints(self.instance, self.student, c)
         total = p.total()
+        self.assertEqual(total['submission_count'], 3)
         self.assertEqual(total['points'], 110)
+        self.assertEqual(total['points_by_difficulty'].get('',0), 110)
         module = p.modules()[1]
         self.assertTrue(module['passed'])
 
