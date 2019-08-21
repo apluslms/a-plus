@@ -7,6 +7,7 @@ from userprofile.models import UserProfile
 
 # Create your models here.
 
+
 class ExamSessionManager(models.Manager):
 
     def get_queryset(self):
@@ -64,7 +65,7 @@ class ExamSession(models.Model):
 
         module_url = self.exam_module.url
         if learning_objects:
-            module_url +=  "/" + learning_objects[0].url
+            module_url += "/" + learning_objects[0].url
 
         redirect_url = (
             self.course_instance.course.url + "/"
