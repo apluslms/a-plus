@@ -56,7 +56,7 @@ $(function() {
             var filterRow = $('<tr class="tableexport-ignore"></tr>');
             for (var i = 0; i < columnCount; i++) {
                 this.filters.push('');
-                var filterInput = 
+                var filterInput =
                     $('<input type="text" data-column="' + i + '">')
                     .on('keyup', filterDelay).on('change', filterDelay);
 
@@ -193,7 +193,7 @@ $(function() {
                         const parsedQuery = self.filters[i][1]
                         const origQuery = self.filters[i][2];
                         const isDate = self.filters[i][3];
-                        const tdData = isDate ? 
+                        const tdData = isDate ?
                             $(this).data("datetime")
                             : $(this).text().trim();
                         if (
@@ -210,6 +210,15 @@ $(function() {
                     });
                     return pass;
                 }).show();
+
+            // Add #selected-number to e.g. span tag to get count of rows after filter
+            var visibleRows = this.element.
+                find('tbody').
+                find('tr:visible').
+                not('.no-filtering').length;
+            if ($("#selected-number").length) {
+                $("#selected-number").text(visibleRows);
+            }
         },
     });
 
