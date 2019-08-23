@@ -157,6 +157,7 @@
         dataValues.forEach(function(value) {
             sumValue += value[0];
         });
+        sumValue = Number.isInteger(sumValue) ? sumValue : sumValue.toFixed(2);
 
         // Empty data cells for total and tags in data indicators
         if (dataValues && dataValues.length > 0) {
@@ -176,7 +177,8 @@
 
         // Normal and percentage values on seperate rows in data indicators
         dataValues.forEach(function(value) {
-            normalValuesHtml += '<td class="indi-normal-val">' + value[0] + '</td>';
+            let normalValue = Number.isInteger(value[0]) ? value[0] : value[0].toFixed(2);
+            normalValuesHtml += '<td class="indi-normal-val">' + normalValue + '</td>';
             pctValuesHtml += '<td class="indi-pct-val">' + value[1].toFixed(2) + '%</td>';
         });
 
@@ -601,7 +603,11 @@
         $("#table-body").append(htmlTableIndicators);
         $("#table-body").append(htmlTablePoints);
         $(".colortag-active").css("margin-right", "5px");
-        $("#student-count").append(" (" + $(".student-id").length + " / " + _students.count + _(" students selected") + ")");
+        $("#student-count").append(
+            ' (<span id="selected-number">' + filteredStudentPool.length + '</span> / '
+            + '<span id="participants-number">'+ _students.count + '</span>'
+            + _(' students selected') + ')'
+        );
         tableExportVar.reset();
         $('#table-points').find("caption").remove(); // Remove the recreated TableExport buttons (they are already in dropdown)
         $('.filtered-table').aplusTableFilter();
