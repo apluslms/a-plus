@@ -37,10 +37,7 @@ class CachedCourseMenu(CachedAbstract):
                 'url': url,
                 'blank': bool(menu.service),
             }
-
-            group = menu.menu_group_label
-            if group is None:
-                group = "" if menu.access > MenuItem.ACCESS.STUDENT else _("External")
+            group = menu.menu_group_label or ""
 
             if menu.access > MenuItem.ACCESS.STUDENT:
                 append_to_group(staff_groups, staff_order, group, entry)
