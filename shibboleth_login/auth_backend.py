@@ -122,7 +122,12 @@ class ShibbolethAuthBackend(ModelBackend):
                 env_settings.STUDENT_IDS,
                 filters=sid_filters)
         except KeyError as error:
-            logger.error(error)
+            logger.warning("Did not find a student id for user '%s', missing field '%s'",
+                username, error)
+            student_ids = ()
+        except ValueError as error:
+            logger.warning("Did not find a student id for user '%s', invalid data: %s",
+                username, error)
             student_ids = ()
         # example: ('123456', 'aalto.fi', 'studentID', 'int', 'mace:terena.org')
         # -> (value (student number), the domain, id type, int|local, schema namespace)
