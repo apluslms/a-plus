@@ -625,6 +625,7 @@ class CourseHook(models.Model):
 
     def trigger(self, data):
         logger = logging.getLogger('aplus.hooks')
+        url, data = url_with_query_in_data(self.hook_url, data)
         try:
             urllib.request.urlopen(
                 url,
@@ -633,9 +634,10 @@ class CourseHook(models.Model):
             )
             logger.info("%s posted to %s on %s with %s",
                         self.hook_type, self.hook_url, self.course_instance, data)
-        except:
-            logger.error("HTTP POST failed on %s hook to %s (%s)",
-                         self.hook_type, self.hook_url, self.course_instance)
+        except Exception as error:
+            logger.error("HTTP POST failed on %s hook to %s (%s); %s: %s",
+                         self.hook_type, self.hook_url, self.course_instance,
+                         error.__class__.__name__, error)
 
 
 class CourseModuleManager(models.Manager):
