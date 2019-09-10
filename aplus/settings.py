@@ -210,6 +210,8 @@ FILE_UPLOAD_HANDLERS = (
     #"django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 )
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10000000
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 WSGI_APPLICATION = 'aplus.wsgi.application'
 
