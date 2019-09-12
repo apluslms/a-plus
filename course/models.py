@@ -205,10 +205,13 @@ class UserTag(UrlMixin, ColorTag):
 
     def is_valid_slug(self, slug_candidate):
         assert self.course_instance
-        return slug_candidate != '' and not UserTag.objects.filter(
-            course_instance=self.course_instance,
-            slug=slug_candidate,
-        ).exists()
+        if not slug_candidate:
+            return False
+        qs = self.__class__.objects.filter(
+            course_instance=self.course_instance, slug=slug_candidate)
+        if self.pk is not None:
+            qs = qs.exclude(pk=self.pk)
+        return not qs.exists()
 
 
 class HardcodedUserTag(UserTag):
