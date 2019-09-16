@@ -100,12 +100,13 @@ class CourseUsertagsViewSet(NestedViewSetMixin,
     queryset = UserTag.objects.all()
     parent_lookup_map = {'course_id': 'course_instance_id'}
 
-    def filter_queryset(self, queryset):
-        queryset = super().filter_queryset(queryset)
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
         tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
         tags.extend(queryset.all())
-        return tags
-   
+        serializer = self.get_serializer(tags, many=True)
+        return Response(serializer.data)
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({ 'course_id': self.kwargs['course_id'] })
