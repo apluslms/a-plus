@@ -27,7 +27,11 @@
             jqXHR.done(function (data) {
               const tag = tags.find(function (tag) {
                 return tag.id === data.tag.id; });
-              $container.find('.dropdown').before(django_colortag_label(tag), ' ');
+              // This callback may be called for multiple taggings (because
+              // the same tag may be added to multiple students at once), hence
+              // the tag must be added to the right container in the DOM.
+              $('.usertags-container[data-user-id="' + data.user.id + '"]')
+                .find('.dropdown').before(django_colortag_label(tag), ' ');
               if (typeof extra_click_handler === 'function') {
                  extra_click_handler(data);
               }

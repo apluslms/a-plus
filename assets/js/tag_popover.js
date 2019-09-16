@@ -9,6 +9,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
   const colortag_buttons = function (elem) {
     const $elem = $(elem);
     const tag_id = parseInt($elem.attr('data-tagid'), 10);
+    const tag_slug = $elem.attr('data-tagslug');
     const user_id = parseInt(
       $elem.parents('[data-user-id]').attr('data-user-id'), 10
     );
@@ -17,7 +18,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
     // seamlessly on both the participants list page and other pages
     const participants_ = participants ? participants : [{
       user_id: user_id,
-      tag_ids: [tag_id],
+      tag_slugs: [tag_slug],
     }];
 
     const filter_button = {
@@ -25,7 +26,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
       classes: 'btn-default btn-xs',
       text: _('Toggle filtering by tag'),
       onclick: function () {
-        $('.filter-users button[data-id="' + tag_id + '"]').trigger('click');
+        $('.filter-users button[data-tagslug="' + tag_slug + '"]').trigger('click');
         return false;
       },
     };
@@ -55,14 +56,14 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
                 url: this_tagging.url,
               }).done(function () {
                 $('[data-user-id="' + user_id + '"] ' +
-                  '.colortag[data-tagid="' + tag_id +'"]'
+                  '.colortag[data-tagslug="' + tag_slug +'"]'
                 ).remove();
-                // Remove tag from tag_ids
-                const tag_ids = participants_
+                // Remove tag from tag_slugs
+                const tag_slugs = participants_
                   .find(function (p) { return p.user_id === user_id; })
-                  .tag_ids;
-                tag_ids.splice(
-                  tag_ids.findIndex(function (t) {return t === tag_id}),
+                  .tag_slugs;
+                tag_slugs.splice(
+                  tag_slugs.findIndex(function (t) {return t === tag_slug}),
                   1
                 );
               });

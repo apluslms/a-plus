@@ -29,7 +29,7 @@ function participants_list(participants, api_url, is_teacher) {
       // Append tag id to participant's tag_ids
       participants
         .find(function (p) { return p.user_id === data.user.id; })
-        .tag_ids.push(data.tag.id);
+        .tag_slugs.push(data.tag.slug);
     }
   }
 
