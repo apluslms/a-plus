@@ -104,6 +104,10 @@ class CourseUsertagsViewSet(NestedViewSetMixin,
         queryset = self.filter_queryset(self.get_queryset())
         tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
         tags.extend(queryset.all())
+        page = self.paginate_queryset(tags)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(tags, many=True)
         return Response(serializer.data)
 
