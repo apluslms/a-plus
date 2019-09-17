@@ -7,6 +7,7 @@ from ..models import (
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
     Enrollment,
+    UserTag,
     UserTagging,
 )
 
@@ -34,6 +35,16 @@ def invalidate_student(sender, instance: UserTagging, **kwargs):
         instance.course_instance,
         instance.user.user) # NOTE: userprofile.user
 
-
 post_save.connect(invalidate_student, sender=UserTagging)
 post_delete.connect(invalidate_student, sender=UserTagging)
+
+
+def invalidate_students(sender, instance: UserTag, **kwargs):
+    course = instance.course_instance
+    for student in course.students.all():
+        CachedStudent.invalidate(
+            course,
+            student.user)
+
+post_save.connect(invalidate_students, sender=UserTag)
+post_delete.connect(invalidate_students, sender=UserTag)
