@@ -22,7 +22,7 @@
             $container.append($elem);
         },
         function (jqXHRs, tags_xhr) { tags_xhr.done(function (data_tags) {
-          const tags = data_tags.results;
+          const tags = data_tags.results; //FIXME course tags might be paginated and this only reads the first page
           jqXHRs.forEach(function (jqXHR) {
             jqXHR.done(function (data) {
               const tag = tags.find(function (tag) {

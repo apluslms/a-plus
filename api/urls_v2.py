@@ -1,3 +1,5 @@
+import copy
+
 from django.conf import settings
 from django.conf.urls import url, include
 from rest_framework_extensions.routers import ExtendedDefaultRouter
@@ -9,7 +11,16 @@ import exercise.api.csv.views
 import external_services.api.views
 
 
-api = ExtendedDefaultRouter()
+class AplusRouter(ExtendedDefaultRouter):
+    routes = copy.deepcopy(ExtendedDefaultRouter.routes)
+    # Add DELETE to list routes. Enabled if there is method `destroy_many` in the viewset.
+    # This could break if the super class definition in the framework is modified.
+    # We have to assume that the first route in routes is the list route.
+    # The framework does not map the DELETE method for it at all, so we do it here.
+    routes[0].mapping['delete'] = 'destroy_many'
+
+
+api = AplusRouter()
 
 api.register(r'users',
              userprofile.api.views.UserViewSet,
