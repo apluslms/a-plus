@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, viewsets, status, mixins
+from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
@@ -153,3 +154,27 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         if user_id is not None:
             queryset = queryset.filter(user__user__id=user_id)
         return queryset
+
+    def destroy_many(self, request, **kwargs):
+        '''Destroy taggings based on GET query parameters.
+
+        The detail view requires the ID of the tagging, but this method can
+        search for the tagging with other parameters.
+        '''
+        filter_args = {}
+        tag_id = self.request.GET.get('tag_id')
+        if tag_id:
+            filter_args['tag__id'] = tag_id
+        else:
+            tag_slug = self.request.GET.get('tag_slug')
+            if not tag_slug:
+                raise ParseError(detail='Either "tag_id" or "tag_slug" query parameter must be supplied.')
+            filter_args['tag__slug'] = tag_slug
+        user_ids = self.request.GET.getlist('user_id')
+        if not user_ids:
+            raise ParseError(detail='One or more user IDs must be supplied with the "user_id" query parameter.')
+        filter_args['user__user__id__in'] = user_ids
+
+        self.get_queryset().filter(**filter_args).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
