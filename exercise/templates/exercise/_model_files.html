@@ -11,7 +11,7 @@
 		{% endif %}
 	{% else %}
 		<h4>{{ entry.name|parse_localization }}</h4>
-		<p class="alert alert-warning">{% trans "File not found." %}</p>
+		<p class="alert alert-warning">{% trans "File not found" %}</p>
 	{% endif %}
 {% empty %}
 	{% trans "No model answer has been supplied for this exercise." %}

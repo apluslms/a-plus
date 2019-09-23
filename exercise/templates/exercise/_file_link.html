@@ -1,6 +1,14 @@
 {% load i18n %}
-<a href="{{ file.get_absolute_url }}"{% if not file.is_passed %} class="file-modal"{% endif %} target="_blank">{{ file.filename }}</a>
-<a href="{{ file.get_absolute_url }}?download=yes" class="btn btn-default btn-xs" title="{% trans Download %}">
-    <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-    {{ file.file_object.size|filesizeformat }}
-</a>
+{% if file.exists %}
+	<a href="{{ file.get_absolute_url }}"{% if not file.is_passed %} class="file-modal"{% endif %} target="_blank">{{ file.filename }}</a>
+	<a href="{{ file.get_absolute_url }}?download=yes" class="btn btn-default btn-xs" title="{% trans Download %}">
+		<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+		{{ file.file_object.size|filesizeformat }}
+	</a>
+{% else %}
+    <span>{{ file.filename }}</span>
+	<span class="btn btn-default btn-xs">
+		<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+		{% trans "File not found" %}
+	</a>
+{% endif %}

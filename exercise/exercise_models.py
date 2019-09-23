@@ -691,9 +691,14 @@ class BaseExercise(LearningObject):
             language, request, submission.submitters.all(),
             submission.ordinal_number(), url_name, submission_url
         )
-        return load_feedback_page(
-            request, url, self, submission, no_penalties=no_penalties
-        )
+        try:
+            return load_feedback_page(
+                request, url, self, submission, no_penalties=no_penalties
+            )
+        except OSError as error:
+            messages.error(request, "Unable to grade the submission. %s: %s" % (
+                error.__class__.__name__, error))
+            return None
 
     def modify_post_parameters(self, data, files, user, students, request, url):
         """

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-12 15:05+0300\n"
+"POT-Creation-Date: 2019-09-23 18:26+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1844,30 +1844,30 @@ msgstr ""
 "Tehtävää ei voitu palauttaa tuntemattomasta syystä. Jos uskot tämän olevan "
 "virhe, ota ystävällisesti yhteyttä kurssihenkilökuntaan."
 
-#: exercise/exercise_models.py:760
+#: exercise/exercise_models.py:765
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:762
+#: exercise/exercise_models.py:767
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:764
+#: exercise/exercise_models.py:769
 msgid "Default: the menu label of the LTI service"
 msgstr "Oletus: LTI-palvelun nimi"
 
-#: exercise/exercise_models.py:766
+#: exercise/exercise_models.py:771
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:768
+#: exercise/exercise_models.py:773
 msgid ""
 "Open the exercise in an iframe inside the A+ page instead of a new window."
 msgstr "Avaa tehtävä iframe-kehyksessä A+-sivun sisällä uuden ikkunan sijasta."
 
-#: exercise/exercise_models.py:785
+#: exercise/exercise_models.py:790
 msgid ""
 "Domain of Service URL must match the domain of LTI Service or it should only "
 "be the path."
@@ -1875,14 +1875,14 @@ msgstr ""
 "Palveluosoitteen domainin täytyy vastata LTI-palvelun domainia tai osoitteen "
 "tulee olla vain polku."
 
-#: exercise/exercise_models.py:792
+#: exercise/exercise_models.py:797
 msgid ""
 "The exercise can not be loaded because the external LTI service has been "
 "disabled."
 msgstr ""
 "Tehtävää ei voi ladata, koska ulkoinen LTI-palvelu on poistettu käytöstä."
 
-#: exercise/exercise_models.py:924
+#: exercise/exercise_models.py:929
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -2118,9 +2118,10 @@ msgstr "Yhteispisteet"
 msgid "Score on this course"
 msgstr "Pisteet tällä kurssilla"
 
+#: exercise/templates/exercise/_file_link.html:12
 #: exercise/templates/exercise/_model_files.html:14
-msgid "File not found."
-msgstr "Tiedostoa ei löytynyt."
+msgid "File not found"
+msgstr "Tiedostoa ei löytynyt"
 
 #: exercise/templates/exercise/_model_files.html:17
 msgid "No model answer has been supplied for this exercise."

@@ -343,6 +343,13 @@ class SubmittedFile(UrlMixin, models.Model):
         """
         return os.path.basename(self.file_object.path)
 
+    @property
+    def exists(self):
+        try:
+            return bool(self.file_object.size)
+        except OSError:
+            return False
+
     def get_mime(self):
         return guess_type(self.file_object.path)[0]
 
@@ -364,5 +371,5 @@ def _delete_file(sender, instance, **kwargs):
     Deletes the actual submission files after the submission in database is
     removed.
     """
-    default_storage.delete(instance.file_object.path)
+    instance.file_object.delete(save=False)
 post_delete.connect(_delete_file, SubmittedFile)

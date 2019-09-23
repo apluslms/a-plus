@@ -316,7 +316,11 @@ class SubmissionFileViewSet(NestedViewSetMixin,
 
     def retrieve(self, request, version=None, submission_id=None, submittedfile_id=None):
         sfile = self.get_object()
-        f = open(sfile.file_object.path, 'rb')
+        try:
+            f = sfile.file_object.open()
+        except OSError:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         response = HttpResponse(FileWrapper(f), content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename="{}"'.format(sfile.filename)
         return response

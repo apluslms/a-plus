@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
-from django.http.response import Http404, HttpResponse
+from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -346,8 +346,11 @@ class SubmittedFileView(SubmissionMixin, BaseView):
             raise Http404()
 
     def get(self, request, *args, **kwargs):
-        with open(self.file.file_object.path, "rb") as f:
-            bytedata = f.read()
+        try:
+            with self.file.file_object.open() as f:
+                bytedata = f.read()
+        except OSError:
+            return HttpResponseNotFound()
 
         # Download the file.
         if request.GET.get("download", False):
