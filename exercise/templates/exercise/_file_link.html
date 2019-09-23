@@ -6,9 +6,9 @@
 		{{ file.file_object.size|filesizeformat }}
 	</a>
 {% else %}
-    <span>{{ file.filename }}</span>
+	<span>{{ file.filename }}</span>
 	<span class="btn btn-default btn-xs">
 		<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
 		{% trans "File not found" %}
-	</a>
+	</span>
 {% endif %}
