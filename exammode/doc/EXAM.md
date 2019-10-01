@@ -14,7 +14,30 @@ Table of contents
 Exammode app
 ------------
 
-The exammode app is the bread and butter of the designed electrical exam system.
+The exammode app is the bread and butter of the designed electrical exam system. 
+
+An exam session is the basic unit for the system and all  features of the system are linked to one session and can be accessed by viewing that session. These features are
+
+For students:
+
+* See exam dates and locations
+* Request translation of  exam
+* Request accelerated grading and reporting of results
+* See feedback for the exam
+* Request additional information on grading
+
+For teachers:
+
+* Manage exam sessions
+* Grade exams and API to other grading services
+* Set grade boundaries
+* Manage student requests
+
+For detailed description of what requirements each feature should meet, check [use cases](UseCases.md)
+
+The overall design of the system is based on a process that is depicted in following service blueprints.
+
+![alt text](blueprint_teachers.png)
 
 ### Models
 
