@@ -17,7 +17,9 @@ from lib.remote_page import format_lazy
 from userprofile.models import UserProfile
 
 
-def parse_date(value, errors):
+def parse_date(value, errors, allow_null=False):
+    if allow_null and value is None:
+        return None
     for fmt in ['%Y-%m-%dT%H:%M:%SZ','%Y-%m-%dT%H:%M:%S','%Y-%m-%d %H:%M:%S',
         '%Y-%m-%d %H:%M','%Y-%m-%d %H','%Y-%m-%d']:
         try:
@@ -315,21 +317,13 @@ def configure_content(instance, url):
         if dt:
             instance.ending_time = dt
     if "enrollment_start" in config:
-        dt = parse_date(config["enrollment_start"], errors)
-        if dt:
-            instance.enrollment_starting_time = dt
+        instance.enrollment_starting_time = parse_date(config["enrollment_start"], errors, allow_null=True)
     if "enrollment_end" in config:
-        dt = parse_date(config["enrollment_end"], errors)
-        if dt:
-            instance.enrollment_ending_time = dt
+        instance.enrollment_ending_time = parse_date(config["enrollment_end"], errors, allow_null=True)
     if "lifesupport_time" in config:
-        dt = parse_date(config["lifesupport_time"], errors)
-        if dt:
-            instance.lifesupport_time = dt
+        instance.lifesupport_time = parse_date(config["lifesupport_time"], errors, allow_null=True)
     if "archive_time" in config:
-        dt = parse_date(config["archive_time"], errors)
-        if dt:
-            instance.archive_time = dt
+        instance.archive_time = parse_date(config["archive_time"], errors, allow_null=True)
     if "enrollment_audience" in config:
         enroll_audience = parse_choices(config["enrollment_audience"], {
                 'internal': CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
