@@ -108,10 +108,15 @@
 		});
 	};
 
-  $.aplusExerciseDetectWaits = function(callback, selector) {
-    selector = selector || ".exercise-wait";
-    $(selector).aplusExercisePoll(callback);
-  };
+	$.aplusExerciseDetectWaits = function(callback, selector) {
+		selector = selector || ".exercise-wait";
+		const $selector = $(selector);
+		if ($selector.length) {
+			$selector.aplusExercisePoll(callback);
+			return true;
+		}
+		return false;
+	};
 
 })(jQuery, window, document);
 
