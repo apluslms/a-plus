@@ -39,6 +39,8 @@ The overall design of the system is based on a process that is depicted in follo
 
 ![alt text](blueprint_teachers.png)
 
+![alt text](exam_room_process.png)
+
 ### Models
 
 * ExamSession
