@@ -135,8 +135,9 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
     queryset = ( UserTagging.objects
                  .select_related('tag', 'user', 'user__user')
                  .only('tag__id', 'tag__course_instance', 'tag__name', 'tag__slug',
-                       'user__user__id', 'user__user__username', 'user__student_id',
+                       'user__user__id', 'user__user__email', 'user__user__username', 'user__student_id',
                        'course_instance__id')
+                 .order_by('user__user__id')
                  .all() )
     parent_lookup_map = {'course_id': 'course_instance_id'}
 
