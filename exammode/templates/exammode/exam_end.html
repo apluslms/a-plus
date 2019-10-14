@@ -1,0 +1,19 @@
+{% extends "exammode/base.html" %}
+{% load course %}
+{% load static %}
+
+{% block content %}
+<div class="text-center">
+    <p>
+        Please confirm that you have answered to all required questions before finsihing the exam. You won't be able to
+        edit your submissions after finishing the exam.
+        <br>You can go back to the exam with the back button.
+    </p>
+
+    <h1>{{examsession.course_instance.course}}</h1>
+    <form action="" method="post">
+        {% csrf_token %}
+        <input type="submit" name="end-exam" value="Finish exam" class="btn btn-success">
+    </form>
+</div>
+{% endblock content %}

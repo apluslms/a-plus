@@ -34,3 +34,19 @@ class ExamDetailView(generic.DetailView):
         redirect_url = session.start_exam(request.user)
 
         return redirect(redirect_url)
+
+
+class ExamEndView(BaseTemplateView):
+    template_name = "exammode/exam_end.html"
+    access_mode = ACCESS.STUDENT
+
+    def post(self, request, *args, **kwargs):
+        session = request.user.userprofile.active_exam.exam_taken
+        redirect_url = session.end_exam(request.user)
+
+        return redirect(redirect_url)
+
+
+class ExamFinalView(BaseTemplateView):
+    template_name = "exammode/exam_final.html"
+    access_mode = ACCESS.STUDENT
