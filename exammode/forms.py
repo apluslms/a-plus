@@ -1,8 +1,27 @@
-from django.forms import ModelForm
+from datetime import datetime
+
+from django.forms import ModelForm, SplitDateTimeField
 
 from .models import ExamSession
 
+from course.models import CourseModule
+
+
 class ExamSessionForm(ModelForm):
+
+    can_start = SplitDateTimeField(initial=datetime.now())
+    start_time_actual = SplitDateTimeField(initial=datetime.now())
+    may_leave_time = SplitDateTimeField(initial=datetime.now())
+
     class Meta:
         model = ExamSession
-        fields = ['course_instance', 'exam_module', 'can_start', 'start_time_actual', 'may_leave_time', 'duration', 'room']
+        fields = ['course_instance', 'exam_module', 'can_start',
+                  'start_time_actual', 'may_leave_time', 'duration', 'room']
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop('course_instance')
+        super().__init__(*args, **kwargs)
+
+        self.fields['course_instance'].queryset = instance
+        self.fields['exam_module'].queryset = CourseModule.objects.filter(
+            course_instance=instance)

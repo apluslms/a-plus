@@ -87,7 +87,7 @@ class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
     access_mode = ACCESS.GRADING
 
     def post(self, request, *args, **kwargs):
-        deviation,_ = MaxSubmissionsRuleDeviation.objects.get_or_create(
+        deviation, _ = MaxSubmissionsRuleDeviation.objects.get_or_create(
             exercise=self.exercise,
             submitter=self.submission.submitters.first(),
             defaults={'extra_submissions': 0}
@@ -96,7 +96,6 @@ class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
             .filter(id=deviation.id)\
             .update(extra_submissions=(F('extra_submissions') + 1))
         return self.redirect(self.submission.get_inspect_url())
-
 
 
 class AssessSubmissionView(SubmissionMixin, BaseFormView):
@@ -135,7 +134,7 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
             note = feedback
 
         self.submission.set_points(form.cleaned_data["points"],
-            self.exercise.max_points, no_penalties=True)
+                                   self.exercise.max_points, no_penalties=True)
         self.submission.grader = self.profile
         self.submission.assistant_feedback = assistant_feedback
         self.submission.feedback = feedback
@@ -143,16 +142,16 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
         self.submission.save()
 
         #sub = _('Feedback to {name}').format(name=self.exercise)
-        #msg = _('<p>You have new personal feedback to exercise '
+        # msg = _('<p>You have new personal feedback to exercise '
         #        '<a href="{url}">{name}</a>.</p>{message}').format(
         #    url=self.submission.get_absolute_url(),
         #    name=self.exercise,
         #    message=note,
-        #)
+        # )
         Notification.send(self.profile, self.submission)
 
         messages.success(self.request, _("The review was saved successfully "
-            "and the submitters were notified."))
+                                         "and the submitters were notified."))
         return super().form_valid(form)
 
 
@@ -212,17 +211,18 @@ class ExamSessionEdit(UpdateView):
 
     def get_success_url(self):
         redirect_kwargs = {
-            'course_slug': self.kwargs['course_slug'], 
+            'course_slug': self.kwargs['course_slug'],
             'instance_slug': self.kwargs['instance_slug']
         }
         return reverse('exam-management', kwargs=redirect_kwargs)
+
 
 class ExamSessionDelete(DeleteView):
     model = ExamSession
 
     def get_success_url(self):
         redirect_kwargs = {
-            'course_slug': self.kwargs['course_slug'], 
+            'course_slug': self.kwargs['course_slug'],
             'instance_slug': self.kwargs['instance_slug']
         }
         return reverse('exam-management', kwargs=redirect_kwargs)
@@ -235,8 +235,9 @@ class ExamSessionDelete(DeleteView):
             return super(ExamSessionDelete, self).post(request, *args, **kwargs)
 
 
-class ExamManagementView(CourseInstanceBaseView):
+class ExamManagementView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
+    form_class = ExamSessionForm
     template_name = "exammode/staff/exam_management.html"
 
     def get_common_objects(self):
@@ -246,6 +247,11 @@ class ExamManagementView(CourseInstanceBaseView):
         self.note(
             'exam_sessions', 'add_form',
         )
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['course_instance'] = self.instance
+        return kwargs
 
     def post(self, request, *args, **kwargs):
         form = ExamSessionForm(request.POST)
@@ -300,15 +306,15 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
         )
         if not form.is_valid():
             messages.error(request,
-                _("Invalid POST data:\n{error}").format(
-                    error="\n".join(extract_form_errors(form))))
+                           _("Invalid POST data:\n{error}").format(
+                               error="\n".join(extract_form_errors(form))))
             return self.redirect(self.exercise.get_submission_list_url())
 
         sub = Submission.objects.create(exercise=self.exercise)
         sub.submitters.set(form.cleaned_students)
         sub.feedback = form.cleaned_data.get("feedback")
         sub.set_points(form.cleaned_data.get("points"),
-            self.exercise.max_points, no_penalties=True)
+                       self.exercise.max_points, no_penalties=True)
         sub.submission_time = form.cleaned_data.get("submission_time")
         sub.grader = self.profile
         sub.grading_time = timezone.now()

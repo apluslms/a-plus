@@ -75,6 +75,27 @@ class ExamSession(models.Model):
 
         return redirect_url
 
+    def end_exam(self, user):
+        attempt = ExamAttempt.objects.filter(
+            exam_taken=self).filter(student=user.userprofile)[:1].get()
+        attempt.exam_finished = timezone.now()
+        attempt.save()
+
+        user.userprofile.active_exam = None
+        user.userprofile.save()
+
+        learning_objects = LearningObject.objects.filter(
+            course_module__exact=self.exam_module
+        )
+
+        module_url = self.exam_module.url
+        if learning_objects:
+            module_url += "/" + learning_objects[0].url
+
+        redirect_url = ("exam_final_info")
+
+        return redirect_url
+
 
 class ExamAttempt(models.Model):
     exam_taken = models.ForeignKey(ExamSession, on_delete=models.CASCADE)
@@ -92,6 +113,8 @@ class ExamAttempt(models.Model):
     TODO: needs to be changed into actual model of exam which is unimplemented
     """
     exam_version = models.CharField(max_length=255)
+
+    objects = models.Manager()
 
     def __str__(self):
         return " ".join([str(self.exam_taken), str(self.student)])
