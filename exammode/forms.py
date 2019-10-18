@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from django.forms import ModelForm, SplitDateTimeField
+from django.forms import ModelForm, SplitDateTimeField, ModelChoiceField
 
 from .models import ExamSession
 
-from course.models import CourseModule
+from course.models import CourseModule, CourseInstance
 
 
 class ExamSessionForm(ModelForm):
@@ -22,6 +22,7 @@ class ExamSessionForm(ModelForm):
         instance = kwargs.pop('course_instance')
         super().__init__(*args, **kwargs)
 
-        self.fields['course_instance'].queryset = instance
+        self.fields['course_instance'].queryset = CourseInstance.objects.filter(
+            id=instance.id)
         self.fields['exam_module'].queryset = CourseModule.objects.filter(
             course_instance=instance)

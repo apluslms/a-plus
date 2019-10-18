@@ -17,6 +17,7 @@ from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
+    CourseModule,
 )
 from deviations.models import MaxSubmissionsRuleDeviation
 from exammode.forms import ExamSessionForm
@@ -240,18 +241,14 @@ class ExamManagementView(CourseInstanceMixin, BaseFormView):
     form_class = ExamSessionForm
     template_name = "exammode/staff/exam_management.html"
 
-    def get_common_objects(self):
-        super().get_common_objects()
-        self.exam_sessions = list(self.exam_sessions)
-        self.add_form = ExamSessionForm()
-        self.note(
-            'exam_sessions', 'add_form',
-        )
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['course_instance'] = self.instance
         return kwargs
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.exam_sessions = list(self.exam_sessions)
 
     def post(self, request, *args, **kwargs):
         form = ExamSessionForm(request.POST)

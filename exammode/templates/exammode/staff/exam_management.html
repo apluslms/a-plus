@@ -17,10 +17,48 @@
 
 <form method="post">
 	{% csrf_token %}
-	<ul class="list-unstyled">
-		{{ add_form.as_ul }}
-	</ul>
-	<input class="btn btn-primary" name="add" type="submit" value="Submit"/>
+	{{ form.non_field_errors }}
+	<div class="contentDividerExamSession">Content</div>
+	<div class="fieldWrapperExamSession">
+		{{ form.course_instance.errors }}
+		<label for="{{ form.course_instance.id_for_label }}">Course Instance:</label>
+		{{ form.course_instance }}
+	</div>
+	<div class="fieldWrapperExamSession">
+		{{ form.exam_module.errors }}
+		<label for="{{ form.exam_module.id_for_label }}">Exam Module:</label>
+		{{ form.exam_module }}
+	</div>
+	<hr>
+	<div class="contentDividerExamSession">Schedule</div>
+	<div class="fieldWrapperExamSession">
+		{{ form.can_start.errors }}
+		<label for="{{ form.can_start.id_for_label }}">Can start time:</label>
+		{{ form.can_start }}
+	</div>
+	<div class="fieldWrapperExamSession">
+		{{ form.start_time_actual.errors }}
+		<label for="{{ form.start_time_actual.id_for_label }}">Actual start time</label>
+		{{ form.start_time_actual }}
+	</div>
+	<div class="fieldWrapperExamSession">
+		{{ form.may_leave_time.errors }}
+		<label for="{{ form.may_leave_time.id_for_label }}">May leave time</label>
+		{{ form.may_leave_time }}
+	</div>
+	<div class="fieldWrapperExamSession">
+		{{ form.duration.errors }}
+		<label for="{{ form.duration.id_for_label }}">Duration (in hours)</label>
+		{{ form.duration }}
+	</div>
+	<div class="fieldWrapperExamSession">
+		{{ form.room.errors }}
+		<label for="{{ form.room.id_for_label }}">Room</label>
+		{{ form.room }}
+	</div>
+	<hr>
+	<div class="contentDividerExamSession">Visibility</div>
+	<input class="btn btn-primary" name="add" type="submit" value="Submit" />
 </form>
 
 <br style="line-height: 5;">
@@ -30,18 +68,23 @@
 	<li class="list-group-item">
 		{{exam_session.course_instance.course}}
 		{{exam_session.can_start}}
-		<a 	
-			class="btn btn-warning" 
-			href="{% url 'edit-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
+		<a class="btn btn-warning" href="{% url 'edit-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
 			Edit
 		</a>
-		<a
-			class="btn btn-danger" 
-			href="{% url 'delete-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
+		<a class="btn btn-danger" href="{% url 'delete-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
 			Delete
 		</a>
+		<a class="btn btn-danger" href="{% url 'delete-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
+			Delete
+		</a>
+		<a class="btn btn-info" href="">
+			Grading
+		</a>
+		<a class="btn btn-info" href="">
+			Link to this exam
+		</a>
 	</li>
-    {% endfor %}
+	{% endfor %}
 </ul>
 
 {% endblock %}

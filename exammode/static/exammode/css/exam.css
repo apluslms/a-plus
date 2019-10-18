@@ -13,6 +13,14 @@
   cursor: pointer;
 }
 
+.contentDivider {
+  padding: 30 px;
+}
+
+.fieldWrapper {
+  padding: 10 px;
+}
+
 /* Override data-aplus-exercise from main.css
    Otherwise the panel height is extended
 */

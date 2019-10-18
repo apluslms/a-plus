@@ -425,3 +425,14 @@ table.results-table .category-row {
     margin-top: 4rem;
     width: 80%;
 }
+
+/*ExamSession management form*/
+.contentDividerExamSession {
+  padding-top: 20px;
+  padding-bottom: 0px;
+  font-size: 20pt;
+}
+
+.fieldWrapperExamSession {
+  padding: 10px;
+}
