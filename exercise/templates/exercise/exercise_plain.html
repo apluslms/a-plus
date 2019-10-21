@@ -98,7 +98,7 @@
                                               {% if exercise|has_deviation_penalty:profile %}
                                               (
                                                 {% if not module.is_closed %}
-                                                {% trans "Points awarded after" %}
+                                                {% trans "Penalty after" %}
                                                 {{ module.closing_time }}:
                                                 {% endif %}
                                               -{{ module.late_submission_penalty|percent }}%)
