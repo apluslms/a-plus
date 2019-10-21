@@ -119,8 +119,15 @@ def max_submissions(exercise, user_profile):
 
 
 @register.filter
-def has_deviation(exercise, user_profile):
-    return exercise.student_has_deadline_deviation(user_profile)
+def deviation_deadline(exercise, user_profile):
+    deviation = exercise.student_has_deadline_deviation(user_profile)
+    return deviation.get_new_deadline() if deviation else None
+
+
+@register.filter
+def has_deviation_penalty(exercise, user_profile):
+    deviation = exercise.student_has_deadline_deviation(user_profile)
+    return not deviation.without_late_penalty if deviation else None
 
 
 @register.filter

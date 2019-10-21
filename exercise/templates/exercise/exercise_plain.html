@@ -93,13 +93,21 @@
                                               {{ points }} points required to pass.
                                           {% endblocktrans %}
                                           {% endif %}
-                                          {% if exercise.is_late_submission_open %}
+                                          {% if exercise|deviation_deadline:profile %}
+                                              {% trans "Extended deadline" %} {{ exercise|deviation_deadline:profile }}
+                                              {% if exercise|has_deviation_penalty:profile %}
+                                              (
+                                                {% if not module.is_closed %}
+                                                {% trans "Points awarded after" %}
+                                                {{ module.closing_time }}:
+                                                {% endif %}
+                                              -{{ module.late_submission_penalty|percent }}%)
+                                              {% endif %}
+                                          {% elif exercise.is_late_submission_open %}
                                               {% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
                                               {% if module.late_submission_penalty > 0 %}
                                               (-{{ module.late_submission_penalty|percent }}%)
                                               {% endif %}
-                                          {% elif exercise|has_deviation:profile %}
-                                              {% trans "Extended deadline" %} {{ exercise|has_deviation:profile }}
                                           {% elif exercise.is_closed %}
                                               {% trans "Exercise closed" %} {{ module.closing_time }}
                                           {% else %}
