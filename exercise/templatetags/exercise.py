@@ -119,6 +119,11 @@ def max_submissions(exercise, user_profile):
 
 
 @register.filter
+def has_deviation(exercise, user_profile):
+    return exercise.student_has_deadline_deviation(user_profile)
+
+
+@register.filter
 def percent(decimal):
     return int(decimal * 100)
 

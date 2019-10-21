@@ -87,24 +87,26 @@
                             </li>
                             {% if not exercise.category.confirm_the_level %}
                                 <li class="navbar-text">
-                                    {% if not exercise.is_closed %}
-                                        <small>
-                                            {% if exercise.points_to_pass > 0 %}
-                                            {% blocktrans with points=exercise.points_to_pass %}
-                                                {{ points }} points required to pass.
-                                            {% endblocktrans %}
-                                            {% endif %}
-                                            {% if exercise.is_late_submission_open %}
-                                                {% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
-                                                {% if module.late_submission_penalty > 0 %}
-                                                (-{{ module.late_submission_penalty|percent }}%)
-                                                {% endif %}
-                                            {% else %}
-                                                {% trans "Deadline" %}
-                                                {{ module.closing_time }}
-                                            {% endif %}
-                                        </small>
-                                    {% endif %}
+                                      <small>
+                                          {% if exercise.points_to_pass > 0 %}
+                                          {% blocktrans with points=exercise.points_to_pass %}
+                                              {{ points }} points required to pass.
+                                          {% endblocktrans %}
+                                          {% endif %}
+                                          {% if exercise.is_late_submission_open %}
+                                              {% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
+                                              {% if module.late_submission_penalty > 0 %}
+                                              (-{{ module.late_submission_penalty|percent }}%)
+                                              {% endif %}
+                                          {% elif exercise|has_deviation:profile %}
+                                              {% trans "Extended deadline" %} {{ exercise|has_deviation:profile }}
+                                          {% elif exercise.is_closed %}
+                                              {% trans "Exercise closed" %} {{ module.closing_time }}
+                                          {% else %}
+                                              {% trans "Deadline" %}
+                                              {{ module.closing_time }}
+                                          {% endif %}
+                                      </small>
                                 </li>
                             {% endif %}
                         </ul>

@@ -50,8 +50,13 @@
             <dd class="exercise-info-required-points">{{ exercise.points_to_pass }}</dd>
             {% endif %}
 
+            {% if exercise|has_deviation:profile %}
+            <dt>{% trans "Extended deadline" %}</dt>
+            <dd class="exercise-info-deadline">{{ exercise|has_deviation:profile }}</dd>
+            {% else %}
             <dt>{% trans "Deadline" %}</dt>
             <dd class="exercise-info-deadline">{{ exercise.course_module.closing_time }}</dd>
+            {% endif %}
 
             {% if exercise.course_module.late_submissions_allowed %}
             <dt>{% trans "Late submission deadline" %}</dt>
