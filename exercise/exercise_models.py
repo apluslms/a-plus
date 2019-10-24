@@ -89,7 +89,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL,
         blank=True, null=True, related_name='children')
     order = models.IntegerField(default=1)
-    url = models.CharField(max_length=255,
+    url = models.CharField(max_length=512,
         validators=[generate_url_key_validator()],
         help_text=_("Input an URL identifier for this object."))
     name = models.CharField(max_length=255)
@@ -98,7 +98,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     use_wide_column = models.BooleanField(default=False,
         help_text=_("Remove the third info column for more space."))
 
-    service_url = models.CharField(max_length=255, blank=True)
+    service_url = models.CharField(max_length=4096, blank=True)
     exercise_info = JSONField(blank=True)
     model_answers = models.TextField(blank=True,
         help_text=_("List model answer files as protected URL addresses."))
