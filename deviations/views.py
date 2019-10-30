@@ -7,7 +7,7 @@ from userprofile.models import UserProfile
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseFormView, BaseRedirectView
 from authorization.permissions import ACCESS
-from .forms import DeadlineRuleDeviationForm
+from .forms import DeadlineRuleDeviationForm, RemoveDeadlineRuleDeviationForm
 from .models import DeadlineRuleDeviation
 from exercise.models import BaseExercise
 from itertools import chain
@@ -116,11 +116,7 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
             self.already_have_deviation = False
 
         self.request.session['already_have_deviation'] = already_have_deviation
-# show the teacher the exercises that already have the deviation and
-# let them choose whether to override them or discard the changes
-#            for deviation in chosen_deviations:
-#                self.remove_deviation(deviation[0], deviation[1])
-#                self.add_deviation(deviation[0], deviation[1], minutes, without_late_penalty)
+
         return super().form_valid(form)
 
     def add_deviation(self, exercise, profile, minutes, without_late_penalty):
@@ -152,3 +148,48 @@ class RemoveDeadlineView(CourseInstanceMixin, BaseRedirectView):
     def post(self, request, *args, **kwargs):
         self.deviation.delete()
         return self.redirect(self.instance.get_url("deviations-list-dl"))
+
+
+class RemoveManyDeadlinesView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "deviations/remove_dl.html"
+    form_class = RemoveDeadlineRuleDeviationForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def get_success_url(self):
+        return self.instance.get_url("deviations-list-dl")
+
+    def form_valid(self, form):
+        number_of_removed = 0
+        for profile in form.cleaned_data["submitter"]:
+            deviation_exercises = form.cleaned_data["exercise"]
+            for module in form.cleaned_data["module"]:
+                exercises = BaseExercise.objects.filter(course_module=module)
+                deviation_exercises = chain(deviation_exercises, exercises)
+            for exercise in deviation_exercises:
+                if (self.remove_deviation(exercise, profile)):
+                    number_of_removed += 1
+        if number_of_removed == 0:
+            messages.warning(self.request, _("Nothing removed!"))
+        else:
+            message = (_("Removed one deviation!") if number_of_removed == 1 else _(
+                "Removed {number} deviations!"
+                ).format(number=str(number_of_removed))
+                )
+            messages.info(self.request, message)
+        return super().form_valid(form)
+
+    def remove_deviation(self, exercise, profile):
+        deviation = DeadlineRuleDeviation.objects.filter(
+                exercise=exercise,
+                submitter=profile,
+                exercise__course_module__course_instance=self.instance)
+        if deviation:
+            deviation.delete()
+            return True
+        else:
+            return False
