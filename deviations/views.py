@@ -53,6 +53,8 @@ class OverrideDeadlinesView(CourseInstanceMixin, BaseFormView):
                 without_late_penalty=without_late_penalty)
 
         del self.request.session['already_have_deviation']
+        del self.request.session['deviations_minutes']
+        del self.request.session['without_late_penalty']
         return super().form_valid(form)
 
 
