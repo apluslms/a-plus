@@ -1,7 +1,8 @@
 from django.contrib import messages
+from django import forms
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ngettext
 from userprofile.models import UserProfile
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -16,12 +17,7 @@ from itertools import chain
 class OverrideDeadlinesView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
     template_name = "deviations/override.html"
-    form_class = DeadlineRuleDeviationForm
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["instance"] = self.instance
-        return kwargs
+    form_class = forms.Form
 
     def get_success_url(self):
         return self.instance.get_url("deviations-list-dl")
@@ -30,20 +26,23 @@ class OverrideDeadlinesView(CourseInstanceMixin, BaseFormView):
         super().get_common_objects()
         deviation_list = []
         for e, s in self.request.session['already_have_deviation']:
-            deviation_list += [DeadlineRuleDeviation.objects.get(
-                    exercise=BaseExercise.objects.get(id=e),
-                    submitter=UserProfile.objects.get(id=s),
-                    exercise__course_module__course_instance=self.instance)]
+            try:
+                deviation_list.append(DeadlineRuleDeviation.objects.get(
+                        exercise=BaseExercise.objects.get(id=e),
+                        submitter=UserProfile.objects.get(id=s),
+                        exercise__course_module__course_instance=self.instance))
+            except:
+                pass
 
         self.deviations = deviation_list
         self.without_late_penalty = self.request.session['without_late_penalty']
-        self.minutes = self.request.session['minutes']
+        self.minutes = self.request.session['deviations_minutes']
         self.note("deviations", "without_late_penalty", "minutes")
 
     def form_valid(self, form):
 
         deviation_list = self.request.POST.getlist('override')
-        minutes = self.request.session['minutes']
+        minutes = self.request.session['deviations_minutes']
         without_late_penalty = self.request.session['without_late_penalty']
         for string in deviation_list:
             e, s = string.split('-')
@@ -72,7 +71,7 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
     template_name = "deviations/add_dl.html"
     form_class = DeadlineRuleDeviationForm
-    already_have_deviation = []
+    overlapping_deviations = False
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -80,7 +79,7 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
         return kwargs
 
     def get_success_url(self):
-        if self.already_have_deviation:
+        if self.overlapping_deviations:
             return self.instance.get_url("deviations-override-dl")
         else:
             return self.instance.get_url("deviations-list-dl")
@@ -107,13 +106,13 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
                 if (not self.add_deviation(exercise, profile, minutes, without_late_penalty)):
                     already_have_deviation += [(exercise.id, profile.id)]
 
-        self.request.session['minutes'] = minutes
+        self.request.session['deviations_minutes'] = minutes
         self.request.session['without_late_penalty'] = without_late_penalty
 
         if already_have_deviation:
-            self.already_have_deviation = True
+            self.overlapping_deviations = True
         else:
-            self.already_have_deviation = False
+            self.overlapping_deviations = False
 
         self.request.session['already_have_deviation'] = already_have_deviation
 
@@ -165,21 +164,21 @@ class RemoveManyDeadlinesView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         number_of_removed = 0
-        for profile in form.cleaned_data["submitter"]:
-            deviation_exercises = form.cleaned_data["exercise"]
-            for module in form.cleaned_data["module"]:
-                exercises = BaseExercise.objects.filter(course_module=module)
-                deviation_exercises = chain(deviation_exercises, exercises)
-            for exercise in deviation_exercises:
+        deviation_exercises = form.cleaned_data["exercise"]
+        for module in form.cleaned_data["module"]:
+            exercises = BaseExercise.objects.filter(course_module=module)
+            deviation_exercises = chain(deviation_exercises, exercises)
+        for exercise in deviation_exercises:
+            for profile in form.cleaned_data["submitter"]:
                 if (self.remove_deviation(exercise, profile)):
                     number_of_removed += 1
         if number_of_removed == 0:
             messages.warning(self.request, _("Nothing removed!"))
         else:
-            message = (_("Removed one deviation!") if number_of_removed == 1 else _(
-                "Removed {number} deviations!"
-                ).format(number=str(number_of_removed))
-                )
+            message = ngettext(
+                "Removed %(count)d deviation!",
+                "Removed %(count)d deviations!",
+                number_of_removed) % {'count': number_of_removed}
             messages.info(self.request, message)
         return super().form_valid(form)
 
@@ -191,5 +190,4 @@ class RemoveManyDeadlinesView(CourseInstanceMixin, BaseFormView):
         if deviation:
             deviation.delete()
             return True
-        else:
-            return False
+        return False

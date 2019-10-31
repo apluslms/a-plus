@@ -905,7 +905,7 @@ msgstr "Lähetä"
 #: deviations/templates/deviations/remove_dl.html:12
 #: deviations/templates/deviations/remove_dl.html:19
 msgid "Remove deadline deviations"
-msgstr "Ei yhtään määräajan muutosta."
+msgstr "Poista määräajan muutoksia."
 
 #: deviations/templates/deviations/list_dl.html:27
 msgid "Deadline deviations"
@@ -946,24 +946,25 @@ msgstr "Ei yhtään määräajan muutosta."
 msgid ""
 "Some of the deviations already existed! Please select the deviations you "
 "want to override!"
-msgstr "Osa määräajan muutoksista oli jo olemassa!"
-"Valitse ylikirjoitettavat muutokset!"
+msgstr ""
+"Osa määräajan muutoksista oli jo olemassa! Valitse ylikirjoitettavat "
+"muutokset!"
 
 #: deviations/templates/deviations/override.html:16
 msgid "Select deviations to be overridden"
 msgstr "Valitse ylikirjoitettavat muutokset"
 
 #: deviations/templates/deviations/override.html:22
-msgid "Extra time before (minutes)"
-msgstr "Lisä aika ennen (minuuteissa)"
+msgid "Current extra time (minutes)"
+msgstr "Lisäaika nyt (minuuteissa)"
 
 #: deviations/templates/deviations/override.html:23
 msgid "New extra time (minutes)"
 msgstr "Uusi lisäaika (minuuteissa)"
 
 #: deviations/templates/deviations/override.html:24
-msgid "Without late penalty before"
-msgstr "Ei myöhästymissakkoa ennen"
+msgid "Without late penalty currently"
+msgstr "Ei myöhästymissakkoa nyt"
 
 #: deviations/templates/deviations/override.html:25
 msgid "Without late penalty after"
@@ -973,21 +974,19 @@ msgstr "Ei myöhästymissakkoa jälkeen"
 msgid "Override"
 msgstr "Ylikirjoita"
 
-#: deviations/views.py:93
+#: deviations/views.py:92
 msgid "You have to provide either minutes or a date in the future."
 msgstr "Sinun on määriteltävä joko minuutit tai päivämäärä."
 
-#: deviations/views.py:177
+#: deviations/views.py:176
 msgid "Nothing removed!"
 msgstr "Mitään ei poistettu!"
 
 #: deviations/views.py:179
-msgid "Removed one deviation!"
-msgstr "Poistettiin yksi muutos!"
-
-#: deviations/views.py:180
-msgid "Removed {number} deviations!"
-msgstr "Poistettiin {number} muutosta!"
+msgid "Removed %(count)d deviation!"
+msgid_plural "Removed %(count)d deviations!"
+msgstr[0] "Poistettiin %(count)d muutos!"
+msgstr[1] "Poistettiin %(count)d muutosta!"
 
 #: diploma/templates/diploma/_diploma_button.html:7
 msgid "Get course diploma"
