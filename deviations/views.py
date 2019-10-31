@@ -94,12 +94,12 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
 
         without_late_penalty = form.cleaned_data["without_late_penalty"]
         already_have_deviation = []
-        for profile in form.cleaned_data["submitter"]:
-            deviation_exercises = form.cleaned_data["exercise"]
-            for module in form.cleaned_data["module"]:
-                exercises = BaseExercise.objects.filter(course_module=module)
-                deviation_exercises = chain(deviation_exercises, exercises)
-            for exercise in deviation_exercises:
+        deviation_exercises = form.cleaned_data["exercise"]
+        for module in form.cleaned_data["module"]:
+            exercises = BaseExercise.objects.filter(course_module=module)
+            deviation_exercises = chain(deviation_exercises, exercises)
+        for exercise in deviation_exercises:
+            for profile in form.cleaned_data["submitter"]:
                 if new_date:
                     minutes = exercise.delta_in_minutes_from_closing_to_date(
                                 new_date)

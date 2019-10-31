@@ -17,7 +17,7 @@ class DeadlineRuleDeviationForm(forms.Form):
     )
     submitter = forms.ModelMultipleChoiceField(
         queryset=UserProfile.objects.none(),
-        required=False,
+        required=True,
     )
     minutes = forms.IntegerField(
         required=False,
@@ -64,7 +64,7 @@ class RemoveDeadlineRuleDeviationForm(forms.Form):
     )
     submitter = forms.ModelMultipleChoiceField(
         queryset=UserProfile.objects.none(),
-        required=False,
+        required=True,
     )
 
     def __init__(self, *args, **kwargs):
