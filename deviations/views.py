@@ -17,6 +17,9 @@ from itertools import chain
 class OverrideDeadlinesView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
     template_name = "deviations/override.html"
+    # form_class is not really used, but it is required by the FormView.
+    # The form contains only checkboxes and the user input is validated in
+    # the form_valid method. The form HTML is manually written in the template.
     form_class = forms.Form
 
     def get_success_url(self):
@@ -25,15 +28,21 @@ class OverrideDeadlinesView(CourseInstanceMixin, BaseFormView):
     def get_common_objects(self):
         super().get_common_objects()
         deviation_list = []
-        for e, s in self.request.session['already_have_deviation']:
+        for e_id, s_id in self.request.session['already_have_deviation']:
             try:
                 deviation_list.append(DeadlineRuleDeviation.objects.get(
-                        exercise=BaseExercise.objects.get(id=e),
-                        submitter=UserProfile.objects.get(id=s),
+                        exercise=BaseExercise.objects.get(id=e_id),
+                        submitter=UserProfile.objects.get(id=s_id),
                         exercise__course_module__course_instance=self.instance))
-            except:
-                pass
-
+            except (BaseExercise.DoesNotExist, UserProfile.DoesNotExist):
+                pass # Ignore. The exercise or user was suddenly deleted.
+            except DeadlineRuleDeviation.DoesNotExist:
+                DeadlineRuleDeviation.objects.create(
+                    exercise=BaseExercise.objects.get(id=e_id),
+                    submitter=UserProfile.objects.get(id=s_id),
+                    extra_minutes=self.request.session['deviations_minutes'],
+                    without_late_penalty=self.request.session['without_late_penalty']
+                )
         self.deviations = deviation_list
         self.without_late_penalty = self.request.session['without_late_penalty']
         self.minutes = self.request.session['deviations_minutes']
@@ -45,12 +54,20 @@ class OverrideDeadlinesView(CourseInstanceMixin, BaseFormView):
         minutes = self.request.session['deviations_minutes']
         without_late_penalty = self.request.session['without_late_penalty']
         for string in deviation_list:
-            e, s = string.split('-')
-            DeadlineRuleDeviation.objects.filter(
-                exercise=BaseExercise.objects.get(id=e),
-                submitter=UserProfile.objects.get(id=s)).update(
-                extra_minutes=minutes,
-                without_late_penalty=without_late_penalty)
+            if len(string.split('-')) != 2:
+                continue
+            else:
+                e_id, s_id = string.split('-')
+            try:
+                DeadlineRuleDeviation.objects.filter(
+                    exercise=BaseExercise.objects.get(id=e_id),
+                    submitter=UserProfile.objects.get(id=s_id)
+                ).update(
+                    extra_minutes=minutes,
+                    without_late_penalty=without_late_penalty
+                )
+            except (BaseExercise.DoesNotExist, UserProfile.DoesNotExist):
+                pass
 
         del self.request.session['already_have_deviation']
         del self.request.session['deviations_minutes']
