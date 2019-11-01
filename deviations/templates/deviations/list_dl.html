@@ -1,6 +1,7 @@
 {% extends "edit_course/edit_course_base.html" %}
 {% load i18n %}
 {% load course %}
+{% load static %}
 
 {% block edittitle %}{% trans "List deadline deviations" %}{% endblock %}
 {% block view_tag %}edit-course,deviations{% endblock %}
@@ -35,7 +36,7 @@
 			<th>{% trans "Actions" %}</th>
 		</tr>
 		{% for deviation in deviations %}
-		<tr>
+		<tr data-deviation-id="{{ deviation.id }}">
 			<td>{{ deviation.submitter }}</td>
 			<td>{{ deviation.exercise }}</td>
 			<td>{{ deviation.extra_minutes }}</td>
@@ -57,4 +58,5 @@
 		{% endfor %}
 	</table>
 </div>
+<script src="{% static 'deviations/remove_deviation.js' %}"></script>
 {% endblock %}

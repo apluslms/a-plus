@@ -1,9 +1,11 @@
+from itertools import chain
+
 from django.contrib import messages
 from django import forms
 from django.db import IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ngettext
-from userprofile.models import UserProfile
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseFormView, BaseRedirectView
@@ -11,7 +13,7 @@ from authorization.permissions import ACCESS
 from .forms import DeadlineRuleDeviationForm, RemoveDeadlineRuleDeviationForm
 from .models import DeadlineRuleDeviation
 from exercise.models import BaseExercise
-from itertools import chain
+from userprofile.models import UserProfile
 
 
 class OverrideDeadlinesView(CourseInstanceMixin, BaseFormView):
@@ -164,7 +166,10 @@ class RemoveDeadlineView(CourseInstanceMixin, BaseRedirectView):
         self.note("deviation")
 
     def post(self, request, *args, **kwargs):
+        # TODO check that CSRF tokens are verified
         self.deviation.delete()
+        if request.is_ajax():
+            return HttpResponse(status=204)
         return self.redirect(self.instance.get_url("deviations-list-dl"))
 
 
