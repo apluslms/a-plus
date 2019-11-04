@@ -44,8 +44,7 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
     def get_success_url(self):
         if self.overlapping_deviations:
             return self.instance.get_url("deviations-override-dl")
-        else:
-            return self.instance.get_url("deviations-list-dl")
+        return self.instance.get_url("deviations-list-dl")
 
     def form_valid(self, form):
         minutes = form.cleaned_data["minutes"]
@@ -244,8 +243,7 @@ class AddSubmissionsView(CourseInstanceMixin, BaseFormView):
     def get_success_url(self):
         if self.overlapping_deviations:
             return self.instance.get_url("deviations-override-submissions")
-        else:
-            return self.instance.get_url("deviations-list-submissions")
+        return self.instance.get_url("deviations-list-submissions")
 
     def form_valid(self, form):
         bonus_submissions = form.cleaned_data["number_of_extra_submissions"]
