@@ -1,0 +1,59 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load static %}
+
+{% block edittitle %}{% trans "List submission deviations" %}{% endblock %}
+{% block view_tag %}edit-course,submission-deviations{% endblock %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "List submission deviations" %}</li>
+{% endblock %}
+{% block coursecontent %}
+<br />
+<p>
+	<a class="btn btn-primary btn-xs" href="{{ instance|url:'deviations-add-submissions' }}">
+		<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+		{% trans "Add new submission deviations" %}
+	</a>
+	<a class="btn btn-primary btn-xs" href="{{ instance|url:'deviations-remove-many-submissions' }}">
+		<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+		{% trans "Remove submission deviations" %}
+	</a>
+</p>
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">{% trans "Submission deviations" %}</h3>
+	</div>
+<table class="table table-striped table-bordered table-condensed" data-deviations-list>
+  <tr>
+    <th>{% trans "Submitter" %}</th>
+    <th>{% trans "Exercise" %}</th>
+    <th>{% trans "Extra submissions" %}</th>
+    <th>{% trans "Actions" %}</th>
+  </tr>
+  {% for deviation in deviations %}
+  <tr data-deviation-id="{{ deviation.id }}">
+    <td>{{ deviation.submitter }}</td>
+    <td>{{ deviation.exercise }}</td>
+    <td>{{ deviation.extra_submissions }}</td>
+    <td>
+      <form method="post" action="{{ deviation|url:'deviations-remove-submission' }}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-default btn-xs">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+          {% trans 'Remove' %}
+        </button>
+      </form>
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="4">{% trans "No submission deviations." %}</td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+<script src="{% static 'deviations/remove_deviation.js' %}"></script>
+{% endblock %}
