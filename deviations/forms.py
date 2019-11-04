@@ -53,7 +53,7 @@ class DeadlineRuleDeviationForm(forms.Form):
         self.fields["submitter"].queryset = course_instance.get_student_profiles()
 
 
-class RemoveDeadlineRuleDeviationForm(forms.Form):
+class RemoveDeviationForm(forms.Form):
     module = forms.ModelMultipleChoiceField(
         queryset=CourseModule.objects.none(),
         required=False
@@ -69,7 +69,43 @@ class RemoveDeadlineRuleDeviationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.pop('instance')
-        super(RemoveDeadlineRuleDeviationForm, self).__init__(*args, **kwargs)
+        super(RemoveDeviationForm, self).__init__(*args, **kwargs)
+        self.fields["module"].widget.attrs["class"] = "search-select"
+        self.fields["module"].help_text = ""
+        self.fields["module"].queryset = CourseModule.objects.filter(
+            course_instance=course_instance
+        )
+        self.fields["exercise"].widget.attrs["class"] = "search-select"
+        self.fields["exercise"].help_text = ""
+        self.fields["exercise"].queryset = BaseExercise.objects.filter(
+            course_module__course_instance=course_instance
+        )
+        self.fields["submitter"].widget.attrs["class"] = "search-select"
+        self.fields["submitter"].help_text = ""
+        self.fields["submitter"].queryset = course_instance.get_student_profiles()
+
+
+class MaxSubmissionRuleDeviationForm(forms.Form):
+    module = forms.ModelMultipleChoiceField(
+        queryset=CourseModule.objects.none(),
+        required=False
+    )
+    exercise = forms.ModelMultipleChoiceField(
+        queryset=BaseExercise.objects.none(),
+        required=False
+    )
+    submitter = forms.ModelMultipleChoiceField(
+        queryset=UserProfile.objects.none(),
+        required=True,
+    )
+    number_of_extra_submissions = forms.IntegerField(
+        required=True,
+        min_value=1,
+    )
+
+    def __init__(self, *args, **kwargs):
+        course_instance = kwargs.pop('instance')
+        super(MaxSubmissionRuleDeviationForm, self).__init__(*args, **kwargs)
         self.fields["module"].widget.attrs["class"] = "search-select"
         self.fields["module"].help_text = ""
         self.fields["module"].queryset = CourseModule.objects.filter(

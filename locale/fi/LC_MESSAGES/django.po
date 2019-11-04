@@ -709,7 +709,9 @@ msgstr ""
 #: course/templates/course/staff/_tag_remove_modal.html:38
 #: course/templates/course/staff/group_delete.html:42
 #: deviations/templates/deviations/add_dl.html:24
+#: deviations/templates/deviations/add_submissions.html:24
 #: deviations/templates/deviations/remove_dl.html:24
+#: deviations/templates/deviations/remove_submissions.html:24
 #: edit_course/templates/edit_course/edit_model.html:68
 #: edit_course/templates/edit_course/remove_model.html:54
 #: edit_course/templates/edit_course/usertag_add.html:23
@@ -731,7 +733,8 @@ msgstr "Poista kaikki"
 #: course/templates/course/staff/group_delete.html:12
 #: course/templates/course/staff/group_delete.html:40
 #: course/templates/course/staff/groups.html:46
-#: deviations/templates/deviations/list_dl.html:48
+#: deviations/templates/deviations/list_dl.html:49
+#: deviations/templates/deviations/list_submissions.html:46
 #: edit_course/templates/edit_course/edit_content.html:53
 #: edit_course/templates/edit_course/edit_content.html:91
 #: edit_course/templates/edit_course/edit_content.html:113
@@ -872,25 +875,28 @@ msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 
 #: deviations/templates/deviations/add_dl.html:6
 #: deviations/templates/deviations/add_dl.html:19
-#: deviations/templates/deviations/override.html:6
+#: deviations/templates/deviations/override_dl.html:6
 msgid "Add deadline deviations"
 msgstr "Lisää määräajan muutoksia"
 
 #: deviations/templates/deviations/add_dl.html:11
-#: deviations/templates/deviations/list_dl.html:5
-#: deviations/templates/deviations/list_dl.html:10
+#: deviations/templates/deviations/list_dl.html:6
+#: deviations/templates/deviations/list_dl.html:11
 #: deviations/templates/deviations/remove_dl.html:11
 msgid "List deadline deviations"
 msgstr "Listaa määräajan muutokset"
 
 #: deviations/templates/deviations/add_dl.html:12
-#: deviations/templates/deviations/list_dl.html:18
+#: deviations/templates/deviations/list_dl.html:19
 msgid "Add new deadline deviations"
 msgstr "Lisää uusia määräajan muutoksia"
 
 #: deviations/templates/deviations/add_dl.html:23
-#: deviations/templates/deviations/override.html:50
+#: deviations/templates/deviations/add_submissions.html:23
+#: deviations/templates/deviations/override_dl.html:50
+#: deviations/templates/deviations/override_submissions.html:46
 #: deviations/templates/deviations/remove_dl.html:23
+#: deviations/templates/deviations/remove_submissions.html:23
 #: edit_course/templates/edit_course/batch_assess.html:85
 #: edit_course/templates/edit_course/edit_model.html:66
 #: exercise/templates/exercise/model/_file_submit_form.html:4
@@ -900,22 +906,42 @@ msgstr "Lisää uusia määräajan muutoksia"
 msgid "Submit"
 msgstr "Lähetä"
 
-#: deviations/templates/deviations/list_dl.html:22
+#: deviations/templates/deviations/add_submissions.html:6
+#: deviations/templates/deviations/add_submissions.html:19
+#: deviations/templates/deviations/override_submissions.html:6
+msgid "Add submission deviations"
+msgstr "Lisää palautuskertojen muutoksia"
+
+#: deviations/templates/deviations/add_submissions.html:11
+#: deviations/templates/deviations/list_submissions.html:6
+#: deviations/templates/deviations/list_submissions.html:11
+#: deviations/templates/deviations/remove_submissions.html:11
+msgid "List submission deviations"
+msgstr "Listaa palautuskertojen muutokset"
+
+#: deviations/templates/deviations/add_submissions.html:12
+#: deviations/templates/deviations/list_submissions.html:18
+msgid "Add new submission deviations"
+msgstr "Lisää uusia palautuskertojen muutoksia"
+
+#: deviations/templates/deviations/list_dl.html:23
 #: deviations/templates/deviations/remove_dl.html:6
 #: deviations/templates/deviations/remove_dl.html:12
 #: deviations/templates/deviations/remove_dl.html:19
 msgid "Remove deadline deviations"
 msgstr "Poista määräajan muutoksia."
 
-#: deviations/templates/deviations/list_dl.html:27
+#: deviations/templates/deviations/list_dl.html:28
+#: edit_course/templates/edit_course/edit_course_base.html:51
 msgid "Deadline deviations"
 msgstr "Määräajan muutokset"
 
-#: deviations/templates/deviations/list_dl.html:31
-#: deviations/templates/deviations/override.html:20
+#: deviations/templates/deviations/list_dl.html:32
+#: deviations/templates/deviations/list_submissions.html:31
+#: deviations/templates/deviations/override_dl.html:20
+#: deviations/templates/deviations/override_submissions.html:20
 msgid "Submitter"
 msgstr "Palauttaja"
-
 
 #: deviations/templates/deviations/list_dl.html:32
 #: deviations/templates/deviations/override.html:21
@@ -924,25 +950,48 @@ msgstr "Palauttaja"
 msgid "Exercise"
 msgstr "Tehtävä"
 
-#: deviations/templates/deviations/list_dl.html:33
+#: deviations/templates/deviations/list_dl.html:34
 msgid "Extra minutes"
 msgstr "Ylimääräiset minuutit"
 
-#: deviations/templates/deviations/list_dl.html:34
+#: deviations/templates/deviations/list_dl.html:35
 msgid "Without late penalty"
 msgstr "Ilman myöhästymissakkoa"
 
-#: deviations/templates/deviations/list_dl.html:35
+#: deviations/templates/deviations/list_dl.html:36
+#: deviations/templates/deviations/list_submissions.html:34
 #: edit_course/templates/edit_course/usertag_list.html:32
 msgid "Actions"
 msgstr "Toiminnot"
 
-#: deviations/templates/deviations/list_dl.html:55
-#: deviations/templates/deviations/override.html:42
+#: deviations/templates/deviations/list_dl.html:56
+#: deviations/templates/deviations/override_dl.html:42
 msgid "No deadline deviations."
 msgstr "Ei yhtään määräajan muutosta."
 
-#: deviations/templates/deviations/override.html:10
+#: deviations/templates/deviations/list_submissions.html:22
+#: deviations/templates/deviations/remove_submissions.html:6
+#: deviations/templates/deviations/remove_submissions.html:12
+#: deviations/templates/deviations/remove_submissions.html:19
+msgid "Remove submission deviations"
+msgstr "Poista palautuskertojen muutoksia."
+
+#: deviations/templates/deviations/list_submissions.html:27
+#: edit_course/templates/edit_course/edit_course_base.html:56
+msgid "Submission deviations"
+msgstr "Palautuksenkertojen muutokset"
+
+#: deviations/templates/deviations/list_submissions.html:33
+msgid "Extra submissions"
+msgstr "Ylimääräiset palautuskerrat"
+
+#: deviations/templates/deviations/list_submissions.html:53
+#: deviations/templates/deviations/override_submissions.html:38
+msgid "No submission deviations."
+msgstr "Ei palautuskertojen muutoksia"
+
+#: deviations/templates/deviations/override_dl.html:10
+#: deviations/templates/deviations/override_submissions.html:10
 msgid ""
 "Some of the deviations already existed! Please select the deviations you "
 "want to override!"
@@ -950,39 +999,50 @@ msgstr ""
 "Osa määräajan muutoksista oli jo olemassa! Valitse ylikirjoitettavat "
 "muutokset!"
 
-#: deviations/templates/deviations/override.html:16
+#: deviations/templates/deviations/override_dl.html:16
+#: deviations/templates/deviations/override_submissions.html:16
 msgid "Select deviations to be overridden"
 msgstr "Valitse ylikirjoitettavat muutokset"
 
-#: deviations/templates/deviations/override.html:22
+#: deviations/templates/deviations/override_dl.html:22
 msgid "Current extra time (minutes)"
 msgstr "Lisäaika nyt (minuuteissa)"
 
-#: deviations/templates/deviations/override.html:23
+#: deviations/templates/deviations/override_dl.html:23
 msgid "New extra time (minutes)"
 msgstr "Uusi lisäaika (minuuteissa)"
 
-#: deviations/templates/deviations/override.html:24
+#: deviations/templates/deviations/override_dl.html:24
 msgid "Without late penalty currently"
 msgstr "Ei myöhästymissakkoa nyt"
 
-#: deviations/templates/deviations/override.html:25
+#: deviations/templates/deviations/override_dl.html:25
 msgid "Without late penalty after"
 msgstr "Ei myöhästymissakkoa jälkeen"
 
-#: deviations/templates/deviations/override.html:26
+#: deviations/templates/deviations/override_dl.html:26
+#: deviations/templates/deviations/override_submissions.html:24
 msgid "Override"
 msgstr "Ylikirjoita"
 
-#: deviations/views.py:92
+#: deviations/templates/deviations/override_submissions.html:22
+msgid "Current extra submissions"
+msgstr "Nykyiset ylimääräiset palautuskerrat"
+
+#: deviations/templates/deviations/override_submissions.html:23
+msgid "New extra submissions"
+msgstr "Uudet ylimääräiset palautuskerrat"
+
+#: deviations/views.py:55
 msgid "You have to provide either minutes or a date in the future."
 msgstr "Sinun on määriteltävä joko minuutit tai päivämäärä."
 
-#: deviations/views.py:176
+#: deviations/views.py:202 deviations/views.py:384
 msgid "Nothing removed!"
 msgstr "Mitään ei poistettu!"
 
-#: deviations/views.py:179
+#: deviations/views.py:205 deviations/views.py:387
+#, python-format
 msgid "Removed %(count)d deviation!"
 msgid_plural "Removed %(count)d deviations!"
 msgstr[0] "Poistettiin %(count)d muutos!"
@@ -1468,11 +1528,7 @@ msgstr "Etusivu"
 msgid "Menu"
 msgstr "Valikko"
 
-#: edit_course/templates/edit_course/edit_course_base.html:51
-msgid "Deviations"
-msgstr "Määräajan muutokset"
-
-#: edit_course/templates/edit_course/edit_course_base.html:56
+#: edit_course/templates/edit_course/edit_course_base.html:61
 msgid "Batch assess"
 msgstr "Joukkoarviointi"
 

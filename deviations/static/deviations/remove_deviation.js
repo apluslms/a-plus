@@ -1,4 +1,5 @@
-$('table form').on('submit', function(event) {
+$(function() {
+	$('table[data-deviations-list] form').on('submit', function(event) {
 	event.preventDefault();
 	const deleteUrl = this.action;
 	const deviationId = $(this).parents('tr').data('deviationId');
@@ -6,7 +7,7 @@ $('table form').on('submit', function(event) {
 		type: "POST",
 	}).done(function () {
 		$('table tr[data-deviation-id="' + deviationId + '"]').remove();
-		console.info("delete succeeeded");
+		console.info("delete succeeded");
 	}).fail(function(xhr, textStatus, errorThrown) {
 		if (xhr.status == 404) {
 			alert("Deviation object not found.")
@@ -17,4 +18,5 @@ $('table form').on('submit', function(event) {
 			console.error(xhr.status + ' ' + errorThrown);
 		}
 	});
+});
 });
