@@ -27,14 +27,14 @@
     </tr>
     {% for deviation in deviations %}
     <tr>
-      <td>{{ deviation.submitter }}</td>
-      <td>{{ deviation.exercise }}</td>
-      <td>{{ deviation.extra_minutes }}</td>
-      <td>{{ minutes }}</td>
-      <td>{{ deviation.without_late_penalty }}</td>
+      <td>{{ deviation.0.submitter }}</td>
+      <td>{{ deviation.0.exercise }}</td>
+      <td>{{ deviation.0.extra_minutes }}</td>
+      <td>{{ deviation.1 }}</td>
+      <td>{{ deviation.0.without_late_penalty }}</td>
       <td>{{ without_late_penalty }}</td>
       <td>
-        <input type="checkbox" name="override" value="{{ deviation.exercise.id }}-{{ deviation.submitter.id }}" checked>
+        <input type="checkbox" name="override" value="{{ deviation.0.exercise.id }}-{{ deviation.0.submitter.id }}" checked>
       </td>
     </tr>
     {% empty %}

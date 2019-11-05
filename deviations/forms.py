@@ -52,6 +52,19 @@ class DeadlineRuleDeviationForm(forms.Form):
         self.fields["submitter"].help_text = ""
         self.fields["submitter"].queryset = course_instance.get_student_profiles()
 
+    def clean(self):
+        cleaned_data = super().clean()
+        new_date = cleaned_data.get("new_date")
+        minutes = cleaned_data.get("minutes")
+        if minutes and new_date or not minutes and not new_date:
+            raise forms.ValidationError(
+                _("Give either the minutes or a date in the future!"))
+        module = cleaned_data.get("module")
+        exercise = cleaned_data.get("exercise")
+        if not exercise and not module:
+            raise forms.ValidationError(
+                _("You need to give exercises or modules to add deviations!"))
+
 
 class RemoveDeviationForm(forms.Form):
     module = forms.ModelMultipleChoiceField(
@@ -83,6 +96,14 @@ class RemoveDeviationForm(forms.Form):
         self.fields["submitter"].widget.attrs["class"] = "search-select"
         self.fields["submitter"].help_text = ""
         self.fields["submitter"].queryset = course_instance.get_student_profiles()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        module = cleaned_data.get("module")
+        exercise = cleaned_data.get("exercise")
+        if not exercise and not module:
+            raise forms.ValidationError(
+                _("You need to give exercises or modules to add deviations!"))
 
 
 class MaxSubmissionRuleDeviationForm(forms.Form):
@@ -119,3 +140,11 @@ class MaxSubmissionRuleDeviationForm(forms.Form):
         self.fields["submitter"].widget.attrs["class"] = "search-select"
         self.fields["submitter"].help_text = ""
         self.fields["submitter"].queryset = course_instance.get_student_profiles()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        module = cleaned_data.get("module")
+        exercise = cleaned_data.get("exercise")
+        if not exercise and not module:
+            raise forms.ValidationError(
+                _("You need to give exercises or modules to add deviations!"))
