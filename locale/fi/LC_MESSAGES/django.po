@@ -873,6 +873,14 @@ msgstr "Uusi eräpäivä formaatissa YYYY-MM-DD HH:MM."
 msgid "Do not apply late penalty during extra time."
 msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 
+#: deviations/forms.py:61
+msgid "You have to provide either minutes or a date in the future."
+msgstr "Sinun on määriteltävä joko minuutit tai päivämäärä."
+
+#: deviations/forms.py:66 deviations/forms.py:106 deviations/forms.py:150
+msgid "You need to define exercises or modules to add deviations!"
+msgstr "Sinun on määriteltävä tehtäviä tai moduuleja lisätäksesi muutoksia!"
+
 #: deviations/templates/deviations/add_dl.html:6
 #: deviations/templates/deviations/add_dl.html:19
 #: deviations/templates/deviations/override_dl.html:6
@@ -1033,15 +1041,16 @@ msgstr "Nykyiset ylimääräiset palautuskerrat"
 msgid "New extra submissions"
 msgstr "Uudet ylimääräiset palautuskerrat"
 
-#: deviations/views.py:55
-msgid "You have to provide either minutes or a date in the future."
-msgstr "Sinun on määriteltävä joko minuutit tai päivämäärä."
+#: deviations/viewbase.py:82
+#, python-brace-format
+msgid "Invalid exercise or submitter id: \"{string}\""
+msgstr "Virheellinen tehtävä tai palauttaja id: \"{string}\""
 
-#: deviations/views.py:202 deviations/views.py:384
+#: deviations/viewbase.py:131
 msgid "Nothing removed!"
 msgstr "Mitään ei poistettu!"
 
-#: deviations/views.py:205 deviations/views.py:387
+#: deviations/viewbase.py:134
 #, python-format
 msgid "Removed %(count)d deviation!"
 msgid_plural "Removed %(count)d deviations!"

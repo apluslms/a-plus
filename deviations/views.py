@@ -47,7 +47,7 @@ class AddDeadlinesView(AddDeviationsView):
             )
             return True
         except IntegrityError:
-            self.request.session['deviations_minutes' + str(exercise.id)] = minutes
+            self.request.session[get_key_for_minutes(exercise.id)] = minutes
             return False
 
     def update_session(self):
@@ -64,14 +64,14 @@ class OverrideDeadlinesView(OverrideDeviationsView):
                     exercise=BaseExercise.objects.get(id=e_id),
                     submitter=UserProfile.objects.get(id=s_id),
                     exercise__course_module__course_instance=self.instance),
-                    self.request.session['deviations_minutes'+str(e_id)]])
+                    self.request.session[get_key_for_minutes(e_id)]])
         except (BaseExercise.DoesNotExist, UserProfile.DoesNotExist):
             pass # Ignore. The exercise or user was suddenly deleted.
         except DeadlineRuleDeviation.DoesNotExist:
             DeadlineRuleDeviation.objects.create(
                 exercise=BaseExercise.objects.get(id=e_id),
                 submitter=UserProfile.objects.get(id=s_id),
-                extra_minutes=self.request.session['deviations_minutes' + str(e_id)],
+                extra_minutes=self.request.session[get_key_for_minutes(e_id)],
                 without_late_penalty=self.request.session['without_late_penalty']
             )
 
@@ -85,12 +85,12 @@ class OverrideDeadlinesView(OverrideDeviationsView):
                 exercise=BaseExercise.objects.get(id=e_id),
                 submitter=UserProfile.objects.get(id=s_id)
             ).update(
-                extra_minutes=self.request.session['deviations_minutes'+str(e_id)],
+                extra_minutes=self.request.session[get_key_for_minutes(e_id)],
                 without_late_penalty=self.request.session['without_late_penalty']
             )
         except (BaseExercise.DoesNotExist, UserProfile.DoesNotExist):
             pass
-        del self.request.session['deviations_minutes' + str(e_id)]
+        del self.request.session[get_key_for_minutes(e_id)]
 
     def delete_session_data(self):
         del self.request.session['already_have_deviation']
@@ -222,3 +222,6 @@ class RemoveManySubmissionsView(RemoveManyDeviationsView):
             deviation.delete()
             return True
         return False
+
+def get_key_for_minutes(id):
+    return 'deviations_minutes' + str(id)

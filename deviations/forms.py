@@ -58,12 +58,12 @@ class DeadlineRuleDeviationForm(forms.Form):
         minutes = cleaned_data.get("minutes")
         if minutes and new_date or not minutes and not new_date:
             raise forms.ValidationError(
-                _("Give either the minutes or a date in the future!"))
+                _("You have to provide either minutes or a date in the future."))
         module = cleaned_data.get("module")
         exercise = cleaned_data.get("exercise")
         if not exercise and not module:
             raise forms.ValidationError(
-                _("You need to give exercises or modules to add deviations!"))
+                _("You need to define exercises or modules to add deviations!"))
 
 
 class RemoveDeviationForm(forms.Form):
@@ -103,7 +103,7 @@ class RemoveDeviationForm(forms.Form):
         exercise = cleaned_data.get("exercise")
         if not exercise and not module:
             raise forms.ValidationError(
-                _("You need to give exercises or modules to add deviations!"))
+                _("You need to define exercises or modules to add deviations!"))
 
 
 class MaxSubmissionRuleDeviationForm(forms.Form):
@@ -147,4 +147,4 @@ class MaxSubmissionRuleDeviationForm(forms.Form):
         exercise = cleaned_data.get("exercise")
         if not exercise and not module:
             raise forms.ValidationError(
-                _("You need to give exercises or modules to add deviations!"))
+                _("You need to define exercises or modules to add deviations!"))
