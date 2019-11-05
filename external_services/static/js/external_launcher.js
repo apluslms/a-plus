@@ -10,6 +10,14 @@
 (function($) {
     'use strict';
 
+    function json_parse(data) {
+        try {
+            return JSON.parse(data);
+        } catch(e) {
+            return null;
+        }
+    }
+
     const settings = {
         ext_serv_title: "ext-service-title",
         ext_serv_key: "ext-service-pk",
@@ -50,24 +58,39 @@
                 element.find(settings.message_area_selector).hide();
             }
             /* remember the accepted state via a local storage */
-            if (auto_accept.prop('checked'))
-                storage.setItem(storage_key, JSON.stringify({id: ext_serv, title: ext_title, hash: params_hash}));
+            if (auto_accept.prop('checked')) {
+                const local_value = json_parse(storage.getItem(storage_key)) ||
+                    {id: ext_serv, title: ext_title, ok: []};
+                if (local_value.ok.indexOf(params_hash) < 0) {
+                    local_value.ok.push(params_hash);
+                    storage.setItem(storage_key, JSON.stringify(local_value));
+                }
+            }
             /* NOTE: chapter.js adds submit hook to disable submit buttons for post forms */
         });
 
+        const local_value = json_parse(storage.getItem(storage_key));
+        if (local_value !== null && local_value.hash !== undefined) {
+            /* migrate old storage format to new, TODO: remove this */
+            local_value.ok = [local_value.hash];
+            delete local_value.hash;
+            storage.setItem(storage_key, JSON.stringify(local_value));
+        }
+        if (local_value !== null && local_value.title !== ext_title) {
+            /* update title */
+            local_value.title = ext_title;
+            storage.setItem(storage_key, JSON.stringify(local_value));
+        }
 
-        const local_value = JSON.parse(storage.getItem(storage_key));
         if (target === "_blank") {
             /* hide the automatic accept checkbox when the automatic launch
                is disabled due to pop-up blockers */
             auto_accept_box.hide();
-        } else if (local_value !== null && local_value.hash == params_hash) {
-            /* automatically submit data, if form is marked as auto accept
-               and has not changed. */
+        } else if (local_value !== null &&
+                   local_value.ok.indexOf(params_hash) >= 0) {
+            /* automatically submit data, if form with current data,
+               has been marked as auto accept */
             form.submit();
-        } else {
-            /* Remove old value */
-            storage.removeItem(storage_key);
         }
     }
 
