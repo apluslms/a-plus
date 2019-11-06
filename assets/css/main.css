@@ -427,12 +427,12 @@ table.results-table .category-row {
 }
 
 /*ExamSession management form*/
-.contentDividerExamSession {
+.content-divider-exam-session {
   padding-top: 20px;
   padding-bottom: 0px;
   font-size: 20pt;
 }
 
-.fieldWrapperExamSession {
+.field-wrapper-exam-session {
   padding: 10px;
 }

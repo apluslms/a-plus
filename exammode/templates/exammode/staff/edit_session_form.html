@@ -4,10 +4,33 @@
 
 <form method="post">
 	{% csrf_token %}
-	<ul class="list-unstyled">
-		{{ form.as_ul }}
-	</ul>
-	<input class="btn btn-primary" name="edit" type="submit" value="Submit"/>
+	{{ form.non_field_errors }}
+	<div class="content-divider-exam-session">Content</div>
+	<div class="field-wrapper-exam-session">
+		{{ form.exam_module.errors }}
+		{{ form.exam_module.label_tag}}
+		{{ form.exam_module }}
+	</div>
+	<hr>
+	<div class="content-divider-exam-session">Schedule</div>
+	<div class="field-wrapper-exam-session">
+		{{ form.can_start.errors }}
+		{{ form.can_start.label_tag}}
+		{{ form.can_start }}
+	</div>
+	<div class="field-wrapper-exam-session">
+		{{ form.duration.errors }}
+		{{ form.duration.label_tag}}
+		{{ form.duration }}
+	</div>
+	<div class="field-wrapper-exam-session">
+		{{ form.room.errors }}
+		{{ form.room.label_tag}}
+		{{ form.room }}
+	</div>
+	<hr>
+	<div class="content-divider-exam-session">Visibility</div>
+	<input class="btn btn-primary" name="add" type="submit" value="Submit" />
 </form>
 
 {% endblock %}

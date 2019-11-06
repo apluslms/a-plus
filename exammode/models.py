@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
@@ -8,7 +9,7 @@ from userprofile.models import UserProfile
 # Create your models here.
 
 
-class ExamSessionManager(models.Manager):
+class ActiveExamSessionManager(models.Manager):
 
     def get_queryset(self):
         initial_queryset = super().get_queryset()
@@ -19,8 +20,8 @@ class ExamSessionManager(models.Manager):
 
     def is_active(self):
         initial_queryset = super().get_queryset()
-        queryset = [q for q in initial_queryset if (q.can_start <= timezone.now(
-        ) and (timezone.now() <= q.can_start + timezone.timedelta(hours=q.duration)))]
+        queryset = [q for q in initial_queryset if (q.can_start <= timezone.now() and (
+            timezone.now() <= q.can_start + timezone.timedelta(hours=q.duration)))]
 
         return queryset
 
@@ -33,22 +34,30 @@ class ExamSession(models.Model):
     course_instance = models.ForeignKey(
         CourseInstance, on_delete=models.CASCADE)
     exam_module = models.ForeignKey(
-        CourseModule, on_delete=models.CASCADE, null=True)
+        CourseModule, on_delete=models.CASCADE, null=True, blank=True)
     can_start = models.DateTimeField(editable=True, default=timezone.now)
     duration = models.IntegerField()
-    start_time_actual = models.DateTimeField(
-        editable=True, default=timezone.now)
-    may_leave_time = models.DateTimeField(editable=True, default=timezone.now)
-    room = models.CharField(max_length=255)
+    room = models.CharField(max_length=255, null=True, blank=True)
 
     objects = models.Manager()
-    active_exams = ExamSessionManager()
+    active_exams = ActiveExamSessionManager()
 
     def __str__(self):
-        # return self.course_instance
         return " ".join([str(self.course_instance), str(self.can_start)])
 
     def start_exam(self, user):
+        
+        # Checking first if exam content is available. If not, database entries would be pointless
+        learning_objects = LearningObject.objects.filter(
+            course_module__exact=self.exam_module
+        )
+
+        if learning_objects:
+            redirect_url = learning_objects[0].get_display_url()
+
+        else:
+            return reverse("exam_module_not_defined")
+
         attempt = ExamAttempt(
             exam_taken=self,
             student=user.userprofile,
@@ -58,20 +67,6 @@ class ExamSession(models.Model):
 
         user.userprofile.active_exam = attempt
         user.userprofile.save()
-
-        learning_objects = LearningObject.objects.filter(
-            course_module__exact=self.exam_module
-        )
-
-        module_url = self.exam_module.url
-        if learning_objects:
-            module_url += "/" + learning_objects[0].url
-
-        redirect_url = (
-            self.course_instance.course.url + "/"
-            + self.course_instance.url + "/"
-            + module_url
-        )
 
         return redirect_url
 

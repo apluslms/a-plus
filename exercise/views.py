@@ -383,3 +383,6 @@ class SubmittedFileView(SubmissionMixin, BaseView):
 
         return HttpResponse(bytedata.decode('utf-8', 'ignore'),
             content_type='text/plain; charset="UTF-8"')
+
+class ExamsStudentView(BaseView):
+    template_name = ""

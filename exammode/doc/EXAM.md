@@ -41,6 +41,34 @@ The overall design of the system is based on a process that is depicted in follo
 
 ![alt text](exam_room_process.png)
 
+Creating an exam
+----------------
+
+For instructions how to use Exam classes see their [wiki](https://wiki.aalto.fi/display/OPIT/Exam+workflow).
+
+For first time only:
+* Create new git branch for exam (is this necessary?)
+* Ask A+ admins to create new mooc grader and hook new branch to that grader
+* Ask exam admins to create new course to exam A+ and set it to use grader created above
+* In the new branch, create new folder with index.rst files for the exam
+* Edit master index so that only exam module indices are listed
+* Possible, create new master index and conf.py file pointing to that index
+
+For each exam:
+* Create new rst files for the exam (one for each language version), name files appropriately e.g. exam_yyyymmdd_fi.rst. This represents a 'exam sheet'
+* Adjust exam module index.rst so that only files made in previous step are listed
+* Adjust module opening times accordingly
+* For exam specific exercises, create them directly to the exam branch to a suitable location, e.g. module_exam/exercises/
+* Add exam questions to the 'exam sheet' with a include directive. You can use either specific exam questions or regular exercises used during the course
+* Rebase to the master / production branch whenever you want to use newer exercises
+* Push your changes to the remote and check tentit.cs.aalto.fi that everything works as intended
+
+Questions:
+* What to do if there are several exams going on at the same time or close to each other
+* Do unlisted questions mess the total points?
+* Can students have access to exam questions (unlisted module) after exam?
+* Can exam questions become available to students after certain DL?
+
 ### Models
 
 * ExamSession

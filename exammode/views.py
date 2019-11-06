@@ -50,3 +50,7 @@ class ExamEndView(BaseTemplateView):
 class ExamFinalView(BaseTemplateView):
     template_name = "exammode/exam_final.html"
     access_mode = ACCESS.STUDENT
+
+class ExamModuleNotDefined(BaseTemplateView):
+    template_name = "exammode/exam_module_not_found.html"
+    access_mode = ACCESS.STUDENT

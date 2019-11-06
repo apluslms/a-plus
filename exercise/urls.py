@@ -20,6 +20,9 @@ urlpatterns = [
     url(USER_URL_PREFIX + r'results/$',
         views.ResultsView.as_view(),
         name="results"),
+    url(USER_URL_PREFIX + r'exams/$',
+        views.ExamsStudentView.as_view(),
+        name="exams"),
     url(SUBMISSION_URL_PREFIX + r'$',
         views.SubmissionView.as_view(),
         name="submission"),
@@ -30,7 +33,7 @@ urlpatterns = [
         views.SubmissionPollView.as_view(),
         name="submission-poll"),
     url(SUBMISSION_URL_PREFIX \
-            + r'file/(?P<file_id>\d+)/(?P<file_name>[\w\d\_\-\.]+)',
+        + r'file/(?P<file_id>\d+)/(?P<file_name>[\w\d\_\-\.]+)',
         views.SubmittedFileView.as_view(),
         name="submission-file"),
 
