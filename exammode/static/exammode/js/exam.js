@@ -12,10 +12,10 @@ $(window).on("aplus:exercise-ready", function (event) {
     }
 });
 
-$(window).on('shown.bs.collapse', function(event) {
+$(window).on('shown.bs.collapse', function (event) {
     // Reload iframe after opening panel to reset height
     let iframe = $(event.target).find("iframe");
     if (iframe.length) {
-        iframe[0].src = iframe[0].src
+        iframe[0].src = iframe[0].src;
     }
 })

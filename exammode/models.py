@@ -46,7 +46,7 @@ class ExamSession(models.Model):
         return " ".join([str(self.course_instance), str(self.can_start)])
 
     def start_exam(self, user):
-        
+
         # Checking first if exam content is available. If not, database entries would be pointless
         learning_objects = LearningObject.objects.filter(
             course_module__exact=self.exam_module
@@ -72,20 +72,12 @@ class ExamSession(models.Model):
 
     def end_exam(self, user):
         attempt = ExamAttempt.objects.filter(
-            exam_taken=self).filter(student=user.userprofile)[:1].get()
+            exam_taken=self, student=user.userprofile)[:1].get()
         attempt.exam_finished = timezone.now()
         attempt.save()
 
         user.userprofile.active_exam = None
         user.userprofile.save()
-
-        learning_objects = LearningObject.objects.filter(
-            course_module__exact=self.exam_module
-        )
-
-        module_url = self.exam_module.url
-        if learning_objects:
-            module_url += "/" + learning_objects[0].url
 
         redirect_url = ("exam_final_info")
 
