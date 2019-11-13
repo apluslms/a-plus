@@ -36,6 +36,7 @@ EXERCISE_FIELDS = [
     'min_group_size',
     'max_group_size',
     'model_answers',
+    'templates',
 ]
 
 
@@ -98,7 +99,7 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
     def get_fieldsets(self):
         return [
             self.get_hierarchy_fieldset(),
-            self.get_content_fieldset('model_answers'),
+            self.get_content_fieldset('model_answers', 'templates'),
             { 'legend':_('Grading'), 'fields':self.get_fields('max_submissions',
                 'max_points','points_to_pass', 'difficulty',
                 'allow_assistant_viewing','allow_assistant_grading') },
