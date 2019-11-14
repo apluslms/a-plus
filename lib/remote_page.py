@@ -191,6 +191,16 @@ class RemotePage:
                 elif not value.startswith('/'):
                     element[attr_name] = '../' + value
 
+                # If chapter is in a nested directory, folders names between
+                # the module and the chapter must be removed
+                # from the link since a-plus urls do not have them.
+                if len(element[attr_name].split('/')) > 3:
+                    path_to_module = ('/').join(element[attr_name].split('/')[0:3])+'/'
+                    # Links can be written with our without the ending slash ('/')
+                    index = 1 if element[attr_name].split('/')[-1] else 2
+                    chapter_name = element[attr_name].split('/')[-index]
+                    element[attr_name] = path_to_module + chapter_name
+
             elif value and not test.match(value):
 
                 # Custom transform for RST generated exercises.
