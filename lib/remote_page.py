@@ -194,12 +194,14 @@ class RemotePage:
                 # If chapter is in a nested directory, folders names between
                 # the module and the chapter must be removed
                 # from the link since a-plus urls do not have them.
-                if len(element[attr_name].split('/')) > 3:
-                    path_to_module = ('/').join(element[attr_name].split('/')[0:3])+'/'
+                split_path = element[attr_name].split('/')
+                if len(split_path) > 3:
+                    path_to_module = ('/').join(split_path[0:3])+'/'
                     # Links can be written with our without the ending slash ('/')
-                    index = 1 if element[attr_name].split('/')[-1] else 2
-                    chapter_name = element[attr_name].split('/')[-index]
+                    chapter_name = '_'.join(split_path[3:])
                     element[attr_name] = path_to_module + chapter_name
+                    if element[attr_name][-1] == '_':
+                        element[attr_name] = element[attr_name][:-1]
 
             elif value and not test.match(value):
 
