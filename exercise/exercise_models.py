@@ -658,7 +658,9 @@ class BaseExercise(LearningObject):
         if self.id:
             if request.user.is_authenticated:
                 user = request.user
-                submission_count = self.get_submissions_for_student(user.userprofile).count()
+                submission_count = self.get_submissions_for_student(
+                    user.userprofile, exclude_errors=True
+                ).count()
             else:
                 user = None
                 submission_count = 0
