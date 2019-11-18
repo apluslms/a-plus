@@ -202,7 +202,7 @@
         // Pick only students that have the selected tags
         // Use same logic for tag filtering as in participants.js
         let = filteredStudentPool = [];
-        _students.results.forEach(function(student) {
+        _students.forEach(function(student) {
             const tagSlugFilters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
             .map(function(elem) {
                 return $(elem).data('tagSlug');
@@ -236,7 +236,7 @@
 
 
         // Gather information that is same for all students from the first student for better performance
-        const firstStudent = _students.results[0];
+        const firstStudent = _students[0];
         const sidFirst = firstStudent.id;
         let moduleChecklist = [];
 
@@ -412,7 +412,7 @@
                 const studentTags = student.tag_slugs;
 
                 studentTags.forEach(function(tagSlug) {
-                    _usertags.results.forEach(function(usertag) {
+                    _usertags.forEach(function(usertag) {
                         if (usertag.slug === tagSlug) {
                             tagHtml += django_colortag_label(usertag, ' ')[0].outerHTML;
                         }
@@ -605,7 +605,7 @@
         $(".colortag-active").css("margin-right", "5px");
         $("#student-count").append(
             ' (<span id="selected-number">' + filteredStudentPool.length + '</span> / '
-            + '<span id="participants-number">'+ _students.count + '</span>'
+            + '<span id="participants-number">'+ _students.length + '</span>'
             + _(' students selected') + ')'
         );
         tableExportVar.reset();
@@ -705,6 +705,22 @@
         }
     }
 
+    function gatherFromAPIPaging(url) {
+        function gather(cur_result, url) {
+            return $.ajax(url)
+            .then(function(response) {
+                cur_result = cur_result.concat(response.results)
+                if (response.next) {
+                    return gather(cur_result, response.next);
+                } else {
+                    return cur_result
+                }
+            }, function(reason) {
+                throw new Error("Pagination ajax failed: " + reason);
+            });
+        }
+        return gather([], url);
+    }
 
     /*
      * The following code is responsible for handling all the ajax calls to get the data from /api/v2/
@@ -712,16 +728,16 @@
      * Creates the table for the first time, when all ajax calls have finished.
      * READER WARNING: You are entering callback hell.
      */
-    $.when($.ajax(exercisesUrl), $.ajax(studentsUrl), $.ajax(usertagsUrl))
-        .done(function(exercisesResolve, studentsResolve, usertagsResolve) {
-        _exercises = exercisesResolve[0];
-        _students = studentsResolve[0];
-        _usertags = usertagsResolve[0];
+    $.when(gatherFromAPIPaging(exercisesUrl), gatherFromAPIPaging(studentsUrl), gatherFromAPIPaging(usertagsUrl))
+        .done(function(exercisesPagedResults, studentsPagedResults, usertagsPagedResults) {
+        _exercises = exercisesPagedResults;
+        _students = studentsPagedResults;
+        _usertags = usertagsPagedResults;
 
-        let requiredPointAjaxCalls = _students.results.length;
-        let requiredUserAjaxCalls = _students.results.length;
+        let requiredPointAjaxCalls = _students.length;
+        let requiredUserAjaxCalls = _students.length;
         let requiredExerciseAjaxCalls = 0;
-        _exercises.results.forEach(function(module) {
+        _exercises.forEach(function(module) {
             module.exercises.forEach(function(exercise) {
                 requiredExerciseAjaxCalls++;
             });
@@ -733,17 +749,23 @@
         let successFirstStudent = false;
 
         let checkIfAllAjaxCompleted = function() {
+            const users_progress = completedUserAjaxCalls + " / " + requiredUserAjaxCalls;
+            const exercises_progress = completedExerciseAjaxCalls + " / " + requiredExerciseAjaxCalls;
+            const points_progress = completedPointAjaxCalls + " / " + requiredPointAjaxCalls;
+            const progress_report = users_progress + "<br>" + exercises_progress + "<br>" + points_progress;
+            $("#results-loading-progress").html(progress_report);
             if (completedPointAjaxCalls === requiredPointAjaxCalls &&
                 completedExerciseAjaxCalls === requiredExerciseAjaxCalls &&
                 completedUserAjaxCalls === requiredUserAjaxCalls) {
                 _ajaxCompleted = true;
                 exerciseSelectionChange();
                 $("#results-loading-animation").hide();
+                $("#table-export-dropdown > button").removeAttr('disabled');
                 $("#table-points-div").show();
             }
         }
 
-        _students.results.forEach(function(student) {
+        _students.forEach(function(student) {
             $.ajax({
                 url: student.url
             }).then(function(data) {
@@ -817,7 +839,7 @@
             });
         });
 
-        _exercises.results.forEach(function(module) {
+        _exercises.forEach(function(module) {
             module.exercises.forEach(function(exercise) {
                 $.ajax({
                     url: exercise.url
