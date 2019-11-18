@@ -160,7 +160,7 @@
 
 		<!--Dropdown button for table exports. The buttons are added inside results_staff.js-->
 		<div id="table-export-dropdown" class="dropdown d-inline-block">
-			<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{% trans "Export Data" %}
+			<button disabled class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{% trans "Export Data" %}
 				<span class="caret"></span>
 			</button>
 			<ul id="export-button-menu" class="dropdown-menu">
@@ -191,6 +191,14 @@
 				<span></span>
 				<span></span>
 			</div>
+		</div>
+	</div>
+
+ 
+	<!--Loading progress-->
+	<div class="row">
+		<div class="col-md-12">
+			<div id="results-loading-progress" class="text-center"></div>
 		</div>
 	</div>
 
