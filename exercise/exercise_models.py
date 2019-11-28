@@ -566,7 +566,7 @@ class BaseExercise(LearningObject):
         # Support group id from post or currently selected group.
         group = None
         group_id = request.POST.get("_aplus_group") if request else None
-        if not group_id is None:
+        if group_id is not None:
             try:
                 gid = int(group_id)
                 if gid > 0:
@@ -580,25 +580,29 @@ class BaseExercise(LearningObject):
 
         # Check groups cannot be changed after submitting.
         submission = self.get_submissions_for_student(profile).first()
-        if submission:
-            if self._detect_group_changes(profile, group, submission):
-                msg = _("Group can only change between different exercises.")
-                warning = _('You have previously submitted this '
-                            'exercise {with_group}. {msg}')
-                if submission.submitters.count() == 1:
-                    warning = warning.format(with_group=_('alone'), msg=msg)
-                else:
-                    collaborators = StudentGroup.format_collaborator_names(
-                            submission.submitters.all(), profile)
-                    with_group = _('with {}').format(collaborators)
-                    warning = warning.format(with_group=with_group, msg=msg)
-                warnings.append(warning)
-                return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+        # Staff members can submit without group restrictions.
+        if not self.group_contains_staff(group, profile):
+            if submission:
+                if self._detect_group_changes(profile, group, submission):
+                    msg = _("Group can only change between different exercises.")
+                    warning = _('You have previously submitted this '
+                                'exercise {with_group}. {msg}')
+                    if submission.submitters.count() == 1:
+                        warning = warning.format(with_group=_('alone'), msg=msg)
+                    else:
+                        collaborators = StudentGroup.format_collaborator_names(
+                                submission.submitters.all(), profile)
+                        with_group = _('with {}').format(collaborators)
+                        warning = warning.format(with_group=with_group, msg=msg)
+                    warnings.append(warning)
+                    return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
-        elif self._detect_submissions(profile, group):
-            warnings.append(_('{collaborators} already submitted to this exercise in a different group.').format(
-                collaborators=group.collaborator_names(profile)))
-            return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+            elif self._detect_submissions(profile, group):
+                warnings.append(
+                    _('{collaborators} already submitted to this exercise in a different group.'
+                    ).format(collaborators=group.collaborator_names(profile))
+                )
+                return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
         # Get submitters.
         if group:
@@ -648,6 +652,14 @@ class BaseExercise(LearningObject):
                 for p in group.members.all() if p != profile
             ))
         return False
+
+    def group_contains_staff(self, group, profile):
+        if group:
+            return any((
+                self.course_instance.is_course_staff(p.user)
+                for p in group.members.all()
+            ))
+        return self.course_instance.is_course_staff(profile.user)
 
     def get_total_submitter_count(self):
         return UserProfile.objects \
