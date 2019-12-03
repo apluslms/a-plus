@@ -77,12 +77,13 @@ msgstr "Vain opettajille."
 msgid "Only course staff shall pass."
 msgstr "Vain kurssihenkilökunnalle."
 
-#: authorization/permissions.py:141 course/permissions.py:66
+#: authorization/permissions.py:141 course/permissions.py:96
 msgid "Only enrolled students shall pass."
 msgstr "Vain ilmoittautuneille."
 
 #: course/admin.py:24
 #: external_services/templates/external_services/list_menu.html:22
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2236
 msgid "URL"
 msgstr "URL"
 
@@ -303,50 +304,56 @@ msgstr ""
 "palautuskertojen raja on ylitetty. Pisteet tallennetaan, mutta ne eivät "
 "sisälly virallisiin tuloksiin."
 
-#: course/permissions.py:20 course/permissions.py:88
+#: course/permissions.py:20
+#, fuzzy
+#| msgid "Permission denied by access mode."
+msgid "Permission denied to exam denied"
+msgstr "Pääsy kielletty pääsyrajoituksen perusteella."
+
+#: course/permissions.py:46 course/permissions.py:118
 msgid "Permission denied by course visibility"
 msgstr "Pääsy kielletty kurssin näkyvyyden perusteella"
 
-#: course/permissions.py:46 course/permissions.py:99
+#: course/permissions.py:72 course/permissions.py:129
 msgid "The resource is not currently visible."
 msgstr "Materiaali ei ole tällä hetkellä nähtävissä."
 
-#: course/permissions.py:57 course/permissions.py:105
+#: course/permissions.py:87 course/permissions.py:135
 msgid "This course is not open for public."
 msgstr "Tälle kurssille ei ole vapaata pääsyä."
 
-#: course/permissions.py:79
+#: course/permissions.py:109
 msgid "This course is only for internal students."
 msgstr "Tämä kurssi on vain oppilaitoksen koulutusohjelmien opiskelijoille."
 
-#: course/permissions.py:82
+#: course/permissions.py:112
 msgid "This course is only for external students."
 msgstr "Tämä kurssi on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
-#: course/permissions.py:112
+#: course/permissions.py:142
 msgid "The module is not currently visible"
 msgstr "Tämä osio ei ole tällä hetkellä nähtävissä."
 
-#: course/permissions.py:130
+#: course/permissions.py:160
 #, python-brace-format
 msgid "The module will open for submissions at {date}."
 msgstr "Tämä osio avautuu {date}."
 
-#: course/permissions.py:143
+#: course/permissions.py:174
 msgid "Only course teacher is allowed"
 msgstr "Vain opettajalle."
 
-#: course/permissions.py:153
+#: course/permissions.py:184
 msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle."
 
 #: course/staff_views.py:102 edit_course/views.py:49
-#: exercise/staff_views.py:289
+#: exercise/staff_views.py:283 exercise/staff_views.py:383
 msgid "Changes were saved succesfully."
 msgstr "Muutokset tallennettiin onnistuneesti."
 
 #: course/staff_views.py:106 edit_course/views.py:53
-#: exercise/staff_views.py:293
+#: exercise/staff_views.py:287 exercise/staff_views.py:387
 msgid "Failed to save changes."
 msgstr "Muutosten tallentaminen epäonnistui."
 
@@ -361,6 +368,7 @@ msgid "Course"
 msgstr "Kurssi"
 
 #: course/templates/course/_course_menu.html:18
+#: exammode/templates/exammode/base.html:92
 #: userprofile/templates/userprofile/profile.html:39
 msgid "Language"
 msgstr "Kieli"
@@ -377,28 +385,32 @@ msgstr "Kurssimateriaali"
 msgid "Exercise results"
 msgstr "Pistetilanne"
 
-#: course/templates/course/_course_menu.html:66
+#: course/templates/course/_course_menu.html:63
+msgid "Exams"
+msgstr ""
+
+#: course/templates/course/_course_menu.html:72
 msgid "Form a group"
 msgstr "Luo uusi ryhmä"
 
-#: course/templates/course/_course_menu.html:94
+#: course/templates/course/_course_menu.html:100
 msgid "Apps"
 msgstr "Sovellukset"
 
-#: course/templates/course/_course_menu.html:108
+#: course/templates/course/_course_menu.html:114
 #: exercise/templates/exercise/_user_results.html:86
 #: exercise/templates/exercise/submission_plain.html:41
 msgid "Course staff"
 msgstr "Kurssihenkilökunta"
 
-#: course/templates/course/_course_menu.html:114
+#: course/templates/course/_course_menu.html:120
 #: course/templates/course/staff/participants.html:6
 #: course/templates/course/staff/participants.html:11
 #: exercise/templates/exercise/staff/user_results.html:34
 msgid "Participants"
 msgstr "Opiskelijat"
 
-#: course/templates/course/_course_menu.html:121
+#: course/templates/course/_course_menu.html:127
 #: course/templates/course/staff/group_delete.html:6
 #: course/templates/course/staff/group_delete.html:11
 #: course/templates/course/staff/group_edit.html:6
@@ -409,29 +421,35 @@ msgstr "Opiskelijat"
 msgid "Groups"
 msgstr "Ryhmät"
 
-#: course/templates/course/_course_menu.html:129
+#: course/templates/course/_course_menu.html:135
 #: diploma/templates/diploma/list.html:4 diploma/templates/diploma/list.html:8
 msgid "Grades"
 msgstr "Arvosanat"
 
-#: course/templates/course/_course_menu.html:137
+#: course/templates/course/_course_menu.html:143
 #: exercise/templates/exercise/staff/results.html:6
 #: exercise/templates/exercise/staff/results.html:11
 msgid "All results"
 msgstr "Kaikki pisteet"
 
-#: course/templates/course/_course_menu.html:144
+#: course/templates/course/_course_menu.html:150
 #: exercise/templates/exercise/staff/analytics.html:6
 #: exercise/templates/exercise/staff/analytics.html:11
 msgid "Visualizations"
 msgstr "Visualisoinnit"
 
-#: course/templates/course/_course_menu.html:152
+#: course/templates/course/_course_menu.html:157
+#: exammode/templates/exammode/staff/exam_management.html:6
+#: exammode/templates/exammode/staff/exam_management.html:11
+msgid "Exam management"
+msgstr "Tenttien hallinta"
+
+#: course/templates/course/_course_menu.html:165
 #: news/templates/news/edit.html:11 news/templates/news/list.html:11
 msgid "Edit news"
 msgstr "Muokkaa kurssiuutisia"
 
-#: course/templates/course/_course_menu.html:158
+#: course/templates/course/_course_menu.html:171
 #: edit_course/templates/edit_course/edit_content.html:8
 #: edit_course/templates/edit_course/edit_course_base.html:5
 #: edit_course/templates/edit_course/edit_course_base.html:11
@@ -725,6 +743,7 @@ msgstr "Poista kaikki"
 #: edit_course/templates/edit_course/remove_model.html:51
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
+#: exammode/templates/exammode/base.html:198
 #: external_services/templates/external_services/list_menu.html:68
 #: news/templates/news/list.html:53 templates/base.html:243
 msgid "Remove"
@@ -1312,6 +1331,7 @@ msgid "Open module"
 msgstr "Avaa moduuli"
 
 #: edit_course/templates/edit_course/edit_content.html:109
+#: exammode/templates/exammode/exam.html:130
 #: exercise/templates/exercise/exercise_base.html:91
 msgid "Edit exercise"
 msgstr "Muokkaa tehtävää"
@@ -1656,6 +1676,152 @@ msgstr "Tehtävien välimuisti on tyhjennetty."
 msgid "Username \"{username}\" does not exist."
 msgstr "Käyttäjätunnusta \"{username}\" ei ole olemassa."
 
+#: exammode/templates/exammode/base.html:158
+#: exammode/templates/exammode/base.html:179 templates/base.html:207
+#: templates/base.html:226
+msgid "Loading failed!"
+msgstr "Lataus epäonnistui!"
+
+#: exammode/templates/exammode/base.html:159
+#: exammode/templates/exammode/base.html:180 templates/base.html:208
+#: templates/base.html:227
+msgid "Loading..."
+msgstr "Ladataan..."
+
+#: exammode/templates/exammode/base.html:167
+#: exammode/templates/exammode/base.html:185 templates/base.html:215
+#: templates/base.html:232
+msgid "Close"
+msgstr "Sulje"
+
+#: exammode/templates/exammode/base.html:202 templates/base.html:247
+msgid "Search"
+msgstr "Hae"
+
+#: exammode/templates/exammode/base.html:206 templates/base.html:251
+msgid "No matches"
+msgstr "Ei osumia"
+
+#: exammode/templates/exammode/base.html:209 templates/base.html:254
+msgid "Search for..."
+msgstr "Etsi..."
+
+#: exammode/templates/exammode/exam.html:79
+#: exercise/templates/exercise/exercise_base.html:40
+msgid "Exercise description"
+msgstr "Tehtävänanto"
+
+#: exammode/templates/exammode/exam.html:85
+#: exammode/templates/exammode/exam_question.html:76
+#: exercise/templates/exercise/exercise_base.html:46
+#: exercise/templates/exercise/exercise_plain.html:63
+msgid "My submissions"
+msgstr "Palautukseni"
+
+#: exammode/templates/exammode/exam.html:100
+#: exammode/templates/exammode/exam_question.html:96
+#: exercise/templates/exercise/_user_results.html:126
+#: exercise/templates/exercise/exercise_base.html:61
+#: exercise/templates/exercise/exercise_plain.html:83
+msgid "No submissions yet"
+msgstr "Ei vielä palautuksia"
+
+#: exammode/templates/exammode/exam.html:113
+#: exercise/templates/exercise/exercise_base.html:74
+#: exercise/templates/exercise/model.html:9
+msgid "Model answer"
+msgstr "Esimerkkiratkaisu"
+
+#: exammode/templates/exammode/exam.html:124
+#: exercise/templates/exercise/exercise_base.html:85
+msgid "Inspect submission"
+msgstr "Tutki palautusta"
+
+#: exammode/templates/exammode/exam.html:136
+#: exammode/templates/exammode/exam_question.html:147
+#: exercise/templates/exercise/exercise_base.html:97
+#: exercise/templates/exercise/exercise_plain.html:134
+msgid "View all submissions"
+msgstr "Näytä kaikki palautukset"
+
+#: exammode/templates/exammode/exam.html:169
+#: exammode/templates/exammode/exam.html:177
+#: exercise/templates/exercise/exercise.html:43
+#: exercise/templates/exercise/exercise.html:51
+msgid "Posting submission..."
+msgstr "Palautusta lähetetään..."
+
+#: exammode/templates/exammode/exam.html:176
+#: exercise/templates/exercise/exercise.html:50
+msgid "Loading exercise..."
+msgstr "Tehtävää ladataan..."
+
+#: exammode/templates/exammode/exam.html:178
+#: exercise/templates/exercise/_exercise_wait.html:6
+#: exercise/templates/exercise/exercise.html:52
+msgid "Communication error with the exercise."
+msgstr "Yhteys tehtäväpalveluun epäonnistui."
+
+#: exammode/templates/exammode/exam.html:186
+#: exercise/templates/exercise/exercise.html:57
+msgid "Submission received."
+msgstr "Palautus on vastaanotettu."
+
+#: exammode/templates/exammode/exam.html:189
+#: exercise/templates/exercise/exercise.html:60
+msgid "Go to feedback"
+msgstr "Katso palaute"
+
+#: exammode/templates/exammode/exam_end.html:11
+msgid "You can go back to the exam with the back button."
+msgstr "Voit palata takaisin tenttiin takaisin-napilla."
+
+#: exammode/templates/exammode/exam_question.html:69
+#: exercise/templates/exercise/_points_progress.html:3
+#: exercise/templates/exercise/_user_results.html:84
+#: exercise/templates/exercise/exercise_plain.html:56
+#: exercise/templates/exercise/submission_plain.html:39
+msgid "Points"
+msgstr "Pisteet"
+
+#: exammode/templates/exammode/exam_question.html:106
+#, fuzzy, python-format
+#| msgid "%(points)s points required to pass"
+msgid ""
+"\n"
+"\t\t\t\t\t\t\t\t\t\t\t\t\t%(points)s points required to pass.\n"
+"\t\t\t\t\t\t\t\t\t\t\t\t"
+msgstr "Suoritusmerkintään vaaditaan %(points)s pistettä"
+
+#: exammode/templates/exammode/exam_question.html:111
+#: exercise/templates/exercise/_exercise_info.html:57
+#: exercise/templates/exercise/exercise_plain.html:98
+msgid "Late submission deadline"
+msgstr "Myöhässä palautuksen määräaika"
+
+#: exammode/templates/exammode/exam_question.html:116
+#: exercise/templates/exercise/_exercise_info.html:53
+#: exercise/templates/exercise/exercise_plain.html:103
+msgid "Deadline"
+msgstr "Määräaika"
+
+#: exammode/templates/exammode/exam_question.html:132
+#: exercise/templates/exercise/exercise_plain.html:119
+msgid "Show model answer"
+msgstr "Näytä esimerkkiratkaisu"
+
+#: exammode/templates/exammode/exam_question.html:140
+#: exercise/templates/exercise/exercise_plain.html:127
+msgid "Show exercise template"
+msgstr "Näytä pohjatiedosto"
+
+#: exammode/templates/exammode/exam_question.html:169
+#: exercise/templates/exercise/exercise_plain.html:156
+#: exercise/templates/exercise/submission.html:37
+#: exercise/templates/exercise/submission_plain.html:94
+msgid "Your submission has been accepted for grading."
+msgstr "Palautuksesi on vastaanotettu arvostelua varten."
+
 #: exercise/admin.py:40
 msgid "Real class"
 msgstr "Oikea luokka"
@@ -1949,31 +2115,31 @@ msgstr "Tämä tehtävä on vain oppilaitoksen koulutusohjelmien opiskelijoille.
 msgid "The exercise is only for external users."
 msgstr "Tämä tehtävä on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
-#: exercise/permissions.py:54
+#: exercise/permissions.py:82
 msgid "Permission denied by exercise assistant permission"
 msgstr "Pääsy kielletty tehtävän assistenttiasetuksen perusteella"
 
-#: exercise/permissions.py:73
+#: exercise/permissions.py:102
 msgid "Assistant viewing is not allowed for this exercise."
 msgstr "Assistentti ei voi nähdä tätä tehtävää."
 
-#: exercise/permissions.py:78
+#: exercise/permissions.py:108
 msgid "Assistant grading is not allowed for this exercise."
 msgstr "Assistentti ei voi arvostella tätä tehtävää."
 
-#: exercise/permissions.py:85
+#: exercise/permissions.py:115
 msgid "Permission denied by submission visibility"
 msgstr "Pääsy kielletty palautuksen näkyvyyden perusteella"
 
-#: exercise/permissions.py:93
+#: exercise/permissions.py:123
 msgid "Only the submitter shall pass."
 msgstr "Vain palautuksen tehneelle - only the submitter shall pass."
 
-#: exercise/permissions.py:121
+#: exercise/permissions.py:152
 msgid "Permission denied by exercise model answer visibility"
 msgstr "Pääsy kielletty tehtävän esimerkkiratkaisun näkyvyyden perusteella"
 
-#: exercise/permissions.py:133
+#: exercise/permissions.py:165
 msgid "You are not allowed to view model answers for this exercise."
 msgstr "Sinulla ei ole lupaa katsoa tämän tehtävän esimerkkiratkaisua."
 
@@ -1998,15 +2164,15 @@ msgstr ""
 msgid "Assessment service responded with error."
 msgstr "Tehtäväpalvelussa tapahtui virhe."
 
-#: exercise/staff_views.py:151
+#: exercise/staff_views.py:154
 msgid "The review was saved successfully and the submitters were notified."
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
 
-#: exercise/staff_views.py:172
+#: exercise/staff_views.py:175
 msgid "Failed to load the resource."
 msgstr "Lataus epäonnistui."
 
-#: exercise/staff_views.py:251
+#: exercise/staff_views.py:345
 #, python-brace-format
 msgid ""
 "Invalid POST data:\n"
@@ -2015,7 +2181,7 @@ msgstr ""
 "Epäkelvollinen POST sisältö:\n"
 "{error}"
 
-#: exercise/staff_views.py:266
+#: exercise/staff_views.py:360
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 
@@ -2072,16 +2238,6 @@ msgstr "Palautuksesi"
 msgid "Points required to pass"
 msgstr "Pistevaatimus"
 
-#: exercise/templates/exercise/_exercise_info.html:53
-#: exercise/templates/exercise/exercise_plain.html:103
-msgid "Deadline"
-msgstr "Määräaika"
-
-#: exercise/templates/exercise/_exercise_info.html:57
-#: exercise/templates/exercise/exercise_plain.html:98
-msgid "Late submission deadline"
-msgstr "Myöhässä palautuksen määräaika"
-
 #: exercise/templates/exercise/_exercise_info.html:67
 msgid "Group size"
 msgstr "Ryhmäkoko"
@@ -2089,11 +2245,6 @@ msgstr "Ryhmäkoko"
 #: exercise/templates/exercise/_exercise_info.html:71
 msgid "Total number of submitters"
 msgstr "Palauttaneita opiskelijoita yhteensä"
-
-#: exercise/templates/exercise/_exercise_wait.html:6
-#: exercise/templates/exercise/exercise.html:52
-msgid "Communication error with the exercise."
-msgstr "Yhteys tehtäväpalveluun epäonnistui."
 
 #: exercise/templates/exercise/_exercise_wait.html:7
 msgid ""
@@ -2170,13 +2321,6 @@ msgstr "Suoritusmerkintään vaaditaan %(points)s pistettä"
 #: exercise/templates/exercise/_points_badge.html:29
 msgid "Required exercises are not passed"
 msgstr "Kaikkia pakollisia tehtäviä ei ole suoritettu"
-
-#: exercise/templates/exercise/_points_progress.html:3
-#: exercise/templates/exercise/_user_results.html:84
-#: exercise/templates/exercise/exercise_plain.html:56
-#: exercise/templates/exercise/submission_plain.html:39
-msgid "Points"
-msgstr "Pisteet"
 
 #: exercise/templates/exercise/_points_progress.html:3
 msgid "Required"
@@ -2297,12 +2441,6 @@ msgstr ""
 msgid "Submissions"
 msgstr "Palautukset"
 
-#: exercise/templates/exercise/_user_results.html:126
-#: exercise/templates/exercise/exercise_base.html:61
-#: exercise/templates/exercise/exercise_plain.html:83
-msgid "No submissions yet"
-msgstr "Ei vielä palautuksia"
-
 #: exercise/templates/exercise/_warnings_overlay.html:6
 msgid "You cannot submit this exercise"
 msgstr "Et voi palauttaa tätä tehtävää"
@@ -2315,46 +2453,6 @@ msgstr "Näytä kuitenkin"
 msgid "Enrollment information"
 msgstr "Ilmoittautumisen tiedot"
 
-#: exercise/templates/exercise/exercise.html:43
-#: exercise/templates/exercise/exercise.html:51
-msgid "Posting submission..."
-msgstr "Palautusta lähetetään..."
-
-#: exercise/templates/exercise/exercise.html:50
-msgid "Loading exercise..."
-msgstr "Tehtävää ladataan..."
-
-#: exercise/templates/exercise/exercise.html:57
-msgid "Submission received."
-msgstr "Palautus on vastaanotettu."
-
-#: exercise/templates/exercise/exercise.html:60
-msgid "Go to feedback"
-msgstr "Katso palaute"
-
-#: exercise/templates/exercise/exercise_base.html:40
-msgid "Exercise description"
-msgstr "Tehtävänanto"
-
-#: exercise/templates/exercise/exercise_base.html:46
-#: exercise/templates/exercise/exercise_plain.html:63
-msgid "My submissions"
-msgstr "Palautukseni"
-
-#: exercise/templates/exercise/exercise_base.html:74
-#: exercise/templates/exercise/model.html:9
-msgid "Model answer"
-msgstr "Esimerkkiratkaisu"
-
-#: exercise/templates/exercise/exercise_base.html:85
-msgid "Inspect submission"
-msgstr "Tutki palautusta"
-
-#: exercise/templates/exercise/exercise_base.html:97
-#: exercise/templates/exercise/exercise_plain.html:134
-msgid "View all submissions"
-msgstr "Näytä kaikki palautukset"
-
 #: exercise/templates/exercise/exercise_plain.html:93
 #, python-format
 msgid ""
@@ -2365,20 +2463,6 @@ msgid ""
 msgstr ""
 "\n"
 "Suoritusmerkintään vaaditaan %(points)s pistettä"
-
-#: exercise/templates/exercise/exercise_plain.html:119
-msgid "Show model answer"
-msgstr "Näytä esimerkkiratkaisu"
-
-#: exercise/templates/exercise/exercise_plain.html:127
-msgid "Show exercise template"
-msgstr "Näytä pohjatiedosto"
-
-#: exercise/templates/exercise/exercise_plain.html:156
-#: exercise/templates/exercise/submission.html:37
-#: exercise/templates/exercise/submission_plain.html:94
-msgid "Your submission has been accepted for grading."
-msgstr "Palautuksesi on vastaanotettu arvostelua varten."
 
 #: exercise/templates/exercise/results.html:8
 msgid "Results"
@@ -2457,6 +2541,7 @@ msgstr ""
 "%(count)s palautusta"
 
 #: exercise/templates/exercise/staff/_submissions_table.html:52
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2110
 msgid "Time"
 msgstr "Aika"
 
@@ -2800,21 +2885,21 @@ msgstr "Ei vielä palautuksia tälle kurssille."
 msgid "Excel compatible CSV"
 msgstr "Excel-yhteensopiva CSV"
 
-#: exercise/views.py:88
+#: exercise/views.py:97
 msgid "Exercise is in maintenance and content is hidden from students."
 msgstr "Tehtävässä on huoltokatko, ja sisältö on piilotettu opiskelijoilta."
 
-#: exercise/views.py:94
+#: exercise/views.py:103
 msgid "Unfortunately this exercise is currently under maintenance."
 msgstr "Valitettavasti tässä tehtävässä on juuri nyt huoltokatko."
 
-#: exercise/views.py:166
+#: exercise/views.py:184
 msgid ""
 "The submission could not be saved for some reason. The submission was not "
 "registered."
 msgstr "Palautuksen tallentaminen epäonnistui. Palautusta ei ole huomioitu."
 
-#: exercise/views.py:179
+#: exercise/views.py:197
 msgid "You need to sign in and enroll to submit exercises."
 msgstr ""
 "Palauttaaksesi tehtäviä sinun pitää rekisteröityä ja ilmoittautua kurssin "
@@ -3465,30 +3550,6 @@ msgstr "Etusivu"
 msgid "Privacy Notice"
 msgstr "Tietosuojailmoitus"
 
-#: templates/base.html:207 templates/base.html:226
-msgid "Loading failed!"
-msgstr "Lataus epäonnistui!"
-
-#: templates/base.html:208 templates/base.html:227
-msgid "Loading..."
-msgstr "Ladataan..."
-
-#: templates/base.html:215 templates/base.html:232
-msgid "Close"
-msgstr "Sulje"
-
-#: templates/base.html:247
-msgid "Search"
-msgstr "Hae"
-
-#: templates/base.html:251
-msgid "No matches"
-msgstr "Ei osumia"
-
-#: templates/base.html:254
-msgid "Search for..."
-msgstr "Etsi..."
-
 #: threshold/models.py:24
 msgid "Harder points are consumed by easier difficulty requirements."
 msgstr "Vaativammat pisteet käytetään helpompien vaatimuksien täyttöön."
@@ -3615,3 +3676,1254 @@ msgstr "Unohda automaattinen uudelleenohjaus."
 #: userprofile/views.py:80
 msgid "No privacy notice. Please notify administration!"
 msgstr "Ei tietosuojailmoitusta. Ota yhteys ylläpitäjään!"
+
+#: venv/lib/python3.5/site-packages/colorfield/fields.py:10
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid hex color."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/contrib/messages/apps.py:7
+msgid "Messages"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/contrib/sitemaps/apps.py:7
+#, fuzzy
+#| msgid "Site"
+msgid "Site Maps"
+msgstr "Sivusto"
+
+#: venv/lib/python3.5/site-packages/django/contrib/staticfiles/apps.py:9
+#, fuzzy
+#| msgid "Static exercise"
+msgid "Static Files"
+msgstr "Staattinen tehtävä"
+
+#: venv/lib/python3.5/site-packages/django/contrib/syndication/apps.py:7
+msgid "Syndication"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/paginator.py:45
+msgid "That page number is not an integer"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/paginator.py:47
+msgid "That page number is less than 1"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/paginator.py:52
+msgid "That page contains no results"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:31
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid value."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:102
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:658
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid URL."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:154
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid integer."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:165
+msgid "Enter a valid email address."
+msgstr ""
+
+#. Translators: "letters" means latin letters: a-z and A-Z.
+#: venv/lib/python3.5/site-packages/django/core/validators.py:239
+msgid ""
+"Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:246
+msgid ""
+"Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or "
+"hyphens."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:255
+#: venv/lib/python3.5/site-packages/django/core/validators.py:275
+msgid "Enter a valid IPv4 address."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:260
+#: venv/lib/python3.5/site-packages/django/core/validators.py:276
+msgid "Enter a valid IPv6 address."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:270
+#: venv/lib/python3.5/site-packages/django/core/validators.py:274
+msgid "Enter a valid IPv4 or IPv6 address."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:304
+msgid "Enter only digits separated by commas."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:310
+#, python-format
+msgid "Ensure this value is %(limit_value)s (it is %(show_value)s)."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:342
+#, python-format
+msgid "Ensure this value is less than or equal to %(limit_value)s."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:351
+#, python-format
+msgid "Ensure this value is greater than or equal to %(limit_value)s."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:361
+#, python-format
+msgid ""
+"Ensure this value has at least %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at least %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:376
+#, python-format
+msgid ""
+"Ensure this value has at most %(limit_value)d character (it has "
+"%(show_value)d)."
+msgid_plural ""
+"Ensure this value has at most %(limit_value)d characters (it has "
+"%(show_value)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:395
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:290
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:325
+#, fuzzy
+#| msgid "Internal users"
+msgid "Enter a number."
+msgstr "Paikalliset käyttäjät"
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:397
+#, python-format
+msgid "Ensure that there are no more than %(max)s digit in total."
+msgid_plural "Ensure that there are no more than %(max)s digits in total."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:402
+#, python-format
+msgid "Ensure that there are no more than %(max)s decimal place."
+msgid_plural "Ensure that there are no more than %(max)s decimal places."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:407
+#, python-format
+msgid ""
+"Ensure that there are no more than %(max)s digit before the decimal point."
+msgid_plural ""
+"Ensure that there are no more than %(max)s digits before the decimal point."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:469
+#, python-format
+msgid ""
+"File extension '%(extension)s' is not allowed. Allowed extensions are: "
+"'%(allowed_extensions)s'."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/core/validators.py:521
+#, fuzzy
+#| msgid "Points lower than zero are not allowed."
+msgid "Null characters are not allowed."
+msgstr "Pisteet eivät voi olla negatiivisia."
+
+#: venv/lib/python3.5/site-packages/django/db/models/base.py:1162
+#: venv/lib/python3.5/site-packages/django/forms/models.py:756
+msgid "and"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/base.py:1164
+#, python-format
+msgid "%(model_name)s with this %(field_labels)s already exists."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:104
+#, python-format
+msgid "Value %(value)r is not a valid choice."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:105
+msgid "This field cannot be null."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:106
+#, fuzzy
+#| msgid "One of the student fields must not be blank"
+msgid "This field cannot be blank."
+msgstr "Ainakin yksi opiskelijakentistä tulee antaa"
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:107
+#, python-format
+msgid "%(model_name)s with this %(field_label)s already exists."
+msgstr ""
+
+#. Translators: The 'lookup_type' is one of 'date', 'year' or 'month'.
+#. Eg: "Title must be unique for pub_date year"
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:111
+#, python-format
+msgid ""
+"%(field_label)s must be unique for %(date_field_label)s %(lookup_type)s."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:128
+#, python-format
+msgid "Field of type: %(field_type)s"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:901
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1768
+msgid "Integer"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:905
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1766
+#, python-format
+msgid "'%(value)s' value must be an integer."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:980
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1846
+msgid "Big (8 byte) integer"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:992
+#, python-format
+msgid "'%(value)s' value must be either True or False."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:993
+#, python-format
+msgid "'%(value)s' value must be either True, False, or None."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:995
+msgid "Boolean (Either True or False)"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1036
+#, python-format
+msgid "String (up to %(max_length)s)"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1100
+msgid "Comma-separated integers"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1149
+#, python-format
+msgid ""
+"'%(value)s' value has an invalid date format. It must be in YYYY-MM-DD "
+"format."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1151
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1294
+#, python-format
+msgid ""
+"'%(value)s' value has the correct format (YYYY-MM-DD) but it is an invalid "
+"date."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1154
+msgid "Date (without time)"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1292
+#, python-format
+msgid ""
+"'%(value)s' value has an invalid format. It must be in YYYY-MM-DD HH:MM[:ss[."
+"uuuuuu]][TZ] format."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1296
+#, python-format
+msgid ""
+"'%(value)s' value has the correct format (YYYY-MM-DD HH:MM[:ss[.uuuuuu]]"
+"[TZ]) but it is an invalid date/time."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1300
+msgid "Date (with time)"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1448
+#, python-format
+msgid "'%(value)s' value must be a decimal number."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1450
+msgid "Decimal number"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1589
+#, python-format
+msgid ""
+"'%(value)s' value has an invalid format. It must be in [DD] [HH:[MM:]]ss[."
+"uuuuuu] format."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1592
+#, fuzzy
+#| msgid "Deviations"
+msgid "Duration"
+msgstr "Määräajan muutokset"
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1642
+msgid "Email address"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1665
+msgid "File path"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1731
+#, python-format
+msgid "'%(value)s' value must be a float."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1733
+msgid "Floating point number"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1862
+msgid "IPv4 address"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1893
+msgid "IP address"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1973
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1974
+#, python-format
+msgid "'%(value)s' value must be either None, True or False."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:1976
+msgid "Boolean (Either True, False or None)"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2011
+msgid "Positive integer"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2024
+msgid "Positive small integer"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2038
+#, python-format
+msgid "Slug (up to %(max_length)s)"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2070
+msgid "Small integer"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2077
+msgid "Text"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2105
+#, python-format
+msgid ""
+"'%(value)s' value has an invalid format. It must be in HH:MM[:ss[.uuuuuu]] "
+"format."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2107
+#, python-format
+msgid ""
+"'%(value)s' value has the correct format (HH:MM[:ss[.uuuuuu]]) but it is an "
+"invalid time."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2258
+msgid "Raw binary data"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2308
+#, python-format
+msgid "'%(value)s' is not a valid UUID."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/__init__.py:2310
+msgid "Universally unique identifier"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/files.py:221
+#, fuzzy
+#| msgid "Files"
+msgid "File"
+msgstr "Tiedostot"
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/files.py:360
+msgid "Image"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/related.py:778
+#, python-format
+msgid "%(model)s instance with %(field)s %(value)r does not exist."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/related.py:780
+msgid "Foreign Key (type determined by related field)"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/related.py:1007
+msgid "One-to-one relationship"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/related.py:1057
+#, python-format
+msgid "%(from)s-%(to)s relationship"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/related.py:1058
+#, python-format
+msgid "%(from)s-%(to)s relationships"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/db/models/fields/related.py:1100
+msgid "Many-to-many relationship"
+msgstr ""
+
+#. Translators: If found as last label character, these punctuation
+#. characters will prevent the default label_suffix to be appended to the label
+#: venv/lib/python3.5/site-packages/django/forms/boundfield.py:146
+msgid ":?.!"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:53
+msgid "This field is required."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:245
+msgid "Enter a whole number."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:396
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:1126
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid date."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:420
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:1127
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid time."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:442
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid date/time."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:471
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid duration."
+msgstr "Syötä kelvollista JSON:ia."
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:472
+#, fuzzy, python-brace-format
+#| msgid "The number must be between 0.0 and 1.0"
+msgid "The number of days must be between {min_days} and {max_days}."
+msgstr "Numeron on oltava välillä 0.0 - 1.0"
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:532
+msgid "No file was submitted. Check the encoding type on the form."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:533
+#, fuzzy
+#| msgid "Not submitted"
+msgid "No file was submitted."
+msgstr "Ei palautuksia"
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:534
+#, fuzzy
+#| msgid "Submitted files"
+msgid "The submitted file is empty."
+msgstr "Palautetut tiedostot"
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:536
+#, python-format
+msgid "Ensure this filename has at most %(max)d character (it has %(length)d)."
+msgid_plural ""
+"Ensure this filename has at most %(max)d characters (it has %(length)d)."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:539
+msgid "Please either submit a file or check the clear checkbox, not both."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:600
+msgid ""
+"Upload a valid image. The file you uploaded was either not an image or a "
+"corrupted image."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:762
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:852
+#: venv/lib/python3.5/site-packages/django/forms/models.py:1270
+#, python-format
+msgid "Select a valid choice. %(value)s is not one of the available choices."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:853
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:968
+#: venv/lib/python3.5/site-packages/django/forms/models.py:1269
+msgid "Enter a list of values."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:969
+msgid "Enter a complete value."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/fields.py:1185
+#, fuzzy
+#| msgid "Enter valid JSON."
+msgid "Enter a valid UUID."
+msgstr "Syötä kelvollista JSON:ia."
+
+#. Translators: This is the default suffix added to form field labels
+#: venv/lib/python3.5/site-packages/django/forms/forms.py:86
+msgid ":"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/forms.py:212
+#, python-format
+msgid "(Hidden field %(name)s) %(error)s"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/formsets.py:91
+msgid "ManagementForm data is missing or has been tampered with"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/formsets.py:338
+#, python-format
+msgid "Please submit %d or fewer forms."
+msgid_plural "Please submit %d or fewer forms."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/forms/formsets.py:345
+#, python-format
+msgid "Please submit %d or more forms."
+msgid_plural "Please submit %d or more forms."
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/forms/formsets.py:371
+#: venv/lib/python3.5/site-packages/django/forms/formsets.py:373
+msgid "Order"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/formsets.py:375
+msgid "Delete"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/models.py:751
+#, python-format
+msgid "Please correct the duplicate data for %(field)s."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/models.py:755
+#, python-format
+msgid "Please correct the duplicate data for %(field)s, which must be unique."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/models.py:761
+#, python-format
+msgid ""
+"Please correct the duplicate data for %(field_name)s which must be unique "
+"for the %(lookup)s in %(date_field)s."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/models.py:770
+msgid "Please correct the duplicate values below."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/models.py:1091
+msgid "The inline value did not match the parent instance."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/models.py:1158
+msgid "Select a valid choice. That choice is not one of the available choices."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/models.py:1272
+#, python-format
+msgid "\"%(pk)s\" is not a valid value."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/utils.py:162
+#, python-format
+msgid ""
+"%(datetime)s couldn't be interpreted in time zone %(current_timezone)s; it "
+"may be ambiguous or it may not exist."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/widgets.py:395
+msgid "Clear"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/widgets.py:396
+#, fuzzy
+#| msgid "Current score"
+msgid "Currently"
+msgstr "Nykyiset pisteet"
+
+#: venv/lib/python3.5/site-packages/django/forms/widgets.py:397
+msgid "Change"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/widgets.py:711
+#, fuzzy
+#| msgid "[Unknown name]"
+msgid "Unknown"
+msgstr "[Tuntematon nimi]"
+
+#: venv/lib/python3.5/site-packages/django/forms/widgets.py:712
+msgid "Yes"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/forms/widgets.py:713
+msgid "No"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:788
+msgid "yes,no,maybe"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:817
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:834
+#, python-format
+msgid "%(size)d byte"
+msgid_plural "%(size)d bytes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:836
+#, python-format
+msgid "%s KB"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:838
+#, python-format
+msgid "%s MB"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:840
+#, python-format
+msgid "%s GB"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:842
+#, python-format
+msgid "%s TB"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/template/defaultfilters.py:844
+#, python-format
+msgid "%s PB"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dateformat.py:62
+msgid "p.m."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dateformat.py:63
+msgid "a.m."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dateformat.py:68
+msgid "PM"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dateformat.py:69
+msgid "AM"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dateformat.py:150
+msgid "midnight"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dateformat.py:152
+msgid "noon"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:6
+msgid "Monday"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:6
+msgid "Tuesday"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:6
+msgid "Wednesday"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:6
+msgid "Thursday"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:6
+msgid "Friday"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:7
+msgid "Saturday"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:7
+msgid "Sunday"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:10
+msgid "Mon"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:10
+msgid "Tue"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:10
+msgid "Wed"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:10
+msgid "Thu"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:10
+msgid "Fri"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:11
+#, fuzzy
+#| msgid "Status"
+msgid "Sat"
+msgstr "Tila"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:11
+msgid "Sun"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:14
+msgid "January"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:14
+msgid "February"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:14
+#, fuzzy
+#| msgid "Search"
+msgid "March"
+msgstr "Hae"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:14
+msgid "April"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:14
+msgid "May"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:14
+msgid "June"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:15
+msgid "July"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:15
+msgid "August"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:15
+#, fuzzy
+#| msgid "Members"
+msgid "September"
+msgstr "Jäsenet"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:15
+msgid "October"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:15
+#, fuzzy
+#| msgid "Members"
+msgid "November"
+msgstr "Jäsenet"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:16
+#, fuzzy
+#| msgid "Members"
+msgid "December"
+msgstr "Jäsenet"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:19
+msgid "jan"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:19
+msgid "feb"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:19
+#, fuzzy
+#| msgid "Summary"
+msgid "mar"
+msgstr "Yhteenveto"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:19
+msgid "apr"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:19
+#, fuzzy
+#| msgid "Summary"
+msgid "may"
+msgstr "Yhteenveto"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:19
+msgid "jun"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:20
+msgid "jul"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:20
+#, fuzzy
+#| msgid "Tag"
+msgid "aug"
+msgstr "Merkintä"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:20
+msgid "sep"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:20
+msgid "oct"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:20
+msgid "nov"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:20
+msgid "dec"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:23
+msgctxt "abbrev. month"
+msgid "Jan."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:24
+msgctxt "abbrev. month"
+msgid "Feb."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:25
+#, fuzzy
+#| msgid "Search"
+msgctxt "abbrev. month"
+msgid "March"
+msgstr "Hae"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:26
+msgctxt "abbrev. month"
+msgid "April"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:27
+msgctxt "abbrev. month"
+msgid "May"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:28
+msgctxt "abbrev. month"
+msgid "June"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:29
+msgctxt "abbrev. month"
+msgid "July"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:30
+msgctxt "abbrev. month"
+msgid "Aug."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:31
+msgctxt "abbrev. month"
+msgid "Sept."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:32
+msgctxt "abbrev. month"
+msgid "Oct."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:33
+msgctxt "abbrev. month"
+msgid "Nov."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:34
+msgctxt "abbrev. month"
+msgid "Dec."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:37
+msgctxt "alt. month"
+msgid "January"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:38
+msgctxt "alt. month"
+msgid "February"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:39
+#, fuzzy
+#| msgid "Search"
+msgctxt "alt. month"
+msgid "March"
+msgstr "Hae"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:40
+msgctxt "alt. month"
+msgid "April"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:41
+msgctxt "alt. month"
+msgid "May"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:42
+msgctxt "alt. month"
+msgid "June"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:43
+msgctxt "alt. month"
+msgid "July"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:44
+msgctxt "alt. month"
+msgid "August"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:45
+#, fuzzy
+#| msgid "Members"
+msgctxt "alt. month"
+msgid "September"
+msgstr "Jäsenet"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:46
+msgctxt "alt. month"
+msgid "October"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:47
+#, fuzzy
+#| msgid "Members"
+msgctxt "alt. month"
+msgid "November"
+msgstr "Jäsenet"
+
+#: venv/lib/python3.5/site-packages/django/utils/dates.py:48
+#, fuzzy
+#| msgid "Members"
+msgctxt "alt. month"
+msgid "December"
+msgstr "Jäsenet"
+
+#: venv/lib/python3.5/site-packages/django/utils/ipv6.py:8
+msgid "This is not a valid IPv6 address."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/text.py:67
+#, python-format
+msgctxt "String to return when truncating text"
+msgid "%(truncated_text)s…"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/text.py:233
+msgid "or"
+msgstr ""
+
+#. Translators: This string is used as a separator between list elements
+#: venv/lib/python3.5/site-packages/django/utils/text.py:252
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:83
+msgid ", "
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:9
+#, python-format
+msgid "%d year"
+msgid_plural "%d years"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:10
+#, python-format
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:11
+#, python-format
+msgid "%d week"
+msgid_plural "%d weeks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:12
+#, python-format
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:13
+#, python-format
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:14
+#, fuzzy, python-format
+#| msgid "Extra minutes"
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "Ylimääräiset minuutit"
+msgstr[1] "Ylimääräiset minuutit"
+
+#: venv/lib/python3.5/site-packages/django/utils/timesince.py:72
+#, fuzzy
+#| msgid "Extra minutes"
+msgid "0 minutes"
+msgstr "Ylimääräiset minuutit"
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:110
+#, fuzzy
+#| msgid "Hidden"
+msgid "Forbidden"
+msgstr "Piilotettu"
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:111
+msgid "CSRF verification failed. Request aborted."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:115
+msgid ""
+"You are seeing this message because this HTTPS site requires a 'Referer "
+"header' to be sent by your Web browser, but none was sent. This header is "
+"required for security reasons, to ensure that your browser is not being "
+"hijacked by third parties."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:120
+msgid ""
+"If you have configured your browser to disable 'Referer' headers, please re-"
+"enable them, at least for this site, or for HTTPS connections, or for 'same-"
+"origin' requests."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:124
+msgid ""
+"If you are using the <meta name=\"referrer\" content=\"no-referrer\"> tag or "
+"including the 'Referrer-Policy: no-referrer' header, please remove them. The "
+"CSRF protection requires the 'Referer' header to do strict referer checking. "
+"If you're concerned about privacy, use alternatives like <a rel=\"noreferrer"
+"\" ...> for links to third-party sites."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:132
+msgid ""
+"You are seeing this message because this site requires a CSRF cookie when "
+"submitting forms. This cookie is required for security reasons, to ensure "
+"that your browser is not being hijacked by third parties."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:137
+msgid ""
+"If you have configured your browser to disable cookies, please re-enable "
+"them, at least for this site, or for 'same-origin' requests."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/csrf.py:142
+msgid "More information is available with DEBUG=True."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:41
+msgid "No year specified"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:61
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:111
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:208
+msgid "Date out of range"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:90
+msgid "No month specified"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:142
+msgid "No day specified"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:188
+msgid "No week specified"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:338
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:367
+#, python-format
+msgid "No %(verbose_name_plural)s available"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:589
+#, python-format
+msgid ""
+"Future %(verbose_name_plural)s not available because %(class_name)s."
+"allow_future is False."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/dates.py:623
+#, python-format
+msgid "Invalid date string '%(datestr)s' given format '%(format)s'"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/detail.py:54
+#, python-format
+msgid "No %(verbose_name)s found matching the query"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/list.py:67
+msgid "Page is not 'last', nor can it be converted to an int."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/list.py:72
+#, python-format
+msgid "Invalid page (%(page_number)s): %(message)s"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/generic/list.py:154
+#, python-format
+msgid "Empty list and '%(class_name)s.allow_empty' is False."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/static.py:40
+#, fuzzy
+#| msgid "Points lower than zero are not allowed."
+msgid "Directory indexes are not allowed here."
+msgstr "Pisteet eivät voi olla negatiivisia."
+
+#: venv/lib/python3.5/site-packages/django/views/static.py:42
+#, python-format
+msgid "\"%(path)s\" does not exist"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/static.py:80
+#, python-format
+msgid "Index of %(directory)s"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:6
+msgid "Django: the Web framework for perfectionists with deadlines."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:345
+#, python-format
+msgid ""
+"View <a href=\"https://docs.djangoproject.com/en/%(version)s/releases/\" "
+"target=\"_blank\" rel=\"noopener\">release notes</a> for Django %(version)s"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:367
+msgid "The install worked successfully! Congratulations!"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:368
+#, python-format
+msgid ""
+"You are seeing this page because <a href=\"https://docs.djangoproject.com/en/"
+"%(version)s/ref/settings/#debug\" target=\"_blank\" rel=\"noopener"
+"\">DEBUG=True</a> is in your settings file and you have not configured any "
+"URLs."
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:383
+msgid "Django Documentation"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:384
+msgid "Topics, references, &amp; how-to's"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:395
+msgid "Tutorial: A Polling App"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:396
+msgid "Get started with Django"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:407
+msgid "Django Community"
+msgstr ""
+
+#: venv/lib/python3.5/site-packages/django/views/templates/default_urlconf.html:408
+msgid "Connect, get help, or contribute"
+msgstr ""
+
+#: venv/src/drf-extensions/build/lib/rest_framework_extensions/exceptions.py:8
+#: venv/src/drf-extensions/rest_framework_extensions/exceptions.py:8
+#, python-brace-format
+msgid "This \"{method}\" request is required to be conditional."
+msgstr ""
