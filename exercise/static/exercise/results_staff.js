@@ -705,10 +705,35 @@
         }
     }
 
+    let ajaxEnabled = true;
+
+    let ajaxSettings = {
+        _retryCount: 0,
+        _retryLimit: 3,
+        timeout: 0,
+        beforeSend: function(xhr, settings) {
+            return ajaxEnabled;
+        },
+        error: function(xhr, statusText, errorThrown) {
+            this._retryCount++;
+            if (this.retryCount <= this._retryLimit) {
+                console.log("Retrying ajax:", statusText);
+                //const req = this;
+                //setTimeout(function() {$.ajax(req);}, 1000);
+                setTimeout($.ajax, 1000, this);
+            } else {
+                stopAjax = true;
+                $("#ajax-failed-alert").show();
+                $("#results-loading-animation").hide();
+            }
+        }
+    };
+
     function gatherFromAPIPaging(url) {
         function gather(cur_result, url) {
-            return $.ajax(url)
-            .then(function(response) {
+            return $.ajax(
+                $.extend({}, ajaxSettings, {url: url})
+            ).then(function(response) {
                 cur_result = cur_result.concat(response.results)
                 if (response.next) {
                     return gather(cur_result, response.next);
@@ -716,7 +741,7 @@
                     return cur_result
                 }
             }, function(reason) {
-                throw new Error("Pagination ajax failed: " + reason);
+                throw new Error("Pagination ajax failed: " + reason.statusText);
             });
         }
         return gather([], url);
@@ -760,27 +785,26 @@
                 _ajaxCompleted = true;
                 exerciseSelectionChange();
                 $("#results-loading-animation").hide();
+                $("#results-loading-progress").hide();
                 $("#table-export-dropdown > button").removeAttr('disabled');
                 $("#table-points-div").show();
             }
         }
 
         _students.forEach(function(student) {
-            $.ajax({
-                url: student.url
-            }).then(function(data) {
+            $.ajax(
+                $.extend({}, ajaxSettings, {url: student.url})
+            ).then(function(data) {
                 _users[sid] = data;
-                completedUserAjaxCalls++;
-                checkIfAllAjaxCompleted();
-            }, function() {
                 completedUserAjaxCalls++;
                 checkIfAllAjaxCompleted();
             });
 
             const sid = student.id;
-            $.ajax({
-                url: pointsUrl + sid
-            }).then(function(data) {
+            $.ajax(
+                $.extend({}, ajaxSettings, {url: pointsUrl + sid})
+            ).then(function(data) {
+                console.log(data)
                 _points[sid] = data;
                 completedPointAjaxCalls++;
                 if (!successFirstStudent) {
@@ -833,21 +857,15 @@
                     });
                 }
                 checkIfAllAjaxCompleted();
-            }, function() {
-                completedPointAjaxCalls++;
-                checkIfAllAjaxCompleted();
             });
         });
 
         _exercises.forEach(function(module) {
             module.exercises.forEach(function(exercise) {
-                $.ajax({
-                    url: exercise.url
-                }).then(function(data) {
+                $.ajax(
+                    $.extend({}, ajaxSettings, {url: exercise.url})
+                ).then(function(data) {
                     _allExercises.push(data);
-                    completedExerciseAjaxCalls++;
-                    checkIfAllAjaxCompleted();
-                }, function() {
                     completedExerciseAjaxCalls++;
                     checkIfAllAjaxCompleted();
                 });
