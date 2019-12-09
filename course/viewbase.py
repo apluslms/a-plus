@@ -58,12 +58,14 @@ class CourseInstanceBaseMixin(object):
             self.instance = instance
             self.course = self.instance.course
             self.content = CachedContent(self.instance)
-            self.exam_sessions = ExamSession.objects.all()
+            self.exam_sessions = ExamSession.objects.filter(
+                course_instance=self.instance)
             self.is_student = self.instance.is_student(user)
             self.is_assistant = self.instance.is_assistant(user)
             self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
-            self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
+            self.get_taggings = lambda: CachedStudent(
+                instance, user.id).data['tag_slugs']
 
             self.note(
                 "course", "instance", "content", "is_student", "is_assistant",
@@ -90,7 +92,8 @@ class CourseInstanceBaseMixin(object):
             # Loosen the access mode if instance is public
             show_for = self.instance.view_content_to
             is_public = show_for == CourseInstance.VIEW_ACCESS.PUBLIC
-            access_mode_student = access_mode in (ACCESS.STUDENT, ACCESS.ENROLL)
+            access_mode_student = access_mode in (
+                ACCESS.STUDENT, ACCESS.ENROLL)
             if is_public and access_mode_student:
                 access_mode = ACCESS.ANONYMOUS
 
