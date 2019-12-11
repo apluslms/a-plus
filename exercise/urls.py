@@ -3,6 +3,7 @@ from django.conf.urls import url
 from course.urls import INSTANCE_URL_PREFIX, MODULE_URL_PREFIX, \
     USER_URL_PREFIX, EDIT_URL_PREFIX
 from . import views, staff_views
+from exammode import views as exam_views
 
 
 EXERCISE_URL_PREFIX = MODULE_URL_PREFIX \
@@ -68,13 +69,13 @@ urlpatterns = [
         staff_views.AnalyticsView.as_view(),
         name="analytics"),
     url(EDIT_URL_PREFIX + r'exam-management/$',
-        staff_views.ExamManagementView.as_view(),
+        exam_views.ExamManagementView.as_view(),
         name="exam-management"),
     url(EDIT_URL_PREFIX + r'exam-management/edit/(?P<pk>.*)/$',
-        staff_views.ExamSessionEdit.as_view(),
+        exam_views.ExamSessionEdit.as_view(),
         name="edit-exam-session"),
     url(EDIT_URL_PREFIX + r'exam-management/delete/(?P<pk>.*)/$',
-        staff_views.ExamSessionDelete.as_view(),
+        exam_views.ExamSessionDelete.as_view(),
         name="delete-exam-session"),
     url(EDIT_URL_PREFIX + r'participants/(?P<user_id>[\d]+)$',
         staff_views.UserResultsView.as_view(),
