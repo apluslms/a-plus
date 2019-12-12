@@ -330,21 +330,43 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
         git clone https://github.com/nginx-shib/nginx-http-shibboleth.git
 
         pushd nginx-1.*/
-        cp debian/rules debian/rules.orig
-        cat debian/rules.orig \
-          | awk '/add-module=\$\(MODULESDIR\)\/nginx-auth-pam/ {print "--add-module=$(MODULESDIR)/headers-more-nginx-module \\"}1' \
-          | awk '/add-module=\$\(MODULESDIR\)\/nginx-auth-pam/ {print "--add-module=/usr/src/nginx-http-shibboleth/ \\"}1' \
-          > debian/rules
-        rm debian/rules.orig
 
+        # add shib module to be build: debian/rules
+        patch -l -p1 <<PATCH
+        --- a/debian/rules
+        +++ b/debian/rules
+        @@ -98,6 +98,8 @@
+           --with-mail \\
+           --with-mail_ssl_module \\
+           --with-threads \\
+        +  --add-module=\$(MODULESDIR)/headers-more-nginx-module \\
+        +  --add-module=/usr/src/nginx-http-shibboleth/ \\
+           --add-module=\$(MODULESDIR)/nginx-auth-pam \\
+           --add-module=\$(MODULESDIR)/nginx-dav-ext-module \\
+           --add-module=\$(MODULESDIR)/nginx-echo \\
+        @@ -126,6 +128,7 @@
+           --with-stream_ssl_module \\
+           --with-threads \\
+           --add-module=\$(MODULESDIR)/headers-more-nginx-module \\
+        +  --add-module=/usr/src/nginx-http-shibboleth/ \\
+           --add-module=\$(MODULESDIR)/nginx-auth-pam \\
+           --add-module=\$(MODULESDIR)/nginx-cache-purge \\
+           --add-module=\$(MODULESDIR)/nginx-dav-ext-module \\
+        PATCH
+
+        # Create debian release
         dch -lshib "Add Shibboleth"
         dch -r ""
 
+        # build debian packages
         dpkg-buildpackage -uc -us
         popd
 
-        dpkg -i nginx-full_*shib*_amd64.deb
-        exit
+        # install the packages
+        dpkg -i $(ls nginx-common_*shib*_all.deb | sort | tail -n1) \
+                $(ls nginx-full_*shib*_amd64.deb | sort | tail -n1)
+
+        exit # exit sudo session
 
  1. Starting from Ubuntu Bionic or NGINX 1.11 we can dynamic modules
 
