@@ -111,7 +111,7 @@ def configure_learning_objects(category_map, module, config, parent,
             #course_module__course_instance=module.course_instance,
             course_module=module,
             url=str(o["key"])
-        ).first()
+        ).defer(None).first()
         if not lobject is None:
             lobject = lobject.as_leaf_class()
 
