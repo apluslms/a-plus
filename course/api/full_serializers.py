@@ -10,6 +10,7 @@ from ..models import (
     UserTag,
     UserTagging,
 )
+from exercise.models import BaseExercise
 from userprofile.models import UserProfile
 from .serializers import *
 
@@ -38,9 +39,9 @@ class CourseModuleSerializer(AplusModelSerializer):
         )
 
     def get_exercises(self, obj):
-        # this needs to be method so .as_leaf_class() can be called
-        exercises = obj.learning_objects.all()
-        exercises = (e.as_leaf_class() for e in exercises)
+        # List only exercises derived from BaseExercise, thus no Chapter texts (/exercise/<id> returns 404 for those)
+        exercises = BaseExercise.objects.filter(course_module=obj).all()
+        # FIXME: populating learning_object.parent_list() creates subqueries -> get exercise list and data from cache
         serializer = ExerciseBriefSerializer(instance=exercises, many=True, context=self.context)
         return serializer.data
 

@@ -362,7 +362,7 @@ class BaseExercise(LearningObject):
     points_to_pass = models.PositiveIntegerField(default=40)
     difficulty = models.CharField(max_length=32, blank=True)
 
-    objects = models.Manager()
+    objects = LearningObjectManager()
 
     class Meta:
         app_label = 'exercise'
