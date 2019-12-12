@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-23 18:26+0300\n"
+"POT-Creation-Date: 2019-12-12 12:58+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -341,12 +341,12 @@ msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle."
 
 #: course/staff_views.py:102 edit_course/views.py:49
-#: exercise/staff_views.py:283
+#: exercise/staff_views.py:289
 msgid "Changes were saved succesfully."
 msgstr "Muutokset tallennettiin onnistuneesti."
 
 #: course/staff_views.py:106 edit_course/views.py:53
-#: exercise/staff_views.py:287
+#: exercise/staff_views.py:293
 msgid "Failed to save changes."
 msgstr "Muutosten tallentaminen epäonnistui."
 
@@ -405,7 +405,7 @@ msgstr "Opiskelijat"
 #: course/templates/course/staff/group_edit.html:11
 #: course/templates/course/staff/groups.html:5
 #: course/templates/course/staff/groups.html:10
-#: edit_course/exercise_forms.py:105
+#: edit_course/exercise_forms.py:106
 msgid "Groups"
 msgstr "Ryhmät"
 
@@ -415,8 +415,8 @@ msgid "Grades"
 msgstr "Arvosanat"
 
 #: course/templates/course/_course_menu.html:137
-#: exercise/templates/exercise/staff/results.html:5
-#: exercise/templates/exercise/staff/results.html:10
+#: exercise/templates/exercise/staff/results.html:6
+#: exercise/templates/exercise/staff/results.html:11
 msgid "All results"
 msgstr "Kaikki pisteet"
 
@@ -788,6 +788,7 @@ msgstr "Lisää"
 
 #: course/templates/course/staff/participants.html:18
 #: diploma/templates/diploma/list.html:13
+#: exercise/templates/exercise/staff/results.html:137
 msgid "Filter users"
 msgstr "Suodata listaa"
 
@@ -953,11 +954,11 @@ msgstr "Arvostelu"
 msgid "Category"
 msgstr "Kategoria"
 
-#: edit_course/course_forms.py:61 edit_course/exercise_forms.py:59
+#: edit_course/course_forms.py:61 edit_course/exercise_forms.py:60
 msgid "Hierarchy"
 msgstr "Hierarkia"
 
-#: edit_course/course_forms.py:62 edit_course/exercise_forms.py:63
+#: edit_course/course_forms.py:62 edit_course/exercise_forms.py:64
 #: edit_course/templates/edit_course/edit_course_base.html:36
 msgid "Content"
 msgstr "Sisältö"
@@ -988,7 +989,7 @@ msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
 msgid "The URL is already taken."
 msgstr "URL on jo käytössä."
 
-#: edit_course/exercise_forms.py:102
+#: edit_course/exercise_forms.py:103
 msgid "Grading"
 msgstr "Arvostelu"
 
@@ -1035,45 +1036,45 @@ msgstr ""
 "Arvostelulla numero {ordinal:d} on virheellisiä kenttiä:\n"
 " {errors}"
 
-#: edit_course/operations/configure.py:28
+#: edit_course/operations/configure.py:30
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a date."
 msgstr "Arvoa '{value}' ei voitu jäsentää päivämääränä."
 
-#: edit_course/operations/configure.py:56
+#: edit_course/operations/configure.py:58
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a time duration."
 msgstr "Arvoa '{value}' ei voitu jäsentää ajankestona."
 
-#: edit_course/operations/configure.py:64
+#: edit_course/operations/configure.py:66
 #, python-brace-format
 msgid "Unable to parse value '{value}' as an int."
 msgstr "Arvoa '{value}' ei voitu jäsentää kokonaislukuna."
 
-#: edit_course/operations/configure.py:72
+#: edit_course/operations/configure.py:74
 #, python-brace-format
 msgid "Unable to parse value '{value}' as a float."
 msgstr "Arvoa '{value}' ei voitu jäsentää liukulukuna."
 
-#: edit_course/operations/configure.py:87
+#: edit_course/operations/configure.py:89
 #, python-brace-format
 msgid "Field '{field}' has an unknown value '{value}'."
 msgstr "Kentällä '{field}' on tuntematon arvo '{value}'."
 
-#: edit_course/operations/configure.py:99
+#: edit_course/operations/configure.py:101
 msgid "Learning object requires a key."
 msgstr "Oppimisolio vaatii avaimen."
 
-#: edit_course/operations/configure.py:102
+#: edit_course/operations/configure.py:104
 msgid "Learning object requires a category."
 msgstr "Oppimisolio vaatii kategorian."
 
-#: edit_course/operations/configure.py:105
+#: edit_course/operations/configure.py:107
 #, python-brace-format
 msgid "Unknown category '{category}'."
 msgstr "Tuntematon kategoria '{category}'."
 
-#: edit_course/operations/configure.py:135
+#: edit_course/operations/configure.py:137
 #, python-brace-format
 msgid ""
 "The site has no configuration for the LTI service '{lti_label}' used by the "
@@ -1086,27 +1087,27 @@ msgstr ""
 "'lti' arvon tai sivuston ylläpitäjä ei ole vielä lisännyt tämän LTI-palvelun "
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
 
-#: edit_course/operations/configure.py:268
+#: edit_course/operations/configure.py:270
 msgid "Cannot request build log from build_log_url when it is blank."
 msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
 
-#: edit_course/operations/configure.py:272
+#: edit_course/operations/configure.py:274
 msgid "Requesting build log failed with error '{error!s}'."
 msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
 
-#: edit_course/operations/configure.py:277
+#: edit_course/operations/configure.py:279
 msgid "Parsing the build log JSON raised error '{error!s}'."
 msgstr "Rakentamislokin jäsentäminen palautti virheen '{error!s}'."
 
-#: edit_course/operations/configure.py:280
+#: edit_course/operations/configure.py:282
 msgid "Remote URL returned an empty build log."
 msgstr "Etäpalvelin palautti tyhjän käännöslokin."
 
-#: edit_course/operations/configure.py:289
+#: edit_course/operations/configure.py:291
 msgid "Configuration URL required."
 msgstr "Konfiguraatio-URL vaaditaan."
 
-#: edit_course/operations/configure.py:294
+#: edit_course/operations/configure.py:296
 msgid ""
 "Request for a course configuration failed with error '{error!s}'. "
 "Configuration of course aborted."
@@ -1114,15 +1115,15 @@ msgstr ""
 "Kurssikonfigurointipyyntö epäonnistui virheellä '{error!s}'. Konfigurointi "
 "keskeytettiin."
 
-#: edit_course/operations/configure.py:303
+#: edit_course/operations/configure.py:305
 msgid "JSON parser raised error '{error!s}'. Configuration of course aborted."
 msgstr "JSON parseri tuotti virheen '{error!s}'. Konfigurointi keskeytettiin."
 
-#: edit_course/operations/configure.py:398
+#: edit_course/operations/configure.py:392
 msgid "Assistants must be given as a student ID array."
 msgstr "Assistentit tulee antaa oppilasnumero-taulukkona."
 
-#: edit_course/operations/configure.py:405
+#: edit_course/operations/configure.py:399
 #, python-brace-format
 msgid ""
 "Adding the assistant failed, because an associated user with student ID {id} "
@@ -1131,45 +1132,45 @@ msgstr ""
 "Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
 "ei ole olemassa."
 
-#: edit_course/operations/configure.py:418
+#: edit_course/operations/configure.py:412
 msgid "Categories required as an object."
 msgstr "Kategoriat vaaditaan objektina."
 
-#: edit_course/operations/configure.py:421
+#: edit_course/operations/configure.py:415
 msgid "Modules required as an array."
 msgstr "Moduulit vaaditaan taulukkona."
 
-#: edit_course/operations/configure.py:429
+#: edit_course/operations/configure.py:423
 msgid "Category requires a name."
 msgstr "Kategoria vaatii nimen."
 
-#: edit_course/operations/configure.py:467
+#: edit_course/operations/configure.py:461
 msgid "Module requires a key."
 msgstr "Moduuli vaatii avaimen."
 
-#: edit_course/operations/configure.py:567
+#: edit_course/operations/configure.py:561
 msgid "ExerciseCollection requires collection_category."
 msgstr "Tehtäväkokoelma tarvitsee collection_category:n."
 
-#: edit_course/operations/configure.py:570
+#: edit_course/operations/configure.py:564
 msgid "ExerciseCollection requires URL to target course instance."
 msgstr "Tehtäväkokoelma tarvitsee kohde kurssin URL:n."
 
-#: edit_course/operations/configure.py:576
+#: edit_course/operations/configure.py:570
 msgid "Course URL '{}' doesn't match service's hostname '{}'"
 msgstr "Kurssin URL '{}' ei vastaa palvelun domain nimeä '{}'"
 
-#: edit_course/operations/configure.py:582
+#: edit_course/operations/configure.py:576
 msgid "Couldn't determine course and/or instance from URL '{}'"
 msgstr "Kurssin ja/tai instanssin selvittäminen ei onnistunut URLsta '{}'"
 
-#: edit_course/operations/configure.py:589
+#: edit_course/operations/configure.py:583
 msgid "No course found with URL '{}'. course_slug: '{}', instance_slug: '{}'"
 msgstr ""
 "Yhtään kurssia ei löytynyt URLlla '{}' (course_slug: '{}', instance_slug: "
 "'{}')"
 
-#: edit_course/operations/configure.py:596
+#: edit_course/operations/configure.py:590
 msgid "Category '{}' not found in target course."
 msgstr "Kategoriaa '{}' ei löytynyt kohde kurssista."
 
@@ -1844,30 +1845,30 @@ msgstr ""
 "Tehtävää ei voitu palauttaa tuntemattomasta syystä. Jos uskot tämän olevan "
 "virhe, ota ystävällisesti yhteyttä kurssihenkilökuntaan."
 
-#: exercise/exercise_models.py:765
+#: exercise/exercise_models.py:767
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:767
+#: exercise/exercise_models.py:769
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:769
+#: exercise/exercise_models.py:771
 msgid "Default: the menu label of the LTI service"
 msgstr "Oletus: LTI-palvelun nimi"
 
-#: exercise/exercise_models.py:771
+#: exercise/exercise_models.py:773
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:773
+#: exercise/exercise_models.py:775
 msgid ""
 "Open the exercise in an iframe inside the A+ page instead of a new window."
 msgstr "Avaa tehtävä iframe-kehyksessä A+-sivun sisällä uuden ikkunan sijasta."
 
-#: exercise/exercise_models.py:790
+#: exercise/exercise_models.py:792
 msgid ""
 "Domain of Service URL must match the domain of LTI Service or it should only "
 "be the path."
@@ -1875,14 +1876,14 @@ msgstr ""
 "Palveluosoitteen domainin täytyy vastata LTI-palvelun domainia tai osoitteen "
 "tulee olla vain polku."
 
-#: exercise/exercise_models.py:797
+#: exercise/exercise_models.py:799
 msgid ""
 "The exercise can not be loaded because the external LTI service has been "
 "disabled."
 msgstr ""
 "Tehtävää ei voi ladata, koska ulkoinen LTI-palvelu on poistettu käytöstä."
 
-#: exercise/exercise_models.py:929
+#: exercise/exercise_models.py:931
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
@@ -1997,15 +1998,15 @@ msgstr ""
 msgid "Assessment service responded with error."
 msgstr "Tehtäväpalvelussa tapahtui virhe."
 
-#: exercise/staff_views.py:148
+#: exercise/staff_views.py:151
 msgid "The review was saved successfully and the submitters were notified."
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
 
-#: exercise/staff_views.py:169
+#: exercise/staff_views.py:172
 msgid "Failed to load the resource."
 msgstr "Lataus epäonnistui."
 
-#: exercise/staff_views.py:245
+#: exercise/staff_views.py:251
 #, python-brace-format
 msgid ""
 "Invalid POST data:\n"
@@ -2014,7 +2015,7 @@ msgstr ""
 "Epäkelvollinen POST sisältö:\n"
 "{error}"
 
-#: exercise/staff_views.py:260
+#: exercise/staff_views.py:266
 msgid "New submission stored."
 msgstr "Uusi palautus on lisätty."
 
@@ -2634,23 +2635,119 @@ msgstr ""
 msgid "Grader errors"
 msgstr "Virheet tarkistimelta"
 
-#: exercise/templates/exercise/staff/results.html:19
-#, python-format
+#: exercise/templates/exercise/staff/results.html:57
+msgid "Select modules: "
+msgstr "Valitse moduulit: "
+
+#: exercise/templates/exercise/staff/results.html:67
+msgid "Select exercises: "
+msgstr "Valitse tehtävät: "
+
+#: exercise/templates/exercise/staff/results.html:80
+msgid "Summaries"
+msgstr "Yhteenvedot"
+
+#: exercise/templates/exercise/staff/results.html:82
 msgid ""
-"\n"
-"                \tStudent (N=%(num)s)\n"
-"                \t"
+"Total number of submissions. Calculates all student submission counts "
+"together."
 msgstr ""
-"\n"
-"Opiskelija (N=%(num)s)"
+"Palautusten lukumäärä. Laskee kaikkien opiskelijoiden kaikkien palautusten "
+"lukumäärän yhteen."
 
-#: exercise/templates/exercise/staff/results.html:28
-msgid "Sum"
-msgstr "Yhteensä"
+#: exercise/templates/exercise/staff/results.html:84
+msgid "Total submissions"
+msgstr "Palautuksia yhteensä"
 
-#: exercise/templates/exercise/staff/results.html:44
+#: exercise/templates/exercise/staff/results.html:88
+msgid ""
+"How many submissions a single student has used on the exercise on average. "
+"Only accounts for students with one or more submissions."
+msgstr ""
+"Kuinka monta palautusta opiskelija on käyttänyt tehtävään keskimäärin. "
+"Lasketaan vain opiskelijat, joilla on vähintään yksi palautus."
+
+#: exercise/templates/exercise/staff/results.html:90
+msgid "Average submissions per student"
+msgstr "Palautuskertojen keskiarvo per opiskelija"
+
+#: exercise/templates/exercise/staff/results.html:94
+msgid "Maximum number of available submissions for the exercise."
+msgstr "Kuinka monta palautusta tehtävässä on mahdollista käyttää."
+
+#: exercise/templates/exercise/staff/results.html:96
+msgid "Maximum submissions"
+msgstr "Palautusmahdollisuuksia"
+
+#: exercise/templates/exercise/staff/results.html:100
+msgid "Number of students that have one or more exercise submissions."
+msgstr "Opiskelijat, joilla on vähintään yksi palautus."
+
+#: exercise/templates/exercise/staff/results.html:102
+msgid "Students with submissions"
+msgstr "Tehtävän palauttaneet opiskelijat"
+
+#: exercise/templates/exercise/staff/results.html:106
+msgid "Number of students that have received maximum points from the exercise."
+msgstr "Opiskelijat, jotka ovat saaneet täydet pisteet tehtävästä."
+
+#: exercise/templates/exercise/staff/results.html:108
+msgid "Students with max points"
+msgstr "Opiskelijat, joilla on täydet pisteet"
+
+#: exercise/templates/exercise/staff/results.html:112
+msgid ""
+"Average points received for the exercise per student. Only accounts for "
+"students with one or more submissions."
+msgstr ""
+"Kuinka monta pistettä opiskelijat ovat saaneet tehtävästä keskimäärin. "
+"Lasketaan vain opiskelijat, joilla on vähintään yksi palautus."
+
+#: exercise/templates/exercise/staff/results.html:114
+msgid "Average points per student"
+msgstr "Pisteiden keskiarvo per opiskelija"
+
+#: exercise/templates/exercise/staff/results.html:118
+msgid "Maximum points for the exercise."
+msgstr "Tehtävän enimmäispisteet."
+
+#: exercise/templates/exercise/staff/results.html:120
 msgid "Maximum points"
 msgstr "Enimmäispisteet"
+
+#: exercise/templates/exercise/staff/results.html:126
+msgid ""
+"Points are official if the submission is within deadline and submission "
+"count limits. Submission must be also accepted and confirmed (for example, "
+"in case of mandatory feedback)."
+msgstr ""
+"Pisteet ovar virallisia jos palautus on tehty määräajassa ja sallittujen "
+"palautuskertojen sisällä. Palautus täytyy olla myös hyväksytty ja "
+"varmistettu (esimerkiksi pakollisen palautteen yhteydessä)."
+
+#: exercise/templates/exercise/staff/results.html:128
+msgid "Show only official points"
+msgstr "Näytä vain viralliset pisteet"
+
+#: exercise/templates/exercise/staff/results.html:150
+msgid "Show exercises by difficulty"
+msgstr "Näytä tehtävät vaikeusasteittain"
+
+#: exercise/templates/exercise/staff/results.html:153
+msgid "Show exercises by module"
+msgstr "Näytä tehtävät moduulettain"
+
+#: exercise/templates/exercise/staff/results.html:156
+msgid "Show all exercises"
+msgstr "Näytä kaikki tehtävät"
+
+#: exercise/templates/exercise/staff/results.html:163
+msgid "Export Data"
+msgstr "Vie Tiedostoon"
+
+#: exercise/templates/exercise/staff/results.html:174
+msgid "Data couldn't be fetched. Please check your internet connection."
+msgstr "Tietojen lataaminen ei onnistunut. Tarkista yhteys palveluun."
 
 #: exercise/templates/exercise/staff/submissions_summary.html:7
 msgid "Submissions summary"
