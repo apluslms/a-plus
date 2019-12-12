@@ -804,7 +804,6 @@
             $.ajax(
                 $.extend({}, ajaxSettings, {url: pointsUrl + sid + '/'})
             ).then(function(data) {
-                console.log(data)
                 _points[sid] = data;
                 completedPointAjaxCalls++;
                 if (!successFirstStudent) {
