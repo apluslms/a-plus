@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-19 17:48+0300\n"
+"POT-Creation-Date: 2019-12-12 12:55+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -2739,6 +2739,10 @@ msgstr "Näytä kaikki tehtävät"
 #: exercise/templates/exercise/staff/results.html:163
 msgid "Export Data"
 msgstr "Vie Tiedostoon"
+
+#: exercise/templates/exercise/staff/results.html:174
+msgid "Data couldn't be fetched. Please check your internet connection."
+msgstr "Tietojen lataaminen ei onnistunut. Tarkista yhteys palveluun."
 
 #: exercise/templates/exercise/staff/submissions_summary.html:7
 msgid "Submissions summary"
