@@ -9,11 +9,11 @@
 	<RequestMapper type="XML">
 		<RequestMap applicationId="default" encoding="URL">
 			<Host name="__HOSTNAME__" authType="shibboleth" requireSession="true" redirectToSSL="443">
-				<Path name="/shibboleth">
-					<AccessControl>
-						<Rule require="schacHomeOrganization">aalto.fi</Rule>
-					</AccessControl>
-				</Path>
+				<!-- to use test haka, add the following to the above element: applicationId="haka_test" -->
+				<AccessControl>
+					<!-- an example how to require a home organization -->
+					<Rule require="schacHomeOrganization">aalto.fi</Rule>
+				</AccessControl>
 			</Host>
 		</RequestMap>
 	</RequestMapper>
@@ -96,6 +96,36 @@
 
 		<!-- Simple file-based resolver for using a single keypair. -->
 		<CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"/>
+
+		<!-- Overrides for test haka -->
+		<!-- check RequestMapper above for how to enable test haka -->
+		<ApplicationOverride id="haka_test">
+			<Sessions
+				lifetime="28800"
+				timeout="3600"
+				relayState="ss:mem"
+				checkAddress="false"
+				handlerSSL="true"
+				cookieProps="https">
+				<SSO
+					entityID="https://testidp.funet.fi/idp/shibboleth"
+					discoveryProtocol="SAMLDS"
+					discoveryURL="https://testsp.funet.fi/shibboleth/WAYF">
+					SAML2
+				</SSO>
+			</Sessions>
+
+			<MetadataProvider type="XML"
+				uri="https://haka.funet.fi/metadata/haka_test_metadata_signed.xml"
+				backingFilePath="haka_test_metadata_signed.xml"
+				reloadInterval="3600">
+				<SignatureMetadataFilter certificate="/etc/shibboleth/haka_test_2018.crt"/>
+				<MetadataFilter type="Whitelist">
+					<Include>https://testidp.funet.fi/idp/shibboleth</Include>
+				</MetadataFilter>
+				<MetadataFilter type="RequireValidUntil" maxValidityInterval="2592000"/>
+			</MetadataProvider>
+		</ApplicationOverride>
 
 	</ApplicationDefaults>
 
