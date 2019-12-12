@@ -802,7 +802,7 @@
 
             const sid = student.id;
             $.ajax(
-                $.extend({}, ajaxSettings, {url: pointsUrl + sid})
+                $.extend({}, ajaxSettings, {url: pointsUrl + sid + '/'})
             ).then(function(data) {
                 console.log(data)
                 _points[sid] = data;
