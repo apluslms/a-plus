@@ -330,6 +330,17 @@ class CourseChapter(LearningObject):
         return not self.generate_table_of_contents
 
 
+class BaseExerciseManager(models.Manager):
+
+    def get_queryset(self):
+        return super().get_queryset().select_related(
+            'category',
+            'course_module',
+            'course_module__course_instance',
+            'course_module__course_instance__course',
+        )
+
+
 class BaseExercise(LearningObject):
     """
     The common parts for all exercises.
@@ -362,7 +373,7 @@ class BaseExercise(LearningObject):
     points_to_pass = models.PositiveIntegerField(default=40)
     difficulty = models.CharField(max_length=32, blank=True)
 
-    objects = LearningObjectManager()
+    objects = BaseExerciseManager()
 
     class Meta:
         app_label = 'exercise'
