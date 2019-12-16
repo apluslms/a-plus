@@ -201,7 +201,7 @@
 
         // Pick only students that have the selected tags
         // Use same logic for tag filtering as in participants.js
-        let = filteredStudentPool = [];
+        let filteredStudentPool = [];
         _students.forEach(function(student) {
             const tagSlugFilters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
             .map(function(elem) {
