@@ -340,7 +340,7 @@ class CoursePointsViewSet(ListSerializerMixin,
     lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    parent_lookup_map = {'course_id': 'enrolled.id'}
+    parent_lookup_map = {}
     listserializer_class = StudentBriefSerializer
     serializer_class = UserPointsSerializer
     queryset = UserProfile.objects.all()
