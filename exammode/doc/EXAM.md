@@ -16,12 +16,12 @@ Exammode app
 
 The exammode app is the bread and butter of the designed electrical exam system. 
 
-An exam session is the basic unit for the system and all  features of the system are linked to one session and can be accessed by viewing that session. These features are
+An exam session is the basic unit for the system and all features of the system are linked to one session and can be accessed by viewing that session. These features are
 
-For students:
+For students (these features are not yet implemented):
 
 * See exam dates and locations
-* Request translation of  exam
+* Request translation of exam
 * Request accelerated grading and reporting of results
 * See feedback for the exam
 * Request additional information on grading
@@ -29,9 +29,9 @@ For students:
 For teachers:
 
 * Manage exam sessions
-* Grade exams and API to other grading services
-* Set grade boundaries
-* Manage student requests
+* Grade exams and API to other grading services (not yet implemented)
+* Set grade boundaries (not yet implemented)
+* Manage student requests (not yet implemented)
 
 For detailed description of what requirements each feature should meet, check [use cases](UseCases.md)
 
@@ -68,6 +68,9 @@ Questions:
 * Do unlisted questions mess the total points?
 * Can students have access to exam questions (unlisted module) after exam?
 * Can exam questions become available to students after certain DL?
+
+Security and access control
+---------------------------
 
 ### Models
 

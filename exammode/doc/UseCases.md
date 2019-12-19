@@ -4,6 +4,10 @@ Use Case descriptions
 Students
 --------
 
+### Periodically save answers as a draft
+
+When writing their answers to free-text exercsies, students would want their answers be saved automatically from time to time to prevent complete loss of answers in case of for example technical fault.
+
 ### See exam dates and locations
 
 - Students need to check when and where all possible exam sessions are held for the course
@@ -48,3 +52,8 @@ Teachers
 ### Set grade boundaries
 
 ### Manage student request
+
+### Publish exam results
+
+### Exercise catalogue
+
