@@ -29,10 +29,10 @@
 <link rel="stylesheet" href="{% static 'exercise/css/results_staff.css' %}" />
 <script
 	src="{% static 'exercise/results_staff.js' %}"
-	data-exercises-url="{% url 'api:course-exercises-list' version=2 course_id=course.id %}"
-	data-students-url="{% url 'api:course-students-list' version=2 course_id=course.id %}"
-	data-usertags-url="{% url 'api:course-usertags-list' version=2 course_id=course.id %}"
-	data-points-url="{% url 'api:course-points-list' version=2 course_id=course.id %}"
+	data-exercises-url="{% url 'api:course-exercises-list' version=2 course_id=instance.id %}"
+	data-students-url="{% url 'api:course-students-list' version=2 course_id=instance.id %}"
+	data-usertags-url="{% url 'api:course-usertags-list' version=2 course_id=instance.id %}"
+	data-points-url="{% url 'api:course-points-list' version=2 course_id=instance.id %}"
 	defer>
 </script>
 
