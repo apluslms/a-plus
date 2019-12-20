@@ -17,7 +17,7 @@ from course.models import (
     USERTAG_INTERNAL,
 )
 from deviations.models import MaxSubmissionsRuleDeviation
-from lib.helpers import settings_text
+from lib.helpers import settings_text, extract_form_errors
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from authorization.permissions import ACCESS
