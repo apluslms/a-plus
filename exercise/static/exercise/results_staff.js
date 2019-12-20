@@ -12,7 +12,6 @@
     let _allExercises = [];
     let _exercises;
     let _students;
-    let _users = {};
     let _usertags;
     let _points = {};
     let _ajaxCompleted = false;
@@ -405,7 +404,7 @@
             htmlTablePoints +=
                 '<td class="student-name stick-on-scroll">'
                 + '<a href="' + student.summary_html + '">'
-                + _users[sid].full_name + '</td>';
+                + _points[sid].full_name + '</td>';
 
             if (pointKeys.length > 0) {
                 let tagHtml = "";
@@ -769,19 +768,16 @@
         });
 
         let completedPointAjaxCalls = 0;
-        let completedUserAjaxCalls = 0;
         let completedExerciseAjaxCalls = 0;
         let successFirstStudent = false;
 
         let checkIfAllAjaxCompleted = function() {
-            const users_progress = completedUserAjaxCalls + " / " + requiredUserAjaxCalls;
             const exercises_progress = completedExerciseAjaxCalls + " / " + requiredExerciseAjaxCalls;
             const points_progress = completedPointAjaxCalls + " / " + requiredPointAjaxCalls;
-            const progress_report = users_progress + "<br>" + exercises_progress + "<br>" + points_progress;
+            const progress_report = exercises_progress + "<br>" + points_progress;
             $("#results-loading-progress").html(progress_report);
             if (completedPointAjaxCalls === requiredPointAjaxCalls &&
-                completedExerciseAjaxCalls === requiredExerciseAjaxCalls &&
-                completedUserAjaxCalls === requiredUserAjaxCalls) {
+                completedExerciseAjaxCalls === requiredExerciseAjaxCalls) {
                 _ajaxCompleted = true;
                 exerciseSelectionChange();
                 $("#results-loading-animation").hide();
@@ -792,14 +788,6 @@
         }
 
         _students.forEach(function(student) {
-            $.ajax(
-                $.extend({}, ajaxSettings, {url: student.url})
-            ).then(function(data) {
-                _users[sid] = data;
-                completedUserAjaxCalls++;
-                checkIfAllAjaxCompleted();
-            });
-
             const sid = student.id;
             $.ajax(
                 $.extend({}, ajaxSettings, {url: pointsUrl + sid + '/'})
