@@ -1,18 +1,16 @@
-from django.shortcuts import render, redirect
-from django.views import View, generic
+from django.shortcuts import redirect
+from django.views import generic
 from django.views.generic.edit import DeleteView, UpdateView
-from django.http import HttpResponse
-from django.urls import resolve, reverse
-from django.utils import timezone
+from django.urls import reverse
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
 
 from exammode.forms import ExamSessionForm
-from userprofile.viewbase import UserProfileView
-from course.viewbase import EnrollableViewMixin, CourseInstanceBaseView, CourseInstanceMixin
+from course.viewbase import CourseInstanceMixin
 from authorization.permissions import ACCESS
 
-from lib.viewbase import BaseRedirectView, BaseFormView, BaseView, BaseTemplateView
-
-from .models import ExamSession, ExamAttempt
+from lib.viewbase import BaseFormView, BaseTemplateView
+from .models import ExamSession
 
 # Create your views here.
 
@@ -45,8 +43,9 @@ class ExamEndView(BaseTemplateView):
 
     def post(self, request, *args, **kwargs):
         session = request.user.userprofile.active_exam.exam_taken
+        if "cancel" in request.POST:
+            return redirect(session.get_url())
         redirect_url = session.end_exam(request.user)
-
         return redirect(redirect_url)
 
 

@@ -70,6 +70,16 @@ class ExamSession(models.Model):
 
         return redirect_url
 
+    def get_url(self):
+        learning_objects = LearningObject.objects.filter(
+            course_module__exact=self.exam_module
+        )
+        if learning_objects:
+            return learning_objects[0].get_display_url()
+
+        else:
+            return reverse("exam_module_not_defined")
+
     def end_exam(self, user):
         attempt = ExamAttempt.objects.filter(
             exam_taken=self, student=user.userprofile)[:1].get()

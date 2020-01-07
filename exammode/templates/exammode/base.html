@@ -83,11 +83,11 @@
  data-view-tag="{% block view_tag %}{% endblock %}">
 	<div class="page-wrap">
 		<nav class="topbar navbar navbar-inverse navbar-static-top">
-			{% if instance.language|first == "|" %}
 			<div class="container-fluid">
 				<ul class="user-menu nav navbar-nav navbar-right hidden-xs">
 					{% group_select %}
 					{% notification_menu %}
+					{% if instance.language|first == "|" %}
 					<li role="presentation" class="header">
 						<input style="margin: 15px" type="image" src="{% static 'images/uls.svg' %}" alt="{% trans 'Language' %}" class="btn btn-xs"
 						 id="lang-dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
@@ -104,27 +104,19 @@
 							{% endfor %}
 						</ul>
 					</li>
+					{% endif %}
+					{% if instance %}
 					<li>
 						<a style="display: inline-block; vertical-align: top;" class="btn btn-success" href="{% url 'exam_end' user.userprofile.active_exam.exam_taken.id %}">
 							Finish exam
 						</a>
 					</li>
+					{% endif %}
 					<li role="presentation" class="profile-menu dropdown">
 						<span>{{ user.userprofile.student_id }} {{ user.first_name }} {{ user.last_name }}</span>
 					</li>
 				</ul>
 			</div>
-			{% else %}
-			<div class="container-fluid">
-				<ul class="user-menu nav navbar-nav navbar-right hidden-xs">
-					{% group_select %}
-					{% notification_menu %}
-					<li role="presentation" class="profile-menu dropdown">
-						<span>{{ user.userprofile.student_id }} {{ user.first_name }} {{ user.last_name }}</span>
-					</li>
-				</ul>
-			</div>
-			{% endif %}
 		</nav>
 		<div class="site-content container-fluid">
 			{% site_alert %}
