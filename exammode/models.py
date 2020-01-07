@@ -6,23 +6,17 @@ from course.models import CourseInstance, CourseModule
 from exercise.exercise_models import LearningObject
 from userprofile.models import UserProfile
 
-# Create your models here.
-
 
 class ActiveExamSessionManager(models.Manager):
-
-    def get_queryset(self):
-        initial_queryset = super().get_queryset()
-        queryset = [q for q in initial_queryset if (
-            q.can_start <= timezone.now())]
-
-        return queryset
-
-    def is_active(self):
+    # FIXME: Using duration field in the filter query was much more problematic
+    # than expected, due to it's usage in the datetime field. Similar situations
+    # where handled often with raw sql. However, we propably don't need to deal
+    # with this problem at all, since we will get rid of the current time management
+    # and start using the modules starting and closing times!
+    def active_exams(self):
         initial_queryset = super().get_queryset()
         queryset = [q for q in initial_queryset if (q.can_start <= timezone.now() and (
             timezone.now() <= q.can_start + timezone.timedelta(hours=q.duration)))]
-
         return queryset
 
 
@@ -40,7 +34,7 @@ class ExamSession(models.Model):
     room = models.CharField(max_length=255, null=True, blank=True)
 
     objects = models.Manager()
-    active_exams = ActiveExamSessionManager()
+    exam_manager = ActiveExamSessionManager()
 
     def __str__(self):
         return " ".join([str(self.course_instance), str(self.can_start)])

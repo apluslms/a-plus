@@ -23,7 +23,7 @@ class ExamStartView(BaseTemplateView):
         # Call the base implementation first to get the context
         context = super(ExamStartView, self).get_context_data(**kwargs)
         # Create any data and add it to the context
-        context['active_exams'] = ExamSession.active_exams.is_active()
+        context['active_exams'] = ExamSession.exam_manager.active_exams()
         return context
 
 
@@ -67,7 +67,7 @@ class ExamReportView(BaseTemplateView):
         context = super(ExamReportView, self).get_context_data(**kwargs)
         print(self)
         # Create any data and add it to the context
-        context['active_exams'] = ExamSession.active_exams.is_active()
+        context['active_exams'] = ExamSession.exam_manager.active_exams()
         return context
 
 
