@@ -13,8 +13,8 @@
     <h1>{{examsession.course_instance.course}}</h1>
     <form action="" method="post">
         {% csrf_token %}
-        <input type="submit" name="end-exam" value="Finish exam" class="btn btn-success">
-        <input type="submit" name="cancel" value="Cancel"  class="btn btn-primary"> 
+        <input type="submit" name="end-exam" value="Finish exam" class="btn btn-primary">
+        <input type="submit" name="cancel" value="Cancel"  class="btn btn-basic"> 
     </form>
 </div>
 {% endblock content %}

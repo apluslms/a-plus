@@ -32,9 +32,8 @@ class ExamDetailView(generic.DetailView):
 
     def post(self, request, *args, **kwargs):
         session = self.get_object()
-        redirect_url = session.start_exam(request.user)
-
-        return redirect(redirect_url)
+        if 'start-exam' in request.POST:
+            return redirect(session.start_exam(request.user))
 
 
 class ExamEndView(BaseTemplateView):
@@ -43,10 +42,10 @@ class ExamEndView(BaseTemplateView):
 
     def post(self, request, *args, **kwargs):
         session = request.user.userprofile.active_exam.exam_taken
-        if "cancel" in request.POST:
+        if 'cancel' in request.POST:
             return redirect(session.get_url())
-        redirect_url = session.end_exam(request.user)
-        return redirect(redirect_url)
+        if 'end-exam' in request.POST:
+            return redirect(session.end_exam(request.user))
 
 
 class ExamFinalView(BaseTemplateView):
