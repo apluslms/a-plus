@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load base %}
 {% load course %}
 
 {% block content %}
@@ -11,7 +12,32 @@
 </div>
 {% endif %}
 
-<div class="row">
+<div class="row course-thumbnails">
+    {% site_advert as advert %}
+    {% if advert %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="thumbnail advert-thumbnail">
+                <div class="image" aria-hidden="true">
+                    {% if advert.image %}
+                        <img src="{{ advert.image }}" alt="">
+                    {% else %}
+                        <h1 class="glyphicon glyphicon-comment"></h1>
+                    {% endif %}
+                </div>
+                <div class="caption">
+                    <h3>{{ advert.title }}</h3>
+                    <p>{{ advert.text|safe }}</p>
+                    <div class="buttons caption">
+                        <a class="btn btn-default btn-block" role="button" href="{{ advert.href }}" target="_blank">
+                            <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+                            {% trans "Read more" %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {% for instance in instances %}
     {% with instance_url=instance|url %}
     <div class="col-sm-6 col-md-4 col-lg-3">

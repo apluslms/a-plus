@@ -5,8 +5,20 @@
 #ADMINS = (
 #    ('Your Name', 'your_email@domain.com'),
 #)
+# Show red alert on top of all pages
 #SITEWIDE_ALERT_TEXT = "Maintenance on Monday"
 #SITEWIDE_ALERT_TEXT = {'en': "Maintenance on Monday", 'fi': "Maanantaina on palvelukatko"}
+# Show blue info box on course index and course menu
+#SITEWIDE_ADVERT = {
+#    'not-before': '2020-01-01', # start showing on 1st
+#    'not-after': '2020-01-04', # last visible date is 3rd
+#    'title': {'en': "Advert", 'fi': "Mainos"},
+#    'text': {'en': "We have open positions",
+#             'fi': "Meillä on paikkoja"}
+#    'href': "https://apluslms.github.io",
+#    'image': "https://apluslms.github.io/logo.png",
+#}
+
 
 ## Authentication backends
 #INSTALLED_APPS += (

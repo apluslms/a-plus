@@ -218,6 +218,14 @@ html, body {
     position: fixed;
     top: 20px;
 }
+.course-menu .advert-thumbnail {
+    margin-top: 4em;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+.course-menu .advert-thumbnail h4 {
+    margin-top: 0;
+}
 .siblings>.btn {
     max-width: 50%;
     overflow: hidden;
@@ -239,24 +247,38 @@ html, body {
 }
 
 /* index thumbnails */
-.course-thumbnail {
+.course-thumbnails .advert-thumbnail,
+.course-thumbnails .course-thumbnail {
     height: 330px;
     position: relative;
 }
-.course-thumbnail .image {
+.course-thumbnails .advert-thumbnail {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+.course-thumbnails .advert-thumbnail .image,
+.course-thumbnails .course-thumbnail .image {
     height: 130px;
     overflow: hidden;
     text-align: center;
+}
+.course-thumbnails .course-thumbnail .image {
     background: #eee;
 }
-.course-thumbnail .image img {
+.course-thumbnails .advert-thumbnail .image img,
+.course-thumbnails .course-thumbnail .image img {
     width: 100%;
+    background: #eee;
 }
-.course-thumbnail .image .glyphicon {
-    color: #fff;
+.course-thumbnails .advert-thumbnail .image .glyphicon,
+.course-thumbnails .course-thumbnail .image .glyphicon {
     font-size: 90px;
 }
-.course-thumbnail .buttons {
+.course-thumbnails .course-thumbnail .image .glyphicon {
+    color: #fff;
+}
+.course-thumbnails .advert-thumbnail .buttons,
+.course-thumbnails .course-thumbnail .buttons {
     position: absolute;
     bottom: 0;
     left: 0;

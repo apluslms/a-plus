@@ -27,6 +27,7 @@ ALLOWED_HOSTS = ["*"]
 # local_templates/possible_path/template_name.html
 ##########################################################################
 SITEWIDE_ALERT_TEXT = None
+SITEWIDE_ADVERT = None
 BRAND_NAME = 'A+'
 
 WELCOME_TEXT = 'Welcome to A+ <small>modern learning environment</small>'

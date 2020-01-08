@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load base %}
 {% load course %}
 
 {% block scripts %}
@@ -21,6 +22,21 @@
             <ul class="nav nav-pills nav-stacked">
                 {% include "course/_course_menu.html" %}
             </ul>
+            {% site_advert as advert %}
+            {% if advert %}
+                <div class="thumbnail advert-thumbnail">
+                    <div class="caption">
+                        <h4>{{ advert.title }}</h4>
+                        <p>{{ advert.text|safe }}</p>
+                        <div class="buttons">
+                            <a class="btn btn-default btn-block" role="button" href="{{ advert.href }}" target="_blank">
+                                <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+                                {% trans "Read more" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </nav>
 
         {% comment %}

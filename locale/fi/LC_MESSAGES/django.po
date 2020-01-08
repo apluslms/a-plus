@@ -557,13 +557,10 @@ msgstr "Kurssiarkisto"
 msgid "Hidden from students"
 msgstr "Piilotettu opiskelijoilta"
 
-#: course/templates/course/course_base.html:27
-msgid "Calendar"
-msgstr "Kalenteri"
-
-#: course/templates/course/course_base.html:31
-msgid "Download calendar (ics)"
-msgstr "Lataa kalenteri (ics)"
+#: course/templates/course/course_base.html:34
+#: course/templates/course/index.html:33
+msgid "Read more"
+msgstr "Lue lisää"
 
 #: course/templates/course/enroll.html:6 course/templates/course/enroll.html:10
 msgid "Enrollment"
