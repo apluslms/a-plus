@@ -33,7 +33,11 @@ class ExamDetailView(generic.DetailView):
     def post(self, request, *args, **kwargs):
         session = self.get_object()
         if 'start-exam' in request.POST:
-            return redirect(session.start_exam(request.user))
+            if request.user.is_staff or not request.user.userprofile.active_exam:
+                return redirect(session.start_exam(request.user))
+            else:
+                messages.error(request, 'You already have an active exam attempt!')
+                return redirect('exam_start')
 
 
 class ExamEndView(BaseTemplateView):
@@ -71,7 +75,8 @@ class ExamReportView(BaseTemplateView):
         return context
 
 
-class ExamSessionEdit(UpdateView):
+class ExamSessionEdit(CourseInstanceMixin, UpdateView):
+    access_mode = ACCESS.TEACHER
     template_name = 'exammode/staff/edit_session_form.html'
     form_class = ExamSessionForm
     #fields = ['exam_module', 'can_start', 'duration', 'room']
@@ -97,6 +102,8 @@ class ExamSessionEdit(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ExamSessionEdit, self).get_context_data(**kwargs)
         context['course_instance'] = self.get_object(
+        ).course_instance
+        context['instance'] = self.get_object(
         ).course_instance
         return context
 

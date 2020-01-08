@@ -21,7 +21,6 @@
 	<div class="content-divider-exam-session">Content</div>
 	<div class="field-wrapper-exam-session">
 		{{ form.course_instance.errors }}
-		{{ form.course_instance.label_tag}}
 		{{ form.course_instance }}
 	</div>
 	<div class="field-wrapper-exam-session">
@@ -29,25 +28,11 @@
 		{{ form.exam_module.label_tag}}
 		{{ form.exam_module }}
 	</div>
-	<hr>
-	<div class="content-divider-exam-session">Schedule</div>
-	<div class="field-wrapper-exam-session">
-		{{ form.can_start.errors }}
-		{{ form.can_start.label_tag}}
-		{{ form.can_start }}
-	</div>
-	<div class="field-wrapper-exam-session">
-		{{ form.duration.errors }}
-		{{ form.duration.label_tag}}
-		{{ form.duration }}
-	</div>
 	<div class="field-wrapper-exam-session">
 		{{ form.room.errors }}
 		{{ form.room.label_tag}}
 		{{ form.room }}
 	</div>
-	<hr>
-	<div class="content-divider-exam-session">Visibility</div>
 	<input class="btn btn-primary" name="add" type="submit" value="Submit" />
 </form>
 
@@ -56,8 +41,8 @@
 <ul class="list-group">
 	{% for exam_session in exam_sessions %}
 	<li class="list-group-item">
-		{{exam_session.course_instance.course}}
-		{{exam_session.can_start}}
+		{{exam_session.exam_module}}
+		{{exam_session.room}}
 		<a class="btn btn-warning" href="{% url 'edit-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
 			Edit
 		</a>

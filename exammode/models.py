@@ -12,11 +12,10 @@ class ActiveExamSessionManager(models.Manager):
     # than expected, due to it's usage in the datetime field. Similar situations
     # where handled often with raw sql. However, we propably don't need to deal
     # with this problem at all, since we will get rid of the current time management
-    # and start using the modules starting and closing times!
+    # and start using the modules starting and closing times.
     def active_exams(self):
         initial_queryset = super().get_queryset()
-        queryset = [q for q in initial_queryset if (q.can_start <= timezone.now() and (
-            timezone.now() <= q.can_start + timezone.timedelta(hours=q.duration)))]
+        queryset = [q for q in initial_queryset if q.exam_module.is_open()]
         return queryset
 
 
@@ -29,8 +28,6 @@ class ExamSession(models.Model):
         CourseInstance, on_delete=models.CASCADE)
     exam_module = models.ForeignKey(
         CourseModule, on_delete=models.CASCADE, null=True, blank=True)
-    can_start = models.DateTimeField(editable=True, default=timezone.now)
-    duration = models.IntegerField()
     room = models.CharField(max_length=255, null=True, blank=True)
 
     objects = models.Manager()

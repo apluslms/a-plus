@@ -1,6 +1,17 @@
-{% extends "base.html" %}
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load static %}
 
-{% block content %}
+{% block title %}{% trans "Exam management" %} | {{ block.super }}{% endblock %}
+{% block view_tag %}Exam management{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li class="active">{% trans "Edit exam" %}</li>
+{% endblock %}
+
+{% block columns %}
 
 <form method="post">
 	{% csrf_token %}
@@ -11,25 +22,11 @@
 		{{ form.exam_module.label_tag}}
 		{{ form.exam_module }}
 	</div>
-	<hr>
-	<div class="content-divider-exam-session">Schedule</div>
-	<div class="field-wrapper-exam-session">
-		{{ form.can_start.errors }}
-		{{ form.can_start.label_tag}}
-		{{ form.can_start }}
-	</div>
-	<div class="field-wrapper-exam-session">
-		{{ form.duration.errors }}
-		{{ form.duration.label_tag}}
-		{{ form.duration }}
-	</div>
 	<div class="field-wrapper-exam-session">
 		{{ form.room.errors }}
 		{{ form.room.label_tag}}
 		{{ form.room }}
 	</div>
-	<hr>
-	<div class="content-divider-exam-session">Visibility</div>
 	<input class="btn btn-primary" name="add" type="submit" value="Submit" />
 </form>
 

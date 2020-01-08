@@ -133,6 +133,13 @@ class CourseModulePermission(MessageMixin, Permission):
             )
             return False
 
+        if module.status == CourseModule.STATUS.EXAM:
+            attempt = request.user.userprofile.active_exam
+            if not attempt or attempt.exam_taken.exam_module.id is not module.id:
+                return False
+        elif request.user.userprofile.active_exam:
+            return False
+
         if module.requirements.count() > 0:
             points = CachedPoints(module.course_instance, request.user, view.content)
             return module.are_requirements_passed(points)

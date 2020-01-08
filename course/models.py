@@ -673,6 +673,7 @@ class CourseModule(UrlMixin, models.Model):
         ('UNLISTED', 'unlisted', _("Unlisted in table of contents")),
         ('HIDDEN', 'hidden', _("Hidden")),
         ('MAINTENANCE', 'maintenance', _("Maintenance")),
+        ('EXAM', 'exam', _("Exam")),
     ])
     status = models.CharField(max_length=32,
         choices=STATUS.choices, default=STATUS.READY)

@@ -12,10 +12,10 @@
 		Return
 	</a>
 	<h1>{{examsession.course_instance.course}}</h1>
-	<p>Exams starts at {{examsession.can_start}}</p>
+		{{examsession.exam_module}}
 	<form action="" method="post">
 		{% csrf_token %}
-		<input 
+		<input
 			type="submit"
 			name="start-exam"
 			value="Start exam"
