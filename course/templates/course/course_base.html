@@ -23,7 +23,8 @@
             </ul>
         </nav>
 
-        <!--div class="calendar-view">
+        {% comment %}
+        <div class="calendar-view">
             <h4>{% trans "Calendar" %}</h4>
             <div id="study-calendar"></div>
             <p>
@@ -31,7 +32,8 @@
                     <small>{% trans "Download calendar (ics)" %}</small>
                 </a>
             </p>
-        </div-->
+        </div>
+        {% endcomment %}
     </div>
     <div class="col-sm-10">
         {% block siblings %}{% endblock %}
