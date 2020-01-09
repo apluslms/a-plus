@@ -10,7 +10,7 @@ class ExamSessionForm(ModelForm):
 
     class Meta:
         model = ExamSession
-        fields = ['course_instance', 'exam_module', 'room']
+        fields = ['name', 'course_instance', 'exam_module', 'room']
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.pop('course_instance')

@@ -24,17 +24,21 @@ class ExamSession(models.Model):
     Represents one instance of a course exam
     """
 
+    name = models.CharField(max_length=255, blank=False, default=None)
     course_instance = models.ForeignKey(
         CourseInstance, on_delete=models.CASCADE)
     exam_module = models.ForeignKey(
-        CourseModule, on_delete=models.CASCADE, null=True, blank=True)
+        CourseModule, on_delete=models.CASCADE, blank=False, default=None)
     room = models.CharField(max_length=255, null=True, blank=True)
 
     objects = models.Manager()
     exam_manager = ActiveExamSessionManager()
 
+    class Meta:
+        unique_together = [['name', 'room']]
+
     def __str__(self):
-        return " ".join([str(self.course_instance), str(self.can_start)])
+        return " ".join([str(self.exam_module), str(self.room)])
 
     def start_exam(self, user):
 

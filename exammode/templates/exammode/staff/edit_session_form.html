@@ -2,12 +2,14 @@
 {% load i18n %}
 {% load course %}
 {% load static %}
+{% load bootstrap %}
 
 {% block title %}{% trans "Exam management" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}Exam management{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
+<li><a href="{{ instance|url:'exam-management' }}">{% trans "Exam management" %}</a></li>
 <li class="active">{% trans "Edit exam" %}</li>
 {% endblock %}
 
@@ -16,7 +18,12 @@
 <form method="post">
 	{% csrf_token %}
 	{{ form.non_field_errors }}
-	<div class="content-divider-exam-session">Content</div>
+	<div class="content-divider-exam-session">Edit exam</div>
+	<div class="field-wrapper-exam-session">
+		{{ form.name.errors }}
+		{{ form.name.label_tag}}
+		{{ form.name }}
+	</div>
 	<div class="field-wrapper-exam-session">
 		{{ form.exam_module.errors }}
 		{{ form.exam_module.label_tag}}
@@ -28,6 +35,9 @@
 		{{ form.room }}
 	</div>
 	<input class="btn btn-primary" name="add" type="submit" value="Submit" />
+	<a href="{{ instance|url:'exam-management' }}" role="button" class="btn btn-default">
+		Return
+	</a>
 </form>
 
 {% endblock %}

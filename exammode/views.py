@@ -1,15 +1,15 @@
 from django.shortcuts import redirect
 from django.views import generic
-from django.views.generic.edit import DeleteView, UpdateView
+from django.views.generic.edit import DeleteView, UpdateView, FormMixin, FormView
 from django.urls import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from exammode.forms import ExamSessionForm
-from course.viewbase import CourseInstanceMixin
+from course.viewbase import CourseInstanceMixin, CourseMixin
 from authorization.permissions import ACCESS
 
-from lib.viewbase import BaseFormView, BaseTemplateView
+from lib.viewbase import BaseFormView, BaseTemplateView, BaseFormMixin, BaseTemplateMixin, BaseViewMixin
 from .models import ExamSession
 
 # Create your views here.
@@ -75,16 +75,17 @@ class ExamReportView(BaseTemplateView):
         return context
 
 
-class ExamSessionEdit(CourseInstanceMixin, UpdateView):
+# NOTE: Without FormView the sidebar with course content etc. does not work.
+# This is quite odd, since FormView is django class, and not defined in our own
+# view.py or viewbase.py files.
+class ExamSessionEdit(CourseInstanceMixin, UpdateView, BaseViewMixin, FormView):
     access_mode = ACCESS.TEACHER
     template_name = 'exammode/staff/edit_session_form.html'
-    form_class = ExamSessionForm
-    #fields = ['exam_module', 'can_start', 'duration', 'room']
+    fields = ['name', 'exam_module', 'room']
     model = ExamSession
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['course_instance'] = self.get_object().course_instance
         return kwargs
 
     '''
@@ -101,10 +102,10 @@ class ExamSessionEdit(CourseInstanceMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ExamSessionEdit, self).get_context_data(**kwargs)
-        context['course_instance'] = self.get_object(
+        instance = self.get_object(
         ).course_instance
-        context['instance'] = self.get_object(
-        ).course_instance
+        context['instance'] = instance
+        context['course_instance'] = instance
         return context
 
     def get_success_url(self):
