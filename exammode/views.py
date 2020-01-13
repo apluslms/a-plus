@@ -1,18 +1,16 @@
 from django.shortcuts import redirect
 from django.views import generic
-from django.views.generic.edit import DeleteView, UpdateView, FormMixin, FormView
+from django.views.generic.edit import DeleteView, UpdateView, FormView
 from django.urls import reverse
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from exammode.forms import ExamSessionForm
-from course.viewbase import CourseInstanceMixin, CourseMixin
+from course.viewbase import CourseInstanceMixin
 from authorization.permissions import ACCESS
 
-from lib.viewbase import BaseFormView, BaseTemplateView, BaseFormMixin, BaseTemplateMixin, BaseViewMixin
+from lib.viewbase import BaseFormView, BaseTemplateView, BaseViewMixin
 from .models import ExamSession
-
-# Create your views here.
 
 
 class ExamStartView(BaseTemplateView):
@@ -20,9 +18,7 @@ class ExamStartView(BaseTemplateView):
     template_name = "exammode/exam_start.html"
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get the context
         context = super(ExamStartView, self).get_context_data(**kwargs)
-        # Create any data and add it to the context
         context['active_exams'] = ExamSession.exam_manager.active_exams()
         return context
 
@@ -67,10 +63,8 @@ class ExamReportView(BaseTemplateView):
     access_mode = ACCESS.TEACHER
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get the context
         context = super(ExamReportView, self).get_context_data(**kwargs)
         print(self)
-        # Create any data and add it to the context
         context['active_exams'] = ExamSession.exam_manager.active_exams()
         return context
 

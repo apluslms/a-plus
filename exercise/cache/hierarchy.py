@@ -273,7 +273,10 @@ class ContentMixin(object):
                 )
             )
         if t == 'module':
-            return entry['status'] != CourseModule.STATUS.HIDDEN
+            return (
+                entry['status'] != CourseModule.STATUS.HIDDEN
+                and entry['status'] != CourseModule.STATUS.EXAM
+                )
         if t == 'category':
             return not entry['status'] in (
                 LearningObjectCategory.STATUS.HIDDEN,
