@@ -54,7 +54,7 @@
 	forms.on("submit", function(event) {
 		$("#submit-progress").removeClass("hide");
 	});
-});*/	
+});*/
 // Add an Ajax exercise event listener to refresh the info column.
 window.addEventListener("message", function (event) {
 	if (event.data.type === "a-plus-refresh-stats") {
@@ -103,9 +103,6 @@ window.addEventListener("message", function (event) {
 			</ul>
 		</li>
 		{% if is_course_staff or is_student and exercise.can_show_model_solutions %}
-		{% comment %} The model solution link is shown even if the student can not
-		open it due to personal extensions. However, this saves some database queries.
-		{% endcomment %}
 		{% if exercise.model_answers %}
 		<li class="menu-model">
 		<a href="{{ exercise|url:'exercise-model' }}">
@@ -162,14 +159,14 @@ window.addEventListener("message", function (event) {
 				{{ page.content|safe }}
 			</div>
 		</div>
-	</div>	
+	</div>
 	<div id="submit-progress" class="hide progress">
 		<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
 			{% trans "Posting submission..." %}
 		</div>
-	</div>	
-	{% include "exercise/_exercise_wait.html" %}	
-	<div 
+	</div>
+	{% include "exercise/_exercise_wait.html" %}
+	<div
 		id="loading-indicator"
 		class="hide progress"
 		data-msg-load="{% trans 'Loading exercise...' %}"
@@ -180,7 +177,7 @@ window.addEventListener("message", function (event) {
 			role="progressbar"
 			style="width:100%;">
 		</div>
-	</div>	
+	</div>
 	<div id="quiz-success" class="hide">
 		<h3 class="text-center">{% trans "Submission received." %}</h3>
 		<p class="text-center badge-placeholder"></p>

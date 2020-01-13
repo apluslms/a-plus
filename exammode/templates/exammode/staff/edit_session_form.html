@@ -18,7 +18,7 @@
 <form method="post">
 	{% csrf_token %}
 	{{ form.non_field_errors }}
-	<div class="content-divider-exam-session">Edit exam</div>
+	<div class="content-divider-exam-session">{% trans "Edit exam" %}</div>
 	<div class="field-wrapper-exam-session">
 		{{ form.name.errors }}
 		{{ form.name.label_tag}}
@@ -36,7 +36,7 @@
 	</div>
 	<input class="btn btn-primary" name="add" type="submit" value="Submit" />
 	<a href="{{ instance|url:'exam-management' }}" role="button" class="btn btn-default">
-		Return
+		{% trans "Cancel" %}
 	</a>
 </form>
 

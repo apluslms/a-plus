@@ -13,7 +13,7 @@
 
 {% block columns %}
 
-<h3>Add new exam session</h3>
+<h3>{% trans "Add new exam session" %}</h3>
 
 <form method="post">
 	{% csrf_token %}
@@ -39,28 +39,28 @@
 	<input class="btn btn-primary" name="add" type="submit" value="Add" />
 </form>
 
-<h3>List of active exams:</h3>
+<h3>{% trans "List of active exams:" %}</h3>
 {% if exam_sessions %}
 <ul class="list-group">
 	{% for exam_session in exam_sessions %}
 	<li class="list-group-item">
-		{{exam_session.name}}, Module: {{exam_session.exam_module}}, Room: {{exam_session.room}}
+		{{exam_session.name}}, {% trans "Module" %}: {{exam_session.exam_module}}, {% trans "Room" %}: {{exam_session.room}}
 		<a class="btn btn-warning" href="{% url 'edit-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
-			Edit
+			{% trans "Edit" %}
 		</a>
 		<a class="btn btn-danger" href="{% url 'delete-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
-			Delete
+			{% trans "Delete" %}
 		</a>
 		<a class="btn btn-info" href="">
-			Grading
+			{% trans "Grading" %}
 		</a>
 		<a class="btn btn-info" href="">
-			Link to this exam
+			{% trans "Link to this exam" %}
 		</a>
 	</li>
 	{% endfor %}
 </ul>
 {% else %}
-No active exams.
+{% trans "No active exams." %}
 {% endif %}
 {% endblock %}

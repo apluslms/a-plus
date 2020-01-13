@@ -14,7 +14,7 @@ class ActiveExamSessionManager(models.Manager):
     # with this problem at all, since we will get rid of the current time management
     # and start using the modules starting and closing times.
     def active_exams(self):
-        initial_queryset = super().get_queryset()
+        initial_queryset = self.get_queryset()
         queryset = [q for q in initial_queryset if q.exam_module.is_open()]
         return queryset
 
@@ -53,12 +53,11 @@ class ExamSession(models.Model):
         else:
             return reverse("exam_module_not_defined")
 
-        attempt = ExamAttempt(
+        attempt = ExamAttempt.objects.create(
             exam_taken=self,
             student=user.userprofile,
             exam_started=timezone.now()
         )
-        attempt.save()
 
         user.userprofile.active_exam = attempt
         user.userprofile.save()
@@ -76,8 +75,7 @@ class ExamSession(models.Model):
             return reverse("exam_module_not_defined")
 
     def end_exam(self, user):
-        attempt = ExamAttempt.objects.filter(
-            exam_taken=self, student=user.userprofile)[:1].get()
+        attempt = user.userprofile.active_exam
         attempt.exam_finished = timezone.now()
         attempt.save()
 
