@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.forms import ModelForm, SplitDateTimeField, HiddenInput
+from django.forms import ModelForm, SplitDateTimeField, HiddenInput, ValidationError
 
 from .models import ExamSession
 from course.models import CourseModule
@@ -20,3 +20,9 @@ class ExamSessionForm(ModelForm):
         self.fields['course_instance'].widget = HiddenInput()
         self.fields['exam_module'].queryset = CourseModule.objects.filter(
             course_instance=instance)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        module = cleaned_data.get('exam_module')
+        if module.status != CourseModule.STATUS.EXAM:
+            raise ValidationError("The status of the exam module should be 'Exam'.")

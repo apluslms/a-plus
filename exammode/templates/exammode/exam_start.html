@@ -2,6 +2,24 @@
 {% load i18n %}
 
 {% block content %}
+{% if user_exam %}
+<div class="text-center">
+	<h1>{% trans "Active exam detected!" %}</h1>
+	<div class="alert alert-danger">
+		<p>{% blocktrans %}
+		It seems that you already have an active exam attempt. To start a new exam,
+		you must not have another active exam. You can continue by finishing your current
+		exam or submitting it instantly.
+		{% endblocktrans %}
+		</p>
+	</div>
+<form action="" method="post">
+		{% csrf_token %}
+		<input type="submit" name="continue" value="Continue previous attempt" class="btn btn-primary">
+		<input type="submit" name="discard" value="Return previous attempt" class="btn btn-danger">
+</form>
+</div>
+{% else %}
 <div class="text-center">
 	<h1>{% trans "List of active exams" %}</h1>
 	<br style="line-height: 2;">
@@ -23,4 +41,5 @@
 		<p>{% trans "There are no active exams at the moment." %}</p>
 	{% endif %}
 </div>
+{% endif %}
 {% endblock content %}

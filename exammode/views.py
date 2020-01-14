@@ -20,7 +20,19 @@ class ExamStartView(BaseTemplateView):
     def get_context_data(self, **kwargs):
         context = super(ExamStartView, self).get_context_data(**kwargs)
         context['active_exams'] = ExamSession.active_exams.get_queryset()
+        context['user_exam'] = True if self.request.user.userprofile.active_exam else False
         return context
+
+    def post(self, request, *args, **kwargs):
+        session = request.user.userprofile.active_exam.exam_taken
+        if not session:
+            messages.error(request, _(''))
+            return redirect('exam_start')
+        elif 'continue' in request.POST:
+            return redirect(session.get_url())
+        elif 'discard' in request.POST:
+            session.end_exam(request.user)
+            return redirect('exam_start')
 
 
 class ExamDetailView(generic.DetailView):
@@ -32,7 +44,11 @@ class ExamDetailView(generic.DetailView):
             if request.user.is_staff or not request.user.userprofile.active_exam:
                 return redirect(session.start_exam(request.user))
             else:
-                messages.error(request, 'You already have an active exam attempt!')
+                messages.error(request, _(
+                    "You don't have an active exam attempt!"
+                    "If you wish to continue your previous attempt, press 'Continue "
+                    "previous attempt'. You can instantly submit existing exam "
+                    "attempt by pressing 'Return previous exam attempt'"))
                 return redirect('exam_start')
 
 
