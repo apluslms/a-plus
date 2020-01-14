@@ -8,11 +8,7 @@ from userprofile.models import UserProfile
 
 
 class ActiveExamSessionManager(models.Manager):
-    # FIXME: Using duration field in the filter query was much more problematic
-    # than expected, due to it's usage in the datetime field. Similar situations
-    # where handled often with raw sql. However, we propably don't need to deal
-    # with this problem at all, since we will get rid of the current time management
-    # and start using the modules starting and closing times.
+
     def get_queryset(self):
         initial_queryset = super().get_queryset()
         queryset = initial_queryset.filter(
@@ -20,7 +16,6 @@ class ActiveExamSessionManager(models.Manager):
                 ).filter(
             exam_module__closing_time__gte=timezone.now()
                 )
-        #queryset = [q for q in initial_queryset if q.exam_module.is_open()]
         return queryset
 
 
