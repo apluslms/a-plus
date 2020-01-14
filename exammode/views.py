@@ -10,7 +10,8 @@ from course.viewbase import CourseInstanceMixin
 from authorization.permissions import ACCESS
 
 from lib.viewbase import BaseFormView, BaseTemplateView, BaseViewMixin
-from .models import ExamSession
+from .models import ExamSession, ExamAttempt
+from exercise.cache.points import CachedPoints
 
 
 class ExamStartView(BaseTemplateView):
@@ -40,15 +41,19 @@ class ExamDetailView(generic.DetailView):
 
     def post(self, request, *args, **kwargs):
         session = self.get_object()
+        user = request.user
         if 'start-exam' in request.POST:
-            if request.user.is_staff or not request.user.userprofile.active_exam:
-                return redirect(session.start_exam(request.user))
+            if user.is_staff:
+                return redirect(session.start_exam(user))
+            elif not user.userprofile.active_exam:
+                if ExamAttempt.objects.filter(
+                        exam_taken=session, student=user.userprofile).exists():
+                    messages.error(request, _(
+                            "You have already attempted this exam."))
+                    return redirect('exam_start')
+                else:
+                    return redirect(session.start_exam(user))
             else:
-                messages.error(request, _(
-                    "You don't have an active exam attempt!"
-                    "If you wish to continue your previous attempt, press 'Continue "
-                    "previous attempt'. You can instantly submit existing exam "
-                    "attempt by pressing 'Return previous exam attempt'"))
                 return redirect('exam_start')
 
 
