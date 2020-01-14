@@ -19,7 +19,7 @@ class ExamStartView(BaseTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ExamStartView, self).get_context_data(**kwargs)
-        context['active_exams'] = ExamSession.exam_manager.active_exams()
+        context['active_exams'] = ExamSession.active_exams.get_queryset()
         return context
 
 
@@ -65,7 +65,7 @@ class ExamReportView(BaseTemplateView):
     def get_context_data(self, **kwargs):
         context = super(ExamReportView, self).get_context_data(**kwargs)
         print(self)
-        context['active_exams'] = ExamSession.exam_manager.active_exams()
+        context['active_exams'] = ExamSession.active_exams.get_queryset()
         return context
 
 

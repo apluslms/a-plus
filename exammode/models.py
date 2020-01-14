@@ -13,9 +13,14 @@ class ActiveExamSessionManager(models.Manager):
     # where handled often with raw sql. However, we propably don't need to deal
     # with this problem at all, since we will get rid of the current time management
     # and start using the modules starting and closing times.
-    def active_exams(self):
-        initial_queryset = self.get_queryset()
-        queryset = [q for q in initial_queryset if q.exam_module.is_open()]
+    def get_queryset(self):
+        initial_queryset = super().get_queryset()
+        queryset = initial_queryset.filter(
+            exam_module__opening_time__lte=timezone.now()
+                ).filter(
+            exam_module__closing_time__gte=timezone.now()
+                )
+        #queryset = [q for q in initial_queryset if q.exam_module.is_open()]
         return queryset
 
 
@@ -32,7 +37,7 @@ class ExamSession(models.Model):
     room = models.CharField(max_length=255, null=True, blank=True)
 
     objects = models.Manager()
-    exam_manager = ActiveExamSessionManager()
+    active_exams = ActiveExamSessionManager()
 
     class Meta:
         unique_together = [['name', 'room']]
