@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="text-center">
-	<h1>List of active exams</h1>
+	<h1>{% trans "List of active exams" %}</h1>
 	<br style="line-height: 2;">
 	{% if active_exams %}
 		<ul class="list-unstyled">
@@ -20,7 +20,7 @@
 			{% endfor %}
 		</ul>
 	{% else %}
-		<p>There are no active exams at the moment.</p>
+		<p>{% trans "There are no active exams at the moment." %}</p>
 	{% endif %}
 </div>
 {% endblock content %}
