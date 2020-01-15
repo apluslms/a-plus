@@ -105,7 +105,7 @@
 						</ul>
 					</li>
 					{% endif %}
-					{% if instance %}
+					{% if instance and user.userprofile.active_exam %}
 					<li>
 						<a style="display: inline-block; vertical-align: top;" class="btn btn-success" href="{% url 'exam_end' user.userprofile.active_exam.exam_taken.id %}">
 							{% trans "Finish exam" %}
