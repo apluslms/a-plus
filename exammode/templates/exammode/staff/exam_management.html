@@ -51,10 +51,7 @@
 		<a class="btn btn-danger" href="{% url 'delete-exam-session' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
 			{% trans "Delete" %}
 		</a>
-		<a class="btn btn-info" href="">
-			{% trans "Grading" %}
-		</a>
-		<a class="btn btn-info" href="">
+		<a class="btn btn-info" href="{{ exam_session.get_url }}">
 			{% trans "Link to this exam" %}
 		</a>
 	</li>
