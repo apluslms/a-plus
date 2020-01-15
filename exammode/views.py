@@ -10,8 +10,8 @@ from course.viewbase import CourseInstanceMixin
 from authorization.permissions import ACCESS
 
 from lib.viewbase import BaseFormView, BaseTemplateView, BaseViewMixin
-from .models import ExamSession, ExamAttempt
-from exercise.cache.points import CachedPoints
+from .models import ExamSession
+from exercise.views import ExerciseView
 
 
 class ExamStartView(BaseTemplateView):
@@ -43,16 +43,8 @@ class ExamDetailView(generic.DetailView):
         session = self.get_object()
         user = request.user
         if 'start-exam' in request.POST:
-            if user.is_staff:
+            if user.is_staff or not user.userprofile.active_exam:
                 return redirect(session.start_exam(user))
-            elif not user.userprofile.active_exam:
-                if ExamAttempt.objects.filter(
-                        exam_taken=session, student=user.userprofile).exists():
-                    messages.error(request, _(
-                            "You have already attempted this exam."))
-                    return redirect('exam_start')
-                else:
-                    return redirect(session.start_exam(user))
             else:
                 return redirect('exam_start')
 
@@ -183,3 +175,8 @@ class ExamManagementView(CourseInstanceMixin, BaseFormView):
             form.save()
         return redirect(self.request.path_info)
     '''
+
+
+class ExamsStudentView(ExerciseView):
+    template_name = "exammode/exam.html"
+    ajax_template_name = "exammode/exam_question.html"

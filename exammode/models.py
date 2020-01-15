@@ -48,7 +48,7 @@ class ExamSession(models.Model):
         )
 
         if learning_objects:
-            redirect_url = learning_objects[0].get_display_url()
+            redirect_url = learning_objects[0].get_exam_url()
 
         else:
             return reverse("exam_module_not_defined")
@@ -69,20 +69,20 @@ class ExamSession(models.Model):
             course_module__exact=self.exam_module
         )
         if learning_objects:
-            return learning_objects[0].get_display_url()
-
+            return learning_objects[0].get_exam_url()
         else:
             return reverse("exam_module_not_defined")
 
     def end_exam(self, user):
+        redirect_url = ("exam_final_info")
         attempt = user.userprofile.active_exam
+        if not attempt:
+            return redirect_url
         attempt.exam_finished = timezone.now()
         attempt.save()
 
         user.userprofile.active_exam = None
         user.userprofile.save()
-
-        redirect_url = ("exam_final_info")
 
         return redirect_url
 

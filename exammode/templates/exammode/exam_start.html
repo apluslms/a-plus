@@ -15,8 +15,8 @@
 	</div>
 <form action="" method="post">
 		{% csrf_token %}
-		<input type="submit" name="continue" value="Continue previous attempt" class="btn btn-primary">
-		<input type="submit" name="discard" value="Return previous attempt" class="btn btn-danger">
+		<input type="submit" name="continue" value="{% trans "Continue previous attempt" %}" class="btn btn-primary">
+		<input type="submit" name="discard" value="{% trans "Finish previous attempt" %}" class="btn btn-danger">
 </form>
 </div>
 {% else %}

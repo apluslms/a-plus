@@ -1,6 +1,4 @@
-from datetime import datetime
-
-from django.forms import ModelForm, SplitDateTimeField, HiddenInput, ValidationError
+from django.forms import ModelForm, HiddenInput, ValidationError
 
 from .models import ExamSession
 from course.models import CourseModule

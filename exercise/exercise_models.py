@@ -237,6 +237,9 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             )
         return self.get_absolute_url()
 
+    def get_exam_url(self):
+        return self.get_url("exam_chapter")
+
     def get_submission_list_url(self):
         return self.get_url("submission-list")
 
