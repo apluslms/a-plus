@@ -188,5 +188,5 @@ class ListAttemptsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.attempts = ExamAttempt.objects.all()
+        self.attempts = ExamAttempt.objects.filter(exam_taken__id=self.kwargs['pk'])
         self.note("attempts")
