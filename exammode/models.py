@@ -1,10 +1,12 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
 
 from course.models import CourseInstance, CourseModule
 from exercise.exercise_models import LearningObject
-from userprofile.models import UserProfile
+from userprofile.models import UserProfile, User
 
 
 class ActiveExamSessionManager(models.Manager):
@@ -40,12 +42,19 @@ class ExamSession(models.Model):
     def __str__(self):
         return " ".join([str(self.exam_module), str(self.room)])
 
-    def start_exam(self, user):
+    def start_exam(self, user, request):
 
         # Checking first if exam content is available. If not, database entries would be pointless
         learning_objects = LearningObject.objects.filter(
             course_module__exact=self.exam_module
         )
+
+        if not self.is_student(user) and self.is_enrollable(user):
+            self.course_instance.enroll_student(user)
+        elif not self.is_student(user):
+            messages.error(request, _(
+                    "You cannot enroll to that exam."))
+            return reverse("exam_start")
 
         if learning_objects:
             redirect_url = learning_objects[0].get_exam_url()
@@ -85,6 +94,23 @@ class ExamSession(models.Model):
         user.userprofile.save()
 
         return redirect_url
+
+    def is_student(self, user):
+        return (
+            user and
+            user.is_authenticated and
+            isinstance(user, User) and
+            self.course_instance.students.filter(id=user.userprofile.id).exists()
+        )
+
+    def is_enrollable(self, user):
+        if user and user.is_authenticated and self.course_instance.visible_to_students:
+            if self.course_instance.enrollment_audience == self.course_instance.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
+                return not user.userprofile.is_external
+            if self.course_instance.enrollment_audience == self.course_instance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS:
+                return user.userprofile.is_external
+            return True
+        return False
 
 
 class ExamAttempt(models.Model):

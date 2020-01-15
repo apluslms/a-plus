@@ -44,7 +44,7 @@ class ExamDetailView(generic.DetailView):
         user = request.user
         if 'start-exam' in request.POST:
             if user.is_staff or not user.userprofile.active_exam:
-                return redirect(session.start_exam(user))
+                return redirect(session.start_exam(user, request))
             else:
                 return redirect('exam_start')
 

@@ -39,7 +39,7 @@ class UserProfile(models.Model):
     student_id = models.CharField(max_length=25, null=True, blank=True)
     objects = UserProfileManager()
     active_exam = models.ForeignKey(
-        'exammode.ExamAttempt', on_delete=models.SET_NULL, null=True)
+        'exammode.ExamAttempt', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ['id']

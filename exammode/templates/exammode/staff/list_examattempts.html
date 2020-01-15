@@ -27,7 +27,7 @@
 		</tr>
 		{% for attempt in attempts %}
 		<tr>
-			<td>{{ attempt.student }}</td>
+			<td><a href="{{ attempt.student|url:instance }}">{{ attempt.student }}</a></td>
 			<td>{{ attempt.exam_started }}</td>
 			<td>{% if attempt.exam_finished %}{{ attempt.exam_finished }}{% else %}{% trans "Still active" %}{% endif %}</td>
 		</tr>
