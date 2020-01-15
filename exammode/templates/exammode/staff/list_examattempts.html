@@ -1,0 +1,41 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load static %}
+{% load bootstrap %}
+
+{% block title %}{% trans "Exam management" %} | {{ block.super }}{% endblock %}
+{% block view_tag %}Exam management{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'exam-management' }}">{% trans "Exam management" %}</a></li>
+<li class="active">{% trans "Exam attempts" %}</li>
+{% endblock %}
+
+{% block columns %}
+
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">{% trans "Exam attempts" %}</h3>
+	</div>
+	<table class="table table-striped table-bordered table-condensed">
+		<tr>
+			<th>{% trans "Student" %}</th>
+			<th>{% trans "Started" %}</th>
+			<th>{% trans "Finished" %}</th>
+		</tr>
+		{% for attempt in attempts %}
+		<tr>
+			<td>{{ attempt.student }}</td>
+			<td>{{ attempt.exam_started }}</td>
+			<td>{% if attempt.exam_finished %}{{ attempt.exam_finished }}{% else %}{% trans "Still active" %}{% endif %}</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td colspan="4">{% trans "No attempts." %}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}

@@ -54,6 +54,9 @@
 		<a class="btn btn-info" href="{{ exam_session.get_url }}">
 			{% trans "Link to this exam" %}
 		</a>
+		<a class="btn btn-info" href="{% url 'exam-session-attempts' course_slug=course.url instance_slug=instance.url pk=exam_session.id %}">
+			{% trans "Attempts" %}
+		</a>
 	</li>
 	{% endfor %}
 </ul>

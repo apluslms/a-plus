@@ -92,7 +92,7 @@ class ExamAttempt(models.Model):
     student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     exam_started = models.DateTimeField(
         auto_now_add=True)
-    exam_finished = models.DateTimeField(editable=True, default=timezone.now)
+    exam_finished = models.DateTimeField(editable=True, null=True)
 
     # Placeholder to store system / hw indentifying data. Could be used for invigilating purposes
     # TODO: Implement how this is collected and used.

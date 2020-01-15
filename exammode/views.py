@@ -6,11 +6,11 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from exammode.forms import ExamSessionForm
-from course.viewbase import CourseInstanceMixin
+from course.viewbase import CourseInstanceMixin, CourseInstanceBaseView
 from authorization.permissions import ACCESS
 
 from lib.viewbase import BaseFormView, BaseTemplateView, BaseViewMixin
-from .models import ExamSession
+from .models import ExamSession, ExamAttempt
 from exercise.views import ExerciseView
 
 
@@ -180,3 +180,13 @@ class ExamManagementView(CourseInstanceMixin, BaseFormView):
 class ExamsStudentView(ExerciseView):
     template_name = "exammode/exam.html"
     ajax_template_name = "exammode/exam_question.html"
+
+
+class ListAttemptsView(CourseInstanceBaseView):
+    access_mode = ACCESS.TEACHER
+    template_name = "exammode/staff/list_examattempts.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.attempts = ExamAttempt.objects.all()
+        self.note("attempts")
