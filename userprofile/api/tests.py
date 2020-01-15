@@ -15,35 +15,62 @@ class UserProfileAPITest(TestCase):
         client = APIClient()
         client.force_authenticate(user=self.superuser)
         response = client.get('/api/v2/users/')
-        self.assertEqual(response.data, {
-            'count': 4, 'next': None, 'previous': None,
-            'results': [
-                {'id': 1,
-                 'url': 'http://testserver/api/v2/users/1/',
-                 'username': 'testUser',
-                 'student_id': '12345X',
-                 'email': 'test@aplus.com',
-                 'is_external': False},
-                {'id': 2,
-                 'url': 'http://testserver/api/v2/users/2/',
-                 'username': 'grader',
-                 'student_id': '67890Y',
-                 'email': 'grader@aplus.com',
-                 'is_external': False},
-                {'id': 3,
-                 'url': 'http://testserver/api/v2/users/3/',
-                 'username': 'teacher',
-                 'student_id': None,
-                 'email': 'teacher@aplus.com',
-                 'is_external': True},
-                {'id': 4,
-                 'url': 'http://testserver/api/v2/users/4/',
-                 'username': 'superuser',
-                 'student_id': None,
-                 'email': 'superuser@aplus.com',
-                 'is_external': True},
-                ]
-            })
+
+        model = {
+            'count': 4,
+            'next': None,
+            'previous': None,
+        }
+
+        for key in model:
+            with self.subTest(key=key):
+                self.assertIn(key, response.data)
+                self.assertEqual(response.data[key], model[key])
+
+        results = [
+            {'id': 1,
+             'url': 'http://testserver/api/v2/users/1/',
+             'username': 'testUser',
+             'student_id': '12345X',
+             'email': 'test@aplus.com',
+             'full_name': 'Superb Student',
+             'is_external': False},
+            {'id': 2,
+             'url': 'http://testserver/api/v2/users/2/',
+             'username': 'grader',
+             'student_id': '67890Y',
+             'email': 'grader@aplus.com',
+             'full_name': 'Grumpy Grader',
+             'is_external': False},
+            {'id': 3,
+             'url': 'http://testserver/api/v2/users/3/',
+             'username': 'teacher',
+             'student_id': None,
+             'email': 'teacher@aplus.com',
+             'full_name': 'Tedious Teacher',
+             'is_external': True},
+            {'id': 4,
+             'url': 'http://testserver/api/v2/users/4/',
+             'username': 'superuser',
+             'student_id': None,
+             'email': 'superuser@aplus.com',
+             'full_name': 'Super User',
+             'is_external': True},
+        ]
+
+        self.assertIn('results', response.data)
+        r = response.data['results']
+        self.assertEqual(len(r), len(results), "Wrong number of results")
+        for user in results:
+            with self.subTest(id=user['id'], user=user):
+                u = next((u for u in r if u.get('id') == user['id']), None)
+                self.assertNotEqual(u, None, "User with id %s not found from the result list" % (user['id'],))
+                u = dict(u) # convert OrderedDict to dict for more clear error messages
+                self.assertDictEqual(u, user)
+
+        # check that there is no extra fields
+        model['results'] = results
+        self.assertCountEqual(response.data, model)
 
     def test_get_userdetail(self):
         client = APIClient()
