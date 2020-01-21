@@ -14,7 +14,7 @@ Table of contents
 Exammode app
 ------------
 
-The exammode app is the bread and butter of the designed electrical exam system. 
+The exammode app is the bread and butter of the designed electrical exam system.
 
 An exam session is the basic unit for the system and all features of the system are linked to one session and can be accessed by viewing that session. These features are
 
@@ -89,13 +89,7 @@ Security and access control
 		The physical room, where the exam is held.
 
 	* `active_exams`
-		Active `ExamAttempt`(s) for the a particular `ExamSession`
-
-	* `can_start`
-		When the exam is initially planned to begin, e.g. 12.00.
-
-	* `start_time_actual`
-		When the exam actually started, e.g. 12.04.
+		Active `ExamSession`(s) at the time.
 
 * ExamAttempt
 
@@ -115,6 +109,7 @@ Security and access control
 
 	* `system_identifier`
 		The indentifier for the machine that is used to do the exam.
+		**Not implemented.**
 
 
 ### Views
@@ -124,14 +119,34 @@ Many views are same as in `exercise` views, but a few are added for new detail p
 * ExamStartView
 
 	This view is initially shown to the student and it shows a list of all available exams to the student.
-	By clicking on the correct exam, it will direct student to `ExamDetailView`. Uses the template
+	By clicking on an exam, it will direct student to `ExamDetailView` to confirm the choice. Uses the template
 	`exam_start.html`.
 
 * ExamDetailView
 
 	Shows details of a single exam. It includes all the details that are unique for that specific exam.
-	Uses the template `exam_detail.html`. The view is able to deduce the template name without `template_name`
-	parameter, this is a feature in Django.
+	If the user continues to the exam, an `ExamAttempt` is created. Uses the template `exam_detail.html`.
+
+* ExamsStudentView
+
+	This view inherits `ExerciseView` used in regular exercises and subtitutes its
+	`template_name` with `exam.html` and `ajax_template_name` with `exam_question.html`.
+
+* ExamEndView
+
+	View to verify the user to finish the exam. Confirming to finish the exam sets the
+	users `active_exam` to **None** and updates the `ExamAttempt`s `exam_finished`
+	attribute to the current time. Uses the template `exam_end.html`.
+
+* ExamFinalView
+
+	Shown to the user when the exam is finished. Uses the template `exan_final.html`.
+
+* ExamModuleNotDefined
+
+	In the rare case when student tries to open the exam that has non-existing module,
+	this error page is shown. Uses the template `exam_module_not_found.html`.
+
 
 
 ### Templates
@@ -142,7 +157,7 @@ and the UI should be as simple as possible.
 * `exammode/base.html`
 
 	This is the base template for exammode and it is a custom version of `templates/base.html`.
-	This is set in 'exercises/views.py'file. The main modifications include removing the user menu on the left side of the page
+	The main modifications include removing the user menu on the left side of the page
 	and displaying just the language selection, student ID and user name on the page header.
 
 * `exammode/examsession_detail.html`
@@ -158,46 +173,63 @@ and the UI should be as simple as possible.
 	This is the exam template that is shown when the student is on the exam page.
 	The template is created by combining `exercise/exercise_base.html` and
 	`exercise/exercise.html` together and making necessary modifications for exam page.
-	The reason to combine them was to make the templates a bit more readable, since in exam the templates are simpler.
+	The reason to combine them was to make the templates a bit more readable, since in
+	exam the templates are simpler.
 	So it is not necessary to split them like they are in `exercise`.
 
 * `exammode/exam_question.html`
 
-	This is the template for a single question. The questions are wrapped in Bootstrap panels and this is wrapping is done in this template.
+	This is the template for a single question. The questions are wrapped in Bootstrap
+	panels and this is wrapping is done in this template.
 	The template is a custom version of `exercise/exercise_plain.html`.
 	The exercise is also split into two columns in the exam version.
-	The splitting is achieved in `static/exammode/js/exam.js` with the help of Bootstrap's grid system.
+	The splitting is achieved in `static/exammode/js/exam.js` with the help of
+	Bootstrap's grid system.
 
 
 Exam Management Page
 --------------------
 
 Exam management page was added to A+ to create, edit and delete ExamSessions.
-It is found in course menu by the course staff.
+It is located in course menu and is visible to the course staff.
 
-### Additions to `exercise/staff_views.py`
+### Views for exam management
 
 * ExamManagementView
-	The main page for the exam management tool. It uses the `exammode/staff/exam_management.html` template.
-	New exam sessions are created on this view.
+
+	The main page for the exam management tool. Has a list of `ExamSession` objects.
+	New `ExamSession`s are created on this view, too. It uses the
+	`exammode/staff/exam_management.html` template.
+
 
 * ExamSessionEdit
-	View to the edit an existing Examsession. It uses the `exammode/staff/edit_session_form.html` template.
+
+	View to the edit an existing `Examsession`.
 	Uses the Django built-in generic view `UpdateView` as superclass.
+  It uses the `exammode/staff/edit_session_form.html` template.
 
 * ExamSessionDelete
+
 	View to the delete an existing Examsession.
 	It handles the deletion of a ExamSession inside the ExamManagementView page.
-	Before the ExamSession is deleted, there is a confirmation page, which is rendered with the `examsession/examsession_confirm_delete.html` template.
-	After deletion the user is simply redirected to ExamManagementView.
+	Before the ExamSession is deleted, there is a confirmation page, which is rendered
+	with the `examsession/examsession_confirm_delete.html` template.
+	After deletion the user is simply redirected to `ExamManagementView`.
+
+* ListAttemptsView
+
+	A list of `ExamAttempts` of the given exam. Uses the template
+	`list_examattempts.html`.
+
 
 Urls are handled in `exercise/urls.py`.
 
-### Templates
+### Templates for exam management
 
-Exam managegement page uses the templates `exammode/staff/exam_management.html`, `exammode/staff/edit_session_form.html`
-and `exammode/staff/edit_session_form.html`.
-Their usage is explained above in section `Additions to exercise/staff_views.py`.
+Exam managegement page uses the templates `exammode/staff/exam_management.html`,
+`exammode/staff/edit_session_form.html`, `examsession_confirm_delete.html`
+and `list_examattempts.html`.
+Their usage is explained the in section above.
 
 Selection of Exam Templates
 ---------------------------
@@ -205,9 +237,3 @@ Selection of Exam Templates
 The exam mode should be used together with the current A+, thus there needs to be a way to switch between the modes.
 The exam templates should be selected based on the current mode, which could be the current (normal) mode,
 exam mode or even the mobile mode that may be implemented later.
-
-### Choosing templates in ExerciseView
-
-Currently the templates are selected in `ExerciseView` class that is found in `exercise/views.py`.
-The logic is to select the exam mode templates if the `userprofile` that is making the request
-has ongoing `active_exam` and then the pages are rendered with the exam mode templates.

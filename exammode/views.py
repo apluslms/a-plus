@@ -49,6 +49,11 @@ class ExamDetailView(generic.DetailView):
                 return redirect('exam_start')
 
 
+class ExamsStudentView(ExerciseView):
+    template_name = "exammode/exam.html"
+    ajax_template_name = "exammode/exam_question.html"
+
+
 class ExamEndView(BaseTemplateView):
     template_name = "exammode/exam_end.html"
     access_mode = ACCESS.STUDENT
@@ -175,11 +180,6 @@ class ExamManagementView(CourseInstanceMixin, BaseFormView):
             form.save()
         return redirect(self.request.path_info)
     '''
-
-
-class ExamsStudentView(ExerciseView):
-    template_name = "exammode/exam.html"
-    ajax_template_name = "exammode/exam_question.html"
 
 
 class ListAttemptsView(CourseInstanceBaseView):
