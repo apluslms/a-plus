@@ -191,6 +191,27 @@ class RemotePage:
                 elif not value.startswith('/'):
                     element[attr_name] = '../' + value
 
+                # Sphinx paths for RST files and A-plus URLs have sometimes different
+                # structure. For links to work in the _build folder, links must be
+                # modified here.
+                split_path = element[attr_name].split('/')
+                if len(split_path) > 3:
+                    path_to_module = ('/').join(split_path[0:3])+'/'
+                    # Chapters in nested folders must have the end of their path
+                    # in the key in order to be unique. URLs must contain that
+                    # part as well.
+                    chapter_name = '_'.join(split_path[3:])
+                    # If a link ends with slash ('/'), an unnecessary underscore
+                    # ('_') must be removed
+                    if chapter_name[-1] == '_':
+                        chapter_name = chapter_name[:-1]
+                    # Language postfixes use the form '_en' in the end of file name.
+                    # Different language versions are combined and thus the language
+                    # postfix have been removed from URL:s.
+                    if chapter_name[-3] == '_':
+                        chapter_name = chapter_name[:-3]
+                    element[attr_name] = path_to_module + chapter_name
+
             elif value and not test.match(value):
 
                 # Custom transform for RST generated exercises.
