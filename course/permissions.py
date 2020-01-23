@@ -109,7 +109,7 @@ class EnrollInfoVisiblePermission(ObjectVisibleBasePermission):
 
 
 class CourseModulePermission(MessageMixin, Permission):
-    message = _("The module is not currently visible")
+    message = _("The module is not currently visible.")
 
     def has_permission(self, request, view):
         if not view.is_course_staff:

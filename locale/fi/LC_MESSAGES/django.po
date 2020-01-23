@@ -339,7 +339,7 @@ msgid "This course is only for external students."
 msgstr "Tämä kurssi on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
 #: course/permissions.py:112
-msgid "The module is not currently visible"
+msgid "The module is not currently visible."
 msgstr "Tämä osio ei ole tällä hetkellä nähtävissä."
 
 #: course/permissions.py:131
