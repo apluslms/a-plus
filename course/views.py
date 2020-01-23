@@ -99,7 +99,6 @@ class Enroll(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
             raise PermissionDenied()
 
         # Support enrollment questionnaires.
-        from exercise.models import LearningObject
         exercise = LearningObject.objects.find_enrollment_exercise(
             self.instance, self.profile)
         if exercise:
@@ -199,4 +198,3 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
             return self.render_to_response(self.get_context_data(
                 **group_info_context(enrollment.selected_group, self.profile)))
         return super().form_valid(form)
-

@@ -623,8 +623,10 @@ class BaseExercise(LearningObject):
             warnings.append(
                 _("This exercise must be submitted in groups of {size} students.")
                 .format(size=size))
-
-        access_ok,access_warnings = self.one_has_access(students)
+        if self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
+            access_ok, access_warnings = True, []
+        else:
+            access_ok, access_warnings = self.one_has_access(students)
         is_staff = all(self.course_instance.is_course_staff(p.user) for p in students)
         ok = (access_ok and len(warnings) == 0) or is_staff
         all_warnings = warnings + access_warnings

@@ -59,6 +59,7 @@ class ExerciseTest(TestCase):
 
         self.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
+            enrollment_starting_time=self.yesterday,
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
@@ -194,6 +195,15 @@ class ExerciseTest(TestCase):
             url="b3",
         )
 
+        self.enrollment_exercise = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=self.old_course_module,
+            category=self.learning_object_category,
+            url="b2",
+            max_submissions=1,
+            status="enrollment"
+        )
+
         self.submission = Submission.objects.create(
             exercise=self.base_exercise,
             grader=self.grader.userprofile
@@ -319,6 +329,9 @@ class ExerciseTest(TestCase):
         self.assertFalse(self.old_base_exercise.is_open(self.tomorrow))
         self.assertFalse(self.exercise_in_reading_time.is_open())
         self.assertTrue(self.exercise_in_reading_time.is_open(self.tomorrow))
+
+    def test_enrollment_exercise_access(self):
+        self.assertTrue(self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0])
 
     def test_base_exercise_one_has_access(self):
         self.assertTrue(self.base_exercise.one_has_access([self.user.userprofile])[0])
