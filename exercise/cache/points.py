@@ -45,6 +45,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'graded': False,
                         'unofficial': False, # TODO: this should be True, but we need to ensure nothing breaks when it's changed
                     })
+                if entry.get('confirm_the_level'):
+                    entry['passed'] = False
                 r_augment(entry.get('children'))
         for module in modules:
             module.update({
