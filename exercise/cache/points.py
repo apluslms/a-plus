@@ -212,6 +212,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 passed
                 and module['points'] >= module['points_to_pass']
             )
+            module['total_unconfirmed_points'] = sum(module['unconfirmed_points_by_difficulty'].values())
         for category in categories.values():
             category['passed'] = (
                 category['points'] >= category['points_to_pass']

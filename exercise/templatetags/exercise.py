@@ -176,15 +176,21 @@ def _points_data(obj, classes=None):
             'confirmable_points': obj.get('confirmable_points', False),
         }
     percentage = 0
+    unconfirmed_percentage = 0
     required_percentage = None
     if data['max'] > 0:
         percentage = int(round(100.0 * data['points'] / data['max']))
+        if getattr(obj, "get", None):
+            unconfirmed_points = obj.get('total_unconfirmed_points', 0)
+            unconfirmed_percentage = int(round(100.0 * unconfirmed_points / data['max']))
+            data['unconfirmed_points'] = unconfirmed_points
         if data['required']:
             required_percentage = int(round(100.0 * data['required'] / data['max']))
     data.update({
         'classes': classes,
         'percentage': percentage,
         'required_percentage': required_percentage,
+        'unconfirmed_percentage': unconfirmed_percentage,
     })
     return data
 
