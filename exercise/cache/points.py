@@ -87,7 +87,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 entry = tree[-1]
                 ready = submission.status == Submission.STATUS.READY
                 unofficial = submission.status == Submission.STATUS.UNOFFICIAL
-                if ready:
+                if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
                     entry['submission_count'] += 1
                 entry['submissions'].append({
                     'id': submission.id,
