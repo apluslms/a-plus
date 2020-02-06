@@ -50,6 +50,7 @@ class CourseModuleForm(FieldsetModelForm):
             'introduction',
             'points_to_pass',
             'opening_time',
+            'reading_opening_time',
             'closing_time',
             'late_submissions_allowed',
             'late_submission_deadline',
@@ -60,7 +61,7 @@ class CourseModuleForm(FieldsetModelForm):
         return [
             { 'legend':_('Hierarchy'), 'fields':self.get_fields('status','order','url') },
             { 'legend':_('Content'), 'fields':self.get_fields('name','introduction','points_to_pass') },
-            { 'legend':_('Schedule'), 'fields':self.get_fields('opening_time','closing_time',
+            { 'legend':_('Schedule'), 'fields':self.get_fields('reading_opening_time','opening_time','closing_time',
                 'late_submissions_allowed','late_submission_deadline', 'late_submission_penalty') },
         ]
 

@@ -311,8 +311,18 @@
 				if (!onlyThis) exercise.chapter.nextExercise();
 			 } else {
 				$.ajax(this.url, {dataType: "html"})
-					.fail(function() {
-						exercise.showLoader("error");
+					.fail(function(jqXHR, textStatus, errorThrown) {
+						if (jqXHR.status == 403) {
+							exercise.hideLoader();
+							exercise.update($(
+								'<div id="exercise-all"><div class="info admonition" style="margin: 0px">' +
+								_('An exercise will be published here once the round opens for submissions.') +
+								'</div></div>'
+							));
+							exercise.element.css('min-height', 0);
+						} else {
+							exercise.showLoader("error");
+						}
 						if (!onlyThis) exercise.chapter.nextExercise();
 					})
 					.done(function(data) {

@@ -9,6 +9,18 @@
 <li class="active">{{ current.name|parse_localization }}</li>
 {% endblock %}
 
+{% block js-translations %}
+<link
+    data-translation
+    rel="preload"
+    as="fetch"
+    crossorigin="anonymous"
+    type="application/json"
+    hreflang="fi"
+    href="{{ STATIC_URL }}js-translations/exercise.fi.json"
+>
+{% endblock %}
+
 {% block exercisecontent %}
 
 {% if toc %}

@@ -97,6 +97,16 @@ class ExerciseTest(TestCase):
             closing_time=self.today
         )
 
+        self.reading_open_course_module = CourseModule.objects.create(
+            name="test module",
+            url="test-module-reading-open",
+            points_to_pass=15,
+            course_instance=self.course_instance,
+            reading_opening_time=self.yesterday,
+            opening_time=self.tomorrow,
+            closing_time=self.two_days_from_now
+        )
+
         self.learning_object_category = LearningObjectCategory.objects.create(
             name="test category",
             course_instance=self.course_instance,
@@ -166,6 +176,15 @@ class ExerciseTest(TestCase):
             category=self.learning_object_category,
             url="b2",
             max_submissions=1
+        )
+
+        self.exercise_in_reading_time = BaseExercise.objects.create(
+            order=1,
+            name="test exercise",
+            course_module=self.reading_open_course_module,
+            category=self.learning_object_category,
+            url="b1",
+            max_submissions=1,
         )
 
         self.base_exercise_with_late_submission_allowed = BaseExercise.objects.create(
@@ -298,6 +317,8 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.static_exercise.is_open(self.tomorrow))
         self.assertTrue(self.exercise_with_attachment.is_open(self.tomorrow))
         self.assertFalse(self.old_base_exercise.is_open(self.tomorrow))
+        self.assertFalse(self.exercise_in_reading_time.is_open())
+        self.assertTrue(self.exercise_in_reading_time.is_open(self.tomorrow))
 
     def test_base_exercise_one_has_access(self):
         self.assertTrue(self.base_exercise.one_has_access([self.user.userprofile])[0])
@@ -312,6 +333,8 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.static_exercise.one_has_access([self.user.userprofile], self.tomorrow)[0])
         self.assertTrue(self.exercise_with_attachment.one_has_access([self.user.userprofile], self.tomorrow)[0])
         self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile], self.tomorrow)[0])
+        self.assertFalse(self.exercise_in_reading_time.one_has_access([self.user.userprofile], self.today)[0])
+        self.assertTrue(self.exercise_in_reading_time.one_has_access([self.user.userprofile], self.tomorrow)[0])
 
     def test_base_exercise_submission_allowed(self):
         status, errors, students = (
@@ -841,4 +864,3 @@ class ExerciseTest(TestCase):
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
-
