@@ -41,6 +41,7 @@ logger = logging.getLogger('aplus.course')
 with open(finders.find('pseudonym.json')) as json_file:
     DATA = json.load(json_file)
 
+
 class Course(UrlMixin, models.Model):
     """
     Course model represents a course in a university. A course has a name and an
@@ -64,7 +65,7 @@ class Course(UrlMixin, models.Model):
             "archive", "course", "exercise", "diploma")
         if self.url in RESERVED:
             raise ValidationError({
-                'url':_("Taken words include: {}").format(
+                'url': _("Taken words include: {}").format(
                     ", ".join(RESERVED))
             })
 
@@ -81,7 +82,6 @@ class Course(UrlMixin, models.Model):
                 )
             )
         )
-
 
     ABSOLUTE_URL_NAME = "course-instances"
 
@@ -685,6 +685,9 @@ class CourseModule(UrlMixin, models.Model):
     introduction = models.TextField(blank=True)
     course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
         related_name="course_modules")
+    reading_opening_time = models.DateTimeField(
+        verbose_name=_("Opening time for the reading material"), null=True, blank=True,
+        help_text=_("Leave empty if the reading material should not open before the exercises."))
     opening_time = models.DateTimeField(default=timezone.now)
     closing_time = models.DateTimeField(default=timezone.now)
 
@@ -722,11 +725,16 @@ class CourseModule(UrlMixin, models.Model):
             errors['opening_time'] = _("Opening time must be earlier than the closing time.")
         if self.late_submissions_allowed and self.late_submission_deadline <= self.closing_time:
             errors['late_submission_deadline'] = _("Late submission deadline must be later than the closing time.")
+        if self.reading_opening_time and self.reading_opening_time > self.opening_time:
+            errors['reading_opening_time'] = _("Opening time of reading material "
+                "must be earlier than the opening time of the exercises.")
         if errors:
             raise ValidationError(errors)
 
     def is_open(self, when=None):
         when = when or timezone.now()
+        if self.reading_opening_time:
+            return self.reading_opening_time <= when <= self.closing_time
         return self.opening_time <= when <= self.closing_time
 
     def is_after_open(self, when=None):
@@ -734,7 +742,17 @@ class CourseModule(UrlMixin, models.Model):
         Checks if current time is past the round opening time.
         """
         when = when or timezone.now()
+        if self.reading_opening_time:
+            return self.reading_opening_time <= when
         return self.opening_time <= when
+
+    def have_exercises_been_opened(self, when=None):
+        when = when or timezone.now()
+        return self.opening_time <= when
+
+    def exercises_open(self, when=None):
+        when = when or timezone.now()
+        return self.opening_time <= when <= self.closing_time
 
     def is_late_submission_open(self, when=None):
         when = when or timezone.now()

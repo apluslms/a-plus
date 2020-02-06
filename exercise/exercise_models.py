@@ -194,10 +194,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return True
 
     def is_open(self, when=None):
-        return self.course_module.is_open(when=when)
-
-    def is_after_open(self, when=None):
-        return self.course_module.is_after_open(when=when)
+        return self.course_module.exercises_open(when=when)
 
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
@@ -403,11 +400,11 @@ class BaseExercise(LearningObject):
         if module.course_instance.is_archived(when=when):
             return self.TIMING.ARCHIVED, dl
 
-        if not module.is_after_open(when=when):
+        if not module.have_exercises_been_opened(when=when):
             return self.TIMING.CLOSED_BEFORE, module.opening_time
 
         category = self.category
-        if module.is_open(when=when) or category.confirm_the_level:
+        if module.exercises_open(when=when) or category.confirm_the_level:
             return self.TIMING.OPEN, module.closing_time
 
         deviation = self.one_has_deadline_deviation(students)

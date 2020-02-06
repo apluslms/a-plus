@@ -50,6 +50,16 @@ def _get_toc(context, student=None):
     return context
 
 
+def _is_accessible(context, entry, t):
+    if t and t > _prepare_now(context):
+        return False
+    if entry.get('requirements'):
+        points = _prepare_context(context)
+        module = CourseModule.objects.get(id=entry['id'])
+        return module.are_requirements_passed(points)
+    return True
+
+
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
 def user_results(context, student=None):
     values = _get_toc(context, student)
@@ -213,14 +223,14 @@ def min_group_size(context):
 
 @register.simple_tag(takes_context=True)
 def module_accessible(context, entry):
+    t = entry.get('reading_opening_time', entry.get('opening_time'))
+    return _is_accessible(context, entry, t)
+
+
+@register.simple_tag(takes_context=True)
+def exercise_accessible(context, entry):
     t = entry.get('opening_time')
-    if t and t > _prepare_now(context):
-        return False
-    if entry.get('requirements'):
-        points = _prepare_context(context)
-        module = CourseModule.objects.get(id=entry['id'])
-        return module.are_requirements_passed(points)
-    return True
+    return _is_accessible(context, entry, t)
 
 
 @register.simple_tag
@@ -257,6 +267,7 @@ def exercise_text_stats(context, exercise):
         "percentage": int(100 * num / total) if total else 0,
     }
 
+
 @register.simple_tag
 def get_format_info(format):
     format_infos = {
@@ -278,6 +289,8 @@ def get_format_info(format):
     except KeyError as e:
         raise RuntimeError('Invalid format: \'{}\''.format(format)) from e
 
+
 @register.simple_tag
 def get_format_info_list(formats):
     return [get_format_info(format) for format in formats.split()]
+

@@ -77,7 +77,7 @@ def is_in_maintenance(entry):
 
 
 @register.filter
-def is_open(entry, now):
+def exercises_open(entry, now):
     return entry['opening_time'] <= now <= entry['closing_time']
 
 

@@ -31,6 +31,10 @@ class ExerciseVisiblePermission(ObjectVisibleBasePermission):
             self.error_msg(_("The exercise is not currently visible."))
             return False
 
+        if exercise.is_submittable and not exercise.course_module.have_exercises_been_opened():
+            self.error_msg(_("The exercise opens for submissions in {}.").format(exercise.course_module.opening_time))
+            return False
+
         user = request.user
         if exercise.audience == LearningObject.AUDIENCE.REGISTERED_USERS:
             if not exercise.course_instance.is_student(user):

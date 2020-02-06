@@ -118,6 +118,7 @@ class CourseModulePermission(MessageMixin, Permission):
         return True
 
     def has_object_permission(self, request, view, module):
+
         if not isinstance(module, CourseModule):
             return True
 

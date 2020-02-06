@@ -11,18 +11,17 @@
 {% endif %}
 {% elif entry|is_listed %}
 <li>
-  {% if accessible %}
+  {% if accessible and not entry.submittable or exercise_accessible %}
   {% if entry.is_empty %}
-  {{ entry.name|parse_localization }}
+    {{ entry.name|parse_localization }}
   {% else %}
-  <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
+    <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
   {% endif %}
   {% if entry.submission_count %}
-  {% points_badge entry %}
+    {% points_badge entry %}
   {% endif %}
-
   {% else %}
-  {{ entry.name|parse_localization }}
+    {{ entry.name|parse_localization }}
   {% if is_course_staff %}
   <a class="btn btn-default btn-xs" href="{{ entry.link }}">
     <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>

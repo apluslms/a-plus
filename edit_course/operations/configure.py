@@ -504,6 +504,9 @@ def configure_content(instance, url):
         if not module.closing_time:
             module.closing_time = instance.ending_time
 
+        if "read-open" in m:
+            module.reading_opening_time = parse_date(m["read-open"], errors, allow_null=True)
+
         if "late_close" in m:
             dt = parse_date(m["late_close"], errors)
             if dt:

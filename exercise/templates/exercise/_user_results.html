@@ -20,8 +20,9 @@
 
 {% for module in modules %}
 {% if module|is_visible %}
-{% with open=module|is_open:now after_open=module|has_opened:now %}
+{% with open=module|exercises_open:now after_open=module|has_opened:now %}
 {% module_accessible module as accessible %}
+{% exercise_accessible module as exercise_accessible %}
 <div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
   <a class="panel-heading{% if not open or not accessible %} collapsed{% endif %}"
     role="button" href="#module{{ module.id }}" data-toggle="collapse"
@@ -73,7 +74,11 @@
     {% points_progress module %}
     {{ module.introduction|safe }}
   </div>
-
+  {% if not exercise_accessible and not is_course_staff %}
+  <div class="alert alert-warning clearfix site-message">
+    {% trans "There may be changes in the exercises before the module opens!" %}
+  </div>
+  {% endif %}
   {% if module.children|length > 0 %}
   <table class="table table-striped table-condensed results-table">
     <tbody>
@@ -91,7 +96,7 @@
       {% if entry.submittable and entry|is_visible %}
       <tr data-category="{{ entry.category_id }}">
         <td>
-          {% if accessible %}
+          {% if exercise_accessible or is_course_staff %}
           <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
           {% else %}
           {{ entry.name|parse_localization }}

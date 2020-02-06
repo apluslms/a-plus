@@ -81,6 +81,16 @@ class CourseTest(TestCase):
             closing_time=self.tomorrow
         )
 
+        self.course_module_with_reading_open = CourseModule.objects.create(
+            name="test module",
+            url="test-module-reading-open",
+            points_to_pass=10,
+            course_instance=self.current_course_instance,
+            opening_time=self.today,
+            closing_time=self.tomorrow,
+            reading_opening_time=self.yesterday
+        )
+
         self.course_module_with_late_submissions_allowed = CourseModule.objects.create(
             name="test module",
             url="test-module-late",
@@ -253,6 +263,29 @@ class CourseTest(TestCase):
         self.assertTrue(self.course_module.is_open())
         self.assertTrue(self.course_module.is_open(self.tomorrow))
         self.assertFalse(self.course_module.is_open(self.two_days_from_now))
+
+    def test_course_module_open_with_reading_opening_time(self):
+        self.assertTrue(self.course_module_with_reading_open.is_open(self.yesterday))
+        self.assertTrue(self.course_module_with_reading_open.is_open(self.today))
+        self.assertTrue(self.course_module_with_reading_open.is_open())
+        self.assertTrue(self.course_module_with_reading_open.is_open(self.tomorrow))
+        self.assertFalse(self.course_module_with_reading_open.is_open(self.two_days_from_now))
+
+    def test_course_module_exercises_open(self):
+        self.assertFalse(self.course_module.have_exercises_been_opened(self.yesterday))
+        self.assertTrue(self.course_module.have_exercises_been_opened(self.today))
+        self.assertTrue(self.course_module.have_exercises_been_opened())
+        self.assertTrue(self.course_module.have_exercises_been_opened(self.tomorrow))
+        self.assertTrue(self.course_module.have_exercises_been_opened(self.two_days_from_now))
+        self.assertTrue(self.course_module.reading_opening_time is None)
+
+    def test_course_module_exercises_open_with_reading_opening_time(self):
+        self.assertFalse(self.course_module_with_reading_open.have_exercises_been_opened(self.yesterday))
+        self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened(self.today))
+        self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened())
+        self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened(self.tomorrow))
+        self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened(self.two_days_from_now))
+        self.assertTrue(self.course_module_with_reading_open.opening_time > self.course_module_with_reading_open.reading_opening_time)
 
     def test_course_module_after_open(self):
         self.assertFalse(self.course_module.is_after_open(self.yesterday))
