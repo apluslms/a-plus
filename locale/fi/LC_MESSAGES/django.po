@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-07 12:41+0200\n"
+"POT-Creation-Date: 2020-02-14 11:57+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -81,10 +81,20 @@ msgstr "Vain kurssihenkilökunnalle."
 msgid "Only enrolled students shall pass."
 msgstr "Vain ilmoittautuneille."
 
-#: course/admin.py:24
+#: course/admin.py:25
 #: external_services/templates/external_services/list_menu.html:22
 msgid "URL"
 msgstr "URL"
+
+#: course/admin.py:68
+msgid "upcoming deadlines"
+msgstr "tulevat määräajat"
+
+#: course/admin.py:74
+msgid ""
+"Show modules with 'closing time' or 'late submission deadline' in the future."
+msgstr "Näytä vain moduulit, joissa on 'closing time' tai 'late submission deadline' tulevaisuudessa."
+
 
 #: course/forms.py:23
 #, python-brace-format
