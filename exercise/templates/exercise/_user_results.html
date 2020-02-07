@@ -59,8 +59,8 @@
       {% if module.late_allowed and module.late_percent > 0 %}
       <br />
       <em>
-        {% blocktrans with deadline=module.late_time %}
-        Late submission are allowed until {{ deadline }}
+        {% blocktrans with deadline=module.late_time|date:"DATETIME_FORMAT" %}
+        Late submissions are allowed until {{ deadline }}
         {% endblocktrans %}
         {% if module.late_percent != 100 %}
         {% blocktrans with percent=module.late_percent %}
