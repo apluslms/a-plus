@@ -443,29 +443,31 @@ class BaseExercise(LearningObject):
         in consideration.
         """
         timing,d = self.get_timing(students, when or timezone.now())
+
+        formatted_time = date_format(timezone.localtime(d), "DATETIME_FORMAT")
         if timing == self.TIMING.OPEN:
             return True,[]
         if timing == self.TIMING.LATE:
             # xgettext:no-python-format
             return True,[_("Deadline for the exercise has passed. Late submissions are allowed until {date} but points are only worth {percent:d}% of normal.").format(
-                date=date_format(d),
+                date=formatted_time,
                 percent=self.course_module.get_late_submission_point_worth(),
             )]
         if timing == self.TIMING.UNOFFICIAL:
             return True,[_("Deadline for the exercise has passed ({date}). You may still submit to receive feedback, but your current grade will not change.").format(
-                date=date_format(d)
+                date=formatted_time,
             )]
         if timing == self.TIMING.CLOSED_BEFORE:
             return False,[_("The exercise opens {date} for submissions.").format(
-                date=date_format(d)
+                date=formatted_time,
             )]
         if timing == self.TIMING.CLOSED_AFTER:
             return False,[_("Deadline for the exercise has passed ({date}).").format(
-                date=date_format(d)
+                date=formatted_time,
             )]
         if timing == self.TIMING.ARCHIVED:
             return False,[_("This course has been archived ({date}).").format(
-                date=date_format(d)
+                date=formatted_time,
             )]
         return False,["ERROR"]
 

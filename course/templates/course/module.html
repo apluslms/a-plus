@@ -24,7 +24,7 @@
         <br />
         <span class="dates">
             <em>
-                {% blocktrans with deadline=current.late_time %}
+                {% blocktrans with deadline=current.late_time|date:"DATETIME_FORMAT" %}
                 Late submissions are allowed until {{ deadline }}.
                 {% endblocktrans %}
                 {% if current.late_percent != 100 %}
@@ -43,7 +43,7 @@
 	</p>
 	{% endif %}
 
-  {% include "exercise/_children.html" with children=children accessible=True exercise_accessible=current|exercises_open:now %}
+  {% include "exercise/_children.html" with children=children accessible=True exercise_accessible=current|exercises_submittable:now %}
 {% endblock %}
 
 {% block sidecontent %}

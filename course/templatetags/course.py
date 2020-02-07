@@ -82,6 +82,13 @@ def exercises_open(entry, now):
 
 
 @register.filter
+def exercises_submittable(entry, now):
+    if entry['late_allowed']:
+        return entry['opening_time'] <= now <= entry['late_time']
+    return entry['opening_time'] <= now <= entry['closing_time']
+
+
+@register.filter
 def has_opened(entry, now):
     return entry['opening_time'] <= now
 
