@@ -24,14 +24,21 @@
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
 <div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
-  <a class="panel-heading{% if not open or not accessible %} collapsed{% endif %}"
+  <a class="panel-heading{% if not accessible or not open and after_open %} collapsed{% endif %}"
     role="button" href="#module{{ module.id }}" data-toggle="collapse"
-    aria-expanded="{% if open and accessible %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
+    aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
     <h3 class="panel-title">
       {% points_badge module "pull-right" %}
-      {% if not open and not after_open %}
+      {% if not accessible %}
       <span class="badge pull-right">
-        {% trans "Opens" %} {{ module.opening_time }}
+        {% trans "Opens on" %} {{ module.opening_time }}
+      </span>
+      {% elif not after_open %}
+      <span class="badge pull-right">
+        {% trans "Exercises open on" %} {{ module.opening_time }}
+      </span>
+      <span class="badge badge-info pull-right">
+        {% trans "Open for reading" %}
       </span>
       {% endif %}
       {% if module.requirements|length > 0 %}
@@ -44,7 +51,7 @@
       {{ module.name|parse_localization }}
     </h3>
   </a>
-  <div class="collapse{% if open and accessible %} in{% endif %}" id="module{{ module.id }}">
+  <div class="collapse{% if accessible and not after_open or open %} in{% endif %}" id="module{{ module.id }}">
   <div class="panel-body">
     <p>
       {{ module.opening_time }} &ndash; {{ module.closing_time }}
