@@ -223,8 +223,11 @@ def min_group_size(context):
 
 @register.simple_tag(takes_context=True)
 def module_accessible(context, entry):
-    t = entry.get('reading_opening_time', entry.get('opening_time'))
-    return _is_accessible(context, entry, t)
+    t = entry.get('reading_opening_time')
+    if t:
+        return _is_accessible(context, entry, t)
+    else:
+        return exercise_accessible(context, entry)
 
 
 @register.simple_tag(takes_context=True)
@@ -293,4 +296,3 @@ def get_format_info(format):
 @register.simple_tag
 def get_format_info_list(formats):
     return [get_format_info(format) for format in formats.split()]
-

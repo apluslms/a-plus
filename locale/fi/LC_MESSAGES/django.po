@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-05 13:47+0200\n"
+"POT-Creation-Date: 2020-02-07 12:41+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -401,7 +401,7 @@ msgid "Apps"
 msgstr "Sovellukset"
 
 #: course/templates/course/_course_menu.html:108
-#: exercise/templates/exercise/_user_results.html:91
+#: exercise/templates/exercise/_user_results.html:98
 #: exercise/templates/exercise/submission_plain.html:41
 msgid "Course staff"
 msgstr "Kurssihenkilökunta"
@@ -556,8 +556,8 @@ msgstr ""
 #: course/templates/course/_siblings.html:22
 #: course/templates/course/_siblings.html:45
 #: exercise/templates/exercise/_children.html:28
-#: exercise/templates/exercise/_user_results.html:144
-#: exercise/templates/exercise/_user_results.html:171
+#: exercise/templates/exercise/_user_results.html:151
+#: exercise/templates/exercise/_user_results.html:178
 #: exercise/templates/exercise/_user_toc.html:30
 msgid "Early access"
 msgstr "Aikainen pääsy"
@@ -905,7 +905,7 @@ msgstr "Palauttaja"
 
 #: deviations/templates/deviations/list_dl.html:28
 #: edit_course/templates/edit_course/edit_content.html:149
-#: exercise/templates/exercise/_user_results.html:86
+#: exercise/templates/exercise/_user_results.html:93
 msgid "Exercise"
 msgstr "Tehtävä"
 
@@ -962,7 +962,7 @@ msgid "Grade"
 msgstr "Arvostelu"
 
 #: edit_course/course_forms.py:30
-#: exercise/templates/exercise/_user_results.html:87
+#: exercise/templates/exercise/_user_results.html:94
 msgid "Category"
 msgstr "Kategoria"
 
@@ -1333,7 +1333,7 @@ msgid "Open exercise"
 msgstr "Avaa tehtävä"
 
 #: edit_course/templates/edit_course/edit_content.html:119
-#: exercise/templates/exercise/_user_results.html:151
+#: exercise/templates/exercise/_user_results.html:158
 msgid "View submissions"
 msgstr "Näytä palautukset"
 
@@ -2188,7 +2188,7 @@ msgid "Required exercises are not passed"
 msgstr "Kaikkia pakollisia tehtäviä ei ole suoritettu"
 
 #: exercise/templates/exercise/_points_progress.html:3
-#: exercise/templates/exercise/_user_results.html:89
+#: exercise/templates/exercise/_user_results.html:96
 #: exercise/templates/exercise/exercise_plain.html:56
 #: exercise/templates/exercise/submission_plain.html:39
 msgid "Points"
@@ -2268,17 +2268,24 @@ msgid "Show older assignments."
 msgstr "Näytä vanhemmat tehtävät"
 
 #: exercise/templates/exercise/_user_results.html:34
-#: exercise/templates/exercise/_user_toc.html:41
-msgid "Opens"
+msgid "Opens on"
 msgstr "Avautuu"
 
-#: exercise/templates/exercise/_user_results.html:39
+#: exercise/templates/exercise/_user_results.html:38
+msgid "Exercises open on"
+msgstr "Tehtävät avautuvat"
+
+#: exercise/templates/exercise/_user_results.html:41
+msgid "Open for reading"
+msgstr "Lukumateriaali auki"
+
+#: exercise/templates/exercise/_user_results.html:46
 #: exercise/templates/exercise/_user_toc.html:18
 #: exercise/templates/exercise/_user_toc.html:37
 msgid "Requires"
 msgstr "Vaaditaan"
 
-#: exercise/templates/exercise/_user_results.html:55
+#: exercise/templates/exercise/_user_results.html:62
 #, python-format
 msgid ""
 "\n"
@@ -2288,7 +2295,7 @@ msgstr ""
 "\n"
 "Myöhästyneitä palautuksia vastaanotetaan %(deadline)s asti."
 
-#: exercise/templates/exercise/_user_results.html:59
+#: exercise/templates/exercise/_user_results.html:66
 #, python-format
 msgid ""
 "\n"
@@ -2298,7 +2305,7 @@ msgstr ""
 "\n"
 "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
 
-#: exercise/templates/exercise/_user_results.html:68
+#: exercise/templates/exercise/_user_results.html:75
 #, python-format
 msgid ""
 "\n"
@@ -2308,20 +2315,24 @@ msgstr ""
 "\n"
 "Osion suorittamiseen vaaditaan %(points)s pistettä."
 
-#: exercise/templates/exercise/_user_results.html:79
+#: exercise/templates/exercise/_user_results.html:86
 msgid "There may be changes in the exercises before the module opens!"
 msgstr "Tehtäviin saattaa tulla muutoksia ennen kierroksen avautumista!"
 
-#: exercise/templates/exercise/_user_results.html:88
+#: exercise/templates/exercise/_user_results.html:95
 #: exercise/templates/exercise/staff/_assess_info.html:38
 msgid "Submissions"
 msgstr "Palautukset"
 
-#: exercise/templates/exercise/_user_results.html:131
+#: exercise/templates/exercise/_user_results.html:138
 #: exercise/templates/exercise/exercise_base.html:61
 #: exercise/templates/exercise/exercise_plain.html:83
 msgid "No submissions yet"
 msgstr "Ei vielä palautuksia"
+
+#: exercise/templates/exercise/_user_toc.html:41
+msgid "Opens"
+msgstr "Avautuu"
 
 #: exercise/templates/exercise/_warnings_overlay.html:6
 msgid "You cannot submit this exercise"
@@ -2816,7 +2827,7 @@ msgstr "Viimeisimmät palautukset"
 msgid "No submissions for this course."
 msgstr "Ei vielä palautuksia tälle kurssille."
 
-#: exercise/templatetags/exercise.py:284
+#: exercise/templatetags/exercise.py:287
 msgid "Excel compatible CSV"
 msgstr "Excel-yhteensopiva CSV"
 
