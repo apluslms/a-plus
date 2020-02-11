@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-14 10:27+0200\n"
+"POT-Creation-Date: 2020-02-18 18:47+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -733,7 +733,7 @@ msgstr "Poista kaikki"
 #: deviations/templates/deviations/list_dl.html:44
 #: edit_course/templates/edit_course/edit_content.html:53
 #: edit_course/templates/edit_course/edit_content.html:91
-#: edit_course/templates/edit_course/edit_content.html:112
+#: edit_course/templates/edit_course/edit_content.html:113
 #: edit_course/templates/edit_course/remove_model.html:51
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
@@ -776,7 +776,7 @@ msgid "Edit group members"
 msgstr "Muokkaa ryhmän jäseniä"
 
 #: course/templates/course/staff/group_edit.html:23
-#: edit_course/templates/edit_course/edit_content.html:186
+#: edit_course/templates/edit_course/edit_content.html:187
 #: edit_course/templates/edit_course/edit_index.html:20
 #: edit_course/templates/edit_course/edit_instance.html:24
 #: edit_course/templates/edit_course/usertag_add.html:22
@@ -904,7 +904,7 @@ msgid "Submitter"
 msgstr "Palauttaja"
 
 #: deviations/templates/deviations/list_dl.html:28
-#: edit_course/templates/edit_course/edit_content.html:149
+#: edit_course/templates/edit_course/edit_content.html:150
 #: exercise/templates/exercise/_user_results.html:93
 msgid "Exercise"
 msgstr "Tehtävä"
@@ -1323,45 +1323,53 @@ msgstr "Muokkaa moduulia"
 msgid "Open module"
 msgstr "Avaa moduuli"
 
-#: edit_course/templates/edit_course/edit_content.html:109
+#: edit_course/templates/edit_course/edit_content.html:110
 #: exercise/templates/exercise/exercise_base.html:91
 msgid "Edit exercise"
 msgstr "Muokkaa tehtävää"
 
-#: edit_course/templates/edit_course/edit_content.html:115
+#: edit_course/templates/edit_course/edit_content.html:110
+msgid "Edit content chapter"
+msgstr "Muokkaa sisältökappaletta"
+
+#: edit_course/templates/edit_course/edit_content.html:116
 msgid "Open exercise"
 msgstr "Avaa tehtävä"
 
-#: edit_course/templates/edit_course/edit_content.html:119
+#: edit_course/templates/edit_course/edit_content.html:116
+msgid "Open content chapter"
+msgstr "Avaa sisältökappale"
+
+#: edit_course/templates/edit_course/edit_content.html:120
 #: exercise/templates/exercise/_user_results.html:158
 msgid "View submissions"
 msgstr "Näytä palautukset"
 
-#: edit_course/templates/edit_course/edit_content.html:129
+#: edit_course/templates/edit_course/edit_content.html:130
 msgid "Add new learning object"
 msgstr "Lisää uusi oppimissisältö"
 
-#: edit_course/templates/edit_course/edit_content.html:139
+#: edit_course/templates/edit_course/edit_content.html:140
 msgid "Choose learning object type to add"
 msgstr "Valitse lisättävän oppimissisällön tyyppi"
 
-#: edit_course/templates/edit_course/edit_content.html:145
+#: edit_course/templates/edit_course/edit_content.html:146
 msgid "Content chapter"
 msgstr "Sisältökappale"
 
-#: edit_course/templates/edit_course/edit_content.html:146
+#: edit_course/templates/edit_course/edit_content.html:147
 msgid "A remote content page loaded in as a chapter."
 msgstr "Ulkoinen sisältösivu, joka ladataan luvuksi"
 
-#: edit_course/templates/edit_course/edit_content.html:150
+#: edit_course/templates/edit_course/edit_content.html:151
 msgid "A remote exercise page loaded in for posting submissions."
 msgstr "Ulkoinen tehtäväsivu, johon palautukset lähetetään"
 
-#: edit_course/templates/edit_course/edit_content.html:153
+#: edit_course/templates/edit_course/edit_content.html:154
 msgid "LTI Exercise"
 msgstr "LTI-tehtävä"
 
-#: edit_course/templates/edit_course/edit_content.html:154
+#: edit_course/templates/edit_course/edit_content.html:155
 msgid ""
 "A remote exercise page loaded in for posting submissions including signed "
 "LTI course and student information."
@@ -1369,11 +1377,11 @@ msgstr ""
 "Ulkoinen tehtäväsivu, jossa käytetään LTI-muotoisia kurssi- ja "
 "opiskelijatietoja"
 
-#: edit_course/templates/edit_course/edit_content.html:157
+#: edit_course/templates/edit_course/edit_content.html:158
 msgid "Exercise with attachment"
 msgstr "Tehtävä liitetiedostolla"
 
-#: edit_course/templates/edit_course/edit_content.html:158
+#: edit_course/templates/edit_course/edit_content.html:159
 msgid ""
 "A local page accepting files and initiating remote grading with teacher "
 "provided grading attachment."
@@ -1381,23 +1389,23 @@ msgstr ""
 "Paikallinen tehtäväsivu tiedostojen vastaanottamiseen ja ulkoinen "
 "automaattiarviointi opettajan asettaman liitetiedoston kanssa"
 
-#: edit_course/templates/edit_course/edit_content.html:161
+#: edit_course/templates/edit_course/edit_content.html:162
 msgid "Static exercise"
 msgstr "Staattinen tehtävä"
 
-#: edit_course/templates/edit_course/edit_content.html:162
+#: edit_course/templates/edit_course/edit_content.html:163
 msgid "A local page with editable markup content."
 msgstr "Paikallinen sivu muokattavalla HTML-sisällöllä"
 
-#: edit_course/templates/edit_course/edit_content.html:176
+#: edit_course/templates/edit_course/edit_content.html:177
 msgid "Add new module"
 msgstr "Lisää uusi moduuli"
 
-#: edit_course/templates/edit_course/edit_content.html:187
+#: edit_course/templates/edit_course/edit_content.html:188
 msgid "Renumerate learning objects for each module"
 msgstr "Numeroi oppimissisällöt uudelleen moduuleittain"
 
-#: edit_course/templates/edit_course/edit_content.html:188
+#: edit_course/templates/edit_course/edit_content.html:189
 msgid "Renumerate learning objects ignoring modules"
 msgstr "Numeroi oppimissisällöt uudelleen huomioimatta moduuleita"
 
@@ -1616,54 +1624,54 @@ msgstr "Ei opiskelijamerkintöjä."
 msgid "Add new user tagging"
 msgstr "Merkitse opiskelijoita"
 
-#: edit_course/views.py:157
+#: edit_course/views.py:158
 msgid ""
 "At least one exercise category must be created before creating exercises."
 msgstr "Vähintään yksi kategoria pitää luoda ennen harjoitusten lisäämistä."
 
-#: edit_course/views.py:174
+#: edit_course/views.py:175
 #, python-brace-format
 msgid "Failed to save {name} due to an error '{error}'."
 msgstr "Kohteen {name} tallennus epäonnistui virheen '{error}' takia."
 
-#: edit_course/views.py:178
+#: edit_course/views.py:179
 #, python-brace-format
 msgid "The {name} was saved successfully."
 msgstr "Kohde {name} tallennettiin onnistuneesti."
 
-#: edit_course/views.py:184
+#: edit_course/views.py:185
 #, python-brace-format
 msgid "Failed to save {name}."
 msgstr "Kohteen {name} tallennus epäonnistui."
 
-#: edit_course/views.py:264
+#: edit_course/views.py:265
 #, python-brace-format
 msgid "Tagged user {user_name} with tag {tag_name}."
 msgid_plural "Tagged users {user_name} with tag {tag_name}."
 msgstr[0] "Lisättiin käyttäjälle {user_name} merkintä {tag_name}"
 msgstr[1] "Lisättiin käyttäjille {user_name} merkintä {tag_name}"
 
-#: edit_course/views.py:285
+#: edit_course/views.py:286
 msgid "New submissions stored."
 msgstr "Uudet palautukset tallennettiin."
 
-#: edit_course/views.py:302
+#: edit_course/views.py:303
 msgid "Course instance is now cloned."
 msgstr "Kurssikerta on nyt kopioitu."
 
-#: edit_course/views.py:324
+#: edit_course/views.py:325
 msgid "Course content configured."
 msgstr "Kurssin sisältö on konfiguroitu."
 
-#: edit_course/views.py:326
+#: edit_course/views.py:327
 msgid "Server returned error '{error!s}'."
 msgstr "Palvelin palautti virheen: '{error!s}'"
 
-#: edit_course/views.py:331
+#: edit_course/views.py:332
 msgid "Exercise caches have been cleared."
 msgstr "Tehtävien välimuisti on tyhjennetty."
 
-#: edit_course/views.py:354
+#: edit_course/views.py:355
 #, python-brace-format
 msgid "Username \"{username}\" does not exist."
 msgstr "Käyttäjätunnusta \"{username}\" ei ole olemassa."

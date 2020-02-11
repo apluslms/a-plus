@@ -74,7 +74,8 @@ class EditContentView(EditInstanceView):
                 for entry in self.content.flat_module(module, enclosed=False):
                     if entry['type'] != 'level':
                         try:
-                            module.flat_objects.append(LearningObject.objects.get(id=entry['id']))
+                            module.flat_objects.append(
+                                LearningObject.objects.get(id=entry['id']).as_leaf_class())
                         except LearningObject.DoesNotExist:
                             continue
             except NoSuchContent:
