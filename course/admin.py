@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 
 from course.models import (
     Course,
@@ -62,11 +63,32 @@ class EnrollmentAdmin(admin.ModelAdmin):
     list_filter = ("course_instance",)
 
 
+# Filtering object to help scheduling maintenance breaks
+class UpcomingDeadlinesListFilter(admin.SimpleListFilter):
+    title = _('upcoming deadlines')
+    parameter_name = 'upcoming_deadlines'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('now',
+            _("Show modules with 'closing time' or 'late submission deadline' in the future.")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'now':
+            return queryset.filter(closing_time__gte=timezone.now()).union(
+                queryset.filter(late_submission_deadline__gte=timezone.now(),
+                    late_submissions_allowed=True)
+            ).order_by('closing_time')
+
+
 class CourseModuleAdmin(admin.ModelAdmin):
     list_display_links = ("__str__",)
-    list_display = ("course_instance", "__str__", "opening_time",
-        "reading_opening_time", "closing_time", instance_url)
-    list_filter = ["course_instance", "opening_time", "closing_time"]
+    list_display = ("course_instance", "__str__",
+        "reading_opening_time", "opening_time", "closing_time",
+        "late_submission_deadline", "late_submissions_allowed", instance_url)
+    list_filter = ["course_instance", "opening_time", "closing_time",
+        UpcomingDeadlinesListFilter]
 
 
 class LearningObjectCategoryAdmin(admin.ModelAdmin):
