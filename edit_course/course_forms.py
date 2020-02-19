@@ -3,8 +3,10 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django_colortag.forms import ColorTagForm
 
+from aplus.api import api_reverse
 from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
 from lib.validators import generate_url_key_validator
+from lib.fields import UsersSearchSelectField
 from userprofile.models import UserProfile
 
 
@@ -68,6 +70,8 @@ class CourseModuleForm(FieldsetModelForm):
 
 class CourseInstanceForm(forms.ModelForm):
 
+    assistants = UsersSearchSelectField(queryset=UserProfile.objects.none())
+
     class Meta:
         model = CourseInstance
         fields = [
@@ -91,8 +95,8 @@ class CourseInstanceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["assistants"].widget.attrs["class"] = "search-select"
-        self.fields["assistants"].help_text = ""
+        self.fields['assistants'].queryset = self.instance.assistants.values_list('user', flat=True)
+        self.fields['assistants'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
         if self.instance and self.instance.visible_to_students:
             self.fields["url"].widget.attrs["readonly"] = "true"
             self.fields["url"].help_text = _("The URL identifier is locked "

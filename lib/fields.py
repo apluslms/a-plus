@@ -1,10 +1,13 @@
 import json
 
 from django import forms
+from django.contrib.auth.models import User
 from django.core import exceptions
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from aplus.api import api_reverse
+from userprofile.models import UserProfile
 
 class PercentField(models.FloatField):
     """
@@ -17,6 +20,38 @@ class PercentField(models.FloatField):
                 _("The number must be between 0.0 and 1.0")
             )
         return value
+
+
+class SearchSelectField(forms.ModelMultipleChoiceField):
+    """
+    A generic field to 'search-select' widget.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.widget.attrs["class"] = "search-select-ajax"
+
+
+class UsersSearchSelectField(SearchSelectField):
+    """
+    A field to search and select multiple UserProfiles from API.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.widget.attrs["data-users-api-url"] = api_reverse("user-list")
+        self.widget.attrs["data-key-parameter-list"] = "full_name,student_id"
+
+    def clean(self, value):
+        if not isinstance(value, list):
+            raise exceptions.ValidationError(
+                _("Invalid input type.")
+            )
+        for key in value:
+            if not User.objects.get(id=key):
+                raise exceptions.ValidationError(
+                    _("{} is not a valid key.").format(key)
+                )
+        users = User.objects.filter(id__in=value)
+        return UserProfile.objects.filter(user__in=users)
 
 
 class JSONField(models.TextField):
