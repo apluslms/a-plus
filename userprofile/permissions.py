@@ -1,6 +1,7 @@
 from authorization.permissions import SAFE_METHODS, Permission, FilterBackend
 
 from .models import UserProfile, GraderUser, LTIServiceUser
+from course.models import CourseInstance
 
 class IsAdminOrUserObjIsSelf(Permission, FilterBackend):
     def is_super(self, user):
@@ -25,6 +26,13 @@ class IsAdminOrUserObjIsSelf(Permission, FilterBackend):
         if issubclass(queryset.model, UserProfile) and not self.is_super(user):
             queryset = queryset.filter(user_id=user.id)
         return queryset
+
+
+class IsTeacherOrAdminOrSelf(IsAdminOrUserObjIsSelf):
+    def is_super(self, user):
+        every_course = CourseInstance.objects.all()
+        is_teacher = any([course.is_teacher(user) for course in every_course])
+        return is_teacher or super().is_super(user)
 
 
 class GraderUserCanOnlyRead(Permission):

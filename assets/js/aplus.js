@@ -21,7 +21,7 @@
 
 $(function() {
     "use strict";
- 
+
     // Mark active menu item
     $("[class^=menu-] a").each(function() {
         if ($(this)[0].pathname === location.pathname) {
