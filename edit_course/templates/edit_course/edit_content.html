@@ -92,7 +92,7 @@
                     </a>
                     {% endif %}
                     <a class="btn btn-link btn-xs" href="{{ module|url }}">
-                        {% trans "Open module" %}
+                        {% trans "View module" %}
                     </a>
                 </td>
             </tr>
@@ -113,7 +113,7 @@
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     <a class="btn btn-link btn-xs" href="{{ lobject|url }}">
-                      {% if lobject.is_submittable %}{% trans "Open exercise" %}{% else %}{% trans "Open content chapter" %}{% endif %}
+                      {% if lobject.is_submittable %}{% trans "View exercise" %}{% else %}{% trans "View content chapter" %}{% endif %}
                     </a>
                     {% if lobject.is_submittable %}
                     <a class="btn btn-link btn-xs" href="{{ lobject|url:'submission-list' }}">

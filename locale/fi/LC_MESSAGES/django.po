@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-18 18:47+0200\n"
+"POT-Creation-Date: 2020-02-20 11:50+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1320,8 +1320,8 @@ msgid "Edit module"
 msgstr "Muokkaa moduulia"
 
 #: edit_course/templates/edit_course/edit_content.html:95
-msgid "Open module"
-msgstr "Avaa moduuli"
+msgid "View module"
+msgstr "Katsele moduulia"
 
 #: edit_course/templates/edit_course/edit_content.html:110
 #: exercise/templates/exercise/exercise_base.html:91
@@ -1333,17 +1333,17 @@ msgid "Edit content chapter"
 msgstr "Muokkaa sisältökappaletta"
 
 #: edit_course/templates/edit_course/edit_content.html:116
-msgid "Open exercise"
-msgstr "Avaa tehtävä"
+msgid "View exercise"
+msgstr "Katsele tehtävää"
 
 #: edit_course/templates/edit_course/edit_content.html:116
-msgid "Open content chapter"
-msgstr "Avaa sisältökappale"
+msgid "View content chapter"
+msgstr "Katsele sisältökappaletta"
 
 #: edit_course/templates/edit_course/edit_content.html:120
 #: exercise/templates/exercise/_user_results.html:158
 msgid "View submissions"
-msgstr "Näytä palautukset"
+msgstr "Katsele palautuksia"
 
 #: edit_course/templates/edit_course/edit_content.html:130
 msgid "Add new learning object"
