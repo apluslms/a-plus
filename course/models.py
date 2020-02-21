@@ -505,6 +505,10 @@ class CourseInstance(UrlMixin, models.Model):
         )
 
     def is_enrollable(self, user):
+        if self.is_course_staff(user):
+            # Allow course staff to enroll even if the course instance is hidden
+            # or the user does not belong to the enrollment audience.
+            return True
         if user and user.is_authenticated and self.visible_to_students:
             if self.enrollment_audience == self.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
                 return not user.userprofile.is_external
