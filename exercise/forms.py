@@ -2,7 +2,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
+from aplus.api import api_reverse
 from exercise.models import Submission
+from lib.fields import UsersSearchSelectField
 from userprofile.models import UserProfile
 
 
@@ -114,12 +116,15 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
 
 class EditSubmittersForm(forms.ModelForm):
 
+    submitters = UsersSearchSelectField(queryset=UserProfile.objects.none())
+
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.get('instance').exercise.course_instance
         super().__init__(*args, **kwargs)
-        self.fields["submitters"].widget.attrs["class"] = "search-select"
-        self.fields["submitters"].help_text = ""
-        self.fields["submitters"].queryset = course_instance.get_student_profiles()
+        self.fields['submitters'].widget.attrs["data-search-api-url"] = api_reverse(
+            "course-students-list",
+            kwargs={'course_id': course_instance.id})
+        self.fields['submitters'].queryset = self.instance.submitters
 
     class Meta:
         model = Submission
