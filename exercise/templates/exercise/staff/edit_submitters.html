@@ -10,7 +10,7 @@
 {{ block.super }}
 <li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
 <li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
-<li class="active">{% trans "Edit submitters" %}</td>
+<li class="active">{% trans "Edit submitters" %}</li>
 {% endblock %}
 
 {% block columns %}
@@ -50,7 +50,7 @@
 $(function() {
   $('#group-select a.select').on('click', function(event) {
     event.preventDefault();
-    $('select.search-select').aplusSearchSelect(
+    $('select.search-select-ajax').aplusSearchSelectAjax(
       {},
       $(this).attr("data-profiles").split(",").slice(0,-1)
     );
