@@ -177,13 +177,10 @@ class UserTagForm(ColorTagForm):
         return obj
 
 class SelectUsersForm(forms.Form):
-    user = forms.ModelMultipleChoiceField(queryset=UserProfile.objects.none())
+    user = UsersSearchSelectField(queryset=UserProfile.objects.none())
 
     def __init__(self, *args, **kwargs):
-        # This is copied from deviations/forms.py, which itself is not DRY.
-        # TODO: refactor this and the aforementioned form to avoid repetition
         course_instance = kwargs.pop('instance')
         super(SelectUsersForm, self).__init__(*args, **kwargs)
-        self.fields['user'].widget.attrs['class'] = 'search-select'
-        self.fields['user'].help_text = ''
-        self.fields['user'].queryset = course_instance.get_student_profiles()
+        self.fields['user'].widget.attrs["data-search-api-url"] = api_reverse(
+            "course-students-list", kwargs={'course_id': course_instance.id})
