@@ -3,6 +3,9 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from aplus.api import api_reverse
+from lib.fields import UsersSearchSelectField
+from userprofile.models import UserProfile
 from .models import Enrollment, StudentGroup
 
 
@@ -83,12 +86,17 @@ class GroupSelectForm(forms.Form):
 
 class GroupEditForm(forms.ModelForm):
 
+    members = UsersSearchSelectField(queryset=UserProfile.objects.none())
+
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.get('instance').course_instance
         super().__init__(*args, **kwargs)
-        self.fields["members"].widget.attrs["class"] = "search-select"
-        self.fields["members"].help_text = ""
-        self.fields["members"].queryset = course_instance.get_student_profiles()
+        self.fields['members'].widget.attrs["data-search-api-url"] = api_reverse(
+            "course-students-list", kwargs={'course_id': course_instance.id})
+        # This form is used in the editing and adding StudentGroup objects.
+        # Currently existing groups should have it's members as an initial value.
+        if self.instance.id:
+            self.fields["members"].queryset = self.instance.members
 
     class Meta:
         model = StudentGroup
