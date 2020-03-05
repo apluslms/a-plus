@@ -26,13 +26,13 @@ class CachedStudent(CachedAbstract):
             user = User.objects.get(id=user)
         tags = (UserTagging.objects.get_all(user.userprofile, course_instance)
                 if user else [])
-        # model__anotnother_model__model might not work
-        course_modules = CourseModule.objects.filter(course_instance=course_instance)
         dl_deviations = (DeadlineRuleDeviation.objects.filter(
-            submitter=user.userprofile, exercise__course_module__in=course_modules
+                submitter=user.userprofile,
+                exercise__course_module__course_instance=course_instance
             ) if user else [])
         bonus_submissions = (MaxSubmissionsRuleDeviation.objects.filter(
-            submitter=user.userprofile, exercise__course_module__in=course_modules
+                submitter=user.userprofile,
+                exercise__course_module__course_instance=course_instance
             ) if user else [])
         return {
             'tag_slugs': [t.slug for t in tags],
@@ -43,13 +43,22 @@ class CachedStudent(CachedAbstract):
         }
 
 
-def invalidate_student(sender, instance: UserTagging, **kwargs):
-    CachedStudent.invalidate(
-        instance.course_instance,
-        instance.user.user) # NOTE: userprofile.user
+def invalidate_student(sender, instance, **kwargs):
+    if hasattr(instance, 'user'):
+        CachedStudent.invalidate(
+            instance.course_instance,
+            instance.user.user) # NOTE: userprofile.user
+    else:
+        CachedStudent.invalidate(
+            instance.exercise.course_module.course_instance,
+            instance.submitter.user) # NOTE: userprofile.user
 
 post_save.connect(invalidate_student, sender=UserTagging)
 post_delete.connect(invalidate_student, sender=UserTagging)
+post_save.connect(invalidate_student, sender=DeadlineRuleDeviation)
+post_delete.connect(invalidate_student, sender=DeadlineRuleDeviation)
+post_save.connect(invalidate_student, sender=MaxSubmissionsRuleDeviation)
+post_delete.connect(invalidate_student, sender=MaxSubmissionsRuleDeviation)
 
 
 def invalidate_students(sender, instance: UserTag, **kwargs):
