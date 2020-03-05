@@ -54,11 +54,13 @@
 
             <dt>{% trans "Deadline" %}</dt>
             <dd class="exercise-info-deadline">{{ exercise.course_module.closing_time }}</dd>
-            {% if exercise|deviation_deadline:profile %}
+            {% deviation_deadline exercise as dl %}
+            {% has_deviation_penalty exercise as has_penalty %}
+            {% if dl %}
             <dt>{% trans "Extended deadline" %}</dt>
             <dd class="exercise-info-deadline">
-              {{ exercise|deviation_deadline:profile }}
-              {% if exercise|has_deviation_penalty:profile|percent > 0 %}
+              {{ dl }}
+              {% if has_penalty %}
                 (-{{ exercise.course_module.late_submission_penalty|percent }}%)
               {% endif %}
             </dd>

@@ -93,9 +93,11 @@
                                               {{ points }} points required to pass.
                                           {% endblocktrans %}
                                           {% endif %}
-                                          {% if exercise|deviation_deadline:profile %}
-                                              {% trans "Extended deadline" %} {{ exercise|deviation_deadline:profile }}
-                                              {% if exercise|has_deviation_penalty:profile %}
+                                          {% deviation_deadline exercise as dl %}
+                                          {% if dl %}
+                                          {% has_deviation_penalty exercise as has_penalty %}
+                                              {% trans "Extended deadline" %} {{ dl }}
+                                              {% if has_penalty %}
                                               (
                                                 {% if not module.is_closed %}
                                                 {% trans "Penalty after" %}

@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from course.cache.students import CachedStudent
 from course.models import CourseModule
 from lib.errors import TagUsageError
 from ..cache.content import CachedContent
@@ -118,16 +119,41 @@ def max_submissions(exercise, user_profile):
     return exercise.max_submissions_for_student(user_profile)
 
 
-@register.filter
-def deviation_deadline(exercise, user_profile):
-    deviation = exercise.student_has_deadline_deviation(user_profile)
-    return deviation.get_new_deadline() if deviation else None
+@register.simple_tag(takes_context=True)
+def deviation_deadline(context, exercise):
+    try:
+        new_dl = CachedStudent(
+                 context['instance'], context.request.user
+            ).data['dl_deviations'][exercise.id][0]
+        print("there is teh dl")
+        print(CachedStudent(
+                 context['instance'], context.request.user
+            ).data)
+
+    except KeyError:
+        print("where is the dl")
+        print(CachedStudent(
+                 context['instance'], context.request.user
+            ).data)
+        new_dl = None
+    return new_dl
 
 
-@register.filter
-def has_deviation_penalty(exercise, user_profile):
-    deviation = exercise.student_has_deadline_deviation(user_profile)
-    return not deviation.without_late_penalty if deviation else None
+@register.simple_tag(takes_context=True)
+def has_deviation_penalty(context, exercise):
+    try:
+        penalty = CachedStudent(
+                 context['instance'], context.request.user
+            ).data['dl_deviations'][exercise.id][1]
+        print(CachedStudent(
+                 context['instance'], context.request.user
+            ).data)
+    except KeyError:
+        print(CachedStudent(
+                 context['instance'], context.request.user
+            ).data)
+        penalty = None
+    return not penalty
 
 
 @register.filter

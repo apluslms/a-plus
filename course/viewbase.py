@@ -52,6 +52,7 @@ class CourseInstanceBaseMixin(object):
     def get_resource_objects(self):
         super().get_resource_objects()
         user = self.request.user
+        self.user_id = user.id
         instance = self.get_course_instance_object()
         if instance is not None:
             self.instance = instance
@@ -62,9 +63,8 @@ class CourseInstanceBaseMixin(object):
             self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
             self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
-
             self.note(
-                "course", "instance", "content", "is_student", "is_assistant",
+                "user_id", "course", "instance", "content", "is_student", "is_assistant",
                 "is_teacher", "is_course_staff", "get_taggings",
             )
 

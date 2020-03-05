@@ -10,7 +10,8 @@ from ..models import (
     UserTag,
     UserTagging,
 )
-
+from deviations.models import MaxSubmissionsRuleDeviation, DeadlineRuleDeviation
+from course.models import CourseModule
 
 class CachedStudent(CachedAbstract):
     KEY_PREFIX = "student"
@@ -25,8 +26,20 @@ class CachedStudent(CachedAbstract):
             user = User.objects.get(id=user)
         tags = (UserTagging.objects.get_all(user.userprofile, course_instance)
                 if user else [])
+        # model__anotnother_model__model might not work
+        course_modules = CourseModule.objects.filter(course_instance=course_instance)
+        dl_deviations = (DeadlineRuleDeviation.objects.filter(
+            submitter=user.userprofile, exercise__course_module__in=course_modules
+            ) if user else [])
+        bonus_submissions = (MaxSubmissionsRuleDeviation.objects.filter(
+            submitter=user.userprofile, exercise__course_module__in=course_modules
+            ) if user else [])
         return {
             'tag_slugs': [t.slug for t in tags],
+            'dl_deviations': {
+                d.exercise.id: (d.get_new_deadline(), d.without_late_penalty) for d in dl_deviations},
+            'submission_deviations': {
+                d.exercise.id: d.extra_submissions for d in bonus_submissions},
         }
 
 
