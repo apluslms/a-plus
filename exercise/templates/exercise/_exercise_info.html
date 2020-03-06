@@ -50,8 +50,6 @@
             <dd class="exercise-info-required-points">{{ exercise.points_to_pass }}</dd>
             {% endif %}
 
-
-
             <dt>{% trans "Deadline" %}</dt>
             <dd class="exercise-info-deadline">{{ exercise.course_module.closing_time }}</dd>
             {% deviation_deadline exercise as dl %}

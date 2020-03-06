@@ -2104,7 +2104,7 @@ msgstr "Määräaika"
 #: exercise/templates/exercise/_exercise_info.html:58
 #: exercise/templates/exercise/exercise_plain.html:97
 msgid "Extended deadline"
-msgstr "Pidennetty palautusaika"
+msgstr "Pidennetty määräaika"
 
 #: exercise/templates/exercise/_exercise_info.html:68
 #: exercise/templates/exercise/exercise_plain.html:107

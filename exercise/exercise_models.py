@@ -480,10 +480,6 @@ class BaseExercise(LearningObject):
                     deviation = d
         return deviation
 
-    def student_has_deadline_deviation(self, student):
-        dl = self.deadlineruledeviation_set.filter(submitter=student)
-        return dl[0] if dl else None
-
     def number_of_submitters(self):
         return self.course_instance.students\
             .filter(submissions__exercise=self).distinct().count()
