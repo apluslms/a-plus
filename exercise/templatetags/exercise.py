@@ -24,9 +24,6 @@ def _prepare_now(context):
 
 
 def _get_bonus_submissions(instance, exercise_id, user):
-    print(CachedStudent(
-             instance, user
-        ).data['submission_deviations'])
     try:
         extra_submissions = CachedStudent(
                  instance, user
@@ -149,16 +146,7 @@ def deviation_deadline(context, exercise):
         new_dl = CachedStudent(
                  context['instance'], context.request.user
             ).data['dl_deviations'][exercise.id][0]
-        print("there is teh dl")
-        print(CachedStudent(
-                 context['instance'], context.request.user
-            ).data)
-
     except KeyError:
-        print("where is the dl")
-        print(CachedStudent(
-                 context['instance'], context.request.user
-            ).data)
         new_dl = None
     return new_dl
 
@@ -169,13 +157,7 @@ def has_deviation_penalty(context, exercise):
         penalty = CachedStudent(
                  context['instance'], context.request.user
             ).data['dl_deviations'][exercise.id][1]
-        print(CachedStudent(
-                 context['instance'], context.request.user
-            ).data)
     except KeyError:
-        print(CachedStudent(
-                 context['instance'], context.request.user
-            ).data)
         penalty = None
     return not penalty
 
