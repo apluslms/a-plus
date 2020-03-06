@@ -23,6 +23,18 @@ def _prepare_now(context):
     return context['now']
 
 
+def _get_bonus_submissions(instance, exercise_id, user):
+    print(CachedStudent(
+             instance, user
+        ).data['submission_deviations'])
+    try:
+        extra_submissions = CachedStudent(
+                 instance, user
+            ).data['submission_deviations'][exercise_id]
+    except KeyError:
+        extra_submissions = 0
+    return extra_submissions
+
 def _prepare_context(context, student=None):
     if not 'instance' in context:
         raise TagUsageError()
@@ -115,8 +127,20 @@ def latest_submissions(context):
 
 
 @register.filter
-def max_submissions(exercise, user_profile):
+def max_submissions_for_student(exercise, user_profile):
     return exercise.max_submissions_for_student(user_profile)
+
+
+@register.simple_tag(takes_context=True)
+def max_submissions(context, exercise):
+    return exercise.max_submissions + _get_bonus_submissions(
+        context['instance'], exercise.id, context.request.user)
+
+
+@register.simple_tag(takes_context=True)
+def max_submissions_for_dict(context, exercise):
+    return exercise["max_submissions"] + _get_bonus_submissions(
+        context['instance'], exercise['id'], context.request.user)
 
 
 @register.simple_tag(takes_context=True)

@@ -32,8 +32,8 @@
 
 {% block columns %}
 <div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %} exercise-column">
-
   {% if exercise.is_submittable %}
+  {% max_submissions exercise as max_submissions %}
   <ul class="nav nav-tabs">
       <li class="menu-exercise">
           <a href="{{ current.link }}">
@@ -44,7 +44,7 @@
           <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button"
               aria-haspopup="true" aria-expanded="false">
               {% trans "My submissions" %}
-              ({{ summary.get_submission_count }}{% if exercise.max_submissions %}/{{ exercise|max_submissions:profile }}{% endif %})
+              ({{ summary.get_submission_count }}{% if max_submissions %}/{{ max_submissions }}{% endif %})
               <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">

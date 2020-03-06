@@ -39,7 +39,7 @@
     <body>
         <div id="exercise-all">
             <div class="overlay-parent">
-
+                {% max_submissions exercise as max_submissions %}
                 {% if issues and not submission_allowed %}
                     {% include 'exercise/_warnings_overlay.html' %}
                 {% endif %}
@@ -63,8 +63,8 @@
                                     {% trans "My submissions" %}
                                     <span class="badge">
                                         {{ summary.get_submission_count }}
-                                        {% if exercise.max_submissions %}
-                                            / {{ exercise|max_submissions:profile }}
+                                        {% if max_submissions %}
+                                            / {{ max_submissions }}
                                         {% endif %}
                                     </span>
                                     <b class="caret"></b>

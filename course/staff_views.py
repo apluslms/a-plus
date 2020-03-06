@@ -45,8 +45,8 @@ class ParticipantsView(CourseInstanceBaseView):
         data = []
         for participant in participants:
             user_id = participant.user.id
-            user_tags = CachedStudent(ci, user_id).data
-            user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags['tag_slugs'] if slug in tags)
+            user_tags = CachedStudent(ci, user_id).data['tag_slugs']
+            user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags if slug in tags)
             data.append({
                 'id': participant.student_id or '',
                 'user_id': user_id,
@@ -56,7 +56,7 @@ class ParticipantsView(CourseInstanceBaseView):
                 'email': participant.user.email or '',
                 'external': participant.is_external,
                 'link': link % (user_id,),
-                **user_tags,
+                'tag_slugs': user_tags,
                 'tags': user_tags_html,
             })
         return data

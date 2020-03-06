@@ -41,7 +41,7 @@
             <dd class="exercise-info-submissions">
             	{{ summary.get_submission_count }}
             	{% if exercise.max_submissions %}
-            	/ {{ exercise|max_submissions:profile }}
+            	/ {% max_submissions exercise %}
             	{% endif %}
             </dd>
 
