@@ -103,7 +103,7 @@ class RemoveDeviationForm(forms.Form):
         exercise = cleaned_data.get("exercise")
         if not exercise and not module:
             raise forms.ValidationError(
-                _("You need to define exercises or modules to add deviations!"))
+                _("You need to define exercises or modules to remove deviations!"))
 
 
 class MaxSubmissionRuleDeviationForm(forms.Form):

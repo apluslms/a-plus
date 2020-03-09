@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-20 11:50+0200\n"
+"POT-Creation-Date: 2020-03-09 16:18+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -107,7 +107,7 @@ msgstr "Tämä ryhmä on jo olemassa."
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:68 course/models.py:723 exercise/exercise_models.py:127
+#: course/models.py:68 course/models.py:727 exercise/exercise_models.py:127
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -247,60 +247,60 @@ msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t):"
 msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
-#: course/models.py:672 course/models.py:798 exercise/exercise_models.py:68
+#: course/models.py:676 course/models.py:802 exercise/exercise_models.py:68
 #: exercise/submission_models.py:106
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:673 exercise/exercise_models.py:69
+#: course/models.py:677 exercise/exercise_models.py:69
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:674 course/models.py:800 templates/base.html:102
+#: course/models.py:678 course/models.py:804 templates/base.html:102
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:675 exercise/exercise_models.py:73
+#: course/models.py:679 exercise/exercise_models.py:73
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:683
+#: course/models.py:687
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:689
+#: course/models.py:693
 msgid "Opening time for the reading material"
 msgstr "Lukumateriaalin avautumisaika"
 
-#: course/models.py:690
+#: course/models.py:694
 msgid ""
 "Leave empty if the reading material should not open before the exercises."
 msgstr "Jätä tyhjäksi, jos lukumateriaalin ei pidä aueta ennen tehtäviä."
 
-#: course/models.py:702
+#: course/models.py:706
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:725
+#: course/models.py:729
 msgid "Opening time must be earlier than the closing time."
 msgstr "Alkamisajan tulee olla aikaisempi kuin päättymisaika."
 
-#: course/models.py:727
+#: course/models.py:731
 msgid "Late submission deadline must be later than the closing time."
 msgstr ""
 "Myöhäisten palautusten määräajan tulee olla myöhäisempi kuin sulkeutumisajan."
 
-#: course/models.py:729
+#: course/models.py:733
 msgid ""
 "Opening time of reading material must be earlier than the opening time of "
 "the exercises."
 msgstr "Lukumateriaalin tulee aueta ennen tehtäviä."
 
-#: course/models.py:799
+#: course/models.py:803
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/models.py:810
+#: course/models.py:814
 msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
@@ -308,7 +308,7 @@ msgstr ""
 "Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
 "hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: course/models.py:812
+#: course/models.py:816
 msgid ""
 "Grade unofficial submissions after deadlines have passed or submission "
 "limits have been exceeded. The points are stored but not included in "
@@ -877,9 +877,13 @@ msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 msgid "You have to provide either minutes or a date in the future."
 msgstr "Sinun on määriteltävä joko minuutit tai päivämäärä."
 
-#: deviations/forms.py:66 deviations/forms.py:106 deviations/forms.py:150
+#: deviations/forms.py:66 deviations/forms.py:150
 msgid "You need to define exercises or modules to add deviations!"
 msgstr "Sinun on määriteltävä tehtäviä tai moduuleja lisätäksesi muutoksia!"
+
+#: deviations/forms.py:106
+msgid "You need to define exercises or modules to remove deviations!"
+msgstr "Sinun on määriteltävä tehtäviä tai moduuleja poistaaksesi poikkeuksia!"
 
 #: deviations/templates/deviations/add_dl.html:6
 #: deviations/templates/deviations/add_dl.html:19
@@ -901,7 +905,6 @@ msgstr "Lisää uusia määräajan muutoksia"
 
 #: deviations/templates/deviations/add_dl.html:23
 #: deviations/templates/deviations/add_submissions.html:23
-#: deviations/templates/deviations/override_dl.html:50
 #: deviations/templates/deviations/override_submissions.html:46
 #: deviations/templates/deviations/remove_dl.html:23
 #: deviations/templates/deviations/remove_submissions.html:23
@@ -951,10 +954,12 @@ msgstr "Määräajan muutokset"
 msgid "Submitter"
 msgstr "Palauttaja"
 
-#: deviations/templates/deviations/list_dl.html:32
-#: deviations/templates/deviations/override.html:21
-#: edit_course/templates/edit_course/edit_content.html:149
-#: exercise/templates/exercise/_user_results.html:81
+#: deviations/templates/deviations/list_dl.html:33
+#: deviations/templates/deviations/list_submissions.html:32
+#: deviations/templates/deviations/override_dl.html:21
+#: deviations/templates/deviations/override_submissions.html:21
+#: edit_course/templates/edit_course/edit_content.html:150
+#: exercise/templates/exercise/_user_results.html:93
 msgid "Exercise"
 msgstr "Tehtävä"
 
@@ -1032,6 +1037,10 @@ msgstr "Ei myöhästymissakkoa jälkeen"
 #: deviations/templates/deviations/override_submissions.html:24
 msgid "Override"
 msgstr "Ylikirjoita"
+
+#: deviations/templates/deviations/override_dl.html:50
+msgid "Confirm"
+msgstr "Vahvista"
 
 #: deviations/templates/deviations/override_submissions.html:22
 msgid "Current extra submissions"
@@ -1277,7 +1286,6 @@ msgstr "Kategoria vaatii nimen."
 #: edit_course/operations/configure.py:461
 msgid "Module requires a key."
 msgstr "Moduuli vaatii avaimen."
-
 
 #: edit_course/operations/configure.py:564
 msgid "ExerciseCollection requires collection_category."
