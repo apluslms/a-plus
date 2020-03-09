@@ -1,3 +1,12 @@
+const { Observable, Subject, concat } = rxjs;
+const { map, first, count, ignoreElements } = rxjs.operators;
+
+const tag = rxjsSpy.operators.tag;
+spy = rxjsSpy.create();
+spy.log("users");
+
+
+
 (function($, document, window, undefined) {
     let currentScript = (document.currentScript ?
         $(document.currentScript) :
@@ -8,13 +17,28 @@
     const usertagsUrl = currentScript.data("usertagsUrl");
     const pointsUrl = currentScript.data("pointsUrl");
 
+    let _tagSlugFilters;
     let _exerciseSelection;
+    let _studentCount;
+    let _studentsVisibleCount = 0;
     let _allExercises = [];
     let _exercises;
     let _students;
+    let _users = {};
     let _usertags;
     let _points = {};
     let _ajaxCompleted = false;
+
+    let storageKey = 'resultsData';
+    function toStorage() {
+        return {
+            _students: _students,
+            _usertags: _usertags,
+            _allExercises: _allExercises,
+            _users: _users,
+            _points: _points,
+        }
+    }
 
     let tableExportVar;
 
@@ -191,16 +215,18 @@
     /*
      * Creates the table with student points based on
      * selected exercises, data indicators, tags and grouping method.
-     * @param {string} showMethod The grouping method: show all, show by difficulties, show by modules
+     * @param {string} pointsGroupingMethod The grouping method: show all, show by difficulties, show by modules
      */
-    window.createPointTable = function(showMethod) {
+
+    /*
+    window.createPointTable = function(pointsGroupingMethod) {
         if (!_ajaxCompleted) {
             return;
         }
 
         // Pick only students that have the selected tags
         // Use same logic for tag filtering as in participants.js
-        let filteredStudentPool = [];
+        let = filteredStudentPool = [];
         _students.forEach(function(student) {
             const tagSlugFilters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
             .map(function(elem) {
@@ -237,7 +263,7 @@
         // Gather information that is same for all students from the first student for better performance
         const firstStudent = _students[0];
         const sidFirst = firstStudent.id;
-        let moduleChecklist = [];
+        let modulesSeen = [];
 
         $(_exerciseSelection).each(function() {
             const moduleID = $(this).data("moduleId");
@@ -252,7 +278,7 @@
                 }
             )[0];
 
-            if (showMethod === "difficulty") {
+            if (pointsGroupingMethod === "difficulty") {
                 maxPoints[exercise.difficulty] = maxPoints[exercise.difficulty] + exercise.max_points || exercise.max_points;
                 maxPointsTotal += exercise.max_points;
                 if (pointKeys.indexOf(exercise.difficulty) === -1) {
@@ -266,9 +292,9 @@
                 });
             }
 
-            if (showMethod === "module") {
-                if (moduleChecklist.indexOf(module) === -1) {
-                    moduleChecklist.push(module);
+            if (pointsGroupingMethod === "module") {
+                if (modulesSeen.indexOf(module) === -1) {
+                    modulesSeen.push(module);
                     pointKeys.push(module.name);
                 }
 
@@ -282,7 +308,7 @@
 
             }
 
-            if (showMethod === "all") {
+            if (pointsGroupingMethod === "all") {
                 maxPoints[exercise.name] = exercise.max_points;
                 maxPointsTotal += exercise.max_points;
                 pointKeys.push(exercise.name);
@@ -303,7 +329,7 @@
             const sid = student.id;
 
             // Calculate points for each difficulty by grouping each each difficulty category exercises together
-            if (showMethod === "difficulty") {
+            if (pointsGroupingMethod === "difficulty") {
                 let submittedDifficulty = {};
 
                 $(_exerciseSelection).each(function() {
@@ -336,8 +362,8 @@
             }
 
             // Calculate points for each module by grouping each each module's exercises together
-            if (showMethod === "module") {
-                let moduleChecklist = [];
+            if (pointsGroupingMethod === "module") {
+                let modulesSeen = [];
 
                 $(_exerciseSelection).each(function() {
                     const moduleID = $(this).data("moduleId");
@@ -357,8 +383,8 @@
                     unofficialPoints[module.name] = unofficialPoints[module.name] + exercise.points || exercise.points;
                     totalPoints[module.name] = totalPoints[module.name] + exercisePoints || exercisePoints;
 
-                    if (moduleChecklist.indexOf(module) === -1) {
-                        moduleChecklist.push(module);
+                    if (modulesSeen.indexOf(module) === -1) {
+                        modulesSeen.push(module);
                         if (module.submission_count > 0) {
                             totalSubmissions[module.name] = totalSubmissions[module.name] + module.submission_count || module.submission_count;
                             totalSubmitters[module.name] = totalSubmitters[module.name] + 1 || 1;
@@ -371,7 +397,7 @@
             }
 
             // Calculate points for each exercise
-            if (showMethod === "all") {
+            if (pointsGroupingMethod === "all") {
                 $(_exerciseSelection).each(function() {
                     const moduleID = $(this).data("moduleId");
                     const exerciseID = $(this).data("exerciseId");
@@ -404,7 +430,7 @@
             htmlTablePoints +=
                 '<td class="student-name stick-on-scroll">'
                 + '<a href="' + student.summary_html + '">'
-                + _points[sid].full_name + '</td>';
+                + _users[sid].full_name + '</td>';
 
             if (pointKeys.length > 0) {
                 let tagHtml = "";
@@ -463,7 +489,7 @@
 
 
         pointKeys.forEach(function(name) {
-            if (showMethod === "difficulty" && name === "") {
+            if (pointsGroupingMethod === "difficulty" && name === "") {
                 $("#table-heading-row").append('<th scope="col">' + _("No difficulty") + '</th>');
             } else {
                 $("#table-heading-row").append('<th scope="col">' + name + '</th>');
@@ -538,7 +564,7 @@
             pointKeys.forEach(function(name) {
                 dataVals.push([
                     totalSubmitters[name] || 0,
-                    totalSubmitters[name] / filteredStudentPool.length * 100 || 0
+                    totalSubmitters[name] / _studentsVisibleCount * 100 || 0
                 ]);
             });
 
@@ -603,7 +629,7 @@
         $("#table-body").append(htmlTablePoints);
         $(".colortag-active").css("margin-right", "5px");
         $("#student-count").append(
-            ' (<span id="selected-number">' + filteredStudentPool.length + '</span> / '
+            ' (<span id="selected-number">' + _studentsVisibleCount + '</span> / '
             + '<span id="participants-number">'+ _students.length + '</span>'
             + _(' students selected') + ')'
         );
@@ -612,6 +638,7 @@
         $('.filtered-table').aplusTableFilter();
 
     }
+    */
 
 
     /*
@@ -646,6 +673,7 @@
      * Keeps the _exerciseSelection up to date with currently selected exercises.
      * Always recreates the table based on the currently active group.
      */
+    /* 
     function exerciseSelectionChange() {
         _exerciseSelection = $('#exercise-selection option:selected');
 
@@ -659,6 +687,7 @@
             return;
         }
     }
+    */
 
     /*
      * Multiselect button text
@@ -704,8 +733,59 @@
         }
     }
 
+    /*
+     * Test for storage availability. type is one of ('localStorage', 'sessionStorage')
+     *
+     * https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+     */
+    function storageAvailable(type) {
+        var storage;
+        try {
+            storage = window[type];
+            var x = '__storage_test__';
+            storage.setItem(x, x);
+            storage.removeItem(x);
+            return true;
+        }
+        catch(e) {
+            return e instanceof DOMException && (
+                // everything except Firefox
+                e.code === 22 ||
+                // Firefox
+                e.code === 1014 ||
+                // test name field too, because code might not be present
+                // everything except Firefox
+                e.name === 'QuotaExceededError' ||
+                // Firefox
+                e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+                // acknowledge QuotaExceededError only if there's something already stored
+                (storage && storage.length !== 0);
+        }
+    }
+
+    function storeDataLocally(type, key, obj) {
+        if (!storageAvailable(type)) {
+            throw Error("Storage not available");
+        }
+        storage = window[type]
+        storage.setItem(key, JSON.stringify(obj)) 
+    }
+
+    function getFromStorage(type, key) {
+        if (!storageAvailable(type)) {
+            throw Error("Storage not available");
+        }
+        storage = window[type]
+        return JSON.parse(localStorage.getItem(key));
+    }
+
+
     let ajaxEnabled = true;
 
+    /* Custom AJAX settings to use with jQuery.ajax()
+     * - Possibility to disable AJAX
+     * - Retrying and retry limits (call specific)
+     */
     let ajaxSettings = {
         _retryCount: 0,
         _retryLimit: 3,
@@ -715,10 +795,8 @@
         },
         error: function(xhr, statusText, errorThrown) {
             this._retryCount++;
-            if (this.retryCount <= this._retryLimit) {
+            if (this._retryCount <= this._retryLimit) {
                 console.log("Retrying ajax:", statusText);
-                //const req = this;
-                //setTimeout(function() {$.ajax(req);}, 1000);
                 setTimeout($.ajax, 1000, this);
             } else {
                 stopAjax = true;
@@ -728,138 +806,669 @@
         }
     };
 
-    function gatherFromAPIPaging(url) {
-        function gather(cur_result, url) {
+
+    /* Take as the argument a single student's points 
+     * and populate the exercise and module selection dropdown menu
+     */
+    function populateExerciseSelection(singleStudentPoints) {
+        const firstStudentPoints = singleStudentPoints;
+        firstStudentPoints.modules.forEach(function(module) {
+            $("#module-selection").append(
+                '<option value="module-' + module.id + '"'
+                + 'selected>'
+                + module.name
+                + '</option>'
+            );
+            $("#exercise-selection").append(
+                '<optgroup class="module-' + module.id + '"'
+                + 'value="module-' + module.id + '"'
+                + 'label="' + module.name + '"'
+                + '></optgroup'
+            );
+            module.exercises.forEach(function(exercise) {
+                $("#exercise-selection > optgroup:last-child").append(
+                    '<option data-module-id="' + module.id + '"'
+                    + 'data-exercise-id="' + exercise.id + '"'
+                    + 'class="module-'+ module.id + '"'
+                    + 'value="exercise-'+ exercise.id + '"'
+                    + 'selected>'
+                    + exercise.name
+                    + '</option>'
+                );
+            });
+        });
+
+        $('#module-selection').multiselect({
+            includeSelectAllOption: true,
+            onDeselectAll: moduleSelectionChange,
+            onSelectAll: moduleSelectionChange,
+            echnChange: moduleSelectionChange,
+            buttonText: buttonText,
+            selectAllText: _("Select all"),
+        });
+
+        $('#exercise-selection').multiselect({
+            includeSelectAllOption: true,
+            enableClickableOptGroups: true,
+            onDeselectAll: exerciseSelectionChange,
+            onSelectAll: exerciseSelectionChange,
+            onChange: exerciseSelectionChange,
+            maxHeight: 500,
+            buttonText: buttonText,
+            selectAllText: _("Select all"),
+        });
+        
+    }
+
+    // Take as the argument an object representing a student 
+    // and return a boolean indicating whether or not the student should be shown in the results table
+    function studentVisibility(student) {
+        // Pick only students that have the selected tags
+        // Use same logic for tag filtering as in participants.js
+        let studentTagSlugs = student.tag_slugs;
+
+        // Set intersection tags ∩ filters
+        const intersect = studentTagSlugs.filter(function (tag) {
+            return tagSlugFilters.indexOf(tag) >= 0;
+        });
+
+        // Only create the row for a student, if they have one of the tags that are currently selected
+        return intersect.length === tagSlugFilters.length;
+    };
+ 
+    /*
+     * Keeps the _exerciseSelection up to date with currently selected exercises.
+     * Always recreates the table based on the currently active group.
+     */
+    function exerciseSelectionChange() {
+        _exerciseSelection = $('#exercise-selection option:selected');
+        
+        _tagSlugFilters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
+        .map(function(elem) {
+            return $(elem).data('tagSlug');
+        });
+    }
+
+    // Filter the students rows in the table, setting visibility
+    function filterTable() {
+        
+        $('#table-points tr').each(function(){
+            $(this).find('td').each(function(){
+                //do your stuff, you can use $(this) to get current cell
+            })
+        })
+    }
+
+    // Return the grouping method currently in use
+    function getGroupingMethod() { 
+        if ($("#all-exercises").hasClass("active")) {
+            return "all";
+        } else if ($("#difficulty-exercises").hasClass("active")) {
+            return "difficulty";
+        } else if ($("#module-exercises").hasClass("active")) {
+            return "module";
+        } else {
+            return;
+        }
+    }
+
+    // Create an object with given keys and initialization value for each
+    function initObjectWithKeys(keys, val) {
+        let obj = {};
+        keys.forEach(function (key) {
+            obj[key] = val;
+        });
+        return obj
+    }
+        
+
+    let pointsGroupingMethods = ["difficulty", "module", "all"];
+
+    let htmlTablePoints = "";
+    let pointKeys = initObjectWithKeys(pointsGroupingMethods, []);
+
+    let totalSubmitters = {}; 
+    let totalMaxSubmitters = {};
+    let totalSubmissions = {};
+    let maxAllowedSubmissions = {};
+    let maxPoints = {};
+    // Initialise totals with zeros
+    let maxPointsTotal = initObjectWithKeys(pointsGroupingMethods, 0); 
+    let totalPoints = {};
+
+    let modulesSeen = initObjectWithKeys(pointsGroupingMethods, []);
+
+    // Has to be called once for each grouping method to establish the assumably unchanging characteristics of the exercises and modules
+    function tableDrawPreWork(firstPoints, pointsGroupingMethod) {
+        // Gather information that is same for all students from the first student for better performance
+        $(_exerciseSelection).each(function() {
+            const moduleID = $(this).data("moduleId");
+            const module = firstPoints.modules.filter(
+                function(m) {
+                    return m.id == moduleID;
+            })[0];
+            const exerciseID = $(this).data("exerciseId");
+            const exercise = module.exercises.filter(
+                function(exercise) {
+                    return exercise.id == exerciseID;
+                }
+            )[0];
+            
+            // Grouped by difficulty
+            if (pointsGroupingMethod === "difficulty") {
+                maxPoints[pointsGroupingMethod][exercise.difficulty] = maxPoints[pointsGroupingMethod][exercise.difficulty] + exercise.max_points || exercise.max_points;
+                maxPointsTotal[pointsGroupingMethod] += exercise.max_points;
+                if (pointKeys[pointsGroupingMethod].indexOf(exercise.difficulty) === -1) {
+                    pointKeys[pointsGroupingMethod].push(exercise.difficulty);
+                    pointKeys[pointsGroupingMethod].sort();
+                }
+                _allExercises.forEach(function(exAll) {
+                    if (exAll.id === exercise.id) {
+                        maxAllowedSubmissions[pointsGroupingMethod][exercise.difficulty] = maxAllowedSubmissions[pointsGroupingMethod][exercise.difficulty] + exAll.max_submissions || exAll.max_submissions;
+                    }
+                });
+            }
+
+            // Grouped by module
+            if (pointsGroupingMethod === "module") {
+                // Include modules corresponding to selected exercises just once in pointKeys[pointsGroupingMethod]
+                // Required because multiple exercises can come from the same module
+                if (modulesSeen[pointsGroupingMethod].indexOf(module) === -1) {
+                    modulesSeen[pointsGroupingMethod].push(module);
+                    pointKeys[pointsGroupingMethod].push(module.name);
+                }
+                
+                // Include the exercise's particulars in the totals
+                _allExercises.forEach(function(exAll) {
+                    if (exAll.id === exercise.id) {
+                        maxAllowedSubmissions[pointsGroupingMethod][module.name] = maxAllowedSubmissions[pointsGroupingMethod][module.name] + exAll.max_submissions || exAll.max_submissions;
+                        maxPoints[module.name] = maxPoints[module.name] + exercise.max_points || exercise.max_points;
+                        maxPointsTotal += exercise.max_points;
+                    }
+                });
+
+            }
+            
+            // Grouped by exercise
+            if (pointsGroupingMethod === "all") {
+                maxPoints[exercise.name] = exercise.max_points;
+                maxPointsTotal += exercise.max_points;
+                pointKeys[pointsGroupingMethod].push(exercise.name);
+
+                _allExercises.forEach(function(exAll) {
+                    if (exAll.id === exercise.id) {
+                        maxAllowedSubmissions[pointsGroupingMethod][exercise.name] = exAll.max_submissions;
+                    }
+                });
+            }
+
+        });
+    }
+
+    // Renders students rows and indicators
+    // FIXME: Indicators and tags don't work
+    let studentRendererObserver = {
+        // Gather personal information for each student, eg. individual points
+        next(studentAndPoints) {
+            let student = studentAndPoints.student;
+            let _points = studentAndPoints.points;
+            let allPointsTotalAddedToRow = false;
+
+            // Start the table row with the student's id, summary and full name
+            htmlTablePoints += '<tr><td class="student-id stick-on-scroll">' + student.student_id + '</td>';
+            htmlTablePoints +=
+                '<td class="student-name stick-on-scroll">'
+                + '<a href="' + student.summary_html + '">'
+                + student.full_name + '</td>';
+
+            // Run point calculations using all three methods and create the corresponding cells
+            pointsGroupingMethods.forEach(function(pointsGroupingMethod) { 
+                let points = {};
+                let unofficialPoints = {};
+    
+                // Calculate points for each difficulty by grouping exercises from each difficulty category together
+                if (pointsGroupingMethod === "difficulty") {
+                    let submittedDifficulty = {};
+
+                    $(_exerciseSelection).each(function() {
+                        const moduleID = $(this).data("moduleId");
+                        const exerciseID = $(this).data("exerciseId");
+                        const exercise = _points.modules.filter(
+                            function(m) {
+                                return m.id == moduleID;
+                            })[0].exercises.filter(
+                            function(exercise) {
+                                return exercise.id == exerciseID;
+                            }
+                        )[0];
+
+                        const exercisePoints = exercise.official ? exercise.points : 0;
+                        points[exercise.difficulty] = points[exercise.difficulty] + exercisePoints || exercisePoints;
+                        unofficialPoints[exercise.difficulty] = unofficialPoints[exercise.difficulty] + exercise.points || exercise.points;
+                        totalPoints[pointsGroupingMethod][exercise.difficulty] = totalPoints[pointsGroupingMethod][exercise.difficulty] + exercisePoints || exercisePoints;
+                        if (exercise.submission_count > 0) {
+                            totalSubmissions[pointsGroupingMethod][exercise.difficulty] = totalSubmissions[pointsGroupingMethod][exercise.difficulty] + exercise.submission_count || exercise.submission_count;
+                            if (submittedDifficulty[exercise.difficulty] === undefined) {
+                                totalSubmitters[pointsGroupingMethod][exercise.difficulty] = totalSubmitters[pointsGroupingMethod][exercise.difficulty] + 1 || 1;
+                                submittedDifficulty[exercise.difficulty] = true;
+                            }
+                            if (points[exercise.difficulty] === maxPoints[exercise.difficulty]) {
+                                totalMaxSubmitters[pointsGroupingMethod][exercise.difficulty] = totalMaxSubmitters[pointsGroupingMethod][exercise.difficulty] + 1 || 1;
+                            }
+                        }
+                    });
+                }
+
+                // Calculate points for each module by grouping each module's exercises together
+                if (pointsGroupingMethod === "module") {
+                    modulesSeen[pointsGroupingMethod] = [];
+
+                    $(_exerciseSelection).each(function() {
+                        const moduleID = $(this).data("moduleId");
+                        const module = _points.modules.filter(
+                            function(m) {
+                                return m.id == moduleID;
+                        })[0];
+                        const exerciseID = $(this).data("exerciseId");
+                        const exercise = module.exercises.filter(
+                            function(exercise) {
+                                return exercise.id == exerciseID;
+                            }
+                        )[0];
+
+                        const exercisePoints = exercise.official ? exercise.points : 0;
+                        points[module.name] = points[module.name] + exercisePoints || exercisePoints;
+                        unofficialPoints[module.name] = unofficialPoints[module.name] + exercise.points || exercise.points;
+                        totalPoints[pointsGroupingMethod][module.name] = totalPoints[pointsGroupingMethod][module.name] + exercisePoints || exercisePoints;
+
+                        if (modulesSeen[pointsGroupingMethod].indexOf(module) === -1) {
+                            modulesSeen[pointsGroupingMethod].push(module);
+                            if (module.submission_count > 0) {
+                                totalSubmissions[pointsGroupingMethod][module.name] = totalSubmissions[pointsGroupingMethod][module.name] + module.submission_count || module.submission_count;
+                                totalSubmitters[pointsGroupingMethod][module.name] = totalSubmitters[pointsGroupingMethod][module.name] + 1 || 1;
+                                if (points[module.name] === maxPoints[module.name]) {
+                                    totalMaxSubmitters[pointsGroupingMethod][module.name] = totalMaxSubmitters[pointsGroupingMethod][module.name] + 1 || 1;
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Calculate points for each exercise
+                if (pointsGroupingMethod === "all") {
+                    $(_exerciseSelection).each(function() {
+                        const moduleID = $(this).data("moduleId");
+                        const exerciseID = $(this).data("exerciseId");
+                        const exercise = _points.modules.filter(
+                            function(m) {
+                                return m.id == moduleID;
+                            })[0].exercises.filter(
+                            function(exercise) {
+                                return exercise.id == exerciseID;
+                            }
+                        )[0];
+
+                        const exercisePoints = exercise.official ? exercise.points : 0;
+                        points[exercise.name] = exercisePoints;
+                        unofficialPoints[exercise.name] = exercise.points;
+                        totalPoints[pointsGroupingMethod][exercise.name] = totalPoints[pointsGroupingMethod][exercise.name] + exercisePoints || exercisePoints;
+                        if (exercise.submission_count > 0) {
+                            totalSubmissions[pointsGroupingMethod][exercise.name] = totalSubmissions[pointsGroupingMethod][exercise.name] + exercise.submission_count || exercise.submission_count;
+                            totalSubmitters[pointsGroupingMethod][exercise.name] = totalSubmitters[pointsGroupingMethod][exercise.name] + 1 || 1;
+                            if (exercisePoints === exercise.max_points) {
+                                totalMaxSubmitters[pointsGroupingMethod][exercise.name] = totalMaxSubmitters[pointsGroupingMethod][exercise.name] + 1 || 1;
+                            }
+                        }
+
+                    });
+                }
+
+                if (!allPointsTotalAddedToRow) {
+                    allPointsTotalAddedToRow = true;
+                    // Adds colortags and tally of total points
+                    // Must only be run with one set of keys (one pointsGroupingMethod)
+                    // Looking at the code, the calculation of points in points[] seems to result in the same total regardless of the method
+                    if (pointKeys[pointsGroupingMethod].length > 0) {
+                        let tagHtml = "";
+                        const studentTags = student.tag_slugs;
+
+                        studentTags.forEach(function(tagSlug) {
+                            _usertags.forEach(function(usertag) {
+                                if (usertag.slug === tagSlug) {
+                                    tagHtml += django_colortag_label(usertag, ' ')[0].outerHTML;
+                                }
+                            });
+                        });
+
+                        let allPointsTotal = 0;
+                        let allUnofficialTotal = 0;
+                        pointKeys[pointsGroupingMethod].forEach(function(name) {
+                            const point = points[name] || 0;
+                            const unofficialPoint = unofficialPoints[name] || 0;
+                            allPointsTotal += point;
+                            allUnofficialTotal += unofficialPoint;
+                        });
+
+                        htmlTablePoints += '<td>' + tagHtml + '</td>';
+
+                        if (!_showOfficial && allUnofficialTotal > allPointsTotal) {
+                            htmlTablePoints += '<td>' + allPointsTotal + '<span class="text-danger"> (' + allUnofficialTotal + ')</span></td>';
+                        }
+                        else {
+                            htmlTablePoints += '<td>' + allPointsTotal + '</td>';
+                        }
+                    }
+                }
+
+
+                // Adds the points calculated using the method (points for all the different difficulties for 'difficulty', modules for 'module', etc.)
+                // Must be run with all sets of keys (using all pointsGroupingMethods)
+                pointKeys[pointsGroupingMethod].forEach(function(name) {
+                    const point = points[name] || 0;
+                    const unofficialPoint = unofficialPoints[name] || 0;
+                    if (!_showOfficial && unofficialPoint > point) {
+                        htmlTablePoints += '<td>' + point + '<span class="text-danger"> (' + unofficialPoint + ')</span></td>';
+                    }
+                    else {
+                        htmlTablePoints += '<td>' + point + '</td>';
+                    }
+                });
+            });
+
+            // Row end
+            htmlTablePoints += "</tr>";
+        },        
+        complete() {
+            // Calculate the data indicators, e.g. average points, max points
+            // Append headings, data indicators and student points to the html table
+
+            $("#table-heading").append('<tr id="table-heading-row"></tr>')
+            $("#table-heading-row").append('<th id="student-count">' + _("Student ID") + '</th>');
+            $("#table-heading-row").append('<th>' + _("Student name") + '</th>');
+            if (_exerciseSelection && _exerciseSelection.length > 0) {
+                $("#table-heading-row").append('<th>' + _("Tags") + '</th>');
+                $("#table-heading-row").append('<th>' + _("Total") + '</th>');
+            }
+
+            let htmlTableIndicators = "";
+
+            pointsGroupingMethods.forEach(function(pointsGroupingMethod) {
+                pointKeys[pointsGroupingMethod].forEach(function(name) {
+                    if (pointsGroupingMethod === "difficulty" && name === "") {
+                        $("#table-heading-row").append('<th scope="col">' + _("No difficulty") + '</th>');
+                    } else {
+                        $("#table-heading-row").append('<th scope="col">' + name + '</th>');
+                    }
+                });
+
+
+                if (_totalSubmTrue) {
+                    let dataVals = [];
+                    let sumValue = 0;
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        sumValue += totalSubmissions[pointsGroupingMethod][name] || 0;
+                    });
+
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        dataVals.push([
+                            totalSubmissions[pointsGroupingMethod][name] || 0,
+                            totalSubmissions[pointsGroupingMethod][name] / sumValue * 100 || 0,
+                        ]);
+                    });
+
+                    htmlTableIndicators += createIndicatorRow(
+                        _('Total number of submissions. Calculates all student submission counts together.'),
+                        _('Total submissions'),
+                        dataVals
+                    );
+                }
+
+                if (_avgSubmTrue) {
+                    let dataVals = [];
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        dataVals.push([
+                            totalSubmissions[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] || 0,
+                            totalSubmissions[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] / maxAllowedSubmissions[pointsGroupingMethod][name] * 100 || 0
+                        ]);
+                    });
+
+                    htmlTableIndicators += createIndicatorRow(
+                        _('How many submissions a single student has used on the exercise on average.'
+                          + ' Only accounts for students with one or more submissions.'
+                        ),
+                        _('Average submissions per student with submissions'),
+                        dataVals
+                    );
+                }
+
+                if (_maxSubmTrue) {
+                    let dataVals = [];
+                    let sumValue = 0;
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        sumValue += maxAllowedSubmissions[pointsGroupingMethod][name] || 0;
+                    });
+
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        dataVals.push([
+                            maxAllowedSubmissions[pointsGroupingMethod][name] || 0,
+                            maxAllowedSubmissions[pointsGroupingMethod][name] / sumValue * 100 || 0,
+                        ]);
+                    });
+
+                    htmlTableIndicators += createIndicatorRow(
+                        _('Maximum number of available submissions for the exercise.'),
+                        _('Maximum submissions'),
+                        dataVals
+                    );
+                }
+
+                if (_totalStuSubmTrue) {
+                    let dataVals = [];
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        dataVals.push([
+                            totalSubmitters[pointsGroupingMethod][name] || 0,
+                            totalSubmitters[pointsGroupingMethod][name] / _studentsVisibleCount * 100 || 0
+                        ]);
+                    });
+
+                    htmlTableIndicators += createIndicatorRow(
+                        _('Number of students that have one or more exercise submissions.'),
+                        _('Students with submissions'),
+                        dataVals
+                    );
+                }
+
+                if (_totalStuMaxTrue) {
+                    let dataVals = [];
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        dataVals.push([
+                            totalMaxSubmitters[pointsGroupingMethod][name] || 0,
+                            totalMaxSubmitters[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] * 100 || 0
+                        ]);
+                    });
+
+                    htmlTableIndicators += createIndicatorRow(
+                        _('Number of students that have received maximum points from the exercise.'),
+                        _('Students with max points'),
+                        dataVals
+                    );
+                }
+
+                if (_avgPTrue) {
+                    let dataVals = [];
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        dataVals.push([
+                            totalPoints[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] || 0,
+                            totalPoints[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] / maxPoints[name] * 100 || 0
+                        ]);
+                    });
+
+                    htmlTableIndicators += createIndicatorRow(
+                        _('Average points received for the exercise.'
+                          + ' Only accounts for students with one or more submissions.'
+                        ),
+                        _('Average points per student with submissions'),
+                        dataVals
+                    );
+                }
+
+                if (_maxPTrue) {
+                    let dataVals = [];
+                    pointKeys[pointsGroupingMethod].forEach(function(name) {
+                        dataVals.push([
+                            maxPoints[name] || 0,
+                            maxPoints[name] / maxPointsTotal * 100 || 0
+                        ]);
+                    });
+
+                    htmlTableIndicators += createIndicatorRow(
+                        _('Maximum points for the exercise.'),
+                        _('Maximum points'),
+                        dataVals
+                    );
+                }
+            });
+        
+            $("#table-body").append(htmlTableIndicators);
+            $("#table-body").append(htmlTablePoints);
+            $(".colortag-active").css("margin-right", "5px");
+            $("#student-count").append(
+                ' (<span id="selected-number">' + _studentsVisibleCount + '</span> / '
+                + '<span id="participants-number">'+ _studentCount + '</span>'
+                + _(' students selected') + ')'
+            );
+            tableExportVar.reset();
+            $('#table-points').find("caption").remove(); // Remove the recreated TableExport buttons (they are already in dropdown)
+            $('.filtered-table').aplusTableFilter();
+            console.log("Rendering complete");
+        }
+    }
+
+    // Show columns specific to a grouping method and hide others
+    function choosePointsGroupingMethod(method) {
+        
+    }
+
+    // Add a student to the table as a row
+    function addStudentRowToTable(student) {
+        let htmlTablePoints = "";
+        htmlTablePoints += '<tr><td class="student-id stick-on-scroll">' + student.student_id + '</td>';
+        htmlTablePoints += '<td class="student-name stick-on-scroll">'
+                           + '<a href="' + student.summary_html + '">'
+                           + student.full_name + '</td>';
+        $("#table-body").append(htmlTablePoints);
+    }
+
+    // Map a student to points, calling the API
+    function studentToPoints(student) {
+        const sid = student.id;
+        return $.ajax(
+            $.extend({}, ajaxSettings, {url: pointsUrl + sid})
+        ).then(function(data) {
+            return data;
+        });
+    }
+
+    // Stream data from a paged JSON API into an Observer
+    function APIPagingStream(observer, url) {
+        function stream(url) {
             return $.ajax(
                 $.extend({}, ajaxSettings, {url: url})
             ).then(function(response) {
-                cur_result = cur_result.concat(response.results)
+                response.results
+                        .forEach(function(r) { observer.next(r) });
                 if (response.next) {
-                    return gather(cur_result, response.next);
+                    stream(response.next);
                 } else {
-                    return cur_result
+                    observer.complete()
                 }
             }, function(reason) {
                 throw new Error("Pagination ajax failed: " + reason.statusText);
             });
         }
-        return gather([], url);
+        this.start = function() { 
+            stream(url) 
+        };
     }
 
-    /*
-     * The following code is responsible for handling all the ajax calls to get the data from /api/v2/
-     * The code also initializes the module and exercise selection options.
-     * Creates the table for the first time, when all ajax calls have finished.
-     * READER WARNING: You are entering callback hell.
-     */
-    $.when(gatherFromAPIPaging(exercisesUrl), gatherFromAPIPaging(studentsUrl), gatherFromAPIPaging(usertagsUrl))
-        .done(function(exercisesPagedResults, studentsPagedResults, usertagsPagedResults) {
-        _exercises = exercisesPagedResults;
-        _students = studentsPagedResults;
-        _usertags = usertagsPagedResults;
-
-        let requiredPointAjaxCalls = _students.length;
-        let requiredUserAjaxCalls = _students.length;
-        let requiredExerciseAjaxCalls = 0;
-        _exercises.forEach(function(module) {
-            module.exercises.forEach(function(exercise) {
-                requiredExerciseAjaxCalls++;
-            });
-        });
-
-        let completedPointAjaxCalls = 0;
-        let completedExerciseAjaxCalls = 0;
-        let successFirstStudent = false;
-
-        let checkIfAllAjaxCompleted = function() {
-            const exercises_progress = completedExerciseAjaxCalls + " / " + requiredExerciseAjaxCalls;
-            const points_progress = completedPointAjaxCalls + " / " + requiredPointAjaxCalls;
-            const progress_report = exercises_progress + "<br>" + points_progress;
-            $("#results-loading-progress").html(progress_report);
-            if (completedPointAjaxCalls === requiredPointAjaxCalls &&
-                completedExerciseAjaxCalls === requiredExerciseAjaxCalls) {
-                _ajaxCompleted = true;
-                exerciseSelectionChange();
-                $("#results-loading-animation").hide();
-                $("#results-loading-progress").hide();
-                $("#table-export-dropdown > button").removeAttr('disabled');
-                $("#table-points-div").show();
-            }
+    // An object adhering to the observer interface that keeps track of loading progress and finishes rendering
+    let progressObserver = {
+        progress: 0,
+        next() {
+            this.progress++;
+            $("#results-loading-progress").html(this.progress);
+        },
+        complete() {
+            exerciseSelectionChange();
+            $("#results-loading-animation").hide();
+            $("#results-loading-progress").hide();
+            $("#table-export-dropdown > button").removeAttr('disabled');
+            $("#table-points-div").show();
+            //storeDataLocally('localStorage', storageKey, toStorage())
         }
+    }
 
-        _students.forEach(function(student) {
-            const sid = student.id;
-            $.ajax(
-                $.extend({}, ajaxSettings, {url: pointsUrl + sid + '/'})
-            ).then(function(data) {
-                _points[sid] = data;
-                completedPointAjaxCalls++;
-                if (!successFirstStudent) {
-                    successFirstStudent = true;
-                    const firstStudentPoints = Object.values(_points)[0];
-                    firstStudentPoints.modules.forEach(function(module) {
-                        $("#module-selection").append(
-                            '<option value="module-' + module.id + '"'
-                            + 'selected>'
-                            + module.name
-                            + '</option>'
-                        );
-                        $("#exercise-selection").append(
-                            '<optgroup class="module-' + module.id + '"'
-                            + 'value="module-' + module.id + '"'
-                            + 'label="' + module.name + '"'
-                            + '></optgroup'
-                        );
-                        module.exercises.forEach(function(exercise) {
-                            $("#exercise-selection > optgroup:last-child").append(
-                                '<option data-module-id="' + module.id + '"'
-                                + 'data-exercise-id="' + exercise.id + '"'
-                                + 'class="module-'+ module.id + '"'
-                                + 'value="exercise-'+ exercise.id + '"'
-                                + 'selected>'
-                                + exercise.name
-                                + '</option>'
-                            );
-                        });
-                    });
 
-                    $('#module-selection').multiselect({
-                        includeSelectAllOption: true,
-                        onDeselectAll: moduleSelectionChange,
-                        onSelectAll: moduleSelectionChange,
-                        onChange: moduleSelectionChange,
-                        buttonText: buttonText,
-                        selectAllText: _("Select all"),
-                    });
+    /*
+     *  Setting up pipeline
+     */
 
-                    $('#exercise-selection').multiselect({
-                        includeSelectAllOption: true,
-                        enableClickableOptGroups: true,
-                        onDeselectAll: exerciseSelectionChange,
-                        onSelectAll: exerciseSelectionChange,
-                        onChange: exerciseSelectionChange,
-                        maxHeight: 500,
-                        buttonText: buttonText,
-                        selectAllText: _("Select all"),
-                    });
-                }
-                checkIfAllAjaxCompleted();
-            });
-        });
+    // Source for pipeline
+    let studentsSubject = new rxjs.Subject();
+    let studentsStream = new APIPagingStream(studentsSubject, studentsUrl);
 
-        _exercises.forEach(function(module) {
-            module.exercises.forEach(function(exercise) {
-                $.ajax(
-                    $.extend({}, ajaxSettings, {url: exercise.url})
-                ).then(function(data) {
-                    _allExercises.push(data);
-                    completedExerciseAjaxCalls++;
-                    checkIfAllAjaxCompleted();
-                });
-            });
-        });
+    // Students => points
+    let pointsObservable = studentsSubject.pipe(
+        map(studentToPoints),
+    );
+    
+    // Populate exercise selection
+    pointsObservable.pipe(
+        first(),
+        map(function(firstPoints) { 
+                firstPoints.then(populateExerciseSelection)
+            }),
+    ).subscribe();
 
-    });
+    // Save student count
+    let studentCounter = studentsSubject.pipe(count())
+                                        .subscribe(function (c) { _studentCount = c });
+
+    // Track data fetching progress
+    studentsSubject.pipe(tag("students"))
+                   .subscribe(progressObserver);
+
+    // Students + points in one for rendering
+    let studentsAndPointsObservable = studentsSubject.pipe(
+        map(function(student) { return {student:student, points:studentToPoints(student)} }),
+    );
+
+    // Prework with the first student
+    preworkObservable = studentsSubject.pipe(
+        first(),
+        map(function(firstOne) {
+                pointsGroupingMethods.forEach(function(pointsGroupingMethod) {
+                    tableDrawPreWork(firstOne, pointsGroupingMethod);
+                })
+            }),
+    );
+
+    // Do table prework, then render
+    concat(preworkObservable.pipe(ignoreElements()), studentsAndPointsObservable.pipe(tag("render")))
+           .subscribe(studentRendererObserver);
+
+    // Start pipeline
+    studentsStream.start();
+
+    // Show table (happends immediately because other calls asynchronous?)
+    $("#table-points-div").show();
+
+
+
+    /* TODO: consider using rxjs.Observable.ajax.getJSON
+    */
+
+
 
 })(jQuery, document, window);
 
