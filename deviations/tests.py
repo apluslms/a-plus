@@ -5,9 +5,10 @@ from django.utils import timezone
 
 from course.models import Course, CourseInstance, CourseModule, \
     LearningObjectCategory
-from deviations.models import DeadlineRuleDeviation
+from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
 from exercise.exercise_models import ExerciseWithAttachment
 from userprofile.models import User
+from course.cache.students import CachedStudent
 
 
 class DeviationsTest(TestCase):
@@ -65,6 +66,11 @@ class DeviationsTest(TestCase):
             submitter=self.user.userprofile,
             extra_minutes=1440  # One day
         )
+        self.max_submissions_rule_deviation = MaxSubmissionsRuleDeviation.objects.create(
+            exercise=self.exercise_with_attachment,
+            submitter=self.user.userprofile,
+            extra_submissions=1
+        )
 
     def test_deadline_rule_deviation_extra_time(self):
         self.assertEqual(timedelta(days=1), self.deadline_rule_deviation.get_extra_time())
@@ -74,3 +80,46 @@ class DeviationsTest(TestCase):
 
     def test_deadline_rule_deviation_normal_deadline(self):
         self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_normal_deadline())
+
+    def test_student_cache_content(self):
+        try:
+            self.assertEqual(self.two_days_from_now, CachedStudent(
+                    self.course_instance, self.user
+                ).data['dl_deviations'][self.exercise_with_attachment.id][0])
+        except KeyError:
+            raise AssertionError("No deviation info in Cached Student.")
+
+    def test_student_cache_changes(self):
+        DeadlineRuleDeviation.objects.filter(submitter=self.user.userprofile).delete()
+        try:
+            # Cache shouldn't contain data of deviations to the student
+            CachedStudent(self.course_instance, self.user
+                ).data['dl_deviations'][self.exercise_with_attachment.id]
+            raise AssertionError("Cache not emptied.")
+        except AssertionError as e:
+            raise e
+        except KeyError:
+            pass
+
+    def test_max_submissions_rule_deviation_extra_time(self):
+        self.assertEqual(1, self.max_submissions_rule_deviation.extra_submissions)
+
+    def test_student_cache_content(self):
+        try:
+            self.assertEqual(1, CachedStudent(
+                    self.course_instance, self.user
+                ).data['submission_deviations'][self.exercise_with_attachment.id])
+        except KeyError:
+            raise AssertionError("No deviation info in Cached Student.")
+
+    def test_student_cache_changes(self):
+        MaxSubmissionsRuleDeviation.objects.filter(submitter=self.user.userprofile).delete()
+        try:
+            # Cache shouldn't contain data of deviations to the student
+            CachedStudent(self.course_instance, self.user
+                ).data['submission_deviations'][self.exercise_with_attachment.id]
+            raise AssertionError("Cache not emptied.")
+        except AssertionError as e:
+            raise e
+        except KeyError:
+            pass
