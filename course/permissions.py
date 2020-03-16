@@ -134,10 +134,10 @@ class CourseModulePermission(MessageMixin, Permission):
             return False
 
         if module.status == CourseModule.STATUS.EXAM:
-            attempt = request.user.userprofile.active_exam
+            attempt = request.user.userprofile.active_exam if hasattr(request.user, 'userprofile') else None
             if not attempt or attempt.exam_taken.exam_module.id is not module.id:
                 return False
-        elif request.user.userprofile.active_exam:
+        elif hasattr(request.user, 'userprofile') and request.user.userprofile.active_exam:
             return False
 
         if module.requirements.count() > 0:
