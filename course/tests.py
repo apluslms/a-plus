@@ -10,6 +10,7 @@ from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory, StudentGroup
 from exercise.models import BaseExercise, Submission
 from exercise.exercise_models import LearningObject
+from exammode.models import ExamSession, ExamAttempt
 
 
 class CourseTest(TestCase):
@@ -81,6 +82,15 @@ class CourseTest(TestCase):
             closing_time=self.tomorrow
         )
 
+        self.course_module_exam = CourseModule.objects.create(
+            name="exam module",
+            url="exam-module",
+            status=CourseModule.STATUS.EXAM,
+            course_instance=self.current_course_instance,
+            opening_time=self.today,
+            closing_time=self.tomorrow
+        )
+
         self.course_module_with_late_submissions_allowed = CourseModule.objects.create(
             name="test module",
             url="test-module-late",
@@ -110,6 +120,13 @@ class CourseTest(TestCase):
             course_module=self.course_module,
             category=self.learning_object_category,
             url='l1',
+        )
+
+        self.learning_object = LearningObject.objects.create(
+            name="test learning object to exam",
+            course_module=self.course_module_exam,
+            category=self.learning_object_category,
+            url='l5',
         )
 
         self.broken_learning_object = LearningObject.objects.create(
@@ -282,6 +299,23 @@ class CourseTest(TestCase):
 
         response = self.client.get(self.hidden_course_instance.get_absolute_url(), follow=True)
         self.assertEqual(response.status_code, 403)
+
+    def test_exam_permissions(self):
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.get(self.course_module_exam.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 403)
+        exam_session = ExamSession.objects.create(
+            name="exam",
+            course_instance=self.current_course_instance,
+            exam_module=self.course_module_exam,
+            )
+        self.current_course_instance.enroll_student(self.user)
+        exam_session.start_exam(self.user, None)
+
+        response = self.client.get(self.course_module.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 403)
+        response = self.client.get(self.course_module_exam.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
 
     def test_course_teacher_views(self):
         url = self.current_course_instance.get_edit_url()
