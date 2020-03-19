@@ -1234,7 +1234,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             code_major='failure',
             severity='status',
             description='Deadline for the exercise has passed ({date}).'.format(
-                date=date_format(course_module.closing_time)),
+                date=date_format(timezone.localtime(course_module.closing_time), "DATETIME_FORMAT")),
             msg_ref_id='vbxhsgsy764y3dg',
             operation_ref='replaceResult',
             extra_status='',
