@@ -196,12 +196,12 @@ class ExerciseTest(TestCase):
         )
 
         self.enrollment_exercise = BaseExercise.objects.create(
-            name="test exercise",
+            name="test enrollment exercise",
             course_module=self.old_course_module,
             category=self.learning_object_category,
-            url="b2",
+            url="enroll-exercise",
             max_submissions=1,
-            status="enrollment"
+            status="enrollment",
         )
 
         self.submission = Submission.objects.create(
@@ -331,7 +331,30 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.exercise_in_reading_time.is_open(self.tomorrow))
 
     def test_enrollment_exercise_access(self):
-        self.assertTrue(self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0])
+        # The module has closed now.
+        # Enrollment exercise should be submittable even after the module closing time.
+        self.assertEqual(self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED)
+
+        # The module closed yesterday.
+        self.old_course_module.closing_time = self.yesterday
+        self.old_course_module.save()
+        self.assertEqual(self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED)
+
+        # The module is currently open.
+        self.old_course_module.opening_time = self.yesterday
+        self.old_course_module.closing_time = self.tomorrow
+        self.old_course_module.save()
+        self.assertEqual(self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED)
+
+        # The module has not yet opened.
+        self.old_course_module.opening_time = self.tomorrow
+        self.old_course_module.closing_time = self.two_days_from_now
+        self.old_course_module.save()
+        self.assertEqual(self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED)
 
     def test_base_exercise_one_has_access(self):
         self.assertTrue(self.base_exercise.one_has_access([self.user.userprofile])[0])
