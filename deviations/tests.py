@@ -1,7 +1,9 @@
 from datetime import timedelta
 
 from django.test import TestCase
+from django.test.client import Client
 from django.utils import timezone
+from django.urls import reverse
 
 from course.models import Course, CourseInstance, CourseModule, \
     LearningObjectCategory
@@ -12,9 +14,23 @@ from userprofile.models import User
 
 class DeviationsTest(TestCase):
     def setUp(self):
+        self.client = Client()
+
         self.user = User(username="testUser", first_name="First", last_name="Last")
         self.user.set_password("testPassword")
         self.user.save()
+
+        self.user1 = User(username="testUser1")
+        self.user1.set_password("testPassword")
+        self.user1.save()
+
+        self.user2 = User(username="testUser2")
+        self.user2.set_password("testPassword")
+        self.user2.save()
+
+        self.superuser = User(username="staff", is_staff=False, is_superuser=True)
+        self.superuser.set_password("staffPassword")
+        self.superuser.save()
 
         self.course = Course.objects.create(
             name="test course",
@@ -74,3 +90,24 @@ class DeviationsTest(TestCase):
 
     def test_deadline_rule_deviation_normal_deadline(self):
         self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_normal_deadline())
+
+    def test_add_multiple_dl_deviations(self):
+        self.client.login(username="staff", password="staffPassword")
+        self.course_instance.enroll_student(self.user1)
+        self.course_instance.enroll_student(self.user2)
+        self.assertIsNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user1.userprofile]))
+        self.assertIsNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user2.userprofile]))
+        self.client.post(
+            reverse("deviations-add-dl", kwargs={
+                'course_slug': self.course.url,
+                'instance_slug': self.course_instance.url,
+            }),
+            # TODO: When deviation forms start to use ajax-search, these should
+            # be user id's instead of userprofiles.
+            {'submitter': [self.user1.userprofile, self.user2.userprofile],
+            'exercise': [self.exercise_with_attachment],
+            'minutes': 10,
+            }
+        )
+        self.assertIsNotNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user1.userprofile]))
+        self.assertIsNotNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user2.userprofile]))
