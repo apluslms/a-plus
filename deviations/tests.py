@@ -50,6 +50,8 @@ class DeviationsTest(TestCase):
             url="T-00.1000_d1"
         )
 
+        self.course_instance.enroll_student(self.user)
+
         self.course_module = CourseModule.objects.create(
             name="test module",
             url="test-module",
@@ -73,7 +75,8 @@ class DeviationsTest(TestCase):
             points_to_pass=50,
             max_submissions=0,
             files_to_submit="test1.txt|test2.txt|img.png",
-            content="test_instructions"
+            content="test_instructions",
+            url="test_exercise"
         )
 
         self.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(
@@ -97,7 +100,7 @@ class DeviationsTest(TestCase):
         self.course_instance.enroll_student(self.user2)
         self.assertIsNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user1.userprofile]))
         self.assertIsNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user2.userprofile]))
-        self.client.post(
+        response =self.client.post(
             reverse("deviations-add-dl", kwargs={
                 'course_slug': self.course.url,
                 'instance_slug': self.course_instance.url,
@@ -109,5 +112,6 @@ class DeviationsTest(TestCase):
             'minutes': 10,
             }
         )
-        self.assertIsNotNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user1.userprofile]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(DeadlineRuleDeviation.objects.filter(submitter=self.user1.userprofile, exercise=self.exercise_with_attachment))
         self.assertIsNotNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user2.userprofile]))
