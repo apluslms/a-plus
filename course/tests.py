@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory, StudentGroup
+from course.forms import EnrollStudentsForm
 from exercise.models import BaseExercise, Submission
 from exercise.exercise_models import LearningObject
 
@@ -27,6 +28,14 @@ class CourseTest(TestCase):
         self.superuser = User(username="staff", is_staff=False, is_superuser=True)
         self.superuser.set_password("staffPassword")
         self.superuser.save()
+
+        self.user1 = User(username="testUser1")
+        self.user1.set_password("testPassword")
+        self.user1.save()
+
+        self.user2 = User(username="testUser2")
+        self.user2.set_password("testPassword")
+        self.user2.save()
 
         self.course = Course.objects.create(
             name="test course",
@@ -361,3 +370,17 @@ class CourseTest(TestCase):
             [self.user.userprofile,self.grader.userprofile]), group)
         self.assertEqual(StudentGroup.get_exact(self.current_course_instance,
             [self.user.userprofile,self.superuser.userprofile]), None)
+
+    def test_student_enroll(self):
+        self.assertFalse(self.current_course_instance.is_student(self.user1))
+        self.assertFalse(self.current_course_instance.is_student(self.user2))
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.post(
+            reverse("enroll-students", kwargs={
+                'course_slug': self.course.url,
+                'instance_slug': self.current_course_instance.url,
+            }),
+            {'user_profiles': [self.user1.id, self.user2.id]}
+        )
+        self.assertTrue(self.current_course_instance.is_student(self.user1))
+        self.assertTrue(self.current_course_instance.is_student(self.user2))

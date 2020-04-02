@@ -1,0 +1,30 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load bootstrap %}
+{% load static %}
+
+{% block edittitle %}{% trans "Enroll students" %}{% endblock %}
+{% block view_tag %}participants,enroll-students{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'participants' }}">{% trans "Participants" %}</a></li>
+<li class="active">{% trans "Add students" %}</li>
+{% endblock %}
+
+{% block columns %}
+<h3>{% trans "Add students to this course" %}</h3>
+<div class="col-md-12">
+
+  <form method="post" class="well form">
+      {% csrf_token %}
+      <legend>{% trans "Add students" %}</legend>
+      {{ form|bootstrap }}
+      <button type="submit" class="btn btn-primary">
+          {% trans "Save" %}
+      </button>
+  </form>
+
+</div>
+{% endblock %}
