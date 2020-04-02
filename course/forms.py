@@ -7,6 +7,7 @@ from aplus.api import api_reverse
 from lib.fields import UsersSearchSelectField
 from userprofile.models import UserProfile
 from .models import Enrollment, StudentGroup
+from userprofile.models import UserProfile
 
 
 class GroupsForm(forms.Form):
@@ -104,3 +105,17 @@ class GroupEditForm(forms.ModelForm):
     class Meta:
         model = StudentGroup
         fields = ['members']
+
+
+class EnrollStudentsForm(forms.ModelForm):
+
+    user_profiles = UsersSearchSelectField(queryset=UserProfile.objects.none())
+
+    class Meta:
+        model = Enrollment
+        fields = ['user_profiles']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user_profiles'].widget.attrs["data-search-api-url"] = api_reverse(
+            "user-list")

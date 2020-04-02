@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-13 20:40+0300\n"
+"POT-Creation-Date: 2020-03-02 14:33+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -86,20 +86,20 @@ msgstr "Vain ilmoittautuneille."
 msgid "URL"
 msgstr "URL"
 
-#: course/forms.py:26
+#: course/forms.py:27
 #, python-brace-format
 msgid "{num} member"
 msgstr "{num} jäsen"
 
-#: course/forms.py:40
+#: course/forms.py:41
 msgid "The code was not recognized."
 msgstr "Liittämiskoodia ei tunnistettu."
 
-#: course/forms.py:42
+#: course/forms.py:43
 msgid "The user is already in the group."
 msgstr "Käyttäjä on jo tässä ryhmässä."
 
-#: course/forms.py:48
+#: course/forms.py:49
 msgid "The group already exists."
 msgstr "Tämä ryhmä on jo olemassa."
 
@@ -407,6 +407,7 @@ msgid "Course staff"
 msgstr "Kurssihenkilökunta"
 
 #: course/templates/course/_course_menu.html:114
+#: course/templates/course/staff/enroll_students.html:12
 #: course/templates/course/staff/participants.html:6
 #: course/templates/course/staff/participants.html:11
 #: exercise/templates/exercise/staff/user_results.html:34
@@ -726,6 +727,34 @@ msgstr "Peruuta"
 msgid "Remove all"
 msgstr "Poista kaikki"
 
+#: course/templates/course/staff/enroll_students.html:7
+#: course/templates/course/staff/participants.html:29
+msgid "Enroll students"
+msgstr "Ilmoittautuneet opiskelijat"
+
+#: course/templates/course/staff/enroll_students.html:13
+#: course/templates/course/staff/enroll_students.html:22
+msgid "Add students"
+msgstr "Lisää opiskelijoita"
+
+#: course/templates/course/staff/enroll_students.html:17
+msgid "Add students to this course"
+msgstr "Lisää opiskelijoita tälle kurssille"
+
+#: course/templates/course/staff/enroll_students.html:25
+#: course/templates/course/staff/group_edit.html:28
+#: edit_course/templates/edit_course/edit_content.html:187
+#: edit_course/templates/edit_course/edit_index.html:20
+#: edit_course/templates/edit_course/edit_instance.html:29
+#: edit_course/templates/edit_course/usertag_add.html:22
+#: edit_course/templates/edit_course/usertag_edit.html:22
+#: edit_course/templates/edit_course/usertagging_add.html:27
+#: exercise/templates/exercise/staff/assess_submission.html:27
+#: exercise/templates/exercise/staff/edit_submitters.html:23
+#: userprofile/templates/userprofile/profile.html:55
+msgid "Save"
+msgstr "Tallenna"
+
 #: course/templates/course/staff/group_delete.html:6
 #: course/templates/course/staff/group_delete.html:12
 #: course/templates/course/staff/group_delete.html:40
@@ -775,19 +804,6 @@ msgstr "Muokkaa"
 msgid "Edit group members"
 msgstr "Muokkaa ryhmän jäseniä"
 
-#: course/templates/course/staff/group_edit.html:28
-#: edit_course/templates/edit_course/edit_content.html:187
-#: edit_course/templates/edit_course/edit_index.html:20
-#: edit_course/templates/edit_course/edit_instance.html:29
-#: edit_course/templates/edit_course/usertag_add.html:22
-#: edit_course/templates/edit_course/usertag_edit.html:22
-#: edit_course/templates/edit_course/usertagging_add.html:27
-#: exercise/templates/exercise/staff/assess_submission.html:27
-#: exercise/templates/exercise/staff/edit_submitters.html:23
-#: userprofile/templates/userprofile/profile.html:55
-msgid "Save"
-msgstr "Tallenna"
-
 #: course/templates/course/staff/groups.html:17
 msgid "Number of groups"
 msgstr "Ryhmien määrä"
@@ -804,36 +820,36 @@ msgstr "Lisää"
 msgid "Filter users"
 msgstr "Suodata listaa"
 
-#: course/templates/course/staff/participants.html:28
+#: course/templates/course/staff/participants.html:33
 msgid "Number of students"
 msgstr "Opiskelijoiden määrä"
 
-#: course/templates/course/staff/participants.html:30
+#: course/templates/course/staff/participants.html:35
 msgid "of which selected"
 msgstr "joista valittuna"
 
-#: course/templates/course/staff/participants.html:42
+#: course/templates/course/staff/participants.html:47
 #: diploma/templates/diploma/list.html:27
 #: exercise/templates/exercise/staff/user_results.html:45
 msgid "Student id"
 msgstr "Opiskelijanumero"
 
-#: course/templates/course/staff/participants.html:43
+#: course/templates/course/staff/participants.html:48
 #: exercise/templates/exercise/staff/user_results.html:46
 msgid "Last name"
 msgstr "Sukunimi"
 
-#: course/templates/course/staff/participants.html:44
+#: course/templates/course/staff/participants.html:49
 #: exercise/templates/exercise/staff/user_results.html:47
 msgid "First name"
 msgstr "Etunimi"
 
-#: course/templates/course/staff/participants.html:45
+#: course/templates/course/staff/participants.html:50
 #: exercise/templates/exercise/staff/user_results.html:48
 msgid "Email"
 msgstr "Sähköposti"
 
-#: course/templates/course/staff/participants.html:46
+#: course/templates/course/staff/participants.html:51
 #: edit_course/templates/edit_course/edit_course_base.html:46
 #: edit_course/templates/edit_course/usertag_add.html:9
 #: edit_course/templates/edit_course/usertag_delete.html:10
@@ -843,15 +859,15 @@ msgstr "Sähköposti"
 msgid "Tags"
 msgstr "Merkinnät"
 
-#: course/views.py:94
+#: course/views.py:95
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:98 exercise/exercise_models.py:561
+#: course/views.py:99 exercise/exercise_models.py:561
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:171
+#: course/views.py:172
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
@@ -979,25 +995,25 @@ msgstr "Sisältö"
 msgid "Schedule"
 msgstr "Aikataulu"
 
-#: edit_course/course_forms.py:103
+#: edit_course/course_forms.py:104
 msgid "The URL identifier is locked while the course is visible to students."
 msgstr ""
 "URL-osoitteessa käytetty tunniste on lukittu, kun kurssi näkyy "
 "opiskelijoille."
 
-#: edit_course/course_forms.py:105
+#: edit_course/course_forms.py:106
 msgid "Removes visibility of model answers for students."
 msgstr "Saattohoito poistaa esimerkkiratkaisut opiskelijoiden näkyviltä."
 
-#: edit_course/course_forms.py:107
+#: edit_course/course_forms.py:108
 msgid "Removes possibility for students to return answers."
 msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista."
 
-#: edit_course/course_forms.py:148
+#: edit_course/course_forms.py:149
 msgid "New URL identifier for the course instance:"
 msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
 
-#: edit_course/course_forms.py:159
+#: edit_course/course_forms.py:160
 msgid "The URL is already taken."
 msgstr "URL on jo käytössä."
 
@@ -3358,11 +3374,11 @@ msgstr "Lisää uusi linkki"
 msgid "You need to be enrolled to access an anonymous service."
 msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille."
 
-#: lib/fields.py:20
+#: lib/fields.py:17
 msgid "The number must be between 0.0 and 1.0"
 msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
-#: lib/fields.py:152 lib/fields.py:182
+#: lib/fields.py:149 lib/fields.py:179
 msgid "Enter valid JSON."
 msgstr "Syötä kelvollista JSON:ia."
 
@@ -3596,8 +3612,6 @@ msgstr "Sähköposti"
 msgid "API Access Token"
 msgstr "API pääsyavain"
 
-# msgid "Save"
-# msgstr "Tallenna"
 #: userprofile/templates/userprofile/profile.html:64
 #, python-format
 msgid ""
