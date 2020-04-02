@@ -107,11 +107,11 @@ class DeviationsTest(TestCase):
             }),
             # TODO: When deviation forms start to use ajax-search, these should
             # be user id's instead of userprofiles.
-            {'submitter': [self.user1.userprofile, self.user2.userprofile],
+            {'submitter': [self.user1.id, self.user2.id],
             'exercise': [self.exercise_with_attachment],
             'minutes': 10,
             }
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(DeadlineRuleDeviation.objects.filter(submitter=self.user1.userprofile, exercise=self.exercise_with_attachment))
+        self.assertIsNotNone(DeadlineRuleDeviation.objects.get(submitter=self.user1.userprofile, exercise=self.exercise_with_attachment))
         self.assertIsNotNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user2.userprofile]))
