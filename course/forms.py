@@ -93,10 +93,8 @@ class GroupEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['members'].widget.attrs["data-search-api-url"] = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
-        # This form is used in the editing and adding StudentGroup objects.
-        # Currently existing groups should have it's members as an initial value.
         if self.instance.id:
-            self.fields["members"].queryset = self.instance.members
+            self.fields["members"].queryset = self.instance.members.values_list('user', flat=True)
 
     class Meta:
         model = StudentGroup

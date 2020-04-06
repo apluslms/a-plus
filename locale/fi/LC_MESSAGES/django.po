@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-20 11:50+0200\n"
+"POT-Creation-Date: 2020-04-07 11:52+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -86,20 +86,20 @@ msgstr "Vain ilmoittautuneille."
 msgid "URL"
 msgstr "URL"
 
-#: course/forms.py:23
+#: course/forms.py:26
 #, python-brace-format
 msgid "{num} member"
 msgstr "{num} jäsen"
 
-#: course/forms.py:37
+#: course/forms.py:40
 msgid "The code was not recognized."
 msgstr "Liittämiskoodia ei tunnistettu."
 
-#: course/forms.py:39
+#: course/forms.py:42
 msgid "The user is already in the group."
 msgstr "Käyttäjä on jo tässä ryhmässä."
 
-#: course/forms.py:45
+#: course/forms.py:48
 msgid "The group already exists."
 msgstr "Tämä ryhmä on jo olemassa."
 
@@ -107,7 +107,7 @@ msgstr "Tämä ryhmä on jo olemassa."
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:68 course/models.py:723 exercise/exercise_models.py:127
+#: course/models.py:68 course/models.py:727 exercise/exercise_models.py:127
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -247,60 +247,60 @@ msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t):"
 msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
-#: course/models.py:672 course/models.py:798 exercise/exercise_models.py:68
+#: course/models.py:676 course/models.py:802 exercise/exercise_models.py:68
 #: exercise/submission_models.py:106
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:673 exercise/exercise_models.py:69
+#: course/models.py:677 exercise/exercise_models.py:69
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:674 course/models.py:800 templates/base.html:102
+#: course/models.py:678 course/models.py:804 templates/base.html:104
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:675 exercise/exercise_models.py:73
+#: course/models.py:679 exercise/exercise_models.py:73
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:683
+#: course/models.py:687
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:689
+#: course/models.py:693
 msgid "Opening time for the reading material"
 msgstr "Lukumateriaalin avautumisaika"
 
-#: course/models.py:690
+#: course/models.py:694
 msgid ""
 "Leave empty if the reading material should not open before the exercises."
 msgstr "Jätä tyhjäksi, jos lukumateriaalin ei pidä aueta ennen tehtäviä."
 
-#: course/models.py:702
+#: course/models.py:706
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:725
+#: course/models.py:729
 msgid "Opening time must be earlier than the closing time."
 msgstr "Alkamisajan tulee olla aikaisempi kuin päättymisaika."
 
-#: course/models.py:727
+#: course/models.py:731
 msgid "Late submission deadline must be later than the closing time."
 msgstr ""
 "Myöhäisten palautusten määräajan tulee olla myöhäisempi kuin sulkeutumisajan."
 
-#: course/models.py:729
+#: course/models.py:733
 msgid ""
 "Opening time of reading material must be earlier than the opening time of "
 "the exercises."
 msgstr "Lukumateriaalin tulee aueta ennen tehtäviä."
 
-#: course/models.py:799
+#: course/models.py:803
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/models.py:810
+#: course/models.py:814
 msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
@@ -308,7 +308,7 @@ msgstr ""
 "Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
 "hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: course/models.py:812
+#: course/models.py:816
 msgid ""
 "Grade unofficial submissions after deadlines have passed or submission "
 "limits have been exceeded. The points are stored but not included in "
@@ -738,7 +738,7 @@ msgstr "Poista kaikki"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:53 templates/base.html:245
+#: news/templates/news/list.html:53 templates/base.html:247
 msgid "Remove"
 msgstr "Poista"
 
@@ -851,7 +851,7 @@ msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:172
+#: course/views.py:171
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
@@ -961,43 +961,43 @@ msgstr "Käyttäjätunnus"
 msgid "Grade"
 msgstr "Arvostelu"
 
-#: edit_course/course_forms.py:30
+#: edit_course/course_forms.py:32
 #: exercise/templates/exercise/_user_results.html:94
 msgid "Category"
 msgstr "Kategoria"
 
-#: edit_course/course_forms.py:62 edit_course/exercise_forms.py:60
+#: edit_course/course_forms.py:64 edit_course/exercise_forms.py:60
 msgid "Hierarchy"
 msgstr "Hierarkia"
 
-#: edit_course/course_forms.py:63 edit_course/exercise_forms.py:64
+#: edit_course/course_forms.py:65 edit_course/exercise_forms.py:64
 #: edit_course/templates/edit_course/edit_course_base.html:36
 msgid "Content"
 msgstr "Sisältö"
 
-#: edit_course/course_forms.py:64
+#: edit_course/course_forms.py:66
 msgid "Schedule"
 msgstr "Aikataulu"
 
-#: edit_course/course_forms.py:98
+#: edit_course/course_forms.py:102
 msgid "The URL identifier is locked while the course is visible to students."
 msgstr ""
 "URL-osoitteessa käytetty tunniste on lukittu, kun kurssi näkyy "
 "opiskelijoille."
 
-#: edit_course/course_forms.py:100
+#: edit_course/course_forms.py:104
 msgid "Removes visibility of model answers for students."
 msgstr "Saattohoito poistaa esimerkkiratkaisut opiskelijoiden näkyviltä."
 
-#: edit_course/course_forms.py:102
+#: edit_course/course_forms.py:106
 msgid "Removes possibility for students to return answers."
 msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista."
 
-#: edit_course/course_forms.py:143
+#: edit_course/course_forms.py:147
 msgid "New URL identifier for the course instance:"
 msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
 
-#: edit_course/course_forms.py:154
+#: edit_course/course_forms.py:158
 msgid "The URL is already taken."
 msgstr "URL on jo käytössä."
 
@@ -1857,7 +1857,7 @@ msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
 msgid "This exercise must be submitted in groups of {size} students."
 msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 
-#: exercise/exercise_models.py:634
+#: exercise/exercise_models.py:636
 msgid ""
 "Cannot submit exercise due to unknown reason. If you think this is an error, "
 "please contact course staff."
@@ -1865,30 +1865,30 @@ msgstr ""
 "Tehtävää ei voitu palauttaa tuntemattomasta syystä. Jos uskot tämän olevan "
 "virhe, ota ystävällisesti yhteyttä kurssihenkilökuntaan."
 
-#: exercise/exercise_models.py:777
+#: exercise/exercise_models.py:779
 msgid "Default: [hostname]/[course:url]/[instance:url]/"
 msgstr "Oletus: [hostname]/[course:url]/[instance:url]/"
 
-#: exercise/exercise_models.py:779
+#: exercise/exercise_models.py:781
 msgid "Default: [aplusexercise:id]"
 msgstr "Oletus: [aplusexercise:id]"
 
-#: exercise/exercise_models.py:781
+#: exercise/exercise_models.py:783
 msgid "Default: the menu label of the LTI service"
 msgstr "Oletus: LTI-palvelun nimi"
 
-#: exercise/exercise_models.py:783
+#: exercise/exercise_models.py:785
 msgid ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 msgstr ""
 "A+ suorittaa ulkoisen palvelun GET ja POST pyynnöt lisätyillä LTI-tiedoilla."
 
-#: exercise/exercise_models.py:785
+#: exercise/exercise_models.py:787
 msgid ""
 "Open the exercise in an iframe inside the A+ page instead of a new window."
 msgstr "Avaa tehtävä iframe-kehyksessä A+-sivun sisällä uuden ikkunan sijasta."
 
-#: exercise/exercise_models.py:802
+#: exercise/exercise_models.py:804
 msgid ""
 "Domain of Service URL must match the domain of LTI Service or it should only "
 "be the path."
@@ -1896,29 +1896,29 @@ msgstr ""
 "Palveluosoitteen domainin täytyy vastata LTI-palvelun domainia tai osoitteen "
 "tulee olla vain polku."
 
-#: exercise/exercise_models.py:809
+#: exercise/exercise_models.py:811
 msgid ""
 "The exercise can not be loaded because the external LTI service has been "
 "disabled."
 msgstr ""
 "Tehtävää ei voi ladata, koska ulkoinen LTI-palvelu on poistettu käytöstä."
 
-#: exercise/exercise_models.py:941
+#: exercise/exercise_models.py:943
 msgid ""
 "File names that user should submit, use pipe character to separate files"
 msgstr ""
 "Tiedostonimet, jotka käyttäjän tulee palauttaa. Käytä |-merkkiä tiedostojen "
 "erottamiseen."
 
-#: exercise/forms.py:26
+#: exercise/forms.py:28
 msgid "Points greater than maximum points are not allowed."
 msgstr "Pisteet eivät voi ylittää maksimipistemäärää."
 
-#: exercise/forms.py:29
+#: exercise/forms.py:31
 msgid "Points lower than zero are not allowed."
 msgstr "Pisteet eivät voi olla negatiivisia."
 
-#: exercise/forms.py:36
+#: exercise/forms.py:38
 msgid ""
 "Possible penalties are not applied - the points are set as given. This will "
 "<em>override</em> grader points!"
@@ -1926,26 +1926,26 @@ msgstr ""
 "Mahdollisia myöhästymisvähennyksiä ei tehdä automaattisesti. Pisteet "
 "<em>korvaavat</em> automaattisen arvioinnin tuloksen!"
 
-#: exercise/forms.py:39
+#: exercise/forms.py:41
 msgid "HTML formatting is allowed. This will not override machine feedback."
 msgstr "HTML-muotoilut sallitaan. Tämä ei korvaa automaattista palautetta."
 
-#: exercise/forms.py:42
+#: exercise/forms.py:44
 msgid "HTML formatting is allowed. This WILL override machine feedback."
 msgstr "HTML-muotoilut sallitaan. Tämä KORVAA automaattisen palautteen."
 
-#: exercise/forms.py:55
+#: exercise/forms.py:57
 #, python-brace-format
 msgid ""
 "The maximum points for this exercise is {max:d} and the given points is more "
 "than that."
 msgstr "Annetut pisteet ylittävät tehtävän enimmäispisteet, {max:d}."
 
-#: exercise/forms.py:100
+#: exercise/forms.py:102
 msgid "One of the student fields must not be blank"
 msgstr "Ainakin yksi opiskelijakentistä tulee antaa"
 
-#: exercise/forms.py:102
+#: exercise/forms.py:104
 msgid "Only one student field can be given"
 msgstr "Voidaan antaa vain yksi opiskelijakenttä"
 
@@ -3358,11 +3358,19 @@ msgstr "Lisää uusi linkki"
 msgid "You need to be enrolled to access an anonymous service."
 msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille."
 
-#: lib/fields.py:17
+#: lib/fields.py:20
 msgid "The number must be between 0.0 and 1.0"
 msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
-#: lib/fields.py:37 lib/fields.py:67
+#: lib/fields.py:45
+msgid "Invalid input type."
+msgstr "Vääränlainen syöte."
+
+#: lib/fields.py:53
+msgid "{} is not a valid key."
+msgstr "{} ei ole pätevä avain."
+
+#: lib/fields.py:74 lib/fields.py:104
 msgid "Enter valid JSON."
 msgstr "Syötä kelvollista JSON:ia."
 
@@ -3471,60 +3479,60 @@ msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa.Ole "
 "ystävällinen, ja yritä uudelleen."
 
-#: templates/base.html:81
+#: templates/base.html:83
 msgid "Toggle navigation"
 msgstr "Näytä valikko"
 
-#: templates/base.html:105
+#: templates/base.html:107
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:123 userprofile/templates/userprofile/profile.html:6
+#: templates/base.html:125 userprofile/templates/userprofile/profile.html:6
 msgid "Profile"
 msgstr "Käyttäjätili"
 
-#: templates/base.html:129 templates/base.html:167
+#: templates/base.html:131 templates/base.html:169
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:138 templates/base.html:174
+#: templates/base.html:140 templates/base.html:176
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:149
+#: templates/base.html:151
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:153
+#: templates/base.html:155
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:198 userprofile/templates/userprofile/privacy.html:4
+#: templates/base.html:200 userprofile/templates/userprofile/privacy.html:4
 #: userprofile/templates/userprofile/privacy.html:9
 msgid "Privacy Notice"
 msgstr "Tietosuojailmoitus"
 
-#: templates/base.html:209 templates/base.html:228
+#: templates/base.html:211 templates/base.html:230
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:210 templates/base.html:229
+#: templates/base.html:212 templates/base.html:231
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:217 templates/base.html:234
+#: templates/base.html:219 templates/base.html:236
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:249
+#: templates/base.html:251
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:253
+#: templates/base.html:255
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:256
+#: templates/base.html:258
 msgid "Search for..."
 msgstr "Etsi..."
 

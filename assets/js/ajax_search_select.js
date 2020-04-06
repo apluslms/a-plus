@@ -5,6 +5,10 @@ $(function() {
 });
 
 (function($) {
+    /**
+    * This method searches possible values to a search-select field inspect in
+    * real time.
+    */
     "use strict";
 
     const pluginName = "aplusSearchSelectAjax";
@@ -36,13 +40,16 @@ $(function() {
             this.api_url = self.element.attr("data-search-api-url");
             this.parameter_list = self.element.attr("data-key-parameter-list").split(",");
             this.selection_li = this.selection.find("li").remove();
-            this.element.find("option:selected").each(function(index) {
+            // Search selected values from API. This data could be added to
+            // the HTML template but retrieving them from API ensures the consistency
+            // of information.
+            this.element.find("option").each(function(index) {
                 $.ajax({
                     url: self.api_url + $(this).attr("value"),
                 }).done(function(data) {
                     self.addSelection(
                         data['id'],
-                        self.addResultInfo(self.parameter_list, data)
+                        self.resultInfo(self.parameter_list, data)
                     )
                 });
             });
@@ -76,7 +83,6 @@ $(function() {
             if (show_dropdown && this.result.is(":visible") === false) {
                 this.search.find("button").dropdown("toggle");
             }
-            var selector = "option";
             const query = this.field.val().trim();
             const self = this;
             if (query.length > 0) {
@@ -95,12 +101,12 @@ $(function() {
                             self.result.append(
                                 $('<li>').append(
                                     $('<a>').text(
-                                        self.addResultInfo(self.parameter_list, result_info)
+                                        self.resultInfo(self.parameter_list, result_info)
                                     )
                                 ).click(function() {
                                     self.addSelection(
                                         result_info['id'],
-                                        self.addResultInfo(self.parameter_list, result_info)
+                                        self.resultInfo(self.parameter_list, result_info)
                                     )
                                 })
                             );
@@ -123,7 +129,7 @@ $(function() {
             }
         },
 
-        addResultInfo: function(parameter_list, result_info) {
+        resultInfo: function(parameter_list, result_info) {
             return parameter_list.map(
                 item => result_info[item]
             ).join(', ');
@@ -149,7 +155,7 @@ $(function() {
                 }).done(function(data) {
                     self.addSelection(
                         value,
-                        self.addResultInfo(self.parameter_list, data)
+                        self.resultInfo(self.parameter_list, data)
                     )
                 });
             });
