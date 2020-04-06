@@ -33,11 +33,10 @@ class SearchSelectField(forms.ModelMultipleChoiceField):
 
 class UsersSearchSelectField(SearchSelectField):
     """
-    A field to search and select multiple UserProfiles from API.
+    A field to search users from Api.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.widget.attrs["data-users-api-url"] = api_reverse("user-list")
         self.widget.attrs["data-key-parameter-list"] = "full_name,student_id"
 
     def clean(self, value):
@@ -45,6 +44,9 @@ class UsersSearchSelectField(SearchSelectField):
             raise exceptions.ValidationError(
                 _("Invalid input type.")
             )
+        # Aplus database has different 'user.id' and 'userprofile.id' values.
+        # The fields contain 'Userprofile' objects, while API uses 'user.id'
+        # values, so the convertion between them is necessary.
         for key in value:
             if not User.objects.get(id=key):
                 raise exceptions.ValidationError(
