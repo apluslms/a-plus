@@ -105,13 +105,24 @@ class DeviationsTest(TestCase):
                 'course_slug': self.course.url,
                 'instance_slug': self.course_instance.url,
             }),
-            # TODO: When deviation forms start to use ajax-search, these should
-            # be user id's instead of userprofiles.
             {'submitter': [self.user1.id, self.user2.id],
             'exercise': [self.exercise_with_attachment],
             'minutes': 10,
+            'without_late_penalty': False,
             }
         )
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(DeadlineRuleDeviation.objects.get(submitter=self.user1.userprofile, exercise=self.exercise_with_attachment))
         self.assertIsNotNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user2.userprofile]))
+        response =self.client.post(
+            reverse("deviations-remove-many-dl", kwargs={
+                'course_slug': self.course.url,
+                'instance_slug': self.course_instance.url,
+            }),
+            {'submitter': [self.user1.id, self.user2.id],
+            'exercise': [self.exercise_with_attachment],
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(DeadlineRuleDeviation.objects.filter(submitter=self.user1.userprofile, exercise=self.exercise_with_attachment).exists())
+        self.assertIsNone(self.exercise_with_attachment.one_has_deadline_deviation([self.user2.userprofile]))
