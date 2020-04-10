@@ -6,8 +6,31 @@ $(function() {
 
 (function($) {
     /**
-    * This method searches possible values to a search-select field inspect in
-    * real time.
+    * This jQuery plugin converts a <select multiple> HTML form widget
+    * into a search text box. The user may select multiple search results
+    * and conduct more queries before submitting the form. The user's
+    * query is sent to the API via AJAX.
+    *
+    * A+ JS code includes an older jQuery plugin aplusSearchSelect which
+    * this plugin is based on. The old plugin did not use AJAX, but instead
+    * it searched options from a hidden select element. The page size
+    * increased significantly when a large amount of data was included
+    * in the select element, e.g., all users in the database.
+    *
+    * This plugin is activated by adding the class attribute "search-select-ajax"
+    * to a <select multiple> element. The element must also have the following
+    * data attributes:
+    *
+    * - data-search-api-url: API URL that is used for the AJAX search, e.g.,
+    *   "/api/v2/users/"
+    * - data-key-parameter-list: comma-separated list of fields that are shown
+    *   to the user from the API search results, e.g., "full_name,student_id"
+    *
+    * The search API URL must support the "search" GET query parameter since
+    * the user's query is sent with it.
+    *
+    * The Django form fields SearchSelectField and UsersSearchSelectField in
+    * a-plus/lib/fields.py are designed to be used with this jQuery plugin.
     */
     "use strict";
 
@@ -40,9 +63,18 @@ $(function() {
             this.api_url = self.element.attr("data-search-api-url");
             this.parameter_list = self.element.attr("data-key-parameter-list").split(",");
             this.selection_li = this.selection.find("li").remove();
-            // Search selected values from API. This data could be added to
-            // the HTML template but retrieving them from API ensures the consistency
-            // of information.
+            /* this.element is an HTML select element that contains the current
+            values of the model field. That is to say, if the model field has
+            no value, the select element is empty, and if the model field has
+            values, then those values are included in the select element options.
+            When the form is loaded, it must show the initial values in the
+            rendered page. However, user fields are problematic because the API
+            uses only user IDs while many models refer to user profiles.
+            User profiles may have different IDs than the corresponding users.
+            That's why user fields have user IDs in the select element without
+            full user data, hence we need to retrieve user details from the API
+            for each initially selected user.
+            The resetSelection method has a similar hack. */
             this.element.find("option").each(function(index) {
                 $.ajax({
                     url: self.api_url + $(this).attr("value"),
@@ -98,6 +130,9 @@ $(function() {
                         var shownFields = (numOfEntries > 10) ? 5 : numOfEntries;
                         for (let i = 0; i < shownFields; i++) {
                             const result_info = data.results[i];
+                            // Show search results under the text input.
+                            // If the user clicks a result, it is added to
+                            // the selected values of the form field.
                             self.result.append(
                                 $('<li>').append(
                                     $('<a>').text(
@@ -135,6 +170,9 @@ $(function() {
             ).join(', ');
         },
 
+        /* Add a new value to the currently selected values of the form field.
+        Create a button that shows the new value to the user and
+        enables the user to remove the value. */
         addSelection: function(value, name) {
             if (this.selection.find('[data-value="' + value + '"]').size() === 0) {
                 var li = this.selection_li.clone();
@@ -161,13 +199,15 @@ $(function() {
             });
         },
 
+        /* Copy the selected values (buttons from the addSelection method)
+        into the <select> element that really submits values to the server
+        when the form is submitted. */
         finish: function() {
             this.widget.remove();
             var select = this.element.show();
             select.empty();
-            select.find("option:selected").prop("selected", false);
             this.selection.find("button").each(function(index) {
-                jQuery('<option/>', {
+                $('<option/>', {
                     value: $(this).attr("data-value"),
                     "selected": 'true',
                 }).appendTo(select);

@@ -24,7 +24,22 @@ class PercentField(models.FloatField):
 
 class SearchSelectField(forms.ModelMultipleChoiceField):
     """
-    A generic field to 'search-select' widget.
+    A generic field for the AplusSearchSelectAjax jQuery plugin, i.e.,
+    a form HTML widget that queries the API and supports selecting multiple
+    values from the search results.
+
+    When you use this field in a form class, you should also define the queryset
+    for this field and the HTML data attributes for the widget.
+    Check the documentation for the Javascript code
+    (assets/js/ajax_search_select.js).
+
+    Depending on the usecase and the queryset parameter supplied to the
+    __init__ constructor, you may need to override the clean method in
+    a subclass of this field class so that the validation accepts necessary
+    values. The initial queryset must only include the initially selected
+    values so that the rendered HTML form does not include too much data since
+    it would slow down the page load. For example, in the past, user fields
+    used to include all users from the database in the HTML form.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,7 +48,12 @@ class SearchSelectField(forms.ModelMultipleChoiceField):
 
 class UsersSearchSelectField(SearchSelectField):
     """
-    A field to search users from Api.
+    Search-select field for users.
+
+    Because the API uses only user IDs while many models refer to user profiles
+    and user profiles may have different IDs than the corresponding users,
+    this field class takes user IDs as input and converts them into profile IDs
+    in the validation.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,9 +64,7 @@ class UsersSearchSelectField(SearchSelectField):
             raise exceptions.ValidationError(
                 _("Invalid input type.")
             )
-        # Aplus database has different 'user.id' and 'userprofile.id' values.
-        # The fields contain 'Userprofile' objects, while API uses 'user.id'
-        # values, so the convertion between them is necessary.
+        # Convert user IDs to user profile IDs.
         for key in value:
             if not User.objects.get(id=key):
                 raise exceptions.ValidationError(
