@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load course %}
 {% load bootstrap %}
+{% load static %}
 
 {% block title %}{% trans "Edit submitters SID " %} {{ submission.id}} | {{ block.super }}{% endblock %}
 {% block view_tag %}assess{% endblock %}
@@ -46,6 +47,7 @@
 
 {% block scripts %}
 {{ block.super }}
+<script src="{% static 'js/ajax_search_select.js' %}"></script>
 <script>
 $(function() {
   $('#group-select a.select').on('click', function(event) {
@@ -57,4 +59,4 @@ $(function() {
   });
 });
 </script>
-{% endblock %}
+{% endblock scripts %}

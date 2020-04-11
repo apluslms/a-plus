@@ -26,8 +26,6 @@
 
         <script src="{% static 'js/translate.min.js' %}"></script>
 
-
-
         {% if is_teacher %}
         <link
             data-translation
@@ -51,7 +49,7 @@
         <link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
         <script src="{% static 'js/polyfill-find.js' %}"></script>
         <script src="{% static 'js/aplus.js' %}"></script>
-        <script src="{% static 'js/ajax_search_select.js' %}"></script>
+
         {% block scripts %}
             {# Put all additional scripts inside this block. #}
         {% endblock %}

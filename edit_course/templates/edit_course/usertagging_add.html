@@ -3,7 +3,12 @@
 {% load bootstrap %}
 {% load course %}
 {% load editcourse %}
+{% load static %}
 
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/ajax_search_select.js' %}"></script>
+{% endblock scripts %}
 {% block editbreadcrumblist %}
 {{ block.super }}
 <li><a href="{{ instance|url:'course-tags' }}">{% trans "Tags" %}</a></li>
