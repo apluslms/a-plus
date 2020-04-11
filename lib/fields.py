@@ -57,7 +57,7 @@ class UsersSearchSelectField(SearchSelectField):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.widget.attrs["data-key-parameter-list"] = "full_name,student_id"
+        self.widget.attrs["data-key-parameter-list"] = "full_name,student_id,email"
 
     def clean(self, value):
         if not isinstance(value, list):
