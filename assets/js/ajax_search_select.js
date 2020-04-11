@@ -127,7 +127,7 @@ $(function() {
                     const numOfEntries = data.count;
                     self.result.empty();
                     if (numOfEntries > 0) {
-                        var shownFields = (numOfEntries > 10) ? 5 : numOfEntries;
+                        const shownFields = Math.min(numOfEntries, 10);
                         for (let i = 0; i < shownFields; i++) {
                             const result_info = data.results[i];
                             // Show search results under the text input.
@@ -149,7 +149,7 @@ $(function() {
                         if (numOfEntries > shownFields){
                             self.result.append(
                                 $('<li>').append(
-                                    $('<a>').text(numOfEntries - 5 + _(" results more"))
+                                    $('<a>').text((numOfEntries - shownFields) + _(" results more"))
                                 )
                             );
                         }
