@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, viewsets, status, mixins
+from rest_framework import filters, generics, permissions, viewsets, status, mixins
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -75,7 +75,9 @@ class CourseStudentsViewSet(NestedViewSetMixin,
     ]
     filter_backends = (
         IsCourseAdminOrUserObjIsSelf,
+        filters.SearchFilter,
     )
+    search_fields = ['user__first_name', 'user__last_name', 'student_id', 'user__email']
     lookup_field = 'user_id' # UserPofile.user.id
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
