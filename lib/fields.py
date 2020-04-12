@@ -56,8 +56,23 @@ class UsersSearchSelectField(SearchSelectField):
     in the validation.
     """
     def __init__(self, *args, **kwargs):
+        # to_field_name: use User IDs in the HTML widget since the queryset
+        # is attached to UserProfiles.
+        kwargs['to_field_name'] = 'user_id' # userprofile.user.id
         super().__init__(*args, **kwargs)
         self.widget.attrs["data-key-parameter-list"] = "full_name,student_id,email"
+
+    def label_from_instance(self, obj):
+        """Render one user profile for the HTML widget of this field.
+
+        The same format is used in the attribute "data-key-parameter-list" defined
+        in __init__. JavaScript code (ajax_search_select.js) uses the attribute.
+        """
+        return ", ".join((
+            obj.user.get_full_name(),
+            obj.student_id or "", # Avoid None values.
+            obj.user.email or "",
+        ))
 
     def clean(self, value):
         if not isinstance(value, list):

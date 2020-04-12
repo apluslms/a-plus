@@ -97,7 +97,7 @@ class GroupEditForm(forms.ModelForm):
         # If an existing group is being modified, its current members must be
         # set to the initial queryset.
         if self.instance.id:
-            self.fields["members"].queryset = self.instance.members.values_list('user', flat=True)
+            self.fields["members"].queryset = self.instance.members.all()
 
     class Meta:
         model = StudentGroup

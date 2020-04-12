@@ -95,7 +95,7 @@ class CourseInstanceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['assistants'].queryset = self.instance.assistants.values_list('user', flat=True)
+        self.fields['assistants'].queryset = self.instance.assistants.all()
         self.fields['assistants'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
         if self.instance and self.instance.visible_to_students:
             self.fields["url"].widget.attrs["readonly"] = "true"

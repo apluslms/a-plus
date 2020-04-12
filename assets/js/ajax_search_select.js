@@ -64,26 +64,19 @@ $(function() {
             this.parameter_list = self.element.attr("data-key-parameter-list").split(",");
             this.selection_li = this.selection.find("li").remove();
             /* this.element is an HTML select element that contains the current
-            values of the model field. That is to say, if the model field has
-            no value, the select element is empty, and if the model field has
-            values, then those values are included in the select element options.
-            When the form is loaded, it must show the initial values in the
-            rendered page. However, user fields are problematic because the API
-            uses only user IDs while many models refer to user profiles.
-            User profiles may have different IDs than the corresponding users.
-            That's why user fields have user IDs in the select element without
-            full user data, hence we need to retrieve user details from the API
-            for each initially selected user.
-            The resetSelection method has a similar hack. */
-            this.element.find("option").each(function(index) {
-                $.ajax({
-                    url: self.api_url + $(this).attr("value"),
-                }).done(function(data) {
-                    self.addSelection(
-                        data['id'],
-                        self.resultInfo(self.parameter_list, data)
-                    )
-                });
+            values of the model field. When the form is loaded from the server,
+            the select element should only contain options that are currently
+            selected because the other possible options are not used and they
+            increase the page size. The user's search queries are sent to the
+            API and the available choices are not limited by the initial options
+            of the select element.
+            The select element is hidden, hence the initial selection is shown
+            to the user by creating buttons in the addSelection method. */
+            this.element.find("option:selected").each(function(index) {
+                self.addSelection(
+                    $(this).attr("value"),
+                    $(this).text(),
+                );
             });
             this.result = this.widget.find(this.settings.result_selector);
             this.field = this.widget.find(this.settings.field_selector)
@@ -184,17 +177,26 @@ $(function() {
             }
         },
 
+        /* Reset the current selection and add the given values to the selection. */
         resetSelection: function(values) {
             this.selection.empty();
-            var self = this;
+            const self = this;
             $.each(values, function(index, value) {
+                // The values are IDs. In order to render more understandable
+                // information about the new selection to the user, retrieve details
+                // from the API. We assume that the API endpoint supports details
+                // by appending the object ID to the end.
+                // For example, /api/v2/users/123.
                 $.ajax({
                     url: self.api_url + value,
                 }).done(function(data) {
                     self.addSelection(
                         value,
                         self.resultInfo(self.parameter_list, data)
-                    )
+                    );
+                }).fail(function() {
+                    // No data available so we can only show the ID to the user.
+                    self.addSelection(value, "ID " + value);
                 });
             });
         },
@@ -210,6 +212,7 @@ $(function() {
                 $('<option/>', {
                     value: $(this).attr("data-value"),
                     "selected": 'true',
+                    "text": $(this).text(),
                 }).appendTo(select);
             });
         }

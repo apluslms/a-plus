@@ -124,7 +124,7 @@ class EditSubmittersForm(forms.ModelForm):
         self.fields['submitters'].widget.attrs["data-search-api-url"] = api_reverse(
             "course-students-list",
             kwargs={'course_id': course_instance.id})
-        self.fields['submitters'].queryset = self.instance.submitters.values_list('user', flat=True)
+        self.fields['submitters'].queryset = self.instance.submitters.all()
 
     class Meta:
         model = Submission
