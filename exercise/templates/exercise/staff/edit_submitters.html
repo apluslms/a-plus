@@ -31,7 +31,7 @@
           {% for group in groups %}
           <tr>
             <td class="col-md-1">
-              <a href="#" class="btn btn-xs btn-primary select" data-profiles="{% for profile in group.members.all %}{{ profile.id }},{% endfor %}">
+              <a href="#" class="btn btn-xs btn-primary select" data-profiles="{% for profile in group.members.all %}{{ profile.user.id }},{% endfor %}">
                 {% trans "Select" %}
               </a>
             </td>

@@ -135,7 +135,7 @@ $(function() {
                                     self.addSelection(
                                         result_info['id'],
                                         self.resultInfo(self.parameter_list, result_info)
-                                    )
+                                    );
                                 })
                             );
                         }
@@ -186,9 +186,9 @@ $(function() {
                 // information about the new selection to the user, retrieve details
                 // from the API. We assume that the API endpoint supports details
                 // by appending the object ID to the end.
-                // For example, /api/v2/users/123.
+                // For example, /api/v2/users/123/
                 $.ajax({
-                    url: self.api_url + value,
+                    url: self.api_url + value + '/',
                 }).done(function(data) {
                     self.addSelection(
                         value,
