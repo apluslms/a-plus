@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-07 11:52+0300\n"
+"POT-Creation-Date: 2020-04-13 20:40+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -256,7 +256,7 @@ msgstr "Valmis"
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:678 course/models.py:804 templates/base.html:104
+#: course/models.py:678 course/models.py:804 templates/base.html:102
 msgid "Hidden"
 msgstr "Piilotettu"
 
@@ -416,8 +416,8 @@ msgstr "Opiskelijat"
 #: course/templates/course/_course_menu.html:121
 #: course/templates/course/staff/group_delete.html:6
 #: course/templates/course/staff/group_delete.html:11
-#: course/templates/course/staff/group_edit.html:6
 #: course/templates/course/staff/group_edit.html:11
+#: course/templates/course/staff/group_edit.html:16
 #: course/templates/course/staff/groups.html:5
 #: course/templates/course/staff/groups.html:10
 #: edit_course/exercise_forms.py:106
@@ -714,9 +714,9 @@ msgstr ""
 #: edit_course/templates/edit_course/usertag_add.html:23
 #: edit_course/templates/edit_course/usertag_delete.html:31
 #: edit_course/templates/edit_course/usertag_edit.html:23
-#: edit_course/templates/edit_course/usertagging_add.html:23
+#: edit_course/templates/edit_course/usertagging_add.html:28
 #: exercise/templates/exercise/staff/assess_submission.html:28
-#: exercise/templates/exercise/staff/edit_submitters.html:23
+#: exercise/templates/exercise/staff/edit_submitters.html:24
 #: external_services/templates/external_services/edit_menu.html:24
 #: news/templates/news/edit.html:24
 msgid "Cancel"
@@ -738,7 +738,7 @@ msgstr "Poista kaikki"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:53 templates/base.html:247
+#: news/templates/news/list.html:53 templates/base.html:245
 msgid "Remove"
 msgstr "Poista"
 
@@ -761,8 +761,8 @@ msgstr "Jäsenet"
 msgid "Created"
 msgstr "Luotu"
 
-#: course/templates/course/staff/group_edit.html:6
-#: course/templates/course/staff/group_edit.html:12
+#: course/templates/course/staff/group_edit.html:11
+#: course/templates/course/staff/group_edit.html:17
 #: course/templates/course/staff/groups.html:42
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: exercise/templates/exercise/staff/_assess_info.html:20
@@ -771,19 +771,19 @@ msgstr "Luotu"
 msgid "Edit"
 msgstr "Muokkaa"
 
-#: course/templates/course/staff/group_edit.html:20
+#: course/templates/course/staff/group_edit.html:25
 msgid "Edit group members"
 msgstr "Muokkaa ryhmän jäseniä"
 
-#: course/templates/course/staff/group_edit.html:23
+#: course/templates/course/staff/group_edit.html:28
 #: edit_course/templates/edit_course/edit_content.html:187
 #: edit_course/templates/edit_course/edit_index.html:20
-#: edit_course/templates/edit_course/edit_instance.html:24
+#: edit_course/templates/edit_course/edit_instance.html:29
 #: edit_course/templates/edit_course/usertag_add.html:22
 #: edit_course/templates/edit_course/usertag_edit.html:22
-#: edit_course/templates/edit_course/usertagging_add.html:22
+#: edit_course/templates/edit_course/usertagging_add.html:27
 #: exercise/templates/exercise/staff/assess_submission.html:27
-#: exercise/templates/exercise/staff/edit_submitters.html:22
+#: exercise/templates/exercise/staff/edit_submitters.html:23
 #: userprofile/templates/userprofile/profile.html:55
 msgid "Save"
 msgstr "Tallenna"
@@ -839,7 +839,7 @@ msgstr "Sähköposti"
 #: edit_course/templates/edit_course/usertag_delete.html:10
 #: edit_course/templates/edit_course/usertag_edit.html:9
 #: edit_course/templates/edit_course/usertag_list.html:10
-#: edit_course/templates/edit_course/usertagging_add.html:9
+#: edit_course/templates/edit_course/usertagging_add.html:14
 msgid "Tags"
 msgstr "Merkinnät"
 
@@ -979,25 +979,25 @@ msgstr "Sisältö"
 msgid "Schedule"
 msgstr "Aikataulu"
 
-#: edit_course/course_forms.py:102
+#: edit_course/course_forms.py:103
 msgid "The URL identifier is locked while the course is visible to students."
 msgstr ""
 "URL-osoitteessa käytetty tunniste on lukittu, kun kurssi näkyy "
 "opiskelijoille."
 
-#: edit_course/course_forms.py:104
+#: edit_course/course_forms.py:105
 msgid "Removes visibility of model answers for students."
 msgstr "Saattohoito poistaa esimerkkiratkaisut opiskelijoiden näkyviltä."
 
-#: edit_course/course_forms.py:106
+#: edit_course/course_forms.py:107
 msgid "Removes possibility for students to return answers."
 msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista."
 
-#: edit_course/course_forms.py:147
+#: edit_course/course_forms.py:148
 msgid "New URL identifier for the course instance:"
 msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
 
-#: edit_course/course_forms.py:158
+#: edit_course/course_forms.py:159
 msgid "The URL is already taken."
 msgstr "URL on jo käytössä."
 
@@ -1430,15 +1430,15 @@ msgstr "Joukkoarviointi"
 msgid "Edit course index"
 msgstr "Muokkaa kurssin etusivua"
 
-#: edit_course/templates/edit_course/edit_instance.html:9
+#: edit_course/templates/edit_course/edit_instance.html:14
 msgid "Details"
 msgstr "Tiedot"
 
-#: edit_course/templates/edit_course/edit_instance.html:17
+#: edit_course/templates/edit_course/edit_instance.html:22
 msgid "Edit course details"
 msgstr "Muokkaa kurssin tietoja"
 
-#: edit_course/templates/edit_course/edit_instance.html:20
+#: edit_course/templates/edit_course/edit_instance.html:25
 msgid "Teachers"
 msgstr "Opettajat"
 
@@ -1619,8 +1619,8 @@ msgstr "Merkitse opiskelijoita"
 msgid "No student tags."
 msgstr "Ei opiskelijamerkintöjä."
 
-#: edit_course/templates/edit_course/usertagging_add.html:10
-#: edit_course/templates/edit_course/usertagging_add.html:18
+#: edit_course/templates/edit_course/usertagging_add.html:15
+#: edit_course/templates/edit_course/usertagging_add.html:23
 msgid "Add new user tagging"
 msgstr "Merkitse opiskelijoita"
 
@@ -2571,7 +2571,7 @@ msgid "Assess SID "
 msgstr "Arvostele SID "
 
 #: exercise/templates/exercise/staff/assess_submission.html:11
-#: exercise/templates/exercise/staff/edit_submitters.html:11
+#: exercise/templates/exercise/staff/edit_submitters.html:12
 #: exercise/templates/exercise/staff/inspect_submission.html:11
 #: exercise/templates/exercise/staff/list_submissions.html:5
 #: exercise/templates/exercise/staff/list_submissions.html:10
@@ -2580,7 +2580,7 @@ msgid "All submissions"
 msgstr "Kaikki palautukset"
 
 #: exercise/templates/exercise/staff/assess_submission.html:12
-#: exercise/templates/exercise/staff/edit_submitters.html:12
+#: exercise/templates/exercise/staff/edit_submitters.html:13
 #: exercise/templates/exercise/staff/inspect_submission.html:12
 msgid "Submission ID"
 msgstr "Palautus ID"
@@ -2593,19 +2593,19 @@ msgstr "Arvostele"
 msgid "Assessment"
 msgstr "Arviointi"
 
-#: exercise/templates/exercise/staff/edit_submitters.html:6
+#: exercise/templates/exercise/staff/edit_submitters.html:7
 msgid "Edit submitters SID "
 msgstr "Muokkaa palauttajia SID "
 
-#: exercise/templates/exercise/staff/edit_submitters.html:13
+#: exercise/templates/exercise/staff/edit_submitters.html:14
 msgid "Edit submitters"
 msgstr "Muokkaa palauttajia"
 
-#: exercise/templates/exercise/staff/edit_submitters.html:27
+#: exercise/templates/exercise/staff/edit_submitters.html:28
 msgid "Quick select a group"
 msgstr "Ryhmän pikavalinta"
 
-#: exercise/templates/exercise/staff/edit_submitters.html:34
+#: exercise/templates/exercise/staff/edit_submitters.html:35
 msgid "Select"
 msgstr "Valitse"
 
@@ -3362,15 +3362,7 @@ msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille
 msgid "The number must be between 0.0 and 1.0"
 msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
-#: lib/fields.py:45
-msgid "Invalid input type."
-msgstr "Vääränlainen syöte."
-
-#: lib/fields.py:53
-msgid "{} is not a valid key."
-msgstr "{} ei ole pätevä avain."
-
-#: lib/fields.py:74 lib/fields.py:104
+#: lib/fields.py:152 lib/fields.py:182
 msgid "Enter valid JSON."
 msgstr "Syötä kelvollista JSON:ia."
 
@@ -3479,60 +3471,60 @@ msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa.Ole "
 "ystävällinen, ja yritä uudelleen."
 
-#: templates/base.html:83
+#: templates/base.html:81
 msgid "Toggle navigation"
 msgstr "Näytä valikko"
 
-#: templates/base.html:107
+#: templates/base.html:105
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:125 userprofile/templates/userprofile/profile.html:6
+#: templates/base.html:123 userprofile/templates/userprofile/profile.html:6
 msgid "Profile"
 msgstr "Käyttäjätili"
 
-#: templates/base.html:131 templates/base.html:169
+#: templates/base.html:129 templates/base.html:167
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:140 templates/base.html:176
+#: templates/base.html:138 templates/base.html:174
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:151
+#: templates/base.html:149
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:155
+#: templates/base.html:153
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:200 userprofile/templates/userprofile/privacy.html:4
+#: templates/base.html:198 userprofile/templates/userprofile/privacy.html:4
 #: userprofile/templates/userprofile/privacy.html:9
 msgid "Privacy Notice"
 msgstr "Tietosuojailmoitus"
 
-#: templates/base.html:211 templates/base.html:230
+#: templates/base.html:209 templates/base.html:228
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:212 templates/base.html:231
+#: templates/base.html:210 templates/base.html:229
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:219 templates/base.html:236
+#: templates/base.html:217 templates/base.html:234
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:251
+#: templates/base.html:249
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:255
+#: templates/base.html:253
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:258
+#: templates/base.html:256
 msgid "Search for..."
 msgstr "Etsi..."
 

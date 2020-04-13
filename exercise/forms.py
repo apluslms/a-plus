@@ -116,7 +116,8 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
 
 class EditSubmittersForm(forms.ModelForm):
 
-    submitters = UsersSearchSelectField(queryset=UserProfile.objects.none())
+    submitters = UsersSearchSelectField(queryset=UserProfile.objects.none(),
+        initial_queryset=UserProfile.objects.none())
 
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.get('instance').exercise.course_instance
@@ -124,7 +125,8 @@ class EditSubmittersForm(forms.ModelForm):
         self.fields['submitters'].widget.attrs["data-search-api-url"] = api_reverse(
             "course-students-list",
             kwargs={'course_id': course_instance.id})
-        self.fields['submitters'].queryset = self.instance.submitters.all()
+        self.fields['submitters'].queryset = course_instance.get_student_profiles()
+        self.fields['submitters'].initial_queryset = self.instance.submitters.all()
 
     class Meta:
         model = Submission

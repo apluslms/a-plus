@@ -70,7 +70,9 @@ class CourseModuleForm(FieldsetModelForm):
 
 class CourseInstanceForm(forms.ModelForm):
 
-    assistants = UsersSearchSelectField(queryset=UserProfile.objects.none())
+    assistants = UsersSearchSelectField(queryset=UserProfile.objects.all(),
+        initial_queryset=UserProfile.objects.none(),
+        required=False) # Not required because a course does not have to have any assistants.
 
     class Meta:
         model = CourseInstance
@@ -95,7 +97,7 @@ class CourseInstanceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['assistants'].queryset = self.instance.assistants.all()
+        self.fields['assistants'].initial_queryset = self.instance.assistants.all()
         self.fields['assistants'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
         if self.instance and self.instance.visible_to_students:
             self.fields["url"].widget.attrs["readonly"] = "true"
@@ -177,10 +179,12 @@ class UserTagForm(ColorTagForm):
         return obj
 
 class SelectUsersForm(forms.Form):
-    user = UsersSearchSelectField(queryset=UserProfile.objects.none())
+    user = UsersSearchSelectField(queryset=UserProfile.objects.none(),
+        initial_queryset=UserProfile.objects.none())
 
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.pop('instance')
         super(SelectUsersForm, self).__init__(*args, **kwargs)
         self.fields['user'].widget.attrs["data-search-api-url"] = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
+        self.fields['user'].queryset = course_instance.get_student_profiles()

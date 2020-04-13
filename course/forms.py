@@ -86,18 +86,20 @@ class GroupSelectForm(forms.Form):
 
 class GroupEditForm(forms.ModelForm):
 
-    members = UsersSearchSelectField(queryset=UserProfile.objects.none())
+    members = UsersSearchSelectField(queryset=UserProfile.objects.none(),
+        initial_queryset=UserProfile.objects.none())
 
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.get('instance').course_instance
         super().__init__(*args, **kwargs)
         self.fields['members'].widget.attrs["data-search-api-url"] = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
+        self.fields["members"].queryset = course_instance.get_student_profiles()
         # Course staff may use this form for modifying and creating student groups.
         # If an existing group is being modified, its current members must be
         # set to the initial queryset.
         if self.instance.id:
-            self.fields["members"].queryset = self.instance.members.all()
+            self.fields["members"].initial_queryset = self.instance.members.all()
 
     class Meta:
         model = StudentGroup
