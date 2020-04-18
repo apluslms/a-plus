@@ -5,7 +5,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from aplus.api import api_reverse
 from lib.fields import UsersSearchSelectField
-from userprofile.models import UserProfile
 from .models import Enrollment, StudentGroup
 from userprofile.models import UserProfile
 
@@ -107,13 +106,11 @@ class GroupEditForm(forms.ModelForm):
         fields = ['members']
 
 
-class EnrollStudentsForm(forms.ModelForm):
+class EnrollStudentsForm(forms.Form):
 
-    user_profiles = UsersSearchSelectField(queryset=UserProfile.objects.none())
-
-    class Meta:
-        model = Enrollment
-        fields = ['user_profiles']
+    user_profiles = UsersSearchSelectField(queryset=UserProfile.objects.all(),
+        initial_queryset=UserProfile.objects.none(),
+        label=_('Users'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

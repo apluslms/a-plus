@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-02 14:33+0200\n"
+"POT-Creation-Date: 2020-05-05 23:12+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -86,22 +86,26 @@ msgstr "Vain ilmoittautuneille."
 msgid "URL"
 msgstr "URL"
 
-#: course/forms.py:27
+#: course/forms.py:26
 #, python-brace-format
 msgid "{num} member"
 msgstr "{num} jäsen"
 
-#: course/forms.py:41
+#: course/forms.py:40
 msgid "The code was not recognized."
 msgstr "Liittämiskoodia ei tunnistettu."
 
-#: course/forms.py:43
+#: course/forms.py:42
 msgid "The user is already in the group."
 msgstr "Käyttäjä on jo tässä ryhmässä."
 
-#: course/forms.py:49
+#: course/forms.py:48
 msgid "The group already exists."
 msgstr "Tämä ryhmä on jo olemassa."
+
+#: course/forms.py:113
+msgid "Users"
+msgstr "Käyttäjät"
 
 #: course/models.py:55
 msgid "Input an URL identifier for this course."
@@ -407,7 +411,7 @@ msgid "Course staff"
 msgstr "Kurssihenkilökunta"
 
 #: course/templates/course/_course_menu.html:114
-#: course/templates/course/staff/enroll_students.html:12
+#: course/templates/course/staff/enroll_students.html:16
 #: course/templates/course/staff/participants.html:6
 #: course/templates/course/staff/participants.html:11
 #: exercise/templates/exercise/staff/user_results.html:34
@@ -727,33 +731,27 @@ msgstr "Peruuta"
 msgid "Remove all"
 msgstr "Poista kaikki"
 
-#: course/templates/course/staff/enroll_students.html:7
-#: course/templates/course/staff/participants.html:29
-msgid "Enroll students"
-msgstr "Ilmoittautuneet opiskelijat"
-
-#: course/templates/course/staff/enroll_students.html:13
-#: course/templates/course/staff/enroll_students.html:22
-msgid "Add students"
-msgstr "Lisää opiskelijoita"
-
+#: course/templates/course/staff/enroll_students.html:11
 #: course/templates/course/staff/enroll_students.html:17
-msgid "Add students to this course"
-msgstr "Lisää opiskelijoita tälle kurssille"
+#: course/templates/course/staff/enroll_students.html:30
+#: course/templates/course/staff/participants.html:21
+msgid "Enroll students"
+msgstr "Ilmoita opiskelijoita"
 
-#: course/templates/course/staff/enroll_students.html:25
-#: course/templates/course/staff/group_edit.html:28
-#: edit_course/templates/edit_course/edit_content.html:187
-#: edit_course/templates/edit_course/edit_index.html:20
-#: edit_course/templates/edit_course/edit_instance.html:29
-#: edit_course/templates/edit_course/usertag_add.html:22
-#: edit_course/templates/edit_course/usertag_edit.html:22
-#: edit_course/templates/edit_course/usertagging_add.html:27
-#: exercise/templates/exercise/staff/assess_submission.html:27
-#: exercise/templates/exercise/staff/edit_submitters.html:23
-#: userprofile/templates/userprofile/profile.html:55
-msgid "Save"
-msgstr "Tallenna"
+#: course/templates/course/staff/enroll_students.html:23
+msgid ""
+"Teacher may manually enroll students in the course here. Enrollment time and "
+"audience restrictions do not apply here. If the course has an enrollment "
+"exercise, the manually enrolled students are not required to submit anything."
+msgstr ""
+"Opettajat voivat lisätä täällä opiskelijoita kurssille käsin. "
+"Ilmoittautumisen aikaraja tai kohdeyleisö eivät estä opiskelijan käsin "
+"lisäämistä. Jos kurssilla on ilmoittautumistehtävä, käsin lisätyt "
+"opiskelijat eivät joudu vastaamaan siihen."
+
+#: course/templates/course/staff/enroll_students.html:27
+msgid "Enroll students in the course"
+msgstr "Ilmoita opiskelijoita kurssille"
 
 #: course/templates/course/staff/group_delete.html:6
 #: course/templates/course/staff/group_delete.html:12
@@ -804,6 +802,19 @@ msgstr "Muokkaa"
 msgid "Edit group members"
 msgstr "Muokkaa ryhmän jäseniä"
 
+#: course/templates/course/staff/group_edit.html:28
+#: edit_course/templates/edit_course/edit_content.html:187
+#: edit_course/templates/edit_course/edit_index.html:20
+#: edit_course/templates/edit_course/edit_instance.html:29
+#: edit_course/templates/edit_course/usertag_add.html:22
+#: edit_course/templates/edit_course/usertag_edit.html:22
+#: edit_course/templates/edit_course/usertagging_add.html:27
+#: exercise/templates/exercise/staff/assess_submission.html:27
+#: exercise/templates/exercise/staff/edit_submitters.html:23
+#: userprofile/templates/userprofile/profile.html:55
+msgid "Save"
+msgstr "Tallenna"
+
 #: course/templates/course/staff/groups.html:17
 msgid "Number of groups"
 msgstr "Ryhmien määrä"
@@ -814,42 +825,42 @@ msgstr "Ryhmien määrä"
 msgid "Add new"
 msgstr "Lisää"
 
-#: course/templates/course/staff/participants.html:18
+#: course/templates/course/staff/participants.html:26
 #: diploma/templates/diploma/list.html:13
 #: exercise/templates/exercise/staff/results.html:137
 msgid "Filter users"
 msgstr "Suodata listaa"
 
-#: course/templates/course/staff/participants.html:33
+#: course/templates/course/staff/participants.html:36
 msgid "Number of students"
 msgstr "Opiskelijoiden määrä"
 
-#: course/templates/course/staff/participants.html:35
+#: course/templates/course/staff/participants.html:38
 msgid "of which selected"
 msgstr "joista valittuna"
 
-#: course/templates/course/staff/participants.html:47
+#: course/templates/course/staff/participants.html:50
 #: diploma/templates/diploma/list.html:27
 #: exercise/templates/exercise/staff/user_results.html:45
 msgid "Student id"
 msgstr "Opiskelijanumero"
 
-#: course/templates/course/staff/participants.html:48
+#: course/templates/course/staff/participants.html:51
 #: exercise/templates/exercise/staff/user_results.html:46
 msgid "Last name"
 msgstr "Sukunimi"
 
-#: course/templates/course/staff/participants.html:49
+#: course/templates/course/staff/participants.html:52
 #: exercise/templates/exercise/staff/user_results.html:47
 msgid "First name"
 msgstr "Etunimi"
 
-#: course/templates/course/staff/participants.html:50
+#: course/templates/course/staff/participants.html:53
 #: exercise/templates/exercise/staff/user_results.html:48
 msgid "Email"
 msgstr "Sähköposti"
 
-#: course/templates/course/staff/participants.html:51
+#: course/templates/course/staff/participants.html:54
 #: edit_course/templates/edit_course/edit_course_base.html:46
 #: edit_course/templates/edit_course/usertag_add.html:9
 #: edit_course/templates/edit_course/usertag_delete.html:10

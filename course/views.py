@@ -17,7 +17,7 @@ from exercise.models import LearningObject
 from lib.helpers import settings_text
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView
 from userprofile.viewbase import UserProfileView
-from .forms import GroupsForm, GroupSelectForm, EnrollStudentsForm
+from .forms import GroupsForm, GroupSelectForm
 from .models import CourseInstance, Enrollment
 from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
@@ -199,17 +199,3 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
             return self.render_to_response(self.get_context_data(
                 **group_info_context(enrollment.selected_group, self.profile)))
         return super().form_valid(form)
-
-
-class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
-    access_mode = ACCESS.TEACHER
-    form_class = EnrollStudentsForm
-    template_name = "course/staff/enroll_students.html"
-
-    def form_valid(self, form):
-        for profile in form.cleaned_data["user_profiles"]:
-            self.instance.enroll_student(profile.user)
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return self.instance.get_url('participants')
