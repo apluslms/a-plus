@@ -8,7 +8,7 @@ from authorization.permissions import ACCESS
 from lib.helpers import settings_text
 from lib.viewbase import BaseFormView, BaseTemplateView, BaseRedirectMixin
 from .cache.students import CachedStudent
-from .forms import GroupEditForm
+from .forms import EnrollStudentsForm, GroupEditForm
 from .models import (
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
@@ -123,3 +123,17 @@ class GroupsDeleteView(CourseInstanceMixin, BaseRedirectMixin, BaseTemplateView)
     def post(self, request, *args, **kwargs):
         self.group.delete()
         return self.redirect(self.instance.get_url('groups-list'))
+
+
+class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    form_class = EnrollStudentsForm
+    template_name = "course/staff/enroll_students.html"
+
+    def form_valid(self, form):
+        for profile in form.cleaned_data["user_profiles"]:
+            self.instance.enroll_student(profile.user)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.instance.get_url('participants')

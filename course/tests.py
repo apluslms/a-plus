@@ -8,7 +8,6 @@ from django.utils import timezone
 
 from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory, StudentGroup
-from course.forms import EnrollStudentsForm
 from exercise.models import BaseExercise, Submission
 from exercise.exercise_models import LearningObject
 
