@@ -519,7 +519,9 @@ class CourseInstance(UrlMixin, models.Model):
 
     def enroll_student(self, user):
         if user and user.is_authenticated:
-            Enrollment.objects.get_or_create(course_instance=self, user_profile=user.userprofile)
+            _, created = Enrollment.objects.get_or_create(course_instance=self, user_profile=user.userprofile)
+            return created
+        return False
 
     def tag_user(self, user, tag):
         UserTagging.objects.create(tag=tag, user=user.userprofile, course_instance=self)

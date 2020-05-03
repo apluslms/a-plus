@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-05 23:12+0300\n"
+"POT-Creation-Date: 2020-05-05 23:24+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -111,7 +111,7 @@ msgstr "Käyttäjät"
 msgid "Input an URL identifier for this course."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssille."
 
-#: course/models.py:68 course/models.py:727 exercise/exercise_models.py:127
+#: course/models.py:68 course/models.py:729 exercise/exercise_models.py:127
 msgid "Taken words include: {}"
 msgstr "Varatut sanat: {}"
 
@@ -251,60 +251,60 @@ msgstr "Palvelun asetuksista puuttuva(t) kielikoodi(t):"
 msgid "Language code missing from settings."
 msgstr "Kielikoodi puuttuu palvelun asetuksista."
 
-#: course/models.py:676 course/models.py:802 exercise/exercise_models.py:68
+#: course/models.py:678 course/models.py:804 exercise/exercise_models.py:68
 #: exercise/submission_models.py:106
 msgid "Ready"
 msgstr "Valmis"
 
-#: course/models.py:677 exercise/exercise_models.py:69
+#: course/models.py:679 exercise/exercise_models.py:69
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:678 course/models.py:804 templates/base.html:102
+#: course/models.py:680 course/models.py:806 templates/base.html:102
 msgid "Hidden"
 msgstr "Piilotettu"
 
-#: course/models.py:679 exercise/exercise_models.py:73
+#: course/models.py:681 exercise/exercise_models.py:73
 msgid "Maintenance"
 msgstr "Huolto"
 
-#: course/models.py:687
+#: course/models.py:689
 msgid "Input an URL identifier for this module."
 msgstr "Syötä URL-osoitteessa käytettävä tunnus moduulille."
 
-#: course/models.py:693
+#: course/models.py:695
 msgid "Opening time for the reading material"
 msgstr "Lukumateriaalin avautumisaika"
 
-#: course/models.py:694
+#: course/models.py:696
 msgid ""
 "Leave empty if the reading material should not open before the exercises."
 msgstr "Jätä tyhjäksi, jos lukumateriaalin ei pidä aueta ennen tehtäviä."
 
-#: course/models.py:706
+#: course/models.py:708
 msgid "Multiplier of points to reduce, as decimal. 0.1 = 10%"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, 0.1 = 10%"
 
-#: course/models.py:729
+#: course/models.py:731
 msgid "Opening time must be earlier than the closing time."
 msgstr "Alkamisajan tulee olla aikaisempi kuin päättymisaika."
 
-#: course/models.py:731
+#: course/models.py:733
 msgid "Late submission deadline must be later than the closing time."
 msgstr ""
 "Myöhäisten palautusten määräajan tulee olla myöhäisempi kuin sulkeutumisajan."
 
-#: course/models.py:733
+#: course/models.py:735
 msgid ""
 "Opening time of reading material must be earlier than the opening time of "
 "the exercises."
 msgstr "Lukumateriaalin tulee aueta ennen tehtäviä."
 
-#: course/models.py:803
+#: course/models.py:805
 msgid "No total points"
 msgstr "Ei kokonaispisteitä"
 
-#: course/models.py:814
+#: course/models.py:816
 msgid ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
@@ -312,7 +312,7 @@ msgstr ""
 "Kun tehtävä arvostellaan nollasta paremmaksi, se vahvistaa kaikki pisteet "
 "hierarkiatasolla. Suunniteltu pakollisen palautteen keräämiseksi."
 
-#: course/models.py:816
+#: course/models.py:818
 msgid ""
 "Grade unofficial submissions after deadlines have passed or submission "
 "limits have been exceeded. The points are stored but not included in "
@@ -368,6 +368,11 @@ msgstr "Muutokset tallennettiin onnistuneesti."
 #: exercise/staff_views.py:293
 msgid "Failed to save changes."
 msgstr "Muutosten tallentaminen epäonnistui."
+
+#: course/staff_views.py:143
+#, python-brace-format
+msgid "The following users were already enrolled: {users}"
+msgstr "Seuraavat käyttäjät olivat jo ilmoittautuneet: {users}"
 
 #: course/templates/course/_course_dropdown_menu.html:16
 msgid "Begin by enrolling in a course."

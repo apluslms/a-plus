@@ -131,8 +131,19 @@ class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
     template_name = "course/staff/enroll_students.html"
 
     def form_valid(self, form):
+        failed_enrollments = []
         for profile in form.cleaned_data["user_profiles"]:
-            self.instance.enroll_student(profile.user)
+            if not self.instance.enroll_student(profile.user):
+                # If the selected student was already enrolled,
+                # we can show a warning here.
+                failed_enrollments.append(profile)
+        if failed_enrollments:
+            messages.warning(
+                self.request,
+                _("The following users were already enrolled: {users}").format(
+                    users='; '.join([profile.name_with_student_id for profile in failed_enrollments]),
+                ),
+            )
         return super().form_valid(form)
 
     def get_success_url(self):
