@@ -74,6 +74,13 @@ class UserProfile(models.Model):
             return self.user.username
 
     @cached_property
+    def name_with_student_id(self):
+        name = self.user.get_full_name()
+        if self.student_id:
+            return name + ', ' + self.student_id
+        return name
+
+    @cached_property
     def is_external(self):
         """
         Is this an external rather than internal account.
