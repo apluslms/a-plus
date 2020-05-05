@@ -57,14 +57,26 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
                 self.error_msg(_("This course is not open for public."))
                 return False
 
+            # Allow enrolled students. This is important when students that
+            # do not belong to the enrollment audience are manually enrolled
+            # in the course.
+            # Avoid querying the database again if we can read
+            # CourseInstanceBaseMixin.is_student.
+            try:
+                is_student = view.is_student
+            except AttributeError:
+                is_student = course.is_student(user)
+            if is_student:
+                return True
+
             # Handle enroll views separately
             if view.get_access_mode() == ACCESS.ENROLL:
                 return self.enrollment_audience_check(request, course, user)
 
             if show_for == VA.ENROLLED:
-                if not course.is_student(user):
-                    self.error_msg(_("Only enrolled students shall pass."))
-                    return False
+                # Already checked above that the user has not enrolled.
+                self.error_msg(_("Only enrolled students shall pass."))
+                return False
 
             elif show_for == VA.ENROLLMENT_AUDIENCE:
                 return self.enrollment_audience_check(request, course, user)
