@@ -43,3 +43,26 @@ class UserBriefSerializer(AplusModelSerializer):
 
 class UserListField(AlwaysListSerializer, UserBriefSerializer):
     pass
+
+
+class UserMinimalSerializer(AplusModelSerializer):
+    """User serializer that includes only the data that students are allowed
+    to see from each other.
+    """
+    full_name = serializers.CharField(source='user.get_full_name', required=False)
+
+    class Meta(AplusModelSerializer.Meta):
+        model = UserProfile
+        fields = (
+            'full_name',
+        )
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:user-detail',
+                'lookup_map': 'userprofile.api.views.UserViewSet',
+            }
+        }
+
+
+class UserMinimalListField(AlwaysListSerializer, UserMinimalSerializer):
+    pass

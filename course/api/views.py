@@ -16,6 +16,7 @@ from ..models import (
     USERTAG_INTERNAL,
     CourseInstance,
     CourseModule,
+    StudentGroup,
     UserTag,
     UserTagging,
 )
@@ -26,6 +27,7 @@ from .mixins import (
 from ..permissions import (
     OnlyCourseTeacherPermission,
     IsCourseAdminOrUserObjIsSelf,
+    OnlyEnrolledStudentOrCourseStaffPermission,
 )
 from .serializers import *
 from .full_serializers import *
@@ -180,4 +182,34 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
 
         self.get_queryset().filter(**filter_args).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CourseOwnStudentGroupsViewSet(NestedViewSetMixin,
+                                    CourseResourceMixin,
+                                    viewsets.ReadOnlyModelViewSet):
+    """List the user's own student groups in a course instance.
+    Teachers receive only their own groups as well.
+    """
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        OnlyEnrolledStudentOrCourseStaffPermission,
+    ]
+    serializer_class = CourseStudentGroupBriefSerializer
+    parent_lookup_map = {'course_id': 'course_instance.id'}
+
+    def get_queryset(self):
+        return StudentGroup.objects.filter(
+            course_instance=self.instance,
+            members=self.request.user.userprofile,
+        )
+
+
+class CourseStudentGroupsViewSet(NestedViewSetMixin,
+                                 CourseResourceMixin,
+                                 viewsets.ReadOnlyModelViewSet):
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        OnlyCourseTeacherPermission,
+    ]
+    serializer_class = CourseStudentGroupSerializer
+    queryset = StudentGroup.objects.all()
+    parent_lookup_map = {'course_id': 'course_instance.id'}
 
