@@ -193,3 +193,17 @@ class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
         ):
             queryset = queryset.filter(user_id=user.id)
         return queryset
+
+
+class OnlyEnrolledStudentOrCourseStaffPermission(Permission):
+    message = _("Only enrolled students or course staff are allowed")
+
+    def has_permission(self, request, view):
+        return self.has_object_permission(request, view, None)
+
+    def has_object_permission(self, request, view, obj):
+        try:
+            return view.is_student or view.is_course_staff or request.user.is_superuser
+        except AttributeError:
+            return False
+

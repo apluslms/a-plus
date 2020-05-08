@@ -322,42 +322,46 @@ msgstr ""
 "palautuskertojen raja on ylitetty. Pisteet tallennetaan, mutta ne eivät "
 "sisälly virallisiin tuloksiin."
 
-#: course/permissions.py:20 course/permissions.py:88
+#: course/permissions.py:20 course/permissions.py:100
 msgid "Permission denied by course visibility"
 msgstr "Pääsy kielletty kurssin näkyvyyden perusteella"
 
-#: course/permissions.py:46 course/permissions.py:99
+#: course/permissions.py:46 course/permissions.py:111
 msgid "The resource is not currently visible."
 msgstr "Materiaali ei ole tällä hetkellä nähtävissä."
 
-#: course/permissions.py:57 course/permissions.py:105
+#: course/permissions.py:57 course/permissions.py:117
 msgid "This course is not open for public."
 msgstr "Tälle kurssille ei ole vapaata pääsyä."
 
-#: course/permissions.py:79
+#: course/permissions.py:91
 msgid "This course is only for internal students."
 msgstr "Tämä kurssi on vain oppilaitoksen koulutusohjelmien opiskelijoille."
 
-#: course/permissions.py:82
+#: course/permissions.py:94
 msgid "This course is only for external students."
 msgstr "Tämä kurssi on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
-#: course/permissions.py:112
+#: course/permissions.py:124
 msgid "The module is not currently visible."
 msgstr "Tämä osio ei ole tällä hetkellä nähtävissä."
 
-#: course/permissions.py:131
+#: course/permissions.py:143
 #, python-brace-format
 msgid "The module will open for submissions at {date}."
 msgstr "Tämä osio avautuu {date}."
 
-#: course/permissions.py:144
+#: course/permissions.py:156
 msgid "Only course teacher is allowed"
 msgstr "Vain opettajalle."
 
-#: course/permissions.py:154
+#: course/permissions.py:166
 msgid "Only course staff is allowed"
 msgstr "Vain kurssihenkilökunnalle."
+
+#: course/permissions.py:199
+msgid "Only enrolled students or course staff are allowed"
+msgstr "Vain ilmoittautuneille opiskelijoille tai kurssihenkilökunnalle"
 
 #: course/staff_views.py:102 edit_course/views.py:49
 #: exercise/staff_views.py:289

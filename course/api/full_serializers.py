@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, NestedHyperlinkedIdentityFieldWithQuery
 from exercise.api.serializers import ExerciseBriefSerializer
-from userprofile.api.serializers import UserBriefSerializer
+from userprofile.api.serializers import UserBriefSerializer, UserListField
 from ..models import (
     CourseInstance,
     CourseModule,
@@ -18,6 +18,7 @@ from .serializers import *
 __all__ = [
     'CourseModuleSerializer',
     'CourseSerializer',
+    'CourseStudentGroupSerializer',
     'CourseUsertagSerializer',
     'CourseUsertaggingsSerializer',
 ]
@@ -71,6 +72,8 @@ class CourseSerializer(CourseBriefSerializer):
     )
     data = NestedHyperlinkedIdentityField(view_name='api:course-submissiondata-list')
     aggregate_data = NestedHyperlinkedIdentityField(view_name='api:course-aggregatedata-list')
+    groups = NestedHyperlinkedIdentityField(view_name='api:course-groups-list')
+    my_groups = NestedHyperlinkedIdentityField(view_name='api:course-mygroups-list')
 
     class Meta(CourseBriefSerializer.Meta):
         fields = (
@@ -88,6 +91,8 @@ class CourseSerializer(CourseBriefSerializer):
             'my_data',
             'data',
             'aggregate_data',
+            'groups',
+            'my_groups',
         )
 
 
@@ -202,3 +207,15 @@ class CourseUsertaggingsSerializer(AplusModelSerializer):
                 )
             )
         return obj
+
+
+class CourseStudentGroupSerializer(CourseStudentGroupBriefSerializer):
+    members = UserListField()
+
+    class Meta(CourseStudentGroupBriefSerializer.Meta):
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:course-groups-detail',
+            }
+        }
+

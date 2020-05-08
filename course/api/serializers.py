@@ -3,12 +3,13 @@ from rest_framework.reverse import reverse
 
 from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, AlwaysListSerializer
-from userprofile.api.serializers import UserBriefSerializer
+from userprofile.api.serializers import UserBriefSerializer, UserMinimalListField
 
 from ..models import (
     CourseInstance,
     CourseModule,
     UserTag,
+    StudentGroup,
 )
 from ..cache.students import CachedStudent
 
@@ -18,6 +19,7 @@ __all__ = [
     'CourseListField',
     'StudentBriefSerializer',
     'CourseUsertagBriefSerializer',
+    'CourseStudentGroupBriefSerializer',
 ]
 
 
@@ -101,3 +103,20 @@ class CourseUsertagBriefSerializer(AplusModelSerializer):
                 'lookup_map': 'course.api.views.CourseUsertagsViewSet',
             }
         }
+
+
+class CourseStudentGroupBriefSerializer(AplusModelSerializer):
+    members = UserMinimalListField()
+
+    class Meta(AplusModelSerializer.Meta):
+        model = StudentGroup
+        fields = (
+            'members',
+            'timestamp',
+        )
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:course-mygroups-detail',
+            }
+        }
+
