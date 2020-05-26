@@ -76,7 +76,9 @@ class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
     access_mode = ACCESS.ASSISTANT
 
     def post(self, request, *args, **kwargs):
-        _ = self.exercise.grade(request, self.submission)
+        page = self.exercise.grade(request, self.submission)
+        for error in page.errors:
+            messages.error(request, error)
         return self.redirect(self.submission.get_inspect_url())
 
 

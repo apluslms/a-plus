@@ -39,7 +39,6 @@ def load_exercise_page(request, url, last_modified, exercise):
 def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     """
     Loads the feedback or accept page from the remote URL.
-
     """
     page = ExercisePage(exercise)
     try:
@@ -48,8 +47,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
         submission.clean_post_parameters()
         parse_page_content(page, remote_page, exercise)
     except RemotePageException:
-        messages.error(request,
-            _("Connecting to the assessment service failed!"))
+        page.errors.append(_("Connecting to the assessment service failed!"))
         if exercise.course_instance.visible_to_students:
             msg = "Failed to request {}".format(url)
             logger.exception(msg)
@@ -76,7 +74,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                     #     messages.success(request, msg)
                 else:
                     submission.set_error()
-                    messages.error(request,
+                    page.errors.append(
                         _("Assessment service responded with invalid points. "
                           "Points: {points:d}/{max:d} "
                           "(exercise max {exercise_max:d})").format(
@@ -105,8 +103,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
             submission.set_error()
             logger.info("No accept or points received: %s",
                 exercise.service_url)
-            messages.error(request,
-                _("Assessment service responded with error."))
+            page.errors.append(_("Assessment service responded with error."))
         submission.save()
 
     return page
