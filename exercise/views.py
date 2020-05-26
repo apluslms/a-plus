@@ -149,6 +149,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             if new_submission:
                 page = self.exercise.grade(request, new_submission,
                     url_name=self.post_url_name)
+                for error in page.errors:
+                    messages.error(request, error)
 
                 # Enroll after succesfull enrollment exercise.
                 if self.exercise.status in (

@@ -2,15 +2,18 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from wsgiref.util import FileWrapper
 from rest_framework import mixins, permissions, viewsets
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.decorators import action
 from rest_framework.settings import api_settings
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from authorization.permissions import ACCESS
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile, GraderUser
@@ -28,6 +31,7 @@ from ..models import (
     SubmittedFile,
     BaseExercise,
     SubmissionManager,
+    LearningObject,
 )
 from ..permissions import (
     SubmissionVisiblePermission,
@@ -221,6 +225,77 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             sub.save()
 
             return Response(status=status.HTTP_201_CREATED)
+
+    @action(
+        detail=False,
+        url_path='submit',
+        url_name='submit',
+        methods=['post'],
+    )
+    def submit(self, request, *args, **kwargs):
+        """Submit a new solution to the exercise for grading.
+        Students are allowed to submit via this endpoint. In a group submission,
+        the student group ID is defined with the POST parameter _aplus_group.
+        The POST data is used as the submission data and files may be uploaded too.
+        """
+        # Stop submit trials for e.g. chapters.
+        # However, allow posts from exercises switched to maintenance status.
+        if not self.exercise.is_submittable:
+            return self.http_method_not_allowed(request, *args, **kwargs)
+
+        data = None
+        status_code = None
+        headers = None
+        submission_status, issues, students = (
+            self.exercise.check_submission_allowed(request.user.userprofile, request)
+        )
+        if submission_status == self.exercise.SUBMIT_STATUS.ALLOWED:
+            new_submission = Submission.objects.create_from_post(
+                self.exercise, students, request)
+            if new_submission:
+                page = self.exercise.grade(request, new_submission)
+
+                # Enroll after succesfully submitting to the enrollment exercise.
+                if self.exercise.status in (
+                    LearningObject.STATUS.ENROLLMENT,
+                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                ) and new_submission.status == Submission.STATUS.READY:
+                    self.instance.enroll_student(request.user)
+
+                status_code = status.HTTP_201_CREATED
+                headers = {
+                    'Location': reverse('api:submission-detail', kwargs={
+                                        'submission_id': new_submission.id,
+                                        }, request=request),
+                }
+                if page.errors:
+                    data = {'errors': page.errors}
+            else:
+                data = {
+                    'detail': _("The submission could not be saved for some reason. "
+                                "The submission was not registered."),
+                }
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        else:
+            data = {'errors': issues}
+            status_code = status.HTTP_400_BAD_REQUEST
+
+        return Response(data, status=status_code, headers=headers)
+
+    def get_access_mode(self):
+        # The API is not supposed to use the access mode permission in views,
+        # but this is currently required so that enrollment exercises work in
+        # the CourseVisiblePermission.
+        access_mode = ACCESS.STUDENT
+
+        # Loosen the access mode if this is an enrollment exercise.
+        if self.exercise.status in (
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+              ):
+            access_mode = ACCESS.ENROLL
+
+        return access_mode
 
 
 class ExerciseSubmitterStatsViewSet(ListSerializerMixin,

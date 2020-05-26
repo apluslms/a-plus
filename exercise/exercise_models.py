@@ -710,9 +710,11 @@ class BaseExercise(LearningObject):
                 request, url, self, submission, no_penalties=no_penalties
             )
         except OSError as error:
-            messages.error(request, "Unable to grade the submission. %s: %s" % (
-                error.__class__.__name__, error))
-            return None
+            page = ExercisePage(self)
+            msg = "Unable to grade the submission. %s: %s" % (
+                error.__class__.__name__, error)
+            page.errors.append(msg)
+            return page
 
     def modify_post_parameters(self, data, files, user, students, request, url):
         """
