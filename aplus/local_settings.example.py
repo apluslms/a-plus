@@ -5,6 +5,9 @@
 #ADMINS = (
 #    ('Your Name', 'your_email@domain.com'),
 #)
+## Branding
+#BRAND_NAME = 'Your brand name (default is A+)'
+#BRAND_DESCRIPTION = 'Description of your service (default is Virtual Learning Environment)'
 # Show red alert on top of all pages
 #SITEWIDE_ALERT_TEXT = "Maintenance on Monday"
 #SITEWIDE_ALERT_TEXT = {'en': "Maintenance on Monday", 'fi': "Maanantaina on palvelukatko"}

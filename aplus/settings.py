@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ["*"]
 SITEWIDE_ALERT_TEXT = None
 SITEWIDE_ADVERT = None
 BRAND_NAME = 'A+'
+BRAND_DESCRIPTION = 'Virtual Learning Environment'
 
 WELCOME_TEXT = 'Welcome to A+ <small>modern learning environment</small>'
 SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
