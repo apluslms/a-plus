@@ -66,7 +66,9 @@ class LTIRequest(object):
             "launch_presentation_return_url": urljoin(settings.BASE_URL, instance.get_absolute_url()),
 
             "tool_consumer_instance_guid": base_url_parts.netloc + "/aplus",
-            "tool_consumer_instance_name": "A+ LMS",
+            "tool_consumer_instance_name": settings.BRAND_NAME,
+            "tool_consumer_instance_description": settings.BRAND_DESCRIPTION,
+            "tool_consumer_instance_url": settings.BASE_URL,
         })
 
         if service.api_access:
