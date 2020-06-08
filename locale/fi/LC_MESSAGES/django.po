@@ -3586,13 +3586,8 @@ msgid "Password"
 msgstr "Salasana"
 
 #: userprofile/templates/userprofile/login.html:94
-#, python-format
-msgid ""
-"\n"
-"  You may want to read our <a href=\"%(url)s\">privacy notice</a>.\n"
-"  "
+msgid "You may want to read our <a href=\"%(url)s\">privacy notice</a>."
 msgstr ""
-"\n"
 "Voit olla kiinnostunut <a href=\"%(url)s\">tietosuojailmoituksestamme</a>."
 
 #: userprofile/templates/userprofile/logout.html:4

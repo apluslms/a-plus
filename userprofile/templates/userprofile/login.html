@@ -6,94 +6,94 @@
 
 {% block content %}
 
-<div class="page-header">
-    <h1>{% trans "Login" %}</h1>
-</div>
+	<div class="page-header">
+		<h1>{% trans "Login" %}</h1>
+	</div>
 
-<div class="row">
+	<div class="row">
 
-    {% if shibboleth_login %}
-    <div class="col-sm-6 col-md-3">
-        <div class="thumbnail">
-            <div class="caption">
-                {% if shibboleth_title_text %}
-                <h3>
-                	{{ shibboleth_title_text|safe }}
-                </h3>
-                {% endif %}
-                {% if shibboleth_body_text %}
-                <p>
-                	{{ shibboleth_body_text|safe }}
-                </p>
-                {% endif %}
-                <p>
-                	<a class="btn btn-primary btn-block" role="button" href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
-                		{{ shibboleth_button_text|safe }}
-                	</a>
-                </p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+		{% if shibboleth_login %}
+			<div class="col-sm-6 col-md-3">
+				<div class="thumbnail">
+					<div class="caption">
+						{% if shibboleth_title_text %}
+							<h3>
+								{{ shibboleth_title_text|safe }}
+							</h3>
+						{% endif %}
+						{% if shibboleth_body_text %}
+							<p>
+								{{ shibboleth_body_text|safe }}
+							</p>
+						{% endif %}
+						<p>
+							<a class="btn btn-primary btn-block" role="button" href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
+								{{ shibboleth_button_text|safe }}
+							</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
-    {% if mooc_login %}
-    <div class="col-sm-6 col-md-3">
-        <div class="thumbnail">
-            <div class="caption">
-                {% if mooc_title_text %}
-                <h3>
-                  {{ mooc_title_text|safe }}
-                </h3>
-                {% endif %}
-                {% if mooc_body_text %}
-                <p>
-                    {{ mooc_body_text|safe }}
-                </p>
-                {% endif %}
-                <p>
-                    <a class="btn btn-danger btn-block" role="button" href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Login Using Google' %}</a>
-                </p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+		{% if mooc_login %}
+			<div class="col-sm-6 col-md-3">
+				<div class="thumbnail">
+					<div class="caption">
+						{% if mooc_title_text %}
+							<h3>
+								{{ mooc_title_text|safe }}
+							</h3>
+						{% endif %}
+						{% if mooc_body_text %}
+							<p>
+								{{ mooc_body_text|safe }}
+							</p>
+						{% endif %}
+						<p>
+							<a class="btn btn-danger btn-block" role="button" href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Login Using Google' %}</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
-    <div class="col-sm-6 col-md-3">
-        <div class="thumbnail">
-            <div class="caption">
-                {% if login_title_text %}
-                <h3>
-                	{{ login_title_text|safe }}
-                </h3>
-                {% endif %}
-                {% if login_body_text %}
-                <p>
-                    {{ login_body_text|safe }}
-                </p>
-                {% endif %}
-                <form method="post" role="form">
-                    {% csrf_token %}
-                    {#{ form|bootstrap }#}
-                    <div class="form-group">
-                        <input class="form-control" type="text" id="id_username" name="username" maxlength="254" placeholder="{% trans 'Username' %}">
-                    </div>
-                    <div class="form-group">
-                        <input class="form-control" type="password" id="id_password" name="password" placeholder="{% trans 'Password' %}">
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-default btn-block">{{ login_button_text|safe }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+		<div class="col-sm-6 col-md-3">
+			<div class="thumbnail">
+				<div class="caption">
+					{% if login_title_text %}
+						<h3>
+							{{ login_title_text|safe }}
+						</h3>
+					{% endif %}
+					{% if login_body_text %}
+						<p>
+							{{ login_body_text|safe }}
+						</p>
+					{% endif %}
+					<form method="post" role="form">
+						{% csrf_token %}
+						{#{ form|bootstrap }#}
+						<div class="form-group">
+							<input class="form-control" type="text" id="id_username" name="username" maxlength="254" placeholder="{% trans 'Username' %}">
+						</div>
+						<div class="form-group">
+							<input class="form-control" type="password" id="id_password" name="password" placeholder="{% trans 'Password' %}">
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-default btn-block">{{ login_button_text|safe }}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 
-{% url 'privacy_notice' as privacy_url %}
-<p>
-  {% blocktrans with url=privacy_url %}
-  You may want to read our <a href="{{ url }}">privacy notice</a>.
-  {% endblocktrans %}
-</p>
+	{% url 'privacy_notice' as privacy_url %}
+	<p>
+		{% blocktrans trimmed with url=privacy_url %}
+			You may want to read our <a href="{{ url }}">privacy notice</a>.
+		{% endblocktrans %}
+	</p>
 
 {% endblock %}
