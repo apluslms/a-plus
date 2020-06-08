@@ -3585,7 +3585,13 @@ msgstr "Kirjaudu Google-tunnuksella"
 msgid "Password"
 msgstr "Salasana"
 
-#: userprofile/templates/userprofile/login.html:94
+#: userprofile/templates/userprofile/login.html:99
+#: userprofile/templates/userprofile/login.html:100
+msgid "Show more login options"
+msgstr "Näytä lisää kirjautumisvaihtoehtoja"
+
+#: userprofile/templates/userprofile/login.html:108
+#, python-format
 msgid "You may want to read our <a href=\"%(url)s\">privacy notice</a>."
 msgstr ""
 "Voit olla kiinnostunut <a href=\"%(url)s\">tietosuojailmoituksestamme</a>."

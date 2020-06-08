@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% load bootstrap %}
 
 {% block title %}{% trans "Login" %} | {{ block.super }}{% endblock %}
+
+{% block scripts %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{% static 'userprofile/login.css' %}" />
+	<script src="{% static 'userprofile/extra_logins.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 
@@ -10,10 +17,10 @@
 		<h1>{% trans "Login" %}</h1>
 	</div>
 
-	<div class="row">
+	<div id="login-box-row" class="row">
 
 		{% if shibboleth_login %}
-			<div class="col-sm-6 col-md-3">
+			<div class="col-sm-6 col-md-3 login-box">
 				<div class="thumbnail">
 					<div class="caption">
 						{% if shibboleth_title_text %}
@@ -37,7 +44,7 @@
 		{% endif %}
 
 		{% if mooc_login %}
-			<div class="col-sm-6 col-md-3">
+			<div class="col-sm-6 col-md-3 login-box">
 				<div class="thumbnail">
 					<div class="caption">
 						{% if mooc_title_text %}
@@ -58,7 +65,7 @@
 			</div>
 		{% endif %}
 
-		<div class="col-sm-6 col-md-3">
+		<div class="col-sm-6 col-md-3 login-box extra-login">
 			<div class="thumbnail">
 				<div class="caption">
 					{% if login_title_text %}
@@ -86,6 +93,16 @@
 					</form>
 				</div>
 			</div>
+		</div>
+
+		<div class="col-sm-1">
+			<button class="btn btn-default show-extra-login-btn"
+				aria-label="{% trans 'Show more login options' %}"
+				title="{% trans 'Show more login options' %}"
+			>
+				<i class="glyphicon glyphicon-chevron-right hidden-xs" focusable="false"></i>
+				<i class="glyphicon glyphicon-chevron-down visible-xs-inline" focusable="false"></i>
+			</button>
 		</div>
 	</div>
 
