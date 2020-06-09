@@ -1,4 +1,6 @@
 from hashlib import md5
+from urllib.parse import urlsplit, urljoin
+
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import get_language
@@ -19,8 +21,9 @@ class LTIRequest(object):
     def __init__(self, service, user, instance, request, title, context_id=None, link_id=None, add=None, exercise=None):
         self.service = service
         course = instance.course
+        base_url_parts = urlsplit(settings.BASE_URL)
         # Context and resource parameters.
-        context_id = context_id or (request.get_host() + instance.get_absolute_url())
+        context_id = context_id or (base_url_parts.netloc + instance.get_absolute_url())
         link_id = link_id or "aplus{:d}".format(service.pk)
         title = title or link_id
 
@@ -60,9 +63,9 @@ class LTIRequest(object):
             "launch_presentation_locale": get_language(),
             "launch_presentation_document_target":
                 "iframe" if exercise and exercise.open_in_iframe else "window",
-            "launch_presentation_return_url": request.scheme + '://' + request.get_host() + instance.get_absolute_url(),
+            "launch_presentation_return_url": urljoin(settings.BASE_URL, instance.get_absolute_url()),
 
-            "tool_consumer_instance_guid": request.get_host() + "/aplus",
+            "tool_consumer_instance_guid": base_url_parts.netloc + "/aplus",
             "tool_consumer_instance_name": "A+ LMS",
         })
 
