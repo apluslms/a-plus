@@ -985,7 +985,7 @@ msgstr "Avaa 0 arvosanan diplomi"
 
 #: diploma/templates/diploma/list.html:26
 #: edit_course/templates/edit_course/signin_as_user.html:14
-#: userprofile/templates/userprofile/login.html:78
+#: userprofile/templates/userprofile/login.html:84
 #: userprofile/templates/userprofile/profile.html:35
 msgid "Username"
 msgstr "Käyttäjätunnus"
@@ -3524,6 +3524,7 @@ msgid "Log out"
 msgstr "Kirjaudu ulos"
 
 #: templates/base.html:138 templates/base.html:174
+#: userprofile/templates/userprofile/login.html:90
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
@@ -3572,25 +3573,38 @@ msgstr "Vaativammat pisteet käytetään helpompien vaatimuksien täyttöön."
 msgid "{:d} points"
 msgstr "{:d} pisteet"
 
-#: userprofile/templates/userprofile/login.html:5
-#: userprofile/templates/userprofile/login.html:10
+#: userprofile/templates/userprofile/login.html:6
+#: userprofile/templates/userprofile/login.html:17
 msgid "Login"
 msgstr "Kirjaudu sisään"
 
-#: userprofile/templates/userprofile/login.html:54
-msgid "Login Using Google"
+#: userprofile/templates/userprofile/login.html:61
+msgid "Log in using Google"
 msgstr "Kirjaudu Google-tunnuksella"
 
-#: userprofile/templates/userprofile/login.html:81
+#: userprofile/templates/userprofile/login.html:72
+msgid "Local users"
+msgstr "Paikalliset käyttäjät"
+
+#: userprofile/templates/userprofile/login.html:75
+#, python-format
+msgid ""
+"If you have been provided with credentials specifically for %(brand_name)s, "
+"use this login."
+msgstr ""
+"Mikäli sinulla on tunnukset yksinomaan %(brand_name)s-palvelua varten, "
+"kirjaudu sisään tästä."
+
+#: userprofile/templates/userprofile/login.html:87
 msgid "Password"
 msgstr "Salasana"
 
+#: userprofile/templates/userprofile/login.html:98
 #: userprofile/templates/userprofile/login.html:99
-#: userprofile/templates/userprofile/login.html:100
 msgid "Show more login options"
 msgstr "Näytä lisää kirjautumisvaihtoehtoja"
 
-#: userprofile/templates/userprofile/login.html:108
+#: userprofile/templates/userprofile/login.html:107
 #, python-format
 msgid "You may want to read our <a href=\"%(url)s\">privacy notice</a>."
 msgstr ""
@@ -3686,6 +3700,6 @@ msgstr ""
 msgid "Forget automatic redirection"
 msgstr "Unohda automaattinen uudelleenohjaus."
 
-#: userprofile/views.py:80
+#: userprofile/views.py:78
 msgid "No privacy notice. Please notify administration!"
 msgstr "Ei tietosuojailmoitusta. Ota yhteys ylläpitäjään!"
