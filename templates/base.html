@@ -74,8 +74,9 @@
         <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
     </head>
     <body class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %} lang-{{ request.LANGUAGE_CODE }}" data-view-tag="{% block view_tag %}{% endblock %}">
+        <a href="#content" class="skip-link">{% trans "Skip main navigation" %}</a>
         <div class="page-wrap">
-            <nav class="topbar navbar navbar-inverse navbar-static-top">
+            <nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% trans "Main navigation" %}">
                 <div class="container-fluid">
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
@@ -181,7 +182,7 @@
                 </div>
             </nav>
 
-            <div class="site-content container-fluid">
+            <div class="site-content container-fluid" id="content">
                 {% site_alert %}
                 {% include "_messages.html" %}
                 {% block content %}

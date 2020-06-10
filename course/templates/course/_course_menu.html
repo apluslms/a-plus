@@ -7,6 +7,12 @@
 
 {% prepare_course_menu %}
 
+<li>
+	<a href="#course-content" class="skip-link page-skip-link">
+		{% trans "Skip course navigation" %}
+	</a>
+</li>
+
 {% if instance.language|first == "|" %}
 <li role="presentation" class="header">
 	<div class="row">
