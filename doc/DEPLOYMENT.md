@@ -43,7 +43,7 @@ Common system configuration
           postgresql memcached \
           uwsgi-core uwsgi-plugin-python3 \
           python3-virtualenv \
-          python3-psycopg2 python3-certifi python3-reportlab python3-reportlab-accel
+          python3-certifi python3-lz4 python3-psycopg2 python3-reportlab python3-reportlab-accel
 
  1. Create a new user for a-plus
 

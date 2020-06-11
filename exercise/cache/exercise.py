@@ -1,10 +1,24 @@
+import logging
 import time
+
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
 
 from lib.cache import CachedAbstract
 from lib.remote_page import RemotePageNotModified
 from ..protocol.aplus import load_exercise_page
+
+logger = logging.getLogger('aplus.cached')
+
+try:
+    from lz4.block import compress as _compress, decompress
+    def compress(data):
+        return _compress(data, compression=1)
+except ImportError:
+    logger.warning("Unable to import lz4, using a slower zlib instead")
+    from zlib import compress as _compress, decompress
+    def compress(data):
+        return _compress(data, level=1)
 
 
 class ExerciseCache(CachedAbstract):
@@ -26,9 +40,12 @@ class ExerciseCache(CachedAbstract):
                 *self.load_args,
                 last_modified=data['last_modified'] if data else None
             )
+
+            content = compress(page.content.encode('utf-8'))
+
             return {
                 'head': page.head,
-                'content': page.content,
+                'content': content,
                 'last_modified': page.last_modified,
                 'expires': page.expires if page.is_loaded else 0,
             }
@@ -41,7 +58,8 @@ class ExerciseCache(CachedAbstract):
         return self.data['head']
 
     def content(self):
-        return self.data['content']
+        content = decompress(self.data['content']).decode('utf-8')
+        return content
 
 
 def invalidate_instance(instance):
