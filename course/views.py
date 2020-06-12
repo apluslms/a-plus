@@ -35,10 +35,11 @@ class HomeView(UserProfileView):
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
         self.instances = []
         prio2 = []
-        treshold = timezone.now() - datetime.timedelta(days=10)
+        start_threshold = timezone.now() - datetime.timedelta(days=10)
+        end_threshold = timezone.now() - datetime.timedelta(days=30)
         for instance in CourseInstance.objects.get_visible(self.request.user)\
-                .filter(ending_time__gte=timezone.now()):
-            if instance.starting_time > treshold:
+                .filter(ending_time__gte=end_threshold):
+            if instance.starting_time > start_threshold:
                 self.instances += [instance]
             else:
                 prio2 += [instance]
