@@ -58,6 +58,24 @@ table.src tr td.src {
   user-select: none;
 }
 
+/* FOCUS STATES - !important is needed to apply consistently to all elements */
+
+.js-focus-visible a.focus-visible,
+.js-focus-visible input.btn.focus-visible,
+.js-focus-visible button.focus-visible { /* Mostly for links in text */
+    background-color: #ffdd00 !important;
+    color: #333 !important;
+    outline: 3px solid rgba(0, 0, 0, 0) !important;
+    text-decoration: underline !important;
+}
+
+.js-focus-visible input.focus-visible, 
+.js-focus-visible select.focus-visible, 
+.js-focus-visible div.focus-visible {
+    outline: 3px solid #ffdd00 !important;
+}
+
+
 /* site footer */
 html, body {
     height: 100%;
