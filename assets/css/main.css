@@ -330,7 +330,23 @@ html, body {
     width: 100%;
 }
 
-/* panels */
+.archive-link {
+    margin: 3%;
+    font-size: 18px;
+}
+
+
+/* panels */  
+.frontpage-panel {
+    margin: 3%;
+    margin-top: 30px;
+}
+
+.frontpage-panel .panel-heading {
+    border-bottom: solid 1px #eee;
+    font-weight: 500;
+}
+
 .module-panel .panel-heading {
     display: block;
 }

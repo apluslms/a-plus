@@ -33,18 +33,39 @@ class HomeView(UserProfileView):
         self.welcome_text = settings_text('WELCOME_TEXT')
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
-        self.instances = []
-        prio2 = []
-        start_threshold = timezone.now() - datetime.timedelta(days=10)
+        self.my_instances = []
+        self.all_instances = []
         end_threshold = timezone.now() - datetime.timedelta(days=30)
-        for instance in CourseInstance.objects.get_visible(self.request.user)\
-                .filter(ending_time__gte=end_threshold):
-            if instance.starting_time > start_threshold:
-                self.instances += [instance]
-            else:
-                prio2 += [instance]
-        self.instances += prio2
-        self.note("welcome_text", "internal_user_label", "external_user_label", "instances")
+        user = self.request.user
+        my_instances = []
+
+        if user and user.is_authenticated:
+            for instance in (CourseInstance.objects
+                .filter(course__teachers=user.userprofile,
+                        ending_time__gte=end_threshold)
+                .all()):
+                my_instances.append(instance)
+
+            for instance in user.userprofile.assisting_courses.all().filter(ending_time__gte=end_threshold):
+                if instance not in my_instances:
+                    my_instances.append(instance)
+            
+            for instance in user.userprofile.enrolled.all().filter(ending_time__gte=end_threshold):
+                if instance not in my_instances:
+                    my_instances.append(instance)
+        
+        all_instances = CourseInstance.objects.get_visible(user).filter(ending_time__gte=end_threshold)
+        all_instances = [c for c in all_instances if c not in my_instances]
+        
+        self.all_instances = all_instances
+        self.my_instances = my_instances
+
+        self.note("welcome_text", 
+            "internal_user_label", 
+            "external_user_label",
+            "my_instances",
+            "all_instances",
+        )
 
 
 class ArchiveView(UserProfileView):
