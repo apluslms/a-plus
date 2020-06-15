@@ -291,52 +291,8 @@ html, body {
     list-style: none;
 }
 
-/* index thumbnails */
-.course-thumbnails .advert-thumbnail,
-.course-thumbnails .course-thumbnail {
-    height: 330px;
-    position: relative;
-}
-.course-thumbnails .advert-thumbnail {
-    background-color: #d9edf7;
-    border-color: #bce8f1;
-}
-.course-thumbnails .advert-thumbnail .image,
-.course-thumbnails .course-thumbnail .image {
-    height: 130px;
-    overflow: hidden;
-    text-align: center;
-}
-.course-thumbnails .course-thumbnail .image {
-    background: #eee;
-}
-.course-thumbnails .advert-thumbnail .image img,
-.course-thumbnails .course-thumbnail .image img {
-    width: 100%;
-    background: #eee;
-}
-.course-thumbnails .advert-thumbnail .image .glyphicon,
-.course-thumbnails .course-thumbnail .image .glyphicon {
-    font-size: 90px;
-}
-.course-thumbnails .course-thumbnail .image .glyphicon {
-    color: #fff;
-}
-.course-thumbnails .advert-thumbnail .buttons,
-.course-thumbnails .course-thumbnail .buttons {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-}
-
-.archive-link {
-    margin: 3%;
-    font-size: 18px;
-}
-
-
-/* panels */  
+/* the course index on the frontpage */
+  
 .frontpage-panel {
     margin: 3%;
     margin-top: 30px;
@@ -347,6 +303,84 @@ html, body {
     font-weight: 500;
 }
 
+.frontpage .card {
+    margin-bottom: 20px;
+    border: solid 1px #ccc;
+    position: relative;
+    height: 355px;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.frontpage .advert-card {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+
+.frontpage a:hover {
+    text-decoration: none;
+}
+
+.frontpage .card-clickable:hover {
+    filter: brightness(85%);
+}
+
+.frontpage .advert-card:hover h3, 
+.frontpage .advert-card:hover p,
+.frontpage .card-clickable:hover h3, 
+.frontpage .card-clickable:hover p {
+    color: #333;
+}
+
+.frontpage .card-img-top {
+    object-fit: cover;
+    width: 100%;
+    height: 145px;
+    background-color:#eeeeee;
+}
+
+.frontpage .course-image {
+    position: relative;
+    color: #fff;
+}
+
+.frontpage .course-image i,
+.frontpage .advert-image i {
+    font-size: 90px;
+    position: absolute;
+    left: 34%;
+    top: 15%;
+}
+
+.frontpage .card-body {
+    padding: 10px;
+    padding-top: 0px;
+    color: #333333;
+}
+
+.frontpage .card-title {
+    color: #337ab7;
+}
+
+.frontpage .card-subtitle {
+    font-size: 18px;
+}
+
+.frontpage .card-footer {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    padding: 14px;
+}
+
+.archive-link {
+    margin: 3%;
+    font-size: 18px;
+}
+
+
+/* panels */  
 .module-panel .panel-heading {
     display: block;
 }

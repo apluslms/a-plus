@@ -15,8 +15,8 @@
 {% if my_instances %}
     <div class="frontpage-panel">
         <h2 class="panel-heading">{% trans "My courses"%}</h2>
-        <div class="row course-thumbnails">
-            {% include "course/course_thumbnails.html" with instances=my_instances %}
+        <div class="row frontpage">
+            {% include "course/_course_cards.html" with instances=my_instances %}
         </div>
     </div>
 {% endif %}
@@ -24,40 +24,39 @@
 {% if all_instances %}
     <div class="frontpage-panel">
         <h2 class="panel-heading">{% trans "All ongoing courses"%}</h2>
-        <div class="row course-thumbnails">
+        <div class="row frontpage">
             {% site_advert as advert %}
             {% if advert %}
                 <div class="col-sm-6 col-md-4 col-lg-3">
-                    <div class="thumbnail advert-thumbnail">
-                        <div class="image" aria-hidden="true">
-                            {% if advert.image %}
-                                <img src="{{ advert.image }}" alt="">
-                            {% else %}
-                                <h1 class="glyphicon glyphicon-comment"></h1>
-                            {% endif %}
-                        </div>
-                        <div class="caption">
-                            <h3>{{ advert.title }}</h3>
-                            <p>{{ advert.text|safe }}</p>
-                            <div class="buttons caption">
-                                <a class="btn btn-default btn-block" role="button" href="{{ advert.href }}" target="_blank">
-                                    <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
-                                    {% trans "Read more" %}
-                                </a>
+                    <a href="{{ advert.href }}" target="_blank">
+                        <div class="card advert-card">
+                            <div class="advert-image" aria-hidden="true">
+                                {% if advert.image %}
+                                    <img class="card-img-top" src="{{ advert.image }}" alt="" />
+                                {% else %}
+                                    <div class="card-img-top">
+                                        <i class="glyphicon glyphicon-comment"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h3 class="card-title">{{ advert.title }}</h3>
+                                <p class="card-text">{{ advert.text|safe }}</p>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             {% endif %}
-            {% include "course/course_thumbnails.html" with instances=all_instances %}
+            {% include "course/_course_cards.html" with instances=all_instances %}
         </div>
     </div>
 {% endif %}
 
+
 <p class="archive-link">
     {% url 'archive' as url %}
     {% blocktrans with url=url %}
-        Old courses can be found at the <a href="{{ url }}">course archive</a>.
+    Old courses can be found at the <a href="{{ url }}">course archive</a>.
     {% endblocktrans %}
 </p>
 

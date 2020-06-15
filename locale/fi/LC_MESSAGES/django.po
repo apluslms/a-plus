@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-15 09:10+0300\n"
+"POT-Creation-Date: 2020-06-16 15:04+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -378,6 +378,11 @@ msgstr "Muutosten tallentaminen epäonnistui."
 msgid "The following users were already enrolled: {users}"
 msgstr "Seuraavat käyttäjät olivat jo ilmoittautuneet: {users}"
 
+#: course/templates/course/_course_cards.html:29
+#: course/templates/course/archive.html:23
+msgid "Hidden from students"
+msgstr "Piilotettu opiskelijoilta"
+
 #: course/templates/course/_course_dropdown_menu.html:16
 msgid "Begin by enrolling in a course."
 msgstr "Aloita ilmoittautumalla jollekin kurssille."
@@ -589,19 +594,9 @@ msgstr "Aikainen pääsy"
 msgid "Course archive"
 msgstr "Kurssiarkisto"
 
-#: course/templates/course/archive.html:23
-#: course/templates/course/course_thumbnails.html:26
-msgid "Hidden from students"
-msgstr "Piilotettu opiskelijoilta"
-
 #: course/templates/course/course_base.html:34
-#: course/templates/course/index.html:45
 msgid "Read more"
 msgstr "Lue lisää"
-
-#: course/templates/course/course_thumbnails.html:42
-msgid "View course"
-msgstr "Näytä kurssi"
 
 #: course/templates/course/enroll.html:6 course/templates/course/enroll.html:10
 msgid "Enrollment"
@@ -686,7 +681,7 @@ msgstr "Minun kurssini"
 msgid "All ongoing courses"
 msgstr "Kaikki kurssit"
 
-#: course/templates/course/index.html:59
+#: course/templates/course/index.html:58
 #, python-format
 msgid ""
 "\n"
@@ -895,15 +890,15 @@ msgstr "Sähköposti"
 msgid "Tags"
 msgstr "Merkinnät"
 
-#: course/views.py:111
+#: course/views.py:115
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:115 exercise/exercise_models.py:561
+#: course/views.py:119 exercise/exercise_models.py:561
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:188
+#: course/views.py:192
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
