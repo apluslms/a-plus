@@ -3,48 +3,48 @@
 
 {% for instance in instances %}
 {% with instance_url=instance|url %}
-	<div class="col-sm-6 col-md-4 col-lg-3">
-		<div class="frontpage-course card">
-            <div class="card-clickable">
-                <a href="{{ instance_url }}">
-                    <div class="course-image" aria-hidden="true">
-                        {% if instance.image %}
-                            <img class="card-img-top" src="{{ instance.image.url }}" alt="" />
-                        {% else %}
-                            <div class="card-img-top">
-                                <i class="glyphicon glyphicon-book"></i>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="card-body">
-                        <h3 class="card-title" lang="{{ instance.language }}">
-                            {{ instance.course.name|parse_localization }}<br />
-                        </h3>
-                        <p class="card-subtitle" lang="{{ instance.language }}">
-                            {{ instance.instance_name|parse_localization }}
-                        </p>
-                        <p class="card-text">
-                            {{ instance.course.code }}
-                            {% if not instance.visible_to_students %}
-                                <span class="label label-danger">{% trans "Hidden from students" %}</span>
-                            {% endif %}
-                            <br />
-                            {{ instance.starting_time|date:"SHORT_DATE_FORMAT" }} &ndash;
-                            {{ instance.ending_time|date:"SHORT_DATE_FORMAT" }}
-                            <br />
-                        </p>
-                    </div>
-                </a>
-            </div>
-            <div class="card-footer">
-                {% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
-                    <span class="label label-success">{{ internal_user_label|safe }}</span>
-                {% endif %}
-                {% if instance.enrollment_audience == 2 or instance.enrollment_audience == 3 %}
-                    <span class="label label-info">{{ external_user_label|safe }}</span>
-                {% endif %}
-            </div>
+<div class="col-sm-6 col-md-4 col-lg-3">
+	<div class="frontpage-course card">
+		<div class="card-clickable">
+			<a href="{{ instance_url }}">
+				<div class="course-image" aria-hidden="true">
+					{% if instance.image %}
+						<img class="card-img-top" src="{{ instance.image.url }}" alt="" />
+					{% else %}
+					<div class="card-img-top">
+						<i class="glyphicon glyphicon-book"></i>
+					</div>
+					{% endif %}
+				</div>
+				<div class="card-body">
+					<h3 class="card-title" lang="{{ instance.language }}">
+						{{ instance.course.name|parse_localization }}<br />
+					</h3>
+					<p class="card-subtitle" lang="{{ instance.language }}">
+						{{ instance.instance_name|parse_localization }}
+					</p>
+					<p class="card-text">
+						{{ instance.course.code }}
+						{% if not instance.visible_to_students %}
+   							<span class="label label-danger">{% trans "Hidden from students" %}</span>
+						{% endif %}
+						<br />
+						{{ instance.starting_time|date:"SHORT_DATE_FORMAT" }} &ndash;
+						{{ instance.ending_time|date:"SHORT_DATE_FORMAT" }}
+						<br />
+					</p>
+				</div>
+			</a>
+		</div>
+		<div class="card-footer">
+			{% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
+				<span class="label label-success">{{ internal_user_label|safe }}</span>
+			{% endif %}
+			{% if instance.enrollment_audience == 2 or instance.enrollment_audience == 3 %}
+				<span class="label label-info">{{ external_user_label|safe }}</span>
+			{% endif %}
 		</div>
 	</div>
+</div>
 {% endwith %}
 {% endfor %}

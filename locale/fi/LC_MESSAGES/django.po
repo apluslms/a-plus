@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-16 15:04+0300\n"
+"POT-Creation-Date: 2020-06-16 15:50+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -681,15 +681,16 @@ msgstr "Minun kurssini"
 msgid "All ongoing courses"
 msgstr "Kaikki kurssit"
 
-#: course/templates/course/index.html:58
+#: course/templates/course/index.html:58	
 #, python-format
-msgid ""
+msgid ""	
 "\n"
-"    Old courses can be found at the <a href=\"%(url)s\">course archive</a>.\n"
-"    "
-msgstr ""
-"\n"
-"Vanhat kurssit ovat nähtävissä <a href=\"%(url)s\">kurssiarkistossa</a>."
+"\tOld courses can be found at the <a href=\"%(url)s\">course archive</a>.\n"	
+"\t"	
+msgstr ""	
+"\n"	
+"\tVanhat kurssit ovat nähtävissä <a href=\"%(url)s\">kurssiarkistossa</a>."
+"\t"
 
 #: course/templates/course/module.html:27
 #, python-format
