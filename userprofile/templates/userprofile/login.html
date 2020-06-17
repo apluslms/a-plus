@@ -1,99 +1,115 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% load bootstrap %}
 
 {% block title %}{% trans "Login" %} | {{ block.super }}{% endblock %}
 
+{% block scripts %}
+	{{ block.super }}
+	<link rel="stylesheet" href="{% static 'userprofile/login.css' %}" />
+	<script src="{% static 'userprofile/extra_logins.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 
-<div class="page-header">
-    <h1>{% trans "Login" %}</h1>
-</div>
+	<div class="page-header">
+		<h1>{% trans "Login" %}</h1>
+	</div>
 
-<div class="row">
+	<div id="login-box-row" class="row">
 
-    {% if shibboleth_login %}
-    <div class="col-sm-6 col-md-3">
-        <div class="thumbnail">
-            <div class="caption">
-                {% if shibboleth_title_text %}
-                <h3>
-                	{{ shibboleth_title_text|safe }}
-                </h3>
-                {% endif %}
-                {% if shibboleth_body_text %}
-                <p>
-                	{{ shibboleth_body_text|safe }}
-                </p>
-                {% endif %}
-                <p>
-                	<a class="btn btn-primary btn-block" role="button" href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
-                		{{ shibboleth_button_text|safe }}
-                	</a>
-                </p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+		{% if shibboleth_login %}
+			<div class="col-sm-6 col-md-3 login-box">
+				<div class="thumbnail">
+					<div class="caption">
+						{% if shibboleth_title_text %}
+							<h3>
+								{{ shibboleth_title_text|safe }}
+							</h3>
+						{% endif %}
+						{% if shibboleth_body_text %}
+							<p>
+								{{ shibboleth_body_text|safe }}
+							</p>
+						{% endif %}
+						<p>
+							<a class="btn btn-primary btn-block" role="button" href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
+								{{ shibboleth_button_text|safe }}
+							</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
-    {% if mooc_login %}
-    <div class="col-sm-6 col-md-3">
-        <div class="thumbnail">
-            <div class="caption">
-                {% if mooc_title_text %}
-                <h3>
-                  {{ mooc_title_text|safe }}
-                </h3>
-                {% endif %}
-                {% if mooc_body_text %}
-                <p>
-                    {{ mooc_body_text|safe }}
-                </p>
-                {% endif %}
-                <p>
-                    <a class="btn btn-danger btn-block" role="button" href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Login Using Google' %}</a>
-                </p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+		{% if mooc_login %}
+			<div class="col-sm-6 col-md-3 login-box">
+				<div class="thumbnail">
+					<div class="caption">
+						{% if mooc_title_text %}
+							<h3>
+								{{ mooc_title_text|safe }}
+							</h3>
+						{% endif %}
+						{% if mooc_body_text %}
+							<p>
+								{{ mooc_body_text|safe }}
+							</p>
+						{% endif %}
+						<p>
+							<a class="btn btn-danger btn-block" role="button" href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Log in using Google' %}</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
-    <div class="col-sm-6 col-md-3">
-        <div class="thumbnail">
-            <div class="caption">
-                {% if login_title_text %}
-                <h3>
-                	{{ login_title_text|safe }}
-                </h3>
-                {% endif %}
-                {% if login_body_text %}
-                <p>
-                    {{ login_body_text|safe }}
-                </p>
-                {% endif %}
-                <form method="post" role="form">
-                    {% csrf_token %}
-                    {#{ form|bootstrap }#}
-                    <div class="form-group">
-                        <input class="form-control" type="text" id="id_username" name="username" maxlength="254" placeholder="{% trans 'Username' %}">
-                    </div>
-                    <div class="form-group">
-                        <input class="form-control" type="password" id="id_password" name="password" placeholder="{% trans 'Password' %}">
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-default btn-block">{{ login_button_text|safe }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+		<div class="col-sm-6 col-md-3 login-box extra-login">
+			<div class="thumbnail">
+				<div class="caption">
+					<h3>
+						{% trans "Local users" %}
+					</h3>
+					<p>
+						{% blocktrans trimmed %}
+							If you have been provided with credentials specifically
+							for {{ brand_name }}, use this login.
+						{% endblocktrans %}
+					</p>
+					<form method="post" role="form">
+						{% csrf_token %}
+						{#{ form|bootstrap }#}
+						<div class="form-group">
+							<input class="form-control" type="text" id="id_username" name="username" maxlength="254" placeholder="{% trans 'Username' %}">
+						</div>
+						<div class="form-group">
+							<input class="form-control" type="password" id="id_password" name="password" placeholder="{% trans 'Password' %}">
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-default btn-block">{% trans "Log in" %}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
 
-{% url 'privacy_notice' as privacy_url %}
-<p>
-  {% blocktrans with url=privacy_url %}
-  You may want to read our <a href="{{ url }}">privacy notice</a>.
-  {% endblocktrans %}
-</p>
+		<div class="col-sm-1">
+			<button class="btn btn-default show-extra-login-btn"
+				aria-label="{% trans 'Show more login options' %}"
+				title="{% trans 'Show more login options' %}"
+			>
+				<i class="glyphicon glyphicon-chevron-right hidden-xs" focusable="false"></i>
+				<i class="glyphicon glyphicon-chevron-down visible-xs-inline" focusable="false"></i>
+			</button>
+		</div>
+	</div>
+
+	{% url 'privacy_notice' as privacy_url %}
+	<p>
+		{% blocktrans trimmed with url=privacy_url %}
+			You may want to read our <a href="{{ url }}">privacy notice</a>.
+		{% endblocktrans %}
+	</p>
 
 {% endblock %}

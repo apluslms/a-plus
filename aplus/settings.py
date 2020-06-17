@@ -32,13 +32,10 @@ BRAND_NAME = 'A+'
 
 WELCOME_TEXT = 'Welcome to A+ <small>modern learning environment</small>'
 SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
-SHIBBOLETH_BODY_TEXT = 'Log in with Aalto University user account by clicking the button below. Programme students and faculty must login here.'
-SHIBBOLETH_BUTTON_TEXT = 'Aalto Login'
+SHIBBOLETH_BODY_TEXT = 'Log in with Aalto University user account by clicking the button below. Programme students and faculty must log in here.'
+SHIBBOLETH_BUTTON_TEXT = 'Aalto login'
 MOOC_TITLE_TEXT = 'Users external to Aalto'
-MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Login with your user account from one of the following services.'
-LOGIN_TITLE_TEXT = ''
-LOGIN_BODY_TEXT = ''
-LOGIN_BUTTON_TEXT = 'Maintenance login'
+MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Log in with your user account from one of the following services.'
 INTERNAL_USER_LABEL = 'Aalto'
 EXTERNAL_USER_LABEL = 'MOOC'
 
@@ -48,9 +45,6 @@ SHIBBOLETH_BODY_TEXT_FI = 'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuk
 SHIBBOLETH_BUTTON_TEXT_FI = 'Aalto-kirjautuminen'
 MOOC_TITLE_TEXT_FI = 'Käyttäjät Aallon ulkopuolelta'
 MOOC_BODY_TEXT_FI = 'Osa kursseistamme on avoinna kaikille. Kirjaudu sisään jonkin seuraavan palvelun käyttäjätunnuksellasi.'
-LOGIN_TITLE_TEXT_FI = ''
-LOGIN_BODY_TEXT_FI = ''
-LOGIN_BUTTON_TEXT_FI = 'Ylläpidon kirjautuminen'
 
 TRACKING_HTML = ''
 

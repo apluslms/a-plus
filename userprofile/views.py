@@ -26,6 +26,7 @@ class CustomLoginView(LoginView):
     extra_context = {
         'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
         'mooc_login': 'social_django' in settings.INSTALLED_APPS,
+        'brand_name': settings_text('BRAND_NAME'),
     }
 
     def get_context_data(self, **kwargs):
@@ -37,9 +38,6 @@ class CustomLoginView(LoginView):
         # in the class level, but there is a request when this method is called
         # (self.request).
         context.update({
-            'login_title_text': settings_text('LOGIN_TITLE_TEXT'),
-            'login_body_text': settings_text('LOGIN_BODY_TEXT'),
-            'login_button_text': settings_text('LOGIN_BUTTON_TEXT'),
             'shibboleth_title_text': settings_text('SHIBBOLETH_TITLE_TEXT'),
             'shibboleth_body_text': settings_text('SHIBBOLETH_BODY_TEXT'),
             'shibboleth_button_text': settings_text('SHIBBOLETH_BUTTON_TEXT'),

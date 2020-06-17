@@ -1,0 +1,13 @@
+#login-box-row {
+    margin-bottom: 2em;
+}
+
+button.show-extra-login-btn {
+    border: 0px;
+    display: none;
+}
+
+button.show-extra-login-btn > i {
+    font-size: 1.4em;
+    color: #aaa;
+}
