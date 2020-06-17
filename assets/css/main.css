@@ -294,13 +294,21 @@ html, body {
 /* the course index on the frontpage */
   
 .frontpage-panel {
-    margin: 3%;
+    margin: 1%;
     margin-top: 30px;
 }
 
 .frontpage-panel .panel-heading {
     border-bottom: solid 1px #eee;
     font-weight: 500;
+}
+
+.frontpage-panel .panel-body {
+    height: 80px;
+}
+
+.panel-default-text {
+    font-size: 18px;
 }
 
 .frontpage .card {
@@ -375,7 +383,7 @@ html, body {
 }
 
 .archive-link {
-    margin: 3%;
+    margin: 1%;
     font-size: 18px;
 }
 

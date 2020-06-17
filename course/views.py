@@ -33,13 +33,14 @@ class HomeView(UserProfileView):
         self.welcome_text = settings_text('WELCOME_TEXT')
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
-        self.my_instances = []
-        self.all_instances = []
+        my_instances = []
+        all_instances = []
         end_threshold = timezone.now() - datetime.timedelta(days=30)
         user = self.request.user
-        my_instances = []
+        is_logged_in = False
 
         if user and user.is_authenticated:
+            is_logged_in = True
             for instance in (CourseInstance.objects
                 .filter(course__teachers=user.userprofile,
                         ending_time__gte=end_threshold)
@@ -59,12 +60,14 @@ class HomeView(UserProfileView):
         
         self.all_instances = all_instances
         self.my_instances = my_instances
+        self.is_logged_in = is_logged_in
 
         self.note("welcome_text", 
             "internal_user_label", 
             "external_user_label",
             "my_instances",
             "all_instances",
+            "is_logged_in",
         )
 
 
