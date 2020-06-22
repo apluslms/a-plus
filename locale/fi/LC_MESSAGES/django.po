@@ -999,7 +999,6 @@ msgstr "Avaa 0 arvosanan diplomi"
 
 #: diploma/templates/diploma/list.html:26
 #: edit_course/templates/edit_course/signin_as_user.html:14
-#: userprofile/templates/userprofile/login.html:84
 #: userprofile/templates/userprofile/profile.html:35
 msgid "Username"
 msgstr "Käyttäjätunnus"
@@ -3617,12 +3616,8 @@ msgstr ""
 "Mikäli sinulla on tunnukset yksinomaan %(brand_name)s-palvelua varten, "
 "kirjaudu sisään tästä."
 
-#: userprofile/templates/userprofile/login.html:87
-msgid "Password"
-msgstr "Salasana"
-
-#: userprofile/templates/userprofile/login.html:99
-#: userprofile/templates/userprofile/login.html:100
+#: userprofile/templates/userprofile/login.html:93
+#: userprofile/templates/userprofile/login.html:94
 msgid "Show more login options"
 msgstr "Näytä lisää kirjautumisvaihtoehtoja"
 
