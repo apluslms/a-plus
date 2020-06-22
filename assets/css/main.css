@@ -403,9 +403,39 @@ html, body {
 .module-panel table {
     margin: 0;
 }
-.news-panel .list-group-item-text {
-  padding: 10px;
+
+/* course news */
+.news-panel {
+    margin-bottom: 30px;
 }
+
+.news-panel .panel-heading {
+    color: #fff;
+    background-color: #337ab7;
+}
+
+.news-panel .list-group-item-heading {
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+
+.news-panel .list-group-item,
+.news-panel .folding-list-group-item {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+
+.news-panel .folding-list-group-item {
+    color: #337ab7;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.news-panel .folding-list-group-item:hover {
+    background-color: #eee;
+}
+
 .news-panel .list-group-item-text *:last-child {
   margin-bottom: 0;
 }

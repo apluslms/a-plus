@@ -31,7 +31,6 @@ def user_news(context, num, more=0):
     i = 0
     for item in news:
         i += 1
-        item['collapsed'] = i > num
         if more > 0 and i == more:
             item['begin_more'] = True
 

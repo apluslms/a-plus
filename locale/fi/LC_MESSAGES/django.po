@@ -260,7 +260,7 @@ msgstr "Valmis"
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:680 course/models.py:806 templates/base.html:104
+#: course/models.py:680 course/models.py:806 templates/base.html:103
 msgid "Hidden"
 msgstr "Piilotettu"
 
@@ -788,7 +788,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:53 templates/base.html:247
+#: news/templates/news/list.html:53 templates/base.html:246
 msgid "Remove"
 msgstr "Poista"
 
@@ -3430,26 +3430,6 @@ msgid "URL keys may consist of alphanumeric characters, hyphen and period."
 msgstr ""
 "URL-avaimet voivat sisältää kirjaimia, numeroita, yhdysmerkin ja pisteen."
 
-#: news/models.py:13
-msgid "No alert"
-msgstr "Ei hälytystä"
-
-#: news/models.py:14
-msgid "Green / Success"
-msgstr "Vihreä / Onnistuminen"
-
-#: news/models.py:15
-msgid "Blue / Info"
-msgstr "Sininen / Info"
-
-#: news/models.py:16
-msgid "Yellow / Warning"
-msgstr "Keltainen / Varoitus"
-
-#: news/models.py:17
-msgid "Red / Danger"
-msgstr "Punainen / Vaara"
-
 #: news/templates/news/edit.html:6 news/templates/news/edit.html:19
 #: news/templates/news/list.html:64
 msgid "Add news item"
@@ -3479,13 +3459,13 @@ msgstr "Ilmestyy"
 msgid "Course news"
 msgstr "Kurssiuutiset"
 
-#: news/templates/news/user_news.html:28
+#: news/templates/news/user_news.html:27
 msgid "Appears later"
 msgstr "Ilmestyy myöhemmin"
 
-#: news/templates/news/user_news.html:37
-msgid "Show more"
-msgstr "Näytä lisää"
+#: news/templates/news/user_news.html:25
+msgid "Show older"
+msgstr "Näytä aiemmat"
 
 #: notification/templates/notification/_notification_messages.html:7
 msgid "You have"
