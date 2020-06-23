@@ -412,6 +412,7 @@ html, body {
 .news-panel .panel-heading {
     color: #fff;
     background-color: #337ab7;
+    border-color: #337ab7;
 }
 
 .news-panel .list-group-item-heading {
@@ -420,10 +421,16 @@ html, body {
 }
 
 .news-panel .list-group-item,
+.news-panel .pinned-list-group-item,
 .news-panel .folding-list-group-item {
     position: relative;
     display: block;
     padding: 10px 15px;
+}
+
+.news-panel .pinned-list-group-item {
+    border-left: 2px solid #337ab7;
+    border-bottom: 1px solid #ccc;
 }
 
 .news-panel .folding-list-group-item {
@@ -437,7 +444,7 @@ html, body {
 }
 
 .news-panel .list-group-item-text *:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 /* point progress and badges */
