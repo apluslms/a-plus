@@ -11,7 +11,6 @@ class NewsForm(forms.ModelForm):
             'audience',
             'publish',
             'pin',
-            'alert',
             'title',
             'body',
         ]

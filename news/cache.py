@@ -13,29 +13,23 @@ class CachedNews(CachedAbstract):
         super().__init__(course_instance)
 
     def _generate_data(self, instance, data=None):
-        alerts = []
-        news = []
-        for item in instance.news.all():
-            entry = {
+        news = [ 
+            {
                 'id': item.id,
                 'audience': item.audience,
                 'publish': item.publish,
                 'title': item.title,
                 'body': item.body,
                 'pin': item.pin,
-                'alert': item.alert,
             }
-            if item.pin and item.alert:
-                alerts.append(entry)
-            else:
-                news.append(entry)
+            for item in instance.news.all()
+        ]
         return {
-            'alerts': alerts,
             'news': news,
         }
 
     def for_staff(self):
-        return self.data['alerts'], self.data['news']
+        return self.data['news']
 
     def for_user(self, is_external=True):
         EXTERNAL = (News.AUDIENCE.EXTERNAL_USERS, News.AUDIENCE.ALL_USERS)
@@ -49,14 +43,10 @@ class CachedNews(CachedAbstract):
                 )
             ]
         if is_external:
-            return (
-                filter_news(self.data['alerts'], EXTERNAL),
-                filter_news(self.data['news'], EXTERNAL),
-            )
-        return (
-            filter_news(self.data['alerts'], INTERNAL),
-            filter_news(self.data['news'], INTERNAL),
-        )
+            return filter_news(self.data['news'], EXTERNAL)
+
+        return filter_news(self.data['news'], INTERNAL)
+
 
     @classmethod
     def is_visible(cls, entry, when=None):

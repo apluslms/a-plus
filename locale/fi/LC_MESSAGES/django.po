@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-23 10:13+0300\n"
+"POT-Creation-Date: 2020-06-23 12:48+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -788,7 +788,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:53 templates/base.html:246
+#: news/templates/news/list.html:49 templates/base.html:246
 msgid "Remove"
 msgstr "Poista"
 
@@ -817,7 +817,7 @@ msgstr "Luotu"
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: exercise/templates/exercise/staff/_assess_info.html:20
 #: external_services/templates/external_services/list_menu.html:60
-#: news/templates/news/list.html:45
+#: news/templates/news/list.html:41
 msgid "Edit"
 msgstr "Muokkaa"
 
@@ -3431,7 +3431,7 @@ msgstr ""
 "URL-avaimet voivat sisältää kirjaimia, numeroita, yhdysmerkin ja pisteen."
 
 #: news/templates/news/edit.html:6 news/templates/news/edit.html:19
-#: news/templates/news/list.html:64
+#: news/templates/news/list.html:60
 msgid "Add news item"
 msgstr "Lisää uutinen"
 
@@ -3452,14 +3452,10 @@ msgid "Title"
 msgstr "Otsikko"
 
 #: news/templates/news/user_news.html:8
-msgid "Appears"
-msgstr "Ilmestyy"
-
-#: news/templates/news/user_news.html:20
 msgid "Course news"
 msgstr "Kurssiuutiset"
 
-#: news/templates/news/user_news.html:27
+#: news/templates/news/user_news.html:15
 msgid "Appears later"
 msgstr "Ilmestyy myöhemmin"
 

@@ -1,18 +1,6 @@
 {% load i18n %}
 {% load news %}
 
-{% for item in alerts %}
-<div class="alert alert-{{ item.alert }}">
-  <h4>
-    {{ item.title|safe }}
-    {% if not item|is_published:now %}<small><span class="label label-default">{% trans "Appears" %} {{ item.publish }}</span></small>{% endif %}
-    {% if is_course_staff %}<small><span class="label label-default">{{ item.audience|news_audience }}</span></small>{% endif %}
-  </h4>
-  <div>
-    {{ item.body|safe }}
-  </div>
-</div>
-{% endfor %}
 
 {% if news %}
 <div class="panel panel-default news-panel">

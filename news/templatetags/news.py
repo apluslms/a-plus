@@ -20,10 +20,10 @@ def user_news(context, num, more=0):
     news = context['course_news']
 
     if context['is_course_staff']:
-        alerts,news = news.for_staff()
+        news = news.for_staff()
     else:
         user = context['request'].user
-        alerts,news = news.for_user(
+        news = news.for_user(
             not user.is_authenticated
             or user.userprofile.is_external
         )
@@ -37,7 +37,6 @@ def user_news(context, num, more=0):
     return {
         'is_course_staff': context['is_course_staff'],
         'now': context['now'],
-        'alerts': alerts,
         'news': news,
         'more': more,
     }
