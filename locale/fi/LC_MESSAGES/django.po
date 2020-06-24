@@ -3455,11 +3455,11 @@ msgstr "Otsikko"
 msgid "Course news"
 msgstr "Kurssiuutiset"
 
-#: news/templates/news/user_news.html:15
-msgid "Appears later"
-msgstr "Ilmestyy myöhemmin"
+#: news/templates/news/user_news.html:16
+msgid "Published on"
+msgstr "Julkaisu"
 
-#: news/templates/news/user_news.html:25
+#: news/templates/news/user_news.html:29
 msgid "Show older"
 msgstr "Näytä aiemmat"
 

@@ -11,9 +11,13 @@
     {% for item in news %}
     <div class="{% if item.pin %}pinned-{% endif %}list-group-item">
       <h4 class="list-group-item-heading">
-        {{ item.title|safe }} <small>{{ item.publish }}</small>
-        {% if not item|is_published:now %}<small><span class="label label-default">{% trans "Appears later" %}</span></small>{% endif %}
-        {% if is_course_staff %}<small><span class="label label-default">{{ item.audience|news_audience }}</span></small>{% endif %}
+        {{ item.title|safe }}
+        {% if not item|is_published:now %}
+          <small class="future-instance">{% trans "Published on" %}: {{ item.publish }}</small>
+        {% else %}
+          <small class="current-instance">{{ item.publish }}</small>
+        {% endif %}
+        {% if is_course_staff %}<small><span class="label label-primary">{{ item.audience|news_audience }}</span></small>{% endif %}
         {% if item.pin %}<small><span class="glyphicon glyphicon-pushpin"></span></small>{% endif %}
       </h4>
       <div class="list-group-item-text">

@@ -409,6 +409,16 @@ html, body {
     margin-bottom: 30px;
 }
 
+.future-instance {
+    color: #c0322d;
+    background-color: #fff;
+}
+
+.current-instance {
+    color: #333;
+    background-color: #fff;
+}
+
 .news-panel .panel-heading {
     color: #fff;
     background-color: #337ab7;
@@ -416,6 +426,7 @@ html, body {
 }
 
 .news-panel .list-group-item-heading {
+    padding-top: 3px;
     padding-bottom: 10px;
     font-weight: bold;
 }
@@ -433,13 +444,16 @@ html, body {
     border-bottom: 1px solid #ccc;
 }
 
-.news-panel .folding-list-group-item {
+.news-panel .folding-list-group-item {    
     color: #337ab7;
+    background-color: #fff;
+    font-size: 16px;
     text-decoration: none;
     font-weight: bold;
 }
 
 .news-panel .folding-list-group-item:hover {
+    color: #337ab7;
     background-color: #eee;
 }
 
