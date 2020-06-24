@@ -1,4 +1,5 @@
 import datetime
+import json
 from urllib.parse import urlsplit
 from django.conf import settings
 from django.contrib import messages
@@ -575,7 +576,15 @@ class BaseExercise(LearningObject):
 
         # Support group id from post or currently selected group.
         group = None
-        group_id = request.POST.get("_aplus_group") if request else None
+        group_id = None
+        if request:
+            try:
+                group_id = json.loads(request.POST.get('__aplus__', '{}')).get('group')
+            except json.JSONDecodeError:
+                pass
+            if not group_id:
+                group_id = request.POST.get("_aplus_group")
+
         if not group_id is None:
             try:
                 gid = int(group_id)
@@ -694,7 +703,9 @@ class BaseExercise(LearningObject):
         """
         Loads the exercise feedback page.
         """
-        language = get_language()
+        # Get the language from the submission
+        language = submission.lang or get_language()
+
         submission_url = update_url_params(
             api_reverse("submission-grader", kwargs={
                 'submission_id': submission.id

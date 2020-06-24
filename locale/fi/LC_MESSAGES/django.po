@@ -2889,7 +2889,15 @@ msgstr "Tehtävässä on huoltokatko, ja sisältö on piilotettu opiskelijoilta.
 msgid "Unfortunately this exercise is currently under maintenance."
 msgstr "Valitettavasti tässä tehtävässä on juuri nyt huoltokatko."
 
-#: exercise/views.py:181
+#: exercise/views.py:155
+msgid ""
+"The submission could not be saved due to malformed post data. The submission "
+"was not registered. Error: {error}"
+msgstr ""
+"Palautuksen tallentaminen epäonnistui virheellisen pyynnön takia. Palautusta "
+"ei ole huomioitu. Virhe: {error}"
+
+#: exercise/views.py:193
 msgid "You need to sign in and enroll to submit exercises."
 msgstr ""
 "Palauttaaksesi tehtäviä sinun pitää rekisteröityä ja ilmoittautua kurssin "

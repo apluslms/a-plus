@@ -5,9 +5,11 @@ from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
+from django.utils.text import format_lazy
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
+from django.db import DatabaseError
 
 from authorization.permissions import ACCESS
 from course.models import CourseModule
@@ -144,9 +146,23 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             self.submission_check(True, request)
         )
         if submission_allowed:
-            new_submission = Submission.objects.create_from_post(
-                self.exercise, students, request)
-            if new_submission:
+            try:
+                new_submission = Submission.objects.create_from_post(
+                    self.exercise, students, request)
+            except ValueError as error:
+                messages.error(request,
+                    format_lazy(
+                    _("The submission could not be saved due to malformed post data. "
+                      "The submission was not registered. Error: {error}"),
+                    error=error
+                    )
+                )
+            except DatabaseError:
+                messages.error(request,
+                    _("The submission could not be saved for some reason. "
+                      "The submission was not registered.")
+                )
+            else:
                 page = self.exercise.grade(request, new_submission,
                     url_name=self.post_url_name)
                 for error in page.errors:
@@ -163,10 +179,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 if not request.is_ajax() and "__r" not in request.GET:
                     return self.redirect(new_submission.get_absolute_url() +
                         ("?wait=1" if page.is_wait else ""))
-            else:
-                messages.error(request,
-                    _("The submission could not be saved for some reason. "
-                      "The submission was not registered."))
 
             # Redirect non AJAX content page request back.
             if not request.is_ajax() and "__r" in request.GET:
