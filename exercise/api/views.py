@@ -12,6 +12,7 @@ from rest_framework.reverse import reverse
 from rest_framework.decorators import action
 from rest_framework.settings import api_settings
 from rest_framework_extensions.mixins import NestedViewSetMixin
+from django.db import DatabaseError
 
 from authorization.permissions import ACCESS
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
@@ -250,9 +251,21 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             self.exercise.check_submission_allowed(request.user.userprofile, request)
         )
         if submission_status == self.exercise.SUBMIT_STATUS.ALLOWED:
-            new_submission = Submission.objects.create_from_post(
-                self.exercise, students, request)
-            if new_submission:
+            try:
+                new_submission = Submission.objects.create_from_post(
+                    self.exercise, students, request)
+            except ValueError as error:
+                data = {
+                    'detail': str(error),
+                }
+                status_code = status.HTTP_400_BAD_REQUEST
+            except DatabaseError:
+                data = {
+                    'detail': _("The submission could not be saved for some reason. "
+                                "The submission was not registered."),
+                }
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            else:
                 page = self.exercise.grade(request, new_submission)
 
                 # Enroll after succesfully submitting to the enrollment exercise.
@@ -270,12 +283,6 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                 }
                 if page.errors:
                     data = {'errors': page.errors}
-            else:
-                data = {
-                    'detail': _("The submission could not be saved for some reason. "
-                                "The submission was not registered."),
-                }
-                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         else:
             data = {'errors': issues}
             status_code = status.HTTP_400_BAD_REQUEST
