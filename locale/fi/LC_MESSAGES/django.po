@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-23 11:11+0300\n"
+"POT-Creation-Date: 2020-06-24 15:50+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
-"Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
+"Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
@@ -378,6 +378,11 @@ msgstr "Muutosten tallentaminen epäonnistui."
 msgid "The following users were already enrolled: {users}"
 msgstr "Seuraavat käyttäjät olivat jo ilmoittautuneet: {users}"
 
+#: course/templates/course/_course_cards.html:29
+#: course/templates/course/archive.html:23
+msgid "Hidden from students"
+msgstr "Piilotettu opiskelijoilta"
+
 #: course/templates/course/_course_dropdown_menu.html:16
 msgid "Begin by enrolling in a course."
 msgstr "Aloita ilmoittautumalla jollekin kurssille."
@@ -589,13 +594,7 @@ msgstr "Aikainen pääsy"
 msgid "Course archive"
 msgstr "Kurssiarkisto"
 
-#: course/templates/course/archive.html:23
-#: course/templates/course/index.html:63
-msgid "Hidden from students"
-msgstr "Piilotettu opiskelijoilta"
-
 #: course/templates/course/course_base.html:34
-#: course/templates/course/index.html:33
 msgid "Read more"
 msgstr "Lue lisää"
 
@@ -674,19 +673,26 @@ msgstr "Tällä kurssilla ei voi palauttaa ryhmänä."
 msgid "No groups yet"
 msgstr "Ei vielä ryhmiä"
 
-#: course/templates/course/index.html:79
-msgid "View course"
-msgstr "Näytä kurssi"
+#: course/templates/course/index.html:17
+msgid "My courses"
+msgstr "Minun kurssini"
 
-#: course/templates/course/index.html:91
+#: course/templates/course/index.html:25
+msgid "You do not currently have any active courses."
+msgstr "Sinulla ei ole käynnissä olevia kursseja."
+
+#: course/templates/course/index.html:33
+msgid "All ongoing courses"
+msgstr "Kaikki kurssit"
+
+#: course/templates/course/index.html:64
+msgid "There are currently no active courses."
+msgstr "Tällä hetkellä ei ole käynnissä olevia kursseja."
+
+#: course/templates/course/index.html:72
 #, python-format
-msgid ""
-"\n"
-"    Old courses can be found at the <a href=\"%(url)s\">course archive</a>.\n"
-"    "
-msgstr ""
-"\n"
-"Vanhat kurssit ovat nähtävissä <a href=\"%(url)s\">kurssiarkistossa</a>."
+msgid "Old courses can be found at the <a href=\"%(url)s\">course archive</a>."
+msgstr "Vanhat kurssit ovat nähtävissä <a href=\"%(url)s\">kurssiarkistossa</a>."
 
 #: course/templates/course/module.html:27
 #, python-format
@@ -887,15 +893,15 @@ msgstr "Sähköposti"
 msgid "Tags"
 msgstr "Merkinnät"
 
-#: course/views.py:95
+#: course/views.py:121
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:99 exercise/exercise_models.py:561
+#: course/views.py:125 exercise/exercise_models.py:561
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:172
+#: course/views.py:198
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 

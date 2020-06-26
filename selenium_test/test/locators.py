@@ -8,8 +8,8 @@ class LoginPageLocators(object):
 
 class FirstPageLocators(object):
     BANNER = (By.XPATH, "//*[@class='page-header']/h1")
-    APLUS_TEST_COURSE_INSTANCE_BUTTON = (By.XPATH, "//h3/a[contains(@href, '/aplus1/basic_instance/')]")
-    HOOK_EXAMPLE_BUTTON = (By.XPATH, "//h3/a[contains(@href, '/aplus1/hook_instance/')]")
+    APLUS_TEST_COURSE_INSTANCE_BUTTON = (By.XPATH, "//div[contains(@class, 'card')]/a[contains(@href, '/aplus1/basic_instance/')]//*[contains(@class, 'card-title')]")
+    HOOK_EXAMPLE_BUTTON = (By.XPATH, "//div[contains(@class, 'card')]/a[contains(@href, '/aplus1/hook_instance/')]//*[contains(@class, 'card-title')]")
 
 class BasePageLocators(object):
     COURSE_BANNER = (By.XPATH, "//*[@id='bs-navbar-collapse']/ul[1]/li[1]/a")

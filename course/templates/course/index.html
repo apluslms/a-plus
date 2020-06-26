@@ -8,89 +8,70 @@
 
 {% if welcome_text %}
 <div class="page-header">
-    <h1>{{ welcome_text|safe }}</h1>
+	<h1>{{ welcome_text|safe }}</h1>
 </div>
 {% endif %}
 
-<div class="row course-thumbnails">
-    {% site_advert as advert %}
-    {% if advert %}
-        <div class="col-sm-6 col-md-4 col-lg-3">
-            <div class="thumbnail advert-thumbnail">
-                <div class="image" aria-hidden="true">
-                    {% if advert.image %}
-                        <img src="{{ advert.image }}" alt="">
-                    {% else %}
-                        <h1 class="glyphicon glyphicon-comment"></h1>
-                    {% endif %}
-                </div>
-                <div class="caption">
-                    <h3>{{ advert.title }}</h3>
-                    <p>{{ advert.text|safe }}</p>
-                    <div class="buttons caption">
-                        <a class="btn btn-default btn-block" role="button" href="{{ advert.href }}" target="_blank">
-                            <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
-                            {% trans "Read more" %}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
+{% if is_logged_in %}
+	<div class="frontpage-panel">
+		<h2 class="panel-heading">{% trans "My courses" %}</h2>
+		{% if my_instances %}
+			<div class="row frontpage">
+				{% include "course/_course_cards.html" with instances=my_instances %}
+			</div>
+		{% else %}
+			<div class="panel-body">
+				<p class="panel-default-text">
+					{% trans "You do not currently have any active courses." %}
+				</p>
+			</div>
+		{% endif %}
+	</div>
+{% endif %}
 
-    {% for instance in instances %}
-    {% with instance_url=instance|url %}
-    <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="thumbnail course-thumbnail">
-            <a href="{{ instance_url }}">
-                <div class="image" aria-hidden="true">
-                    {% if instance.image %}
-                    <img src="{{ instance.image.url }}" alt="{{ instance.course.name|parse_localization }}" />
-                    {% else %}
-                    <h1 class="glyphicon glyphicon-book"></h1>
-                    {% endif %}
-                </div>
-            </a>
-            <div class="caption">
-                <h3>
-                	<a href="{{ instance_url }}">
-                        {{ instance.course.name|parse_localization }}<br />
-                    </a>
-                </h3>
-                <p>
-                    {{ instance.course.code }}
-                    {% if not instance.visible_to_students %}
-                    <span class="label label-danger">{% trans "Hidden from students" %}</span>
-                    {% endif %}
-                    <br />
-                    <!--{{ instance.instance_name }}<br />-->
-                    {{ instance.starting_time|date:"SHORT_DATE_FORMAT" }} &ndash;
-                    {{ instance.ending_time|date:"SHORT_DATE_FORMAT" }}
-                    <br />
-                    {% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
-                    <span class="label label-success">{{ internal_user_label|safe }}</span>
-                    {% endif %}
-                    {% if instance.enrollment_audience == 2 or instance.enrollment_audience == 3 %}
-                    <span class="label label-info">{{ external_user_label|safe }}</span>
-                    {% endif %}
-                </p>
-                <div class="buttons caption">
-                    <a class="btn btn-primary btn-block" role="button" href="{{ instance_url }}">
-                        {% trans "View course" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endwith %}
-    {% endfor %}
+<div class="frontpage-panel">
+	<h2 class="panel-heading">{% trans "All ongoing courses" %}</h2>
+	<div class="row frontpage">
+		{% site_advert as advert %}
+		{% if advert %}
+			<div class="col-sm-6 col-md-4 col-lg-3">
+				<a href="{{ advert.href }}" target="_blank">
+					<div class="card advert-card">
+						<div class="advert-image" aria-hidden="true">
+							{% if advert.image %}
+								<img class="card-img-top" src="{{ advert.image }}" alt="" />
+							{% else %}
+								<div class="card-img-top">
+									<i class="glyphicon glyphicon-comment"></i>
+								</div>
+							{% endif %}
+						</div>
+						<div class="card-body">
+							<h3 class="card-title">{{ advert.title }}</h3>
+							<p class="card-text">{{ advert.text|safe }}</p>
+						</div>
+					</div>
+				</a>
+			</div>
+		{% endif %}
+		{% if all_instances %}
+			{% include "course/_course_cards.html" with instances=all_instances %}
+		{% endif %}
+	</div>
+	{% if not all_instances and not siteadvert %}
+		<div class="panel-body">
+			<p class="panel-default-text">
+				{% trans "There are currently no active courses." %}
+			</p>
+		</div>
+	{% endif %}
 </div>
 
-<p>
-    {% url 'archive' as url %}
-    {% blocktrans with url=url %}
-    Old courses can be found at the <a href="{{ url }}">course archive</a>.
-    {% endblocktrans %}
+<p class="archive-link">
+	{% url 'archive' as url %}
+	{% blocktrans trimmed with url=url %}
+	Old courses can be found at the <a href="{{ url }}">course archive</a>.
+	{% endblocktrans %}
 </p>
 
 {% endblock %}
