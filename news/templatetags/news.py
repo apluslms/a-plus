@@ -28,12 +28,6 @@ def user_news(context, num, more=0):
             or user.userprofile.is_external
         )
 
-    i = 0
-    for item in news:
-        i += 1
-        if more > 0 and i == more:
-            item['begin_more'] = True
-
     return {
         'is_course_staff': context['is_course_staff'],
         'now': context['now'],

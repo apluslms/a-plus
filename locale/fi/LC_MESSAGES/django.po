@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-23 12:48+0300\n"
+"POT-Creation-Date: 2020-06-30 09:07+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -260,7 +260,7 @@ msgstr "Valmis"
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:680 course/models.py:806 templates/base.html:103
+#: course/models.py:680 course/models.py:806 templates/base.html:104
 msgid "Hidden"
 msgstr "Piilotettu"
 
@@ -386,10 +386,6 @@ msgstr "Piilotettu opiskelijoilta"
 #: course/templates/course/_course_dropdown_menu.html:16
 msgid "Begin by enrolling in a course."
 msgstr "Aloita ilmoittautumalla jollekin kurssille."
-
-#: course/templates/course/_course_menu.html:11
-msgid "Course navigation"
-msgstr "Kurssivalikko"
 
 #: course/templates/course/_course_menu.html:12
 msgid "Skip course navigation"
@@ -594,6 +590,10 @@ msgstr "Aikainen pääsy"
 msgid "Course archive"
 msgstr "Kurssiarkisto"
 
+#: course/templates/course/course_base.html:21
+msgid "Course navigation"
+msgstr "Kurssivalikko"
+
 #: course/templates/course/course_base.html:34
 msgid "Read more"
 msgstr "Lue lisää"
@@ -788,7 +788,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:49 templates/base.html:246
+#: news/templates/news/list.html:49 templates/base.html:247
 msgid "Remove"
 msgstr "Poista"
 
@@ -893,15 +893,15 @@ msgstr "Sähköposti"
 msgid "Tags"
 msgstr "Merkinnät"
 
-#: course/views.py:121
+#: course/views.py:120
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:125 exercise/exercise_models.py:561
+#: course/views.py:124 exercise/exercise_models.py:561
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:198
+#: course/views.py:197
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
@@ -3455,11 +3455,15 @@ msgstr "Otsikko"
 msgid "Course news"
 msgstr "Kurssiuutiset"
 
-#: news/templates/news/user_news.html:16
+#: news/templates/news/user_news.html:14
+msgid "Pinned news item on top of the list"
+msgstr "Listan kärkeen nostettu viesti"
+
+#: news/templates/news/user_news.html:22
 msgid "Published on"
 msgstr "Julkaisu"
 
-#: news/templates/news/user_news.html:29
+#: news/templates/news/user_news.html:40
 msgid "Show older"
 msgstr "Näytä aiemmat"
 
@@ -3498,12 +3502,12 @@ msgstr ""
 "ystävällinen, ja yritä uudelleen."
 
 #: templates/base.html:77
-msgid "Main navigation"
-msgstr "Päävalikko"
-
-#: templates/base.html:77
 msgid "Skip main navigation"
 msgstr "Ohita päävalikko"
+
+#: templates/base.html:79
+msgid "Main navigation"
+msgstr "Päävalikko"
 
 #: templates/base.html:83
 msgid "Toggle navigation"

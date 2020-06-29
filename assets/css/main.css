@@ -409,12 +409,12 @@ html, body {
     margin-bottom: 30px;
 }
 
-.future-instance {
+.news-panel .future-instance {
     color: #c0322d;
     background-color: #fff;
 }
 
-.current-instance {
+.news-panel .current-instance {
     color: #333;
     background-color: #fff;
 }
@@ -426,9 +426,19 @@ html, body {
 }
 
 .news-panel .list-group-item-heading {
-    padding-top: 3px;
+    padding-top: 5px;
     padding-bottom: 10px;
+}
+
+.news-panel .list-group-item-title {
     font-weight: bold;
+    margin: 0px;
+    display: inline-block;
+}
+
+.news-panel .list-group-item-details {
+    font-size: 0.9em;
+    display: inline-block;
 }
 
 .news-panel .list-group-item,
