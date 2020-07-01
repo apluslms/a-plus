@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  sass:
+    build: .
+    volumes:
+      - ./css:/style/css
+      - ./sass:/style/sass
+    command: "--watch /style/sass:/style/css --poll --style=compressed"
