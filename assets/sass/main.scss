@@ -3,6 +3,8 @@
 
 // First set some Bootstrap variables
 
-@import 'lib/bootstrap/bootstrap';
+@use 'lib/bootstrap/bootstrap';// with(
+// Custom varibles go here.
+//);
 
-@import 'legacy/main';
+@use 'legacy/main';
