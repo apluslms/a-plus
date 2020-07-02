@@ -3,8 +3,9 @@
 
 // First set some Bootstrap variables
 
-@use 'lib/bootstrap/bootstrap';// with(
-// Custom varibles go here.
-//);
+@use 'lib/bootstrap/bootstrap' with(
+  $brand-primary: red,
+);
 
 @use 'legacy/main';
+
