@@ -3,8 +3,7 @@
 
 {% for instance in instances %}
 {% with instance_url=instance|url %}
-<div class="col-sm-6 col-md-4 col-lg-3">
-	<div class="frontpage-course card">
+	<div class="frontpage card">
 		<div class="card-clickable">
 			<a href="{{ instance_url }}">
 				<div class="course-image" aria-hidden="true">
@@ -45,6 +44,5 @@
 			{% endif %}
 		</div>
 	</div>
-</div>
 {% endwith %}
 {% endfor %}

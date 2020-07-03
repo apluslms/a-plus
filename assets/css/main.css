@@ -311,12 +311,21 @@ html, body {
     font-size: 18px;
 }
 
+.frontpage-section {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    width: 100%;
+}
+
 .frontpage .card {
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 400px;
     border: solid 1px #ccc;
-    position: relative;
-    height: 355px;
     border-radius: 4px;
+    margin: 8px;
+    margin-bottom: 20px;
     padding: 4px;
 }
 
@@ -325,8 +334,36 @@ html, body {
     border-color: #bce8f1;
 }
 
+@media (min-width: 1200px) and (max-width: 1800px) {
+    .frontpage .card {
+        width: 23%;
+    }
+}
+
+@media (min-width: 960px) and (max-width: 1199px) {
+    .frontpage .card {
+        width: 30%;
+    }
+}
+
+@media (min-width: 670px) and (max-width: 959px) {
+    .frontpage .card {
+        width: 47%;
+    }
+}
+
+@media (max-width: 669px) {
+    .frontpage .card {
+        width: 100%;
+    }
+}
+
 .frontpage a:hover {
     text-decoration: none;
+}
+
+.frontpage .card-clickable {
+    flex-grow: 1;
 }
 
 .frontpage .card-clickable:hover {
@@ -347,8 +384,12 @@ html, body {
     background-color:#eeeeee;
 }
 
+.frontpage .advert-image,
 .frontpage .course-image {
     position: relative;
+}
+
+.frontpage .course-image {
     color: #fff;
 }
 
@@ -375,11 +416,9 @@ html, body {
 }
 
 .frontpage .card-footer {
-    position: absolute;
-    bottom: 0px;
-    left: 0px;
+    padding: 10px 10px 14px 14px;
     width: 100%;
-    padding: 14px;
+    flex-shrink: 0;
 }
 
 .archive-link {
