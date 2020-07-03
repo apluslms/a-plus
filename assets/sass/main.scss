@@ -1,11 +1,18 @@
 // Here we import the old file, but any new styles can be added directly to 
 // this file below
 
-// First set some Bootstrap variables
+@import 'helpers/choose_contrast_color';
 
-@use 'lib/bootstrap/bootstrap' with(
-  $brand-primary: red,
-);
 
-@use 'legacy/main';
+// First set some variables
 
+//$brand-primary: red;
+$brand-primary: #005EB8;
+
+@import 'lib/bootstrap/bootstrap';
+
+@import 'legacy/main';
+
+
+
+@import 'components/navbar';

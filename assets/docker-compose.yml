@@ -6,4 +6,4 @@ services:
     volumes:
       - ./css:/style/css
       - ./sass:/style/sass
-    command: "--watch /style/sass:/style/css --poll --style=compressed"
+    command: "--watch /style/sass:/style/css --poll"

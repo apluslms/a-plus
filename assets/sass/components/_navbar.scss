@@ -1,0 +1,128 @@
+$navbar-background-color: $brand-primary !default;
+$navbar-text-color: choose-contrast-color($brand-primary, white, black) !default;
+
+/* site header */
+.topbar {
+  background-color: $navbar-background-color;
+  border-bottom: none;
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+.topbar .navbar-brand,
+.topbar .navbar-nav>li>a,
+.topbar .navbar-toggle,
+.topbar .navbar-nav>.active>a,
+.topbar .navbar-nav>.active>a:focus,
+.topbar .navbar-nav>.active>a:hover {
+  color: $navbar-text-color;
+  background: transparent;
+}
+.topbar a.navbar-brand:hover,
+.topbar .navbar-nav>li>a:hover,
+.topbar .navbar-nav>.open>a,
+.topbar .navbar-nav>.open>a:focus,
+.topbar .navbar-nav>.open>a:hover,
+.navbar-inverse .navbar-toggle:focus,
+.navbar-inverse .navbar-toggle:hover {
+  background-color: darken($navbar-background-color, 10%);
+}
+.topbar .navbar-toggle .badge {
+  position: absolute;
+  right: -10px;
+  top: 4px;
+}
+.topbar .navbar-header .visible-xs {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar ul.visible-xs {
+  margin: 0;
+}
+.topbar ul.visible-xs li {
+  border: 1px solid;
+  border-top: none;
+  border-color: darken($navbar-background-color, 25%);
+}
+.topbar ul.visible-xs li a {
+  color: $navbar-text-color !important;
+  padding: 10px 15px !important;
+}
+.topbar ul.visible-xs ul.dropdown-menu {
+  padding: 0;
+}
+.topbar ul.visible-xs ul.dropdown-menu li {
+  border: none;
+  border-top: 1px solid;
+}
+.topbar ul.visible-xs .header {
+  border-left: none;
+  border-right: none;
+  padding: 0.2em 1em;
+}
+.topbar ul.visible-xs .header h4 {
+  font-size: 10px;
+  font-weight: bolder;
+  color: #75A5D0;
+  margin: 0;
+}
+.navbar-nav>li.menu-groups>a.dropdown-toggle {
+  background: rgba(255, 0, 0, 0.3);
+}
+.navbar-nav>li.menu-groups>a.dropdown-toggle:hover,
+.navbar-nav>li.menu-groups.open>a.dropdown-toggle {
+  background: rgba(255, 0, 0, 0.4);
+}
+.navbar-nav>li.menu-groups .profile-avatars {
+  display: inline-block;
+  margin: -6px 3px;
+}
+.dropdown-menu>li button {
+display: block;
+border: none;
+background: transparent;
+padding: 3px 20px;
+clear: both;
+font-weight: 400;
+line-height: 1.42857143;
+color: #333;
+white-space: nowrap;
+text-align: left;
+width: 100%;
+}
+.dropdown-menu>li button:hover {
+background: #eee;
+}
+.menu-notification .glyphicon {
+margin-right: 18px;
+}
+.menu-notification .badge {
+position: absolute;
+left: 28px;
+top: 15px;
+-webkit-animation: bounce 10s ease-in-out;
+-moz-animation: bounce 10s ease-in-out;
+-o-animation: bounce 10s ease-in-out;
+animation: bounce 10s ease-in-out;
+}
+@-webkit-keyframes bounce {
+0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+  5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
+@-moz-keyframes bounce {
+0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+  5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
+@-o-keyframes bounce {
+0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+  5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
+@keyframes bounce {
+0%,10%,20%,25%,35%,40%,50%,55%,65%,70%,80%,90%,100% { top:15px; transform:scale(1); }
+  5%,15%,    30%,    45%,    60%,    75%,    95% { top:50px; transform:scale(2); }
+}
+/* for navbar-fixed-top: body {
+padding-top: 70px;
+}*/
