@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
-<nav class="row siblings">
+<nav class="row siblings" aria-label="{% trans "Pagination" %}">
 
     {% if next %}
     {% if next.submittable %}

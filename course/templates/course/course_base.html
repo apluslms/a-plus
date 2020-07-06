@@ -13,12 +13,20 @@
 {% endfor %}
 {% endblock %}
 
+{% block container_opening_tag %}
+<div class="site-content container-fluid" id="content">                
+{% endblock %}
+
+{% block container_closing_tag %}
+</div>                
+{% endblock %}
+
 {% block title %}{{ course.name|parse_localization }} | {{ block.super }} {% endblock %}
 
 {% block content %}
 <div data-taggings="{{ get_taggings|join:' ' }}"  class="row">
     <div class="col-sm-2 hidden-xs">
-        <nav class="course-menu" id="main-course-menu" aria-label="{% trans "Course navigation" %}">
+        <nav class="course-menu" id="main-course-menu" aria-labelledby="course-menu-heading">
             <ul class="nav nav-pills nav-stacked">
                 {% include "course/_course_menu.html" %}
             </ul>
@@ -60,7 +68,7 @@
             {% endblock %}
         </ol>
         {% endblock %}
-        <div class="row">
+        <main class="row">
             {% block columns %}
             <div class="col-lg-9">
                 {% block coursecontent %}
@@ -71,7 +79,7 @@
                 {% endblock %}
             </div>
             {% endblock %}
-        </div>
+        </main>
         {% block siblings_bottom %}{% endblock %}
     </div>
 </div>

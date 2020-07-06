@@ -76,131 +76,139 @@
     <body class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %} lang-{{ request.LANGUAGE_CODE }}" data-view-tag="{% block view_tag %}{% endblock %}">
         <a href="#content" class="skip-link">{% trans "Skip main navigation" %}</a>
         <div class="page-wrap">
-            <nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% trans "Main navigation" %}">
-                <div class="container-fluid">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
-                            <span class="sr-only">{% trans "Toggle navigation" %}</span>
-                            {% notification_count as n_count %}
-                            {% if n_count > 0 %}
-                            <span class="badge badge-danger pull-right">{{ n_count }}</span>
-                            {% endif %}
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a class="navbar-brand hidden-xs" href="{% url 'home' %}">{% brand_name %}</a>
-                        <span class="navbar-brand visible-xs">
-                        {% brand_name %}{% if instance %} &nbsp; {{ course.name|parse_localization }}{% endif %}
-                        </span>
-                    </div>
-                    <div class="collapse navbar-collapse" id="bs-navbar-collapse">
-                        <ul class="nav navbar-nav hidden-xs">
-                            <li role="presentation" class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    {% if instance %}
-                                    {{ course|parse_localization }}
-                                    {% if not instance.visible_to_students %}
-                                    <span class="label label-danger">{% trans "Hidden" %}</span>
-                                    {% endif %}
-                                    {% else %}
-                                    {% trans "Select course" %}
-                                    {% endif %}
-                                    <span class="caret"></span>
-                                </a>
-                                {% course_menu %}
-                            </li>
-                        </ul>
-                        <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
-                            {% if user.is_authenticated %}
-                            {% group_select %}
-                            {% notification_menu %}
-                            <li role="presentation" class="profile-menu dropdown">
-                              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                                {{ user.first_name }} {{ user.last_name }} <span class="caret"></span>
-                              </a>
-                              <ul class="dropdown-menu">
-                                <li role="presentation">
-                                    <a href="{% url 'profile' %}">{% trans "Profile" %}</a>
+            <header>
+                <nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% trans "Main" %}">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
+                                <span class="sr-only">{% trans "Toggle navigation" %}</span>
+                                {% notification_count as n_count %}
+                                {% if n_count > 0 %}
+                                <span class="badge badge-danger pull-right">{{ n_count }}</span>
+                                {% endif %}
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand hidden-xs" href="{% url 'home' %}">{% brand_name %}</a>
+                            <span class="navbar-brand visible-xs">
+                            {% brand_name %}{% if instance %} &nbsp; {{ course.name|parse_localization }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+                            <ul class="nav navbar-nav hidden-xs">
+                                <li role="presentation" class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                        {% if instance %}
+                                        {{ course|parse_localization }}
+                                        {% if not instance.visible_to_students %}
+                                        <span class="label label-danger">{% trans "Hidden" %}</span>
+                                        {% endif %}
+                                        {% else %}
+                                        {% trans "Select course" %}
+                                        {% endif %}
+                                        <span class="caret"></span>
+                                    </a>
+                                    {% course_menu %}
                                 </li>
-                                <li role="separator" class="divider"></li>
-                                <li role="presentation">
-                                  <a href="{% url 'logout' %}">
-                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-                                    {% trans "Log out"%}
-                                  </a>
-                                </li>
-                              </ul>
-                            </li>
-                            {% else %}
-                            <li role="presentation">
-                                <a href="{% url 'login' %}">
-                                    <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-                                    {% trans "Log in"%}
-                                </a>
-                            </li>
-                            {% endif %}
-                        </ul>
-
-                        {# Separate menu optimized for mobile users #}
-                        <ul class="nav navbar-nav visible-xs">
-                            {% notification_menu %}
-                            {% group_select %}
-                            {% block mobilemenu %}{% endblock %}
-                            <li role="presentation" class="header"><h4>{% trans "Site" %}</h4></li>
-                            <li role="presentation">
-                                <a href="{% url 'home' %}">
-                                    <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                                    {% trans "Home" %}
-                                </a>
-                            </li>
-                            {% course_menu %}
-                            {% if user.is_authenticated %}
-                            <li role="presentation">
-                                <a href="{% url 'profile' %}">
+                            </ul>
+                            <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+                                {% if user.is_authenticated %}
+                                {% group_select %}
+                                {% notification_menu %}
+                                <li role="presentation" class="profile-menu dropdown">
+                                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                            	    {{ user.first_name }} {{ user.last_name }}
-                                </a>
-                            </li>
-                            <li role="presentation">
-                                <a href="{% url 'logout' %}">
-                                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-                            	    {% trans "Log out"%}
-                                </a>
-                            </li>
-                            {% else %}
-                            <li role="presentation">
-                                <a href="{% url 'login' %}">
-                                    <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-                                    {% trans "Log in" %}
-                                </a>
-                            </li>
-                            {% endif %}
-                        </ul>
+                                    {{ user.first_name }} {{ user.last_name }} <span class="caret"></span>
+                                  </a>
+                                  <ul class="dropdown-menu">
+                                    <li role="presentation">
+                                        <a href="{% url 'profile' %}">{% trans "Profile" %}</a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li role="presentation">
+                                      <a href="{% url 'logout' %}">
+                                        <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                                        {% trans "Log out"%}
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </li>
+                                {% else %}
+                                <li role="presentation">
+                                    <a href="{% url 'login' %}">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        {% trans "Log in"%}
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+    
+                            {# Separate menu optimized for mobile users #}
+                            <ul class="nav navbar-nav visible-xs">
+                                {% notification_menu %}
+                                {% group_select %}
+                                {% block mobilemenu %}{% endblock %}
+                                <li role="presentation" class="header"><h4>{% trans "Site" %}</h4></li>
+                                <li role="presentation">
+                                    <a href="{% url 'home' %}">
+                                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                                        {% trans "Home" %}
+                                    </a>
+                                </li>
+                                {% course_menu %}
+                                {% if user.is_authenticated %}
+                                <li role="presentation">
+                                    <a href="{% url 'profile' %}">
+                                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                                        {{ user.first_name }} {{ user.last_name }}
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="{% url 'logout' %}">
+                                        <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+                                        {% trans "Log out"%}
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li role="presentation">
+                                    <a href="{% url 'login' %}">
+                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                                        {% trans "Log in" %}
+                                    </a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            </nav>
+                </nav>
+            </header>
 
-            <div class="site-content container-fluid" id="content">
-                {% site_alert %}
+            {% block container_opening_tag %}
+            <main class="site-content container-fluid" id="content">                
+            {% endblock %}
+            {% site_alert %}
                 {% include "_messages.html" %}
                 {% block content %}
                     <div class="error">
                         No content
                     </div>
                 {% endblock %}
-            </div>
+            {% block container_closing_tag %}
+            </main>                
+            {% endblock %}
 
             {% block footer %}
-            <nav class="site-footer navbar navbar-default navbar-fixed-bottom">
-                <div class="container-fluid">
-                    <ul class="nav navbar-nav">
-                        {% block footercontent %}{% endblock %}
-                        <li role="presentation"><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
-                    </ul>
+            <footer role="contentinfo">
+                <div class="site-footer navbar navbar-default navbar-fixed-bottom" role="presentation">
+                    <div class="container-fluid">
+                        <ul class="nav navbar-nav">
+                            {% block footercontent %}{% endblock %}
+                            <li><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
+                        </ul>
+                    </div>
                 </div>
-            </nav>
+            </footer>
             {% endblock %}
         </div>
         <div id="page-modal" class="modal" role="dialog">
