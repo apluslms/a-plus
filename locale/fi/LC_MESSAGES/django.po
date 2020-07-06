@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-03 10:03+0300\n"
+"POT-Creation-Date: 2020-07-14 12:07+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -576,6 +576,10 @@ msgstr ""
 "          Palauta ryhmässä: %(collaborators)s\n"
 "          "
 
+#: course/templates/course/_siblings.html:4
+msgid "Pagination"
+msgstr "Sivuilla siirtyminen"
+
 #: course/templates/course/_siblings.html:22
 #: course/templates/course/_siblings.html:45
 #: exercise/templates/exercise/_children.html:28
@@ -590,11 +594,7 @@ msgstr "Aikainen pääsy"
 msgid "Course archive"
 msgstr "Kurssiarkisto"
 
-#: course/templates/course/course_base.html:21
-msgid "Course navigation"
-msgstr "Kurssivalikko"
-
-#: course/templates/course/course_base.html:34
+#: course/templates/course/course_base.html:42
 msgid "Read more"
 msgstr "Lue lisää"
 
@@ -3504,8 +3504,8 @@ msgstr ""
 msgid "Skip main navigation"
 msgstr "Ohita päävalikko"
 
-#: templates/base.html:79
-msgid "Main navigation"
+#: templates/base.html:80
+msgid "Main"
 msgstr "Päävalikko"
 
 #: templates/base.html:83
