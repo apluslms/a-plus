@@ -62,6 +62,7 @@ class ExercisePointsSerializer(serializers.Serializer):
             'max_points',
             'points_to_pass',
             'submission_count',
+            'max_submissions',
             # best submission
             'points',
             'passed',
