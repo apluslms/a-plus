@@ -28,6 +28,8 @@ class ExerciseBriefSerializer(AplusModelSerializer):
             'url',
             'html_url',
             'display_name',
+            'max_points',
+            'max_submissions',
         )
 
 
