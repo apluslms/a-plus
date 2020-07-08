@@ -143,6 +143,9 @@ class Enrollment(models.Model):
     anon_name = models.CharField(max_length=50, blank=True, default='')
     anon_id = models.CharField(max_length=50, blank=True, null=True, unique=True)
 
+    class Meta:
+        unique_together = ("course_instance", "user_profile")
+
 def create_enrollment_code(sender, instance, created, **kwargs):
     if created:
         easychars = '0123456789ABCDEFGHJKLMNPQRSTUVXYZ'
