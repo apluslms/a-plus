@@ -21,6 +21,10 @@ class ExerciseBriefSerializer(AplusModelSerializer):
         lookup_map='exercise.api.views.ExerciseViewSet',
     )
     display_name = serializers.CharField(source='__str__')
+    max_submissions_for_student = serializers.SerializerMethodField()
+
+    def get_max_submissions_for_student(self, obj):
+        return obj.max_submissions_for_student(self.context['request'].user.userprofile)
 
     class Meta(AplusModelSerializer.Meta):
         model = BaseExercise
@@ -28,6 +32,7 @@ class ExerciseBriefSerializer(AplusModelSerializer):
             'url',
             'html_url',
             'display_name',
+            'max_submissions_for_student',
         )
 
 
