@@ -12,5 +12,5 @@ urlpatterns = [
         name="privacy_notice"),
     url(r'^accounts/$', views.ProfileView.as_view(),
         name="profile"),
-    url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'^setlang', views.set_user_language, name="set-user-language"),
 ]
