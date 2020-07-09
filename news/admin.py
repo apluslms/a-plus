@@ -11,7 +11,6 @@ class NewsAdmin(admin.ModelAdmin):
         "publish",
         "audience",
         "pin",
-        "alert"
     )
     list_filter = ("course_instance",)
 

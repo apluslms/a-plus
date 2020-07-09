@@ -20,25 +20,17 @@ def user_news(context, num, more=0):
     news = context['course_news']
 
     if context['is_course_staff']:
-        alerts,news = news.for_staff()
+        news = news.for_staff()
     else:
         user = context['request'].user
-        alerts,news = news.for_user(
+        news = news.for_user(
             not user.is_authenticated
             or user.userprofile.is_external
         )
 
-    i = 0
-    for item in news:
-        i += 1
-        item['collapsed'] = i > num
-        if more > 0 and i == more:
-            item['begin_more'] = True
-
     return {
         'is_course_staff': context['is_course_staff'],
         'now': context['now'],
-        'alerts': alerts,
         'news': news,
         'more': more,
     }

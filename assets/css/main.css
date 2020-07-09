@@ -403,11 +403,72 @@ html, body {
 .module-panel table {
     margin: 0;
 }
-.news-panel .list-group-item-text {
-  padding: 10px;
+
+/* course news */
+.news-panel {
+    margin-bottom: 30px;
 }
+
+.news-panel .future-instance {
+    color: #c0322d;
+    background-color: #fff;
+}
+
+.news-panel .current-instance {
+    color: #333;
+    background-color: #fff;
+}
+
+.news-panel .panel-heading {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #337ab7;
+}
+
+.news-panel .list-group-item-heading {
+    padding-top: 5px;
+    padding-bottom: 10px;
+}
+
+.news-panel .list-group-item-title {
+    font-weight: bold;
+    margin: 0px;
+    display: inline-block;
+}
+
+.news-panel .list-group-item-details {
+    font-size: 0.9em;
+    display: inline-block;
+}
+
+.news-panel .list-group-item,
+.news-panel .pinned-list-group-item,
+.news-panel .folding-list-group-item {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+}
+
+.news-panel .pinned-list-group-item {
+    border-left: 2px solid #337ab7;
+    border-bottom: 1px solid #ccc;
+}
+
+.news-panel .folding-list-group-item {    
+    color: #337ab7;
+    background-color: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.news-panel .folding-list-group-item:hover {
+    color: #337ab7;
+    background-color: #eee;
+}
+
 .news-panel .list-group-item-text *:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 /* point progress and badges */

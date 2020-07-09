@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-24 15:50+0300\n"
+"POT-Creation-Date: 2020-06-30 09:07+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -387,10 +387,6 @@ msgstr "Piilotettu opiskelijoilta"
 msgid "Begin by enrolling in a course."
 msgstr "Aloita ilmoittautumalla jollekin kurssille."
 
-#: course/templates/course/_course_menu.html:11
-msgid "Course navigation"
-msgstr "Kurssivalikko"
-
 #: course/templates/course/_course_menu.html:12
 msgid "Skip course navigation"
 msgstr "Ohita kurssivalikko"
@@ -594,6 +590,10 @@ msgstr "Aikainen pääsy"
 msgid "Course archive"
 msgstr "Kurssiarkisto"
 
+#: course/templates/course/course_base.html:21
+msgid "Course navigation"
+msgstr "Kurssivalikko"
+
 #: course/templates/course/course_base.html:34
 msgid "Read more"
 msgstr "Lue lisää"
@@ -788,7 +788,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:53 templates/base.html:247
+#: news/templates/news/list.html:49 templates/base.html:247
 msgid "Remove"
 msgstr "Poista"
 
@@ -817,7 +817,7 @@ msgstr "Luotu"
 #: edit_course/templates/edit_course/usertag_list.html:44
 #: exercise/templates/exercise/staff/_assess_info.html:20
 #: external_services/templates/external_services/list_menu.html:60
-#: news/templates/news/list.html:45
+#: news/templates/news/list.html:41
 msgid "Edit"
 msgstr "Muokkaa"
 
@@ -893,15 +893,15 @@ msgstr "Sähköposti"
 msgid "Tags"
 msgstr "Merkinnät"
 
-#: course/views.py:121
+#: course/views.py:120
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:125 exercise/exercise_models.py:561
+#: course/views.py:124 exercise/exercise_models.py:561
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:198
+#: course/views.py:197
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 
@@ -3429,28 +3429,8 @@ msgid "URL keys may consist of alphanumeric characters, hyphen and period."
 msgstr ""
 "URL-avaimet voivat sisältää kirjaimia, numeroita, yhdysmerkin ja pisteen."
 
-#: news/models.py:13
-msgid "No alert"
-msgstr "Ei hälytystä"
-
-#: news/models.py:14
-msgid "Green / Success"
-msgstr "Vihreä / Onnistuminen"
-
-#: news/models.py:15
-msgid "Blue / Info"
-msgstr "Sininen / Info"
-
-#: news/models.py:16
-msgid "Yellow / Warning"
-msgstr "Keltainen / Varoitus"
-
-#: news/models.py:17
-msgid "Red / Danger"
-msgstr "Punainen / Vaara"
-
 #: news/templates/news/edit.html:6 news/templates/news/edit.html:19
-#: news/templates/news/list.html:64
+#: news/templates/news/list.html:60
 msgid "Add news item"
 msgstr "Lisää uutinen"
 
@@ -3471,20 +3451,20 @@ msgid "Title"
 msgstr "Otsikko"
 
 #: news/templates/news/user_news.html:8
-msgid "Appears"
-msgstr "Ilmestyy"
-
-#: news/templates/news/user_news.html:20
 msgid "Course news"
 msgstr "Kurssiuutiset"
 
-#: news/templates/news/user_news.html:28
-msgid "Appears later"
-msgstr "Ilmestyy myöhemmin"
+#: news/templates/news/user_news.html:14
+msgid "Pinned news item on top of the list"
+msgstr "Listan kärkeen nostettu viesti"
 
-#: news/templates/news/user_news.html:37
-msgid "Show more"
-msgstr "Näytä lisää"
+#: news/templates/news/user_news.html:22
+msgid "Published on"
+msgstr "Julkaisu"
+
+#: news/templates/news/user_news.html:40
+msgid "Show older"
+msgstr "Näytä aiemmat"
 
 #: notification/templates/notification/_notification_messages.html:7
 msgid "You have"
@@ -3521,12 +3501,12 @@ msgstr ""
 "ystävällinen, ja yritä uudelleen."
 
 #: templates/base.html:77
-msgid "Main navigation"
-msgstr "Päävalikko"
-
-#: templates/base.html:77
 msgid "Skip main navigation"
 msgstr "Ohita päävalikko"
+
+#: templates/base.html:79
+msgid "Main navigation"
+msgstr "Päävalikko"
 
 #: templates/base.html:83
 msgid "Toggle navigation"

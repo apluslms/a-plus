@@ -33,11 +33,7 @@
 			{{ item.audience|news_audience }}
 		</td>
 		<td>
-			{% if item.pin and item.alert %}
-			<span class="label label-{{ item.alert }}">{{ item.title|safe }}</span>
-			{% else %}
 			{{ item.title|safe }}
-			{% endif %}
 		</td>
 		<td>
 			<a href="{{ item|url:'news-edit' }}" class="btn btn-default btn-xs">
