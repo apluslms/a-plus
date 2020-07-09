@@ -73,6 +73,8 @@ class CourseInstanceBaseMixin(object):
                 lang = self.instance.language
                 if lang.startswith("|"):
                     active = get_language()
+                    if "-" in active:
+                        active = active.split("-")[0]
                     if "|" + active + "|" in lang:
                         translation.activate(active)
                     else:

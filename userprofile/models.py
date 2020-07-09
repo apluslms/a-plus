@@ -34,8 +34,7 @@ class UserProfile(models.Model):
         raise RuntimeError("Seeking user profile without authenticated user.")
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # FIXME: refactor lang to selected_language which by default is blank
-    lang = models.CharField(max_length=5, default="en_US")
+    language = models.CharField(max_length=5, blank=True, default='')
     student_id = models.CharField(max_length=25, null=True, blank=True)
     objects = UserProfileManager()
 

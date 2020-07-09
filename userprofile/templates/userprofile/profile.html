@@ -38,7 +38,7 @@
             <dd><input value="{{ profile.api_token }}" class="form-control"></dd>
 			<dt>{% trans "Language" %}</dt>
 			<dd>
-				<form action="{% url 'set_language' %}" method="post" class="form">{% csrf_token %}
+				<form action="{% url 'set-user-language' %}" method="post" class="form">{% csrf_token %}
 					<input name="next" type="hidden" value="{{ redirect_to }}">
 					<div class="input-group">
 						<select name="language" class="form-control">

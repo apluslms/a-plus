@@ -1,10 +1,19 @@
 import logging
+from urllib.parse import unquote
+
 from django.conf import settings
 from django.contrib.auth.views import LoginView
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.loader import TemplateDoesNotExist, get_template
-from django.utils.translation import get_language
+from django.urls import translate_url
+from django.utils.http import is_safe_url
+from django.utils.translation import (
+    LANGUAGE_SESSION_KEY,
+    check_for_language,
+    get_language
+)
 from django.utils.translation import ugettext_lazy as _
 
 from lib.helpers import settings_text
@@ -45,6 +54,45 @@ class CustomLoginView(LoginView):
             'mooc_body_text': settings_text('MOOC_BODY_TEXT'),
         })
         return context
+
+
+def set_user_language(request):
+    """"Overrides set_language function from  django.views.i18n."""
+    LANGUAGE_PARAMETER = 'language'
+    
+    next = request.POST.get('next', request.GET.get('next'))
+    if ((next or not request.is_ajax()) and
+            not is_safe_url(url=next,
+                            allowed_hosts={request.get_host()}, 
+                            require_https=request.is_secure())):
+        next = request.META.get('HTTP_REFERER')
+        next = next and unquote(next)  # HTTP_REFERER may be encoded.
+        if not is_safe_url(url=next,
+                            allowed_hosts={request.get_host()},
+                            require_https=request.is_secure()):
+            next = '/'
+    response = HttpResponseRedirect(next) if next else HttpResponse(status=204)
+    if request.method == 'POST':
+        lang_code = request.POST.get(LANGUAGE_PARAMETER)
+        if lang_code and check_for_language(lang_code):
+            if next:
+                next_trans = translate_url(next, lang_code)
+                if next_trans != next:
+                    response = HttpResponseRedirect(next_trans)
+            if request.user.is_authenticated:
+                userprofile = request.user.userprofile
+                userprofile.language = lang_code
+                userprofile.save()
+            else:
+                if hasattr(request, 'session'):
+                    request.session[LANGUAGE_SESSION_KEY] = lang_code
+                response.set_cookie(
+                    settings.LANGUAGE_COOKIE_NAME, lang_code,
+                    max_age=settings.LANGUAGE_COOKIE_AGE,
+                    path=settings.LANGUAGE_COOKIE_PATH,
+                    domain=settings.LANGUAGE_COOKIE_DOMAIN,
+                )
+    return response
 
 
 def try_get_template(name):
