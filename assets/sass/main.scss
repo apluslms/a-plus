@@ -5,14 +5,14 @@
 
 
 // First set some variables
-
-//$brand-primary: red;
 $brand-primary: #005EB8;
 
 @import '../vendor/bootstrap/node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
 
+//Start wit the "old" styles, which are going to be progressively replaced.
+
 @import 'legacy/main';
 
-
+// Next start importing the new components
 
 @import 'components/navbar';
