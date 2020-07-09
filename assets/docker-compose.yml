@@ -5,5 +5,5 @@ services:
     build: .
     volumes:
       - ./css:/style/css
-      - ./sass:/style/sass
-    command: "--watch /style/sass:/style/css --poll"
+      - ./:/style/raw
+    command: "--watch /style/raw/sass:/style/css --poll"

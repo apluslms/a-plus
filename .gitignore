@@ -38,3 +38,5 @@ selenium_test/grader/db.sqlite3
 *~
 *.swp
 *.swo
+
+node_modules/

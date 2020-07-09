@@ -1,0 +1,1 @@
+docker run -it -v "$PWD:/var/asset/" "$(docker build . -q)" npm install

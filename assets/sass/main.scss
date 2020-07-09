@@ -9,7 +9,7 @@
 //$brand-primary: red;
 $brand-primary: #005EB8;
 
-@import 'lib/bootstrap/bootstrap';
+@import '../vendor/bootstrap/node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
 
 @import 'legacy/main';
 
