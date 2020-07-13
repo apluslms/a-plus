@@ -705,7 +705,7 @@ class BaseExercise(LearningObject):
         Loads the exercise feedback page.
         """
         # Get the language from the submission
-        language = submission.lang or get_language()
+        language = submission.lang or self.course_module.course_instance.default_language
 
         submission_url = update_url_params(
             api_reverse("submission-grader", kwargs={
