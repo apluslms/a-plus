@@ -474,6 +474,14 @@ class CourseInstance(UrlMixin, models.Model):
     def is_valid_language(self, lang):
         return lang == "" or lang in [key for key,name in settings.LANGUAGES]
 
+    @property
+    def default_language(self):
+        language = self.language
+        language_code = language.lstrip('|').split('|', 1)[0]
+        if language_code:
+            return language_code
+        return settings.LANGUAGE_CODE.split('-', 1)[0]
+
     def save(self, *args, **kwargs):
         """
         Saves the model.
