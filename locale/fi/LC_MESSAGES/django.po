@@ -1871,7 +1871,11 @@ msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
 msgid "You must enroll in the course to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:595
+#: exercise/exercise_models.py:584
+msgid "Cannot submit exercise because of invalid JSON in POST data"
+msgstr "Tehtävää ei voitu palauttaa, POST pyyntö sisälsi virheellistä JSON:nia"
+
+#: exercise/exercise_models.py:605
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
