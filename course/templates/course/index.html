@@ -16,9 +16,9 @@
 	<div class="frontpage-panel">
 		<h2 class="panel-heading">{% trans "My courses" %}</h2>
 		{% if my_instances %}
-			<div class="row frontpage">
+			<section class="frontpage frontpage-section">
 				{% include "course/_course_cards.html" with instances=my_instances %}
-			</div>
+			</section>
 		{% else %}
 			<div class="panel-body">
 				<p class="panel-default-text">
@@ -31,25 +31,23 @@
 
 <div class="frontpage-panel">
 	<h2 class="panel-heading">{% trans "All ongoing courses" %}</h2>
-	<div class="row frontpage">
+	<section class="frontpage frontpage-section">
 		{% site_advert as advert %}
 		{% if advert %}
-			<div class="col-sm-6 col-md-4 col-lg-3">
+			<div class="frontpage advert-card card">
 				<a href="{{ advert.href }}" target="_blank">
-					<div class="card advert-card">
-						<div class="advert-image" aria-hidden="true">
-							{% if advert.image %}
-								<img class="card-img-top" src="{{ advert.image }}" alt="" />
-							{% else %}
-								<div class="card-img-top">
-									<i class="glyphicon glyphicon-comment"></i>
-								</div>
-							{% endif %}
-						</div>
-						<div class="card-body">
-							<h3 class="card-title">{{ advert.title }}</h3>
-							<p class="card-text">{{ advert.text|safe }}</p>
-						</div>
+					<div class="advert-image" aria-hidden="true">
+						{% if advert.image %}
+							<img class="card-img-top" src="{{ advert.image }}" alt="" />
+						{% else %}
+							<div class="card-img-top">
+								<i class="glyphicon glyphicon-comment"></i>
+							</div>
+						{% endif %}
+					</div>
+					<div class="card-body">
+						<h3 class="card-title">{{ advert.title }}</h3>
+						<p class="card-text">{{ advert.text|safe }}</p>
 					</div>
 				</a>
 			</div>
@@ -57,7 +55,7 @@
 		{% if all_instances %}
 			{% include "course/_course_cards.html" with instances=all_instances %}
 		{% endif %}
-	</div>
+	</section>
 	{% if not all_instances and not siteadvert %}
 		<div class="panel-body">
 			<p class="panel-default-text">

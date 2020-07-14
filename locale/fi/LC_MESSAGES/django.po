@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-30 09:07+0300\n"
+"POT-Creation-Date: 2020-07-03 10:03+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -378,7 +378,7 @@ msgstr "Muutosten tallentaminen epäonnistui."
 msgid "The following users were already enrolled: {users}"
 msgstr "Seuraavat käyttäjät olivat jo ilmoittautuneet: {users}"
 
-#: course/templates/course/_course_cards.html:29
+#: course/templates/course/_course_cards.html:28
 #: course/templates/course/archive.html:23
 msgid "Hidden from students"
 msgstr "Piilotettu opiskelijoilta"
@@ -685,11 +685,11 @@ msgstr "Sinulla ei ole käynnissä olevia kursseja."
 msgid "All ongoing courses"
 msgstr "Kaikki kurssit"
 
-#: course/templates/course/index.html:64
+#: course/templates/course/index.html:62
 msgid "There are currently no active courses."
 msgstr "Tällä hetkellä ei ole käynnissä olevia kursseja."
 
-#: course/templates/course/index.html:72
+#: course/templates/course/index.html:70
 #, python-format
 msgid "Old courses can be found at the <a href=\"%(url)s\">course archive</a>."
 msgstr "Vanhat kurssit ovat nähtävissä <a href=\"%(url)s\">kurssiarkistossa</a>."
