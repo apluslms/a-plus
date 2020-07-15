@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load course %}
 
-{% if not is_student %}
+{% if not is_student and not instance.is_past and not instance.has_enrollment_closed %}
 <div class="alert alert-info">
 {% if enrollable or is_course_staff %}
   {% if instance.is_enrollment_open %}

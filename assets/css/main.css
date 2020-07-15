@@ -75,6 +75,21 @@ table.src tr td.src {
     outline: 3px solid #ffdd00 !important;
 }
 
+/* alerts */
+.sticky-alert {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.alert-default {
+    background-color: #fff;
+    color: #333;
+    border: 2px solid #333;
+    font-weight: bold;
+}
 
 /* site footer */
 html, body {
