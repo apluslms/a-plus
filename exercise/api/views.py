@@ -236,7 +236,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
     def submit(self, request, *args, **kwargs):
         """Submit a new solution to the exercise for grading.
         Students are allowed to submit via this endpoint. In a group submission,
-        the student group ID is defined with the POST parameter _aplus_group.
+        the student group ID is defined with the POST parameter __aplus__={"group": ID}.
         The POST data is used as the submission data and files may be uploaded too.
         """
         # Stop submit trials for e.g. chapters.

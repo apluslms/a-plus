@@ -583,8 +583,6 @@ class BaseExercise(LearningObject):
             except json.JSONDecodeError:
                 warnings.append(_("Cannot submit exercise because of invalid JSON in POST data"))
                 return self.SUBMIT_STATUS.INVALID, warnings, students
-            if not group_id:
-                group_id = request.POST.get("_aplus_group")
 
         if not group_id is None:
             try:

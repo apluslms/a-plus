@@ -46,13 +46,13 @@
         });
 
         this.ui = $('<div class="submit-group-selector input-group col-md-6">'
-          + '<select name="_aplus_group" class="form-control"></select>'
+          + '<select name="__aplus__" class="form-control"></select>'
           + '<span class="input-group-btn"></span>'
           + '</div>');
         var list = this.ui.find('select');
         for (var i = 0; i < this.groups.length; i++) {
           var group = this.groups[i];
-          list.append($('<option value="' + group.id + '" data-group-size="' + group.size + '">' + group.text + '</option>'));
+          list.append($('<option value="{&quot;group&quot;:' + group.id + '}" data-group-size="' + group.size + '">' + group.text + '</option>'));
         }
       }
 		},
@@ -71,7 +71,7 @@
 
             var groupFixed = $(this).attr(self.settings.group_fixed_attribute);
             if (groupFixed) {
-              ui.find('option:not([value="' + groupFixed + '"])').remove();
+              ui.find('option:not([value="{\\"group\\":' + groupFixed + '}"])').remove();
             } else {
               var groupSize = $(this).attr(self.settings.group_size_attribute).split("-");
               ui.find("option").each(function() {
