@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-14 12:07+0300\n"
+"POT-Creation-Date: 2020-07-21 12:51+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -493,15 +493,8 @@ msgid "Enroll"
 msgstr "Ilmoittaudu"
 
 #: course/templates/course/_enroll_form.html:19
-#, python-format
-msgid ""
-"\n"
-"        The course enrollment is open until %(end)s.\n"
-"        "
-msgstr ""
-"\n"
-"        Kurssille ilmoittautuminen on avoinna %(end)s asti.\n"
-"        "
+msgid "The course enrollment is open until %(end)s."
+msgstr "Kurssille ilmoittautuminen on avoinna %(end)s asti."
 
 #: course/templates/course/_enroll_form.html:27
 msgid "Unfortunately, enrolling in the course has ended."
@@ -509,14 +502,8 @@ msgstr "Valitettavasti kurssille ilmoittautuminen on päättynyt."
 
 #: course/templates/course/_enroll_form.html:29
 #, python-format
-msgid ""
-"\n"
-"  The course opens %(start)s.\n"
-"  "
-msgstr ""
-"\n"
-"  Kurssi  avautuu %(start)s\n"
-"  "
+msgid "The course opens %(start)s."
+msgstr "Kurssi  avautuu %(start)s."
 
 #: course/templates/course/_enroll_form.html:35
 msgid ""
@@ -602,7 +589,7 @@ msgstr "Lue lisää"
 msgid "This course has already ended."
 msgstr "Tämä kurssi on jo päättynyt."
 
-#: course/templates/course/course_base.html:68
+#: course/templates/course/course_base.html:69
 msgid "The latest version of the course can be found at:"
 msgstr "Kurssin viimeisimmän version löydät täältä:"
 
@@ -700,7 +687,8 @@ msgstr "Tällä hetkellä ei ole käynnissä olevia kursseja."
 #: course/templates/course/index.html:70
 #, python-format
 msgid "Old courses can be found at the <a href=\"%(url)s\">course archive</a>."
-msgstr "Vanhat kurssit ovat nähtävissä <a href=\"%(url)s\">kurssiarkistossa</a>."
+msgstr ""
+"Vanhat kurssit ovat nähtävissä <a href=\"%(url)s\">kurssiarkistossa</a>."
 
 #: course/templates/course/module.html:27
 #, python-format
@@ -901,15 +889,15 @@ msgstr "Sähköposti"
 msgid "Tags"
 msgstr "Merkinnät"
 
-#: course/views.py:135
+#: course/views.py:134
 msgid "You cannot enroll, or have already enrolled, in this course."
 msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 
-#: course/views.py:139 exercise/exercise_models.py:561
+#: course/views.py:138 exercise/exercise_models.py:561
 msgid "The enrollment is not open."
 msgstr "Ilmoittautuminen ei ole avoinna."
 
-#: course/views.py:212
+#: course/views.py:211
 msgid "A new student group was created."
 msgstr "Luotiin uusi opiskelijaryhmä."
 

@@ -16,7 +16,7 @@
 				{% if instance.enrollment_ending_time %}
 					<div>
 						<small>
-							{% blocktrans with end=instance.enrollment_ending_time %}
+							{% blocktrans trimmed with end=instance.enrollment_ending_time %}
 							The course enrollment is open until {{ end }}.
 							{% endblocktrans %}
 						</small>
@@ -26,7 +26,7 @@
 		{% elif instance.has_enrollment_closed %}
 			{% trans "Unfortunately, enrolling in the course has ended." %}
 		{% else %}
-			{% blocktrans with start=instance.enrollment_start end=instance.enrollment_end %}
+			{% blocktrans trimmed with start=instance.enrollment_start end=instance.enrollment_end %}
 				The course opens {{ start }}.
 			{% endblocktrans %}
 		{% endif %}
