@@ -38,3 +38,9 @@ selenium_test/grader/db.sqlite3
 *~
 *.swp
 *.swo
+
+node_modules/
+# Temporary for local SASS development
+assets/Dockerfile
+assets/docker-compose.yml
+assets/vendor/

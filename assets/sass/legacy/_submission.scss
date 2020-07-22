@@ -1,0 +1,77 @@
+#tests .outputComparison {
+    overflow: auto;
+}
+#tests h2 {
+    font-weight: bold;
+    padding: 5px;
+    margin-top: 40px;
+    margin-bottom: 0px;
+    background-color: #E5ECF9;
+    border: solid #D5DCE9 2px;
+    border-bottom: none;
+}
+#tests h2+div {
+    padding: 20px 5px 5px 5px;
+    border: solid #D5DCE9 1px;
+}
+
+#tests h2 a {
+    text-decoration: none;
+    color: black;
+    cursor: default;
+}
+
+#tests h3 {
+    margin: 40px 0 10px 0;
+}
+#tests .outputComparison .submissionOutput {
+    float: left;
+    width: 49%;
+}
+#tests .outputComparison .modelOutput {
+    float: right;
+    width: 49%;
+}
+#tests .outputComparison h3 {
+    font-size: 100%;
+    padding-bottom: 0;
+    margin: 10px 0 0 0;
+}
+#tests h3 em {
+    font-size: 80%;
+    color: gray;
+}
+#tests .outputComparison pre,
+#tests pre.command,
+#tests pre.inputToProgram {
+    padding: 5px;
+    margin-top: 0px;
+    background-color: #eee;
+    border: solid silver 1px;
+    color: black;
+    overflow: auto;
+}
+
+table tr.failed td {
+    background-color: #ffdddd;
+}
+
+span.diffText {
+    background-color: yellow;
+}
+
+table.ExampleRun {
+    font-family: courier, "Courier New", monospace;
+}
+
+table.ExampleRun .ExampleRunOutput {
+    color: #004C07;
+    border-left: solid 5px green;
+    padding: 0 5px;
+}
+
+table.ExampleRun .ExampleRunInput {
+    color: #490056;
+    border-left: solid 5px #FBE0FF;
+    padding: 0 5px;
+}
