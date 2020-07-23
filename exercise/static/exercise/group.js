@@ -52,7 +52,9 @@
         var list = this.ui.find('select');
         for (var i = 0; i < this.groups.length; i++) {
           var group = this.groups[i];
-          list.append($('<option value="{&quot;group&quot;:' + group.id + '}" data-group-size="' + group.size + '">' + group.text + '</option>'));
+          var meta_data = JSON.stringify({group: parseInt(group.id)})
+          /* TODO: add lang to meta_data*/
+          list.append(($('<option value=\''+ meta_data + '\'data-group-size="' + group.size + '">' + group.text + '</option>')));
         }
       }
 		},
