@@ -676,9 +676,13 @@ msgstr "Minun kurssini"
 msgid "You do not currently have any active courses."
 msgstr "Sinulla ei ole käynnissä olevia kursseja."
 
-#: course/templates/course/index.html:33
+#: course/templates/course/index.html:36
 msgid "All ongoing courses"
-msgstr "Kaikki kurssit"
+msgstr "Meneillään olevat kurssit"
+
+#: course/templates/course/index.html:39
+msgid "See all courses"
+msgstr "Näytä kaikki kurssit"
 
 #: course/templates/course/index.html:62
 msgid "There are currently no active courses."

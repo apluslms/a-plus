@@ -6,6 +6,7 @@
 	<div class="frontpage card">
 		<div class="card-clickable">
 			<a href="{{ instance_url }}">
+				{% if not condensed %}
 				<div class="course-image" aria-hidden="true">
 					{% if instance.image %}
 						<img class="card-img-top" src="{{ instance.image.url }}" alt="" />
@@ -15,6 +16,7 @@
 					</div>
 					{% endif %}
 				</div>
+				{% endif %}
 				<div class="card-body">
 					<h3 class="card-title" lang="{{ instance.language }}">
 						{{ instance.course.name|parse_localization }}<br />
@@ -24,7 +26,7 @@
 					</p>
 					<p class="card-text">
 						{{ instance.course.code }}
-						{% if not instance.visible_to_students %}
+						{% if not instance.visible_to_students and not condensed %}
    							<span class="label label-danger">{% trans "Hidden from students" %}</span>
 						{% endif %}
 						<br />
@@ -35,6 +37,7 @@
 				</div>
 			</a>
 		</div>
+		{% if not condensed %}
 		<div class="card-footer">
 			{% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
 				<span class="label label-success">{{ internal_user_label|safe }}</span>
@@ -43,6 +46,7 @@
 				<span class="label label-info">{{ external_user_label|safe }}</span>
 			{% endif %}
 		</div>
+		{% endif %}
 	</div>
 {% endwith %}
 {% endfor %}

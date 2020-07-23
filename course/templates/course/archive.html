@@ -6,33 +6,21 @@
 {% block view_tag %}archive{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-md-8">
+  <div class="frontpage-panel">
     <div class="page-header">
         <h1>{% trans "Course archive" %}
     </div>
-    <ul>
-      {% for instance in instances %}
-      <li>
-        <h4>
-            <a href="{{ instance|url }}">{{ instance }}</a>
-            <small>
-              <br />{{ instance.starting_time|date:"SHORT_DATE_FORMAT" }}
-              &ndash; {{ instance.ending_time|date:"SHORT_DATE_FORMAT" }}
-              {% if not instance.visible_to_students %}
-              <span class="label label-danger">{% trans "Hidden from students" %}</span>
-              {% endif %}
-              {% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
-              <span class="label label-success">{{ internal_user_label|safe }}</span>
-              {% endif %}
-              {% if instance.enrollment_audience == 2 or instance.enrollment_audience == 3 %}
-              <span class="label label-info">{{ external_user_label|safe }}</span>
-              {% endif %}
-            </small>
-        </h4>
-      </li>
-      {% endfor %}
-    </ul>
+    {% regroup instances by starting_time|date:"Y" as instances_by_year %}
+
+    {% for year, year_instances in instances_by_year %}
+      <section class="frontpage frontpage-section">
+        <div class="section-heading">
+          <h2>{{ year }}</h2>
+        </div>
+        <div class="cards">
+          {% include "course/_course_cards.html" with instances=year_instances condensed=True %}
+        </div>
+      </section> 
+    {% endfor %}
   </div>
-</div>
 {% endblock %}

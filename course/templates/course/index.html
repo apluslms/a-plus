@@ -13,12 +13,14 @@
 {% endif %}
 
 {% if is_logged_in %}
-	<div class="frontpage-panel">
-		<h2 class="panel-heading">{% trans "My courses" %}</h2>
+	<section class="frontpage frontpage-section">
 		{% if my_instances %}
-			<section class="frontpage frontpage-section">
-				{% include "course/_course_cards.html" with instances=my_instances %}
-			</section>
+				<div class="section-heading">
+					<h2>{% trans "My courses" %}</h2>
+				</div>
+				<div class="cards">
+					{% include "course/_course_cards.html" with instances=my_instances condensed=False %}
+				</div>
 		{% else %}
 			<div class="panel-body">
 				<p class="panel-default-text">
@@ -26,50 +28,48 @@
 				</p>
 			</div>
 		{% endif %}
-	</div>
+	</section>
 {% endif %}
 
-<div class="frontpage-panel">
-	<h2 class="panel-heading">{% trans "All ongoing courses" %}</h2>
 	<section class="frontpage frontpage-section">
-		{% site_advert as advert %}
-		{% if advert %}
-			<div class="frontpage advert-card card">
-				<a href="{{ advert.href }}" target="_blank">
-					<div class="advert-image" aria-hidden="true">
-						{% if advert.image %}
-							<img class="card-img-top" src="{{ advert.image }}" alt="" />
-						{% else %}
-							<div class="card-img-top">
-								<i class="glyphicon glyphicon-comment"></i>
-							</div>
-						{% endif %}
-					</div>
-					<div class="card-body">
-						<h3 class="card-title">{{ advert.title }}</h3>
-						<p class="card-text">{{ advert.text|safe }}</p>
-					</div>
-				</a>
+		<div class="section-heading">
+			<h2>{% trans "All ongoing courses" %}</h2>
+			<div class="action">
+				{% url 'archive' as url %}
+				<a href="{{ url }}">{% trans "See all courses" %}</a>
+			</div>
+		</div>
+		<div class="cards">
+			{% site_advert as advert %}
+			{% if advert %}
+				<div class="frontpage advert-card card">
+					<a href="{{ advert.href }}" target="_blank">
+						<div class="advert-image" aria-hidden="true">
+							{% if advert.image %}
+								<img class="card-img-top" src="{{ advert.image }}" alt="" />
+							{% else %}
+								<div class="card-img-top">
+									<i class="glyphicon glyphicon-comment"></i>
+								</div>
+							{% endif %}
+						</div>
+						<div class="card-body">
+							<h3 class="card-title">{{ advert.title }}</h3>
+							<p class="card-text">{{ advert.text|safe }}</p>
+						</div>
+					</a>
+				</div>
+			{% endif %}
+			{% if all_instances %}
+				{% include "course/_course_cards.html" with instances=all_instances condensed=False %}
+			{% endif %}	
+		</div>
+		{% if not all_instances and not siteadvert %}
+			<div class="panel-body">
+				<p class="panel-default-text">
+					{% trans "There are currently no active courses." %}
+				</p>
 			</div>
 		{% endif %}
-		{% if all_instances %}
-			{% include "course/_course_cards.html" with instances=all_instances %}
-		{% endif %}
 	</section>
-	{% if not all_instances and not siteadvert %}
-		<div class="panel-body">
-			<p class="panel-default-text">
-				{% trans "There are currently no active courses." %}
-			</p>
-		</div>
-	{% endif %}
-</div>
-
-<p class="archive-link">
-	{% url 'archive' as url %}
-	{% blocktrans trimmed with url=url %}
-	Old courses can be found at the <a href="{{ url }}">course archive</a>.
-	{% endblocktrans %}
-</p>
-
 {% endblock %}
