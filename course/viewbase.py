@@ -57,6 +57,9 @@ class CourseInstanceBaseMixin(object):
             self.instance = instance
             self.course = self.instance.course
             self.content = CachedContent(self.instance)
+            self.user_course_data = None
+            if user.is_authenticated:
+                self.user_course_data = self.instance.get_enrollment_for(user)
             self.is_student = self.instance.is_student(user)
             self.is_assistant = self.instance.is_assistant(user)
             self.is_teacher = self.course.is_teacher(user)
@@ -64,24 +67,32 @@ class CourseInstanceBaseMixin(object):
             self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
 
             self.note(
-                "course", "instance", "content", "is_student", "is_assistant",
+                "course", "instance", "content", "user_course_data", "is_student", "is_assistant",
                 "is_teacher", "is_course_staff", "get_taggings",
             )
 
-            # Apply course instance language.
+            # Try to find a language that is defined for this course instance
+            # and apply it
             if self.instance.language:
-                lang = self.instance.language
-                if lang.startswith("|"):
-                    active = get_language()
-                    if "-" in active:
-                        active = active.split("-")[0]
-                    if "|" + active + "|" in lang:
-                        translation.activate(active)
-                    else:
-                        fallback = lang[1:lang.find("|", 1)]
-                        translation.activate(fallback)
+
+                languages = []
+                if self.user_course_data and self.user_course_data.language:
+                    languages.append(self.user_course_data.language)
+                if user.is_authenticated and user.userprofile.language:
+                    languages.append(user.userprofile.language)
+                languages.append(get_language())
+
+                instance_languages = self.instance.language.strip('|').split('|')
+                instance_def_language = instance_languages[0]
+                instance_languages = set(instance_languages)
+
+                for lang in languages:
+                    if lang.split('-', 1)[0] in instance_languages:
+                        language = lang
+                        break
                 else:
-                    translation.activate(lang)
+                    language = instance_def_language
+                translation.activate(language)
 
     def get_access_mode(self):
         access_mode = super().get_access_mode()
