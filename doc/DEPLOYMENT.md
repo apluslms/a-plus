@@ -225,6 +225,8 @@ Following instructions expect that the applocation is installed under `/srv/aplu
         sudo ln -s ../sites-available/$(hostname).conf /etc/apache2/sites-enabled/000-$(hostname).conf
         sed -e "s/__HOSTNAME__/$(hostname)/g" /srv/aplus/a-plus/doc/apache2/aplus-apache2.conf \
          | sudo tee /etc/apache2/sites-available/$(hostname).conf > /dev/null
+        sudo a2enmod rewrite
+        sudo a2dissite 000-default
 
  1. Create systemd service files for uWSGI processes
 
@@ -236,7 +238,7 @@ Following instructions expect that the applocation is installed under `/srv/aplu
 
  1. Reload Apache 2
 
-        sudo systemctl restart apahce2.service
+        sudo systemctl restart apache2.service
 
 
 ### Shibboleth with Apache 2
