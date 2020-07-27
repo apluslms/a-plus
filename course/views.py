@@ -1,14 +1,20 @@
 import datetime
-
 import icalendar
+from urllib.parse import unquote
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.utils import html
-from django.utils import timezone
+from django.urls import translate_url
+from django.utils import html, timezone
+from django.utils.http import is_safe_url
+from django.utils.translation import (
+    LANGUAGE_SESSION_KEY,
+    check_for_language,
+)
 from django.utils.translation import ugettext_lazy as _
 
 from authorization.permissions import ACCESS
@@ -192,7 +198,7 @@ class GroupsView(CourseInstanceMixin, BaseFormView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.enrollment = self.instance.get_enrollment_for(self.request.user)
+        self.enrollment = self.user_course_data
         self.groups = list(self.profile.groups.filter(course_instance=self.instance))
         self.note('enrollment','groups')
 
@@ -238,3 +244,49 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
             return self.render_to_response(self.get_context_data(
                 **group_info_context(enrollment.selected_group, self.profile)))
         return super().form_valid(form)
+
+
+class LanguageView(CourseInstanceMixin, BaseView):
+    
+    def post(self, request, *args, **kwargs):
+        LANGUAGE_PARAMETER = 'language'
+        
+        next = request.POST.get('next', request.GET.get('next'))
+        if ((next or not request.is_ajax()) and
+                not is_safe_url(url=next,
+                                allowed_hosts={request.get_host()}, 
+                                require_https=request.is_secure())):
+            next = request.META.get('HTTP_REFERER')
+            next = next and unquote(next)  # HTTP_REFERER may be encoded.
+            if not is_safe_url(url=next,
+                               allowed_hosts={request.get_host()},
+                               require_https=request.is_secure()):
+                next = '/'
+        response = HttpResponseRedirect(next) if next else HttpResponse(status=204)
+        if request.method == 'POST':
+            lang_code = request.POST.get(LANGUAGE_PARAMETER)
+            if lang_code and check_for_language(lang_code):
+                if next:
+                    next_trans = translate_url(next, lang_code)
+                    if next_trans != next:
+                        response = HttpResponseRedirect(next_trans)
+                if request.user.is_authenticated:
+                    enrollment = self.user_course_data
+                    if enrollment:
+                        enrollment.language = lang_code
+                        enrollment.save()
+                    else:
+                        userprofile = request.user.userprofile
+                        userprofile.language = lang_code
+                        userprofile.save()
+                else:
+                    if hasattr(request, 'session'):
+                        request.session[LANGUAGE_SESSION_KEY] = lang_code
+                    response.set_cookie(
+                        settings.LANGUAGE_COOKIE_NAME, lang_code,
+                        max_age=settings.LANGUAGE_COOKIE_AGE,
+                        path=settings.LANGUAGE_COOKIE_PATH,
+                        domain=settings.LANGUAGE_COOKIE_DOMAIN,
+                    )
+                request.REQUEST_LANG = lang_code
+        return response

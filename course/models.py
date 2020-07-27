@@ -136,6 +136,7 @@ class Enrollment(models.Model):
     """
     course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE)
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    language = models.CharField(blank=True, default="", max_length=5)
     timestamp = models.DateTimeField(auto_now_add=True)
     personal_code = models.CharField(max_length=10, blank=True, default='')
     selected_group = models.ForeignKey(StudentGroup, on_delete=models.SET_NULL,
