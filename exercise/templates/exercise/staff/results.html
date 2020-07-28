@@ -29,6 +29,9 @@
 <!--Library to make debugging rxjs a whole lot easier-->
 <script src="https://unpkg.com/rxjs-spy@7/bundles/rxjs-spy.min.umd.js"></script>
 
+<!-- Library for replacing checkboxes with toggle buttons -->
+{% include 'jquery_toggle.head.html' %}
+
 <!--Custom for loading animation (loading_animation.css) and other extra customizations (results_staff.css)
     results_staff.js is the main script for this page. -->
 <link rel="stylesheet" href="{% static 'exercise/css/loading_animation.css' %}" />
@@ -43,7 +46,7 @@
 </script>
 
 <!--Filtering for table rows-->
-<script src="{% static 'js/filter.js' %}"></script>
+<!-- <script src="{% static 'js/filter.js' %}"></script> -->
 
 <!--Colortags-->
 <script src="{% static 'django_colortag.js' %}"></script>
@@ -84,52 +87,76 @@
 		<!--Checkboxes to select extra information about data-->
 		<div style="margin: 10px;">
 			<h4>{% trans "Summaries" %}</h4>
-			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Total number of submissions. Calculates all student submission counts together.' %}">
+			<label
+				class="pt-summary-cb checkbox-inline"
+				data-toggle="tooltip"
+				title="{% trans 'Total number of submissions. Calculates all student submission counts together.' %}"
+			>
 				<input type="checkbox" class="total-subm-checkbox" value="total-subm">
 				{% trans "Total submissions" %}
 			</label>
 
-			<label style="margin-left: 10px;" class="ml-10 checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'How many submissions a single student has used on the exercise on average. Only accounts for students with one or more submissions.' %}">
+			<label
+				class="pt-summary-cb checkbox-inline"
+				data-toggle="tooltip"
+				title="{% trans 'How many submissions a single student has used on average on the exercise or group of exercises. Only accounts for students with one or more submissions.' %}"
+			>
 				<input type="checkbox" class="avg-subm-checkbox" value="avg-subm">
 				{% trans "Average submissions per student" %}
 			</label>
 
-			<label style="margin-left: 10px;" class="ml-10 checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Maximum number of available submissions for the exercise.' %}">
+			<label
+				class="pt-summary-cb checkbox-inline"
+				data-toggle="tooltip"
+				title="{% trans 'Maximum number of available submissions for the exercise or group of exercises.' %}"
+			>
 				<input type="checkbox" class="max-subm-checkbox" value="max-subm">
 				{% trans "Maximum submissions" %}
 			</label>
 
-			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Number of students that have one or more exercise submissions.' %}">
+			<label
+				class="pt-summary-cb checkbox-inline"
+				data-toggle="tooltip"
+				title="{% trans 'Number of students that have one or more exercise submissions.' %}"
+			>
 				<input type="checkbox" class="total-stu-subm-checkbox" value="total-stu-subm">
 				{% trans "Students with submissions" %}
 			</label>
 
-			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Number of students that have received maximum points from the exercise.' %}">
+			<label
+				class="pt-summary-cb checkbox-inline"
+				data-toggle="tooltip"
+				title="{% trans 'Number of students that have received maximum points from the exercise or group of exercises.' %}"
+			>
 				<input type="checkbox" class="total-stu-max-checkbox" value="total-stu-max">
 				{% trans "Students with max points" %}
 			</label>
 
-			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Average points received for the exercise per student. Only accounts for students with one or more submissions.' %}">
+			<label
+				class="pt-summary-cb checkbox-inline"
+				data-toggle="tooltip"
+				title="{% trans 'Average points received for the exercise or group of exercises per student. Only accounts for students with one or more submissions.' %}"
+			>
 				<input type="checkbox" class="avg-p-checkbox" value="avg-p">
 				{% trans "Average points per student" %}
 			</label>
 
-			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Maximum points for the exercise.' %}">
+			<label
+				class="pt-summary-cb checkbox-inline"
+				data-toggle="tooltip"
+				title="{% trans 'Maximum points for the exercise or group of exercises.' %}"
+			>
 				<input type="checkbox" class="max-p-checkbox" value="max-p">
 				{% trans "Maximum points" %}
 			</label>
 
 			<div class="has-error">
 				<div class="checkbox">
-					<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-						title="{% trans 'Points are official if the submission is within deadline and submission count limits. Submission must be also accepted and confirmed (for example, in case of mandatory feedback).' %}">
+					<label
+						class="pt-summary-cb checkbox-inline"
+						data-toggle="tooltip"
+						title="{% trans 'Points are official if the submission is within deadline and submission count limits. Submission must be also accepted and confirmed (for example, in case of mandatory feedback).' %}"
+					>
 						<input type="checkbox" class="official-checkbox" value="official" checked>
 						{% trans "Show only official points" %}
 					</label>
@@ -150,23 +177,27 @@
 		</div>
 
 
-		<!--Navigation bar to choose how data is shown-->
-		<ul style="margin: 10px 0px 50px 0px;" id="exercise-nav-tabs" class="nav nav-tabs">
-			<li id="difficulty-exercises" role="presentation" class="active">
-				<a onclick="choosePointsGroupingMethod('difficulty');" data-toggle="tab" href="#">{% trans "Show exercises by difficulty" %}</a>
-			</li>
-			<li id="module-exercises" role="presentation">
-				<a onclick="choosePointsGroupingMethod('module');" data-toggle="tab" href="#">{% trans "Show exercises by module" %}</a>
-			</li>
-			<li id="all-exercises" role="presentation">
-				<a onclick="choosePointsGroupingMethod('all');" data-toggle="tab" href="#">{% trans "Show all exercises" %}</a>
-			</li>
-		</ul>
+		<!--Checkboxes / toggle buttons to choose how data is shown-->
+		<div id="point-grouping-selection">
+			<label>
+				<input type="checkbox" value="difficulty" checked></input>
+				{% trans "Show points by difficulty" %}
+			</label><br>
+			<label>
+				<input type="checkbox" value="module"></input>
+				{% trans "Show points by module" %}
+			</label><br>
+			<label>
+				<input type="checkbox" value="all"></input>
+				{% trans "Show all exercises" %}
+			</label>
+		</div>
+		<br>
 
 
 		<!--Dropdown button for table exports. The buttons are added inside results_staff.js-->
 		<div id="table-export-dropdown" class="dropdown d-inline-block">
-			<button disabled class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{% trans "Export Data" %}
+			<button disabled class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{% trans "Export data" %}
 				<span class="caret"></span>
 			</button>
 			<ul id="export-button-menu" class="dropdown-menu">
@@ -191,23 +222,36 @@
     			</div>
     		</div>
     	</div>
-        
-         
+
+
     	<!--Loading progress-->
     	<div class="row">
     		<div class="col-md-12">
-    			<div id="results-loading-progress" class="text-center"></div>
+    			<div id="results-loading-progress" class="text-center">
+						<span id="results-progress-cumulative"></span>
+						 /
+						<span id="results-progress-total"><span>
+					</div>
     		</div>
     	</div>
-        
+
 		<!--Data table-->
 		<div style="display: none;" id="table-points-div" class="table-responsive">
-			<table id="table-points" class="table table-striped table-bordered table-condensed filtered-table">
+			<table id="table-points" class="table table-bordered table-condensed">
+				<colgroup id="cg-student-data">
+				</colgroup>
+				<colgroup class="total-points" span="1">
+				</colgroup>
+				<colgroup id="cg-difficulty">
+				</colgroup>
+				<colgroup id="cg-modules-exercises">
+				</colgroup>
 				<thead id="table-heading">
 					<tr id="table-heading-row"></tr>
 				</thead>
-				<tbody id="table-body">
-
+				<tbody id="indicator-rows">
+				</tbody>
+				<tbody id="student-rows">
 				</tbody>
 			</table>
 		</div>

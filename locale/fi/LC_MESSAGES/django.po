@@ -844,7 +844,7 @@ msgstr "Lisää"
 
 #: course/templates/course/staff/participants.html:26
 #: diploma/templates/diploma/list.html:13
-#: exercise/templates/exercise/staff/results.html:137
+#: exercise/templates/exercise/staff/results.html:170
 msgid "Filter users"
 msgstr "Suodata listaa"
 
@@ -2719,19 +2719,19 @@ msgstr ""
 msgid "Grader errors"
 msgstr "Virheet tarkistimelta"
 
-#: exercise/templates/exercise/staff/results.html:57
+#: exercise/templates/exercise/staff/results.html:66
 msgid "Select modules: "
 msgstr "Valitse moduulit: "
 
-#: exercise/templates/exercise/staff/results.html:67
+#: exercise/templates/exercise/staff/results.html:76
 msgid "Select exercises: "
 msgstr "Valitse tehtävät: "
 
-#: exercise/templates/exercise/staff/results.html:80
+#: exercise/templates/exercise/staff/results.html:89
 msgid "Summaries"
 msgstr "Yhteenvedot"
 
-#: exercise/templates/exercise/staff/results.html:82
+#: exercise/templates/exercise/staff/results.html:93
 msgid ""
 "Total number of submissions. Calculates all student submission counts "
 "together."
@@ -2739,67 +2739,77 @@ msgstr ""
 "Palautusten lukumäärä. Laskee kaikkien opiskelijoiden kaikkien palautusten "
 "lukumäärän yhteen."
 
-#: exercise/templates/exercise/staff/results.html:84
+#: exercise/templates/exercise/staff/results.html:96
 msgid "Total submissions"
 msgstr "Palautuksia yhteensä"
 
-#: exercise/templates/exercise/staff/results.html:88
+#: exercise/templates/exercise/staff/results.html:102
 msgid ""
-"How many submissions a single student has used on the exercise on average. "
-"Only accounts for students with one or more submissions."
+"How many submissions a single student has used on average on the exercise or "
+"group of exercises. Only accounts for students with one or more submissions."
 msgstr ""
-"Kuinka monta palautusta opiskelija on käyttänyt tehtävään keskimäärin. "
-"Lasketaan vain opiskelijat, joilla on vähintään yksi palautus."
+"Kuinka monta palautusta opiskelija on keskimäärin käyttänyt tehtävään tai "
+"joukkoon tehtäviä. Lasketaan vain opiskelijat, joilla on vähintään yksi "
+"palautus."
 
-#: exercise/templates/exercise/staff/results.html:90
+#: exercise/templates/exercise/staff/results.html:105
 msgid "Average submissions per student"
 msgstr "Palautuskertojen keskiarvo per opiskelija"
 
-#: exercise/templates/exercise/staff/results.html:94
-msgid "Maximum number of available submissions for the exercise."
-msgstr "Kuinka monta palautusta tehtävässä on mahdollista käyttää."
+#: exercise/templates/exercise/staff/results.html:111
+msgid ""
+"Maximum number of available submissions for the exercise or group of "
+"exercises."
+msgstr ""
+"Kuinka monta palautusta tehtävässä tai tehtäväjoukossa on mahdollista "
+"käyttää."
 
-#: exercise/templates/exercise/staff/results.html:96
+#: exercise/templates/exercise/staff/results.html:114
 msgid "Maximum submissions"
 msgstr "Palautusmahdollisuuksia"
 
-#: exercise/templates/exercise/staff/results.html:100
+#: exercise/templates/exercise/staff/results.html:120
 msgid "Number of students that have one or more exercise submissions."
 msgstr "Opiskelijat, joilla on vähintään yksi palautus."
 
-#: exercise/templates/exercise/staff/results.html:102
+#: exercise/templates/exercise/staff/results.html:123
 msgid "Students with submissions"
 msgstr "Tehtävän palauttaneet opiskelijat"
 
-#: exercise/templates/exercise/staff/results.html:106
-msgid "Number of students that have received maximum points from the exercise."
-msgstr "Opiskelijat, jotka ovat saaneet täydet pisteet tehtävästä."
+#: exercise/templates/exercise/staff/results.html:129
+msgid ""
+"Number of students that have received maximum points from the exercise or "
+"group of exercises."
+msgstr ""
+"Opiskelijoiden lukumäärä, jotka ovat saaneet täydet pisteet tehtävästä tai "
+"tehtäväjoukosta."
 
-#: exercise/templates/exercise/staff/results.html:108
+#: exercise/templates/exercise/staff/results.html:132
 msgid "Students with max points"
 msgstr "Opiskelijat, joilla on täydet pisteet"
 
-#: exercise/templates/exercise/staff/results.html:112
+#: exercise/templates/exercise/staff/results.html:138
 msgid ""
-"Average points received for the exercise per student. Only accounts for "
-"students with one or more submissions."
+"Average points received for the exercise or group of exercises per student. "
+"Only accounts for students with one or more submissions."
 msgstr ""
-"Kuinka monta pistettä opiskelijat ovat saaneet tehtävästä keskimäärin. "
-"Lasketaan vain opiskelijat, joilla on vähintään yksi palautus."
+"Kuinka monta pistettä opiskelijat ovat keskimäärin saaneet tehtävästä tai "
+"tehtäväjoukosta. Lasketaan vain opiskelijat, joilla on vähintään yksi "
+"palautus."
 
-#: exercise/templates/exercise/staff/results.html:114
+#: exercise/templates/exercise/staff/results.html:141
 msgid "Average points per student"
 msgstr "Pisteiden keskiarvo per opiskelija"
 
-#: exercise/templates/exercise/staff/results.html:118
-msgid "Maximum points for the exercise."
-msgstr "Tehtävän enimmäispisteet."
+#: exercise/templates/exercise/staff/results.html:147
+msgid "Maximum points for the exercise or group of exercises."
+msgstr "Tehtävän tai tehtäväjoukon enimmäispisteet."
 
-#: exercise/templates/exercise/staff/results.html:120
+#: exercise/templates/exercise/staff/results.html:150
 msgid "Maximum points"
 msgstr "Enimmäispisteet"
 
-#: exercise/templates/exercise/staff/results.html:126
+#: exercise/templates/exercise/staff/results.html:158
 msgid ""
 "Points are official if the submission is within deadline and submission "
 "count limits. Submission must be also accepted and confirmed (for example, "
@@ -2809,27 +2819,27 @@ msgstr ""
 "palautuskertojen sisällä. Palautus täytyy olla myös hyväksytty ja "
 "varmistettu (esimerkiksi pakollisen palautteen yhteydessä)."
 
-#: exercise/templates/exercise/staff/results.html:128
+#: exercise/templates/exercise/staff/results.html:161
 msgid "Show only official points"
 msgstr "Näytä vain viralliset pisteet"
 
-#: exercise/templates/exercise/staff/results.html:150
-msgid "Show exercises by difficulty"
-msgstr "Näytä tehtävät vaikeusasteittain"
+#: exercise/templates/exercise/staff/results.html:184
+msgid "Show points by difficulty"
+msgstr "Näytä pisteet vaikeusasteittain"
 
-#: exercise/templates/exercise/staff/results.html:153
-msgid "Show exercises by module"
-msgstr "Näytä tehtävät moduulettain"
+#: exercise/templates/exercise/staff/results.html:188
+msgid "Show points by module"
+msgstr "Näytä pisteet moduulettain"
 
-#: exercise/templates/exercise/staff/results.html:156
+#: exercise/templates/exercise/staff/results.html:192
 msgid "Show all exercises"
 msgstr "Näytä kaikki tehtävät"
 
-#: exercise/templates/exercise/staff/results.html:163
-msgid "Export Data"
-msgstr "Vie Tiedostoon"
+#: exercise/templates/exercise/staff/results.html:200
+msgid "Export data"
+msgstr "Vie tiedostoon"
 
-#: exercise/templates/exercise/staff/results.html:174
+#: exercise/templates/exercise/staff/results.html:211
 msgid "Data couldn't be fetched. Please check your internet connection."
 msgstr "Tietojen lataaminen ei onnistunut. Tarkista yhteys palveluun."
 

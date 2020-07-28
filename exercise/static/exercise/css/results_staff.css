@@ -2,10 +2,17 @@
  * Navigation
  */
 
-.nav-tabs>li.active>a,
+/* .nav-tabs>li.active>a,
 .nav-tabs>li.active>a:hover,
 .nav-tabs>li.active>a:focus {
     background-color: #A9A9A9 !important;
+} */
+
+/*
+ * Summary checkboxes
+ */
+.pt-summary-cb {
+    margin-left: 10px;
 }
 
 /*
@@ -23,16 +30,79 @@ caption.tableexport-caption button {
 /*
  * Table
  */
+#table-points-div {
+    max-height: calc(100vh - 6em);
+    max-width: 100vw;
+    overflow: scroll;
+}
+
+/* #table-points {
+  table-layout: auto;
+} */
+
+#table-heading th {
+    min-width: 4em;
+    background: linear-gradient(0deg, #d6d6d6 0%, #d6d6d6 1px, white 1px, white 100%);
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    /* border-top: 2px solid #ddd;
+    border-bottom: 2px solid #ddd; */
+    z-index: 2;
+}
+
+#table-heading th.stick-on-scroll {
+    background-color: white;
+    left: 0;
+    z-index: 3;
+}
+
+tbody td.stick-on-scroll {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+#table-heading th.stick-on-scroll,
+tbody td.stick-on-scroll {
+  background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), #d6d6d6 calc(100% - 1px), #d6d6d6 100%);
+}
+
+#table-heading th.stick-on-scroll:nth-child(2),
+tbody td.stick-on-scroll:nth-child(2) {
+    left: 6em;
+}
+
+/* colgroup.hidden-col,
+col.hidden-col,
+tr.hidden-row {
+  visibility: collapse;
+} */
+
+#student-rows tr:nth-child(odd) td:not(.student-id):not(.student-name) {
+    background-color: #f9f9f9;
+}
+
+#student-rows tr:nth-child(even) td:not(.student-id):not(.student-name) {
+    background-color: white;
+}
 
 .student-id,
 .student-name,
-#table-body td.indicator-heading {
+#indicator-rows td.indicator-heading {
     background-color: rgb(188, 232, 241);
     font-weight: bold;
 }
 
-#table-body td.indicator-heading {
+#indicator-rows td.indicator-heading {
     filter: brightness(85%);
+}
+
+/* Doesn't work. Should we add classes to cells? */
+#table-points th.pt-module,
+#table-points td.pt-module {
+  filter: brightness(0.92);
 }
 
 

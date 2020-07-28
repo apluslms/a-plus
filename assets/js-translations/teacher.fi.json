@@ -20,75 +20,6 @@
   "There might be something wrong with the filter. Some comparison operators only accept numbers. If you are using datetime, make sure the format is correct. If you are using regex, make sure it is correct.":
   "Suodattimissa voi olla virhe. Jotkut vertailuoperaattorit hyväksyvät vain numeroita. Mikäli vertailet aikaa, varmista että formaatti on oikea. Mikäli käytät regexiä, niin varmista että se on oikein.",
 
-  "Total":
-  "Yhteensä",
-
-  "Tags":
-  "Merkinnät",
-
-  "Student name":
-  "Opiskelijan nimi",
-
-  "Student ID":
-  "Opiskelijanumero",
-
-  " students selected":
-  " opiskelijaa valittuna",
-
-  "No difficulty":
-  "Ei vaikeusastetta",
-
-  "Total submissions":
-  "Palautuksia yhteensä",
-
-  "Average submissions per student with submissions":
-  "Palautusten keskiarvo per opiskelija, jolla on vähintään yksi palautus",
-
-  "Maximum submissions":
-  "Palautusmahdollisuuksia",
-
-  "Students with submissions":
-  "Tehtävän palauttaneet opiskelijat",
-
-  "Students with max points":
-  "Opiskelijoiden lkm joilla on täydet pisteet",
-
-  "Average points per student with submissions":
-  "Pisteiden keskiarvo per opiskelija jolla on vähintään yksi palautus",
-
-  "Maximum points":
-  "Enimmäispisteet",
-
-  "Total number of submissions. Calculates all student submission counts together.":
-  "Palautusten lukumäärä. Laskee kaikkien opiskelijoiden kaikkien palautusten lukumäärän yhteen.",
-
-  "How many submissions a single student has used on the exercise on average. Only accounts for students with one or more submissions.":
-  "Kuinka monta palautusta opiskelija on käyttänyt tehtävään keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
-
-  "Maximum number of available submissions for the exercise.":
-  "Kuinka monta palautusta tehtävässä on mahdollista käyttää.",
-
-  "Number of students that have one or more exercise submissions.":
-  "Opiskelijoiden lukumäärä, joilla on vähintään yksi palautus.",
-
-  "Number of students that have received maximum points from the exercise.":
-  "Opiskeljoiden lukumäärä, jotka ovat saaneet täydet pisteet tehtävästä.",
-
-  "Average points received for the exercise. Only accounts for students with one or more submissions.":
-  "Kuinka monta pistettä opiskelijat ovat saaneet tehtävästä keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
-
-  "Maximum points for the exercise.":
-  "Tehtävän enimmäispisteet.",
-
-  "Export to xlsx (Excel)":
-  "Vie xlsx tiedostoon (Excel)",
-
-  "Export to csv (LibreOffice)":
-  "Vie csv tiedostoon (LibreOffice)",
-
-  "Export to txt":
-  "Vie txt tiedostoon",
-
   "None selected":
   "Nolla valintaa",
 
@@ -101,8 +32,95 @@
   "Select all":
   "Valitse kaikki",
 
+  "Student ID":
+  "Opiskelija\u00ADnumero",
+
+  "Student name":
+  "Opiskelijan nimi",
+
+  "Email address":
+  "Sähköpostiosoite",
+
+  "Tags":
+  "Merkinnät",
+
+  "Total":
+  "Yhteensä",
+
+  "No difficulty":
+  "Ei vaikeusastetta",
+
+  "The percentage indicates the distribution of the total.":
+  "Prosenttiosuus ilmaisee osuuden kokonaissummasta.",
+
+  "Total submissions":
+  "Palautuksia yhteensä",
+
+  "Total number of submissions. Calculates all student submission counts together. (Accounts for both official and unoffical submissions.)":
+  "Palautusten lukumäärä. Laskee kaikkien opiskelijoiden  palautusten lukumäärän yhteen. (Lasketaan sekä viralliset että epäviralliset palautukset.)",
+
+  "Average submissions per student with submissions":
+  "Palautusten keskiarvo per opiskelija, jolla on vähintään yksi palautus",
+
+  "How many submissions a single student has used on average on the exercise or group of exercises. Only accounts for students with one or more submissions. (Accounts for both official and unoffical submissions.)":
+  "Kuinka monta palautusta opiskelija on käyttänyt tehtävään tai tehtäväjoukkoon keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus. (Lasketaan sekä viralliset että epäviralliset palautukset.)",
+
+  "The percentage indicates what proportion of allowed submissions have been used on average.":
+  "Prosenttiosuus ilmaisee kuinka suuri osuus mahdollisista palautuksista on keskimäärin käytetty.",
+
+  "Maximum submissions":
+  "Palautusmahdollisuuksia",
+
+  "Maximum number of available submissions for the exercise or group of exercises.":
+  "Kuinka monta palautusta tehtävässä tai tehtäväjoukossa on mahdollista käyttää.",
+
+  "Students with submissions":
+  "Tehtävän palauttaneet opiskelijat",
+
+  "Number of students that have one or more exercise submissions. (Accounts for both official and unoffical submissions.)":
+  "Opiskelijoiden lukumäärä, joilla on vähintään yksi palautus. (Lasketaan sekä viralliset että epäviralliset palautukset.)",
+
+  "The percentage indicates what proportion of the students shown have submssions.":
+  "Prosenttiosuus ilmaisee kuinka suurella osuudella näytetyistä opiskelijoista on palautuksia.",
+
+  "Students with max points":
+  "Opiskelijoiden lkm joilla on täydet pisteet",
+
+  "Number of students that have received maximum points from the exercise or group of exercises.":
+  "Opiskelijoiden lukumäärä, jotka ovat saaneet täydet pisteet tehtävästä tai tehtäväjoukosta.",
+
+  "The percentage indicates what proportion of the students shown have received maximum points.":
+  "Prosenttiosuus ilmaisee kuinka suuri osuus näytetyistä opiskelijoista on saanut täydet pisteet.",
+
+  "Average points per student with submissions":
+  "Pisteiden keskiarvo per opiskelija jolla on vähintään yksi palautus",
+
+  "Average points received for the exercise or group of exercises. Only accounts for students with one or more submissions.":
+  "Kuinka monta pistettä opiskelijat ovat keskimäärin saaneet tehtävästä tai tehtäväjoukosta. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
+
+  "The percentage indicates what propoprtion of the maximum points the students have recieved on average.":
+  "Prosenttiosuus ilmaisee kuinka suuren osuuden enimmäispisteitä opiskelijat ovat keskimäärin saaneet.",
+
+  "Maximum points":
+  "Enimmäispisteet",
+
+  "Maximum points for the exercise or group of exercises.":
+  "Tehtävän tai tehtäväjoukon enimmäispisteet.",
+
+  "Export to xlsx (Excel)":
+  "Vie xlsx-tiedostoon (Excel)",
+
+  "Export to csv (LibreOffice)":
+  "Vie csv-tiedostoon (LibreOffice)",
+
+  "Export to txt":
+  "Vie txt-tiedostoon",
+
   "student_results":
   "opiskelijoiden_tulokset",
+
+  " students selected":
+  " opiskelijaa valittuna",
 
   "Some students have unofficial points that are greater than zero. However, they are calculated as zero in the table until they are confirmed. This may be caused for example by missing feedback form.":
   "Osalla opiskelijoista on epävirallisia pisteitä, jotka ovat enemmän kuin nolla. Nämä pisteet on silti laskettu nollana taulukossa, kunnes ne on vahvistettu. Tämä voi johtua esimerkiksi puuttuvasta palautelomakkeesta."

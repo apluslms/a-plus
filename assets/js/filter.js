@@ -185,6 +185,8 @@ $(function() {
                 .find('tbody')
                 .find('tr')
                 .not('.no-filtering')
+                // TODO: fix interaction with staff results table
+                // .filter(function (i, elem) {return !elem.hidden})
                 .hide()
                 .filter(function() {
                     var pass = true;

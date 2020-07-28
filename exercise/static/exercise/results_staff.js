@@ -1,645 +1,526 @@
-const { Observable, Subject, concat } = rxjs;
-const { map, first, count, ignoreElements } = rxjs.operators;
-
-const tag = rxjsSpy.operators.tag;
-spy = rxjsSpy.create();
-spy.log("users");
-
-
-
 (function($, document, window, undefined) {
-  let currentScript = (document.currentScript ?
-    $(document.currentScript) :
-    $('script').last()); // Ugly solution for IE11
+
+  const { Observable, Subject, concat, fromEvent } = rxjs;
+  const { map, first, count, find, ignoreElements } = rxjs.operators;
+
+  const tag = rxjsSpy.operators.tag;
+  spy = rxjsSpy.create();
+  spy.log("users");
+
+
+  const currentScript = (document.currentScript
+    ? $(document.currentScript)
+    : $('script').last()); // Ugly solution for IE11
 
   const exercisesUrl = currentScript.data("exercisesUrl");
   const studentsUrl = currentScript.data("studentsUrl");
   const usertagsUrl = currentScript.data("usertagsUrl");
   const pointsUrl = currentScript.data("pointsUrl");
 
-  let _tagSlugFilters;
+  const ajaxEnabled = true;
+
+  /* Custom AJAX settings to use with jQuery.ajax()
+   * - Possibility to disable AJAX
+   * - Retrying and retry limits (call specific)
+   */
+  const ajaxSettings = {
+    _retryCount: 0,
+    _retryLimit: 3,
+    timeout: 0,
+    beforeSend: function(xhr, settings) {
+      return ajaxEnabled;
+    },
+    error: function(xhr, statusText, errorThrown) {
+      this._retryCount += 1;
+      if (this._retryCount <= this._retryLimit) {
+        console.log("Retrying ajax:", statusText);
+        setTimeout($.ajax, 1000, this);
+      } else {
+        stopAjax = true;
+        $("#ajax-failed-alert").show();
+        $("#results-loading-animation").hide();
+      }
+    }
+  };
+
+  let _tagSlugFilters = [];
   let _exerciseSelection;
   let _studentCount;
-  let _studentsVisibleCount = 0;
-  let _allExercises = [];
-  let _exercises;
-  let _students;
-  let _users = {};
+  let _visibleStudentSpan;
+  let _participantNumberSpan;
+  // let _exercises;
+  // let _students;
+  // let _users = {};
   let _usertags;
-  let _points = {};
-  let _ajaxCompleted = false;
-
-  let storageKey = 'resultsData';
-  function toStorage() {
-    return {
-      _students: _students,
-      _usertags: _usertags,
-      _allExercises: _allExercises,
-      _users: _users,
-      _points: _points,
-    }
-  }
+  // let _points = {};
+  let _exerciseFilterID = 0;
+  let _tagFilterID = 0;
+  let _prevOfficiality = true;
+  let _showOfficial = true;
 
   let tableExportVar;
 
-  /* TODO: Use better logic for translations.
-   * Currently only some translations wait for aplus:translation-ready and most of them do not,
-   * since the translations become available during the script.
-   */
-  $(document).on("aplus:translation-ready", function() {
-    // TableExport plugin
-    // https://tableexport.v5.travismclarke.com/#tableexport
-    TableExport.prototype.formatConfig.xlsx.buttonContent = _("Export to xlsx (Excel)");
-    TableExport.prototype.formatConfig.csv.buttonContent = _("Export to csv (LibreOffice)");
-    TableExport.prototype.formatConfig.txt.buttonContent = _("Export to txt");
-    tableExportVar = $("#table-points").tableExport({
-      "position": "top",
-      "bootstrap": "true",
-      "filename": _("student_results"),
+  /**
+    * Create an object with given keys and initialization value for each
+    * @param {Array[String]} keys Collection of keys to initialize object with
+    * @param val The value to provide for each key. If the val is an array or
+    * an object, a shallow copy is mady for each key.
+    */
+  function initObjectWithKeys(keys, val) {
+    // makes shallow copies of arrays and objects
+    const clone =
+      Array.isArray(val) ? (arg) => ([...arg])
+      : (typeof val === 'object' && val !== 'null') ? (arg) => ({...arg})
+      : (arg) => (arg);
+
+    let obj = {};
+    keys.forEach((key) => {
+      obj[key] = clone(val);
     });
+    return obj;
+  }
 
-    // Move the default TableExport download buttons inside a single dropdown menu
-    $("caption.tableexport-caption").children("button").each(function() {
-      $("#export-button-menu").append($(this).detach());
-    });
-  });
+  const pointsGroupingMethods = ["difficulty", "module", "all"];
+  const pointKeys = initObjectWithKeys(pointsGroupingMethods, []);
 
-  // Make the table headings and student IDs stick when scrolling table
-  $('#table-points-div').scroll(function(ev) {
-    $('thead#table-heading th').css('transform', 'translateY(' + this.scrollTop + 'px)');
-    $('tbody td.stick-on-scroll').css('transform', 'translateX(' + this.scrollLeft + 'px)');
-  });
+  // maps exercise ID's to max point count, max submission count and difficulty
+  const maxPoints = {};
+  const maxSubmissions = {};
+  const exerciseDifficulties = {};
 
+  const columnIndexMap = initObjectWithKeys(pointsGroupingMethods, {}); // if we want also student-data indices: .concat('student-data')
+  const columnMap = initObjectWithKeys(pointsGroupingMethods.concat('student-data'), {}); // [groupingMethod: [id: column]]
 
-  // Booleans to allow teacher to choose with checkboxes what data indicators they want to see
-  let _totalSubmTrue = false;
-  let _avgSubmTrue = false;
-  let _maxSubmTrue = false;
-  let _totalStuSubmTrue = false;
-  let _totalStuMaxTrue = false;
-  let _avgPTrue = false;
-  let _maxPTrue = false;
-  let _showOfficial = true;
+  const indicatorRows = initObjectWithKeys(['dynamic', 'static'], {});
+  // Maps userIDs to table rows. Key: student.id, value: HTMLTableRowElement
+  const studentRowMap = new Map();
 
-  $("input.total-subm-checkbox").change(function() {
-    _totalSubmTrue = this.checked;
-    exerciseSelectionChange();
-  });
+  const hiddenCellIndices = new Set();
+  hiddenCellIndices.add(2);
 
-  $("input.avg-subm-checkbox").change(function() {
-    _avgSubmTrue = this.checked;
-    exerciseSelectionChange();
-  });
-
-  $("input.max-subm-checkbox").change(function() {
-    _maxSubmTrue = this.checked;
-    exerciseSelectionChange();
-  });
-
-  $("input.total-stu-subm-checkbox").change(function() {
-    _totalStuSubmTrue = this.checked;
-    exerciseSelectionChange();
-  });
-
-  $("input.total-stu-max-checkbox").change(function() {
-    _totalStuMaxTrue = this.checked;
-    exerciseSelectionChange();
-  });
-
-  $("input.avg-p-checkbox").change(function() {
-    _avgPTrue = this.checked;
-    exerciseSelectionChange();
-  });
-
-  $("input.max-p-checkbox").change(function() {
-    _maxPTrue = this.checked;
-    exerciseSelectionChange();
-  });
-
-  $("input.official-checkbox").change(function() {
-    _showOfficial = this.checked;
-    exerciseSelectionChange();
-  });
+  // Key: jQuery object; Value: [dynamic, id]
+  const indicatorCheckboxes = new Map();
+  indicatorCheckboxes.set($("input.total-subm-checkbox"), [true, 'totalSubmissions']);
+  indicatorCheckboxes.set($("input.avg-subm-checkbox"), [true, 'averageSubmissions']);
+  indicatorCheckboxes.set($("input.max-subm-checkbox"), [false, 'maxSubmissions']);
+  indicatorCheckboxes.set($("input.total-stu-subm-checkbox"), [true, 'studentsWithSubs']);
+  indicatorCheckboxes.set($("input.total-stu-max-checkbox"), [true, 'studentsWithMaxPoints']);
+  indicatorCheckboxes.set($("input.avg-p-checkbox"), [true, 'averagePoints']);
+  indicatorCheckboxes.set($("input.max-p-checkbox"), [false, 'maxPoints']);
 
 
-  // Set up the tooltip for checkboxes, look docs below for tooltip
-  // https://getbootstrap.com/docs/3.3/javascript/
-  $('[data-toggle="tooltip"]').tooltip({
-    "trigger": "hover",
-  });
+  // Add to the value of a key-value pair in an object
+  function addTo(dict, key, value) {
+    dict[key] = dict[key] + value || value
+  }
 
-  $('[data-toggle="tooltip"]').on('click', function() {
-    $(this).tooltip('hide');
-  })
+  function sumReducer(acc, cur) {
+    return acc + cur;
+  }
 
+  function roundToTwo(value) {
+    return Number.isInteger(value) ? value : value.toFixed(2);
+  }
+  function percent(value) {
+    return roundToTwo(value * 100) + "\u00A0%";
+  }
 
-  // Event listener for tag filters
-  $('.filter-users button').on('click', function(event) {
-    event.preventDefault();
-    let icon = $(this).find('.glyphicon');
-    if (icon.hasClass('glyphicon-unchecked')) {
-      icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
-    } else {
-      icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+  function createOptgroup(attrs) {
+    const optgroup = document.createElement('optgroup');
+    for (key in attrs) {
+      optgroup.setAttribute(key, attrs[key]);
     }
-    exerciseSelectionChange();
-  });
+    return optgroup;
+  }
 
-  /*
-   * Creates the html for indicator data row. This is called for each row that has
-   * checkbox checked for its indicator data.
-   * @param  {string} tooltipTitle The text that is shown when hovering over heading.
-   * @param  {string} headingTitle The heading text.
-   * @return {string} Returns the html that creates the data indicator rows in table.
-   */
-  function createIndicatorRow(tooltipTitle, headingTitle, dataValues) {
-    // Data indicator headings have title and tooltip info that is shown when hovering mouse on the heading title
-    let indicatorHeadingHtml = "";
-    if (dataValues && dataValues.length > 0) {
-      indicatorHeadingHtml +=
-        '<tr class="no-filtering"><td style="border-right: none !important; border-bottom: none !important;"' +
-        'class="indicator-heading stick-on-scroll" data-toggle="tooltip" ' +
-        'title="' + tooltipTitle + '">' + headingTitle +
-        '</td><td style="border-left: none !important; border-bottom: none !important;"' +
-        'class="indicator-heading stick-on-scroll" data-toggle="tooltip" ' +
-        'title="' + tooltipTitle + '"></td>';
-    } else {
-      indicatorHeadingHtml +=
-        '<tr class="no-filtering"><td style="border-right: none !important;" colspan="2"' +
-        'class="indicator-heading stick-on-scroll" data-toggle="tooltip" ' +
-        'title="' + tooltipTitle + '">' + headingTitle +
-        '</td><td style="border-left: none !important; border-top: none !important;"' +
-        'class="indicator-heading stick-on-scroll" data-toggle="tooltip" ' +
-        'title="' + tooltipTitle + '"></td>';
+  function addOptionToElement(parent, text, attrs) {
+    const opt = document.createElement('option');
+    for (key in attrs) {
+      opt.setAttribute(key, attrs[key]);
     }
+    opt.textContent = text;
+    parent.appendChild(opt);
+  }
 
-    let normalValuesHtml = '';
-    let pctValuesHtml =
-      '<tr class="no-filtering tableexport-ignore">'
-    let sumValue = 0;
-    dataValues.forEach(function(value) {
-      sumValue += value[0];
+  function addThToRow(row, opts) {
+    const cell = document.createElement('th');
+    const {text, insertBefore, hidden, ...rest} = opts;
+    Object.entries(rest).forEach(([attr, value]) => {
+      cell.setAttribute(attr, value);
     });
-    sumValue = Number.isInteger(sumValue) ? sumValue : sumValue.toFixed(2);
+    if (text){
+      cell.textContent = text;
+    }
+    if (insertBefore) {
+      row.insertBefore(cell, insertBefore)
+    } else {
+      row.appendChild(cell);
+    }
+    if (hidden) {
+      cell.hidden = hidden;
+    }
+    return cell;
+  }
 
-    // Empty data cells for total and tags in data indicators
-    if (dataValues && dataValues.length > 0) {
-      normalValuesHtml +=
-        '<td class="indi-normal-val"></td>'
-        + '<td class="indi-normal-val">' + sumValue + '</td>';
-      pctValuesHtml +=
-        '<td style="border-right: none !important; border-top: none !important;"'
-        + 'class="indicator-heading stick-on-scroll" data-toggle="tooltip" '
-        + 'title="' + tooltipTitle + '"></td>'
-        + '<td style="border-left: none !important; border-top: none !important;"'
-        + 'class="indicator-heading stick-on-scroll" data-toggle="tooltip" '
-        + 'title="' + tooltipTitle + '"></td>'
-        + '<td class="indi-pct-val"></td>'
-        + '<td class="indi-pct-val"></td>';
+  function addCellToRow(row, opts) {
+    let cell = row.insertCell();
+    const {text, url, hidden, ...rest} = opts;
+    Object.entries(rest).forEach(([attr, value]) => {
+      cell.setAttribute(attr, value);
+    });
+    if (text || (text === 0)) {
+      if (url) {
+        const anch = document.createElement('a');
+        anch.href = url;
+        anch.textContent = text;
+        cell.appendChild(anch);
+      } else {
+        cell.textContent = text;
       }
+    }
+    if (hidden) {
+      cell.hidden = hidden;
+    }
+    return cell;
+  }
 
-    // Normal and percentage values on seperate rows in data indicators
-    dataValues.forEach(function(value) {
-      let normalValue = Number.isInteger(value[0]) ? value[0] : value[0].toFixed(2);
-      normalValuesHtml += '<td class="indi-normal-val">' + normalValue + '</td>';
-      pctValuesHtml += '<td class="indi-pct-val">' + value[1].toFixed(2) + '%</td>';
+  function addColToColgroup(colgroup, opts) {
+    const col = document.createElement('col');
+    for (let attr of [
+      'class',
+      'style',
+      // 'span',
+    ]) {
+      if (opts[attr]) {
+        col.setAttribute(attr, opts[attr]);
+      }
+    }
+    if (opts.hidden) {
+      col.hidden = true;
+    }
+    colgroup.appendChild(col);
+    if (opts.grouping && opts.id) {
+      columnMap[opts.grouping][opts.id] = col;
+    }
+  }
+
+  /**
+    * @param {Array[HTMLTableRowElement]} rows The rows to be shown or hidden.
+    * @param {Boolean} show Whether to show (true) or hide (false) the rows.
+    */
+  function toggleRows(rows, show) {
+    rows.forEach((row) => {
+      row.hidden = !show;
     });
+  }
 
-    normalValuesHtml += '</tr>';
-    pctValuesHtml += '</tr>';
+  /**
+    * @param {HTMLTableRowElement} row The row whose children are shown
+    * or hidden.
+    * @param {Array[Number]} indices The indices of the children to be
+    * shown or hidden.
+    * @param {Boolean} show Whether to display (true) the specified
+    * children or hide them (false).
+    */
+  function toggleCellsOnRow(row, indices, show) {
+    const cells = row.children;
+    indices.forEach((i) => {
+      const cell = cells[i];
+      if (cell) {
+        cell.hidden = !show;
+      }
+    });
+  }
 
-    return indicatorHeadingHtml + normalValuesHtml + pctValuesHtml;
+  /**
+    * Checks which exercises are selected to be displayed by the user.
+    * Converts jQuery object of the selected exercise options to a map
+    * listing the selected exercises so that the key is the module ID
+    * and the value an array of the selected exercises' IDs. The map has
+    * keys for only those modules with selected exercises.
+    */
+  function getExerciseSelection() {
+    const $exerciseSelection = $('#exercise-selection option:selected');
+    const selectedExercises = new Map();
+    $exerciseSelection.each(function (i, elem) {
+      const data = elem.dataset;
+      const moduleID = Number(data['moduleId']);
+      const exerciseID = Number(data['exerciseId']);
+      if (selectedExercises.get(moduleID)) {
+        selectedExercises.get(moduleID).push(exerciseID);
+      } else {
+        selectedExercises.set(moduleID, [exerciseID]);
+      }
+    });
+    return selectedExercises;
+  }
+
+  // Returns all grouping methods that are currently selected
+  function getGroupingMethods() {
+    return $('#point-grouping-selection').find(':checked').toArray()
+      .map((cb) => cb.value);
   }
 
 
-  /*
-   * Creates the table with student points based on
-   * selected exercises, data indicators, tags and grouping method.
-   * @param {string} pointsGroupingMethod The grouping method: show all, show by difficulties, show by modules
-   */
+  /**
+    * Hides or reveals cells in the specified columns within the
+    * indicator rows.
+    * @param {Array[Number]} indices Indices of the colums to show or hide.
+    * @param {Boolean} show Whether to reveal (true) or hide (false) the cells.
+    */
+  function toggleColumnsOnIndicatorRows(indices, show) {
+    // account for the first cell having a colspan of 2.
+    const normalIndicatorIndices = indices.map((i) => i-1);
+    // account for the first cell in the row above having a colspan and rowspan of 2
+    const percentIndicatorIndices = indices.map((i) => i-2);
+    $('#indicator-rows tr.indi-normal-row').each((i, row) => (
+      toggleCellsOnRow(row, normalIndicatorIndices, show)
+    ));
+    $('#indicator-rows tr.indi-pct-row').each((i, row) => (
+      toggleCellsOnRow(row, percentIndicatorIndices, show)
+    ));
+    if (Object.keys(indicatorRows.static).length > 0) {
+      scheduleIndicatorRowUpdate();
+    }
+  }
 
-  /*
-  window.createPointTable = function(pointsGroupingMethod) {
-    if (!_ajaxCompleted) {
+  /**
+    * Hides or reveals cells in the specified columns within the the entire table.
+    * @param {Array[Number]} indices Indices of the colums to show or hide.
+    * @param {Boolean} show Whether to reveal (true) or hide (false) the cells.
+    */
+  function toggleColumnsByIndex(indices, show) {
+    $('#table-heading, #student-rows').find('tr').each((i, row) => (
+      toggleCellsOnRow(row, indices, show)
+    ));
+    toggleColumnsOnIndicatorRows(indices, show);
+  }
+
+  /** Hide or reveal exercise or module columns. If columns are to be
+    * revealed, reveals only those indicated in the exercise selection
+    * (and by the grouping method indicated in the parameters).
+    * @param {Boolean} show Whether to reveal (true) some/all of the
+    * columns or (false) hide all of them.
+    * @param {String} groupingMethod String indicating the grouping
+    * method, should be either 'module' or 'all'.
+    */
+  function toggleModuleOrExerciseColumns(show, groupingMethod) {
+    if (show) {
+      const selectedIDs = (groupingMethod === 'module')
+        ? Array.from(
+          _exerciseSelection,
+          (([modID, exercises]) => modID)
+        )
+        : Array.from(
+          _exerciseSelection,
+          (([moduleID, exercises]) => exercises)
+        ).flat();
+      const selectedIndices = selectedIDs.map((id) => {
+        columnMap[groupingMethod][id].hidden = false; // show col-tag
+        const index = columnIndexMap[groupingMethod][id];
+        hiddenCellIndices.delete(index);
+        return index;
+      });
+      toggleColumnsByIndex(selectedIndices, true);
+      const unselectedIDs = pointKeys[groupingMethod].filter((id) => (
+        !selectedIDs.includes(id)
+      ));
+      const unselectedIndices = unselectedIDs.map((id) => {
+        columnMap[groupingMethod][id].hidden = true; // hide col-tag
+        const index = columnIndexMap[groupingMethod][id];
+        hiddenCellIndices.add(index);
+        return index;
+      });
+      toggleColumnsByIndex(unselectedIndices, false);
+    } else { // hide all
+      const indices = Object.values(columnIndexMap[groupingMethod]);
+      toggleColumnsByIndex(indices, false);
+      indices.forEach((i) => {
+        hiddenCellIndices.add(i);
+      });
+      // hide respective col-tags
+      Object.values(columnMap[groupingMethod]).forEach((col) => {
+        col.hidden = true;
+      });
+    }
+  }
+
+  /**
+    * Hide or reveal columns related to specified grouping method.
+    */
+  function toggleColumns(groupingMethod, show) {
+    if (groupingMethod === 'module' || groupingMethod === 'all') {
+      toggleModuleOrExerciseColumns(show, groupingMethod);
+    } else {
+      const indices = Object.values(columnIndexMap[groupingMethod]);
+      if (show) {
+        indices.forEach((i) => hiddenCellIndices.delete(i));
+      } else {
+        indices.forEach((i) => hiddenCellIndices.add(i));
+      }
+      toggleColumnsByIndex(indices, show);
+      Object.values(columnMap[groupingMethod]).forEach((col) => {
+        col.hidden = !show;
+      })
+    }
+  }
+
+  /**
+    * Hide or reveal all columns related to point grouping methods
+    * according to grouping and exercise selections.
+    */
+  function updateAllColumnVisibilities() {
+    const currentGroupings = getGroupingMethods();
+    pointsGroupingMethods.forEach((pgm) => {
+      const show = currentGroupings.includes(pgm);
+      toggleColumns(pgm, show);
+    });
+  }
+
+  /**
+    * Change handler for point grouping checkboxes.
+    * Triggers hiding/revealing of the respective grouping method columns.
+    */
+  function groupingSelectionChange(event) {
+    // if exercise selection hasn't been populated,
+    // drawTablePrework hasn't been called either, don't do anything
+    if (_exerciseSelection === undefined) {
       return;
     }
-
-    // Pick only students that have the selected tags
-    // Use same logic for tag filtering as in participants.js
-    let = filteredStudentPool = [];
-    _students.forEach(function(student) {
-      const tagSlugFilters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
-      .map(function(elem) {
-        return $(elem).data('tagSlug');
-      });
-      let studentTagSlugs = student.tag_slugs;
-
-      // Set intercetion tags ∩ filters
-      const intersect = studentTagSlugs.filter(function (tag) {
-        return tagSlugFilters.indexOf(tag) >= 0;
-      });
-
-      // Only create the row for a student, if they have one of the tags that are currently selected
-      if (intersect.length === tagSlugFilters.length) {
-        filteredStudentPool.push(student);
-      }
-    });
-
-    $("#table-heading").empty();
-    $("#table-body").empty();
-
-    let htmlTablePoints = "";
-    let pointKeys = [];
-
-    let totalSubmitters = {};
-    let totalMaxSubmitters = {};
-    let totalSubmissions = {};
-    let maxAllowedSubmissions = {};
-    let maxPoints = {};
-    let maxPointsTotal = 0;
-    let totalPoints = {};
-
-
-    // Gather information that is same for all students from the first student for better performance
-    const firstStudent = _students[0];
-    const sidFirst = firstStudent.id;
-    let modulesSeen = [];
-
-    $(_exerciseSelection).each(function() {
-      const moduleID = $(this).data("moduleId");
-      const module = _points[sidFirst].modules.filter(
-        function(m) {
-          return m.id == moduleID;
-      })[0];
-      const exerciseID = $(this).data("exerciseId");
-      const exercise = module.exercises.filter(
-        function(exercise) {
-          return exercise.id == exerciseID;
-        }
-      )[0];
-
-      if (pointsGroupingMethod === "difficulty") {
-        maxPoints[exercise.difficulty] = maxPoints[exercise.difficulty] + exercise.max_points || exercise.max_points;
-        maxPointsTotal += exercise.max_points;
-        if (pointKeys.indexOf(exercise.difficulty) === -1) {
-          pointKeys.push(exercise.difficulty);
-          pointKeys.sort();
-        }
-        _allExercises.forEach(function(exAll) {
-          if (exAll.id === exercise.id) {
-            maxAllowedSubmissions[exercise.difficulty] = maxAllowedSubmissions[exercise.difficulty] + exAll.max_submissions || exAll.max_submissions;
-          }
-        });
-      }
-
-      if (pointsGroupingMethod === "module") {
-        if (modulesSeen.indexOf(module) === -1) {
-          modulesSeen.push(module);
-          pointKeys.push(module.name);
-        }
-
-        _allExercises.forEach(function(exAll) {
-          if (exAll.id === exercise.id) {
-            maxAllowedSubmissions[module.name] = maxAllowedSubmissions[module.name] + exAll.max_submissions || exAll.max_submissions;
-            maxPoints[module.name] = maxPoints[module.name] + exercise.max_points || exercise.max_points;
-            maxPointsTotal += exercise.max_points;
-          }
-        });
-
-      }
-
-      if (pointsGroupingMethod === "all") {
-        maxPoints[exercise.name] = exercise.max_points;
-        maxPointsTotal += exercise.max_points;
-        pointKeys.push(exercise.name);
-
-        _allExercises.forEach(function(exAll) {
-          if (exAll.id === exercise.id) {
-            maxAllowedSubmissions[exercise.name] = exAll.max_submissions;
-          }
-        });
-      }
-
-    });
-
-    // Gather personal information for each student, eg. individual points
-    filteredStudentPool.forEach(function(student) {
-      let points = {};
-      let unofficialPoints = {};
-      const sid = student.id;
-
-      // Calculate points for each difficulty by grouping each each difficulty category exercises together
-      if (pointsGroupingMethod === "difficulty") {
-        let submittedDifficulty = {};
-
-        $(_exerciseSelection).each(function() {
-          const moduleID = $(this).data("moduleId");
-          const exerciseID = $(this).data("exerciseId");
-          const exercise = _points[sid].modules.filter(
-            function(m) {
-              return m.id == moduleID;
-            })[0].exercises.filter(
-            function(exercise) {
-              return exercise.id == exerciseID;
-            }
-          )[0];
-
-          const exercisePoints = exercise.official ? exercise.points : 0;
-          points[exercise.difficulty] = points[exercise.difficulty] + exercisePoints || exercisePoints;
-          unofficialPoints[exercise.difficulty] = unofficialPoints[exercise.difficulty] + exercise.points || exercise.points;
-          totalPoints[exercise.difficulty] = totalPoints[exercise.difficulty] + exercisePoints || exercisePoints;
-          if (exercise.submission_count > 0) {
-            totalSubmissions[exercise.difficulty] = totalSubmissions[exercise.difficulty] + exercise.submission_count || exercise.submission_count;
-            if (submittedDifficulty[exercise.difficulty] === undefined) {
-              totalSubmitters[exercise.difficulty] = totalSubmitters[exercise.difficulty] + 1 || 1;
-              submittedDifficulty[exercise.difficulty] = true;
-            }
-            if (points[exercise.difficulty] === maxPoints[exercise.difficulty]) {
-              totalMaxSubmitters[exercise.difficulty] = totalMaxSubmitters[exercise.difficulty] + 1 || 1;
-            }
-          }
-        });
-      }
-
-      // Calculate points for each module by grouping each each module's exercises together
-      if (pointsGroupingMethod === "module") {
-        let modulesSeen = [];
-
-        $(_exerciseSelection).each(function() {
-          const moduleID = $(this).data("moduleId");
-          const module = _points[sid].modules.filter(
-            function(m) {
-              return m.id == moduleID;
-          })[0];
-          const exerciseID = $(this).data("exerciseId");
-          const exercise = module.exercises.filter(
-            function(exercise) {
-              return exercise.id == exerciseID;
-            }
-          )[0];
-
-          const exercisePoints = exercise.official ? exercise.points : 0;
-          points[module.name] = points[module.name] + exercisePoints || exercisePoints;
-          unofficialPoints[module.name] = unofficialPoints[module.name] + exercise.points || exercise.points;
-          totalPoints[module.name] = totalPoints[module.name] + exercisePoints || exercisePoints;
-
-          if (modulesSeen.indexOf(module) === -1) {
-            modulesSeen.push(module);
-            if (module.submission_count > 0) {
-              totalSubmissions[module.name] = totalSubmissions[module.name] + module.submission_count || module.submission_count;
-              totalSubmitters[module.name] = totalSubmitters[module.name] + 1 || 1;
-              if (points[module.name] === maxPoints[module.name]) {
-                totalMaxSubmitters[module.name] = totalMaxSubmitters[module.name] + 1 || 1;
-              }
-            }
-          }
-        });
-      }
-
-      // Calculate points for each exercise
-      if (pointsGroupingMethod === "all") {
-        $(_exerciseSelection).each(function() {
-          const moduleID = $(this).data("moduleId");
-          const exerciseID = $(this).data("exerciseId");
-          const exercise = _points[sid].modules.filter(
-            function(m) {
-              return m.id == moduleID;
-            })[0].exercises.filter(
-            function(exercise) {
-              return exercise.id == exerciseID;
-            }
-          )[0];
-
-          const exercisePoints = exercise.official ? exercise.points : 0;
-          points[exercise.name] = exercisePoints;
-          unofficialPoints[exercise.name] = exercise.points;
-          totalPoints[exercise.name] = totalPoints[exercise.name] + exercisePoints || exercisePoints;
-          if (exercise.submission_count > 0) {
-            totalSubmissions[exercise.name] = totalSubmissions[exercise.name] + exercise.submission_count || exercise.submission_count;
-            totalSubmitters[exercise.name] = totalSubmitters[exercise.name] + 1 || 1;
-            if (exercisePoints === exercise.max_points) {
-              totalMaxSubmitters[exercise.name] = totalMaxSubmitters[exercise.name] + 1 || 1;
-            }
-          }
-
-        });
-      }
-
-      // Create the table row for a single student from the points above
-      htmlTablePoints += '<tr><td class="student-id stick-on-scroll">' + student.student_id + '</td>';
-      htmlTablePoints +=
-        '<td class="student-name stick-on-scroll">'
-        + '<a href="' + student.summary_html + '">'
-        + _users[sid].full_name + '</td>';
-
-      if (pointKeys.length > 0) {
-        let tagHtml = "";
-        const studentTags = student.tag_slugs;
-
-        studentTags.forEach(function(tagSlug) {
-          _usertags.forEach(function(usertag) {
-            if (usertag.slug === tagSlug) {
-              tagHtml += django_colortag_label(usertag, ' ')[0].outerHTML;
-            }
-          });
-        });
-
-        let allPointsTotal = 0;
-        let allUnofficialTotal = 0;
-        pointKeys.forEach(function(name) {
-          const point = points[name] || 0;
-          const unofficialPoint = unofficialPoints[name] || 0;
-          allPointsTotal += point;
-          allUnofficialTotal += unofficialPoint;
-        });
-
-        htmlTablePoints += '<td>' + tagHtml + '</td>';
-
-        if (!_showOfficial && allUnofficialTotal > allPointsTotal) {
-          htmlTablePoints += '<td>' + allPointsTotal + '<span class="text-danger"> (' + allUnofficialTotal + ')</span></td>';
-        }
-        else {
-          htmlTablePoints += '<td>' + allPointsTotal + '</td>';
-        }
-      }
-
-      pointKeys.forEach(function(name) {
-        const point = points[name] || 0;
-        const unofficialPoint = unofficialPoints[name] || 0;
-        if (!_showOfficial && unofficialPoint > point) {
-          htmlTablePoints += '<td>' + point + '<span class="text-danger"> (' + unofficialPoint + ')</span></td>';
-        }
-        else {
-          htmlTablePoints += '<td>' + point + '</td>';
-        }
-      });
-      htmlTablePoints += "</tr>";
-    });
-
-    // Calculate the data indicators, e.g. average points, max points
-    // Append headings, data indicators and student points to the html table
-
-    $("#table-heading").append('<tr id="table-heading-row"></tr>')
-    $("#table-heading-row").append('<th id="student-count">' + _("Student ID") + '</th>');
-    $("#table-heading-row").append('<th>' + _("Student name") + '</th>');
-    if (_exerciseSelection && _exerciseSelection.length > 0) {
-      $("#table-heading-row").append('<th>' + _("Tags") + '</th>');
-      $("#table-heading-row").append('<th>' + _("Total") + '</th>');
-    }
-
-
-    pointKeys.forEach(function(name) {
-      if (pointsGroupingMethod === "difficulty" && name === "") {
-        $("#table-heading-row").append('<th scope="col">' + _("No difficulty") + '</th>');
-      } else {
-        $("#table-heading-row").append('<th scope="col">' + name + '</th>');
-      }
-    });
-
-
-    let htmlTableIndicators = "";
-
-    if (_totalSubmTrue) {
-      let dataVals = [];
-      let sumValue = 0;
-      pointKeys.forEach(function(name) {
-        sumValue += totalSubmissions[name] || 0;
-      });
-
-      pointKeys.forEach(function(name) {
-        dataVals.push([
-          totalSubmissions[name] || 0,
-          totalSubmissions[name] / sumValue * 100 || 0,
-        ]);
-      });
-
-      htmlTableIndicators += createIndicatorRow(
-        _('Total number of submissions. Calculates all student submission counts together.'),
-        _('Total submissions'),
-        dataVals
-      );
-    }
-
-    if (_avgSubmTrue) {
-      let dataVals = [];
-      pointKeys.forEach(function(name) {
-        dataVals.push([
-          totalSubmissions[name] / totalSubmitters[name] || 0,
-          totalSubmissions[name] / totalSubmitters[name] / maxAllowedSubmissions[name] * 100 || 0
-        ]);
-      });
-
-      htmlTableIndicators += createIndicatorRow(
-        _('How many submissions a single student has used on the exercise on average.'
-          + ' Only accounts for students with one or more submissions.'
-        ),
-        _('Average submissions per student with submissions'),
-        dataVals
-      );
-    }
-
-    if (_maxSubmTrue) {
-      let dataVals = [];
-      let sumValue = 0;
-      pointKeys.forEach(function(name) {
-        sumValue += maxAllowedSubmissions[name] || 0;
-      });
-
-      pointKeys.forEach(function(name) {
-        dataVals.push([
-          maxAllowedSubmissions[name] || 0,
-          maxAllowedSubmissions[name] / sumValue * 100 || 0,
-        ]);
-      });
-
-      htmlTableIndicators += createIndicatorRow(
-        _('Maximum number of available submissions for the exercise.'),
-        _('Maximum submissions'),
-        dataVals
-      );
-    }
-
-    if (_totalStuSubmTrue) {
-      let dataVals = [];
-      pointKeys.forEach(function(name) {
-        dataVals.push([
-          totalSubmitters[name] || 0,
-          totalSubmitters[name] / _studentsVisibleCount * 100 || 0
-        ]);
-      });
-
-      htmlTableIndicators += createIndicatorRow(
-        _('Number of students that have one or more exercise submissions.'),
-        _('Students with submissions'),
-        dataVals
-      );
-    }
-
-    if (_totalStuMaxTrue) {
-      let dataVals = [];
-      pointKeys.forEach(function(name) {
-        dataVals.push([
-          totalMaxSubmitters[name] || 0,
-          totalMaxSubmitters[name] / totalSubmitters[name] * 100 || 0
-        ]);
-      });
-
-      htmlTableIndicators += createIndicatorRow(
-        _('Number of students that have received maximum points from the exercise.'),
-        _('Students with max points'),
-        dataVals
-      );
-    }
-
-    if (_avgPTrue) {
-      let dataVals = [];
-      pointKeys.forEach(function(name) {
-        dataVals.push([
-          totalPoints[name] / totalSubmitters[name] || 0,
-          totalPoints[name] / totalSubmitters[name] / maxPoints[name] * 100 || 0
-        ]);
-      });
-
-      htmlTableIndicators += createIndicatorRow(
-        _('Average points received for the exercise.'
-          + ' Only accounts for students with one or more submissions.'
-        ),
-        _('Average points per student with submissions'),
-        dataVals
-      );
-    }
-
-    if (_maxPTrue) {
-      let dataVals = [];
-      pointKeys.forEach(function(name) {
-        dataVals.push([
-          maxPoints[name] || 0,
-          maxPoints[name] / maxPointsTotal * 100 || 0
-        ]);
-      });
-
-      htmlTableIndicators += createIndicatorRow(
-        _('Maximum points for the exercise.'),
-        _('Maximum points'),
-        dataVals
-      );
-    }
-
-    $("#table-body").append(htmlTableIndicators);
-    $("#table-body").append(htmlTablePoints);
-    $(".colortag-active").css("margin-right", "5px");
-    $("#student-count").append(
-      ' (<span id="selected-number">' + _studentsVisibleCount + '</span> / '
-      + '<span id="participants-number">'+ _students.length + '</span>'
-      + _(' students selected') + ')'
-    );
-    tableExportVar.reset();
-    $('#table-points').find("caption").remove(); // Remove the recreated TableExport buttons (they are already in dropdown)
-    $('.filtered-table').aplusTableFilter();
-
+    const checkbox = event.target;
+    const groupingMethod = checkbox.value;
+    const shown = checkbox.checked;
+    toggleColumns(groupingMethod, shown);
   }
-  */
 
+  /**
+    * Update total, difficulty and module point sums according to
+    * exercise selection and officiality.
+    * @param {HTMLTableRowElement} row The row on which to update sums.
+    */
+  function updateSumsOnStudentRow(row) {
+    const rowFilterID = row.dataset.exerciseFilterId
+    if (rowFilterID && rowFilterID != _exerciseFilterID) {
+      const cells = row.children;
+      const difficultyPointSums = {};
+      const submissionsByDiff = initObjectWithKeys(pointKeys.difficulty, 0);
+      _exerciseSelection.forEach((exercises, moduleID) => {
+        let moduleSum = 0;
+        let moduleSubmissions = 0;
+        exercises.forEach((exerciseID) => {
+          const exerciseCellIndex = columnIndexMap.all[exerciseID]
+          const exerciseCell = cells[exerciseCellIndex];
+          const cellData = exerciseCell.dataset;
+          const points = Number(cellData.points);
+          const subCount = Number(cellData.submissionCount);
+          const difficulty = exerciseDifficulties[exerciseID];
+          moduleSubmissions += subCount;
+          submissionsByDiff[difficulty] += subCount;
+          if (exerciseCell.classList.contains('unofficial')) {
+            if (!_showOfficial) {
+              addTo(difficultyPointSums, difficulty, points);
+              moduleSum += points;
+              exerciseCell.textContent = points;
+            } else {
+              exerciseCell.textContent = 0;
+            }
+          } else {
+            addTo(difficultyPointSums, difficulty, points);
+            moduleSum += points;
+          }
+        });
+        const moduleCellIndex = columnIndexMap.module[moduleID];
+        const moduleCell = cells[moduleCellIndex];
+        moduleCell.textContent = moduleSum;
+        moduleCell.setAttribute('data-submission-count', moduleSubmissions);
+      });
+      // update difficulty sums
+      Object.entries(columnIndexMap.difficulty).forEach(([diffName, index]) => {
+        const cell = cells[index];
+        const pointSum = difficultyPointSums[diffName];
+        // if none of the selected exercises have the difficulty, indicate with –
+        cell.textContent = (pointSum !== undefined) ? pointSum : "–";
+        const diffSubs = submissionsByDiff[diffName];
+        cell.setAttribute('data-submission-count', diffSubs);
+      });
+      // update total points
+      const totalCell = cells[columnIndexMap.total];
+      const totalSum = Object.values(difficultyPointSums).reduce(sumReducer, 0);
+      totalCell.textContent = totalSum;
+      const totalSubs = Object.values(submissionsByDiff).reduce(sumReducer, 0);
+      totalCell.setAttribute('data-submission-count', totalSubs);
+      row.dispatchEvent(new Event('student row sums updated'));
+    }
+  }
+
+  /**
+    * Update total, difficulty and module point sums according to
+    * exercise selection and officiality on all student rows.
+    * Dispatches event for each row, whose listener then calls method
+    * to update sums.
+    */
+  function updateStudentRowSums() {
+    // TODO: first update visible students, then the rest
+    studentRowMap.forEach((row, id) => {
+      // row.dataset.exerciseFilterID doesn't have a value before points are added
+      if (row.dataset.exerciseFilterId) {
+        row.dispatchEvent(new Event('exercise selection changed'))
+      }
+    });
+  }
+
+  /**
+    * Exercise selection 'change handler'.
+    * Updates the value of _exerciseSelection, updates sums on student
+    * rows, and toggles columns so proper exercise and module columns
+    * are displayed in the table.
+   */
+  function exerciseSelectionChange() {
+    newExerciseSelection = getExerciseSelection();
+    if (
+      _exerciseSelection != newExerciseSelection // exercise selection has changed
+      || _prevOfficiality != _showOfficial // showOfficial has changed
+    ) {
+      _exerciseSelection = newExerciseSelection;
+      _prevOfficiality = _showOfficial;
+      _exerciseFilterID += 1;
+
+      updateStudentRowSums();
+      const groupingMethods = getGroupingMethods();
+      ['module', 'all'].forEach((grouping) => {
+        toggleModuleOrExerciseColumns(
+          groupingMethods.includes(grouping),
+          grouping,
+        );
+      });
+    }
+  }
+
+  /*
+   * Schedules timeout so when exercise selection is changed many times
+   * in a row, following updates are called only once after a short delay.
+  */
+  let exerciseSelectionTimeout;
+  function scheduleExerciseSelectionChange() {
+    clearTimeout(exerciseSelectionTimeout);
+    exerciseSelectionTimeout = setTimeout(
+      () => document.dispatchEvent(new Event('exercise selection changed')),
+      1000
+    );
+  }
+
+  /*
+   * Schedules timeout so when module selection is changed many times
+   * in a row, following updates are called only once after a short delay.
+  */
+  let moduleSelectionTimeout;
+  function scheduleModuleSelectionChange() {
+    clearTimeout(moduleSelectionTimeout);
+    moduleSelectionTimeout = setTimeout(
+      () => document.dispatchEvent(new Event('module selection changed')),
+      500
+    );
+  }
 
   /*
    * Handles the module selection when teacher selects or unselects a module(s).
@@ -647,47 +528,27 @@ spy.log("users");
    * If a module is unselected, unselect and hide all module's exercises in exercise selection.
    */
   function moduleSelectionChange() {
-    const selectedModules = $('#module-selection option:selected');
-    const nonSelectedModules = $('#module-selection option').filter(function() {
-      return !$(this).is(':selected');
+    const $selectedModules = $('#module-selection option:selected');
+    const $nonSelectedModules = $('#module-selection option').filter(function(i, elem) {
+      return !elem.selected;
     });
 
-    selectedModules.each(function() {
-      let showModuleClass = '.' + $(this).val();
+    $selectedModules.each(function(i, elem) {
+      const showModuleClass = '.' + elem.value;
       $(showModuleClass).removeClass("hidden disabled");
       $(showModuleClass).prop("selected", true);
     });
 
-    nonSelectedModules.each(function() {
-      let hideModuleClass = '.' + $(this).val();
+    $nonSelectedModules.each(function(i, elem) {
+      const hideModuleClass = '.' + elem.value;
       $(hideModuleClass).addClass("hidden disabled");
       $(hideModuleClass).prop("selected", false);
     });
 
     $("#exercise-selection").multiselect('refresh');
-    exerciseSelectionChange();
+    scheduleExerciseSelectionChange();
   }
 
-
-  /*
-   * Keeps the _exerciseSelection up to date with currently selected exercises.
-   * Always recreates the table based on the currently active group.
-   */
-  /*
-  function exerciseSelectionChange() {
-    _exerciseSelection = $('#exercise-selection option:selected');
-
-    if ($("#all-exercises").hasClass("active")) {
-      createPointTable("all");
-    } else if ($("#difficulty-exercises").hasClass("active")) {
-      createPointTable("difficulty");
-    } else if ($("#module-exercises").hasClass("active")) {
-      createPointTable("module");
-    } else {
-      return;
-    }
-  }
-  */
 
   /*
    * Multiselect button text
@@ -731,6 +592,888 @@ spy.log("users");
 
         return selected.substr(0, selected.length - this.delimiterText.length);
       }
+  }
+
+  /* Take as the argument a single student's points
+   * and populate the exercise and module selection dropdown menu
+   */
+  function populateExerciseSelection(firstStudentPoints) {
+    const moduleSelection = document.getElementById('module-selection');
+    const exerciseSelection = document.getElementById('exercise-selection');
+
+    firstStudentPoints.modules.forEach(function(module) {
+      addOptionToElement(
+        moduleSelection,
+        module.name,
+        {
+          'data-module-id': module.id,
+          'value': 'module-' + module.id,
+          'selected': ""
+        }
+      );
+      const optgroup = createOptgroup({
+        'class': 'module-' + module.id,
+        'value': 'module-' + module.id,
+        'label': module.name,
+      });
+      exerciseSelection.appendChild(optgroup);
+      module.exercises.forEach(function(exercise) {
+        addOptionToElement(
+          optgroup,
+          exercise.name,
+          {
+            'data-module-id': module.id,
+            'data-exercise-id': exercise.id,
+            'class': 'module-' + module.id,
+            'value': 'exercise-' + exercise.id,
+            'selected': ""
+          }
+        );
+      });
+    });
+
+    $(moduleSelection).multiselect({
+      includeSelectAllOption: true,
+      onDeselectAll: scheduleModuleSelectionChange,
+      onSelectAll: scheduleModuleSelectionChange,
+      onChange: scheduleModuleSelectionChange,
+      buttonText: buttonText,
+      selectAllText: _("Select all"),
+    });
+    $(exerciseSelection).multiselect({
+      includeSelectAllOption: true,
+      enableClickableOptGroups: true,
+      onDeselectAll: scheduleExerciseSelectionChange,
+      onSelectAll: scheduleExerciseSelectionChange,
+      onChange: scheduleExerciseSelectionChange,
+      maxHeight: 500,
+      buttonText: buttonText,
+      selectAllText: _("Select all"),
+    });
+
+    _exerciseSelection = getExerciseSelection();
+
+    document.addEventListener(
+      'module selection changed',
+      moduleSelectionChange
+    );
+    document.addEventListener(
+      'exercise selection changed',
+      exerciseSelectionChange
+    );
+  }
+
+  /**
+    * Renders the table other than the student and indicator rows.
+    * Adds column headings and col tags to points table.
+    * Also stores information about exercises, point keys, etc.
+    * @param {Object} firstPoints The points of a student from the API
+    *   based on which the general information in the table can be
+    *   rendered.
+    * @param {RxJS.Subject} exerciseCountSubject A subject to which the
+    *   number of exercises can be passed to.
+    */
+  function drawTablePrework(firstPoints, exerciseCountSubject) {
+    const headingRow = document.getElementById('table-heading-row');
+    const studentDataColgroup = document.getElementById('cg-student-data');
+    const difficultyColgroup = document.getElementById('cg-difficulty');
+    const modAndExColgroup = document.getElementById('cg-modules-exercises');
+
+    addThToRow(headingRow, {
+      class: 'stick-on-scroll',
+      scope: 'col',
+      text: _("Student ID"),
+    });
+    addColToColgroup(studentDataColgroup, {
+      style: 'min-width: 6em',
+      grouping: 'student-data',
+      id: 'id',
+    });
+    addThToRow(headingRow, {
+      class: 'stick-on-scroll',
+      scope: 'col',
+      text: _("Student name"),
+    });
+    addColToColgroup(studentDataColgroup, {
+      grouping: 'student-data',
+      id: 'name',
+    });
+    addThToRow(headingRow, {
+      scope: 'col',
+      text: _("Email address"),
+      hidden: true,
+    });
+    addColToColgroup(studentDataColgroup, {
+      grouping: 'student-data',
+      id: 'email',
+      hidden: true,
+    });
+    addThToRow(headingRow, {
+      scope: 'col',
+      text: _("Tags"),
+    });
+    addColToColgroup(studentDataColgroup, {
+      grouping: 'student-data',
+      id: 'tags',
+    });
+    // columnIndexMap.studentData = {
+    //   'id': 0,
+    //   'name': 1,
+    //   'email': 2,
+    //   'tags': 3,
+    // }
+    addThToRow(headingRow, {
+      scope: 'col',
+      text: _("Total"),
+    });
+    columnIndexMap.total = 4;
+
+    // temporary storage for calculating indices
+    const modAndExColumnArray = [];
+
+    firstPoints.modules.forEach((module) => {
+      // General data and grouping by modules
+      // modulesMap.set(module.id, module)
+      pointKeys.module.push(module.id);
+      addThToRow(headingRow, {
+        scope: 'col',
+        class: 'pt-module',
+        text: module.name,
+      });
+      addColToColgroup(modAndExColgroup, {
+        grouping: 'module',
+        id: module.id,
+        class: 'pt-module',
+      });
+      modAndExColumnArray.push(['module', module.id]);
+
+      module.exercises.forEach((exercise) => {
+        exerciseDifficulties[exercise.id] = exercise.difficulty;
+        if (!pointKeys.difficulty.includes(exercise.difficulty)) {
+          pointKeys.difficulty.push(exercise.difficulty);
+        };
+
+        // Grouped by exercise
+        maxPoints[exercise.id] = exercise.max_points;
+        pointKeys.all.push(exercise.id);
+        addThToRow(headingRow, {
+          scope: 'col',
+          class: 'pt-all',
+          text: exercise.name,
+        });
+        addColToColgroup(modAndExColgroup, {
+          grouping: 'all',
+          id: exercise.id,
+          class: 'pt-all',
+        });
+        modAndExColumnArray.push(['all', exercise.id]);
+      });
+    });
+    // Add difficulty cells
+    const firstModuleCell = headingRow.children[5];
+    pointKeys.difficulty = pointKeys.difficulty.sort();
+    pointKeys.difficulty.forEach((name) => {
+      const text = name ? name : _("No difficulty");
+      addThToRow(headingRow, {
+        insertBefore: firstModuleCell,
+        scope: 'col',
+        class: 'pt-difficulty',
+        text: text,
+      });
+      addColToColgroup(difficultyColgroup, {
+        grouping: 'difficulty',
+        id: name,
+      });
+      const diffColumnArray = pointKeys.difficulty.map((name) => (
+        ['difficulty', name]
+      ));
+      const pointGroupingsColumnArray = diffColumnArray.concat(modAndExColumnArray);
+      pointGroupingsColumnArray.forEach(([group, id], i) => {
+        // Array doesn't include 4 student data cells nor the total points
+        columnIndexMap[group][id] = i + 5;
+      });
+    });
+    updateAllColumnVisibilities();
+
+    const exerciseCount = pointKeys.all.length;
+    exerciseCountSubject.next(exerciseCount);
+    exerciseCountSubject.complete();
+
+    // TODO: get aplusTableFilter working with results page
+    // $('#table-points').aplusTableFilter();
+  }
+
+  // STUDENT ROWS
+
+  /** Takes a HTMLElement of a student row and list of tag slugs to
+    * filter by as arguments and returns a boolean indicating whether
+    * the row should be shown (thus the student has all the tags that
+    * are required).
+    * @param {HTMLTableRowElement} row The row to check whether it has
+    *   all the tags.
+    * @param {Array[String]} tagSlugFilter Array consisting of tag
+    *   slugs of the tags that are required.
+    */
+  function studentRowHasAllTags(row, tagSlugFilters) {
+    const $row = $(row);
+    // Pick only students that have the selected tags
+    // Use same logic for tag filtering as in participants.js
+    const studentTagSlugs = $.makeArray(
+      $row.find('.colortag').map((i, tag) => (
+        tag.getAttribute('data-tagslug')
+      ))
+    );
+    // check if row contains all colortags that are filtered with
+    const hasAll = tagSlugFilters.every((tagSlug) => (
+      studentTagSlugs.includes(tagSlug)
+    ));
+    return hasAll;
+  };
+
+  /**
+    * Check whether the row should be visible according to filtering
+    * by colortags, and update visibility respectively.
+    * @param {HTMLTableRowElement} row The row whose visiblity to update
+    */
+  function updateStudentRowVisibility(row) {
+    row.dataset.tagFilterId = _tagFilterID;
+    // cannot use jQuery methods show() and hide() as aplusTableFilter
+    // uses them and would reveal rows.
+    // jQuery uses 'display: none', so we use 'hidden' here.
+    row.hidden = !studentRowHasAllTags(row, _tagSlugFilters);
+    row.dispatchEvent(new Event('visibility updated')); // not necessarily, but we're too lazy to actually check.
+  }
+
+  // Filter the students rows in the table, setting visibility
+  function filterStudentRows() {
+    studentRowMap.forEach((row, id) => {
+      if (row.dataset.tagFilterID != _tagFilterID) {
+        updateStudentRowVisibility(row);
+      }
+      // row.dispatchEvent(new Event('tagfilters updated'));
+    });
+  }
+
+  /** Add a student to the table as a row.
+    * Adds all info except points and submissions.
+    * @param {Object} student Student data
+    * @param {RxJs.Subject} studentTagSubject A subject to which
+    *   student tag slugs are passed with the student id to await processing
+    */
+  function addStudentRowToTable(student, studentTagSubject) {
+    const rowgroup = document.getElementById('student-rows'); // should this be saved in a const somewhere at the beginning of this file?
+    let row = rowgroup.insertRow();
+    row.dataset.id = student.id;
+    studentRowMap.set(student.id, row); // Note: NOT student id
+    addCellToRow(row, {
+      class: 'student-id stick-on-scroll',
+      text: student.student_id,
+    });
+    addCellToRow(row, {
+      class: 'student-name stick-on-scroll',
+      text: student.full_name,
+      url: student.summary_html,
+    })
+    addCellToRow(row, {
+      text: student.email,
+      hidden: true,
+    })
+    // create cell for tags, generate colortags and add them to the cell
+    const tagCell = addCellToRow(row, {});
+    studentTagSubject.next([tagCell, student.tag_slugs]);
+    // return row;
+  }
+
+  /**
+    * Add the respective usertag to the cell for each tagslug the
+    * student has.
+    * @param {HTMLTableDataCellElement} cell The cell to which the
+    *   colortags should be added.
+    * @param {Array[String]} studentTagSlugs The slugs of the tags that
+    *   the student has.
+    * @param {Array[Object]} usertags Array of all usertags with their data.
+    */
+  function addTagsToCell(cell, studentTagSlugs, usertags) {
+    $(cell).empty() // empty the cell in case there is something there already
+    studentTagSlugs.forEach((tagSlug) => {
+      const usertag = usertags.find((tag) => tag.slug == tagSlug);
+      // TODO: do we need to check if the tag is found
+      const colortag = django_colortag_label(usertag, {})[0]; // jQuery object -> DOM element
+      cell.appendChild(colortag);
+    });
+    const row = cell.parentNode;
+    row.dataset.tagFilterId = 0; // no filtering
+    row.dispatchEvent(new Event('student tags updated')); // or should the parent row dispatch it?
+  }
+
+  function addPointsToStudentRow(studPoints) {
+    const row = studentRowMap.get(studPoints.id);
+    // Total points:
+    const totalCell = addCellToRow(row, {
+      text: studPoints.points,
+    });
+    // Points by difficulty:
+    const pointsByDiff = studPoints.points_by_difficulty;
+    const difficultyCells = pointKeys.difficulty.map((diff) => {
+      const numberOfPoints = pointsByDiff[diff] ? pointsByDiff[diff] : 0;
+      const diffCell = addCellToRow(row, {
+        class: 'pt-difficulty',
+        text: numberOfPoints,
+      });
+      return [diff, diffCell];
+    });
+    const submissionsByDiff = initObjectWithKeys(pointKeys.difficulty, 0);
+    // Points by module and exercise:
+    studPoints.modules.forEach((module) => {
+      const moduleCell = addCellToRow(row, {
+        class: 'pt-module',
+        text: module.points,
+      });
+      let moduleSubmissions = 0;
+      module.exercises.forEach((exercise) => {
+        moduleSubmissions += exercise.submission_count;
+        submissionsByDiff[exercise.difficulty] += exercise.submission_count;
+        const opts = {
+          'data-submission-count': exercise.submission_count,
+          // 'data-difficulty': exercise.difficulty,  // TODO: is it smart to save this to every single student?
+          'data-points': exercise.points,
+          class: 'pt-all',
+          text: exercise.official ? exercise.points : 0,
+        };
+        if (!exercise.official && exercise.points) { // unofficial submission has points
+          opts.class = 'unofficial';
+        }
+        addCellToRow(row, opts);
+      });
+      moduleCell.setAttribute('data-submission-count', moduleSubmissions);
+    });
+    difficultyCells.forEach(([diffName, cell]) => {
+      const diffSubs = submissionsByDiff[diffName];
+      cell.setAttribute('data-submission-count', diffSubs);
+    })
+    const totalSubs = Object.values(submissionsByDiff).reduce(sumReducer, 0);
+    totalCell.setAttribute('data-submission-count', totalSubs);
+    row.dataset.exerciseFilterId = 0; // initially all exercises are shown and only official points
+    row.dispatchEvent(new Event('points updated'));
+    // hide cells in hidden columsn
+    toggleCellsOnRow(row, hiddenCellIndices, false);
+  }
+
+
+  // INDICATOR ROWS
+
+  /**
+    * Calculate data for indicated column to generate summaries of the
+    * visible student rows.
+    * @param {jQuery object} studentRows Rows from which to calculate
+    *   values (visible rows)
+    * @param {Number} index The index of the column whose data to calculate
+    * @param {Number} maxPoints Maximum possible amout of points of the
+    *   exercise(s) in the column
+    */
+  function calculateColumnDataForIndicators(studentRows, index, maxPoints) {
+    // gatherers
+    let studentsWithSubmissions = 0;
+    let totalSubmissions = 0;
+    let totalPoints = 0;
+    let studentsWithMaxPoints = 0;
+
+    studentRows.each((i, row) => {
+      const cell = row.children[index];
+      if (!cell) { // if student row doesn't have points yet, skip for now
+        return true;
+      }
+      const subCount = Number(cell.dataset.submissionCount);
+      if (subCount) {
+        studentsWithSubmissions += 1;
+        totalSubmissions += subCount;
+        const studPoints = Number(cell.textContent);
+        totalPoints += studPoints;
+        if (studPoints == maxPoints) {
+          studentsWithMaxPoints += 1;
+        }
+      }
+    });
+    return {
+      studentsWithSubmissions,
+      totalSubmissions,
+      totalPoints,
+      studentsWithMaxPoints,
+      maxPoints,
+    }
+  }
+
+  // Function for calculating different summary values
+  function calculateTotalSubmissionsIndicatorCells(colData, rowCount) {
+    // const percentValue = percent(colData.totalSubmissions / (colData.maxSubmissions * rowCount));
+    return [colData.totalSubmissions, ""];
+  }
+  function calculateStudentsWithSubmissionsIndicatorCells(colData, rowCount) {
+    const percentValue = percent(colData.studentsWithSubmissions / rowCount);
+    return [colData.studentsWithSubmissions, percentValue];
+  }
+  function calculateStudentsWithMaxPointsIndicatorCells(colData, rowCount) {
+    const percentValue = percent(colData.studentsWithMaxPoints / rowCount);
+    return [colData.studentsWithMaxPoints, percentValue]
+  }
+  function calculateAverageSubmissionsIndicatorCells(colData, rowCount) {
+    if (colData.studentsWithSubmissions) {
+      const avgSubCount = roundToTwo(colData.totalSubmissions / colData.studentsWithSubmissions);
+      const percentValue = percent(avgSubCount / colData.maxSubmissions);
+      return [avgSubCount, percentValue]
+    }
+    return ["–", "–\u00A0%"]
+  }
+  function calculateAveragePointsIndicatorCells(colData, rowCount) {
+    if (colData.studentsWithSubmissions) {
+      const avgPoints = roundToTwo(colData.totalPoints / colData.studentsWithSubmissions);
+      const percentValue = colData.maxPoints
+        ? percent(avgPoints / colData.maxPoints)
+        : "–\u00A0%";
+      return [avgPoints, percentValue]
+    }
+    return ["–", "–\u00A0%"]
+  }
+
+  const indicatorCalculators = {
+    totalSubmissions: calculateTotalSubmissionsIndicatorCells,
+    studentsWithSubs: calculateStudentsWithSubmissionsIndicatorCells,
+    studentsWithMaxPoints: calculateStudentsWithMaxPointsIndicatorCells,
+    averageSubmissions: calculateAverageSubmissionsIndicatorCells,
+    averagePoints: calculateAveragePointsIndicatorCells,
+  }
+
+  /**
+   * Calculates the percentages each normal cell is of the total and
+   * updates the percentage values in the table.
+   * Can be called for the following indicator rows:
+   * Total submissions, maximum submissions, maximum points
+   * @param {Array[HTMLElement]} rowPair An array consisting of two
+   *   tr-elements, the first referring to the normal indicator row,
+   *   the second to the percent row.
+   * @param {number} total An optional parameter indicating the total compared
+   *   to which percentages should be calculated.
+   *   If the parameter is not given, the value is fetched from the table.
+   */
+  function updateIndicatorRowPercentagesOfTotal([normalRow, percentRow], total) {
+    const normalCells = normalRow.children;
+    const percentCells = percentRow.children;
+    const totalSum = (total !== undefined)
+      ? total
+      : normalCells[columnIndexMap.total - 1].textContent;
+
+    const modAndExIndices = Array.from(_exerciseSelection, (([moduleID, exercises]) => {
+      const modIndex = columnIndexMap.module[moduleID];
+      const exIndices = exercises.map((id) => columnIndexMap.all[id]);
+      return [modIndex, ...exIndices];
+    })).flat();
+    const indicesToUpdate = Object.values(columnIndexMap.difficulty).concat(modAndExIndices);
+    if (totalSum) {
+      indicesToUpdate.forEach((index) => {
+        const normalValue = normalCells[index - 1].textContent;
+        // index is shifted by 2 due to the cell in the row above with colspan and rowspan of 2
+        const percentCell = percentCells[index - 2];
+        percentCell.textContent = (normalValue !== "–")
+          ? percent(Number(normalValue) / totalSum)
+          : "–\u00A0%";
+      })
+    } else { // can't divide by zero
+      indicesToUpdate.forEach((index) => {
+        const percentCell = percentCells[index - 2];
+        percentCell.textContent = "–\u00A0%";
+      })
+    }
+  }
+
+  /**
+    * Calculate summary values for the dynamic indicator rows.
+    */
+  function updateDynamicIndicatorRows() {
+    const studentRows = $('#student-rows tr').filter(':visible');
+    const studentRowCount = studentRows.length;
+    // update "selected students" count
+    _visibleStudentSpan.textContent = studentRowCount;
+    // static indicator rows for calculations
+    const [maxPointsNormalRow, ] = indicatorRows.static.maxPoints;
+    const maxPointsNormalCells = maxPointsNormalRow.children;
+    const [maxSubsNormalRow, ] = indicatorRows.static.maxSubmissions;
+    const maxSubsNormalCells = maxSubsNormalRow.children;
+
+    const diffIndices = Object.values(columnIndexMap.difficulty);
+    const modAndExIndices = Array.from(_exerciseSelection, (([moduleID, exercises]) => {
+      const modIndex = columnIndexMap.module[moduleID];
+      const exIndices = exercises.map((id) => columnIndexMap.all[id]);
+      return [modIndex, ...exIndices];
+    })).flat();
+    const indicesToUpdate = diffIndices.concat(columnIndexMap.total, modAndExIndices);
+    indicesToUpdate.forEach((index) => {
+      // indicator row indeces
+      const normalIndex = index - 1;
+      const percentIndex = index - 2;
+
+      const maxPointsString = maxPointsNormalCells[normalIndex].textContent;
+      if (studentRowCount && maxPointsString !== "–") {
+        const maxPoints = Number(maxPointsString);
+        const maxSubmissions = Number(maxSubsNormalCells[normalIndex].textContent);
+        const calculatedColData = calculateColumnDataForIndicators(studentRows, index, maxPoints);
+        const colData = {...calculatedColData, maxSubmissions};
+
+        Object.entries(indicatorRows.dynamic).forEach(([id, [normalRow, percentRow]]) => {
+          const [normalVal, percentVal] = indicatorCalculators[id](colData, studentRowCount);
+          normalRow.children[normalIndex].textContent = normalVal;
+          percentRow.children[percentIndex].textContent = percentVal;
+        });
+
+      } else { // TODO: consider switching to an object and having static and dynamic -groups
+        Object.entries(indicatorRows.dynamic).forEach(([id, [normalRow, percentRow]]) => {
+          normalRow.children[normalIndex].textContent = "–";
+          percentRow.children[percentIndex].textContent = "–\u00A0%";
+          // percentRow.children[percentIndex].innerHTML = "–\u00A0%";
+        });
+      }
+    });
+    updateIndicatorRowPercentagesOfTotal(indicatorRows.dynamic.totalSubmissions);
+  }
+
+  /**
+   * Calculates row sums according to exercise selection based on values
+   * in the same row in the exercises section.
+   * @param {Array[HTMLElement]} rowPair An array consisting of two
+   *   tr-elements, the first referring to the normal indicator row,
+   *   the second to the percent row.
+   */
+  function updateSumsOnStaticIndicatorRow([normalRow, percentRow]) {
+    const normalCells = normalRow.children;
+    const percentCells = percentRow.children;
+    const difficultySums = {};
+    let totalSum = 0;
+
+    // calculate module, difficulty and total sums
+    _exerciseSelection.forEach((exercises, moduleID) => {
+      let moduleSum = 0;
+      exercises.forEach((exerciseID) => {
+        // indeces are shifted by one due to the cell with colspan of 2
+        const exerciseCellIndex = columnIndexMap.all[exerciseID];
+        const normalCell = normalCells[exerciseCellIndex - 1];
+        const cellValue = Number(normalCell.textContent);
+        const difficulty = exerciseDifficulties[exerciseID];
+        addTo(difficultySums, difficulty, cellValue);
+        moduleSum += cellValue;
+      });
+      const moduleCellIndex = columnIndexMap.module[moduleID];
+      const normalModuleCell = normalCells[moduleCellIndex - 1];
+      normalModuleCell.textContent = moduleSum;
+      totalSum += moduleSum;
+    });
+    // insert difficulty sums and percentages
+    Object.entries(columnIndexMap.difficulty).forEach(([diffName, index]) => {
+      const normalCell = normalCells[index - 1];
+      const percentCell = percentCells[index - 2];
+      const diffSum = difficultySums[diffName];
+      // if none of the selected exercises have the difficulty, indicate with –
+      normalCell.textContent = (diffSum !== undefined) ? diffSum : "–";
+    });
+    // update total points
+    const totalPointsCell = normalCells[columnIndexMap.total - 1];
+    totalPointsCell.textContent = totalSum;
+    // update percentages
+    updateIndicatorRowPercentagesOfTotal([normalRow, percentRow]), totalSum;
+  }
+
+  /**
+   * Fills in the data for those indicator rows whose values aren't
+   * affected by the number of students displayed (such as maximum
+   * sumbissions and maximum points). Should be called only once.
+   */
+  function fillStaticIndicatorRows() {
+    const [maxSubNormal, maxSubPercent] = indicatorRows.static.maxSubmissions;
+    const maxSubNormalCells = maxSubNormal.children;
+    const maxSubPercentCells = maxSubPercent.children;
+    const [maxPointsNormal, maxPointsPercent] = indicatorRows.static.maxPoints;
+    const maxPointsNormalCells = maxPointsNormal.children;
+    const maxPointsPercentCells = maxPointsPercent.children;
+    Object.entries(columnIndexMap.all).forEach(([id, index]) => {
+      const maxSubCount = maxSubmissions[id];
+      const maxPointsCount = maxPoints[id];
+      // indeces are shifted by one due to the cell with colspan 2
+      maxSubNormalCells[index - 1].textContent = maxSubCount;
+      maxPointsNormalCells[index - 1].textContent = maxPointsCount;
+    });
+    Object.values(indicatorRows.static).forEach((rowPair) => {
+      updateSumsOnStaticIndicatorRow(rowPair);
+    })
+  }
+
+  /**
+    * Update values on indicator rows according to exercise selection
+    * and visible student rows
+    */
+  function updateIndicatorRows() {
+    const indicatorRowData = document.getElementById('indicator-rows').dataset;
+    if (indicatorRowData.exerciseFilterId != _exerciseFilterID) {
+      indicatorRowData.exerciseFilterId = _exerciseFilterID
+      Object.values(indicatorRows.static).forEach((rowPair) => {
+        updateSumsOnStaticIndicatorRow(rowPair);
+      });
+    }
+    updateDynamicIndicatorRows();
+  }
+
+  /**
+   * Adds an empty indicator row with cells to the table and adds the
+   * array consisting of the normal and percentage rows to the
+   * indicatorRowMap. The method is called for each indicator row.
+   * @param  {string} headingTitle The heading text.
+   * @param  {string} normalTooltip The first part of the text that is shown when hovering over heading, description of the indicator.
+   * @param  {string} percentTooltip The second part of the text that is shown when hovering over heading, description of the percentage.
+   * @param  {boolean} value indicating whether the indicator row is dynamic or not
+   * @param  {string} id The id used for the mapping of indicatorRows
+   */
+  function addEmptyIndicatorRow(headingTitle, normalTooltip, percentTootip, dynamic, id) {
+   // Data indicator headings have title and tooltip info that is shown when hovering mouse on the heading title
+   const rowgroup = document.getElementById('indicator-rows')
+   const normalRow = rowgroup.insertRow();
+   normalRow.setAttribute('class', 'no-filtering indi-normal-row');
+   const percentRow = rowgroup.insertRow();
+   percentRow.setAttribute('class', 'no-filtering indi-pct-row tableexport-ignore');
+   const dynamicity = dynamic ? 'dynamic' : 'static';
+   indicatorRows[dynamicity][id] = [normalRow, percentRow];
+   addCellToRow(normalRow, {
+     class: 'indicator-heading stick-on-scroll',
+     colspan: 2,
+     rowspan: 2,
+     'data-toggle': 'tooltip',
+     'data-container': 'body',
+     title: normalTooltip + "\n" + percentTootip,
+     text: headingTitle,
+   })
+   // empty cells for email and tags
+   for (let i = 0; i < 2; i += 1) {
+     addCellToRow(normalRow, {
+       class: 'indi-normal-val',
+       hidden: (i === 0), // hide email cell
+     });
+     addCellToRow(percentRow, {
+       class: 'indi-pct-val',
+       hidden: (i === 0), // hide email cell
+     });
+   }
+   // add cell for each difficulty, module and exercise cell + one for total
+   for (let i = 0; i <= Object.values(pointKeys).flat().length; i++) {
+     addCellToRow(normalRow, {
+       class: 'indi-normal-val',
+     });
+     addCellToRow(percentRow, {
+       // ...percentTooltipOpts,
+       class: 'indi-pct-val',
+     });
+   }
+   const normalCells = normalRow.children;
+   const percentCells = percentRow.children;
+   pointsGroupingMethods.forEach((pgm) => {
+     Object.values(columnIndexMap[pgm]).forEach((index) => {
+       const norCell = normalCells[index - 1];
+       norCell.className = norCell.className + " pt-" + pgm;
+       const pctCell = percentCells[index - 2];
+       pctCell.className = pctCell.className + " pt-" + pgm;
+     });
+   });
+  }
+
+  /**
+    * Add change handlers to indicator checkboxes.
+    * Also updates current visibility of indicator rows.
+    */
+  function connectCheckboxesWithIndicatorRows() {
+    indicatorCheckboxes.forEach((idPair, checkbox) => {
+      const [dynamicity, id] = idPair;
+      const dynamicityStr = dynamicity ? 'dynamic' : 'static';
+      const rowPair = indicatorRows[dynamicityStr][id];
+      checkbox.change(function (event) {
+        toggleRows(rowPair, event.target.checked);
+      });
+      // update current visibility
+      toggleRows(rowPair, checkbox.is((i, elem) => elem.checked));
+    });
+  }
+
+  /**
+    * Create indicator rows, add text and tooltips, hide cells in
+    * hidden columns, and enables toggling indicator rows.
+    */
+  function createIndicatorRows() {
+    const percentOfTotalTooltip = _("The percentage indicates the distribution of the total.")
+    addEmptyIndicatorRow(
+      _("Total submissions"),
+      _("Total number of submissions. Calculates all student submission counts together."
+        + " (Accounts for both official and unoffical submissions.)"
+      ),
+      percentOfTotalTooltip,
+      true,
+      'totalSubmissions',
+    );
+    addEmptyIndicatorRow(
+      _("Average submissions per student with submissions"),
+      _("How many submissions a single student has used on average on the exercise or group of exercises."
+        + " Only accounts for students with one or more submissions."
+        + " (Accounts for both official and unoffical submissions.)"
+      ),
+      _("The percentage indicates what proportion of allowed submissions have been used on average."),
+      true,
+      'averageSubmissions',
+    );
+    addEmptyIndicatorRow(
+       _("Maximum submissions"),
+       _("Maximum number of available submissions for the exercise or group of exercises."),
+       percentOfTotalTooltip,
+       false,
+       'maxSubmissions',
+    );
+    addEmptyIndicatorRow(
+      _("Students with submissions"),
+      _("Number of students that have one or more exercise submissions."
+        + " (Accounts for both official and unoffical submissions.)"
+      ),
+      _("The percentage indicates what proportion of the students shown have submssions."),
+      true,
+      'studentsWithSubs'
+    );
+    addEmptyIndicatorRow(
+      _("Students with max points"),
+      _("Number of students that have received maximum points from the exercise or group of exercises."),
+      _("The percentage indicates what proportion of the students shown have received maximum points."),
+      true,
+      'studentsWithMaxPoints',
+    );
+    addEmptyIndicatorRow(
+      _("Average points per student with submissions"),
+      _("Average points received for the exercise or group of exercises."
+        + " Only accounts for students with one or more submissions."
+      ),
+      _("The percentage indicates what propoprtion of the maximum points the students have recieved on average."),
+      true,
+      'averagePoints',
+    );
+    addEmptyIndicatorRow(
+      _("Maximum points"),
+      _("Maximum points for the exercise or group of exercises."),
+      percentOfTotalTooltip,
+      false,
+      'maxPoints',
+    );
+    // hide cells in hidden columns
+    toggleColumnsOnIndicatorRows(Array.from(hiddenCellIndices), false);
+    // fill in static rows' data
+    fillStaticIndicatorRows();
+    // add handlers to checkboxes and update row visibility
+    connectCheckboxesWithIndicatorRows();
+
+    // Set up the tooltip for checkboxes and indicator rows, look docs below for tooltip
+    // https://getbootstrap.com/docs/3.3/javascript/
+    const $tooltippedElems = $('[data-toggle="tooltip"]');
+    $tooltippedElems.tooltip({
+      "trigger": "hover",
+    });
+    $tooltippedElems.on('click', function() {
+      $(this).tooltip('hide');
+    });
+  }
+
+  // Set timeout so if when several things happen in a row that would
+  // trigger indicator row updates, there is a small delay to decrease
+  // the amout of vain resulting updates.
+  let indicatorRowUpdateTimeout;
+  function scheduleIndicatorRowUpdate() {
+    clearTimeout(indicatorRowUpdateTimeout);
+    indicatorRowUpdateTimeout = setTimeout(
+      updateIndicatorRows,
+      500
+    );
+  }
+
+  $("input.official-checkbox").change(function() {
+    _showOfficial = this.checked;
+    scheduleExerciseSelectionChange();
+  });
+
+  let tagFilterChangeTimeout;
+  // Event listener for tag filters
+  $('.filter-users button').on('click', (event) => {
+    event.preventDefault();
+    let icon = $(event.target).find('.glyphicon');
+    if (icon.hasClass('glyphicon-unchecked')) {
+      icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+    } else {
+      icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+    }
+    clearTimeout(tagFilterChangeTimeout);
+    tagFilterChangeTimeout = setTimeout(
+      // checks whether tag filters actually changed and updates them if they did
+      () => {
+        const newTagSlugFilters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
+          .map((elem) => elem.dataset['tagSlug']);
+        if (newTagSlugFilters != _tagSlugFilters) {
+          _tagSlugFilters = newTagSlugFilters;
+          _tagFilterID += 1;
+          event.target.dispatchEvent(new Event('tagfilters updated'));
+        }
+      },
+      1000
+    )
+  });
+
+  fromEvent(
+    document.querySelectorAll('.filter-users button'),
+    'tagfilters updated'
+  ).subscribe(
+    filterStudentRows
+  );
+
+
+  // Replace grouping checkboxes with toggle buttons
+  $('#point-grouping-selection').replaceInputsWithMultiStateButtons({
+    nocolor: true,
+    buttonClass: 'aplus-button--secondary aplus-button--sm',
+    groupClass: '',
+  });
+  // Add change handlers to grouping checkboxes
+  $('#point-grouping-selection').find(':checkbox').change(groupingSelectionChange);
+
+
+  /* TODO: Use better logic for translations.
+   * Currently only some translations wait for aplus:translation-ready and most of them do not,
+   * since the translations become available during the script.
+   */
+  $(document).on("aplus:translation-ready", function() {
+    // TableExport plugin
+    // https://tableexport.v5.travismclarke.com/#tableexport
+    TableExport.prototype.formatConfig.xlsx.buttonContent = _("Export to xlsx (Excel)");
+    TableExport.prototype.formatConfig.csv.buttonContent = _("Export to csv (LibreOffice)");
+    TableExport.prototype.formatConfig.txt.buttonContent = _("Export to txt");
+    tableExportVar = $("#table-points").tableExport({
+      "position": "top",
+      "bootstrap": "true",
+      "filename": _("student_results"),
+    });
+
+    // Move the default TableExport download buttons inside a single dropdown menu
+    const exportButtonMenu = document.getElementById('export-button-menu');
+    $("caption.tableexport-caption").children("button").each(function(i, elem) {
+      // $("#export-button-menu").append($(elem).detach());
+      exportButtonMenu.appendChild(elem);
+    });
+  });
+
+// NOT REALLY STARTED: STORING TO LOCAL STORAGE
+
+  let storageKey = 'resultsData';
+  function toStorage() {
+    return {
+      // _students: _students,
+      _usertags: _usertags,
+      // _allExercises: _allExercises,
+      // _points: _points,
+    }
   }
 
   /*
@@ -780,630 +1523,52 @@ spy.log("users");
   }
 
 
-  let ajaxEnabled = true;
 
-  /* Custom AJAX settings to use with jQuery.ajax()
-   * - Possibility to disable AJAX
-   * - Retrying and retry limits (call specific)
-   */
-  let ajaxSettings = {
-    _retryCount: 0,
-    _retryLimit: 3,
-    timeout: 0,
-    beforeSend: function(xhr, settings) {
-      return ajaxEnabled;
-    },
-    error: function(xhr, statusText, errorThrown) {
-      this._retryCount++;
-      if (this._retryCount <= this._retryLimit) {
-        console.log("Retrying ajax:", statusText);
-        setTimeout($.ajax, 1000, this);
-      } else {
-        stopAjax = true;
-        $("#ajax-failed-alert").show();
-        $("#results-loading-animation").hide();
-      }
-    }
-  };
-
-
-  /* Take as the argument a single student's points
-   * and populate the exercise and module selection dropdown menu
-   */
-  function populateExerciseSelection(singleStudentPoints) {
-    const firstStudentPoints = singleStudentPoints;
-    firstStudentPoints.modules.forEach(function(module) {
-      $("#module-selection").append(
-        '<option value="module-' + module.id + '"'
-        + 'selected>'
-        + module.name
-        + '</option>'
-      );
-      $("#exercise-selection").append(
-        '<optgroup class="module-' + module.id + '"'
-        + 'value="module-' + module.id + '"'
-        + 'label="' + module.name + '"'
-        + '></optgroup'
-      );
-      module.exercises.forEach(function(exercise) {
-        $("#exercise-selection > optgroup:last-child").append(
-          '<option data-module-id="' + module.id + '"'
-          + 'data-exercise-id="' + exercise.id + '"'
-          + 'class="module-'+ module.id + '"'
-          + 'value="exercise-'+ exercise.id + '"'
-          + 'selected>'
-          + exercise.name
-          + '</option>'
-        );
-      });
-    });
-
-    $('#module-selection').multiselect({
-      includeSelectAllOption: true,
-      onDeselectAll: moduleSelectionChange,
-      onSelectAll: moduleSelectionChange,
-      echnChange: moduleSelectionChange,
-      buttonText: buttonText,
-      selectAllText: _("Select all"),
-    });
-
-    $('#exercise-selection').multiselect({
-      includeSelectAllOption: true,
-      enableClickableOptGroups: true,
-      onDeselectAll: exerciseSelectionChange,
-      onSelectAll: exerciseSelectionChange,
-      onChange: exerciseSelectionChange,
-      maxHeight: 500,
-      buttonText: buttonText,
-      selectAllText: _("Select all"),
-    });
-
-  }
-
-    // Take as the argument an object representing a student
-    // and return a boolean indicating whether or not the student should be shown in the results table
-  function studentVisibility(student) {
-    // Pick only students that have the selected tags
-    // Use same logic for tag filtering as in participants.js
-    let studentTagSlugs = student.tag_slugs;
-
-    // Set intersection tags ∩ filters
-    const intersect = studentTagSlugs.filter(function (tag) {
-      return tagSlugFilters.indexOf(tag) >= 0;
-    });
-
-    // Only create the row for a student, if they have one of the tags that are currently selected
-    return intersect.length === tagSlugFilters.length;
-  };
-
-  /*
-   * Keeps the _exerciseSelection up to date with currently selected exercises.
-   * Always recreates the table based on the currently active group.
-   */
-  function exerciseSelectionChange() {
-    _exerciseSelection = $('#exercise-selection option:selected');
-
-    _tagSlugFilters = $.makeArray($('.filter-users button:has(.glyphicon-check)'))
-    .map(function(elem) {
-      return $(elem).data('tagSlug');
-    });
-  }
-
-  // Filter the students rows in the table, setting visibility
-  function filterTable() {
-
-    $('#table-points tr').each(function(){
-      $(this).find('td').each(function(){
-        //do your stuff, you can use $(this) to get current cell
-      })
-    })
-  }
-
-  // Return the grouping method currently in use
-  function getGroupingMethod() {
-    if ($("#all-exercises").hasClass("active")) {
-      return "all";
-    } else if ($("#difficulty-exercises").hasClass("active")) {
-      return "difficulty";
-    } else if ($("#module-exercises").hasClass("active")) {
-      return "module";
-    } else {
-      return;
-    }
-  }
-
-  // Create an object with given keys and initialization value for each
-  function initObjectWithKeys(keys, val) {
-    let obj = {};
-    keys.forEach(function (key) {
-      obj[key] = val;
-    });
-    return obj
-  }
-
-
-  let pointsGroupingMethods = ["difficulty", "module", "all"];
-
-  let htmlTablePoints = "";
-  let pointKeys = initObjectWithKeys(pointsGroupingMethods, []);
-
-  let totalSubmitters = {};
-  let totalMaxSubmitters = {};
-  let totalSubmissions = {};
-  let maxAllowedSubmissions = {};
-  let maxPoints = {};
-  // Initialise totals with zeros
-  let maxPointsTotal = initObjectWithKeys(pointsGroupingMethods, 0);
-  let totalPoints = {};
-
-  let modulesSeen = initObjectWithKeys(pointsGroupingMethods, []);
-
-  // Has to be called once for each grouping method to establish the assumably unchanging characteristics of the exercises and modules
-  function tableDrawPreWork(firstPoints, pointsGroupingMethod) {
-    // Gather information that is same for all students from the first student for better performance
-    $(_exerciseSelection).each(function() {
-      const moduleID = $(this).data("moduleId");
-      const module = firstPoints.modules.filter(
-        function(m) {
-            return m.id == moduleID;
-      })[0];
-      const exerciseID = $(this).data("exerciseId");
-      const exercise = module.exercises.filter(
-        function(exercise) {
-          return exercise.id == exerciseID;
-        }
-      )[0];
-
-      // Grouped by difficulty
-      if (pointsGroupingMethod === "difficulty") {
-        maxPoints[pointsGroupingMethod][exercise.difficulty] = maxPoints[pointsGroupingMethod][exercise.difficulty] + exercise.max_points || exercise.max_points;
-        maxPointsTotal[pointsGroupingMethod] += exercise.max_points;
-        if (pointKeys[pointsGroupingMethod].indexOf(exercise.difficulty) === -1) {
-          pointKeys[pointsGroupingMethod].push(exercise.difficulty);
-          pointKeys[pointsGroupingMethod].sort();
-        }
-        _allExercises.forEach(function(exAll) {
-          if (exAll.id === exercise.id) {
-            maxAllowedSubmissions[pointsGroupingMethod][exercise.difficulty] = maxAllowedSubmissions[pointsGroupingMethod][exercise.difficulty] + exAll.max_submissions || exAll.max_submissions;
-          }
-        });
-      }
-
-      // Grouped by module
-      if (pointsGroupingMethod === "module") {
-        // Include modules corresponding to selected exercises just once in pointKeys[pointsGroupingMethod]
-        // Required because multiple exercises can come from the same module
-        if (modulesSeen[pointsGroupingMethod].indexOf(module) === -1) {
-          modulesSeen[pointsGroupingMethod].push(module);
-          pointKeys[pointsGroupingMethod].push(module.name);
-        }
-
-        // Include the exercise's particulars in the totals
-        _allExercises.forEach(function(exAll) {
-            if (exAll.id === exercise.id) {
-              maxAllowedSubmissions[pointsGroupingMethod][module.name] = maxAllowedSubmissions[pointsGroupingMethod][module.name] + exAll.max_submissions || exAll.max_submissions;
-              maxPoints[module.name] = maxPoints[module.name] + exercise.max_points || exercise.max_points;
-              maxPointsTotal += exercise.max_points;
-            }
-        });
-
-      }
-
-      // Grouped by exercise
-      if (pointsGroupingMethod === "all") {
-        maxPoints[exercise.name] = exercise.max_points;
-        maxPointsTotal += exercise.max_points;
-        pointKeys[pointsGroupingMethod].push(exercise.name);
-
-        _allExercises.forEach(function(exAll) {
-          if (exAll.id === exercise.id) {
-            maxAllowedSubmissions[pointsGroupingMethod][exercise.name] = exAll.max_submissions;
-          }
-        });
-      }
-
-    });
-  }
-
-  // Renders students rows and indicators
-  // FIXME: Indicators and tags don't work
-  let studentRendererObserver = {
-    // Gather personal information for each student, eg. individual points
-    next(studentAndPoints) {
-      let student = studentAndPoints.student;
-      let _points = studentAndPoints.points;
-      let allPointsTotalAddedToRow = false;
-
-      // Start the table row with the student's id, summary and full name
-      htmlTablePoints += '<tr><td class="student-id stick-on-scroll">' + student.student_id + '</td>';
-      htmlTablePoints +=
-        '<td class="student-name stick-on-scroll">'
-        + '<a href="' + student.summary_html + '">'
-        + student.full_name + '</td>';
-
-      // Run point calculations using all three methods and create the corresponding cells
-      pointsGroupingMethods.forEach(function(pointsGroupingMethod) {
-        let points = {};
-        let unofficialPoints = {};
-
-        // Calculate points for each difficulty by grouping exercises from each difficulty category together
-        if (pointsGroupingMethod === "difficulty") {
-          let submittedDifficulty = {};
-
-          $(_exerciseSelection).each(function() {
-            const moduleID = $(this).data("moduleId");
-            const exerciseID = $(this).data("exerciseId");
-            const exercise = _points.modules.filter(
-              function(m) {
-                return m.id == moduleID;
-            })[0].exercises.filter(
-              function(exercise) {
-                return exercise.id == exerciseID;
-              }
-            )[0];
-
-            const exercisePoints = exercise.official ? exercise.points : 0;
-            points[exercise.difficulty] = points[exercise.difficulty] + exercisePoints || exercisePoints;
-            unofficialPoints[exercise.difficulty] = unofficialPoints[exercise.difficulty] + exercise.points || exercise.points;
-            totalPoints[pointsGroupingMethod][exercise.difficulty] = totalPoints[pointsGroupingMethod][exercise.difficulty] + exercisePoints || exercisePoints;
-            if (exercise.submission_count > 0) {
-              totalSubmissions[pointsGroupingMethod][exercise.difficulty] = totalSubmissions[pointsGroupingMethod][exercise.difficulty] + exercise.submission_count || exercise.submission_count;
-              if (submittedDifficulty[exercise.difficulty] === undefined) {
-                totalSubmitters[pointsGroupingMethod][exercise.difficulty] = totalSubmitters[pointsGroupingMethod][exercise.difficulty] + 1 || 1;
-                submittedDifficulty[exercise.difficulty] = true;
-              }
-              if (points[exercise.difficulty] === maxPoints[exercise.difficulty]) {
-                totalMaxSubmitters[pointsGroupingMethod][exercise.difficulty] = totalMaxSubmitters[pointsGroupingMethod][exercise.difficulty] + 1 || 1;
-              }
-            }
-          });
-        }
-
-        // Calculate points for each module by grouping each module's exercises together
-        if (pointsGroupingMethod === "module") {
-          modulesSeen[pointsGroupingMethod] = [];
-
-          $(_exerciseSelection).each(function() {
-            const moduleID = $(this).data("moduleId");
-            const module = _points.modules.filter(
-              function(m) {
-                return m.id == moduleID;
-            })[0];
-            const exerciseID = $(this).data("exerciseId");
-            const exercise = module.exercises.filter(
-              function(exercise) {
-                return exercise.id == exerciseID;
-              }
-            )[0];
-
-            const exercisePoints = exercise.official ? exercise.points : 0;
-            points[module.name] = points[module.name] + exercisePoints || exercisePoints;
-            unofficialPoints[module.name] = unofficialPoints[module.name] + exercise.points || exercise.points;
-            totalPoints[pointsGroupingMethod][module.name] = totalPoints[pointsGroupingMethod][module.name] + exercisePoints || exercisePoints;
-
-            if (modulesSeen[pointsGroupingMethod].indexOf(module) === -1) {
-              modulesSeen[pointsGroupingMethod].push(module);
-              if (module.submission_count > 0) {
-                totalSubmissions[pointsGroupingMethod][module.name] = totalSubmissions[pointsGroupingMethod][module.name] + module.submission_count || module.submission_count;
-                totalSubmitters[pointsGroupingMethod][module.name] = totalSubmitters[pointsGroupingMethod][module.name] + 1 || 1;
-                if (points[module.name] === maxPoints[module.name]) {
-                  totalMaxSubmitters[pointsGroupingMethod][module.name] = totalMaxSubmitters[pointsGroupingMethod][module.name] + 1 || 1;
-                }
-              }
-            }
-          });
-        }
-
-        // Calculate points for each exercise
-        if (pointsGroupingMethod === "all") {
-          $(_exerciseSelection).each(function() {
-            const moduleID = $(this).data("moduleId");
-            const exerciseID = $(this).data("exerciseId");
-            const exercise = _points.modules.filter(
-              function(m) {
-                return m.id == moduleID;
-            })[0].exercises.filter(
-              function(exercise) {
-                return exercise.id == exerciseID;
-              }
-            )[0];
-
-            const exercisePoints = exercise.official ? exercise.points : 0;
-            points[exercise.name] = exercisePoints;
-            unofficialPoints[exercise.name] = exercise.points;
-            totalPoints[pointsGroupingMethod][exercise.name] = totalPoints[pointsGroupingMethod][exercise.name] + exercisePoints || exercisePoints;
-            if (exercise.submission_count > 0) {
-              totalSubmissions[pointsGroupingMethod][exercise.name] = totalSubmissions[pointsGroupingMethod][exercise.name] + exercise.submission_count || exercise.submission_count;
-              totalSubmitters[pointsGroupingMethod][exercise.name] = totalSubmitters[pointsGroupingMethod][exercise.name] + 1 || 1;
-              if (exercisePoints === exercise.max_points) {
-                totalMaxSubmitters[pointsGroupingMethod][exercise.name] = totalMaxSubmitters[pointsGroupingMethod][exercise.name] + 1 || 1;
-              }
-            }
-
-          });
-        }
-
-        if (!allPointsTotalAddedToRow) {
-          allPointsTotalAddedToRow = true;
-          // Adds colortags and tally of total points
-          // Must only be run with one set of keys (one pointsGroupingMethod)
-          // Looking at the code, the calculation of points in points[] seems to result in the same total regardless of the method
-          if (pointKeys[pointsGroupingMethod].length > 0) {
-            let tagHtml = "";
-            const studentTags = student.tag_slugs;
-
-            studentTags.forEach(function(tagSlug) {
-              _usertags.forEach(function(usertag) {
-                if (usertag.slug === tagSlug) {
-                  tagHtml += django_colortag_label(usertag, ' ')[0].outerHTML;
-                }
-              });
-            });
-
-            let allPointsTotal = 0;
-            let allUnofficialTotal = 0;
-            pointKeys[pointsGroupingMethod].forEach(function(name) {
-            const point = points[name] || 0;
-            const unofficialPoint = unofficialPoints[name] || 0;
-              allPointsTotal += point;
-              allUnofficialTotal += unofficialPoint;
-            });
-
-            htmlTablePoints += '<td>' + tagHtml + '</td>';
-
-            if (!_showOfficial && allUnofficialTotal > allPointsTotal) {
-              htmlTablePoints += '<td>' + allPointsTotal + '<span class="text-danger"> (' + allUnofficialTotal + ')</span></td>';
-            }
-            else {
-              htmlTablePoints += '<td>' + allPointsTotal + '</td>';
-            }
-          }
-        }
-
-
-        // Adds the points calculated using the method (points for all the different difficulties for 'difficulty', modules for 'module', etc.)
-        // Must be run with all sets of keys (using all pointsGroupingMethods)
-        pointKeys[pointsGroupingMethod].forEach(function(name) {
-          const point = points[name] || 0;
-          const unofficialPoint = unofficialPoints[name] || 0;
-          if (!_showOfficial && unofficialPoint > point) {
-            htmlTablePoints += '<td>' + point + '<span class="text-danger"> (' + unofficialPoint + ')</span></td>';
-          }
-          else {
-            htmlTablePoints += '<td>' + point + '</td>';
-          }
-        });
-      });
-
-      // Row end
-      htmlTablePoints += "</tr>";
-    },
-    complete() {
-      // Calculate the data indicators, e.g. average points, max points
-      // Append headings, data indicators and student points to the html table
-
-      $("#table-heading").append('<tr id="table-heading-row"></tr>')
-      $("#table-heading-row").append('<th id="student-count">' + _("Student ID") + '</th>');
-      $("#table-heading-row").append('<th>' + _("Student name") + '</th>');
-      if (_exerciseSelection && _exerciseSelection.length > 0) {
-        $("#table-heading-row").append('<th>' + _("Tags") + '</th>');
-        $("#table-heading-row").append('<th>' + _("Total") + '</th>');
-      }
-
-      let htmlTableIndicators = "";
-
-      pointsGroupingMethods.forEach(function(pointsGroupingMethod) {
-        pointKeys[pointsGroupingMethod].forEach(function(name) {
-          if (pointsGroupingMethod === "difficulty" && name === "") {
-            $("#table-heading-row").append('<th scope="col">' + _("No difficulty") + '</th>');
-          } else {
-            $("#table-heading-row").append('<th scope="col">' + name + '</th>');
-          }
-        });
-
-
-        if (_totalSubmTrue) {
-          let dataVals = [];
-          let sumValue = 0;
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            sumValue += totalSubmissions[pointsGroupingMethod][name] || 0;
-          });
-
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            dataVals.push([
-              totalSubmissions[pointsGroupingMethod][name] || 0,
-              totalSubmissions[pointsGroupingMethod][name] / sumValue * 100 || 0,
-            ]);
-          });
-
-          htmlTableIndicators += createIndicatorRow(
-            _('Total number of submissions. Calculates all student submission counts together.'),
-            _('Total submissions'),
-            dataVals
-          );
-        }
-
-        if (_avgSubmTrue) {
-          let dataVals = [];
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            dataVals.push([
-              totalSubmissions[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] || 0,
-              totalSubmissions[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] / maxAllowedSubmissions[pointsGroupingMethod][name] * 100 || 0
-            ]);
-          });
-
-          htmlTableIndicators += createIndicatorRow(
-            _('How many submissions a single student has used on the exercise on average.'
-              + ' Only accounts for students with one or more submissions.'
-            ),
-            _('Average submissions per student with submissions'),
-            dataVals
-          );
-        }
-
-        if (_maxSubmTrue) {
-          let dataVals = [];
-          let sumValue = 0;
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            sumValue += maxAllowedSubmissions[pointsGroupingMethod][name] || 0;
-          });
-
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            dataVals.push([
-              maxAllowedSubmissions[pointsGroupingMethod][name] || 0,
-              maxAllowedSubmissions[pointsGroupingMethod][name] / sumValue * 100 || 0,
-            ]);
-          });
-
-          htmlTableIndicators += createIndicatorRow(
-            _('Maximum number of available submissions for the exercise.'),
-            _('Maximum submissions'),
-            dataVals
-          );
-        }
-
-        if (_totalStuSubmTrue) {
-          let dataVals = [];
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            dataVals.push([
-              totalSubmitters[pointsGroupingMethod][name] || 0,
-              totalSubmitters[pointsGroupingMethod][name] / _studentsVisibleCount * 100 || 0
-            ]);
-          });
-
-          htmlTableIndicators += createIndicatorRow(
-            _('Number of students that have one or more exercise submissions.'),
-            _('Students with submissions'),
-            dataVals
-          );
-        }
-
-        if (_totalStuMaxTrue) {
-          let dataVals = [];
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            dataVals.push([
-              totalMaxSubmitters[pointsGroupingMethod][name] || 0,
-              totalMaxSubmitters[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] * 100 || 0
-            ]);
-          });
-
-          htmlTableIndicators += createIndicatorRow(
-            _('Number of students that have received maximum points from the exercise.'),
-            _('Students with max points'),
-            dataVals
-          );
-        }
-
-        if (_avgPTrue) {
-          let dataVals = [];
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            dataVals.push([
-              totalPoints[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] || 0,
-              totalPoints[pointsGroupingMethod][name] / totalSubmitters[pointsGroupingMethod][name] / maxPoints[name] * 100 || 0
-            ]);
-          });
-
-          htmlTableIndicators += createIndicatorRow(
-            _('Average points received for the exercise.'
-              + ' Only accounts for students with one or more submissions.'
-            ),
-            _('Average points per student with submissions'),
-            dataVals
-          );
-        }
-
-        if (_maxPTrue) {
-          let dataVals = [];
-          pointKeys[pointsGroupingMethod].forEach(function(name) {
-            dataVals.push([
-              maxPoints[name] || 0,
-              maxPoints[name] / maxPointsTotal * 100 || 0
-            ]);
-          });
-
-          htmlTableIndicators += createIndicatorRow(
-            _('Maximum points for the exercise.'),
-            _('Maximum points'),
-            dataVals
-          );
-        }
-      });
-
-      $("#table-body").append(htmlTableIndicators);
-      $("#table-body").append(htmlTablePoints);
-      $(".colortag-active").css("margin-right", "5px");
-      $("#student-count").append(
-        ' (<span id="selected-number">' + _studentsVisibleCount + '</span> / '
-        + '<span id="participants-number">'+ _studentCount + '</span>'
-        + _(' students selected') + ')'
-      );
-      tableExportVar.reset();
-      $('#table-points').find("caption").remove(); // Remove the recreated TableExport buttons (they are already in dropdown)
-      $('.filtered-table').aplusTableFilter();
-      console.log("Rendering complete");
-    }
-  }
-
-  // Show columns specific to a grouping method and hide others
-  function choosePointsGroupingMethod(method) {
-
-  }
-
-  // Add a student to the table as a row
-  function addStudentRowToTable(student) {
-    let htmlTablePoints = "";
-    htmlTablePoints += '<tr><td class="student-id stick-on-scroll">' + student.student_id + '</td>';
-    htmlTablePoints += '<td class="student-name stick-on-scroll">'
-                       + '<a href="' + student.summary_html + '">'
-                       + student.full_name + '</td>';
-    $("#table-body").append(htmlTablePoints);
-  }
-
-  // Map a student to points, calling the API
-  function studentToPoints(student) {
-    const sid = student.id;
-    return $.ajax(
-      $.extend({}, ajaxSettings, {url: pointsUrl + sid})
-    ).then(function(data) {
-      return data;
-    });
-  }
+// REACTIVE IMPLEMENTATION
 
   // Stream data from a paged JSON API into an Observer
-  function APIPagingStream(observer, url) {
-    function stream(url) {
+  function APIPagingStream(url, resultsObserver, countObserver) {
+    // recursive helper function
+    function stream(url, countNeeded) {
       return $.ajax(
-        $.extend({}, ajaxSettings, {url: url})
+        url,
+        ajaxSettings
       ).then(function(response) {
-        response.results
-                .forEach(function(r) { observer.next(r) });
-        if (response.next) {
-          stream(response.next);
-        } else {
-          observer.complete()
+        response.results.forEach((r) => resultsObserver.next(r));
+        if (countNeeded) {
+          countObserver.next(response.count);
+          countObserver.complete();
         }
-      }, function(reason) {
+        if (response.next) {
+          console.log("next page")
+          stream(response.next, false);
+        } else {
+          console.log("APIPagingStream complete")
+          resultsObserver.complete();
+        }
+      }, (reason) => {
         throw new Error("Pagination ajax failed: " + reason.statusText);
       });
     }
+
     this.start = function() {
-      stream(url)
+      stream(url, !!countObserver);
     };
   }
 
+
   // An object adhering to the observer interface that keeps track of loading progress and finishes rendering
-  let progressObserver = {
+  const progressObserver = {
     progress: 0,
     next() {
-      this.progress++;
-      $("#results-loading-progress").html(this.progress);
+      this.progress += 1;
+      // $("#results-loading-progress").html(this.progress);
+      document.getElementById('results-progress-cumulative').textContent = this.progress;
     },
     complete() {
-      exerciseSelectionChange();
       $("#results-loading-animation").hide();
       $("#results-loading-progress").hide();
       $("#table-export-dropdown > button").removeAttr('disabled');
-      $("#table-points-div").show();
       //storeDataLocally('localStorage', storageKey, toStorage())
     }
   }
@@ -1414,61 +1579,187 @@ spy.log("users");
    */
 
   // Source for pipeline
-  let studentsSubject = new rxjs.Subject();
-  let studentsStream = new APIPagingStream(studentsSubject, studentsUrl);
+  const usertagsSubject = new rxjs.Subject();
+  const usertagsStream = new APIPagingStream(usertagsUrl, usertagsSubject);
+  const studentTagSubject = new rxjs.Subject();
 
-  // Students => points
-  let pointsObservable = studentsSubject.pipe(
-    map(studentToPoints),
-  );
+  const studentsSubject = new rxjs.Subject();
+  const studentCountSubject = new rxjs.Subject();
+  const studentsStream = new APIPagingStream(studentsUrl, studentsSubject, studentCountSubject);
+  const pointsSubject = new rxjs.Subject();
 
-    // Populate exercise selection
-  pointsObservable.pipe(
-    first(),
-    map(function(firstPoints) {
-        firstPoints.then(populateExerciseSelection)
-    }),
-  ).subscribe();
+  const modulesSubject = new rxjs.Subject();
+  const modulesStream = new APIPagingStream(exercisesUrl, modulesSubject);
+  const exercisesSubject = new rxjs.Subject();
+  const exerciseCountSubject = new rxjs.Subject();
 
-  // Save student count
-  let studentCounter = studentsSubject.pipe(count())
-                                      .subscribe(function (c) { _studentCount = c });
+  // Get usertag info, after we have all of them, start adding tags to students
+  const usertagArray = [];
+  usertagsSubject.subscribe({
+    next(usertag) {
+      // should they be pushed directly to the _usertags? temp variable here in case of local storage use
+      usertagArray.push(usertag);
+    },
+    error(err) {},
+    complete() {
+      _usertags = usertagArray;
+      // go through students' tags, generate colortags and add to cells
+      studentTagSubject.subscribe({
+        next([cell, tagslugs]) {
+          addTagsToCell(cell, tagslugs, _usertags);
+        },
+      });
+    }
+  });
 
   // Track data fetching progress
   studentsSubject.pipe(tag("students"))
                  .subscribe(progressObserver);
 
-  // Students + points in one for rendering
-  let studentsAndPointsObservable = studentsSubject.pipe(
-    map(function(student) { return {student:student, points:studentToPoints(student)} }),
-  );
+  // for each student, add the row to the table, fetch points and
+  // provide tem to the pointsSubject.
+  // When all student rows are added, add event listeners to rows.
+  let studentPointCount = 0
+  studentsSubject.subscribe({
+    next(student) {
+      addStudentRowToTable(student, studentTagSubject);
+      $.ajax(
+        pointsUrl + student.id,
+        ajaxSettings
+      ).then((points) => {
+        // addPointsToStudentRow(row, points);
+        pointsSubject.next(points);
+        // if ajax calls would be done in a different observable, we could call that complete
+        // method and that complete method could call studentSubject.complete()
+        studentPointCount += 1;
+        if (studentPointCount == _studentCount) {
+          pointsSubject.complete();
+        }
+      });
+    },
+    error(err) {},
+    complete() {
+      const studentRows = document.querySelectorAll('#student-rows tr');
+      // EVENT HANDLERS
+      // when the points on the row are added or updated
+      fromEvent(studentRows, 'points updated').subscribe((e) => {
+        updateSumsOnStudentRow(e.target);
+      });
+      fromEvent(studentRows, 'exercise selection changed').subscribe((e) => {
+        updateSumsOnStudentRow(e.target);
+      });
+      // visibility may need to be adjusted if there is filtering according to points
+      fromEvent(studentRows, 'student row sums updated').subscribe((e) => {
+        updateStudentRowVisibility(e.target);
+      })
+      // when the students' tags are added or updated
+      fromEvent(studentRows, 'tags updated').subscribe((e) => {
+        updateStudentRowVisibility(e.target);
+      });
+      // fromEvent(studentRows, 'tagfilters updated').subscribe((e) => {
+      //   const row = e.target;
+      //   if (row.dataset.tagFilterId != _tagFilterID) {
+      //     updateStudentRowVisibility(row);
+      //   }
+      // });
+      fromEvent(studentRows, 'visibility updated').subscribe((e) => {
+        scheduleIndicatorRowUpdate();
+      });
+    }
+  });
 
-  // Prework with the first student
-  preworkObservable = studentsSubject.pipe(
-    first(),
-    map(function(firstOne) {
-        pointsGroupingMethods.forEach(function(pointsGroupingMethod) {
-          tableDrawPreWork(firstOne, pointsGroupingMethod);
-        })
-    }),
-  );
+  // Add text indicating how many students are displayed in the table
+  // and provide student count to the progress loading text.
+  studentCountSubject.subscribe({
+    next(count) {
+      _studentCount = count;
+      document.getElementById('results-progress-total').textContent = count;
+      const tableDiv = document.getElementById('table-points-div');
+      const displayedStudentsInfo = document.createElement('p');
+      tableDiv.parentNode.insertBefore(displayedStudentsInfo, tableDiv);
+      _visibleStudentSpan = document.createElement('span');
+      _participantNumberSpan = document.createElement('span');
+      _participantNumberSpan.textContent = count;
+      displayedStudentsInfo.append(
+        _visibleStudentSpan,
+        " / ",
+        _participantNumberSpan,
+        _(" students selected"),
+      );
+    },
+  });
 
-  // Do table prework, then render
-  concat(preworkObservable.pipe(ignoreElements()), studentsAndPointsObservable.pipe(tag("render")))
-    .subscribe(studentRendererObserver);
+  pointsSubject.pipe(first()).subscribe({
+    next(firstPoints) {
+      populateExerciseSelection(firstPoints);
+      drawTablePrework(firstPoints, exerciseCountSubject);
+    },
+  });
+
+  pointsSubject.subscribe({
+    next(studentPoints) {
+      addPointsToStudentRow(studentPoints);
+    },
+    error(err) {},
+    complete() {
+      // updateStudentRowSums = updateStudentRowSumsWhenDone;
+      // update indicator rows
+    }
+  });
+
+
+  let exerciseCount;
+  let ajaxExerciseCallCount = 0;
+
+  exerciseCountSubject.subscribe({
+    next(count) {
+      exerciseCount = count;
+    },
+    complete() {
+      modulesStream.start();
+    }
+  });
+
+  // Go through the modules and make AJAX requests of each exercise to
+  // find out the max submissions.
+  modulesSubject.subscribe({
+    next(module) {
+      module.exercises.forEach(function(ex) {
+        $.ajax(
+          ex.url,
+          ajaxSettings
+        ).then(function (exData) {
+          exercisesSubject.next(exData);
+          ajaxExerciseCallCount += 1;
+          if (ajaxExerciseCallCount === exerciseCount) {
+            exercisesSubject.complete();
+          }
+        });
+      });
+    },
+  });
+
+  exercisesSubject.subscribe({
+    next(exData) {
+      maxSubmissions[exData.id] = exData.max_submissions;
+    },
+    complete() {
+      createIndicatorRows();
+      scheduleIndicatorRowUpdate();
+    }
+  });
+
 
   // Start pipeline
+  usertagsStream.start();
   studentsStream.start();
 
   // Show table (happends immediately because other calls asynchronous?)
   $("#table-points-div").show();
 
 
-
   /* TODO: consider using rxjs.Observable.ajax.getJSON
   */
-
-
 
 })(jQuery, document, window);
 
