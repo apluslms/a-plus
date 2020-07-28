@@ -23,8 +23,9 @@ Development
 -----------
 
 See [doc/README.md](doc/README.md) on how to create and run a test environment for development.
-The [doc/GRADERS.md](doc/GRADERS.md) describes grader service protocols and [doc/example_grader.py](doc/example_grader.py) is a minimal sample for implementing different kind of exercise graders.
-A separate grading framework application supporting the A+ protocol exists at https://github.com/Aalto-LeTech/mooc-grader
+The [doc/GRADERS.md](doc/GRADERS.md) describes the assessment protocol supported by A+.
+Additionally, there is a minimal example grader in [doc/example_grader.py](doc/example_grader.py), which can be used to start a new service.
+A list of existing assessment services and other tools can be found in [the project github page](https://apluslms.github.io/components/).
 
 The [selenium_test/](selenium_test) offers an integration test suite using the Selenium Firefox driver.
 
