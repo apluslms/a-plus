@@ -15,6 +15,8 @@ As usual, create a Python virtual environment with `python3 -m venv venv` (e.g. 
 
 ## Running a Local A+ Development Environment
 
+**Step 1.**
+
 The repo [run-aplus-front](https://github.com/apluslms/run-aplus-front) implements a Docker image of the A+ portal.
 The image contains all the support services and also supports mounting a development code.
 
@@ -40,6 +42,16 @@ services:
       - grader
 # ...
 ```
+
+**Step 2.**
+
+You should now download and build all required support files by running the Drone pipeline, i.e., execute `drone exec` in the project root.
+
+## Asset packages
+
+The `assets_src/` contains folders, which are npm packages and should install compiled files to `assets/` as part of `npm install`.
+To manage these, you can use `./dev_assets_run_npm.sh`, which runs npm commands in a container.
+For example, to update `package.json` of the `translate-js`, run `./dev_assets_run_npm.sh translate-js update`.
 
 ## Running tests
 
