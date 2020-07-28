@@ -1,0 +1,30 @@
+
+.d3-bin, .d3-bar {
+  fill: none;
+  stroke: black;
+  stroke-width: 1;
+}
+
+.text-values {
+  position: relative;
+}
+.text-values pre {
+  position: relative;
+}
+.text-values .count {
+  font-size: 2em;
+  position: absolute;
+  right: 1em;
+  top: 0;
+}
+.text-values-minimized  {
+  max-height: 195px;
+  overflow: hidden;
+}
+.text-values .handle {
+  bottom: -15px;
+  font-size: 2em;
+  left: 50%;
+  position: absolute;
+  z-index: 10;
+}
