@@ -14,3 +14,7 @@ steps:
       echo ">> Building and installing assets package $${dir##*/}"
       ( cd "$dir" && npm install --unsafe-perm )
     done
+- name: compile sass
+  image: apluslms/develop-sass:1
+  commands:
+  - sass --style=compressed assets/sass:assets/css

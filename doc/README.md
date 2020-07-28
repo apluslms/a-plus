@@ -53,6 +53,15 @@ The `assets_src/` contains folders, which are npm packages and should install co
 To manage these, you can use `./dev_assets_run_npm.sh`, which runs npm commands in a container.
 For example, to update `package.json` of the `translate-js`, run `./dev_assets_run_npm.sh translate-js update`.
 
+## SASS and JavaScript asset development
+
+Style sheets are developed with [SASS](https://sass-lang.com/), but that requires building the files to CSS before testing in the browser.
+This step is done as part of the Drone pipeline, but more interactive process can be started with `./dev_assets_watch_sass.sh` in the project root.
+The command will start a container, which will monitor SASS directories for changes and will compile them to CSS files when changes are detected.
+Note that if you have mounted the code to `/src/`, you need to restart the servers for these updates to take effect.
+
+After completing the changes to these types of assets, rerun the `drone exec` to build production versions of the CSS and JavaScript files, which should be added to the git for now (i.e. as long as there is no real CI/CD pipeline for A+).
+
 ## Running tests
 
 Before creating a pull-request, you should verify the code is still working against existing tests.
