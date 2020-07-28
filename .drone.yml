@@ -1,0 +1,16 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: download assets
+  image: node:12-alpine
+  commands:
+  - export npm_config_cache="$PWD/node_cache"
+  - |
+    for dir in assets_src/*/; do
+      dir="$${dir%/}"
+      [ -f "$dir/package.json" ] || { echo ".. skip $dir" ; continue; }
+      echo ">> Building and installing assets package $${dir##*/}"
+      ( cd "$dir" && npm install --unsafe-perm )
+    done

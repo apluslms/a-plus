@@ -20,6 +20,9 @@ venv/
 /static/
 /media/
 
+/node_cache/
+node_modules/
+
 test.db
 aplus.db
 aplus.db.*
