@@ -1,0 +1,15 @@
+{
+  "name": "aplus-bootstrap",
+  "description": "Bootstrap 3 for A+",
+  "repository": ".",
+  "license": "MIT",
+  "version": "1.0.0",
+  "dependencies": {
+    "bootstrap-sass": "^3.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "install": "./install.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
