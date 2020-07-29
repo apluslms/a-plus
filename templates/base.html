@@ -24,6 +24,9 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
 
+        <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-sha256.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64-min.js"></script>
+
         <script src="{% static 'js/translate.min.js' %}"></script>
 
         {% if is_teacher %}
@@ -49,7 +52,9 @@
         <link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
         <script src="{% static 'js/polyfill-find.js' %}"></script>
         <script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
-        <script src="{% static 'js/aplus.js' %}"></script>
+        <script 
+            src="{% static 'js/aplus.js' %}"
+            course-code="{{ course.code }}"></script>
 
         {% block scripts %}
             {# Put all additional scripts inside this block. #}
