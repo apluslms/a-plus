@@ -60,6 +60,21 @@
         {% endcomment %}
     </div>
     <div class="col-sm-10" id="course-content">
+        {% if instance.is_past and instance.has_enrollment_closed %}
+            <div class="alert sticky-alert alert-default">
+                {% trans "This course has already ended." %}
+                {% if later_instance %}
+                    <p>
+                        {% trans "The latest version of the course can be found at:" %}
+                        <a class="alert-link" href="{{ later_instance|url }}">
+                            <span lang="{{ later_instance.language }}">
+                                {{ later_instance.course.name|parse_localization }}: {{ later_instance.instance_name|parse_localization }}
+                            </span>
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+        {% endif %}
         {% block siblings %}{% endblock %}
         {% block breadcrumb %}
         <ol class="breadcrumb">

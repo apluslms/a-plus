@@ -106,8 +106,22 @@ class InstanceView(EnrollableViewMixin, BaseTemplateView):
         elif lti_msg:
             messages.info(request, html.escape(lti_msg))
 
-        return super().get(request, *args, **kwargs)
+        later_instance = None
 
+        if self.instance.is_past:
+            try:
+                later_instance = (
+                    CourseInstance.objects
+                        .get_visible(request.user)
+                        .filter(course=self.course, ending_time__gte=timezone.now())
+                        .latest('starting_time')
+                )
+            except CourseInstance.DoesNotExist:
+                pass
+
+        kwargs['later_instance'] = later_instance
+
+        return super().get(request, *args, **kwargs)
 
 class Enroll(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
     permission_classes = [EnrollInfoVisiblePermission]
