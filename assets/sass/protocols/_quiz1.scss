@@ -1,0 +1,74 @@
+@use '../components/icons';
+
+/* Mooc-grader questionnaire */
+
+.exercise .aplus-quiz1 {
+	.question-area {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+
+	.question-description {
+		margin-bottom: 5px;
+	}
+
+	.question-feedback {
+		margin-top: 5px;
+	}
+
+	.question-hint {
+		display: block;
+		margin-top: 5px;
+		margin-bottom: 5px;
+		color: #737373;
+		font-style: italic;
+	}
+
+	.hint-checkbox {
+		padding-left: 20px;
+	}
+
+	.option-checked {
+		font-weight: bold;
+	}
+
+	.error-text {
+		margin-top: 5px;
+		margin-bottom: 5px;
+		color: #a94442;
+		font-weight: bold;
+		margin-bottom: 0px;
+	}
+
+	.has-error .radio,
+	.has-error .checkbox {
+		color: #333;
+	}
+
+	.quiz1-icon-correct {
+		@include icons.glyphicon;
+		color: #5cb85c;
+
+		&:before {
+			content: "\e013";
+		}
+	}
+
+	.quiz1-icon-neutral {
+		@include icons.glyphicon;
+		color: #f5bc09;
+
+		&:before {
+			content:"\e085";
+		}
+	}
+
+	.quiz1-icon-incorrect {
+		@include icons.glyphicon;
+		color: #d9534f;
+
+		&:before {
+			content: "\e014";
+		}
+	}
+}
