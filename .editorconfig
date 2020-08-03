@@ -1,0 +1,47 @@
+# EditorConfig: https://EditorConfig.org
+# NOTE: this file is shared among multiple projects. Please send updates
+# to the upstream too! https://github.com/apluslms/apluslms.github.io
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[Makefile*]
+indent_style = tab
+indent_size = 8
+
+[{*.json,*.yml,*.yaml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = false
+
+[*.html]
+indent_style = tab
+
+[{*.css,*.sass,*.scss}]
+indent_style = tab
+
+[*.js]
+indent_style = space
+indent_size = 2
+
+[{**.min.js,**.min.css}]
+indent_style = unset
+insert_final_newline = unset
+
+[*.py]
+indent_style = space
+indent_size = 4
+# Docstrings and comments use max_line_length = 79
+max_line_length = 119
+
+[*.sh]
+indent_style = space
+indent_size = 4
