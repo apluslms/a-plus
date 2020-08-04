@@ -629,5 +629,25 @@ $(function() {
     });
 })(jQuery, window, document);
 
+/*
+ * Listen to link click events and copy query parameters from current url
+ * to the next
+ * Note! Translation requires that at least 'hl' query parameter is copied
+ */
+(function(window) {
+    window.addEventListener('click', function(event) {
+        if (
+            event.target.nodeName === 'A'
+            && event.target.href
+            && event.target.protocol === window.location.protocol
+            && event.target.host === window.location.host // hostname:port
+            && (event.target.search === '' || event.target.search === '?') // no search
+        ) {
+            event.preventDefault(); // stop default redirect
+            event.target.search = window.location.search; // copy query params
+            window.location.href = event.target.href; // redirect
+        }
+    }, false);
+})(window);
 
 /* vim: set et ts=4 sw=4: */

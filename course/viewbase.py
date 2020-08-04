@@ -1,16 +1,18 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import get_language
+from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS
 from exercise.cache.content import CachedContent
+from lib.helpers import remove_query_param_from_url, update_url_params
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .cache.students import CachedStudent
+from .exceptions import TranslationNotFound
 from .permissions import (
     CourseVisiblePermission,
     CourseModulePermission,
@@ -75,24 +77,31 @@ class CourseInstanceBaseMixin(object):
             # Try to find a language that is defined for this course instance
             # and apply it
             if self.instance.language:
-
-                languages = []
-                if self.user_course_data and self.user_course_data.language:
-                    languages.append(self.user_course_data.language)
-                if is_real_user and user.userprofile.language:
-                    languages.append(user.userprofile.language)
-                languages.append(get_language())
-
                 instance_languages = self.instance.language.strip('|').split('|')
                 instance_def_language = instance_languages[0]
                 instance_languages = set(instance_languages)
 
-                for lang in languages:
-                    if lang.split('-', 1)[0] in instance_languages:
-                        language = lang
-                        break
+                query_language = self.request.GET.get('hl')
+                if query_language:
+                    if query_language[:2] in instance_languages:
+                        language = query_language
+                    else:
+                        raise TranslationNotFound
                 else:
-                    language = instance_def_language
+                    languages = []
+                    if self.user_course_data and self.user_course_data.language:
+                        languages.append(self.user_course_data.language)
+                    if is_real_user and user.userprofile.language:
+                        languages.append(user.userprofile.language)
+                    languages.append(get_language())
+
+                    for lang in languages:
+                        if lang[:2] in instance_languages:
+                            language = lang
+                            break
+                    else:
+                        language = instance_def_language
+
                 translation.activate(language)
 
     def get_access_mode(self):
@@ -116,6 +125,15 @@ class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
             url=self.kwargs[self.instance_kw],
             course__url=self.kwargs[self.course_kw],
         )
+
+    def handle_exception(self, exc):
+        if isinstance(exc, TranslationNotFound):
+            instance_languages = self.instance.language.strip("|").split("|")
+            url = remove_query_param_from_url(self.request.get_full_path(), 'hl')
+            for i, lang in enumerate(instance_languages):
+                instance_languages[i] = {"name": get_language_info(lang)['name'], "url": update_url_params(url, {'hl' : lang})}
+            return render_to_response('404.html', {'error_msg': str(exc), 'languages': instance_languages}, status=404)
+        return super().handle_exception(exc)
 
 
 class CourseInstanceBaseView(CourseInstanceMixin, BaseTemplateView):

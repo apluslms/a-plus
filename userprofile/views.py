@@ -17,7 +17,7 @@ from django.utils.translation import (
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import gettext
 
-from lib.helpers import settings_text
+from lib.helpers import settings_text, remove_query_param_from_url
 from authorization.permissions import ACCESS
 from .viewbase import UserProfileView
 
@@ -61,12 +61,12 @@ def set_user_language(request):
     """"Overrides set_language function from  django.views.i18n."""
     LANGUAGE_PARAMETER = 'language'
 
-    next = request.POST.get('next', request.GET.get('next'))
+    next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
     if ((next or not request.is_ajax()) and
             not is_safe_url(url=next,
                             allowed_hosts={request.get_host()},
                             require_https=request.is_secure())):
-        next = request.META.get('HTTP_REFERER')
+        next = remove_query_param_from_url(request.META.get('HTTP_REFERER'), 'hl')
         next = next and unquote(next)  # HTTP_REFERER may be encoded.
         if not is_safe_url(url=next,
                             allowed_hosts={request.get_host()},

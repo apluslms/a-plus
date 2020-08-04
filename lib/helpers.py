@@ -4,7 +4,7 @@ import functools
 import warnings
 from cachetools import cached, TTLCache
 from collections import OrderedDict
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit, urlunsplit
 from PIL import Image
 from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
@@ -84,6 +84,16 @@ def url_with_query_in_data(url: str, data: dict = {}):
 def update_url_params(url, params):
     delimiter = "&" if "?" in url else "?"
     return url + delimiter + urlencode(params)
+
+
+def remove_query_param_from_url(url, param):
+    """
+    Take an url with (or without) query parameters. Return url without the selected query parameter.
+    """
+    url = urlsplit(url)
+    query = parse_qs(url.query, keep_blank_values=True)
+    query.pop(param, None)
+    return urlunsplit(url._replace(query=urlencode(query, True)))
 
 
 FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-0123456789"

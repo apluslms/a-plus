@@ -16,12 +16,29 @@
                         <h1>404 Not found</h1>
                     </div>
                     {% include "_messages.html" %}
+                    {% if url_without_language %}
+                    <div class="alert alert-danger">
+                        {% trans "The page is not available in this language." %}
+                        <a href="{{ url_without_language }}">{% trans "Open the page in default language" %}</a>
+                    </div>
+                    {% elif languages %}
+                    <div class="alert alert-danger">
+                        {% blocktrans trimmed %}
+                        The course is not available in this language.
+                        You can view the course in these languages:
+                        {% endblocktrans %}
+                        {% for lang in languages %}
+                            <a href="{{ lang.url }}">{{ lang.name }}</a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
                     <div class="alert alert-danger">
                         {% blocktrans %}
                         For an unknown reason you arrived somewhere that does not exist.
                         Please, try again.
                         {% endblocktrans %}
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

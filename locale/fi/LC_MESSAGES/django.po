@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-19 09:22+0300\n"
+"POT-Creation-Date: 2020-08-27 15:56+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1187,45 +1187,45 @@ msgstr ""
 "Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
 "ei ole olemassa."
 
-#: edit_course/operations/configure.py:412
+#: edit_course/operations/configure.py:411
 msgid "Categories required as an object."
 msgstr "Kategoriat vaaditaan objektina."
 
-#: edit_course/operations/configure.py:415
+#: edit_course/operations/configure.py:414
 msgid "Modules required as an array."
 msgstr "Moduulit vaaditaan taulukkona."
 
-#: edit_course/operations/configure.py:423
+#: edit_course/operations/configure.py:422
 msgid "Category requires a name."
 msgstr "Kategoria vaatii nimen."
 
-#: edit_course/operations/configure.py:461
+#: edit_course/operations/configure.py:460
 msgid "Module requires a key."
 msgstr "Moduuli vaatii avaimen."
 
-#: edit_course/operations/configure.py:564
+#: edit_course/operations/configure.py:563
 msgid "ExerciseCollection requires collection_category."
 msgstr "Tehtäväkokoelma tarvitsee collection_category:n."
 
-#: edit_course/operations/configure.py:567
+#: edit_course/operations/configure.py:566
 msgid "ExerciseCollection requires URL to target course instance."
 msgstr "Tehtäväkokoelma tarvitsee kohde kurssin URL:n."
 
-#: edit_course/operations/configure.py:573
+#: edit_course/operations/configure.py:572
 msgid "Course URL '{}' doesn't match service's hostname '{}'"
 msgstr "Kurssin URL '{}' ei vastaa palvelun domain nimeä '{}'"
 
-#: edit_course/operations/configure.py:579
+#: edit_course/operations/configure.py:578
 msgid "Couldn't determine course and/or instance from URL '{}'"
 msgstr "Kurssin ja/tai instanssin selvittäminen ei onnistunut URLsta '{}'"
 
-#: edit_course/operations/configure.py:586
+#: edit_course/operations/configure.py:585
 msgid "No course found with URL '{}'. course_slug: '{}', instance_slug: '{}'"
 msgstr ""
 "Yhtään kurssia ei löytynyt URLlla '{}' (course_slug: '{}', instance_slug: "
 "'{}')"
 
-#: edit_course/operations/configure.py:593
+#: edit_course/operations/configure.py:592
 msgid "Category '{}' not found in target course."
 msgstr "Kategoriaa '{}' ei löytynyt kohde kurssista."
 
@@ -2194,6 +2194,7 @@ msgstr "Pisteet tällä kurssilla"
 
 #: exercise/templates/exercise/_file_link.html:12
 #: exercise/templates/exercise/_model_files.html:14
+#: exercise/templates/exercise/_template_files.html:14
 msgid "File not found"
 msgstr "Tiedostoa ei löytynyt"
 
@@ -3478,7 +3479,23 @@ msgstr ""
 msgid "The user account has been disabled."
 msgstr "Käyttäjätunnus on suljettu."
 
-#: templates/404.html:20
+#: templates/404.html:21
+msgid "The page is not available in this language."
+msgstr "Sivu ei ole saatavilla tällä kielellä."
+
+#: templates/404.html:22
+msgid "Open the page in default language"
+msgstr "Avaa sivu oletuskielellä"
+
+#: templates/404.html:26
+msgid ""
+"The course is not available in this language. You can view the course in "
+"these languages:"
+msgstr ""
+"Kurssi ei ole saatavilla tällä kielellä. Voit katsella kurssia näillä "
+"kielillä:"
+
+#: templates/404.html:36
 msgid ""
 "\n"
 "                        For an unknown reason you arrived somewhere that "
@@ -3693,14 +3710,16 @@ msgstr ""
 msgid "Forget automatic redirection"
 msgstr "Unohda automaattinen uudelleenohjaus."
 
-#: userprofile/views.py:126
+#: userprofile/views.py:127
 msgid "No privacy notice. Please notify administration!"
 msgstr "Ei tietosuojailmoitusta. Ota yhteys ylläpitäjään!"
 
-#: userprofile/views.py:153
+#: userprofile/views.py:154
 msgid "No local accessibility statement. Please notify the site's owner!"
-msgstr "Ei paikallista saavutettavuusselostetta. Ilmoitathan tästä sivuston ylläpitäjälle!"
+msgstr ""
+"Ei paikallista saavutettavuusselostetta. Ilmoitathan tästä sivuston "
+"ylläpitäjälle!"
 
-#: userprofile/views.py:165
+#: userprofile/views.py:166
 msgid "No system-wide accessibility statement found."
 msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
