@@ -574,10 +574,10 @@ $(function() {
  */
 (function($, document) {
     "use strict";
-    const course_code = (document.currentScript ?
+    const jwt_token = (document.currentScript ?
                     $(document.currentScript) :
                     $('script').last()) // Ugly solution for IE11
-                    .attr('course-code');
+                    .attr('data-api-token');
 
     function getCookie(name) {
         var cookieValue = null;
@@ -605,45 +605,7 @@ $(function() {
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             }
             if (true) {
-                
-                var header = {
-                "alg": "HS256",
-                "typ": "JWT"
-                };
-  
-                var data = {
-                    "course": course_code
-                };
-  
-                var secret = "extremly secret:)";
-  
-                function base64url(source) {
-                    // Encode in classical base64
-                    var encodedSource = CryptoJS.enc.Base64.stringify(source);
-    
-                    // Remove padding equal characters
-                    encodedSource = encodedSource.replace(/=+$/, '');
-    
-                    // Replace characters according to base64url specifications
-                    encodedSource = encodedSource.replace(/\+/g, '-');
-                    encodedSource = encodedSource.replace(/\//g, '_');
-    
-                    return encodedSource;
-                }
-  
-                var stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));
-                var encodedHeader = base64url(stringifiedHeader);
- 
-  
-                var stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data));
-                var encodedData = base64url(stringifiedData);
-
-                var signature = encodedHeader + "." + encodedData;
-                signature = CryptoJS.HmacSHA256(signature, secret);
-                signature = base64url(signature);
-
-                var token = encodedHeader + "." + encodedData + "." + signature;
-                console.log(token)
+                console.log(jwt_token)
             }
         }
     });

@@ -9,6 +9,7 @@ from exercise.cache.content import CachedContent
 from course.models import CourseInstance, UserTagging
 from lib.localization_syntax import pick_localized
 from ..cache.menu import CachedTopMenu
+import jwt
 
 
 register = template.Library()
@@ -124,6 +125,15 @@ def tags(profile, instance):
     tags = UserTagging.objects.get_all(profile, instance)
     return mark_safe(' '.join(tag.html_label for tag in tags))
 
+@register.simple_tag
+def api_token(profile, instance):
+    payload = {}
+    if profile:
+        payload['uid'] = profile.id
+    if instance:
+        payload['course'] = instance.id
+    token = jwt.encode(payload, settings.SECRET_KEY, 'HS256')
+    return token.decode('ascii')
 
 @register.filter
 def enrollment_audience(enrollment_audience_val):

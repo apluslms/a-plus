@@ -54,7 +54,7 @@
         <script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
         <script 
             src="{% static 'js/aplus.js' %}"
-            course-code="{{ course.code }}"></script>
+            data-api-token="{% api_token profile instance %}"></script>
 
         {% block scripts %}
             {# Put all additional scripts inside this block. #}
