@@ -605,7 +605,10 @@ $(function() {
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             }
             if (true) {
-                console.log(jwt_token)
+                var meta=document.createElement('meta');
+                meta.name = "jwt-token";
+                meta.content = jwt_token;
+                document.getElementsByTagName('head')[0].appendChild(meta);
             }
         }
     });
