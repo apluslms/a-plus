@@ -24,7 +24,7 @@ $brand-danger: $aplus-danger;
  * A+ Legacy Styles
  */
 
-//Start wit the "old" styles, which are going to be progressively replaced.
+// Start wit the "old" styles, which are going to be progressively replaced.
 
 @import 'legacy/main';
 
@@ -35,3 +35,4 @@ $brand-danger: $aplus-danger;
  */
 @import 'protocols/quiz1';
 @import 'components/button';
+@import 'components/frontpage-cards';
