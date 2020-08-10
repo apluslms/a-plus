@@ -1,0 +1,9 @@
+// These are the colours which add some kind of semantic meaning.
+// Avoid changing these when customising the template if possible.
+// Change these with extreme caution, especially noting the contrast
+// ratios noted.
+
+$aplus-success:         #00803c; // There should be a contrast ratio above 4.5 between this and white.
+$aplus-info:            #1d7792; // This is a darkened version of the bootstrap 3 default. Contrast must be >=4.5 with white.
+$aplus-warning:         #a6670e; // This is a darkened version of the bootstrap 3 default. Contrast must be >=4.5 with white.
+$aplus-danger:          #A50000; // There should be a contrast ratio above 7 between this and white.

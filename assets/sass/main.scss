@@ -1,11 +1,22 @@
-// Here we import the old file, but any new styles can be added directly to 
+// Here we import the old file, but any new styles can be added directly to
 // this file below
 
 @import 'helpers/choose_contrast_color';
 
 
-// First set some variables
-$brand-primary: #005EB8;
+// First import the custom colours
+@import 'colors/theme';
+// Set some Bootstrap variables
+$brand-primary: $aplus-brand-primary;
+$gray-base: $aplus-foreground;
+$body-bg: $aplus-background;
+
+// Next, import the functional colours
+@import 'colors/functional';
+$brand-success: $aplus-success;
+$brand-info: $aplus-info;
+$brand-warning: $aplus-warning;
+$brand-danger: $aplus-danger;
 
 @import 'vendor/bootstrap3';
 
