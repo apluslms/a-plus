@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 98">
+  <g>
+    <circle r="49" cx="49" cy="49" class="icon-pie-background" />
+    <path class="icon-element" d="M50,6A44,44,0,1,1,6,50,44.05,44.05,0,0,1,50,6m0-5A49,49,0,1,0,99,50,49,49,0,0,0,50,1Z" transform="translate(-1 -1)"/>
+    <circle r="24" cx="49" cy="49" class="icon-pie-slice"
+          stroke-width="49"
+          stroke-dasharray="calc({{score}} * 151 / {{max_points}}) 160"
+          transform="rotate(-90) translate(-98)" />
+  </g>
+</svg>

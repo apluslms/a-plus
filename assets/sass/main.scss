@@ -1,4 +1,4 @@
-// Here we import the old file, but any new styles can be added directly to 
+// Here we import the old file, but any new styles can be added directly to
 // this file below
 
 @import 'helpers/choose_contrast_color';
@@ -22,4 +22,5 @@ $brand-primary: #005EB8;
 /*!
  * A+ Styles
  */
-@import 'protocols/quiz1';
+ @import 'protocols/quiz1';
+ @import 'components/points-indicator';

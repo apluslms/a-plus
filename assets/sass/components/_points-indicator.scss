@@ -1,0 +1,68 @@
+@mixin base(){
+	display: inline-flex;
+	align-items: center;
+
+	.icon{
+		height: 24px;
+		width: 24px;
+		margin-right: 4px;
+	}
+
+	.icon-background {
+		fill: white;
+	}
+
+	.icon-elements {
+		fill: $brand-danger;
+	}
+}
+
+@mixin color-styles($color) {
+	.icon-background {
+		fill: white;
+	}
+
+	.icon-element {
+		fill: $color;
+	}
+
+	.icon-element-inverse {
+		fill: white;
+	}
+
+	.icon-pie-background {
+		fill: white;
+	}
+
+	.icon-pie-slice {
+		fill: transparent;
+		stroke: $brand-primary;
+	}
+}
+
+.points-indicator{
+	&--not-started{
+		@include base;
+		@include color-styles($brand-primary);
+	}
+
+	&--waiting{
+		@include base;
+		@include color-styles($brand-primary);
+	}
+
+	&--points{
+		@include base;
+		@include color-styles($brand-primary);
+	}
+
+	&--rejected{
+		@include base;
+		@include color-styles($brand-danger);
+	}
+
+	&--error{
+		@include base;
+		@include color-styles($brand-danger);
+	}
+}
