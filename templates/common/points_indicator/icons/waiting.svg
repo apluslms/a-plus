@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 98">
   <g>
-    <path class="icon-background" d="M50,96.5A46.5,46.5,0,0,1,17.12,17.12,46.5,46.5,0,0,1,82.88,82.88,46.2,46.2,0,0,1,50,96.5Z" transform="translate(-1 -1)"/>
-    <path class="icon-element" d="M50,6A44,44,0,0,1,81.11,81.11,44,44,0,0,1,18.89,18.89,43.71,43.71,0,0,1,50,6m0-5A49,49,0,1,0,84.65,15.35,48.84,48.84,0,0,0,50,1Z" transform="translate(-1 -1)"/>
+    <path class="points-indicator__icon-background" d="M50,96.5A46.5,46.5,0,0,1,17.12,17.12,46.5,46.5,0,0,1,82.88,82.88,46.2,46.2,0,0,1,50,96.5Z" transform="translate(-1 -1)"/>
+    <path class="points-indicator__icon-element" d="M50,6A44,44,0,0,1,81.11,81.11,44,44,0,0,1,18.89,18.89,43.71,43.71,0,0,1,50,6m0-5A49,49,0,1,0,84.65,15.35,48.84,48.84,0,0,0,50,1Z" transform="translate(-1 -1)"/>
   </g>
   <g>
-    <rect class="icon-element" x="45" y="13" width="8" height="40"/>
-    <rect class="icon-element" class="cls-1" x="47.5" y="47.5" width="25" height="3"/>
-    <polygon class="icon-element" points="75 45 45 45 45 53 75 53 75 45 75 45"/>
+    <rect class="points-indicator__icon-element" x="45" y="13" width="8" height="40"/>
+    <rect class="points-indicator__icon-element" class="cls-1" x="47.5" y="47.5" width="25" height="3"/>
+    <polygon class="points-indicator__icon-element" points="75 45 45 45 45 53 75 53 75 45 75 45"/>
   </g>
 </svg>

@@ -2,39 +2,39 @@
 	display: inline-flex;
 	align-items: center;
 
-	.icon{
+	.points-indicator__icon{
 		height: 24px;
 		width: 24px;
 		margin-right: 4px;
 	}
 
-	.icon-background {
+	.points-indicator__icon-background {
 		fill: white;
 	}
 
-	.icon-elements {
+	.points-indicator__icon-elements {
 		fill: $brand-danger;
 	}
 }
 
 @mixin color-styles($color) {
-	.icon-background {
+	.points-indicator__icon-background {
 		fill: white;
 	}
 
-	.icon-element {
+	.points-indicator__icon-element {
 		fill: $color;
 	}
 
-	.icon-element-inverse {
+	.points-indicator__icon-element-inverse {
 		fill: white;
 	}
 
-	.icon-pie-background {
+	.points-indicator__icon-pie-background {
 		fill: white;
 	}
 
-	.icon-pie-slice {
+	.points-indicator__icon-pie-slice {
 		fill: transparent;
 		stroke: $brand-primary;
 	}
@@ -63,6 +63,6 @@
 
 	&--error{
 		@include base;
-		@include color-styles($brand-danger);
+		@include color-styles($gray);
 	}
 }

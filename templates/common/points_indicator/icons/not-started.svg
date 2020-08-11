@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 98">
   <g>
-    <circle class="icon-background" cx="49" cy="49" r="46.5"/>
-    <path class="icon-element" d="M50,6A44,44,0,1,1,6,50,44.05,44.05,0,0,1,50,6m0-5A49,49,0,1,0,99,50,49,49,0,0,0,50,1Z" transform="translate(-1 -1)"/>
+    <circle class="points-indicator__icon-background" cx="49" cy="49" r="46.5"/>
+    <path class="points-indicator__icon-element" d="M50,6A44,44,0,1,1,6,50,44.05,44.05,0,0,1,50,6m0-5A49,49,0,1,0,99,50,49,49,0,0,0,50,1Z" transform="translate(-1 -1)"/>
   </g>
-  <circle class="icon-element" cx="49" cy="49" r="10"/>
-  <circle class="icon-element" cx="74" cy="49" r="10"/>
-  <circle class="icon-element" cx="24" cy="49" r="10"/>
+  <circle class="points-indicator__icon-element" cx="49" cy="49" r="10"/>
+  <circle class="points-indicator__icon-element" cx="74" cy="49" r="10"/>
+  <circle class="points-indicator__icon-element" cx="24" cy="49" r="10"/>
 </svg>
