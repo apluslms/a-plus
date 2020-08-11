@@ -574,7 +574,7 @@ $(function() {
  */
 (function($, document) {
     "use strict";
-    const jwt_token = (document.currentScript ?
+    const api_token = (document.currentScript ?
                     $(document.currentScript) :
                     $('script').last()) // Ugly solution for IE11
                     .attr('data-api-token');
@@ -605,10 +605,7 @@ $(function() {
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             }
             if (true) {
-                var meta=document.createElement('meta');
-                meta.name = "jwt-token";
-                meta.content = jwt_token;
-                document.getElementsByTagName('head')[0].appendChild(meta);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + api_token);
             }
         }
     });
