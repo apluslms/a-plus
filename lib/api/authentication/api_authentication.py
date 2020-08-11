@@ -25,8 +25,8 @@ class SessionAuthentication:
         self.enforce_csrf(request)
         
         if 'Authorization' in request.headers:
-            print(request.headers['Authorization'].split()[1])
             token = request.headers['Authorization'].split()[1]
+            return (user, token)
         
         # CSRF passed with authenticated user
         return (user, None)
