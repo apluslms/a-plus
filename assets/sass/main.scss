@@ -1,13 +1,12 @@
 // Here we import the old file, but any new styles can be added directly to
 // this file below
 
-@import 'helpers/choose_contrast_color';
-
+@import "helpers/choose_contrast_color";
 
 // First set some variables
-$brand-primary: #005EB8;
+$brand-primary: #005eb8;
 
-@import 'vendor/bootstrap3';
+@import "vendor/bootstrap3";
 
 /*!
  * A+ Legacy Styles
@@ -15,12 +14,12 @@ $brand-primary: #005EB8;
 
 //Start wit the "old" styles, which are going to be progressively replaced.
 
-@import 'legacy/main';
+@import "legacy/main";
 
 // Next start importing the new components
 
 /*!
  * A+ Styles
  */
- @import 'protocols/quiz1';
- @import 'components/points-indicator';
+@import "protocols/quiz1";
+@import "components/points-indicator";
