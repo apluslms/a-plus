@@ -276,7 +276,7 @@ REST_FRAMEWORK = {
         # Requires rest_framework.authtoken in apps.
         'rest_framework.authentication.TokenAuthentication',
         'lib.api.authentication.grader.GraderAuthentication',
-        'lib.api.authentication.api_authentication.SessionAuthentication',
+        'lib.api.authentication.web_authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         # If not other permissions are defined, require login.
