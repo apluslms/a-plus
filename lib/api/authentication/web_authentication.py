@@ -3,9 +3,17 @@ from django.middleware.csrf import CsrfViewMiddleware
 import jwt
 
 class WebToken:
-    def __init__(self, user_id, course):
-        self.user_id = user_id
-        self.course = course
+    @classmethod
+    def from_jwt(cls, token, secret= None):
+        if not secret:
+            secret = settings.SECRET_KEY
+        payload = jwt.decode(token, secret)
+        return cls(payload)
+
+    def __init__(self, payload={}):
+        self._payload = payload
+        self.user_id = payload.get('uid')
+        self.course_id = payload.get('course')
 
     def verify_user(self, user):
         return self.user_id == user.id
@@ -35,9 +43,13 @@ class SessionAuthentication:
         self.enforce_csrf(request)
         
         if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split()[1]
-            payload = jwt.decode(token, settings.SECRET_KEY) #TODO check if valid and handle bad signature
-            web_token = WebToken(payload['uid'], payload['course'])
+            try:
+                scheme, token = request.headers['Authorization'].split()
+                if scheme != 'Bearer':
+                    raise ValueError
+            except ValueError:
+                return (user, None)
+            web_token = WebToken.from_jwt(token)
             if web_token.verify_user(user):
                 return (user, web_token)
         
