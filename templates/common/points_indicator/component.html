@@ -1,12 +1,12 @@
-<div class="points-indicator--{{ result }}">
+<div class="points-indicator--{{ result }}{% if modifier_class %} points-indicator--{{ modifier_class }}{% endif %}">
 	<svg class="points-indicator__icon">
 		{% if result == "not-started" %}
 			{% include "common/points_indicator/icons/not-started.svg" %}
 		{% elif result == "waiting" %}
 			{% include "common/points_indicator/icons/waiting.svg" %}
 		{% elif result == "points" %}
-			{% if score == max_points %}
-				{% include "common/points_indicator/icons/points-full.svg" with points=points max_points=max_points %}
+			{% if points == max_points %}
+				{% include "common/points_indicator/icons/points-full.svg" %}
 			{% else %}
 				{% include "common/points_indicator/icons/points.svg" with score=score max_points=max_points %}
 			{% endif %}
@@ -21,7 +21,7 @@
 	{% elif result == "waiting" %}
 		<span>Grading</span>
 	{% elif result == "points" %}
-		<span>{{score}}/{{max_points}}</span>
+		<span>{{points}}/{{max_points}}</span>
 	{% elif result == "rejected" %}
 		<span>Rejected</span>
 	{% elif result == "error" %}

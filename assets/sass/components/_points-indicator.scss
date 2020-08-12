@@ -1,8 +1,8 @@
-@mixin base(){
+@mixin base() {
 	display: inline-flex;
 	align-items: center;
 
-	.points-indicator__icon{
+	.points-indicator__icon {
 		height: 24px;
 		width: 24px;
 		margin-right: 4px;
@@ -17,52 +17,78 @@
 	}
 }
 
-@mixin color-styles($color) {
+@mixin color-styles($foreground-color, $background-color) {
 	.points-indicator__icon-background {
-		fill: white;
+		fill: $background-color;
 	}
 
 	.points-indicator__icon-element {
-		fill: $color;
+		fill: $foreground-color;
 	}
 
 	.points-indicator__icon-element-inverse {
-		fill: white;
+		fill: $background-color;
 	}
 
 	.points-indicator__icon-pie-background {
-		fill: white;
+		fill: $background-color;
 	}
 
 	.points-indicator__icon-pie-slice {
 		fill: transparent;
-		stroke: $brand-primary;
+		stroke: $foreground-color;
 	}
 }
 
-.points-indicator{
-	&--not-started{
+.points-indicator {
+	&--not-started {
 		@include base;
-		@include color-styles($brand-primary);
+		@include color-styles($brand-primary, transparent);
 	}
 
-	&--waiting{
+	&--waiting {
 		@include base;
-		@include color-styles($brand-primary);
+		@include color-styles($brand-primary, transparent);
 	}
 
-	&--points{
+	&--points {
 		@include base;
-		@include color-styles($brand-primary);
+		@include color-styles($brand-primary, white);
 	}
 
-	&--rejected{
+	&--rejected {
 		@include base;
-		@include color-styles($brand-danger);
+		@include color-styles($brand-danger, transparent);
 	}
 
-	&--error{
+	&--error {
 		@include base;
-		@include color-styles($gray);
+		@include color-styles($gray, transparent);
+	}
+}
+
+.points-indicator--inverse{
+	color: white;
+}
+
+.points-indicator--inverse.points-indicator {
+	&--not-started {
+		@include color-styles(white, transparent);
+	}
+
+	&--waiting {
+		@include color-styles(white, transparent);
+	}
+
+	&--points {
+		@include color-styles(white, $brand-primary);
+	}
+
+	&--rejected {
+		@include color-styles(white, transparent);
+	}
+
+	&--error {
+		@include color-styles($gray-lighter, transparent);
 	}
 }
