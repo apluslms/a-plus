@@ -142,7 +142,7 @@
                                 </li>
                                 {% endif %}
                             </ul>
-    
+
                             {# Separate menu optimized for mobile users #}
                             <ul class="nav navbar-nav visible-xs">
                                 {% notification_menu %}
@@ -184,7 +184,7 @@
             </header>
 
             {% block container_opening_tag %}
-            <main class="site-content container-fluid" id="content">                
+            <main class="site-content container-fluid" id="content">
             {% endblock %}
             {% site_alert %}
                 {% include "_messages.html" %}
@@ -194,7 +194,7 @@
                     </div>
                 {% endblock %}
             {% block container_closing_tag %}
-            </main>                
+            </main>
             {% endblock %}
 
             {% block footer %}
@@ -204,6 +204,7 @@
                         <ul class="nav navbar-nav">
                             {% block footercontent %}{% endblock %}
                             <li><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
+                            <li><a href="{% url 'accessibility_statement' %}">{% trans "Accessibility Statement" %}</a></li>
                         </ul>
                     </div>
                 </div>
