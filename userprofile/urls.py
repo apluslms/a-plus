@@ -10,6 +10,8 @@ urlpatterns = [
         name="logout"),
     url(r'^privacy-notice/$', views.PrivacyNoticeView.as_view(),
         name="privacy_notice"),
+    url(r'^accessibility-statement/$', views.AccessibilityStatementView.as_view(),
+        name="accessibility_statement"),
     url(r'^accounts/$', views.ProfileView.as_view(),
         name="profile"),
     url(r'^i18n/', include('django.conf.urls.i18n')),

@@ -437,13 +437,15 @@ Final steps
 
     **NOTE:** You might need to use `--first-name`, `--last-name` or `--email` to limit the number of users.
 
- 1. Create privacy notices
+ 1. Create privacy notice and accessibility statement
 
-    Copy privacy notice templates
+    Copy privacy notice and accessibility statement templates
 
         sudo -Hu aplus sh -c "
           mkdir -p /srv/aplus/a-plus/local_templates/
           cp /srv/aplus/a-plus/templates/privacy_notice_* \
+             /srv/aplus/a-plus/local_templates/
+          cp /srv/aplus/a-plus/templates/institution_accessibility_text* \
              /srv/aplus/a-plus/local_templates/
         "
 

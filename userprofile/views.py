@@ -6,6 +6,7 @@ from django.core.cache.utils import make_template_fragment_key
 from django.template.loader import TemplateDoesNotExist, get_template
 from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
 
 from lib.helpers import settings_text
 from authorization.permissions import ACCESS
@@ -81,6 +82,48 @@ class PrivacyNoticeView(UserProfileView):
             cache.set(key, privacy_text)
         self.privacy_text = privacy_text
         self.note("privacy_text")
+
+
+class AccessibilityStatementView(UserProfileView):
+    access_mode = ACCESS.ANONYMOUS
+    template_name="userprofile/accessibility.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        lang = "_" + get_language().lower()
+        key = make_template_fragment_key('accessibility_statement', [lang])
+        accessibility_statement = cache.get(key)
+        # TODO: refactor to a helper function
+        if not accessibility_statement:
+            local_template_name = "institution_accessibility_text{}.html"
+            local_template = try_get_template(local_template_name.format(lang))
+            if not local_template and len(lang) > 3:
+                local_template = try_get_template(local_template_name.format(lang[:3]))
+            if not local_template:
+                logger.warning("No localized accessibility statement for language %s", lang)
+                local_template = try_get_template(local_template_name.format(''))
+            if not local_template:
+                logger.error("No local accessibility content at all!")
+
+            local_accessibility_statement = local_template.render() if local_template else gettext("No local accessibility statement. Please notify the site's owner!")
+
+            system_template_name = "accessibility_issues{}.html"
+            system_template = try_get_template(system_template_name.format(lang))
+            if not system_template and len(lang) > 3:
+                system_template = try_get_template(system_template_name.format(lang[:3]))
+            if not system_template:
+                logger.warning("No localized system accessibility content for language %s", lang)
+                system_template = try_get_template(system_template_name.format(''))
+            if not system_template:
+                logger.error("No system accessibility content at all!")
+
+            system_accessibility_statement = system_template.render() if system_template else gettext("No system-wide accessibility statement found.")
+
+            accessibility_statement = local_accessibility_statement + system_accessibility_statement
+            cache.set(key, accessibility_statement)
+        self.accessibility_statement = accessibility_statement
+        self.note("accessibility_statement")
+
 
 class ProfileView(UserProfileView):
     template_name = "userprofile/profile.html"
