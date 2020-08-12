@@ -1,4 +1,14 @@
+from django.conf import settings
 from django.middleware.csrf import CsrfViewMiddleware
+import jwt
+
+class WebToken:
+    def __init__(self, user_id, course):
+        self.user_id = user_id
+        self.course = course
+
+    def verify_user(self, user):
+        return self.user_id == user.id
 
 class CSRFCheck(CsrfViewMiddleware):
     def _reject(self, request, reason):
@@ -21,12 +31,15 @@ class SessionAuthentication:
         # Unauthenticated, CSRF validation not required
         if not user or not user.is_active:
             return None
-        
+
         self.enforce_csrf(request)
         
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split()[1]
-            return (user, token)
+            payload = jwt.decode(token, settings.SECRET_KEY) #TODO check if valid and handle bad signature
+            web_token = WebToken(payload['uid'], payload['course'])
+            if web_token.verify_user(user):
+                return (user, web_token)
         
         # CSRF passed with authenticated user
         return (user, None)
