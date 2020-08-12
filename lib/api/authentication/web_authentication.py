@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.middleware.csrf import CsrfViewMiddleware
+from rest_framework import exceptions
 import jwt
 
 class WebToken:
