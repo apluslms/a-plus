@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
 import json
 import os.path
 import urllib
+from datetime import datetime, timedelta
+from io import BytesIO, StringIO
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -748,26 +749,27 @@ class ExerciseTest(TestCase):
             max_points=50,
             points_to_pass=50,
             max_submissions=0,
-            service_url="http://nowhere.asdasfasf/testServiceURL",
+            service_url="http://grader.invalid/testServiceURL",
         )
-        png = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x05\x00\x00\x00\x05\x08\x02\x00\x00\x00\x02\r\xb1\xb2\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\x15IDAT\x08\xd7c`\xc0\n\xfe\xff\xff\x8f\xce\xc1"\x84\x05\x00\x00\xde\x7f\x0b\xf5<|+\x98\x00\x00\x00\x00IEND\xaeB`\x82'
-        file_a = os.path.join(settings.MEDIA_ROOT, "test.png")
-        file_b = os.path.join(settings.MEDIA_ROOT, "test.py")
-        with open(file_a, "wb") as f:
-            f.write(png)
-        with open(file_b, "wb") as f:
-            f.write("Tekijät ja Hyyppö".encode("latin1"))
 
         self.course_instance.enroll_student(self.user)
         self.client.login(username="testUser", password="testPassword")
 
-        with open(file_a, "rb") as fa:
-            with open(file_b, "rb") as fb:
-                response = self.client.post(exercise.get_absolute_url(), {
-                    "key": "value",
-                    "file1": fa,
-                    "file2": fb,
-                })
+        png_file = BytesIO(
+            b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x05\x00\x00\x00\x05\x08\x02\x00\x00\x00\x02\r'
+            b'\xb1\xb2\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\x15IDAT\x08\xd7c`\xc0\n\xfe\xff'
+            b'\xff\x8f\xce\xc1"\x84\x05\x00\x00\xde\x7f\x0b\xf5<|+\x98\x00\x00\x00\x00IEND\xaeB`\x82'
+        )
+        png_file.name = 'test.png'
+        py_file = StringIO('print("Tekijät ja Hyyppö")')
+        py_file.name = 'test.py'
+
+        with png_file, py_file:
+            response = self.client.post(exercise.get_absolute_url(), {
+                "key": "value",
+                "file1": png_file,
+                "file2": py_file,
+            })
         self.assertEqual(response.status_code, 302)
 
         subs = self.user.userprofile.submissions.filter(exercise=exercise.id)
