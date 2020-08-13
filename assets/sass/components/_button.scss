@@ -1,0 +1,86 @@
+$extra-small-height: 16px;
+$small-height: 18px;
+$medium-height: 20px;
+$large-height: 24px;
+
+@mixin button-basics {
+	display: inline-block;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	touch-action: manipulation;
+	cursor: pointer;
+	background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+}
+
+@mixin button-color(
+	$background-color,
+	$border-color: transparent,
+	$text-color: choose-contrast-color($background-color, $aplus-foreground, $aplus-background)
+) {
+	background-color: $background-color;
+	color: $text-color;
+	border: 1px solid $border-color;
+	transition: all 0.4-s ease;
+
+	&:hover,
+	&:active {
+		@if $background-color != white {
+			background-color: darken($background-color, 10%);
+		} @else {
+			background-color: $text-color;
+			color: $background-color;
+		}
+	}
+
+	&.disabled,
+	&[disabled],
+	fieldset[disabled] & {
+		cursor: $cursor-disabled;
+		opacity: 65%;
+
+		&:hover,
+		&:active {
+			background-color: $background-color;
+			color: $text-color;
+		}
+	}
+}
+
+@mixin button-size($height, $padding-amount: $height / 3) {
+	font-size: $height / 1.3;
+	padding-top: max($padding-amount, 1px);
+	padding-bottom: max($padding-amount, 1px);
+	padding-left: max($padding-amount * 1.5, 5px);
+	padding-right: max($padding-amount * 1.5, 5px);
+	border-radius: $height / 3.5;
+	border-width: 1px;
+}
+
+.aplus-button {
+	&--default {
+		@include button-basics;
+		@include button-color($aplus-success, saturate($aplus-success, 20%));
+		font-weight: bold;
+	}
+	&--secondary {
+		@include button-basics;
+		@include button-color($gray-lighter, $gray-light);
+	}
+	&--danger {
+		@include button-basics;
+		@include button-color($aplus-background, $aplus-danger, $aplus-danger);
+	}
+	&--xs {
+		@include button-size($extra-small-height, 0px);
+	}
+	&--sm {
+		@include button-size($small-height);
+	}
+	&--md {
+		@include button-size($medium-height);
+	}
+	&--lg {
+		@include button-size($large-height);
+	}
+}

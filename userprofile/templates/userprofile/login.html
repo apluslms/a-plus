@@ -34,7 +34,7 @@
 							</p>
 						{% endif %}
 						<p>
-							<a class="btn btn-primary btn-block" role="button" href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
+							<a class="aplus-button--secondary aplus-button--lg" role="button" href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
 								{{ shibboleth_button_text|safe }}
 							</a>
 						</p>
@@ -58,7 +58,7 @@
 							</p>
 						{% endif %}
 						<p>
-							<a class="btn btn-danger btn-block" role="button" href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Log in using Google' %}</a>
+							<a class="aplus-button--secondary aplus-button--lg" role="button" href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Log in using Google' %}</a>
 						</p>
 					</div>
 				</div>
@@ -81,7 +81,7 @@
 						{% csrf_token %}
 						{{ form|bootstrap }}
 						<div class="form-group">
-							<button type="submit" class="btn btn-info btn-block">{% trans "Log in" %}</button>
+							<button type="submit" class="aplus-button--secondary aplus-button--lg">{% trans "Log in" %}</button>
 						</div>
 					</form>
 				</div>
