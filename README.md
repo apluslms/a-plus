@@ -49,4 +49,3 @@ Code Organization
 * [templates/](templates) : General site templates
 * [assets/](assets) : Static web server assets, e.g., JavaScript, styles and images
 * [assets_src/](assets_src) : Asset packages (as npm packages), which should populate `assets/` with compiled files.
-* [media/](media) : User uploaded files
