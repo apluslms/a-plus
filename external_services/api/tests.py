@@ -71,7 +71,7 @@ class LTIOutcomesBaseTest(APITestCase):
 </imsx_POXEnvelopeResponse>'''
     
     # assert method for comparing Outcomes response XML messages
-    def assertLTIOutcomesResponseXMLEqual(self, got_xml, expected_xml):
+    def assertLTIOutcomesResponseXMLEqual(self, got_xml, expected_xml, ignore_elems=None):
         try:
             got_root = lxml.etree.fromstring(got_xml.encode('utf-8'))
             expected_root = lxml.etree.fromstring(expected_xml.encode('utf-8'))
@@ -82,6 +82,8 @@ class LTIOutcomesBaseTest(APITestCase):
         for status_elem in ('imsx_codeMajor', 'imsx_severity', 'imsx_description',
                             'imsx_messageRefIdentifier', 'imsx_operationRefIdentifier',
                             'imsx_codeMinor'):
+            if ignore_elems and status_elem in ignore_elems:
+                continue
             query = '{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_statusInfo/{ns}{status_elem}'.format(
                 ns=ns, status_elem=status_elem)
             expected_val = expected_root.findtext(query)
@@ -927,14 +929,18 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             msg_id='xxxxx', # random, can not know beforehand
             code_major='failure',
             severity='status',
-            description='Premature end of data in tag imsx_POXEnvelopeRequest line 2, line 2, column 92 (&lt;string&gt;, line 2)',
+            description='THIS FIELD IS NOT VALIDATED',
             msg_ref_id='',
             operation_ref='',
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
-        self.assertLTIOutcomesResponseXMLEqual(response_xml, expected_response_xml)
+
+        self.assertLTIOutcomesResponseXMLEqual(
+            response_xml,
+            expected_response_xml,
+            ignore_elems={'imsx_description'},
+        )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         # check that no submission was made
         self.assertEqual(Submission.objects.count(), 0)
