@@ -75,6 +75,45 @@
                 {% endif %}
             </div>
         {% endif %}
+        {% if query_language %}
+            {% language user_language %}
+            <div lang={{user_language}}>
+                <div class="alert alert-default">
+                    <img class="language-icon" src="/static/images/uls.svg" alt="">
+                    {% trans "You are browsing this course in a different language than is set in your preferences." %}
+                    {% if user_course_data %}
+                        <div class="button-container">
+                            <form action="{{ url_without_language }}">
+                                <button type="submit" class="aplus-button--secondary aplus-button--md">
+                                    {% blocktrans trimmed with lang=user_language|language_name_translated %}
+                                    Browse the course in {{ lang }}
+                                    {% endblocktrans %}
+                                </button>
+                            </form>
+                            <form action="{{ instance|url:'set-enrollment-language' }}" method="post">
+                                {% csrf_token %}
+                                <input name="language" type="hidden" value="{{ query_language }}" />
+                                <button type="submit" class="aplus-button--secondary aplus-button--md">
+                                    {% blocktrans trimmed with lang=query_language|language_name_translated %}
+                                    Set {{ lang }} as course language
+                                    {% endblocktrans %}
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        {% trans "You can change the language from your profile." %}
+                        <form action="{{ url_without_language }}">
+                            <button type="submit" class="aplus-button--secondary aplus-button--md">
+                                {% blocktrans trimmed with lang=user_language|language_name_translated %}
+                                Browse the course in {{ lang }}
+                                {% endblocktrans %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endlanguage %}
+        {% endif %}
         {% block siblings %}{% endblock %}
         {% block breadcrumb %}
         <ol class="breadcrumb">

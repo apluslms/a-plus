@@ -74,6 +74,22 @@ table.src tr td.src {
     color: #333;
     border: 2px solid #333;
     font-weight: bold;
+
+    /* only used once and should be moved if .alert is re-implemented */
+    .button-container {
+        display: flex;
+        flex-wrap: wrap;
+
+        .aplus-button--secondary {
+            margin-right: 4px;
+        }
+    }
+
+    .language-icon {
+        float: left;
+        height: 2em;
+        margin-right: 10px;
+    }
 }
 
 /* site footer */
