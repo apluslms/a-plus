@@ -40,6 +40,7 @@ class SubmissionBriefSerializer(AplusModelSerializer):
         model = Submission
         fields = (
             'submission_time',
+            'grade',
         )
         extra_kwargs = {
             'url': {
