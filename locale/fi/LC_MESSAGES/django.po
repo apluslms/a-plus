@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-27 15:56+0300\n"
+"POT-Creation-Date: 2020-08-28 21:21+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Saara Satokangas <saara.satokangas@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -592,6 +592,29 @@ msgstr "Tämä kurssi on jo päättynyt."
 #: course/templates/course/course_base.html:69
 msgid "The latest version of the course can be found at:"
 msgstr "Kurssin viimeisimmän version löydät täältä:"
+
+#: course/templates/course/course_base.html:84
+msgid ""
+"You are browsing this course in a different language than is set in your "
+"preferences."
+msgstr ""
+"Katselet kurssia eri kielellä kuin minkä olet asettanut ensisijaiseksi "
+"kieleksesi."
+
+#: course/templates/course/course_base.html:89
+#: course/templates/course/course_base.html:108
+#, python-format
+msgid "Browse the course in %(lang)s"
+msgstr "Selaa kurssia kielellä %(lang)s"
+
+#: course/templates/course/course_base.html:98
+#, python-format
+msgid "Set %(lang)s as course language"
+msgstr "Aseta kurssikieleksi %(lang)s"
+
+#: course/templates/course/course_base.html:105
+msgid "You can change the language from your profile."
+msgstr "Voit muuttaa kielivalintaa profiilistasi."
 
 #: course/templates/course/enroll.html:6 course/templates/course/enroll.html:10
 msgid "Enrollment"

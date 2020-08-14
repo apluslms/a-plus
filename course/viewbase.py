@@ -68,10 +68,14 @@ class CourseInstanceBaseMixin(object):
             self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
             self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
+            self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')
+            self.query_language = None
+            self.user_language = None
 
             self.note(
                 "course", "instance", "content", "user_course_data", "is_student", "is_assistant",
-                "is_teacher", "is_course_staff", "get_taggings",
+                "is_teacher", "is_course_staff", "get_taggings", "url_without_language",
+                "query_language", "user_language"
             )
 
             # Try to find a language that is defined for this course instance
@@ -81,20 +85,24 @@ class CourseInstanceBaseMixin(object):
                 instance_def_language = instance_languages[0]
                 instance_languages = set(instance_languages)
 
+                languages = []
+                if self.user_course_data and self.user_course_data.language:
+                    languages.append(self.user_course_data.language)
+                if is_real_user and user.userprofile.language:
+                    languages.append(user.userprofile.language)
+                languages.append(get_language())
+
                 query_language = self.request.GET.get('hl')
                 if query_language:
                     if query_language[:2] in instance_languages:
                         language = query_language
+                        if languages:
+                            self.user_language = languages[0]
+                            if self.user_language[:2] != query_language[:2]:
+                                self.query_language = query_language
                     else:
                         raise TranslationNotFound
                 else:
-                    languages = []
-                    if self.user_course_data and self.user_course_data.language:
-                        languages.append(self.user_course_data.language)
-                    if is_real_user and user.userprofile.language:
-                        languages.append(user.userprofile.language)
-                    languages.append(get_language())
-
                     for lang in languages:
                         if lang[:2] in instance_languages:
                             language = lang
