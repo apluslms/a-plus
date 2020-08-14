@@ -33,6 +33,7 @@ $brand-danger: $aplus-danger;
 /*!
  * A+ Styles
  */
-@import 'protocols/quiz1';
 @import 'components/button';
+@import 'components/error_summary';
 @import 'components/frontpage-cards';
+@import 'protocols/quiz1';
