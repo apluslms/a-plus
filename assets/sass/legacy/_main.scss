@@ -1,3 +1,5 @@
+@import '../mixins/focus';
+
 /* common */
 .site-message {
   position: relative;
@@ -58,23 +60,6 @@ table.src tr td.src {
   user-select: none;
 }
 
-/* FOCUS STATES - !important is needed to apply consistently to all elements */
-
-.js-focus-visible a.focus-visible,
-.js-focus-visible input.btn.focus-visible,
-.js-focus-visible button.focus-visible { /* Mostly for links in text */
-    background-color: #ffdd00 !important;
-    color: #333 !important;
-    outline: 3px solid rgba(0, 0, 0, 0) !important;
-    text-decoration: underline !important;
-}
-
-.js-focus-visible input.focus-visible, 
-.js-focus-visible select.focus-visible, 
-.js-focus-visible div.focus-visible {
-    outline: 3px solid #ffdd00 !important;
-}
-
 /* alerts */
 .sticky-alert {
     position: -webkit-sticky; /* Safari */
@@ -106,7 +91,11 @@ html, body {
     position: absolute;
     bottom: 0;
     min-height: 50px;
-    z-index: 990;
+	z-index: 990;
+
+	.nav > li > a {
+		@include focus-with-background-and-color;
+	}
 }
 
 /* site header */
@@ -127,8 +116,9 @@ html, body {
 .topbar .navbar-nav>li>a,
 .topbar .navbar-toggle,
 .topbar .navbar-nav>.active>a,
-.topbar .navbar-nav>.active>a:focus,
 .topbar .navbar-nav>.active>a:hover {
+	@include focus-with-background-and-color;
+
     color: #ffffff;
     background: transparent;
 }
@@ -256,6 +246,7 @@ html, body {
 }
 
 .skip-link:focus {
+	@include focus-with-background-and-color;
     position: static;
     width: 100%;
     min-height: 50px;
@@ -267,11 +258,13 @@ html, body {
 }
 
 .page-skip-link:focus {
+	@include focus-with-background-and-color;
     min-height: 24px;
 }
 
 /* menus */
 .course-menu .nav>li>a {
+	@include focus-with-background-and-color;
     padding: 2px 2px 2px 5px;
 }
 #main-course-menu.fixed {
@@ -305,8 +298,11 @@ html, body {
 .toc li {
     list-style: none;
 }
+#course-content a{
+	@include focus-with-background-and-color;
+}
 
-/* panels */  
+/* panels */
 .module-panel .panel-heading {
     display: block;
 }
@@ -372,7 +368,7 @@ html, body {
     border-bottom: 1px solid #ccc;
 }
 
-.news-panel .folding-list-group-item {    
+.news-panel .folding-list-group-item {
     color: #337ab7;
     background-color: #fff;
     font-size: 16px;

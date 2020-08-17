@@ -1,0 +1,23 @@
+// These focus states are ready to be added to components.
+// The default is focus-with-outline-only, but be aware that
+// this isn't easy to see on small elements, especially with
+// a light background.
+// For small interactive elements, text, and elements (like menu
+// items) which usually have a coloured background, the
+// focus-with-background-and-color is much easier to spot and
+// should be used instead.
+
+@mixin focus-with-outline-only {
+	&.focus-visible {
+		outline: 3px solid $aplus-focus;
+	}
+}
+
+@mixin focus-with-background-and-color {
+	&.focus-visible {
+		background-color: $aplus-focus;
+		color: $aplus-foreground;
+		outline: 3px solid rgba(0, 0, 0, 0);
+		text-decoration: underline;
+	}
+}
