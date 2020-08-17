@@ -48,7 +48,7 @@ class SessionAuthentication:
                 scheme, token = request.headers['Authorization'].split()
                 if scheme != 'Bearer':
                     raise ValueError
-            except ValueError:
+            except (ValueError, jwt.exceptions.InvalidSignatureError, jwt.exceptions.DecodeError):
                 return (user, None)
             web_token = WebToken.from_jwt(token)
             if web_token.verify_user(user):
