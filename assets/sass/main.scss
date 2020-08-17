@@ -48,6 +48,11 @@ $font-size-base:  $aplus-font-size-base;
 @import 'components/focus';
 @import 'components/frontpage-cards';
 @import 'components/menu-notification';
-@import 'pages/profile-page';
+@import 'components/overlay';
 @import 'pages/login';
+@import 'pages/profile-page';
+
+/*!
+ * A+ Protocols
+ */
 @import 'protocols/quiz1';
