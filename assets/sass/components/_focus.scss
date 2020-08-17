@@ -1,0 +1,15 @@
+@import '../mixins/focus';
+
+// These styles apply consistent focus states to elements which
+// don't have a focus state defined elswhere, including inside the
+// course content.
+
+// It's preferable to use component-specific focus styles where
+// possible, and they should be mixed into all new components.
+
+.js-focus-visible a,
+.js-focus-visible input,
+.js-focus-visible select,
+.js-focus-visible div {
+	@include focus-with-outline-only;
+}
