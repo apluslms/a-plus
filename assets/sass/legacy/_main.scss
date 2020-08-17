@@ -297,6 +297,15 @@ html, body {
 .progress {
     position: relative;
 }
+/* TODO: Move defining the stickiness to a single
+file for all the components */
+.sticky-progress {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+    z-index: 100;
+}
 .progress .required-points {
     position: absolute;
     height: 20px;
@@ -400,26 +409,4 @@ td.submissions-dropdown {
 
 table.results-table .category-row {
     font-weight: bold;
-}
-
-/* overlays */
-.overlay-parent {
-    position: relative;
-    padding-bottom: 15px; /* Same as .form-group margin-bottom */
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 15;
-    background-color: #000b;
-}
-
-.overlay .panel {
-    margin: auto;
-    margin-top: 4rem;
-    width: 80%;
 }

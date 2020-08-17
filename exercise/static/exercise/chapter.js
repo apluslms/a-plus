@@ -11,7 +11,6 @@
 		exercise_url_attr: "data-aplus-exercise",
 		active_element_attr: "data-aplus-active-element",
 		loading_selector: "#loading-indicator",
-		quiz_success_selector: "#quiz-success",
 		message_attr: {
 			load: "data-msg-load",
 			submit: "data-msg-submit",
@@ -45,7 +44,6 @@
 			this.modalElement = $(this.settings.modal_selector);
 			this.loader = $(this.settings.loading_selector);
 			this.messages = this.readMessages();
-			this.quizSuccess = $(this.settings.quiz_success_selector);
 
 			// do not include active element inputs to exercise groups
 			this.element.find("[" + this.settings.active_element_attr +	"='in']").aplusExercise(this, {input: true});
@@ -105,25 +103,6 @@
 			this.renderMath();
 		},
 
-		modalSuccess: function(exercise, badge) {
-			this.modalElement.one("hidden.bs.modal", function(event) {
-				$(document.body).animate({
-					'scrollTop': exercise.offset().top
-				}, 300);
-			});
-			var content = this.quizSuccess.clone()
-				.attr("class", exercise.attr("class"))
-				.removeClass("exercise hide")
-				.removeAttr("id");
-			content.find('.badge-placeholder').empty().append(badge);
-			if (badge.hasClass("badge-success") || badge.hasClass("badge-warning")) {
-				content.find('.btn-success').css('display', 'block');
-			} else {
-				content.find('.btn-success').hide();
-			}
-			this.modalContent(content);
-		},
-
 		renderMath: function() {
 			if (typeof window.MathJax === "undefined") {
 				return;
@@ -158,6 +137,9 @@
 		content_element: '<div class="exercise-content"></div>',
 		content_selector: '.exercise-content',
 		exercise_selector: '#exercise-all',
+		quiz_progress_selector: '.quiz-submit-progress',
+		quiz_overlay_selector: '.quiz-submit-overlay',
+		quiz_error_selector: '.quiz-submit-error',
 		summary_selector: '.exercise-summary',
 		response_selector: '.exercise-response',
 		navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
@@ -436,18 +418,23 @@
 				//$(form_element).find(":input").prop("disabled", false);
 				//exercise.showLoader("error");
 
-				if (!exercise.active_element) {
-					exercise.dom_element.dispatchEvent(
-						new CustomEvent("aplus:exercise-submission-failure",
-							{bubbles: true, detail: {type: exercise.exercise_type}}));
-					exercise.chapter.modalError(exercise.chapter.messages.error);
-				} else {
+				if (exercise.active_element) {
 					// active elements don't use loadbar so the error message must be shown
 					// in the element container
 					var feedback = $("<div>");
 					feedback.attr('id', 'feedback');
 					feedback.append(exercise.chapter.messages.error);
 					exercise.updateOutput(feedback);
+				} else {
+					exercise.dom_element.dispatchEvent(
+						new CustomEvent("aplus:exercise-submission-failure",
+							{bubbles: true, detail: {type: exercise.exercise_type}}));
+					if (exercise.quiz) {
+						exercise.quizSubmission("error");
+					} else {
+						/* TODO: migrate to overlay */
+						exercise.chapter.modalError(exercise.chapter.messages.error);
+					}
 				}
 			}).done(function (data) {
 				callback(data);
@@ -506,6 +493,22 @@
 			return [exercise, valid, formData];
 		},
 
+		quizSubmission: function(message) {
+			var exercise = this;
+			if (message == "submit") {
+				exercise.element.find(exercise.settings.quiz_overlay_selector).removeClass("hide");
+				exercise.element.find(exercise.settings.quiz_progress_selector).removeClass("hide");
+			} else if (message == "error") {
+				exercise.element.find(exercise.settings.quiz_overlay_selector).hide();
+				exercise.element.find(exercise.settings.quiz_progress_selector).hide();
+				exercise.element.find(exercise.settings.quiz_error_selector).removeClass("hide");
+			} else if (message == "success") {
+				exercise.element.find(exercise.settings.quiz_overlay_selector).hide();
+				exercise.element.find(exercise.settings.quiz_progress_selector).hide();
+				exercise.element.find(exercise.settings.quiz_error_selector).hide();
+			}
+		},
+
 		submit: function(form_element) {
 			var input = this;
 			var chapter = this.chapter;
@@ -561,8 +564,13 @@
 					});
 				});
 			} else {
-				chapter.openModal(chapter.messages.submit);
 				var exercise = this;
+				if (exercise.quiz) {
+					exercise.quizSubmission("submit");
+				} else {
+					/* TODO: migrate to overlay */
+					chapter.openModal(chapter.messages.submit);
+				}
 				var url = $(form_element).attr("action");
 				var formData = new FormData(form_element);
 
@@ -571,9 +579,8 @@
 					//exercise.hideLoader();
 					var input = $(data);
 					if (exercise.quiz) {
-						var badge = input.find('.badge').eq(2).clone();
+						exercise.quizSubmission("success");
 						exercise.update(input);
-						chapter.modalSuccess(exercise.element, badge);
 						exercise.renderMath();
 						exercise.dom_element.dispatchEvent(
 							new CustomEvent("aplus:submission-finished",
@@ -658,7 +665,7 @@
 							old_badges.eq(2).replaceWith(new_badges.eq(1).clone());
 							var content = input2.filter(exercise.settings.exercise_selector).contents();
 							if (content.text().trim() == "") {
-								exercise.chapter.modalSuccess(exercise.element, new_badges.eq(2).clone());
+								exercise.quizSubmission("success");
 							} else {
 								exercise.chapter.modalContent(content);
 							}
@@ -673,7 +680,12 @@
 						exercise.dom_element.dispatchEvent(
 							new CustomEvent("aplus:exercise-submission-failure",
 								{bubbles: true, detail: {type: exercise.exercise_type}}));
-						exercise.chapter.modalError(exercise.chapter.messages.error);
+						if (exercise.quiz) {
+							exercise.quizSubmission("error");
+						} else {
+							/* TODO: migrate to overlay */
+							exercise.chapter.modalError(exercise.chapter.messages.error);
+						}
 						exercise.load(true);
 					});
 				}, id);

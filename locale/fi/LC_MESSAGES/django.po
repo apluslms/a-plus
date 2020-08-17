@@ -805,7 +805,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:49 templates/base.html:255
+#: news/templates/news/list.html:49 templates/base.html:254
 msgid "Remove"
 msgstr "Poista"
 
@@ -2312,6 +2312,20 @@ msgstr "Sisältää myöhästymissakon"
 msgid "This exercise has no template."
 msgstr "Tällä tehtävällä ei ole pohjatiedostoa."
 
+#: exercise/templates/exercise/_submit_progress.html:6
+#: exercise/templates/exercise/exercise.html:55
+#: exercise/templates/exercise/exercise.html:63
+msgid "Posting submission..."
+msgstr "Palautusta lähetetään..."
+
+#: exercise/templates/exercise/_submit_progress.html:11
+msgid ""
+"There was a communication error with the exercise service, so no submission "
+"was consumed. You can try again."
+msgstr ""
+"Yhteyttä tehtäväpalveluun ei voitu muodostaa, eikä sallittuja palautuksia "
+"kulunut. Voit yrittää vielä uudestaan."
+
 #: exercise/templates/exercise/_text_stats.html:2
 #, python-format
 msgid ""
@@ -2432,22 +2446,9 @@ msgstr "Näytä kuitenkin"
 msgid "Enrollment information"
 msgstr "Ilmoittautumisen tiedot"
 
-#: exercise/templates/exercise/exercise.html:55
-#: exercise/templates/exercise/exercise.html:63
-msgid "Posting submission..."
-msgstr "Palautusta lähetetään..."
-
 #: exercise/templates/exercise/exercise.html:62
 msgid "Loading exercise..."
 msgstr "Tehtävää ladataan..."
-
-#: exercise/templates/exercise/exercise.html:69
-msgid "Submission received."
-msgstr "Palautus on vastaanotettu."
-
-#: exercise/templates/exercise/exercise.html:73
-msgid "Go to feedback"
-msgstr "Katso palaute"
 
 #: exercise/templates/exercise/exercise_base.html:40
 msgid "Exercise description"
@@ -3596,23 +3597,23 @@ msgstr "Saavutettavuusseloste"
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:220 templates/base.html:239
+#: templates/base.html:219 templates/base.html:238
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:227 templates/base.html:244
+#: templates/base.html:226 templates/base.html:243
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:259
+#: templates/base.html:258
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:263
+#: templates/base.html:262
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:266
+#: templates/base.html:265
 msgid "Search for..."
 msgstr "Etsi..."
 
