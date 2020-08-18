@@ -272,7 +272,10 @@ class ExerciseModelView(ExerciseModelBaseView):
         self.models = []
         for url,name in self.exercise.get_models():
             try:
-                response = request_for_response(url)
+                response = request_for_response(
+                    url,
+                    headers={'X-Aplus-Event': 'aplus.assess.v1/retrieve-model'},
+                )
             except RemotePageNotFound:
                 self.models.append({'name': name})
             else:
@@ -295,7 +298,10 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
         self.templates = []
         for url,name in self.exercise.get_templates():
             try:
-                response = request_for_response(url)
+                response = request_for_response(
+                    url,
+                    headers={'X-Aplus-Event': 'aplus.assess.v1/retrieve-template'},
+                )
             except RemotePageNotFound as error:
                 self.templates.append({'name': name})
             else:
