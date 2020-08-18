@@ -294,12 +294,16 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
         self.get_summary_submissions()
         self.templates = []
         for url,name in self.exercise.get_templates():
-            response = request_for_response(url)
-            self.templates.append({
-                'name': name,
-                'content': response.text,
-                'html': 'text/html' in response.headers.get('Content-Type'),
-            })
+            try:
+                response = request_for_response(url)
+            except RemotePageNotFound as error:
+                self.templates.append({'name': name})
+            else:
+                self.templates.append({
+                    'name': name,
+                    'content': response.text,
+                    'html': 'text/html' in response.headers.get('Content-Type'),
+                })
         self.note('templates')
 
 

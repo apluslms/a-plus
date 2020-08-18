@@ -2281,13 +2281,9 @@ msgstr "Tila"
 msgid "Includes late penalty"
 msgstr "Sisältää myöhästymissakon"
 
-#: exercise/templates/exercise/_template_files.html:14
-msgid ""
-"\n"
-"This exercise has no template.\n"
-msgstr ""
-"\n"
-"Tällä tehtävällä ei ole pohjatiedostoa.\n"
+#: exercise/templates/exercise/_template_files.html:17
+msgid "This exercise has no template."
+msgstr "Tällä tehtävällä ei ole pohjatiedostoa."
 
 #: exercise/templates/exercise/_text_stats.html:2
 #, python-format

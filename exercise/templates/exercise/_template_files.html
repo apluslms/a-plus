@@ -2,16 +2,17 @@
 {% load course %}
 <p>{{ current.name|parse_localization }}</p>
 {% for entry in templates %}
-{% if entry.html %}
-{{ entry.content|safe }}
-{% else %}
-<h4>{{ entry.name|parse_localization }}</h4>
-<pre class="hljs">
-{{ entry.content }}
-</pre>
-{% endif %}
+	{% if entry.content %}
+		{% if entry.html %}
+			{{ entry.content|safe }}
+		{% else %}
+			<h4>{{ entry.name|parse_localization }}</h4>
+			<pre class="hljs">{{ entry.content }}</pre>
+		{% endif %}
+	{% else %}
+		<h4>{{ entry.name|parse_localization }}</h4>
+		<p class="alert alert-warning">{% trans "File not found" %}</p>
+	{% endif %}
 {% empty %}
-{% blocktrans %}
-This exercise has no template.
-{% endblocktrans %}
+	{% trans "This exercise has no template." %}
 {% endfor %}
