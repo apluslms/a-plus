@@ -2,6 +2,7 @@ import logging
 import posixpath
 import re
 import requests
+import threading
 import time
 from urllib.parse import urlparse, urljoin
 
@@ -17,6 +18,7 @@ from aplus import __version__ as aplus_version
 logger = logging.getLogger('aplus.remote_page')
 
 
+LOCAL = threading.local()
 USER_AGENT = "a-plus/%s (+%s) %s" % (
     aplus_version,
     settings.BASE_URL,
@@ -54,8 +56,11 @@ def request_for_response(
         headers=None,
         stamp=None,
         ):
-    session = requests.Session()
-    session.headers['User-Agent'] = USER_AGENT
+    if hasattr(LOCAL, 'session'):
+        session = LOCAL.session
+    else:
+        LOCAL.session = session = requests.Session()
+        session.headers['User-Agent'] = USER_AGENT
 
     if post:
         def make_request():
