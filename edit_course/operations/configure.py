@@ -3,17 +3,17 @@ import requests
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 
-from aplus import settings
 from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
 from external_services.models import LTIService
 from lib.localization_syntax import format_localization
-from lib.remote_page import format_lazy
 from userprofile.models import UserProfile
 
 
