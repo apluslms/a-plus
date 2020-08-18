@@ -19,6 +19,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_colortag.models import ColorTag
 
+from aplus import __version__ as aplus_version
 from apps.models import BaseTab, BasePlugin
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
@@ -628,6 +629,10 @@ class CourseHook(models.Model):
         ("post-grading", "Post grading"),
     )
 
+    HOOK_EVENT_MAP = {
+        'post-grading': 'post-assessment',
+    }
+
     hook_url = models.URLField()
     hook_type = models.CharField(max_length=12, choices=HOOK_CHOICES, default="post-grading")
     course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
@@ -640,11 +645,25 @@ class CourseHook(models.Model):
         logger = logging.getLogger('aplus.hooks')
         url, data = url_with_query_in_data(self.hook_url, data)
         try:
-            urllib.request.urlopen(
-                url,
-                urllib.parse.urlencode(data).encode('ascii'),
-                timeout=10,
+            req = urllib.request.Request(
+                url=url,
+                data=urllib.parse.urlencode(data).encode('ascii'),
             )
+            req.add_header(
+                'User-Agent',
+                "a-plus/%s (+%s) Python-urllib/%s" % (
+                    aplus_version,
+                    settings.BASE_URL,
+                    urllib.request.__version__,
+                ),
+            )
+            req.add_header(
+                'X-Aplus-Event',
+                'aplus.hook.v1/%s' % (
+                    self.HOOK_EVENT_MAP.get(self.hook_type, self.hook_type),
+                ),
+            )
+            urllib.request.urlopen(req, timeout=10)
             logger.info("%s posted to %s on %s with %s",
                         self.hook_type, self.hook_url, self.course_instance, data)
         except Exception as error:
