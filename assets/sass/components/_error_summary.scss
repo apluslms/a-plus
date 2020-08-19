@@ -19,5 +19,9 @@ $margin: 20px;
 		background: $aplus-background;
 		padding: $padding-amount * 2;
 		padding-left: $padding-amount * 3;
+		ul {
+			list-style-type: none;
+			padding-left: 0px;
+		}
 	}
 }
