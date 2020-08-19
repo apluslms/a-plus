@@ -1875,7 +1875,11 @@ msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 msgid "Cannot submit exercise because of invalid JSON in POST data"
 msgstr "Tehtävää ei voitu palauttaa, POST pyyntö sisälsi virheellistä JSON:nia"
 
-#: exercise/exercise_models.py:605
+#: exercise/exercise_models.py:598
+msgid "No group found with the given ID"
+msgstr "Ryhmää ei löytynyt annetulla ID:llä"
+
+#: exercise/exercise_models.py:609
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 

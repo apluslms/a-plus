@@ -593,6 +593,9 @@ class BaseExercise(LearningObject):
                     group = profile.groups.filter(
                         course_instance=self.course_instance,
                         id=gid).first()
+                    if group is None:
+                        warnings.append(_("No group found with the given ID"))
+                        return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
             except ValueError:
                 pass
         elif enrollment and enrollment.selected_group:
