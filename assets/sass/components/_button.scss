@@ -10,22 +10,40 @@ $large-height: 24px;
 	vertical-align: middle;
 	touch-action: manipulation;
 	cursor: pointer;
+	font-weight: normal;
 	background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+	&:link,
+	&:visited,
+	&:hover,
+	&:active {
+		text-decoration: none;
+	}
 }
 
 @mixin button-color(
 	$background-color,
 	$border-color: transparent,
-	$text-color: choose-contrast-color($background-color, $aplus-foreground, $aplus-background)
+	$text-color:
+		choose-contrast-color(
+			$background-color,
+			$aplus-foreground,
+			$aplus-background,
+		)
 ) {
 	background-color: $background-color;
 	color: $text-color;
 	border: 1px solid $border-color;
 	transition: all 0.3s ease;
 
+	&:link, &:visited {
+		color: $text-color;
+		$background-color: $background-color;
+	}
+
 	&:hover,
 	&:active {
 		@if $background-color != white {
+			color: $text-color;
 			background-color: darken($background-color, 10%);
 		} @else {
 			background-color: $text-color;
