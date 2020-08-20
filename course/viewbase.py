@@ -58,7 +58,8 @@ class CourseInstanceBaseMixin(object):
             self.course = self.instance.course
             self.content = CachedContent(self.instance)
             self.user_course_data = None
-            if user.is_authenticated:
+            is_real_user = user.is_authenticated and not user.is_anonymous
+            if is_real_user:
                 self.user_course_data = self.instance.get_enrollment_for(user)
             self.is_student = self.instance.is_student(user)
             self.is_assistant = self.instance.is_assistant(user)
@@ -78,7 +79,7 @@ class CourseInstanceBaseMixin(object):
                 languages = []
                 if self.user_course_data and self.user_course_data.language:
                     languages.append(self.user_course_data.language)
-                if user.is_authenticated and user.userprofile.language:
+                if is_real_user and user.userprofile.language:
                     languages.append(user.userprofile.language)
                 languages.append(get_language())
 
