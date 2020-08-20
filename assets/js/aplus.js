@@ -163,7 +163,7 @@ $(function() {
                 var buttonContainer = $('<p></p>').prependTo(wrapper);
                 var copyButtonContent = $('<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>');
                 var copyButtonText = $('<span></span>').text('Copy to clipboard');
-                var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="btn btn-xs btn-primary" id="copy-button-' + copyTargetCounter + '"></button>');
+                var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="aplus-button--secondary aplus-button--xs" id="copy-button-' + copyTargetCounter + '"></button>');
                 copyButtonContent.appendTo(copyButton);
                 copyButtonText.appendTo(copyButton);
                 copyButton.appendTo(buttonContainer);

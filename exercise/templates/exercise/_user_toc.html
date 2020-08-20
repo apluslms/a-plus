@@ -25,7 +25,7 @@
     <h3>
       {{ module.name|parse_localization }}
       {% if is_course_staff %}
-      <a class="btn btn-default btn-xs" href="{{ module.link }}">
+      <a href="{{ module.link }}">
         <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
         {% trans "Early access" %}
       </a>

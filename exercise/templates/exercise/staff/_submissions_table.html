@@ -6,13 +6,13 @@
 
 <div class="clearfix">
   <div class="pull-right">
-    <a class="btn btn-default btn-sm" href="{{ exercise|url:'submission-summary' }}">
+    <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ exercise|url:'submission-summary' }}">
       <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
       {% trans "Summary" %}
     </a>
     <span class="dropdown pull-right">
       <button
-        class="btn btn-default btn-sm dropdown-toggle"
+        class="aplus-button--secondary aplus-button--xs dropdown-toggle"
         type="button"
         data-toggle="dropdown"
         id="download-data"
@@ -36,7 +36,7 @@
     {% if not all and count == default_limit %}
     {% blocktrans with limit=default_limit count=count url=all_url %}
     {{ limit }} latest submissions.
-    <a class="btn btn-default btn-sm" href="{{ url }}">Show all</a>
+    <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ url }}">Show all</a>
     {% endblocktrans %}
     {% else %}
     {% blocktrans with count=count %}
@@ -81,7 +81,7 @@
                 {% endif %}
             </td>
             <td>
-                <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+                <a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
                     <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
                     {% trans "Inspect" %}
                 </a>

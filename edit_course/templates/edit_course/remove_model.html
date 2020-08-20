@@ -48,9 +48,9 @@
 
 	<div class="form-group">
 		{% if empty %}
-		<input class="btn btn-danger" type="submit" value="{% trans 'Remove' %}" />
+		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% trans 'Remove' %}" />
 		{% endif %}
-		<a class="btn btn-default" href="{{ instance|url:'course-edit' }}">
+		<a class="aplus-button--secondary aplus-button--md" href="{{ instance|url:'course-edit' }}" role="button">
 			{% trans "Cancel" %}
 		</a>
 	</div>

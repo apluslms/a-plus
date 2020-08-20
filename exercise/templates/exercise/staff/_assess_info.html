@@ -16,7 +16,7 @@
             <dt>
               {% trans "Submitters" %}
               {% if is_teacher %}
-              <a href="{{ submission|url:'submission-edit-submitters' }}" class="btn btn-xs btn-primary">
+              <a href="{{ submission|url:'submission-edit-submitters' }}" class="aplus-button--secondary aplus-button--xs" role="button">
                 {% trans "Edit" %}
               </a>
               {% endif %}
@@ -60,7 +60,7 @@
 					{% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
 						<form method="post" action="{{ submission|url:'submission-increase-max' }}" style="display:inline;" title="{% trans 'Add one extra submission for the student in this exercise.' %}">
 							{% csrf_token %}
-							<input class="btn btn-xs btn-primary" type="submit" value="+1" />
+							<input class="aplus-button--secondary aplus-button--xs" type="submit" value="+1" />
 						</form>
 					{% endif %}
 				{% endif %}

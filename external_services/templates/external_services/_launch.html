@@ -54,11 +54,11 @@ E.g. {% static 'js/external_launcher.js' ‰}
 				{% for name, value in parameters %}
 					<input type="hidden" name="{{ name }}" value="{{ value }}">
 				{% endfor %}
-				<input type="submit" class="btn btn-primary"
+				<input type="submit" class="aplus-button--default aplus-button--md"
 				       value="{% if exercise %}{% if exercise.open_in_iframe %}{% trans "Load the exercise" %}{% else %}{% trans "Open the exercise in a new window" %}{% endif %}{% else %}{% trans "Continue to the service" %}{% endif %}">
 				{% if parameters %}
-					<a href="#extserv-more-{{ form_id }}" class="btn btn-default"
-					   aria-controls="{{ collapse_id }}" aria-expanded="false" data-toggle="collapse"
+					<a href="#extserv-more-{{ form_id }}" class="aplus-button--secondary aplus-button--md"
+					   aria-controls="{{ collapse_id }}" role="button" aria-expanded="false" data-toggle="collapse"
 					>{% trans "Show details" %}</a>
 				{% endif %}
 			</form>

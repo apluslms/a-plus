@@ -12,7 +12,7 @@
             <div class="btn-toolbar" role="toolbar">
                 <button
                     type="button"
-                    class="btn btn-default"
+                    class="aplus-button--secondary aplus-button--md"
                     id="overlay-dismiss-{{ exercise.id }}"
                 >
                     {% trans "Show anyway" %}
@@ -30,7 +30,7 @@
                     {% csrf_token %}
                     <button
                         type="submit"
-                        class="btn btn-info"
+                        class="aplus-button--default aplus-button--md"
                         id="overlay-enroll-{{ exercise.id }}"
                     >
                         {% trans 'Enroll' %}
@@ -38,7 +38,7 @@
                 </form>
                 {% elif should_enroll %}
                 {# The enrollment page informs the user about why he/she can not enroll. #}
-                <a class="btn btn-info" href="{{ instance|url:'enroll' }}">
+                <a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'enroll' }}">
                   {% trans "Enrollment information" %}
                 </a>
                 {% endif %}

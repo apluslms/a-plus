@@ -21,7 +21,7 @@ $(function() {
 			console.log(data);
 			const li = $("<li>" + (data.title === undefined ? key : data.title) + "</li>");
 			li.addClass('list-group-item');
-			const btn = $('<button class="btn btn-xs btn-danger pull-right"><i class="glyphicon glyphicon-remove"></i></button>');
+			const btn = $('<button class="aplus-button--secondary aplus-button--sm pull-right"><i class="glyphicon glyphicon-remove"></i></button>');
 			btn.on('click', function() {
 				li.remove();
 				ls.removeItem(key);

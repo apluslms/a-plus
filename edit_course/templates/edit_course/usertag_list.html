@@ -14,7 +14,7 @@
 {% block coursecontent %}
 <br />
 <p>
-	<a class="btn btn-primary btn-sm" href="{{ instance|url:'course-tags-add' }}">
+	<a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'course-tags-add' }}">
 		<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
 		{% trans "Add new student tag" %}
 	</a>
@@ -39,15 +39,15 @@
 			<td>{{ tag.description }}</td>
 			<td>{% if tag.visible_to_students %}<span style="color: #00B000;">yes</span>{% else %}<span style="color: #B00000;">no</span>{% endif %}</td>
 			<td>
-				<a href="{{ tag|url:'course-tags-edit' }}" class="btn btn-warning btn-xs">
+				<a href="{{ tag|url:'course-tags-edit' }}" class="aplus-button--secondary aplus-button--xs" role="button">
 					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
 					{% trans "Edit" %}
 				</a>
-				<a href="{{ tag|url:'course-tags-remove' }}" class="btn btn-danger btn-xs">
+				<a href="{{ tag|url:'course-tags-remove' }}" class="aplus-button--secondary aplus-button--xs" role="button">
 					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 					{% trans "Remove" %}
 				</a>
-        <a href="{{ tag|url:'course-taggings-add' }}" class="btn btn-primary btn-xs">
+        <a href="{{ tag|url:'course-taggings-add' }}" class="aplus-button--secondary aplus-button--xs" role="button">
           <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
           {% trans "Tag students" %}
         </a>

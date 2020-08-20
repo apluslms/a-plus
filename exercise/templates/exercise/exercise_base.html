@@ -79,19 +79,19 @@
       <li>
           <p class="navbar-text navbar-btn">
               {% if submission %}
-              <a href="{{ submission|url:'submission-inspect' }}" class="btn btn-default btn-xs">
+              <a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
                   <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
                   {% trans "Inspect submission" %}
               </a>
               {% elif is_teacher %}
               {% load editcourse %}
-              <a href="{{ exercise|editurl:'exercise' }}" class="btn btn-default btn-xs">
+              <a href="{{ exercise|editurl:'exercise' }}" role="button" class="aplus-button--secondary aplus-button--xs">
                   <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                   {% trans "Edit exercise" %}
               </a>
               {% endif %}
               {% if is_teacher or exercise.allow_assistant_viewing %}
-              <a href="{{ exercise|url:'submission-list' }}" class="btn btn-default btn-xs">
+              <a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
                   <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
                   {% trans "View all submissions" %}
               </a>
