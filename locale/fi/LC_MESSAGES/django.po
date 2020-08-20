@@ -2523,12 +2523,12 @@ msgstr "Lataa"
 msgid ""
 "\n"
 "    %(limit)s latest submissions.\n"
-"    <a class=\"btn btn-default btn-sm\" href=\"%(url)s\">Show all</a>\n"
+"    <a class=\"aplus-button--secondary aplus-button--sm\" href=\"%(url)s\">Show all</a>\n"
 "    "
 msgstr ""
 "\n"
 "%(limit)s viimeistä palautusta.\n"
-"<a class=\"btn btn-default btn-sm\" href=\"%(url)s\">Näytä kaikki</a>"
+"<a class=\"aplus-button--secondary aplus-button--sm\" href=\"%(url)s\">Näytä kaikki</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html:42
 #, python-format

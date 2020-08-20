@@ -23,7 +23,7 @@
   {% else %}
     {{ entry.name|parse_localization }}
   {% if is_course_staff %}
-  <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+  <a href="{{ entry.link }}">
     <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
     {% trans "Early access" %}
   </a>

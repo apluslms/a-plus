@@ -17,11 +17,11 @@
       <label class="control-label" for="id_url">{% trans 'Import and override content configuration from URL' %}</label>
       <input type="text" class="form-control" id="id_url" name="url" value="{{ instance.configure_url }}">
     </div>
-    <button class="btn btn-primary" type="submit" name="apply">{% trans 'Apply' %}</button>
-    <button class="btn btn-default" type="submit" name="cache">{% trans 'Clear content cache' %}</button>
+    <button class="aplus-button--default aplus-button--md" type="submit" name="apply">{% trans 'Apply' %}</button>
+    <button class="aplus-button--secondary aplus-button--md" type="submit" name="cache">{% trans 'Clear content cache' %}</button>
   </form>
   {% if instance.build_log_url %}
-  <a class="btn btn-default page-modal" href="{{ instance|url:'course-build-log' }}">
+  <a class="aplus-button--secondary aplus-button--md page-modal" href="{{ instance|url:'course-build-log' }}" role="button">
     {% trans "Retrieve latest build log" %}
   </a>
   {% endif %}
@@ -44,12 +44,12 @@
                     {{ category.name|parse_localization }}
                 </td>
                 <td>
-                    <a class="btn btn-default btn-xs" href="{{ category|editurl:'category' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ category|editurl:'category' }}">
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         {% trans "Edit category" %}
                     </a>
                     {% if category.learning_objects.count == 0 %}
-                    <a class="btn btn-default btn-xs" href="{{ category|removeurl:'category' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ category|removeurl:'category' }}" role="button">
                     	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     {% endif %}
@@ -58,7 +58,7 @@
             {% endfor %}
             <tr>
                 <th colspan="2">
-                    <a class="btn btn-primary btn-xs" href="{{ instance|createurl:'category' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'category' }}" role="button">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         {% trans "Add new category" %}
                     </a>
@@ -83,11 +83,11 @@
                   {% endif %}
                 </th>
                 <td>
-                    <a class="btn btn-default btn-xs" href="{{ module|editurl:'module' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ module|editurl:'module' }}" role="button">
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit module" %}
                     </a>
                     {% if module.learning_objects.count == 0 %}
-                    <a class="btn btn-default btn-xs" href="{{ module|removeurl:'module' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ module|removeurl:'module' }}" role="button">
                     	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     {% endif %}
@@ -105,11 +105,11 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a class="btn btn-default btn-xs" href="{{ lobject|editurl:'exercise' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|editurl:'exercise' }}" role="button">
                       <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                       {% if lobject.is_submittable %}{% trans "Edit exercise" %}{% else %}{% trans "Edit content chapter" %}{% endif %}
                     </a>
-                    <a class="btn btn-default btn-xs" href="{{ lobject|removeurl:'exercise' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|removeurl:'exercise' }}" role="button">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
                     </a>
                     <a class="btn btn-link btn-xs" href="{{ lobject|url }}">
@@ -125,7 +125,7 @@
             {% endfor %}
             <tr>
                 <td colspan="2">
-                    <a class="btn btn-success btn-xs" data-toggle="modal" data-target="#lobject{{ module.id }}">
+                    <a class="aplus-button--secondary aplus-button--xs" data-toggle="modal" data-target="#lobject{{ module.id }}" role="button">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         {% trans "Add new learning object" %}
                     </a>
@@ -172,7 +172,7 @@
             {% endfor %}
             <tr>
                 <th colspan="2">
-                    <a class="btn btn-primary btn-xs" href="{{ instance|createurl:'module' }}">
+                    <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'module' }}" role="button">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                         {% trans "Add new module" %}
                     </a>
@@ -184,8 +184,8 @@
 <form method="post" class="well">
     {% csrf_token %}
     {{ form|bootstrap }}
-    <button class="btn btn-primary" type="submit" name="save">{% trans 'Save' %}</button>
-    <button class="btn btn-success" type="submit" name="renumbermodule">{% trans 'Renumerate learning objects for each module' %}</button>
-    <button class="btn btn-success" type="submit" name="renumbercourse">{% trans 'Renumerate learning objects ignoring modules' %}</button>
+    <button class="aplus-button--default aplus-button--md" type="submit" name="save">{% trans 'Save' %}</button>
+    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbermodule">{% trans 'Renumerate learning objects for each module' %}</button>
+    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbercourse">{% trans 'Renumerate learning objects ignoring modules' %}</button>
 </form>
 {% endblock %}

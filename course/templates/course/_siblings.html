@@ -10,14 +10,14 @@
         {% module_accessible next as accessible %}
     {% endif %}
     {% if accessible %}
-    <a href="{{ next.link }}" class="pull-right btn btn-link">
+    <a href="{{ next.link }}" class="pull-right">
         {{ next.name|parse_localization }} &raquo;
     </a>
     {% else %}
-    <span class="pull-right btn btn-link disabled">
+    <span class="pull-right disabled">
         {{ next.name|parse_localization }} &raquo;
         {% if is_course_staff %}
-        <a href="{{ next.link }}" class="btn btn-default btn-xs">
+        <a href="{{ next.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
         </a>
@@ -33,14 +33,14 @@
         {% module_accessible previous as accessible %}
     {% endif %}
     {% if accessible %}
-    <a href="{{ previous.link }}" class="pull-left btn btn-link">
+    <a href="{{ previous.link }}" class="pull-left">
         &laquo; {{ previous.name|parse_localization }}
     </a>
     {% else %}
-    <span class="pull-left btn btn-link disabled">
+    <span class="pull-left disabled">
         &laquo; {{ previous.name|parse_localization }}
         {% if is_course_staff %}
-        <a href="{{ previous.link }}" class="btn btn-default btn-xs">
+        <a href="{{ previous.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
         </a>

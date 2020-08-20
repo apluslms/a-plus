@@ -67,10 +67,12 @@
 
 <div id="quiz-success" class="hide">
   <h3 class="text-center">{% trans "Submission received." %}</h3>
-  <p class="text-center badge-placeholder"></p>
-  <button type="button" class="btn btn-success center-block read-feedback" data-dismiss="modal">
-    {% trans "Go to feedback" %}
-  </button>
+	<p class="text-center badge-placeholder"></p>
+	<div class="text-center">
+		<button type="button" class="aplus-button--default aplus-button--lg center-block read-feedback" data-dismiss="modal">
+			{% trans "Go to feedback" %}
+		</button>
+	</div>
 </div>
 
 {% endblock %}

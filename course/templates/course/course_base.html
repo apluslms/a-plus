@@ -14,11 +14,11 @@
 {% endblock %}
 
 {% block container_opening_tag %}
-<div class="site-content container-fluid" id="content">                
+<div class="site-content container-fluid" id="content">
 {% endblock %}
 
 {% block container_closing_tag %}
-</div>                
+</div>
 {% endblock %}
 
 {% block title %}{{ course.name|parse_localization }} | {{ block.super }} {% endblock %}
@@ -37,7 +37,7 @@
                         <h4>{{ advert.title }}</h4>
                         <p>{{ advert.text|safe }}</p>
                         <div class="buttons">
-                            <a class="btn btn-default btn-block" role="button" href="{{ advert.href }}" target="_blank">
+                            <a href="{{ advert.href }}" target="_blank">
                                 <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
                                 {% trans "Read more" %}
                             </a>

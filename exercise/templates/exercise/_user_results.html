@@ -7,7 +7,7 @@
   <small>{% trans "Filter view" %}:</small>
   {% for entry in categories %}
   {% if entry|is_listed %}
-  <button class="btn btn-default btn-xs" data-category="{{ entry.id }}">
+  <button class="aplus-button--secondary aplus-button--xs" data-category="{{ entry.id }}">
     <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
     {{ entry.name|parse_localization }}
   </button>
@@ -146,14 +146,14 @@
         {% if is_course_staff %}
         <td>
           {% if not accessible %}
-          <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+          <a href="{{ entry.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
           </a>
           {% else %}
           {% exercise_text_stats entry.id %}
           {% endif %}
-          <a class="btn btn-default btn-xs" href="{{ entry.submissions_link }}">
+          <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ entry.submissions_link }}">
             <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
             {% trans "View submissions" %}
           </a>
@@ -173,7 +173,7 @@
         {% if is_course_staff %}
         <td>
           {% if not accessible %}
-          <a class="btn btn-default btn-xs" href="{{ entry.link }}">
+          <a href="{{ entry.link }}">
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% trans "Early access" %}
           </a>

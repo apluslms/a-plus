@@ -32,7 +32,7 @@
         {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
         <hr/>
         <p>
-            <a class="btn btn-primary" href="{{ submission|url:'submission-assess' }}">
+            <a class="aplus-button--secondary aplus-button--md" href="{{ submission|url:'submission-assess' }}" role="button">
                 {% if submission.exercise.allow_assistant_grading %}
             	{% trans "Assess this submission as an assistant" %}
                 {% else %}
@@ -57,7 +57,7 @@
         {% if exercise.can_regrade %}
         	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
         		{% csrf_token %}
-        		<input class="btn btn-primary" type="submit" value="{% trans 'Re-submit to service' %}" />
+        		<input class="aplus-button--secondary aplus-button--md" type="submit" value="{% trans 'Re-submit to service' %}" />
         	</form>
         {% endif %}
         <p>
