@@ -604,7 +604,7 @@ $(function() {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             }
-            if (true) {
+            if (!this.crossDomain && settings.url.startsWith("/api/")) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + api_token);
             }
         }
