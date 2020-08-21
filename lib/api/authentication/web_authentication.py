@@ -17,7 +17,7 @@ class WebToken:
         self.course_id = payload.get('course')
 
     def verify_user(self, user):
-        return self.user_id == user.userprofile.id
+        return self.user_id == user.id
 
 class CSRFCheck(CsrfViewMiddleware):
     def _reject(self, request, reason):

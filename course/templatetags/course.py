@@ -129,7 +129,7 @@ def tags(profile, instance):
 def api_token(profile, instance):
     payload = {}
     if profile:
-        payload['uid'] = profile.id
+        payload['uid'] = profile.user.id
     if instance:
         payload['course'] = instance.id
     token = jwt.encode(payload, settings.SECRET_KEY, 'HS256')
