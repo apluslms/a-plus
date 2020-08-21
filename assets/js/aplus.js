@@ -599,12 +599,23 @@ $(function() {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
+    function isApiCall(url){
+        if (url.indexOf("/api/") == 0){
+            return true;
+        }
+        try {
+            var pathname = new URL(url).pathname;
+            return pathname.indexOf("/api/") == 0;
+        } catch(_) {
+            return false;
+        }
+    }
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
             }
-            if (!this.crossDomain && settings.url.startsWith("/api/")) {
+            if (!this.crossDomain && isApiCall(settings.url)) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + api_token);
             }
         }
