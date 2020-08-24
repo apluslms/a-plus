@@ -295,6 +295,7 @@ Following instructions expect that the applocation is installed under `/srv/aplu
         fi
         sed -e "s/__HOSTNAME__/$(hostname)/g" /srv/aplus/a-plus/doc/nginx/aplus-nginx.conf \
          | sudo tee "$dest" > /dev/null
+        openssl dhparam -out /etc/nginx/dhparams.pem 4096
 
     **NOTE:** If you are going to use shibboleth, then use file [nginx/aplus-nginx-shib.conf](nginx/aplus-nginx-shib.conf).
 
