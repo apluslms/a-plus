@@ -10,17 +10,75 @@ from .exercise_page import ExercisePage
 logger = logging.getLogger("aplus.protocol")
 
 
+def load_chapter_page(request, url, last_modified, chapter):
+    """
+    Loads the chapter page from the remote URL.
+    """
+    page = ExercisePage(chapter)
+    try:
+        _parse_material_v1_content(
+            page,
+            RemotePage(
+                url,
+                headers={'X-Aplus-Event': 'aplus.material.v1/retrieve-chapter'},
+                stamp=last_modified,
+            ),
+            chapter,
+        )
+    except RemotePageException:
+        messages.error(request,
+            _("Connecting to the content service failed!"))
+        if chapter.id:
+            instance = chapter.course_instance
+            msg = "Failed to request {}".format(url)
+            if instance.visible_to_students and not instance.is_past():
+                logger.exception(msg)
+                email_course_error(request, chapter, msg)
+            else:
+                logger.warning(msg)
+    return page
+
+
+def _parse_material_v1_content(page, remote_page, chapter):
+    """
+    Parses chapter page elements.
+    """
+    page.is_loaded = True
+
+    remote_page.fix_relative_urls()
+    remote_page.find_and_replace('data-aplus-exercise', [{
+        'id': ('chapter-exercise-' + str(o.order)),
+        'data-aplus-exercise': o.get_absolute_url(),
+    } for i,o in enumerate(chapter.children.all())])
+
+    page.head = remote_page.head({'data-aplus':True})
+    element_selectors = (
+        {'id': 'chapter'},
+        {'class': 'chapter'},
+        {'id': 'aplus'}, # TODO: remove
+        {'id': 'exercise'}, # TODO: remove
+        {'class': 'entry-content'}, # TODO: remove
+    )
+    page.content = remote_page.element_or_body(element_selectors)
+    page.clean_content = remote_page.clean_element_or_body(element_selectors)
+    page.last_modified = remote_page.last_modified()
+    page.expires = remote_page.expires()
+
+
 def load_exercise_page(request, url, last_modified, exercise):
     """
     Loads the exercise page from the remote URL.
-
     """
     page = ExercisePage(exercise)
     try:
-        parse_page_content(
+        _parse_assess_v1_content(
             page,
-            RemotePage(url, stamp=last_modified),
-            exercise
+            RemotePage(
+                url,
+                headers={'X-Aplus-Event': 'aplus.assess.v1/retrieve-exercise'},
+                stamp=last_modified,
+            ),
+            exercise,
         )
     except RemotePageException:
         messages.error(request,
@@ -43,9 +101,15 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     page = ExercisePage(exercise)
     try:
         data, files = submission.get_post_parameters(request, url)
-        remote_page = RemotePage(url, post=True, data=data, files=files)
+        remote_page = RemotePage(
+            url,
+            post=True,
+            data=data,
+            files=files,
+            headers={'X-Aplus-Event': 'aplus.assess.v1/assess-submission'},
+        )
         submission.clean_post_parameters()
-        parse_page_content(page, remote_page, exercise)
+        _parse_assess_v1_content(page, remote_page, exercise)
     except RemotePageException:
         page.errors.append(_("Connecting to the assessment service failed!"))
         if exercise.course_instance.visible_to_students:
@@ -109,7 +173,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     return page
 
 
-def parse_page_content(page, remote_page, exercise):
+def _parse_assess_v1_content(page, remote_page, exercise):
     """
     Parses exercise page elements.
     """
@@ -148,17 +212,13 @@ def parse_page_content(page, remote_page, exercise):
         page.is_wait = False
 
     remote_page.fix_relative_urls()
-    remote_page.find_and_replace('data-aplus-exercise', [{
-        'id': ('chapter-exercise-' + str(o.order)),
-        'data-aplus-exercise': o.get_absolute_url(),
-    } for i,o in enumerate(exercise.children.all())])
 
     page.head = remote_page.head({'data-aplus':True})
     element_selectors = (
-        {'id':'aplus'},
-        {'id':'exercise'},
-        {'id':'chapter'},
-        {'class':'entry-content'},
+        {'id': 'exercise'},
+        {'class': 'exercise'},
+        {'id': 'aplus'}, # TODO remove
+        {'class':'entry-content'}, # TODO remove
     )
     page.content = remote_page.element_or_body(element_selectors)
     page.clean_content = remote_page.clean_element_or_body(element_selectors)

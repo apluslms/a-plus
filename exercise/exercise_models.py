@@ -35,7 +35,7 @@ from lib.validators import generate_url_key_validator
 from userprofile.models import UserProfile
 
 from .cache.exercise import ExerciseCache
-from .protocol.aplus import load_exercise_page, load_feedback_page
+from .protocol.aplus import load_chapter_page, load_exercise_page, load_feedback_page
 from .protocol.exercise_page import ExercisePage
 
 
@@ -326,6 +326,13 @@ class CourseChapter(LearningObject):
     def _is_empty(self):
         return not self.generate_table_of_contents
 
+    def load_page(self, language, request, students, url_name, last_modified=None):
+        return load_chapter_page(
+            request,
+            self.get_load_url(language, request, students, url_name),
+            last_modified,
+            self,
+        )
 
 class BaseExerciseManager(models.Manager):
 
