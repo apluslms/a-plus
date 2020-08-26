@@ -3,15 +3,25 @@ import posixpath
 import re
 import requests
 import time
+from urllib.parse import urlparse, urljoin
+
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.utils.http import parse_http_date_safe
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
-from urllib.parse import urlparse, urljoin
+
+from aplus import __version__ as aplus_version
 
 
 logger = logging.getLogger('aplus.remote_page')
+
+
+USER_AGENT = "a-plus/%s (+%s) %s" % (
+    aplus_version,
+    settings.BASE_URL,
+    requests.utils.default_user_agent(),
+)
 
 
 class RemotePageException(Exception):
@@ -35,31 +45,47 @@ def parse_expires(response):
     return parse_http_date_safe(response.headers.get("Expires", "")) or 0
 
 
-def request_for_response(url, post=False, data=None, files=None, stamp=None):
+def request_for_response(
+        url,
+        *, # rest of the arguments must be defined with the keyword syntax
+        post=False,
+        data=None,
+        files=None,
+        headers=None,
+        stamp=None,
+        ):
+    session = requests.Session()
+    session.headers['User-Agent'] = USER_AGENT
+
+    if post:
+        def make_request():
+            logger.info("POST %s", url)
+            return session.post(
+                url,
+                data=data,
+                files=files,
+                timeout=settings.EXERCISE_HTTP_TIMEOUT,
+                headers=headers,
+            )
+    else:
+        headers = headers.copy() if headers else {}
+        if stamp:
+            headers['If-Modified-Since'] = stamp
+        def make_request():
+            logger.info("GET %s", url)
+            return session.get(
+                url,
+                timeout=settings.EXERCISE_HTTP_TIMEOUT,
+                headers=headers,
+            )
+
     try:
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
         n = 0
         while n <= last_retry:
             try:
                 request_time = time.time()
-                if post:
-                    logger.info("POST %s", url)
-                    response = requests.post(
-                        url,
-                        data=data,
-                        files=files,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT
-                    )
-                else:
-                    logger.info("GET %s", url)
-                    headers = {}
-                    if stamp:
-                        headers['If-Modified-Since'] = stamp
-                    response = requests.get(
-                        url,
-                        timeout=settings.EXERCISE_HTTP_TIMEOUT,
-                        headers=headers
-                    )
+                response = make_request()
                 request_time = time.time() - request_time
                 logger.info("Response %d (%d sec) %s",
                     response.status_code, request_time, url)
@@ -92,9 +118,9 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, post=False, data=None, files=None, stamp=None):
+    def __init__(self, url, **kwargs):
         self.url = urlparse(url)
-        self.response = request_for_response(url, post, data, files, stamp)
+        self.response = request_for_response(url, **kwargs)
         self.response.encoding = "utf-8"
         self.soup = BeautifulSoup(self.response.text, 'html5lib')
 
