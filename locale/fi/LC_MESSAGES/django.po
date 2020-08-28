@@ -2413,7 +2413,7 @@ msgstr "Tehtävää ladataan..."
 msgid "Submission received."
 msgstr "Palautus on vastaanotettu."
 
-#: exercise/templates/exercise/exercise.html:72
+#: exercise/templates/exercise/exercise.html:73
 msgid "Go to feedback"
 msgstr "Katso palaute"
 
@@ -2522,14 +2522,11 @@ msgstr "Lataa"
 #: exercise/templates/exercise/staff/_submissions_table.html:37
 #, python-format
 msgid ""
-"\n"
-"    %(limit)s latest submissions.\n"
-"    <a class=\"aplus-button--secondary aplus-button--sm\" href=\"%(url)s\">Show all</a>\n"
-"    "
+"%(limit)s latest submissions. <a class=\"aplus-button--secondary aplus-"
+"button--xs\" role=\"button\" href=\"%(url)s\">Show all</a>"
 msgstr ""
-"\n"
-"%(limit)s viimeistä palautusta.\n"
-"<a class=\"aplus-button--secondary aplus-button--sm\" href=\"%(url)s\">Näytä kaikki</a>"
+"%(limit)s viimeistä palautusta. <a class=\"aplus-button--secondary aplus-"
+"button--xs\" role=\"button\" href=\"%(url)s\">Näytä kaikki</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html:42
 #, python-format

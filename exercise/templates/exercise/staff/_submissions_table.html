@@ -34,7 +34,7 @@
   <p>
     {% exercise_text_stats exercise %} |
     {% if not all and count == default_limit %}
-    {% blocktrans with limit=default_limit count=count url=all_url %}
+    {% blocktrans trimmed with limit=default_limit count=count url=all_url %}
     {{ limit }} latest submissions.
     <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ url }}">Show all</a>
     {% endblocktrans %}
