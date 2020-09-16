@@ -19,22 +19,22 @@ Alternatively, you can have comparable software which enable you to use the comm
 
 2. After the installation, you should have A+ running at http://localhost:8000.
 
-3. There are four main user-roles in A+. 
+3. There are four main user-roles in A+.
 These all have readymade accounts, which can be used during development:
 
-```
-username: root, password: root (Using A+ as a superuser)
-username: teacher, password: teacher (Using A+ as a teacher)
-username: student, password: student (Using A+ as a student)
-username: assistant, password: assistant (Using A+ as a course assistant)
-```
+   ```
+   username: root, password: root (Using A+ as a superuser)
+   username: teacher, password: teacher (Using A+ as a teacher)
+   username: student, password: student (Using A+ as a student)
+   username: assistant, password: assistant (Using A+ as a course assistant)
+   ```
 
-4. You can manage the database, user accounts and the content of the presented template course at http://localhost:8000/admin. 
+4. You can manage the database, user accounts and the content of the presented template course at http://localhost:8000/admin.
 You can log in with the superuser-account:
 
-```
-username: root, password: root
-```
+   ```
+   username: root, password: root
+   ```
 
 5. You can stop the containers with `CTRL + C`.
 
@@ -47,48 +47,48 @@ They can be located in separate directories.
 
 2. Clone the forked repository to your machine with e.g.:
 
-```
-git clone git@github.com:your-github-username/a-plus.git a-plus
-```
+   ```sh
+   $ git clone git@github.com:your-github-username/a-plus.git a-plus
+   ```
 
 3. To see the changes you make into the code, you need to mount the A+ code in the `docker-compose.yml` file.
 The file can be found at the root of the `course-templates` project.
 Mounting happens by adding the path to your cloned a-plus directory to the `volumes`-section of the `docker-compose.yml`:
 
-```yaml
-# ...
-services:
-  # ...
-  plus:
-    image: apluslms/run-aplus-front
-    volumes:
-    - data:/data
-    # mount development version to /srv/aplus, when write access is not required
-    - /home/user/a-plus/:/srv/aplus/:ro
-    # or to /src/aplus, when write access is required
-    #- /home/user/a-plus/:/src/aplus/:ro
-    ports:
-      - "8000:8000"
-    depends_on:
-      - grader
-# ...
-```
+   ```yaml
+   # ...
+   services:
+     # ...
+     plus:
+       image: apluslms/run-aplus-front
+       volumes:
+       - data:/data
+       # mount development version to /srv/aplus, when write access is not required
+       - /home/user/a-plus/:/srv/aplus/:ro
+       # or to /src/aplus, when write access is required
+       #- /home/user/a-plus/:/src/aplus/:ro
+       ports:
+         - "8000:8000"
+       depends_on:
+         - grader
+   # ...
+   ```
 If you wish to use features which require write access, e.g. update translations, change the `/srv/` to `/src/`.
 Using `/srv/` will allow the Django process to reload the code without stopping the container, but features which require the write access are not possible.
 
 4. Download and build all required support files by running the Drone pipeline, i.e., execute the following in the a-plus project root:
 
-```
-cd [A-PLUS PROJECT ROOT]
-drone exec
-```
+   ```sh
+   $ cd [A-PLUS PROJECT ROOT]
+   $ drone exec
+   ```
 
 5. Run the code within the container:
 
-```
-cd [COURSE-TEMPLATES PROJECT ROOT]
-./docker-up.sh
-```
+   ```sh
+   $ cd [COURSE-TEMPLATES PROJECT ROOT]
+   $ ./docker-up.sh
+   ```
 
 **Note that if you wish to develop the code in other services related to A+ (e.g. [mooc-grader](https://github.com/apluslms/mooc-grader), which handles grading of some exercises), you need to follow the instructions given for those services, for example:**
 
@@ -117,9 +117,9 @@ Note that if you have mounted the code to `/src/`, you need to restart the serve
 
 3. After completing the changes and before committing them, run:
 
-```
-drone exec
-```
+   ```sh
+   $ drone exec
+   ```
 
 4. Include the built production versions of JavaScript and CSS files (e.g. `css/main.css` and `css/main.css.map`) into the git commit with your changes.
 
@@ -142,50 +142,50 @@ Therefore they are run and updated outside the containers, within a virtual envi
 
 1. Create a virtual environment for a-plus and activate it:
 
-```
-python3 -m venv venv_aplus
-source venv_aplus/bin/activate
-```
+   ```sh
+   $ python3 -m venv venv_aplus
+   $ source venv_aplus/bin/activate
+   ```
 
 2. Install necessary requirements for development:
 
-```
-cd [A-PLUS PROJECT ROOT]
-pip3 install --upgrade pip setuptools wheel
-pip3 install -r requirements.txt
-```
+   ```sh
+   $ cd [A-PLUS PROJECT ROOT]
+   $ pip3 install --upgrade pip setuptools wheel
+   $ pip3 install -r requirements.txt
+   ```
 
 3. Create a `local_settings.py` -file at `a-plus/local_settings.py`.
 There is an example file `local_settings.example.py`, which you can use as a starting point.
 
 4. Ensure your `local_settings.py` contains at least the following lines:
 
-```
-DEBUG = True
-BASE_URL = 'http://localhost:8000/'
-```
+   ```
+   DEBUG = True
+   BASE_URL = 'http://localhost:8000/'
+   ```
 
 5. Run the existing django migrations:
 
-```
-python3 manage.py migrate
-```
+   ```sh
+   $ python3 manage.py migrate
+   ```
 
 6. You can now run the local version without a container:
 
-```
-python3 manage.py runserver
-```
+   ```sh
+   $ python3 manage.py runserver
+   ```
 
-If you need to be able to login or use the admin-page while running the code without a container, you can create a superuser by following [these instructions](https://docs.djangoproject.com/en/3.0/intro/tutorial02/#introducing-the-django-admin). 
+If you need to be able to login or use the admin-page while running the code without a container, you can create a superuser by following [these instructions](https://docs.djangoproject.com/en/3.0/intro/tutorial02/#introducing-the-django-admin).
 
 ### Unit tests
 
 1. Run the unit tests:
 
-```
-python3 manage.py test
-```
+   ```sh
+   $ python3 manage.py test
+   ```
 
 ### Selenium integration tests
 
@@ -195,35 +195,35 @@ Currently, the tests depend on a Unix type shell and are run within a virtual en
 
 1. Install the necessary requirements:
 
-```
-pip3 install -r requirements_testing.txt
-```
+   ```sh
+   $ pip3 install -r requirements_testing.txt
+   ```
 
 2. Download the latest release of geckodriver (choose the appropriate tar.gz file based on your machine) from https://github.com/mozilla/geckodriver/releases and extract it.
 
 3. Check the path to your extracted geckodriver and add it to PATH:
 
-```
-export PATH=$PATH:/path-to-your-extracted-geckodriver/
-```
+   ```sh
+   $ export PATH=$PATH:/path-to-your-extracted-geckodriver/
+   ```
 
 4. To setup the servers and run all the tests at one go:
 
-```
-selenium_test/run_servers_and_tests.sh
-```
+   ```sh
+   $ selenium_test/run_servers_and_tests.sh
+   ```
 
 5. Alternatively you can run individual tests:
 
-```
-cd selenium_test/test/
-../run_servers.sh
+   ```sh
+   $ cd selenium_test/test/
+   $ ../run_servers.sh
 
-python3 login_test.py
-python3 home_page_test.py
+   $ python3 login_test.py
+   $ python3 home_page_test.py
 
-../kill_servers.sh
-```
+   $ ../kill_servers.sh
+   ```
 
 ### Updating translations for Finnish and English versions
 
@@ -232,22 +232,22 @@ Translations are handled with [Django](https://docs.djangoproject.com/en/3.1/ref
 
 1. In order to update the file containing translations, run:
 
-```
-python3 manage.py makemessages --no-obsolete
-```
+   ```sh
+   $ python3 manage.py makemessages --no-obsolete
+   ```
 
 2. You can easily check the lines that were affected:
 
-```
-git diff locale/fi/LC_MESSAGES/django.po
-```
+   ```sh
+   $ git diff locale/fi/LC_MESSAGES/django.po
+   ```
 
 3. Add new Finnish translations for the lines you have created.
 
 4. And compile the translations to ensure they are working:
 
-```
-python3 manage.py compilemessages
-```
+   ```sh
+   sh python3 manage.py compilemessages
+   ```
 
 The final step can also be used to ensure that the translations work, when the code is ran in a container and mounted to `/srv/`.
