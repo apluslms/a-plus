@@ -98,12 +98,19 @@ cd [COURSE-TEMPLATES PROJECT ROOT]
 ## Making changes to Sass or JavaScript files
 
 1. Ensure you followed the steps above and have the a-plus code mounted within the `docker-compose.yml` file and the containers running with `./docker-up.sh`.
-2. In order to see changes in styles when working on the SCSS files, open up another terminal and run the following in the a-plus project root:
+2. In order to see changes in styles when working on the SCSS files, open up another terminal and run the following commands in the a-plus project root:
 
-```
-cd [A-PLUS PROJECT ROOT]
-./dev_assets_watch_sass.sh
-```
+    ```sh
+   $ cd [A-PLUS PROJECT ROOT]
+   $ drone exec
+   ```
+
+   After the `drone exec` command finishes its execution, you can start monitoring the changes of the sass compiler by executing the following command.
+
+   ```sh
+   $ cd [A-PLUS PROJECT ROOT]
+   $ ./dev_assets_watch_sass.sh
+   ```
 
 The command will start a container, which will monitor Sass directories for changes and compile them to CSS files when changes are detected.
 Note that if you have mounted the code to `/src/`, you need to restart the servers for these updates to take effect.
