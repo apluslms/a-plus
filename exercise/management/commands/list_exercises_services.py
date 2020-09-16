@@ -24,7 +24,6 @@ class Command(BaseCommand):
         parser.add_argument('-V', '--visible', action='store_true',
             help="Limit results to courses, which are currently visible "
                  "to students")
-        pass
 
     def handle(self, *args, **options):
         services = {}
@@ -44,11 +43,11 @@ class Command(BaseCommand):
                 try:
                     num = float(num)
                 except ValueError:
-                    raise CommandError("Invalid value '%s' for not-before" %
+                    raise CommandError("Invalid value '%s' for --max-age" %
                         (after,))
                 if suffix not in suffixes:
-                    raise CommandError("Unknown suffix in --not-before=%s; valid: %s" %
-                        (after, ', '.join(k for k in suffixes.keys)))
+                    raise CommandError("Unknown suffix in --max-age=%s; valid: %s" %
+                        (after, ', '.join(k for k in suffixes.keys())))
                 num = num * suffixes[suffix]
             after = timezone.now() - timedelta(days=num)
             qs = qs.filter(course_module__course_instance__starting_time__gt=after)
