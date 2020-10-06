@@ -18,6 +18,14 @@ $brand-info: $aplus-info;
 $brand-warning: $aplus-warning;
 $brand-danger: $aplus-danger;
 
+// Import new font variables
+@import 'variables/typography';
+$font-family-sans-serif: $aplus-font-family-sans-serif;
+$font-family-serif: $aplus-font-family-serif;
+$font-family-monospace: $aplus-font-family-monospace;
+$font-family-base: $aplus-font-family-base;
+$font-size-base:  $aplus-font-size-base;
+
 @import 'vendor/bootstrap3';
 
 /*!

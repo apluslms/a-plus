@@ -1,0 +1,8 @@
+// Typography
+// Font-related variables used to overwrite the default fonts and base font size provided by Bootstrap 3
+
+$aplus-font-family-sans-serif:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$aplus-font-family-serif:       Georgia, "Times New Roman", Times, serif;
+$aplus-font-family-monospace:   SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$aplus-font-family-base:        $aplus-font-family-sans-serif;
+$aplus-font-size-base:	        16px; // Assumes the browser default, typically `16px`
