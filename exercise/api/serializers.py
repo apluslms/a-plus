@@ -28,6 +28,8 @@ class ExerciseBriefSerializer(AplusModelSerializer):
             'url',
             'html_url',
             'display_name',
+            'max_points',
+            'max_submissions',
         )
 
 
@@ -38,6 +40,7 @@ class SubmissionBriefSerializer(AplusModelSerializer):
         model = Submission
         fields = (
             'submission_time',
+            'grade',
         )
         extra_kwargs = {
             'url': {

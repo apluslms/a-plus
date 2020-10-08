@@ -1,4 +1,5 @@
 import datetime
+import json
 from urllib.parse import urlsplit
 from django.conf import settings
 from django.contrib import messages
@@ -575,7 +576,16 @@ class BaseExercise(LearningObject):
 
         # Support group id from post or currently selected group.
         group = None
-        group_id = request.POST.get("_aplus_group") if request else None
+        group_id = None
+        if request:
+            try:
+                group_id = json.loads(request.POST.get('__aplus__', '{}')).get('group')
+            except json.JSONDecodeError:
+                warnings.append(_("Cannot submit exercise because of invalid JSON in POST data"))
+                return self.SUBMIT_STATUS.INVALID, warnings, students
+            if group_id is None:
+                group_id = request.POST.get("_aplus_group")
+
         if not group_id is None:
             try:
                 gid = int(group_id)
@@ -583,6 +593,9 @@ class BaseExercise(LearningObject):
                     group = profile.groups.filter(
                         course_instance=self.course_instance,
                         id=gid).first()
+                    if group is None:
+                        warnings.append(_("No group found with the given ID"))
+                        return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
             except ValueError:
                 pass
         elif enrollment and enrollment.selected_group:
@@ -694,7 +707,9 @@ class BaseExercise(LearningObject):
         """
         Loads the exercise feedback page.
         """
-        language = get_language()
+        # Get the language from the submission
+        language = submission.lang or self.course_module.course_instance.default_language
+
         submission_url = update_url_params(
             api_reverse("submission-grader", kwargs={
                 'submission_id': submission.id

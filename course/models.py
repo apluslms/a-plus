@@ -309,13 +309,10 @@ class UserTagging(models.Model):
         ordering = ['tag']
 
 
-def get_course_visibility_filter(user, prefix=None):
+def get_course_staff_visibility_filter(user, prefix=None):
     class OR(Q):
         default = Q.OR
-
-    filters = (
-        ('visible_to_students', True),
-    )
+    filters = ()
     if isinstance(user, User):
         user = user.userprofile
         filters += (
@@ -345,7 +342,10 @@ class CourseInstanceManager(models.Manager):
         if not user or not user.is_authenticated:
             return self.filter(visible_to_students=True)
         if not user.is_superuser:
-            return self.filter(get_course_visibility_filter(user)).distinct()
+            return self.filter(
+                get_course_staff_visibility_filter(user)
+                | Q(visible_to_students=True),
+            ).distinct()
         return self.all()
 
 
@@ -477,6 +477,14 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_valid_language(self, lang):
         return lang == "" or lang in [key for key,name in settings.LANGUAGES]
+
+    @property
+    def default_language(self):
+        language = self.language
+        language_code = language.lstrip('|').split('|', 1)[0]
+        if language_code:
+            return language_code
+        return settings.LANGUAGE_CODE.split('-', 1)[0]
 
     def save(self, *args, **kwargs):
         """
@@ -666,8 +674,8 @@ class CourseModuleManager(models.Manager):
             )
         if not user.is_superuser:
             return self.filter(
-                get_course_visibility_filter(user, 'course_instance__'),
-                opening_time__lte=timezone.now(),
+                get_course_staff_visibility_filter(user, 'course_instance__')
+                | Q(course_instance__visible_to_students=True, opening_time__lte=timezone.now()),
             ).distinct()
         return self.all()
 

@@ -49,10 +49,21 @@ class ExercisePointsSerializer(serializers.Serializer):
                 'submission_id': submission_id
             }, request=request)
 
+        def submission_obj(submission_cached):
+            id_ = submission_cached['id']
+            return {
+                'id': id_,
+                'url': submission_url(id_),
+                'submission_time': submission_cached['date'],
+                'grade': submission_cached['points'],
+            }
+
+        submissions = [submission_obj(s) for s in entry['submissions']]
         exercise_data = {
             'url': exercise_url(entry['id']),
             'best_submission': submission_url(entry['best_submission']),
-            'submissions': [submission_url(s['id']) for s in entry['submissions']],
+            'submissions': [s['url'] for s in submissions],
+            'submissions_with_points': submissions,
         }
         for key in [
             # exercise

@@ -1901,7 +1901,15 @@ msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
 msgid "You must enroll in the course to submit exercises."
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
-#: exercise/exercise_models.py:595
+#: exercise/exercise_models.py:584
+msgid "Cannot submit exercise because of invalid JSON in POST data"
+msgstr "Tehtävää ei voitu palauttaa, POST pyyntö sisälsi virheellistä JSON:nia"
+
+#: exercise/exercise_models.py:598
+msgid "No group found with the given ID"
+msgstr "Ryhmää ei löytynyt annetulla ID:llä"
+
+#: exercise/exercise_models.py:609
 msgid "Group can only change between different exercises."
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
@@ -2913,7 +2921,15 @@ msgstr "Tehtävässä on huoltokatko, ja sisältö on piilotettu opiskelijoilta.
 msgid "Unfortunately this exercise is currently under maintenance."
 msgstr "Valitettavasti tässä tehtävässä on juuri nyt huoltokatko."
 
-#: exercise/views.py:181
+#: exercise/views.py:155
+msgid ""
+"The submission could not be saved due to malformed post data. The submission "
+"was not registered. Error: {error}"
+msgstr ""
+"Palautuksen tallentaminen epäonnistui virheellisen pyynnön takia. Palautusta "
+"ei ole huomioitu. Virhe: {error}"
+
+#: exercise/views.py:193
 msgid "You need to sign in and enroll to submit exercises."
 msgstr ""
 "Palauttaaksesi tehtäviä sinun pitää rekisteröityä ja ilmoittautua kurssin "

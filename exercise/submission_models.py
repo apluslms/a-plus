@@ -1,13 +1,14 @@
 import itertools
 import logging
 import os
+import json
 
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language, ugettext_lazy as _
 from mimetypes import guess_type
 
 from lib.fields import JSONField, PercentField
@@ -28,18 +29,36 @@ class SubmissionManager(models.Manager):
             .prefetch_related('submitters')
 
     def create_from_post(self, exercise, submitters, request):
-        new_submission = Submission.objects.create(
-            exercise=exercise,
-            submission_data=query_dict_to_list_of_tuples(request.POST)
-        )
-        new_submission.submitters.set(submitters)
+
+        submission_data_list = [
+                (key, value) for (key, value) in query_dict_to_list_of_tuples(request.POST)
+                if key != '__aplus__'
+        ]
+        try:
+            meta_data_dict = json.loads(request.POST.get('__aplus__', '{}'))
+        except json.JSONDecodeError:
+            raise ValueError("The content of the field __aplus__ is not valid json")
+        if 'lang' not in meta_data_dict:
+            meta_data_dict['lang'] = get_language()
+
+        try:
+            new_submission = Submission.objects.create(
+                exercise=exercise,
+                submission_data=submission_data_list,
+                meta_data=meta_data_dict,
+            )
+            new_submission.submitters.set(submitters)
+        except DatabaseError as error:
+            logger.exception("Failed to create submission: %s %s",
+                request.user.username, exercise);
+            raise DatabaseError from error
         try:
             new_submission.add_files(request.FILES)
-        except DatabaseError:
+        except DatabaseError as error:
             logger.exception("Failed to save submitted files: %s %s",
                 request.user.username, exercise);
             new_submission.delete()
-            return None
+            raise DatabaseError from error
         return new_submission
 
     def exclude_errors(self):
@@ -137,6 +156,7 @@ class Submission(UrlMixin, models.Model):
     # Additional data
     submission_data = JSONField(blank=True)
     grading_data = JSONField(blank=True)
+    meta_data = JSONField(blank=True)
 
     objects = SubmissionManager()
 
@@ -289,6 +309,14 @@ class Submission(UrlMixin, models.Model):
     @property
     def is_graded(self):
         return self.status in (self.STATUS.READY, self.STATUS.UNOFFICIAL)
+
+    @property
+    def lang(self):
+        try:
+            return self.meta_data.get('lang', None)
+        except AttributeError:
+            # Handle cases where database includes null or non dictionary json
+            return None
 
     ABSOLUTE_URL_NAME = "submission"
 

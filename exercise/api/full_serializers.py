@@ -63,8 +63,6 @@ class ExerciseSerializer(ExerciseBriefSerializer):
             'course',
             'is_submittable',
             'post_url',
-            'max_points',
-            'max_submissions',
             'exercise_info',
             'templates',
             'submissions',
