@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-23 13:18+0300\n"
+"POT-Creation-Date: 2020-10-29 10:24+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jhosimar Aguacia <jhosimar.aguaciafisco@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1016,6 +1016,7 @@ msgstr "Avaa 0 arvosanan diplomi"
 
 #: diploma/templates/diploma/list.html:26
 #: edit_course/templates/edit_course/signin_as_user.html:14
+#: userprofile/templates/userprofile/login.html:94
 #: userprofile/templates/userprofile/profile.html:113
 msgid "Username"
 msgstr "Käyttäjätunnus"
@@ -3568,7 +3569,7 @@ msgid "Log out"
 msgstr "Kirjaudu ulos"
 
 #: templates/base.html:140 templates/base.html:176
-#: userprofile/templates/userprofile/login.html:84
+#: userprofile/templates/userprofile/login.html:112
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
@@ -3625,18 +3626,18 @@ msgstr "{:d} pisteet"
 
 #: userprofile/templates/userprofile/login.html:6
 #: userprofile/templates/userprofile/login.html:17
-msgid "Login"
-msgstr "Kirjaudu sisään"
+msgid "Log in to A+"
+msgstr "Kirjaudu A+:aan"
 
-#: userprofile/templates/userprofile/login.html:61
+#: userprofile/templates/userprofile/login.html:63
 msgid "Log in using Google"
 msgstr "Kirjaudu Google-tunnuksella"
 
-#: userprofile/templates/userprofile/login.html:72
+#: userprofile/templates/userprofile/login.html:73
 msgid "Local users"
 msgstr "Paikalliset käyttäjät"
 
-#: userprofile/templates/userprofile/login.html:75
+#: userprofile/templates/userprofile/login.html:77
 #, python-format
 msgid ""
 "If you have been provided with credentials specifically for %(brand_name)s, "
@@ -3645,12 +3646,20 @@ msgstr ""
 "Mikäli sinulla on tunnukset yksinomaan %(brand_name)s-palvelua varten, "
 "kirjaudu sisään tästä."
 
-#: userprofile/templates/userprofile/login.html:93
-#: userprofile/templates/userprofile/login.html:94
+#: userprofile/templates/userprofile/login.html:86
+msgid "Close error list"
+msgstr "Sulje virheluettelo"
+
+#: userprofile/templates/userprofile/login.html:103
+msgid "Password"
+msgstr "Salasana"
+
+#: userprofile/templates/userprofile/login.html:121
+#: userprofile/templates/userprofile/login.html:122
 msgid "Show more login options"
 msgstr "Näytä lisää kirjautumisvaihtoehtoja"
 
-#: userprofile/templates/userprofile/login.html:104
+#: userprofile/templates/userprofile/login.html:132
 #, python-format
 msgid "You may want to read our <a href=\"%(url)s\">privacy notice</a>."
 msgstr ""
