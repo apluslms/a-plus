@@ -41,9 +41,12 @@ $font-size-base:  $aplus-font-size-base;
 /*!
  * A+ Styles
  */
+@import 'layout/header';
+@import 'layout/footer';
 @import 'components/button';
 @import 'components/error_summary';
 @import 'components/focus';
 @import 'components/frontpage-cards';
+@import 'components/menu-notification';
 @import 'pages/profile-page';
 @import 'protocols/quiz1';

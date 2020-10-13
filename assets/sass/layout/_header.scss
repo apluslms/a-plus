@@ -1,0 +1,80 @@
+.topbar {
+	background-color: $aplus-brand-primary;
+	border-bottom: none;
+	-webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25),
+		inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25),
+		inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+
+	.navbar-brand,
+	.navbar-nav > li > a,
+	.navbar-toggle,
+	.navbar-nav > .active > a,
+	.navbar-nav > .active > a:hover {
+		@include focus-with-background-and-color;
+
+		color: #ffffff;
+		background: transparent;
+	}
+
+	a.navbar-brand:hover,
+	.navbar-nav > li > a:hover,
+	.navbar-nav > .open > a,
+	.navbar-nav > .open > a:focus,
+	.navbar-nav > .open > a:hover {
+		background-color: #236aa7;
+		background-color: rgba(0, 0, 0, 0.1);
+	}
+	.navbar-toggle .badge {
+		position: absolute;
+		right: -10px;
+		top: 4px;
+	}
+	.navbar-header .visible-xs {
+		max-width: 250px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	ul.visible-xs {
+		margin: 0;
+
+		li {
+			border: 1px solid;
+			border-top: none;
+			border-color: #236aa7;
+			border-color: rgba(0, 0, 0, 0.25);
+			a {
+				color: white !important;
+				padding: 10px 15px !important;
+			}
+		}
+		ul.dropdown-menu {
+			padding: 0;
+
+			li {
+				border: none;
+				border-top: 1px solid;
+			}
+		}
+		.header {
+			border-left: none;
+			border-right: none;
+			padding: 0.2em 1em;
+
+			h4 {
+				font-size: 10px;
+				font-weight: bolder;
+				color: #75a5d0;
+				margin: 0;
+			}
+		}
+	}
+}
+
+.navbar-inverse .navbar-toggle:focus,
+.navbar-inverse .navbar-toggle:hover {
+	background-color: #236aa7;
+	background-color: rgba(0, 0, 0, 0.1);
+}
