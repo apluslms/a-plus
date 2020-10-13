@@ -1,0 +1,17 @@
+/* site footer */
+
+.site-footer {
+	position: absolute;
+	bottom: 0;
+	min-height: 50px;
+	z-index: 990;
+
+	.nav > li > a {
+		@include focus-with-background-and-color;
+		color: $aplus-brand-primary;
+		&:focus,
+		&:hover {
+			color: #236aa7;
+		}
+	}
+}
