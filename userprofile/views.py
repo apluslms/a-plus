@@ -173,3 +173,13 @@ class AccessibilityStatementView(UserProfileView):
 
 class ProfileView(UserProfileView):
     template_name = "userprofile/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_google'] = (
+            self.request.user.social_auth.filter(provider="google-oauth2").exists()
+            if settings.SOCIAL_AUTH
+            else False
+        )
+
+        return context

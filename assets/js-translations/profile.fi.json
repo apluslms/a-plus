@@ -1,0 +1,13 @@
+{
+  "Forget automatic redirection":
+  "Unohda automaattinen uudelleenohjaus",
+
+  "Forget":
+  "Unohda",
+
+  "You have enabled automatic redirection to these services on this device. You may remove the automatic redirection here. The privacy information will be shown to you next time you open the service.":
+  "Olet sallinut automaattisen uudelleenohjauksen näihin palveluihin tällä laitteella. Voit poistaa automaattisen uudelleenohjauksen tässä. Ilmoitus yksityisyydensuojasta näytetään sinulle seuraavalla kerralla, kun avaat palvelun.",
+
+  "No services enabled for automatic redirection on this device.":
+  "Tällä laitteella ei ole sallittu automaattista uudelleenohjausta millekään palvelulle."
+}
