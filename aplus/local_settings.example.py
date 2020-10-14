@@ -8,6 +8,7 @@
 ## Branding
 #BRAND_NAME = 'Your brand name (default is A+)'
 #BRAND_DESCRIPTION = 'Description of your service (default is Virtual Learning Environment)'
+# BRAND_INSTITUTION_NAME = Your institution name, e.g., 'Aalto University', 'Tampere university'
 # Show red alert on top of all pages
 #SITEWIDE_ALERT_TEXT = "Maintenance on Monday"
 #SITEWIDE_ALERT_TEXT = {'en': "Maintenance on Monday", 'fi': "Maanantaina on palvelukatko"}

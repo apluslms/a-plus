@@ -4,6 +4,7 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
+from lib.helpers import settings_text
 
 
 register = template.Library()
@@ -29,6 +30,9 @@ def get_date(cont, key):
 def brand_name():
     return mark_safe(settings.BRAND_NAME)
 
+@register.simple_tag
+def brand_institution_name():
+    return mark_safe(settings_text('BRAND_INSTITUTION_NAME'))
 
 @register.simple_tag
 def site_alert():

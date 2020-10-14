@@ -1,0 +1,21 @@
+/* profile */
+
+.local-storage-fields {
+	li.list-group-item {
+		line-height: 1.5em;
+		&.clearfix {
+			padding-top: 0px;
+			padding-bottom: 0px;
+			padding-right: 0px;
+		}
+	}
+}
+dt.provider-information {
+	text-align: left;
+}
+
+@media (max-width: 768px) {
+	.btn-save-profile {
+		margin-top: 10px;
+	}
+}

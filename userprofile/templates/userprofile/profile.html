@@ -2,96 +2,118 @@
 {% load i18n %}
 {% load static %}
 {% load course %}
+{% load base %}
 
 {% block title %}{% trans "Profile" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}profile{% endblock %}
 
+{% block js-translations %}
+<link
+    data-translation
+	rel="prefetch"
+    as="fetch"
+    crossorigin="anonymous"
+    type="application/json, */*;"
+    hreflang="fi"
+    href="{{ STATIC_URL }}js-translations/profile.fi.json"
+>
+<link
+    data-translation
+	rel="prefetch"
+    as="fetch"
+    crossorigin="anonymous"
+    type="application/json, */*;"
+    hreflang="fi"
+    href="{{ STATIC_URL }}js-translations/copy-to-clipboard.fi.json"
+>
+{% endblock %}
+
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'userprofile/local_storage_external_services.js' %}"></script>
+<script src="{% static 'js/copy-to-clipboard.js' %}"></script>
+<script src="{% static 'userprofile/copy_token.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>
-        {% if user.first_name or user.last_name %}
-        {{ user.first_name }} {{ user.last_name }}
-        {% else %}
-        {% trans "[Unknown name]" %}
-        {% endif %}
-    </h1>
+<div class="row">
+	<div class="col-sm-offset-2 col-sm-8 page-header">
+		<h1>
+			{% if user.first_name or user.last_name %}
+			{{ user.first_name }} {{ user.last_name }}
+			{% else %}
+			{% trans "[Unknown name]" %}
+			{% endif %}
+		</h1>
+	</div>
 </div>
 <div class="row">
-    <div class="col-md-2">
-        <div class="thumbnail">
-            <img src="{{ profile.avatar_url }}" alt="avatar" />
-        </div>
-        <dl>
-            {% trans "[Missing]" as miss %}
-        	  <dt>{% trans "Student ID" %}</dt>
-            <dd>{% firstof profile.student_id miss %}</dd>
-            <dt>{% trans "E-mail" %}</dt>
-            <dd>{% firstof user.email miss %}</dd>
-            <dt>{% trans "Username" %}</dt>
-            <dd>{% firstof user.username miss %}</dd>
-            <dt>{% trans "API Access Token" %}</dt>
-            <dd><input value="{{ profile.api_token }}" class="form-control"></dd>
-			<dt>{% trans "Language" %}</dt>
-			<dd>
-				<form action="{% url 'set-user-language' %}" method="post" class="form">{% csrf_token %}
-					<input name="next" type="hidden" value="{{ redirect_to }}">
-					<div class="input-group">
-						<select name="language" class="form-control">
-							{% get_current_language as LANGUAGE_CODE %}
-							{% get_available_languages as LANGUAGES %}
-							{% get_language_info_list for LANGUAGES as languages %}
-							{% for language in languages %}
-								<option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
-									{{ language.name_local }}
-								</option>
-							{% endfor %}
-						</select>
-						<div class="input-group-btn">
-							<button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
-						</div>
-					</div>
-				</form>
-			</dd>
-        </dl>
-    </div>
-    <div class="col-md-6">
-        <div class="alert alert-info">
-            {% blocktrans with email=user.email %}
-            You can change your avatar icon
-            at <a href="http://gravatar.com">gravatar.com</a>.
-            Use your e-mail address <strong>{{ email }}</strong>
-            when registering your account.
-            {% endblocktrans %}
-        </div>
-
-        {# TODO: check the user type and show editing options/help #}
-        <div class="alert alert-info">
-            {% blocktrans %}
-            To change your settings, such as <strong>e-mail</strong>
-            address or <strong>password</strong>, you must update
-            them on your identity provider.
-            {% endblocktrans %}
-        </div>
-		<div class="well">
-			<h4>{% trans "Automatic service redirections" %}</h4>
-			<p>
-				{% blocktrans %}
-				These are all services that you have marked for automatic redirection on this device.
-				You can remove automatic redirection here and you will be shown the privacy information next time you are being redirected to the service.
+	<div class="col-sm-offset-2 col-sm-8 col-lg-4">
+		<h2>{% trans "A+ Preferences" %}</h2>
+		<form action="{% url 'set-user-language' %}" method="post" class="form form-horizontal">{% csrf_token %}
+			<div class="form-group">
+				<label class="col-xs-12" for="language-profile">{% trans 'Language' %}</label>
+				<div class="col-xs-12 col-sm-8">
+					<select name="language" class="form-control" id="language-profile">
+						{% get_current_language as LANGUAGE_CODE %}
+						{% get_available_languages as LANGUAGES %}
+						{% get_language_info_list for LANGUAGES as languages %}
+						{% for language in languages %}
+						<option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %}selected{% endif %}>
+							{{ language.name_local }}
+						</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="col-xs-offset-0 col-xs-6 col-sm-4 ">
+					<button type="submit"
+						class="aplus-button--default aplus-button--md btn-block btn-save-profile">{% trans 'Save' %}</button>
+				</div>
+			</div>
+		</form>
+		<label for="api-access-token">{% trans "API Access Token" %}</label>
+		<div class="input-group">
+			<input readonly type="text" class="form-control read-only" id="api-access-token"
+				value="{{ profile.api_token }}">
+			<span class="input-group-btn">
+				<button data-toggle="tooltip" data-placement="bottom"
+					title="{% trans 'Copy API Access Token' %}" aria-label="{% trans 'Copy API Access Token' %}"
+					class="aplus-button--secondary aplus-button--md js-copy" type="button"><span
+						class="glyphicon glyphicon-copy"></span><span class="">{% trans 'Copy' %}</span></button>
+			</span>
+		</div>
+		<br>
+		<div>
+			<label for="local-storage-services">{% trans "Automatic redirections" %}</label>
+			<p id="services-instructions">
+				{% blocktrans trimmed%}
+				No services marked for automatic redirection on this device.
 				{% endblocktrans %}
 			</p>
-			<ul class="local-storage-fields" data-forget-text="{% trans "Forget automatic redirection" %}"></ul>
-			</dd>
+			<ul id="local-storage-services" class="local-storage-fields"
+			data-forget-text="{% trans 'Forget automatic redirection' %}" role="group"></ul>
 		</div>
-    </div>
-    <div class="col-md-4">
-
-        {# TODO: list enrolled courses #}
-    </div>
+	</div>
 </div>
+<div class="row">
+	<div class="col-sm-offset-2 col-sm-8 col-md-4">
+		{% if not is_google %}
+			{% brand_institution_name as institution %}
+				<h2>{% blocktrans with institution=institution trimmed %}Information provided by {{ institution }}{% endblocktrans %}</h2>
+		{% elif is_google %}
+			<h2>{% trans "Information provided by Google" %}</h2>
+		{% endif %}
+		<p class="text-warning">{% trans "The following settings can be changed in your identity provider." %}</p>
+		<dl class="dl-horizontal">
+			{% trans "[Missing]" as miss %}
+			<dt class="provider-information">{% trans "Student ID" %}</dt>
+			<dd>{% firstof profile.student_id miss %}</dd>
+			<dt class="provider-information">{% trans "E-mail" %}</dt>
+			<dd>{% firstof user.email miss %}</dd>
+			<dt class="provider-information">{% trans "Username" %}</dt>
+			<dd>{% firstof user.username miss %}</dd>
+		</dl>
+	</div>
+</div> <br>
+
 {% endblock %}
