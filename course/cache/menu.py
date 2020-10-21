@@ -36,7 +36,8 @@ class CachedTopMenu(CachedAbstract):
 
         enrolled = []
         for instance in profile.enrolled.all():
-            enrolled.append(course_entry(instance))
+            if instance.visible_to_students:
+               enrolled.append(course_entry(instance))
 
         teaching = []
         for course in profile.teaching_courses.all():
