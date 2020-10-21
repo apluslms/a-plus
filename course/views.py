@@ -57,10 +57,13 @@ class HomeView(UserProfileView):
                 if instance not in my_instances:
                     my_instances.append(instance)
             
-            for instance in user.userprofile.enrolled.all().filter(ending_time__gte=end_threshold):
+            for instance in user.userprofile.enrolled.all().filter(
+                    ending_time__gte=end_threshold,
+                    visible_to_students=True,
+                ):
                 if instance not in my_instances:
                     my_instances.append(instance)
-        
+
         all_instances = CourseInstance.objects.get_visible(user).filter(ending_time__gte=end_threshold)
         all_instances = [c for c in all_instances if c not in my_instances]
         
