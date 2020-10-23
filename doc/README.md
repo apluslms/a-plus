@@ -247,7 +247,7 @@ Translations are handled with [Django](https://docs.djangoproject.com/en/3.1/ref
 4. And compile the translations to ensure they are working:
 
    ```sh
-   sh python3 manage.py compilemessages
+   $ python3 manage.py compilemessages
    ```
 
 The final step can also be used to ensure that the translations work, when the code is ran in a container and mounted to `/srv/`.
