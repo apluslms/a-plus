@@ -263,7 +263,7 @@
                         <li class="not-found"><a>{% trans "No matches" %}</a></li>
                     </ul>
                 </span>
-                <input type="text" class="form-control" placeholder="{% trans 'Search for...' %}" />
+                <input type="text" aria-label="{% trans 'Search for...' %}" class="form-control" placeholder="{% trans 'Search for...' %}" />
             </div>
         </div>
         {% if not is_course_staff %}{% tracking_html %}{% endif %}
