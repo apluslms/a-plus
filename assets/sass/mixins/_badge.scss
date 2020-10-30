@@ -1,0 +1,4 @@
+@mixin badge-color($bg-color, $light-color, $dark-color) {
+	background-color: $bg-color;
+	color: choose-contrast-color($bg-color, $light-color, $dark-color);
+}
