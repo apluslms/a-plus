@@ -1,0 +1,18 @@
+@import "../mixins/badge";
+
+.badge {
+	@include badge-color($aplus-default-status-bg, #fff, #000);
+
+	&-success {
+		@include badge-color($aplus-success-status-bg, #fff, #000);
+	}
+	&-warning {
+		@include badge-color($aplus-warning-status-bg, #fff, #000);
+	}
+	&-danger {
+		@include badge-color($aplus-danger-status-bg, #fff, #000);
+	}
+	&-info {
+		@include badge-color($aplus-info-status-bg, #fff, #000);
+	}
+}

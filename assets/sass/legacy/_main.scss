@@ -293,7 +293,7 @@ html, body {
     margin-bottom: 0;
 }
 
-/* point progress and badges */
+/* point progress */
 .progress {
     position: relative;
 }
@@ -313,22 +313,6 @@ file for all the components */
 }
 .glyphicon.red {
   color: #ff7070;
-}
-.badge-danger {
-    background-color: #d9534f !important;
-    color: #fff !important;
-}
-.badge-warning {
-    background-color: #f0ad4e !important;
-    color: #fff !important;
-}
-.badge-info {
-    background-color: #5bc0de !important;
-    color: #fff !important;
-}
-.badge-success {
-    background-color: #5cb85c !important;
-    color: #fff !important;
 }
 .panel-primary>.panel-heading .badge-danger,
 .panel-primary>.panel-heading .badge-warning,

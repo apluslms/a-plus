@@ -18,6 +18,17 @@ $brand-info: $aplus-info;
 $brand-warning: $aplus-warning;
 $brand-danger: $aplus-danger;
 
+//** Default progress bar color
+$progress-bar-bg: $aplus-brand-primary;
+//** Success progress bar color
+$progress-bar-success-bg: $aplus-success-status-bg;
+//** Warning progress bar color
+$progress-bar-warning-bg: $aplus-warning-status-bg;
+//** Danger progress bar color
+$progress-bar-danger-bg: $aplus-danger-status-bg;
+//** Info progress bar color
+$progress-bar-info-bg: $aplus-info-status-bg;
+
 // Import new font variables
 @import 'variables/typography';
 $font-family-sans-serif: $aplus-font-family-sans-serif;
@@ -43,6 +54,7 @@ $font-size-base:  $aplus-font-size-base;
  */
 @import 'layout/header';
 @import 'layout/footer';
+@import 'components/badge';
 @import 'components/button';
 @import 'components/error_summary';
 @import 'components/focus';

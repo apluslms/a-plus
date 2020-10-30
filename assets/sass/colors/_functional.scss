@@ -8,3 +8,11 @@ $aplus-info: #1d7792; // This is a darkened version of the bootstrap 3 default. 
 $aplus-warning: #a6670e; // This is a darkened version of the bootstrap 3 default. Contrast must be >=4.5 with white.
 $aplus-danger: #a50000; // There should be a contrast ratio above 7 between this and white.
 $aplus-focus: #ffdd00; // This should be clearly different fron those defned above and the brand colours.
+
+// These colours may be used to represent the status of the grading.
+$aplus-primary-status-bg: #42a5f5;
+$aplus-default-status-bg: #c5c5c5;
+$aplus-success-status-bg: #8bc34a;
+$aplus-warning-status-bg: #ffb74d;
+$aplus-danger-status-bg: #ff5c72;
+$aplus-info-status-bg: #00bcd4;
