@@ -3,29 +3,6 @@
 {% load exercise %}
 <nav class="row siblings" aria-label="{% trans "Pagination" %}">
 
-    {% if next %}
-    {% if next.submittable %}
-        {% exercise_accessible next as accessible %}
-    {% else %}
-        {% module_accessible next as accessible %}
-    {% endif %}
-    {% if accessible %}
-    <a href="{{ next.link }}" class="pull-right">
-        {{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
-    </a>
-    {% else %}
-    <span class="pull-right disabled">
-        {{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
-        {% if is_course_staff %}
-        <a href="{{ next.link }}">
-            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-            {% trans "Early access" %}
-        </a>
-        {% endif %}
-    </span>
-    {% endif %}
-    {% endif %}
-
     {% if previous %}
     {% if previous.submittable %}
         {% exercise_accessible previous as accessible %}
@@ -54,5 +31,28 @@
             {% trans "Course materials" %}
         </a>
     </span>
+
+    {% if next %}
+    {% if next.submittable %}
+        {% exercise_accessible next as accessible %}
+    {% else %}
+        {% module_accessible next as accessible %}
+    {% endif %}
+    {% if accessible %}
+    <a href="{{ next.link }}" class="pull-right">
+        {{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
+    </a>
+    {% else %}
+    <span class="pull-right disabled">
+        {{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
+        {% if is_course_staff %}
+        <a href="{{ next.link }}">
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            {% trans "Early access" %}
+        </a>
+        {% endif %}
+    </span>
+    {% endif %}
+    {% endif %}
 
 </nav>
