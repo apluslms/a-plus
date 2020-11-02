@@ -546,20 +546,23 @@
 
 					var url = exercise.url;
 					exercise.submitAjax(url, formData, function(data) {
-						var content = $(data);
-						if (! content.find('.alert-danger').length) {
+						const content = $(data);
+						// Look for error alerts in the feedback, but skip the hidden element
+						// that is always included: <div class="quiz-submit-error alert alert-danger hide">
+						const alerts = content.find('.alert-danger:not(.hide)');
+						if (!alerts.length) {
 							var poll_url = content.find(".exercise-wait").attr("data-poll-url");
 							output.attr('data-poll-url', poll_url);
 
 							exercise.updateSubmission(content);
-						} else if (content.find('.alert-danger').contents().text()
+						} else if (alerts.contents().text()
 						.indexOf("The grading queue is not configured.") >= 0) {
 							output.find(exercise.settings.ae_result_selector)
-							.html(content.find(".alert").text());
+							.html(content.find(".alert:not(.hide)").text());
 							output.find(exercise.settings.ae_result_selector).append(content.find(".grading-task").text());
 						} else {
 							output.find(exercise.settings.ae_result_selector)
-							.html(content.find('.alert-danger').contents());
+							.html(alerts.contents());
 						}
 					});
 				});
