@@ -31,11 +31,38 @@
 		right: -10px;
 		top: 4px;
 	}
-	.navbar-header .visible-xs {
-		max-width: 250px;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
+	.navbar-toggle {
+		&:focus,
+		&:hover {
+			background-color: #fff;
+			@include focus-with-background-and-color;
+
+		.icon-bar {
+			background-color: #000000;
+		}
+	}
+}
+	.navbar-header {
+		.visible-xs {
+			max-width: 250px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		@media (max-width: 768px) {
+			.instance-selector {
+				margin-left: 30px;
+			}
+
+			.navbar-nav.instance-selector {
+				li.open {
+					a {
+						background-color: #005eb8;
+						color: #fff;
+					}
+				}
+			}
+		}
 	}
 	ul.visible-xs {
 		margin: 0;
@@ -64,17 +91,13 @@
 			padding: 0.2em 1em;
 
 			h4 {
-				font-size: 10px;
+				font-size: 1em;
 				font-weight: bolder;
-				color: #75a5d0;
+				color: #ffffff;
 				margin: 0;
 			}
 		}
 	}
 }
 
-.navbar-inverse .navbar-toggle:focus,
-.navbar-inverse .navbar-toggle:hover {
-	background-color: #236aa7;
-	background-color: rgba(0, 0, 0, 0.1);
-}
+
