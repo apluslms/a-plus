@@ -86,6 +86,37 @@ $(function() {
 
     $(window).bind('scroll', modifyMenu);
     $(window).bind('resize', updateMenu);
+
+    /**
+    * Warn about links that open in new windows.
+    */
+
+    function addLinkType(link, type) {
+      let linkTypes = (link.getAttribute('rel') || '').split(' ');
+      if (!linkTypes.includes(type)) {
+        linkTypes.push(type);
+      }
+      link.setAttribute('rel', linkTypes.join(' ').trim());
+    }
+
+    function addExternalLinkIcon(link) {
+      if (!link.querySelector('.icon')) {
+        link.insertAdjacentHTML('beforeend', `<span class="icon external-link"></span>`);
+      }
+    }
+
+    function addScreenReaderMessage(link, message) {
+      if (!link.querySelector('.sr-only')) {
+        link.insertAdjacentHTML('beforeend', `<span class="fas fa-external-link-alt sr-only"> (${message})</span>`);
+      }
+    }
+    $(document).on("aplus:translation-ready", function () {
+      document.querySelectorAll('a[target="_blank"]').forEach(link => {
+        addLinkType(link, 'noopener');
+        addExternalLinkIcon(link);
+        addScreenReaderMessage(link, _('opens in a new tab'));
+      });
+    });
 });
 
 /**
