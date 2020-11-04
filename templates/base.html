@@ -36,6 +36,9 @@
 		href="{{ STATIC_URL }}js-translations/teacher.fi.json">
 	<script src="{% static 'js/filter.js' %}"></script>
 	{% endif %}
+	<link data-translation rel="preload" as="fetch" crossorigin="anonymous"
+		type="application/json, text/javascript, */*; q=0.01" hreflang="fi"
+		href="{{ STATIC_URL }}js-translations/utils.fi.json">
 
 	{% block js-translations %}
 	{# Put all additional translation files inside this block. #}
