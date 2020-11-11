@@ -10,7 +10,7 @@
 	{% module_accessible previous as accessible %}
 	{% endif %}
 	{% if accessible %}
-	<a href="{{ previous.link }}" class="pull-left">
+	<a href="{{ previous.link }}" class="nav-flex-left">
 		<span aria-hidden="true">&laquo;</span> {{ previous.name|parse_localization }}
 	</a>
 	{% else %}
@@ -39,7 +39,7 @@
 	{% module_accessible next as accessible %}
 	{% endif %}
 	{% if accessible %}
-	<a href="{{ next.link }}" class="pull-right">
+	<a href="{{ next.link }}" class="nav-flex-right">
 		{{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
 	</a>
 	{% else %}
