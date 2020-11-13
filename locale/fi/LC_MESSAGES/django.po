@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-29 10:24+0200\n"
+"POT-Creation-Date: 2020-11-13 14:18+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jhosimar Aguacia <jhosimar.aguaciafisco@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -260,7 +260,7 @@ msgstr "Valmis"
 msgid "Unlisted in table of contents"
 msgstr "Näkymätön sisällysluettelossa"
 
-#: course/models.py:692 course/models.py:818 templates/base.html:104
+#: course/models.py:692 course/models.py:818 templates/base.html:93
 msgid "Hidden"
 msgstr "Piilotettu"
 
@@ -390,44 +390,49 @@ msgstr "Aloita ilmoittautumalla jollekin kurssille."
 msgid "Skip course navigation"
 msgstr "Ohita kurssivalikko"
 
-#: course/templates/course/_course_menu.html:20
-#: course/templates/course/_course_menu.html:44
-#: edit_course/templates/edit_course/edit_course_base.html:26
-msgid "Course"
-msgstr "Kurssi"
-
-#: course/templates/course/_course_menu.html:24
+#: course/templates/course/_course_menu.html:19
+#: course/templates/course/_course_menu.html:46
 #: userprofile/templates/userprofile/profile.html:55
 msgid "Language"
 msgstr "Kieli"
 
-#: course/templates/course/_course_menu.html:57
+#: course/templates/course/_course_menu.html:24
+msgid "Change language"
+msgstr "Vaihda kieli"
+
+#: course/templates/course/_course_menu.html:42
+#: course/templates/course/_course_menu.html:66
+#: edit_course/templates/edit_course/edit_course_base.html:26
+msgid "Course"
+msgstr "Kurssi"
+
+#: course/templates/course/_course_menu.html:79
 #: course/templates/course/_siblings.html:54
 #: exercise/templates/exercise/toc.html:7
 #: exercise/templates/exercise/toc.html:12
 msgid "Course materials"
 msgstr "Kurssimateriaali"
 
-#: course/templates/course/_course_menu.html:63
+#: course/templates/course/_course_menu.html:85
 #: exercise/templates/exercise/results.html:13
 msgid "Exercise results"
 msgstr "Pistetilanne"
 
-#: course/templates/course/_course_menu.html:72
+#: course/templates/course/_course_menu.html:94
 msgid "Form a group"
 msgstr "Luo uusi ryhmä"
 
-#: course/templates/course/_course_menu.html:100
+#: course/templates/course/_course_menu.html:122
 msgid "Apps"
 msgstr "Sovellukset"
 
-#: course/templates/course/_course_menu.html:114
+#: course/templates/course/_course_menu.html:136
 #: exercise/templates/exercise/_user_results.html:98
 #: exercise/templates/exercise/submission_plain.html:40
 msgid "Course staff"
 msgstr "Kurssihenkilökunta"
 
-#: course/templates/course/_course_menu.html:120
+#: course/templates/course/_course_menu.html:142
 #: course/templates/course/staff/enroll_students.html:16
 #: course/templates/course/staff/participants.html:6
 #: course/templates/course/staff/participants.html:11
@@ -435,7 +440,7 @@ msgstr "Kurssihenkilökunta"
 msgid "Participants"
 msgstr "Opiskelijat"
 
-#: course/templates/course/_course_menu.html:127
+#: course/templates/course/_course_menu.html:149
 #: course/templates/course/staff/group_delete.html:6
 #: course/templates/course/staff/group_delete.html:11
 #: course/templates/course/staff/group_edit.html:11
@@ -446,29 +451,29 @@ msgstr "Opiskelijat"
 msgid "Groups"
 msgstr "Ryhmät"
 
-#: course/templates/course/_course_menu.html:135
+#: course/templates/course/_course_menu.html:157
 #: diploma/templates/diploma/list.html:4 diploma/templates/diploma/list.html:8
 msgid "Grades"
 msgstr "Arvosanat"
 
-#: course/templates/course/_course_menu.html:143
+#: course/templates/course/_course_menu.html:165
 #: exercise/templates/exercise/staff/results.html:6
 #: exercise/templates/exercise/staff/results.html:11
 msgid "All results"
 msgstr "Kaikki pisteet"
 
-#: course/templates/course/_course_menu.html:150
+#: course/templates/course/_course_menu.html:172
 #: exercise/templates/exercise/staff/analytics.html:6
 #: exercise/templates/exercise/staff/analytics.html:11
 msgid "Visualizations"
 msgstr "Visualisoinnit"
 
-#: course/templates/course/_course_menu.html:158
+#: course/templates/course/_course_menu.html:180
 #: news/templates/news/edit.html:11 news/templates/news/list.html:11
 msgid "Edit news"
 msgstr "Muokkaa kurssiuutisia"
 
-#: course/templates/course/_course_menu.html:164
+#: course/templates/course/_course_menu.html:186
 #: edit_course/templates/edit_course/edit_content.html:8
 #: edit_course/templates/edit_course/edit_course_base.html:5
 #: edit_course/templates/edit_course/edit_course_base.html:11
@@ -805,7 +810,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/usertag_delete.html:29
 #: edit_course/templates/edit_course/usertag_list.html:48
 #: external_services/templates/external_services/list_menu.html:68
-#: news/templates/news/list.html:49 templates/base.html:254
+#: news/templates/news/list.html:49 templates/base.html:263
 msgid "Remove"
 msgstr "Poista"
 
@@ -2308,10 +2313,6 @@ msgstr "Tila"
 msgid "Includes late penalty"
 msgstr "Sisältää myöhästymissakon"
 
-#: exercise/templates/exercise/_template_files.html:17
-msgid "This exercise has no template."
-msgstr "Tällä tehtävällä ei ole pohjatiedostoa."
-
 #: exercise/templates/exercise/_submit_progress.html:6
 #: exercise/templates/exercise/exercise.html:55
 #: exercise/templates/exercise/exercise.html:63
@@ -2325,6 +2326,10 @@ msgid ""
 msgstr ""
 "Yhteyttä tehtäväpalveluun ei voitu muodostaa, eikä sallittuja palautuksia "
 "kulunut. Voit yrittää vielä uudestaan."
+
+#: exercise/templates/exercise/_template_files.html:17
+msgid "This exercise has no template."
+msgstr "Tällä tehtävällä ei ole pohjatiedostoa."
 
 #: exercise/templates/exercise/_text_stats.html:2
 #, python-format
@@ -2492,9 +2497,9 @@ msgstr "Näytä esimerkkiratkaisu"
 msgid "Show exercise template"
 msgstr "Näytä pohjatiedosto"
 
-#: exercise/templates/exercise/exercise_plain.html:155
+#: exercise/templates/exercise/exercise_plain.html:156
 #: exercise/templates/exercise/submission.html:37
-#: exercise/templates/exercise/submission_plain.html:93
+#: exercise/templates/exercise/submission_plain.html:94
 msgid "Your submission has been accepted for grading."
 msgstr "Palautuksesi on vastaanotettu arvostelua varten."
 
@@ -2713,7 +2718,7 @@ msgstr "Automaattinen palaute"
 
 #: exercise/templates/exercise/staff/inspect_submission.html:52
 #: exercise/templates/exercise/submission.html:41
-#: exercise/templates/exercise/submission_plain.html:97
+#: exercise/templates/exercise/submission_plain.html:98
 msgid "No grader feedback available for this submission."
 msgstr "Tästä palautuksesta ei ole saatavilla palautetta."
 
@@ -3545,75 +3550,75 @@ msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa.Ole "
 "ystävällinen, ja yritä uudelleen."
 
-#: templates/base.html:76
+#: templates/base.html:78
 msgid "Skip main navigation"
 msgstr "Ohita päävalikko"
 
-#: templates/base.html:79
+#: templates/base.html:81
 msgid "Main"
 msgstr "Päävalikko"
 
-#: templates/base.html:83
-msgid "Toggle navigation"
-msgstr "Näytä valikko"
-
-#: templates/base.html:107
+#: templates/base.html:96
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: templates/base.html:125 userprofile/templates/userprofile/profile.html:7
+#: templates/base.html:105
+msgid "Toggle navigation"
+msgstr "Näytä valikko"
+
+#: templates/base.html:128 userprofile/templates/userprofile/profile.html:7
 msgid "Profile"
 msgstr "Käyttäjätili"
 
-#: templates/base.html:131 templates/base.html:169
+#: templates/base.html:134 templates/base.html:174
 msgid "Log out"
 msgstr "Kirjaudu ulos"
 
-#: templates/base.html:140 templates/base.html:176
+#: templates/base.html:143 templates/base.html:181
 #: userprofile/templates/userprofile/login.html:112
 msgid "Log in"
 msgstr "Kirjaudu sisään"
 
-#: templates/base.html:151
+#: templates/base.html:155
 msgid "Site"
 msgstr "Sivusto"
 
-#: templates/base.html:155
+#: templates/base.html:160
 msgid "Home"
 msgstr "Etusivu"
 
-#: templates/base.html:206 userprofile/templates/userprofile/privacy.html:4
+#: templates/base.html:211 userprofile/templates/userprofile/privacy.html:4
 #: userprofile/templates/userprofile/privacy.html:9
 msgid "Privacy Notice"
 msgstr "Tietosuojailmoitus"
 
-#: templates/base.html:207
+#: templates/base.html:212
 #: userprofile/templates/userprofile/accessibility.html:4
 #: userprofile/templates/userprofile/accessibility.html:9
 msgid "Accessibility Statement"
 msgstr "Saavutettavuusseloste"
 
-#: templates/base.html:219 templates/base.html:238
+#: templates/base.html:225 templates/base.html:245
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
-#: templates/base.html:219 templates/base.html:238
+#: templates/base.html:226 templates/base.html:246
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: templates/base.html:226 templates/base.html:243
+#: templates/base.html:233 templates/base.html:251
 msgid "Close"
 msgstr "Sulje"
 
-#: templates/base.html:258
+#: templates/base.html:267
 msgid "Search"
 msgstr "Hae"
 
-#: templates/base.html:262
+#: templates/base.html:271
 msgid "No matches"
 msgstr "Ei osumia"
 
-#: templates/base.html:265
+#: templates/base.html:274 templates/base.html:275
 msgid "Search for..."
 msgstr "Etsi..."
 

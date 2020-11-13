@@ -14,16 +14,39 @@
 </li>
 
 {% if instance.language|first == "|" %}
+</li>
+<li role="presentation" class="header visible-xs">
+	<h4 id="course-menu-heading">{% trans "Language" %}</h4>
+</li>
+<li role="presentation" class="visible-xs dropdown">
+	<a href="#" class="dropdown-toggle" id="lang-dropdown-mobile" data-toggle="dropdown" role="button"
+		aria-haspopup="true" aria-expanded="false">
+		{% trans "Change language" %} <span class="caret"></span>
+	</a>
+	<ul class="dropdown-menu" aria-labelledby="lang-dropdown-mobile">
+		{% for language in instance.language|list_unselected %}
+		<li role="none">
+			<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
+				{% csrf_token %}
+				<input name="next" type="hidden" value="{{ request.get_full_path }}" />
+				<input name="language" type="hidden" value="{{ language }}" />
+				<button type="submit" class="btn">{{ language|language_name_local }}</button>
+			</form>
+		</li>
+		{% endfor %}
+	</ul>
+</li>
 <li role="presentation" class="header">
 	<div class="row">
-    <div class="col-sm-10">
+		<div class="col-sm-10">
 			<h4 id="course-menu-heading">{% trans "Course" %}</h4>
-    </div>
-    <div class="col-sm">
+		</div>
+		<div class="col-sm hidden-xs">
 			<div class="dropdown h4">
 				<input type="image" src="{% static 'images/uls.svg' %}" alt="{% trans 'Language' %}"
-				class="aplus-button--secondary aplus-button--xs" id="lang-dropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
-				<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown">
+					class="aplus-button--secondary aplus-button--xs" id="lang-dropdown-desktop" type="button"
+					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+				<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown-desktop">
 					{% for language in instance.language|list_unselected %}
 					<li>
 						<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
@@ -36,9 +59,8 @@
 					{% endfor %}
 				</ul>
 			</div>
-    </div>
-  </div>
-</li>
+		</div>
+	</div>
 {% else %}
 <li role="presentation" class="header">
 	<h4 id="course-menu-heading">{% trans "Course" %}</h4>
@@ -84,7 +106,7 @@
 {% for entry in group.items %}
 {% if entry.enabled %}
 <li role="presentation">
-	<a href="{{ entry.url }}"{% if entry.blank %} target="_blank"{% endif %}>
+	<a href="{{ entry.url }}" {% if entry.blank %} target="_blank" {% endif %}>
 		{% if entry.icon_class %}
 		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
 		{% endif %}
@@ -101,10 +123,10 @@
 </li>
 {% for tab in instance.tabs.all %}
 <li role="presentation" class="menu-tab{{ tab.id }}">
-		<a href="{% url 'apps-tab' course_slug=course.url instance_slug=instance.url tab_id=tab.id %}">
-				<span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
-				{{ tab.label }}
-		</a>
+	<a href="{% url 'apps-tab' course_slug=course.url instance_slug=instance.url tab_id=tab.id %}">
+		<span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+		{{ tab.label }}
+	</a>
 </li>
 {% endfor %}
 {% endif %}
@@ -153,16 +175,16 @@
 
 {% if is_teacher %}
 <li role="presentation" class="menu-edit-news">
-		<a href="{{ instance|url:'news-list' }}">
-				<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-				{% trans "Edit news" %}
-		</a>
+	<a href="{{ instance|url:'news-list' }}">
+		<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+		{% trans "Edit news" %}
+	</a>
 </li>
 <li role="presentation" class="menu-edit-course">
-		<a href="{{ instance|url:'course-edit' }}">
-				<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-				{% trans "Edit course" %}
-		</a>
+	<a href="{{ instance|url:'course-edit' }}">
+		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+		{% trans "Edit course" %}
+	</a>
 </li>
 {% endif %}
 
@@ -176,7 +198,7 @@
 {% if entry.enabled %}
 {% if is_teacher or entry|is_assistant_link %}
 <li role="presentation">
-	<a href="{{ entry.url }}"{% if entry.blank %} target="_blank"{% endif %}>
+	<a href="{{ entry.url }}" {% if entry.blank %} target="_blank" {% endif %}>
 		{% if entry.icon_class %}
 		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
 		{% endif %}

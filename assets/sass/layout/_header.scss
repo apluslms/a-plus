@@ -106,6 +106,17 @@
 			li {
 				border: none;
 				border-top: 1px solid;
+
+				button[type="submit"] {
+					color: #fff;
+					height: 2.63em;
+					&:hover,
+					&:focus {
+						@include focus-with-background-and-color;
+						background-color: #236aa7;
+						background-color: rgba(0, 0, 0, 0.1);
+					}
+				}
 			}
 		}
 		.header {
@@ -121,10 +132,4 @@
 			}
 		}
 	}
-}
-
-.navbar-inverse .navbar-toggle:focus,
-.navbar-inverse .navbar-toggle:hover {
-	background-color: #fff;
-	@include focus-with-background-and-color;
 }
