@@ -151,10 +151,10 @@
 							{% notification_menu %}
 							{% group_select %}
 							{% block mobilemenu %}{% endblock %}
-							<li role="presentation" class="header">
+							<li class="header">
 								<h4>{% trans "Site" %}</h4>
 							</li>
-							<li role="presentation">
+							<li>
 								<a href="{% url 'home' %}">
 									<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
 									{% trans "Home" %}
@@ -162,20 +162,20 @@
 							</li>
 							{% course_menu %}
 							{% if user.is_authenticated %}
-							<li role="presentation">
+							<li>
 								<a href="{% url 'profile' %}">
 									<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
 									{{ user.first_name }} {{ user.last_name }}
 								</a>
 							</li>
-							<li role="presentation">
+							<li>
 								<a href="{% url 'logout' %}">
 									<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
 									{% trans "Log out"%}
 								</a>
 							</li>
 							{% else %}
-							<li role="presentation">
+							<li>
 								<a href="{% url 'login' %}">
 									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
 									{% trans "Log in" %}
