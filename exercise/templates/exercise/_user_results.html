@@ -113,7 +113,7 @@
           <small>{{ entry.category|parse_localization }}</small>
         </td>
         <td class="submissions-dropdown dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
             <span class="badge">
               {% if entry.notified %}
               <span class="glyphicon glyphicon-comment{% if entry.unseen %} red{% endif %}"></span>
