@@ -17,6 +17,8 @@ $brand-success: $aplus-success;
 $brand-info: $aplus-info;
 $brand-warning: $aplus-warning;
 $brand-danger: $aplus-danger;
+// The default $headings-small-color has a low contrast in most of the cases.
+$headings-small-color: #535353;
 
 //** Default progress bar color
 $progress-bar-bg: $aplus-brand-primary;
