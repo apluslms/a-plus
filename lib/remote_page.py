@@ -172,8 +172,19 @@ class RemotePage:
             self._fix_relative_urls(url, tag, attr)
 
     def _fix_relative_urls(self, url, tag_name, attr_name):
+        # Starts with "#", "//" or "https:".
         test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE)
+        # Ends with filename extension ".html" and possibly "#anchor".
         chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
+        # Starts with at least one "../".
+        start_dotdot_path = re.compile(r"^(../)+")
+        # May end with the language suffix _en or _en/#anchor or _en#anchor.
+        lang_suffix = re.compile(r'(?P<lang>_[a-z]{2})?(?P<slash>/)?(?P<anchor>#.+)?$')
+        # Detect certain A+ exercise info URLs so that they are not broken by
+        # the transformations: "../../module1/chapter/module1_chapter_exercise/info/model/".
+        # URLs /plain, /info, /info/model, /info/template.
+        exercise_info = re.compile(r'/((plain)|(info(/model|/template)?))/?(#.+)?$')
+
         for element in self.soup.find_all(tag_name, {attr_name:True}):
             value = element[attr_name]
             if not value:
@@ -185,23 +196,78 @@ class RemotePage:
                 if m:
                     i = m.start(1)
                     if i > 0:
-                        element[attr_name] = '../' + value[:i-5] + value[i:]
+                        without_html_suffix = value[:i-5] + value[i:] # Keep #anchor in the end.
                     else:
-                        element[attr_name] = '../' + value[:-5]
+                        without_html_suffix = value[:-5]
                 elif not value.startswith('/'):
-                    element[attr_name] = '../' + value
+                    without_html_suffix = value
+                else:
+                    continue
+                # Remove all ../ from the start and prepend exactly "../../".
+                # a-plus-rst-tools modifies chapter links so that the URL path
+                # begins from the html build root directory (_build/html).
+                # The path starts with "../" to match the directory depth and
+                # there are as many "../" as needed to reach the root.
+                # Chapter html files are located under module directories in
+                # the _build/html directory and some courses use subdirectories
+                # under the module directories too.
+                # In A+, the URL path must start with "../../" so that it
+                # removes the current chapter and module from the A+ chapter
+                # page URL: /course/course_instance/module/chapter/
+                # (A+ URLs do not have the same "subdirectories" as
+                # the real subdirectories in the course git repo.)
+                new_val = '../../' + start_dotdot_path.sub("", without_html_suffix)
+
+                split_path = new_val.split('/')
+                if len(split_path) > 4 and not exercise_info.search(new_val):
+                    # If the module directory has subdirectories in the course
+                    # git repo, the subdirectory must be modified in the A+ URL.
+                    # The subdirectory slash / is converted to underscore _.
+                    # Convert "../../module1/subdir/chapter2_en" into "../../module1/subdir_chapter2_en".
+                    # Do not convert if the URL points to an A+ page such as
+                    # "../../module1/chapter2/info/model/".
+                    chapter_key = '_'.join(split_path[3:])
+                    new_val = '/'.join(split_path[:3]) + '/' + chapter_key
+
+                # Remove lang suffix in chapter2_en#anchor without modifying the #anchor.
+                # Add slash / to the end before the #anchor.
+                m = lang_suffix.search(new_val)
+                if m:
+                    anchor = m.group('anchor')
+                    if anchor is None:
+                        anchor = ''
+                    new_val = new_val[:m.start()] + '/' + anchor
+
+                element[attr_name] = new_val
 
             elif value and not test.match(value):
 
                 # Custom transform for RST generated exercises.
                 if element.has_attr('data-aplus-path'):
+                    # If the exercise description HTML has links to static files such as images,
+                    # their links can be fixed with the data-aplus-path="/static/{course}" attribute.
+                    # A+ converts "{course}" into the course key used by the backend based on
+                    # the exercise service URL. For example, in the MOOC-Grader, exercise service URLs
+                    # follow this scheme: "http://grader.local/coursekey/exercisekey".
+                    # In the exercise HTML, image <img data-aplus-path="/static/{course}" src="../_images/image.png">
+                    # gets the correct URL "http://grader.local/static/coursekey/_images/image.png".
                     fix_path = element['data-aplus-path'].replace(
                         '{course}',
                         url.path.split('/', 2)[1]
                     )
-                    fix_value = value[2:] if value.startswith('../') else value
+                    fix_value = start_dotdot_path.sub("/", value)
                     value = fix_path + fix_value
 
+                # url points to the exercise service, e.g., MOOC-Grader.
+                # This fixes links to static files (such as images) in RST chapters.
+                # The image URL must be absolute and refer to the grader server
+                # instead of the A+ server. A relative URL with only path
+                # "/static/course/image.png" would target the A+ server when
+                # it is included in the A+ page. The value should be a relative
+                # path in the course build directory so that it becomes the full
+                # correct URL to the target file.
+                # E.g., urljoin('http://localhost:8080/static/default/module1/chapter.html', "../_images/image.png")
+                # -> 'http://localhost:8080/static/default/_images/image.png'
                 element[attr_name] = urljoin(url.geturl(), value)
 
     def find_and_replace(self, attr_name, list_of_attributes):
