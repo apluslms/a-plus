@@ -1,1 +1,6 @@
 python-memcached <2, >=1.58
+uwsgi
+# Required for building packages in requirements.txt
+wheel
+# This extra library is required if postgres is used as the database
+psycopg2

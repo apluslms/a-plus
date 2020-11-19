@@ -40,10 +40,11 @@ Common system configuration
 
         sudo apt-get install \
           git gettext \
-          postgresql memcached \
-          uwsgi-core uwsgi-plugin-python3 \
+          postgresql libpq-dev memcached \
           python3-virtualenv \
-          python3-certifi python3-lz4 python3-psycopg2 python3-reportlab python3-reportlab-accel
+          python3-certifi python3-lz4 python3-reportlab python3-reportlab-accel \
+          build-essential libxml2-dev libxslt-dev python3-dev \
+          libpcre3 libpcre3-dev
 
  1. Create a new user for a-plus
 

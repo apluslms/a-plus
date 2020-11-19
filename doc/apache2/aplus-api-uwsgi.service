@@ -9,7 +9,7 @@ SyslogIdentifier=aplus
 StandardOutput=syslog
 StandardError=syslog
 WorkingDirectory=/srv/aplus/a-plus/
-ExecStart=/usr/bin/uwsgi-core --plugin=python3 --single-interpreter --master --master-fifo=/run/aplus/api-uwsgi.master --stats=/run/aplus/api-uwsgi.stats --socket=127.0.0.1:3032 --ini /srv/aplus/uwsgi-aplus-api.ini --touch-chain-reload /srv/aplus/uwsgi-aplus-api.ini
+ExecStart=/srv/aplus/venv/bin/uwsgi --single-interpreter --master --master-fifo=/run/aplus/api-uwsgi.master --stats=/run/aplus/api-uwsgi.stats --socket=127.0.0.1:3032 --ini /srv/aplus/uwsgi-aplus-api.ini --touch-chain-reload /srv/aplus/uwsgi-aplus-api.ini
 ExecReload=/bin/sh -c "echo c > /run/aplus/api-uwsgi.master"
 Restart=always
 KillSignal=SIGQUIT
