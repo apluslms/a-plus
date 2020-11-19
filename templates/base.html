@@ -5,267 +5,277 @@
 {% load notification %}
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE }}">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{% block title %}{% brand_name %}{% endblock %}</title>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+	<title>{% block title %}{% brand_name %}{% endblock %}</title>
 
-        <script src="{% static 'js/bootstrap3.min.js' %}"></script>
+	<script src="https://code.jquery.com/jquery-1.12.4.min.js"
+		integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+		crossorigin="anonymous"></script>
 
-        <link href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css" rel="stylesheet" integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW" crossorigin="anonymous">
-        <link href="https://use.fontawesome.com/releases/v5.3.1/css/regular.css" rel="stylesheet" integrity="sha384-ZlNfXjxAqKFWCwMwQFGhmMh3i89dWDnaFU2/VZg9CvsMGA7hXHQsPIqS+JIAmgEq" crossorigin="anonymous">
+	<script src="{% static 'js/bootstrap3.min.js' %}"></script>
 
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+	<link href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css" rel="stylesheet"
+		integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW" crossorigin="anonymous">
+	<link href="https://use.fontawesome.com/releases/v5.3.1/css/regular.css" rel="stylesheet"
+		integrity="sha384-ZlNfXjxAqKFWCwMwQFGhmMh3i89dWDnaFU2/VZg9CvsMGA7hXHQsPIqS+JIAmgEq" crossorigin="anonymous">
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css" rel="stylesheet" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
 
-        <script src="{% static 'js/translate.min.js' %}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
 
-        {% if is_teacher %}
-        <link
-            data-translation
-            rel="preload"
-            as="fetch"
-            crossorigin="anonymous"
-            type="application/json, text/javascript, */*; q=0.01"
-            hreflang="fi"
-            href="{{ STATIC_URL }}js-translations/teacher.fi.json"
-        >
-        <script src="{% static 'js/filter.js' %}"></script>
-        {% endif %}
+	<script src="{% static 'js/translate.min.js' %}"></script>
 
-        {% block js-translations %}
-        {# Put all additional translation files inside this block. #}
-        {% endblock %}
+	{% if is_teacher %}
+	<link data-translation rel="preload" as="fetch" crossorigin="anonymous"
+		type="application/json, text/javascript, */*; q=0.01" hreflang="fi"
+		href="{{ STATIC_URL }}js-translations/teacher.fi.json">
+	<script src="{% static 'js/filter.js' %}"></script>
+	{% endif %}
+
+	{% block js-translations %}
+	{# Put all additional translation files inside this block. #}
+	{% endblock %}
 
 
-        <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-        <link rel="stylesheet" href="{% static 'css/submission.css' %}" />
-        <link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
-        <script src="{% static 'js/polyfill-find.js' %}"></script>
-        <script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
-        <script src="{% static 'js/aplus.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+	<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
+	<link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
+	<script src="{% static 'js/polyfill-find.js' %}"></script>
+	<script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
+	<script src="{% static 'js/aplus.js' %}"></script>
 
-        {% block scripts %}
-            {# Put all additional scripts inside this block. #}
-        {% endblock %}
+	{% block scripts %}
+	{# Put all additional scripts inside this block. #}
+	{% endblock %}
 
-        <!-- Some favicons courtesy of http://realfavicongenerator.net/ -->
-        <link rel="apple-touch-icon" sizes="57x57" href="{{ STATIC_URL }}favicons/apple-touch-icon-57x57.png">
-        <link rel="apple-touch-icon" sizes="114x114" href="{{ STATIC_URL }}favicons/apple-touch-icon-114x114.png">
-        <link rel="apple-touch-icon" sizes="72x72" href="{{ STATIC_URL }}favicons/apple-touch-icon-72x72.png">
-        <link rel="apple-touch-icon" sizes="144x144" href="{{ STATIC_URL }}favicons/apple-touch-icon-144x144.png">
-        <link rel="apple-touch-icon" sizes="60x60" href="{{ STATIC_URL }}favicons/apple-touch-icon-60x60.png">
-        <link rel="apple-touch-icon" sizes="120x120" href="{{ STATIC_URL }}favicons/apple-touch-icon-120x120.png">
-        <link rel="apple-touch-icon" sizes="76x76" href="{{ STATIC_URL }}favicons/apple-touch-icon-76x76.png">
-        <link rel="apple-touch-icon" sizes="152x152" href="{{ STATIC_URL }}favicons/apple-touch-icon-152x152.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ STATIC_URL }}favicons/apple-touch-icon-180x180.png">
-        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-192x192.png" sizes="192x192">
-        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-160x160.png" sizes="160x160">
-        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-96x96.png" sizes="96x96">
-        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-16x16.png" sizes="16x16">
-        <link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-32x32.png" sizes="32x32">
-        <meta name="msapplication-TileColor" content="#2b5797">
-        <meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
-    </head>
-    <body class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %} lang-{{ request.LANGUAGE_CODE }}" data-view-tag="{% block view_tag %}{% endblock %}">
-        <a href="#content" class="skip-link">{% trans "Skip main navigation" %}</a>
-        <div class="page-wrap">
-            <header>
-                <nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% trans "Main" %}">
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
-                                <span class="sr-only">{% trans "Toggle navigation" %}</span>
-                                {% notification_count as n_count %}
-                                {% if n_count > 0 %}
-                                <span class="badge badge-danger pull-right">{{ n_count }}</span>
-                                {% endif %}
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
-                            <a class="navbar-brand hidden-xs" href="{% url 'home' %}">{% brand_name %}</a>
-                            <span class="navbar-brand visible-xs">
-                            {% brand_name %}{% if instance %} &nbsp; {{ course.name|parse_localization }}{% endif %}
-                            </span>
-                        </div>
-                        <div class="collapse navbar-collapse" id="bs-navbar-collapse">
-                            <ul class="nav navbar-nav hidden-xs">
-                                <li role="presentation" class="dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                        {% if instance %}
-                                        {{ course|parse_localization }}
-                                        {% if not instance.visible_to_students %}
-                                        <span class="label label-danger">{% trans "Hidden" %}</span>
-                                        {% endif %}
-                                        {% else %}
-                                        {% trans "Select course" %}
-                                        {% endif %}
-                                        <span class="caret"></span>
-                                    </a>
-                                    {% course_menu %}
-                                </li>
-                            </ul>
-                            <ul class="user-menu nav navbar-nav navbar-right hidden-xs">
-                                {% if user.is_authenticated %}
-                                {% group_select %}
-                                {% notification_menu %}
-                                <li role="presentation" class="profile-menu dropdown">
-                                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                                    {{ user.first_name }} {{ user.last_name }} <span class="caret"></span>
-                                  </a>
-                                  <ul class="dropdown-menu">
-                                    <li role="presentation">
-                                        <a href="{% url 'profile' %}">{% trans "Profile" %}</a>
-                                    </li>
-                                    <li role="separator" class="divider"></li>
-                                    <li role="presentation">
-                                      <a href="{% url 'logout' %}">
-                                        <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-                                        {% trans "Log out"%}
-                                      </a>
-                                    </li>
-                                  </ul>
-                                </li>
-                                {% else %}
-                                <li role="presentation">
-                                    <a href="{% url 'login' %}">
-                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-                                        {% trans "Log in"%}
-                                    </a>
-                                </li>
-                                {% endif %}
-                            </ul>
+	<!-- Some favicons courtesy of http://realfavicongenerator.net/ -->
+	<link rel="apple-touch-icon" sizes="57x57" href="{{ STATIC_URL }}favicons/apple-touch-icon-57x57.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="{{ STATIC_URL }}favicons/apple-touch-icon-114x114.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="{{ STATIC_URL }}favicons/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="{{ STATIC_URL }}favicons/apple-touch-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="{{ STATIC_URL }}favicons/apple-touch-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="{{ STATIC_URL }}favicons/apple-touch-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="{{ STATIC_URL }}favicons/apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="{{ STATIC_URL }}favicons/apple-touch-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="{{ STATIC_URL }}favicons/apple-touch-icon-180x180.png">
+	<link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-192x192.png" sizes="192x192">
+	<link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-160x160.png" sizes="160x160">
+	<link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-16x16.png" sizes="16x16">
+	<link rel="icon" type="image/png" href="{{ STATIC_URL }}favicons/favicon-32x32.png" sizes="32x32">
+	<meta name="msapplication-TileColor" content="#2b5797">
+	<meta name="msapplication-TileImage" content="{{ STATIC_URL }}mstile-144x144.png">
+</head>
 
-                            {# Separate menu optimized for mobile users #}
-                            <ul class="nav navbar-nav visible-xs">
-                                {% notification_menu %}
-                                {% group_select %}
-                                {% block mobilemenu %}{% endblock %}
-                                <li role="presentation" class="header"><h4>{% trans "Site" %}</h4></li>
-                                <li role="presentation">
-                                    <a href="{% url 'home' %}">
-                                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-                                        {% trans "Home" %}
-                                    </a>
-                                </li>
-                                {% course_menu %}
-                                {% if user.is_authenticated %}
-                                <li role="presentation">
-                                    <a href="{% url 'profile' %}">
-                                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                                        {{ user.first_name }} {{ user.last_name }}
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a href="{% url 'logout' %}">
-                                        <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-                                        {% trans "Log out"%}
-                                    </a>
-                                </li>
-                                {% else %}
-                                <li role="presentation">
-                                    <a href="{% url 'login' %}">
-                                        <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-                                        {% trans "Log in" %}
-                                    </a>
-                                </li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-            </header>
+<body
+	class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %} lang-{{ request.LANGUAGE_CODE }}"
+	data-view-tag="{% block view_tag %}{% endblock %}">
+	<a href="#content" class="skip-link">{% trans "Skip main navigation" %}</a>
+	<div class="page-wrap">
+		<header>
+			<nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% trans "Main" %}">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<a class="navbar-brand" href="{% url 'home' %}">{% brand_name %}</a>
+						<ul class="nav navbar-dropdown">
+							<li role="separator" class="divider"></li>
+							<li role="presentation" class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+									aria-haspopup="true" aria-expanded="false">
+									{% if instance %}
+									{{ course|parse_localization }}
+									{% if not instance.visible_to_students %}
+									<span class="label label-danger">{% trans "Hidden" %}</span>
+									{% endif %}
+									{% else %}
+									{% trans "Select course" %}
+									{% endif %}
+									<span class="caret"></span>
+								</a>
+								{% course_menu %}
+							</li>
+						</ul>
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+							data-target="#bs-navbar-collapse" aria-expanded="false">
+							<span class="sr-only">{% trans "Toggle navigation" %}</span>
+							{% notification_count as n_count %}
+							{% if n_count > 0 %}
+							<span class="badge badge-danger pull-right">{{ n_count }}</span>
+							{% endif %}
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+					</div>
+					<div class="collapse navbar-collapse" id="bs-navbar-collapse">
+						<ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+							{% if user.is_authenticated %}
+							{% group_select %}
+							{% notification_menu %}
+							<li role="presentation" class="profile-menu dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+									aria-haspopup="true" aria-expanded="false">
+									<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+									{{ user.first_name }} {{ user.last_name }} <span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu">
+									<li role="presentation">
+										<a href="{% url 'profile' %}">{% trans "Profile" %}</a>
+									</li>
+									<li role="separator" class="divider"></li>
+									<li role="presentation">
+										<a href="{% url 'logout' %}">
+											<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+											{% trans "Log out"%}
+										</a>
+									</li>
+								</ul>
+							</li>
+							{% else %}
+							<li role="presentation">
+								<a href="{% url 'login' %}">
+									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+									{% trans "Log in"%}
+								</a>
+							</li>
+							{% endif %}
+						</ul>
 
-            {% block container_opening_tag %}
-            <main class="site-content container-fluid" id="content">
-            {% endblock %}
-            {% site_alert %}
-                {% include "_messages.html" %}
-                {% block content %}
-                    <div class="error">
-                        No content
-                    </div>
-                {% endblock %}
-            {% block container_closing_tag %}
-            </main>
-            {% endblock %}
+						{# Separate menu optimized for mobile users #}
+						<ul class="nav navbar-nav visible-xs">
+							{% notification_menu %}
+							{% group_select %}
+							{% block mobilemenu %}{% endblock %}
+							<li role="presentation" class="header">
+								<h4>{% trans "Site" %}</h4>
+							</li>
+							<li role="presentation">
+								<a href="{% url 'home' %}">
+									<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+									{% trans "Home" %}
+								</a>
+							</li>
+							{% course_menu %}
+							{% if user.is_authenticated %}
+							<li role="presentation">
+								<a href="{% url 'profile' %}">
+									<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+									{{ user.first_name }} {{ user.last_name }}
+								</a>
+							</li>
+							<li role="presentation">
+								<a href="{% url 'logout' %}">
+									<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+									{% trans "Log out"%}
+								</a>
+							</li>
+							{% else %}
+							<li role="presentation">
+								<a href="{% url 'login' %}">
+									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+									{% trans "Log in" %}
+								</a>
+							</li>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+			</nav>
+		</header>
 
-            {% block footer %}
-            <footer role="contentinfo">
-                <div class="site-footer navbar navbar-default navbar-fixed-bottom" role="presentation">
-                    <div class="container-fluid">
-                        <ul class="nav navbar-nav">
-                            {% block footercontent %}{% endblock %}
-                            <li><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
-                            <li><a href="{% url 'accessibility_statement' %}">{% trans "Accessibility Statement" %}</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </footer>
-            {% endblock %}
-        </div>
-        <div id="page-modal" class="modal" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-progress">
-                      <div class="progress">
-                        <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%" data-msg-error="{% trans 'Loading failed!' %}">
-                          {% trans "Loading..." %}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="modal-body"></div>
-                    <div class="modal-footer">
-                      <button type="button" class="aplus-button--secondary aplus-button--md" data-dismiss="modal">
-                        {% trans "Close" %}
-                      </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="file-modal" class="modal" role="dialog">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-progress">
-                      <div class="progress">
-                        <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%" data-msg-error="{% trans 'Loading failed!' %}">
-                          {% trans "Loading..." %}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Close' %}">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title"></h4>
-                    </div>
-                    <div class="modal-body"></div>
-                </div>
-            </div>
-        </div>
-        <div id="search-select-widget" class="hide">
-            <ul class="list-inline search-selected">
-                <li><button type="button"><span class="name">None</span> <span aria-label="{% trans 'Remove' %}">&times;</span></button></li>
-            </ul>
-            <div class="input-group">
-                <span class="input-group-btn dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-                    <button class="btn btn-default" data-toggle="dropdown" type="button" aria-label="{% trans 'Search' %}">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                    </button>
-                    <ul class="dropdown-menu search-options">
-                        <li class="not-found"><a>{% trans "No matches" %}</a></li>
-                    </ul>
-                </span>
-                <input type="text" aria-label="{% trans 'Search for...' %}" class="form-control" placeholder="{% trans 'Search for...' %}" />
-            </div>
-        </div>
-        {% if not is_course_staff %}{% tracking_html %}{% endif %}
-    </body>
+		{% block container_opening_tag %}
+		<main class="site-content container-fluid" id="content">
+			{% endblock %}
+			{% site_alert %}
+			{% include "_messages.html" %}
+			{% block content %}
+			<div class="error">
+				No content
+			</div>
+			{% endblock %}
+			{% block container_closing_tag %}
+		</main>
+		{% endblock %}
+
+		{% block footer %}
+		<footer role="contentinfo">
+			<div class="site-footer navbar navbar-default navbar-fixed-bottom" role="presentation">
+				<div class="container-fluid">
+					<ul class="nav navbar-nav">
+						{% block footercontent %}{% endblock %}
+						<li><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
+						<li><a href="{% url 'accessibility_statement' %}">{% trans "Accessibility Statement" %}</a></li>
+					</ul>
+				</div>
+			</div>
+		</footer>
+		{% endblock %}
+	</div>
+	<div id="page-modal" class="modal" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-progress">
+					<div class="progress">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%"
+							data-msg-error="{% trans 'Loading failed!' %}">
+							{% trans "Loading..." %}
+						</div>
+					</div>
+				</div>
+				<div class="modal-body"></div>
+				<div class="modal-footer">
+					<button type="button" class="aplus-button--secondary aplus-button--md" data-dismiss="modal">
+						{% trans "Close" %}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="file-modal" class="modal" role="dialog">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-progress">
+					<div class="progress">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%"
+							data-msg-error="{% trans 'Loading failed!' %}">
+							{% trans "Loading..." %}
+						</div>
+					</div>
+				</div>
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Close' %}">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body"></div>
+			</div>
+		</div>
+	</div>
+	<div id="search-select-widget" class="hide">
+		<ul class="list-inline search-selected">
+			<li><button type="button"><span class="name">None</span> <span
+						aria-label="{% trans 'Remove' %}">&times;</span></button></li>
+		</ul>
+		<div class="input-group">
+			<span class="input-group-btn dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+				<button class="btn btn-default" data-toggle="dropdown" type="button" aria-label="{% trans 'Search' %}">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+				</button>
+				<ul class="dropdown-menu search-options">
+					<li class="not-found"><a>{% trans "No matches" %}</a></li>
+				</ul>
+			</span>
+			<input type="text" aria-label="{% trans 'Search for...' %}" class="form-control"
+				placeholder="{% trans 'Search for...' %}" />
+		</div>
+	</div>
+	{% if not is_course_staff %}{% tracking_html %}{% endif %}
+</body>
+
 </html>
