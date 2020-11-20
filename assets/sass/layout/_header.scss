@@ -79,9 +79,9 @@
 			display: none;
 		}
 		@media (max-width: 768px) {
-			ul.dropdown-menu {
-				& > li > a {
-					color: #fff !important;
+			li.open > ul.dropdown-menu {
+				& > li > a{
+					color: #dadada;
 				}
 			}
 		}
@@ -108,7 +108,7 @@
 				border-top: 1px solid;
 
 				button[type="submit"] {
-					color: #fff;
+					color: #dadada;
 					height: 2.63em;
 					&:hover,
 					&:focus {
