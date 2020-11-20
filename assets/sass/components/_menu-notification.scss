@@ -1,14 +1,21 @@
-.menu-notification .glyphicon {
-	margin-right: 18px;
-}
-.menu-notification .badge {
-	position: absolute;
-	left: 28px;
-	top: 15px;
-	-webkit-animation: bounce 10s ease-in-out;
-	-moz-animation: bounce 10s ease-in-out;
-	-o-animation: bounce 10s ease-in-out;
-	animation: bounce 10s ease-in-out;
+.menu-notification {
+	.glyphicon {
+		margin-right: 18px;
+	}
+	.badge {
+		position: absolute;
+		left: 28px;
+		top: 15px;
+		-webkit-animation: bounce 10s ease-in-out;
+		-moz-animation: bounce 10s ease-in-out;
+		-o-animation: bounce 10s ease-in-out;
+		animation: bounce 10s ease-in-out;
+	}
+	@media (max-width: 768px) {
+		&.open > ul.dropdown-menu > li > a.page-modal {
+			color: #dadada;
+		}
+	}
 }
 @-webkit-keyframes bounce {
 	0%,
