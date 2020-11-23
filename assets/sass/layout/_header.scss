@@ -34,6 +34,15 @@
 		background-color: #236aa7;
 		background-color: rgba(0, 0, 0, 0.1);
 	}
+	.navbar-nav > li.active > a:focus,
+	.navbar-nav > li.open > a:focus {
+		&:focus,
+		&:hover {
+			@include focus-with-background-and-color;
+			background-color: rgba(0,0,0,0.1);
+		}
+	}
+
 	.navbar-toggle .badge {
 		position: absolute;
 		right: -10px;
