@@ -151,6 +151,12 @@
 
 						{# Separate menu optimized for mobile users #}
 						<ul class="nav navbar-nav visible-xs">
+							{% notification_count as n_count %}
+							{% if n_count > 0 %}
+								<li class="header">
+									<h4>{% trans "Notification" %}</h4>
+								</li>
+							{% endif %}
 							{% notification_menu %}
 							{% group_select %}
 							{% block mobilemenu %}{% endblock %}
