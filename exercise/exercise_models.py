@@ -154,19 +154,38 @@ class LearningObject(UrlMixin, ModelWithInheritance):
             if cls.__name__ == 'LearningObject':
                 signals.post_delete.send(sender=cls, instance=self)
 
-    def __str__(self):
+    def _build_full_name(self, force_content_numbering=None, force_module_numbering=None):
+        content_numbering = (
+            self.course_instance.content_numbering
+            if force_content_numbering is None
+            else force_content_numbering
+        )
+        module_numbering = (
+            self.course_instance.module_numbering
+            if force_module_numbering is None
+            else force_module_numbering
+        )
         if self.order >= 0:
-            if self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
+            if content_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
                 number = self.number()
-                if self.course_instance.module_numbering in (
+                if module_numbering in (
                         CourseInstance.CONTENT_NUMBERING.ARABIC,
                         CourseInstance.CONTENT_NUMBERING.HIDDEN,
                     ):
                     return "{:d}.{} {}".format(self.course_module.order, number, self.name)
                 return "{} {}".format(number, self.name)
-            elif self.course_instance.content_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
+            elif content_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
+
+    def __str__(self):
+        return self._build_full_name()
+
+    def hierarchical_name(self):
+        return self._build_full_name(
+            CourseInstance.CONTENT_NUMBERING.ARABIC,
+            CourseInstance.CONTENT_NUMBERING.ARABIC
+        )
 
     def number(self):
         return ".".join([str(o.order) for o in self.parent_list()])

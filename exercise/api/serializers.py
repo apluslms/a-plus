@@ -30,6 +30,7 @@ class ExerciseBriefSerializer(AplusModelSerializer):
             'display_name',
             'max_points',
             'max_submissions',
+            'hierarchical_name',
         )
 
 
