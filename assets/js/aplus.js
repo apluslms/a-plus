@@ -101,13 +101,13 @@ $(function() {
 
     function addExternalLinkIcon(link) {
       if (!link.querySelector('.icon')) {
-        link.insertAdjacentHTML('beforeend', `<span class="icon external-link"></span>`);
+        link.insertAdjacentHTML('beforeend', `<i class="icon glyphicon glyphicon-new-window"></i>`);
       }
     }
 
     function addScreenReaderMessage(link, message) {
       if (!link.querySelector('.sr-only')) {
-        link.insertAdjacentHTML('beforeend', `<span class="fas fa-external-link-alt sr-only"> (${message})</span>`);
+        link.insertAdjacentHTML('beforeend', `<span class="sr-only"> (${message})</span>`);
       }
     }
     $(document).on("aplus:translation-ready", function () {
