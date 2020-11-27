@@ -676,7 +676,15 @@ $(function() {
         ) {
             event.preventDefault(); // stop default redirect
             event.target.search = window.location.search; // copy query params
-            window.location.href = event.target.href; // redirect
+            if (event.target.getAttribute('target') === '_blank') {
+                // Open a new window or tab.
+                window.open(
+                    event.target.href,
+                    '_blank',
+                    'location,menubar,resizable,scrollbars,status,noopener');
+            } else {
+                window.location.href = event.target.href; // redirect the current window
+            }
         }
     }, false);
 })(window);
