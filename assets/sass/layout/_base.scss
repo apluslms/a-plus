@@ -1,0 +1,15 @@
+/* Layout */
+html,
+body {
+	height: 100%;
+}
+.page-wrap {
+	min-height: 100%;
+	position: relative;
+}
+.site-content {
+	padding-bottom: 70px;
+	@media (max-width: 768px) {
+		padding-bottom: 110px;
+	}
+}

@@ -54,6 +54,7 @@ $font-size-base:  $aplus-font-size-base;
 /*!
  * A+ Styles
  */
+@import 'layout/base';
 @import 'layout/header';
 @import 'layout/footer';
 @import 'components/badge';
@@ -65,6 +66,7 @@ $font-size-base:  $aplus-font-size-base;
 @import 'components/menu-notification';
 @import 'components/new-tab-links';
 @import 'components/overlay';
+@import 'components/pagination';
 @import 'pages/login';
 @import 'pages/profile-page';
 
