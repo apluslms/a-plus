@@ -23,9 +23,9 @@ class LinkService(ModelWithInheritance):
     DESTINATION_REGION = Enum([
         ('INTERNAL', 0, _('Destination is hosted internally. Link to internal privacy notice.')),
         ('ORGANIZATION', 1, _('Destination is hosted in the same organization. Link to a privacy notice.')),
-        ('EEA', 3, _('Destination is hosted in European Economic Area. Link to a privacy notice.')),
-        ('PRIVACYSHIELD', 5, _('Destination is hosted out side of European Economic Area, but certified under EU-US Privacy Shield. Link to an extended privacy notice.')),
-        ('GLOBAL', 6, _('Destination is hosted out side of European Economic Area. Link to an extended privacy notice.')),
+        ('EEA', 3, _('Destination is hosted in the European Economic Area. Link to a privacy notice.')),
+        ('PRIVACYSHIELD', 5, _('Destination is hosted outside of the European Economic Area and used to be certified under the now invalid EU-US Privacy Shield. Link to an extended privacy notice.')),
+        ('GLOBAL', 6, _('Destination is hosted outside of the European Economic Area. Link to an extended privacy notice.')),
     ])
     url = models.CharField(
         max_length=256,
