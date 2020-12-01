@@ -136,29 +136,7 @@ The Application
  1. Create uWSGI configuration
 
         # as user aplus in /srv/aplus
-        cat > uwsgi-aplus-web.ini <<EOF
-        [uwsgi]
-        home=/srv/aplus/venv
-        module=aplus.wsgi:application
-        enable-threads=True
-        processes=4
-        threads=2
-        max-requests=10000
-        harakiri=40
-        env=LANG=en_US.UTF-8
-        EOF
-
-        cat > uwsgi-aplus-api.ini <<EOF
-        [uwsgi]
-        home=/srv/aplus/venv
-        module=aplus.wsgi:application
-        enable-threads=False
-        processes=2
-        threads=1
-        max-requests=10000
-        harakiri=40
-        env=LANG=en_US.UTF-8
-        EOF
+        cp ~/a-plus/doc/uwsgi-aplus-*.ini ~
 
     **NOTE**: Select number of processes and threads based on number of of CPUs.
     Probably a good number is around two times cpus for the web (as there is a lot of io wait) and number of cpus for the API.
