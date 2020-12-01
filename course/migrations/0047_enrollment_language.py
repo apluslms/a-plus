@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course', '0047_delete_duplicate_enrollments'),
+        ('course', '0046_coursemodule_reading_opening_time'),
     ]
 
     operations = [
