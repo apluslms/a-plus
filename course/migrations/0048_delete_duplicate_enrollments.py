@@ -29,8 +29,8 @@ def delete_duplicates(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('userprofile', '0003_auto_20160728_1139'),
-        ('course', '0046_coursemodule_reading_opening_time'),
+        ('userprofile', '0004_auto_20200721_1422'),
+        ('course', '0047_enrollment_language'),
     ]
 
     operations = [
