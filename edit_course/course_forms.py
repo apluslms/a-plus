@@ -74,6 +74,10 @@ class CourseInstanceForm(forms.ModelForm):
         initial_queryset=UserProfile.objects.none(),
         required=False) # Not required because a course does not have to have any assistants.
 
+    teachers = UsersSearchSelectField(queryset=UserProfile.objects.all(),
+        initial_queryset=UserProfile.objects.none(),
+        required=False) # Not required because a course does not have to have any teachers.
+
     class Meta:
         model = CourseInstance
         fields = [
@@ -99,6 +103,8 @@ class CourseInstanceForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['assistants'].initial_queryset = self.instance.assistants.all()
         self.fields['assistants'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
+        self.fields['teachers'].initial_queryset = self.instance.course.teachers.all()
+        self.fields['teachers'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
         if self.instance and self.instance.visible_to_students:
             self.fields["url"].widget.attrs["readonly"] = "true"
             self.fields["url"].help_text = _("The URL identifier is locked "
@@ -123,6 +129,10 @@ class CourseInstanceForm(forms.ModelForm):
         generate_url_key_validator()(self.cleaned_data["url"])
         return self.cleaned_data["url"]
 
+    def save(self, *args, **kwargs):
+        self.instance.course.teachers.set(self.cleaned_data['teachers'])
+        self.instance.course.save()
+        return super(CourseInstanceForm, self).save(*args, **kwargs) 
 
 class CourseIndexForm(forms.ModelForm):
 
