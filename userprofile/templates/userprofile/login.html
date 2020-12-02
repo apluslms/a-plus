@@ -3,7 +3,7 @@
 {% load static %}
 {% load bootstrap %}
 
-{% block title %}{% trans "Log in to A+" %} | {{ block.super }}{% endblock %}
+{% block title %}{% blocktrans %}Log in to {{ brand_name }}{% endblocktrans %} | {{ block.super }}{% endblock %}
 
 {% block scripts %}
 	{{ block.super }}
@@ -14,7 +14,7 @@
 {% block content %}
 
 	<div class="page-header">
-		<h1>{% trans "Log in to A+" %}</h1>
+		<h1>{% blocktrans %}Log in to {{ brand_name }}{% endblocktrans %}</h1>
 	</div>
 
 	<div id="login-box-row" class="row">

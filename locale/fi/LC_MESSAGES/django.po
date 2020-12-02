@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-30 21:12+0200\n"
+"POT-Creation-Date: 2020-12-02 11:46+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -3583,8 +3583,9 @@ msgid "{:d} points"
 msgstr "{:d} pisteet"
 
 #: userprofile/templates/userprofile/login.html
-msgid "Log in to A+"
-msgstr "Kirjaudu A+:aan"
+#, python-format
+msgid "Log in to %(brand_name)s"
+msgstr "Kirjaudu %(brand_name)s-järjestelmään"
 
 #: userprofile/templates/userprofile/login.html
 msgid "Log in using Google"
@@ -3642,8 +3643,9 @@ msgid "[Unknown name]"
 msgstr "[Tuntematon nimi]"
 
 #: userprofile/templates/userprofile/profile.html
-msgid "A+ Preferences"
-msgstr "A+ Asetukset"
+#, python-format
+msgid "%(brand_name)s Preferences"
+msgstr "%(brand_name)s-asetukset"
 
 #: userprofile/templates/userprofile/profile.html
 msgid "API Access Token"

@@ -173,6 +173,9 @@ class AccessibilityStatementView(UserProfileView):
 
 class ProfileView(UserProfileView):
     template_name = "userprofile/profile.html"
+    extra_context = {
+        'brand_name': settings_text('BRAND_NAME'),
+    }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
