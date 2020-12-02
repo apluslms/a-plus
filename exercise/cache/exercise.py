@@ -6,7 +6,6 @@ from django.db.models.signals import post_save, post_delete
 
 from lib.cache import CachedAbstract
 from lib.remote_page import RemotePageNotModified
-from ..protocol.aplus import load_exercise_page
 
 logger = logging.getLogger('aplus.cached')
 
