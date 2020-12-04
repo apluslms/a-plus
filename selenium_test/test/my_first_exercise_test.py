@@ -8,7 +8,7 @@ class MyFirstExerciseTest(unittest.TestCase):
     def setUp(self):
         testHelper = TestInitializer()
         testHelper.recreateDatabase()
-        self.driver = testHelper.getDefaultDriver()
+        self.driver = testHelper.getDefaultDriver(headless=True)
         LoginPage(self.driver).loginAsStudent()
 
     def testShouldGiveZeroPointsOnEmptyAnswer(self):

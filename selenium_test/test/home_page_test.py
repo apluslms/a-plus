@@ -7,7 +7,7 @@ from locators import BasePageLocators
 
 class HomePageTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestInitializer().getDefaultDriver()
+        self.driver = TestInitializer().getDefaultDriver(headless=True)
         TestInitializer().recreateDatabase()
         LoginPage(self.driver).loginAsStudent()
 

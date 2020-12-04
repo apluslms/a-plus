@@ -8,7 +8,7 @@ class LoginTest(unittest.TestCase):
     logoutPageURI = '/accounts/logout'
 
     def setUp(self):
-        self.driver = TestInitializer().getDefaultDriver()
+        self.driver = TestInitializer().getDefaultDriver(headless=True)
 
     def testLoginToTestCourseInstance(self):
         LoginPage(self.driver).loginToCourse(CourseName.APLUS)
