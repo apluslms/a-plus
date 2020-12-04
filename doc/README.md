@@ -228,12 +228,12 @@ Currently, the tests depend on a Unix type shell and are run within a virtual en
 ### Updating translations for Finnish and English versions
 
 Before creating a pull request, you need to ensure that [translations](https://github.com/apluslms/a-plus/blob/master/locale/fi/LC_MESSAGES/django.po) are up-to-date.
-Translations are handled with [Django](https://docs.djangoproject.com/en/3.1/ref/django-admin/#django-admin-makemessages) and are done outside the container.
+Translations are handled with [Django](https://docs.djangoproject.com/en/2.2/ref/django-admin/#django-admin-makemessages) and are done outside the container.
 
 1. In order to update the file containing translations, run:
 
    ```sh
-   $ python3 manage.py makemessages --no-obsolete
+   $ python3 manage.py makemessages --no-obsolete --add-location file
    ```
 
 2. You can easily check the lines that were affected:
@@ -250,4 +250,4 @@ Translations are handled with [Django](https://docs.djangoproject.com/en/3.1/ref
    $ python3 manage.py compilemessages
    ```
 
-The final step can also be used to ensure that the translations work, when the code is ran in a container and mounted to `/srv/`.
+The final step can also be used to ensure that the translations work, when the code is run in a container and mounted to `/srv/`.
