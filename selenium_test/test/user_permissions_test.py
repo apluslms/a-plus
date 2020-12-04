@@ -9,7 +9,7 @@ class UserPermissionsTest(unittest.TestCase):
     baseUrl = BasePage.base_url + "/aplus1/basic_instance/"
 
     def setUp(self):
-        self.driver = TestInitializer().getDefaultDriver()
+        self.driver = TestInitializer().getDefaultDriver(headless=True)
 
     def testShouldHaveTeachersPermissions(self):
         LoginPage(self.driver).loginAsTeacher()

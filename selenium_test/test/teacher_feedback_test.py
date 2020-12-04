@@ -6,7 +6,7 @@ from page_objects import LoginPage, FileUploadGrader, AssessmentPage, Submission
 
 class TeacherFeedbackTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestInitializer().getDefaultDriver()
+        self.driver = TestInitializer().getDefaultDriver(headless=True)
         TestInitializer().recreateDatabase()
 
     def testStudentShouldGetFeedbackWithNotification(self):

@@ -1,19 +1,19 @@
 from selenium.webdriver.common.by import By
 
 class LoginPageLocators(object):
-    BANNER = (By.XPATH, "//*[@class='page-header']/h1[contains(text(), 'Login')]")
+    BANNER = (By.XPATH, "//*[@class='page-header']/h1[contains(text(), 'Log in to A+')]")
     USERNAME_INPUT = (By.XPATH, "//input[@id='id_username']")
     PASSWORD_INPUT = (By.XPATH, "//input[@id='id_password']")
     SUBMIT_BUTTON = (By.XPATH, "//*[@type='submit']")
 
 class FirstPageLocators(object):
     BANNER = (By.XPATH, "//*[@class='page-header']/h1")
-    APLUS_TEST_COURSE_INSTANCE_BUTTON = (By.XPATH, "//div[contains(@class, 'card')]/a[contains(@href, '/aplus1/basic_instance/')]//*[contains(@class, 'card-title')]")
-    HOOK_EXAMPLE_BUTTON = (By.XPATH, "//div[contains(@class, 'card')]/a[contains(@href, '/aplus1/hook_instance/')]//*[contains(@class, 'card-title')]")
+    APLUS_TEST_COURSE_INSTANCE_BUTTON = (By.XPATH, "//div[contains(@class, 'frontpage card')]//a[contains(@href, '/aplus1/basic_instance/')]//*[contains(@class, 'card-title')]")
+    HOOK_EXAMPLE_BUTTON = (By.XPATH, "//div[contains(@class, 'frontpage card')]//a[contains(@href, '/aplus1/hook_instance/')]//*[contains(@class, 'card-title')]")
     SHOW_LOGIN_BUTTON = (By.XPATH, "//*[contains(@class, 'show-extra-login-btn')]")
 
 class BasePageLocators(object):
-    COURSE_BANNER = (By.XPATH, "//*[@id='bs-navbar-collapse']/ul[1]/li[1]/a")
+    COURSE_BANNER = (By.XPATH, "//div[@class='navbar-header']/ul/li[@class='dropdown']/a")
     FOOTER = (By.XPATH, "//div[contains(@class, 'site-footer')]")
     HOME_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-home')]/a")
     CALENDAR_FEED_LINK = (By.XPATH, "//*[contains(@class, 'calendar-view')]/p/a[contains(@href, '/export-calendar/')]")

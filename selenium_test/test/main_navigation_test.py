@@ -8,7 +8,7 @@ class MainNavigationTest(unittest.TestCase):
     baseUrl = BasePage.base_url + "/aplus1/basic_instance/"
 
     def setUp(self):
-        self.driver = TestInitializer().getDefaultDriver()
+        self.driver = TestInitializer().getDefaultDriver(headless=True)
         LoginPage(self.driver).loginAsTeacher()
 
     def testNavigateToResults(self):

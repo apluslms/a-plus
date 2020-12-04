@@ -5,7 +5,7 @@ from page_objects import TeachersPage, LoginPage, CourseName
 
 class StaffPageTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestInitializer().getDefaultDriver()
+        self.driver = TestInitializer().getDefaultDriver(headless=True)
         LoginPage(self.driver).loginAsAssistant()
 
     @unittest.skip

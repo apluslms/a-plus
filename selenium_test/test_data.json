@@ -52,7 +52,7 @@
 {
   "fields": {
     "head_urls": "",
-    "ending_time": "2020-09-27T09:00:00Z",
+    "ending_time": "2023-09-27T09:00:00Z",
     "visible_to_students": true,
     "configure_url": "",
     "description": "",
@@ -61,7 +61,7 @@
     "image": "",
     "course": 1,
     "technical_error_emails": "",
-    "starting_time": "2013-09-27T09:00:00Z",
+    "starting_time": "2020-09-27T09:00:00Z",
     "module_numbering": 1,
     "enrollment_ending_time": null,
     "content_numbering": 1,
@@ -88,7 +88,7 @@
     "image": "",
     "course": 1,
     "technical_error_emails": "",
-    "starting_time": "2013-09-27T09:00:00Z",
+    "starting_time": "2020-09-27T09:00:00Z",
     "module_numbering": 1,
     "enrollment_ending_time": null,
     "content_numbering": 1,
@@ -114,7 +114,7 @@
     "closing_time": "2023-09-27T09:00:00Z",
     "late_submission_deadline": "2024-09-27T09:00:00Z",
     "introduction": "",
-    "opening_time": "2013-09-27T09:00:00Z",
+    "opening_time": "2020-09-27T09:00:00Z",
     "url": "first-exercise-round",
     "status": "ready"
   },
@@ -132,7 +132,7 @@
     "closing_time": "2023-09-27T09:00:00Z",
     "late_submission_deadline": "2024-09-27T09:00:00Z",
     "introduction": "",
-    "opening_time": "2013-09-27T09:00:00Z",
+    "opening_time": "2020-09-27T09:00:00Z",
     "url": "exercises-with-hook",
     "status": "ready"
   },

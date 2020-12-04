@@ -6,7 +6,7 @@ from page_objects import LoginPage, EditExercisePage, CourseName
 
 class EditExercisePageTest(unittest.TestCase):
     def setUp(self):
-        self.driver = TestInitializer().getDefaultDriver()
+        self.driver = TestInitializer().getDefaultDriver(headless=True)
         TestInitializer().recreateDatabase()
         LoginPage(self.driver).loginAsTeacher()
 
