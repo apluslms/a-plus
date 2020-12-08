@@ -443,7 +443,7 @@ Final steps
 
     **NOTE:** You might need to use `--first-name`, `--last-name` or `--email` to limit the number of users.
 
- 1. Create privacy notice and accessibility statement
+ 1. Create privacy notice, accessibility statement and suppot page
 
     Copy privacy notice and accessibility statement templates
 
@@ -452,6 +452,8 @@ Final steps
           cp /srv/aplus/a-plus/templates/privacy_notice_* \
              /srv/aplus/a-plus/local_templates/
           cp /srv/aplus/a-plus/templates/institution_accessibility_text* \
+             /srv/aplus/a-plus/local_templates/
+          cp /srv/aplus/a-plus/templates/suport_channels_* \
              /srv/aplus/a-plus/local_templates/
         "
 

@@ -1,0 +1,237 @@
+{% load i18n %}
+{% load static %}
+{% load base %}
+{% brand_name as brand %}
+{% brand_name_long as brand_long %}
+{% brand_institution_name as institution %}
+
+<section class="frontpage frontpage-section" aria-label="Students">
+	<h2 >
+		{% blocktrans %}Students{% endblocktrans%}
+	</h2>
+	<h3>{% trans "Students should contact the course staff for further assistance on course matters." %}</h3>
+	<div class="cards">
+		<div class="card frontpage">
+			<div class="card-body">
+				<h3>{% blocktrans %} {{institution}} information{% endblocktrans %}</h3>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://into.aalto.fi/display/enopinnot">
+						{% blocktrans %} Studies {% endblocktrans %}
+					</a>
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://into.aalto.fi/display/enopinnot">
+						{% blocktrans %} Student Services {% endblocktrans %}
+					</a>
+				</p>
+			</div>
+		</div>
+	</div>
+</section>
+<hr>
+<section class="frontpage frontpage-section" aria-label="Teachers">
+	<h2>
+		{% blocktrans %}Teachers{% endblocktrans%}
+	</h2>
+	<div class="cards">
+		<div class="card frontpage">
+			<div class="card-body">
+				<h3>{% trans "Documentation" %}</h3>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://plus.cs.aalto.fi/aplus-manual/master/">
+						{% blocktrans %}{{brand_long}} manual{% endblocktrans %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					The {{brand_long}} manual contains detailed instructions on how to start authoring a course and how
+					to use the various types of exercises available for {{brand}}.{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://apluslms.github.io/">{% trans "Aplus website" %}</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					The {{brand_long}} website provide an overview of {{brand_long}} and all the associated services. It
+					also contain links to technical documentation especially the documentation hosted in Github.
+					{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener"
+						href="https://wiki.aalto.fi/display/EDIT/Requests+for+course+instances">
+						{% trans "How to publish a course" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					The Wiki page "How to publish a course" contains instructions for requesting a new course instance
+					in {{brand}}.
+					{% endblocktrans %}
+				</p>
+			</div>
+		</div>
+
+		<div class="card frontpage">
+			<div class="card-body">
+				<h3>{% trans "Download course templates" %}</h3>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://github.com/apluslms/aplus-course-template">
+						{% trans "Aplus course template" %}</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					The {{brand_long}} course template provides you with a the minimum structure to start authoring your
+					course.
+					{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://github.com/apluslms/aplus-manual">
+						{% blocktrans %}{{brand_long}} manual{% endblocktrans %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Since the {{brand_long}} Manual contains a wide variety of exercises, you can download the source
+					code and use it as a source of knowledge for creating your own exercises.
+					{% endblocktrans %}
+				</p>
+			</div>
+		</div>
+
+		<div class="card frontpage">
+			<div class="card-body">
+				<h3>{% trans "Community" %}</h3>
+				<p class="card-text">
+					<a target="_blank" rel="noopener"
+						href="https://teams.microsoft.com/l/team/19%3a147685e6a8fc409295188befeec77113%40thread.skype/conversations?groupId=b78ab778-8838-4180-940d-b9183ddc3a7c&tenantId=ae1a7724-4041-4462-a6dc-538cb199707e">
+						{% trans "Microsoft Teams" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Teachers can start conversation with other users of {{brand}} or ask for support in the Microsoft
+					Teams channels. However, if your matter contains private/sensitive information you should contact us
+					by email.
+					{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://github.com/apluslms/a-plus/issues">
+						{% trans "Report an issue in Github" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Teachers can report issues in Github, such as bugs in the application or features you would like
+					to have in future version of {{brand}}.
+					{% endblocktrans %}
+				</p>
+			</div>
+		</div>
+
+		<div class="card frontpage">
+			<div class="card-body">
+				<h3>{% trans "News" %}</h3>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/EDIT#EDIT-News">
+						{% trans "Announcements" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Keep yourself updated with information about {{brand}} and all the associated services.
+					{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://status.cs.aalto.fi/d/r0N6S9jik/main?orgId=1">
+						{% trans "Status" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Check the status of our servers.
+					{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/Roadmap+2020-2024">
+						{% trans "Current Development" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Follow the current development of {{brand}} and its related services.
+					{% endblocktrans %}
+				</p>
+			</div>
+		</div>
+
+		<div class="card frontpage">
+			<div class="card-body">
+				<h3>{% blocktrans %}Other servers that use {{brand}}{% endblocktrans %}</h3>
+				<p class="card-text">
+					<a target="_blank" rel="noopener"
+						href="https://wiki.aalto.fi/display/EDIT/Exam+studio+exam+with+Aplus+exercises">
+						{% trans "Exam server" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Find out more about how to use {{brand}} to conduct examinations.
+					{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://minus.cs.aalto.fi/">
+						{% trans "Testing environment" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					If you are an Aalto teacher, you can make use of our testing environment to test your courses before
+					publish them in production.
+					{% endblocktrans %}
+				</p>
+			</div>
+		</div>
+
+		<div class="card frontpage">
+			<div class="card-body">
+				<h3>{% trans "Learning" %}</h3>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/Accessible+Teaching">
+						{% trans "Accessible Teaching" %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					Learn how to create accessible content for learners.
+					{% endblocktrans %}
+				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener"
+						href="https://aalto.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=%2253f1b55a-0cb3-4c71-8302-abbf00c1a6d2%22">
+						{% blocktrans %}
+						Watch some of our webinars.
+						{% endblocktrans %}
+					</a>
+				</p>
+				<p class="card-text">
+					{% blocktrans %}
+					The webinars contains some talks organized byt the EDIT team concerning A+ and its related services.
+					{% endblocktrans %}
+				</p>
+			</div>
+		</div>
+	</div>
+</section>
+<section class="bg-gray text-center">
+	<div>
+		<img alt="decorative icon" class="img-responsive center-block" src="{% static 'images/search-clipart.png' %}" />
+	</div>
+	<div>
+		<h3>{% trans "Can't find what you're looking for?" %}</h3>
+		<p>Send us an email to
+			<a href="mailto:aplusguru@cs.aalto.fi"target="_blank" rel="noopener">
+			aplusguru@cs.aalto.fi
+			</a>
+		</p>
+	</div>
+</section>

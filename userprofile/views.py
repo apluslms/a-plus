@@ -170,6 +170,39 @@ class AccessibilityStatementView(UserProfileView):
         self.accessibility_statement = accessibility_statement
         self.note("accessibility_statement")
 
+class SupportView(UserProfileView):
+    access_mode=ACCESS.ANONYMOUS
+    template_name="userprofile/support.html"
+    extra_context = {
+        'brand_name': settings_text('BRAND_NAME'),
+        'brand_name_long': settings_text('BRAND_NAME_LONG'),
+        'brand_institution_name': settings_text('BRAND_INSTITUTION_NAME')
+    }
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        lang = "_" + get_language().lower()
+        key = make_template_fragment_key('support_channels', [lang])
+        support_channels = cache.get(key)
+
+        if not support_channels:
+            template_name = "support_channels{}.html"
+            template = try_get_template(template_name.format(lang))
+
+            if not template and len(lang) > 3:
+                template = try_get_template(template_name.format(lang[:3]))
+            if not template:
+                logger.warning("No localized privacy notice for language %s", lang)
+                template = try_get_template(template_name.format(''))
+            if not template:
+                logger.error("The support page is missing")
+
+            support_channels = template.render() if template else _("No privacy notice. Please notify administration!")
+
+            cache.set(key, support_channels)
+
+        self.support_channels = support_channels
+        self.note("support_channels")
 
 class ProfileView(UserProfileView):
     template_name = "userprofile/profile.html"

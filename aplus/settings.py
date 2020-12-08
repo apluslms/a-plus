@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ["*"]
 SITEWIDE_ALERT_TEXT = None
 SITEWIDE_ADVERT = None
 BRAND_NAME = 'A+'
+BRAND_NAME_LONG = 'Aplus'
 BRAND_DESCRIPTION = 'Virtual Learning Environment'
 BRAND_INSTITUTION_NAME = 'Aalto University'
 BRAND_INSTITUTION_NAME_FI = 'Aalto-yliopisto'
