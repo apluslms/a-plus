@@ -383,9 +383,8 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
  1. Install required packages
 
         sudo apt-get install \
-          shibboleth-sp2-common \
-          shibboleth-sp2-utils \
-          shibboleth-sp2-schemas \
+          shibboleth-sp-common \
+          shibboleth-sp-utils \
           xmltooling-schemas
 
  1. Create systemd services and sockets for shibboleth scripts
