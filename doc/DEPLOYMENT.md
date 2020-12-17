@@ -43,7 +43,7 @@ Common system configuration
           postgresql libpq-dev memcached \
           python3-virtualenv \
           python3-certifi python3-lz4 python3-reportlab python3-reportlab-accel \
-          build-essential libxml2-dev libxslt-dev python3-dev \
+          build-essential libxml2-dev libxslt-dev python3-dev python3-venv \
           libpcre3 libpcre3-dev
 
  1. Create a new user for a-plus
@@ -82,10 +82,10 @@ The Application
  1. Install virtualenv
 
         # as user aplus in /srv/aplus
-        python3 -m virtualenv -p python3 --system-site-packages venv
-        . venv/bin/activate
-        pip install -r a-plus/requirements.txt
+        python3 -m venv venv
+        source ~/venv/bin/activate
         pip install -r a-plus/requirements_prod.txt
+        pip install -r a-plus/requirements.txt
 
  1. Configure Django
 
