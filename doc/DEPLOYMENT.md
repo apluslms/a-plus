@@ -414,7 +414,7 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
 
  1. Create systemd services and sockets for shibboleth scripts
 
-        sudp cp /srv/aplus/a-plus/doc/nginx/shib*.socket \
+        sudo cp /srv/aplus/a-plus/doc/nginx/shib*.socket \
                 /srv/aplus/a-plus/doc/nginx/shib*.service \
                 /etc/systemd/system
         sudo systemctl daemon-reload
