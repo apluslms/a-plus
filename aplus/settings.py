@@ -286,6 +286,8 @@ STATIC_ROOT = join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = join(BASE_DIR, 'media')
 
+GRADER = 'http://localhost:8080/static'
+
 # Django REST Framework settings
 # http://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {

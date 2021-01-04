@@ -5,6 +5,7 @@ from lib.errors import TagUsageError
 from lib.helpers import get_random_string
 from ..cache import CachedCourseMenu
 from ..models import MenuItem
+from django.conf import settings
 
 
 register = template.Library()
@@ -36,3 +37,7 @@ def random_id(*parts, length=11):
     parts.append(get_random_string(1, choices=string.ascii_lowercase))
     parts.append(get_random_string(length - 1, choices=string.ascii_lowercase + string.digits))
     return "".join(parts)
+
+@register.simple_tag
+def get_setting(name):
+    return getattr(settings, name, "")

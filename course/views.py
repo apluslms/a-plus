@@ -27,7 +27,7 @@ from .forms import GroupsForm, GroupSelectForm
 from .models import Course, CourseInstance, CourseModule, Enrollment
 from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
-from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin, CourseMixin
+from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin, CourseInstanceBaseView, CourseMixin
 
 
 class HomeView(UserProfileView):
@@ -79,6 +79,9 @@ class HomeView(UserProfileView):
             "is_logged_in",
         )
 
+class SearchResultsView(CourseInstanceBaseView):
+    access_mode = ACCESS.ENROLLED
+    template_name = 'course/search.html'
 
 class ArchiveView(UserProfileView):
     access_mode = ACCESS.ANONYMOUS

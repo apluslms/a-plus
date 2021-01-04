@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .urls import USER_URL_PREFIX, EDIT_URL_PREFIX
+from .urls import USER_URL_PREFIX, EDIT_URL_PREFIX, INSTANCE_URL_PREFIX
 from . import views, staff_views
 
 # These need to be listed before the exercise URL routings.
@@ -41,4 +41,7 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'groups/(?P<group_id>\d+)/delete/$',
         staff_views.GroupsDeleteView.as_view(),
         name="groups-delete"),
+    url(INSTANCE_URL_PREFIX + r'search/$',
+        views.SearchResultsView.as_view(),
+        name='search'),
 ]

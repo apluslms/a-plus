@@ -1,6 +1,10 @@
 @import '../mixins/focus';
 
 /* common */
+span.highlighted {
+    background-color: #FFBF47;
+}
+
 .site-message {
   position: relative;
 }
