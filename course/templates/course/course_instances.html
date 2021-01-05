@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load course %}
+
+{% block title %}{% trans "Course instances" %} | {{ block.super }}{% endblock %}
+{% block view_tag %}instances{% endblock %}
+
+{% block content %}
+<div class="frontpage-panel">
+	<div class="page-header">
+		<h1>{% trans "Course instances" %}</h1>
+	</div>
+	{% if instances %}
+	{% regroup instances by starting_time|date:"Y" as instances_by_year %}
+	{% for year, year_instances in instances_by_year %}
+	<section class="frontpage frontpage-section" aria-labelledby="course-instances-in-{{ year }}">
+		<div class="section-heading">
+			<h2 id="course-instances-in-{{year}}">{{ year }}</h2>
+		</div>
+		<div class="cards">
+			{% include "course/_course_cards.html" with instances=year_instances condensed=True %}
+		</div>
+	</section>
+	{% endfor %}
+	{% else %}
+	<h2>{{ msg }}</h2>
+	{% endif %}
+</div>
+{% endblock %}

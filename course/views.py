@@ -89,6 +89,22 @@ class ArchiveView(UserProfileView):
         self.instances = CourseInstance.objects.get_visible(self.request.user)
         self.note("instances")
 
+class CourseInstancesView(UserProfileView):
+    access_mode = ACCESS.ANONYMOUS
+    template_name = "course/course_instances.html"
+
+    def get_common_objects(self, **kwargs):
+        course = get_object_or_404(Course, url=self.kwargs['course_slug'])
+        self.instances = []
+        self.msg = ""
+        if CourseInstance.objects.filter(course=course).count() > 0: 
+            self.instances = CourseInstance.objects.get_visible(self.request.user).filter(course=course).order_by('-starting_time')
+            self.msg = _("The course instances of this course are not visible to students.")   
+        else:
+            self.msg = _("There are no course instances for this course.")
+
+        self.note("instances", "msg")
+
 class InstanceView(EnrollableViewMixin, BaseTemplateView):
     access_mode = ACCESS.STUDENT
     # ACCESS.STUDENT requires users to log in, but the access mode is dropped

@@ -601,6 +601,11 @@ msgstr "Aseta kurssikieleksi %(lang)s"
 msgid "You can change the language from your profile."
 msgstr "Voit muuttaa kielivalintaa profiilistasi."
 
+#: course/templates/course/course_instances.html
+#: edit_course/templates/edit_course/clone_instance.html
+msgid "Course instances"
+msgstr "Kurssikerrat"
+
 #: course/templates/course/enroll.html
 msgid "Enrollment"
 msgstr "Ilmoittautuminen"
@@ -886,6 +891,14 @@ msgstr "Sähköposti"
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "Tags"
 msgstr "Merkinnät"
+
+#: course/views.py
+msgid "The course instances of this course are not visible to students."
+msgstr "Kurssin esiintymät eivät ole opiskelijoiden nähtävissä."
+
+#: course/views.py
+msgid "There are no course instances for this course."
+msgstr "Tällä kurssilla ei ole esiintymiä."
 
 #: course/views.py
 msgid "You cannot enroll, or have already enrolled, in this course."
@@ -1284,10 +1297,6 @@ msgstr "Käännös kesken"
 #: edit_course/templates/edit_course/clone_instance.html
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "Instances"
-msgstr "Kurssikerrat"
-
-#: edit_course/templates/edit_course/clone_instance.html
-msgid "Course instances"
 msgstr "Kurssikerrat"
 
 #: edit_course/templates/edit_course/clone_instance.html
