@@ -67,6 +67,7 @@
 		}
 	}
 	.advert-card {
+		position: relative;
 		background-color: #d9edf7;
 		border-color: #bce8f1;
 		&:hover {
@@ -76,6 +77,11 @@
 			p {
 				color: #333;
 			}
+		}
+		> a > i.icon.glyphicon.glyphicon-new-window {
+			position: absolute;
+			top: 92%;
+			left: 92%;
 		}
 	}
 	a {
