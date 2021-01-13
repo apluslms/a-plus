@@ -665,28 +665,16 @@ $(function() {
  * to the next
  * Note! Translation requires that at least 'hl' query parameter is copied
  */
-(function(window) {
-    window.addEventListener('click', function(event) {
-        if (
-            event.target.nodeName === 'A'
-            && event.target.href
-            && event.target.protocol === window.location.protocol
-            && event.target.host === window.location.host // hostname:port
-            && (event.target.search === '' || event.target.search === '?') // no search
-        ) {
-            event.preventDefault(); // stop default redirect
-            event.target.search = window.location.search; // copy query params
-            if (event.target.getAttribute('target') === '_blank') {
-                // Open a new window or tab.
-                window.open(
-                    event.target.href,
-                    '_blank',
-                    'location,menubar,resizable,scrollbars,status,noopener');
-            } else {
-                window.location.href = event.target.href; // redirect the current window
-            }
-        }
-    }, false);
-})(window);
+(function (window) {
+  $(document).on("click", "a[href]", function (event) {
+    if (
+      event.target.className != "dropdown-toggle" &&
+      event.target.protocol === window.location.protocol &&
+      event.target.host === window.location.host && // hostname:port
+      (event.target.search === "" || event.target.search === "?") // no search
+    ) {
+      event.target.search = window.location.search; // copy query params
+    }
+  });
 
-/* vim: set et ts=4 sw=4: */
+})(window);
