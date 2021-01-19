@@ -539,7 +539,10 @@ class CourseInstance(UrlMixin, models.Model):
         UserTagging.objects.create(tag=tag, user=user.userprofile, course_instance=self)
 
     def get_enrollment_for(self, user):
-        return Enrollment.objects.filter(course_instance=self, user_profile=user.userprofile).first()
+        try:
+            return Enrollment.objects.get(course_instance=self, user_profile=user.userprofile)
+        except Enrollment.DoesNotExist:
+            return None
 
     def get_user_tags(self, user):
         return self.taggings.filter(user=user.uesrprofile).select_related('tag')

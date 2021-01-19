@@ -2908,6 +2908,10 @@ msgstr ""
 "Palauttaaksesi tehtäviä sinun pitää rekisteröityä ja ilmoittautua kurssin "
 "etusivulla."
 
+#: external_services/lti.py
+msgid "Course enrollment required for accessing the LTI service."
+msgstr "Kurssille ilmoittautuminen vaaditaan LTI-palveluun pääsemiseksi."
+
 #: external_services/models.py
 msgid "Url can not contain scheme or domain part."
 msgstr "Url ei voi sisältää skeema- tai verkkotunnusosaa."

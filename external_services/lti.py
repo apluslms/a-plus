@@ -2,8 +2,8 @@ from hashlib import md5
 from urllib.parse import urlsplit, urljoin
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.utils.translation import get_language
+from django.http import Http404
+from django.utils.translation import get_language, ugettext_lazy as _
 from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
 from oauthlib.common import urldecode
@@ -93,9 +93,10 @@ class LTIRequest(object):
     def user_info(self, course_instance, user):
         if self.service.is_anonymous:
             # Anonymize user information
-            enrollment = Enrollment.objects.filter(course_instance=course_instance, user_profile=user.userprofile).first()
-            if not enrollment:
-                raise PermissionDenied()
+            try:
+                enrollment = Enrollment.objects.get(course_instance=course_instance, user_profile=user.userprofile)
+            except Enrollment.DoesNotExist:
+                raise Http404(_("Course enrollment required for accessing the LTI service."))
             # Creates anon name and id for pre-pseudonymisation Enrollments
             if not (enrollment.anon_name or enrollment.anon_id):
                 # the model's post_save functions take care of the creation
