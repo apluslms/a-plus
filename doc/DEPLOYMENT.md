@@ -40,10 +40,11 @@ Common system configuration
 
         sudo apt-get install \
           git gettext \
-          postgresql memcached \
-          uwsgi-core uwsgi-plugin-python3 \
+          postgresql libpq-dev memcached \
           python3-virtualenv \
-          python3-certifi python3-lz4 python3-psycopg2 python3-reportlab python3-reportlab-accel
+          python3-certifi python3-lz4 python3-reportlab python3-reportlab-accel \
+          build-essential libxml2-dev libxslt-dev python3-dev python3-venv \
+          libpcre3 libpcre3-dev
 
  1. Create a new user for a-plus
 
@@ -81,10 +82,10 @@ The Application
  1. Install virtualenv
 
         # as user aplus in /srv/aplus
-        python3 -m virtualenv -p python3 --system-site-packages venv
-        . venv/bin/activate
-        pip install -r a-plus/requirements.txt
+        python3 -m venv venv
+        source ~/venv/bin/activate
         pip install -r a-plus/requirements_prod.txt
+        pip install -r a-plus/requirements.txt
 
  1. Configure Django
 
@@ -135,29 +136,7 @@ The Application
  1. Create uWSGI configuration
 
         # as user aplus in /srv/aplus
-        cat > uwsgi-aplus-web.ini <<EOF
-        [uwsgi]
-        home=/srv/aplus/venv
-        module=aplus.wsgi:application
-        enable-threads=True
-        processes=4
-        threads=2
-        max-requests=10000
-        harakiri=40
-        env=LANG=en_US.UTF-8
-        EOF
-
-        cat > uwsgi-aplus-api.ini <<EOF
-        [uwsgi]
-        home=/srv/aplus/venv
-        module=aplus.wsgi:application
-        enable-threads=False
-        processes=2
-        threads=1
-        max-requests=10000
-        harakiri=40
-        env=LANG=en_US.UTF-8
-        EOF
+        cp ~/a-plus/doc/uwsgi-aplus-*.ini ~
 
     **NOTE**: Select number of processes and threads based on number of of CPUs.
     Probably a good number is around two times cpus for the web (as there is a lot of io wait) and number of cpus for the API.
@@ -295,6 +274,7 @@ Following instructions expect that the applocation is installed under `/srv/aplu
         fi
         sed -e "s/__HOSTNAME__/$(hostname)/g" /srv/aplus/a-plus/doc/nginx/aplus-nginx.conf \
          | sudo tee "$dest" > /dev/null
+        openssl dhparam -out /etc/nginx/dhparams.pem 4096
 
     **NOTE:** If you are going to use shibboleth, then use file [nginx/aplus-nginx-shib.conf](nginx/aplus-nginx-shib.conf).
 
@@ -318,7 +298,36 @@ Following instructions expect that the applocation is installed under `/srv/aplu
 This guide bases on NGINX module [nginx-http-shibboleth](https://github.com/nginx-shib/nginx-http-shibboleth).
 This module uses fastcgi and shibboleth scripts to provide similar integration as Apache 2 plugin.
 
- 1. With Ubuntu xenial or before NGINX 1.11
+ 1. Starting from Ubuntu Bionic or NGINX 1.11 we can use dynamic modules
+
+        # as root
+        cd /usr/src
+
+        # edit /etc/apt/sources.list if necessary, make sure to enable the
+        # -updates repository to get the latest version
+        apt-get install build-essential devscripts libnginx-mod-http-headers-more-filter
+        apt-get source nginx
+        apt-get build-dep nginx
+
+        git clone https://github.com/nginx-shib/nginx-http-shibboleth.git
+
+        pushd nginx-1.*/
+        # The module has to be configured using the same arguments as nginx
+        NGINX_CONFIGURE_FLAGS=$(nginx -V 2>&1 | grep configure\ arguments | \
+          sed 's/configure arguments: //')
+        eval $(echo ./configure \
+          --add-dynamic-module=../nginx-http-shibboleth \
+          $NGINX_CONFIGURE_FLAGS)
+        make modules -j$(nproc)
+        chmod 644 objs/ngx_http_shibboleth_module.so
+        mkdir -p /usr/local/lib/nginx/modules
+        cp objs/ngx_http_shibboleth_module.so /usr/local/lib/nginx/modules
+        echo "load_module /usr/local/lib/nginx/modules/ngx_http_shibboleth_module.so;" > \
+          /etc/nginx/modules-available/50-mod-http-shibboleth.conf
+        ln -s ../modules-available/50-mod-http-shibboleth.conf /etc/nginx/modules-enabled/50-mod-http-shibboleth.conf
+        systemctl restart nginx
+
+ 1. **Obsolete:** With Ubuntu xenial or before NGINX 1.11
 
     With Ubuntu xenial (16.04) and before NGINX 1.11, dynamic modules are not supported, so you need to rebuild the whole NGINX package.
 
@@ -370,10 +379,6 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
 
         exit # exit sudo session
 
- 1. Starting from Ubuntu Bionic or NGINX 1.11 we can dynamic modules
-
-    **Write down instructions for this.**
-
  1. Get NGINX supporting files
 
         cd /etc/nginx
@@ -382,14 +387,13 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
  1. Install required packages
 
         sudo apt-get install \
-          shibboleth-sp2-common \
-          shibboleth-sp2-utils \
-          shibboleth-sp2-schemas \
+          shibboleth-sp-common \
+          shibboleth-sp-utils \
           xmltooling-schemas
 
  1. Create systemd services and sockets for shibboleth scripts
 
-        sudp cp /srv/aplus/a-plus/doc/nginx/shib*.socket \
+        sudo cp /srv/aplus/a-plus/doc/nginx/shib*.socket \
                 /srv/aplus/a-plus/doc/nginx/shib*.service \
                 /etc/systemd/system
         sudo systemctl daemon-reload
