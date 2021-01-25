@@ -37,6 +37,9 @@
     </head>
     <body>
         <div id="exercise-all">
+            <a href="{{ exercise|url:'exercise' }}" target="_blank" rel="noopener" class="skip-link">
+                {% trans "Open this exercise in a new tab (recommended for keyboard and assistive technology users)" %}
+            </a>
             <div class="overlay-parent">
 
                 {% if issues and not submission_allowed %}
