@@ -1,17 +1,23 @@
 <h2>Known Issues</h2>
 <p>This information concerns the A+ platform, as it is provided. Institutions using A+, as well as creators of course content (teachers) are free to customise their content and styles, which may change the compliance described here.</p>
+<p>Note that A+ requires JavaScript support in the web browser or user agent. In particular, all exercises embedded in content chapters depend on JavaScript in order to load correctly.</p>
 <p>At present, A+ partly complies with the defined requirements for accessibility. Further improvements are needed, especially:</p>
 <ul>
-	<li>Some elements of the service are not keyboard accessible.</li>
-	<li>The focus state is often unclear.</li>
-	<li>Some interface elements have colour contrast below the requirement.</li>
-	<li>Some interface elements are unlabelled or unclearly labelled.</li>
-	<li>No "skip links" to bypass blocks of content are present.</li>
-	<li>Resizing only the text of the page using the browser does not work reliably.</li>
+	<li>
+		<strong>Some elements of the service are not keyboard accessible.</strong>
+		In particular, exercises embedded in content chapters depend on modal dialogs that sometimes can not be easily accessed with the keyboard.
+		The modal dialogs are used to show the feedback of the user's submissions.
+		However, exercises can always be opened in a separate full view that does not use any modal dialogs.
+		In the full view, the feedback can be opened easily with the keyboard.
+		The full view can be accessed from the content chapter when you navigate to the embedded exercise frame with the keyboard.
+		The link to the full view is located right above the exercise frame and it becomes visible only when it is focused on with the keyboard.
+	</li>
+	<li><strong>Some interface elements are unlabelled or unclearly labelled.</strong> In particular, file upload forms in exercises may have non-unique ID attribute values.</li>
+	<li><strong>Links have incorrect roles.</strong> In particular, the course front page uses a link (named "Show older assignments") for showing expired course modules, but it should be a button as it changes the visible content in the same page.</li>
+	<li><strong>Resizing only the text of the page using the browser does not work reliably.</strong> At least, the points table in the Exercise results section in courses has overflowing content when the text size is increased in the browser.</li>
 	<li>The language of parts of the content can’t always be ascertained programmatically (the language of pages typically can be).</li>
 </ul>
 
-<p>Further detail can be seen in <a href="https://apluslms.github.io/accessibility-audit/">the results of the self-evaluation carried out in Summer 2020</a>. </p>
-<p>Most known issues will be addressed in the next version of the platform, scheduled for release in early 2021.</p>
+<p>Further detail can be seen in <a href="https://apluslms.github.io/accessibility-audit/">the results of the self-evaluation carried out in summer 2020</a>. </p>
 <p>We are actively working to address the accessibility issues that have been identified.</p>
-<p>This summary was created in August 2020.</p>
+<p>This summary was last updated in January 2021.</p>
