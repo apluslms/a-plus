@@ -20,6 +20,7 @@ $.fn.extend({
         buttons;
       const default_options = {
         html: true,
+        sanitize: false,
         placement: 'bottom',
         trigger: 'focus',
       }
