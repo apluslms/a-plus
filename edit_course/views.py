@@ -20,7 +20,7 @@ from lib.viewbase import (
     BaseFormView,
 )
 from authorization.permissions import ACCESS
-from course.models import CourseInstance, UserTag, UserTagging
+from course.models import CourseInstance, UserTag, UserTagging, USERTAG_EXTERNAL, USERTAG_INTERNAL
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from exercise.cache.content import CachedContent
 from exercise.cache.exercise import invalidate_instance
@@ -35,6 +35,13 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
     template_name = "edit_course/edit_instance.html"
     form_class = CourseInstanceForm
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('instance_usertags')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

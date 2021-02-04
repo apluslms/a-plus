@@ -38,7 +38,7 @@
               <script src="{% static 'django_colortag.js' %}"></script>
               <script src="{% static 'add_tagging_dropdown.js' %}"></script>
               {% endif %}
-              {% profiles submission.submitters.all instance is_teacher %}
+              {% profiles submission.submitters.all instance is_teacher instance_usertags %}
               {% else %}
               {{ submission.submitters.all|names }}
               {% endif %}

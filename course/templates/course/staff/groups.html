@@ -34,7 +34,7 @@
       {% for group in groups %}
       <tr>
         <td>{{ group.id }}</td>
-        <td>{% profiles group.members.all instance is_teacher %}</td>
+        <td>{% profiles group.members.all instance is_teacher instance_usertags %}</td>
         <td>{{ group.timestamp }}</td>
         <td>
           <a class="aplus-button--secondary aplus-button--xs" role="button" href="{% url 'groups-edit' course_slug=course.url instance_slug=instance.url group_id=group.id %}">

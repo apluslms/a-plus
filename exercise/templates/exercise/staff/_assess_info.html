@@ -21,7 +21,7 @@
               </a>
               {% endif %}
             </dt>
-            <dd>{% profiles submission.submitters.all instance is_teacher %}</dd>
+            <dd>{% profiles submission.submitters.all instance is_teacher instance_usertags %}</dd>
             <dt>{% trans "Status" %}</dt>
             <dd>{{ submission.status|submission_status }}</dd>
             <dt>{% trans "Submission time" %}</dt>

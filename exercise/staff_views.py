@@ -70,6 +70,10 @@ class InspectSubmissionView(SubmissionBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.get_summary_submissions()
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('instance_usertags')
 
 
 class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
@@ -107,6 +111,13 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
     access_mode = ACCESS.GRADING
     template_name = "exercise/staff/assess_submission.html"
     form_class = SubmissionReviewForm
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('instance_usertags')
 
     def get_initial(self):
         return {
@@ -230,7 +241,10 @@ class UserResultsView(CourseInstanceBaseView):
             submissions = []
         self.enrollment_exercise = exercise
         self.enrollment_submissions = submissions
-        self.note('enrollment_exercise', 'enrollment_submissions')
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('enrollment_exercise', 'enrollment_submissions','instance_usertags')
 
 
 class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
@@ -277,6 +291,10 @@ class EditSubmittersView(SubmissionMixin, BaseFormView):
     def get_common_objects(self):
         self.groups = self.instance.groups.all()
         self.note('groups')
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('groups','instance_usertags')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

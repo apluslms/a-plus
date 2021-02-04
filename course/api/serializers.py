@@ -57,7 +57,7 @@ class StudentBriefSerializer(UserBriefSerializer):
     data = serializers.SerializerMethodField()
 
     def get_tag_slugs(self, profile):
-        cached = CachedStudent(self.context['view'].instance.id, profile.user.id)
+        cached = CachedStudent(self.context['view'].instance.id, profile)
         return cached.data['tag_slugs']
 
     def get_summary_html(self, profile):
