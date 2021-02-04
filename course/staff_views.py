@@ -45,7 +45,7 @@ class ParticipantsView(CourseInstanceBaseView):
         data = []
         for participant in participants:
             user_id = participant.user.id
-            user_tags = CachedStudent(ci, user_id).data
+            user_tags = CachedStudent(ci, participant).data
             user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags['tag_slugs'] if slug in tags)
             data.append({
                 'id': participant.student_id or '',
@@ -68,8 +68,12 @@ class GroupsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.groups = list(self.instance.groups.all())
+        self.groups = list(self.instance.groups.all().prefetch_related('members'))
         self.note('groups')
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('groups','instance_usertags')
 
 
 class GroupsEditView(CourseInstanceMixin, BaseFormView):
@@ -111,6 +115,13 @@ class GroupsDeleteView(CourseInstanceMixin, BaseRedirectMixin, BaseTemplateView)
     access_mode = ACCESS.ASSISTANT
     group_kw = "group_id"
     template_name = "course/staff/group_delete.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('instance_usertags')
 
     def get_resource_objects(self):
         super().get_resource_objects()

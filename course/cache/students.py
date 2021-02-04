@@ -10,21 +10,20 @@ from ..models import (
     UserTag,
     UserTagging,
 )
+from userprofile.models import UserProfile
 
 
 class CachedStudent(CachedAbstract):
     KEY_PREFIX = "student"
 
-    def __init__(self, course_instance, user):
-        super().__init__(course_instance, user)
+    def __init__(self, course_instance, userprofile):
+        super().__init__(course_instance, userprofile)
 
-    def _generate_data(self, course_instance, user, *, data=None):
-        if isinstance(user, int):
-            User = get_user_model()
-            # required for is_external for external/internal tag
-            user = User.objects.get(id=user)
-        tags = (UserTagging.objects.get_all(user.userprofile, course_instance)
-                if user else [])
+    def _generate_data(self, course_instance, userprofile, *, data=None):
+        if isinstance(userprofile, UserProfile):
+            tags = (UserTagging.objects.get_all(userprofile, course_instance))
+        else:
+            tags = []
         return {
             'tag_slugs': [t.slug for t in tags],
         }

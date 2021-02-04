@@ -12,6 +12,7 @@ from django.views.static import serve
 from django.db import DatabaseError
 
 from authorization.permissions import ACCESS
+from course.models import CourseModule, USERTAG_EXTERNAL, USERTAG_INTERNAL
 from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
 from lib.remote_page import RemotePageNotFound, request_for_response
@@ -326,9 +327,12 @@ class SubmissionView(SubmissionBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
-        self.note("page")
         #if not self.request.is_ajax():
         self.get_summary_submissions()
+        tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
+        tags.extend(self.instance.usertags.all())
+        self.instance_usertags = {t.slug: t for t in tags}
+        self.note('page','instance_usertags')
 
 
 class SubmissionPlainView(SubmissionView):

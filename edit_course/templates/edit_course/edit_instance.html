@@ -23,7 +23,7 @@
     {{ form|bootstrap }}
     <div class="form-group">
         <label>{% trans "Teachers" %}</label>
-        {% profiles course.teachers.all instance is_teacher %}</p>
+        {% profiles course.teachers.all instance is_teacher instance_usertags %}</p>
     </div>
     <button type="submit" class="aplus-button--default aplus-button--md">
         {% trans "Save" %}

@@ -59,7 +59,7 @@
         {% for submission in submissions %}
         <tr>
             <td>
-                {% profiles submission.submitters.all instance is_teacher %}
+              {% profiles submission.submitters.all instance is_teacher instance_usertags %}
             </td>
             <td data-datetime="{{ submission.submission_time|date:'Y-m-d H:i' }}">
                 {{ submission.submission_time }}

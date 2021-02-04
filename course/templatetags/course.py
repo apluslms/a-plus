@@ -9,6 +9,7 @@ from exercise.cache.content import CachedContent
 from course.models import CourseInstance, UserTagging
 from lib.localization_syntax import pick_localized
 from ..cache.menu import CachedTopMenu
+from course.cache.students import CachedStudent
 
 
 register = template.Library()
@@ -111,19 +112,20 @@ def avatars(profiles):
 
 
 @register.inclusion_tag("course/_profiles.html")
-def profiles(profiles, instance, is_teacher):
+def profiles(profiles, instance, is_teacher, instance_usertags):
     return {
         'instance': instance,
         'profiles': profiles,
         'is_teacher': is_teacher,
+        'instance_usertags': instance_usertags,
     }
 
 
 @register.simple_tag
-def tags(profile, instance):
-    tags = UserTagging.objects.get_all(profile, instance)
-    return mark_safe(' '.join(tag.html_label for tag in tags))
-
+def tags(profile, instance, instance_usertags):
+    # create html for tags belonging to user at a course instance
+    user_tags = CachedStudent(instance, profile).data
+    return mark_safe(' '.join(instance_usertags[slug].html_label for slug in user_tags['tag_slugs'] if slug in instance_usertags))
 
 @register.filter
 def enrollment_audience(enrollment_audience_val):
