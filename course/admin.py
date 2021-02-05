@@ -41,6 +41,7 @@ class CourseAdmin(admin.ModelAdmin):
 
 class CourseInstanceAdmin(admin.ModelAdmin):
 
+    search_fields = ("instance_name", "course__name", "course__code")
     list_display_links = ["instance_name"]
     list_display = ["course", "instance_name", "visible_to_students",
         "starting_time", "ending_time", instance_url]
