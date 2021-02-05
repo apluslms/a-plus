@@ -13,7 +13,7 @@ A+ can be deployed with Apache 2 or NGINX.
 Bot web servers work well enough and can support Shibboleth authentication too.
 Sadly, combination of NGINX, uWSGI protocol, uWSGI and Shibboleth is not yet tested, but the HTTP proxy version works.
 
-Aalto University is currently running following combinations:
+Aalto University is currently running following combinations on Ubuntu 20.04 or Ubuntu 18.04:
 
 * Apache, uWSGI protocol, uWSGI, Shibboleth, uWSGI logs written to a file
 * NGINX, HTTP proxy, gunicorn, Shibboleth, Gunicorn logs written to journald
@@ -443,9 +443,9 @@ Final steps
 
     **NOTE:** You might need to use `--first-name`, `--last-name` or `--email` to limit the number of users.
 
- 1. Create privacy notice, accessibility statement and suppot page
+ 1. Create privacy notice, accessibility statement and support page.
 
-    Copy privacy notice and accessibility statement templates
+    Copy privacy notice, accessibility statement and support page templates.
 
         sudo -Hu aplus sh -c "
           mkdir -p /srv/aplus/a-plus/local_templates/
@@ -453,8 +453,14 @@ Final steps
              /srv/aplus/a-plus/local_templates/
           cp /srv/aplus/a-plus/templates/institution_accessibility_text* \
              /srv/aplus/a-plus/local_templates/
-          cp /srv/aplus/a-plus/templates/suport_channels_* \
+          cp /srv/aplus/a-plus/templates/support_channels* \
              /srv/aplus/a-plus/local_templates/
         "
 
     Edit your local templates in `/srv/aplus/a-plus/local_templates/` to match your local information.
+    If you want to translate the content to different languages, you can use language suffixes in the filenames.
+    For example, you can create the following files for the local support page in English and Finnish.
+
+    * `local_templates/support_channels_en.html`
+    * `local_templates/support_channels_fi.html`
+
