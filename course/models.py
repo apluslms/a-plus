@@ -450,6 +450,11 @@ class CourseInstance(UrlMixin, models.Model):
     def clean(self):
         super().clean()
         errors = {}
+        RESERVED = ("instances",)
+        if self.instance_name in RESERVED:
+            errors['instance_name'] = _("You cannot use word '{}' as an instance name.").format(self.instance_name)
+        if self.url in RESERVED:
+            errors['url'] = _("You cannot use word '{}' in the url.").format(self.instance_name)
         if self.ending_time <= self.starting_time:
             errors['ending_time'] = _("Ending time must be later than starting time.")
         if self.lifesupport_time and self.lifesupport_time < self.ending_time:

@@ -224,6 +224,14 @@ msgstr ""
 "oletusvastaanottajat."
 
 #: course/models.py
+msgid "You cannot use word '{}' as an instance name."
+msgstr "Et voi käyttää sanaa {} ilmentymän nimenä."
+
+#: course/models.py
+msgid "You cannot use word '{}' in the url."
+msgstr "Et voi käyttää sanaa {} URL-osoitteessa."
+
+#: course/models.py
 msgid "Ending time must be later than starting time."
 msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
 
