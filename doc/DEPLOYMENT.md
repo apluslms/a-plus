@@ -75,7 +75,7 @@ The Application
  1. Clone the Django application
 
         # as user aplus in /srv/aplus
-        git clone --branch production https://github.com/Aalto-LeTech/a-plus.git
+        git clone --branch production https://github.com/apluslms/a-plus.git
         mkdir a-plus/static \
               a-plus/media
 
@@ -115,6 +115,12 @@ The Application
           }
         }
         EOF
+
+    Define the branding settings in `aplus/local_settings.py`:
+    `BRAND_NAME`, `BRAND_INSTITUTION_NAME`, `BRAND_INSTITUTION_NAME_FI`, etc.
+    Check `settings.py` and `local_settings.example.py`.
+
+    Ensure that you use `DEBUG = False` in production (`local_setting.py`).
 
  1. Run Django deployment tasks
 
