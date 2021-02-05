@@ -12,6 +12,8 @@ urlpatterns = [
         name="privacy_notice"),
     url(r'^accessibility-statement/$', views.AccessibilityStatementView.as_view(),
         name="accessibility_statement"),
+    url(r'^support/$', views.SupportView.as_view(),
+        name="support_channels"),
     url(r'^accounts/$', views.ProfileView.as_view(),
         name="profile"),
     url(r'^setlang', views.set_user_language, name="set-user-language"),

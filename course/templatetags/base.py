@@ -31,6 +31,10 @@ def brand_name():
     return mark_safe(settings.BRAND_NAME)
 
 @register.simple_tag
+def brand_name_long():
+    return mark_safe(settings.BRAND_NAME_LONG)
+
+@register.simple_tag
 def brand_institution_name():
     return mark_safe(settings_text('BRAND_INSTITUTION_NAME'))
 

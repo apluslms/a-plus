@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-25 10:17+0200\n"
+"POT-Creation-Date: 2021-02-05 14:58+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1477,6 +1477,7 @@ msgid "Edit course details"
 msgstr "Muokkaa kurssin tietoja"
 
 #: edit_course/templates/edit_course/edit_instance.html
+#: templates/support_channels.html
 msgid "Teachers"
 msgstr "Opettajat"
 
@@ -2266,6 +2267,7 @@ msgstr "Palautusaika"
 #: exercise/templates/exercise/staff/_assess_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/submission_plain.html
+#: templates/support_channels.html
 msgid "Status"
 msgstr "Tila"
 
@@ -3428,7 +3430,7 @@ msgstr ""
 msgid "Add news item"
 msgstr "Lisää uutinen"
 
-#: news/templates/news/list.html
+#: news/templates/news/list.html templates/support_channels.html
 msgid "News"
 msgstr "Uutiset"
 
@@ -3559,6 +3561,10 @@ msgid "Accessibility Statement"
 msgstr "Saavutettavuusseloste"
 
 #: templates/base.html
+msgid "Support"
+msgstr "Tuki"
+
+#: templates/base.html
 msgid "Loading failed!"
 msgstr "Lataus epäonnistui!"
 
@@ -3581,6 +3587,283 @@ msgstr "Ei osumia"
 #: templates/base.html
 msgid "Search for..."
 msgstr "Etsi..."
+
+#: templates/support_channels.html
+msgid "Students"
+msgstr "Opiskelijat"
+
+#: templates/support_channels.html
+msgid ""
+"Students should contact the course staff for further assistance on course "
+"matters. If there are technical issues in the course materials, contact the "
+"course staff. Check the course page for the contact information. Typically, "
+"email is <strong>not</strong> the primary discussion channel in courses."
+msgstr ""
+"Opiskelijat saavat tukea kurssin sisäisissä asioissa kurssin "
+"henkilökunnalta. Jos kurssin oppimateriaalissa on teknisiä ongelmia, ota "
+"yhteyttä kurssin henkilökuntaan. Tarkista henkilökunnan yhteystiedot kurssin "
+"verkkosivuilta. Yleensä sähköposti <strong>ei</strong> ole ensisijainen "
+"keskustelu- tai neuvontakanava kurssin asioissa."
+
+#: templates/support_channels.html
+msgid "Studies"
+msgstr "Opinnot"
+
+#: templates/support_channels.html
+msgid "Course catalogue"
+msgstr "Kurssikatalogi"
+
+#: templates/support_channels.html
+msgid "Student services"
+msgstr "Opiskelijapalvelut"
+
+#: templates/support_channels.html
+msgid "Support for studying"
+msgstr "Opiskelun tuki"
+
+#: templates/support_channels.html
+msgid "Study skills"
+msgstr "Opiskelutaidot"
+
+#: templates/support_channels.html
+msgid "Starting Point of Wellbeing"
+msgstr "Starting Point of Wellbeing - opiskelijan hyvinvointi"
+
+#: templates/support_channels.html
+msgid "IT support"
+msgstr "IT-tuki"
+
+#: templates/support_channels.html
+msgid "IT help"
+msgstr "IT-ohjeet"
+
+#: templates/support_channels.html
+msgid "Virtual desktops (VDI)"
+msgstr "Virtuaaliset pöytätietokoneet (VDI)"
+
+#: templates/support_channels.html
+msgid "Available classroom computers"
+msgstr "Vapaat tietokoneet luokkahuoneissa"
+
+#: templates/support_channels.html
+msgid "Download licensed software"
+msgstr "Lataa lisensoituja ohjelmistoja"
+
+#: templates/support_channels.html
+msgid "Aalto Space app for room reservations"
+msgstr "Aalto Space -sovellus huonevarauksiin"
+
+#: templates/support_channels.html
+msgid "Documentation"
+msgstr "Dokumentaatio"
+
+#: templates/support_channels.html
+#, python-format
+msgid "%(brand_long)s manual"
+msgstr "%(brand_long)s-käsikirja"
+
+#: templates/support_channels.html
+#, python-format
+msgid ""
+"The %(brand_long)s manual contains detailed instructions on how to start "
+"authoring a course and how to use the various types of exercises available "
+"for %(brand)s."
+msgstr ""
+"%(brand_long)s-käsikirja sisältää yksityiskohtaisia ohjeita kurssin "
+"kehittämiseen ja kuinka erilaisia %(brand)s-alustan tehtävätyyppejä "
+"käytetään."
+
+#: templates/support_channels.html
+msgid "A+ LMS project website"
+msgstr "A+-oppimisalustaprojektin verkkosivut"
+
+#: templates/support_channels.html
+msgid ""
+"The A+ LMS website provides an overview of the project and all the "
+"associated services as well as a quick start guide. It also contains links "
+"to technical documentation for platform developers."
+msgstr ""
+"A+-oppimisalustaprojektin verkkosivut antavat yleiskuvan projektista ja "
+"siihen liittyvistä komponenteista. Siellä on myös pika-aloitusopas. "
+"Sivustolla on linkkejä alustakehittäjien tekniseen dokumentaatioon."
+
+#: templates/support_channels.html
+msgid "Request a new course instance in the server"
+msgstr "Tilaa uusi kurssi-instanssi palvelimelle"
+
+#: templates/support_channels.html
+#, python-format
+msgid "Instructions at %(institution)s"
+msgstr "Instituution %(institution)s ohjeet"
+
+#: templates/support_channels.html
+msgid "Contact support by email:"
+msgstr "Ota yhteyttä tukeen sähköpostilla:"
+
+#: templates/support_channels.html
+msgid "Download course templates"
+msgstr "Lataa kurssipohja"
+
+#: templates/support_channels.html
+msgid "Aplus course template"
+msgstr "Aplus-kurssipohja"
+
+#: templates/support_channels.html
+#, python-format
+msgid ""
+"The %(brand_long)s course template provides you with the minimum structure "
+"to start authoring your course."
+msgstr ""
+"%(brand_long)s-kurssipohja tarjoaa minimaalisen kurssin rakenteen uuden "
+"kurssin aloittamista varten."
+
+#: templates/support_channels.html
+#, python-format
+msgid ""
+"Since the %(brand_long)s manual contains a wide variety of exercises, you "
+"can download the source code and use it as a source of knowledge for "
+"creating your own exercises. You may run the manual course in your own "
+"computer with the Docker containers."
+msgstr ""
+"Voit ladata %(brand_long)s-käsikirjan lähdekoodin ja opetella kurssin "
+"kehittämistä sen avulla. Voit ajaa kurssin ympäristöä omalla tietokoneellasi "
+"Docker-konttien avulla."
+
+#: templates/support_channels.html
+msgid "Community"
+msgstr "Yhteisö"
+
+#: templates/support_channels.html
+msgid "Microsoft Teams"
+msgstr "Microsoft Teams"
+
+#: templates/support_channels.html
+#, python-format
+msgid ""
+"Teachers can start a conversation with other users of %(brand)s or ask for "
+"support in the Microsoft Teams channel. However, if your matter contains "
+"private or sensitive information, you should contact us by email."
+msgstr ""
+"Opettajat voivat keskustella muiden %(brand)s-opettajien ja -kehittäjien "
+"kanssa tai pyytää apua Microsoft Teams -kanavalla. Jos asiasi sisältää "
+"yksityistä tai sensitiivistä tietoa, ota yhteyttä tukeen sähköpostilla."
+
+#: templates/support_channels.html
+msgid "Report an issue in GitHub"
+msgstr "Ilmoita ongelmasta GitHubissa"
+
+#: templates/support_channels.html
+msgid ""
+"Teachers may report issues in GitHub, such as bugs in the application or "
+"ideas for new features. If you want to discuss with the support team more "
+"personally or in privacy, send us email."
+msgstr ""
+"Opettajat voivat ilmoittaa ohjelmointivirheistä tai toivoa uusia "
+"ominaisuuksia GitHubissa. Jos haluat keskustella tukitiimin kanssa "
+"henkilökohtaisesti tai yksityisesti, ota yhteyttä sähköpostilla."
+
+#: templates/support_channels.html
+msgid "Announcements"
+msgstr "Ilmoitukset"
+
+#: templates/support_channels.html
+#, python-format
+msgid ""
+"Keep yourself updated with information about %(brand)s and all the "
+"associated services."
+msgstr ""
+"Pysy ajan tasalla %(brand)s-alustan ja siihen liittyvien palvelujen "
+"uutisista."
+
+#: templates/support_channels.html
+msgid "Check the status of our servers."
+msgstr "Tarkista palvelintemme tila."
+
+#: templates/support_channels.html
+msgid "Current development"
+msgstr "Nykyinen kehitys"
+
+#: templates/support_channels.html
+#, python-format
+msgid "Follow the current development of %(brand)s and its related services."
+msgstr "Seuraa %(brand)s-alustan ja palvelujen kehitystä."
+
+#: templates/support_channels.html
+#, python-format
+msgid "Other servers that use %(brand)s"
+msgstr "Muut %(brand)s-alustaa käyttävät palvelimet"
+
+#: templates/support_channels.html
+msgid "Exam server for the EXAM studio"
+msgstr "Tenttipalvelin EXAM-studiotenteille"
+
+#: templates/support_channels.html
+#, python-format
+msgid "Find out more about how to use %(brand)s to conduct examinations."
+msgstr "Lue kuinka %(brand)s-alustaa käytetään tenteissä."
+
+#: templates/support_channels.html
+msgid "Testing environment"
+msgstr "Testausympäristö"
+
+#: templates/support_channels.html
+msgid ""
+"Aalto teachers may use our testing environment to test courses before "
+"publishing them in production."
+msgstr ""
+"Aallon opettajat voivat käyttää testausympäristöämme kurssien testaamiseen "
+"ennen niiden julkaisemista tuotannossa."
+
+#: templates/support_channels.html
+msgid "Learning"
+msgstr "Oppiminen"
+
+#: templates/support_channels.html
+msgid "Accessible teaching"
+msgstr "Saavutettava opetus"
+
+#: templates/support_channels.html
+msgid "Learn how to create accessible content for learners."
+msgstr "Opi kuinka luodaan saavutettavaa sisältöä kaikille oppijoille."
+
+#: templates/support_channels.html
+msgid "Watch recordings of our webinars."
+msgstr "Katso meidän webinaariemme tallenteet."
+
+#: templates/support_channels.html
+msgid ""
+"The webinars contains some talks organized by the EDIT team concerning A+ "
+"and its related services."
+msgstr ""
+"Webinaarit sisältävät EDIT-tiimin järjestämiä esityksiä A+-alustasta ja "
+"siihen liittyvistä palveluista."
+
+#: templates/support_channels.html
+msgid "Introduction to A+ &mdash; ÄlyOppi webinar in Finnish"
+msgstr "Johdatus A+-alustaan &mdash; ÄlyOppi-webinaari suomeksi"
+
+#: templates/support_channels.html
+msgid ""
+"ÄlyOppi webinars are available at <a target=\"_blank\" rel=\"noopener\" href="
+"\"https://www.aalto.fi/en/aalto-university/alyoppi-past-webinars\"> the "
+"project website </a>."
+msgstr ""
+"ÄlyOppi-webinaarit ovat saatavilla <a target=\"_blank\" rel=\"noopener\" "
+"href=\"https://www.aalto.fi/fi/aalto-yliopisto/alyoppi-menneet-webinaarit"
+"\">projektin verkkosivulla</a>."
+
+#: templates/support_channels.html
+msgid "Can't find what you're looking for?"
+msgstr "Etkö löydä etsimääsi?"
+
+#: templates/support_channels.html
+#, python-format
+msgid ""
+"Send us an email to <a href=\"mailto:%(email)s\" target=\"_blank\" rel="
+"\"noopener\"> %(email)s </a>"
+msgstr ""
+"Lähetä meille sähköpostia osoitteeseen <a href=\"mailto:%(email)s\" target="
+"\"_blank\" rel=\"noopener\">%(email)s</a>"
 
 #: threshold/models.py
 msgid "Harder points are consumed by easier difficulty requirements."
@@ -3707,6 +3990,11 @@ msgstr "Opiskelijanumero"
 msgid "E-mail"
 msgstr "Sähköposti"
 
+#: userprofile/templates/userprofile/support.html
+#, python-format
+msgid "%(brand_name)s Support "
+msgstr "%(brand_name)s tuki "
+
 #: userprofile/views.py
 msgid "No privacy notice. Please notify administration!"
 msgstr "Ei tietosuojailmoitusta. Ota yhteys ylläpitäjään!"
@@ -3720,3 +4008,7 @@ msgstr ""
 #: userprofile/views.py
 msgid "No system-wide accessibility statement found."
 msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
+
+#: userprofile/views.py
+msgid "No support page. Please notify administration!"
+msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
