@@ -13,6 +13,10 @@ Note that you will need to have admin rights to install these correctly.
 
 Alternatively, you can have comparable software which enable you to use the commands `docker`, `docker-compose` and `drone`.
 
+If you are going to use Django translations, you must install the GNU **gettext** utilities
+- [gettext Ubuntu](https://packages.ubuntu.com/search?keywords=gettext). 
+- [gettext Windows](https://mlocati.github.io/articles/gettext-iconv-windows.html)
+
 ## Running A+ in a container
 
 1. Follow the installation steps of [course-templates](https://github.com/apluslms/course-templates#installation) to get a template course running.
