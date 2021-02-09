@@ -178,6 +178,10 @@ SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 
 ##########################################################################
+import socket
+
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[:-1] + '1' for ip in ips] + ['127.0.0.1', '10.0.2.2']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -461,6 +465,13 @@ if 'social_django' in INSTALLED_APPS:
 if DEBUG:
     # Allow basic auth for API when DEBUG is on
     REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += ('rest_framework.authentication.BasicAuthentication',)
+    INSTALLED_APPS += (
+        # Debug Performance
+        'debug_toolbar',
+    )
+    MIDDLEWARE += [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
     # Enable defer logging
     from lib.models import install_defer_logger
     install_defer_logger()
