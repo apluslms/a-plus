@@ -16,6 +16,7 @@ from django.db.models import Q, Count
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django_colortag.models import ColorTag
 
@@ -450,6 +451,11 @@ class CourseInstance(UrlMixin, models.Model):
     def clean(self):
         super().clean()
         errors = {}
+        RESERVED = ("instances",)
+        if self.instance_name in RESERVED:
+            errors['instance_name'] = format_lazy(_("You cannot use word '{}' as an instance name."), self.instance_name)
+        if self.url in RESERVED:
+            errors['url'] = format_lazy(_("You cannot use word '{}' in the url."), self.url)
         if self.ending_time <= self.starting_time:
             errors['ending_time'] = _("Ending time must be later than starting time.")
         if self.lifesupport_time and self.lifesupport_time < self.ending_time:

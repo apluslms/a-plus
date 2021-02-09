@@ -21,13 +21,13 @@ from authorization.permissions import ACCESS
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
 from lib.helpers import settings_text, remove_query_param_from_url
-from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView
+from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView, BaseRedirectView
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
-from .models import CourseInstance, Enrollment
+from .models import CourseInstance, Course, Enrollment
 from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
-from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin
+from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin, CourseMixin
 
 
 class HomeView(UserProfileView):
@@ -88,6 +88,38 @@ class ArchiveView(UserProfileView):
         super().get_common_objects()
         self.instances = CourseInstance.objects.get_visible(self.request.user)
         self.note("instances")
+
+class CourseInstancesView(UserProfileView):
+    access_mode = ACCESS.ANONYMOUS
+    template_name = "course/course_instances.html"
+
+    def get_common_objects(self, **kwargs):
+        course = get_object_or_404(Course, url=self.kwargs['course_slug'])
+        self.instances = []
+        self.msg = ""
+        if CourseInstance.objects.filter(course=course).count() > 0: 
+            self.instances = CourseInstance.objects.get_visible(self.request.user).filter(course=course).order_by('-starting_time')
+            self.msg = _("The course instances of this course are not visible to students.")   
+        else:
+            self.msg = _("There are no course instances for this course.")
+
+        self.note("instances", "msg")
+
+class LastInstanceView(CourseMixin, BaseRedirectView):
+    access_mode = ACCESS.STUDENT
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        course = get_object_or_404(Course, url=self._get_kwarg(self.course_kw))
+        course_instances = CourseInstance.objects.filter(course=course).order_by('-starting_time')
+
+        if course_instances:
+            self.course_instance = course_instances[0]
+        else:
+            raise Http404(_("There are no course instances for this course."))
+    
+    def get(self, request, *args, **kwargs):
+        return self.redirect(self.course_instance.url)
 
 class InstanceView(EnrollableViewMixin, BaseTemplateView):
     access_mode = ACCESS.STUDENT
