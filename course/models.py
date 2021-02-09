@@ -455,7 +455,7 @@ class CourseInstance(UrlMixin, models.Model):
         if self.instance_name in RESERVED:
             errors['instance_name'] = format_lazy(_("You cannot use word '{}' as an instance name."), self.instance_name)
         if self.url in RESERVED:
-            errors['url'] = format_lazy(_("You cannot use word '{}' in the url."), self.instance_name)
+            errors['url'] = format_lazy(_("You cannot use word '{}' in the url."), self.url)
         if self.ending_time <= self.starting_time:
             errors['ending_time'] = _("Ending time must be later than starting time.")
         if self.lifesupport_time and self.lifesupport_time < self.ending_time:
