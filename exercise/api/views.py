@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from wsgiref.util import FileWrapper
 from rest_framework import mixins, permissions, viewsets
 from rest_framework import status

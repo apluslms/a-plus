@@ -14,7 +14,7 @@ from django.utils.translation import (
     check_for_language,
     get_language
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
 
 from lib.helpers import settings_text, remove_query_param_from_url

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.utils.http import parse_http_date_safe
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from urllib.parse import urlparse, urljoin
 
 

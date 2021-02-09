@@ -1,5 +1,5 @@
 from django.db.models.signals import post_save, post_delete
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from lib.cache import CachedAbstract
 from .models import MenuItem

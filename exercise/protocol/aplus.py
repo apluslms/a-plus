@@ -1,6 +1,6 @@
 import logging
 from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from lib.email_messages import email_course_error
 from lib.remote_page import RemotePage, RemotePageException

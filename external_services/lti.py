@@ -3,7 +3,7 @@ from urllib.parse import urlsplit, urljoin
 
 from django.conf import settings
 from django.http import Http404
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from rest_framework.reverse import reverse
 from rest_framework.settings import api_settings
 from oauthlib.common import urldecode

@@ -9,7 +9,7 @@ from django.db.models import F
 from django.http.response import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (

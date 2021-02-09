@@ -15,7 +15,7 @@ from django.utils.translation import (
     LANGUAGE_SESSION_KEY,
     check_for_language,
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import ACCESS
 from exercise.cache.hierarchy import NoSuchContent

@@ -4,7 +4,7 @@
 # You can copy local_settings.example.py and start from there.
 ##
 from os.path import abspath, dirname, join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 BASE_DIR = dirname(dirname(abspath(__file__)))
 
 

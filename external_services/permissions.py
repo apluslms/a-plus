@@ -1,4 +1,4 @@
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import Permission, ObjectVisibleBasePermission
 from .models import MenuItem, LTIService

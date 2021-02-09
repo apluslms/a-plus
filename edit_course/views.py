@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext_lazy as ungettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy as ngettext
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, \
     FormView
 
@@ -261,7 +261,7 @@ class UserTaggingAddView(UserTagMixin, FormView):
         tag_name = tag.name
         messages.success(
             self.request,
-            ungettext(
+            ngettext(
                 "Tagged user {user_name} with tag {tag_name}.",
                 "Tagged users {user_name} with tag {tag_name}.",
                 user_set.count()

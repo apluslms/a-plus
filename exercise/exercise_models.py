@@ -12,7 +12,7 @@ from django.db.models.signals import post_delete, post_save
 from django.template import loader
 from django.utils import timezone
 from django.utils.formats import date_format
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from aplus.api import api_reverse
 from course.models import StudentGroup, CourseInstance, CourseModule, LearningObjectCategory

@@ -3,7 +3,7 @@ from django import template
 from django.db.models import Max, Min
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseModule
 from lib.errors import TagUsageError

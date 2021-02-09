@@ -1,6 +1,6 @@
 import json
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from exercise.models import BaseExercise, Submission
 from lib.helpers import extract_form_errors

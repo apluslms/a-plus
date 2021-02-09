@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from exercise.exercisecollection_models import ExerciseCollection

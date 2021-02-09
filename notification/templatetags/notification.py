@@ -1,5 +1,5 @@
 from django import template
-from django.utils.translation import ungettext
+from django.utils.translation import ngettext
 
 from ..cache import CachedNotifications
 
@@ -20,7 +20,7 @@ def _unread_messages(context):
     return {
         'count': notifications.count(),
         'notifications': notifications.notifications(),
-        "unread_message": ungettext(
+        "unread_message": ngettext(
             "new notification",
             "new notifications",
             notifications.count()

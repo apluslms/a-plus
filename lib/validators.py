@@ -2,7 +2,7 @@ import functools
 import re
 
 from django.core.validators import RegexValidator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # The URL key (slug) for a course, course instance, course module, or learning object.
 # The key must not consist of only the period (.) since it would be interpreted

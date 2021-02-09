@@ -8,7 +8,7 @@ from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
 from django.utils import timezone
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from mimetypes import guess_type
 
 from lib.fields import JSONField, PercentField
