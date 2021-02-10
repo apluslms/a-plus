@@ -5,6 +5,7 @@ from django_colortag.forms import ColorTagForm
 
 from aplus.api import api_reverse
 from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
+from lib.reserved_words import ReservedWordsCourseInstances
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from userprofile.models import UserProfile
@@ -154,7 +155,11 @@ class CloneInstanceForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean_url(self):
+        RESERVED = tuple(item.value for item in ReservedWordsCourseInstances)
         url = self.cleaned_data['url']
+
+        if url in RESERVED:
+            raise ValidationError(_("You cannot use word '{}' as an instance name.").format(url))
         if CourseInstance.objects.filter(
                 course=self.instance.course, url=url).exists():
             raise ValidationError(_("The URL is already taken."))

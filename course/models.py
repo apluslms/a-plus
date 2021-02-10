@@ -21,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 from django_colortag.models import ColorTag
 
 from apps.models import BaseTab, BasePlugin
+from lib.reserved_words import ReservedWordsCourseInstances
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import (
@@ -451,7 +452,7 @@ class CourseInstance(UrlMixin, models.Model):
     def clean(self):
         super().clean()
         errors = {}
-        RESERVED = ("instances",)
+        RESERVED = tuple(item.value for item in ReservedWordsCourseInstances)
         if self.instance_name in RESERVED:
             errors['instance_name'] = format_lazy(_("You cannot use word '{}' as an instance name."), self.instance_name)
         if self.url in RESERVED:
