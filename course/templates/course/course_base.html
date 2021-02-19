@@ -82,15 +82,14 @@
                     {% trans "You are browsing this course in a different language than is set in your preferences." %}
                     {% if user_course_data %}
                         <div class="button-container">
-                            <form action="{{ url_without_language }}">
-                                <button type="submit" class="aplus-button--secondary aplus-button--md">
-                                    {% blocktrans trimmed with lang=user_language|language_name_translated %}
-                                    Browse the course in {{ lang }}
-                                    {% endblocktrans %}
-                                </button>
-                            </form>
+                            <a href="{{ url_secondary_query_language }}" class="aplus-button--secondary aplus-button--md">
+                                {% blocktrans trimmed with lang=user_language|language_name_translated %}
+                                Browse the course in {{ lang }}
+                                {% endblocktrans %}
+                            </a>
                             <form action="{{ instance|url:'set-enrollment-language' }}" method="post">
                                 {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ url_secondary_query_language }}" />
                                 <input name="language" type="hidden" value="{{ query_language }}" />
                                 <button type="submit" class="aplus-button--secondary aplus-button--md">
                                     {% blocktrans trimmed with lang=query_language|language_name_translated %}

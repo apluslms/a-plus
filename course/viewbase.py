@@ -8,7 +8,7 @@ from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS
 from exercise.cache.content import CachedContent
-from lib.helpers import remove_query_param_from_url, update_url_params
+from lib.helpers import remove_query_param_from_url, update_url_params, switch_lang_query_param_from_url
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .cache.students import CachedStudent
@@ -68,13 +68,14 @@ class CourseInstanceBaseMixin(object):
             self.is_teacher = self.course.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
             self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
+            self.url_secondary_query_language = None
             self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             self.query_language = None
             self.user_language = None
 
             self.note(
                 "course", "instance", "content", "user_course_data", "is_student", "is_assistant",
-                "is_teacher", "is_course_staff", "get_taggings", "url_without_language",
+                "is_teacher", "is_course_staff", "get_taggings", "url_without_language", "url_secondary_query_language",
                 "query_language", "user_language"
             )
 
@@ -98,6 +99,13 @@ class CourseInstanceBaseMixin(object):
                         language = query_language
                         if languages:
                             self.user_language = languages[0]
+                            # Since the prompt to continue browsing the course in the enrollment
+                            # language is presented when the user visit the course using a query
+                            # parameter with a different language, we set the
+                            # self.url_secondary_query_language to the user_language. This allows to
+                            # change the query parameter in the url and fetch the document in the
+                            # correct language.
+                            self.url_secondary_query_language = switch_lang_query_param_from_url(self.request.get_full_path(), 'hl', languages[0])
                             if self.user_language[:2] != query_language[:2]:
                                 self.query_language = query_language
                     else:

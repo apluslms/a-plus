@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 from authorization.permissions import ACCESS
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
-from lib.helpers import settings_text, remove_query_param_from_url
+from lib.helpers import settings_text, remove_query_param_from_url, add_lang_query_param_from_url
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView, BaseRedirectView
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
@@ -285,8 +285,9 @@ class LanguageView(CourseInstanceMixin, BaseView):
     
     def post(self, request, *args, **kwargs):
         LANGUAGE_PARAMETER = 'language'
-        
-        next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
+        # If the user change the language, the URL will use the hl query parameter
+        # to redirect the resources to the required language
+        next = add_lang_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
         if ((next or not request.is_ajax()) and
                 not is_safe_url(url=next,
                                 allowed_hosts={request.get_host()}, 

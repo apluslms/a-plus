@@ -95,6 +95,32 @@ def remove_query_param_from_url(url, param):
     query.pop(param, None)
     return urlunsplit(url._replace(query=urlencode(query, True)))
 
+def switch_lang_query_param_from_url(url, param, user_language):
+    """
+    Take an url with or without language query parameters. Return url with  an updated query parameter.
+    """
+    url = urlsplit(url)
+    query = parse_qs(url.query, keep_blank_values=True)
+
+    if query.get("hl") is not None:
+        query["hl"] = [user_language]
+
+    return urlunsplit(url._replace(query=urlencode(query, True)))
+
+def add_lang_query_param_from_url(url, param, lang="en"):
+    """
+    Take an url with or without language query parameters. Return url with an updated query parameter.
+    """
+    url = urlsplit(url)
+    query = parse_qs(url.query, keep_blank_values=True)
+
+    if query.get("hl") is not None:
+        if(query.get("hl")[0] ==  "en"):
+            query["hl"] = ["fi"]
+        else:
+            query["hl"] = ["en"]
+
+    return urlunsplit(url._replace(query=urlencode(query, True)))
 
 FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-0123456789"
 
