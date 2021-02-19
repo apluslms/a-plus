@@ -245,7 +245,8 @@ class GroupsView(CourseInstanceMixin, BaseFormView):
         return kwargs
 
     def get_success_url(self):
-        return self.instance.get_url('groups')
+        url = self.instance.get_url('groups') + "?hl=" +self.request.GET.get('hl')
+        return url
 
     def form_valid(self, form):
         form.save()
