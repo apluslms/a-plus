@@ -667,11 +667,21 @@ $(function() {
  */
 (function (window) {
   $(document).on("click", "a[href]", function (event) {
+    // Remove the language query when the user navigate to the home page or profile page.
+    let keepLangQuery = true;
+    if (
+      event.target.href.replace(/\/$/, "") == window.location.origin ||
+      event.target.href.includes("accounts/accounts")
+    ) {
+      keepLangQuery = false;
+    }
+    // Keep the language query.
     if (
       event.target.className != "dropdown-toggle" &&
       event.target.protocol === window.location.protocol &&
       event.target.host === window.location.host && // hostname:port
-      (event.target.search === "" || event.target.search === "?") // no search
+      (event.target.search === "" || event.target.search === "?") && // no search
+      keepLangQuery
     ) {
       event.target.search = window.location.search; // copy query params
     }
