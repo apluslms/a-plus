@@ -1,5 +1,5 @@
 import csv
-import tempfile
+import sys
 
 from django.core.management.base import BaseCommand
 from django.db.models import Prefetch
@@ -23,28 +23,54 @@ class Command(BaseCommand):
         parser.add_argument(
             '-e',
             '--exercise-output-file',
-            help='Exercises are written to this CSV file. The file is created or overwritten.',
+            help='Exercises are written to this CSV file. The file is created or overwritten. '
+                 'If you do not set any value, then no exercise file is written.',
         )
         parser.add_argument(
             '-s',
             '--submission-output-file',
-            help='Submissions are written to this CSV file. The file is created or overwritten.',
+            help='Submissions are written to this CSV file. The file is created or overwritten. '
+                 'If you do not set any value, then no submission file is written.',
+        )
+        parser.add_argument(
+            '-b',
+            '--limit-submissions-start',
+            type=int,
+            help='Limit the number of submissions that are written to the CSV file. '
+                 'This is the start index of the submissions. '
+                 'By default, all submissions starting from index zero are included.',
+        )
+        parser.add_argument(
+            '-l',
+            '--limit-submissions-end',
+            type=int,
+            help='Limit the number of submissions that are written to the CSV file. '
+                 'This is the end index of the submissions. '
+                 'By default, all submissions up to the last index are included.',
         )
 
     def handle(self, *args, **options):
         course_instance_ids = options['course_instance_id']
 
         exercise_file_path = options['exercise_output_file']
-        if not exercise_file_path:
-            tmp_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
-            exercise_file_path = tmp_file.name
-            tmp_file.close()
-
         submission_file_path = options['submission_output_file']
-        if not submission_file_path:
-            tmp_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
-            submission_file_path = tmp_file.name
-            tmp_file.close()
+        if not exercise_file_path and not submission_file_path:
+            self.stderr.write(
+                'At least one of the options "--exercise-output-file" or '
+                '"--submission-output-file" must be given in order to output anything.'
+            )
+            self.stderr.write('Aborting...')
+            sys.exit(2)
+
+        limit_submissions_start = options['limit_submissions_start']
+        limit_submissions_end = options['limit_submissions_end']
+        if limit_submissions_start is not None and limit_submissions_start < 0:
+            self.stderr.write("--limit-submissions-start must be a non-negative integer.")
+            sys.exit(2)
+        if limit_submissions_end is not None and limit_submissions_end < 0:
+            self.stderr.write("--limit-submissions-end must be a non-negative integer.")
+            sys.exit(2)
+        submissions_slice = slice(limit_submissions_start, limit_submissions_end)
 
         # Fetch all exercises from the given course instances.
         exercises = BaseExercise.objects.filter(
@@ -77,85 +103,106 @@ class Command(BaseCommand):
             'category__status',
             'category__description',
             'category__course_instance',
+        ).order_by(
+            'id',
         )
 
         # Fetch all submissions for the exercises.
-        submissions = Submission.objects.filter(
-            exercise__in=exercises,
-        ).prefetch_related(
-            Prefetch(
-                'submitters',
-                queryset=UserProfile.objects.select_related('user').only('user__id'),
-                to_attr='submitter_userprofiles',
-            ),
-        ).defer(
-            'hash',
-            'grader',
-            'feedback',
-            'assistant_feedback',
-            'submission_data',
-            'grading_data',
-            'meta_data',
-        )
-
-        # Fetch all deadline deviations in the course instances.
-        all_deadline_deviations_queryset = DeadlineRuleDeviation.objects.filter(
-            exercise__course_module__course_instance__id__in=course_instance_ids,
-        ).prefetch_related(
-            Prefetch(
-                'exercise',
-                queryset=BaseExercise.objects.select_related(
-                    'course_module',
-                ).only(
-                    'id',
-                    'course_module__id',
-                    'course_module__closing_time',
-                    'course_module__course_instance__id',
-                    'course_module__course_instance__course__id',
+        if submission_file_path:
+            submissions = Submission.objects.filter(
+                exercise__in=exercises,
+            ).prefetch_related(
+                Prefetch(
+                    'submitters',
+                    queryset=UserProfile.objects.select_related('user').only('user__id'),
+                    to_attr='submitter_userprofiles',
                 ),
-            ),
-            Prefetch(
-                'submitter',
-                queryset=UserProfile.objects.select_related('user').only('user__id'),
-            ),
-        ).only(
-            'exercise__id',
-            'exercise__course_module__closing_time',
-            'exercise__course_module__course_instance__id',
-            'submitter__user__id',
-            'extra_minutes',
-        )
+            ).defer(
+                'hash',
+                'grader',
+                'feedback',
+                'assistant_feedback',
+                'submission_data',
+                'grading_data',
+                'meta_data',
+            ).order_by(
+                'id',
+            )[submissions_slice]
 
-        all_deadline_deviations = {}
-        for dl_dev in all_deadline_deviations_queryset:
-            all_deadline_deviations.setdefault(dl_dev.exercise.id, {})[dl_dev.submitter.user.id] = dl_dev.get_new_deadline()
+            # Fetch all deadline deviations in the course instances.
+            all_deadline_deviations_queryset = DeadlineRuleDeviation.objects.filter(
+                exercise__course_module__course_instance__id__in=course_instance_ids,
+            ).prefetch_related(
+                Prefetch(
+                    'exercise',
+                    queryset=BaseExercise.objects.select_related(
+                        'course_module',
+                    ).only(
+                        'id',
+                        'course_module__id',
+                        'course_module__closing_time',
+                        'course_module__course_instance__id',
+                        'course_module__course_instance__course__id',
+                    ),
+                ),
+                Prefetch(
+                    'submitter',
+                    queryset=UserProfile.objects.select_related('user').only('user__id'),
+                ),
+            ).only(
+                'exercise__id',
+                'exercise__course_module__closing_time',
+                'exercise__course_module__course_instance__id',
+                'submitter__user__id',
+                'extra_minutes',
+            )
 
-        # Fetch all max submissions deviations in the course instances.
-        all_max_submissions_deviations_queryset = MaxSubmissionsRuleDeviation.objects.filter(
-            exercise__course_module__course_instance__id__in=course_instance_ids,
-        ).select_related(
-            'exercise',
-        ).prefetch_related(
-            Prefetch(
-                'submitter',
-                queryset=UserProfile.objects.select_related('user').only('user__id'),
-            ),
-        ).only(
-            'exercise__id',
-            'exercise__max_submissions',
-            'submitter__user__id',
-            'extra_submissions',
-        )
+            all_deadline_deviations = {}
+            for dl_dev in all_deadline_deviations_queryset:
+                all_deadline_deviations.setdefault(dl_dev.exercise.id, {})[dl_dev.submitter.user.id] = dl_dev.get_new_deadline()
 
-        all_max_submissions_deviations = {}
-        for sbms_dev in all_max_submissions_deviations_queryset:
-            all_max_submissions_deviations.setdefault(
-                sbms_dev.exercise.id,
-                {},
-            )[sbms_dev.submitter.user.id] = sbms_dev.exercise.max_submissions + sbms_dev.extra_submissions
+            # Fetch all max submissions deviations in the course instances.
+            all_max_submissions_deviations_queryset = MaxSubmissionsRuleDeviation.objects.filter(
+                exercise__course_module__course_instance__id__in=course_instance_ids,
+            ).select_related(
+                'exercise',
+            ).prefetch_related(
+                Prefetch(
+                    'submitter',
+                    queryset=UserProfile.objects.select_related('user').only('user__id'),
+                ),
+            ).only(
+                'exercise__id',
+                'exercise__max_submissions',
+                'submitter__user__id',
+                'extra_submissions',
+            )
+
+            all_max_submissions_deviations = {}
+            for sbms_dev in all_max_submissions_deviations_queryset:
+                all_max_submissions_deviations.setdefault(
+                    sbms_dev.exercise.id,
+                    {},
+                )[sbms_dev.submitter.user.id] = sbms_dev.exercise.max_submissions + sbms_dev.extra_submissions
 
         # Create the CSV output files.
         # One CSV file for all exercises.
+        if exercise_file_path:
+            self.write_exercise_csv(exercise_file_path, exercises)
+            self.stdout.write("Created the exercise file: " + exercise_file_path)
+
+        # One CSV file for all submissions.
+        if submission_file_path:
+            self.write_submission_csv(
+                submission_file_path,
+                submissions,
+                all_deadline_deviations,
+                all_max_submissions_deviations,
+            )
+            self.stdout.write("Created the submission file: " + submission_file_path)
+
+
+    def write_exercise_csv(self, exercise_file_path, exercises):
         with open(exercise_file_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=(
                 'id',
@@ -190,7 +237,14 @@ class Command(BaseCommand):
                     'status': exercise.status,
                 })
 
-        # One CSV file for all submissions.
+
+    def write_submission_csv(
+            self,
+            submission_file_path,
+            submissions,
+            all_deadline_deviations,
+            all_max_submissions_deviations,
+    ):
         with open(submission_file_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=(
                 'submission_id',
@@ -242,8 +296,4 @@ class Command(BaseCommand):
                     'late_penalty_applied': submission.late_penalty_applied,
                     'grading_time': submission.grading_time,
                 })
-
-        # Write file names to the standard output.
-        self.stdout.write("Created the exercise file: " + exercise_file_path)
-        self.stdout.write("Created the submission file: " + submission_file_path)
 
