@@ -106,7 +106,7 @@ class CourseInstancesView(UserProfileView):
         self.note("instances", "msg")
 
 class LastInstanceView(CourseMixin, BaseRedirectView):
-    access_mode = ACCESS.STUDENT
+    access_mode = ACCESS.ANONYMOUS
 
     def get_resource_objects(self):
         super().get_resource_objects()
