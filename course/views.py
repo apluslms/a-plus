@@ -113,11 +113,22 @@ class LastInstanceView(CourseMixin, BaseRedirectView):
         course = get_object_or_404(Course, url=self._get_kwarg(self.course_kw))
         course_instances = CourseInstance.objects.filter(course=course).order_by('-starting_time')
 
-        if course_instances:
-            self.course_instance = course_instances[0]
+        latest_visible = None
+        latest_hidden = None
+        for instance in course_instances:
+            if instance.visible_to_students:
+                latest_visible = instance
+                break
+            else:
+                latest_hidden = latest_hidden or instance
+
+        if latest_visible:
+            self.course_instance = latest_visible
+        elif latest_hidden and latest_hidden.is_course_staff(self.request.user):
+            self.course_instance = latest_hidden
         else:
             raise Http404(_("There are no course instances for this course."))
-    
+
     def get(self, request, *args, **kwargs):
         return self.redirect(self.course_instance.url)
 
