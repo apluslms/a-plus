@@ -10,10 +10,6 @@
 		<RequestMap applicationId="default" encoding="URL">
 			<Host name="__HOSTNAME__" authType="shibboleth" requireSession="true" redirectToSSL="443">
 				<!-- to use test haka, add the following to the above element: applicationId="haka_test" -->
-				<AccessControl>
-					<!-- an example how to require a home organization -->
-					<Rule require="schacHomeOrganization">aalto.fi</Rule>
-				</AccessControl>
 			</Host>
 		</RequestMap>
 	</RequestMapper>
@@ -49,7 +45,6 @@
 			You can also override entityID on /Login query string, or in RequestMap/htaccess.
 			-->
 			<SSO
-				entityID="https://idp.aalto.fi/idp/shibboleth"
 				discoveryProtocol="SAMLDS"
 				discoveryURL="https://haka.funet.fi/shibboleth/WAYF">
 				SAML2
@@ -79,9 +74,6 @@
 			backingFilePath="haka_metadata_signed.xml"
 			reloadInterval="3600">
 			<SignatureMetadataFilter certificate="/etc/shibboleth/haka-sign-v4.pem"/>
-			<MetadataFilter type="Whitelist">
-				<Include>https://idp.aalto.fi/idp/shibboleth</Include>
-			</MetadataFilter>
 			<MetadataFilter type="RequireValidUntil" maxValidityInterval="2592000"/>
 		</MetadataProvider>
 

@@ -36,6 +36,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     language = models.CharField(max_length=5, blank=True, default='')
     student_id = models.CharField(max_length=25, null=True, blank=True)
+    organization = models.CharField(max_length=80, blank=True)
     objects = UserProfileManager()
 
     class Meta:
@@ -84,7 +85,7 @@ class UserProfile(models.Model):
         """
         Is this an external rather than internal account.
         """
-        return not bool(self.student_id)
+        return (self.organization != settings.LOCAL_ORGANIZATION)
 
     def get_url(self, instance):
         kwargs = dict(user_id=self.user.id, **instance.get_url_kwargs())

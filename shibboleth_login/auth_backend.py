@@ -111,11 +111,12 @@ class ShibbolethAuthBackend(ModelBackend):
             user.full_clean()
             user.save()
 
-        # TODO: support multiple domains
+        homeorg = parser.get_single_value(env_settings.HOME_ORGANIZATION, '')
         profile = user.userprofile
         sid_filters = env_settings.STUDENT_FILTERS.copy()
-        # following filter drops everything else except configured domain
-        sid_filters[1] = env_settings.STUDENT_DOMAIN.lower()
+        # verifies that domain in personal code URN matches home organization
+        # (also, for minimal change to existing student filters code)
+        sid_filters[1] = homeorg
         try:
             student_ids = parser.get_urn_values(
                 env_settings.STUDENT_URN,
@@ -132,8 +133,16 @@ class ShibbolethAuthBackend(ModelBackend):
         # example: ('123456', 'aalto.fi', 'studentID', 'int', 'mace:terena.org')
         # -> (value (student number), the domain, id type, int|local, schema namespace)
         student_id = next(iter(student_ids), (None,))[0]
+        user_save_flag = False
         if student_id and student_id != profile.student_id:
             profile.student_id = student_id
+            user_save_flag = True
+
+        if homeorg != profile.organization:
+            profile.organization = homeorg
+            user_save_flag = True
+
+        if user_save_flag:
             profile.save()
 
         return user
