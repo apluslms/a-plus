@@ -51,6 +51,7 @@ env_settings = SettingsDict(
         # https://wiki.eduuni.fi/display/CSCHAKA/Federation
         'STUDENT_IDS': 'schacPersonalUniqueCode',
         'STUDENT_URN': ':schac:personalUniqueCode:',
+        'HOME_ORGANIZATION': 'schacHomeOrganization',
         'STUDENT_FILTERS': {
             2: 'studentID',
             3: 'int',

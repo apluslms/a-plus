@@ -22,21 +22,21 @@
 		{% if shibboleth_login %}
 			<section aria-labelledby="login-shibboleth-users" class="col-sm-6 col-md-3 login-box">
 				<div class="login-section">
-					{% if shibboleth_title_text %}
-						<h2 id="login-shibboleth-users">
-							{{ shibboleth_title_text|safe }}
+					{% if haka_title_text %}
+						<h2 id="login-haka-users">
+							{{ haka_title_text|safe }}
 						</h2>
 					{% endif %}
 					<div class="login-section-body">
-						{% if shibboleth_body_text %}
+						{% if haka_body_text %}
 							<p>
-								{{ shibboleth_body_text|safe }}
+								{{ haka_body_text|safe }}
 							</p>
 						{% endif %}
 						<p>
 							<a class="aplus-button--secondary aplus-button--lg" role="button"
 								href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
-								{{ shibboleth_button_text|safe }}
+								{{ haka_button_text|safe }}
 							</a>
 						</p>
 					</div>

@@ -51,6 +51,9 @@ class CustomLoginView(LoginView):
             'shibboleth_title_text': settings_text('SHIBBOLETH_TITLE_TEXT'),
             'shibboleth_body_text': settings_text('SHIBBOLETH_BODY_TEXT'),
             'shibboleth_button_text': settings_text('SHIBBOLETH_BUTTON_TEXT'),
+            'haka_title_text': settings_text('HAKA_TITLE_TEXT'),
+            'haka_body_text': settings_text('HAKA_BODY_TEXT'),
+            'haka_button_text': settings_text('HAKA_BUTTON_TEXT'),
             'mooc_title_text': settings_text('MOOC_TITLE_TEXT'),
             'mooc_body_text': settings_text('MOOC_BODY_TEXT'),
         })

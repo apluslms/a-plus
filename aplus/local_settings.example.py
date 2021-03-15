@@ -5,6 +5,12 @@
 #ADMINS = (
 #    ('Your Name', 'your_email@domain.com'),
 #)
+
+# The organization this instance is deployed at.
+# Can be used to identify users from home university by comparing this to
+# organization information received from Haka login.
+#LOCAL_ORGANIZATION = 'aalto.fi'
+
 ## Branding
 #BRAND_NAME = 'Your brand name (default is A+)'
 #BRAND_NAME_LONG = 'Aplus'
@@ -15,6 +21,9 @@
 #SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
 #SHIBBOLETH_BODY_TEXT = 'Log in with your Aalto University user account by clicking on the button below. FiTech, Open University and programme students as well as staff members must log in here.'
 #SHIBBOLETH_BUTTON_TEXT = 'Log in with Aalto account'
+#HAKA_TITLE_TEXT = 'Haka Federation users'
+#HAKA_BODY_TEXT = 'If your organization is a member of Haka federation, log in by clicking the button below.'
+#HAKA_BUTTON_TEXT = 'Log in with Haka'
 #MOOC_TITLE_TEXT = 'Users external to Aalto'
 #MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Log in with your user account from one of the following services.'
 #INTERNAL_USER_LABEL = 'Aalto'
@@ -24,6 +33,9 @@
 #SHIBBOLETH_TITLE_TEXT_FI = 'Aalto-yliopiston käyttäjät'
 #SHIBBOLETH_BODY_TEXT_FI = 'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuksella alla olevasta painikkeesta. FiTechin, avoimen yliopiston ja koulutusohjelmien opiskelijoiden sekä henkilökunnan täytyy kirjautua tästä.'
 #SHIBBOLETH_BUTTON_TEXT_FI = 'Kirjaudu Aalto-tunnuksella'
+#HAKA_TITLE_TEXT_FI = 'Haka-käyttäjät'
+#HAKA_BODY_TEXT_FI = 'Jos organisaatiosi on Haka-federaation jäsen, kirjaudu palveluun alla olevasta painikkeesta. FiTechin, avoimen yliopiston ja koulutusohjelmien opiskelijoiden sekä henkilökunnan täytyy kirjautua tästä.'
+#HAKA_BUTTON_TEXT_FI = 'Kirjaudu Haka-tunnuksella'
 #MOOC_TITLE_TEXT_FI = 'Käyttäjät Aallon ulkopuolelta'
 #MOOC_BODY_TEXT_FI = 'Osa kursseistamme on avoinna kaikille. Kirjaudu sisään jonkin seuraavan palvelun käyttäjätunnuksellasi.'
 
