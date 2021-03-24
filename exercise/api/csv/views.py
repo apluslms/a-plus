@@ -19,6 +19,7 @@ from ...models import (
 )
 from .submission_sheet import *
 from .aggregate_sheet import *
+from .aggregate_points import *
 
 
 class CourseSubmissionDataViewSet(NestedViewSetMixin,
@@ -195,6 +196,74 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
             .annotate(total=Max('grade'),count=Count('id'))\
             .order_by()
         data,fields = aggregate_sheet(request, profiles, self.instance.taggings.all(),
+            exercises, aggr, entry['number'] if entry else "")
+        self.renderer_fields = fields
+        response = Response(data)
+        if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
+            response['Content-Disposition'] = 'attachment; filename="aggregate.csv"'
+        return response
+
+    def get_renderer_context(self):
+        context = super().get_renderer_context()
+        context['header'] = getattr(self, 'renderer_fields', None)
+        return context
+
+
+class CourseResultsDataViewSet(NestedViewSetMixin,
+                               CourseResourceMixin,
+                               viewsets.ReadOnlyModelViewSet):
+    """
+    List aggregate submission data as data sheet.
+    Following GET parameters may be used to filter submissions:
+    category_id, module_id, exercise_id,
+    filter (N.N where first module id, then optional exercise ids)
+    """
+    # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        IsCourseAdminOrUserObjIsSelf,
+    ]
+    filter_backends = (
+        IsCourseAdminOrUserObjIsSelf,
+    )
+    renderer_classes = [
+        CSVRenderer,
+    ] + api_settings.DEFAULT_RENDERER_CLASSES
+    lookup_field = 'user_id'
+    lookup_url_kwarg = 'user_id'
+    lookup_value_regex = REGEX_INT_ME
+    parent_lookup_map = {'course_id': 'enrolled.id'}
+    queryset = UserProfile.objects.all()
+
+    def get_search_args(self, request):
+        return {
+            'number': request.GET.get('filter'),
+            'category_id': int_or_none(request.GET.get('category_id')),
+            'module_id': int_or_none(request.GET.get('module_id')),
+            'exercise_id': int_or_none(request.GET.get('exercise_id')),
+            'filter_for_assistant': not self.is_teacher,
+       }
+
+    def list(self, request, version=None, course_id=None):
+        profiles = self.filter_queryset(self.get_queryset())
+        return self.serialize_profiles(request, profiles)
+
+    def retrieve(self, request, version=None, course_id=None, user_id=None):
+        return self.serialize_profiles(request, [self.get_object()])
+
+    def serialize_profiles(self, request, profiles):
+        search_args = self.get_search_args(request)
+        entry, exercises = self.content.search_entries(**search_args)
+        ids = [e['id'] for e in exercises if e['type'] == 'exercise']
+        exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
+        if(request.GET.get('show_unofficial') != 'true'):
+            exclude_list.append(Submission.STATUS.UNOFFICIAL)
+        aggr = Submission.objects\
+            .filter(exercise__in=ids, submitters__in=profiles)\
+            .exclude(status__in=(exclude_list))\
+            .values('submitters__user_id','exercise_id')\
+            .annotate(total=Max('grade'),count=Count('id'))\
+            .order_by()
+        data,fields = aggregate_points(request, profiles, self.instance.taggings.all(),
             exercises, aggr, entry['number'] if entry else "")
         self.renderer_fields = fields
         response = Response(data)

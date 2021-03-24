@@ -5,19 +5,7 @@
 .nav-tabs>li.active>a,
 .nav-tabs>li.active>a:hover,
 .nav-tabs>li.active>a:focus {
-    background-color: #A9A9A9 !important;
-}
-
-/*
- * Table export
- */
-
-#export-button-menu {
-    background-color : #A9A9A9;
-}
-
-caption.tableexport-caption button {
-    margin: 0px 10px 0px 10px;
+	background-color: #A9A9A9 !important;
 }
 
 /*
@@ -25,28 +13,29 @@ caption.tableexport-caption button {
  */
 
 .student-id,
-.student-name,
-#table-body td.indicator-heading {
-    background-color: rgb(188, 232, 241);
-    font-weight: bold;
+.student-name {
+	background-color: rgb(188, 232, 241);
+	font-weight: bold;
 }
 
-#table-body td.indicator-heading {
-    filter: brightness(85%);
+table#table-points thead#table-heading th.indicator-heading {
+	filter: brightness(85%);
 }
 
-
-.indi-normal-val,
-.indi-pct-val {
-    background-color: white;
-    font-weight: bold;
-}
-.indi-normal-val {
-    text-align: left;
-    border-bottom: none !important;
+table#table-points thead#table-heading th {
+	top: 0;
+	border-bottom-width: 1px;
 }
 
-.indi-pct-val {
-    text-align: right;
-    border-top: none !important;
+table#table-points thead th:not(.indicator-heading) {
+	background-color: white;
+}
+
+table#table-points thead th div.ratio {
+	text-align: right;
+	font-style: italic;
+	font-weight: normal;
+}
+table#table-points thead th div.ratio::after {
+	content: "%";
 }

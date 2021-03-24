@@ -17,27 +17,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
-<!--Required libraries for exporting table data to xlsx, csv or txt.-->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/css/tableexport.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.core.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/TableExport/5.2.0/js/tableexport.min.js"></script>
+<!-- DataTables plugin with Bootstrap 3 styling and Buttons/export support -->
+<!-- To upgrade plugin versions, go to https://datatables.net/download/index -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-html5-1.7.0/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-html5-1.7.0/datatables.min.js"></script>
+<!-- DataTables plugin for calculating a sum during data filtering -->
+<script src="https://cdn.datatables.net/plug-ins/1.10.22/api/sum().js"></script>
 
 <!--Custom for loading animation (loading_animation.css) and other extra customizations (results_staff.css)
     results_staff.js is the main script for this page. -->
-<link rel="stylesheet" href="{% static 'exercise/css/loading_animation.css' %}" />
+<!--<link rel="stylesheet" href="{% static 'exercise/css/loading_animation.css' %}" />-->
 <link rel="stylesheet" href="{% static 'exercise/css/results_staff.css' %}" />
 <script
 	src="{% static 'exercise/results_staff.js' %}"
 	data-exercises-url="{% url 'api:course-exercises-list' version=2 course_id=instance.id %}"
-	data-students-url="{% url 'api:course-students-list' version=2 course_id=instance.id %}"
 	data-usertags-url="{% url 'api:course-usertags-list' version=2 course_id=instance.id %}"
-	data-points-url="{% url 'api:course-points-list' version=2 course_id=instance.id %}"
+	data-points-url="{% url 'api:course-resultsdata-list' version=2 course_id=instance.id %}"
 	defer>
 </script>
-
-<!--Filtering for table rows-->
-<script src="{% static 'js/filter.js' %}"></script>
 
 <!--Colortags-->
 <script src="{% static 'django_colortag.js' %}"></script>
@@ -46,142 +43,138 @@
 {% block columns %}
 
 <div class="col-md-12">
-
 	<div id="main-body">
+		<div class="col-md-6 col-sm-12">
+			<!--Selection options for modules and exercises-->
+			<table style="margin: 10px;">
+				<tbody>
+					<tr>
+						<td style="padding: 5px 10px 5px 10px;">
+							<label for="module-selection">{% trans "Select modules: " %}</label>
+						</td>
+						<td style="padding: 5px 10px 5px 10px;">
+							<select id="module-selection" multiple="multiple">
+							</select>
+						</td>
+					</tr>
 
-		<!--Selection options for modules and exercises-->
-		<table style="margin: 10px;">
-			<tbody>
-				<tr>
-					<td style="padding: 5px 10px 5px 10px;">
-						<label for="module-selection">{% trans "Select modules: " %}</label>
-					</td>
-					<td style="padding: 5px 10px 5px 10px;">
-						<select id="module-selection" multiple="multiple">
-						</select>
-					</td>
-				</tr>
+					<tr>
+						<td style="padding: 5px 10px 5px 10px;">
+							<label for="exercise-collection">{% trans "Select exercises: " %}</label>
+						</td>
+						<td style="padding: 5px 10px 5px 10px;">
+							<select id="exercise-selection" multiple="multiple">
+							</select>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 
-				<tr>
-					<td style="padding: 5px 10px 5px 10px;">
-						<label for="exercise-collection">{% trans "Select exercises: " %}</label>
-					</td>
-					<td style="padding: 5px 10px 5px 10px;">
-						<select id="exercise-selection" multiple="multiple">
-						</select>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+		<div class="col-md-6 col-sm-12">
+			<!--Tags-->
+			<div style="padding: 10px 10px 30px 10px;" class="filter-users">
+				<small>{% trans "Filter users" %}:</small>
+				<span class="radio-inline">
+					<label><input type="radio" class="tags-operator" name="tags-operator" value="and" checked>AND</label>
+				</span>
+				<span class="radio-inline">
+					<label><input type="radio" class="tags-operator" name="tags-operator" value="or">OR</label>
+				</span>
+				<br>
+				{% for tag in tags %}
+				<button class="btn btn-default btn-xs tag-button" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tag-slug="{{ tag.slug }}" data-tag-name="{{ tag.name }}">
+					<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+					{{ tag.name }}
+				</button>
+				{% endfor %}
+			</div>
+		</div>
 
+		<div class="col-sm-12">
+			<h4>{% trans "Options" %}</h4>
+			<span class="has-error">
+				<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
+				title="{% trans 'Points are official if the submission is within deadline and submission count limits. Submission must be also accepted and confirmed (for example, in case of mandatory feedback).' %}">
+					<input type="checkbox" class="official-checkbox" value="official" checked>
+					{% trans "Show only official points" %}
+			</label>
+			</span>
+			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
+				title="{% trans 'Show only students with submissions' %}">
+				<input type="checkbox" class="withsubs-checkbox" value="withsubs">
+				{% trans "Show only students with submissions" %}
+			</label>
+		</div>
 
-		<!--Checkboxes to select extra information about data-->
-		<div style="margin: 10px;">
+		<div class="col-sm-12" style="padding-bottom: 20px">
+			<!--Checkboxes to select extra information about data-->
 			<h4>{% trans "Summaries" %}</h4>
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
+				title="{% trans 'Select or deselect all summaries.' %}">
+				<input type="checkbox" id="summary-all" value="all">
+				{% trans "All" %}
+			</label>
+			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
 				title="{% trans 'Total number of submissions. Calculates all student submission counts together.' %}">
-				<input type="checkbox" class="total-subm-checkbox" value="total-subm">
+				<input type="checkbox" id="summary-0" class="summary-checkbox" value="0">
 				{% trans "Total submissions" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="ml-10 checkbox-inline" data-toggle="tooltip"
 				title="{% trans 'How many submissions a single student has used on the exercise on average. Only accounts for students with one or more submissions.' %}">
-				<input type="checkbox" class="avg-subm-checkbox" value="avg-subm">
+				<input type="checkbox" id="summary-1" class="summary-checkbox" value="1">
 				{% trans "Average submissions per student" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="ml-10 checkbox-inline" data-toggle="tooltip"
 				title="{% trans 'Maximum number of available submissions for the exercise.' %}">
-				<input type="checkbox" class="max-subm-checkbox" value="max-subm">
+				<input type="checkbox" id="summary-2" class="summary-checkbox" value="2">
 				{% trans "Maximum submissions" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
 				title="{% trans 'Number of students that have one or more exercise submissions.' %}">
-				<input type="checkbox" class="total-stu-subm-checkbox" value="total-stu-subm">
+				<input type="checkbox" id="summary-3" class="summary-checkbox" value="3">
 				{% trans "Students with submissions" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
 				title="{% trans 'Number of students that have received maximum points from the exercise.' %}">
-				<input type="checkbox" class="total-stu-max-checkbox" value="total-stu-max">
+				<input type="checkbox" id="summary-4" class="summary-checkbox" value="4">
 				{% trans "Students with max points" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
 				title="{% trans 'Average points received for the exercise per student. Only accounts for students with one or more submissions.' %}">
-				<input type="checkbox" class="avg-p-checkbox" value="avg-p">
+				<input type="checkbox" id="summary-5" class="summary-checkbox" value="5">
 				{% trans "Average points per student" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
 				title="{% trans 'Maximum points for the exercise.' %}">
-				<input type="checkbox" class="max-p-checkbox" value="max-p">
+				<input type="checkbox" id="summary-6" class="summary-checkbox" value="6">
 				{% trans "Maximum points" %}
 			</label>
-
-			<div class="has-error">
-				<div class="checkbox">
-					<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-						title="{% trans 'Points are official if the submission is within deadline and submission count limits. Submission must be also accepted and confirmed (for example, in case of mandatory feedback).' %}">
-						<input type="checkbox" class="official-checkbox" value="official" checked>
-						{% trans "Show only official points" %}
-					</label>
-				</div>
-			</div>
 		</div>
-
-
-		<!--Tags-->
-		<div style="margin: 10px 10px 10px 20px;" class="filter-users">
-			<small>{% trans "Filter users" %}:</small>
-			{% for tag in tags %}
-			<button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tag-slug="{{ tag.slug }}">
-				<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
-				{{ tag.name }}
-			</button>
-			{% endfor %}
-		</div>
-
 
 		<!--Navigation bar to choose how data is shown-->
-		<div role="navigation" aria-label="{% trans "View selection" %}">
-			<ul style="margin: 10px 0px 50px 0px;" id="exercise-nav-tabs" class="nav nav-tabs">
-				<li id="difficulty-exercises" role="presentation" class="active">
-					<a onclick="createPointTable('difficulty');" data-toggle="tab" href="#">{% trans "Show exercises by difficulty" %}</a>
-				</li>
-				<li id="module-exercises" role="presentation">
-					<a onclick="createPointTable('module');" data-toggle="tab" href="#">{% trans "Show exercises by module" %}</a>
-				</li>
-				<li id="all-exercises" role="presentation">
-					<a onclick="createPointTable('all');" data-toggle="tab" href="#">{% trans "Show all exercises" %}</a>
-				</li>
-			</ul>
-		</div>
-
-
-		<!--Dropdown button for table exports. The buttons are added inside results_staff.js-->
-		<div id="table-export-dropdown" class="dropdown d-inline-block">
-			<button disabled class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">{% trans "Export Data" %}
-				<span class="caret"></span>
-			</button>
-			<ul id="export-button-menu" class="dropdown-menu">
-
-			</ul>
-		</div>
-
-		<!--Alerts-->
-		<div id="alerts" style="margin: 30px">
-			<div id="ajax-failed-alert" class="alert alert-danger collapse" role="alert">
-				{% trans "Data couldn't be fetched. Please check your internet connection." %}
-			</div>
-		</div>
+		<ul id="exercise-nav-tabs" class="nav nav-tabs" role="tablist" style="padding-top: 20px">
+			<li id="difficulty-exercises" role="presentation" class="active">
+				<a onclick="changeDisplayMode(1);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#difficulty">{% trans "Show exercises by difficulty" %}</a>
+			</li>
+			<li id="module-exercises" role="presentation">
+				<a onclick="changeDisplayMode(2);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#module">{% trans "Show exercises by module" %}</a>
+			</li>
+			<li id="all-exercises" role="presentation">
+				<a onclick="changeDisplayMode(3);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#exercise">{% trans "Show all exercises" %}</a>
+			</li>
+		</ul>
 
 		<!--Data table-->
-		<div style="display: none;" id="table-points-div" class="table-responsive">
-			<table id="table-points" class="table table-striped table-bordered table-condensed filtered-table">
+		<div id="table-points-div" class="table-responsive" role="tabpanel" style="padding: 20px 0px 0px 0px;">
+			<table id="table-points" class="table table-striped table-bordered table-condensed">
 				<thead id="table-heading">
-					<tr id="table-heading-row"></tr>
 				</thead>
 				<tbody id="table-body">
 
@@ -190,26 +183,5 @@
 		</div>
 
 	</div>
-
-
-	<!--Loading animation-->
-	<div class="row">
-		<div class="col-md-12">
-			<div id="results-loading-animation" class="loading-animation">
-				<span></span>
-				<span></span>
-				<span></span>
-			</div>
-		</div>
-	</div>
-
-
-	<!--Loading progress-->
-	<div class="row">
-		<div class="col-md-12">
-			<div id="results-loading-progress" class="text-center"></div>
-		</div>
-	</div>
-
 </div>
 {% endblock columns %}

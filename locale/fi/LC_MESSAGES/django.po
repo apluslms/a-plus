@@ -2895,10 +2895,6 @@ msgid "Show all exercises"
 msgstr "Näytä kaikki tehtävät"
 
 #: exercise/templates/exercise/staff/results.html
-msgid "Export Data"
-msgstr "Vie Tiedostoon"
-
-#: exercise/templates/exercise/staff/results.html
 msgid "Data couldn't be fetched. Please check your internet connection."
 msgstr "Tietojen lataaminen ei onnistunut. Tarkista yhteys palveluun."
 
