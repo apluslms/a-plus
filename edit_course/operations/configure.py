@@ -292,9 +292,13 @@ def configure_content(instance, url):
     try:
         url = url.strip()
         response = requests.get(url)
+        response.raise_for_status()
     except Exception as e:
-        return [_("Request for a course configuration failed with error '{error!s}'. "
-                  "Configuration of course aborted.").format(error=e)]
+        return [format_lazy(
+            _("Request for a course configuration failed with error '{error!s}'. "
+              "Configuration of course aborted."),
+            error=e,
+        )]
 
     instance.configure_url = url
     instance.save()
@@ -302,8 +306,11 @@ def configure_content(instance, url):
     try:
         config = json.loads(response.text)
     except Exception as e:
-        return [_("JSON parser raised error '{error!s}'. "
-                  "Configuration of course aborted.").format(error=e)]
+        return [format_lazy(
+            _("JSON parser raised error '{error!s}'. "
+              "Configuration of course aborted."),
+            error=e,
+        )]
 
     errors = []
 
