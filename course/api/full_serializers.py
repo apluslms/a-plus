@@ -75,6 +75,7 @@ class CourseSerializer(CourseBriefSerializer):
     )
     data = NestedHyperlinkedIdentityField(view_name='api:course-submissiondata-list')
     aggregate_data = NestedHyperlinkedIdentityField(view_name='api:course-aggregatedata-list')
+    results_data = NestedHyperlinkedIdentityField(view_name='api:course-resultsdata-list')
     groups = NestedHyperlinkedIdentityField(view_name='api:course-groups-list')
     my_groups = NestedHyperlinkedIdentityField(view_name='api:course-mygroups-list')
 
@@ -95,6 +96,7 @@ class CourseSerializer(CourseBriefSerializer):
             'my_data',
             'data',
             'aggregate_data',
+            'results_data',
             'groups',
             'my_groups',
         )

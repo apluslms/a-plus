@@ -53,6 +53,9 @@ with api.register(r'courses',
     courses.register(r'aggregatedata',
                      exercise.api.csv.views.CourseAggregateDataViewSet,
                      basename='course-aggregatedata')
+    courses.register(r'resultsdata',
+                     exercise.api.csv.views.CourseResultsDataViewSet,
+                     basename='course-resultsdata')
     courses.register(r'mygroups',
                      course.api.views.CourseOwnStudentGroupsViewSet,
                      basename='course-mygroups')

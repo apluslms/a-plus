@@ -105,6 +105,14 @@
   "opiskelijoiden_tulokset",
 
   "Some students have unofficial points that are greater than zero. However, they are calculated as zero in the table until they are confirmed. This may be caused for example by missing feedback form.":
-  "Osalla opiskelijoista on epävirallisia pisteitä, jotka ovat enemmän kuin nolla. Nämä pisteet on silti laskettu nollana taulukossa, kunnes ne on vahvistettu. Tämä voi johtua esimerkiksi puuttuvasta palautelomakkeesta."
+  "Osalla opiskelijoista on epävirallisia pisteitä, jotka ovat enemmän kuin nolla. Nämä pisteet on silti laskettu nollana taulukossa, kunnes ne on vahvistettu. Tämä voi johtua esimerkiksi puuttuvasta palautelomakkeesta.",
 
+  "Search":
+  "Etsi",
+
+  " (<, > supported)":
+  " (<, > tuettu)",
+
+  "All":
+  "kaikki"
 }
