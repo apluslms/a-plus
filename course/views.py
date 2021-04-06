@@ -24,7 +24,7 @@ from lib.helpers import settings_text, remove_query_param_from_url
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView, BaseRedirectView
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
-from .models import CourseInstance, Course, Enrollment
+from .models import Course, CourseInstance, CourseModule, Enrollment
 from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
 from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin, CourseMixin
@@ -223,7 +223,7 @@ class CalendarExport(CourseInstanceMixin, BaseView):
         cal = icalendar.Calendar()
         cal.add('prodid', '-// {} calendar //'.format(settings.BRAND_NAME))
         cal.add('version', '2.0')
-        for module in self.instance.course_modules.all():
+        for module in self.instance.course_modules.exclude(status__exact=CourseModule.STATUS.HIDDEN):
             event = icalendar.Event()
             event.add('summary', module.name)
             event.add('dtstart',
