@@ -107,7 +107,7 @@ def safe_file_name(name):
 
 def resize_image(path, max_size):
     image = Image.open(path)
-    image.thumbnail(max_size, Image.ANTIALIAS)
+    image.thumbnail(max_size, Image.LANCZOS)
     image.save(path)
 
 
