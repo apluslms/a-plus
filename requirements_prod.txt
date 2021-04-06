@@ -5,3 +5,5 @@ wheel
 # This extra library is required if postgres is used as the database
 psycopg2 >= 2.8.6, < 3
 lz4 ~= 3.1.3
+# Required for Kubernetes based deployment
+kubernetes == 12.0.1
