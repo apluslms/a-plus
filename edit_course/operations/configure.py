@@ -411,7 +411,7 @@ def configure_content(instance, url):
     instance.build_log_url = str(config['build_log_url']) if 'build_log_url' in config else ''
     # configure_url excluded from validation because the default Django URL
     # validation does not accept dotless domain names such as "grader"
-    instance.full_clean(exclude=['configure_url'])
+    instance.full_clean(exclude=['configure_url', 'build_log_url'])
     instance.save()
 
     if not "categories" in config or not isinstance(config["categories"], dict):
