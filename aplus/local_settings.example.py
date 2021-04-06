@@ -121,3 +121,7 @@
 #        'level': 'DEBUG',
 #    },
 #})
+#
+## Kubernetes deployment specific settings
+# KUBERNETES_MODE = True
+# KUBERNETES_NAMESPACE = 'my-k8s-namespace'
