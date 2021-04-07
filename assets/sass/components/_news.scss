@@ -1,0 +1,53 @@
+.news-panel {
+    margin-bottom: 30px;
+    .future-instance {
+        color: #c0322d;
+        background-color: #fff;
+    }
+    .current-instance {
+        color: #333;
+        background-color: #fff;
+    }
+    .list-group-item-heading {
+        padding-top: 5px;
+        padding-bottom: 10px;
+    }
+    .list-group-item-title {
+        font-weight: bold;
+        margin: 0px;
+        display: inline-block;
+    }
+    .list-group-item-details {
+        font-size: 0.9em;
+        display: inline-block;
+    }
+    .list-group-item,
+    .pinned-list-group-item,
+    .folding-list-group-item {
+        position: relative;
+        display: block;
+        padding: 10px 15px;
+    }
+    .pinned-list-group-item {
+        border-left: 2px solid $aplus-brand-primary;
+        border-bottom: 1px solid #ccc;
+    }
+    .folding-list-group-item {
+        background-color: #fff;
+        font-size: 16px;
+        text-decoration: none;
+        font-weight: bold;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+    .folding-list-group-item.collapsed {
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+    .folding-list-group-item:hover {
+        background-color: #eee;
+    }
+    .list-group-item-text *:last-child {
+        margin-bottom: 0;
+    }
+}
