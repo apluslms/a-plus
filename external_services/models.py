@@ -209,7 +209,7 @@ Note that URL entered here can not include scheme or domain.""")
         max_length=32,
         null=True,
         blank=True,
-        help_text=_("Menu icon style name (else service default), e.g. star see http://getbootstrap.com/components/#glyphicons-glyphs")
+        help_text=_("Menu icon style name (else service default), e.g. star see https://getbootstrap.com/docs/3.4/components/#glyphicons")
     )
     menu_weight = models.IntegerField(
         default=0,
