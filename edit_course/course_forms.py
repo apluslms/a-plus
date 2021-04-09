@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django_colortag.forms import ColorTagForm
 
 from aplus.api import api_reverse
-from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
+from course.models import LearningObjectCategory, Course, CourseModule, CourseInstance, UserTag
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from userprofile.models import UserProfile
@@ -143,6 +143,24 @@ class CourseContentForm(forms.ModelForm):
             'module_numbering',
             'content_numbering',
         ]
+
+
+class CourseTeachersForm(forms.ModelForm):
+
+    teachers = UsersSearchSelectField(queryset=UserProfile.objects.all(),
+        initial_queryset=UserProfile.objects.none(),
+        required=False) # Not required because a course does not have to have any teachers.
+
+    class Meta:
+        model = Course
+        fields = [
+            'teachers'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['teachers'].initial_queryset = self.instance.teachers.all()
+        self.fields['teachers'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
 
 
 class CloneInstanceForm(forms.Form):

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-07 15:36+0300\n"
+"POT-Creation-Date: 2021-04-09 13:46+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -836,6 +836,7 @@ msgstr "Muokkaa ryhmän jäseniä"
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
+#: edit_course/templates/edit_course/edit_teachers.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
@@ -1465,6 +1466,12 @@ msgid "Renumerate learning objects ignoring modules"
 msgstr "Numeroi oppimissisällöt uudelleen huomioimatta moduuleita"
 
 #: edit_course/templates/edit_course/edit_course_base.html
+#: edit_course/templates/edit_course/edit_teachers.html
+#: templates/support_channels.html
+msgid "Teachers"
+msgstr "Opettajat"
+
+#: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/edit_index.html
 msgid "Index"
 msgstr "Etusivu"
@@ -1492,11 +1499,6 @@ msgstr "Tiedot"
 #: edit_course/templates/edit_course/edit_instance.html
 msgid "Edit course details"
 msgstr "Muokkaa kurssin tietoja"
-
-#: edit_course/templates/edit_course/edit_instance.html
-#: templates/support_channels.html
-msgid "Teachers"
-msgstr "Opettajat"
 
 #: edit_course/templates/edit_course/edit_model.html
 #, python-format
@@ -1539,6 +1541,10 @@ msgstr "Syötä URL-osoite ja"
 #: edit_course/templates/edit_course/edit_model.html
 msgid "Download possible metadata"
 msgstr "Lataa mahdollinen metadata"
+
+#: edit_course/templates/edit_course/edit_teachers.html
+msgid "Edit course teachers"
+msgstr "Muokkaa kurssin opettajia"
 
 #: edit_course/templates/edit_course/remove_model.html
 #, python-format

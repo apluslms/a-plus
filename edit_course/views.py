@@ -26,8 +26,9 @@ from exercise.cache.content import CachedContent
 from exercise.cache.exercise import invalidate_instance
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
-from .course_forms import CourseInstanceForm, CourseIndexForm, \
-    CourseContentForm, CloneInstanceForm, UserTagForm, SelectUsersForm
+from .course_forms import CourseInstanceForm, CourseTeachersForm, \
+    CourseIndexForm, CourseContentForm, CloneInstanceForm, UserTagForm, \
+    SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 
 
@@ -46,6 +47,29 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         self.instance = form.save()
+        messages.success(self.request, _("Changes were saved succesfully."))
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Failed to save changes."))
+        return super().form_invalid(form)
+
+
+class EditTeachersView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "edit_course/edit_teachers.html"
+    form_class = CourseTeachersForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.course
+        return kwargs
+
+    def get_success_url(self):
+        return self.instance.get_url('course-teachers')
+
+    def form_valid(self, form):
+        self.course = form.save()
         messages.success(self.request, _("Changes were saved succesfully."))
         return super().form_valid(form)
 
