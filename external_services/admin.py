@@ -4,6 +4,7 @@ from external_services.models import LTIService, LinkService, MenuItem
 
 
 class LinkServiceAdmin(admin.ModelAdmin):
+    search_fields = ["url", "menu_label"]
     list_display_links = ["id"]
     list_display = [
         "id",
@@ -16,6 +17,7 @@ class LinkServiceAdmin(admin.ModelAdmin):
     readonly_fields = ("content_type",)
 
 class LTIServiceAdmin(admin.ModelAdmin):
+    search_fields = ["url", "menu_label"]
     list_display_links = ["id"]
     list_display = [
         "id",
@@ -25,6 +27,8 @@ class LTIServiceAdmin(admin.ModelAdmin):
     ]
 
 class MenuItemAdmin(admin.ModelAdmin):
+    search_fields = ["course_instance__instance_name", "menu_url",
+        "menu_label"]
     list_display_links = ["id"]
     list_display = [
         "id",

@@ -12,6 +12,7 @@ class ThresholdPointsInline(admin.TabularInline):
 
 
 class ThresholdAdmin(admin.ModelAdmin):
+    search_fields = ["name", "course_instance__instance_name"]
     list_display_links = ("id", "__str__")
     list_display = ("id", "course_instance", "__str__")
     list_filter = ("course_instance",)
@@ -19,6 +20,7 @@ class ThresholdAdmin(admin.ModelAdmin):
 
 
 class CourseModuleRequirementAdmin(admin.ModelAdmin):
+    search_fields = ["module__name", "threshold__name"]
     list_display_links = ("id", "__str__")
     list_display = ("id", "get_course", "module", "__str__")
 
