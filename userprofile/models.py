@@ -43,9 +43,9 @@ class UserProfile(models.Model):
 
     def __str__(self):
         if self.student_id == None:
-            return "{} ({} {}, {})".format(self.user.username, self.user.first_name, self.user.last_name, self.user.email)
+            return f"{self.user.username} ({self.user.first_name} {self.user.last_name}, {self.user.email})"
         else:
-            return "{} ({} {}, {}, {})".format(self.user.username, self.user.first_name, self.user.last_name, self.user.email, self.student_id)
+            return f"{self.user.username} ({self.user.first_name} {self.user.last_name}, {self.user.email}, {self.student_id})"
 
     @cached_property
     def api_token(self):
