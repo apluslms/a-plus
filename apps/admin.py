@@ -11,41 +11,67 @@ from .models import (
     ExternalIFramePlugin,
 )
 
+
 class BaseTabAdmin(admin.ModelAdmin):
-    search_fields = ["label", "title"]
+    search_fields = (
+        'label',
+        'title',
+    )
 
 
 class HTMLTabAdmin(admin.ModelAdmin):
-    search_fields = ["label", "title"]
+    search_fields = (
+        'label',
+        'title',
+    )
 
 
 class ExternalEmbeddedTabAdmin(admin.ModelAdmin):
-    search_fields = ["label", "title", "content_url"]
+    search_fields = (
+        'label',
+        'title',
+        'content_url',
+    )
 
 
 class ExternalIFrameTabAdmin(admin.ModelAdmin):
-    search_fields = ["label", "title", "content_url"]
+    search_fields = (
+        'label',
+        'title',
+        'content_url',
+    )
 
 
 class BasePluginAdmin(admin.ModelAdmin):
-    search_fields = ["title"]
+    search_fields = ('title',)
 
 
 class RSSPluginAdmin(admin.ModelAdmin):
-    search_fields = ["title", "feed_url"]
+    search_fields = (
+        'title',
+        'feed_url',
+    )
 
 
 class HTMLPluginAdmin(admin.ModelAdmin):
-    search_fields = ["title"]
-    list_display_links = ["title"]
-    list_display = ["title", "course_instance_id", "container_type", "views"]
+    search_fields = ('title',)
+    list_display_links = ('title',)
+    list_display = (
+        'title',
+        'course_instance_id',
+        'container_type',
+        'views',
+    )
 
     def course_instance_id(self, obj):
         return obj.container_pk
 
 
 class ExternalIFramePluginAdmin(admin.ModelAdmin):
-    search_fields = ["title", "service_url"]
+    search_fields = (
+        'title',
+        'service_url',
+    )
 
 
 admin.site.register(BaseTab, BaseTabAdmin)
