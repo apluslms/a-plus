@@ -15,6 +15,7 @@
 {% block columns %}
 <div class="col-md-12">
 
+    <nav aria-label="{% trans "Edit course" %}">
     <ul class="nav nav-tabs">
         <li role="presentation" class="menu-course-clone">
             <a href="{{ instance|url:'course-clone' }}">
@@ -62,6 +63,7 @@
             </a>
         </li>
     </ul>
+    </nav>
 
     {% block coursecontent %}{% endblock %}
 </div>
