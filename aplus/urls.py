@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
+from django.urls import path
 
 import shibboleth_login.urls
 import social_django.urls
-import userprofile.urls
-import course.urls, course.long_urls
-import exercise.urls
+import userprofile.urls, userprofile.sitemaps
+import course.urls, course.long_urls, course.sitemaps
+import exercise.urls, exercise.sitemaps
 import edit_course.urls
 import deviations.urls
 import notification.urls
@@ -19,6 +21,12 @@ import redirect_old_urls.urls
 
 
 admin.autodiscover()
+
+all_sitemaps = {
+    **course.sitemaps.all_sitemaps,
+    **exercise.sitemaps.all_sitemaps,
+    **userprofile.sitemaps.all_sitemaps,
+}
 
 #  Pay attention to the order the URL patterns will be matched!
 urlpatterns = [
@@ -38,6 +46,8 @@ urlpatterns = [
     url(r'^', include(notification.urls)),
     url(r'^', include(exercise.urls)),
     url(r'^', include(course.urls)),
+    path('sitemap.xml', sitemap, { 'sitemaps': all_sitemaps },
+        name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.DEBUG:

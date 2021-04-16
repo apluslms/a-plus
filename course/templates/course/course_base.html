@@ -23,6 +23,13 @@
 
 {% block title %}{{ course.name|parse_localization }} | {{ block.super }} {% endblock %}
 
+{% block alternates %}
+{% for language in instance.languages %}
+<link rel="alternate" hreflang="{{ language }}" href="{{ request.get_full_path|localized_url:language }}" />
+{% endfor %}
+<link rel="alternate" hreflang="x-default" href="{{ request.get_full_path|localized_url:instance.default_language }}" />
+{% endblock %}
+
 {% block content %}
 <div data-taggings="{{ get_taggings|join:' ' }}"  class="row">
     <div class="col-sm-2 hidden-xs">
