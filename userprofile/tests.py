@@ -87,10 +87,10 @@ class UserProfileTest(TestCase):
         self.assertRaises(UserProfile.DoesNotExist, UserProfile.get_by_student_id, "111111")
 
     def test_userprofile_unicode_string(self):
-        self.assertEqual("testUser (Superb Student, 12345X)", str(self.student_profile))
-        self.assertEqual("grader (Grumpy Grader, 67890Y)", str(self.grader_profile))
-        self.assertEqual("teacher (Tedious Teacher)", str(self.teacher_profile))
-        self.assertEqual("superuser (Super User)", str(self.superuser_profile))
+        self.assertEqual("testUser (Superb Student, test@aplus.com, 12345X)", str(self.student_profile))
+        self.assertEqual("grader (Grumpy Grader, grader@aplus.com, 67890Y)", str(self.grader_profile))
+        self.assertEqual("teacher (Tedious Teacher, teacher@aplus.com)", str(self.teacher_profile))
+        self.assertEqual("superuser (Super User, superuser@aplus.com)", str(self.superuser_profile))
 
     def test_userprofile_gravatar_url(self):
         self.assertEqual("http://www.gravatar.com/avatar/36eb57f675f34b81bd859c525cb2b676?d=identicon", self.student_profile.avatar_url)

@@ -12,19 +12,43 @@ class ThresholdPointsInline(admin.TabularInline):
 
 
 class ThresholdAdmin(admin.ModelAdmin):
-    list_display_links = ("id", "__str__")
-    list_display = ("id", "course_instance", "__str__")
-    list_filter = ("course_instance",)
+    search_fields = (
+        'name',
+        'course_instance__instance_name',
+    )
+    list_display_links = (
+        'id',
+        '__str__',
+    )
+    list_display = (
+        'id',
+        'course_instance',
+        '__str__',
+    )
+    list_filter = ('course_instance',)
     inlines = (ThresholdPointsInline,)
 
 
 class CourseModuleRequirementAdmin(admin.ModelAdmin):
-    list_display_links = ("id", "__str__")
-    list_display = ("id", "get_course", "module", "__str__")
+    search_fields = (
+        'module__name',
+        'threshold__name',
+    )
+    list_display_links = (
+        'id',
+        '__str__',
+    )
+    list_display = (
+        'id',
+        'get_course',
+        'module',
+        '__str__',
+    )
 
     def get_course(self, obj):
         return obj.module.course_instance
     get_course.short_description = "Course instance"
+
 
 admin.site.register(Threshold, ThresholdAdmin)
 admin.site.register(CourseModuleRequirement, CourseModuleRequirementAdmin)
