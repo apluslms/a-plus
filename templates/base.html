@@ -12,6 +12,15 @@
 
 	<title>{% block title %}{% brand_name %}{% endblock %}</title>
 
+	{% block alternates %}
+	{% get_available_languages as LANGUAGES %}
+	{% get_language_info_list for LANGUAGES as languages %}
+	{% for language in languages %}
+	<link rel="alternate" hreflang="{{ language.code }}" href="{{ request.get_full_path|localized_url:language.code }}" />
+	{% endfor %}
+	<link rel="alternate" hreflang="x-default" href="{{ request.get_full_path|localized_url }}" />
+	{% endblock %}
+
 	<script src="https://code.jquery.com/jquery-1.12.4.min.js"
 		integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
 		crossorigin="anonymous"></script>

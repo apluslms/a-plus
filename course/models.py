@@ -483,6 +483,10 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_valid_language(self, lang):
         return lang == "" or lang in [key for key,name in settings.LANGUAGES]
+    
+    @property
+    def languages(self):
+        return self.language.strip('|').split('|')
 
     @property
     def default_language(self):

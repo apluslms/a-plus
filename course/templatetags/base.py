@@ -4,7 +4,7 @@ from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
-from lib.helpers import settings_text
+from lib.helpers import remove_query_param_from_url, settings_text, update_url_params
 
 
 register = template.Library()
@@ -67,3 +67,15 @@ def site_advert():
 @register.simple_tag
 def tracking_html():
     return mark_safe(settings.TRACKING_HTML)
+
+
+@register.filter
+def localized_url(path, language=None):
+    base_url = settings.BASE_URL
+    if base_url.endswith('/'):
+        base_url = base_url[:-1]
+    path = remove_query_param_from_url(path, 'hl')
+    if not language:
+        language = settings.LANGUAGE_CODE.split('-')[0]
+    path = update_url_params(path, { 'hl': language })
+    return base_url + path
