@@ -123,7 +123,7 @@
 		{% block siblings %}{% endblock %}
 		{% block breadcrumb %}
 		<div role="navigation" aria-label="{% trans "Breadcrumb" %}">
-			<ol class="breadcrumb" role="navigation" aria-label="{% trans "Breadcrumb" %}">
+			<ol class="breadcrumb">
 				{% block breadcrumblist %}
 				<li><a href="{{ instance|url }}">{{ course.code }}</a></li>
 				{% endblock %}
