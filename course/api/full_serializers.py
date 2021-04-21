@@ -2,6 +2,7 @@ from rest_framework import serializers, exceptions
 
 from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, NestedHyperlinkedIdentityFieldWithQuery
+from exercise.api.full_serializers import TreeExerciseSerializer
 from exercise.api.serializers import ExerciseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
 from ..models import (
@@ -21,6 +22,7 @@ __all__ = [
     'CourseStudentGroupSerializer',
     'CourseUsertagSerializer',
     'CourseUsertaggingsSerializer',
+    'TreeCourseModuleSerializer',
 ]
 
 
@@ -52,6 +54,7 @@ class CourseSerializer(CourseBriefSerializer):
     ...
     """
     exercises = NestedHyperlinkedIdentityField(view_name='api:course-exercises-list', format='html')
+    tree = NestedHyperlinkedIdentityField(view_name='api:course-tree-list', format='html')
     points = NestedHyperlinkedIdentityField(view_name='api:course-points-list', format='html')
     students = NestedHyperlinkedIdentityField(view_name='api:course-students-list', format='html')
     taggings = NestedHyperlinkedIdentityField(view_name='api:course-taggings-list', format='html')
@@ -83,6 +86,7 @@ class CourseSerializer(CourseBriefSerializer):
             'visible_to_students',
             # links
             'exercises',
+            'tree',
             'points',
             'students',
             'taggings',
@@ -120,7 +124,7 @@ class CourseUsertagSerializer(CourseUsertagBriefSerializer):
         )
 
     def validate(self, data):
-        # Name is enough, slug will be automatically generated 
+        # Name is enough, slug will be automatically generated
         data = super().validate(data)
         if not data['name']:
             raise serializers.ValidationError("At minimum, field 'name' is required")
@@ -173,7 +177,7 @@ class CourseUsertaggingsSerializer(AplusModelSerializer):
         tag_dict = validated_data['tag']
 
         first_in_required = [ f for f in self._required if f in user_dict ][0]
-        try:    
+        try:
             user = {
                 'id': lambda: UserProfile.objects.get(user__id=user_dict['id']),
                 'student_id': lambda: UserProfile.get_by_student_id(user_dict['student_id']),
@@ -219,3 +223,21 @@ class CourseStudentGroupSerializer(CourseStudentGroupBriefSerializer):
             }
         }
 
+
+class TreeCourseModuleSerializer(serializers.Serializer):
+    """
+    Serializes items in the `modules` list of `CachedContent.data`. Does not
+    derive from `AplusModelSerializer` because the items are `dict`s instead of
+    model objects.
+    """
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    children = serializers.SerializerMethodField()
+
+    def get_children(self, obj):
+        serializer = TreeExerciseSerializer(
+            instance=obj['children'],
+            many=True,
+            context=self.context
+        )
+        return serializer.data

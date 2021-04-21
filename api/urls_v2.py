@@ -32,6 +32,9 @@ with api.register(r'courses',
     courses.register(r'exercises',
                      course.api.views.CourseExercisesViewSet,
                      basename='course-exercises')
+    courses.register(r'tree',
+                     course.api.views.CourseExerciseTreeViewSet,
+                     basename='course-tree')
     courses.register(r'students',
                      course.api.views.CourseStudentsViewSet,
                      basename='course-students')

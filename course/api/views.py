@@ -68,6 +68,27 @@ class CourseExercisesViewSet(NestedViewSetMixin,
         return self.get_member_object('module', 'Exercise module')
 
 
+class CourseExerciseTreeViewSet(CourseResourceMixin,
+                                viewsets.ViewSet):
+    """
+    This viewset returns the chapters and exercises of the course in a tree-like
+    structure. To build the tree, it uses the `CachedContent` class, which
+    contains the course's chapters and exercises in a hierarchical structure.
+    The CachedContent instance is accessed through the `self.content` attribute,
+    which is defined in the `CourseInstanceBaseMixin` base class.
+    """
+    serializer_class = TreeCourseModuleSerializer
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            self.content.data['modules'],
+            many=True,
+            context={ 'request': request }
+        )
+        response_data = { 'modules': serializer.data }
+        return Response(response_data)
+
+
 class CourseStudentsViewSet(NestedViewSetMixin,
                             MeUserMixin,
                             CourseResourceMixin,
