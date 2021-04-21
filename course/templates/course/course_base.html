@@ -122,7 +122,7 @@
         {% endif %}
         {% block siblings %}{% endblock %}
         {% block breadcrumb %}
-        <ol class="breadcrumb">
+        <ol class="breadcrumb" role="navigation" aria-label="{% trans "Breadcrumb" %}">
             {% block breadcrumblist %}
             <li><a href="{{ instance|url }}">{{ course.code }}</a></li>
             {% endblock %}

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-09 13:46+0300\n"
+"POT-Creation-Date: 2021-04-21 16:00+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -608,6 +608,10 @@ msgstr "Aseta kurssikieleksi %(lang)s"
 #: course/templates/course/course_base.html
 msgid "You can change the language from your profile."
 msgstr "Voit muuttaa kielivalintaa profiilistasi."
+
+#: course/templates/course/course_base.html
+msgid "Breadcrumb"
+msgstr "Linkkipolku"
 
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
@@ -2596,8 +2600,17 @@ msgid "No submissions"
 msgstr "Ei vielä palautuksia"
 
 #: exercise/templates/exercise/staff/analytics.html
+msgid "Module selection"
+msgstr "Moduulin valinta"
+
+#: exercise/templates/exercise/staff/analytics.html
 msgid "All"
 msgstr "Kaikki"
+
+#: exercise/templates/exercise/staff/analytics.html
+#: exercise/templates/exercise/staff/results.html
+msgid "View selection"
+msgstr "Näkymän valinta"
 
 #: exercise/templates/exercise/staff/analytics.html
 msgid "Collective Progress"
