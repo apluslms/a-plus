@@ -145,17 +145,19 @@
 
 
 		<!--Navigation bar to choose how data is shown-->
-		<ul style="margin: 10px 0px 50px 0px;" id="exercise-nav-tabs" class="nav nav-tabs" role="navigation" aria-label="{% trans "View selection" %}">
-			<li id="difficulty-exercises" role="presentation" class="active">
-				<a onclick="createPointTable('difficulty');" data-toggle="tab" href="#">{% trans "Show exercises by difficulty" %}</a>
-			</li>
-			<li id="module-exercises" role="presentation">
-				<a onclick="createPointTable('module');" data-toggle="tab" href="#">{% trans "Show exercises by module" %}</a>
-			</li>
-			<li id="all-exercises" role="presentation">
-				<a onclick="createPointTable('all');" data-toggle="tab" href="#">{% trans "Show all exercises" %}</a>
-			</li>
-		</ul>
+		<div role="navigation" aria-label="{% trans "View selection" %}">
+			<ul style="margin: 10px 0px 50px 0px;" id="exercise-nav-tabs" class="nav nav-tabs">
+				<li id="difficulty-exercises" role="presentation" class="active">
+					<a onclick="createPointTable('difficulty');" data-toggle="tab" href="#">{% trans "Show exercises by difficulty" %}</a>
+				</li>
+				<li id="module-exercises" role="presentation">
+					<a onclick="createPointTable('module');" data-toggle="tab" href="#">{% trans "Show exercises by module" %}</a>
+				</li>
+				<li id="all-exercises" role="presentation">
+					<a onclick="createPointTable('all');" data-toggle="tab" href="#">{% trans "Show all exercises" %}</a>
+				</li>
+			</ul>
+		</div>
 
 
 		<!--Dropdown button for table exports. The buttons are added inside results_staff.js-->
