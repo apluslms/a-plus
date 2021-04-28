@@ -61,8 +61,8 @@
             <td>
                 {% profiles submission.submitters.all instance is_teacher %}
             </td>
-            <td data-datetime="{{ submission.submission_time|date:'Y-m-d H:i' }}">
-                {{ submission.submission_time }}
+            <td data-datetime="{{ submission.submission_time|date:'Y-m-d H:i:s' }}">
+                {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
                 {% if submission.late_penalty_applied %}
                 <span class="label label-warning">
                     {% blocktrans with percent=submission.late_penalty_applied|percent %}

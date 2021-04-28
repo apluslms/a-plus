@@ -66,7 +66,7 @@
 <p id="enrollment-and-tags" class="usertags-container" data-user-id="{{ student.id }}">
   {% for submission in enrollment_submissions %}
   <a href="{{ submission|url }}" class="page-modal">
-    {{ enrollment_exercise }} {{ submission.submission_time }}
+    {{ enrollment_exercise }} {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
   </a>
   {% endfor %}
   &nbsp;

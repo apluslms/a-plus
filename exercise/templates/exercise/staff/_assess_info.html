@@ -25,7 +25,9 @@
             <dt>{% trans "Status" %}</dt>
             <dd>{{ submission.status|submission_status }}</dd>
             <dt>{% trans "Submission time" %}</dt>
-            <dd>{{ submission.submission_time }}</dd>
+            <dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
+            <dt>{% trans "Grading time" %}</dt>
+            <dd>{{ submission.grading_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
             <dt>{% trans "Grade" %}</dt>
             <dd>
                 {{ submission.grade }} / {{ submission.exercise.max_points }}
@@ -41,11 +43,11 @@
                   {% for s in submissions reversed %}
                   <li>
                     {% if s == submission %}
-                    {{ s.submission_time }}
+                    {{ s.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
                     {% points_badge s %}
                     {% else %}
                     <a href="{{ s|url:'submission-inspect' }}">
-                      {{ s.submission_time }}
+                      {{ s.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
                       {% points_badge s %}
                     </a>
                     {% endif %}

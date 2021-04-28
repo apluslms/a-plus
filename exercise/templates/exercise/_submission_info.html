@@ -10,7 +10,7 @@
     <div class="panel-body">
         <dl>
             <dt>{% trans "Submitted on" %}</dt>
-            <dd>{{ submission.submission_time }}</dd>
+            <dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
 
             <dt>{% trans "Status" %}</dt>
             <dd>

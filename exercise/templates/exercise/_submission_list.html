@@ -11,7 +11,7 @@
             {% points_badge submission %}
             {{ submission.exercise }}<br />
             <small class="text-nowrap">
-                {{ submission.submission_time }}
+                {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
             </small>
         </a>
         {% empty %}
