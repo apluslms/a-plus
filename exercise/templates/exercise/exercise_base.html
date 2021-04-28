@@ -18,11 +18,11 @@
 <li><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
 {% for entry in breadcrumb %}
 <li>
-  {% if entry.is_empty %}
-  {{ entry.name|parse_localization }}
-  {% else %}
-  <a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
-  {% endif %}
+	{% if entry.is_empty %}
+	{{ entry.name|parse_localization }}
+	{% else %}
+	<a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
+	{% endif %}
 </li>
 {% endfor %}
 {% block exercisebreadcrumblist %}
@@ -33,97 +33,97 @@
 {% block columns %}
 <div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %} exercise-column">
 
-  {% if exercise.is_submittable %}
-  <ul class="nav nav-tabs">
-      <li class="menu-exercise">
-          <a href="{{ current.link }}">
-              {% trans "Exercise description" %}
-          </a>
-      </li>
-      <li class="dropdown menu-submission">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button"
-              aria-haspopup="true" aria-expanded="false">
-              {% trans "My submissions" %}
-              ({{ summary.get_submission_count }}{% if exercise.max_submissions %}/{{ exercise|max_submissions:profile }}{% endif %})
-              <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-              {% for submission in submissions %}
-              <li>
-                  <a href="{{ submission|url }}">
-                      {{ forloop.revcounter }}.
-                      {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-                      {% points_badge submission %}
-                  </a>
-              </li>
-              {% empty %}
-              <li>
-                  <a href="#">{% trans "No submissions yet" %}</a>
-              </li>
-              {% endfor %}
-          </ul>
-      </li>
-      {% if is_course_staff or is_student and exercise.can_show_model_solutions %}
-      {% comment %} The model solution link is shown even if the student can not
-      open it due to personal extensions. However, this saves some database queries.
-      {% endcomment %}
-      {% if exercise.model_answers %}
-      <li class="menu-model">
-        <a href="{{ exercise|url:'exercise-model' }}">
-          {% trans "Model answer" %}
-        </a>
-      </li>
-      {% endif %}
-      {% endif %}
-      {% if is_course_staff %}
-      <li>
-          <p class="navbar-text navbar-btn">
-              {% if submission %}
-              <a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-                  <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-                  {% trans "Inspect submission" %}
-              </a>
-              {% elif is_teacher %}
-              {% load editcourse %}
-              <a href="{{ exercise|editurl:'exercise' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-                  <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                  {% trans "Edit exercise" %}
-              </a>
-              {% endif %}
-              {% if is_teacher or exercise.allow_assistant_viewing %}
-              <a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-                  <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-                  {% trans "View all submissions" %}
-              </a>
-              {% endif %}
-          </p>
-      </li>
-      {% endif %}
-  </ul>
-  {% endif %}
+	{% if exercise.is_submittable %}
+	<ul class="nav nav-tabs">
+			<li class="menu-exercise">
+					<a href="{{ current.link }}">
+							{% trans "Exercise description" %}
+					</a>
+			</li>
+			<li class="dropdown menu-submission">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button"
+							aria-haspopup="true" aria-expanded="false">
+							{% trans "My submissions" %}
+							({{ summary.get_submission_count }}{% if exercise.max_submissions %}/{{ exercise|max_submissions:profile }}{% endif %})
+							<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+							{% for submission in submissions %}
+							<li>
+									<a href="{{ submission|url }}">
+											{{ forloop.revcounter }}.
+											{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+											{% points_badge submission %}
+									</a>
+							</li>
+							{% empty %}
+							<li>
+									<a href="#">{% trans "No submissions yet" %}</a>
+							</li>
+							{% endfor %}
+					</ul>
+			</li>
+			{% if is_course_staff or is_student and exercise.can_show_model_solutions %}
+			{% comment %} The model solution link is shown even if the student can not
+			open it due to personal extensions. However, this saves some database queries.
+			{% endcomment %}
+			{% if exercise.model_answers %}
+			<li class="menu-model">
+				<a href="{{ exercise|url:'exercise-model' }}">
+					{% trans "Model answer" %}
+				</a>
+			</li>
+			{% endif %}
+			{% endif %}
+			{% if is_course_staff %}
+			<li>
+					<p class="navbar-text navbar-btn">
+							{% if submission %}
+							<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+									<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+									{% trans "Inspect submission" %}
+							</a>
+							{% elif is_teacher %}
+							{% load editcourse %}
+							<a href="{{ exercise|editurl:'exercise' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+									{% trans "Edit exercise" %}
+							</a>
+							{% endif %}
+							{% if is_teacher or exercise.allow_assistant_viewing %}
+							<a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+									<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+									{% trans "View all submissions" %}
+							</a>
+							{% endif %}
+					</p>
+			</li>
+			{% endif %}
+	</ul>
+	{% endif %}
 
-  {% block exercisecontent %}{% endblock %}
+	{% block exercisecontent %}{% endblock %}
 </div>
 
 {% if not exercise.use_wide_column %}
 <div class="col-lg-3">
 
-    {% if exercise.is_submittable %}
-    {% block exerciseinfo %}
-    <div id="exercise-info" data-url="{{ exercise|url:'exercise-info' }}">
-        {% include "exercise/_exercise_info.html" %}
-    </div>
-    {% endblock %}
-    {% endif %}
+		{% if exercise.is_submittable %}
+		{% block exerciseinfo %}
+		<div id="exercise-info" data-url="{{ exercise|url:'exercise-info' }}">
+				{% include "exercise/_exercise_info.html" %}
+		</div>
+		{% endblock %}
+		{% endif %}
 
-    {% if submission %}
-      {% plugin_renderers user submission as plugins %}
-    {% else %}
-      {% plugin_renderers user exercise as plugins %}
-    {% endif %}
-    {% for plugin in plugins %}
-        {{ plugin.render|safe }}
-    {% endfor %}
+		{% if submission %}
+			{% plugin_renderers user submission as plugins %}
+		{% else %}
+			{% plugin_renderers user exercise as plugins %}
+		{% endif %}
+		{% for plugin in plugins %}
+				{{ plugin.render|safe }}
+		{% endfor %}
 </div>
 {% endif %}
 {% endblock %}

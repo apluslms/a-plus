@@ -18,13 +18,13 @@
 <script src="{% static 'js/tag_popover.js' %}"></script>
 <script src="{% static 'course/usertagdropdown.js' %}"></script>
 <script>
-    const api_url = "{% url 'api:course-detail' 2 instance.id %}";
-    const create_tagging_dropdown = get_create_tagging_dropdown_closure({api_url: api_url});
-    $(document).on('aplus:translation-ready', function () {
-        add_colortag_buttons(
-            api_url, document.getElementById('enrollment-and-tags')
-        );
-    });
+		const api_url = "{% url 'api:course-detail' 2 instance.id %}";
+		const create_tagging_dropdown = get_create_tagging_dropdown_closure({api_url: api_url});
+		$(document).on('aplus:translation-ready', function () {
+				add_colortag_buttons(
+						api_url, document.getElementById('enrollment-and-tags')
+				);
+		});
 </script>
 {% endif %}
 {% endblock %}
@@ -38,39 +38,39 @@
 {% block coursecontent %}
 
 <table class="table table-bordered">
-  <tr>
-    <td rowspan="2">
-      <img src="{{ student.userprofile.avatar_url }}" alt="avatar" />
-    </td>
-    <th>{% trans "Student id" %}</th>
-    <th>{% trans "Last name" %}</th>
-    <th>{% trans "First name" %}</th>
-    <th>{% trans "Email" %}</th>
-  </tr>
-  <tr>
-    <td>{{ student.userprofile.student_id }}</td>
-    <td>{{ student.last_name }}</td>
-    <td>{{ student.first_name }}</td>
-    <td>
-      {% if student.email %}
-      <a href="mailto:{{ student.email }}">
-        {{ student.email }}
-      </a>
-      {% else %}
-      {{ student.username }}
-      {% endif %}
-    </td>
-  </tr>
+	<tr>
+		<td rowspan="2">
+			<img src="{{ student.userprofile.avatar_url }}" alt="avatar" />
+		</td>
+		<th>{% trans "Student id" %}</th>
+		<th>{% trans "Last name" %}</th>
+		<th>{% trans "First name" %}</th>
+		<th>{% trans "Email" %}</th>
+	</tr>
+	<tr>
+		<td>{{ student.userprofile.student_id }}</td>
+		<td>{{ student.last_name }}</td>
+		<td>{{ student.first_name }}</td>
+		<td>
+			{% if student.email %}
+			<a href="mailto:{{ student.email }}">
+				{{ student.email }}
+			</a>
+			{% else %}
+			{{ student.username }}
+			{% endif %}
+		</td>
+	</tr>
 </table>
 
 <p id="enrollment-and-tags" class="usertags-container" data-user-id="{{ student.id }}">
-  {% for submission in enrollment_submissions %}
-  <a href="{{ submission|url }}" class="page-modal">
-    {{ enrollment_exercise }} {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-  </a>
-  {% endfor %}
-  &nbsp;
-  {% tags student.userprofile instance %}
+	{% for submission in enrollment_submissions %}
+	<a href="{{ submission|url }}" class="page-modal">
+		{{ enrollment_exercise }} {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+	</a>
+	{% endfor %}
+	&nbsp;
+	{% tags student.userprofile instance %}
 </p>
 
 {% user_results student %}
@@ -83,7 +83,7 @@
 
 {% plugin_renderers student instance "results" as plugins %}
 {% for plugin in plugins %}
-    {{ plugin.render|safe }}
+	{{ plugin.render|safe }}
 {% endfor %}
 
 {% endblock %}

@@ -4,45 +4,45 @@
 {% load static %}
 
 <div class="panel panel-primary">
-    <div class="panel-heading">
-        <h4 class="panel-title">{% trans "Submission info" %}</h4>
-    </div>
-    <div class="panel-body">
-        <dl>
-            <dt>{% trans "Submitted on" %}</dt>
-            <dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
+	<div class="panel-heading">
+		<h4 class="panel-title">{% trans "Submission info" %}</h4>
+	</div>
+	<div class="panel-body">
+		<dl>
+			<dt>{% trans "Submitted on" %}</dt>
+			<dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
 
-            <dt>{% trans "Status" %}</dt>
-            <dd>
-                <span class="label label-{% if submission.is_graded %}success{% else %}default{% endif %}">
-                    {{ submission.status|submission_status }}
-                </span>
-            </dd>
+			<dt>{% trans "Status" %}</dt>
+			<dd>
+				<span class="label label-{% if submission.is_graded %}success{% else %}default{% endif %}">
+					{{ submission.status|submission_status }}
+				</span>
+			</dd>
 
-            <dt>{% trans "Grade" %}</dt>
-            <dd>
-                {{ submission.grade }} / {{ exercise.max_points }}
-            </dd>
+			<dt>{% trans "Grade" %}</dt>
+			<dd>
+				{{ submission.grade }} / {{ exercise.max_points }}
+			</dd>
 
-            {% if submission.late_penalty_applied %}
-            <dt>{% trans "Includes late penalty" %}</dt>
-            <dd>-{{ submission.late_penalty_applied|percent }} %</dd>
-            {% endif %}
+			{% if submission.late_penalty_applied %}
+			<dt>{% trans "Includes late penalty" %}</dt>
+			<dd>-{{ submission.late_penalty_applied|percent }} %</dd>
+			{% endif %}
 
-            <dt>
-                {% trans "Submitters" %}
-            </dt>
-            <dd>
-              {% if is_course_staff %}
-              {% if is_teacher %}
-              <script src="{% static 'django_colortag.js' %}"></script>
-              <script src="{% static 'add_tagging_dropdown.js' %}"></script>
-              {% endif %}
-              {% profiles submission.submitters.all instance is_teacher %}
-              {% else %}
-              {{ submission.submitters.all|names }}
-              {% endif %}
-            </dd>
-        </dl>
-    </div>
+			<dt>
+				{% trans "Submitters" %}
+			</dt>
+			<dd>
+			  {% if is_course_staff %}
+			  {% if is_teacher %}
+			  <script src="{% static 'django_colortag.js' %}"></script>
+			  <script src="{% static 'add_tagging_dropdown.js' %}"></script>
+			  {% endif %}
+			  {% profiles submission.submitters.all instance is_teacher %}
+			  {% else %}
+			  {{ submission.submitters.all|names }}
+			  {% endif %}
+			</dd>
+		</dl>
+	</div>
 </div>

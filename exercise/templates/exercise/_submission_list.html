@@ -2,22 +2,22 @@
 {% load course %}
 {% load exercise %}
 <div class="panel panel-primary">
-    <div class="panel-heading">
-        <h4 class="panel-title">{{ title }}</h4>
-    </div>
-    <div class="list-group">
-        {% for submission in submissions %}
-        <a href="{{ submission|url }}" class="list-group-item">
-            {% points_badge submission %}
-            {{ submission.exercise }}<br />
-            <small class="text-nowrap">
-                {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-            </small>
-        </a>
-        {% empty %}
-        <div class="list-group-item">
-            {{ empty }}
-        </div>
-        {% endfor %}
-    </div>
+	<div class="panel-heading">
+		<h4 class="panel-title">{{ title }}</h4>
+	</div>
+	<div class="list-group">
+		{% for submission in submissions %}
+		<a href="{{ submission|url }}" class="list-group-item">
+			{% points_badge submission %}
+			{{ submission.exercise }}<br />
+			<small class="text-nowrap">
+				{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+			</small>
+		</a>
+		{% empty %}
+		<div class="list-group-item">
+			{{ empty }}
+		</div>
+		{% endfor %}
+	</div>
 </div>

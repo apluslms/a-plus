@@ -5,93 +5,93 @@
 {% with count=submissions.count %}
 
 <div class="clearfix">
-  <div class="pull-right">
-    <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ exercise|url:'submission-summary' }}">
-      <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-      {% trans "Summary" %}
-    </a>
-    <span class="dropdown pull-right">
-      <button
-        class="aplus-button--secondary aplus-button--xs dropdown-toggle"
-        type="button"
-        data-toggle="dropdown"
-        id="download-data"
-      >
-        {% trans "Download" %} <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu" aria-labeledby="download-data">
-        {% get_format_info_list "json csv excel.csv" as formats %}
-        {% for format in formats %}
-        <li>
-          <a href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&amp;format={{ format.name }}">
-            {{ format.verbose_name }}
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
-    </span>
-  </div>
-  <p>
-    {% exercise_text_stats exercise %} |
-    {% if not all and count == default_limit %}
-    {% blocktrans trimmed with limit=default_limit count=count url=all_url %}
-    {{ limit }} latest submissions.
-    <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ url }}">Show all</a>
-    {% endblocktrans %}
-    {% else %}
-    {% blocktrans with count=count %}
-    {{ count }} submissions
-    {% endblocktrans %}
-    {% endif %}
-  </p>
+	<div class="pull-right">
+		<a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ exercise|url:'submission-summary' }}">
+			<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+			{% trans "Summary" %}
+		</a>
+		<span class="dropdown pull-right">
+			<button
+				class="aplus-button--secondary aplus-button--xs dropdown-toggle"
+				type="button"
+				data-toggle="dropdown"
+				id="download-data"
+			>
+				{% trans "Download" %} <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" aria-labeledby="download-data">
+				{% get_format_info_list "json csv excel.csv" as formats %}
+				{% for format in formats %}
+				<li>
+					<a href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&amp;format={{ format.name }}">
+						{{ format.verbose_name }}
+					</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</span>
+	</div>
+	<p>
+		{% exercise_text_stats exercise %} |
+		{% if not all and count == default_limit %}
+		{% blocktrans trimmed with limit=default_limit count=count url=all_url %}
+		{{ limit }} latest submissions.
+		<a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ url }}">Show all</a>
+		{% endblocktrans %}
+		{% else %}
+		{% blocktrans with count=count %}
+		{{ count }} submissions
+		{% endblocktrans %}
+		{% endif %}
+	</p>
 </div>
 <table class="table table-bordered{% if all or count < default_limit %} filtered-table{% endif %}">
-    <thead>
-        <tr>
-            <th>{% trans "Submitters" %}</th>
-            <th>{% trans "Time" %}</th>
-            <th>{% trans "Status" %}</th>
-            <th>{% trans "Grade" %}</th>
-            <th>{% trans "Inspect" %}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for submission in submissions %}
-        <tr>
-            <td>
-                {% profiles submission.submitters.all instance is_teacher %}
-            </td>
-            <td data-datetime="{{ submission.submission_time|date:'Y-m-d H:i:s' }}">
-                {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-                {% if submission.late_penalty_applied %}
-                <span class="label label-warning">
-                    {% blocktrans with percent=submission.late_penalty_applied|percent %}
-                    Late <small>-{{ percent }}%</small>
-                    {% endblocktrans %}
-                </span>
-                {% endif %}
-            </td>
-            <td>
-                {{ submission.status|submission_status }}
-            </td>
-            <td>
-                {{ submission.grade }}
-                {% if submission.assistant_feedback %}
-                <span class="label label-warning">{% trans 'Assistant' %}</span>
-                {% endif %}
-            </td>
-            <td>
-                <a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-                    <span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-                    {% trans "Inspect" %}
-                </a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td class="5">{% trans "No submissions" %}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+		<thead>
+				<tr>
+						<th>{% trans "Submitters" %}</th>
+						<th>{% trans "Time" %}</th>
+						<th>{% trans "Status" %}</th>
+						<th>{% trans "Grade" %}</th>
+						<th>{% trans "Inspect" %}</th>
+				</tr>
+		</thead>
+		<tbody>
+				{% for submission in submissions %}
+				<tr>
+						<td>
+								{% profiles submission.submitters.all instance is_teacher %}
+						</td>
+						<td data-datetime="{{ submission.submission_time|date:'Y-m-d H:i:s' }}">
+								{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+								{% if submission.late_penalty_applied %}
+								<span class="label label-warning">
+										{% blocktrans with percent=submission.late_penalty_applied|percent %}
+										Late <small>-{{ percent }}%</small>
+										{% endblocktrans %}
+								</span>
+								{% endif %}
+						</td>
+						<td>
+								{{ submission.status|submission_status }}
+						</td>
+						<td>
+								{{ submission.grade }}
+								{% if submission.assistant_feedback %}
+								<span class="label label-warning">{% trans 'Assistant' %}</span>
+								{% endif %}
+						</td>
+						<td>
+								<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+										<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+										{% trans "Inspect" %}
+								</a>
+						</td>
+				</tr>
+				{% empty %}
+				<tr>
+						<td class="5">{% trans "No submissions" %}</td>
+				</tr>
+				{% endfor %}
+		</tbody>
 </table>
 {% endwith %}
