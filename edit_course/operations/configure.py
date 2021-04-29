@@ -92,6 +92,12 @@ def parse_choices(value, choices, field_name, errors):
     return parsed_value
 
 
+def remove_newlines(value):
+    # Replace all newlines with a space.
+    # \r\n is done first to avoid two consecutive spaces.
+    return value.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
+
+
 def configure_learning_objects(category_map, module, config, parent,
         seen, errors, n=0):
     if not isinstance(config, list):
@@ -238,9 +244,9 @@ def configure_learning_objects(category_map, module, config, parent,
             words = { 'internal':1, 'external':2, 'registered':3 }
             lobject.audience = words.get(o['audience'], 0)
         if "title" in o:
-            lobject.name = format_localization(o["title"])
+            lobject.name = remove_newlines(format_localization(o["title"]))
         elif "name" in o:
-            lobject.name = format_localization(o["name"])
+            lobject.name = remove_newlines(format_localization(o["name"]))
         if not lobject.name:
             lobject.name = "-"
         if "description" in o:
