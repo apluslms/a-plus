@@ -540,9 +540,6 @@ def configure_content(instance, url):
                 None, seen_objects, errors, nn)
 
     for module in list(instance.course_modules.all()):
-        if not module.id in seen_modules:
-            module.status = CourseModule.STATUS.HIDDEN
-            module.save()
         for lobject in list(module.learning_objects.all()):
             if not lobject.id in seen_objects:
                 exercise = lobject.as_leaf_class()
@@ -555,6 +552,12 @@ def configure_content(instance, url):
                     lobject.status = LearningObject.STATUS.HIDDEN
                     lobject.order = 9999
                     lobject.save()
+        if not module.id in seen_modules:
+            if module.learning_objects.count() == 0:
+                module.delete()
+            else:
+                module.status = CourseModule.STATUS.HIDDEN
+                module.save()
 
     # Clean up obsolete categories.
     for category in instance.categories.filter(status=LearningObjectCategory.STATUS.HIDDEN):
