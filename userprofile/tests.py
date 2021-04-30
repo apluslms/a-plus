@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
+from django.conf import settings
 
 from course.models import Course, CourseInstance
 from exercise.models import LearningObjectCategory
@@ -16,6 +17,7 @@ class UserProfileTest(TestCase):
         self.student.save()
         self.student_profile = self.student.userprofile
         self.student_profile.student_id = "12345X"
+        self.student_profile.organization = settings.LOCAL_ORGANIZATION
         self.student_profile.save()
 
         self.grader = User(username="grader", first_name="Grumpy", last_name="Grader", email="grader@aplus.com")
@@ -23,6 +25,7 @@ class UserProfileTest(TestCase):
         self.grader.save()
         self.grader_profile = self.grader.userprofile
         self.grader_profile.student_id = "67890Y"
+        self.grader_profile.organization = settings.LOCAL_ORGANIZATION
         self.grader_profile.save()
 
         self.teacher = User(username="teacher", first_name="Tedious", last_name="Teacher", email="teacher@aplus.com", is_staff=True)

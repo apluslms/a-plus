@@ -4,6 +4,7 @@ from course.models import Course, CourseInstance, CourseModule,\
 from exercise.exercise_models import StaticExercise
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.conf import settings
 from datetime import timedelta
 
 
@@ -14,6 +15,7 @@ class RedirectTest(TestCase):
         self.user.set_password("testPassword")
         self.user.save()
         self.user.userprofile.student_id = '123456'
+        self.user.userprofile.organization = settings.LOCAL_ORGANIZATION
         self.user.userprofile.save()
         self.course = Course.objects.create(
             name="test course",

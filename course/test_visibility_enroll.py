@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 from django.utils import timezone
+from django.conf import settings
 
 from course.models import Course, CourseInstance, CourseModule, \
     LearningObjectCategory
@@ -22,12 +23,14 @@ class CourseVisibilityTest(TestCase):
         self.user.set_password("testUser")
         self.user.save()
         self.user.userprofile.student_id = '123456'
+        self.user.userprofile.organization = settings.LOCAL_ORGANIZATION
         self.user.userprofile.save()
 
         self.student = User(username="student") # enrolled in the course
         self.student.set_password("student")
         self.student.save()
         self.student.userprofile.student_id = '654321'
+        self.student.userprofile.organization = settings.LOCAL_ORGANIZATION
         self.student.userprofile.save()
 
         self.course = Course.objects.create(

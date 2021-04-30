@@ -16,6 +16,7 @@ DEF_SHIBD_META = {
     'TESTSHIB_sn': "Teekkari",
     'TESTSHIB_mail': "teemu.teekkari@first.invalid",
     'TESTSHIB_preferredLanguage': 'en',
+    'TESTSHIB_schacHomeOrganization': 'first.invalid',
     'TESTSHIB_schacPersonalUniqueCode': shib_join(
         'urn:mace:example.invalid:schac:personalUniqueCode:int:libraryID:first.invalid:999999',
         'urn:mace:example.invalid:schac:personalUniqueCode:int:studentID:first.invalid:123453',
@@ -47,6 +48,7 @@ class ShibbolethTest(TestCase):
         self.user.set_unusable_password()
         self.user.save()
         self.user.userprofile.student_id = '000'
+        self.user.userprofile.organization = 'first.invalid'
         self.user.userprofile.save()
 
         self.login_url = reverse('shibboleth-login')
@@ -103,6 +105,7 @@ class ShibbolethTest(TestCase):
         for domain, studentid in tests:
             with self.subTest(domain=domain, studentid=studentid):
                 env_vars['STUDENT_DOMAIN'] = domain
+                meta['TESTSHIB_schacHomeOrganization'] = domain 
                 with override_settings(SHIBBOLETH_ENVIRONMENT_VARS=env_vars):
                     response = self._get(meta)
                 self.assertEqual(response.status_code, 302)
@@ -181,6 +184,7 @@ class ShibbolethTest(TestCase):
         meta['TESTSHIB_eppn'] = self.user.username
         env_vars = ENV_VARS.copy()
         env_vars['STUDENT_DOMAIN'] = 'second.invalid'
+        meta['TESTSHIB_schacHomeOrganization'] = 'second.invalid'
         with override_settings(SHIBBOLETH_ENVIRONMENT_VARS=env_vars):
 
             response = self._get(meta)
