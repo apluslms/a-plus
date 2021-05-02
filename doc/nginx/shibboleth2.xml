@@ -64,6 +64,17 @@
 
 			<!-- JSON feed of discovery information. -->
 			<Handler type="DiscoveryFeed" Location="/DiscoFeed"/>
+
+			<!-- Login straight to Aalto IdP -->
+			<SessionInitiator type="SAML2" entityID="https://idp.aalto.fi/idp/shibboleth" id="aalto" Location="/login"
+				isDefault="true" template="bindingTemplate.html"/>
+
+			<!-- Login through Haka DS -->
+			<SessionInitiator type="Chaining" id="haka" Location="/haka_login" isDefault="false">
+				<SessionInitiator type="SAML2" template="bindingTemplate.html"/>
+				<SessionInitiator type="SAMLDS" URL="https://haka.funet.fi/shibboleth/WAYF"/>
+			</SessionInitiator>
+
 		</Sessions>
 
 		<Errors supportContact="webmaster@__HOSTNAME__" helpLocation="/about.html" styleSheet="/shibboleth-sp/main.css"/>
