@@ -166,6 +166,13 @@ class CourseTeachersForm(forms.ModelForm):
 class CloneInstanceForm(forms.Form):
     url = forms.CharField(label=_("New URL identifier for the course instance:"),
         validators=[generate_url_key_validator()])
+    assistants = forms.BooleanField(label=_("Assistants"), required=False, initial=True)
+    categories = forms.BooleanField(label=_("Exercise categories"), required=False, initial=True)
+    modules = forms.BooleanField(label=_("Course modules"), required=False, initial=True)
+    chapters = forms.BooleanField(label=_("Content chapters"), required=False, initial=True)
+    exercises = forms.BooleanField(label=_("Exercises"), required=False, initial=True)
+    menuitems = forms.BooleanField(label=_("Menu items"), required=False, initial=True)
+    usertags = forms.BooleanField(label=_("Student tags"), required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
@@ -177,6 +184,22 @@ class CloneInstanceForm(forms.Form):
                 course=self.instance.course, url=url).exists():
             raise ValidationError(_("The URL is already taken."))
         return url
+
+    def clean(self):
+        errors = {}
+        if self.cleaned_data['chapters'] or self.cleaned_data['exercises']:
+            if not self.cleaned_data['categories']:
+                errors['categories'] = _(
+                    "Can't clone chapters and exercises without cloning exercise categories."
+                )
+            if not self.cleaned_data['modules']:
+                errors['modules'] = _(
+                    "Can't clone chapters and exercises without cloning course modules."
+                )
+
+        if errors:
+            raise ValidationError(errors)
+
 
 class UserTagForm(ColorTagForm):
 

@@ -323,7 +323,17 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         from .operations.clone import clone
-        instance = clone(self.instance, form.cleaned_data['url'])
+        instance = clone(
+            instance=self.instance,
+            url=form.cleaned_data['url'],
+            clone_assistants=form.cleaned_data['assistants'],
+            clone_usertags=form.cleaned_data['usertags'],
+            clone_categories=form.cleaned_data['categories'],
+            clone_modules=form.cleaned_data['modules'],
+            clone_chapters=form.cleaned_data['chapters'],
+            clone_exercises=form.cleaned_data['exercises'],
+            clone_menuitems=form.cleaned_data['menuitems'],
+        )
         messages.success(self.request, _("Course instance is now cloned."))
         return self.redirect(instance.get_url('course-details'))
 

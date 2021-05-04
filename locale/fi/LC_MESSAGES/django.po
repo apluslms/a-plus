@@ -1064,8 +1064,28 @@ msgid "New URL identifier for the course instance:"
 msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
 
 #: edit_course/course_forms.py
+msgid "Assistants"
+msgstr "Assistentit"
+
+#: edit_course/course_forms.py
+msgid "Content chapters"
+msgstr "Sisältökappaleet"
+
+#: edit_course/course_forms.py
+msgid "Exercises"
+msgstr "Harjoitukset"
+
+#: edit_course/course_forms.py
 msgid "The URL is already taken."
 msgstr "URL on jo käytössä."
+
+#: edit_course/course_forms.py
+msgid "Can't clone chapters and exercises without cloning exercise categories."
+msgstr "Kappaleita ja harjoituksia ei voi kopioida ilman tehtäväkategorioita."
+
+#: edit_course/course_forms.py
+msgid "Can't clone chapters and exercises without cloning course modules."
+msgstr "Kappaleita ja harjoituksia ei voi kopioida ilman kurssimoduuleja."
 
 #: edit_course/exercise_forms.py
 msgid "Grading"
@@ -1323,13 +1343,12 @@ msgstr "Kloonaa kurssi"
 #: edit_course/templates/edit_course/clone_instance.html
 msgid ""
 "\n"
-"        This action will clone all course modules and exercises into a new "
+"        This action will clone the course and the selected data into a new "
 "instance.\n"
 "        "
 msgstr ""
 "\n"
-"Tämä toiminto kopioi kaikki kurssimoduulit ja harjoitukset uuteen "
-"kurssikertaan."
+"Tämä toiminto kopioi kurssin sekä valitut tiedot uuteen kurssikertaan."
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "Clone into new instance"
@@ -1359,6 +1378,7 @@ msgstr "Hae uusin käännösloki"
 msgid "Previous modification of this course instance took place at"
 msgstr "Kurssia on viimeksi muokattu"
 
+#: edit_course/course_forms.py
 #: edit_course/templates/edit_course/edit_content.html
 msgid "Exercise categories"
 msgstr "Tehtäväkategoriat"
@@ -1371,6 +1391,7 @@ msgstr "Muokkaa kategoriaa"
 msgid "Add new category"
 msgstr "Lisää uusi kategoria"
 
+#: edit_course/course_forms.py
 #: edit_course/templates/edit_course/edit_content.html
 msgid "Course modules"
 msgstr "Kurssimoduulit"
@@ -1655,6 +1676,7 @@ msgstr "Muokkaa opiskelijamerkintää"
 msgid "Add new student tag"
 msgstr "Lisää uusi opiskelijamerkintä"
 
+#: edit_course/course_forms.py
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "Student tags"
 msgstr "Opiskelijamerkinnät"
@@ -3407,10 +3429,11 @@ msgstr ""
 msgid "Add menu item"
 msgstr "Lisää linkki"
 
+#: edit_course/course_forms.py
 #: external_services/templates/external_services/edit_menu.html
 #: external_services/templates/external_services/list_menu.html
 msgid "Menu items"
-msgstr "Menun linkit"
+msgstr "Valikon linkit"
 
 #: external_services/templates/external_services/list_menu.html
 msgid "Link"

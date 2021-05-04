@@ -17,7 +17,33 @@ class CourseCloneTest(CourseTestCase):
 
         url = instance.get_url('course-clone')
         self.client.login(username='testTeacher', password='testPassword')
-        response = self.client.post(url, { 'url': 'another' }, follow=True)
+
+        # Full clone
+        response = self.client.post(url, {
+            'url': 'another1',
+            'assistants': True,
+            'categories': True,
+            'modules': True,
+            'chapters': True,
+            'exercises': True,
+            'menuitems': True,
+            'usertags': True,
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "alert alert-danger")
+        self.assertContains(response, "alert alert-success")
+
+        # Partial clone
+        response = self.client.post(url, {
+            'url': 'another2',
+            'assistants': False,
+            'categories': False,
+            'modules': True,
+            'chapters': False,
+            'exercises': False,
+            'menuitems': False,
+            'usertags': False,
+        }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "alert alert-danger")
         self.assertContains(response, "alert alert-success")
@@ -29,14 +55,15 @@ class CourseCloneTest(CourseTestCase):
         self.assertEqual(self._as_id(instance.assistants.all()), assistant_names)
         self.assertEqual(self._as_names(instance.course_modules.all()), module_names)
 
-        new_instance = CourseInstance.objects.get(course=instance.course, url="another")
-        self.assertEqual(str(new_instance), instance_str)
-        self.assertFalse(new_instance.visible_to_students)
-        self.assertEqual(self._as_id(new_instance.assistants.all()), assistant_names)
-        self.assertEqual(self._as_names(new_instance.course_modules.all()), module_names)
+        # Check the full clone
+        new_instance_1 = CourseInstance.objects.get(course=instance.course, url="another1")
+        self.assertEqual(str(new_instance_1), instance_str)
+        self.assertFalse(new_instance_1.visible_to_students)
+        self.assertEqual(self._as_id(new_instance_1.assistants.all()), assistant_names)
+        self.assertEqual(self._as_names(new_instance_1.course_modules.all()), module_names)
 
         old_modules = list(instance.course_modules.all())
-        new_modules = list(new_instance.course_modules.all())
+        new_modules = list(new_instance_1.course_modules.all())
         self.assertEqual(len(old_modules), len(new_modules))
         for i in range(len(old_modules)):
             self.assertEqual(old_modules[i].url, new_modules[i].url)
@@ -53,6 +80,19 @@ class CourseCloneTest(CourseTestCase):
         new_exercise = new_modules[1].learning_objects.first().as_leaf_class()
         self.assertTrue(old_exercise.submissions.count() > 0)
         self.assertEqual(new_exercise.submissions.count(), 0)
+
+        # Check the partial clone
+        new_instance_2 = CourseInstance.objects.get(course=instance.course, url="another2")
+        self.assertEqual(str(new_instance_2), instance_str)
+        self.assertFalse(new_instance_2.visible_to_students)
+        self.assertEqual(new_instance_2.assistants.count(), 0)
+        self.assertEqual(self._as_names(new_instance_2.course_modules.all()), module_names)
+
+        new_modules = list(new_instance_2.course_modules.all())
+        self.assertEqual(len(old_modules), len(new_modules))
+        for i in range(len(old_modules)):
+            self.assertEqual(old_modules[i].url, new_modules[i].url)
+            self.assertEqual(new_modules[i].learning_objects.count(), 0)
 
     def _as_id(self, items):
         return [a.id for a in items]
