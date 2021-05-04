@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
 from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import format_lazy
@@ -174,6 +175,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     LearningObject.STATUS.ENROLLMENT_EXTERNAL,
                 ) and new_submission.status == Submission.STATUS.READY:
                     self.instance.enroll_student(self.request.user)
+                    message = render_to_string(
+                        'exercise/_enrollment_success.html',
+                        {'instance': self.instance}
+                    )
+                    messages.success(request, message)
 
                 # Redirect non AJAX normally to submission page.
                 if not request.is_ajax() and "__r" not in request.GET:

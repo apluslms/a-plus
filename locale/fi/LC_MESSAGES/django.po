@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-21 16:00+0300\n"
+"POT-Creation-Date: 2021-05-04 16:21+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -2165,6 +2165,15 @@ msgstr "Ei vaikuta arvosteluun"
 #: exercise/templates/exercise/_category_points.html
 msgid "Total points"
 msgstr "Yhteispisteet"
+
+#: exercise/templates/exercise/_enrollment_success.html
+msgid ""
+"You have successfully enrolled in the course!"
+msgstr "Kurssille ilmoittautuminen onnistui!"
+
+#: exercise/templates/exercise/_enrollment_success.html
+msgid "Course front page"
+msgstr "Kurssin etusivu"
 
 #: exercise/templates/exercise/_exercise_info.html
 msgid "Current status"
