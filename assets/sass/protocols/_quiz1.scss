@@ -4,6 +4,8 @@
 
 /* Questionnaire uses also error-summary-class from "components/error_summary" */
 
+$questionnaire-focus-bg: #bce8f1;
+
 .exercise .aplus-quiz1 {
 	.question-area {
 		margin-top: 20px;
@@ -71,6 +73,29 @@
 
 		&:before {
 			content: "\e014";
+		}
+	}
+
+	/* Highlight the selected option with a background rectangle, and enlarge it on click */
+	.checkbox,
+	.radio {
+		label {
+			input + span {
+				border-radius: 1px;
+				margin-left: 5px;
+			}
+
+			input:checked + span {
+				background-color: $questionnaire-focus-bg;
+				box-shadow: 0 0 0 3px $questionnaire-focus-bg;
+				font-weight: bold;
+			}
+
+			&:active input + span {
+				background-color: $questionnaire-focus-bg;
+				box-shadow: 0 0 0 6px $questionnaire-focus-bg;
+				font-weight: bold;
+			}
 		}
 	}
 }
