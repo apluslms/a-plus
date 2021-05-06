@@ -21,8 +21,15 @@ def _post_async_submission(request, exercise, submission, errors=None):
     if not errors:
         errors = []
 
+    # The feedback field may contain null characters, which would invalidate
+    # the form before its clean method is executed. So replace them beforehand.
+    post_data = request.POST.copy()
+    feedback = post_data.get('feedback')
+    if feedback:
+        post_data['feedback'] = feedback.replace('\x00', '\\x00')
+
     # Use form to parse and validate the request.
-    form = SubmissionCallbackForm(request.POST)
+    form = SubmissionCallbackForm(post_data)
     errors.extend(extract_form_errors(form))
     if not form.is_valid():
         submission.feedback = _(
@@ -48,7 +55,7 @@ def _post_async_submission(request, exercise, submission, errors=None):
         submission.set_points(form.cleaned_data["points"],
                               form.cleaned_data["max_points"])
         submission.feedback = form.cleaned_data["feedback"]
-        submission.grading_data = request.POST
+        submission.grading_data = post_data
 
         if form.cleaned_data["error"]:
             submission.set_error()
