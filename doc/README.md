@@ -143,6 +143,7 @@ Therefore they are run and updated outside the containers, within a virtual envi
 - Firefox browser installed
 - python3 installed
 - [Python module venv (or virtualenv)](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#installing-virtualenv) installed
+- For translations: gettext (`aptdcon --install gettext` or `sudo apt-get install gettext`)
 
 1. Create a virtual environment for a-plus and activate it:
 
