@@ -261,6 +261,7 @@ LANGUAGE_CODE = 'en-gb'
 LANGUAGES = [
     ('en', 'English'),
     ('fi', 'Finnish'),
+    ('sv', 'Swedish'),
 ]
 TIME_ZONE = 'EET'
 USE_I18N = True
