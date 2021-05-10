@@ -36,6 +36,18 @@ from .full_serializers import *
 class CourseViewSet(ListSerializerMixin,
                     CourseResourceMixin,
                     viewsets.ReadOnlyModelViewSet):
+    """
+    The `courses` endpoint returns information about all course instances.
+
+    Operations
+    ----------
+
+    `GET /courses/`:
+        returns a list of all courses.
+
+    `GET /courses/<course_id>/`:
+        returns the details of a specific course.
+    """
     lookup_url_kwarg = 'course_id'
     lookup_value_regex = REGEX_INT
     listserializer_class = CourseBriefSerializer
@@ -54,6 +66,19 @@ class CourseExercisesViewSet(NestedViewSetMixin,
                              CourseModuleResourceMixin,
                              CourseResourceMixin,
                              viewsets.ReadOnlyModelViewSet):
+    """
+    The `exercises` endpoint returns information about the course modules
+    defined in the course instance, and the exercises defined in those modules.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/exercises/`:
+        returns a list of all modules and their exercises.
+
+    `GET /courses/<course_id>/exercises/<exercisemodule_id>/`:
+        returns the details and exercises of a specific module.
+    """
     lookup_url_kwarg = 'exercisemodule_id'
     lookup_value_regex = REGEX_INT
     parent_lookup_map = {'course_id': 'course_instance.id'}
@@ -71,12 +96,21 @@ class CourseExercisesViewSet(NestedViewSetMixin,
 class CourseExerciseTreeViewSet(CourseResourceMixin,
                                 viewsets.ViewSet):
     """
-    This viewset returns the chapters and exercises of the course in a tree-like
-    structure. To build the tree, it uses the `CachedContent` class, which
-    contains the course's chapters and exercises in a hierarchical structure.
-    The CachedContent instance is accessed through the `self.content` attribute,
-    which is defined in the `CourseInstanceBaseMixin` base class.
+    The `tree` endpoint returns the modules, chapters and exercises of the
+    course in a sorted tree-like structure.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/tree/`:
+        returns the tree.
     """
+
+    # To build the tree, this viewset uses the `CachedContent` class, which
+    # contains the course's chapters and exercises in a hierarchical structure.
+    # The CachedContent instance is accessed through the `self.content`
+    # attribute, which is defined in the `CourseInstanceBaseMixin` base class.
+
     serializer_class = TreeCourseModuleSerializer
 
     def list(self, request, *args, **kwargs):
@@ -93,6 +127,22 @@ class CourseStudentsViewSet(NestedViewSetMixin,
                             MeUserMixin,
                             CourseResourceMixin,
                             viewsets.ReadOnlyModelViewSet):
+    """
+    The `students` endpoint returns information about the students that have
+    enrolled in the course.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/students/`:
+        returns a list of all students.
+
+    `GET /courses/<course_id>/students/<user_id>/`:
+        returns the details of a specific student.
+
+    `GET /courses/<course_id>/students/me/`:
+        returns the details of the current user.
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
     ]
@@ -117,6 +167,32 @@ class CourseUsertagsViewSet(NestedViewSetMixin,
                             mixins.DestroyModelMixin,
                             mixins.ListModelMixin,
                             viewsets.GenericViewSet):
+    """
+    The `usertags` endpoint returns information about the student tags defined
+    in the course, and can also create and delete student tags.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/usertags/`:
+        returns a list of all student tags.
+
+    `GET /courses/<course_id>/usertags/<usertag_id>/`:
+        returns the details of a specific student tag.
+
+    `POST /courses/<course_id>/usertags/`:
+        creates a new student tag.
+
+    - Body data:
+        - `slug`
+        - `name`
+        - `description`
+        - `visible_to_students`
+        - `color`
+
+    `DELETE /courses/<course_id>/usertags/<usertag_id>/`:
+        deletes a specific student tag.
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         OnlyCourseTeacherPermission,
     ]
@@ -151,6 +227,42 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
                                 mixins.DestroyModelMixin,
                                 mixins.ListModelMixin,
                                 viewsets.GenericViewSet):
+    """
+    The `taggings` endpoint returns information about the student tags applied
+    to the student of the course, and can also apply tags to users and remove
+    them.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/taggings/`:
+        returns a list of all student taggings.
+
+    `GET /courses/<course_id>/taggings/<usertag_id>/`:
+        returns the details of a specific student tagging.
+
+    `POST /courses/<course_id>/taggings/`:
+        creates a new student tagging.
+
+    - Body data:
+        - `tag.slug`
+        - One of:
+            - `user.id`
+            - `user.student_id`
+            - `user.username`
+            - `user.email`
+
+    `DELETE /courses/<course_id>/taggings/`:
+        deletes a user tag from one or more students.
+
+    - URL parameters:
+        - `tag_id`: id of the tag to be deleted
+        - `user_id`: id of the student from which the tag will be deleted
+            (repeated for each student)
+
+    `DELETE /courses/<course_id>/taggings/<usertag_id>/`:
+        deletes a specific student tagging.
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         OnlyCourseTeacherPermission,
     ]
@@ -208,8 +320,19 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
 class CourseOwnStudentGroupsViewSet(NestedViewSetMixin,
                                     CourseResourceMixin,
                                     viewsets.ReadOnlyModelViewSet):
-    """List the user's own student groups in a course instance.
-    Teachers receive only their own groups as well.
+    """
+    The `mygroups` endpoint returns information about the user's own student
+    groups defined in the course. Teachers receive only their own groups as
+    well.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/mygroups/`:
+        returns a list of all groups.
+
+    `GET /courses/<course_id>/mygroups/<id>/`:
+        returns the details of a specific group.
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         OnlyEnrolledStudentOrCourseStaffPermission,
@@ -227,6 +350,19 @@ class CourseOwnStudentGroupsViewSet(NestedViewSetMixin,
 class CourseStudentGroupsViewSet(NestedViewSetMixin,
                                  CourseResourceMixin,
                                  viewsets.ReadOnlyModelViewSet):
+    """
+    The `mygroups` endpoint returns information about all student groups
+    defined in the course.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/groups/`:
+        returns a list of all groups.
+
+    `GET /courses/<course_id>/groups/<id>/`:
+        returns the details of a specific group.
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         OnlyCourseTeacherPermission,
     ]

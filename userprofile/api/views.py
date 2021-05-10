@@ -15,6 +15,21 @@ from .full_serializers import *
 class UserViewSet(ListSerializerMixin,
                   MeUserMixin,
                   viewsets.ReadOnlyModelViewSet):
+    """
+    The `users` endpoint returns information about all users.
+
+    Operations
+    ----------
+
+    `GET /users/`:
+        returns a list of all users.
+
+    `GET /users/<user_id>/`:
+        returns the details of a specific user.
+
+    `GET /users/me/`:
+        returns the details of the current user.
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsTeacherOrAdminOrSelf,
     ]
@@ -36,8 +51,13 @@ class UserViewSet(ListSerializerMixin,
 
 class MeDetail(APIView):
     """
-    Url for checking that student has given correct arguments for plugin and
-    GETting student information such as student id, enrolled course, /api/v2/me
+    The `me` endpoint returns information about the current user.
+
+    Operations
+    ----------
+
+    `GET /me/`:
+        returns the details of the current user.
     """
     def get(self, request, version, format=None):
         userinstance = self.request.user.userprofile

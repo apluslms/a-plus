@@ -26,12 +26,29 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
                                   CourseResourceMixin,
                                   viewsets.ReadOnlyModelViewSet):
     """
-    Lists submissions as data sheet.
-    Following GET parameters may be used to filter submissions:
-    number, category_id, module_id, exercise_id,
-    filter (N.N where first module id, then optional exercise ids),
-    best ("no" includes all different submissions from same submitters),
-    field (a name of submitted value field to generate a simple value list)
+    The `submissiondata` endpoint returns information in CSV format about the
+    users' submissions in exercises in the course.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/submissiondata/`:
+        returns the submission data of all users as CSV.
+
+    `GET /courses/<course_id>/submissiondata/<user_id>`:
+        returns the submission data of a specific user as CSV.
+
+    `GET /courses/<course_id>/submissiondata/me`:
+        returns the submission data of the current user as CSV.
+
+    All operations support the following URL parameters for filtering:
+
+    - `filter`: the exercise number as a string, including module and chapter numbers
+        (format N.N.N)
+    - `category_id`: id of the exercise category
+    - `module_id`: id of the course module
+    - `exercise_id`: id of the exercise
+    - `best`: "yes" or "no"; "no" includes all different submissions from same submitters
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
@@ -110,10 +127,28 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
                                  CourseResourceMixin,
                                  viewsets.ReadOnlyModelViewSet):
     """
-    List aggregate submission data as data sheet.
-    Following GET parameters may be used to filter submissions:
-    category_id, module_id, exercise_id,
-    filter (N.N where first module id, then optional exercise ids)
+    The `aggregatedata` endpoint returns aggregate information in CSV format
+    about the users' submissions in exercises in the course.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/aggregatedata/`:
+        returns the aggregate submission data of all users as CSV.
+
+    `GET /courses/<course_id>/aggregatedata/<user_id>`:
+        returns the aggregate submission data of a specific user as CSV.
+
+    `GET /courses/<course_id>/aggregatedata/me`:
+        returns the aggregate submission data of the current user as CSV.
+
+    All operations support the following URL parameters for filtering:
+
+    - `filter`: the exercise number as a string, including module and chapter numbers
+        (format N.N.N)
+    - `category_id`: id of the exercise category
+    - `module_id`: id of the course module
+    - `exercise_id`: id of the exercise
     """
     # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [

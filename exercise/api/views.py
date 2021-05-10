@@ -63,9 +63,18 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
                       ExerciseResourceMixin,
                       viewsets.GenericViewSet):
     """
-    Url for GETting information about an exercise. (List of exercises can be
-    fetched from /api/v2/courses/1/exercices)
-    /api/v2/exercises/{exercise_id} (/api/v2/exercises/ does not actually exist)
+    The `exercises` endpoint returns information about a single exercise. This
+    endpoint cannot be used for getting a list of all exercises. For that
+    purpose, use `/courses/<course_id>/exercises/`.
+
+    Operations
+    ----------
+
+    `GET /exercises/<exercise_id>/`:
+        returns the details of a specific exercise.
+
+    `POST /exercises/<exercise_id>/grader/`:
+        used by automatic graders when grading a submission.
     """
     lookup_field = 'id'
     lookup_url_kwarg = 'exercise_id'
@@ -143,11 +152,45 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                                  mixins.ListModelMixin,
                                  viewsets.GenericViewSet):
     """
-    * /api/v2/exercises/{exercise_id}/submissions
-    * POST: Make a submission. Returns brief information about submission
-    (including link to submission resource: /api/v2/exercises/{exercise_id}/
-    submissions/{submissions_id})
-    * GET: User can also get his old submission with GET.
+    The `submissions` endpoint returns information about the submissions of an
+    exercise. Can also be used for creating new submissions and submitting them
+    for grading.
+
+    Operations
+    ----------
+
+    `GET /exercises/<exercise_id>/submissions/`:
+        returns a list of all submissions.
+
+    `GET /exercises/<exercise_id>/submissions/<user_id>/`:
+        returns a list of a specific user's submissions.
+
+    `GET /exercises/<exercise_id>/submissions/me/`:
+        returns a list of the current user's submissions.
+
+    `POST /exercises/<exercise_id>/submissions/`:
+        creates a new submission. Only for teachers.
+
+    - Body data:
+        - One of:
+            - `students`
+            - `students_by_user_id`
+            - `students_by_student_id`
+            - `students_by_email`
+        - `feedback`
+        - `assistant_feedback`
+        - `grading_data`
+        - `points`
+        - `submission_time`
+
+    `POST /exercises/<exercise_id>/submissions/submit/`:
+        submits a new submission for grading. Students are allowed to use this
+        endpoint. The body data is used as submission data and files may be
+        uploaded too.
+
+    - Body data:
+        - `_aplus_group`: group id when submitting as a group
+        - Remaining key-value pairs match questions and their answers.
     """
     filter_backends = (
         SubmissionVisibleFilter,
@@ -234,11 +277,6 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         methods=['post'],
     )
     def submit(self, request, *args, **kwargs):
-        """Submit a new solution to the exercise for grading.
-        Students are allowed to submit via this endpoint. In a group submission,
-        the student group ID is defined with the POST parameter _aplus_group.
-        The POST data is used as the submission data and files may be uploaded too.
-        """
         # Stop submit trials for e.g. chapters.
         # However, allow posts from exercises switched to maintenance status.
         if not self.exercise.is_submittable:
@@ -311,8 +349,21 @@ class ExerciseSubmitterStatsViewSet(ListSerializerMixin,
                                     ExerciseResourceMixin,
                                     viewsets.ReadOnlyModelViewSet):
     """
-    Viewset contains info about exercise stats per user
-    this includes current grade and submission count
+    The `submitter_stats` endpoint returns statistical information about the
+    students' submissions in this exercise, including current grade and
+    submission count.
+
+    Operations
+    ----------
+
+    `GET /exercises/<exercise_id>/submitter_stats/`:
+        returns a list of all users.
+
+    `GET /exercises/<exercise_id>/submitter_stats/<user_id>/`:
+        returns a specific user's submission statistics.
+
+    `GET /exercises/<exercise_id>/submitter_stats/me/`:
+        returns the current user's submission statistics.
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
@@ -334,9 +385,19 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
                         SubmissionResourceMixin,
                         viewsets.GenericViewSet):
     """
-    Interface to exercise submission model.
-    Listing all submissions is not allowed (as there is no point),
-    but are linked from exercises tree (`/exercise/<id>/submissions/`).
+    The `submissions` endpoint returns information about a single submissions
+    in an exercise. This endpoint cannot be used for listing all submissions.
+    To view a list of all submissions in an exercise, use
+    `/exercises/<exercise_id>/submissions/`.
+
+    Operations
+    ----------
+
+    `GET /submissions/<submission_id>/`:
+        returns the details of a specific submission.
+
+    `GET /submissions/<submission_id>/grader/`:
+        used by automatic graders when grading a submission.
     """
     lookup_field = 'id'
     lookup_url_kwarg = 'submission_id'
@@ -383,6 +444,16 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
 class SubmissionFileViewSet(NestedViewSetMixin,
                             SubmissionResourceMixin,
                             viewsets.ReadOnlyModelViewSet):
+    """
+    The `files` endpoint is used for downloading files sent as attachments of a
+    submission.
+
+    Operations
+    ----------
+
+    `GET /submissions/<submission_id>/files/<submittedfile_id>`:
+        returns the details of a specific file.
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         SubmittedFileVisiblePermission,
     ]
@@ -413,6 +484,22 @@ class CoursePointsViewSet(ListSerializerMixin,
                           MeUserMixin,
                           CourseResourceMixin,
                           viewsets.ReadOnlyModelViewSet):
+    """
+    The `points` endpoint returns information about the points earned in the
+    course by the user.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/points/`:
+        returns a list of all users.
+
+    `GET /courses/<course_id>/points/<user_id>/`:
+        returns a list of a specific user's points.
+
+    `GET /courses/<course_id>/points/me/`:
+        returns a list of the current user's points.
+    """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
     ]
