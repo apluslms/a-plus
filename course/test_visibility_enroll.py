@@ -273,10 +273,10 @@ class CourseVisibilityTest(TestCase):
         # should redirect to A+ login
         response = self.client.get(url)
         self.assertRedirects(response, '/accounts/login/?next=' + url)
-        # unenrolled logged-in user should not see the module page
+        # unenrolled logged-in user should be redirected to enrollment page
         self.assertTrue(self.client.login(username=self.user.username, password='testUser'))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.enrolled_course_instance.get_url('enroll'))
         self.client.logout()
         # enrolled students should open the course module page normally
         self.assertTrue(self.client.login(username=self.student.username, password="student"))
@@ -362,10 +362,10 @@ class CourseVisibilityTest(TestCase):
         # should redirect to A+ login
         response = self.client.get(url)
         self.assertRedirects(response, '/accounts/login/?next=' + url)
-        # unenrolled logged-in user should not see the chapter page
+        # unenrolled logged-in user should be redirected to enrollment page
         self.assertTrue(self.client.login(username=self.user.username, password='testUser'))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.enrolled_course_instance.get_url('enroll'))
         self.client.logout()
         # enrolled students should open the chapter page normally
         self.assertTrue(self.client.login(username=self.student.username, password="student"))
@@ -379,10 +379,10 @@ class CourseVisibilityTest(TestCase):
         # should redirect to A+ login
         response = self.client.get(url)
         self.assertRedirects(response, '/accounts/login/?next=' + url)
-        # unenrolled logged-in user should not see the exercise
+        # unenrolled logged-in user should be redirected to enrollment page
         self.assertTrue(self.client.login(username=self.user.username, password='testUser'))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.enrolled_course_instance.get_url('enroll'))
         self.client.logout()
         # enrolled students should open the chapter page normally
         self.assertTrue(self.client.login(username=self.student.username, password="student"))
@@ -402,10 +402,10 @@ class CourseVisibilityTest(TestCase):
         # should redirect to A+ login
         response = self.client.get(url)
         self.assertRedirects(response, '/accounts/login/?next=' + url)
-        # unenrolled logged-in user should not see the exercise
+        # unenrolled logged-in user should be redirected to enrollment page
         self.assertTrue(self.client.login(username=self.user.username, password='testUser'))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.enrolled_course_instance.get_url('enroll'))
         self.client.logout()
         # enrolled students should open the chapter page normally
         self.assertTrue(self.client.login(username=self.student.username, password="student"))
@@ -633,11 +633,18 @@ class CourseVisibilityTest(TestCase):
         # should redirect to A+ login
         response = self.client.get(url)
         self.assertRedirects(response, '/accounts/login/?next=' + url)
-        # non-submitter user should not see the submission
+        # unenrolled logged-in user should be redirected to enrollment page
+        self.assertTrue(self.client.login(username=self.user.username, password='testUser'))
+        response = self.client.get(url)
+        self.assertRedirects(response, self.enrolled_course_instance.get_url('enroll'))
+        self.client.logout()
+        # enrolled non-submitter user should not see the submission
+        self.enrolled_course_instance.enroll_student(self.user)
         self.assertTrue(self.client.login(username=self.user.username, password='testUser'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
         self.client.logout()
+        self.enrolled_course_instance.get_enrollment_for(self.user).delete()
         # the submitter should see her submission
         self.assertTrue(self.client.login(username=self.student.username, password="student"))
         response = self.client.get(url)

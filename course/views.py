@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.urls import translate_url
 from django.utils import html, timezone
 from django.utils.http import is_safe_url
@@ -56,7 +56,7 @@ class HomeView(UserProfileView):
             for instance in user.userprofile.assisting_courses.all().filter(ending_time__gte=end_threshold):
                 if instance not in my_instances:
                     my_instances.append(instance)
-            
+
             for instance in user.userprofile.enrolled.all().filter(
                     ending_time__gte=end_threshold,
                     visible_to_students=True,
@@ -66,13 +66,13 @@ class HomeView(UserProfileView):
 
         all_instances = CourseInstance.objects.get_visible(user).filter(ending_time__gte=end_threshold)
         all_instances = [c for c in all_instances if c not in my_instances]
-        
+
         self.all_instances = all_instances
         self.my_instances = my_instances
         self.is_logged_in = is_logged_in
 
-        self.note("welcome_text", 
-            "internal_user_label", 
+        self.note("welcome_text",
+            "internal_user_label",
             "external_user_label",
             "my_instances",
             "all_instances",
@@ -97,9 +97,9 @@ class CourseInstancesView(UserProfileView):
         course = get_object_or_404(Course, url=self.kwargs['course_slug'])
         self.instances = []
         self.msg = ""
-        if CourseInstance.objects.filter(course=course).count() > 0: 
+        if CourseInstance.objects.filter(course=course).count() > 0:
             self.instances = CourseInstance.objects.get_visible(self.request.user).filter(course=course).order_by('-starting_time')
-            self.msg = _("The course instances of this course are not visible to students.")   
+            self.msg = _("The course instances of this course are not visible to students.")
         else:
             self.msg = _("There are no course instances for this course.")
 
@@ -137,15 +137,6 @@ class InstanceView(EnrollableViewMixin, BaseTemplateView):
     # ACCESS.STUDENT requires users to log in, but the access mode is dropped
     # in public courses. CourseVisiblePermission has more restrictions as well.
     template_name = "course/course.html"
-
-    def handle_no_permission(self):
-        if self.request.user.is_authenticated \
-                and self.instance.view_content_to == CourseInstance.VIEW_ACCESS.ENROLLED:
-            # The course instance is visible to only enrolled students, so
-            # redirect the user to the enroll page instead of showing
-            # a 403 Forbidden error.
-            return redirect(self.instance.get_url('enroll'))
-        return super().handle_no_permission()
 
     def get(self, request, *args, **kwargs):
         # external LTI Tool Providers may return the user to the course instance view
@@ -293,14 +284,14 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
 
 
 class LanguageView(CourseInstanceMixin, BaseView):
-    
+
     def post(self, request, *args, **kwargs):
         LANGUAGE_PARAMETER = 'language'
-        
+
         next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
         if ((next or not request.is_ajax()) and
                 not is_safe_url(url=next,
-                                allowed_hosts={request.get_host()}, 
+                                allowed_hosts={request.get_host()},
                                 require_https=request.is_secure())):
             next = remove_query_param_from_url(request.META.get('HTTP_REFERER'), 'hl')
             next = next and unquote(next)  # HTTP_REFERER may be encoded.

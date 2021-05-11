@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, get_language_info
@@ -142,6 +142,20 @@ class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
                 instance_languages[i] = {"name": get_language_info(lang)['name'], "url": update_url_params(url, {'hl' : lang})}
             return render_to_response('404.html', {'error_msg': str(exc), 'languages': instance_languages}, status=404)
         return super().handle_exception(exc)
+
+    def handle_no_permission(self):
+        if (self.request.user.is_authenticated
+                and not self.is_student
+                and not self.is_course_staff
+                and self.get_access_mode() in [ACCESS.STUDENT, ACCESS.ENROLLED]
+                and self.instance.view_content_to == CourseInstance.VIEW_ACCESS.ENROLLED):
+            # Redirect the user to the enrollment page instead of showing
+            # a 403 Forbidden error, if:
+            # - the user is signed in but not enrolled or staff
+            # - the page is not a teacher page (e.g. edit course)
+            # - the course is visible only to enrolled students
+            return redirect(self.instance.get_url('enroll'))
+        return super().handle_no_permission()
 
 
 class CourseInstanceBaseView(CourseInstanceMixin, BaseTemplateView):
