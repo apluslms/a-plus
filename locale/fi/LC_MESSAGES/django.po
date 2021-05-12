@@ -2389,7 +2389,7 @@ msgid "Filter view"
 msgstr "Piilota näkymästä"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "Show older assignments."
+msgid "Show older assignments"
 msgstr "Näytä vanhemmat tehtävät"
 
 #: exercise/templates/exercise/_user_results.html

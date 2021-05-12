@@ -16,7 +16,12 @@
 </p>
 {% endif %}
 
-<p id="toggle-expired" class="hide"><a href="#">{% trans "Show older assignments." %}</a></p>
+<p id="toggle-expired" class="hide">
+	<button class="aplus-button--secondary aplus-button--xs">
+		<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+		{% trans "Show older assignments" %}
+	</button>
+</p>
 
 {% for module in modules %}
 {% if module|is_visible %}
@@ -202,7 +207,7 @@ $(function() {
   if (expired.size() > limit) {
     expired.slice(0, expired.size() - limit).hide();
     $("#toggle-expired").removeClass("hide")
-    .find("a").on("click", function(event) {
+    .find("button").on("click", function(event) {
       event.preventDefault();
       $(".module-expired:hidden").show();
       $(this).parent().hide();
