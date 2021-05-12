@@ -39,7 +39,7 @@ $(function() {
         init: function() {
             var columnCount = 0;
             this.element.find('thead').find('tr').each(function() {
-                var count = $(this).find('th').size();
+                var count = $(this).find('th').length;
                 columnCount = count > columnCount ? count : columnCount;
             });
 

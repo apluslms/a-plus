@@ -71,7 +71,7 @@
 			// For active elements the element to which the poll plugin is attached remains the same, so to
 			// be able to submit the same form several times the plugin data needs to be removed when the
 			// evaluation and polling is finished.
-			if ($.data(this.element.context, "plugin_" + pluginName)) $.removeData(this.element.context, "plugin_" + pluginName);
+			if ($.data(this.element[0], "plugin_" + pluginName)) $.removeData(this.element[0], "plugin_" + pluginName);
 
 			var suburl = this.url.substr(0, this.url.length - "poll/".length);
 			if (this.callback) {
@@ -90,9 +90,9 @@
 					message = "Evaluation was timed out.";
 				}
 				var res_elem = this.element.find(".ae_result").text(message);
-				if (res_elem.height() === 0) res_elem.height("auto");
-				if ($.data(this.element.context, "plugin_" + pluginName)) {
-					$.removeData(this.element.context, "plugin_" + pluginName);
+				if (res_elem.height() < 0.5) res_elem.height("auto");
+				if ($.data(this.element[0], "plugin_" + pluginName)) {
+					$.removeData(this.element[0], "plugin_" + pluginName);
 				}
 			} else if (messageType == "error") {
 				this.element.addClass("progress-bar-danger");

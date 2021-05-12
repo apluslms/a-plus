@@ -84,8 +84,8 @@ $(function() {
         }
     };
 
-    $(window).bind('scroll', modifyMenu);
-    $(window).bind('resize', updateMenu);
+    $(window).on('scroll', modifyMenu);
+    $(window).on('resize', updateMenu);
 
     /**
     * Warn about links that open in new windows.
@@ -425,7 +425,7 @@ $(function() {
         init: function() {
             var settings = this.settings;
             const perPage = this.element.attr(settings.per_page_attr);
-            if (this.element.find(settings.entry_selector).size() >= perPage) {
+            if (this.element.find(settings.entry_selector).length >= perPage) {
                 var tail = this.element.find(settings.more_selector);
                 tail.removeClass("hide").on("click", function(event) {
                     event.preventDefault();
@@ -437,7 +437,7 @@ $(function() {
                     $.get(url, function(html) {
                         loader.hide();
                         tail.before(html);
-                        if ($(html).filter(settings.entry_selector).size() >= perPage) {
+                        if ($(html).filter(settings.entry_selector).length >= perPage) {
                             var i = url.indexOf(settings.link_page_arg) + settings.link_page_arg.length;
                             if (i >= settings.link_page_arg.length) {
                                 const page = parseInt(url.substr(i));
@@ -541,7 +541,7 @@ $(function() {
                 selector += ":contains(" + this.field.val() + ")";
             }
             var opt = this.element.find(selector);
-            if (opt.size() === 0) {
+            if (opt.length === 0) {
                 this.result.find("li.not-found").show();
             } else {
                 var self = this;
@@ -556,7 +556,7 @@ $(function() {
         },
 
         addSelection: function(value, name) {
-            if (this.selection.find('[data-value="' + value + '"]').size() === 0) {
+            if (this.selection.find('[data-value="' + value + '"]').length === 0) {
                 var li = this.selection_li.clone();
                 li.find(".name").text(name);
                 li.find("button").attr("data-value", value).on('click', function(event) {
@@ -571,7 +571,7 @@ $(function() {
             var self = this;
             $.each(values, function(index, value) {
                 var opt = self.element.find('option[value="' + value + '"]');
-                if (opt.size() == 1) {
+                if (opt.length == 1) {
                     self.addSelection(value, opt.text());
                 }
             });

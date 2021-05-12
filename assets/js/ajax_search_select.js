@@ -167,7 +167,7 @@ $(function() {
         Create a button that shows the new value to the user and
         enables the user to remove the value. */
         addSelection: function(value, name) {
-            if (this.selection.find('[data-value="' + value + '"]').size() === 0) {
+            if (this.selection.find('[data-value="' + value + '"]').length === 0) {
                 var li = this.selection_li.clone();
                 li.find(".name").text(name);
                 li.find("button").attr("data-value", value).on('click', function(event) {

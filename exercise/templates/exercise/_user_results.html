@@ -204,8 +204,8 @@ var aplusPointsTotal = {{ total_json|safe }};
 $(function() {
   var limit = 2;
   var expired = $(".module-expired");
-  if (expired.size() > limit) {
-    expired.slice(0, expired.size() - limit).hide();
+  if (expired.length > limit) {
+    expired.slice(0, expired.length - limit).hide();
     $("#toggle-expired").removeClass("hide")
     .find("button").on("click", function(event) {
       event.preventDefault();
@@ -228,7 +228,7 @@ $(function() {
     }
     $('.module-panel').each(function(index, panel) {
       var mod = $(panel);
-      if (mod.find("tr:not(.hide)").size() > 0) {
+      if (mod.find("tr:not(.hide)").length > 0) {
         mod.removeClass("hide");
       } else {
         mod.addClass("hide");

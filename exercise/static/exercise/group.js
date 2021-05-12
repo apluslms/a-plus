@@ -32,7 +32,7 @@
 		 */
 		init: function() {
       var menu = $(this.settings.menu_selector);
-      if (menu.size() > 0) {
+      if (menu.length > 0) {
         this.selected = menu.eq(0).find(this.settings.current_group_selector).attr(this.settings.current_group_attribute);
 
         var self = this;
@@ -64,7 +64,7 @@
           "[" + this.settings.group_size_attribute + "]:not(." + this.settings.applied_class + ")"
         ).each(function() {
           var b = $(this).addClass(self.settings.applied_class).find(self.settings.submit_selector);
-          if (b.size() > 0) {
+          if (b.length > 0) {
             var ui = self.ui.clone();
             b.replaceWith(ui);
             ui.find('.input-group-btn').append(b);
@@ -84,7 +84,7 @@
             }
 
             var opt = ui.find('option[value="' + self.selected + '"]');
-            if (opt.size() > 0) {
+            if (opt.length > 0) {
               opt.prop('selected', true);
             }
           }

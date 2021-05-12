@@ -1498,6 +1498,10 @@
             // Initialize data table position for fixing top header (see TODO)
             // moved to the end of this function as it takes less time that way
             refreshTableYPosition();
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.error("Loading student data failed.");
+            console.error(errorThrown);
         });
     };
 
