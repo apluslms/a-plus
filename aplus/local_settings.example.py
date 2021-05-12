@@ -100,6 +100,14 @@
 #    }
 #}
 
+## Sessions
+#SESSION_COOKIE_SECURE = True
+# Cache-based sessions require the Memcached cache backend.
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# Use browser-length sessions in exam environments so that the A+ session
+# cookie is always removed from the browser at the end of the exam.
+#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
 ## Logging
 # For debugging purposes
 #from .settings import LOGGING

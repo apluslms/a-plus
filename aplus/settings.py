@@ -252,6 +252,8 @@ CACHES = {
         'OPTIONS': {'MAX_SIZE': 1000000}, # simulate memcached value limit
     }
 }
+# The default SESSION_ENGINE is 'django.contrib.sessions.backends.db' (database)
+# Cache-based sessions require the Memcached cache backend.
 #SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 ##########################################################################
 

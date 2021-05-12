@@ -114,6 +114,9 @@ The Application
             'LOCATION': '127.0.0.1:11211',
           }
         }
+        ## Session
+        SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+        SESSION_COOKIE_SECURE = True
         EOF
 
     Define the branding settings in `aplus/local_settings.py`:
