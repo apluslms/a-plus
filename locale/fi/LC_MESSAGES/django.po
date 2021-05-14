@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-04 16:21+0300\n"
+"POT-Creation-Date: 2021-05-12 15:10+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1068,12 +1068,33 @@ msgid "Assistants"
 msgstr "Assistentit"
 
 #: edit_course/course_forms.py
+#: edit_course/templates/edit_course/edit_content.html
+msgid "Exercise categories"
+msgstr "Tehtäväkategoriat"
+
+#: edit_course/course_forms.py
+#: edit_course/templates/edit_course/edit_content.html
+msgid "Course modules"
+msgstr "Kurssimoduulit"
+
+#: edit_course/course_forms.py
 msgid "Content chapters"
 msgstr "Sisältökappaleet"
 
 #: edit_course/course_forms.py
 msgid "Exercises"
 msgstr "Harjoitukset"
+
+#: edit_course/course_forms.py
+#: external_services/templates/external_services/edit_menu.html
+#: external_services/templates/external_services/list_menu.html
+msgid "Menu items"
+msgstr "Valikon linkit"
+
+#: edit_course/course_forms.py
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "Student tags"
+msgstr "Opiskelijamerkinnät"
 
 #: edit_course/course_forms.py
 msgid "The URL is already taken."
@@ -1378,11 +1399,6 @@ msgstr "Hae uusin käännösloki"
 msgid "Previous modification of this course instance took place at"
 msgstr "Kurssia on viimeksi muokattu"
 
-#: edit_course/course_forms.py
-#: edit_course/templates/edit_course/edit_content.html
-msgid "Exercise categories"
-msgstr "Tehtäväkategoriat"
-
 #: edit_course/templates/edit_course/edit_content.html
 msgid "Edit category"
 msgstr "Muokkaa kategoriaa"
@@ -1390,11 +1406,6 @@ msgstr "Muokkaa kategoriaa"
 #: edit_course/templates/edit_course/edit_content.html
 msgid "Add new category"
 msgstr "Lisää uusi kategoria"
-
-#: edit_course/course_forms.py
-#: edit_course/templates/edit_course/edit_content.html
-msgid "Course modules"
-msgstr "Kurssimoduulit"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "Edit module"
@@ -1675,11 +1686,6 @@ msgstr "Muokkaa opiskelijamerkintää"
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "Add new student tag"
 msgstr "Lisää uusi opiskelijamerkintä"
-
-#: edit_course/course_forms.py
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "Student tags"
-msgstr "Opiskelijamerkinnät"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "Tag"
@@ -2167,8 +2173,7 @@ msgid "Total points"
 msgstr "Yhteispisteet"
 
 #: exercise/templates/exercise/_enrollment_success.html
-msgid ""
-"You have successfully enrolled in the course!"
+msgid "You have successfully enrolled in the course!"
 msgstr "Kurssille ilmoittautuminen onnistui!"
 
 #: exercise/templates/exercise/_enrollment_success.html
@@ -2509,12 +2514,11 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"                                                %(points)s points required "
-"to pass.\n"
-"                                            "
+"\t\t\t\t\t\t\t\t\t\t\t\t%(points)s points required to pass.\n"
+"\t\t\t\t\t\t\t\t\t\t\t"
 msgstr ""
 "\n"
-"Suoritusmerkintään vaaditaan %(points)s pistettä"
+"Suoritusmerkintään vaaditaan %(points)s pistettä."
 
 #: exercise/templates/exercise/exercise_plain.html
 msgid "Show model answer"
@@ -2541,6 +2545,10 @@ msgstr "Palautuksen tiedot"
 #: exercise/templates/exercise/staff/_assess_info.html
 msgid "Submission time"
 msgstr "Palautusaika"
+
+#: exercise/templates/exercise/staff/_assess_info.html
+msgid "Grading time"
+msgstr "Arvosteluaika"
 
 #: exercise/templates/exercise/staff/_assess_info.html
 msgid "grader output"
@@ -2596,8 +2604,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"    %(count)s submissions\n"
-"    "
+"\t\t%(count)s submissions\n"
+"\t\t"
 msgstr ""
 "\n"
 "%(count)s palautusta"
@@ -2616,8 +2624,8 @@ msgstr "Tutki"
 #, python-format
 msgid ""
 "\n"
-"                    Late <small>-%(percent)s%%</small>\n"
-"                    "
+"\t\t\t\t\t\t\t\t\t\tLate <small>-%(percent)s%%</small>\n"
+"\t\t\t\t\t\t\t\t\t\t"
 msgstr ""
 "\n"
 "Myöhässä <small>-%(percent)s%%</small>"
@@ -2635,11 +2643,11 @@ msgid "Module selection"
 msgstr "Moduulin valinta"
 
 #: exercise/templates/exercise/staff/analytics.html
+#: exercise/templates/exercise/staff/results.html
 msgid "All"
 msgstr "Kaikki"
 
 #: exercise/templates/exercise/staff/analytics.html
-#: exercise/templates/exercise/staff/results.html
 msgid "View selection"
 msgstr "Näkymän valinta"
 
@@ -2797,8 +2805,34 @@ msgid "Select exercises: "
 msgstr "Valitse tehtävät: "
 
 #: exercise/templates/exercise/staff/results.html
+msgid "Options"
+msgstr "Valinnat"
+
+#: exercise/templates/exercise/staff/results.html
+msgid ""
+"Points are official if the submission is within deadline and submission "
+"count limits. Submission must be also accepted and confirmed (for example, "
+"in case of mandatory feedback)."
+msgstr ""
+"Pisteet ovar virallisia jos palautus on tehty määräajassa ja sallittujen "
+"palautuskertojen sisällä. Palautus täytyy olla myös hyväksytty ja "
+"varmistettu (esimerkiksi pakollisen palautteen yhteydessä)."
+
+#: exercise/templates/exercise/staff/results.html
+msgid "Show only official points"
+msgstr "Näytä vain viralliset pisteet"
+
+#: exercise/templates/exercise/staff/results.html
+msgid "Show only students with submissions"
+msgstr "Näytä vain palauttaneet opiskelijat"
+
+#: exercise/templates/exercise/staff/results.html
 msgid "Summaries"
 msgstr "Yhteenvedot"
+
+#: exercise/templates/exercise/staff/results.html
+msgid "Select or deselect all summaries."
+msgstr "Valitse kaikki yhteenvedot tai poista valinta kaikista"
 
 #: exercise/templates/exercise/staff/results.html
 msgid ""
@@ -2869,20 +2903,6 @@ msgid "Maximum points"
 msgstr "Enimmäispisteet"
 
 #: exercise/templates/exercise/staff/results.html
-msgid ""
-"Points are official if the submission is within deadline and submission "
-"count limits. Submission must be also accepted and confirmed (for example, "
-"in case of mandatory feedback)."
-msgstr ""
-"Pisteet ovar virallisia jos palautus on tehty määräajassa ja sallittujen "
-"palautuskertojen sisällä. Palautus täytyy olla myös hyväksytty ja "
-"varmistettu (esimerkiksi pakollisen palautteen yhteydessä)."
-
-#: exercise/templates/exercise/staff/results.html
-msgid "Show only official points"
-msgstr "Näytä vain viralliset pisteet"
-
-#: exercise/templates/exercise/staff/results.html
 msgid "Show exercises by difficulty"
 msgstr "Näytä tehtävät vaikeusasteittain"
 
@@ -2893,10 +2913,6 @@ msgstr "Näytä tehtävät moduulettain"
 #: exercise/templates/exercise/staff/results.html
 msgid "Show all exercises"
 msgstr "Näytä kaikki tehtävät"
-
-#: exercise/templates/exercise/staff/results.html
-msgid "Data couldn't be fetched. Please check your internet connection."
-msgstr "Tietojen lataaminen ei onnistunut. Tarkista yhteys palveluun."
 
 #: exercise/templates/exercise/staff/submissions_summary.html
 msgid "Submissions summary"
@@ -3433,12 +3449,6 @@ msgstr ""
 #: external_services/templates/external_services/edit_menu.html
 msgid "Add menu item"
 msgstr "Lisää linkki"
-
-#: edit_course/course_forms.py
-#: external_services/templates/external_services/edit_menu.html
-#: external_services/templates/external_services/list_menu.html
-msgid "Menu items"
-msgstr "Valikon linkit"
 
 #: external_services/templates/external_services/list_menu.html
 msgid "Link"
