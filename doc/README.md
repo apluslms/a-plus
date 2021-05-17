@@ -140,7 +140,9 @@ Therefore they are run and updated outside the containers, within a virtual envi
 
 ### Prerequisities
 
-- Firefox browser installed
+- For Selenium tests:
+  * Firefox browser installed
+  * xvfb virtual framebuffer installed (`sudo apt-get install xvfb` or `aptdcon --install xvfb`)
 - python3 installed
 - [Python module venv (or virtualenv)](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#installing-virtualenv) installed
 - For translations: gettext (`aptdcon --install gettext` or `sudo apt-get install gettext`)
