@@ -56,22 +56,26 @@
 						<ul class="nav navbar-nav exercise-nav">
 							<li>
 								<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
-									{% if not exercise.category.confirm_the_level %}
-										{% trans "Points" %}
-									{% endif %}
-									{% points_badge summary %}
+									<span>
+										{% if not exercise.category.confirm_the_level %}
+											{% trans "Points" %}
+										{% endif %}
+										{% points_badge summary %}
+									</span>
 								</a>
 							</li>
 							<li class="dropdown">
 								<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
-									{% trans "My submissions" %}
-									<span class="badge">
-										{{ summary.get_submission_count }}
-										{% if exercise.max_submissions %}
-											/ {{ exercise|max_submissions:profile }}
-										{% endif %}
+									<span>
+										{% trans "My submissions" %}
+										<span class="badge">
+											{{ summary.get_submission_count }}
+											{% if exercise.max_submissions %}
+												/ {{ exercise|max_submissions:profile }}
+											{% endif %}
+										</span>
+										<b class="caret"></b>
 									</span>
-									<b class="caret"></b>
 								</a>
 								<ul class="dropdown-menu">
 									{% for submission in submissions %}
@@ -93,20 +97,42 @@
 								<li class="navbar-text">
 									{% if not exercise.is_closed %}
 										<small>
-											{% if exercise.points_to_pass > 0 %}
-											{% blocktrans with points=exercise.points_to_pass %}
-												{{ points }} points required to pass.
-											{% endblocktrans %}
-											{% endif %}
-											{% if exercise.is_late_submission_open %}
-												{% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
-												{% if module.late_submission_penalty > 0 %}
-												(-{{ module.late_submission_penalty|percent }}%)
+											<ul>
+												{% if exercise.points_to_pass > 0 %}
+													<li>
+														<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+														{% blocktrans with points=exercise.points_to_pass %}{{ points }} points required to pass{% endblocktrans %}
+													</li>
 												{% endif %}
-											{% else %}
-												{% trans "Deadline" %}
-												{{ module.closing_time }}
-											{% endif %}
+												<li>
+													<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+													{% if exercise.is_late_submission_open %}
+														{% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
+														{% if module.late_submission_penalty > 0 %}
+														(-{{ module.late_submission_penalty|percent }}%)
+														{% endif %}
+													{% else %}
+														{% trans "Deadline" %}
+														{{ module.closing_time }}
+													{% endif %}
+												</li>
+												<li>
+													<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+													{% if exercise.min_group_size == 1 %}
+														{% if exercise.max_group_size == 1 %}
+															{% trans "To be submitted alone" %}
+														{% elif exercise.max_group_size == 2 %}
+															{% blocktrans with size=2 %}To be submitted alone or in groups of {{ size }}{% endblocktrans %}
+														{% else %}
+															{% blocktrans with min=2 max=exercise.max_group_size %}To be submitted alone or in groups of {{ min }}-{{ max }}{% endblocktrans %}
+														{% endif %}
+													{% elif exercise.min_group_size == exercise.max_group_size %}
+														{% blocktrans with size=exercise.min_group_size %}To be submitted in groups of {{ size }}{% endblocktrans %}
+													{% else %}
+														{% blocktrans with min=exercise.min_group_size max=exercise.max_group_size %}To be submitted in groups of {{ min }}-{{ max }}{% endblocktrans %}
+													{% endif %}
+												</li>
+											</ul>
 										</small>
 									{% endif %}
 								</li>

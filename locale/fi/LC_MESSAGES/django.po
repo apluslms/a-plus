@@ -2534,6 +2534,26 @@ msgstr "Näytä pohjatiedosto"
 msgid "Your submission has been accepted for grading."
 msgstr "Palautuksesi on vastaanotettu arvostelua varten."
 
+#: exercise/templates/exercise/exercise_plain.html
+msgid "To be submitted alone"
+msgstr "Palautetaan yksin"
+
+#: exercise/templates/exercise/exercise_plain.html
+msgid "To be submitted in groups of %(size)s"
+msgstr "Palautetaan %(size)s hengen ryhmissä"
+
+#: exercise/templates/exercise/exercise_plain.html
+msgid "To be submitted in groups of %(min)s-%(max)s"
+msgstr "Palautetaan %(min)s-%(max)s hengen ryhmissä"
+
+#: exercise/templates/exercise/exercise_plain.html
+msgid "To be submitted alone or in groups of %(size)s"
+msgstr "Palautetaan yksin tai %(size)s hengen ryhmissä"
+
+#: exercise/templates/exercise/exercise_plain.html
+msgid "To be submitted alone or in groups of %(min)s-%(max)s"
+msgstr "Palautetaan yksin tai %(min)s-%(max)s hengen ryhmissä"
+
 #: exercise/templates/exercise/results.html
 msgid "Results"
 msgstr "Tulokset"

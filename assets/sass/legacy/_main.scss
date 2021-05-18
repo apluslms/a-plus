@@ -272,10 +272,30 @@ td.submissions-dropdown {
     border-top-right-radius: 4px;
 }
 .exercise-summary .navbar-nav {
-    margin: 0;
+	margin: 0;
 }
 .exercise-summary .navbar-nav .navbar-text {
-    margin: 15px 15px 0 15px;
+    margin: 10px 15px 10px 15px;
+}
+.exercise-summary .navbar-nav .navbar-text ul {
+	list-style: none;
+	padding-left: 0;
+}
+/* Use flexbox to align header navbar sections (when the navbar is not
+collapsed due to narrow viewport) */
+@media (min-width: $grid-float-breakpoint) {
+	.exercise-summary .navbar-nav {
+		align-items: stretch;
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.exercise-summary .navbar-nav>li {
+		display: flex;
+	}
+	.exercise-summary .navbar-nav>li>a {
+		align-items: center;
+		display: flex;
+	}
 }
 .exercise-summary .navbar-nav>li>a,
 .exercise-summary .navbar-nav>.active>a,
