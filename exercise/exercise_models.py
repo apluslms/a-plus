@@ -620,27 +620,30 @@ class BaseExercise(LearningObject):
         elif enrollment and enrollment.selected_group:
             group = enrollment.selected_group
 
-        # Check groups cannot be changed after submitting.
-        submission = self.get_submissions_for_student(profile).first()
-        if submission:
-            if self._detect_group_changes(profile, group, submission):
-                msg = _("Group can only change between different exercises.")
-                warning = _('You have previously submitted this '
-                            'exercise {with_group}. {msg}')
-                if submission.submitters.count() == 1:
-                    warning = warning.format(with_group=_('alone'), msg=msg)
-                else:
-                    collaborators = StudentGroup.format_collaborator_names(
-                            submission.submitters.all(), profile)
-                    with_group = _('with {}').format(collaborators)
-                    warning = warning.format(with_group=with_group, msg=msg)
-                warnings.append(warning)
-                return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+        if self.max_group_size > 1:
+            # Check groups cannot be changed after submitting.
+            submission = self.get_submissions_for_student(profile).first()
+            if submission:
+                if self._detect_group_changes(profile, group, submission):
+                    msg = _("Group can only change between different exercises.")
+                    warning = _('You have previously submitted this '
+                                'exercise {with_group}. {msg}')
+                    if submission.submitters.count() == 1:
+                        warning = warning.format(with_group=_('alone'), msg=msg)
+                    else:
+                        collaborators = StudentGroup.format_collaborator_names(
+                                submission.submitters.all(), profile)
+                        with_group = _('with {}').format(collaborators)
+                        warning = warning.format(with_group=with_group, msg=msg)
+                    warnings.append(warning)
+                    return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
-        elif self._detect_submissions(profile, group):
-            warnings.append(_('{collaborators} already submitted to this exercise in a different group.').format(
-                collaborators=group.collaborator_names(profile)))
-            return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+            elif self._detect_submissions(profile, group):
+                warnings.append(
+                    _('{collaborators} already submitted to this exercise in a different group.')
+                    .format(collaborators=group.collaborator_names(profile))
+                )
+                return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
         # Get submitters.
         if group:
