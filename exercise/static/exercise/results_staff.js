@@ -1271,6 +1271,32 @@
             pageLanguageUrl = $('body').hasClass('lang-fi') ? 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Finnish.json' : '';
 
             /**
+             * Define common options for DataTables buttons (CSV, Copy, Excel), as they all use the
+             * same logic and export only visible columns.
+             * The tags column (number 2, note that here invisible columns are not counted
+             * so it does not match TAGS_COL_ID) needs special treatment as we need to replace 
+             * the html tags with commas for exporting.
+             * The regexp takes any number of consecutive tags and converts them into a single comma.
+             * After that, the first and last commas are sliced away.
+             */
+            var buttonCommon = {
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, row, column, node ) {
+                            if(column === 1) return data.replace( /<[^>]*>/g, '' );
+                            else if(column === 2) return data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1);
+                            else return data;
+                            // When the next version of DataTables.Buttons is released, we can replace the above with:
+                            // return column === 2 ?
+                            // data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1) :
+                            // column$.fn.dataTable.Buttons.stripData(data);
+                        }
+                    }
+                }
+            }
+
+            /**
              * Initialize the DataTables plugin for the main table
              */
             dtApi = $('#table-points').DataTable( {
@@ -1338,32 +1364,23 @@
                 /**
                  * Data export buttons
                  */
-                buttons: [
-                    {
-                        extend: 'csvHtml5',
-                        exportOptions: {
-                            columns: ':visible'
-                        }
-                    },
-                    {
-                        extend: 'copyHtml5',
-                        exportOptions: {
-                            columns: ':visible'
-                        }
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        exportOptions: {
-                            columns: ':visible'
-                        }
-                    },
+                 buttons: [
+                    $.extend( true, {}, buttonCommon, {
+                        extend: 'csvHtml5'
+                    } ),
+                    $.extend( true, {}, buttonCommon, {
+                        extend: 'copyHtml5'
+                    } ),
+                    $.extend( true, {}, buttonCommon, {
+                        extend: 'excelHtml5'
+                    } ),
                     {
                         text: 'Reset filters',
                         action: function ( e, dt, node, config ) {
                             clearSearch();
                         }
                     }
-                ],
+                ]
             });
 
             /**
