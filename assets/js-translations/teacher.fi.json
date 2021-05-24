@@ -110,8 +110,8 @@
   "Search":
   "Etsi",
 
-  " (<, > supported)":
-  " (<, > tuettu)",
+  "You can use &lt; and &gt; in points columns search fields.":
+  "Operaattorit &lt; ja &gt; ovat käytössä pistesarakkeiden haussa.",
 
   "All":
   "kaikki"

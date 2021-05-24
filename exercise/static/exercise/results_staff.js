@@ -904,6 +904,11 @@
                 }
                 break;
         }
+
+        // Force table width to match the currently visible columns
+        // see https://stackoverflow.com/questions/5109831/how-to-resize-a-jquery-datatable-after-hiding-columns
+        pointsTableRef.width("100%");
+
         // Finally redraw table
         dtVar.draw();
     }
@@ -1092,7 +1097,7 @@
                 /**
                  * Create search boxes for points columns
                  */
-                $(this).append( '<br><input type="text" class="form-control input-sm numval" placeholder="' + _("Search") + _(" (<, > supported)") + '" />' );
+                $(this).append( '<br><input type="text" class="form-control input-sm numval" placeholder="' + _("Search") + '" />' );
                 $( 'input.numval', this ).on('keyup change clear', function () {
                     if(this.value === '') delete colSearchVals[realIndex];
                     else colSearchVals[realIndex] = parsePointsSearchVal(this.value);
@@ -1296,6 +1301,8 @@
                     // Make sure all hidden columns are hidden
                     dtVar.columns('.always-hidden').visible(false,false);
                     changeDisplayMode(dm.DIFFICULTY);
+                    // Add note in our custom div in DataTables DOM template
+                    $(".dt-note").html(_('You can use &lt; and &gt; in points columns search fields.'));
                 },
                 /**
                  * Calculate the Total column for all students in DataTables row callback
@@ -1320,11 +1327,12 @@
                     }
                 },
                 /**
-                 * Configure the DataTables-generated DOM
-                 * (order of elements and Bootstrap classes)
+                 * Configure the DataTables-generated DOM (order of elements and Bootstrap classes)
+                 * Note that we have a custom "dt-note" div that is used to display a note about
+                 * using the < and > operators in number column search fields.
                  */
                 dom: "<'row'<'col-md-4 col-sm-6'l><'col-md-4 col-sm-6'B><'col-md-4 col-sm-12'f>>" +
-                        "<'row'<'col-sm-12'i>>" +
+                        "<'row'<'col-sm-6'i><'col-sm-6 dt-note'>>" +
                         "<'row'<'col-sm-12'tr>>" +
                         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
                 /**

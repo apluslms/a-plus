@@ -39,3 +39,9 @@ table#table-points thead th div.ratio {
 table#table-points thead th div.ratio::after {
 	content: "%";
 }
+
+div.dt-note {
+    padding-top: 8px;
+    white-space: nowrap;
+	text-align: right;
+}
