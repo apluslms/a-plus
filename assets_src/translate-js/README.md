@@ -19,6 +19,10 @@ Install dependencies if you haven't done so already
 
 ```
 npm install --no-save
+
+# Note that installation can also be done with drone in the a-plus root
+# directory (.drone.yml):
+drone exec
 ```
 
 Build the bundle, which will be put to A+'s `assets/js` folder, and run
@@ -28,6 +32,12 @@ repeat this step every time you change `main.js`.
 ```
 npm run build
 python ../../manage.py collectstatic
+```
+
+Note that `npm` commands can be run with Docker in the a-plus root directory:
+
+```
+./dev_assets_run_npm.sh translate-js run build
 ```
 
 In the HTML file, include JQuery and `translate.js`
