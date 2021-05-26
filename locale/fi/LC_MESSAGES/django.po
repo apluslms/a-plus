@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-12 15:10+0300\n"
+"POT-Creation-Date: 2021-05-26 19:21+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -2299,6 +2299,7 @@ msgid "Passed"
 msgstr "Suoritettu"
 
 #: exercise/templates/exercise/_points_badge.html
+#: exercise/templates/exercise/exercise_plain.html
 #, python-format
 msgid "%(points)s points required to pass"
 msgstr "Suoritusmerkintään vaaditaan %(points)s pistettä"
@@ -2511,14 +2512,28 @@ msgstr ""
 "avustavan teknologian käyttäjille)"
 
 #: exercise/templates/exercise/exercise_plain.html
+msgid "To be submitted alone"
+msgstr "Palautetaan yksin"
+
+#: exercise/templates/exercise/exercise_plain.html
 #, python-format
-msgid ""
-"\n"
-"\t\t\t\t\t\t\t\t\t\t\t\t%(points)s points required to pass.\n"
-"\t\t\t\t\t\t\t\t\t\t\t"
-msgstr ""
-"\n"
-"Suoritusmerkintään vaaditaan %(points)s pistettä."
+msgid "To be submitted alone or in groups of %(size)s"
+msgstr "Palautetaan yksin tai %(size)s hengen ryhmissä"
+
+#: exercise/templates/exercise/exercise_plain.html
+#, python-format
+msgid "To be submitted alone or in groups of %(min)s-%(max)s"
+msgstr "Palautetaan yksin tai %(min)s-%(max)s hengen ryhmissä"
+
+#: exercise/templates/exercise/exercise_plain.html
+#, python-format
+msgid "To be submitted in groups of %(size)s"
+msgstr "Palautetaan %(size)s hengen ryhmissä"
+
+#: exercise/templates/exercise/exercise_plain.html
+#, python-format
+msgid "To be submitted in groups of %(min)s-%(max)s"
+msgstr "Palautetaan %(min)s-%(max)s hengen ryhmissä"
 
 #: exercise/templates/exercise/exercise_plain.html
 msgid "Show model answer"
@@ -2533,26 +2548,6 @@ msgstr "Näytä pohjatiedosto"
 #: exercise/templates/exercise/submission_plain.html
 msgid "Your submission has been accepted for grading."
 msgstr "Palautuksesi on vastaanotettu arvostelua varten."
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "To be submitted alone"
-msgstr "Palautetaan yksin"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "To be submitted in groups of %(size)s"
-msgstr "Palautetaan %(size)s hengen ryhmissä"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "To be submitted in groups of %(min)s-%(max)s"
-msgstr "Palautetaan %(min)s-%(max)s hengen ryhmissä"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "To be submitted alone or in groups of %(size)s"
-msgstr "Palautetaan yksin tai %(size)s hengen ryhmissä"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "To be submitted alone or in groups of %(min)s-%(max)s"
-msgstr "Palautetaan yksin tai %(min)s-%(max)s hengen ryhmissä"
 
 #: exercise/templates/exercise/results.html
 msgid "Results"
