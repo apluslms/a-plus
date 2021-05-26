@@ -6,7 +6,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var Polyglot = require('node-polyglot');
 
 var defaultLang = 'en';
-var lang = $('html').attr('lang') || defaultLang;
+var lang = $('html').attr('lang').slice(0, 2) || defaultLang;
 
 // Give a warning if locale is not english. Return the transformed phrase
 function onMissingKey(key, opts, locale) {

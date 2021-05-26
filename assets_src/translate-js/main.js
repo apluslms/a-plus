@@ -1,7 +1,7 @@
 const Polyglot = require('node-polyglot')
 
 const defaultLang = 'en'
-const lang = $( 'html' ).attr('lang') || defaultLang
+const lang = $( 'html' ).attr('lang').slice(0, 2) || defaultLang
 
 // Give a warning if locale is not english. Return the transformed phrase
 function onMissingKey(key, opts, locale) {
