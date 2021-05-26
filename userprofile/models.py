@@ -19,8 +19,10 @@ class UserProfile(models.Model):
     """
 
     @classmethod
-    def get_by_student_id(cls, student_id):
-        return cls.objects.get(student_id=student_id)
+    def get_by_student_id(cls, student_id, org=settings.LOCAL_ORGANIZATION):
+        # Because student ID is unique only within organization,
+        # also organization needs to be specified.
+        return cls.objects.get(student_id=student_id, organization=org)
 
     @classmethod
     def get_by_email(cls, email):
