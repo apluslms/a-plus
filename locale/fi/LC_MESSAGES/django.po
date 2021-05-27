@@ -4059,17 +4059,21 @@ msgstr "Unohda automaattinen uudelleenohjaus"
 
 #: userprofile/templates/userprofile/profile.html
 #, python-format
-msgid "Information provided by %(institution)s"
-msgstr "Instituutiolta %(institution)s saadut tiedot"
+msgid "Information provided by your organization"
+msgstr "Organisaatioltasi saadut tiedot"
 
 #: userprofile/templates/userprofile/profile.html
 msgid "Information provided by Google"
 msgstr "Googlen toimittamat tiedot"
 
 #: userprofile/templates/userprofile/profile.html
-msgid "The following settings can be changed in your identity provider."
+msgid "The following settings can be changed by your identity provider."
 msgstr ""
 "Seuraavat asetukset voi muuttaa tunnistustietojen tarjoajan järjestelmässä."
+
+#: userprofile/templates/userprofile/profile.html
+msgid "Organization"
+msgstr "Organisaatio"
 
 #: userprofile/templates/userprofile/profile.html
 msgid "[Missing]"

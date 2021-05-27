@@ -99,11 +99,11 @@
 	<div class="col-sm-offset-2 col-sm-8 col-md-4">
 		{% if not is_google %}
 			{% brand_institution_name as institution %}
-				<h2>{% blocktrans with institution=institution trimmed %}Information provided by {{ institution }}{% endblocktrans %}</h2>
+				<h2>{% blocktrans trimmed %}Information provided by your organization{% endblocktrans %}</h2>
 		{% elif is_google %}
 			<h2>{% trans "Information provided by Google" %}</h2>
 		{% endif %}
-		<p class="text-warning">{% trans "The following settings can be changed in your identity provider." %}</p>
+		<p class="text-warning">{% trans "The following settings can be changed by your identity provider." %}</p>
 		<dl class="dl-horizontal">
 			{% trans "[Missing]" as miss %}
 			<dt class="provider-information">{% trans "Student ID" %}</dt>
@@ -112,6 +112,8 @@
 			<dd>{% firstof user.email miss %}</dd>
 			<dt class="provider-information">{% trans "Username" %}</dt>
 			<dd>{% firstof user.username miss %}</dd>
+			<dt class="provider-information">{% trans "Organization" %}</dt>
+			<dd>{% firstof profile.organization miss %}</dd>
 		</dl>
 	</div>
 </div> <br>
