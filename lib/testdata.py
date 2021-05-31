@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
@@ -43,6 +44,7 @@ class CourseTestCase(TestCase):
         self.student.set_password('testPassword')
         self.student.save()
         self.student.userprofile.student_id = "123TEST"
+        self.student.userprofile.organization = settings.LOCAL_ORGANIZATION
         self.student.userprofile.save()
 
         self.course = Course.objects.create(
