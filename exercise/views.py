@@ -88,14 +88,12 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):
             if self.is_course_staff:
-                issue = _("Exercise is in maintenance and content is hidden "
-                          "from students.")
+                issue = _('EXERCISE_IN_MAINTENANCE_AND_HIDDEN_FROM_STUDENTS')
                 messages.error(request, issue)
                 issues.append(issue)
             else:
                 page = ExercisePage(self.exercise)
-                page.content = _('Unfortunately this exercise is currently '
-                                 'under maintenance.')
+                page.content = _('EXERCISE_IN_MAINTENTANCE')
                 return super().get(request, *args, page=page, students=students, **kwargs)
         elif self.exercise.status in \
                 (LearningObject.STATUS.ENROLLMENT, LearningObject.STATUS.ENROLLMENT_EXTERNAL):
@@ -153,15 +151,13 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             except ValueError as error:
                 messages.error(request,
                     format_lazy(
-                    _("The submission could not be saved due to malformed post data. "
-                      "The submission was not registered. Error: {error}"),
+                    _('SUBMISSION_ERROR_MALFORMED_POST_DATA -- {error}'),
                     error=error
                     )
                 )
             except DatabaseError:
                 messages.error(request,
-                    _("The submission could not be saved for some reason. "
-                      "The submission was not registered.")
+                    _('ERROR_SUBMISSION_SAVING_FAILED')
                 )
             else:
                 page = self.exercise.grade(request, new_submission,
@@ -196,7 +192,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
     def submission_check(self, error=False, request=None):
         if not self.profile:
-            issue = _("You need to sign in and enroll to submit exercises.")
+            issue = _('SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES')
             messages.error(self.request, issue)
             return self.exercise.SUBMIT_STATUS.INVALID, False, [issue], []
         submission_status, issues, students = (

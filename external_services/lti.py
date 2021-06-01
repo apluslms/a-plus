@@ -96,7 +96,7 @@ class LTIRequest(object):
             try:
                 enrollment = Enrollment.objects.get(course_instance=course_instance, user_profile=user.userprofile)
             except Enrollment.DoesNotExist:
-                raise Http404(_("Course enrollment required for accessing the LTI service."))
+                raise Http404(_('LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS'))
             # Creates anon name and id for pre-pseudonymisation Enrollments
             if not (enrollment.anon_name or enrollment.anon_id):
                 # the model's post_save functions take care of the creation

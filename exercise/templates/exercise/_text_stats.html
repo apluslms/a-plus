@@ -1,4 +1,4 @@
 {% load i18n %}
-{% blocktrans with number=number percentage=percentage %}
-Submitters: {{ number }} <small>{{ percentage}}%</small>
-{% endblocktrans %}
+{% blocktranslate trimmed with number=number percentage=percentage %}
+    SUBMITTER_COUNT -- {{ number }}, {{ percentage }}
+{% endblocktranslate %}

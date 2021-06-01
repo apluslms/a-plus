@@ -3,25 +3,25 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block edittitle %}{% trans "Add menu item" %}{% endblock %}
+{% block edittitle %}{% translate "ADD_MENU_ITEM" %}{% endblock %}
 {% block view_tag %}edit-course,menu{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'external-services-list-menu' }}">{% trans "Menu items" %}</a></li>
-<li class="active">{% trans "Add new" %}</li>
+<li><a href="{{ instance|url:'external-services-list-menu' }}">{% translate "MENU_ITEMS" %}</a></li>
+<li class="active">{% translate "ADD_NEW" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
 <br/>
 <form method="post" class="well form-horizontal">
     {% csrf_token %}
-    <legend>{% trans "Add menu item" %}</legend>
+    <legend>{% translate "ADD_MENU_ITEM" %}</legend>
     {{ form|bootstrap_horizontal }}
     <div class="form-group">
         <div class="col-sm-10 col-sm-offset-2">
-            <button type="submit" class="aplus-button--default aplus-button--md">{% trans 'Submit' %}</button>
-            <a href="{{ instance|url:'external-services-list-menu' }}" class="aplus-button--secondary aplus-button--md" role="button">{% trans "Cancel" %}</a>
+            <button type="submit" class="aplus-button--default aplus-button--md">{% translate "SUBMIT" %}</button>
+            <a href="{{ instance|url:'external-services-list-menu' }}" class="aplus-button--secondary aplus-button--md" role="button">{% translate "CANCEL" %}</a>
         </div>
     </div>
 </form>

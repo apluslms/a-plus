@@ -47,11 +47,11 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         self.instance = form.save()
-        messages.success(self.request, _("Changes were saved succesfully."))
+        messages.success(self.request, _('SUCCESS_SAVING_CHANGES'))
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Failed to save changes."))
+        messages.error(self.request, _('FAILURE_SAVING_CHANGES'))
         return super().form_invalid(form)
 
 
@@ -70,11 +70,11 @@ class EditTeachersView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         self.course = form.save()
-        messages.success(self.request, _("Changes were saved succesfully."))
+        messages.success(self.request, _('SUCCESS_SAVING_CHANGES'))
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Failed to save changes."))
+        messages.error(self.request, _('FAILURE_SAVING_CHANGES'))
         return super().form_invalid(form)
 
 
@@ -179,8 +179,7 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             )
             if self.instance.categories.count() == 0:
                 messages.error(self.request,
-                    _("At least one exercise category must be created before "
-                      "creating exercises."))
+                    _('ERROR_EXERCISE_CATEGORY_MUST_EXIST_BEFORE_CREATEING_EXERCISES'))
         self.note("object")
 
     def get_form_class(self):
@@ -196,17 +195,17 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             self.object = form.save()
         except IntegrityError as e:
             messages.error(self.request,
-                _("Failed to save {name} due to an error '{error}'.").format(
+                _('FAILURE_SAVING_MODEL_DUE_TO_ERROR -- {name}, {error}').format(
                     name=self.model_name, error=e))
             return super().form_invalid(form)
         messages.success(self.request,
-            _('The {name} was saved successfully.').format(
+            _('SUCCESS_SAVING_MODEL -- {name}').format(
                 name=self.model_name))
         return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request,
-            _('Failed to save {name}.').format(name=self.model_name))
+            _('FAILURE_SAVING_MODEL -- {name}').format(name=self.model_name))
         return super().form_invalid(form)
 
 
@@ -286,8 +285,8 @@ class UserTaggingAddView(UserTagMixin, FormView):
         messages.success(
             self.request,
             ngettext(
-                "Tagged user {user_name} with tag {tag_name}.",
-                "Tagged users {user_name} with tag {tag_name}.",
+                'TAGGED_USER_WITH_TAG -- {user_name}, {tag_name}',
+                'TAGGED_USERS_WITH_TAG -- {user_name}, {tag_name}',
                 user_set.count()
             ).format(user_name=user_name, tag_name=tag_name)
         )
@@ -307,7 +306,7 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
             for error in errors:
                 messages.error(request, error)
         else:
-            messages.success(request, _("New submissions stored."))
+            messages.success(request, _('NEW_SUBMISSIONS_STORED'))
         return self.render_to_response(self.get_context_data())
 
 
@@ -334,7 +333,7 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
             clone_exercises=form.cleaned_data['exercises'],
             clone_menuitems=form.cleaned_data['menuitems'],
         )
-        messages.success(self.request, _("Course instance is now cloned."))
+        messages.success(self.request, _('COURSE_INSTANCE_CLONED'))
         return self.redirect(instance.get_url('course-details'))
 
 
@@ -356,14 +355,14 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
                 for error in errors:
                     messages.error(request, error)
             else:
-                messages.success(request, _("Course content configured."))
+                messages.success(request, _('COURSE_CONTENT_CONFIGURED'))
         except Exception as e:
-            messages.error(request, _("Server returned error '{error!s}'.").format(error=e))
+            messages.error(request, _('ERROR_SERVER_RETURNED_ERROR -- {error!s}').format(error=e))
 
     def clear_cache(self, request):
         invalidate_instance(self.instance)
         CachedContent.invalidate(self.instance)
-        messages.success(request, _("Exercise caches have been cleared."))
+        messages.success(request, _('EXERCISE_CACHES_CLEARED'))
 
 
 class BuildLogView(CourseInstanceMixin, BaseTemplateView):
@@ -386,7 +385,7 @@ class SignInAsUser(BaseRedirectMixin, BaseTemplateView):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            messages.error(request, _('Username "{username}" does not exist.').format(username=html.escape(username)))
+            messages.error(request, _('ERROR_USERNAME_DOESNT_EXIST -- {username}').format(username=html.escape(username)))
             return self.redirect(reverse('signin-as-user'))
         auth_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         return self.redirect("/")

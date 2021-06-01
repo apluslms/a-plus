@@ -5,12 +5,12 @@
 {% load exercise %}
 {% load bootstrap %}
 
-{% block title %}{% trans "My groups" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "MY_GROUPS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "My groups" %}</li>
+<li class="active">{% translate "MY_GROUPS" %}</li>
 {% endblock %}
 
 {% block columns %}
@@ -19,30 +19,28 @@
   {% if max_size > 1 %}
 
   <div class="alert alert-info">
-    {% trans "[staff has none]" as staff_code %}
-    {% blocktrans with code=enrollment.personal_code|default:staff_code %}
-    Your personal group <strong>join code</strong> is <strong>{{ code }}</strong>.
-    {% endblocktrans %}
+    {% translate "[STAFF_HAS_NONE]" as staff_code %}
+    {% blocktranslate trimmed with code=enrollment.personal_code|default:staff_code %}
+      GROUP_PERSONAL_JOIN_CODE -- {{ code }}
+    {% endblocktranslate %}
   </div>
 
   <form method="post" class="well form-horizontal">
     {% csrf_token %}
     <p>
-      {% blocktrans %}
-      First, query the personal <strong>join codes</strong> from your other group members.
-      Then enter the codes below to form a new group.
-      It is sufficient that one group member submits this form.
-      {% endblocktrans %}
+      {% blocktranslate trimmed %}
+        GROUP_CREATION_INSTRUCTIONS
+      {% endblocktranslate %}
     </p>
     {{ form|bootstrap_horizontal }}
     <button type="submit" class="aplus-button--default aplus-button--md">
-        {% trans "Form a new group" %}
+        {% translate "GROUP_FORM_NEW" %}
     </button>
   </form>
 
   {% else %}
 
-  {% trans "This course does not utilize group submissions." %}
+  {% translate "GROUP_SUBMISSIONS_NOT_USED_ON_COURSE" %}
 
   {% endif %}
 </div>
@@ -50,7 +48,7 @@
 
   <div class="panel panel-primary">
     <div class="panel-heading">
-      {% trans "My groups" %}
+      {% translate "MY_GROUPS" %}
     </div>
     <table class="table">
       {% for group in groups %}
@@ -61,7 +59,7 @@
       </tr>
       {% empty %}
       <tr>
-        <td colspan="3">{% trans "No groups yet" %}</td>
+        <td colspan="3">{% translate "NO_GROUPS_YET" %}</td>
       </tr>
       {% endfor %}
     </table>

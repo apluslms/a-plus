@@ -3,7 +3,7 @@
 <div class="overlay exercise-warnings-overlay" id="overlay-{{ exercise.id }}">
     <div class="panel panel-warning">
         <div class="panel-heading">
-            {% trans "You cannot submit this exercise" %}
+            {% translate "CANNOT_SUMBIT_EXERCISE_WARNING" %}
         </div>
         <div class="panel-body">
             {% for issue in issues %}
@@ -15,7 +15,7 @@
                     class="aplus-button--secondary aplus-button--md"
                     id="overlay-dismiss-{{ exercise.id }}"
                 >
-                    {% trans "Show anyway" %}
+                    {% translate "SHOW_ANYWAY" %}
                 </button>
                 {% if should_enroll and enrollable and instance.is_enrollment_open %}
                 {% comment %}
@@ -33,13 +33,13 @@
                         class="aplus-button--default aplus-button--md"
                         id="overlay-enroll-{{ exercise.id }}"
                     >
-                        {% trans 'Enroll' %}
+                        {% translate "ENROLL" %}
                     </button>
                 </form>
                 {% elif should_enroll %}
                 {# The enrollment page informs the user about why he/she can not enroll. #}
                 <a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'enroll' }}">
-                  {% trans "Enrollment information" %}
+                  {% translate "ENROLLMENT_INFORMATION" %}
                 </a>
                 {% endif %}
             </div>

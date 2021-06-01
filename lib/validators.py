@@ -9,4 +9,4 @@ from django.utils.translation import gettext_lazy as _
 # as a relative path in the URL.
 generate_url_key_validator = functools.partial(RegexValidator,
     regex=re.compile(r"^\w[\w\-\.]*$"),
-    message=_("URL keys may consist of alphanumeric characters, hyphen and period."))
+    message=_('URL_KEY_MAY_CONSIST_OF'))

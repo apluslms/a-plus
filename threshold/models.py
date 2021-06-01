@@ -21,7 +21,7 @@ class Threshold(models.Model):
     passed_categories = models.ManyToManyField(LearningObjectCategory, blank=True)
     passed_exercises = models.ManyToManyField(BaseExercise, blank=True)
     consume_harder_points = models.BooleanField(default=False,
-        help_text=_("Harder points are consumed by easier difficulty requirements."))
+        help_text=_('HARDER_POINTS_CONSUMED_BY_EASIER_DIFFICULTY_REQUIREMENTS'))
 
     def __str__(self):
         return self.name + " " + self.checks_str()
@@ -110,7 +110,7 @@ class ThresholdPoints(models.Model):
     def __str__(self):
         if self.difficulty:
             return "{} {:d}".format(self.difficulty, self.limit)
-        return _("{:d} points").format(self.limit)
+        return _('POINTS -- {:d}').format(self.limit)
 
 
 class CourseModuleRequirement(models.Model):

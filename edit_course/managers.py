@@ -42,13 +42,13 @@ class ExerciseContainerMixin(object):
 class CategoryManager(ExerciseContainerMixin, ModelManager):
     object_class = LearningObjectCategory
     form_class = LearningObjectCategoryForm
-    name = _("category")
+    name = _('CATEGORY_lowercase')
 
 
 class ModuleManager(ExerciseContainerMixin, ModelManager):
     object_class = CourseModule
     form_class = CourseModuleForm
-    name = _("module")
+    name = _('MODULE')
 
     def new_object(self, instance, parent_id, type):
         return self.object_class(
@@ -60,7 +60,7 @@ class ModuleManager(ExerciseContainerMixin, ModelManager):
 class ExerciseManager(ModelManager):
     object_class = LearningObject
     instance_field = "course_module__course_instance"
-    name = _("learning object")
+    name = _('LEARNING_OBJECT')
 
     def get_object(self, instance, object_id):
         obj = super().get_object(instance, object_id)

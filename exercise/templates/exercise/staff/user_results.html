@@ -31,7 +31,7 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'participants' }}">{% trans "Participants" %}</a></li>
+<li><a href="{{ instance|url:'participants' }}">{% translate "PARTICIPANTS" %}</a></li>
 <li class="active">{{ student.get_full_name }}</li>
 {% endblock %}
 
@@ -42,10 +42,10 @@
 		<td rowspan="2">
 			<img src="{{ student.userprofile.avatar_url }}" alt="avatar" />
 		</td>
-		<th>{% trans "Student id" %}</th>
-		<th>{% trans "Last name" %}</th>
-		<th>{% trans "First name" %}</th>
-		<th>{% trans "Email" %}</th>
+		<th>{% translate "STUDENT_ID" %}</th>
+		<th>{% translate "LAST_NAME" %}</th>
+		<th>{% translate "FIRST_NAME" %}</th>
+		<th>{% translate "EMAIL" %}</th>
 	</tr>
 	<tr>
 		<td>{{ student.userprofile.student_id }}</td>

@@ -5,12 +5,12 @@
 {% load apps %}
 {% load diploma %}
 
-{% block title %}{% trans "Results" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "RESULTS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}results{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Exercise results" %}</li>
+<li class="active">{% translate "EXERCISE_RESULTS" %}</li>
 {% endblock %}
 
 {% block coursecontent %}

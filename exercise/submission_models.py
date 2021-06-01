@@ -120,12 +120,12 @@ class Submission(UrlMixin, models.Model):
     A submission to some course exercise from one or more submitters.
     """
     STATUS = Enum([
-        ('INITIALIZED', 'initialized', _("Initialized")),
-        ('WAITING', 'waiting', _("In grading")),
-        ('READY', 'ready', _("Ready")), # graded normally
-        ('ERROR', 'error', _("Error")),
-        ('REJECTED', 'rejected', _("Rejected")), # missing fields etc
-        ('UNOFFICIAL', 'unofficial', _("No effect on grading")),
+        ('INITIALIZED', 'initialized', _('STATUS_INITIALIZED')),
+        ('WAITING', 'waiting', _('STATUS_WAITING')),
+        ('READY', 'ready', _('STATUS_READY')), # graded normally
+        ('ERROR', 'error', _('STATUS_ERROR')),
+        ('REJECTED', 'rejected', _('STATUS_REJECTED')), # missing fields etc
+        ('UNOFFICIAL', 'unofficial', _('STATUS_UNOFFICIAL')),
         # unofficial: graded after the deadline or after exceeding the submission limit
     ])
     submission_time = models.DateTimeField(auto_now_add=True)

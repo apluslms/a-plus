@@ -5,7 +5,7 @@ from .models import MenuItem, LTIService
 
 
 class MenuVisiblePermission(ObjectVisibleBasePermission):
-    message = _("Permission denied by menu visibility")
+    message = _('MENU_VISIBILTY_PERMISSION_DENIED_MSG')
     model = MenuItem
     obj_var = 'menu_item'
 
@@ -16,19 +16,19 @@ class MenuVisiblePermission(ObjectVisibleBasePermission):
 
         if menu_item.access >= MenuItem.ACCESS.TEACHER:
             if not view.is_teacher:
-                self.error_msg(_("The link is only for teachers."))
+                self.error_msg(_('MENU_VISIBILITY_ERROR_ONLY_TEACHERS'))
                 return False
 
         elif menu_item.access >= MenuItem.ACCESS.ASSISTANT:
             if not view.is_course_staff:
-                self.error_msg(_("The link is only for course staff."))
+                self.error_msg(_('MENU_VISIBILITY_ERROR_ONLY_COURSE_STAFF'))
                 return False
 
         return True
 
 
 class LTIServicePermission(Permission):
-    message = _("Not LTI service")
+    message = _('NOT_LTI_SERVICE')
 
     def has_permission(self, request, view):
         return self.has_object_permission(request, view, view.menu_item)

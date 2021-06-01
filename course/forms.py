@@ -23,7 +23,7 @@ class GroupsForm(forms.Form):
         for n in range(2, max_size + 1):
             widget = forms.TextInput(attrs={'class':'form-control'})
             field = forms.CharField(widget=widget, required=(n <= min_size))
-            field.label = mark_safe(_('{num} member').format(num=ordinal(n)))
+            field.label = mark_safe(_('GROUP_MEMBER_LABEL -- {num}').format(num=ordinal(n)))
             self.fields['member{:d}'.format(n)] = field
 
     def clean(self):
@@ -37,15 +37,15 @@ class GroupsForm(forms.Form):
                     personal_code=self.cleaned_data[key].upper()
                 ).first()
                 if not enrollment:
-                    self.add_error(key, _('The code was not recognized.'))
+                    self.add_error(key, _('ERROR_CODE_NOT_RECOGNIZED'))
                 elif enrollment.user_profile in self.member_profiles:
-                    self.add_error(key, _('The user is already in the group.'))
+                    self.add_error(key, _('ERROR_USER_ALREADY_IN_GROUP'))
                 else:
                     self.member_profiles.append(enrollment.user_profile)
 
         if not self.errors and len(self.member_profiles) > 1:
             if StudentGroup.get_exact(self.instance, self.member_profiles):
-                self.add_error(None, _('The group already exists.'))
+                self.add_error(None, _('ERROR_GROUP_ALREADY_EXISTS'))
 
         return self.cleaned_data
 
@@ -110,7 +110,7 @@ class EnrollStudentsForm(forms.Form):
 
     user_profiles = UsersSearchSelectField(queryset=UserProfile.objects.all(),
         initial_queryset=UserProfile.objects.none(),
-        label=_('Users'))
+        label=_('USERS'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

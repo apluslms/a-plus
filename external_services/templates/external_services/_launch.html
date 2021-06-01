@@ -25,9 +25,9 @@ E.g. {% static 'js/external_launcher.js' ‰}
 >
 	<div class="external-service-launch">
 		{% if not exercise %}
-			<h1>{% blocktrans with brand=brand name=service_label|parse_localization %}You are leaving {{ brand }} and entering {{ name }}{% endblocktrans %}</h1>
+			<h1>{% blocktranslate trimmed with brand=brand name=service_label|parse_localization %}EXTERNAL_SERVICE_LAUNCH_LEAVING_AND_ENTERING -- {{ brand }}, {{ name }}{% endblocktranslate %}</h1>
 		{% else %}
-			<h4>{% blocktrans with name=service_label|parse_localization %}This exercise is hosted on {{ name }}{% endblocktrans %}</h4>
+			<h4>{% blocktranslate trimmed with name=service_label|parse_localization %}EXTERNAL_SERVICE_LAUNCH_EXERCISE_HOSTED_ON -- {{ name }}{% endblocktranslate %}</h4>
 		{% endif %}
 		<div class="well">
 			{% include "external_services/_privacy.html" %}
@@ -37,15 +37,15 @@ E.g. {% static 'js/external_launcher.js' ‰}
 			<label for="extserv-auto-{{ form_id }}">
 				{% if exercise %}
 					{% if exercise.open_in_iframe %}
-						{% trans "Don't show this and automatically load the exercise next time." %}
+						{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_LOAD_EXERCISE_NEXT_TIME" %}
 					{% else %}
-						{% trans "Don't show this and automatically open the exercise next time." %}
+						{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_OPEN_EXERCISE_NEXT_TIME" %}
 					{% endif %}
 				{% else %}
-					{% trans "Don't show this and automatically continue to the service next time." %}
+					{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_CONTINUE_TO_SERVICE_NEXT_TIME" %}
 				{% endif %}
 				<br>
-				{% trans "This choice is saved on your device and you can remove it on your profile page." %}
+				{% translate "EXTERNAL_SERVICE_LAUNCH_CHOICE_SAVED_ON_DEVICE_AND_WHERE_TO_REMOVE" %}
 			</label>
 		</p>
 		<p>
@@ -55,11 +55,11 @@ E.g. {% static 'js/external_launcher.js' ‰}
 					<input type="hidden" name="{{ name }}" value="{{ value }}">
 				{% endfor %}
 				<input type="submit" class="aplus-button--default aplus-button--md"
-				       value="{% if exercise %}{% if exercise.open_in_iframe %}{% trans "Load the exercise" %}{% else %}{% trans "Open the exercise in a new window" %}{% endif %}{% else %}{% trans "Continue to the service" %}{% endif %}">
+				       value="{% if exercise %}{% if exercise.open_in_iframe %}{% translate 'LOAD_THE_EXERCISE' %}{% else %}{% translate 'OPEN_EXERCISE_IN_NEW_WINDOW' %}{% endif %}{% else %}{% translate 'CONTINUE_TO_SERVICE' %}{% endif %}">
 				{% if parameters %}
 					<a href="#extserv-more-{{ form_id }}" class="aplus-button--secondary aplus-button--md"
 					   aria-controls="{{ collapse_id }}" role="button" aria-expanded="false" data-toggle="collapse"
-					>{% trans "Show details" %}</a>
+					>{% translate "SHOW_DETAILS" %}</a>
 				{% endif %}
 			</form>
 		</p>

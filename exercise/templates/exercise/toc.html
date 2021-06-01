@@ -4,12 +4,12 @@
 {% load exercise %}
 {% load apps %}
 
-{% block title %}{% trans "Course materials" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "COURSE_MATERIALS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}toc{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Course materials" %}</li>
+<li class="active">{% translate "COURSE_MATERIALS" %}</li>
 {% endblock %}
 
 {% block coursecontent %}

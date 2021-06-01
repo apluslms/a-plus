@@ -4,12 +4,12 @@
   {% csrf_token %}
   <p>
     <button{% if grade == 0 %} disabled="yes"{% endif %} class="btn btn-default">
-      {% blocktrans %}Get course diploma{% endblocktrans %}
+      {% blocktranslate trimmed %}GET_COURSE_DIPLOMA{% endblocktranslate %}
     </button>
     {% if grade == 0 and is_course_staff %}
     <button class="btn btn-link">
       <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-      {% trans "Open grade 0 diploma" %}
+      {% translate "OPEN_GRADE_0_DIPLOMA" %}
     </button>
     {% endif %}
   </p>

@@ -299,8 +299,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                 status_code = status.HTTP_400_BAD_REQUEST
             except DatabaseError:
                 data = {
-                    'detail': _("The submission could not be saved for some reason. "
-                                "The submission was not registered."),
+                    'detail': _('ERROR_SUBMISSION_SAVING_FAILED'),
                 }
                 status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             else:

@@ -24,13 +24,13 @@
         <br />
         <span class="dates">
             <em>
-                {% blocktrans with deadline=current.late_time|date:"DATETIME_FORMAT" %}
-                Late submissions are allowed until {{ deadline }}.
-                {% endblocktrans %}
+                {% blocktranslate trimmed with deadline=current.late_time|date:"DATETIME_FORMAT" %}
+                    LATE_SUBMISSIONS_ALLOWED_UNTIL -- {{ deadline }}
+                {% endblocktranslate %}
                 {% if current.late_percent != 100 %}
-                {% blocktrans with percent=current.late_percent %}
-                but points are only worth {{ percent }}%.
-                {% endblocktrans %}
+                {% blocktranslate trimmed with percent=current.late_percent %}
+                    LATE_SUBMISSION_POINTS_WORTH -- {{ percent }}
+                {% endblocktranslate %}
                 {% endif %}
             </em>
         </span>

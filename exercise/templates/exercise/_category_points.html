@@ -5,7 +5,7 @@
 {% comment "Disabled as course total points/grade calculation is unknown." %}
 {% if categories|length > 1 %}
 <div class="well">
-    <p>{% trans "Total points" %}</p>
+    <p>{% translate "TOTAL_POINTS" %}</p>
     <p><strong class="h2">
     	{{ course.points }}
     	<small>/ {{ course.max_points }}</small>

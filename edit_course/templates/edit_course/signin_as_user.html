@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Sign in as given user" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "SIGN_IN_AS_GIVEN_USER" %} | {{ block.super }}{% endblock %}
 
 {% block content %}
-<h2 class="page-title">{% trans "Sign in as given user" %}</h2>
+<h2 class="page-title">{% translate "SIGN_IN_AS_GIVEN_USER" %}</h2>
 <p>
-  {% trans "For debugging purposes, superusers may sign in here as any user. Consider your actions!" %}
+  {% translate "SIGN_IN_AS_GIVEN_USER_DESCRIPTION_AND_WARNING" %}
 </p>
 <form method="post">
   {% csrf_token %}
   <label>
-    {% trans "Username" %}
+    {% translate "USERNAME" %}
     <input type="text" name="username" />
   </label>
-  <input type="submit" value="{% trans 'Change my session' %}" />
+  <input type="submit" value="{% translate 'CHANGE_MY_SESSION' %}" />
 </form>
 {% endblock %}

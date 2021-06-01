@@ -127,7 +127,7 @@ class PrivacyNoticeView(UserProfileView):
             if not template:
                 logger.error("No privacy notice at all!")
 
-            privacy_text = template.render() if template else _("No privacy notice. Please notify administration!")
+            privacy_text = template.render() if template else _('NO_PRIVACY_NOTICE')
             cache.set(key, privacy_text)
         self.privacy_text = privacy_text
         self.note("privacy_text")
@@ -154,7 +154,7 @@ class AccessibilityStatementView(UserProfileView):
             if not local_template:
                 logger.error("No local accessibility content at all!")
 
-            local_accessibility_statement = local_template.render() if local_template else gettext("No local accessibility statement. Please notify the site's owner!")
+            local_accessibility_statement = local_template.render() if local_template else gettext('NO_LOCAL_ACCESSIBILITY_STATEMENT')
 
             system_template_name = "accessibility_issues{}.html"
             system_template = try_get_template(system_template_name.format(lang))
@@ -166,7 +166,7 @@ class AccessibilityStatementView(UserProfileView):
             if not system_template:
                 logger.error("No system accessibility content at all!")
 
-            system_accessibility_statement = system_template.render() if system_template else gettext("No system-wide accessibility statement found.")
+            system_accessibility_statement = system_template.render() if system_template else gettext('NO_SYSTEM-WIDE_ACCESSIBILITY_STATEMENT')
 
             accessibility_statement = local_accessibility_statement + system_accessibility_statement
             cache.set(key, accessibility_statement)
@@ -199,7 +199,7 @@ class SupportView(UserProfileView):
             if not template:
                 logger.error("The support page is missing")
 
-            support_channels = template.render() if template else _("No support page. Please notify administration!")
+            support_channels = template.render() if template else _('NO_SUPPORT_PAGE')
 
             cache.set(key, support_channels)
 

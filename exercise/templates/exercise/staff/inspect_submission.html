@@ -3,14 +3,14 @@
 {% load course %}
 {% load exercise %}
 
-{% block title %}{% trans "Inspect SID " %} {{ submission.id}} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "INSPECT_SID" %} {{ submission.id}} | {{ block.super }}{% endblock %}
 {% block view_tag %}inspect{% endblock %}
 
 {% block exercisebreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
-<li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
-<li class="active">{% trans "Inspect" %}</td>
+<li><a href="{{ exercise|url:'submission-list' }}">{% translate "ALL_SUBMISSIONS"  %}</a></li>
+<li><a href="{{ submission|url }}">{% translate "SUBMISSION_ID" %} {{ submission.id }}</a></li>
+<li class="active">{% translate "INSPECT" %}</td>
 {% endblock %}
 
 {% block columns %}
@@ -18,14 +18,14 @@
     {% include "exercise/staff/_assess_info.html" %}
 </div>
 <div class="col-md-7">
-    <h3>{% trans "Assistant feedback" %}</h3>
+    <h3>{% translate "ASSISTANT_FEEDBACK" %}</h3>
     <div class="well">
 
         {% if submission.assistant_feedback %}
         {{ submission.assistant_feedback|safe }}
         {% else %}
         <div class="alert alert-info">
-        	{% trans "No assistant feedback available for this submission." %}
+        	{% translate "NO_ASSISTANT_FEEDBACK_FOR_SUBMISSION" %}
         </div>
         {% endif %}
 
@@ -34,43 +34,39 @@
         <p>
             <a class="aplus-button--secondary aplus-button--md" href="{{ submission|url:'submission-assess' }}" role="button">
                 {% if submission.exercise.allow_assistant_grading %}
-            	{% trans "Assess this submission as an assistant" %}
+            	    {% translate "ASSESS_SUBMISSION_AS_ASSISTANT" %}
                 {% else %}
-                {% trans "Assess this submission as a teacher" %}
+                    {% translate "ASSESS_SUBMISSION_AS_TEACHER" %}
                 {% endif %}
             </a>
         </p>
         {% endif %}
     </div>
 
-    <h3>{% trans "Grader feedback" %}</h3>
+    <h3>{% translate "GRADER_FEEDBACK" %}</h3>
     <div class="well">
     	{% if submission.feedback %}
-        {{ submission.feedback|safe }}
+            {{ submission.feedback|safe }}
     	{% else %}
-        <div class="alert alert-info">
-        	{% trans "No grader feedback available for this submission." %}
-        </div>
+            <div class="alert alert-info">
+        	    {% translate "NO_GRADER_FEEDBACK_FOR_SUBMISSION" %}
+            </div>
     	{% endif %}
 
         <hr/>
         {% if exercise.can_regrade %}
         	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
         		{% csrf_token %}
-        		<input class="aplus-button--secondary aplus-button--md" type="submit" value="{% trans 'Re-submit to service' %}" />
+        		<input class="aplus-button--secondary aplus-button--md" type="submit" value="{% translate 'RE-SUBMIT_TO_SERVICE' %}" />
         	</form>
         {% endif %}
         <p>
         {% if exercise.can_regrade %}
-        	{% blocktrans %}
-            Click this button to re-submit this submission to the assessment
-            service. This is meant to be used only in situations where the
-            assessment service has behaved incorrectly so that the grading
-            data is incorrect or the status of the submission never became
-            ready. Caution! Re-submitting overwrites the current grading data.
-            {% endblocktrans %}
+        	{% blocktranslate trimmed %}
+                RE-SUBMIT_TO_SERVICE_DESCRIPTION
+            {% endblocktranslate %}
         {% else %}
-            {% trans "Exercises of this type can not be re-submitted to the assessment service." %}
+            {% translate "EXERCISE_OF_TYPE_CANNOT_BE_RE-SUBMITTED_TO_ASSESMENT_SERVICE" %}
         {% endif %}
         </p>
 
@@ -78,7 +74,7 @@
 
     {% get_grading_errors submission as errors %}
     {% if errors %}
-        <h3>{% trans "Grader errors" %}</h3>
+        <h3>{% translate "GRADER_ERRORS" %}</h3>
         <pre>{{ errors }}</pre>
     {% endif %}
 </div>

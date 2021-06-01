@@ -2,13 +2,13 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{% trans "Course instances" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "COURSE_INSTANCES" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}instances{% endblock %}
 
 {% block content %}
 <div class="frontpage-panel">
 	<div class="page-header">
-		<h1>{% trans "Course instances" %}</h1>
+		<h1>{% translate "COURSE_INSTANCES" %}</h1>
 	</div>
 	{% if instances %}
 	{% regroup instances by starting_time|date:"Y" as instances_by_year %}

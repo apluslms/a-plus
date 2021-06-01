@@ -16,7 +16,7 @@
 	<section class="frontpage frontpage-section">
 		{% if my_instances %}
 				<div class="section-heading">
-					<h2>{% trans "My courses" %}</h2>
+					<h2>{% translate "MY_COURSES" %}</h2>
 				</div>
 				<div class="cards">
 					{% include "course/_course_cards.html" with instances=my_instances condensed=False %}
@@ -24,7 +24,7 @@
 		{% else %}
 			<div class="panel-body">
 				<p class="panel-default-text">
-					{% trans "You do not currently have any active courses." %}
+					{% translate "MY_COURSES_EMPTY" %}
 				</p>
 			</div>
 		{% endif %}
@@ -33,10 +33,10 @@
 
 	<section class="frontpage frontpage-section">
 		<div class="section-heading">
-			<h2>{% trans "All ongoing courses" %}</h2>
+			<h2>{% translate "ALL_ONGOING_COURSES" %}</h2>
 			<div class="action">
 				{% url 'archive' as url %}
-				<a href="{{ url }}">{% trans "See all courses" %}</a>
+				<a href="{{ url }}">{% translate "SEE_ALL_COURSES" %}</a>
 			</div>
 		</div>
 		<div class="cards">
@@ -67,7 +67,7 @@
 		{% if not all_instances and not siteadvert %}
 			<div class="panel-body">
 				<p class="panel-default-text">
-					{% trans "There are currently no active courses." %}
+					{% translate "NO_ACTIVE_COURSES" %}
 				</p>
 			</div>
 		{% endif %}

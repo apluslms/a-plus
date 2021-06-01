@@ -150,8 +150,7 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
         #)
         Notification.send(self.profile, self.submission)
 
-        messages.success(self.request, _("The review was saved successfully "
-            "and the submitters were notified."))
+        messages.success(self.request, _('ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS'))
         return super().form_valid(form)
 
 
@@ -171,7 +170,7 @@ class FetchMetadataView(CourseInstanceMixin, BaseView):
                 metadata["description"] = page.meta["description"]
                 metadata["success"] = True
             else:
-                metadata["message"] = str(_("Failed to load the resource."))
+                metadata["message"] = str(_('ERROR_FAILED_TO_LOAD_RESOURCE'))
         except ValidationError as e:
             metadata["message"] = " ".join(e.messages)
         return JsonResponse(metadata)
@@ -250,7 +249,7 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
         )
         if not form.is_valid():
             messages.error(request,
-                _("Invalid POST data:\n{error}").format(
+                _("ERROR_INVALID_POST_DATA -- {error}").format(
                     error="\n".join(extract_form_errors(form))))
             return self.redirect(self.exercise.get_submission_list_url())
 
@@ -265,7 +264,7 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
         sub.set_ready()
         sub.save()
 
-        messages.success(request, _("New submission stored."))
+        messages.success(request, _('NEW_SUBMISSION_STORED'))
         return self.redirect(sub.get_absolute_url())
 
 
@@ -288,9 +287,9 @@ class EditSubmittersView(SubmissionMixin, BaseFormView):
 
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, _("Changes were saved succesfully."))
+        messages.success(self.request, _('SUCCESS_SAVING_CHANGES'))
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Failed to save changes."))
+        messages.error(self.request, _('FAILURE_SAVING_CHANGES'))
         return super().form_invalid(form)

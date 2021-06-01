@@ -99,11 +99,11 @@ class GroupsEditView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, _("Changes were saved succesfully."))
+        messages.success(self.request, _('SUCCESS_SAVING_CHANGES'))
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Failed to save changes."))
+        messages.error(self.request, _('FAILURE_SAVING_CHANGES'))
         return super().form_invalid(form)
 
 
@@ -140,7 +140,7 @@ class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
         if failed_enrollments:
             messages.warning(
                 self.request,
-                _("The following users were already enrolled: {users}").format(
+                _('ENROLLMENTS_FAILED_WARNING_USERS_ALREADY_ENROLLED -- {users}').format(
                     users='; '.join([profile.name_with_student_id for profile in failed_enrollments]),
                 ),
             )

@@ -1,16 +1,16 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Grades" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "GRADES" %} | {{ block.super }}{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Grades" %}</li>
+<li class="active">{% translate "GRADES" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
 <p class="filter-users">
-  <small>{% trans "Filter users" %}:</small>
+  <small>{% translate "FILTER_USERS" %}:</small>
   <a class="btn btn-success btn-xs" href="?group=internal">
     <span class="glyphicon glyphicon-{% if group == 'internal' %}check{% else %}unchecked{% endif %}" aria-hidden="true"></span>
     {{ internal_user_label|safe }}
@@ -23,9 +23,9 @@
 
 <table class="table table-condensed">
   <tr>
-    <th>{% trans "Username" %}</th>
-    <th>{% trans "Student id" %}</th>
-    <th>{% trans "Grade" %}</th>
+    <th>{% translate "USERNAME" %}</th>
+    <th>{% translate "STUDENT_ID" %}</th>
+    <th>{% translate "GRADE" %}</th>
   </tr>
   {% for profile,grade in student_grades %}
   <tr>

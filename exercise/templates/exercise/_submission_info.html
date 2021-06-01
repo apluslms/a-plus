@@ -5,32 +5,32 @@
 
 <div class="panel panel-primary">
 	<div class="panel-heading">
-		<h4 class="panel-title">{% trans "Submission info" %}</h4>
+		<h4 class="panel-title">{% translate "SUBMISSION_INFO" %}</h4>
 	</div>
 	<div class="panel-body">
 		<dl>
-			<dt>{% trans "Submitted on" %}</dt>
+			<dt>{% translate "SUBMITTED_ON" %}</dt>
 			<dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
 
-			<dt>{% trans "Status" %}</dt>
+			<dt>{% translate "STATUS" %}</dt>
 			<dd>
 				<span class="label label-{% if submission.is_graded %}success{% else %}default{% endif %}">
 					{{ submission.status|submission_status }}
 				</span>
 			</dd>
 
-			<dt>{% trans "Grade" %}</dt>
+			<dt>{% translate "GRADE" %}</dt>
 			<dd>
 				{{ submission.grade }} / {{ exercise.max_points }}
 			</dd>
 
 			{% if submission.late_penalty_applied %}
-			<dt>{% trans "Includes late penalty" %}</dt>
+			<dt>{% translate "INCLUDES_LATE_PENALTY" %}</dt>
 			<dd>-{{ submission.late_penalty_applied|percent }} %</dd>
 			{% endif %}
 
 			<dt>
-				{% trans "Submitters" %}
+				{% translate "SUBMITTERS" %}
 			</dt>
 			<dd>
 			  {% if is_course_staff %}

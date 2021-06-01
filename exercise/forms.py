@@ -25,24 +25,21 @@ class SubmissionCallbackForm(forms.Form):
         if points and max_points:
             if points > max_points:
                 raise forms.ValidationError(
-                    _("Points greater than maximum points are not allowed."))
+                    _('SUBMISSION_ERROR_POINTS_GREATER_THAN_MAX_POINTS'))
             if points < 0:
                 raise forms.ValidationError(
-                    _("Points lower than zero are not allowed."))
+                    _('SUBMISSION_ERROR_POINTS_LOWER_THAN_ZERO'))
         return self.cleaned_data
 
 
 class SubmissionReviewForm(forms.Form):
 
     points = forms.IntegerField(min_value=0,
-        help_text=_("Possible penalties are not applied - the points are set "
-                    "as given. This will <em>override</em> grader points!"))
+        help_text=_('SUBMISSION_REVIEW_POINTS_OVERRIDE_HELPTEXT'))
     assistant_feedback = forms.CharField(required=False, widget=forms.Textarea,
-        help_text=_("HTML formatting is allowed. This will not override "
-                    "machine feedback."))
+        help_text=_('SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT'))
     feedback = forms.CharField(required=False, widget=forms.Textarea,
-        help_text=_("HTML formatting is allowed. This WILL override machine "
-                    "feedback."))
+        help_text=_('SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT'))
 
     def __init__(self, *args, **kwargs):
         self.exercise = kwargs.pop('exercise')
@@ -54,8 +51,7 @@ class SubmissionReviewForm(forms.Form):
         max_points = self.exercise.max_points
         if not points is None and points > max_points:
             raise forms.ValidationError(
-                _("The maximum points for this exercise is {max:d} and the "
-                  "given points is more than that.").format(
+                _('SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}').format(
                     max=self.exercise.max_points
                 ))
         return self.cleaned_data
@@ -99,9 +95,9 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
         fields = self.STUDENT_FIELDS
         n = sum((1 if data.get(k) else 0) for k in fields)
         if n == 0:
-            raise forms.ValidationError(_("One of the student fields must not be blank"))
+            raise forms.ValidationError(_('SUBMISSION_CREATE_AND_REVIEW_ERROR_ALL_STUDENT_FIELDS_BLANK'))
         if n > 1:
-            raise forms.ValidationError(_("Only one student field can be given"))
+            raise forms.ValidationError(_('SUBMISSION_CREATE_AND_REVIEW_ERROR_ONLY_ONE_STUDENT_FIELD_CAN_BE_GIVEN'))
         return data
 
     @property

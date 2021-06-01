@@ -99,9 +99,9 @@ class CourseInstancesView(UserProfileView):
         self.msg = ""
         if CourseInstance.objects.filter(course=course).count() > 0:
             self.instances = CourseInstance.objects.get_visible(self.request.user).filter(course=course).order_by('-starting_time')
-            self.msg = _("The course instances of this course are not visible to students.")
+            self.msg = _('COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS')
         else:
-            self.msg = _("There are no course instances for this course.")
+            self.msg = _('NO_COURSE_INSTANCES_OF_COURSE')
 
         self.note("instances", "msg")
 
@@ -127,7 +127,7 @@ class LastInstanceView(CourseMixin, BaseRedirectView):
         elif latest_hidden and latest_hidden.is_course_staff(self.request.user):
             self.course_instance = latest_hidden
         else:
-            raise Http404(_("There are no course instances for this course."))
+            raise Http404(_('NO_COURSE_INSTANCES_OF_COURSE'))
 
     def get(self, request, *args, **kwargs):
         return self.redirect(self.course_instance.url)
@@ -174,11 +174,11 @@ class Enroll(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
     def post(self, request, *args, **kwargs):
 
         if self.is_student or not self.enrollable:
-            messages.error(self.request, _("You cannot enroll, or have already enrolled, in this course."))
+            messages.error(self.request, _('ENROLLMENT_ERROR_CANNOT_ENROLL_OR_ALREADY_ENROLLED'))
             raise PermissionDenied()
 
         if not self.instance.is_enrollment_open():
-            messages.error(self.request, _("The enrollment is not open."))
+            messages.error(self.request, _('ENROLLMENT_ERROR_ENROLLMENT_NOT_OPEN'))
             raise PermissionDenied()
 
         # Support enrollment questionnaires.
@@ -251,7 +251,7 @@ class GroupsView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         form.save()
-        messages.success(self.request, _("A new student group was created."))
+        messages.success(self.request, _('NEW_STUDENT_GROUP_CREATED'))
         return super().form_valid(form)
 
 

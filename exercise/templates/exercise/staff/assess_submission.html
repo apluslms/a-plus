@@ -3,14 +3,14 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block title %}{% trans "Assess SID " %} {{ submission.id}} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "ASSESS_SID" %} {{ submission.id}} | {{ block.super }}{% endblock %}
 {% block view_tag %}assess{% endblock %}
 
 {% block exercisebreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions"  %}</a></li>
-<li><a href="{{ submission|url }}">{% trans "Submission ID" %} {{ submission.id }}</a></li>
-<li class="active">{% trans "Assess" %}</td>
+<li><a href="{{ exercise|url:'submission-list' }}">{% translate "ALL_SUBMISSIONS"  %}</a></li>
+<li><a href="{{ submission|url }}">{% translate "SUBMISSION_ID" %} {{ submission.id }}</a></li>
+<li class="active">{% translate "ASSESS" %}</td>
 {% endblock %}
 
 {% block columns %}
@@ -18,14 +18,14 @@
     {% include "exercise/staff/_assess_info.html" %}
 </div>
 <div class="col-md-7">
-    <h3>{% trans "Assessment" %}</h3>
+    <h3>{% translate "ASSESSMENT" %}</h3>
     <div class="well assistant-feedback">
         <form method="post" role="form">
             {% csrf_token %}
             {{ form|bootstrap }}
             <div class="form-group">
-                <button type="submit" class="aplus-button--default aplus-button--md">{% trans 'Save' %}</button>
-                <a href="{{ submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--md" role="button">{% trans "Cancel" %}</a>
+                <button type="submit" class="aplus-button--default aplus-button--md">{% translate "SAVE" %}</button>
+                <a href="{{ submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--md" role="button">{% translate "CANCEL" %}</a>
             </div>
         </form>
     </div>

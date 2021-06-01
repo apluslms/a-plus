@@ -8,26 +8,26 @@
 {{ block.super }}
 <script src="{% static 'js/ajax_search_select.js' %}"></script>
 {% endblock scripts %}
-{% block title %}{% trans "Enroll students" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "ENROLL_STUDENTS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}participants,enroll-students{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'participants' }}">{% trans "Participants" %}</a></li>
-<li class="active">{% trans "Enroll students" %}</li>
+<li><a href="{{ instance|url:'participants' }}">{% translate "PARTICIPANTS" %}</a></li>
+<li class="active">{% translate "ENROLL_STUDENTS" %}</li>
 {% endblock %}
 
 {% block columns %}
 <div class="col-md-12">
   <p>
-  {% trans "Teacher may manually enroll students in the course here. Enrollment time and audience restrictions do not apply here. If the course has an enrollment exercise, the manually enrolled students are not required to submit anything." %}
+  {% translate "ENROLL_STUDENTS_MANUALLY_DESCRIPTION" %}
   </p>
   <form method="post" class="well form">
     {% csrf_token %}
-    <legend>{% trans "Enroll students in the course" %}</legend>
+    <legend>{% translate "ENROLL_STUDENTS_IN_COURSE" %}</legend>
     {{ form|bootstrap }}
     <button type="submit" class="aplus-button--default aplus-button--md">
-      {% trans "Enroll students" %}
+      {% translate "ENROLL_STUDENTS" %}
     </button>
   </form>
 </div>

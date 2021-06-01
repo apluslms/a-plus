@@ -32,23 +32,23 @@
 				{% if not request.is_ajax %}
 				<th rowspan="2">
 					<a href="{{ submission.exercise|url:'exercise-plain' }}" class="aplus-button--secondary aplus-button--md" role="button">
-						{% trans "Return to exercise" %}
+						{% translate "RETURN_TO_EXERCISE" %}
 					</a>
 				</th>
 				{% endif %}
-				<th>{% trans "Date" %}</th>
-				<th>{% if submission.is_graded %}{% trans "Points" %}{% else %}{% trans "Status" %}{% endif %}</th>
-				{% if submission.files.exists %}<th>{% trans "Files" %}</th>{% endif %}
-				{% if is_course_staff %}<th>{% trans "Course staff" %}</th>{% endif %}
+				<th>{% translate "DATE" %}</th>
+				<th>{% if submission.is_graded %}{% translate "POINTS" %}{% else %}{% translate "STATUS" %}{% endif %}</th>
+				{% if submission.files.exists %}<th>{% translate "FILES" %}</th>{% endif %}
+				{% if is_course_staff %}<th>{% translate "COURSE_STAFF" %}</th>{% endif %}
 			</tr>
 			<tr>
 				<td>
 					{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
 					{% if submission.late_penalty_applied %}
 					<span class="label label-warning">
-						{% blocktrans with percent=submission.late_penalty_applied|percent %}
-						Late <small>-{{ percent }}%</small>
-						{% endblocktrans %}
+						{% blocktranslate trimmed with percent=submission.late_penalty_applied|percent %}
+						LATE_W_PENALTY -- {{ percent }}
+						{% endblocktranslate %}
 					</span>
 					{% endif %}
 				</td>
@@ -72,7 +72,7 @@
 				<td>
 					<a href="{{ submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--md" role="button">
 						<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-						{% trans "Inspect" %}
+						{% translate "INSPECT" %}
 					</a>
 				</td>
 				{% endif %}
@@ -82,7 +82,7 @@
 		<div id="exercise-all">
 
 		{% if submission.assistant_feedback %}
-		<h4>{% trans "Assistant feedback" %}</h4>
+		<h4>{% translate "ASSISTANT_FEEDBACK" %}</h4>
 		<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
 		{% endif %}
 
@@ -93,11 +93,11 @@
 		</div>
 		{% elif submission.status == "waiting" %}
 		<div class="alert alert-info">
-			{% trans "Your submission has been accepted for grading." %}
+			{% translate "SUBMISSION_ACCEPTED_FOR_GRADING" %}
 		</div>
 		{% else %}
 		<div class="alert alert-info">
-			{% trans "No grader feedback available for this submission." %}
+			{% translate "NO_GRADER_FEEDBACK_FOR_SUBMISSION" %}
 		</div>
 		{% endif %}
 

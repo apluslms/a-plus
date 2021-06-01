@@ -8,15 +8,23 @@
 {% elif confirm_the_level %}
 {% if submitted %}
 <span class="badge{% if graded and official %} badge-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}{% endif %} {{ classes }}">
-  {% if not official %}{% trans 'Submitted after deadline or exceeded submission limit' %}{% elif passed %}{% trans "Accepted" %}{% elif graded %}{% trans "Rejected" %}{% else %}{% trans "Submitted" %}{% endif %}
+  {% if not official %}
+    {% translate "UNOFFICIAL_DESCRIPTION" %}
+  {% elif passed %}
+    {% translate "ACCEPTED" %}
+  {% elif graded %}
+    {% translate "REJECTED" %}
+  {% else %}
+    {% translate "SUBMITTED" %}
+  {% endif %}
 </span>
 {% elif confirmable_points %}
-<span class="badge badge-danger" data-toggle="tooltip" title="{% trans 'You must submit here to confirm your points. Submissions are accepted even after the deadline.' %}">
-  {% trans "Missing" %}
+<span class="badge badge-danger" data-toggle="tooltip" title="{% translate 'CONFIRMABLE_POINTS_DESCRIPTION' %}">
+  {% translate "MISSING" %}
 </span>
 {% elif exercise_page %}
 <span class="badge">
-  {% trans "Not submitted" %}
+  {% translate "NOT_SUBMITTED" %}
 </span>
 {% endif %}
 
@@ -26,7 +34,7 @@
 {% endif %}
 <span class="badge{% if submitted and official %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
         data-toggle="tooltip" data-placement="bottom"
-        title="{% if not official %}{% trans 'Submitted after deadline or exceeded submission limit' %}{% elif passed %}{% if required > 0 %}{% trans 'Passed' %}{% endif %}{% elif missing_points %}{% blocktrans with points=required %}{{ points }} points required to pass{% endblocktrans %}{% elif submitted %}{% trans 'Required exercises are not passed' %}{% endif %}">
+        title="{% if not official %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% elif passed %}{% if required > 0 %}{% translate 'PASSED' %}{% endif %}{% elif missing_points %}{% blocktranslate trimmed with points=required %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% elif submitted %}{% translate 'REQUIRED_EXERCISES_NOT_PASSED' %}{% endif %}">
     {{ points }} / {{ max }}
 </span>
 {% endif %}

@@ -45,7 +45,7 @@
 						<p>{{ advert.text|safe }}</p>
 						<div class="buttons">
 							<a href="{{ advert.href }}" target="_blank">
-								{% trans "Read more" %}
+								{% translate "READ_MORE" %}
 							</a>
 						</div>
 					</div>
@@ -68,10 +68,10 @@
 	<div class="col-sm-10" id="course-content">
 		{% if instance.is_past and instance.has_enrollment_closed %}
 			<div class="alert sticky-alert alert-default">
-				{% trans "This course has already ended." %}
+				{% translate "COURSE_HAS_ALREADY_ENDED" %}
 				{% if later_instance %}
 					<p>
-						{% trans "The latest version of the course can be found at:" %}
+						{% translate "LATEST_COURSE_INSTANCE_CAN_BE_FOUND" %}
 						<a class="alert-link" href="{{ later_instance|url }}">
 							<span lang="{{ later_instance.language }}">
 								{{ later_instance.course.name|parse_localization }}: {{ later_instance.instance_name|parse_localization }}
@@ -86,33 +86,33 @@
 			<div lang={{user_language}}>
 				<div class="alert alert-default">
 					<img class="language-icon" src="/static/images/uls.svg" alt="">
-					{% trans "You are browsing this course in a different language than is set in your preferences." %}
+					{% translate "LANGUAGE_WARNING_BROWSING_IN_DIFFERENT_LANGUAGE_THAN_IN_PREFERENCES" %}
 					{% if user_course_data %}
 						<div class="button-container">
 							<form action="{{ url_without_language }}">
 								<button type="submit" class="aplus-button--secondary aplus-button--md">
-									{% blocktrans trimmed with lang=user_language|language_name_translated %}
-									Browse the course in {{ lang }}
-									{% endblocktrans %}
+									{% blocktranslate trimmed with lang=user_language|language_name_translated %}
+										LANGUAGE_BROWSE_COURSE_IN -- {{ lang }}
+									{% endblocktranslate %}
 								</button>
 							</form>
 							<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
 								{% csrf_token %}
 								<input name="language" type="hidden" value="{{ query_language }}" />
 								<button type="submit" class="aplus-button--secondary aplus-button--md">
-									{% blocktrans trimmed with lang=query_language|language_name_translated %}
-									Set {{ lang }} as course language
-									{% endblocktrans %}
+									{% blocktranslate trimmed with lang=query_language|language_name_translated %}
+										LANGUAGE_SET_COURSE_LANGUAGE -- {{ lang }}
+									{% endblocktranslate %}
 								</button>
 							</form>
 						</div>
 					{% else %}
-						{% trans "You can change the language from your profile." %}
+						{% translate "LANGUAGE_CAN_BE_CHANGED_FROM_PROFILE" %}
 						<form action="{{ url_without_language }}">
 							<button type="submit" class="aplus-button--secondary aplus-button--md">
-								{% blocktrans trimmed with lang=user_language|language_name_translated %}
-								Browse the course in {{ lang }}
-								{% endblocktrans %}
+								{% blocktranslate trimmed with lang=user_language|language_name_translated %}
+									LANGUAGE_BROWSE_COURSE_IN -- {{ lang }}
+								{% endblocktranslate %}
 							</button>
 						</form>
 					{% endif %}
@@ -122,7 +122,7 @@
 		{% endif %}
 		{% block siblings %}{% endblock %}
 		{% block breadcrumb %}
-		<div role="navigation" aria-label="{% trans "Breadcrumb" %}">
+		<div role="navigation" aria-label="{% translate 'BREADCRUMB' %}">
 			<ol class="breadcrumb">
 				{% block breadcrumblist %}
 				<li><a href="{{ instance|url }}">{{ course.code }}</a></li>

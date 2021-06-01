@@ -40,7 +40,7 @@
 	<body>
 		<div id="exercise-all">
 			<a href="{{ exercise|url:'exercise' }}" target="_blank" rel="noopener" class="skip-link">
-				{% trans "Open this exercise in a new tab (recommended for keyboard and assistive technology users)" %}
+				{% translate "OPEN_EXERCISE_IN_NEW_TAB" %}
 			</a>
 			<div class="overlay-parent">
 
@@ -58,7 +58,7 @@
 								<a href="{% if summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
 									<span>
 										{% if not exercise.category.confirm_the_level %}
-											{% trans "Points" %}
+											{% translate "POINTS" %}
 										{% endif %}
 										{% points_badge summary %}
 									</span>
@@ -67,7 +67,7 @@
 							<li class="dropdown">
 								<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 									<span>
-										{% trans "My submissions" %}
+										{% translate "MY_SUBMISSIONS" %}
 										<span class="badge">
 											{{ summary.get_submission_count }}
 											{% if exercise.max_submissions %}
@@ -88,7 +88,7 @@
 										</li>
 									{% empty %}
 										<li>
-											<a href="#">{% trans "No submissions yet" %}</a>
+											<a href="#">{% translate "NO_SUBMISSIONS_YET" %}</a>
 										</li>
 									{% endfor %}
 								</ul>
@@ -101,18 +101,20 @@
 												{% if exercise.points_to_pass > 0 %}
 													<li>
 														<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
-														{% blocktrans with points=exercise.points_to_pass %}{{ points }} points required to pass{% endblocktrans %}
+														{% blocktranslate trimmed with points=exercise.points_to_pass %}
+															POINTS_REQUIRED_TO_PASS -- {{ points }}
+														{% endblocktranslate %}
 													</li>
 												{% endif %}
 												<li>
 													<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
 													{% if exercise.is_late_submission_open %}
-														{% trans "Late submission deadline" %} {{ module.late_submission_deadline }}
+														{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
 														{% if module.late_submission_penalty > 0 %}
 														(-{{ module.late_submission_penalty|percent }}%)
 														{% endif %}
 													{% else %}
-														{% trans "Deadline" %}
+														{% translate "DEADLINE" %}
 														{{ module.closing_time }}
 													{% endif %}
 												</li>
@@ -120,16 +122,16 @@
 													<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
 													{% if exercise.min_group_size == 1 %}
 														{% if exercise.max_group_size == 1 %}
-															{% trans "To be submitted alone" %}
+															{% translate "TO_BE_SUBMITTED_ALONE" %}
 														{% elif exercise.max_group_size == 2 %}
-															{% blocktrans with size=2 %}To be submitted alone or in groups of {{ size }}{% endblocktrans %}
+															{% blocktranslate trimmed with size=2 %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ size }}{% endblocktranslate %}
 														{% else %}
-															{% blocktrans with min=2 max=exercise.max_group_size %}To be submitted alone or in groups of {{ min }}-{{ max }}{% endblocktrans %}
+															{% blocktranslate trimmed with min=2 max=exercise.max_group_size %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
 														{% endif %}
 													{% elif exercise.min_group_size == exercise.max_group_size %}
-														{% blocktrans with size=exercise.min_group_size %}To be submitted in groups of {{ size }}{% endblocktrans %}
+														{% blocktranslate trimmed with size=exercise.min_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ size }}{% endblocktranslate %}
 													{% else %}
-														{% blocktrans with min=exercise.min_group_size max=exercise.max_group_size %}To be submitted in groups of {{ min }}-{{ max }}{% endblocktrans %}
+														{% blocktranslate trimmed with min=exercise.min_group_size max=exercise.max_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
 													{% endif %}
 												</li>
 											</ul>
@@ -145,7 +147,7 @@
 							{% if exercise.model_answers %}
 								<a class="aplus-button--secondary aplus-button--xs page-modal" role="button" href="{{ exercise|url:'exercise-model' }}">
 									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-									{% trans "Show model answer" %}
+									{% translate "SHOW_MODEL_ANSWER" %}
 								</a>
 							{% endif %}
 						{% endif %}
@@ -153,14 +155,14 @@
 							{% if exercise.templates %}
 								<a class="aplus-button--secondary aplus-button--xs page-modal" role="button" href="{{ exercise|url:'exercise-template' }}">
 									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-									{% trans "Show exercise template" %}
+									{% translate "SHOW_EXERCISE_TEMPLATE" %}
 								</a>
 							{% endif %}
 						{% endif %}
 						{% if is_course_staff %}
 							<a class="aplus-button--secondary aplus-button--xs page-modal" role="button" href="{{ exercise|url:'submission-list' }}">
 								<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-								{% trans "View all submissions" %}
+								{% translate "VIEW_ALL_SUBMISSIONS" %}
 							</a>
 						{% endif %}
 					</nav>
@@ -183,7 +185,7 @@
 							{{ page.content|safe }}
 						{% elif submission and submission.status == "waiting" %}
 							<div class="alert alert-info">
-								{% trans "Your submission has been accepted for grading." %}
+								{% translate "SUBMISSION_ACCEPTED_FOR_GRADING" %}
 							</div>
 						{% endif %}
 					</div>

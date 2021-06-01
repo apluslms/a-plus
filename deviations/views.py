@@ -40,7 +40,7 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
         new_date = form.cleaned_data["new_date"]
         if not minutes and not new_date:
             messages.warning(self.request,
-                    _("You have to provide either minutes or a date in the future."))
+                    _('DEVIATION_WARNING_MUST_PROVIDE_MINUTES_OR_FUTURE_DATE'))
             return super().form_valid(form)
 
         without_late_penalty = form.cleaned_data["without_late_penalty"]
@@ -74,8 +74,7 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
             )
         except IntegrityError:
             messages.warning(self.request,
-                _("Deadline deviation already exists for {user} in {exercise}!"
-                  "Remove it before trying to add a new one.").format(
+                _('DEVIATION_WARNING_DEADLINE_DEVIATION_ALREADY_FOR -- {user}, {exercise}').format(
                     user=str(profile), exercise=str(exercise)))
 
 

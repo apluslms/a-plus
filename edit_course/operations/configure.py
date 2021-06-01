@@ -27,7 +27,7 @@ def parse_date(value, errors, allow_null=False):
                 timezone.get_current_timezone())
         except ValueError:
             pass
-    errors.append(_("Unable to parse value '{value}' as a date.").format(value=value))
+    errors.append(_('ERROR_PARSING_DATE -- {value}').format(value=value))
     return None
 
 
@@ -55,7 +55,7 @@ def parse_duration(begin, value, errors):
                 return begin + timedelta(weeks=i)
         except ValueError:
             pass
-    errors.append(_("Unable to parse value '{value}' as a time duration.").format(value=value))
+    errors.append(_('ERROR_PARSING_TIME_DURATION -- {value}').format(value=value))
     return None
 
 
@@ -63,7 +63,7 @@ def parse_int(value, errors):
     try:
         return int(value)
     except ValueError:
-        errors.append(_("Unable to parse value '{value}' as an int.").format(value=value))
+        errors.append(_('ERROR_PARSING_INT -- {value}').format(value=value))
     return None
 
 
@@ -71,7 +71,7 @@ def parse_float(value, errors):
     try:
         return float(value)
     except ValueError:
-        errors.append(_("Unable to parse value '{value}' as a float.").format(value=value))
+        errors.append(_('ERROR_PARSING_FLOAT -- {value}').format(value=value))
     return None
 
 
@@ -86,7 +86,7 @@ def parse_choices(value, choices, field_name, errors):
     # field_name is the name of the JSON field.
     parsed_value = choices.get(value, None)
     if parsed_value is None:
-        errors.append(_("Field '{field}' has an unknown value '{value}'.").format(
+        errors.append(_('ERROR_JSON_FIELD_UNKNOWN_VALUE -- {field}, {value}').format(
                 field=field_name, value=str(value)))
         return None
     return parsed_value
@@ -104,13 +104,13 @@ def configure_learning_objects(category_map, module, config, parent,
         return n
     for o in config:
         if not "key" in o:
-            errors.append(_("Learning object requires a key."))
+            errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_KEY'))
             continue
         if not "category" in o:
-            errors.append(_("Learning object requires a category."))
+            errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_CATEGORY'))
             continue
         if not o["category"] in category_map:
-            errors.append(_("Unknown category '{category}'.").format(category=o["category"]))
+            errors.append(_('LEARNING_OBJECT_ERROR_UNKNOWN_CATEGORY -- {category}').format(category=o["category"]))
             continue
 
         lobject = LearningObject.objects.filter(
@@ -140,11 +140,7 @@ def configure_learning_objects(category_map, module, config, parent,
             lti = LTIService.objects.filter(menu_label=str(o["lti"])).first()
             if lti is None:
                 errors.append(
-                    _("The site has no configuration for the LTI service '{lti_label}' "
-                    "used by the LTI exercise '{exercise_key}'. You may have misspelled "
-                    "the value for the field 'lti' or the site administrator has not yet "
-                    "added the configuration for the LTI service. The exercise was not "
-                    "created/updated due to the error.")
+                    _('LTI_ERROR_NO_CONFIGURATION_TO_SERVICE_USED_BY_EXERCISE -- {lti_label}, {exercise_key}')
                     .format(lti_label=str(o["lti"]), exercise_key=str(o["key"]))
                 )
                 if hasattr(lobject, 'id'):
@@ -273,19 +269,19 @@ def get_build_log(instance):
     Request latest build log from the build log URL defined for instance.
     """
     if not instance.build_log_url:
-        return {'error': _("Cannot request build log from build_log_url when it is blank.")}
+        return {'error': _('BUILD_LOG_ERROR_URL_BLANK')}
     try:
         response = requests.get(instance.build_log_url)
     except Exception as e:
-        return {'error': _("Requesting build log failed with error '{error!s}'.")\
+        return {'error': _('BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}')\
                 .format(error=e)}
     try:
         data = json.loads(response.text)
     except Exception as e:
-        return {'error': _("Parsing the build log JSON raised error '{error!s}'.")\
+        return {'error': _('BUILD_LOG_ERROR_PARSING_JSON -- {error!s}')\
                 .format(error=e)}
     if not data:
-        return {'error': _("Remote URL returned an empty build log.")}
+        return {'error': _('BUILD_LOG_ERROR_EMPTY_LOG')}
     return data
 
 
@@ -294,15 +290,14 @@ def configure_content(instance, url):
     Configures course content by trusted remote URL.
     """
     if not url:
-        return [_("Configuration URL required.")]
+        return [_('COURSE_CONFIG_URL_REQUIRED')]
     try:
         url = url.strip()
         response = requests.get(url)
         response.raise_for_status()
     except Exception as e:
         return [format_lazy(
-            _("Request for a course configuration failed with error '{error!s}'. "
-              "Configuration of course aborted."),
+            _('COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}'),
             error=e,
         )]
 
@@ -313,8 +308,7 @@ def configure_content(instance, url):
         config = json.loads(response.text)
     except Exception as e:
         return [format_lazy(
-            _("JSON parser raised error '{error!s}'. "
-              "Configuration of course aborted."),
+            _('COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}'),
             error=e,
         )]
 
@@ -402,15 +396,14 @@ def configure_content(instance, url):
         instance.head_urls = "\n".join(head_urls) if isinstance(head_urls, list) else str(head_urls)
     if "assistants" in config:
         if not isinstance(config["assistants"], list):
-            errors.append(_("Assistants must be given as a student ID array."))
+            errors.append(_('COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY'))
         else:
             assistants = []
             for sid in config["assistants"]:
                 try:
                     profile = UserProfile.get_by_student_id(student_id=sid)
                 except UserProfile.DoesNotExist as err:
-                    errors.append(_("Adding the assistant failed, because an associated "
-                                    "user with student ID {id} does not exist.").format(id=sid))
+                    errors.append(_('COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}').format(id=sid))
                 else:
                     assistants.append(profile)
             instance.assistants.set(assistants)
@@ -421,10 +414,10 @@ def configure_content(instance, url):
     instance.save()
 
     if not "categories" in config or not isinstance(config["categories"], dict):
-        errors.append(_("Categories required as an object."))
+        errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
         return errors
     if not "modules" in config or not isinstance(config["modules"], list):
-        errors.append(_("Modules required as an array."))
+        errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
         return errors
 
     # Configure learning object categories.
@@ -432,7 +425,7 @@ def configure_content(instance, url):
     seen = []
     for key, c in config.get("categories", {}).items():
         if not "name" in c:
-            errors.append(_("Category requires a name."))
+            errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
             continue
         try:
             category = instance.categories.get(name=format_localization(c["name"]))
@@ -470,7 +463,7 @@ def configure_content(instance, url):
     n = 0
     for m in config.get("modules", []):
         if not "key" in m:
-            errors.append(_("Module requires a key."))
+            errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
             continue
         try:
             module = instance.course_modules.get(url=str(m["key"]))
@@ -576,36 +569,33 @@ def configure_content(instance, url):
 def get_target_category(category, course_url):
 
     if not category:
-        return None, _("ExerciseCollection requires collection_category.")
+        return None, _('COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_CATEGORY')
 
     if not course_url:
-        return None, _("ExerciseCollection requires URL to target course instance.")
+        return None, _('COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_INSTANCE_URL')
 
     parsed_url = urlparse(course_url)
     service_hostname = urlparse(settings.BASE_URL).hostname
 
     if parsed_url.hostname != service_hostname:
-        return None, format_lazy(_("Course URL '{}' doesn't match "
-            "service's hostname '{}'"), course_url, service_hostname)
+        return None, format_lazy(_('COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}'), course_url, service_hostname)
 
     try:
         course_slug, instance_slug = parsed_url.path.split('/')[1:3]
     except ValueError:
-        return None, format_lazy(_("Couldn't determine course and/or "
-            "instance from URL '{}'"), course_url)
+        return None, format_lazy(_('COURSE_CONFIG_ERROR_DETERMINING_COURSE_OR_INSTANCE_FROM_URL_FAILED -- {}'), course_url)
 
     try:
         course_instance = CourseInstance.objects.get(url=instance_slug,
                                                      course__url=course_slug)
     except ObjectDoesNotExist:
-        return None, format_lazy(_("No course found with URL '{}'. "
-            "course_slug: '{}', instance_slug: '{}'"),
+        return None, format_lazy(_('COURSE_CONFIG_ERROR_NO_COURSE_FOUND -- {}, {}, {}'),
             course_url, course_slug, instance_slug)
 
     try:
         target_category = course_instance.categories.get(name=category)
     except ObjectDoesNotExist:
-        return None, format_lazy(_("Category '{}' not found in target course."),
+        return None, format_lazy(_('COURSE_CONFIG_ERROR_CATEGORY_NOT_FOUND_IN_COURSE -- {}'),
             category)
 
     return target_category, None

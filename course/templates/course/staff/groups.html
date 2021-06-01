@@ -2,31 +2,31 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{% trans "Groups" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "GROUPS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups-edit{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Groups" %}</li>
+<li class="active">{% translate "GROUPS" %}</li>
 {% endblock %}
 
 {% block columns %}
 <div class="col-md-12">
 
   <p>
-    {% trans "Number of groups" %} <strong>{{ groups|length }}</strong>
+    {% translate "NUMBER_OF_GROUPS" %} <strong>{{ groups|length }}</strong>
     <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ instance|url:'groups-add' }}">
       <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-      {% trans "Add new" %}
+      {% translate "ADD_NEW" %}
     </a>
   </p>
 
   <table class="table table-condensed">
     <thead>
       <tr>
-        <th>{% trans "ID" %}</th>
-        <th>{% trans "Members" %}</th>
-        <th>{% trans "Created" %}</th>
+        <th>{% translate "ID" %}</th>
+        <th>{% translate "MEMBERS" %}</th>
+        <th>{% translate "CREATED" %}</th>
         <th></th>
       </tr>
     </thead>
@@ -39,11 +39,11 @@
         <td>
           <a class="aplus-button--secondary aplus-button--xs" role="button" href="{% url 'groups-edit' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-            {% trans "Edit" %}
+            {% translate "EDIT" %}
           </a>
           <a class="aplus-button--secondary aplus-button--xs" role="button" href="{% url 'groups-delete' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            {% trans "Remove" %}
+            {% translate "REMOVE" %}
           </a>
         </td>
       </tr>

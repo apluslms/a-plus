@@ -88,7 +88,7 @@ class LTILoginView(CourseInstanceBaseView):
                 parse_localization(self.menu_item.label),
             )
         except PermissionDenied:
-            messages.error(self.request, _('You need to be enrolled to access an anonymous service.'))
+            messages.error(self.request, _('EXTERNAL_SERVICE_MUST_BE_ENROLLED_TO_ACCESS_ANONYMOUS_SERVICE'))
             raise
         self.service_label = self.menu_item.label
         self.url = self.menu_item.final_url

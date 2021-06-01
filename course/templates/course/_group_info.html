@@ -1,11 +1,10 @@
 {% load i18n %}
 {% if id %}
   <span data-group-id="{{ id }}"></span>
-  {% blocktrans with collaborators=collaborators %}
-  You are now submitting with {{ collaborators }}.
-  {% endblocktrans %}
+  {% blocktranslate trimmed with collaborators=collaborators %}
+    GROUP_SUBMITTING_WITH -- {{ collaborators }}{% endblocktranslate %}
   {{ avatars }}
 {% else %}
   <span data-group-id="0"></span>
-  {% trans "You are now submitting alone." %}
+  {% translate "GROUP_SUBMITTING_ALONE" %}
 {% endif %}

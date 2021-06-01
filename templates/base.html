@@ -87,10 +87,10 @@
 <body
 	class="{% if profile %}{% if is_external_student %}external-student{% else %}internal-student{% endif %}{% endif %} lang-{{ request.LANGUAGE_CODE }}"
 	data-view-tag="{% block view_tag %}{% endblock %}">
-	<a href="#content" class="skip-link">{% trans "Skip main navigation" %}</a>
+	<a href="#content" class="skip-link">{% translate "SKIP_MAIN_NAVIGATION" %}</a>
 	<div class="page-wrap">
 		<header>
-			<nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% trans "Main" %}">
+			<nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% translate 'MAIN' %}">
 				<div class="container-fluid">
 					<div class="navbar-header">
 						<a class="navbar-brand" href="{% url 'home' %}">{% brand_name %}</a>
@@ -102,10 +102,10 @@
 									{% if instance %}
 									{{ course|parse_localization }}
 									{% if not instance.visible_to_students %}
-									<span class="label label-danger">{% trans "Hidden" %}</span>
+									<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
 									{% endif %}
 									{% else %}
-									{% trans "Select course" %}
+									{% translate "SELECT_COURSE" %}
 									{% endif %}
 									<span class="caret"></span>
 								</a>
@@ -114,7 +114,7 @@
 						</ul>
 						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
 							data-target="#bs-navbar-collapse" aria-expanded="false">
-							<span class="sr-only">{% trans "Toggle navigation" %}</span>
+							<span class="sr-only">{% translate "TOGGLE_NAVIGATION" %}</span>
 							{% notification_count as n_count %}
 							{% if n_count > 0 %}
 							<span class="badge badge-danger pull-right">{{ n_count }}</span>
@@ -137,13 +137,13 @@
 								</a>
 								<ul class="dropdown-menu">
 									<li role="presentation">
-										<a href="{% url 'profile' %}">{% trans "Profile" %}</a>
+										<a href="{% url 'profile' %}">{% translate "PROFILE" %}</a>
 									</li>
 									<li role="separator" class="divider"></li>
 									<li role="presentation">
 										<a href="{% url 'logout' %}">
 											<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-											{% trans "Log out"%}
+											{% translate "LOG_OUT"%}
 										</a>
 									</li>
 								</ul>
@@ -152,7 +152,7 @@
 							<li role="presentation">
 								<a href="{% url 'login' %}">
 									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-									{% trans "Log in"%}
+									{% translate "LOG_IN"%}
 								</a>
 							</li>
 							{% endif %}
@@ -163,19 +163,19 @@
 							{% notification_count as n_count %}
 							{% if n_count > 0 %}
 								<li class="header">
-									<h4>{% trans "Notification" %}</h4>
+									<h4>{% translate "NOTIFICATION" %}</h4>
 								</li>
 							{% endif %}
 							{% notification_menu %}
 							{% group_select %}
 							{% block mobilemenu %}{% endblock %}
 							<li class="header">
-								<h4>{% trans "Site" %}</h4>
+								<h4>{% translate "SITE" %}</h4>
 							</li>
 							<li>
 								<a href="{% url 'home' %}">
 									<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-									{% trans "Home" %}
+									{% translate "HOME" %}
 								</a>
 							</li>
 							{% course_menu %}
@@ -189,14 +189,14 @@
 							<li>
 								<a href="{% url 'logout' %}">
 									<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-									{% trans "Log out"%}
+									{% translate "LOG_OUT"%}
 								</a>
 							</li>
 							{% else %}
 							<li>
 								<a href="{% url 'login' %}">
 									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-									{% trans "Log in" %}
+									{% translate "LOG_IN" %}
 								</a>
 							</li>
 							{% endif %}
@@ -226,9 +226,9 @@
 				<div class="container-fluid">
 					<ul class="nav navbar-nav">
 						{% block footercontent %}{% endblock %}
-						<li><a href="{% url 'privacy_notice' %}">{% trans "Privacy Notice" %}</a></li>
-						<li><a href="{% url 'accessibility_statement' %}">{% trans "Accessibility Statement" %}</a></li>
-						<li><a href="{% url 'support_channels' %}">{% trans "Support" %}</a></li>
+						<li><a href="{% url 'privacy_notice' %}">{% translate "PRIVACY_NOTICE" %}</a></li>
+						<li><a href="{% url 'accessibility_statement' %}">{% translate "ACCESSIBILITY_STATEMENT" %}</a></li>
+						<li><a href="{% url 'support_channels' %}">{% translate "SUPPORT" %}</a></li>
 					</ul>
 				</div>
 			</div>
@@ -241,15 +241,15 @@
 				<div class="modal-progress">
 					<div class="progress">
 						<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%"
-							data-msg-error="{% trans 'Loading failed!' %}">
-							{% trans "Loading..." %}
+							data-msg-error="{% translate 'LOADING_FAILED' %}">
+							{% translate "LOADING" %}
 						</div>
 					</div>
 				</div>
 				<div class="modal-body"></div>
 				<div class="modal-footer">
 					<button type="button" class="aplus-button--secondary aplus-button--md" data-dismiss="modal">
-						{% trans "Close" %}
+						{% translate "CLOSE" %}
 					</button>
 				</div>
 			</div>
@@ -261,13 +261,13 @@
 				<div class="modal-progress">
 					<div class="progress">
 						<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%"
-							data-msg-error="{% trans 'Loading failed!' %}">
-							{% trans "Loading..." %}
+							data-msg-error="{% translate 'LOADING_FAILED' %}">
+							{% translate "LOADING" %}
 						</div>
 					</div>
 				</div>
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Close' %}">
+					<button type="button" class="close" data-dismiss="modal" aria-label="{% translate 'CLOSE' %}">
 						<span aria-hidden="true">&times;</span>
 					</button>
 					<h4 class="modal-title"></h4>
@@ -279,19 +279,19 @@
 	<div id="search-select-widget" class="hide">
 		<ul class="list-inline search-selected">
 			<li><button type="button"><span class="name">None</span> <span
-						aria-label="{% trans 'Remove' %}">&times;</span></button></li>
+						aria-label="{% translate 'REMOVE' %}">&times;</span></button></li>
 		</ul>
 		<div class="input-group">
 			<span class="input-group-btn dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-				<button class="btn btn-default" data-toggle="dropdown" type="button" aria-label="{% trans 'Search' %}">
+				<button class="btn btn-default" data-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 				</button>
 				<ul class="dropdown-menu search-options">
-					<li class="not-found"><a>{% trans "No matches" %}</a></li>
+					<li class="not-found"><a>{% translate "NO_MATCHES" %}</a></li>
 				</ul>
 			</span>
-			<input type="text" aria-label="{% trans 'Search for...' %}" class="form-control"
-				placeholder="{% trans 'Search for...' %}" />
+			<input type="text" aria-label="{% translate 'SEARCH_FOR' %}" class="form-control"
+				placeholder="{% translate 'SEARCH_FOR' %}" />
 		</div>
 	</div>
 	{% if not is_course_staff %}{% tracking_html %}{% endif %}

@@ -3,12 +3,12 @@
 {% load course %}
 {% load static %}
 
-{% block title %}{% trans "Participants" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "PARTICIPANTS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}participants{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Participants" %}</li>
+<li class="active">{% translate "PARTICIPANTS" %}</li>
 {% endblock %}
 
 {% block columns %}
@@ -18,12 +18,12 @@
     <p>
       <a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'enroll-students' }}">
         <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-          {% trans "Enroll students" %}
+          {% translate "ENROLL_STUDENTS" %}
       </a>
     </p>
     {% endif %}
     <p class="filter-users">
-      <small>{% trans "Filter users" %}:</small>
+      <small>{% translate "FILTER_USERS" %}:</small>
       {% for tag in tags %}
       <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
         <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
@@ -33,9 +33,9 @@
     </p>
 
     <p>
-        {% trans "Number of students" %} <strong id="participants-number"></strong>
+        {% translate "NUMBER_OF_STUDENTS" %} <strong id="participants-number"></strong>
         {% if is_teacher %}
-        {% trans "of which selected" %} <strong id="selected-number">0</strong>
+        {% translate "OF_WHICH_SELECTED" %} <strong id="selected-number">0</strong>
         {% endif %}
     </p>
 
@@ -47,11 +47,11 @@
                     <input type="checkbox" id="students-select-all" name="students" value="all" >
                 </th>
                 {% endif %}
-                <th><a href="#" class="order-toggle" id="order-id">{% trans "Student id" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
-                <th><a href="#" class="order-toggle" id="order-last">{% trans "Last name" %} </a></th>
-                <th><a href="#" class="order-toggle" id="order-first">{% trans "First name" %} </a></th>
-                <th>{% trans "Email" %}</th>
-                <th>{% trans "Tags" %}</th>
+                <th><a href="#" class="order-toggle" id="order-id">{% translate "STUDENT_ID" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
+                <th><a href="#" class="order-toggle" id="order-last">{% translate "LAST_NAME" %} </a></th>
+                <th><a href="#" class="order-toggle" id="order-first">{% translate "FIRST_NAME" %} </a></th>
+                <th>{% translate "EMAIL" %}</th>
+                <th>{% translate "TAGS" %}</th>
             </tr>
         </thead>
         <tbody id="participants">

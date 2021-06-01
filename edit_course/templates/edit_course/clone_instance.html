@@ -6,7 +6,7 @@
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Instances" %}</li>
+<li class="active">{% translate "INSTANCES" %}</li>
 {% endblock %}
 {% block view_tag %}edit-course,course-clone{% endblock %}
 
@@ -14,7 +14,7 @@
 <br />
 <div class="panel panel-primary">
   <div class="panel-heading">
-    <h3 class="panel-title">{% trans "Course instances" %}</h3>
+    <h3 class="panel-title">{% translate "COURSE_INSTANCES" %}</h3>
   </div>
   <table class="table table-striped table-bordered table-condensed">
     <tbody>
@@ -27,7 +27,7 @@
           <a href="{{ ci|url:'course-clone' }}">{{ ci.instance_name }}</a>
           {% endif %}
           {% if not ci.visible_to_students %}
-          <span class="label label-default">{% trans 'hidden' %}</span>
+          <span class="label label-default">{% translate "HIDDEN_lowercase" %}</span>
           {% endif %}
         </td>
         <td>{{ ci.url }}</td>
@@ -39,19 +39,19 @@
 </div>
 <form id="clone-form" method="post" class="well">
     {% csrf_token %}
-    <legend>{% trans "Clone course" %}</legend>
+    <legend>{% translate "CLONE_COURSE" %}</legend>
     <p>
-        {% blocktrans %}
-        This action will clone the course and the selected data into a new instance.
-        {% endblocktrans %}
+        {% blocktranslate trimmed %}
+          CLONE_COURSE_AND_DATA_INTO_NEW_INSTANCE_DESCRIPTION
+        {% endblocktranslate %}
     </p>
     {{ form|bootstrap }}
     <button type="submit" class="aplus-button--secondary aplus-button--md">
-        {% trans "Clone into new instance" %}
+        {% translate "CLONE_INTO_NEW_INSTANCE" %}
     </button>
     <div class="hide progress">
       <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
-        {% trans "Cloning course..." %}
+        {% translate "CLONING_COURSE" %}
       </div>
     </div>
 </form>

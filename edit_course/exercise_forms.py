@@ -57,11 +57,11 @@ class LearningObjectMixin(object):
         return True
 
     def get_hierarchy_fieldset(self):
-        return { 'legend':_('Hierarchy'), 'fields':self.get_fields('status',
+        return { 'legend':_('HIERARCHY'), 'fields':self.get_fields('status',
             'audience', 'category','course_module','parent','order','url') }
 
     def get_content_fieldset(self, *add):
-        return { 'legend':_('Content'), 'fields':self.get_fields('name',
+        return { 'legend':_('CONTENT'), 'fields':self.get_fields('name',
             'description', *add) }
 
 
@@ -100,10 +100,10 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
         return [
             self.get_hierarchy_fieldset(),
             self.get_content_fieldset('model_answers', 'templates'),
-            { 'legend':_('Grading'), 'fields':self.get_fields('max_submissions',
+            { 'legend':_('GRADING'), 'fields':self.get_fields('max_submissions',
                 'max_points','points_to_pass', 'difficulty',
                 'allow_assistant_viewing','allow_assistant_grading') },
-            { 'legend':_('Groups'), 'fields':self.get_fields('min_group_size',
+            { 'legend':_('GROUPS'), 'fields':self.get_fields('min_group_size',
                 'max_group_size') },
         ]
 

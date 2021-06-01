@@ -3,13 +3,12 @@
 <div class="quiz-submit-overlay submission-overlay hide"></div>
 <div class="quiz-submit-progress sticky-progress progress hide">
 	<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
-		{% trans "Posting submission..." %}
+		{% translate "POSTING_SUBMISSION" %}
 	</div>
 </div>
 
 <div class="quiz-submit-error alert alert-danger hide">
-	{% blocktrans trimmed %}
-		There was a communication error with the exercise service, so no submission was consumed. 
-		You can try again. 
-	{% endblocktrans %}
+	{% blocktranslate trimmed %}
+		SUBMISSION_ERROR_ALERT_COMMUNICATION_ERROR_W_SERVICE
+	{% endblocktranslate %}
 </div>

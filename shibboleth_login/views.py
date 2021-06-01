@@ -47,14 +47,12 @@ def login(request):
         user = authenticate(request=request, shibd_meta=env)
         if not user:
             raise ShibbolethException(
-                _("Failed to login the user. "
-                  "Shibboleth META headers missing. "
-                  "Check the Apache mod_shibd is active and /shibboleth is protected.")
+                _('SHIBBOLETH_ERROR_LOGIN_FAILED_META_HEADERS_MISSING')
             )
         if not user.is_active:
             logger.warning("Shibboleth login attempt for inactive user: {}".format(user.username))
             raise ShibbolethException(
-                _("The user account has been disabled.")
+                _('SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED')
             )
 
         django_login(request, user)

@@ -32,12 +32,7 @@ def _post_async_submission(request, exercise, submission, errors=None):
     form = SubmissionCallbackForm(post_data)
     errors.extend(extract_form_errors(form))
     if not form.is_valid():
-        submission.feedback = _(
-            "<div class=\"alert alert-error\">\n"
-            "<p>The exercise assessment service is malfunctioning. "
-            "Staff has been notified.</p>\n"
-            "<p>This submission is now marked as erroneous.</p>\n"
-            "</div>")
+        submission.feedback = _("ERROR_ALERT_EXERCISE_ASSESSMENT_SERVICE_MALFUNCTIONING")
         submission.set_error()
         submission.save()
         if exercise.course_instance.visible_to_students:

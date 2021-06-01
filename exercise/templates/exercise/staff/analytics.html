@@ -3,38 +3,38 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{% trans "Visualizations" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "VISUALIZATIONS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}analytics{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Visualizations" %}</li>
+<li class="active">{% translate "VISUALIZATIONS" %}</li>
 {% endblock %}
 
 {% block columns %}
 <div class="col-md-12 llama-client">
 
-	<div id="llama-unit-select" role="navigation" aria-label="{% trans "Module selection" %}">
+	<div id="llama-unit-select" role="navigation" aria-label="{% translate 'MODULE_SELECTION' %}">
 		<ul class="nav nav-tabs">
 			<li role="presentation" class="placeholder hidden">
 				<a href="#"></a>
 			</li>
 			<li role="presentation" class="all active">
-				<a href="#all">{% trans "All" %}</a>
+				<a href="#all">{% translate "ALL" %}</a>
 			</li>
 		</ul>
 	</div>
 
-	<div id="llama-view-select" role="navigation" aria-label="{% trans "View selection" %}">
+	<div id="llama-view-select" role="navigation" aria-label="{% translate 'VIEW_SELECTION' %}">
 		<ul class="nav nav-tabs">
 			<li role="presentation" class="active">
-				<a href="#llama-view-progress">{% trans "Collective Progress" %}</a>
+				<a href="#llama-view-progress">{% translate "COLLECTIVE_PROGRESS" %}</a>
 			</li>
 			<li role="presentation">
-				<a href="#llama-view-trajectories">{% trans "Learning Trajectories" %}</a>
+				<a href="#llama-view-trajectories">{% translate "LEARNING_TRAJECTORIES" %}</a>
 			</li>
 			<li role="presentation">
-				<a href="#llama-view-table">{% trans "Table" %}</a>
+				<a href="#llama-view-table">{% translate "TABLE" %}</a>
 			</li>
 		</ul>
 	</div>
@@ -71,21 +71,21 @@
 		<div class="btn-group">
 			<a class="btn btn-default btn-sm" href="#">
 				<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-				{% trans "Download CSV" %}
+				{% translate "DOWNLOAD_CSV" %}
 			</a>
 			<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				<span class="caret"></span>
-				<span class="sr-only">{% trans "Toggle Dropdown" %}</span>
+				<span class="sr-only">{% translate "TOGGLE_DROPDOWN" %}</span>
 			</button>
 			<ul class="dropdown-menu">
-				<li><a href="#">{% trans "Open API" %}</a></li>
+				<li><a href="#">{% translate "OPEN_API" %}</a></li>
 			</ul>
 		</div>
 	</div>
 
 	<div id="llama-view-learners">
 		<div>
-			<button class="btn btn-default btn-xs">{% trans "Clear selection" %}</button>
+			<button class="btn btn-default btn-xs">{% translate "CLEAR_SELECTION" %}</button>
 		</div>
 		<div class="placeholder hidden llama-beacon">
 			<a href="#">
@@ -136,9 +136,9 @@ $(function () {
 		},
 
 		progressLabels: [
-			'{% trans "Not submitted" %}',
-			'{% trans "< 90% points" %}',
-			'{% trans ">= 90% points" %}'
+			'{% translate "NOT_SUBMITTED" %}',
+			'{% translate "PROGRESS_LABEL_<90%_POINTS" %}',
+			'{% translate "PROGRESS_LABEL_>=90%_POINTS" %}'
 		],
 
 	});

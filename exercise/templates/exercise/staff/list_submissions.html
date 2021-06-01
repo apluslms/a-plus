@@ -2,12 +2,12 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "All submissions" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "ALL_SUBMISSIONS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}all-submissions{% endblock %}
 
 {% block exercisebreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "All submissions" %}</li>
+<li class="active">{% translate "ALL_SUBMISSIONS" %}</li>
 {% endblock %}
 
 {% block columns %}

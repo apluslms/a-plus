@@ -15,7 +15,7 @@
     <h4>
       {% if module.requirements|length > 0 %}
       <span class="label label-info">
-        {% trans "Requires" %}:
+        {% translate "REQUIRES" %}:
         {% for requirement in module.requirements %}{{ requirement }}{% endfor %}
       </span>
       {% endif %}
@@ -27,18 +27,18 @@
       {% if is_course_staff %}
       <a href="{{ module.link }}">
         <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-        {% trans "Early access" %}
+        {% translate "EARLY_ACCESS" %}
       </a>
       {% endif %}
     </h3>
     <h4>
       {% if module.requirements|length > 0 %}
       <span class="label label-info">
-        {% trans "Requires" %}:
+        {% translate "REQUIRES" %}:
         {% for requirement in module.requirements %}{{ requirement }}{% endfor %}
       </span>
       {% endif %}
-      <span class="label label-info">{% trans 'Opens' %} {{ module.opening_time }}</span> <small>&ndash; {{ module.closing_time }}</small>
+      <span class="label label-info">{% translate "OPENS" %} {{ module.opening_time }}</span> <small>&ndash; {{ module.closing_time }}</small>
     </h4>
     {% endif %}
     {% include "exercise/_children.html" with children=module.flatted accessible=accessible exercise_accessible=exercise_accessible %}

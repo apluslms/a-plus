@@ -14,15 +14,15 @@ def create_submissions(instance, admin_profile, json_text):
     try:
         submissions_json = json.loads(json_text)
     except Exception as e:
-        return [_("Parsing the submission JSON raised an error '{error!s}'.")
+        return [_('EXCEPTION_PARSING_SUBMISSION_JSON -- {error!s}')
                     .format(error=e)]
 
     if isinstance(submissions_json, dict):
         if not "objects" in submissions_json:
-            return [_('Missing JSON field: objects.')]
+            return [_('JSON_FIELD_MISSING_OBJECTS')]
         submissions_json = submissions_json["objects"]
     if not isinstance(submissions_json, list):
-        return [_("Invalid JSON. Expected list or list in objects field")]
+        return [_('JSON_INVALID_EXPECTED_LIST')]
 
     errors = []
     validated_forms = []
@@ -31,7 +31,7 @@ def create_submissions(instance, admin_profile, json_text):
         count += 1
         if not "exercise_id" in submission_json:
             errors.append(
-                _('Missing field "exercise_id" in object {count:d}.')
+                _('JSON_ERROR_MISSING_FIELD_EXERCISE_ID -- {count:d}')
                     .format(count=count))
             continue
 
@@ -40,7 +40,7 @@ def create_submissions(instance, admin_profile, json_text):
             course_module__course_instance=instance).first()
         if not exercise:
             errors.append(
-                _('Unknown exercise_id {id:d} in object {count:d}.')
+                _('JSON_ERROR_UNKNOWN_EXERCISE_ID -- {id:d}, {count:d}')
                     .format(id=submission_json["exercise_id"],
                             count=count))
             continue
@@ -52,7 +52,7 @@ def create_submissions(instance, admin_profile, json_text):
             validated_forms.append(form)
         else:
             errors.append(
-                _("Object number {ordinal:d} has invalid fields:\n {errors}")
+                _('JSON_ERROR_OBJECT_INVALID_FIELDS -- {ordinal:d}, {errors}')
                     .format(ordinal=count,
                             errors='\n '.join(extract_form_errors(form))))
 

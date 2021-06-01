@@ -2,17 +2,17 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Submission" %} {{ index }} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "SUBMISSION" %} {{ index }} | {{ block.super }}{% endblock %}
 {% block view_tag %}submission{% endblock %}
 
 {% block exercisebreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Submission" %} {{ index }}</li>
+<li class="active">{% translate "SUBMISSION" %} {{ index }}</li>
 {% endblock %}
 
 {% block exercisecontent %}
     {% if submission.files.all %}
-    <h4>{% trans "Files in this submission" %}</h4>
+    <h4>{% translate "FILES_IN_SUBMISSION" %}</h4>
     <ul class="list-unstyled">
         {% for file in submission.files.all %}
         <li>
@@ -24,22 +24,22 @@
     {% endif %}
 
     {% if submission.assistant_feedback %}
-    <h4>{% trans "Assistant feedback" %}</h4>
-    <blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
+        <h4>{% translate "ASSISTANT_FEEDBACK" %}</h4>
+        <blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
     {% endif %}
 
     {% if submission.feedback and submission.feedback.strip %}
-    <div id="exercise">
-        {{ submission.feedback|safe }}
-    </div>
+        <div id="exercise">
+            {{ submission.feedback|safe }}
+        </div>
     {% elif submission.status == "waiting" %}
-    <div class="alert alert-info">
-			{% trans "Your submission has been accepted for grading." %}
+        <div class="alert alert-info">
+			{% translate "SUBMISSION_ACCEPTED_FOR_GRADING" %}
 		</div>
     {% else %}
-    <div class="alert alert-info">
-        {% trans "No grader feedback available for this submission." %}
-    </div>
+        <div class="alert alert-info">
+            {% translate "NO_GRADER_FEEDBACK_FOR_SUBMISSION" %}
+        </div>
     {% endif %}
     {% include "exercise/_exercise_wait.html" %}
 

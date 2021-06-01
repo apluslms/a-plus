@@ -5,7 +5,7 @@
 {% load bootstrap %}
 
 {% block editbreadcrumblist %}
-<li class="active">{% trans "Edit course" %}</li>
+<li class="active">{% translate "EDIT_COURSE" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
@@ -14,27 +14,27 @@
   <form method="post" class="form-inline" action="{{ instance|url:'course-configure' }}">
     {% csrf_token %}
     <div class="form-group">
-      <label class="control-label" for="id_url">{% trans 'Import and override content configuration from URL' %}</label>
+      <label class="control-label" for="id_url">{% translate "IMPORT_AND_OVERRIDE_CONTENT_CONFIG_URL" %}</label>
       <input type="text" class="form-control" id="id_url" name="url" value="{{ instance.configure_url }}">
     </div>
-    <button class="aplus-button--default aplus-button--md" type="submit" name="apply">{% trans 'Apply' %}</button>
-    <button class="aplus-button--secondary aplus-button--md" type="submit" name="cache">{% trans 'Clear content cache' %}</button>
+    <button class="aplus-button--default aplus-button--md" type="submit" name="apply">{% translate "APPLY" %}</button>
+    <button class="aplus-button--secondary aplus-button--md" type="submit" name="cache">{% translate "CLEAR_CONTENT_CACHE" %}</button>
   </form>
   {% if instance.build_log_url %}
   <a class="aplus-button--secondary aplus-button--md page-modal" href="{{ instance|url:'course-build-log' }}" role="button">
-    {% trans "Retrieve latest build log" %}
+    {% translate "RETRIEVE_LATEST_BUILD_LOG" %}
   </a>
   {% endif %}
   {% if instance.last_modified %}
   <br>
   <br>
-  <p>{% trans "Previous modification of this course instance took place at" %}:</p>
+  <p>{% translate "PREV_MODIFICATION_OF_COURSE_INSTANCE_TIME" %}:</p>
   <b>{{ instance.last_modified }}.</b>
   {% endif %}
 </div>
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{% trans "Exercise categories" %}</h3>
+        <h3 class="panel-title">{% translate "EXERCISE_CATEGORIES" %}</h3>
     </div>
     <table class="table table-striped table-bordered table-condensed">
         <tbody>
@@ -46,11 +46,11 @@
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ category|editurl:'category' }}">
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        {% trans "Edit category" %}
+                        {% translate "EDIT_CATEGORY" %}
                     </a>
                     {% if category.learning_objects.count == 0 %}
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ category|removeurl:'category' }}" role="button">
-                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
+                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
                 </td>
@@ -60,7 +60,7 @@
                 <th colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'category' }}" role="button">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        {% trans "Add new category" %}
+                        {% translate "ADD_NEW_CATEGORY" %}
                     </a>
                 </th>
             </tr>
@@ -70,7 +70,7 @@
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{% trans "Course modules" %}</h3>
+        <h3 class="panel-title">{% translate "COURSE_MODULES" %}</h3>
     </div>
     <table class="table table-striped table-bordered table-condensed">
         <tbody>
@@ -84,15 +84,15 @@
                 </th>
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ module|editurl:'module' }}" role="button">
-                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans "Edit module" %}
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% translate "EDIT_MODULE" %}
                     </a>
                     {% if module.learning_objects.count == 0 %}
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ module|removeurl:'module' }}" role="button">
-                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
+                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
                     <a class="btn btn-link btn-xs" href="{{ module|url }}">
-                        {% trans "View module" %}
+                        {% translate "VIEW_MODULE" %}
                     </a>
                 </td>
             </tr>
@@ -107,17 +107,17 @@
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|editurl:'exercise' }}" role="button">
                       <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                      {% if lobject.is_submittable %}{% trans "Edit exercise" %}{% else %}{% trans "Edit content chapter" %}{% endif %}
+                      {% if lobject.is_submittable %}{% translate "EDIT_EXERCISE" %}{% else %}{% translate "EDIT_CONTENT_CHAPTER" %}{% endif %}
                     </a>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|removeurl:'exercise' }}" role="button">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans "Remove" %}
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% translate "REMOVE" %}
                     </a>
                     <a class="btn btn-link btn-xs" href="{{ lobject|url }}">
-                      {% if lobject.is_submittable %}{% trans "View exercise" %}{% else %}{% trans "View content chapter" %}{% endif %}
+                      {% if lobject.is_submittable %}{% translate "VIEW_EXERCISE" %}{% else %}{% translate "VIEW_CONTENT_CHAPTER" %}{% endif %}
                     </a>
                     {% if lobject.is_submittable %}
                     <a class="btn btn-link btn-xs" href="{{ lobject|url:'submission-list' }}">
-                    	{% trans "View submissions" %}
+                    	{% translate "VIEW_SUBMISSIONS" %}
                     </a>
                     {% endif %}
                 </td>
@@ -127,7 +127,7 @@
                 <td colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" data-toggle="modal" data-target="#lobject{{ module.id }}" role="button">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        {% trans "Add new learning object" %}
+                        {% translate "ADD_NEW_LEARNING_OBJECT" %}
                     </a>
                     <div class="modal" id="lobject{{ module.id }}" tabindex="-1" role="dialog" aria-labelledby="lobject{{ module.id }}Label">
                       <div class="modal-dialog" role="document">
@@ -137,30 +137,30 @@
                               <span aria-hidden="true">&times;</span>
                             </button>
                             <h4 class="modal-title" id="lobject{{ module.id }}Label">
-                              {% trans 'Choose learning object type to add' %}
+                              {% translate "CHOOSE_LEARNING_OBJECT_TYPE" %}
                             </h4>
                           </div>
                           <div class="modal-body">
                             <div class="list-group">
                               <a href="{{ module|createurl:'exercise,chapter' }}" class="list-group-item">
-                                <div><strong>{% trans "Content chapter" %}</strong></div>
-                                {% trans "A remote content page loaded in as a chapter." %}
+                                <div><strong>{% translate "CONTENT_CHAPTER" %}</strong></div>
+                                {% translate "REMOTE_CONTENT_CHAPTER_DESCRIPTION" %}
                               </a>
                               <a href="{{ module|createurl:'exercise' }}" class="list-group-item">
-                                <div><strong>{% trans "Exercise" %}</strong></div>
-                                {% trans "A remote exercise page loaded in for posting submissions." %}
+                                <div><strong>{% translate "EXERCISE" %}</strong></div>
+                                {% translate "REMOTE_EXERCISE_PAGE_DESCRIPTION" %}
                               </a>
                               <a href="{{ module|createurl:'exercise,lti' }}" class="list-group-item">
-                                <div><strong>{% trans "LTI Exercise" %}</strong></div>
-                                {% trans "A remote exercise page loaded in for posting submissions including signed LTI course and student information." %}
+                                <div><strong>{% translate "LTI_EXERCISE" %}</strong></div>
+                                {% translate "REMOTE_LTI_EXERCISE_PAGE_DESCRIPTION" %}
                               </a>
                               <a href="{{ module|createurl:'exercise,attachment' }}" class="list-group-item">
-                                <div><strong>{% trans "Exercise with attachment" %}</strong></div>
-                                {% trans "A local page accepting files and initiating remote grading with teacher provided grading attachment." %}
+                                <div><strong>{% translate "EXERCISE_WITH_ATTACHMENT" %}</strong></div>
+                                {% translate "LOCAL_EXERCISE_WITH_ATTACHMENT_PAGE_DESCRIPTION" %}
                               </a>
                               <a href="{{ module|createurl:'exercise,static' }}" class="list-group-item">
-                                <div><strong>{% trans "Static exercise" %}</strong></div>
-                                {% trans "A local page with editable markup content." %}
+                                <div><strong>{% translate "STATIC_EXERCISE" %}</strong></div>
+                                {% translate "LOCAL_STATIC_EXERCISE_PAGE_DESCRIPTION" %}
                               </a>
                             </div>
                           </div>
@@ -174,7 +174,7 @@
                 <th colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'module' }}" role="button">
                         <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                        {% trans "Add new module" %}
+                        {% translate "ADD_NEW_MODULE" %}
                     </a>
                 </th>
             </tr>
@@ -184,8 +184,8 @@
 <form method="post" class="well">
     {% csrf_token %}
     {{ form|bootstrap }}
-    <button class="aplus-button--default aplus-button--md" type="submit" name="save">{% trans 'Save' %}</button>
-    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbermodule">{% trans 'Renumerate learning objects for each module' %}</button>
-    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbercourse">{% trans 'Renumerate learning objects ignoring modules' %}</button>
+    <button class="aplus-button--default aplus-button--md" type="submit" name="save">{% translate "SAVE" %}</button>
+    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbermodule">{% translate "RENUMERATE_LEARNING_OBJECTS_FOR_EACH_MODULE" %}</button>
+    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbercourse">{% translate "RENUMERATE_LEARNING_OBJECTS_IGNORING_MODULES" %}</button>
 </form>
 {% endblock %}
