@@ -407,7 +407,7 @@ def configure_content(instance, url):
             assistants = []
             for sid in config["assistants"]:
                 try:
-                    profile = UserProfile.objects.get(student_id=sid)
+                    profile = UserProfile.get_by_student_id(student_id=sid)
                 except UserProfile.DoesNotExist as err:
                     errors.append(_("Adding the assistant failed, because an associated "
                                     "user with student ID {id} does not exist.").format(id=sid))
