@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON=python
+PYTHON=python3
 DIR=selenium_test
 
 cd `dirname "$0"`/..
