@@ -147,7 +147,6 @@ class LoginPage(AbstractPage):
             self.clickThrough(FirstPageLocators.HOOK_EXAMPLE_BUTTON)
         self.waitForElement(LoginPageLocators.BANNER)
         self.waitForElement(BasePageLocators.FOOTER)
-        self.getElement(FirstPageLocators.SHOW_LOGIN_BUTTON).click()
         self.signIn(username, password)
 
     def loginAsStudent(self, course=CourseName.APLUS):
