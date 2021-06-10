@@ -11,7 +11,7 @@ class Browser(enum.Enum):
    firefox = "Firefox"
    chrome = "Chrome"
 
-class TestInitializer(object):
+class TestInitializer:
 
     def getDefaultDriver(self, headless=False, browser="Firefox"):
         driver = self.getDriver(headless, browser)
@@ -28,21 +28,16 @@ class TestInitializer(object):
         print('Browser: ' + browser)
 
         if Browser.firefox.value == browser:
-            browser_opts = webdriver.firefox.options.Options
-            options = self.setHeadless(browser_opts, headless)
+            options = webdriver.firefox.options.Options()
+            options.headless = headless
             driver = webdriver.Firefox(options=options)
 
         elif Browser.chrome.value == browser:
-            browser_opts = webdriver.chrome.options.Options
-            options = self.setHeadlessChrome(browser_opts, headless)
+            options = webdriver.chrome.options.Options()
+            options.headless = headless
             driver = webdriver.Chrome(chrome_options=options)
 
         return driver
-
-    def setHeadless(self, browser_opts, headless):
-        options = browser_opts()
-        options.headless = headless
-        return options
 
     # This just replaces the current database with a copy.
     # TODO Should use Django unit tests that run selenium.
