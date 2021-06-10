@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 
 def first(request):
@@ -65,7 +66,9 @@ def ajax(request):
         return respond_text(response.text)
 
     return render(request, "exercises/ajax_exercise.html", {
-        "url": request.build_absolute_uri("{}?{}".format(
-            reverse("ajax"), request.META.get("QUERY_STRING", "")
-        )),
+        "url": mark_safe(
+            request.build_absolute_uri("{}?{}".format(
+                reverse("ajax"), request.META.get("QUERY_STRING", "")
+            ))
+        ),
     })
