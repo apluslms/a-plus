@@ -34,8 +34,8 @@ def install_defer_logger():
     def get(self, instance, cls=None):
         if instance is None:
             return self
-        if self.field_name not in instance.__dict__:
+        if self.field.attname not in instance.__dict__:
             filename, linenum, funcname, command = tuple(traceback.extract_stack()[-2])
-            logger.warning("Resolving deferred: %s.%s in %s, line %s, func %s: %s", instance.__class__.__name__, self.field_name, filename, linenum, funcname, command)
+            logger.warning("Resolving deferred: %s.%s in %s, line %s, func %s: %s", instance.__class__.__name__, self.field.attname, filename, linenum, funcname, command)
         return orig_get(self, instance, cls=cls)
     DeferredAttribute.__get__ = get
