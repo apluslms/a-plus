@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse
 from django.urls import reverse
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy as ngettext
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, \
@@ -195,17 +196,28 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             self.object = form.save()
         except IntegrityError as e:
             messages.error(self.request,
-                _('FAILURE_SAVING_MODEL_DUE_TO_ERROR -- {name}, {error}').format(
-                    name=self.model_name, error=e))
+                format_lazy(
+                    _('FAILURE_SAVING_MODEL_DUE_TO_ERROR -- {name}, {error}'),
+                    name=self.model_name,
+                    error=e,
+                )
+            )
             return super().form_invalid(form)
         messages.success(self.request,
-            _('SUCCESS_SAVING_MODEL -- {name}').format(
-                name=self.model_name))
+            format_lazy(
+                _('SUCCESS_SAVING_MODEL -- {name}'),
+                name=self.model_name,
+            )
+        )
         return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request,
-            _('FAILURE_SAVING_MODEL -- {name}').format(name=self.model_name))
+            format_lazy(
+                _('FAILURE_SAVING_MODEL -- {name}'),
+                name=self.model_name,
+            )
+        )
         return super().form_invalid(form)
 
 
@@ -284,11 +296,15 @@ class UserTaggingAddView(UserTagMixin, FormView):
         tag_name = tag.name
         messages.success(
             self.request,
-            ngettext(
-                'TAGGED_USER_WITH_TAG -- {user_name}, {tag_name}',
-                'TAGGED_USERS_WITH_TAG -- {user_name}, {tag_name}',
-                user_set.count()
-            ).format(user_name=user_name, tag_name=tag_name)
+            format_lazy(
+                ngettext(
+                    'TAGGED_USER_WITH_TAG -- {user_name}, {tag_name}',
+                    'TAGGED_USERS_WITH_TAG -- {user_name}, {tag_name}',
+                    user_set.count()
+                ),
+                user_name=user_name,
+                tag_name=tag_name,
+            )
         )
 
         return super().form_valid(form)
@@ -357,7 +373,12 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
             else:
                 messages.success(request, _('COURSE_CONTENT_CONFIGURED'))
         except Exception as e:
-            messages.error(request, _('ERROR_SERVER_RETURNED_ERROR -- {error!s}').format(error=e))
+            messages.error(request,
+                format_lazy(
+                    _('ERROR_SERVER_RETURNED_ERROR -- {error!s}'),
+                    error=e,
+                )
+            )
 
     def clear_cache(self, request):
         invalidate_instance(self.instance)
@@ -385,7 +406,12 @@ class SignInAsUser(BaseRedirectMixin, BaseTemplateView):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            messages.error(request, _('ERROR_USERNAME_DOESNT_EXIST -- {username}').format(username=html.escape(username)))
+            messages.error(request,
+                format_lazy(
+                    _('ERROR_USERNAME_DOESNT_EXIST -- {username}'),
+                    username=html.escape(username),
+                )
+            )
             return self.redirect(reverse('signin-as-user'))
         auth_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
         return self.redirect("/")

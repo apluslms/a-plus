@@ -12,6 +12,7 @@ from django.db.models.signals import post_delete, post_save
 from django.template import loader
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.utils.text import format_lazy
 from django.utils.translation import get_language, gettext_lazy as _
 
 from aplus.api import api_reverse
@@ -125,7 +126,10 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         errors = {}
         RESERVED = ("submissions", "plain", "info")
         if self.url in RESERVED:
-            errors['url'] = _('TAKEN_WORDS_INCLUDE -- {}').format(", ".join(RESERVED))
+            errors['url'] = format_lazy(
+                _('TAKEN_WORDS_INCLUDE -- {}'),
+                ", ".join(RESERVED)
+            )
         if self.course_module.course_instance != self.category.course_instance:
             errors['category'] = _('LEARNING_OBJECT_ERROR_MODULE_AND_CATEGORY_MUST_HAVE_SAME_COURSE_INSTANCE')
         if self.parent:
@@ -468,27 +472,42 @@ class BaseExercise(LearningObject):
         if timing == self.TIMING.OPEN:
             return True,[]
         if timing == self.TIMING.LATE:
-            # xgettext:no-python-format
-            return True,[_('EXERCISE_TIMING_LATE -- {date}, {percent:d}').format(
-                date=formatted_time,
-                percent=self.course_module.get_late_submission_point_worth(),
-            )]
+            return True,[
+                format_lazy(
+                    # xgettext:no-python-format
+                    _('EXERCISE_TIMING_LATE -- {date}, {percent:d}'),
+                    date=formatted_time,
+                    percent=self.course_module.get_late_submission_point_worth(),
+                )
+            ]
         if timing == self.TIMING.UNOFFICIAL:
-            return True,[_('EXERCISE_TIMING_UNOFFICIAL -- {date}').format(
-                date=formatted_time,
-            )]
+            return True,[
+                format_lazy(
+                    _('EXERCISE_TIMING_UNOFFICIAL -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         if timing == self.TIMING.CLOSED_BEFORE:
-            return False,[_('EXERCISE_TIMING_CLOSED_BEFORE -- {date}').format(
-                date=formatted_time,
-            )]
+            return False,[
+                format_lazy(
+                    _('EXERCISE_TIMING_CLOSED_BEFORE -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         if timing == self.TIMING.CLOSED_AFTER:
-            return False,[_('EXERCISE_TIMING_CLOSED_AFTER -- {date}').format(
-                date=formatted_time,
-            )]
+            return False,[
+                format_lazy(
+                    _('EXERCISE_TIMING_CLOSED_AFTER -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         if timing == self.TIMING.ARCHIVED:
-            return False,[_('EXERCISE_TIMING_ARCHIVED -- {date}').format(
-                date=formatted_time,
-            )]
+            return False,[
+                format_lazy(
+                    _('EXERCISE_TIMING_ARCHIVED -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         return False,["ERROR"]
 
     def one_has_deadline_deviation(self, students):
@@ -628,19 +647,21 @@ class BaseExercise(LearningObject):
                     msg = _('EXERCISE_WARNING_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG')
                     warning = _('EXERCISE_WARNING_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}')
                     if submission.submitters.count() == 1:
-                        warning = warning.format(with_group=_('ALONE'), msg=msg)
+                        warning = format_lazy(warning, with_group=_('ALONE'), msg=msg)
                     else:
                         collaborators = StudentGroup.format_collaborator_names(
                                 submission.submitters.all(), profile)
-                        with_group = _('WITH -- {}').format(collaborators)
-                        warning = warning.format(with_group=with_group, msg=msg)
+                        with_group = format_lazy(_('WITH -- {}'), collaborators)
+                        warning = format_lazy(warning, with_group=with_group, msg=msg)
                     warnings.append(warning)
                     return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
             elif self._detect_submissions(profile, group):
                 warnings.append(
-                    _('EXERCISE_WARNING_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- {collaborators}')
-                    .format(collaborators=group.collaborator_names(profile))
+                    format_lazy(
+                        _('EXERCISE_WARNING_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- {collaborators}'),
+                        collaborators=group.collaborator_names(profile),
+                    )
                 )
                 return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
@@ -655,8 +676,11 @@ class BaseExercise(LearningObject):
             else:
                 size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
             warnings.append(
-                _('EXERCISE_WARNING_REQUIRES_GROUP_SIZE -- {size}')
-                .format(size=size))
+                format_lazy(
+                    _('EXERCISE_WARNING_REQUIRES_GROUP_SIZE -- {size}'),
+                    size=size
+                )
+            )
         if self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
             access_ok, access_warnings = True, []
         else:

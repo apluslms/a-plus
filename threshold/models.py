@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from course.models import (
@@ -110,7 +111,10 @@ class ThresholdPoints(models.Model):
     def __str__(self):
         if self.difficulty:
             return "{} {:d}".format(self.difficulty, self.limit)
-        return _('POINTS -- {:d}').format(self.limit)
+        return format_lazy(
+            _('POINTS -- {:d}'),
+            self.limit
+        )
 
 
 class CourseModuleRequirement(models.Model):

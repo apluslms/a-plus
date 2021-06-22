@@ -9,6 +9,7 @@ from django.db.models import F
 from django.http.response import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -249,8 +250,11 @@ class CreateSubmissionView(ExerciseMixin, BaseRedirectView):
         )
         if not form.is_valid():
             messages.error(request,
-                _("ERROR_INVALID_POST_DATA -- {error}").format(
-                    error="\n".join(extract_form_errors(form))))
+                format_lazy(
+                    _("ERROR_INVALID_POST_DATA -- {error}"),
+                    error="\n".join(extract_form_errors(form))
+                )
+            )
             return self.redirect(self.exercise.get_submission_list_url())
 
         sub = Submission.objects.create(exercise=self.exercise)

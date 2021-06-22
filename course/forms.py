@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from aplus.api import api_reverse
@@ -23,7 +24,7 @@ class GroupsForm(forms.Form):
         for n in range(2, max_size + 1):
             widget = forms.TextInput(attrs={'class':'form-control'})
             field = forms.CharField(widget=widget, required=(n <= min_size))
-            field.label = mark_safe(_('GROUP_MEMBER_LABEL -- {num}').format(num=ordinal(n)))
+            field.label = mark_safe(format_lazy(_('GROUP_MEMBER_LABEL -- {num}'), num=ordinal(n)))
             self.fields['member{:d}'.format(n)] = field
 
     def clean(self):

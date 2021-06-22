@@ -27,7 +27,7 @@ def parse_date(value, errors, allow_null=False):
                 timezone.get_current_timezone())
         except ValueError:
             pass
-    errors.append(_('ERROR_PARSING_DATE -- {value}').format(value=value))
+    errors.append(format_lazy(_('ERROR_PARSING_DATE -- {value}'), value=value))
     return None
 
 
@@ -55,7 +55,7 @@ def parse_duration(begin, value, errors):
                 return begin + timedelta(weeks=i)
         except ValueError:
             pass
-    errors.append(_('ERROR_PARSING_TIME_DURATION -- {value}').format(value=value))
+    errors.append(format_lazy(_('ERROR_PARSING_TIME_DURATION -- {value}'), value=value))
     return None
 
 
@@ -63,7 +63,7 @@ def parse_int(value, errors):
     try:
         return int(value)
     except ValueError:
-        errors.append(_('ERROR_PARSING_INT -- {value}').format(value=value))
+        errors.append(format_lazy(_('ERROR_PARSING_INT -- {value}'), value=value))
     return None
 
 
@@ -71,7 +71,7 @@ def parse_float(value, errors):
     try:
         return float(value)
     except ValueError:
-        errors.append(_('ERROR_PARSING_FLOAT -- {value}').format(value=value))
+        errors.append(format_lazy(_('ERROR_PARSING_FLOAT -- {value}'), value=value))
     return None
 
 
@@ -86,8 +86,13 @@ def parse_choices(value, choices, field_name, errors):
     # field_name is the name of the JSON field.
     parsed_value = choices.get(value, None)
     if parsed_value is None:
-        errors.append(_('ERROR_JSON_FIELD_UNKNOWN_VALUE -- {field}, {value}').format(
-                field=field_name, value=str(value)))
+        errors.append(
+            format_lazy(
+                _('ERROR_JSON_FIELD_UNKNOWN_VALUE -- {field}, {value}'),
+                field=field_name,
+                value=str(value),
+            )
+        )
         return None
     return parsed_value
 
@@ -110,7 +115,12 @@ def configure_learning_objects(category_map, module, config, parent,
             errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_CATEGORY'))
             continue
         if not o["category"] in category_map:
-            errors.append(_('LEARNING_OBJECT_ERROR_UNKNOWN_CATEGORY -- {category}').format(category=o["category"]))
+            errors.append(
+                format_lazy(
+                    _('LEARNING_OBJECT_ERROR_UNKNOWN_CATEGORY -- {category}'),
+                    category=o["category"],
+                )
+            )
             continue
 
         lobject = LearningObject.objects.filter(
@@ -140,8 +150,11 @@ def configure_learning_objects(category_map, module, config, parent,
             lti = LTIService.objects.filter(menu_label=str(o["lti"])).first()
             if lti is None:
                 errors.append(
-                    _('LTI_ERROR_NO_CONFIGURATION_TO_SERVICE_USED_BY_EXERCISE -- {lti_label}, {exercise_key}')
-                    .format(lti_label=str(o["lti"]), exercise_key=str(o["key"]))
+                    format_lazy(
+                        _('LTI_ERROR_NO_CONFIGURATION_TO_SERVICE_USED_BY_EXERCISE -- {lti_label}, {exercise_key}'),
+                        lti_label=str(o["lti"]),
+                        exercise_key=str(o["key"]),
+                    )
                 )
                 if hasattr(lobject, 'id'):
                     # Avoid deleting LTI exercises from A+ since the LTI parameters
@@ -273,13 +286,21 @@ def get_build_log(instance):
     try:
         response = requests.get(instance.build_log_url)
     except Exception as e:
-        return {'error': _('BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}')\
-                .format(error=e)}
+        return {
+            'error': format_lazy(
+                _('BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}'),
+                error=e,
+            )
+        }
     try:
         data = json.loads(response.text)
     except Exception as e:
-        return {'error': _('BUILD_LOG_ERROR_PARSING_JSON -- {error!s}')\
-                .format(error=e)}
+        return {
+            'error': format_lazy(
+                _('BUILD_LOG_ERROR_PARSING_JSON -- {error!s}'),
+                error=e,
+            )
+        }
     if not data:
         return {'error': _('BUILD_LOG_ERROR_EMPTY_LOG')}
     return data
@@ -403,7 +424,12 @@ def configure_content(instance, url):
                 try:
                     profile = UserProfile.get_by_student_id(student_id=sid)
                 except UserProfile.DoesNotExist as err:
-                    errors.append(_('COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}').format(id=sid))
+                    errors.append(
+                        format_lazy(
+                            _('COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}'),
+                            id=sid,
+                        )
+                    )
                 else:
                     assistants.append(profile)
             instance.assistants.set(assistants)

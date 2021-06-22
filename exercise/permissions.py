@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import (
@@ -32,7 +33,12 @@ class ExerciseVisiblePermission(ObjectVisibleBasePermission):
             return False
 
         if exercise.is_submittable and not exercise.course_module.have_exercises_been_opened():
-            self.error_msg(_('EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}').format(exercise.course_module.opening_time))
+            self.error_msg(
+                format_lazy(
+                    _('EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}'),
+                    exercise.course_module.opening_time
+                )
+            )
             return False
 
         user = request.user

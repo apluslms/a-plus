@@ -66,8 +66,10 @@ class Course(UrlMixin, models.Model):
             "archive", "course", "exercise", "diploma")
         if self.url in RESERVED:
             raise ValidationError({
-                'url': _('TAKEN_WORDS_INCLUDE -- {}').format(
-                    ", ".join(RESERVED))
+                'url': format_lazy(
+                        _('TAKEN_WORDS_INCLUDE -- {}'),
+                        ", ".join(RESERVED)
+                    )
             })
 
     def is_teacher(self, user):
@@ -747,7 +749,10 @@ class CourseModule(UrlMixin, models.Model):
         errors = {}
         RESERVED = ("toc", "teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
-            errors['url'] = _('TAKEN_WORDS_INCLUDE -- {}').format(", ".join(RESERVED))
+            errors['url'] = format_lazy(
+                _('TAKEN_WORDS_INCLUDE -- {}'),
+                ", ".join(RESERVED)
+            )
         if self.opening_time > self.closing_time:
             errors['opening_time'] = _('MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME')
         if self.late_submissions_allowed and self.late_submission_deadline <= self.closing_time:

@@ -2,6 +2,7 @@ import json
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import ACCESS
@@ -140,7 +141,8 @@ class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
         if failed_enrollments:
             messages.warning(
                 self.request,
-                _('ENROLLMENTS_FAILED_WARNING_USERS_ALREADY_ENROLLED -- {users}').format(
+                format_lazy(
+                    _('ENROLLMENTS_FAILED_WARNING_USERS_ALREADY_ENROLLED -- {users}'),
                     users='; '.join([profile.name_with_student_id for profile in failed_enrollments]),
                 ),
             )

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -74,8 +75,12 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
             )
         except IntegrityError:
             messages.warning(self.request,
-                _('DEVIATION_WARNING_DEADLINE_DEVIATION_ALREADY_FOR -- {user}, {exercise}').format(
-                    user=str(profile), exercise=str(exercise)))
+                format_lazy(
+                    _('DEVIATION_WARNING_DEADLINE_DEVIATION_ALREADY_FOR -- {user}, {exercise}'),
+                    user=str(profile),
+                    exercise=str(exercise),
+                )
+            )
 
 
 class RemoveDeadlineView(CourseInstanceMixin, BaseRedirectView):

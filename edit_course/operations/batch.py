@@ -1,5 +1,6 @@
 import json
 from django.utils import timezone
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from exercise.models import BaseExercise, Submission
@@ -14,8 +15,10 @@ def create_submissions(instance, admin_profile, json_text):
     try:
         submissions_json = json.loads(json_text)
     except Exception as e:
-        return [_('EXCEPTION_PARSING_SUBMISSION_JSON -- {error!s}')
-                    .format(error=e)]
+        return [format_lazy(
+            _('EXCEPTION_PARSING_SUBMISSION_JSON -- {error!s}'),
+            error=e,
+        )]
 
     if isinstance(submissions_json, dict):
         if not "objects" in submissions_json:
@@ -31,8 +34,11 @@ def create_submissions(instance, admin_profile, json_text):
         count += 1
         if not "exercise_id" in submission_json:
             errors.append(
-                _('JSON_ERROR_MISSING_FIELD_EXERCISE_ID -- {count:d}')
-                    .format(count=count))
+                format_lazy(
+                    _('JSON_ERROR_MISSING_FIELD_EXERCISE_ID -- {count:d}'),
+                    count=count,
+                )
+            )
             continue
 
         exercise = BaseExercise.objects.filter(
@@ -40,9 +46,12 @@ def create_submissions(instance, admin_profile, json_text):
             course_module__course_instance=instance).first()
         if not exercise:
             errors.append(
-                _('JSON_ERROR_UNKNOWN_EXERCISE_ID -- {id:d}, {count:d}')
-                    .format(id=submission_json["exercise_id"],
-                            count=count))
+                format_lazy(
+                    _('JSON_ERROR_UNKNOWN_EXERCISE_ID -- {id:d}, {count:d}'),
+                    id=submission_json["exercise_id"],
+                    count=count,
+                )
+            )
             continue
 
         # Use form to parse and validate object data.
@@ -52,9 +61,12 @@ def create_submissions(instance, admin_profile, json_text):
             validated_forms.append(form)
         else:
             errors.append(
-                _('JSON_ERROR_OBJECT_INVALID_FIELDS -- {ordinal:d}, {errors}')
-                    .format(ordinal=count,
-                            errors='\n '.join(extract_form_errors(form))))
+                format_lazy(
+                    _('JSON_ERROR_OBJECT_INVALID_FIELDS -- {ordinal:d}, {errors}'),
+                    ordinal=count,
+                    errors='\n '.join(extract_form_errors(form))
+                )
+            )
 
     if not errors:
         for form in validated_forms:

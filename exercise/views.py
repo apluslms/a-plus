@@ -151,8 +151,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             except ValueError as error:
                 messages.error(request,
                     format_lazy(
-                    _('SUBMISSION_ERROR_MALFORMED_POST_DATA -- {error}'),
-                    error=error
+                        _('SUBMISSION_ERROR_MALFORMED_POST_DATA -- {error}'),
+                        error=error,
                     )
                 )
             except DatabaseError:

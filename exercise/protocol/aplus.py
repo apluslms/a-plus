@@ -1,5 +1,6 @@
 import logging
 from django.contrib import messages
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from lib.email_messages import email_course_error
@@ -75,7 +76,8 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 else:
                     submission.set_error()
                     page.errors.append(
-                        _('ASSESSMENT_SERVICE_ERROR_RESPONDED_INVALID_POINTS -- {points:d}, {max:d}, {exercise_max:d}').format(
+                        format_lazy(
+                            _('ASSESSMENT_SERVICE_ERROR_RESPONDED_INVALID_POINTS -- {points:d}, {max:d}, {exercise_max:d}'),
                             points=page.points,
                             max=page.max_points,
                             exercise_max=exercise.max_points

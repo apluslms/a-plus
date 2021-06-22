@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from aplus.api import api_reverse
@@ -51,9 +52,11 @@ class SubmissionReviewForm(forms.Form):
         max_points = self.exercise.max_points
         if not points is None and points > max_points:
             raise forms.ValidationError(
-                _('SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}').format(
+                format_lazy(
+                    _('SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}'),
                     max=self.exercise.max_points
-                ))
+                )
+            )
         return self.cleaned_data
 
 
