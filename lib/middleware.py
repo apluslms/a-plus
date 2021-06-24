@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.utils import translation
 from django.utils.cache import patch_vary_headers
 from django.utils.deprecation import MiddlewareMixin
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 from lib.helpers import remove_query_param_from_url
 
@@ -19,7 +19,7 @@ class LocaleMiddleware(MiddlewareMixin):
             lang_codes = set(lang[0][:2] for lang in settings.LANGUAGES)
             if language[:2] not in lang_codes:
                 url = remove_query_param_from_url(request.get_full_path(), 'hl')
-                return render_to_response('404.html', {'url_without_language': url}, status=404) 
+                return render(request, '404.html', {'url_without_language': url}, status=404)
         elif hasattr(request, 'user') and request.user.is_authenticated and not request.user.is_anonymous:
             language = request.user.userprofile.language
         else:

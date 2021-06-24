@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render_to_response
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, get_language_info
@@ -140,7 +140,7 @@ class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
             url = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             for i, lang in enumerate(instance_languages):
                 instance_languages[i] = {"name": get_language_info(lang)['name'], "url": update_url_params(url, {'hl' : lang})}
-            return render_to_response('404.html', {'error_msg': str(exc), 'languages': instance_languages}, status=404)
+            return render(self.request, '404.html', {'error_msg': str(exc), 'languages': instance_languages}, status=404)
         return super().handle_exception(exc)
 
     def handle_no_permission(self):

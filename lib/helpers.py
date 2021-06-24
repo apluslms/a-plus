@@ -127,7 +127,7 @@ def settings_text(key):
         if hasattr(settings, name):
             return getattr(settings, name)
         return None
-    return get('{}_{}'.format(key, get_language().upper())) or get(key)
+    return get('{}_{}'.format(key, (get_language() or settings.LANGUAGE_CODE).upper())) or get(key)
 
 
 @cached(TTLCache(100, ttl=30))
