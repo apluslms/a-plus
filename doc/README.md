@@ -240,7 +240,7 @@ Translations are handled with [Django](https://docs.djangoproject.com/en/2.2/ref
 1. In order to update the file containing translations, run:
 
    ```sh
-   $ python3 manage.py makemessages --no-obsolete --add-location file
+   $ python3 manage.py makemessages --no-obsolete --add-location file --all
    ```
 
 2. You can easily check the lines that were affected:
