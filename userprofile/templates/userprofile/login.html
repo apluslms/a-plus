@@ -20,7 +20,7 @@
 	<div id="login-box-row" class="row">
 
 		{% if shibboleth_login %}
-			<section aria-labelledby="login-shibboleth-users" class="col-sm-6 col-md-3 login-box">
+			<section aria-labelledby="login-shibboleth-users" class="col-sm-6 col-md-4 login-box">
 				<div class="login-section">
 					{% if shibboleth_title_text %}
 						<h2 id="login-shibboleth-users">
@@ -43,7 +43,7 @@
 				</div>
 			</section>
 		
-			<section aria-labelledby="login-haka-users" class="col-sm-6 col-md-3 login-box">
+			<section aria-labelledby="login-haka-users" class="col-sm-6 col-md-4 login-box">
 				<div class="login-section">
 					{% if haka_title_text %}
 						<h2 id="login-haka-users">
@@ -65,10 +65,12 @@
 					</div>
 				</div>
 			</section>
+
+			<div class="clearfix visible-sm-block"></div>
 		{% endif %}
 
 		{% if mooc_login %}
-			<section aria-labelledby="login-google-users" class="col-sm-6 col-md-3 login-box">
+			<section aria-labelledby="login-google-users" class="col-sm-6 col-md-4 login-box">
 				<div class="login-section">
 					{% if mooc_title_text %}
 						<h2 id="login-google-users">
@@ -90,7 +92,11 @@
 			</section>
 		{% endif %}
 
-		<section aria-labelledby="login-local-users" class="col-sm-6 col-md-3 login-box extra-login">
+		{% if shibboleth_login and mooc_login %}
+			<div class="clearfix visible-md-block visible-lg-block"></div>
+		{% endif %}
+
+		<section aria-labelledby="login-local-users" class="col-sm-6 col-md-4 login-box extra-login">
 			<div class="login-section">
 				<h2 id="login-local-users">
 					{% translate "LOCAL_USERS" %}
