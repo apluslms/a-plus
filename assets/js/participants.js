@@ -101,6 +101,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
   };
 
   get_participants().remove();
+  var deferredRowActions = [];
   participants.forEach(function(participant) {
     const user_id = participant.user_id;
     const tags_id = 'tags-' + user_id;
@@ -149,15 +150,19 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     var actionsColumn = $('<td></td>')
       .addClass('actions-container');
     if (participant.enrollment_status == 'ACTIVE') {
-      actionsColumn.append(
-        get_row_action('Remove', 'remove', function () {
-          remove_participant(participant, row, 'REMOVED');
-        })
-      ).append(' ').append(
-        get_row_action('Ban', 'minus-sign', function () {
-          remove_participant(participant, row, 'BANNED');
-        })
-      );
+      // Don't add the buttons before translations are ready
+      // Store them in an array and wait
+      deferredRowActions.push(function() {
+        actionsColumn.append(
+          get_row_action(_('Remove'), 'remove', function () {
+            remove_participant(participant, row, 'REMOVED');
+          })
+        ).append(' ').append(
+          get_row_action(_('Ban'), 'minus-sign', function () {
+            remove_participant(participant, row, 'BANNED');
+          })
+        );
+      });
     }
     actionsColumn.appendTo(row);
   });
@@ -193,6 +198,9 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         document.getElementById('participants'),
         participants
       );
+      deferredRowActions.forEach(function(deferredRowAction) {
+        deferredRowAction();
+      });
     });
   }
 
