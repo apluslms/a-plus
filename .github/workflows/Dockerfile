@@ -20,3 +20,5 @@ RUN rm requirements.txt requirements_testing.txt
 RUN curl -s -L $GECKODRIVER_LINK | tar -xz
 RUN chmod +x geckodriver
 RUN mv geckodriver /usr/bin/
+
+ENV APLUS_BASE_URL="-"
