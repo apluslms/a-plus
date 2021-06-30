@@ -34,7 +34,7 @@ jobs:
           path: .docker-img.tar
           key: v2-${{ hashFiles('.github/workflows/Dockerfile', 'requirements_testing.txt', 'requirements.txt') }}
       - run: docker load -i .docker-img.tar
-      - run: docker run -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} testimg python3 manage.py test
+      - run: docker run -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} testimg bash -c 'python3 manage.py compilemessages && python3 manage.py test'
   selenium-tests:
     runs-on: ubuntu-latest
     needs: docker-build
@@ -45,4 +45,4 @@ jobs:
           path: .docker-img.tar
           key: v2-${{ hashFiles('.github/workflows/Dockerfile', 'requirements_testing.txt', 'requirements.txt') }}
       - run: docker load -i .docker-img.tar
-      - run: docker run -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} testimg selenium_test/run_servers_and_tests.sh
+      - run: docker run -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} testimg bash -c 'python3 manage.py compilemessages && selenium_test/run_servers_and_tests.sh'
