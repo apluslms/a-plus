@@ -14,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (
+    Enrollment,
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
 )
@@ -219,6 +220,16 @@ class UserResultsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         profile = self.student.userprofile
+        enrollment = self.instance.get_enrollment_for(profile.user)
+        if enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
+            status_string = Enrollment.ENROLLMENT_STATUS[enrollment.status]
+            messages.warning(
+                self.request,
+                format_lazy(
+                    _("NO_LONGER_PARTICIPATING_IN_COURSE -- {status}"),
+                    status=status_string
+                ),
+            ),
         exercise = LearningObject.objects.find_enrollment_exercise(
             self.instance,
             profile

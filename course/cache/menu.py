@@ -35,17 +35,16 @@ class CachedTopMenu(CachedAbstract):
             }
 
         enrolled = []
-        for instance in profile.enrolled.all():
+        for instance in CourseInstance.objects.get_enrolled(profile).all():
             if instance.visible_to_students:
                enrolled.append(course_entry(instance))
 
         teaching = []
-        for course in profile.teaching_courses.all():
-            for instance in course.instances.all():
-                teaching.append(course_entry(instance))
+        for instance in CourseInstance.objects.get_teaching(profile).all():
+            teaching.append(course_entry(instance))
 
         assisting = []
-        for instance in profile.assisting_courses.all():
+        for instance in CourseInstance.objects.get_assisting(profile).all():
             assisting.append(course_entry(instance))
 
         courses = []
@@ -71,7 +70,8 @@ class CachedTopMenu(CachedAbstract):
 
         group_map = {}
         for enrollment in Enrollment.objects\
-                .filter(user_profile=profile)\
+                .filter(user_profile=profile,
+                    status=Enrollment.ENROLLMENT_STATUS.ACTIVE)\
                 .select_related('selected_group')\
                 .prefetch_related('selected_group__members'):
             instance_id = enrollment.course_instance_id
@@ -120,6 +120,6 @@ def invalidate_members(sender, instance, reverse=False, **kwargs):
 # Automatically invalidate cached menu when enrolled or edited.
 post_save.connect(invalidate_content, sender=Enrollment)
 post_delete.connect(invalidate_content, sender=Enrollment)
-m2m_changed.connect(invalidate_assistants, sender=CourseInstance.assistants.through)
-m2m_changed.connect(invalidate_teachers, sender=Course.teachers.through)
+m2m_changed.connect(invalidate_assistants, sender=Enrollment)
+m2m_changed.connect(invalidate_teachers, sender=Enrollment)
 m2m_changed.connect(invalidate_members, sender=StudentGroup.members.through)

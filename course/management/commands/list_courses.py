@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 num_enrolled = instance.students.exclude(
                     id__in=instance.assistants.all(),
                 ).exclude(
-                    id__in=instance.course.teachers.all(),
+                    id__in=instance.teachers.all(),
                 ).count()
 
             num_submissions = None
@@ -92,7 +92,7 @@ class Command(BaseCommand):
                 ).exclude(
                     submitters__in=instance.assistants.all(),
                 ).exclude(
-                    submitters__in=instance.course.teachers.all(),
+                    submitters__in=instance.teachers.all(),
                 ).count()
 
             self.stdout.write(fmt.format(i=instance, c=instance.course, e=num_enrolled, s=num_submissions))

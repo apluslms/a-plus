@@ -64,8 +64,10 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    parent_lookup_map = {'course_id': 'enrolled.id'}
-    queryset = UserProfile.objects.all()
+    parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
+
+    def get_queryset(self):
+        return self.instance.students
 
     def get_search_args(self, request):
         return {
@@ -164,8 +166,10 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    parent_lookup_map = {'course_id': 'enrolled.id'}
-    queryset = UserProfile.objects.all()
+    parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
+
+    def get_queryset(self):
+        return self.instance.students
 
     def get_search_args(self, request):
         return {
@@ -231,8 +235,10 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    parent_lookup_map = {'course_id': 'enrolled.id'}
-    queryset = UserProfile.objects.all()
+    parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
+
+    def get_queryset(self):
+        return self.instance.students
 
     def get_search_args(self, request):
         return {

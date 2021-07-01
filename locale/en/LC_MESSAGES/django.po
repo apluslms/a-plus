@@ -114,6 +114,30 @@ msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Taken words include: {}"
 
 #: course/models.py
+msgid "STUDENT"
+msgstr "Student"
+
+#: course/models.py exercise/templates/exercise/staff/_submissions_table.html
+msgid "ASSISTANT"
+msgstr "Assistant"
+
+#: course/models.py
+msgid "TEACHER"
+msgstr "Teacher"
+
+#: course/models.py
+msgid "ACTIVE"
+msgstr "Active"
+
+#: course/models.py
+msgid "REMOVED"
+msgstr "Removed"
+
+#: course/models.py
+msgid "BANNED"
+msgstr "Banned"
+
+#: course/models.py
 msgid "INTERNAL"
 msgstr "internal"
 
@@ -454,6 +478,16 @@ msgstr "Edit news"
 msgid "EDIT_COURSE"
 msgstr "Edit course"
 
+#: course/templates/course/_course_menu.html
+#: course/templates/course/enroll.html
+msgid "ENROLLMENT"
+msgstr "Enrollment"
+
+#: course/templates/course/_course_menu.html
+#: course/templates/course/course_base.html
+msgid "UNENROLL"
+msgstr "Unenroll"
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"
 msgstr "In order to submit exercises you must enroll in the course."
@@ -573,14 +607,39 @@ msgstr "You can change the language from your profile."
 msgid "BREADCRUMB"
 msgstr "Breadcrumb"
 
+#: course/templates/course/course_base.html
+msgid "UNENROLL_WARNING_DESCRIPTION"
+msgstr "You are about to unenroll from this course."
+
+#: course/templates/course/course_base.html
+msgid "UNENROLL_WARNING_CANNOT_RE-ENROLL"
+msgstr "You cannot re-enroll in the course because enrollment is not open."
+
+#: course/templates/course/course_base.html
+msgid "PROCEED_CONFIRMATION"
+msgstr "Are you sure you want to proceed?"
+
+#: course/templates/course/course_base.html
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/assess_submission.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Cancel"
+
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "COURSE_INSTANCES"
 msgstr "Course instances"
-
-#: course/templates/course/enroll.html
-msgid "ENROLLMENT"
-msgstr "Enrollment"
 
 #: course/templates/course/enroll.html
 msgid "ENROLLMENT_IS_ALREADY_ENROLLED"
@@ -676,22 +735,6 @@ msgstr ""
 "modal-users\"></ul> "
 
 #: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Cancel"
-
-#: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
 msgstr "Remove all"
 
@@ -759,7 +802,6 @@ msgstr "Edit group members"
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
-#: edit_course/templates/edit_course/edit_teachers.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
@@ -780,14 +822,20 @@ msgid "ADD_NEW"
 msgstr "Add new"
 
 #: course/templates/course/staff/participants.html
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/staff/results.html
-msgid "FILTER_USERS"
-msgstr "Filter users"
+msgid "FILTER_USERS_BY_TAG"
+msgstr "Filter users by tag"
 
 #: course/templates/course/staff/participants.html
-msgid "NUMBER_OF_STUDENTS"
-msgstr "Number of students"
+msgid "FILTER_USERS_BY_STATUS"
+msgstr "Filter users by status"
+
+#: course/templates/course/staff/participants.html
+msgid "NUMBER_OF_ENROLLED_STUDENTS"
+msgstr "Number of enrolled students"
+
+#: course/templates/course/staff/participants.html
+msgid "REMOVED_STUDENTS"
+msgstr "removed students"
 
 #: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"
@@ -817,6 +865,15 @@ msgid "EMAIL"
 msgstr "Email"
 
 #: course/templates/course/staff/participants.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/submission_plain.html
+#: templates/support_channels.html
+msgid "STATUS"
+msgstr "Status"
+
+#: course/templates/course/staff/participants.html
 #: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_delete.html
@@ -841,6 +898,15 @@ msgstr "You cannot enroll, or have already enrolled, in this course."
 #: course/views.py exercise/exercise_models.py
 msgid "ENROLLMENT_ERROR_ENROLLMENT_NOT_OPEN"
 msgstr "The enrollment is not open."
+
+#: course/views.py
+#, python-brace-format
+msgid "UNENROLL_SUCCESS -- {course}"
+msgstr "Successfully unenrolled from course {course}."
+
+#: course/views.py
+msgid "UNENROLL_ERROR_ONLY_ENROLLED"
+msgstr "Only enrolled students can unenroll."
 
 #: course/views.py
 msgid "NEW_STUDENT_GROUP_CREATED"
@@ -934,6 +1000,11 @@ msgid "OPEN_GRADE_0_DIPLOMA"
 msgstr "Open grade 0 diploma"
 
 #: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/staff/results.html
+msgid "FILTER_USERS"
+msgstr "Filter users"
+
+#: diploma/templates/diploma/list.html
 #: edit_course/templates/edit_course/signin_as_user.html
 #: userprofile/templates/userprofile/login.html
 #: userprofile/templates/userprofile/profile.html
@@ -979,6 +1050,10 @@ msgstr "Removes possibility for students to return answers."
 #: edit_course/course_forms.py
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
 msgstr "New URL identifier for the course instance:"
+
+#: edit_course/course_forms.py templates/support_channels.html
+msgid "TEACHERS"
+msgstr "Teachers"
 
 #: edit_course/course_forms.py
 msgid "ASSISTANTS"
@@ -1384,12 +1459,6 @@ msgid "RENUMERATE_LEARNING_OBJECTS_IGNORING_MODULES"
 msgstr "Renumerate learning objects ignoring modules"
 
 #: edit_course/templates/edit_course/edit_course_base.html
-#: edit_course/templates/edit_course/edit_teachers.html
-#: templates/support_channels.html
-msgid "TEACHERS"
-msgstr "Teachers"
-
-#: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/edit_index.html
 msgid "INDEX"
 msgstr "Index"
@@ -1444,10 +1513,6 @@ msgstr "Fill in the URL and"
 #: edit_course/templates/edit_course/edit_model.html
 msgid "DOWNLOAD_POSSIBLE_METADATA"
 msgstr "Download possible metadata"
-
-#: edit_course/templates/edit_course/edit_teachers.html
-msgid "EDIT_COURSE_TEACHERS"
-msgstr "Edit course teachers"
 
 #: edit_course/templates/edit_course/remove_model.html
 #, python-format
@@ -1957,6 +2022,11 @@ msgstr "Failed to load the resource."
 
 #: exercise/staff_views.py
 #, python-brace-format
+msgid "NO_LONGER_PARTICIPATING_IN_COURSE -- {status}"
+msgstr "This student is no longer participating in the course (status: {status})."
+
+#: exercise/staff_views.py
+#, python-brace-format
 msgid "ERROR_INVALID_POST_DATA -- {error}"
 msgstr ""
 "Invalid POST data:\n"
@@ -2149,14 +2219,6 @@ msgstr "Submission info"
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMITTED_ON"
 msgstr "Submitted on"
-
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/submission_plain.html
-#: templates/support_channels.html
-msgid "STATUS"
-msgstr "Status"
 
 #: exercise/templates/exercise/_submission_info.html
 #: exercise/templates/exercise/staff/_assess_info.html
@@ -2408,10 +2470,6 @@ msgstr "Inspect"
 #, python-format
 msgid "LATE_W_PENALTY -- %(percent)s"
 msgstr "Late <small>-%(percent)s%%</small>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "ASSISTANT"
-msgstr "Assistant"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NO_SUBMISSIONS"

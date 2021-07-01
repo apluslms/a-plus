@@ -23,17 +23,29 @@
     </p>
     {% endif %}
     <p class="filter-users">
-      <small>{% translate "FILTER_USERS" %}:</small>
+      <small>{% trans "FILTER_USERS_BY_TAG" %}:</small>
       {% for tag in tags %}
-      <button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
+      <button class="btn btn-default btn-xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
         <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
         {{ tag.name }}
+      </button>
+      {% endfor %}
+      <small>{% trans "FILTER_USERS_BY_STATUS" %}:</small>
+      {% for status_code, status_label in enrollment_statuses.items %}
+      <button class="btn btn-default btn-xs filter-status" data-status="{{ status_code }}">
+				{% if status_code == 'ACTIVE' %}
+        	<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+				{% else %}
+					<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+        {% endif %}
+        {{ status_label }}
       </button>
       {% endfor %}
     </p>
 
     <p>
-        {% translate "NUMBER_OF_STUDENTS" %} <strong id="participants-number"></strong>
+        {% trans "NUMBER_OF_ENROLLED_STUDENTS" %} <strong id="active-participants-number"></strong>
+				({% trans "REMOVED_STUDENTS" %} <strong id="inactive-participants-number"></strong>)
         {% if is_teacher %}
         {% translate "OF_WHICH_SELECTED" %} <strong id="selected-number">0</strong>
         {% endif %}
@@ -47,11 +59,13 @@
                     <input type="checkbox" id="students-select-all" name="students" value="all" >
                 </th>
                 {% endif %}
-                <th><a href="#" class="order-toggle" id="order-id">{% translate "STUDENT_ID" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
-                <th><a href="#" class="order-toggle" id="order-last">{% translate "LAST_NAME" %} </a></th>
-                <th><a href="#" class="order-toggle" id="order-first">{% translate "FIRST_NAME" %} </a></th>
-                <th>{% translate "EMAIL" %}</th>
-                <th>{% translate "TAGS" %}</th>
+                <th><a href="#" class="order-toggle" id="order-id">{% trans "STUDENT_ID" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
+                <th><a href="#" class="order-toggle" id="order-last">{% trans "LAST_NAME" %} </a></th>
+                <th><a href="#" class="order-toggle" id="order-first">{% trans "FIRST_NAME" %} </a></th>
+                <th>{% trans "EMAIL" %}</th>
+								<th>{% trans "STATUS" %}</th>
+                <th>{% trans "TAGS" %}</th>
+								<th></th>
             </tr>
         </thead>
         <tbody id="participants">
@@ -78,7 +92,8 @@
      const participants = {{ participants|escape_slashes|safe }};
      const api_url = "{% url 'api:course-detail' 2 instance.id %}";
      const is_teacher = {{ is_teacher|yesno:"true,false" }};
-     participants_list(participants, api_url, is_teacher);
+		 const enrollment_statuses = {{ enrollment_statuses_json|escape_slashes|safe }};
+     participants_list(participants, api_url, is_teacher, enrollment_statuses);
  });
 </script>
 

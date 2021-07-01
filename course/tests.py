@@ -166,40 +166,35 @@ class CourseTest(TestCase):
         self.assertEqual("/Course-Url/T-00.1000_hidden/", self.hidden_course_instance.get_absolute_url())
 
     def test_course_staff(self):
-        self.assertFalse(self.course.is_teacher(self.user))
         self.assertFalse(self.current_course_instance.is_assistant(self.user))
         self.assertFalse(self.current_course_instance.is_teacher(self.user))
         self.assertFalse(self.current_course_instance.is_course_staff(self.user))
         self.assertEqual(0, len(self.current_course_instance.get_course_staff_profiles()))
 
-        self.current_course_instance.assistants.add(self.user.userprofile)
+        self.current_course_instance.add_assistant(self.user.userprofile)
 
-        self.assertFalse(self.course.is_teacher(self.user))
         self.assertTrue(self.current_course_instance.is_assistant(self.user))
         self.assertFalse(self.current_course_instance.is_teacher(self.user))
         self.assertTrue(self.current_course_instance.is_course_staff(self.user))
         self.assertEqual(1, len(self.current_course_instance.get_course_staff_profiles()))
 
-        self.course.teachers.add(self.user.userprofile)
+        self.current_course_instance.add_teacher(self.user.userprofile)
 
-        self.assertTrue(self.course.is_teacher(self.user))
-        self.assertTrue(self.current_course_instance.is_assistant(self.user))
+        self.assertFalse(self.current_course_instance.is_assistant(self.user))
         self.assertTrue(self.current_course_instance.is_teacher(self.user))
         self.assertTrue(self.current_course_instance.is_course_staff(self.user))
         self.assertEqual(1, len(self.current_course_instance.get_course_staff_profiles()))
         self.assertEqual("testUser", self.current_course_instance.get_course_staff_profiles()[0].shortname)
 
-        self.current_course_instance.assistants.clear()
+        self.current_course_instance.clear_assistants()
 
-        self.assertTrue(self.course.is_teacher(self.user))
         self.assertFalse(self.current_course_instance.is_assistant(self.user))
         self.assertTrue(self.current_course_instance.is_teacher(self.user))
         self.assertTrue(self.current_course_instance.is_course_staff(self.user))
         self.assertEqual(1, len(self.current_course_instance.get_course_staff_profiles()))
 
-        self.course.teachers.clear()
+        self.current_course_instance.clear_teachers()
 
-        self.assertFalse(self.course.is_teacher(self.user))
         self.assertFalse(self.current_course_instance.is_assistant(self.user))
         self.assertFalse(self.current_course_instance.is_teacher(self.user))
         self.assertFalse(self.current_course_instance.is_course_staff(self.user))
@@ -333,7 +328,7 @@ class CourseTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-        self.current_course_instance.assistants.add(self.grader.userprofile)
+        self.current_course_instance.add_assistant(self.grader.userprofile)
         self.client.login(username="grader", password="graderPassword")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
@@ -342,8 +337,8 @@ class CourseTest(TestCase):
         self.assertTrue(response.context["is_assistant"])
         self.assertFalse(response.context["is_teacher"])
 
-        self.current_course_instance.assistants.clear()
-        self.course.teachers.add(self.grader.userprofile)
+        self.current_course_instance.clear_assistants()
+        self.current_course_instance.add_teacher(self.grader.userprofile)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = self.client.get(self.current_course_instance.get_absolute_url(), follow=True)

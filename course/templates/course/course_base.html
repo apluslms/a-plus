@@ -145,6 +145,50 @@
 		{% block siblings_bottom %}{% endblock %}
 	</div>
 </div>
+
+<div id="unenroll-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="unenroll-modal-title">
+	<div class="modal-dialog" role="document">
+	  <div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			<h4 class="modal-title" id="unenroll-modal-title">
+				{% trans "UNENROLL" %}
+			</h4>
+		</div>
+		<div class="modal-body">
+			<p>
+				{% trans "UNENROLL_WARNING_DESCRIPTION" %}
+				{% if not instance.is_enrollment_open %}
+					{% trans "UNENROLL_WARNING_CANNOT_RE-ENROLL" %}
+				{% endif %}
+			</p>
+			<p>
+				{%trans "PROCEED_CONFIRMATION" %}
+			</p>
+		</div>
+		<div class="modal-footer">
+			<form action="{{ instance|url:'unenroll' }}" method="post">
+				{% csrf_token %}
+				<button
+					type="button"
+					class="aplus-button--secondary aplus-button--md"
+					data-dismiss="modal"
+				>
+					{% trans "CANCEL" %}
+				</button>
+				<button
+					type="submit"
+					class="aplus-button--danger aplus-button--md"
+				>
+					{% trans "UNENROLL" %}
+				</button>
+			</form>
+		</div>
+	  </div>
+	</div>
+</div>
 {% endblock %}
 
 {% block mobilemenu %}

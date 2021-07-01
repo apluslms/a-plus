@@ -11,6 +11,7 @@ from lib.viewbase import BaseFormView, BaseTemplateView, BaseRedirectMixin
 from .cache.students import CachedStudent
 from .forms import EnrollStudentsForm, GroupEditForm
 from .models import (
+    Enrollment,
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
     StudentGroup,
@@ -26,11 +27,18 @@ class ParticipantsView(CourseInstanceBaseView):
         super().get_common_objects()
         self.tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
         self.tags.extend(self.instance.usertags.all())
+        # Maps enum name (e.g. "ACTIVE") to string (e.g. "Active").
+        self.enrollment_statuses = {
+            k: str(Enrollment.ENROLLMENT_STATUS[getattr(Enrollment.ENROLLMENT_STATUS, k)])
+            for k in Enrollment.ENROLLMENT_STATUS.keys()
+        }
+        self.enrollment_statuses_json = json.dumps(self.enrollment_statuses)
         self.participants = json.dumps(self._get_students_with_tags())
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
         self.note(
             'participants', 'tags',
+            'enrollment_statuses', 'enrollment_statuses_json',
             'internal_user_label', 'external_user_label',
         )
 
@@ -41,8 +49,13 @@ class ParticipantsView(CourseInstanceBaseView):
                          kwargs={'user_id': fake, **ci.get_url_kwargs()})
                 .replace(fake, r'%s'))
         tags = {t.slug: t for t in self.tags}
+        # Maps enum value (e.g. 1) to name (e.g. "ACTIVE").
+        statuses = {
+            getattr(Enrollment.ENROLLMENT_STATUS, k): k
+            for k in Enrollment.ENROLLMENT_STATUS.keys()
+        }
 
-        participants = ci.students.all()
+        participants = ci.all_students.all()
         data = []
         for participant in participants:
             user_id = participant.user.id
@@ -59,6 +72,7 @@ class ParticipantsView(CourseInstanceBaseView):
                 'link': link % (user_id,),
                 **user_tags,
                 'tags': user_tags_html,
+                'enrollment_status': statuses[participant.enrollment_status],
             })
         return data
 

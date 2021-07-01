@@ -70,6 +70,9 @@ class CourseModuleForm(FieldsetModelForm):
 
 class CourseInstanceForm(forms.ModelForm):
 
+    teachers = UsersSearchSelectField(queryset=UserProfile.objects.all(),
+        initial_queryset=UserProfile.objects.none(),
+        required=False)
     assistants = UsersSearchSelectField(queryset=UserProfile.objects.all(),
         initial_queryset=UserProfile.objects.none(),
         required=False) # Not required because a course does not have to have any assistants.
@@ -91,12 +94,17 @@ class CourseInstanceForm(forms.ModelForm):
             'enrollment_audience',
             'view_content_to',
             'head_urls',
+            'teachers',
             'assistants',
             'technical_error_emails',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['teachers'].initial = self.instance.teachers.all()
+        self.fields['teachers'].initial_queryset = self.instance.teachers.all()
+        self.fields['teachers'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
+        self.fields['assistants'].initial = self.instance.assistants.all()
         self.fields['assistants'].initial_queryset = self.instance.assistants.all()
         self.fields['assistants'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
         if self.instance and self.instance.visible_to_students:
@@ -120,6 +128,12 @@ class CourseInstanceForm(forms.ModelForm):
         generate_url_key_validator()(self.cleaned_data["url"])
         return self.cleaned_data["url"]
 
+    def save(self, *args, **kwargs):
+        self.instance.set_assistants(self.cleaned_data['assistants'])
+        self.instance.set_teachers(self.cleaned_data['teachers'])
+
+        return super(CourseInstanceForm, self).save(*args, **kwargs)
+
 
 class CourseIndexForm(forms.ModelForm):
 
@@ -142,27 +156,10 @@ class CourseContentForm(forms.ModelForm):
         ]
 
 
-class CourseTeachersForm(forms.ModelForm):
-
-    teachers = UsersSearchSelectField(queryset=UserProfile.objects.all(),
-        initial_queryset=UserProfile.objects.none(),
-        required=False) # Not required because a course does not have to have any teachers.
-
-    class Meta:
-        model = Course
-        fields = [
-            'teachers'
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['teachers'].initial_queryset = self.instance.teachers.all()
-        self.fields['teachers'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
-
-
 class CloneInstanceForm(forms.Form):
     url = forms.CharField(label=_('COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE'),
         validators=[generate_url_key_validator()])
+    teachers = forms.BooleanField(label=_('TEACHERS'), required=False, initial=True)
     assistants = forms.BooleanField(label=_('ASSISTANTS'), required=False, initial=True)
     categories = forms.BooleanField(label=_('EXERCISE_CATEGORIES'), required=False, initial=True)
     modules = forms.BooleanField(label=_('COURSE_MODULES'), required=False, initial=True)
