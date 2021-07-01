@@ -10,7 +10,7 @@
       <span class="caret" aria-hidden="true"></span>
     </span>
     <span class="loader hidden">
-      <small>{% trans "Registering selection..." %}</small>
+      <small>{% translate "GROUP_LOADER_REGISTERING_SELECTION" %}</small>
     </span>
   </a>
   <ul class="dropdown-menu">
@@ -18,7 +18,7 @@
       <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
         <button type="submit" name="group" value="0" data-group-size="1">
-          {% trans "Submit alone" %}
+          {% translate "SUBMIT_ALONE" %}
         </button>
       </form>
     </li>
@@ -27,9 +27,9 @@
       <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
         <button type="submit" name="group" value="{{ group.id }}" data-group-size="{{ group.size }}">
-          {% blocktrans with collaborators=group.collaborators %}
-          Submit with {{ collaborators }}
-          {% endblocktrans %}
+          {% blocktranslate trimmed with collaborators=group.collaborators %}
+            SUBMIT_WITH -- {{ collaborators }}
+          {% endblocktranslate %}
         </button>
       </form>
     </li>

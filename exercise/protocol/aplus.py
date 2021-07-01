@@ -1,5 +1,6 @@
 import logging
 from django.contrib import messages
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from lib.email_messages import email_course_error
@@ -24,7 +25,7 @@ def load_exercise_page(request, url, last_modified, exercise):
         )
     except RemotePageException:
         messages.error(request,
-            _("Connecting to the exercise service failed!"))
+            _('EXERCISE_SERVICE_ERROR_CONNECTION_FAILED'))
         if exercise.id:
             instance = exercise.course_instance
             msg = "Failed to request {}".format(url)
@@ -47,7 +48,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
         submission.clean_post_parameters()
         parse_page_content(page, remote_page, exercise)
     except RemotePageException:
-        page.errors.append(_("Connecting to the assessment service failed!"))
+        page.errors.append(_('ASSESSMENT_SERVICE_ERROR_CONNECTION_FAILED'))
         if exercise.course_instance.visible_to_students:
             msg = "Failed to request {}".format(url)
             logger.exception(msg)
@@ -75,9 +76,8 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 else:
                     submission.set_error()
                     page.errors.append(
-                        _("Assessment service responded with invalid points. "
-                          "Points: {points:d}/{max:d} "
-                          "(exercise max {exercise_max:d})").format(
+                        format_lazy(
+                            _('ASSESSMENT_SERVICE_ERROR_RESPONDED_INVALID_POINTS -- {points:d}, {max:d}, {exercise_max:d}'),
                             points=page.points,
                             max=page.max_points,
                             exercise_max=exercise.max_points
@@ -103,7 +103,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
             submission.set_error()
             logger.info("No accept or points received: %s",
                 exercise.service_url)
-            page.errors.append(_("Assessment service responded with error."))
+            page.errors.append(_('ASSESSMENT_SERVICE_ERROR_RESPONDED_ERROR'))
         submission.save()
 
     return page

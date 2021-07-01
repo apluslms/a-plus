@@ -3,25 +3,25 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block edittitle %}{% trans "Add news item" %}{% endblock %}
+{% block edittitle %}{% translate "ADD_NEWS_ITEM" %}{% endblock %}
 {% block view_tag %}edit-news{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'news-list' }}">{% trans "Edit news" %}</a></li>
-<li class="active">{% trans "Add new" %}</li>
+<li><a href="{{ instance|url:'news-list' }}">{% translate "EDIT_NEWS" %}</a></li>
+<li class="active">{% translate "ADD_NEW" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
 <br/>
 <form method="post" class="well form-horizontal">
     {% csrf_token %}
-    <legend>{% trans "Add news item" %}</legend>
+    <legend>{% translate "ADD_NEWS_ITEM" %}</legend>
     {{ form|bootstrap_horizontal }}
     <div class="form-group">
         <div class="col-sm-10 col-sm-offset-2">
-            <button type="submit" class="aplus-button--default aplus-button--md">{% trans 'Submit' %}</button>
-            <a href="{{ instance|url:'news-list' }}" role="button" class="aplus-button--secondary aplus-button--md">{% trans "Cancel" %}</a>
+            <button type="submit" class="aplus-button--default aplus-button--md">{% translate "SUBMIT" %}</button>
+            <a href="{{ instance|url:'news-list' }}" role="button" class="aplus-button--secondary aplus-button--md">{% translate "CANCEL" %}</a>
         </div>
     </div>
 </form>

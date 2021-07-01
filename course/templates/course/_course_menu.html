@@ -9,18 +9,18 @@
 
 <li>
 	<a href="#course-content" class="skip-link page-skip-link hidden-xs">
-		{% trans "Skip course navigation" %}
+		{% translate "SKIP_COURSE_NAVIGATION" %}
 	</a>
 </li>
 
 {% if instance.language|first == "|" %}
 <li class="header visible-xs">
-	<h4 id="course-menu-heading">{% trans "Language" %}</h4>
+	<h4 id="course-menu-heading">{% translate "LANGUAGE" %}</h4>
 </li>
 <li class="visible-xs dropdown">
 	<a href="#" class="dropdown-toggle" id="lang-dropdown-mobile" data-toggle="dropdown" role="button"
 		aria-haspopup="true" aria-expanded="false">
-		{% trans "Change language" %} <span class="caret"></span>
+		{% translate "CHANGE_LANGUAGE" %} <span class="caret"></span>
 	</a>
 	<ul class="dropdown-menu" aria-labelledby="lang-dropdown-mobile">
 		{% for language in instance.language|list_unselected %}
@@ -38,11 +38,11 @@
 <li class="header">
 	<div class="row">
 		<div class="col-sm-10">
-			<h4 id="course-menu-heading">{% trans "Course" %}</h4>
+			<h4 id="course-menu-heading">{% translate "COURSE" %}</h4>
 		</div>
 		<div class="col-sm hidden-xs">
 			<div class="dropdown h4">
-				<input type="image" src="{% static 'images/uls.svg' %}" alt="{% trans 'Language' %}"
+				<input type="image" src="{% static 'images/uls.svg' %}" alt="{% translate 'LANGUAGE' %}"
 					class="aplus-button--secondary aplus-button--xs" id="lang-dropdown-desktop" type="button"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
 				<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown-desktop">
@@ -62,7 +62,7 @@
 	</div>
 {% else %}
 <li class="header">
-	<h4 id="course-menu-heading">{% trans "Course" %}</h4>
+	<h4 id="course-menu-heading">{% translate "COURSE" %}</h4>
 </li>
 {% endif %}
 
@@ -75,13 +75,13 @@
 <li class="menu-toc">
 	<a href="{{ instance|url:'toc' }}">
 		<span class="glyphicon glyphicon-book" aria-hidden="true"></span>
-		{% trans "Course materials" %}
+		{% translate "COURSE_MATERIALS" %}
 	</a>
 </li>
 <li class="menu-results">
 	<a href="{{ instance|url:'results' }}">
 		<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-		{% trans "Exercise results" %}
+		{% translate "EXERCISE_RESULTS" %}
 	</a>
 </li>
 
@@ -90,7 +90,7 @@
 <li class="menu-groups">
 	<a href="{{ instance|url:'groups' }}">
 		<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
-		{% trans "Form a group" %}
+		{% translate "FORM_A_GROUP" %}
 	</a>
 </li>
 {% endif %}
@@ -118,7 +118,7 @@
 
 {% if instance.tabs.exists %}
 <li class="header">
-	<h4>{% trans "Apps" %}</h4>
+	<h4>{% translate "APPS" %}</h4>
 </li>
 {% for tab in instance.tabs.all %}
 <li class="menu-tab{{ tab.id }}">
@@ -132,20 +132,20 @@
 
 {% if is_course_staff %}
 <li class="header">
-	<h4>{% trans "Course staff" %}</h4>
+	<h4>{% translate "COURSE_STAFF" %}</h4>
 </li>
 
 <li class="menu-participants">
 	<a href="{{ instance|url:'participants' }}">
 		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-		{% trans "Participants" %}
+		{% translate "PARTICIPANTS" %}
 	</a>
 </li>
 
 <li class="menu-groups-edit">
 	<a href="{{ instance|url:'groups-list' }}">
 		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-		{% trans "Groups" %}
+		{% translate "GROUPS" %}
 	</a>
 </li>
 
@@ -153,7 +153,7 @@
 <li class="menu-grades">
 	<a href="{% url 'diploma-list' instance.coursediplomadesign.id %}">
 		<span class="glyphicon glyphicon-certificate" aria-hidden="true"></span>
-		{% trans "Grades" %}
+		{% translate "GRADES" %}
 	</a>
 </li>
 {% endif %}
@@ -161,14 +161,14 @@
 <li class="menu-all-results">
 	<a href="{{ instance|url:'all-results' }}">
 		<span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
-		{% trans "All results" %}
+		{% translate "ALL_RESULTS" %}
 	</a>
 </li>
 
 <li class="menu-analytics">
 	<a href="{{ instance|url:'analytics' }}">
 		<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-		{% trans "Visualizations" %}
+		{% translate "VISUALIZATIONS" %}
 	</a>
 </li>
 
@@ -176,13 +176,13 @@
 <li class="menu-edit-news">
 	<a href="{{ instance|url:'news-list' }}">
 		<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-		{% trans "Edit news" %}
+		{% translate "EDIT_NEWS" %}
 	</a>
 </li>
 <li class="menu-edit-course">
 	<a href="{{ instance|url:'course-edit' }}">
 		<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-		{% trans "Edit course" %}
+		{% translate "EDIT_COURSE" %}
 	</a>
 </li>
 {% endif %}

@@ -14,7 +14,7 @@ class PercentField(models.FloatField):
         value = super(PercentField, self).clean(value, model_instance)
         if value and (value < 0.0 or value > 1.0):
             raise exceptions.ValidationError(
-                _("The number must be between 0.0 and 1.0")
+                _('ERROR_NUMBER_MUST_BE_BETWEEN_0_AND_1')
             )
         return value
 
@@ -146,7 +146,7 @@ class JSONField(models.TextField):
             try:
                 return json.loads(value)
             except (TypeError, ValueError):
-                raise exceptions.ValidationError(_("Enter valid JSON."))
+                raise exceptions.ValidationError(_('ERROR_ENTER_VALID_JSON'))
         return value
 
     @classmethod
@@ -176,7 +176,7 @@ class JSONField(models.TextField):
         defaults.update(kwargs)
         field = super(JSONField, self).formfield(**defaults)
         if not field.help_text:
-            field.help_text = _("Enter valid JSON.")
+            field.help_text = _('ERROR_ENTER_VALID_JSON')
         return field
 
 

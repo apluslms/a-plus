@@ -98,14 +98,14 @@ class MessageMixin(object):
 
 # All access levels
 ACCESS = Enum(
-    ('ANONYMOUS', 0, _("Any user authenticated or not")),
+    ('ANONYMOUS', 0, _('ACCESS_ANYONE')),
     ('ENROLL', 1, None),
-    ('STUDENT', 3, _("Any authenticated student")),
-    ('ENROLLED', 4, _("Enrolled student of the course")),
-    ('ASSISTANT', 5, _("Assistant of the course")),
-    ('GRADING', 6, _("Grading. Assistant if course has that option or teacher")),
-    ('TEACHER', 10, _("Teacher of the course")),
-    ('SUPERUSER', 100, _("Superuser of the service")),
+    ('STUDENT', 3, _('ACCESS_ANY_STUDENT')),
+    ('ENROLLED', 4, _('ACCESS_ENROLLED_STUDENT')),
+    ('ASSISTANT', 5, _('ACCESS_COURSE_ASSISTANT')),
+    ('GRADING', 6, _('ACCESS_GRADING')),
+    ('TEACHER', 10, _('ACCESS_TEACHER')),
+    ('SUPERUSER', 100, _('ACCESS_SUPERUSER')),
 )
 
 
@@ -113,7 +113,7 @@ class AccessModePermission(MessageMixin, Permission):
     """
     If view has access_mode that is not anonymous, then require authentication
     """
-    message = _("Permission denied by access mode.")
+    message = _('ACCESS_PERMISSION_DENIED_MSG')
 
     def has_permission(self, request, view):
         access_mode = view.get_access_mode()
@@ -128,17 +128,17 @@ class AccessModePermission(MessageMixin, Permission):
 
         if access_mode >= ACCESS.TEACHER:
             if not view.is_teacher:
-                self.error_msg(_("Only course teachers shall pass."))
+                self.error_msg(_('ACCESS_ERROR_ONLY_TEACHERS'))
                 return False
 
         elif access_mode >= ACCESS.ASSISTANT:
             if not view.is_course_staff:
-                self.error_msg(_("Only course staff shall pass."))
+                self.error_msg(_('ACCESS_ERROR_ONLY_COURSE_STAFF'))
                 return False
 
         elif access_mode == ACCESS.ENROLLED:
             if not view.is_course_staff and not view.is_student:
-                self.error_msg(_("Only enrolled students shall pass."))
+                self.error_msg(_('ACCESS_ERROR_ONLY_ENROLLED_STUDENTS'))
                 return False
 
         return True

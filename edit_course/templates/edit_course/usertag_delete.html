@@ -7,8 +7,8 @@
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'course-tags' }}">{% trans "Tags" %}</a></li>
-<li class="active">{% trans "Remove user tag" %}</li>
+<li><a href="{{ instance|url:'course-tags' }}">{% translate "TAGS" %}</a></li>
+<li class="active">{% translate "REMOVE_USER_TAG" %}</li>
 {% endblock %}
 {% block view_tag %}edit-course,course-tags{% endblock %}
 
@@ -17,18 +17,18 @@
 <form method="post" class="well form-horizontal">
 	{% csrf_token %}
 	<legend>
-		{% trans "Confirm user tag removal" %}
+		{% translate "REMOVE_USER_TAG_CONFIRMATION" %}
 	</legend>
 
 	<div class="alert alert-danger">
-		{% trans "Are you sure you want to remove following user tag?" %}
+		{% translate "REMOVE_USER_TAG_CONFIRMATION_ALERT" %}
 		{{ object|colortag }}
 	</div>
 
 	<div class="form-group">
-		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% trans 'Remove' %}" />
+		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
 		<a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'course-tags' }}">
-			{% trans "Cancel" %}
+			{% translate "CANCEL" %}
 		</a>
 	</div>
 </form>

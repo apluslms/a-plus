@@ -81,9 +81,9 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
         raise RuntimeError("HTTP request loop ended in unexpected state")
     except requests.exceptions.RequestException as e:
         if e.response is not None and e.response.status_code == 404:
-            raise RemotePageNotFound(_("The requested resource was not found from the course service!"))
+            raise RemotePageNotFound(_('REQUESTED_RESOURCE_NOT_FOUND_FROM_COURSE_SERVICE'))
         raise RemotePageException(format_lazy(
-            _("Connecting to the course service failed with {code}!"),
+            _('CONNECTING_TO_COURSE_SERVICE_FAILED -- {code}'),
             code=e.response.status_code if e.response is not None else '-1',
         )) from e
 

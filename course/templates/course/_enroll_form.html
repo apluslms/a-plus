@@ -8,36 +8,36 @@
 			<form method="post" action="{{ instance|url:'enroll' }}">
 				{% csrf_token %}
 				{% if instance.view_content_to > 1 %}
-					{% trans "In order to submit exercises you must enroll in the course." %}
+					{% translate "ENROLL_TO_SUBMIT_EXERCISES" %}
 				{% else %}
-					{% trans "In order to submit exercises and see material, you must enroll in the course." %}
+					{% translate "ENROLL_TO_SUBMIT_EXERCISES_AND_SEE_MATERIAL" %}
 				{% endif %}
-				<input type="submit" value="{% trans 'Enroll' %}" class="aplus-button--default aplus-button--md">
+				<input type="submit" value="{% translate "ENROLL" %}" class="aplus-button--default aplus-button--md">
 				{% if instance.enrollment_ending_time %}
 					<div>
 						<small>
-							{% blocktrans trimmed with end=instance.enrollment_ending_time %}
-							The course enrollment is open until {{ end }}.
-							{% endblocktrans %}
+							{% blocktranslate trimmed with end=instance.enrollment_ending_time %}
+							ENROLLMENT_OPEN_UNTIL -- {{ end }}
+							{% endblocktranslate %}
 						</small>
 					</div>
 				{% endif %}
 			</form>
 		{% elif instance.has_enrollment_closed %}
-			{% trans "Unfortunately, enrolling in the course has ended." %}
+			{% translate "ENROLLMENT_HAS_ENDED" %}
 		{% else %}
-			{% blocktrans trimmed with start=instance.enrollment_start end=instance.enrollment_end %}
-				The course opens {{ start }}.
-			{% endblocktrans %}
+			{% blocktranslate trimmed with start=instance.enrollment_start end=instance.enrollment_end %}
+				COURSE_OPENS -- {{ start }}
+			{% endblocktranslate %}
 		{% endif %}
 	{% elif profile %}
 		{% if instance.view_content_to < 3 %}
-			{% trans "Unfortunately, you may not enroll in this course and you may not explore the contents either." %}
+			{% translate "ENROLLMENT_AND_CONTENT_EXPLORATION_NOT_ALLOWED" %}
 		{% else %}
-			{% trans "Unfortunately, you cannot enroll in this course, but you may explore the course material." %}
+			{% translate "ENROLLMENT_NOT_ALLOWED_BUT_CAN_EXPLORE_CONTENT" %}
 		{% endif %}
 	{% else %}
-		{% trans "Login is required to submit exercises, but you may anonymously explore the course material." %}
+		{% translate "LOGIN_REQUIRED_FOR_SUBMISSIONS_BUT_CAN_EXPLORE_CONTENT" %}
 	{% endif %}
 </div>
 {% endif %}

@@ -3,28 +3,28 @@
 {% load course %}
 {% load apps %}
 
-{% block title %}{% trans "Enrollment" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "ENROLLMENT" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}enroll{% endblock %}
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Enrollment" %}</li>
+<li class="active">{% translate "ENROLLMENT" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
 {% if is_student %}
   <div class="alert alert-info">
-  {% trans "You are already enrolled in this course." %}
+    {% translate "ENROLLMENT_IS_ALREADY_ENROLLED" %}
   </div>
 {% else %}
   {% include "course/_enroll_form.html" %}
 {% endif %}
 
 <p>
-{% trans "Enrollment target group" %}: {{ instance.enrollment_audience|enrollment_audience }}<br>
-{% blocktrans with start=instance.enrollment_start end=instance.enrollment_end %}
-Enrollment is open from {{ start }} to {{ end }}.
-{% endblocktrans %}<br>
-{% trans "Course visibility" %}: {{ instance.view_content_to|view_content_to }}
+  {% translate "ENROLLMENT_TARGET_GROUP" %}: {{ instance.enrollment_audience|enrollment_audience }}<br>
+  {% blocktranslate trimmed with start=instance.enrollment_start end=instance.enrollment_end %}
+    ENROLLMENT_OPEN_BETWEEN -- {{ start }}, {{ end }}
+  {% endblocktranslate %}<br>
+  {% translate "COURSE_VISIBILITY" %}: {{ instance.view_content_to|view_content_to }}
 </p>
 
 <div class="index">

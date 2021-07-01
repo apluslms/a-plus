@@ -38,9 +38,9 @@ def submitters_wrapper(obj):
     ])
 
 
-real_class.short_description = _('Real class')
-course_wrapper.short_description = _('Course instance')
-submitters_wrapper.short_description = _('Submitters')
+real_class.short_description = _('REAL_CLASS')
+course_wrapper.short_description = _('COURSE_INSTANCE')
+submitters_wrapper.short_description = _('SUBMITTERS')
 
 
 class CourseChapterAdmin(admin.ModelAdmin):

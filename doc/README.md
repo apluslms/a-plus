@@ -234,10 +234,11 @@ Currently, the tests depend on a Unix type shell and are run within a virtual en
 
 ### Updating translations for Finnish and English versions
 
-Before creating a pull request, you need to ensure that [translations](https://github.com/apluslms/a-plus/blob/master/locale/fi/LC_MESSAGES/django.po) are up-to-date.
+Before creating a pull request, you need to ensure that the [English strings](https://github.com/apluslms/a-plus/blob/master/locale/en/LC_MESSAGES/django.po) and [Finnish translations](https://github.com/apluslms/a-plus/blob/master/locale/fi/LC_MESSAGES/django.po) are up-to-date.
 Translations are handled with [Django](https://docs.djangoproject.com/en/2.2/ref/django-admin/#django-admin-makemessages) and are done outside the container.
+If you have added new strings with new string keys, make sure that the keys are in [the correct format](https://apluslms.github.io/contribute/styleguides/gettext/index.md#msgid-format).
 
-1. In order to update the file containing translations, run:
+1. In order to update the files containing translations, run:
 
    ```sh
    $ python3 manage.py makemessages --no-obsolete --add-location file --all
@@ -247,9 +248,11 @@ Translations are handled with [Django](https://docs.djangoproject.com/en/2.2/ref
 
    ```sh
    $ git diff locale/fi/LC_MESSAGES/django.po
+   $ git diff locale/en/LC_MESSAGES/django.po
    ```
 
-3. Add new Finnish translations for the lines you have created.
+3. Add new English texts and Finnish translations for the lines you have created.
+   If you wish to edit existing strings, alter the corresponding `msgstr` strings in the English and/or Finnish files.
 
 4. And compile the translations to ensure they are working:
 

@@ -4,7 +4,7 @@
 <div class="alert alert-danger visible-xs">
     <span class="glyphicon glyphicon-envelope pull-left" aria-hidden="true"></span>
     <p>
-        {% trans "You have" %} {{ count }} {{ unread_message }}
+        {% translate "YOU_HAVE" %} {{ count }} {{ unread_message }}
         <ul>
             {% for entry in notifications %}
             <li><a href="{{ entry.link }}" class="page-modal">

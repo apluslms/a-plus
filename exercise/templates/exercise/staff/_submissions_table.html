@@ -8,7 +8,7 @@
 	<div class="pull-right">
 		<a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ exercise|url:'submission-summary' }}">
 			<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
-			{% trans "Summary" %}
+			{% translate "SUMMARY" %}
 		</a>
 		<span class="dropdown pull-right">
 			<button
@@ -17,7 +17,7 @@
 				data-toggle="dropdown"
 				id="download-data"
 			>
-				{% trans "Download" %} <span class="caret"></span>
+				{% translate "DOWNLOAD" %} <span class="caret"></span>
 			</button>
 			<ul class="dropdown-menu" aria-labeledby="download-data">
 				{% get_format_info_list "json csv excel.csv" as formats %}
@@ -34,25 +34,24 @@
 	<p>
 		{% exercise_text_stats exercise %} |
 		{% if not all and count == default_limit %}
-		{% blocktrans trimmed with limit=default_limit count=count url=all_url %}
-		{{ limit }} latest submissions.
-		<a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ url }}">Show all</a>
-		{% endblocktrans %}
+		{% blocktranslate trimmed with limit=default_limit count=count url=all_url %}
+			NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- {{ limit }}, {{ url }}
+		{% endblocktranslate %}
 		{% else %}
-		{% blocktrans with count=count %}
-		{{ count }} submissions
-		{% endblocktrans %}
+		{% blocktranslate trimmed with count=count %}
+			NUM_OF_SUBMISSIONS_DISPLAYED -- {{ count }}
+		{% endblocktranslate %}
 		{% endif %}
 	</p>
 </div>
 <table class="table table-bordered{% if all or count < default_limit %} filtered-table{% endif %}">
 		<thead>
 				<tr>
-						<th>{% trans "Submitters" %}</th>
-						<th>{% trans "Time" %}</th>
-						<th>{% trans "Status" %}</th>
-						<th>{% trans "Grade" %}</th>
-						<th>{% trans "Inspect" %}</th>
+						<th>{% translate "SUBMITTERS" %}</th>
+						<th>{% translate "TIME" %}</th>
+						<th>{% translate "STATUS" %}</th>
+						<th>{% translate "GRADE" %}</th>
+						<th>{% translate "INSPECT" %}</th>
 				</tr>
 		</thead>
 		<tbody>
@@ -65,9 +64,9 @@
 								{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
 								{% if submission.late_penalty_applied %}
 								<span class="label label-warning">
-										{% blocktrans with percent=submission.late_penalty_applied|percent %}
-										Late <small>-{{ percent }}%</small>
-										{% endblocktrans %}
+										{% blocktranslate trimmed with percent=submission.late_penalty_applied|percent %}
+											LATE_W_PENALTY -- {{ percent }}
+										{% endblocktranslate %}
 								</span>
 								{% endif %}
 						</td>
@@ -77,19 +76,19 @@
 						<td>
 								{{ submission.grade }}
 								{% if submission.assistant_feedback %}
-								<span class="label label-warning">{% trans 'Assistant' %}</span>
+								<span class="label label-warning">{% translate "ASSISTANT" %}</span>
 								{% endif %}
 						</td>
 						<td>
 								<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
 										<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-										{% trans "Inspect" %}
+										{% translate "INSPECT" %}
 								</a>
 						</td>
 				</tr>
 				{% empty %}
 				<tr>
-						<td class="5">{% trans "No submissions" %}</td>
+						<td class="5">{% translate "NO_SUBMISSIONS" %}</td>
 				</tr>
 				{% endfor %}
 		</tbody>

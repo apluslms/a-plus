@@ -4,19 +4,19 @@
 
 <div class="well">
     {% if exercise.category.confirm_the_level %}
-    <p>{% trans "Current status" %}</p>
+    <p>{% translate "CURRENT_STATUS" %}</p>
     <p class="exercise-info-points">
       {% points_badge summary %}
     </p>
     {% else %}
-    <p>{% trans "Earned points" %}</p>
+    <p>{% translate "EARNED_POINTS" %}</p>
     <p><strong class="h2 exercise-info-points">
         {{ summary.get_points }}
         <small>
             / {{ exercise.max_points }}
             {% if summary.get_penalty %}
             <span class="badge">
-                {% trans "Late" %} -{{ summary.get_penalty|percent }} %
+                {% translate "LATE" %} -{{ summary.get_penalty|percent }} %
             </span>
             {% endif %}
         </small>
@@ -27,17 +27,17 @@
 
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h4 class="panel-title">{% trans "Exercise info" %}</h4>
+        <h4 class="panel-title">{% translate "EXERCISE_INFO" %}</h4>
     </div>
     <div class="panel-body">
         <dl>
             {% if exercise.category.status != "hidden" %}
-              <dt>{% trans "Exercise category" %}</dt>
+              <dt>{% translate "EXERCISE_CATEGORY" %}</dt>
               <dd class="exercise-info-category">
               	{{ exercise.category|parse_localization }}
               </dd>
             {% endif %}
-            <dt>{% trans "Your submissions" %}</dt>
+            <dt>{% translate "YOUR_SUBMISSIONS" %}</dt>
             <dd class="exercise-info-submissions">
             	{{ summary.get_submission_count }}
             	{% if exercise.max_submissions %}
@@ -46,15 +46,15 @@
             </dd>
 
             {% if exercise.points_to_pass > 0 %}
-            <dt>{% trans "Points required to pass" %}</dt>
+            <dt>{% translate "POINTS_REQUIRED_TO_PASS" %}</dt>
             <dd class="exercise-info-required-points">{{ exercise.points_to_pass }}</dd>
             {% endif %}
 
-            <dt>{% trans "Deadline" %}</dt>
+            <dt>{% translate "DEADLINE" %}</dt>
             <dd class="exercise-info-deadline">{{ exercise.course_module.closing_time }}</dd>
 
             {% if exercise.course_module.late_submissions_allowed %}
-            <dt>{% trans "Late submission deadline" %}</dt>
+            <dt>{% translate "LATE_SUBMISSION_DEADLINE" %}</dt>
             <dd class="exercise-info-late-deadline">
               {{ exercise.course_module.late_submission_deadline }}
               {% if module.late_submission_penalty > 0 %}
@@ -64,11 +64,11 @@
             {% endif %}
 
             {% if exercise.max_group_size > 1 %}
-            <dt>{% trans "Group size" %}</dt>
+            <dt>{% translate "GROUP_SIZE" %}</dt>
             <dd class="exercise-info-group">{{ exercise.min_group_size }}{% if exercise.max_group_size > exercise.min_group_size %}-{{ exercise.max_group_size }}{% endif %}</dd>
             {% endif %}
 
-            <dt>{% trans "Total number of submitters" %}</dt>
+            <dt>{% translate "TOTAL_NUMBER_OF_SUBMITTERS" %}</dt>
             <dd class="exercise-info-submitters">{{ exercise.get_total_submitter_count }}</dd>
 
         </dl>

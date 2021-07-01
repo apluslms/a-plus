@@ -27,7 +27,7 @@
 					<p class="card-text">
 						{{ instance.course.code }}
 						{% if not instance.visible_to_students and not condensed %}
-   							<span class="label label-danger">{% trans "Hidden from students" %}</span>
+   							<span class="label label-danger">{% translate "HIDDEN_FROM_STUDENTS" %}</span>
 						{% endif %}
 						<br />
 						{{ instance.starting_time|date:"SHORT_DATE_FORMAT" }} &ndash;

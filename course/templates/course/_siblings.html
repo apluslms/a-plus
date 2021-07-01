@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
-<nav class="row siblings" aria-label="{% trans "Pagination" %}">
+<nav class="row siblings" aria-label="{% translate 'PAGINATION' %}">
 
 	{% if previous %}
 	{% if previous.submittable %}
@@ -19,7 +19,7 @@
 		{% if is_course_staff %}
 		<a href="{{ previous.link }}">
 			<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-			{% trans "Early access" %}
+			{% translate "EARLY_ACCESS" %}
 		</a>
 		{% endif %}
 	</span>
@@ -28,7 +28,7 @@
 
 	<span class="hidden-md hidden-sm hidden-xs" style="display: block; margin: auto; text-align: center;">
 		<a href="{{ instance|url:'toc' }}">
-			{% trans "Course materials" %}
+			{% translate "COURSE_MATERIALS" %}
 		</a>
 	</span>
 
@@ -48,7 +48,7 @@
 		{% if is_course_staff %}
 		<a href="{{ next.link }}">
 			<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-			{% trans "Early access" %}
+			{% translate "EARLY_ACCESS" %}
 		</a>
 		{% endif %}
 	</span>

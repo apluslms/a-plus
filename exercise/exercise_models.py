@@ -12,6 +12,7 @@ from django.db.models.signals import post_delete, post_save
 from django.template import loader
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.utils.text import format_lazy
 from django.utils.translation import get_language, gettext_lazy as _
 
 from aplus.api import api_reverse
@@ -66,18 +67,18 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     All learning objects inherit this model.
     """
     STATUS = Enum([
-        ('READY', 'ready', _("Ready")),
-        ('UNLISTED', 'unlisted', _("Unlisted in table of contents")),
-        ('ENROLLMENT', 'enrollment', _("Enrollment questions")),
-        ('ENROLLMENT_EXTERNAL', 'enrollment_ext', _("Enrollment questions for external students")),
-        ('HIDDEN', 'hidden', _("Hidden from non course staff")),
-        ('MAINTENANCE', 'maintenance', _("Maintenance")),
+        ('READY', 'ready', _('STATUS_READY')),
+        ('UNLISTED', 'unlisted', _('STATUS_UNLISTED')),
+        ('ENROLLMENT', 'enrollment', _('ENROLLMENT_QUESTIONS')),
+        ('ENROLLMENT_EXTERNAL', 'enrollment_ext', _('ENROLLMENT_QUESTIONS_FOR_EXTERNAL')),
+        ('HIDDEN', 'hidden', _('HIDDEN_FROM_NOT_COURSE_STAFF')),
+        ('MAINTENANCE', 'maintenance', _('STATUS_MAINTENANCE')),
     ])
     AUDIENCE = Enum([
-        ('COURSE_AUDIENCE', 0, _('Course audience')),
-        ('INTERNAL_USERS', 1, _('Only internal users')),
-        ('EXTERNAL_USERS', 2, _('Only external users')),
-        ('REGISTERED_USERS', 3, _('Only registered users')),
+        ('COURSE_AUDIENCE', 0, _('AUDIENCE_COURSE_AUDIENCE')),
+        ('INTERNAL_USERS', 1, _('AUDIENCE_INTERNAL_USERS')),
+        ('EXTERNAL_USERS', 2, _('AUDIENCE_EXTERNAL_USERS')),
+        ('REGISTERED_USERS', 3, _('AUDIENCE_REGISTERED_USERS')),
     ])
     status = models.CharField(max_length=32,
         choices=STATUS.choices, default=STATUS.READY)
@@ -92,19 +93,19 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     order = models.IntegerField(default=1)
     url = models.CharField(max_length=512,
         validators=[generate_url_key_validator()],
-        help_text=_("Input an URL identifier for this object."))
+        help_text=_('LEARNING_OBJECT_URL_IDENTIFIER_HELPTEXT'))
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True,
-        help_text=_("Internal description is not presented on site."))
+        help_text=_('LEARNING_OBJECT_DESCRIPTION_HELPTEXT'))
     use_wide_column = models.BooleanField(default=False,
-        help_text=_("Remove the third info column for more space."))
+        help_text=_('LEARNING_OBJECT_WIDE_COLUMN_HELPTEXT'))
 
     service_url = models.CharField(max_length=4096, blank=True)
     exercise_info = JSONField(blank=True)
     model_answers = models.TextField(blank=True,
-        help_text=_("List model answer files as protected URL addresses."))
+        help_text=_('LEARNING_OBJECT_MODEL_ANSWER_URLS_HELPTEXT'))
     templates = models.TextField(blank=True,
-        help_text=_("List template files as protected URL addresses."))
+        help_text=_('LEARNING_OBJECT_TEMPLATE_URLS_HELPTEXT'))
 
     # Keep this to support ExerciseWithAttachment
     # Maybe this should inject extra content to any exercise
@@ -125,14 +126,17 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         errors = {}
         RESERVED = ("submissions", "plain", "info")
         if self.url in RESERVED:
-            errors['url'] = _("Taken words include: {}").format(", ".join(RESERVED))
+            errors['url'] = format_lazy(
+                _('TAKEN_WORDS_INCLUDE -- {}'),
+                ", ".join(RESERVED)
+            )
         if self.course_module.course_instance != self.category.course_instance:
-            errors['category'] = _('Course_module and category must belong to the same course instance.')
+            errors['category'] = _('LEARNING_OBJECT_ERROR_MODULE_AND_CATEGORY_MUST_HAVE_SAME_COURSE_INSTANCE')
         if self.parent:
             if self.parent.course_module != self.course_module:
-                errors['parent'] = _('Cannot select parent from another course module.')
+                errors['parent'] = _('LEARNING_OBJECT_ERROR_PARENT_MUST_BE_FROM_SAME_MODULE')
             if self.parent.id == self.id:
-                errors['parent'] = _('Cannot select self as a parent.')
+                errors['parent'] = _('LEARNING_OBJECT_ERROR_PARENT_CANNOT_BE_SELF')
         if errors:
             raise ValidationError(errors)
 
@@ -402,9 +406,9 @@ class BaseExercise(LearningObject):
         super().clean()
         errors = {}
         if self.points_to_pass > self.max_points:
-            errors['points_to_pass'] = _("Points to pass cannot be greater than max_points.")
+            errors['points_to_pass'] = _('EXERCISE_ERROR_POINTS_TO_PASS_GREATER_MAX_POINTS')
         if self.min_group_size > self.max_group_size:
-            errors['min_group_size'] = _("Minimum group size cannot exceed maximum size.")
+            errors['min_group_size'] = _('EXERCISE_ERROR_MIN_GROUP_SIZE_GREATER_MAX_SIZE')
         if errors:
             raise ValidationError(errors)
 
@@ -468,27 +472,42 @@ class BaseExercise(LearningObject):
         if timing == self.TIMING.OPEN:
             return True,[]
         if timing == self.TIMING.LATE:
-            # xgettext:no-python-format
-            return True,[_("Deadline for the exercise has passed. Late submissions are allowed until {date} but points are only worth {percent:d}% of normal.").format(
-                date=formatted_time,
-                percent=self.course_module.get_late_submission_point_worth(),
-            )]
+            return True,[
+                format_lazy(
+                    # xgettext:no-python-format
+                    _('EXERCISE_TIMING_LATE -- {date}, {percent:d}'),
+                    date=formatted_time,
+                    percent=self.course_module.get_late_submission_point_worth(),
+                )
+            ]
         if timing == self.TIMING.UNOFFICIAL:
-            return True,[_("Deadline for the exercise has passed ({date}). You may still submit to receive feedback, but your current grade will not change.").format(
-                date=formatted_time,
-            )]
+            return True,[
+                format_lazy(
+                    _('EXERCISE_TIMING_UNOFFICIAL -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         if timing == self.TIMING.CLOSED_BEFORE:
-            return False,[_("The exercise opens {date} for submissions.").format(
-                date=formatted_time,
-            )]
+            return False,[
+                format_lazy(
+                    _('EXERCISE_TIMING_CLOSED_BEFORE -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         if timing == self.TIMING.CLOSED_AFTER:
-            return False,[_("Deadline for the exercise has passed ({date}).").format(
-                date=formatted_time,
-            )]
+            return False,[
+                format_lazy(
+                    _('EXERCISE_TIMING_CLOSED_AFTER -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         if timing == self.TIMING.ARCHIVED:
-            return False,[_("This course has been archived ({date}).").format(
-                date=formatted_time,
-            )]
+            return False,[
+                format_lazy(
+                    _('EXERCISE_TIMING_ARCHIVED -- {date}'),
+                    date=formatted_time,
+                )
+            ]
         return False,["ERROR"]
 
     def one_has_deadline_deviation(self, students):
@@ -539,8 +558,8 @@ class BaseExercise(LearningObject):
             # Note: time is not checked here, but unofficial submissions are
             # not allowed if the course archive time has passed.
             # The caller must check the time limits too.
-            return True, [_('You have used the allowed amount of submissions for this exercise. You may still submit to receive feedback, but your current grade will not change.')]
-        return False, [_('You have used the allowed amount of submissions for this exercise.')]
+            return True, [_('EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED')]
+        return False, [_('EXERCISE_MAX_SUBMISSIONS_USED')]
 
     def no_submissions_left(self, students):
         if self.max_submissions == 0:
@@ -578,19 +597,19 @@ class BaseExercise(LearningObject):
         ):
             if not self.course_instance.is_enrollment_open():
                 return (self.SUBMIT_STATUS.CANNOT_ENROLL,
-                        [_('The enrollment is not open.')],
+                        [_('ENROLLMENT_ERROR_ENROLLMENT_NOT_OPEN')],
                         students)
             if not self.course_instance.is_enrollable(profile.user):
                 return (self.SUBMIT_STATUS.CANNOT_ENROLL,
-                        [_('You cannot enroll in the course.')],
+                        [_('CANNOT_ENROLL_IN_COURSE')],
                         students)
         elif not enrollment:
             if self.course_instance.is_course_staff(profile.user):
                 return (self.SUBMIT_STATUS.ALLOWED,
-                        [_('Staff can submit exercises without enrolling.')],
+                        [_('STAFF_CAN_SUBMIT_WITHOUT_ENROLLING')],
                         students)
             return (self.SUBMIT_STATUS.NOT_ENROLLED,
-                    [_('You must enroll in the course to submit exercises.')],
+                    [_('MUST_ENROLL_TO_SUBMIT_EXERCISES')],
                     students)
 
         # Support group id from post or currently selected group.
@@ -600,7 +619,7 @@ class BaseExercise(LearningObject):
             try:
                 group_id = json.loads(request.POST.get('__aplus__', '{}')).get('group')
             except json.JSONDecodeError:
-                warnings.append(_("Cannot submit exercise because of invalid JSON in POST data"))
+                warnings.append(_('EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST'))
                 return self.SUBMIT_STATUS.INVALID, warnings, students
             if group_id is None:
                 group_id = request.POST.get("_aplus_group")
@@ -613,7 +632,7 @@ class BaseExercise(LearningObject):
                         course_instance=self.course_instance,
                         id=gid).first()
                     if group is None:
-                        warnings.append(_("No group found with the given ID"))
+                        warnings.append(_('EXERCISE_WARNING_NO_GROUP_WITH_ID'))
                         return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
             except ValueError:
                 pass
@@ -625,23 +644,24 @@ class BaseExercise(LearningObject):
             submission = self.get_submissions_for_student(profile).first()
             if submission:
                 if self._detect_group_changes(profile, group, submission):
-                    msg = _("Group can only change between different exercises.")
-                    warning = _('You have previously submitted this '
-                                'exercise {with_group}. {msg}')
+                    msg = _('EXERCISE_WARNING_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG')
+                    warning = _('EXERCISE_WARNING_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}')
                     if submission.submitters.count() == 1:
-                        warning = warning.format(with_group=_('alone'), msg=msg)
+                        warning = format_lazy(warning, with_group=_('ALONE'), msg=msg)
                     else:
                         collaborators = StudentGroup.format_collaborator_names(
                                 submission.submitters.all(), profile)
-                        with_group = _('with {}').format(collaborators)
-                        warning = warning.format(with_group=with_group, msg=msg)
+                        with_group = format_lazy(_('WITH -- {}'), collaborators)
+                        warning = format_lazy(warning, with_group=with_group, msg=msg)
                     warnings.append(warning)
                     return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
             elif self._detect_submissions(profile, group):
                 warnings.append(
-                    _('{collaborators} already submitted to this exercise in a different group.')
-                    .format(collaborators=group.collaborator_names(profile))
+                    format_lazy(
+                        _('EXERCISE_WARNING_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- {collaborators}'),
+                        collaborators=group.collaborator_names(profile),
+                    )
                 )
                 return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
 
@@ -656,8 +676,11 @@ class BaseExercise(LearningObject):
             else:
                 size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
             warnings.append(
-                _("This exercise must be submitted in groups of {size} students.")
-                .format(size=size))
+                format_lazy(
+                    _('EXERCISE_WARNING_REQUIRES_GROUP_SIZE -- {size}'),
+                    size=size
+                )
+            )
         if self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
             access_ok, access_warnings = True, []
         else:
@@ -668,8 +691,7 @@ class BaseExercise(LearningObject):
         if not ok:
             if len(all_warnings) == 0:
                 all_warnings.append(_(
-                    'Cannot submit exercise due to unknown reason. If you '
-                    'think this is an error, please contact course staff.'))
+                    'EXERCISE_WARNING_CANNOT_SUBMIT_UNKNOWN_REASON'))
             return self.SUBMIT_STATUS.INVALID, all_warnings, students
 
         submit_limit_ok, submit_limit_warnings = self.one_has_submissions(students)
@@ -815,15 +837,15 @@ class LTIExercise(BaseExercise):
     """
     lti_service = models.ForeignKey(LTIService, on_delete=models.CASCADE)
     context_id = models.CharField(max_length=128, blank=True,
-        help_text=_('Default: [hostname]/[course:url]/[instance:url]/'))
+        help_text=_('LTI_EXERCISE_CONTEXT_ID_HELPTEXT'))
     resource_link_id = models.CharField(max_length=128, blank=True,
-        help_text=_('Default: [aplusexercise:id]'))
+        help_text=_('LTI_EXERCISE_RESOURCE_LINK_ID_HELPTEXT'))
     resource_link_title = models.CharField(max_length=128, blank=True,
-        help_text=_('Default: the menu label of the LTI service'))
+        help_text=_('LTI_EXERCISE_RESOURCE_LINK_TITLE_HELPTEXT'))
     aplus_get_and_post = models.BooleanField(default=False,
-        help_text=_('Perform GET and POST from A+ to custom service URL with LTI data appended.'))
+        help_text=_('LTI_EXERCISE_APLUS_GET_AND_POST_HELPTEXT'))
     open_in_iframe = models.BooleanField(default=False,
-        help_text=_('Open the exercise in an iframe inside the A+ page instead of a new window.'))
+        help_text=_('LTI_EXERCISE_OPEN_IN_IFRAME_HELPTEXT'))
 
     objects = models.Manager()
 
@@ -840,14 +862,14 @@ class LTIExercise(BaseExercise):
             if uri.netloc:
                 if uri.netloc != urlsplit(self.lti_service.url).netloc:
                     raise ValidationError({
-                        'service_url': _("Domain of Service URL must match the domain of LTI Service or it should only be the path."),
+                        'service_url': _('LTI_EXERCISE_ERROR_SERVICE_URL_DOMAIN_MUST_MATCH_LTI_SERVICE'),
                     })
                 # Save only the URL path in the database without the domain
                 self.service_url = uri._replace(scheme='', netloc='').geturl()
 
     def load(self, request, students, url_name="exercise"):
         if not self.lti_service.enabled:
-            messages.error(request, _("The exercise can not be loaded because the external LTI service has been disabled."))
+            messages.error(request, _('LTI_EXERCISE_ERROR_EXTERNAL_LTI_SERVICE_DISABLED'))
             raise PermissionDenied("The LTI service is disabled.")
 
         if self.aplus_get_and_post:
@@ -979,7 +1001,7 @@ class ExerciseWithAttachment(BaseExercise):
     Could be deprecated as a contradiction to A+ purist ideology.
     """
     files_to_submit = models.CharField(max_length=200, blank=True,
-        help_text=_("File names that user should submit, use pipe character to separate files"))
+        help_text=_('EXERCISE_WITH_ATTACHMENT_FILES_TO_SUBMIT_HELPTEXT'))
     attachment = models.FileField(upload_to=build_upload_dir)
 
     objects = models.Manager()

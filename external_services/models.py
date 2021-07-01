@@ -13,7 +13,7 @@ from lib.models import UrlMixin
 
 def validate_no_domain(value):
     if value and '://' in value:
-        raise ValidationError(_("Url can not contain scheme or domain part."))
+        raise ValidationError(_('URL_CANNOT_CONTAING_SCHEME_OR_DOMAIN'))
 
 
 class LinkService(ModelWithInheritance):
@@ -21,37 +21,37 @@ class LinkService(ModelWithInheritance):
     A link to an external service.
     '''
     DESTINATION_REGION = Enum([
-        ('INTERNAL', 0, _('Destination is hosted internally. Link to internal privacy notice.')),
-        ('ORGANIZATION', 1, _('Destination is hosted in the same organization. Link to a privacy notice.')),
-        ('EEA', 3, _('Destination is hosted in the European Economic Area. Link to a privacy notice.')),
-        ('PRIVACYSHIELD', 5, _('Destination is hosted outside of the European Economic Area and used to be certified under the now invalid EU-US Privacy Shield. Link to an extended privacy notice.')),
-        ('GLOBAL', 6, _('Destination is hosted outside of the European Economic Area. Link to an extended privacy notice.')),
+        ('INTERNAL', 0, _('DESTINATION_INTERNAL_PRIVACY_NOTICE')),
+        ('ORGANIZATION', 1, _('DESTINATION_ORGANIZATION_PRIVACY_NOTICE')),
+        ('EEA', 3, _('DESTINATION_EEA_PRIVACY_NOTICE')),
+        ('PRIVACYSHIELD', 5, _('DESTINATION_PRIVACYSHIELD_PRIVACY_NOTICE')),
+        ('GLOBAL', 6, _('DESTINATION_GLOBAL_PRIVACY_NOTICE')),
     ])
     url = models.CharField(
         max_length=256,
-        help_text=_("The service URL")
+        help_text=_('SERVICE_URL')
     )
     destination_region = models.PositiveSmallIntegerField(
         choices=DESTINATION_REGION.choices,
         default=DESTINATION_REGION.GLOBAL,
-        help_text=_("The geographical area of the destination. Will display correct user notice."),
+        help_text=_('SERVICE_DESTINATION_REGION_HELPTEXT'),
     )
     privacy_notice_url = models.CharField(
         max_length=512,
         blank=True,
-        help_text=_("A link to the service privacy notice. This is mandatory for services outside organization!"))
+        help_text=_('SERVICE_PRIVACY_NOTICE_URL_HELPTEXT'))
     menu_label = models.CharField(
         max_length=255,
-        help_text=_("A default label to show in the course menu.")
+        help_text=_('SERVICE_MENU_LABEL_HELPTEXT')
     )
     menu_icon_class = models.CharField(
         max_length=32,
         default="globe",
-        help_text=_("A default menu icon style name, see http://getbootstrap.com/components/#glyphicons-glyphs")
+        help_text=_('SERVICE_MENU_ICON_HELPTEXT')
     )
     enabled = models.BooleanField(
         default=True,
-        help_text=_("If not enabled, the service is disabled for all course instances.")
+        help_text=_('SERVICE_ENABLED_HELPTEXT')
     )
 
     class Meta:
@@ -66,7 +66,7 @@ class LinkService(ModelWithInheritance):
     def clean(self):
         errors = {}
         if self.destination_region > self.DESTINATION_REGION.ORGANIZATION and not self.privacy_notice_url:
-            errors['privacy_notice_url'] = ValidationError(_('Privacy notice URL is mandatory for services outside organization.'))
+            errors['privacy_notice_url'] = ValidationError(_('SERVICE_ERROR_PRIVACY_NOTICE_URL_MANDATORY'))
         if errors:
             raise ValidationError(errors)
 
@@ -106,22 +106,22 @@ class LTIService(LinkService):
     A provider of an LTI service.
     '''
     LTI_ACCESS = Enum([
-        ('ANON_API_NO', 0, _('Anonymous service, no API access')),
-        ('PUBLIC_API_NO', 5, _('Public service, no API access')),
-        ('PUBLIC_API_YES', 10, _('Public service, allow API access')),
+        ('ANON_API_NO', 0, _('LTI_SERVICE_ANONYMOUS_NO_API')),
+        ('PUBLIC_API_NO', 5, _('LTI_SERVICE_PUBLIC_NO_API')),
+        ('PUBLIC_API_YES', 10, _('LTI_SERVICE_PUBLIC_YES_API')),
     ])
     access_settings = models.IntegerField(
         choices=LTI_ACCESS.choices,
         default=LTI_ACCESS.ANON_API_NO,
-        help_text=_("Select whether to pass pseudonymised user data to the LTI service.<br>Public services can also enable sharing the user's API token and course API URL in the LTI launch request. This grants the LTI tool API access with the user's privileges.")
+        help_text=_('LTI_SERVICE_ACCESS_SETTINGS_HELPTEXT')
     )
     consumer_key = models.CharField(
         max_length=128,
-        help_text=_("The consumer key provided by the LTI service.")
+        help_text=_('LTI_SERVICE_CONSUMER_KEY_HELPTEXT')
     )
     consumer_secret = models.CharField(
         max_length=128,
-        help_text=_("The consumer secret provided by the LTI service.")
+        help_text=_('LTI_SERVICE_CONSUMER_SECRET_HELPTEXT')
     )
 
     def __str__(self):
@@ -162,15 +162,15 @@ class MenuItem(UrlMixin, models.Model):
     Attaches link to course menu.
     '''
     ACCESS = Enum([
-        ('STUDENT', 0, _("All students, assistants and teachers can access.")),
-        ('ASSISTANT', 5, _("Only assistants and teachers can access.")),
-        ('TEACHER', 10, _("Only teachers can access.")),
+        ('STUDENT', 0, _('MENU_ITEM_ACCESS_ALL')),
+        ('ASSISTANT', 5, _('MENU_ITEM_ACCESS_ASSISTANTS_AND_TEACHERS')),
+        ('TEACHER', 10, _('MENU_ITEM_ACCESS_TEACHERS')),
     ])
     course_instance = models.ForeignKey(
         CourseInstance,
         on_delete=models.CASCADE,
         related_name="ext_services",
-        help_text=_("A course where the menu item exists.")
+        help_text=_('MENU_ITEM_COURSE_INSTANCE_HELPTEXT')
     )
     access = models.IntegerField(
         choices=ACCESS.choices,
@@ -181,39 +181,36 @@ class MenuItem(UrlMixin, models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        help_text=_("An external service to link to. These are configured by administrators.")
+        help_text=_('MENU_ITEM_SERVICE_HELPTEXT')
     )
     menu_url = models.CharField(
         max_length=256,
         blank=True,
         null=True,
         validators=[validate_no_domain],
-        help_text=_("""URL that is a) relative to the service URL or b) this course if no service is selected.
-Case a: url starting with / overwrites path in service url and extends it otherwise.
-case b: url starting with / is absolute within this service and relative to the course path otherwise.
-Note that URL entered here can not include scheme or domain.""")
+        help_text=_('MENU_ITEM_MENU_URL_HELPTEXT'"")
     )
     menu_group_label = models.CharField(
         max_length=255,
         blank=True,
         null=True,
-        help_text=_("Places menu item under a group label.")
+        help_text=_('MENU_ITEM_MENU_GROUP_LABEL_HELPTEXT')
     )
     menu_label = models.CharField(
         max_length=255,
         blank=True,
         null=True,
-        help_text=_("Label for the menu link (else service default).")
+        help_text=_('MENU_ITEM_MENU_LINK_LABEL_HELPTEXT')
     )
     menu_icon_class = models.CharField(
         max_length=32,
         null=True,
         blank=True,
-        help_text=_("Menu icon style name (else service default), e.g. star see https://getbootstrap.com/docs/3.4/components/#glyphicons")
+        help_text=_('MENU_ITEM_MENU_ICON_CLASS_HELPTEXT')
     )
     menu_weight = models.IntegerField(
         default=0,
-        help_text=_("Heavier menu entries are placed after lighter ones.")
+        help_text=_('MENU_ITEM_MENU_WEIGHT_HELPTEXT')
     )
     enabled = models.BooleanField(default=True)
 
@@ -230,9 +227,9 @@ Note that URL entered here can not include scheme or domain.""")
         errors = {}
         if not self.service:
             if not self.menu_url:
-                errors['menu_url'] = ValidationError(_('Relative URL is required when there is no preconfigured service selected.'))
+                errors['menu_url'] = ValidationError(_('MENU_ITEM_ERROR_MENU_URL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED'))
             if not self.menu_label:
-                errors['menu_label'] = ValidationError(_('Menu label is required when there is no preconfigured service selected.'))
+                errors['menu_label'] = ValidationError(_('MENU_ITEM_ERROR_MENU_LABEL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED'))
         if errors:
             raise ValidationError(errors)
 

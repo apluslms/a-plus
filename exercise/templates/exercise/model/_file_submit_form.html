@@ -1,7 +1,7 @@
 {% load i18n %}
 <form enctype="multipart/form-data" method="post" class="form-stacked">
   <fieldset>
-    <legend>{% trans "Submit" %}</legend>
+    <legend>{% translate "SUBMIT" %}</legend>
     {% for file in files %}
     <div class="form-group">
       <label>{{ file }}</label>
@@ -11,6 +11,6 @@
     {% endfor %}
   </fieldset>
   <div class="form-group">
-    <input class="aplus-button--default aplus-button--md aplus-submit" type="submit" value="{% trans 'Submit' %}" />
+    <input class="aplus-button--default aplus-button--md aplus-submit" type="submit" value="{% translate 'SUBMIT' %}" />
   </div>
 </form>

@@ -1,21 +1,20 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Logged out" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "LOGGED_OUT" %} | {{ block.super }}{% endblock %}
 
 {% block content %}
 
 <div class="page-header">
-    <h1>{% trans "Logged out" %}</h1>
+    <h1>{% translate "LOGGED_OUT" %}</h1>
 </div>
 
 <div class="row">
     <div class="col-md-8">
         <div class="alert alert-success">
-            {% blocktrans %}
-            You have successfully logged out. Please close the browser if you were
-            using a public computer to clear your remaining sessions.
-            {% endblocktrans %}
+            {% blocktranslate trimmed %}
+                LOGGED_OUT_SUCCESSFULLY
+            {% endblocktranslate %}
         </div>
     </div>
 </div>

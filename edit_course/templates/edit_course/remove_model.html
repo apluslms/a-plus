@@ -2,14 +2,14 @@
 {% load i18n %}
 {% load course %}
 
-{% block edittitle %}{% blocktrans with model=model_name id=object.id %}Remove {{ model }} ID {{ id }}{% endblocktrans %}{% endblock %}
+{% block edittitle %}{% blocktranslate trimmed with model=model_name id=object.id %}REMOVE_MODEL -- {{ model }}, {{ id }}{% endblocktranslate %}{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
 <li class="active">
-	{% blocktrans with model=model_name %}
-	Remove {{ model }}
-	{% endblocktrans %}
+	{% blocktranslate trimmed with model=model_name %}
+		REMOVE_MODEL -- {{ model }}
+	{% endblocktranslate %}
 </li>
 {% endblock %}
 
@@ -18,40 +18,37 @@
 <form method="post" class="well form">
 	{% csrf_token %}
 	<legend>
-		{% blocktrans with model=model_name %}
-		Confirm {{ model }} removal
-		{% endblocktrans %}
+		{% blocktranslate trimmed with model=model_name %}
+			REMOVE_MODEL_CONFIRM -- {{ model }}
+		{% endblocktranslate %}
 	</legend>
 
 	<div class="alert alert-danger">
 		{% if empty %}
-			{% blocktrans with model=model_name name=object %}
-			You are removing {{ model }} <strong>{{ name }}</strong>.
-			Are you sure?
-			{% endblocktrans %}
+			{% blocktranslate trimmed with model=model_name name=object %}
+				REMOVE_MODEL_CONFIRMATION_ALERT -- {{ model }}, {{ name }}
+			{% endblocktranslate %}
 
 			{% if model == "exercise" %}
 			<p>
-				{% blocktrans with num=object.submissions.count %}
-				If you remove this exercise, <strong>all the {{ num }} submissions
-				to the exercise will also be removed</strong>.
-				{% endblocktrans %}
+				{% blocktranslate trimmed with num=object.submissions.count %}
+					REMOVE_EXERCISE_MODEL_CONFIRMATION_ALERT -- {{ num }}
+				{% endblocktranslate %}
 			</p>
 			{% endif %}
 		{% else %}
-			{% blocktrans with model=model_name name=object %}
-			The {{ model }} <strong>{{ name }}</strong> is not empty.
-			Contained exercises must be removed first.
-			{% endblocktrans %}
+			{% blocktranslate trimmed with model=model_name name=object %}
+				REMOVE_MODEL_MUST_BE_EMPTY -- {{ model }}, {{ name }}
+			{% endblocktranslate %}
 		{% endif %}
 	</div>
 
 	<div class="form-group">
 		{% if empty %}
-		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% trans 'Remove' %}" />
+		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
 		{% endif %}
 		<a class="aplus-button--secondary aplus-button--md" href="{{ instance|url:'course-edit' }}" role="button">
-			{% trans "Cancel" %}
+			{% translate "CANCEL" %}
 		</a>
 	</div>
 </form>

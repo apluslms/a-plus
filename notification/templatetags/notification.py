@@ -21,8 +21,8 @@ def _unread_messages(context):
         'count': notifications.count(),
         'notifications': notifications.notifications(),
         "unread_message": ngettext(
-            "new notification",
-            "new notifications",
+            'NEW_NOTIFICATION',
+            'NEW_NOTIFICATIONS',
             notifications.count()
         ),
     }

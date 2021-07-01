@@ -3,7 +3,7 @@
 {% load static %}
 {% load bootstrap %}
 
-{% block title %}{% blocktrans %}Log in to {{ brand_name }}{% endblocktrans %} | {{ block.super }}{% endblock %}
+{% block title %}{% blocktranslate trimmed %}LOG_IN_TO -- {{ brand_name }}{% endblocktranslate %} | {{ block.super }}{% endblock %}
 
 {% block scripts %}
 	{{ block.super }}
@@ -14,7 +14,7 @@
 {% block content %}
 
 	<div class="page-header">
-		<h1>{% blocktrans %}Log in to {{ brand_name }}{% endblocktrans %}</h1>
+		<h1>{% blocktranslate trimmed %}LOG_IN_TO -- {{ brand_name }}{% endblocktranslate %}</h1>
 	</div>
 
 	<div id="login-box-row" class="row">
@@ -83,7 +83,7 @@
 						{% endif %}
 						<p>
 							<a class="aplus-button--secondary aplus-button--lg" role="button"
-								href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% trans 'Log in using Google' %}</a>
+								href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% translate "LOG_IN_USING_GOOGLE" %}</a>
 						</p>
 					</div>
 				</div>
@@ -93,20 +93,19 @@
 		<section aria-labelledby="login-local-users" class="col-sm-6 col-md-3 login-box extra-login">
 			<div class="login-section">
 				<h2 id="login-local-users">
-					{% trans "Local users" %}
+					{% translate "LOCAL_USERS" %}
 				</h2>
 				<div class="login-section-body">
 					<p>
-						{% blocktrans trimmed %}
-							If you have been provided with credentials specifically
-							for {{ brand_name }}, use this login.
-						{% endblocktrans %}
+						{% blocktranslate trimmed %}
+							LOCAL_USER_LOGIN_DESCRIPTION -- {{ brand_name }}
+						{% endblocktranslate %}
 					</p>
 					<form method="post" role="form">
 						{% csrf_token %}
 						{% if form.non_field_errors %}
 							<div class="alert alert-danger">
-								<a class="close" aria-label="{% trans 'Close error list' %}" data-dismiss="alert">×</a>
+								<a class="close" aria-label="{% translate 'CLOSE_ERROR_LIST' %}" data-dismiss="alert">×</a>
 									{% for error in form.non_field_errors %}
 										<p>{{ error }}</p>
 									{% endfor %}
@@ -114,7 +113,7 @@
 						{% endif %}
 							<div class="form-group{% if form.username.errors %} has-error{% endif %}">
 								<label class="control-label"
-								for="{{ form.username.id_for_label }}">{% trans 'Username' %}</label>
+								for="{{ form.username.id_for_label }}">{% translate "USERNAME" %}</label>
 								<input class="form-control" id="{{ form.username.id_for_label }}" type="text"
 								name="{{ form.username.html_name }}" required autocomplete="username" />
 								{% for error in form.username.errors %}
@@ -123,7 +122,7 @@
 							</div>
 							<div class="form-group{% if form.password.errors %} has-error{% endif %}">
 								<label class="control-label"
-								for="{{ form.password.id_for_label }}">{% trans 'Password' %}</label>
+								for="{{ form.password.id_for_label }}">{% translate "PASSWORD" %}</label>
 								<input class="form-control" id="{{ form.password.id_for_label }}" type="password"
 								name="{{ form.password.html_name }}" required autocomplete="current-password" />
 									{% for error in form.password.errors %}
@@ -132,7 +131,7 @@
 							</div>
 						<div class="form-group">
 							<button type="submit"
-								class="aplus-button--secondary aplus-button--lg">{% trans "Log in" %}</button>
+								class="aplus-button--secondary aplus-button--lg">{% translate "LOG_IN" %}</button>
 						</div>
 					</form>
 				</div>
@@ -141,8 +140,8 @@
 
 		<div class="col-sm-1">
 			<button class="btn btn-default show-extra-login-btn"
-				aria-label="{% trans 'Show more login options' %}"
-				title="{% trans 'Show more login options' %}"
+				aria-label="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
+				title="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
 			>
 				<i class="glyphicon glyphicon-chevron-right hidden-xs" focusable="false"></i>
 				<i class="glyphicon glyphicon-chevron-down visible-xs-inline" focusable="false"></i>
@@ -152,9 +151,9 @@
 
 	{% url 'privacy_notice' as privacy_url %}
 	<p>
-		{% blocktrans trimmed with url=privacy_url %}
-			You may want to read our <a href="{{ url }}">privacy notice</a>.
-		{% endblocktrans %}
+		{% blocktranslate trimmed with url=privacy_url %}
+			READ_OUR_PRIVACY_NOTICE -- {{ url }}
+		{% endblocktranslate %}
 	</p>
 
 {% endblock %}

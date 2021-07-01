@@ -3,19 +3,19 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block edittitle %}{% if object.id %}{% blocktrans with model=model_name id=object.id %}Edit {{ model }} ID {{ id }}{% endblocktrans %}{% else %}{% blocktrans with model=model_name %}Add new {{ model }}{% endblocktrans %}{% endif %}{% endblock %}
+{% block edittitle %}{% if object.id %}{% blocktranslate trimmed with model=model_name id=object.id %}EDIT_MODEL -- {{ model }}, {{ id }}{% endblocktranslate %}{% else %}{% blocktranslate trimmed with model=model_name %}ADD_NEW_MODEL -- {{ model }}{% endblocktranslate %}{% endif %}{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
 <li class="active">
     {% if object.id %}
-    	{% blocktrans with model=model_name %}
-    	Edit {{ model }}
-    	{% endblocktrans %}
+    	{% blocktranslate trimmed with model=model_name %}
+    	    EDIT_MODEL -- {{ model }}
+    	{% endblocktranslate %}
     {% else %}
-        {% blocktrans with model=model_name %}
-        Add new {{ model }}
-        {% endblocktrans %}
+        {% blocktranslate trimmed with model=model_name %}
+            ADD_NEW_MODEL -- {{ model }}
+        {% endblocktranslate %}
     {% endif %}
 </li>
 {% endblock %}
@@ -31,16 +31,16 @@
 
     {% if form.remote_service_head %}
     <fieldset>
-        <legend>{% trans "Remote service" %}</legend>
+        <legend>{% translate "REMOTE_SERVICE" %}</legend>
 
         <div>
             {{ form.service_url|bootstrap_horizontal }}
         </div>
         <div class="col-sm-10 col-sm-offset-2">
             <p>
-                {% trans "Fill in the URL and" %}
+                {% translate "FILL_IN_URL_AND" %}
                 <a id="fetch-metadata" class="btn btn-primary btn-xs" href="#">
-                    {% trans 'Download possible metadata' %}
+                    {% translate "DOWNLOAD_POSSIBLE_METADATA" %}
                     <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
                 </a>
             </p>
@@ -63,9 +63,9 @@
     {% endfor %}
     <div class="form-group">
         <div class="col-sm-10 col-sm-offset-2">
-            <button type="submit" class="aplus-button--default aplus-button--md">{% trans 'Submit' %}</button>
+            <button type="submit" class="aplus-button--default aplus-button--md">{% translate "SUBMIT" %}</button>
             <a class="aplus-button--secondary aplus-button--md" href="{{ instance|url:'course-edit' }}" role="button">
-                {% trans 'Cancel' %}
+                {% translate "CANCEL" %}
             </a>
         </div>
     </div>

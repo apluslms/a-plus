@@ -6,21 +6,21 @@
   <table class="table table-sm table-bordered table-condensed">
     <tbody>
       <tr>
-        <td>{% trans 'Build initated by' %}</td>
+        <td>{% translate "BUILD_INITIATED_BY" %}</td>
         <td>{{ request_ip }}</td>
       </tr>
       <tr>
-        <td>{% trans 'Build initated at' %}</td>
+        <td>{% translate "BUILD_INITIATED_AT" %}</td>
         <td>{{ request_time }}</td>
       </tr>
       {% if not updated %}
         <tr class="warning">
-          <td>{% trans 'Build finished' %}</td>
-          <td>{% trans 'Not yet built' %}</td>
+          <td>{% translate "BUILD_FINISHED" %}</td>
+          <td>{% translate "BUILD_NOT_YET_BUILT" %}</td>
         </tr>
       {% else %}
         <tr>
-          <td>{% trans 'Build finished' %}</td>
+          <td>{% translate "BUILD_FINISHED" %}</td>
           <td>{{ updated_time }}</td>
         </tr>
       {% endif %}

@@ -4,7 +4,7 @@
 {% load course %}
 {% load base %}
 
-{% block title %}{% trans "Profile" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "PROFILE" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}profile{% endblock %}
 
 {% block js-translations %}
@@ -40,19 +40,19 @@
 	<div class="col-sm-offset-2 col-sm-8 page-header">
 		<h1>
 			{% if user.first_name or user.last_name %}
-			{{ user.first_name }} {{ user.last_name }}
+				{{ user.first_name }} {{ user.last_name }}
 			{% else %}
-			{% trans "[Unknown name]" %}
+				{% translate "[UNKNOWN_NAME]" %}
 			{% endif %}
 		</h1>
 	</div>
 </div>
 <div class="row">
 	<div class="col-sm-offset-2 col-sm-8 col-lg-4">
-		<h2>{% blocktrans %}{{ brand_name }} Preferences{% endblocktrans %}</h2>
+		<h2>{% blocktranslate trimmed %}BRAND_PREFERENCES -- {{ brand_name }}{% endblocktranslate %}</h2>
 		<form action="{% url 'set-user-language' %}" method="post" class="form form-horizontal">{% csrf_token %}
 			<div class="form-group">
-				<label class="col-xs-12" for="language-profile">{% trans 'Language' %}</label>
+				<label class="col-xs-12" for="language-profile">{% translate "LANGUAGE" %}</label>
 				<div class="col-xs-12 col-sm-8">
 					<select name="language" class="form-control" id="language-profile">
 						{% get_current_language as LANGUAGE_CODE %}
@@ -67,31 +67,31 @@
 				</div>
 				<div class="col-xs-offset-0 col-xs-6 col-sm-4 ">
 					<button type="submit"
-						class="aplus-button--default aplus-button--md btn-block btn-save-profile">{% trans 'Save' %}</button>
+						class="aplus-button--default aplus-button--md btn-block btn-save-profile">{% translate "SAVE" %}</button>
 				</div>
 			</div>
 		</form>
-		<label for="api-access-token">{% trans "API Access Token" %}</label>
+		<label for="api-access-token">{% translate "API_ACCESS_TOKEN" %}</label>
 		<div class="input-group">
 			<input readonly type="text" class="form-control read-only" id="api-access-token"
 				value="{{ profile.api_token }}">
 			<span class="input-group-btn">
 				<button data-toggle="tooltip" data-placement="bottom"
-					title="{% trans 'Copy API Access Token' %}" aria-label="{% trans 'Copy API Access Token' %}"
+					title="{% translate 'COPY_API_ACCESS_TOKEN' %}" aria-label="{% translate 'COPY_API_ACCESS_TOKEN' %}"
 					class="aplus-button--secondary aplus-button--md js-copy" type="button"><span
-						class="glyphicon glyphicon-copy"></span><span class="">{% trans 'Copy' %}</span></button>
+						class="glyphicon glyphicon-copy"></span><span class="">{% translate "COPY" %}</span></button>
 			</span>
 		</div>
 		<br>
 		<div>
-			<label for="local-storage-services">{% trans "Automatic redirections" %}</label>
+			<label for="local-storage-services">{% translate "AUTOMATIC_REDIRECTIONS" %}</label>
 			<p id="services-instructions">
-				{% blocktrans trimmed%}
-				No services marked for automatic redirection on this device.
-				{% endblocktrans %}
+				{% blocktranslate trimmed %}
+					AUTOMATIC_REDIRECTIONS_NO_SERVICES_MARKED_ON_DEVICE
+				{% endblocktranslate %}
 			</p>
 			<ul id="local-storage-services" class="local-storage-fields"
-			data-forget-text="{% trans 'Forget automatic redirection' %}" role="group"></ul>
+			data-forget-text="{% translate 'AUTOMATIC_REDIRECTIONS_FORGET' %}" role="group"></ul>
 		</div>
 	</div>
 </div>
@@ -99,20 +99,20 @@
 	<div class="col-sm-offset-2 col-sm-8 col-md-4">
 		{% if not is_google %}
 			{% brand_institution_name as institution %}
-				<h2>{% blocktrans trimmed %}Information provided by your organization{% endblocktrans %}</h2>
+				<h2>{% blocktranslate trimmed %}INFORMATION_PROVIDED_BY_YOUR_ORGANIZATION{% endblocktranslate %}</h2>
 		{% elif is_google %}
-			<h2>{% trans "Information provided by Google" %}</h2>
+			<h2>{% translate "INFORMATION_PROVIDED_BY_GOOGLE" %}</h2>
 		{% endif %}
-		<p class="text-warning">{% trans "The following settings can be changed by your identity provider." %}</p>
+		<p class="text-warning">{% translate "SETTINGS_CAN_BE_CHANGED_BY_IDENTITY_PROVIDER" %}</p>
 		<dl class="dl-horizontal">
-			{% trans "[Missing]" as miss %}
-			<dt class="provider-information">{% trans "Student ID" %}</dt>
+			{% translate "[MISSING]" as miss %}
+			<dt class="provider-information">{% translate "STUDENT_ID" %}</dt>
 			<dd>{% firstof profile.student_id miss %}</dd>
-			<dt class="provider-information">{% trans "E-mail" %}</dt>
+			<dt class="provider-information">{% translate "EMAIL" %}</dt>
 			<dd>{% firstof user.email miss %}</dd>
-			<dt class="provider-information">{% trans "Username" %}</dt>
+			<dt class="provider-information">{% translate "USERNAME" %}</dt>
 			<dd>{% firstof user.username miss %}</dd>
-			<dt class="provider-information">{% trans "Organization" %}</dt>
+			<dt class="provider-information">{% translate "ORGANIZATION" %}</dt>
 			<dd>{% firstof profile.organization miss %}</dd>
 		</dl>
 	</div>

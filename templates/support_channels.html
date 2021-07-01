@@ -7,49 +7,45 @@
 
 <section class="frontpage frontpage-section" aria-labelledby="students-title">
 	<h2 id="students-title">
-		{% trans "Students" %}
+		{% translate "STUDENTS" %}
 	</h2>
 	<p>
-		{% blocktrans trimmed %}
-		Students should contact the course staff for further assistance on
-		course matters. If there are technical issues in the course materials,
-		contact the course staff. Check the course page for the contact information.
-		Typically, email is <strong>not</strong> the primary discussion
-		channel in courses.
-		{% endblocktrans %}
+		{% blocktranslate trimmed %}
+		CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS
+		{% endblocktranslate %}
 	</p>
 	<div class="cards">
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% trans "Studies" %}</h3>
+				<h3>{% translate "STUDIES" %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://into.aalto.fi/display/enopinnot">
-						{% trans "Studies" %}
+						{% translate "STUDIES" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://courses.aalto.fi">
-						{% trans "Course catalogue" %}
+						{% translate "COURSE_CATALOGUE" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://into.aalto.fi/display/enopisk/Student+services">
-						{% trans "Student services" %}
+						{% translate "STUDENT_SERVICES" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://into.aalto.fi/display/enopisk/Support+for+studying">
-						{% trans "Support for studying" %}
+						{% translate "SUPPORT_FOR_STUDYING" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://into.aalto.fi/display/enopisk/Study+skills">
-						{% trans "Study skills" %}
+						{% translate "STUDY_SKILLS" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://into.aalto.fi/display/enopisk/Starting+Point+of+Wellbeing">
-						{% trans "Starting Point of Wellbeing" %}
+						{% translate "STARTING_POINT_OF_WELLBEING" %}
 					</a>
 				</p>
 			</div>
@@ -57,30 +53,30 @@
 
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% trans "IT support" %}</h3>
+				<h3>{% translate "IT_SUPPORT" %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://www.aalto.fi/en/it-help">
-						{% trans "IT help" %}
+						{% translate "IT_HELP" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://vdi.aalto.fi/">
-						{% trans "Virtual desktops (VDI)" %}
+						{% translate "VIRTUAL_DESKTOPS" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://computers.aalto.fi/">
-						{% trans "Available classroom computers" %}
+						{% translate "AVAILABLE_CLASSROOM_COMPUTERS" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://download.aalto.fi">
-						{% trans "Download licensed software" %}
+						{% translate "DOWNLOAD_LICENSED_SOFTWARE" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://www.aalto.fi/en/services/aalto-space-mobile-application">
-						{% trans "Aalto Space app for room reservations" %}
+						{% translate "AALTO_SPACE_APP" %}
 					</a>
 				</p>
 			</div>
@@ -90,46 +86,48 @@
 <hr>
 <section class="frontpage frontpage-section" aria-labelledby="teachers-title">
 	<h2 id="teachers-title">
-		{% trans "Teachers" %}
+		{% translate "TEACHERS" %}
 	</h2>
 	<div class="cards">
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% trans "Documentation" %}</h3>
+				<h3>{% translate "DOCUMENTATION" %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://plus.cs.aalto.fi/aplus-manual/master/">
-						{% blocktrans trimmed %}{{ brand_long }} manual{% endblocktrans %}
+						{% blocktranslate trimmed %}
+							MANUAL -- {{ brand_long }}
+						{% endblocktranslate %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					The {{ brand_long }} manual contains detailed instructions on how to start authoring a course and how
-					to use the various types of exercises available for {{ brand }}.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						MANUAL_DESCRIPTION -- {{ brand_long }}, {{ brand }}
+					{% endblocktranslate %}
 				</p>
 				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://apluslms.github.io/">{% trans "A+ LMS project website" %}</a>
+					<a target="_blank" rel="noopener" href="https://apluslms.github.io/">{% translate "A+_LMS_PROJECT_WEBSITE" %}</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					The A+ LMS website provides an overview of the project and all the associated services as well as a quick start guide.
-					It also contains links to technical documentation for platform developers.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						A+_LMS_PROJECT_WEBSITE_DESCRIPTION
+					{% endblocktranslate %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener"
 						href="https://wiki.aalto.fi/display/EDIT/Requests+for+course+instances">
-						{% trans "Request a new course instance in the server" %}
+						{% translate "REQUEST_NEW_COURSE_INSTANCE" %}
 					</a>
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener"
 						href="https://wiki.aalto.fi/display/EDIT/Instructions+and+support+for+teachers+and+TAs+at+CS+department">
-						{% blocktrans trimmed %}Instructions at {{ institution }}{% endblocktrans %}
+						{% blocktranslate trimmed %}
+							INSTRUCTIONS_AT -- {{ institution }}
+						{% endblocktranslate %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% trans "Contact support by email:" %}
+					{% translate "CONTACT_SUPPORT_BY_EMAIL" %}
 					<a rel="noopener" href="mailto:aplusguru@cs.aalto.fi" style="display: inline;">
 						aplusguru@cs.aalto.fi
 					</a>
@@ -139,158 +137,149 @@
 
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% trans "Download course templates" %}</h3>
+				<h3>{% translate "DOWNLOAD_COURSE_TEMPLATES" %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://github.com/apluslms/aplus-course-template">
-						{% trans "Aplus course template" %}
+						{% translate "APLUS_COURSE_TEMPLATE" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					The {{ brand_long }} course template provides you with
-					the minimum structure to start authoring your course.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						COURSE_TEMPLATE_DESCRIPTION -- {{ brand_long }}
+					{% endblocktranslate %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://github.com/apluslms/aplus-manual">
-						{% blocktrans trimmed %}{{ brand_long }} manual{% endblocktrans %}
+						{% blocktranslate trimmed %}
+							MANUAL -- {{ brand_long }}
+						{% endblocktranslate %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					Since the {{ brand_long }} manual contains a wide variety of exercises, you can download the source
-					code and use it as a source of knowledge for creating your own exercises.
-					You may run the manual course in your own computer with the Docker containers.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						MANUAL_HAS_EXAMPLES_OF_EXERCISES -- {{ brand_long }}
+					{% endblocktranslate %}
 				</p>
 			</div>
 		</div>
 
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% trans "Community" %}</h3>
+				<h3>{% translate "COMMUNITY" %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener"
 						href="https://teams.microsoft.com/l/team/19%3a147685e6a8fc409295188befeec77113%40thread.skype/conversations?groupId=b78ab778-8838-4180-940d-b9183ddc3a7c&tenantId=ae1a7724-4041-4462-a6dc-538cb199707e">
-						{% trans "Microsoft Teams" %}
+						{% translate "MICROSOFT_TEAMS" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					Teachers can start a conversation with other users of {{ brand }} or ask for support in the Microsoft
-					Teams channel. However, if your matter contains private or sensitive information, you should contact
-					us by email.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						MICROSOFT_TEAMS_SUPPORT_DESCRIPTION -- {{ brand }}
+					{% endblocktranslate %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://github.com/apluslms/a-plus/issues">
-						{% trans "Report an issue in GitHub" %}
+						{% translate "REPORT_ISSUE_IN_GITHUB" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					Teachers may report issues in GitHub, such as bugs in the application or
-					ideas for new features. If you want to discuss with the support team
-					more personally or in privacy, send us email.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						REPORT_ISSUE_IN_GITHUB_DESCRIPTION
+					{% endblocktranslate %}
 				</p>
 			</div>
 		</div>
 
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% trans "News" %}</h3>
+				<h3>{% translate "NEWS" %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/EDIT#EDIT-News">
-						{% trans "Announcements" %}
+						{% translate "ANNOUNCEMENTS" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					Keep yourself updated with information about {{ brand }} and all the associated services.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						ANNOUNCEMENTS_SUPPORT_DESCRIPTION -- {{ brand }}
+					{% endblocktranslate %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://status.cs.aalto.fi/d/r0N6S9jik/main?orgId=1">
-						{% trans "Status" %}
+						{% translate "STATUS" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% trans "Check the status of our servers." %}
+					{% translate "CHECK_STATUS_OF_SERVERS" %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/Roadmap+2020-2024">
-						{% trans "Current development" %}
+						{% translate "CURRENT_DEVELOPMENT" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					Follow the current development of {{ brand }} and its related services.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						CURRENT_DEVELOPMENT_SUPPORT_DESCRIPTION -- {{ brand }}
+					{% endblocktranslate %}
 				</p>
 			</div>
 		</div>
 
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% blocktrans trimmed %}Other servers that use {{ brand }}{% endblocktrans %}</h3>
+				<h3>{% blocktranslate trimmed %}OTHER_SERVERS_THAT_USE -- {{ brand }}{% endblocktranslate %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener"
 						href="https://wiki.aalto.fi/display/EDIT/Exam+studio+exam+with+Aplus+exercises">
-						{% trans "Exam server for the EXAM studio" %}
+						{% translate "EXAM_SERVER_FOR_EXAM_STUDIO" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					Find out more about how to use {{ brand }} to conduct examinations.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						EXAM_SERVER_SUPPORT_DESCRIPTION -- {{ brand }}
+					{% endblocktranslate %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://minus.cs.aalto.fi/">
-						{% trans "Testing environment" %}
+						{% translate "TESTING_ENVIRONMENT" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					Aalto teachers may use our testing environment to test courses before
-					publishing them in production.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						TESTING_ENVIRONMENT_SUPPORT_DESCRIPTION
+					{% endblocktranslate %}
 				</p>
 			</div>
 		</div>
 
 		<div class="card frontpage">
 			<div class="card-body">
-				<h3>{% trans "Learning" %}</h3>
+				<h3>{% translate "LEARNING" %}</h3>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/Accessible+Teaching">
-						{% trans "Accessible teaching" %}
+						{% translate "ACCESSIBLE_TEACHING" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% trans "Learn how to create accessible content for learners." %}
+					{% translate "ACCESSIBLE_TEACHING_SUPPORT_DESCRIPTION" %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener"
 						href="https://aalto.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=%2253f1b55a-0cb3-4c71-8302-abbf00c1a6d2%22">
-						{% trans "Watch recordings of our webinars." %}
+						{% translate "WATCH_WEBINAR_RECORDINGS" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% trans "The webinars contains some talks organized by the EDIT team concerning A+ and its related services." %}
+					{% translate "WATCH_WEBINAR_RECORDINGS_SUPPORT_DESCRIPTION" %}
 				</p>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=2DG4feWn_Ws">
-						{% trans "Introduction to A+ &mdash; ÄlyOppi webinar in Finnish" %}
+						{% translate "INTRO_TO_A+_ÄLYOPPI_WEBINAR_IN_FINNISH" %}
 					</a>
 				</p>
 				<p class="card-text">
-					{% blocktrans trimmed %}
-					ÄlyOppi webinars are available at
-					<a target="_blank" rel="noopener" href="https://www.aalto.fi/en/aalto-university/alyoppi-past-webinars">
-						the project website
-					</a>.
-					{% endblocktrans %}
+					{% blocktranslate trimmed %}
+						ÄLYOPPI_WEBINARS_AVAILABLE_AT_PROJECT_WEBSITE
+					{% endblocktranslate %}
 				</p>
 			</div>
 		</div>
@@ -301,14 +290,11 @@
 		<img alt="" class="img-responsive center-block" src="{% static 'images/search-clipart.png' %}" />
 	</div>
 	<div>
-		<h3>{% trans "Can't find what you're looking for?" %}</h3>
+		<h3>{% translate "CANT_FIND_WHAT_LOOKING_FOR" %}</h3>
 		<p>
-			{% blocktrans trimmed with email="aplusguru@cs.aalto.fi" %}
-			Send us an email to
-			<a href="mailto:{{ email }}" target="_blank" rel="noopener">
-				{{ email }}
-			</a>
-			{% endblocktrans %}
+			{% blocktranslate trimmed with email="aplusguru@cs.aalto.fi" %}
+				SEND_US_EMAIL -- {{ email }}
+			{% endblocktranslate %}
 		</p>
 	</div>
 </section>

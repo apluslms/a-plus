@@ -11,7 +11,7 @@
 {% endblock scripts %}
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Teachers" %}</li>
+<li class="active">{% translate "TEACHERS" %}</li>
 {% endblock %}
 {% block view_tag %}edit-course,course-teachers{% endblock %}
 
@@ -19,10 +19,10 @@
 <br role="presentation">
 <form method="post" enctype="multipart/form-data" class="well">
 	{% csrf_token %}
-	<legend>{% trans "Edit course teachers" %}</legend>
+	<legend>{% translate "EDIT_COURSE_TEACHERS" %}</legend>
 	{{ form|bootstrap }}
 	<button type="submit" class="aplus-button--default aplus-button--md">
-		{% trans "Save" %}
+		{% translate "SAVE" %}
 	</button>
 </form>
 {% endblock %}

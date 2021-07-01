@@ -3,33 +3,24 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block edittitle %}{% trans "Batch assess submissions" %}{% endblock %}
+{% block edittitle %}{% translate "BATCH_ASSESS_SUBMISSIONS" %}{% endblock %}
 {% block view_tag %}edit-course,batch-assess{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Batch create and assess submissions" %}</li>
+<li class="active">{% translate "BATCH_CREATE_AND_ASSESS_SUBMISSIONS" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
 <br />
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{% trans "Batch create and assess submissions" %}</h3>
+        <h3 class="panel-title">{% translate "BATCH_CREATE_AND_ASSESS_SUBMISSIONS" %}</h3>
     </div>
     <div class="panel-body">
-        {% blocktrans with profile.id as id %}
-<p><em>Use only if you know what you are doing!</em></p>
-<p>By submitting json to the form below you can try to create and assess multiple exercises for students automatically.</p>
-<dl>
-	<dt>XXXXX1 and XXXXX2</dt>
-    <dd>the real student ids</dd>
-	<dt>X1 (integer)</dt>
-    <dd>the system userprofile id of the desired grader. Your userprofile id is <b>{{id}}.</b></dd>
-	<dt>Z1 and Z2 (integers)</dt>
-    <dd>the system exercise ids</dd>
-</dl>
-{% endblocktrans %}
+        {% blocktranslate trimmed with profile.id as id %}
+          BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- {{ id }}
+        {% endblocktranslate %}
 <pre>{
   "objects": [
     {
@@ -82,7 +73,7 @@
                 <textarea name="submissions_json" style="width:100%;height:10em;"></textarea>
             </div>
             <button type="submit" class="aplus-button--default aplus-button--md">
-                {% trans "Submit" %}
+                {% translate "SUBMIT" %}
             </button>
         </form>
     </div>

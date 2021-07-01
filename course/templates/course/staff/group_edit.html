@@ -8,13 +8,13 @@
 {{ block.super }}
 <script src="{% static 'js/ajax_search_select.js' %}"></script>
 {% endblock scripts %}
-{% block title %}{% trans "Edit" %} | {% trans "Groups" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "EDIT" %} | {% translate "GROUPS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups-edit{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'groups-list' }}">{% trans "Groups" %}</a></li>
-<li class="active">{% trans "Edit" %}</li>
+<li><a href="{{ instance|url:'groups-list' }}">{% translate "GROUPS" %}</a></li>
+<li class="active">{% translate "EDIT" %}</li>
 {% endblock %}
 
 {% block columns %}
@@ -22,10 +22,10 @@
 
   <form method="post" class="well form">
       {% csrf_token %}
-      <legend>{% trans "Edit group members" %}</legend>
+      <legend>{% translate "EDIT_GROUP_MEMBERS" %}</legend>
       {{ form|bootstrap }}
       <button type="submit" class="aplus-button--default aplus-button--md">
-          {% trans "Save" %}
+          {% translate "SAVE" %}
       </button>
   </form>
 

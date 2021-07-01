@@ -3,10 +3,10 @@
 {% if page.is_wait %}
 <div class="exercise-wait hide progress"
   data-poll-url="{{ submission|url:'submission-poll' }}"
-  data-msg-error="{% trans 'Communication error with the exercise.' %}"
-  data-msg-timeout="{% trans 'Unfortunately grading takes longer than expected. Return later to see the result.' %}">
+  data-msg-error="{% translate 'EXERCISE_ERROR_COMMUNICATION' %}"
+  data-msg-timeout="{% translate 'EXERCISE_ERROR_GRADING_TIMEOUT' %}">
   <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
-    {% trans "Grading submission..." %}
+    {% translate "GRADING_SUBMISSION" %}
   </div>
 </div>
 {% endif %}

@@ -26,7 +26,7 @@ class AbstractApp(ModelWithInheritance):
 
     # Generic foreign key implementation from Django contenttypes framework.
     container_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    container_pk = models.TextField(_('object ID'))
+    container_pk = models.TextField(_('OBJECT_ID'))
     container = GenericForeignKey(ct_field="container_type", fk_field="container_pk")
 
     # Apps used to have an oembed reference which was removed in migration to Python 3
@@ -38,16 +38,16 @@ class AbstractApp(ModelWithInheritance):
 
 class BaseTab(AbstractApp):
     label = models.CharField(max_length=12,
-        help_text=_("Label is the word displayed on the tab."))
+        help_text=_('TAB_LABEL_HELPTEXT'))
     title = models.CharField(max_length=64,
-        help_text=_("Title is displayed on the top of the tab page."))
+        help_text=_('TAB_TITLE_HELPTEXT'))
     order = models.IntegerField(default=100)
 
     # A Tab can be opened in a new window, in the same window?
     opening_method = models.CharField(max_length=32, blank=True)
 
     def render(self):
-        return _("No content for this tab...")
+        return _('TAB_NO_CONTENT')
 
     def get_label(self):
         return self.label
@@ -116,7 +116,7 @@ class BasePlugin(AbstractApp):
         if leaf != self:
             return leaf.render()
         else:
-            return _("Base plug-in does not have a render-method.")
+            return _('BASE_PLUGIN_MISSING_RENDER-METHOD')
 
 
 class RSSPlugin(BasePlugin):

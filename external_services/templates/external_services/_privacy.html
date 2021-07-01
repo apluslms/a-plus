@@ -8,14 +8,13 @@
 	is_course_staff
 {% endcomment %}
 {% if not service.sends_user_info %}
-	<p>{% trans "No personal data is send to this service." %}</p>
+	<p>{% translate "EXTERNAL_SERVICE_NO_PERSONAL_DATA_SENT" %}</p>
 {% else %}
 	{% if service.is_anonymous %}
 		<p>
-			{% blocktrans with brand=brand %}
-			Your name and email address will be pseudonymised and send to the service.
-			This means that the service’s administration can not identify you, but {{brand}}'s administration can if necessary.
-			{% endblocktrans %}
+			{% blocktranslate trimmed with brand=brand %}
+				EXTERNAL_SERVICE_PSEUDONYMISED_DATA_SENT_TO_SERVICE -- {{ brand }}
+			{% endblocktranslate %}
 		</p>
 	{% else %}
 		{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}
@@ -23,17 +22,13 @@
 		{% else %}
 			<p><span>
 		{% endif %}
-		{% blocktrans %}
-		Information including your name and email address will be sent to the service.
-		This means that at least the service’s administrators can identify you.
-		You can see the full list of information below.
-		{% endblocktrans %}
+		{% blocktranslate trimmed %}
+			EXTERNAL_SERVICE_PERSONAL_DATA_SENT_TO_SERVICE
+		{% endblocktranslate %}
 		{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}
-			{% blocktrans %}
-			We use this external service to help you and other students learn.
-			Nevertheless, you aren't absolutely required to use it in order to pass the course.
-			If you want to avoid using the service, please discuss alternative solutions with the course staff.
-			{% endblocktrans %}
+			{% blocktranslate trimmed %}
+				EXTERNAL_SERVICE_USE_OPTIONAL_BUT_USEFUL
+			{% endblocktranslate %}
 		{% endif %}
 		</span></p>
 	{% endif %}
@@ -46,18 +41,15 @@
 			{% else %}
 				<p><span>
 			{% endif %}
-			{% blocktrans with brand=brand %}
-			Moreover, we send this service a so-called <a href="https://en.wikipedia.org/wiki/Access_token" rel="noopener nofollow" target="_blank" class="alert-link">access token</a>, which gives the service access to the {{brand}} API at your privilege level.
-			If you don't want that to happen, please contact {{brand}} administration.
-			{% endblocktrans %}
+			{% blocktranslate trimmed with brand=brand %}
+				EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_COURSE_STAFF -- {{ brand }}
+			{% endblocktranslate %}
 			</span></p>
 		{% else %}
 			<p class="alert alert-danger"><i class="glyphicon glyphicon-exclamation-sign"></i><span>
-				{% blocktrans with brand=brand %}
-				Moreover, we send this service a so-called <a href="https://en.wikipedia.org/wiki/Access_token" rel="noopener nofollow" target="_blank" class="alert-link">access token</a>, which gives the service access to the {{brand}} API at your privilege level.
-				This means that the service can, for example, access your student ID number and your progress in the course, and submit solutions to assignments.
-				The course staff has enabled this feature and trust the service to operate with your best interests in mind.
-				{% endblocktrans %}
+				{% blocktranslate trimmed with brand=brand %}
+					EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_STUDENT -- {{ brand }}
+				{% endblocktranslate %}
 			</span></p>
 		{% endif %}
 	{% endif %}
@@ -67,23 +59,23 @@
 {% if service.destination_region == service.DESTINATION_REGION.INTERNAL %}
 	<p><span>
 	{% url 'privacy_notice' as privacy_url %}
-	{% blocktrans with url=privacy_url %}
-	This service is hosted by us ({{brand}} administrators) and thus our <a href="{{url}}" target="_blank">privacy notice</a> covers it too.
-	{% endblocktrans %}
+	{% blocktranslate trimmed with url=privacy_url %}
+		EXTERNAL_SERVICE_PRIVACY_HOSTED_INTERNALLY -- {{ brand }}, {{ url }}
+	{% endblocktranslate %}
 {% elif service.destination_region == service.DESTINATION_REGION.ORGANIZATION %}
 	<p><span>
-	{% blocktrans with brand=brand %}
-	This service is hosted within our organization, but it's not maintained by us ({{brand}} administrators).
-	{% endblocktrans %}
+	{% blocktranslate trimmed with brand=brand %}
+		EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANISATION -- {{ brand }}
+	{% endblocktranslate %}
 {% elif service.destination_region == service.DESTINATION_REGION.EEA %}
 	{% if service.sends_user_info and not service.is_anonymous %}
 		<p class="alert alert-info"><i class="glyphicon glyphicon-exclamation-sign"></i><span>
 	{% else %}
 		<p><span>
 	{% endif %}
-	{% blocktrans %}
-	This service is hosted within the European Economics Area and is thus subject to <a href="https://ec.europa.eu/info/law/law-topic/data-protection/reform_en" rel="noopener nofollow" target="_blank" class="alert-link">the European Union's General Data Protection Regulation</a>.
-	{% endblocktrans %}
+	{% blocktranslate trimmed %}
+		EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_EEA
+	{% endblocktranslate %}
 {% elif service.destination_region == service.DESTINATION_REGION.PRIVACYSHIELD %}
 	{% if service.sends_user_info %}
 		<p class="alert alert-{{service.is_anonymous|yesno:'info,warning' }}">
@@ -91,10 +83,9 @@
 	{% else %}
 		<p><span>
 	{% endif %}
-	{% blocktrans %}
-	This service is hosted outside of the European Economics Area and is thus not covered by <a href="https://ec.europa.eu/info/law/law-topic/data-protection/reform_en" rel="noopener nofollow" target="_blank" class="alert-link">the European Union's General Data Protection Regulation</a> (GDPR).
-	The service used to be certified under <a href="https://www.privacyshield.gov/Individuals-in-Europe" rel="noopener nofollow" target="_blank" class="alert-link">the EU-U.S. Privacy Shield</a>, but the European Court of Justice has declared the EU-U.S. Privacy Shield invalid. We are investigating how this affects the use of the service.
-	{% endblocktrans %}
+	{% blocktranslate trimmed %}
+		EXTERNAL_SERVICE_PRIVACY_PRIVACYSHIELD
+	{% endblocktranslate %}
 {% else %}{# global #}
 	{% if service.sends_user_info %}
 		<p class="alert alert-{{service.is_anonymous|yesno:'info,warning' }}">
@@ -102,20 +93,20 @@
 	{% else %}
 		<p><span>
 	{% endif %}
-	{% trans "This service is not covered by any privacy regulations, thus there isn’t any lawful entity to enforce it." %}
+	{% translate "EXTERNAL_SERVICE_PRIVACY_GLOBAL" %}
 {% endif %}
 {% if service.privacy_notice_url %}
-	{% blocktrans with url=service.privacy_notice_url %}
-	Please see <a href="{{ url }}" rel="noopener nofollow" target="_blank" class="alert-link">the service's privacy notice</a> for more details.
-	{% endblocktrans %}
+	{% blocktranslate trimmed with url=service.privacy_notice_url %}
+		EXTERNAL_SERVICE_PRIVACY_NOTICE -- {{ url }}
+	{% endblocktranslate %}
 {% endif %}
 	</span></p>
 
 {# link to the site #}
 {% if service.sends_user_info %}
 	<p>
-		{% blocktrans with url=site %}
-		You can first take a look at the external service without sending data: <a href="{{url}}" rel="noopener nofollow" target="_blank">services’ front page</a>.
-		{% endblocktrans %}
+		{% blocktranslate trimmed with url=site %}
+			EXTERNAL_SERVICE_LOOK_WITHOUT_SENDING_DATA -- {{ url }}
+		{% endblocktranslate %}
 	</p>
 {% endif %}

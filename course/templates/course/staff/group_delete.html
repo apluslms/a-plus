@@ -3,13 +3,13 @@
 {% load course %}
 {% load bootstrap %}
 
-{% block title %}{% trans "Remove" %} | {% trans "Groups" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "REMOVE" %} | {% translate "GROUPS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups-edit{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'groups-list' }}">{% trans "Groups" %}</a></li>
-<li class="active">{% trans "Remove" %}</li>
+<li><a href="{{ instance|url:'groups-list' }}">{% translate "GROUPS" %}</a></li>
+<li class="active">{% translate "REMOVE" %}</li>
 {% endblock %}
 
 {% block columns %}
@@ -17,14 +17,14 @@
 
   <form method="post" class="well form">
     {% csrf_token %}
-    <legend>{% trans "Confirm group removal" %}</legend>
+    <legend>{% translate "CONFIRM_GROUP_REMOVAL" %}</legend>
 
     <table class="table table-condensed">
       <thead>
         <tr>
-          <th>{% trans "ID" %}</th>
-          <th>{% trans "Members" %}</th>
-          <th>{% trans "Created" %}</th>
+          <th>{% translate "ID" %}</th>
+          <th>{% translate "MEMBERS" %}</th>
+          <th>{% translate "CREATED" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -37,9 +37,9 @@
     </table>
 
     <div class="form-group">
-  		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% trans 'Remove' %}" />
+  		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate "REMOVE" %}" />
   		<a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'groups-list' }}">
-  			{% trans "Cancel" %}
+  			{% translate "CANCEL" %}
   		</a>
   	</div>
   </form>

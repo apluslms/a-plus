@@ -11,8 +11,8 @@
 {% endblock scripts %}
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'course-tags' }}">{% trans "Tags" %}</a></li>
-<li class="active">{% trans "Add new user tagging" %}</li>
+<li><a href="{{ instance|url:'course-tags' }}">{% translate "TAGS" %}</a></li>
+<li class="active">{% translate "ADD_NEW_USER_TAGGING" %}</li>
 {% endblock %}
 {% block view_tag %}edit-course,course-tags{% endblock %}
 
@@ -20,12 +20,12 @@
 <br />
 <form method="post" class="well form-horizontal">
 	{% csrf_token %}
-	  <legend>{% trans "Add new user tagging" %}</legend>
+	  <legend>{% translate "ADD_NEW_USER_TAGGING" %}</legend>
 	{{ form|bootstrap_horizontal }}
 	<div class="form-group">
 		<div class="col-sm-10 col-sm-offset-2">
-			<button type="submit" class="aplus-button--default aplus-button--md">{% trans 'Save' %}</button>
-			<a href="{{ instance|url:'course-tags' }}" role="button" class="aplus-button--secondary aplus-button--md">{% trans "Cancel" %}</a>
+			<button type="submit" class="aplus-button--default aplus-button--md">{% translate "SAVE" %}</button>
+			<a href="{{ instance|url:'course-tags' }}" role="button" class="aplus-button--secondary aplus-button--md">{% translate "CANCEL" %}</a>
 		</div>
 	</div>
 </form>

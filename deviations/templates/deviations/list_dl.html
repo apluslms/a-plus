@@ -2,12 +2,12 @@
 {% load i18n %}
 {% load course %}
 
-{% block edittitle %}{% trans "List deadline deviations" %}{% endblock %}
+{% block edittitle %}{% translate "LIST_DEADLINE_DEVIATIONS" %}{% endblock %}
 {% block view_tag %}edit-course,deviations{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "List deadline deviations" %}</li>
+<li class="active">{% translate "LIST_DEADLINE_DEVIATIONS" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
@@ -15,20 +15,20 @@
 <p>
 	<a class="aplus-button--default aplus-button--xs" role="button" href="{{ instance|url:'deviations-add-dl' }}">
 		<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-		{% trans "Add new deadline deviations" %}
+		{% translate "ADD_NEW_DEADLINE_DEVIATIONS" %}
 	</a>
 </p>
 <div class="panel panel-primary">
 	<div class="panel-heading">
-		<h3 class="panel-title">{% trans "Deadline deviations" %}</h3>
+		<h3 class="panel-title">{% translate "DEADLINE_DEVIATIONS" %}</h3>
 	</div>
 	<table class="table table-striped table-bordered table-condensed">
 		<tr>
-			<th>{% trans "Submitter" %}</th>
-			<th>{% trans "Exercise" %}</th>
-			<th>{% trans "Extra minutes" %}</th>
-			<th>{% trans "Without late penalty" %}</th>
-			<th>{% trans "Actions" %}</th>
+			<th>{% translate "SUBMITTER" %}</th>
+			<th>{% translate "EXERCISE" %}</th>
+			<th>{% translate "EXTRA_MINUTES" %}</th>
+			<th>{% translate "WITHOUT_LATE_PENALTY" %}</th>
+			<th>{% translate "ACTIONS" %}</th>
 		</tr>
 		{% for deviation in deviations %}
 		<tr>
@@ -41,14 +41,14 @@
 					{% csrf_token %}
 					<button type="submit" class="aplus-button--danger aplus-button--xs">
 						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-						{% trans 'Remove' %}
+						{% translate "REMOVE" %}
 					</button>
 				</form>
 			</td>
 		</tr>
 		{% empty %}
 		<tr>
-			<td colspan="4">{% trans "No deadline deviations." %}</td>
+			<td colspan="4">{% translate "NO_DEADLINE_DEVIATIONS" %}</td>
 		</tr>
 		{% endfor %}
 	</table>

@@ -12,7 +12,7 @@
             <ul style="list-style-type: none">
                 <li>
                     <p style="font-weight: bold;font-style: italic">
-                    {% trans "Current score" %}: {{ exercise_data.user_points }}
+                    {% translate "CURRENT_SCORE" %}: {{ exercise_data.user_points }}
                     / {{ exercise_data.max_points }}
                     </p>
                 </li>
@@ -22,11 +22,11 @@
     </ul>
 
     <p style="font-weight: bold;font-style: italic">
-      {% trans "Total score" %}: {{exercisecollection_data.user_total_points}}
+      {% translate "TOTAL_SCORE" %}: {{exercisecollection_data.user_total_points}}
       / {{exercisecollection_data.target_max_points}}
     </p>
     <p style="font-weight: bold;font-style: italic">
-      {% trans "Score on this course"%}: {{exercisecollection_data.ec_points}}
+      {% translate "SCORE_ON_THIS_COURSE"%}: {{exercisecollection_data.ec_points}}
       / {{exercisecollection_data.ec_max_points}}
     </p>
 

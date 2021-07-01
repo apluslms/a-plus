@@ -4,13 +4,13 @@
 {% load course %}
 {% load exercise %}
 
-{% block title %}{% trans "Submissions summary" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "SUBMISSIONS_SUMMARY" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}all-submissions{% endblock %}
 
 {% block exercisebreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ exercise|url:'submission-list' }}">{% trans "All submissions" %}</a></li>
-<li class="active">{% trans "Summary" %}</li>
+<li><a href="{{ exercise|url:'submission-list' }}">{% translate "ALL_SUBMISSIONS" %}</a></li>
+<li class="active">{% translate "SUMMARY" %}</li>
 {% endblock %}
 
 {% block columns %}

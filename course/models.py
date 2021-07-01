@@ -53,7 +53,7 @@ class Course(UrlMixin, models.Model):
     code = models.CharField(max_length=255)
     url = models.CharField(unique=True, max_length=255, blank=False,
         validators=[generate_url_key_validator()],
-        help_text=_("Input an URL identifier for this course."))
+        help_text=_('COURSE_URL_IDENTIFIER_HELPTEXT'))
     teachers = models.ManyToManyField(UserProfile,
         related_name="teaching_courses", blank=True)
 
@@ -66,8 +66,10 @@ class Course(UrlMixin, models.Model):
             "archive", "course", "exercise", "diploma")
         if self.url in RESERVED:
             raise ValidationError({
-                'url': _("Taken words include: {}").format(
-                    ", ".join(RESERVED))
+                'url': format_lazy(
+                        _('TAKEN_WORDS_INCLUDE -- {}'),
+                        ", ".join(RESERVED)
+                    )
             })
 
     def is_teacher(self, user):
@@ -238,17 +240,17 @@ class HardcodedUserTag(UserTag):
 
 
 USERTAG_INTERNAL = HardcodedUserTag(
-    name=getattr(settings, 'INTERNAL_USER_LABEL', _('internal')),
+    name=getattr(settings, 'INTERNAL_USER_LABEL', _('INTERNAL')),
     slug='user-internal',
-    description=_("The user profile contains a student number and has logged in via local organisation authentication"),
+    description=_('INTERNAL_USER_DESCRIPTION'),
     color='#006cb4',
 )
 
 
 USERTAG_EXTERNAL = HardcodedUserTag(
-    name=getattr(settings, 'EXTERNAL_USER_LABEL', _('external')),
+    name=getattr(settings, 'EXTERNAL_USER_LABEL', _('EXTERNAL')),
     slug='user-external',
-    description=_("The user profile doesn't have a student number, thus the user has logged in from a different organization or via social authentication"),
+    description=_('EXTERNAL_USER_DESCRIPTION'),
     color='#545454',
 )
 
@@ -368,34 +370,34 @@ class CourseInstance(UrlMixin, models.Model):
     instances.
     """
     ENROLLMENT_AUDIENCE = Enum([
-        ('INTERNAL_USERS', 1, _('Internal users')),
-        ('EXTERNAL_USERS', 2, _('External users')),
-        ('ALL_USERS', 3, _('Internal and external users')),
+        ('INTERNAL_USERS', 1, _('INTERNAL_USERS')),
+        ('EXTERNAL_USERS', 2, _('EXTERNAL_USERS')),
+        ('ALL_USERS', 3, _('ALL_USERS')),
     ])
     VIEW_ACCESS = Enum([
-        ('ENROLLED', 1, _('Enrolled students')),
-        ('ENROLLMENT_AUDIENCE', 2, _('Enrollment audience')),
-        ('ALL_REGISTERED', 3, _('All registered users')),
-        ('PUBLIC', 4, _('Public to internet')),
+        ('ENROLLED', 1, _('ENROLLED_STUDENTS')),
+        ('ENROLLMENT_AUDIENCE', 2, _('ENROLLMENT_AUDIENCE')),
+        ('ALL_REGISTERED', 3, _('ALL_REGISTERED_USERS')),
+        ('PUBLIC', 4, _('PUBLIC')),
     ])
     INDEX_TYPE = Enum([
-        ('RESULTS', 0, _('User results')),
-        ('TOC', 1, _("Table of contents")),
-        ('LAST', 2, _("Link to last visited content")),
-        ('EXPERIMENT', 10, _("Experimental setup (hard-coded)")),
+        ('RESULTS', 0, _('USER_RESULTS')),
+        ('TOC', 1, _('TABLE_OF_CONTENTS')),
+        ('LAST', 2, _('LAST_VISITED_LINK')),
+        ('EXPERIMENT', 10, _('EXPERIMENTAL_SETUP')),
     ])
     CONTENT_NUMBERING = Enum([
-        ('NONE', 0, _("No numbering")),
-        ('ARABIC', 1, _("Arabic")),
-        ('ROMAN', 2, _("Roman")),
-        ('HIDDEN', 3, _("Hidden arabic")),
+        ('NONE', 0, _('NUMBERING_NONE')),
+        ('ARABIC', 1, _('NUMBERING_ARABIC')),
+        ('ROMAN', 2, _('NUMBERING_ROMAN')),
+        ('HIDDEN', 3, _('NUMBERING_HIDDEN_ARABIC')),
     ])
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="instances")
     instance_name = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=False,
         validators=[generate_url_key_validator()],
-        help_text=_("Input an URL identifier for this course instance."))
+        help_text=_('COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT'))
     visible_to_students = models.BooleanField(default=True)
     enrollment_audience = models.IntegerField(choices=ENROLLMENT_AUDIENCE.choices,
                                               default=ENROLLMENT_AUDIENCE.INTERNAL_USERS)
@@ -412,22 +414,18 @@ class CourseInstance(UrlMixin, models.Model):
     description = models.TextField(blank=True)
     footer = models.TextField(blank=True)
     index_mode = models.IntegerField(choices=INDEX_TYPE.choices, default=INDEX_TYPE.RESULTS,
-        help_text=_('Select content for the course index page.'))
+        help_text=_('COURSE_INSTANCE_INDEX_CONTENT_SELECTION_HELPTEXT'))
     module_numbering = models.IntegerField(choices=CONTENT_NUMBERING.choices,
                                            default=CONTENT_NUMBERING.ARABIC)
     content_numbering = models.IntegerField(choices=CONTENT_NUMBERING.choices,
                                             default=CONTENT_NUMBERING.ARABIC)
     head_urls = models.TextField(blank=True,
-        help_text=_("External CSS and JS resources "
-            "that are included on all course pages. "
-            "Separate with white space."))
+        help_text=_('COURSE_INSTANCE_EXTERNAL_CSS_AND_JS_FOR_ALL_PAGES_HELPTEXT'))
     configure_url = models.URLField(blank=True)
     build_log_url = models.URLField(blank=True)
     last_modified = models.DateTimeField(auto_now=True, blank=True, null=True)
     technical_error_emails = models.CharField(max_length=255, blank=True,
-        help_text=_("By default exercise errors are reported to teacher "
-            "email addresses. Set this field as comma separated emails to "
-            "override the recipients."))
+        help_text=_('COURSE_INSTANCE_EXERCISE_ERROR_EMAIL_RECIPIENT_OVERRIDE_HELPTEXT'))
     plugins = GenericRelation(BasePlugin, object_id_field="container_pk",
                                       content_type_field="container_type")
     tabs = GenericRelation(BaseTab, object_id_field="container_pk",
@@ -453,21 +451,21 @@ class CourseInstance(UrlMixin, models.Model):
         errors = {}
         RESERVED = ("instances",)
         if self.instance_name in RESERVED:
-            errors['instance_name'] = format_lazy(_("You cannot use word '{}' as an instance name."), self.instance_name)
+            errors['instance_name'] = format_lazy(_('COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}'), self.instance_name)
         if self.url in RESERVED:
-            errors['url'] = format_lazy(_("You cannot use word '{}' in the url."), self.url)
+            errors['url'] = format_lazy(_('COURSE_INSTANCE_ERROR_URL -- {}'), self.url)
         if self.ending_time <= self.starting_time:
-            errors['ending_time'] = _("Ending time must be later than starting time.")
+            errors['ending_time'] = _('COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING')
         if self.lifesupport_time and self.lifesupport_time < self.ending_time:
-            errors['lifesupport_time'] = _("Lifesupport time must be later than ending time.")
+            errors['lifesupport_time'] = _('COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING')
         if (self.archive_time and not self.lifesupport_time) \
                 or (self.lifesupport_time and not self.archive_time):
             # Must not set only one of lifesupport and archive time since their
             # default values could change their order. Lifesupport time must not
             # be earlier than archive time.
-            errors['archive_time'] = _("Lifesupport time and archive time must be either both set or both unset.")
+            errors['archive_time'] = _('COURSE_INSTANCE_ERROR_ARCHIVE_TIME_AND_LIFESUPPORT_ONLY_ONE_SET')
         elif self.archive_time and self.archive_time < self.lifesupport_time:
-            errors['archive_time'] = _("Archive time must be later than lifesupport time.")
+            errors['archive_time'] = _('COURSE_INSTANCE_ERROR_ARCHIVE_TIME_BEFORE_LIFESUPPORT')
         if self.language.startswith("|"):
             langs = list(filter(None, self.language.split("|"))) # remove pipes & empty strings
             for lang in langs:
@@ -475,9 +473,9 @@ class CourseInstance(UrlMixin, models.Model):
                     if "language" in errors:
                         errors['language'] += (", " + lang)
                     else:
-                        errors['language'] = _("Language code(s) missing from settings: ") + lang
+                        errors['language'] = _('COURSE_INSTANCE_ERROR_LANGUAGE(S)_MISSING_FROM_SETTINGS') + lang
         elif not self.is_valid_language(self.language):
-            errors['language'] = _("Language code missing from settings.")
+            errors['language'] = _('COURSE_INSTANCE_ERROR_LANGUAGE_MISSING_FROM_SETTINGS')
         if errors:
             raise ValidationError(errors)
 
@@ -700,10 +698,10 @@ class CourseModule(UrlMixin, models.Model):
     opening times and deadlines for exercises.
     """
     STATUS = Enum([
-        ('READY', 'ready', _("Ready")),
-        ('UNLISTED', 'unlisted', _("Unlisted in table of contents")),
-        ('HIDDEN', 'hidden', _("Hidden")),
-        ('MAINTENANCE', 'maintenance', _("Maintenance")),
+        ('READY', 'ready', _('STATUS_READY')),
+        ('UNLISTED', 'unlisted', _('STATUS_UNLISTED')),
+        ('HIDDEN', 'hidden', _('STATUS_HIDDEN')),
+        ('MAINTENANCE', 'maintenance', _('STATUS_MAINTENANCE')),
     ])
     status = models.CharField(max_length=32,
         choices=STATUS.choices, default=STATUS.READY)
@@ -711,14 +709,14 @@ class CourseModule(UrlMixin, models.Model):
     name = models.CharField(max_length=255)
     url = models.CharField(max_length=255,
                        validators=[generate_url_key_validator()],
-                       help_text=_("Input an URL identifier for this module."))
+                       help_text=_('MODULE_URL_IDENTIFIER_HELPTEXT'))
     points_to_pass = models.PositiveIntegerField(default=0)
     introduction = models.TextField(blank=True)
     course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
         related_name="course_modules")
     reading_opening_time = models.DateTimeField(
-        verbose_name=_("Opening time for the reading material"), null=True, blank=True,
-        help_text=_("Leave empty if the reading material should not open before the exercises."))
+        verbose_name=_('MODULE_READING_OPENING_TIME_VERBOSE'), null=True, blank=True,
+        help_text=_('MODULE_READING_OPENING_TIME_HELPTEXT'))
     opening_time = models.DateTimeField(default=timezone.now)
     closing_time = models.DateTimeField(default=timezone.now)
 
@@ -730,7 +728,7 @@ class CourseModule(UrlMixin, models.Model):
     late_submissions_allowed = models.BooleanField(default=False)
     late_submission_deadline = models.DateTimeField(default=timezone.now)
     late_submission_penalty = PercentField(default=0.5,
-        help_text=_("Multiplier of points to reduce, as decimal. 0.1 = 10%"))
+        help_text=_('MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT'))
 
     objects = CourseModuleManager()
 
@@ -751,14 +749,16 @@ class CourseModule(UrlMixin, models.Model):
         errors = {}
         RESERVED = ("toc", "teachers", "user", "exercises", "apps", "lti-login")
         if self.url in RESERVED:
-            errors['url'] = _("Taken words include: {}").format(", ".join(RESERVED))
+            errors['url'] = format_lazy(
+                _('TAKEN_WORDS_INCLUDE -- {}'),
+                ", ".join(RESERVED)
+            )
         if self.opening_time > self.closing_time:
-            errors['opening_time'] = _("Opening time must be earlier than the closing time.")
+            errors['opening_time'] = _('MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME')
         if self.late_submissions_allowed and self.late_submission_deadline <= self.closing_time:
-            errors['late_submission_deadline'] = _("Late submission deadline must be later than the closing time.")
+            errors['late_submission_deadline'] = _('MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME')
         if self.reading_opening_time and self.reading_opening_time > self.opening_time:
-            errors['reading_opening_time'] = _("Opening time of reading material "
-                "must be earlier than the opening time of the exercises.")
+            errors['reading_opening_time'] = _('MODULE_ERROR_READING_OPENING_TIME_AFTER_EXERCISE_OPENING')
         if errors:
             raise ValidationError(errors)
 
@@ -826,9 +826,9 @@ class LearningObjectCategory(models.Model):
     Learning objects may be grouped to different categories.
     """
     STATUS = Enum([
-        ('READY', 'ready', _("Ready")),
-        ('NOTOTAL', 'nototal', _("No total points")),
-        ('HIDDEN', 'hidden', _("Hidden")),
+        ('READY', 'ready', _('STATUS_READY')),
+        ('NOTOTAL', 'nototal', _('STATUS_NO_TOTAL_POINTS')),
+        ('HIDDEN', 'hidden', _('STATUS_HIDDEN')),
     ])
     status = models.CharField(max_length=32,
         choices=STATUS.choices, default=STATUS.READY)
@@ -838,9 +838,9 @@ class LearningObjectCategory(models.Model):
     course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
         related_name="categories")
     confirm_the_level = models.BooleanField(default=False,
-        help_text=_("Once exercise is graded non zero it confirms all the points on the hierarchy level. Implemented as a mandatory feedback feature."))
+        help_text=_('LEARNING_OBJECT_CATEGORY_LEVEL_CONFIRMATION_EXERCISE_HELPTEXT'))
     accept_unofficial_submits = models.BooleanField(default=False,
-        help_text=_("Grade unofficial submissions after deadlines have passed or submission limits have been exceeded. The points are stored but not included in official records."))
+        help_text=_('LEARNING_OBJECT_CATEGORY_ACCEPT_UNOFFICIAL_SUBMISSIONS_HELPTEXT'))
 
     #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
     #    blank=True, null=True)

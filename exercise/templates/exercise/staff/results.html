@@ -3,12 +3,12 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{% trans "All results" %} | {{ block.super }}{% endblock %}
+{% block title %}{% translate "ALL_RESULTS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}all-results{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "All results" %}</li>
+<li class="active">{% translate "ALL_RESULTS" %}</li>
 {% endblock %}
 
 {{% block scripts %}
@@ -50,7 +50,7 @@
 				<tbody>
 					<tr>
 						<td style="padding: 5px 10px 5px 10px;">
-							<label for="module-selection">{% trans "Select modules: " %}</label>
+							<label for="module-selection">{% translate "SELECT_MODULES" %}</label>
 						</td>
 						<td style="padding: 5px 10px 5px 10px;">
 							<select id="module-selection" multiple="multiple">
@@ -60,7 +60,7 @@
 
 					<tr>
 						<td style="padding: 5px 10px 5px 10px;">
-							<label for="exercise-collection">{% trans "Select exercises: " %}</label>
+							<label for="exercise-collection">{% translate "SELECT_EXERCISES" %}</label>
 						</td>
 						<td style="padding: 5px 10px 5px 10px;">
 							<select id="exercise-selection" multiple="multiple">
@@ -74,7 +74,7 @@
 		<div class="col-md-6 col-sm-12">
 			<!--Tags-->
 			<div style="padding: 10px 10px 30px 10px;" class="filter-users">
-				<small>{% trans "Filter users" %}:</small>
+				<small>{% translate "FILTER_USERS" %}:</small>
 				<span class="radio-inline">
 					<label><input type="radio" class="tags-operator" name="tags-operator" value="and" checked>AND</label>
 				</span>
@@ -92,82 +92,82 @@
 		</div>
 
 		<div class="col-sm-12">
-			<h4>{% trans "Options" %}</h4>
+			<h4>{% translate "OPTIONS" %}</h4>
 			<span class="has-error">
 				<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Points are official if the submission is within deadline and submission count limits. Submission must be also accepted and confirmed (for example, in case of mandatory feedback).' %}">
+				title="{% translate 'OFFICIAL_POINTS_TOOLTIP' %}">
 					<input type="checkbox" class="official-checkbox" value="official" checked>
-					{% trans "Show only official points" %}
+					{% translate "RESULTS_SHOW_ONLY_OFFICIAL_POINTS" %}
 			</label>
 			</span>
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Show only students with submissions' %}">
+				title="{% translate 'RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS' %}">
 				<input type="checkbox" class="withsubs-checkbox" value="withsubs">
-				{% trans "Show only students with submissions" %}
+				{% translate "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS" %}
 			</label>
 		</div>
 
 		<div class="col-sm-12" style="padding-bottom: 20px">
 			<!--Checkboxes to select extra information about data-->
-			<h4>{% trans "Summaries" %}</h4>
+			<h4>{% translate "SUMMARIES" %}</h4>
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Select or deselect all summaries.' %}">
+				title="{% translate 'SUMMARIES_SELECT_OR_DESELECT_ALL' %}">
 				<input type="checkbox" id="summary-all" value="all">
-				{% trans "All" %}
+				{% translate "ALL" %}
 			</label>
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Total number of submissions. Calculates all student submission counts together.' %}">
+				title="{% translate 'RESULTS_TOTAL_SUBMISSIONS_TOOLTIP' %}">
 				<input type="checkbox" id="summary-0" class="summary-checkbox" value="0">
-				{% trans "Total submissions" %}
+				{% translate "TOTAL_SUBMISSIONS" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="ml-10 checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'How many submissions a single student has used on the exercise on average. Only accounts for students with one or more submissions.' %}">
+				title="{% translate 'RESULTS_AVERAGE_SUBMISSIONS_PER_STUDENT_TOOLTIP' %}">
 				<input type="checkbox" id="summary-1" class="summary-checkbox" value="1">
-				{% trans "Average submissions per student" %}
+				{% translate "AVERAGE_SUBMISSIONS_PER_STUDENT" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="ml-10 checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Maximum number of available submissions for the exercise.' %}">
+				title="{% translate 'RESULTS_MAXIMUM_SUBMISSIONS_TOOLTIP' %}">
 				<input type="checkbox" id="summary-2" class="summary-checkbox" value="2">
-				{% trans "Maximum submissions" %}
+				{% translate "MAXIMUM_SUBMISSIONS" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Number of students that have one or more exercise submissions.' %}">
+				title="{% translate 'RESULTS_STUDENTS_W_SUBMISSIONS_TOOLTIP' %}">
 				<input type="checkbox" id="summary-3" class="summary-checkbox" value="3">
-				{% trans "Students with submissions" %}
+				{% translate "STUDENTS_W_SUBMISSIONS" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Number of students that have received maximum points from the exercise.' %}">
+				title="{% translate 'RESULTS_STUDENTS_W_MAX_POINTS_TOOLTIP' %}">
 				<input type="checkbox" id="summary-4" class="summary-checkbox" value="4">
-				{% trans "Students with max points" %}
+				{% translate "STUDENTS_W_MAX_POINTS" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Average points received for the exercise per student. Only accounts for students with one or more submissions.' %}">
+				title="{% translate 'RESULTS_AVERAGE_POINTS_PER_STUDENT_TOOLTIP' %}">
 				<input type="checkbox" id="summary-5" class="summary-checkbox" value="5">
-				{% trans "Average points per student" %}
+				{% translate "AVERAGE_POINTS_PER_STUDENT" %}
 			</label>
 
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				title="{% trans 'Maximum points for the exercise.' %}">
+				title="{% translate 'RESULTS_MAX_POINTS_TOOLTIP' %}">
 				<input type="checkbox" id="summary-6" class="summary-checkbox" value="6">
-				{% trans "Maximum points" %}
+				{% translate "MAX_POINTS" %}
 			</label>
 		</div>
 
 		<!--Navigation bar to choose how data is shown-->
 		<ul id="exercise-nav-tabs" class="nav nav-tabs" role="tablist" style="padding-top: 20px">
 			<li id="difficulty-exercises" role="presentation" class="active">
-				<a onclick="changeDisplayMode(1);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#difficulty">{% trans "Show exercises by difficulty" %}</a>
+				<a onclick="changeDisplayMode(1);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#difficulty">{% translate "RESULTS_SHOW_EXERCISES_BY_DIFFICULTY" %}</a>
 			</li>
 			<li id="module-exercises" role="presentation">
-				<a onclick="changeDisplayMode(2);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#module">{% trans "Show exercises by module" %}</a>
+				<a onclick="changeDisplayMode(2);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#module">{% translate "RESULTS_SHOW_EXERCISES_BY_MODULE" %}</a>
 			</li>
 			<li id="all-exercises" role="presentation">
-				<a onclick="changeDisplayMode(3);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#exercise">{% trans "Show all exercises" %}</a>
+				<a onclick="changeDisplayMode(3);" role="tab" aria-controls="table-points-div" data-toggle="tab" href="#exercise">{% translate "RESULTS_SHOW_ALL_EXERCISES" %}</a>
 			</li>
 		</ul>
 

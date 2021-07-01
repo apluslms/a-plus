@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% blocktrans %}{{ brand_name }} Support {% endblocktrans %} | {{ block.super }}{% endblock %}
+{% block title %}{% blocktranslate trimmed %}BRAND_SUPPORT -- {{ brand_name }}{% endblocktranslate %} | {{ block.super }}{% endblock %}
 
 {% block content %}
 
 <div class="page-header">
-	<h1>{% blocktrans %}{{ brand_name }} Support {% endblocktrans %}</h1>
+	<h1>{% blocktranslate trimmed %}BRAND_SUPPORT -- {{ brand_name }}{% endblocktranslate %}</h1>
 </div>
 
 <div class="row">

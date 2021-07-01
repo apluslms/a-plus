@@ -5,13 +5,13 @@
 {% if news %}
 	<div class="panel panel-primary news-panel">
 		<div class="panel-heading">
-			<h3 class="panel-title">{% trans "Course news" %}</h3>
+			<h3 class="panel-title">{% translate "COURSE_NEWS" %}</h3>
 		</div>
 		<div class="list-group">
 			{% for item in news %}
 				<div class="{% if item.pin %}pinned-{% endif %}list-group-item">
 					{% if item.pin %}
-						<span class="sr-only">{% trans "Pinned news item on top of the list" %}</span>
+						<span class="sr-only">{% translate "NEWS_ITEM_PINNED_SR_TEXT" %}</span>
 					{% endif %}
 					<div class="list-group-item-heading">
 						<h4 class="list-group-item-title">
@@ -19,7 +19,7 @@
 						</h4>
 						<div class="list-group-item-details">
 							{% if not item|is_published:now %}
-								<span class="future-instance">{% trans "Published on" %}: <time>{{ item.publish }}</time></span>
+								<span class="future-instance">{% translate "PUBLISHED_ON" %}: <time>{{ item.publish }}</time></span>
 							{% else %}
 								<time class="current-instance">{{ item.publish }}</time>
 							{% endif %}
@@ -38,7 +38,7 @@
 				{# If a limit for folding news (more) is set, this creates the folding section #}
 				{% if forloop.counter == more and news|length > more and more > 0 %}
 					<a class="folding-list-group-item collapsed" href="#more-news" data-toggle="collapse" role="button" aria-controls="more-news" aria-expanded="false">
-						{% trans "Show older" %} <span class="caret"></span>
+						{% translate "SHOW_OLDER" %} <span class="caret"></span>
 					</a>
 					<div class="collapse" id="more-news">{# start of collapse.div #}
 				{% endif %}

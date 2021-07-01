@@ -108,8 +108,8 @@ def latest_submissions(context):
         .order_by("-id")[:10]
     return {
         "submissions": submissions,
-        "title": _("Latest submissions"),
-        "empty": _("No submissions for this course."),
+        "title": _('LATEST_SUBMISSIONS'),
+        "empty": _('NO_SUBMISSIONS_FOR_COURSE'),
     }
 
 
@@ -284,7 +284,7 @@ def get_format_info(format):
         },
         'excel.csv': {
             'name': 'excel.csv',
-            'verbose_name': _('Excel compatible CSV'),
+            'verbose_name': _('EXCEL_COMPATIBLE_CSV'),
         },
     }
     try:

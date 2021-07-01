@@ -9,35 +9,35 @@
 {% endif %}
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h3 class="panel-title">{% trans "Submitted data" %}</h3>
+		<h3 class="panel-title">{% translate "SUBITTED_DATA" %}</h3>
 	</div>
 	<div class="panel-body">
 		<dl>
 			<dt>
-				{% trans "Submitters" %}
+				{% translate "SUBMITTERS" %}
 				{% if is_teacher %}
 				<a href="{{ submission|url:'submission-edit-submitters' }}" class="aplus-button--secondary aplus-button--xs" role="button">
-					{% trans "Edit" %}
+					{% translate "EDIT" %}
 				</a>
 				{% endif %}
 			</dt>
 			<dd>{% profiles submission.submitters.all instance is_teacher %}</dd>
-			<dt>{% trans "Status" %}</dt>
+			<dt>{% translate "STATUS" %}</dt>
 			<dd>{{ submission.status|submission_status }}</dd>
-			<dt>{% trans "Submission time" %}</dt>
+			<dt>{% translate "SUBMISSION_TIME" %}</dt>
 			<dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
-			<dt>{% trans "Grading time" %}</dt>
+			<dt>{% translate "GRADING_TIME" %}</dt>
 			<dd>{{ submission.grading_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
-			<dt>{% trans "Grade" %}</dt>
+			<dt>{% translate "GRADE" %}</dt>
 			<dd>
 				{{ submission.grade }} / {{ submission.exercise.max_points }}
-				({% trans "grader output" %} {{ submission.service_points }} / {{ submission.service_max_points }})
+				({% translate "GRADER_OUTPUT" %} {{ submission.service_points }} / {{ submission.service_max_points }})
 			</dd>
 			{% if submission.late_penalty_applied %}
-			<dt>{% trans "Includes late penalty" %}</dt>
+			<dt>{% translate "INCLUDES_LATE_PENALTY" %}</dt>
 			<dd>-{{ submission.late_penalty_applied|percent }}%</dd>
 			{% endif %}
-			<dt>{% trans "Submissions" %}</dt>
+			<dt>{% translate "SUBMISSIONS" %}</dt>
 			<dd>
 				<ol>
 					{% for s in submissions reversed %}
@@ -55,12 +55,12 @@
 					{% endfor %}
 				</ol>
 
-				{% trans "In total" %}
+				{% translate "IN_TOTAL" %}
 				{{ summary.get_submission_count }}
 				{% if exercise.max_submissions %}
 					/ {{ exercise|max_submissions:submission.submitters.first }}
 					{% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
-						<form method="post" action="{{ submission|url:'submission-increase-max' }}" style="display:inline;" title="{% trans 'Add one extra submission for the student in this exercise.' %}">
+						<form method="post" action="{{ submission|url:'submission-increase-max' }}" style="display:inline;" title="{% translate 'ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE' %}">
 							{% csrf_token %}
 							<input class="aplus-button--secondary aplus-button--xs" type="submit" value="+1" />
 						</form>
@@ -69,7 +69,7 @@
 			</dd>
 		</dl>
 
-		<h4>{% trans "Submitted files" %}</h4>
+		<h4>{% translate "SUBMITTED_FILES" %}</h4>
 
 		<ul class="list-unstyled">
 			{% for file in submission.files.all %}
@@ -79,30 +79,30 @@
 			</li>
 			{% empty %}
 			<li>
-				{% trans "No files" %}
+				{% translate "NO_FILES" %}
 			</li>
 			{% endfor %}
 		</ul>
 
-		<h4>{% trans "Submitted values" %}</h4>
+		<h4>{% translate "SUBMITTED_VALUES" %}</h4>
 
 		<dl>
 			{% for item in submission.submission_data %}
 			<dt>{{ item.0 }}</dt>
 			<dd>{{ item.1 }}</dd>
 			{% empty %}
-			<dt>{% trans "No values" %}</dt>
+			<dt>{% translate "NO_VALUES" %}</dt>
 			{% endfor %}
 		</dl>
 
-		<h4>{% trans "Grading data" %}</h4>
+		<h4>{% translate "GRADING_DATA" %}</h4>
 
 		<dl>
 			{% for item in submission.grading_data.items %}
 			<dt>{{ item.0 }}</dt>
 			<dd>{{ item.1 }}</dd>
 			{% empty %}
-			<dt>{% trans "No values" %}</dt>
+			<dt>{% translate "NO_VALUES" %}</dt>
 			{% endfor %}
 		</dl>
 	</div>

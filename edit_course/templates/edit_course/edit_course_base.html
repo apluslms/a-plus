@@ -2,64 +2,64 @@
 {% load i18n %}
 {% load course %}
 
-{% block title %}{% block edittitle %}{% trans "Edit course" %}{% endblock %} | {{ block.super}}{% endblock %}
+{% block title %}{% block edittitle %}{% translate "EDIT_COURSE" %}{% endblock %} | {{ block.super}}{% endblock %}
 {% block view_tag %}edit-course,edit-content{% endblock %}
 
 {% block breadcrumblist %}
 {{ block.super }}
 {% block editbreadcrumblist %}
-<li><a href="{{ instance|url:'course-edit' }}">{% trans "Edit course" %}</a></li>
+<li><a href="{{ instance|url:'course-edit' }}">{% translate "EDIT_COURSE" %}</a></li>
 {% endblock %}
 {% endblock %}
 
 {% block columns %}
 <div class="col-md-12">
 
-    <nav aria-label="{% trans "Edit course" %}">
+    <nav aria-label="{% translate "EDIT_COURSE" %}">
     <ul class="nav nav-tabs">
         <li role="presentation" class="menu-course-clone">
             <a href="{{ instance|url:'course-clone' }}">
-                {% trans "Instances" %}
+                {% translate "INSTANCES" %}
             </a>
         </li>
         <li role="presentation" class="menu-course-teachers">
             <a href="{{ instance|url:'course-teachers' }}">
-                {% trans "Teachers" %}
+                {% translate "TEACHERS" %}
             </a>
         </li>
         <li role="presentation" class="menu-course-details">
             <a href="{{ instance|url:'course-details' }}">
-                {% trans "Course" %}
+                {% translate "COURSE" %}
             </a>
         </li>
         <li role="presentation" class="menu-course-index">
             <a href="{{ instance|url:'course-index' }}">
-                {% trans "Index" %}
+                {% translate "INDEX" %}
             </a>
         </li>
         <li role="presentation" class="menu-edit-content">
             <a href="{{ instance|url:'course-edit' }}">
-                {% trans "Content" %}
+                {% translate "CONTENT" %}
             </a>
         </li>
         <li role="presentation" class="menu-menu">
             <a href="{{ instance|url:'external-services-list-menu' }}">
-                {% trans "Menu" %}
+                {% translate "MENU" %}
             </a>
         </li>
         <li role="presentation" class="menu-course-tags">
             <a href="{{ instance|url:'course-tags' }}">
-                {% trans "Tags" %}
+                {% translate "TAGS" %}
             </a>
         </li>
         <li role="presentation" class="menu-deviations">
             <a href="{{ instance|url:'deviations-list-dl' }}">
-                {% trans "Deviations" %}
+                {% translate "DEVIATIONS" %}
             </a>
         </li>
         <li role="presentation" class="menu-batch-assess">
             <a href="{{ instance|url:'batch-assess' }}">
-                {% trans "Batch assess" %}
+                {% translate "BATCH_ASSESS" %}
             </a>
         </li>
     </ul>

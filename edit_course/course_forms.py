@@ -29,7 +29,7 @@ class LearningObjectCategoryForm(FieldsetModelForm):
 
     class Meta:
         model = LearningObjectCategory
-        legend = _("Category")
+        legend = _('CATEGORY_capitalized')
         fields = [
             'status',
             'name',
@@ -61,9 +61,9 @@ class CourseModuleForm(FieldsetModelForm):
 
     def get_fieldsets(self):
         return [
-            { 'legend':_('Hierarchy'), 'fields':self.get_fields('status','order','url') },
-            { 'legend':_('Content'), 'fields':self.get_fields('name','introduction','points_to_pass') },
-            { 'legend':_('Schedule'), 'fields':self.get_fields('reading_opening_time','opening_time','closing_time',
+            { 'legend':_('HIERARCHY'), 'fields':self.get_fields('status','order','url') },
+            { 'legend':_('CONTENT'), 'fields':self.get_fields('name','introduction','points_to_pass') },
+            { 'legend':_('SCHEDULE'), 'fields':self.get_fields('reading_opening_time','opening_time','closing_time',
                 'late_submissions_allowed','late_submission_deadline', 'late_submission_penalty') },
         ]
 
@@ -101,12 +101,9 @@ class CourseInstanceForm(forms.ModelForm):
         self.fields['assistants'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
         if self.instance and self.instance.visible_to_students:
             self.fields["url"].widget.attrs["readonly"] = "true"
-            self.fields["url"].help_text = _("The URL identifier is locked "
-                "while the course is visible to students.")
-            self.fields["lifesupport_time"].help_text = _("Removes visibility "
-                "of model answers for students.")
-            self.fields["archive_time"].help_text = _("Removes possibility "
-                "for students to return answers.")
+            self.fields["url"].help_text = _('COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE')
+            self.fields["lifesupport_time"].help_text = _('COURSE_REMOVES_MODEL_ANSWER_VISIBILITY_STUDENTS')
+            self.fields["archive_time"].help_text = _('COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS')
 
     def clean_url(self):
         if self.instance and self.instance.visible_to_students:
@@ -164,15 +161,15 @@ class CourseTeachersForm(forms.ModelForm):
 
 
 class CloneInstanceForm(forms.Form):
-    url = forms.CharField(label=_("New URL identifier for the course instance:"),
+    url = forms.CharField(label=_('COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE'),
         validators=[generate_url_key_validator()])
-    assistants = forms.BooleanField(label=_("Assistants"), required=False, initial=True)
-    categories = forms.BooleanField(label=_("Exercise categories"), required=False, initial=True)
-    modules = forms.BooleanField(label=_("Course modules"), required=False, initial=True)
-    chapters = forms.BooleanField(label=_("Content chapters"), required=False, initial=True)
-    exercises = forms.BooleanField(label=_("Exercises"), required=False, initial=True)
-    menuitems = forms.BooleanField(label=_("Menu items"), required=False, initial=True)
-    usertags = forms.BooleanField(label=_("Student tags"), required=False, initial=True)
+    assistants = forms.BooleanField(label=_('ASSISTANTS'), required=False, initial=True)
+    categories = forms.BooleanField(label=_('EXERCISE_CATEGORIES'), required=False, initial=True)
+    modules = forms.BooleanField(label=_('COURSE_MODULES'), required=False, initial=True)
+    chapters = forms.BooleanField(label=_('CONTENT_CHAPTERS'), required=False, initial=True)
+    exercises = forms.BooleanField(label=_('EXERCISES'), required=False, initial=True)
+    menuitems = forms.BooleanField(label=_('MENU_ITEMS'), required=False, initial=True)
+    usertags = forms.BooleanField(label=_('STUDENT_TAGS'), required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
@@ -182,7 +179,7 @@ class CloneInstanceForm(forms.Form):
         url = self.cleaned_data['url']
         if CourseInstance.objects.filter(
                 course=self.instance.course, url=url).exists():
-            raise ValidationError(_("The URL is already taken."))
+            raise ValidationError(_('ERROR_URL_ALREADY_TAKEN'))
         return url
 
     def clean(self):
@@ -190,11 +187,11 @@ class CloneInstanceForm(forms.Form):
         if self.cleaned_data['chapters'] or self.cleaned_data['exercises']:
             if not self.cleaned_data['categories']:
                 errors['categories'] = _(
-                    "Can't clone chapters and exercises without cloning exercise categories."
+                    'ERROR_CATEGORIES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES'
                 )
             if not self.cleaned_data['modules']:
                 errors['modules'] = _(
-                    "Can't clone chapters and exercises without cloning course modules."
+                    'ERROR_MODULES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES'
                 )
 
         if errors:

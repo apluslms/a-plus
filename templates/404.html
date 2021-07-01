@@ -18,25 +18,23 @@
                     {% include "_messages.html" %}
                     {% if url_without_language %}
                     <div class="alert alert-danger">
-                        {% trans "The page is not available in this language." %}
-                        <a href="{{ url_without_language }}">{% trans "Open the page in default language" %}</a>
+                        {% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
+                        <a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
                     </div>
                     {% elif languages %}
                     <div class="alert alert-danger">
-                        {% blocktrans trimmed %}
-                        The course is not available in this language.
-                        You can view the course in these languages:
-                        {% endblocktrans %}
+                        {% blocktranslate trimmed %}
+                            PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE
+                        {% endblocktranslate %}
                         {% for lang in languages %}
                             <a href="{{ lang.url }}">{{ lang.name }}</a>
                         {% endfor %}
                     </div>
                     {% else %}
                     <div class="alert alert-danger">
-                        {% blocktrans %}
-                        For an unknown reason you arrived somewhere that does not exist.
-                        Please, try again.
-                        {% endblocktrans %}
+                        {% blocktranslate trimmed %}
+                            PAGE_DOES_NOT_EXIST
+                        {% endblocktranslate %}
                     </div>
                     {% endif %}
                 </div>

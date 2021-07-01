@@ -3,24 +3,24 @@
 {% load course %}
 {% load external_services %}
 
-{% block edittitle %}{% trans "Menu items" %}{% endblock %}
+{% block edittitle %}{% translate "MENU_ITEMS" %}{% endblock %}
 {% block view_tag %}edit-course,menu{% endblock %}
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li class="active">{% trans "Menu items" %}</li>
+<li class="active">{% translate "MENU_ITEMS" %}</li>
 {% endblock %}
 
 {% block coursecontent %}
 <br />
 <table class="table">
 	<tr>
-		<th>{% trans "Link" %}</th>
-		<th>{% trans "Group" %}</th>
-		<th>{% trans "Weight" %}</th>
-		<th>{% trans "Service" %}</th>
-		<th>{% trans "URL" %}</th>
-		<th>{% trans "Access" %}</th>
+		<th>{% translate "LINK" %}</th>
+		<th>{% translate "GROUP" %}</th>
+		<th>{% translate "WEIGHT" %}</th>
+		<th>{% translate "SERVICE" %}</th>
+		<th>{% translate "URL" %}</th>
+		<th>{% translate "ACCESS" %}</th>
 		<th></th>
 		<th></th>
 	</tr>
@@ -50,14 +50,14 @@
 		</td>
 		<td>
 			{% if not menu.enabled %}
-			<span class="label label-default">{% trans "Disabled" %}</span>
+			<span class="label label-default">{% translate "DISABLED" %}</span>
 			{% endif %}
 			<small>{{ menu.access|menu_access }}</small>
 		</td>
 		<td>
 			<a href="{{ menu|url:'external-services-edit-menu' }}" role="button" class="aplus-button--secondary aplus-button--xs">
 				<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-				{% trans 'Edit' %}
+				{% translate "EDIT" %}
 			</a>
 		</td>
 		<td>
@@ -65,7 +65,7 @@
 				{% csrf_token %}
 				<button type="submit" class="aplus-button--danger aplus-button--xs">
 					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-					{% trans 'Remove' %}
+					{% translate "REMOVE" %}
 				</button>
 			</form>
 		</td>
@@ -76,7 +76,7 @@
 <p>
 	<a class="btn btn-primary btn-xs" href="{{ instance|url:'external-services-add-menu' }}">
 		<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-		{% trans "Add new menu item" %}
+		{% translate "ADD_NEW_MENU_ITEM" %}
 	</a>
 </p>
 {% endblock %}

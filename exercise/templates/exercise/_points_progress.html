@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="progress" data-toggle="tooltip" data-html="true" data-placement="bottom"
-    title="{% trans 'Points' %}: &lt;span class='text-nowrap'&gt;{{ points }} / {{ max }}&lt;/span&gt;{% if required %} {% trans 'Required' %}: &lt;span class='text-nowrap'&gt;{{ required }}&lt;/span&gt;{% endif %}">
+    title="{% translate 'POINTS' %}: &lt;span class='text-nowrap'&gt;{{ points }} / {{ max }}&lt;/span&gt;{% if required %} {% translate 'REQUIRED' %}: &lt;span class='text-nowrap'&gt;{{ required }}&lt;/span&gt;{% endif %}">
     <div class="progress-bar progress-bar-striped progress-bar-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}"
         rel="progressbar" aria-valuenow="{{ points }}" aria-valuemin="0" aria-valuemax="{{ max }}"
         style="width:{{ percentage }}%;"></div>

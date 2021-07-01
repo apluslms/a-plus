@@ -18,16 +18,13 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <h4 class="modal-title" id="tag-remove-modal-label">
-                    {% trans "Untag multiple users" %}
+                    {% translate "UNTAG_MULTIPLE_USERS" %}
                 </h4>
             </div>
             <div class="modal-body">
-                {% blocktrans %}
-                Remove tagging
-                <span id="tag-remove-modal-tagging"></span>
-                from <span id="tag-remove-modal-amount"></span> users:
-                <ul id="tag-remove-modal-users"></ul>
-                {% endblocktrans %}
+                {% blocktranslate trimmed %}
+                    REMOVE_TAGGING_FROM_USERS_MODAL
+                {% endblocktranslate %}
             </div>
             <div class="modal-footer">
                 <button
@@ -35,7 +32,7 @@
                     class="aplus-button--secondary aplus-button--md"
                     data-dismiss="modal"
                 >
-                    {% trans "Cancel" %}
+                    {% translate "CANCEL" %}
                 </button>
                 <button
                     type="button"
@@ -43,7 +40,7 @@
                     data-dismiss="modal"
                     id="tag-remove-modal-button"
                 >
-                    {% trans "Remove all" %}
+                    {% translate "REMOVE_ALL" %}
                 </button>
             </div>
         </div>
