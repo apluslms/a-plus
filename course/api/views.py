@@ -12,6 +12,7 @@ from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 
 from ..models import (
+    Enrollment,
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
     CourseInstance,
@@ -142,6 +143,14 @@ class CourseStudentsViewSet(NestedViewSetMixin,
 
     `GET /courses/<course_id>/students/me/`:
         returns the details of the current user.
+
+    `DELETE /courses/<course_id>/students/<user_id>/`:
+        removes the enrollment.
+
+    - URL parameters:
+        - `status`: the new status for the enrollment. `REMOVED` and `BANNED`
+            are currently supported. Students can only remove (not ban)
+            themselves.
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
@@ -154,9 +163,36 @@ class CourseStudentsViewSet(NestedViewSetMixin,
     lookup_field = 'user_id' # UserPofile.user.id
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
-    parent_lookup_map = {'course_id': 'enrolled.id'}
     serializer_class = StudentBriefSerializer
-    queryset = UserProfile.objects.all()
+
+    def get_queryset(self):
+        return self.instance.students
+
+    def destroy(self, request, *args, **kwargs):
+        status_arg = self.request.GET.get('status')
+        if status_arg not in Enrollment.ENROLLMENT_STATUS.keys():
+            return Response(
+                'Invalid status',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        status_code = getattr(Enrollment.ENROLLMENT_STATUS, status_arg)
+
+        if status_code == Enrollment.ENROLLMENT_STATUS.ACTIVE:
+            return Response(
+                'Enrollments cannot be activated via this API',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if status_code != Enrollment.ENROLLMENT_STATUS.REMOVED and not self.is_course_staff:
+            return Response(
+                'Students can only unenroll themselves (status=REMOVED) via this API',
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        user = self.get_object().user
+        enrollment = self.instance.get_enrollment_for(user)
+        enrollment.status = status_code
+        enrollment.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CourseUsertagsViewSet(NestedViewSetMixin,

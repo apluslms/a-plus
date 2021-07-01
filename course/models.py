@@ -12,7 +12,7 @@ from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.db import models
-from django.db.models import Q, Count
+from django.db.models import F, Q, Count
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -54,8 +54,6 @@ class Course(UrlMixin, models.Model):
     url = models.CharField(unique=True, max_length=255, blank=False,
         validators=[generate_url_key_validator()],
         help_text=_('COURSE_URL_IDENTIFIER_HELPTEXT'))
-    teachers = models.ManyToManyField(UserProfile,
-        related_name="teaching_courses", blank=True)
 
     def __str__(self):
         return "{} {}".format(self.code, self.name)
@@ -71,20 +69,6 @@ class Course(UrlMixin, models.Model):
                         ", ".join(RESERVED)
                     )
             })
-
-    def is_teacher(self, user):
-        return (
-            user and
-            user.is_authenticated and (
-                user.is_superuser or (
-                    isinstance(user, User) and
-                    self.teachers.filter(id=user.userprofile.id).exists()
-                ) or (
-                    isinstance(user, GraderUser) and
-                    user._course == self
-                )
-            )
-        )
 
     ABSOLUTE_URL_NAME = "course-instances"
 
@@ -137,6 +121,17 @@ class Enrollment(models.Model):
     """
     Maps an enrolled student in a course instance.
     """
+    ENROLLMENT_ROLE = Enum([
+        ('STUDENT', 1, _('STUDENT')),
+        ('ASSISTANT', 2, _('ASSISTANT')),
+        ('TEACHER', 3, _('TEACHER')),
+    ])
+    ENROLLMENT_STATUS = Enum([
+        ('ACTIVE', 1, _('ACTIVE')),
+        ('REMOVED', 2, _('REMOVED')),
+        ('BANNED', 3, _('BANNED')),
+    ])
+
     course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE)
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     language = models.CharField(blank=True, default="", max_length=5)
@@ -146,6 +141,10 @@ class Enrollment(models.Model):
         blank=True, null=True, default=None)
     anon_name = models.CharField(max_length=50, blank=True, default='')
     anon_id = models.CharField(max_length=50, blank=True, null=True, unique=True)
+    role = models.IntegerField(choices=ENROLLMENT_ROLE.choices,
+                               default=ENROLLMENT_ROLE.STUDENT)
+    status = models.IntegerField(choices=ENROLLMENT_STATUS.choices,
+                                 default=ENROLLMENT_STATUS.ACTIVE)
 
     class Meta:
         unique_together = ("course_instance", "user_profile")
@@ -313,24 +312,20 @@ class UserTagging(models.Model):
 
 
 def get_course_staff_visibility_filter(user, prefix=None):
-    class OR(Q):
-        default = Q.OR
-    filters = ()
+    if prefix == None:
+        prefix = ''
+    filter = Q()
     if isinstance(user, User):
         user = user.userprofile
-        filters += (
-            ('assistants', user),
-            ('course__teachers', user),
+        filter = (
+            (Q(**{f'{prefix}enrollment__role': Enrollment.ENROLLMENT_ROLE.TEACHER})
+            | Q(**{f'{prefix}enrollment__role': Enrollment.ENROLLMENT_ROLE.ASSISTANT}))
+            & Q(**{f'{prefix}enrollment__status': Enrollment.ENROLLMENT_STATUS.ACTIVE})
+            & Q(**{f'{prefix}enrollment__user_profile': user})
         )
     elif isinstance(user, GraderUser):
-        filters += (
-            ('course', user._course),
-        )
-    filters = dict(
-        ((prefix+name if prefix else name), val)
-        for name, val in filters
-    )
-    return OR(**filters)
+        filter = Q(**{f'{prefix}course': user._course})
+    return filter
 
 
 class CourseInstanceManager(models.Manager):
@@ -350,6 +345,24 @@ class CourseInstanceManager(models.Manager):
                 | Q(visible_to_students=True),
             ).distinct()
         return self.all()
+
+    def get_enrolled(self, user):
+        return self.filter(
+            enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT,
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__user_profile=user)
+
+    def get_assisting(self, user):
+        return self.filter(
+            enrollment__role=Enrollment.ENROLLMENT_ROLE.ASSISTANT,
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__user_profile=user)
+
+    def get_teaching(self, user):
+        return self.filter(
+            enrollment__role=Enrollment.ENROLLMENT_ROLE.TEACHER,
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__user_profile=user)
 
 
 def build_upload_dir(instance, filename):
@@ -431,8 +444,6 @@ class CourseInstance(UrlMixin, models.Model):
     tabs = GenericRelation(BaseTab, object_id_field="container_pk",
                                    content_type_field="container_type")
 
-    assistants = models.ManyToManyField(UserProfile, related_name="assisting_courses", blank=True)
-    students = models.ManyToManyField(UserProfile, related_name="enrolled", blank=True, through='Enrollment')
     # usertags from course.models.UserTag
     # taggings from course.models.UserTagging
     # categories from course.models.LearningObjectCategory
@@ -481,7 +492,7 @@ class CourseInstance(UrlMixin, models.Model):
 
     def is_valid_language(self, lang):
         return lang == "" or lang in [key for key,name in settings.LANGUAGES]
-    
+
     @property
     def languages(self):
         return self.language.strip('|').split('|')
@@ -493,6 +504,43 @@ class CourseInstance(UrlMixin, models.Model):
         if language_code:
             return language_code
         return settings.LANGUAGE_CODE.split('-', 1)[0]
+
+    @property
+    def students(self):
+        return UserProfile.objects.filter(
+            enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT,
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__course_instance=self
+        )
+
+    @property
+    def all_students(self):
+        return UserProfile.objects.filter(
+            enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT,
+            enrollment__course_instance=self
+        ).annotate(enrollment_status=F('enrollment__status'))
+
+    @property
+    def assistants(self):
+        return UserProfile.objects.filter(
+            enrollment__role=Enrollment.ENROLLMENT_ROLE.ASSISTANT,
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__course_instance=self)
+
+    @property
+    def teachers(self):
+        return UserProfile.objects.filter(
+            enrollment__role=Enrollment.ENROLLMENT_ROLE.TEACHER,
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__course_instance=self)
+
+    @property
+    def course_staff(self):
+        return UserProfile.objects.filter(
+            Q(enrollment__role=Enrollment.ENROLLMENT_ROLE.TEACHER)
+            | Q(enrollment__role=Enrollment.ENROLLMENT_ROLE.ASSISTANT),
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__course_instance=self)
 
     def save(self, *args, **kwargs):
         """
@@ -511,7 +559,18 @@ class CourseInstance(UrlMixin, models.Model):
         )
 
     def is_teacher(self, user):
-        return self.course.is_teacher(user)
+        return (
+            user and
+            user.is_authenticated and (
+                user.is_superuser or (
+                    isinstance(user, User) and
+                    self.teachers.filter(id=user.userprofile.id).exists()
+                ) or (
+                    isinstance(user, GraderUser) and
+                    user._course == self.course
+                )
+            )
+        )
 
     def is_course_staff(self, user):
         return self.is_teacher(user) or self.is_assistant(user)
@@ -529,6 +588,9 @@ class CourseInstance(UrlMixin, models.Model):
             # Allow course staff to enroll even if the course instance is hidden
             # or the user does not belong to the enrollment audience.
             return True
+        enrollment = self.get_enrollment_for(user)
+        if enrollment and enrollment.status == Enrollment.ENROLLMENT_STATUS.BANNED:
+            return False
         if user and user.is_authenticated and self.visible_to_students:
             if self.enrollment_audience == self.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
                 return not user.userprofile.is_external
@@ -538,10 +600,74 @@ class CourseInstance(UrlMixin, models.Model):
         return False
 
     def enroll_student(self, user):
+        # Return value False indicates whether that the user was already enrolled.
         if user and user.is_authenticated:
-            _, created = Enrollment.objects.get_or_create(course_instance=self, user_profile=user.userprofile)
-            return created
+            try:
+                enrollment = Enrollment.objects.get(
+                    course_instance=self,
+                    user_profile=user.userprofile,
+                )
+                if (
+                    enrollment.role == Enrollment.ENROLLMENT_ROLE.STUDENT
+                    and enrollment.status == Enrollment.ENROLLMENT_STATUS.ACTIVE
+                ):
+                    return False
+                enrollment.role = Enrollment.ENROLLMENT_ROLE.STUDENT
+                enrollment.status = Enrollment.ENROLLMENT_STATUS.ACTIVE
+                enrollment.save()
+                return True
+            except Enrollment.DoesNotExist:
+                Enrollment.objects.create(
+                    course_instance=self,
+                    user_profile=user.userprofile,
+                    role=Enrollment.ENROLLMENT_ROLE.STUDENT,
+                    status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                )
+                return True
         return False
+
+    def set_users_with_role(self, users, role, remove_others_with_role=False):
+        # This method is used for adding or replacing (depending on the last
+        # parameter) users with a specific role, e.g. teachers and assistants.
+        # It is recommended to use the convenience methods (starting with
+        # "add"/"clear"/"set") for common use cases.
+        for user in users:
+            Enrollment.objects.update_or_create(
+                course_instance=self,
+                user_profile=user,
+                defaults={
+                    'role': role,
+                    'status': Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                },
+            )
+
+        if remove_others_with_role:
+            for enrollment in Enrollment.objects.filter(
+                role=role,
+                status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                course_instance=self
+            ):
+                if enrollment.user_profile not in users:
+                    enrollment.status = Enrollment.ENROLLMENT_STATUS.REMOVED
+                    enrollment.save()
+
+    def add_assistant(self, user):
+        self.set_users_with_role([user], Enrollment.ENROLLMENT_ROLE.ASSISTANT)
+
+    def clear_assistants(self):
+        self.set_users_with_role([], Enrollment.ENROLLMENT_ROLE.ASSISTANT, remove_others_with_role=True)
+
+    def set_assistants(self, users):
+        self.set_users_with_role(users, Enrollment.ENROLLMENT_ROLE.ASSISTANT, remove_others_with_role=True)
+
+    def add_teacher(self, user):
+        self.set_users_with_role([user], Enrollment.ENROLLMENT_ROLE.TEACHER)
+
+    def clear_teachers(self):
+        self.set_users_with_role([], Enrollment.ENROLLMENT_ROLE.TEACHER, remove_others_with_role=True)
+
+    def set_teachers(self, users):
+        self.set_users_with_role(users, Enrollment.ENROLLMENT_ROLE.TEACHER, remove_others_with_role=True)
 
     def tag_user(self, user, tag):
         UserTagging.objects.create(tag=tag, user=user.userprofile, course_instance=self)
@@ -556,17 +682,20 @@ class CourseInstance(UrlMixin, models.Model):
         return self.taggings.filter(user=user.uesrprofile).select_related('tag')
 
     def get_course_staff_profiles(self):
-        return UserProfile.objects.filter(Q(teaching_courses=self.course) | Q(assisting_courses=self))\
-            .distinct()
+        return self.course_staff.all()
 
     def get_student_profiles(self):
         return self.students.all()
 
     def get_submitted_profiles(self):
-        return UserProfile.objects.filter(submissions__exercise__course_module__course_instance=self)\
+        return UserProfile.objects\
+            .filter(submissions__exercise__course_module__course_instance=self)\
             .distinct()\
-            .exclude(assisting_courses=self)\
-            .exclude(teaching_courses=self.course)
+            .exclude(
+                Q(enrollment__role=Enrollment.ENROLLMENT_ROLE.TEACHER)
+                | Q(enrollment__role=Enrollment.ENROLLMENT_ROLE.ASSISTANT),
+                enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                enrollment__course_instance=self)
 
     def is_open(self, when=None):
         when = when or timezone.now()

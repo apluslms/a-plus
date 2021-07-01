@@ -210,3 +210,15 @@
 {% endfor %}
 
 {% endif %}
+
+{% if is_student %}
+<li class="header">
+	<h4>{% trans "ENROLLMENT" %}</h4>
+</li>
+<li class="menu-unenroll">
+	<a data-toggle="modal" data-target="#unenroll-modal" role="button">
+		<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+		{% trans "UNENROLL" %}
+	</a>
+</li>
+{% endif %}

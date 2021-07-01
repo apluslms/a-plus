@@ -43,7 +43,6 @@ class UserProfileTest(TestCase):
             code="123456",
             url="Course-Url"
         )
-        self.course.teachers.add(self.teacher.userprofile)
 
         self.today = timezone.now()
         self.tomorrow = self.today + timedelta(days=1)
@@ -56,7 +55,8 @@ class UserProfileTest(TestCase):
             course=self.course,
             url="T-00.1000_d1"
         )
-        self.course_instance1.assistants.add(self.grader.userprofile)
+        self.course_instance1.add_teacher(self.teacher.userprofile)
+        self.course_instance1.add_assistant(self.grader.userprofile)
 
         self.course_instance2 = CourseInstance.objects.create(
             instance_name="Fall 2011 day 2",
@@ -65,6 +65,7 @@ class UserProfileTest(TestCase):
             course=self.course,
             url="T-00.1000_d2"
         )
+        self.course_instance2.add_teacher(self.teacher.userprofile)
 
         self.learning_object_category1 = LearningObjectCategory.objects.create(
             name="test category 1",

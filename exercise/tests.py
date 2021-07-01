@@ -52,7 +52,6 @@ class ExerciseTest(TestCase):
             code="123456",
             url="Course-Url"
         )
-        self.course.teachers.add(self.teacher.userprofile)
 
         self.today = timezone.now()
         self.yesterday = self.today - timedelta(days=1)
@@ -69,7 +68,8 @@ class ExerciseTest(TestCase):
             url="T-00.1000_d1",
             view_content_to=CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
         )
-        self.course_instance.assistants.add(self.grader.userprofile)
+        self.course_instance.add_teacher(self.teacher.userprofile)
+        self.course_instance.add_assistant(self.grader.userprofile)
 
         self.course_module = CourseModule.objects.create(
             name="test module",
@@ -708,7 +708,7 @@ class ExerciseTest(TestCase):
             course=self.course,
             url="another"
         )
-        self.other_instance.assistants.add(self.grader.userprofile)
+        self.other_instance.add_assistant(self.grader.userprofile)
         list_submissions_url = self.base_exercise.get_submission_list_url()
         assess_submission_url = self.submission.get_url('submission-assess')
         response = self.client.get(list_submissions_url)
@@ -737,7 +737,7 @@ class ExerciseTest(TestCase):
         response = self.client.get(assess_submission_url)
         self.assertEqual(response.status_code, 200)
 
-        self.course_instance.assistants.clear()
+        self.course_instance.clear_assistants()
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 403)
 

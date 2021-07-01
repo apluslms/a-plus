@@ -28,10 +28,6 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
         'code',
-        'teachers__user__username',
-        'teachers__user__first_name',
-        'teachers__user__last_name',
-        'teachers__user__email',
     )
     list_display_links = ('id',)
     list_display = (
@@ -44,14 +40,12 @@ class CourseAdmin(admin.ModelAdmin):
     #     'name',
     #     'code',
     # )
-    filter_horizontal = ('teachers',)
-    raw_id_fields = ('teachers',)
 
     def get_queryset(self,
         request):
         if not request.user.is_superuser:
             profile = UserProfile.get_by_request(request)
-            return profile.teaching_courses
+            return CourseInstance.objects.get_teaching(profile)
         else:
             return self.model.objects.filter()
 
@@ -61,6 +55,10 @@ class CourseInstanceAdmin(admin.ModelAdmin):
         'instance_name',
         'course__name',
         'course__code',
+        'teachers__user__username',
+        'teachers__user__first_name',
+        'teachers__user__last_name',
+        'teachers__user__email',
     )
     list_display_links = ('instance_name',)
     list_display = (
@@ -77,8 +75,6 @@ class CourseInstanceAdmin(admin.ModelAdmin):
         'starting_time',
         'ending_time',
     )
-    filter_horizontal = ('assistants',)
-    raw_id_fields = ('assistants',)
 
     def get_queryset(self,
         request):
@@ -104,6 +100,8 @@ class EnrollmentAdmin(admin.ModelAdmin):
     list_display = (
         'course_instance',
         'user_profile',
+        'role',
+        'status',
         'timestamp',
     )
     list_filter = ('course_instance',)

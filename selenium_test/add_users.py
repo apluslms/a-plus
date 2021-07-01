@@ -41,8 +41,8 @@ student.userprofile.student_id = '123456'
 student.userprofile.save()
 
 instance = CourseInstance.objects.get(id=1)
-instance.course.teachers.add(teacher.userprofile)
-instance.assistants.add(assistant.userprofile)
+instance.add_teacher(teacher.userprofile)
+instance.add_assistant(assistant.userprofile)
 instance.enroll_student(student)
 
 instance2 = CourseInstance.objects.get(id=2)

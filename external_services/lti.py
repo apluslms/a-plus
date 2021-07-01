@@ -33,7 +33,7 @@ class LTIRequest(object):
         # Determine user role.
         role = "Learner,Student"
         # Student is not a standard role name, but it has been used here before
-        if course.is_teacher(user):
+        if instance.is_teacher(user):
             role = "Instructor"
         elif instance.is_assistant(user):
             role = "TA,TeachingAssistant" # "TA" is not a standard role

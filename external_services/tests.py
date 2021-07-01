@@ -59,7 +59,7 @@ class ExternalServicesTest(TestCase):
             url="T-00.1000_2011"
         )
         self.course_instance.enroll_student(self.user)
-        self.course_instance.assistants.add(self.assistant.userprofile)
+        self.course_instance.add_assistant(self.assistant.userprofile)
 
         self.menu_item1 = MenuItem.objects.create(
             service=self.link_service,
@@ -137,7 +137,7 @@ class ExternalServicesTest(TestCase):
         self.menu_item5.save()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
-        self.course.teachers.add(self.assistant.userprofile)
+        self.course_instance.add_teacher(self.assistant.userprofile)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 

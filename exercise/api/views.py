@@ -377,7 +377,9 @@ class ExerciseSubmitterStatsViewSet(ListSerializerMixin,
     #parent_lookup_map = {'exercise_id': 'submissions.exercise.id'}
     listserializer_class = SubmitterStatsBriefSerializer
     serializer_class = SubmitterStatsSerializer
-    queryset = UserProfile.objects.all()
+
+    def get_queryset(self):
+        return self.instance.students
 
 
 class SubmissionViewSet(mixins.RetrieveModelMixin,
@@ -511,4 +513,6 @@ class CoursePointsViewSet(ListSerializerMixin,
     parent_lookup_map = {}
     listserializer_class = StudentBriefSerializer
     serializer_class = UserPointsSerializer
-    queryset = UserProfile.objects.all()
+
+    def get_queryset(self):
+        return self.instance.students

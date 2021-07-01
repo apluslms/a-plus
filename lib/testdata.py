@@ -52,7 +52,6 @@ class CourseTestCase(TestCase):
             name="Test Course",
             code="123456",
         )
-        self.course.teachers.add(self.teacher.userprofile)
 
         self.instance = CourseInstance.objects.create(
             course=self.course,
@@ -61,6 +60,7 @@ class CourseTestCase(TestCase):
             starting_time=self.now,
             ending_time=self.tomorrow,
         )
+        self.instance.add_teacher(self.teacher.userprofile)
         self.instance.enroll_student(self.student)
 
         self.module = CourseModule.objects.create(

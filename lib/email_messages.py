@@ -15,7 +15,7 @@ def email_course_error(request, exercise, message, exception=True):
     if instance.technical_error_emails:
         recipients = instance.technical_error_emails.split(",")
     else:
-        recipients = (p.user.email for p in instance.course.teachers.all() if p.user.email)
+        recipients = (p.user.email for p in instance.teachers.all() if p.user.email)
 
     error_trace = "-"
     if exception:

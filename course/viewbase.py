@@ -29,7 +29,6 @@ class CourseMixin(UserProfileMixin):
             Course,
             url=self._get_kwarg(self.course_kw)
         )
-        self.is_teacher = self.course.is_teacher(self.request.user)
         self.note("course", "is_teacher")
 
 
@@ -65,7 +64,7 @@ class CourseInstanceBaseMixin(object):
                 self.user_course_data = self.instance.get_enrollment_for(user)
             self.is_student = self.instance.is_student(user)
             self.is_assistant = self.instance.is_assistant(user)
-            self.is_teacher = self.course.is_teacher(user)
+            self.is_teacher = self.instance.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
             self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
             self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')

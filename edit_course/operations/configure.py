@@ -432,7 +432,7 @@ def configure_content(instance, url):
                     )
                 else:
                     assistants.append(profile)
-            instance.assistants.set(assistants)
+            instance.set_assistants(assistants)
     instance.build_log_url = str(config['build_log_url']) if 'build_log_url' in config else ''
     # configure_url excluded from validation because the default Django URL
     # validation does not accept dotless domain names such as "grader"

@@ -115,6 +115,30 @@ msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Varatut sanat: {}"
 
 #: course/models.py
+msgid "STUDENT"
+msgstr "Opiskelija"
+
+#: course/models.py exercise/templates/exercise/staff/_submissions_table.html
+msgid "ASSISTANT"
+msgstr "Assistentti"
+
+#: course/models.py
+msgid "TEACHER"
+msgstr "Opettaja"
+
+#: course/models.py
+msgid "ACTIVE"
+msgstr "Aktiivinen"
+
+#: course/models.py
+msgid "REMOVED"
+msgstr "Poistettu"
+
+#: course/models.py
+msgid "BANNED"
+msgstr "Estetty"
+
+#: course/models.py
 msgid "INTERNAL"
 msgstr "sisäinen"
 
@@ -455,6 +479,16 @@ msgstr "Muokkaa kurssiuutisia"
 msgid "EDIT_COURSE"
 msgstr "Muokkaa kurssia"
 
+#: course/templates/course/_course_menu.html
+#: course/templates/course/enroll.html
+msgid "ENROLLMENT"
+msgstr "Ilmoittautuminen"
+
+#: course/templates/course/_course_menu.html
+#: course/templates/course/course_base.html
+msgid "UNENROLL"
+msgstr "Poista ilmoittautuminen"
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
@@ -575,14 +609,39 @@ msgstr "Voit muuttaa kielivalintaa profiilistasi."
 msgid "BREADCRUMB"
 msgstr "Linkkipolku"
 
+#: course/templates/course/course_base.html
+msgid "UNENROLL_WARNING_DESCRIPTION"
+msgstr "Olet poistamassa ilmoittautumisen kurssilta."
+
+#: course/templates/course/course_base.html
+msgid "UNENROLL_WARNING_CANNOT_RE-ENROLL"
+msgstr "Et voi ilmoittautua uudelleen, koska ilmoittautuminen ei ole avoinna."
+
+#: course/templates/course/course_base.html
+msgid "PROCEED_CONFIRMATION"
+msgstr "Haluatko varmasti jatkaa?"
+
+#: course/templates/course/course_base.html
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/assess_submission.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Peruuta"
+
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "COURSE_INSTANCES"
 msgstr "Kurssikerrat"
-
-#: course/templates/course/enroll.html
-msgid "ENROLLMENT"
-msgstr "Ilmoittautuminen"
 
 #: course/templates/course/enroll.html
 msgid "ENROLLMENT_IS_ALREADY_ENROLLED"
@@ -679,22 +738,6 @@ msgstr ""
 "remove-modal-users\"></ul> "
 
 #: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Peruuta"
-
-#: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
 msgstr "Poista kaikki"
 
@@ -763,7 +806,6 @@ msgstr "Muokkaa ryhmän jäseniä"
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
-#: edit_course/templates/edit_course/edit_teachers.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
@@ -784,14 +826,20 @@ msgid "ADD_NEW"
 msgstr "Lisää"
 
 #: course/templates/course/staff/participants.html
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/staff/results.html
-msgid "FILTER_USERS"
-msgstr "Suodata listaa"
+msgid "FILTER_USERS_BY_TAG"
+msgstr "Suodata listaa merkinnän perusteella"
 
 #: course/templates/course/staff/participants.html
-msgid "NUMBER_OF_STUDENTS"
-msgstr "Opiskelijoiden määrä"
+msgid "FILTER_USERS_BY_STATUS"
+msgstr "Suodata listaa tilan perusteella"
+
+#: course/templates/course/staff/participants.html
+msgid "NUMBER_OF_ENROLLED_STUDENTS"
+msgstr "Ilmoittautuneiden opiskelijoiden määrä"
+
+#: course/templates/course/staff/participants.html
+msgid "REMOVED_STUDENTS"
+msgstr "poistettuja opiskelijoita"
 
 #: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"
@@ -821,6 +869,15 @@ msgid "EMAIL"
 msgstr "Sähköposti"
 
 #: course/templates/course/staff/participants.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/submission_plain.html
+#: templates/support_channels.html
+msgid "STATUS"
+msgstr "Tila"
+
+#: course/templates/course/staff/participants.html
 #: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_delete.html
@@ -845,6 +902,15 @@ msgstr "Et voi ilmoittautua tai olet jo ilmoittautunut tälle kurssille."
 #: course/views.py exercise/exercise_models.py
 msgid "ENROLLMENT_ERROR_ENROLLMENT_NOT_OPEN"
 msgstr "Ilmoittautuminen ei ole avoinna."
+
+#: course/views.py
+#, python-brace-format
+msgid "UNENROLL_SUCCESS -- {course}"
+msgstr "Ilmoittautuminen poistettiin onnistuneesti kurssilta {course}."
+
+#: course/views.py
+msgid "UNENROLL_ERROR_ONLY_ENROLLED"
+msgstr "Vain ilmoittautuneet opiskelijat voivat poistaa ilmoittautumisen."
 
 #: course/views.py
 msgid "NEW_STUDENT_GROUP_CREATED"
@@ -936,6 +1002,11 @@ msgid "OPEN_GRADE_0_DIPLOMA"
 msgstr "Avaa 0 arvosanan diplomi"
 
 #: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/staff/results.html
+msgid "FILTER_USERS"
+msgstr "Suodata listaa"
+
+#: diploma/templates/diploma/list.html
 #: edit_course/templates/edit_course/signin_as_user.html
 #: userprofile/templates/userprofile/login.html
 #: userprofile/templates/userprofile/profile.html
@@ -983,6 +1054,10 @@ msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista
 #: edit_course/course_forms.py
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
 msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
+
+#: edit_course/course_forms.py templates/support_channels.html
+msgid "TEACHERS"
+msgstr "Opettajat"
 
 #: edit_course/course_forms.py
 msgid "ASSISTANTS"
@@ -1388,12 +1463,6 @@ msgid "RENUMERATE_LEARNING_OBJECTS_IGNORING_MODULES"
 msgstr "Numeroi oppimissisällöt uudelleen huomioimatta moduuleita"
 
 #: edit_course/templates/edit_course/edit_course_base.html
-#: edit_course/templates/edit_course/edit_teachers.html
-#: templates/support_channels.html
-msgid "TEACHERS"
-msgstr "Opettajat"
-
-#: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/edit_index.html
 msgid "INDEX"
 msgstr "Etusivu"
@@ -1448,10 +1517,6 @@ msgstr "Syötä URL-osoite ja"
 #: edit_course/templates/edit_course/edit_model.html
 msgid "DOWNLOAD_POSSIBLE_METADATA"
 msgstr "Lataa mahdollinen metadata"
-
-#: edit_course/templates/edit_course/edit_teachers.html
-msgid "EDIT_COURSE_TEACHERS"
-msgstr "Muokkaa kurssin opettajia"
 
 #: edit_course/templates/edit_course/remove_model.html
 #, python-format
@@ -1954,6 +2019,11 @@ msgstr "Lataus epäonnistui."
 
 #: exercise/staff_views.py
 #, python-brace-format
+msgid "NO_LONGER_PARTICIPATING_IN_COURSE -- {status}"
+msgstr "Tämä opiskelija ei enää osallistu kurssille (tila: {status})."
+
+#: exercise/staff_views.py
+#, python-brace-format
 msgid "ERROR_INVALID_POST_DATA -- {error}"
 msgstr ""
 "Epäkelvollinen POST sisältö:\n"
@@ -2146,14 +2216,6 @@ msgstr "Palautuksen tiedot"
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMITTED_ON"
 msgstr "Palautusaika"
-
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/submission_plain.html
-#: templates/support_channels.html
-msgid "STATUS"
-msgstr "Tila"
 
 #: exercise/templates/exercise/_submission_info.html
 #: exercise/templates/exercise/staff/_assess_info.html
@@ -2407,10 +2469,6 @@ msgstr "Tutki"
 #, python-format
 msgid "LATE_W_PENALTY -- %(percent)s"
 msgstr "Myöhässä <small>-%(percent)s%%</small>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "ASSISTANT"
-msgstr "Assistentti"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NO_SUBMISSIONS"

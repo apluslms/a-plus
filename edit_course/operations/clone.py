@@ -50,6 +50,7 @@ def clone_learning_objects(
 def clone(
         instance,
         url,
+        clone_teachers,
         clone_assistants,
         clone_usertags,
         clone_categories,
@@ -61,6 +62,7 @@ def clone(
     """
     Clones the course instance and returns the new saved instance.
     """
+    teachers = list(instance.teachers.all())
     assistants = list(instance.assistants.all())
     usertags = list(instance.usertags.all())
     categories = list(instance.categories.all())
@@ -73,8 +75,11 @@ def clone(
     instance.url = url
     instance.save()
 
+    if clone_teachers:
+        instance.set_teachers(teachers)
+
     if clone_assistants:
-        instance.assistants.add(*assistants)
+        instance.set_assistants(assistants)
 
     if clone_usertags:
         for usertag in usertags:

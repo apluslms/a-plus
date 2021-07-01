@@ -8,9 +8,10 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import translate_url
+from django.urls import reverse, translate_url
 from django.utils import html, timezone
 from django.utils.http import is_safe_url
+from django.utils.text import format_lazy
 from django.utils.translation import (
     LANGUAGE_SESSION_KEY,
     check_for_language,
@@ -47,17 +48,18 @@ class HomeView(UserProfileView):
 
         if user and user.is_authenticated:
             is_logged_in = True
-            for instance in (CourseInstance.objects
-                .filter(course__teachers=user.userprofile,
-                        ending_time__gte=end_threshold)
-                .all()):
+            for instance in CourseInstance.objects.get_teaching(user.userprofile).all().filter(
+                    ending_time__gte=end_threshold
+                ):
                 my_instances.append(instance)
 
-            for instance in user.userprofile.assisting_courses.all().filter(ending_time__gte=end_threshold):
+            for instance in CourseInstance.objects.get_assisting(user.userprofile).all().filter(
+                    ending_time__gte=end_threshold
+                ):
                 if instance not in my_instances:
                     my_instances.append(instance)
 
-            for instance in user.userprofile.enrolled.all().filter(
+            for instance in CourseInstance.objects.get_enrolled(user.userprofile).all().filter(
                     ending_time__gte=end_threshold,
                     visible_to_students=True,
                 ):
@@ -189,6 +191,31 @@ class Enroll(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
 
         self.instance.enroll_student(self.request.user)
         return self.redirect(self.instance.get_absolute_url())
+
+
+class Unenroll(CourseInstanceMixin, BaseView):
+    access_mode = ACCESS.ENROLLED
+
+    def post(self, request, *args, **kwargs):
+        enrollment = self.user_course_data
+        if (
+            enrollment
+            and enrollment.role == Enrollment.ENROLLMENT_ROLE.STUDENT
+            and enrollment.status == Enrollment.ENROLLMENT_STATUS.ACTIVE
+        ):
+            enrollment.status = Enrollment.ENROLLMENT_STATUS.REMOVED
+            enrollment.save()
+            messages.success(
+                self.request,
+                format_lazy(
+                    _('UNENROLL_SUCCESS -- {course}'),
+                    course=self.course.code,
+                ),
+            )
+            return HttpResponseRedirect(reverse('home'))
+        else:
+            messages.error(self.request, _('UNENROLL_ERROR_ONLY_ENROLLED'))
+            raise PermissionDenied()
 
 
 class ModuleView(CourseModuleBaseView):
