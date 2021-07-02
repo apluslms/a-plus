@@ -43,7 +43,6 @@
   "fields": {
     "url": "aplus1",
     "name": "My test course",
-    "teachers": [],
     "code": "aplus-001"
   },
   "model": "course.course",
@@ -65,7 +64,6 @@
     "module_numbering": 1,
     "enrollment_ending_time": null,
     "content_numbering": 1,
-    "assistants": [],
     "view_content_to": 2,
     "enrollment_audience": 1,
     "enrollment_starting_time": null,
@@ -92,7 +90,6 @@
     "module_numbering": 1,
     "enrollment_ending_time": null,
     "content_numbering": 1,
-    "assistants": [],
     "view_content_to": 2,
     "enrollment_audience": 1,
     "enrollment_starting_time": null,
