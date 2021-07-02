@@ -46,4 +46,5 @@ instance.add_assistant(assistant.userprofile)
 instance.enroll_student(student)
 
 instance2 = CourseInstance.objects.get(id=2)
+instance2.add_teacher(teacher.userprofile)
 instance2.enroll_student(student)

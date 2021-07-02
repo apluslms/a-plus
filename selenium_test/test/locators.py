@@ -1,5 +1,9 @@
 from selenium.webdriver.common.by import By
 
+class CommonLocators:
+    FORBIDDEN_PAGE = (By.XPATH, "//div[@class='page-header']/h1[contains(text(), '403 Forbidden')]")
+    PERMISSION_DENIED_ACCESS_MODE = (By.XPATH, "//main[@id='content']//div[@class='message'][contains(text(), 'Permission denied by access mode.')]")
+
 class LoginPageLocators(object):
     BANNER = (By.XPATH, "//*[@class='page-header']/h1[contains(text(), 'Log in to A+')]")
     USERNAME_INPUT = (By.XPATH, "//input[@id='id_username']")

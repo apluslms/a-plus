@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load course %}
+{% load base %}
+
+{% block title %}{% translate "TEACHER_LIST" %} | {{ block.super }}{% endblock %}
+{% block view_tag %}teacher-list{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'userprofile/teachers.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+	<h1>
+		{% translate "LIST_ACTIVE_TEACHERS" %}
+	</h1>
+</div>
+<form id="teacher-list-form" class="container" style="width: 100%;">
+	<div class="col-sm-10 col-md-8 col-lg-6" style="max-width: 700px;">
+		<div class="form-group row">
+			<fieldset>
+				<legend style="display: none;">{% translate "COURSE_DATE_RANGE" %}</legend>
+				<label class="col-md-4 col-sm-4 col-form-label">{% translate "COURSE_DATE_RANGE" %}</label>
+				<div class="col-md-8 col-sm-8">
+					{% now "Y-m-d" as today %}
+					<input aria-label="{% translate 'DATE_RANGE_START' %}" name="start_date" type="date" value="{{ request.GET.start_date | default:today }}"/>
+					-
+					<input aria-label="{% translate 'DATE_RANGE_END' %}" name="end_date" type="date" value="{{ request.GET.end_date | default:today }}"/>
+				</div>
+			</fieldset>
+		</div>
+		<div class="form-group row">
+				<label for="with-assistants" class="col-md-4 col-sm-4 col-form-label">{% translate "INCLUDE_ASSISTANTS" %}</label>
+				<div class="col-md-8 col-sm-8">
+					<input id="with-assistants" name="with_assistants" type="checkbox" value="true" {% if request.GET.with_assistants == "true" %}checked{%endif%}/>
+				</div>
+		</div>
+		<div class="form-group row">
+			<button type="submit" class="aplus-button--default aplus-button--md btn-block">{% translate "APPLY" context "FORM" %}</button>
+		</div>
+	</div>
+</form>
+<hr>
+<form method="POST">{% csrf_token %}
+	<div class="col-md-6 col-sm-8" style="max-width: 600px;">
+		<div class="col-md-6 col-sm-6">
+			<button type="submit" class="aplus-button--default aplus-button--md btn-block">{% translate "EXPORT_TABLE_DATA" %}</button>
+		</div>
+	</div>
+</form>
+<table class="table table-striped" style="min-width: 950px;">
+	<thead>
+		<tr>
+			<th>{% translate "TEACHER" %}</th>
+			<th>{% translate "EMAIL" %}</th>
+			<th>{% translate "COURSE_INSTANCE" %}</th>
+			<th>{% translate "STARTING_TIME" %}</th>
+			<th>{% translate "ENDING_TIME" %}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for entry in entries %}
+			<tr>
+				{% for cell in entry %}
+					<td>{{ cell }}</td>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}

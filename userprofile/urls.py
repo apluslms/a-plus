@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^accounts/$', views.ProfileView.as_view(),
         name="profile"),
     url(r'^setlang', views.set_user_language, name="set-user-language"),
+    url(r'^teachers/$', views.TeacherListView.as_view(), name="teachers"),
 ]
