@@ -275,10 +275,16 @@ class TeacherListView(UserProfileView):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Returns the teacher list as csv or the emails as a comma separated list"""
-        entries = self.entries(request)
-        csv = "teacher,email,instance,starting time,ending time\n"
-        for entry in entries:
-            csv += ",".join([f'"{e}"' for e in entry]) + "\n"
+        if request.POST.get('emails_only', None) is not None:
+            # export only the emails
+            entries = self.entries(request)
+            csv = ",".join([f'{e[1]}' for e in entries]) + "\n"
+        else:
+            # export the whole table
+            entries = self.entries(request)
+            csv = "teacher,email,instance,starting time,ending time\n"
+            for entry in entries:
+                csv += ",".join([f'"{e}"' for e in entry]) + "\n"
         response = HttpResponse(csv, content_type="text/plain")
         response['Content-Disposition'] = "attachment; filename=teachers.txt"
         return response

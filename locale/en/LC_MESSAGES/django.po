@@ -3726,6 +3726,10 @@ msgstr "Ending time"
 msgid "EXPORT_TABLE_DATA"
 msgstr "Export table data"
 
+#: userprofile/templates/userprofile/teachers.html
+msgid "EMAILS_ONLY"
+msgstr "Emails only"
+
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"
 msgstr "No privacy notice. Please notify administration!"

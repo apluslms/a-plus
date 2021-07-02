@@ -3735,6 +3735,10 @@ msgstr "Päättymisaika"
 msgid "EXPORT_TABLE_DATA"
 msgstr "Vie taulukon tiedot"
 
+#: userprofile/templates/userprofile/teachers.html
+msgid "EMAILS_ONLY"
+msgstr "Vain sähköpostit"
+
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"
 msgstr "Ei tietosuojailmoitusta. Ota yhteys ylläpitäjään!"
