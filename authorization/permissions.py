@@ -1,7 +1,15 @@
+from typing import Any, Dict, Generic, List, Optional, TYPE_CHECKING, Type, TypeVar, cast
+
+from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from lib.helpers import Enum
+
+if TYPE_CHECKING:
+    from course.viewbase import CourseInstanceBaseMixin
 
 """
 Base permission classes.
@@ -19,13 +27,18 @@ class FilterBackend(object):
     """
     FilterBackend interface
     """
-    def filter_queryset(self, request, queryset, view):
+    def filter_queryset(
+            self,
+            request: HttpRequest,
+            queryset: QuerySet[Any],
+            view: Any,
+            ) -> QuerySet[Any]:
         """
         Return a filtered queryset.
         """
         raise NotImplementedError
 
-    def get_fields(self, view):
+    def get_fields(self, view: Any) -> List[str]:
         return []
 
 
@@ -33,13 +46,13 @@ class Permission(object):
     """
     Permission interface
     """
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: Any) -> bool:
         """
         Return `True` if permission is granted, `False` otherwise.
         """
         return True
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request: HttpRequest, view: Any, obj: Any) -> bool:
         """
         Return `True` if permission is granted, `False` otherwise.
         """
@@ -50,10 +63,10 @@ class NoPermission(Permission):
     """
     Base Permission class that gives no access permission to anyone.
     """
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: Any) -> bool:
         return False
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request: HttpRequest, view: Any, obj: Any) -> bool:
         return False
 
 
@@ -61,7 +74,13 @@ class MessageMixin(object):
     """
     Adds easy way to specify what exactly caused the PermissionDenied
     """
-    def error_msg(self, message: str, delim=None, format=None, replace=False):
+    def error_msg(
+            self,
+            message: str,
+            delim: Optional[str] = None,
+            format: Optional[Dict[str, Any]] = None,
+            replace: bool = False,
+            ):
         """
         Add extra text to self.message about the reason why permission
         was denied. Uses lazy object so the message string is evaluated
@@ -115,7 +134,7 @@ class AccessModePermission(MessageMixin, Permission):
     """
     message = _('ACCESS_PERMISSION_DENIED_MSG')
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: 'CourseInstanceBaseMixin') -> bool:
         access_mode = view.get_access_mode()
 
         if access_mode == ACCESS.ANONYMOUS:
@@ -148,19 +167,20 @@ class AccessModePermission(MessageMixin, Permission):
 # ==================
 
 
-class ObjectVisibleBasePermission(MessageMixin, Permission):
-    model = None
-    obj_var = None
+TModel = TypeVar('TModel')
+class ObjectVisibleBasePermission(MessageMixin, Permission, Generic[TModel]):
+    model: Type[TModel]
+    obj_var: str
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: Any):
         obj = getattr(view, self.obj_var, None)
         return (
             obj is None or
             self.has_object_permission(request, view, obj)
         )
 
-    def has_object_permission(self, request, view, obj):
-        user = request.user
+    def has_object_permission(self, request: HttpRequest, view: Any, obj: TModel) -> bool:
+        user = cast(User, request.user)
         return (
             not isinstance(obj, self.model) or # skip objects that are not model in question
             user.is_staff or
@@ -168,5 +188,5 @@ class ObjectVisibleBasePermission(MessageMixin, Permission):
             self.is_object_visible(request, view, obj)
         )
 
-    def is_object_visible(self, request, view, obj):
+    def is_object_visible(self, request: HttpRequest, view: Any, obj: TModel) -> bool:
         raise NotImplementedError

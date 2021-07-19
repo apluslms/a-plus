@@ -1,4 +1,8 @@
-from django.http import Http404
+from typing import TYPE_CHECKING, cast
+
+from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -15,13 +19,21 @@ from .models import (
     SubmittedFile,
 )
 
+if TYPE_CHECKING:
+    from course.viewbase import CourseInstanceBaseMixin
 
-class ExerciseVisiblePermission(ObjectVisibleBasePermission):
+
+class ExerciseVisiblePermission(ObjectVisibleBasePermission[LearningObject]):
     message = _('EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG')
     model = LearningObject
     obj_var = 'exercise'
 
-    def is_object_visible(self, request, view, exercise):
+    def is_object_visible(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            exercise: LearningObject,
+            ) -> bool:
         """
         Find out if Exercise (LearningObject) is visible to user
         """
@@ -60,12 +72,17 @@ class ExerciseVisiblePermission(ObjectVisibleBasePermission):
         return True
 
 
-class BaseExerciseAssistantPermission(ObjectVisibleBasePermission):
+class BaseExerciseAssistantPermission(ObjectVisibleBasePermission[BaseExercise]):
     message = _('EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG')
     model = BaseExercise
     obj_var = 'exercise'
 
-    def is_object_visible(self, request, view, exercise):
+    def is_object_visible(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            exercise: BaseExercise,
+            ) -> bool:
         """
         Make sure views that require assistant are also visible to them.
         Also if view is for grading, make sure assistant is allowed to grade.
@@ -91,12 +108,17 @@ class BaseExerciseAssistantPermission(ObjectVisibleBasePermission):
         return True
 
 
-class SubmissionVisiblePermission(ObjectVisibleBasePermission):
+class SubmissionVisiblePermission(ObjectVisibleBasePermission[Submission]):
     message = _('SUBMISSION_VISIBILITY_PERMISSION_DENIED_MSG')
     model = Submission
     obj_var = 'submission'
 
-    def is_object_visible(self, request, view, submission):
+    def is_object_visible(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            submission: Submission,
+            ) -> bool:
         if not (view.is_teacher or
                 (view.is_assistant and submission.exercise.allow_assistant_viewing) or
                 submission.is_submitter(request.user)):
@@ -106,8 +128,13 @@ class SubmissionVisiblePermission(ObjectVisibleBasePermission):
 
 
 class SubmissionVisibleFilter(FilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        user = request.user
+    def filter_queryset(
+            self,
+            request: HttpRequest,
+            queryset: QuerySet[Submission],
+            view: 'CourseInstanceBaseMixin',
+            ) -> QuerySet[Submission]:
+        user = cast(User, request.user)
         is_super = user.is_staff or user.is_superuser
         if (
             issubclass(queryset.model, Submission) and
@@ -123,23 +150,34 @@ class SubmissionVisibleFilter(FilterBackend):
 class SubmittedFileVisiblePermission(SubmissionVisiblePermission):
     model = SubmittedFile
 
-    def is_object_visible(self, request, view, file):
+    def is_object_visible(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            file: SubmittedFile,
+            ) -> bool:
         return super().is_object_visible(request, view, file.submission)
 
 
-class ModelVisiblePermission(ObjectVisibleBasePermission):
+class ModelVisiblePermission(ObjectVisibleBasePermission[BaseExercise]):
     message = _('EXERCISE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG')
     model = BaseExercise
     obj_var = 'exercise'
 
-    def is_object_visible(self, request, view, exercise):
+    def is_object_visible(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            exercise: BaseExercise,
+            ) -> bool:
         """
         Find out if exercise's model answer is visible to user
         """
+        user = cast(User, request.user)
         if view.is_course_staff:
             return True
 
-        if not exercise.can_show_model_solutions_to_student(request.user):
+        if not exercise.can_show_model_solutions_to_student(user):
             self.error_msg(_('EXERCISE_MODEL_ANSWER_VISIBILITY_ERROR_NOT_ALLOWED_VIEWING'))
             return False
 

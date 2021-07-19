@@ -1,4 +1,8 @@
-from django.http import Http404
+from typing import Any, TYPE_CHECKING, cast
+
+from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import (
@@ -15,13 +19,21 @@ from .models import (
     CourseInstance,
 )
 
+if TYPE_CHECKING:
+    from course.viewbase import CourseInstanceBaseMixin, CourseModuleMixin
 
-class CourseVisiblePermission(ObjectVisibleBasePermission):
+
+class CourseVisiblePermission(ObjectVisibleBasePermission[CourseInstance]):
     message = _('COURSE_VISIBILITY_PERMISSION_DENIED_MSG')
     model = CourseInstance
     obj_var = 'instance'
 
-    def is_object_visible(self, request, view, course):
+    def is_object_visible(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            course: CourseInstance,
+            ) -> bool:
         """
         Find out if CourseInstance is visible to user
         We expect that AccessModePermission is checked first
@@ -46,7 +58,7 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
             self.error_msg(_('COURSE_VISIBILITY_ERROR_NOT_VISIBLE'))
             return False
 
-        user = request.user
+        user = cast(User, request.user)
         show_for = course.view_content_to
         VA = course.VIEW_ACCESS
 
@@ -83,7 +95,12 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
 
         return True
 
-    def enrollment_audience_check(self, request, course, user):
+    def enrollment_audience_check(
+            self,
+            request: HttpRequest,
+            course: CourseInstance,
+            user: User,
+            ) -> bool:
         audience = course.enrollment_audience
         external = user.userprofile.is_external
         EA = course.ENROLLMENT_AUDIENCE
@@ -96,12 +113,17 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
         return True
 
 
-class EnrollInfoVisiblePermission(ObjectVisibleBasePermission):
+class EnrollInfoVisiblePermission(ObjectVisibleBasePermission[CourseInstance]):
     message = _('COURSE_VISIBILITY_PERMISSION_DENIED_MSG')
     model = CourseInstance
     obj_var = 'instance'
 
-    def is_object_visible(self, request, view, course_instance):
+    def is_object_visible(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            course_instance: CourseInstance,
+            ) -> bool:
         # Course is always visible to staff members
         if view.is_course_staff:
             return True
@@ -123,13 +145,18 @@ class EnrollInfoVisiblePermission(ObjectVisibleBasePermission):
 class CourseModulePermission(MessageMixin, Permission):
     message = _('MODULE_PERMISSION_MSG_NOT_VISIBLE')
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: 'CourseModuleMixin') -> bool:
         if not view.is_course_staff:
             module = view.module
             return self.has_object_permission(request, view, module)
         return True
 
-    def has_object_permission(self, request, view, module):
+    def has_object_permission(
+            self,
+            request: HttpRequest,
+            view: 'CourseModuleMixin',
+            module: CourseModule,
+            ) -> bool:
 
         if not isinstance(module, CourseModule):
             return True
@@ -155,26 +182,41 @@ class CourseModulePermission(MessageMixin, Permission):
 class OnlyCourseTeacherPermission(Permission):
     message = _('COURSE_PERMISSION_MSG_ONLY_TEACHER')
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: 'CourseInstanceBaseMixin') -> bool:
         return self.has_object_permission(request, view, view.instance)
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            obj: Any,
+            ) -> bool:
         return view.is_teacher or request.user.is_superuser
 
 
 class OnlyCourseStaffPermission(Permission):
     message = _('COURSE_PERMISSION_MSG_ONLY_COURSE_STAFF')
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: 'CourseInstanceBaseMixin') -> bool:
         return self.has_object_permission(request, view, view.instance)
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            obj: Any,
+            ) -> bool:
         return view.is_course_staff or request.user.is_superuser
 
 
 class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            obj: UserProfile,
+            ) -> bool:
         if not isinstance(obj, UserProfile):
             return True
 
@@ -184,7 +226,12 @@ class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
             super().has_object_permission(request, view, obj)
         )
 
-    def filter_queryset(self, request, queryset, view):
+    def filter_queryset(
+            self,
+            request: HttpRequest,
+            queryset: QuerySet[UserProfile],
+            view: 'CourseInstanceBaseMixin',
+            ) -> QuerySet[UserProfile]:
         user = request.user
         if (
             issubclass(queryset.model, UserProfile) and
@@ -198,10 +245,15 @@ class IsCourseAdminOrUserObjIsSelf(OnlyCourseStaffPermission, FilterBackend):
 class OnlyEnrolledStudentOrCourseStaffPermission(Permission):
     message = _('COURSE_PERMISSION_MSG_ONLY_ENROLLED_STUDENTS_OR_COURSE_STAFF')
 
-    def has_permission(self, request, view):
+    def has_permission(self, request: HttpRequest, view: 'CourseInstanceBaseMixin') -> bool:
         return self.has_object_permission(request, view, None)
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(
+            self,
+            request: HttpRequest,
+            view: 'CourseInstanceBaseMixin',
+            obj: Any,
+            ) -> bool:
         try:
             return view.is_student or view.is_course_staff or request.user.is_superuser
         except AttributeError:
