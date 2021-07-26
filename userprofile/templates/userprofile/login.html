@@ -42,32 +42,36 @@
 					</div>
 				</div>
 			</section>
-		
-			<section aria-labelledby="login-haka-users" class="col-sm-6 col-md-4 login-box">
-				<div class="login-section">
-					{% if haka_title_text %}
-						<h2 id="login-haka-users">
-							{{ haka_title_text|safe }}
-						</h2>
-					{% endif %}
-					<div class="login-section-body">
-						{% if haka_body_text %}
-							<p>
-								{{ haka_body_text|safe }}
-							</p>
-						{% endif %}
-						<p>
-							<a class="aplus-button--secondary aplus-button--lg" role="button"
-								href="{% url 'haka-login' %}?target={% url 'shibboleth-login' %}">
-								{{ haka_button_text|safe }}
-							</a>
-						</p>
-					</div>
-				</div>
-			</section>
 
-			<div class="clearfix visible-sm-block"></div>
+			{% if haka_login %}
+				<section aria-labelledby="login-haka-users" class="col-sm-6 col-md-4 login-box">
+					<div class="login-section">
+						{% if haka_title_text %}
+							<h2 id="login-haka-users">
+								{{ haka_title_text|safe }}
+							</h2>
+						{% endif %}
+						<div class="login-section-body">
+							{% if haka_body_text %}
+								<p>
+									{{ haka_body_text|safe }}
+								</p>
+							{% endif %}
+							<p>
+								<a class="aplus-button--secondary aplus-button--lg" role="button"
+									href="{% url 'haka-login' %}?target={% url 'shibboleth-login' %}">
+									{{ haka_button_text|safe }}
+								</a>
+							</p>
+						</div>
+					</div>
+				</section>
+
+				<div class="clearfix visible-sm-block"></div>
+			{% endif %}
+
 		{% endif %}
+
 
 		{% if mooc_login %}
 			<section aria-labelledby="login-google-users" class="col-sm-6 col-md-4 login-box">
@@ -90,11 +94,14 @@
 					</div>
 				</div>
 			</section>
+			{% if shibboleth_login and haka_login %}
+				<div class="clearfix visible-md-block visible-lg-block"></div>
+			{% elif shibboleth_login and not haka_login %}
+				<div class="clearfix visible-sm-block"></div>
+			{% endif %}
+
 		{% endif %}
 
-		{% if shibboleth_login and mooc_login %}
-			<div class="clearfix visible-md-block visible-lg-block"></div>
-		{% endif %}
 
 		<section aria-labelledby="login-local-users" class="col-sm-6 col-md-4 login-box extra-login">
 			<div class="login-section">

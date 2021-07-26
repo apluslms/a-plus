@@ -35,9 +35,12 @@ class CustomLoginView(LoginView):
     # unless images are hosted on a different domain from the Django app.
     extra_context = {
         'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
+        'haka_login': getattr(settings, 'HAKA_LOGIN', False),
         'mooc_login': 'social_django' in settings.INSTALLED_APPS,
         'brand_name': settings_text('BRAND_NAME'),
     }
+    if extra_context['haka_login'] and not extra_context['shibboleth_login']:
+        logger.warning("Shibboleth login not enabled, but Haka login flag set as true.")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
