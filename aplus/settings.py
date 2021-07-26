@@ -168,6 +168,9 @@ INSTALLED_APPS = (
 #    'STUDENT_FILTERS': {3: 'int', 2: 'studentID'},
 #}
 
+## Haka
+#HAKA_LOGIN = True
+
 
 ## Google OAuth2 settings
 

@@ -68,6 +68,9 @@
 #    # ..more options in aplus/settings.py
 #}
 
+## Haka
+#HAKA_LOGIN = True
+
 ## Database
 #DATABASES = {
 #    'default': {
