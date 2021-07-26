@@ -155,13 +155,13 @@
      * The index of our "Tags" column (some operations depend on this)
      * TODO: make it better
      */
-    const TAGS_COL_ID = 4;
+    const TAGS_COL_ID = 10;
 
     /**
      * The index of our "Total" column (some operations depend on this)
      * TODO: make it better
      */
-    const TOTAL_COL_ID = 6;
+    const TOTAL_COL_ID = 12;
 
     /**
      * Holds the contents of summary rows which are recreated from this data
@@ -326,7 +326,7 @@
      * based on which summary items are selected via checkboxes
      */
     function recreateSummaryRows() {
-        let rowStart = '<tr class="summaryitem"><th class="student-id stick-on-scroll indicator-heading" colspan="2" style="transform: translateX(0px);">';
+        let rowStart = '<tr class="summaryitem"><th class="student-id stick-on-scroll indicator-heading" colspan="3" style="transform: translateX(0px);">';
         let rowEnd = '</tr>';
         var tableheading = $('thead#table-heading');
         var newHeading = '';
@@ -1111,6 +1111,17 @@
         });
     }
 
+    /**
+     * When SISU mode is enabled, show additional columns expected by
+     * SISU as csv import
+     * @param {*} dtVar DataTables element to be modified
+     * @param {*} sisumode State of the SISU checkbox (true/false)
+     */
+    function showSisuColumns(dtVar, sisumode) {
+        dtVar.columns('.sisu-only').visible(sisumode);
+        // force table to have correct width after column visibility changes
+        pointsTableRef.width("100%");
+    }
 
     /**
      * Loads new data on page load, and when "Show only official points" checkbox clicked
@@ -1145,19 +1156,34 @@
                 // Just save the bare minimum for rendering at this point
             });
 
-            // TODO: Get the link to students in a proper way
-            const participantsLink = $('li.menu-participants').find('a').attr('href');
+            /**
+             * Builds HTML link to user profile for a table row, to be used as
+             * renderer attribute in table setup 
+             * @param {*} data content shown in the table cell.
+             * @param {*} type not used
+             * @param {*} row results item currently being processed
+             * @returns HTML string used in table cell
+             */
+            function renderParticipantLink(data, type, row) {
+                // TODO: Get the link to students in a proper way
+                const link = $('li.menu-participants').find('a').attr('href');
+                return (row['UserID'] > 0 ? '<a href="' + link + row['UserID'] + '">' + data + '</a>' : '');
+            }
 
             let columns = [
                 {data: "UserID", title: "UserID", class: "always-hidden col-0", type: "num", searchable: false},
                 {data: "Email", title: "Email", class: "always-hidden col-1", type: "string", searchable: true},
-                {data: "StudentID", title: _("Student ID"), type: "string", width: "6em", class: "student-id stick-on-scroll col-2" },
-                //{data: "FirstName", title: "FirstName"},
-                //{data: "LastName", title: "LastName"},
-                {data: "Name", title: _("Student name"), class: "student-name stick-on-scroll col-3", type: "html", render: function(data, type, row) { return (row['UserID'] > 0 ? '<a href="' + participantsLink + row['UserID'] + '">' + data + '</a>' : ''); } },
-                {data: "Tags", title: _("Tags"), class: "tags col-4", render: function(data) { return userTagsToHTML(data); }, type: "html" },
-                {data: "Count", title: "Count", class: "col-5", visible: false, defaultContent: 0, type: "num"},
-                {data: "Total", title: _("Total"), width: "6em", class: "points total col-6", defaultContent: 0, type: "num"}
+                {data: "LastName", title: _("Last name"), class: "student-name stick-on-scroll col-2", type: "html", render: renderParticipantLink},
+                {data: "FirstName", title: _("First name"), class: "student-name stick-on-scroll col-3", type: "html", render: renderParticipantLink},
+                {data: "StudentID", title: _("Student ID"), type: "string", width: "6em", class: "student-id stick-on-scroll col-4", render: renderParticipantLink},
+                {data: "Grade", title: _("Grade"), class: "sisu-only col-5", type: "string", defaultContent: ""},
+                {data: "Credits", title: _("Credits"), class: "sisu-only col-6", type: "string", defaultContent: ""},
+                {data: "AssessmentDate", title: _("Assessment date"), class: "sisu-only col-7", type: "string", defaultContent: ""},
+                {data: "CompletionLanguage", title: _("Completion language"), class:"sisu-only col-8", type: "string", defaultContent: ""},
+                {data: "Comment", title: _("Comment"), class: "sisu-only col-9", type: "string", defaultContent: ""},
+                {data: "Tags", title: _("Tags"), class: "tags col-10", render: function(data) { return userTagsToHTML(data); }, type: "html" },
+                {data: "Count", title: "Count", class: "col-11", visible: false, defaultContent: 0, type: "num"},
+                {data: "Total", title: _("Total"), width: "6em", class: "points total col-12", defaultContent: 0, type: "num"}
             ];
 
             // Store exercises globally
@@ -1273,9 +1299,8 @@
             /**
              * Define common options for DataTables buttons (CSV, Copy, Excel), as they all use the
              * same logic and export only visible columns.
-             * The tags column (number 2, note that here invisible columns are not counted
-             * so it does not match TAGS_COL_ID) needs special treatment as we need to replace 
-             * the html tags with commas for exporting.
+             * The tags column needs special treatment as we need to replace 
+             * the html tags with commas for exporting. Also Name column needs HTML cleanup.
              * The regexp takes any number of consecutive tags and converts them into a single comma.
              * After that, the first and last commas are sliced away.
              */
@@ -1284,8 +1309,14 @@
                     columns: ':visible',
                     format: {
                         body: function ( data, row, column, node ) {
-                            if(column === 1) return data.replace( /<[^>]*>/g, '' );
-                            else if(column === 2) return data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1);
+                            if (typeof(data) === "string") {
+                                // This is expected to be the Tags column
+                                if (data.includes("<span class=\"colortag")) return data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1);
+                                // The other HTML - rendered columns (name, studentID)
+                                // are just cleaned up of HTML
+                                else if (data.includes("<a href")) return data.replace( /<[^>]*>/g, '' );
+                                else return data;
+                            }
                             else return data;
                             // When the next version of DataTables.Buttons is released, we can replace the above with:
                             // return column === 2 ?
@@ -1326,6 +1357,7 @@
                     }
                     // Make sure all hidden columns are hidden
                     dtVar.columns('.always-hidden').visible(false,false);
+                    showSisuColumns(dtVar, false);
                     changeDisplayMode(dm.DIFFICULTY);
                     // Add note in our custom div in DataTables DOM template
                     $(".dt-note").html(_('You can use &lt; and &gt; in points columns search fields.'));
@@ -1504,6 +1536,10 @@
                 // Make a dummy search with empty string so the newly added plugin is applied
                 dtVar.search('');
                 recalculateTableDebounced();
+            });
+
+            $('.sisuformat-checkbox').change(function() {
+                showSisuColumns(dtVar, $(this).prop('checked'));
             });
 
             /**
