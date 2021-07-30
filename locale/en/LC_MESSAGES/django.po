@@ -4326,20 +4326,40 @@ msgid "STUDIES"
 msgstr "Studies"
 
 #: templates/support_channels.html
+msgid "SUPPORT_STUDIES_LINK"
+msgstr "https://into.aalto.fi/display/enopinnot"
+
+#: templates/support_channels.html
 msgid "COURSE_CATALOGUE"
 msgstr "Course catalogue"
+
+#: templates/support_channels.html
+msgid "SUPPORT_STUDENT_SERVICES_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Student+services"
 
 #: templates/support_channels.html
 msgid "STUDENT_SERVICES"
 msgstr "Student services"
 
 #: templates/support_channels.html
+msgid "SUPPORT_SUPPORT_FOR_STUDYING_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Support+for+studying"
+
+#: templates/support_channels.html
 msgid "SUPPORT_FOR_STUDYING"
 msgstr "Support for studying"
 
 #: templates/support_channels.html
+msgid "SUPPORT_STUDY_SKILLS_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Study+skills"
+
+#: templates/support_channels.html
 msgid "STUDY_SKILLS"
 msgstr "Study skills"
+
+#: templates/support_channels.html
+msgid "SUPPORT_STARTING_POINT_OF_WELLBEING_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Starting+Point+of+Wellbeing"
 
 #: templates/support_channels.html
 msgid "STARTING_POINT_OF_WELLBEING"
@@ -4348,6 +4368,10 @@ msgstr "Starting Point of Wellbeing"
 #: templates/support_channels.html
 msgid "IT_SUPPORT"
 msgstr "IT support"
+
+#: templates/support_channels.html
+msgid "SUPPORT_IT_HELP_LINK"
+msgstr "https://www.aalto.fi/en/it-help"
 
 #: templates/support_channels.html
 msgid "IT_HELP"
@@ -4364,6 +4388,10 @@ msgstr "Available classroom computers"
 #: templates/support_channels.html
 msgid "DOWNLOAD_LICENSED_SOFTWARE"
 msgstr "Download licensed software"
+
+#: templates/support_channels.html
+msgid "SUPPORT_AALTO_SPACE_APP_LINK"
+msgstr "https://www.aalto.fi/en/services/aalto-space-mobile-application"
 
 #: templates/support_channels.html
 msgid "AALTO_SPACE_APP"
@@ -4452,7 +4480,9 @@ msgid "MICROSOFT_TEAMS_SUPPORT_DESCRIPTION -- %(brand)s"
 msgstr ""
 "Teachers can start a conversation with other users of %(brand)s or ask for "
 "support in the Microsoft Teams channel. However, if your matter contains "
-"private or sensitive information, you should contact us by email."
+"private or sensitive information, you should contact us by \n"
+"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
+"style=\"display: inline;\">email</a>."
 
 #: templates/support_channels.html
 msgid "REPORT_ISSUE_IN_GITHUB"
@@ -4463,7 +4493,9 @@ msgid "REPORT_ISSUE_IN_GITHUB_DESCRIPTION"
 msgstr ""
 "Teachers may report issues in GitHub, such as bugs in the application or "
 "ideas for new features. If you want to discuss with the support team more "
-"personally or in privacy, send us email."
+"personally or in privacy, contact us by \n"
+"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
+"style=\"display: inline;\">email</a>."
 
 #: templates/support_channels.html
 msgid "ANNOUNCEMENTS"

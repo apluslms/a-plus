@@ -4340,20 +4340,40 @@ msgid "STUDIES"
 msgstr "Opinnot"
 
 #: templates/support_channels.html
+msgid "SUPPORT_STUDIES_LINK"
+msgstr "https://into.aalto.fi/display/fiopinnot"
+
+#: templates/support_channels.html
 msgid "COURSE_CATALOGUE"
 msgstr "Kurssiluettelo"
+
+#: templates/support_channels.html
+msgid "SUPPORT_STUDENT_SERVICES_LINK"
+msgstr "https://into.aalto.fi/display/fiopisk/Opiskelijan+palvelut"
 
 #: templates/support_channels.html
 msgid "STUDENT_SERVICES"
 msgstr "Opiskelijapalvelut"
 
 #: templates/support_channels.html
+msgid "SUPPORT_SUPPORT_FOR_STUDYING_LINK"
+msgstr "https://into.aalto.fi/display/fiopisk/Tukea+opiskeluun"
+
+#: templates/support_channels.html
 msgid "SUPPORT_FOR_STUDYING"
 msgstr "Opiskelun tuki"
 
 #: templates/support_channels.html
+msgid "SUPPORT_STUDY_SKILLS_LINK"
+msgstr "https://into.aalto.fi/display/fiopisk/Opiskelutaidot"
+
+#: templates/support_channels.html
 msgid "STUDY_SKILLS"
 msgstr "Opiskelutaidot"
+
+#: templates/support_channels.html
+msgid "SUPPORT_STARTING_POINT_OF_WELLBEING_LINK"
+msgstr "https://into.aalto.fi/display/fiopisk/Starting+Point+of+Wellbeing"
 
 #: templates/support_channels.html
 msgid "STARTING_POINT_OF_WELLBEING"
@@ -4362,6 +4382,10 @@ msgstr "Starting Point of Wellbeing - opiskelijan hyvinvointi"
 #: templates/support_channels.html
 msgid "IT_SUPPORT"
 msgstr "IT-tuki"
+
+#: templates/support_channels.html
+msgid "SUPPORT_IT_HELP_LINK"
+msgstr "https://www.aalto.fi/fi/it-help"
 
 #: templates/support_channels.html
 msgid "IT_HELP"
@@ -4378,6 +4402,10 @@ msgstr "Vapaat tietokoneet luokkahuoneissa"
 #: templates/support_channels.html
 msgid "DOWNLOAD_LICENSED_SOFTWARE"
 msgstr "Lataa lisensoituja ohjelmistoja"
+
+#: templates/support_channels.html
+msgid "SUPPORT_AALTO_SPACE_APP_LINK"
+msgstr "https://www.aalto.fi/fi/palvelut/aalto-space-mobiilisovellus"
 
 #: templates/support_channels.html
 msgid "AALTO_SPACE_APP"
@@ -4464,7 +4492,9 @@ msgid "MICROSOFT_TEAMS_SUPPORT_DESCRIPTION -- %(brand)s"
 msgstr ""
 "Opettajat voivat keskustella muiden %(brand)s-opettajien ja -kehittäjien "
 "kanssa tai pyytää apua Microsoft Teams -kanavalla. Jos asiasi sisältää "
-"yksityistä tai sensitiivistä tietoa, ota yhteyttä tukeen sähköpostilla."
+"yksityistä tai sensitiivistä tietoa, ota yhteyttä tukeen \n"
+"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
+"style=\"display: inline;\">sähköpostilla</a>."
 
 #: templates/support_channels.html
 msgid "REPORT_ISSUE_IN_GITHUB"
@@ -4475,7 +4505,9 @@ msgid "REPORT_ISSUE_IN_GITHUB_DESCRIPTION"
 msgstr ""
 "Opettajat voivat ilmoittaa ohjelmointivirheistä tai toivoa uusia "
 "ominaisuuksia GitHubissa. Jos haluat keskustella tukitiimin kanssa "
-"henkilökohtaisesti tai yksityisesti, ota yhteyttä sähköpostilla."
+"henkilökohtaisesti tai yksityisesti, ota yhteyttä \n"
+"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
+"style=\"display: inline;\">sähköpostilla</a>."
 
 #: templates/support_channels.html
 msgid "ANNOUNCEMENTS"
