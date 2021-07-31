@@ -155,13 +155,13 @@
      * The index of our "Tags" column (some operations depend on this)
      * TODO: make it better
      */
-    const TAGS_COL_ID = 10;
+    const TAGS_COL_ID = 11;
 
     /**
      * The index of our "Total" column (some operations depend on this)
      * TODO: make it better
      */
-    const TOTAL_COL_ID = 12;
+    const TOTAL_COL_ID = 13;
 
     /**
      * Holds the contents of summary rows which are recreated from this data
@@ -1181,9 +1181,10 @@
                 {data: "AssessmentDate", title: _("Assessment date"), class: "sisu-only col-7", type: "string", defaultContent: ""},
                 {data: "CompletionLanguage", title: _("Completion language"), class:"sisu-only col-8", type: "string", defaultContent: ""},
                 {data: "Comment", title: _("Comment"), class: "sisu-only col-9", type: "string", defaultContent: ""},
-                {data: "Tags", title: _("Tags"), class: "tags col-10", render: function(data) { return userTagsToHTML(data); }, type: "html" },
-                {data: "Count", title: "Count", class: "col-11", visible: false, defaultContent: 0, type: "num"},
-                {data: "Total", title: _("Total"), width: "6em", class: "points total col-12", defaultContent: 0, type: "num"}
+                {data: "Organization", title: _("Organization"), class: "col-10", type: "string"},
+                {data: "Tags", title: _("Tags"), class: "tags col-11", render: function(data) { return userTagsToHTML(data); }, type: "html" },
+                {data: "Count", title: "Count", class: "col-12", visible: false, defaultContent: 0, type: "num"},
+                {data: "Total", title: _("Total"), width: "6em", class: "points total col-13", defaultContent: 0, type: "num"}
             ];
 
             // Store exercises globally

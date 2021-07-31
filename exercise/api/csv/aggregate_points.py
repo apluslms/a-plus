@@ -60,6 +60,7 @@ def aggregate_points(request, profiles, taggings, exercises, aggregate, number):
             ('LastName', profile.user.last_name),
             ('Name', profile.user.first_name + ' ' + profile.user.last_name),
             ('Tags', '|'.join(user_tags)),
+            ('Organization', profile.organization),
         ])
 
         # Add submitted exercise count and points of the user as labeled dictionary items
