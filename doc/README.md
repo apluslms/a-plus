@@ -236,7 +236,7 @@ Currently, the tests depend on a Unix type shell and are run within a virtual en
 
 Before creating a pull request, you need to ensure that the [English strings](https://github.com/apluslms/a-plus/blob/master/locale/en/LC_MESSAGES/django.po) and [Finnish translations](https://github.com/apluslms/a-plus/blob/master/locale/fi/LC_MESSAGES/django.po) are up-to-date.
 Translations are handled with [Django](https://docs.djangoproject.com/en/2.2/ref/django-admin/#django-admin-makemessages) and are done outside the container.
-If you have added new strings with new string keys, make sure that the keys are in [the correct format](https://apluslms.github.io/contribute/styleguides/gettext/index.md#msgid-format).
+If you have added new strings with new string keys, make sure that the keys are in [the correct format](https://apluslms.github.io/contribute/styleguides/gettext/#msgid-format).
 
 1. In order to update the files containing translations, run:
 
