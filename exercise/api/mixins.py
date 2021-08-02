@@ -16,7 +16,8 @@ from ..viewbase import (
 )
 
 
-class ExerciseBaseResourceMixin(CourseInstanceBaseMixin,
+class ExerciseBaseResourceMixin(ApiResourceMixin,
+                                CourseInstanceBaseMixin,
                                 CourseModuleBaseMixin,
                                 ExerciseBaseMixin):
     exercise_kw = 'exercise_id'

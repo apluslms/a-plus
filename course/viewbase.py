@@ -7,9 +7,10 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS
+from authorization.views import ResourceMixin
 from exercise.cache.content import CachedContent
 from lib.helpers import remove_query_param_from_url, update_url_params
-from lib.viewbase import BaseTemplateView
+from lib.viewbase import BaseMixin, BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .cache.students import CachedStudent
 from .exceptions import TranslationNotFound
@@ -20,7 +21,7 @@ from .permissions import (
 from .models import Course, CourseInstance, CourseModule, UserTagging
 
 
-class CourseMixin(UserProfileMixin):
+class CourseMixin(UserProfileMixin, ResourceMixin):
     course_kw = "course_slug"
 
     def get_resource_objects(self):
@@ -36,7 +37,7 @@ class CourseBaseView(CourseMixin, BaseTemplateView):
     pass
 
 
-class CourseInstanceBaseMixin(object):
+class CourseInstanceBaseMixin(ResourceMixin, BaseMixin):
     course_kw = CourseMixin.course_kw
     instance_kw = "instance_slug"
     course_permission_classes = (
@@ -48,7 +49,9 @@ class CourseInstanceBaseMixin(object):
         perms.extend((Perm() for Perm in self.course_permission_classes))
         return perms
 
-    # get_course_instance_object
+    # Must be implemented by subclasses
+    def get_course_instance_object(self):
+        raise NotImplementedError()
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -173,7 +176,7 @@ class EnrollableViewMixin(CourseInstanceMixin):
         self.note('enrolled', 'enrollable')
 
 
-class CourseModuleBaseMixin(object):
+class CourseModuleBaseMixin(ResourceMixin, BaseMixin):
     module_kw = "module_slug"
     module_permissions_classes = (
         CourseModulePermission,
@@ -184,7 +187,9 @@ class CourseModuleBaseMixin(object):
         perms.extend((Perm() for Perm in self.module_permissions_classes))
         return perms
 
-    # get_course_module_object
+    # Must be implemented by subclasses
+    def get_course_module_object(self):
+        raise NotImplementedError()
 
     def get_resource_objects(self):
         super().get_resource_objects()

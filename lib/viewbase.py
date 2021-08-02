@@ -7,11 +7,11 @@ from django.utils.http import is_safe_url
 from django.views.generic.base import TemplateResponseMixin, TemplateView, View
 from django.views.generic.edit import FormMixin, FormView
 
-from authorization.views import AuthorizedResourceMixin
+from authorization.views import AuthorizationMixin, AuthorizedResourceMixin
 from authorization.permissions import AccessModePermission
 
 
-class BaseMixin(object):
+class BaseMixin(AuthorizationMixin):
     """
     Extend to handle data and mixin with one of the views implementing
     get/post methods. Calling the super method is required when overriding
@@ -51,7 +51,7 @@ class BaseView(BaseViewMixin, View):
     pass
 
 
-class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
+class BaseTemplateMixin(TemplateResponseMixin, BaseMixin):
     template_name = None
     ajax_template_name = None
     force_ajax_template = False
@@ -63,7 +63,7 @@ class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
         return super().get_template_names()
 
 
-class BaseTemplateView(BaseTemplateMixin, BaseViewMixin, TemplateView):
+class BaseTemplateView(BaseViewMixin, BaseTemplateMixin, TemplateView):
     pass
 
 
@@ -83,11 +83,11 @@ class BaseRedirectMixin(BaseMixin):
         return HttpResponseRedirect(to)
 
 
-class BaseRedirectView(BaseRedirectMixin, BaseViewMixin, View):
+class BaseRedirectView(BaseViewMixin, BaseRedirectMixin, View):
     pass
 
 
-class BaseFormMixin(BaseRedirectMixin, BaseTemplateMixin, FormMixin):
+class BaseFormMixin(BaseTemplateMixin, FormMixin, BaseRedirectMixin):
     def form_valid(self, form):
         return self.redirect(self.get_success_url())
 

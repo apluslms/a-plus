@@ -3,12 +3,13 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib.messages import error as error_message
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from django.views.generic.base import ContextMixin, View
 
 from .exceptions import ValidationFailed
 from .permissions import NoPermission
 
 
-class AuthDispatchBase(object):
+class AuthDispatchBase(View):
 
     def initialize_request(self, request, *args, **kwargs):
         return request
@@ -41,7 +42,7 @@ class AuthDispatchBase(object):
         return response
 
 
-class AuthenticationMixin(AccessMixin):
+class AuthenticationMixin(AccessMixin, AuthDispatchBase):
     def perform_authentication(self, request):
         """
         Perform authentication on the incoming request.
@@ -80,7 +81,7 @@ class AuthenticationMixin(AccessMixin):
         super().validate_request(request, *args, **kwargs)
 
 
-class AuthorizationMixin(object):
+class AuthorizationMixin(AccessMixin, AuthDispatchBase):
     """
     Authorization mixin adds components to handle access control restrictions
     to different views.
@@ -129,7 +130,7 @@ class AuthorizationMixin(object):
         super().validate_request(request, *args, **kwargs)
 
 
-class ResourceMixin(object):
+class ResourceMixin(ContextMixin, AuthDispatchBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__attr = []

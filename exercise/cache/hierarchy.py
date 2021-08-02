@@ -1,3 +1,4 @@
+from lib.cache.cached import CachedAbstract
 from course.models import CourseModule, LearningObjectCategory
 from ..models import LearningObject
 
@@ -97,7 +98,7 @@ class PreviousIterator(HierarchyIterator):
         raise StopIteration()
 
 
-class ContentMixin(object):
+class ContentMixin(CachedAbstract):
 
     def created(self):
         return self.data['created']

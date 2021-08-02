@@ -1,3 +1,4 @@
+from authorization.views import ResourceMixin
 from django.core.exceptions import PermissionDenied
 from django.template.response import SimpleTemplateResponse
 
@@ -6,7 +7,7 @@ from authorization.permissions import ACCESS
 from .models import UserProfile
 
 
-class UserProfileMixin(BaseMixin):
+class UserProfileMixin(ResourceMixin, BaseMixin):
     access_mode = ACCESS.STUDENT
     login_redirect = True
 

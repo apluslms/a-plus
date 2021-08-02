@@ -2,6 +2,10 @@ from django.urls import reverse
 
 
 class UrlMixin(object):
+    # Must be implemented by subclasses
+    def get_url_kwargs(self):
+        raise NotImplementedError()
+
     def get_url(self, name, **add_kwargs):
         kwargs = self.get_url_kwargs()
         kwargs.update(add_kwargs)

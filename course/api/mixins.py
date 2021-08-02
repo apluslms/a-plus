@@ -32,7 +32,7 @@ class CourseResourceMixin(CourseInstanceBaseMixin, ApiResourceMixin):
         return self.access_mode
 
 
-class CourseModuleResourceMixin(CourseModuleBaseMixin, ApiResourceMixin):
+class CourseModuleResourceMixin(CourseModuleBaseMixin, CourseInstanceBaseMixin, ApiResourceMixin):
     module_kw = 'exercisemodule_id'
 
     def get_course_module_object(self):

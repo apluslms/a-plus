@@ -1,8 +1,10 @@
 from django.http import Http404
 
+from rest_framework.views import APIView
+
 from ..views import ResourceMixin
 
-class ApiResourceMixin(ResourceMixin):
+class ApiResourceMixin(ResourceMixin, APIView):
     def initial(self, request, *args, **kwargs):
         """
         Call .get_resource_objects before .initial()

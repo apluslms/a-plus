@@ -1,4 +1,7 @@
-class ListSerializerMixin(object):
+from rest_framework.viewsets import GenericViewSet
+
+
+class ListSerializerMixin(GenericViewSet):
     # FIXME: use rest_framework_extensions.mixins.DetailSerializerMixin
     def get_serializer_class(self):
         if self.action == 'list':
@@ -6,7 +9,7 @@ class ListSerializerMixin(object):
         return super(ListSerializerMixin, self).get_serializer_class()
 
 
-class MeUserMixin(object):
+class MeUserMixin(GenericViewSet):
     me_user_url_kw = 'user_id'
     me_user_value = 'me'
 

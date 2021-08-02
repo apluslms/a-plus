@@ -6,8 +6,9 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import ACCESS
+from authorization.views import ResourceMixin
 from course.viewbase import CourseModuleMixin
-from lib.viewbase import BaseTemplateView
+from lib.viewbase import BaseMixin, BaseTemplateView
 from .cache.hierarchy import NoSuchContent
 from .exercise_summary import UserExerciseSummary
 from .permissions import (
@@ -23,7 +24,7 @@ from .models import (
 )
 
 
-class ExerciseBaseMixin(object):
+class ExerciseBaseMixin(ResourceMixin, BaseMixin):
     exercise_kw = "exercise_path"
     exercise_permission_classes = (
         ExerciseVisiblePermission,
@@ -34,7 +35,9 @@ class ExerciseBaseMixin(object):
         perms.extend((Perm() for Perm in self.exercise_permission_classes))
         return perms
 
-    # get_exercise_object
+    # Must be implemented by subclasses
+    def get_exercise_object(self):
+        raise NotImplementedError
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -97,7 +100,7 @@ class ExerciseModelBaseView(ExerciseModelMixin, BaseTemplateView):
     pass
 
 
-class SubmissionBaseMixin(object):
+class SubmissionBaseMixin(ResourceMixin, BaseMixin):
     submission_kw = "submission_id"
     submission_permission_classes = (
         SubmissionVisiblePermission,
@@ -108,7 +111,9 @@ class SubmissionBaseMixin(object):
         perms.extend((Perm() for Perm in self.submission_permission_classes))
         return perms
 
-    # get_submission_object
+    # Must be implemented by subclasses
+    def get_submission_object(self):
+        raise NotImplementedError()
 
     def get_resource_objects(self):
         super().get_resource_objects()
