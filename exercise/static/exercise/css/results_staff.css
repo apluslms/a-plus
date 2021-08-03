@@ -12,32 +12,95 @@
  * Table
  */
 
-.student-id,
-.student-name {
-	background-color: rgb(188, 232, 241);
-	font-weight: bold;
+ #table-points-div {
+	max-height: calc(100vh - 12em);
+	max-width: 100vw;
+	overflow: scroll;
 }
 
-table#table-points thead#table-heading th.indicator-heading {
-	filter: brightness(85%);
-}
-
-table#table-points thead#table-heading th {
-	top: 0;
-	border-bottom-width: 1px;
-}
-
-table#table-points thead th:not(.indicator-heading) {
+#table-heading th {
+	min-width: 6em;
+	width: 15vw;
+	max-width: calc(12em + 26px);
 	background-color: white;
+	position: -webkit-sticky; /* Safari */
+	position: sticky;
+	top: 6px;
+	z-index: 2;
 }
 
-table#table-points thead th div.ratio {
+#table-heading th.student-name,
+#table-heading th.student-id,
+#table-heading th.total {
+	max-width: calc(8em + 26px);
+}
+
+#table-heading .form-control { /* Search bars in heading cells */
+	min-width: 6em;
+	width: min(12em, 14vw);
+}
+
+#table-heading th.student-name .form-control,
+#table-heading th.student-id .form-control,
+#table-heading th.total .form-control {
+	max-width: 8em;
+}
+
+#table-heading th,
+#table-heading td {
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+} 
+
+#table-heading th.stick-on-scroll:not(.indicator-heading) {
+    left: 0;
+    z-index: 3;
+}
+
+#table-heading th.stick-on-scroll.indicator-heading {
+	left: 0;
+}
+
+tbody td.stick-on-scroll {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+#table-heading th.stick-on-scroll,
+tbody td.stick-on-scroll {
+	background-color: #d6d6d6 100%;
+}
+
+#table-heading th.stick-on-scroll:nth-child(2),
+tbody td.stick-on-scroll:nth-child(2) {
+    left: min(calc(8em + 10px), calc(14vw + 26px));
+}
+
+#table-heading th.stick-on-scroll:nth-child(3),
+tbody td.stick-on-scroll:nth-child(3) {
+    left: min(calc(16em + 20px), calc(28vw + 52px));
+}
+
+table#table-points thead td div.ratio {
 	text-align: right;
 	font-style: italic;
 	font-weight: normal;
 }
-table#table-points thead th div.ratio::after {
+table#table-points thead td div.ratio::after {
 	content: "%";
+}
+
+.student-id,
+.student-name,
+#table-heading th.indicator-heading {
+    background-color: rgb(188, 232, 241);
+    font-weight: bold;
+}
+
+#table-heading th.indicator-heading {
+    filter: brightness(85%);
 }
 
 div.dt-note {

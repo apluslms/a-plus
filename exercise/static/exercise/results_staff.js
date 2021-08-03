@@ -241,36 +241,6 @@
     var recalculateTableDebounced = debounce(bigColumnSearch, 500);
 
     /**
-     * Also debounce the update of table headers y position for sticky scrolling
-     * when doing a page resize.
-     */
-    var refreshTableYPositionDebounced = debounce(refreshTableYPosition, 500);
-
-    /**
-     * Gets initial y position for rendered table header (and updates it when window width changes)
-     * TODO: Header row sticks to <menu height> px too low when mobile menu is open
-     */
-    function refreshTableYPosition() {
-        // Need to scroll to top first so we get correct coordinates
-        window.scroll(0,0);
-        initialTableYOffset = document.getElementById('table-heading').getBoundingClientRect();
-
-        // Detach previous scroll event handler with old values
-        $(window).off('scroll');
-
-        /**
-         * Make the headers stick when scrolling page (TODO: find a less hacky method)
-         */
-        $(window).scroll(function(ev) {
-            if(pageYOffset > initialTableYOffset.top) {
-                $('thead#table-heading th').css('transform', 'translateY(' + (this.pageYOffset - initialTableYOffset.top) +  'px)');
-            } else {
-                $('thead#table-heading th').css('transform', 'translateY(0px)');
-            }
-        });
-    }
-
-    /**
      * Clears all search fields in column headers and DataTables internals
      */
     function clearSearch() {
@@ -326,7 +296,7 @@
      * based on which summary items are selected via checkboxes
      */
     function recreateSummaryRows() {
-        let rowStart = '<tr class="summaryitem"><th class="student-id stick-on-scroll indicator-heading" colspan="3" style="transform: translateX(0px);">';
+        let rowStart = '<tr class="summaryitem"><th class="stick-on-scroll indicator-heading" colspan="3">';
         let rowEnd = '</tr>';
         var tableheading = $('thead#table-heading');
         var newHeading = '';
@@ -345,11 +315,11 @@
                 if(summArray[item] !== undefined) {
                     // Only add cell if the column is currently visible
                     if(dtVar.columns(cols[0][d]).visible()[0]) {
-                        cells += '<th>' + summArray[item][cols.indexes()[d]] + '</th>';
+                        cells += '<td>' + summArray[item][cols.indexes()[d]] + '</td>';
                     }
                 }
             }
-            newHeading += (rowStart + _(summaries[item]['TITLE']) + '</td><th></th><th>' + summArray[item][TOTAL_COL_ID] + '</th>' + cells + rowEnd);
+            newHeading += (rowStart + _(summaries[item]['TITLE']) + '</td><td></td><td></td><td>' + summArray[item][TOTAL_COL_ID] + '</td>' + cells + rowEnd);
         }
         // Append all summary rows' html at once for better performance
         tableheading.append($(newHeading));
@@ -907,7 +877,7 @@
 
         // Force table width to match the currently visible columns
         // see https://stackoverflow.com/questions/5109831/how-to-resize-a-jquery-datatable-after-hiding-columns
-        pointsTableRef.width("100%");
+        pointsTableRef.width("99%");
 
         // Finally redraw table
         dtVar.draw();
@@ -988,7 +958,7 @@
         // dynamically generated columns, as these may no longer give correct results
         clearPointsSearch();
         // Nothing much here, just refresh the table
-        pointsTableRef.width('100%');
+        pointsTableRef.width('99%');
         recalculateTable();
     }
 
@@ -1120,7 +1090,7 @@
     function showSisuColumns(dtVar, sisumode) {
         dtVar.columns('.sisu-only').visible(sisumode);
         // force table to have correct width after column visibility changes
-        pointsTableRef.width("100%");
+        pointsTableRef.width("99%");
     }
 
     /**
@@ -1175,7 +1145,7 @@
                 {data: "Email", title: "Email", class: "always-hidden col-1", type: "string", searchable: true},
                 {data: "LastName", title: _("Last name"), class: "student-name stick-on-scroll col-2", type: "html", render: renderParticipantLink},
                 {data: "FirstName", title: _("First name"), class: "student-name stick-on-scroll col-3", type: "html", render: renderParticipantLink},
-                {data: "StudentID", title: _("Student ID"), type: "string", width: "6em", class: "student-id stick-on-scroll col-4", render: renderParticipantLink},
+                {data: "StudentID", title: _("Student ID"), type: "string", class: "student-id stick-on-scroll col-4", render: renderParticipantLink},
                 {data: "Grade", title: _("Grade"), class: "sisu-only col-5", type: "string", defaultContent: ""},
                 {data: "Credits", title: _("Credits"), class: "sisu-only col-6", type: "string", defaultContent: ""},
                 {data: "AssessmentDate", title: _("Assessment date"), class: "sisu-only col-7", type: "string", defaultContent: ""},
@@ -1184,7 +1154,7 @@
                 {data: "Organization", title: _("Organization"), class: "col-10", type: "string"},
                 {data: "Tags", title: _("Tags"), class: "tags col-11", render: function(data) { return userTagsToHTML(data); }, type: "html" },
                 {data: "Count", title: "Count", class: "col-12", visible: false, defaultContent: 0, type: "num"},
-                {data: "Total", title: _("Total"), width: "6em", class: "points total col-13", defaultContent: 0, type: "num"}
+                {data: "Total", title: _("Total"), class: "points total col-13", defaultContent: 0, type: "num"}
             ];
 
             // Store exercises globally
@@ -1392,7 +1362,7 @@
                  */
                 dom: "<'row'<'col-md-4 col-sm-6'l><'col-md-4 col-sm-6'B><'col-md-4 col-sm-12'f>>" +
                         "<'row'<'col-sm-6'i><'col-sm-6 dt-note'>>" +
-                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'#table-points-div.col-sm-12'tr>>" +
                         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
                 /**
                  * Data export buttons
@@ -1470,18 +1440,6 @@
             // Save the jQuery DOM instance for later
             multiSelectSelector = $(".multiselect-container");
 
-            // Make the first columns stick when scrolling table
-            $('#table-points-div').scroll(function(ev) {
-                $('#table-points .stick-on-scroll').css('transform', 'translateX(' + this.scrollLeft + 'px)');
-            });
-            /**
-             * Need new table top coordinate when window resized and elements possibly moved.
-             * This is debounced for more responsive UI while scaling.
-             */
-            $( window ).resize(function() {
-                refreshTableYPositionDebounced();
-            });
-
             /**
              * Event handlers for (de)selecting all summary rows at once
              */
@@ -1556,10 +1514,6 @@
                 }
                 searchForSelectedTags();
             });
-
-            // Initialize data table position for fixing top header (see TODO)
-            // moved to the end of this function as it takes less time that way
-            refreshTableYPosition();
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.error("Loading student data failed.");
