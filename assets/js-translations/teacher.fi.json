@@ -62,6 +62,9 @@
   "No difficulty":
   "Ei vaikeusastetta",
 
+  "The percentage indicates the distribution of the total.":
+  "Prosenttiosuus ilmaisee osuuden kokonaissummasta.",
+
   "Total submissions":
   "Palautuksia yhteensä",
 
@@ -75,10 +78,10 @@
   "Tehtävän palauttaneet opiskelijat",
 
   "Students with max points":
-  "Opiskelijoiden lkm joilla on täydet pisteet",
+  "Opiskelijoiden lkm, joilla on täydet pisteet",
 
   "Average points per student with submissions":
-  "Pisteiden keskiarvo per opiskelija jolla on vähintään yksi palautus",
+  "Pisteiden keskiarvo per opiskelija, jolla on vähintään yksi palautus",
 
   "Maximum points":
   "Enimmäispisteet",
@@ -86,23 +89,23 @@
   "Total number of submissions. Calculates all student submission counts together.":
   "Palautusten lukumäärä. Laskee kaikkien opiskelijoiden kaikkien palautusten lukumäärän yhteen.",
 
-  "How many submissions a single student has used on the exercise on average. Only accounts for students with one or more submissions.":
-  "Kuinka monta palautusta opiskelija on käyttänyt tehtävään keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
+  "How many submissions a single student has used on the assignment or group of assignments on average. Only accounts for students with one or more submissions.":
+  "Kuinka monta palautusta opiskelija on käyttänyt tehtävään tai tehtäväjoukkoon keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
 
-  "Maximum number of available submissions for the exercise.":
-  "Kuinka monta palautusta tehtävässä on mahdollista käyttää.",
+  "Maximum number of available submissions for the assignment or group of assignments.":
+  "Kuinka monta palautusta tehtävässä tai tehtäväjoukossa on mahdollista käyttää.",
 
-  "Number of students that have one or more exercise submissions.":
+  "Number of students that have one or more assignment submissions.":
   "Opiskelijoiden lukumäärä, joilla on vähintään yksi palautus.",
 
-  "Number of students that have received maximum points from the exercise.":
-  "Opiskeljoiden lukumäärä, jotka ovat saaneet täydet pisteet tehtävästä.",
+  "Number of students that have received maximum points from the assignment or group of assignments.":
+  "Opiskelijoiden lukumäärä, jotka ovat saaneet täydet pisteet tehtävästä tai tehtäväjoukosta.",
 
-  "Average points received for the exercise. Only accounts for students with one or more submissions.":
-  "Kuinka monta pistettä opiskelijat ovat saaneet tehtävästä keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
+  "Average points received for the assignment or group of assignments. Only accounts for students with one or more submissions.":
+  "Kuinka monta pistettä opiskelijat ovat saaneet tehtävästä tai tehtäväjoukosta keskimäärin. Lasketaan vain opiskelijat, joilla on vähintään yksi palautus.",
 
-  "Maximum points for the exercise.":
-  "Tehtävän enimmäispisteet.",
+  "Maximum points for the assignment or group of assignments.":
+  "Tehtävän tai tehtäväjoukon enimmäispisteet.",
 
   "Export to xlsx (Excel)":
   "Vie xlsx tiedostoon (Excel)",

@@ -104,6 +104,7 @@
         MAX_PTS: 7
     }
 
+    const percentOfTotalTooltip = "The percentage indicates the distribution of the total."
     /**
      * A look-up table of summary rows available for the user to select
      *
@@ -116,36 +117,55 @@
     const summaries = {
         [sv.TOTAL_SUBS]: {
             TITLE: "Total submissions",
+            TOOLTIP: "Total number of submissions. Calculates all student submission counts together.",
+            PERCENTAGE_TOOLTIP: percentOfTotalTooltip,
             ROW: 0,
             INITVAL: 0
         },
         [sv.AVG_SUBS_PER_STUD]: {
             TITLE: "Average submissions per student with submissions",
+            TOOLTIP: (
+                "How many submissions a single student has used on the assignment or group of assignments on average. " +
+                "Only accounts for students with one or more submissions."
+            ),
+            PERCENTAGE_TOOLTIP: percentOfTotalTooltip, // should be replaced if the percentage calculation is changed
             ROW: 1,
             INITVAL: 0
         },
         [sv.MAX_SUBS]: {
             TITLE: "Maximum submissions",
+            TOOLTIP: "Maximum number of available submissions for the assignment or group of assignments.",
+            PERCENTAGE_TOOLTIP: percentOfTotalTooltip,
             ROW: 2,
             INITVAL: 0
         },
         [sv.STUDS_WITH_SUBS]: {
             TITLE: "Students with submissions",
+            TOOLTIP: "Number of students that have one or more assignment submissions.",
+            PERCENTAGE_TOOLTIP: percentOfTotalTooltip, // should be replaced if the percentage calculation is changed
             ROW: 3,
             INITVAL: []
         },
         [sv.STUDS_WITH_MAX_POINTS]: {
             TITLE: "Students with max points",
+            TOOLTIP: "Number of students that have received maximum points from the assignment or group of assignments.",
             ROW: 4,
             INITVAL: ['no_ex']
         },
         [sv.AVG_PTS_PER_STUD]: {
             TITLE: "Average points per student with submissions",
+            TOOLTIP: (
+                "Average points received for the assignment or group of assignments. " +
+                "Only accounts for students with one or more submissions."
+            ),
+            PERCENTAGE_TOOLTIP: percentOfTotalTooltip, // should be replaced if the percentage calculation is changed
             ROW: 5,
             INITVAL: 0
         },
         [sv.MAX_PTS]: {
             TITLE: "Maximum points",
+            TOOLTIP: "Maximum points for the assignment or group of assignments.",
+            PERCENTAGE_TOOLTIP: percentOfTotalTooltip,
             ROW: 6,
             INITVAL: 0
         },
@@ -296,7 +316,7 @@
      * based on which summary items are selected via checkboxes
      */
     function recreateSummaryRows() {
-        let rowStart = '<tr class="summaryitem"><th class="stick-on-scroll indicator-heading" colspan="3">';
+        let rowStart = '<tr class="summaryitem">';
         let rowEnd = '</tr>';
         var tableheading = $('thead#table-heading');
         var newHeading = '';
@@ -304,11 +324,26 @@
 
         for(var i in _activeSummaryItems) {
             let cells = '';
+
             /**
              * TODO: This indexing is somewhat hacky, but at least at this time the sv enum
              * (1,2,3,..) is just off by one from summary row numbering (0,1,2,...)
              */
             let item = parseInt(_activeSummaryItems[i]) + 1;
+
+            let header = (
+                '<th class="stick-on-scroll indicator-heading" colspan="3" ' +
+                'data-toggle="tooltip" data-container="body" title="' +
+                _(summaries[item]['TOOLTIP']) +
+                (summaries[item]['PERCENTAGE_TOOLTIP']
+                    ? '\n' + _(summaries[item]['PERCENTAGE_TOOLTIP'])
+                    : ''
+                ) +
+                '">' +
+                _(summaries[item]['TITLE']) +
+                '</th>'
+            );
+
             var cols = dtVar.columns('.' + dmRev[_displayMode]);
 
             for(var d in cols[0]) {
@@ -319,7 +354,7 @@
                     }
                 }
             }
-            newHeading += (rowStart + _(summaries[item]['TITLE']) + '</td><td></td><td></td><td>' + summArray[item][TOTAL_COL_ID] + '</td>' + cells + rowEnd);
+            newHeading += (rowStart + header + '</td><td></td><td></td><td>' + summArray[item][TOTAL_COL_ID] + '</td>' + cells + rowEnd);
         }
         // Append all summary rows' html at once for better performance
         tableheading.append($(newHeading));
