@@ -50,7 +50,7 @@ class AuthDispatchBase(_AuthDispatchBaseBase):
 
 @object_at_runtime
 class _AuthenticationMixinBase:
-    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any): ...
+    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None: ...
 
 
 class AuthenticationMixin(AccessMixin, _AuthenticationMixinBase):
@@ -97,7 +97,7 @@ class AuthenticationMixin(AccessMixin, _AuthenticationMixinBase):
 @object_at_runtime
 class _AuthorizationMixinBase:
     def handle_no_permission(self) -> HttpResponse: ...
-    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any): ...
+    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None: ...
 
 
 class AuthorizationMixin(_AuthorizationMixinBase):
@@ -152,7 +152,7 @@ class AuthorizationMixin(_AuthorizationMixinBase):
 @object_at_runtime
 class _ResourceMixinBase:
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]: ...
-    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any): ...
+    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None: ...
 
 
 class ResourceMixin(_ResourceMixinBase):

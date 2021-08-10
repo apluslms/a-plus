@@ -24,7 +24,7 @@ class ListSerializerMixin(_ListSerializerMixinBase):
 
 @object_at_runtime
 class _MeUserMixinBase:
-    def initial(self, request: Request, *args: Any, **kwargs: Any): ...
+    def initial(self, request: Request, *args: Any, **kwargs: Any) -> None: ...
 
 
 class MeUserMixin(_MeUserMixinBase):
