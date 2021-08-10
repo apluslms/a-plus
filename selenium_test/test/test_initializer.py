@@ -1,7 +1,7 @@
 import os
 import enum
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver import Chrome, Firefox, ChromeOptions, FirefoxOptions
+from selenium.webdriver.remote.webdriver import WebDriver
 
 TEST_PATH = os.path.dirname(os.path.dirname(__file__))
 TEST_DB = os.path.join(TEST_PATH, 'aplus.db')
@@ -13,7 +13,7 @@ class Browser(enum.Enum):
 
 class TestInitializer:
 
-    def getDefaultDriver(self, headless=False, browser="Firefox"):
+    def getDefaultDriver(self, headless: bool = False, browser: str = "Firefox") -> WebDriver:
         driver = self.getDriver(headless, browser)
         driver.set_window_size(1024,768)
         return driver
@@ -21,27 +21,28 @@ class TestInitializer:
     def setupDisplay(self):
         # Headless with xvfb. Alternatively may just xvfb-run python.
         from pyvirtualdisplay import Display
-        display = Display(visible=0, size=(1024,768))
+        display = Display(visible = False, size = (1024,768))
         display.start()
 
-    def getDriver(self, headless=False, browser="Firefox"):
+    def getDriver(self, headless: bool = False, browser: str = "Firefox") -> WebDriver:
         print('Browser: ' + browser)
 
         if Browser.firefox.value == browser:
-            options = webdriver.firefox.options.Options()
+            options = FirefoxOptions()
             options.headless = headless
-            driver = webdriver.Firefox(options=options)
-
+            driver = Firefox(options=options)
         elif Browser.chrome.value == browser:
-            options = webdriver.chrome.options.Options()
+            options = ChromeOptions()
             options.headless = headless
-            driver = webdriver.Chrome(chrome_options=options)
+            driver = Chrome(chrome_options=options)
+        else:
+            raise ValueError(f"Browser value {browser} unknown")
 
         return driver
 
     # This just replaces the current database with a copy.
     # TODO Should use Django unit tests that run selenium.
-    def recreateDatabase(self):
+    def recreateDatabase(self) -> None:
         if not os.path.exists(TEST_DB):
             raise Exception('The A+ Django needs to be run with environment variable APLUS_DB_FILE=selenium_test/aplus.db')
         if not os.path.exists(TEST_COPY):
