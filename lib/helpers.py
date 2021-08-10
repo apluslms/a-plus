@@ -4,6 +4,7 @@ import functools
 import warnings
 from cachetools import cached, TTLCache
 from collections import OrderedDict
+from typing import TYPE_CHECKING, TypeVar
 from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit, urlunsplit
 from PIL import Image
 from django.conf import settings
@@ -25,6 +26,18 @@ def deprecated(message):
             return func(*args, **kwargs)
         return new_func
     return wrapper
+
+
+TClass = TypeVar('TClass', bound=type)
+def object_at_runtime(cls: TClass) -> TClass:
+    """
+    This is a decorator which replaces the given class with `object` at
+    runtime, which prevents it from appearing in the MRO when used as a base
+    class. Use it on classes that exist for static type checking purposes only.
+    """
+    if TYPE_CHECKING:
+        return cls
+    return object
 
 
 def extract_form_errors(form):

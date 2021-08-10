@@ -1,3 +1,6 @@
+from typing import Any, Type, TypeVar
+
+from django.db.models import Model
 from django.http import Http404
 
 from authorization.api.mixins import ApiResourceMixin
@@ -6,6 +9,7 @@ from course.viewbase import (
     CourseInstanceBaseMixin,
     CourseModuleBaseMixin,
 )
+from lib.helpers import object_at_runtime
 from ..models import (
     LearningObject,
     Submission,
@@ -16,10 +20,16 @@ from ..viewbase import (
 )
 
 
-class ExerciseBaseResourceMixin(ApiResourceMixin,
-                                CourseInstanceBaseMixin,
+@object_at_runtime
+class _ExerciseBaseResourceMixinBase:
+    TModel = TypeVar('TModel', bound=Model)
+    def get_object_or_none(self, kwarg: str, model: Type[TModel]) -> TModel: ...
+
+
+class ExerciseBaseResourceMixin(CourseInstanceBaseMixin,
                                 CourseModuleBaseMixin,
-                                ExerciseBaseMixin):
+                                ExerciseBaseMixin,
+                                _ExerciseBaseResourceMixinBase):
     exercise_kw = 'exercise_id'
 
     def get_exercise_object(self):

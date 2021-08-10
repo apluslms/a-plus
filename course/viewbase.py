@@ -1,15 +1,16 @@
+from typing import List
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, get_language_info
 
-from authorization.permissions import ACCESS
-from authorization.views import ResourceMixin
+from authorization.permissions import ACCESS, Permission
 from exercise.cache.content import CachedContent
-from lib.helpers import remove_query_param_from_url, update_url_params
+from lib.helpers import object_at_runtime, remove_query_param_from_url, update_url_params
 from lib.viewbase import BaseMixin, BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .cache.students import CachedStudent
@@ -21,7 +22,7 @@ from .permissions import (
 from .models import Course, CourseInstance, CourseModule, UserTagging
 
 
-class CourseMixin(UserProfileMixin, ResourceMixin):
+class CourseMixin(UserProfileMixin):
     course_kw = "course_slug"
 
     def get_resource_objects(self):
@@ -37,7 +38,17 @@ class CourseBaseView(CourseMixin, BaseTemplateView):
     pass
 
 
-class CourseInstanceBaseMixin(ResourceMixin, BaseMixin):
+@object_at_runtime
+class _CourseInstanceBaseMixinBase:
+    def get_access_mode(self) -> int: ...
+    def get_course_instance_object(self) -> CourseInstance: ...
+    def get_permissions(self) -> List[Permission]: ...
+    def get_resource_objects(self): ...
+    def note(self, *args: str): ...
+
+
+class CourseInstanceBaseMixin(_CourseInstanceBaseMixinBase):
+    request: HttpRequest
     course_kw = CourseMixin.course_kw
     instance_kw = "instance_slug"
     course_permission_classes = (
@@ -48,10 +59,6 @@ class CourseInstanceBaseMixin(ResourceMixin, BaseMixin):
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.course_permission_classes))
         return perms
-
-    # Must be implemented by subclasses
-    def get_course_instance_object(self):
-        raise NotImplementedError()
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -128,7 +135,13 @@ class CourseInstanceBaseMixin(ResourceMixin, BaseMixin):
         return access_mode
 
 
-class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
+@object_at_runtime
+class _CourseInstanceMixinBase:
+    def handle_exception(self, exc: Exception) -> HttpResponse: ...
+    def handle_no_permission(self) -> HttpResponse: ...
+
+
+class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin, _CourseInstanceMixinBase):
     def get_course_instance_object(self):
         return get_object_or_404(
             CourseInstance,
@@ -176,7 +189,15 @@ class EnrollableViewMixin(CourseInstanceMixin):
         self.note('enrolled', 'enrollable')
 
 
-class CourseModuleBaseMixin(ResourceMixin, BaseMixin):
+@object_at_runtime
+class _CourseModuleBaseMixinBase:
+    def get_course_module_object(self) -> CourseModule: ...
+    def get_permissions(self) -> List[Permission]: ...
+    def get_resource_objects(self): ...
+    def note(self, *args: str): ...
+
+
+class CourseModuleBaseMixin(_CourseModuleBaseMixinBase):
     module_kw = "module_slug"
     module_permissions_classes = (
         CourseModulePermission,
@@ -186,10 +207,6 @@ class CourseModuleBaseMixin(ResourceMixin, BaseMixin):
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.module_permissions_classes))
         return perms
-
-    # Must be implemented by subclasses
-    def get_course_module_object(self):
-        raise NotImplementedError()
 
     def get_resource_objects(self):
         super().get_resource_objects()

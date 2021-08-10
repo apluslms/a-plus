@@ -2,16 +2,25 @@
 Defines base views for extending and mixing to higher level views.
 The structure was created for handling nested models.
 """
+from typing import Any, Dict, List, Type
+
+from django.http.request import HttpRequest
 from django.http.response import HttpResponseRedirect
 from django.utils.http import is_safe_url
 from django.views.generic.base import TemplateResponseMixin, TemplateView, View
 from django.views.generic.edit import FormMixin, FormView
 
-from authorization.views import AuthorizationMixin, AuthorizedResourceMixin
-from authorization.permissions import AccessModePermission
+from authorization.views import AuthorizedResourceMixin
+from authorization.permissions import AccessModePermission, Permission
+from lib.helpers import object_at_runtime
 
 
-class BaseMixin(AuthorizationMixin):
+@object_at_runtime
+class _BaseMixinBase:
+    def get_permissions(self) -> List[Permission]: ...
+
+
+class BaseMixin(_BaseMixinBase):
     """
     Extend to handle data and mixin with one of the views implementing
     get/post methods. Calling the super method is required when overriding
@@ -19,10 +28,12 @@ class BaseMixin(AuthorizationMixin):
     """
     # NOTE: access_mode is not defined here, so if any derived class forgets to
     # define it AccessModePermission will raise assertion error
-    #access_mode = ACCESS.ANONYMOUS
+    access_mode: int # declaration only
     base_permission_classes = [
         AccessModePermission,
     ]
+    kwargs: Dict[str, Any]
+    request: HttpRequest
 
     def get_permissions(self):
         perms = super().get_permissions()
@@ -51,7 +62,7 @@ class BaseView(BaseViewMixin, View):
     pass
 
 
-class BaseTemplateMixin(TemplateResponseMixin, BaseMixin):
+class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
     template_name = None
     ajax_template_name = None
     force_ajax_template = False
@@ -63,7 +74,7 @@ class BaseTemplateMixin(TemplateResponseMixin, BaseMixin):
         return super().get_template_names()
 
 
-class BaseTemplateView(BaseViewMixin, BaseTemplateMixin, TemplateView):
+class BaseTemplateView(BaseTemplateMixin, BaseViewMixin, TemplateView):
     pass
 
 
@@ -83,11 +94,11 @@ class BaseRedirectMixin(BaseMixin):
         return HttpResponseRedirect(to)
 
 
-class BaseRedirectView(BaseViewMixin, BaseRedirectMixin, View):
+class BaseRedirectView(BaseRedirectMixin, BaseViewMixin, View):
     pass
 
 
-class BaseFormMixin(BaseTemplateMixin, FormMixin, BaseRedirectMixin):
+class BaseFormMixin(BaseRedirectMixin, BaseTemplateMixin, FormMixin):
     def form_valid(self, form):
         return self.redirect(self.get_success_url())
 

@@ -2,12 +2,19 @@ from authorization.views import ResourceMixin
 from django.core.exceptions import PermissionDenied
 from django.template.response import SimpleTemplateResponse
 
+from lib.helpers import object_at_runtime
 from lib.viewbase import BaseMixin, BaseTemplateView
 from authorization.permissions import ACCESS
 from .models import UserProfile
 
 
-class UserProfileMixin(ResourceMixin, BaseMixin):
+@object_at_runtime
+class _UserProfileMixinBase:
+    def get_resource_objects(self): ...
+    def note(self, *args: str): ...
+
+
+class UserProfileMixin(BaseMixin, _UserProfileMixinBase):
     access_mode = ACCESS.STUDENT
     login_redirect = True
 

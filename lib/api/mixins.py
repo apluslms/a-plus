@@ -1,7 +1,20 @@
-from rest_framework.viewsets import GenericViewSet
+from typing import Any, Dict, Optional, Type
+
+from rest_framework.request import Request
+from rest_framework.serializers import BaseSerializer
+
+from lib.helpers import object_at_runtime
 
 
-class ListSerializerMixin(GenericViewSet):
+@object_at_runtime
+class _ListSerializerMixinBase:
+    def get_serializer_class(self) -> Type[BaseSerializer]: ...
+
+
+class ListSerializerMixin(_ListSerializerMixinBase):
+    action: str
+    serializer_class: Optional[Type[BaseSerializer]]
+
     # FIXME: use rest_framework_extensions.mixins.DetailSerializerMixin
     def get_serializer_class(self):
         if self.action == 'list':
@@ -9,7 +22,13 @@ class ListSerializerMixin(GenericViewSet):
         return super(ListSerializerMixin, self).get_serializer_class()
 
 
-class MeUserMixin(GenericViewSet):
+@object_at_runtime
+class _MeUserMixinBase:
+    def initial(self, request: Request, *args: Any, **kwargs: Any): ...
+
+
+class MeUserMixin(_MeUserMixinBase):
+    kwargs: Dict[str, Any]
     me_user_url_kw = 'user_id'
     me_user_value = 'me'
 

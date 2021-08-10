@@ -1,10 +1,21 @@
+from typing import Any, Dict
+
 from django.http import Http404
 
-from rest_framework.views import APIView
+from rest_framework.request import Request
 
+from lib.helpers import object_at_runtime
 from ..views import ResourceMixin
 
-class ApiResourceMixin(ResourceMixin, APIView):
+
+@object_at_runtime
+class _ApiResourceMixinBase:
+    def initial(self, request: Request, *args: Any, **kwargs: Any): ...
+
+
+class ApiResourceMixin(ResourceMixin, _ApiResourceMixinBase):
+    kwargs: Dict[str, Any]
+
     def initial(self, request, *args, **kwargs):
         """
         Call .get_resource_objects before .initial()

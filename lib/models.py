@@ -1,10 +1,18 @@
+from typing import Any, Dict
+
 from django.urls import reverse
 
+from lib.helpers import object_at_runtime
 
-class UrlMixin(object):
-    # Must be implemented by subclasses
-    def get_url_kwargs(self):
-        raise NotImplementedError()
+
+@object_at_runtime
+class _UrlMixinBase:
+    def get_url_kwargs(self) -> Dict[str, Any]: ...
+
+
+class UrlMixin(_UrlMixinBase):
+    ABSOLUTE_URL_NAME: str
+    EDIT_URL_NAME: str
 
     def get_url(self, name, **add_kwargs):
         kwargs = self.get_url_kwargs()

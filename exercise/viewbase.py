@@ -1,3 +1,5 @@
+from typing import List
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -5,10 +7,10 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from authorization.permissions import ACCESS
-from authorization.views import ResourceMixin
+from authorization.permissions import Permission
 from course.viewbase import CourseModuleMixin
-from lib.viewbase import BaseMixin, BaseTemplateView
+from lib.helpers import object_at_runtime
+from lib.viewbase import BaseTemplateView
 from .cache.hierarchy import NoSuchContent
 from .exercise_summary import UserExerciseSummary
 from .permissions import (
@@ -24,7 +26,15 @@ from .models import (
 )
 
 
-class ExerciseBaseMixin(ResourceMixin, BaseMixin):
+@object_at_runtime
+class _ExerciseBaseMixinBase:
+    def get_exercise_object(self) -> LearningObject: ...
+    def get_permissions(self) -> List[Permission]: ...
+    def get_resource_objects(self): ...
+    def note(self, *args: str): ...
+
+
+class ExerciseBaseMixin(_ExerciseBaseMixinBase):
     exercise_kw = "exercise_path"
     exercise_permission_classes = (
         ExerciseVisiblePermission,
@@ -34,10 +44,6 @@ class ExerciseBaseMixin(ResourceMixin, BaseMixin):
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.exercise_permission_classes))
         return perms
-
-    # Must be implemented by subclasses
-    def get_exercise_object(self):
-        raise NotImplementedError
 
     def get_resource_objects(self):
         super().get_resource_objects()
@@ -100,7 +106,15 @@ class ExerciseModelBaseView(ExerciseModelMixin, BaseTemplateView):
     pass
 
 
-class SubmissionBaseMixin(ResourceMixin, BaseMixin):
+@object_at_runtime
+class _SubmissionBaseMixinBase:
+    def get_permissions(self) -> List[Permission]: ...
+    def get_resource_objects(self): ...
+    def get_submission_object(self) -> Submission: ...
+    def note(self, *args: str): ...
+
+
+class SubmissionBaseMixin(_SubmissionBaseMixinBase):
     submission_kw = "submission_id"
     submission_permission_classes = (
         SubmissionVisiblePermission,
@@ -110,10 +124,6 @@ class SubmissionBaseMixin(ResourceMixin, BaseMixin):
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.submission_permission_classes))
         return perms
-
-    # Must be implemented by subclasses
-    def get_submission_object(self):
-        raise NotImplementedError()
 
     def get_resource_objects(self):
         super().get_resource_objects()
