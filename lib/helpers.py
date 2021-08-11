@@ -29,15 +29,21 @@ def deprecated(message):
 
 
 TClass = TypeVar('TClass', bound=type)
-def object_at_runtime(cls: TClass) -> TClass:
+def empty_at_runtime(cls: TClass) -> TClass:
     """
-    This is a decorator which replaces the given class with `object` at
-    runtime, which prevents it from appearing in the MRO when used as a base
-    class. Use it on classes that exist for static type checking purposes only.
+    This is a decorator which replaces the given class with an empty class at
+    runtime, which prevents its methods from appearing in MROs. Use it on
+    classes that exist for static type checking purposes only.
     """
     if TYPE_CHECKING:
         return cls
-    return object
+    # We can't just return "object", because if two classes marked with
+    # @empty_at_runtime are used as base classes of the same class, they would
+    # both become "object" at runtime, causing an error. Therefore we need to
+    # return a new class every time this decorator is called.
+    class _object:
+        pass
+    return _object
 
 
 def extract_form_errors(form):
