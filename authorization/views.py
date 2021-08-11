@@ -6,7 +6,7 @@ from django.contrib.messages import error as error_message
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 
-from lib.protocols import (
+from lib.types import (
     SupportsDispatch,
     SupportsGetContextData,
     SupportsHandleNoPermission,

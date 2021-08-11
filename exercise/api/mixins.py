@@ -7,7 +7,7 @@ from course.viewbase import (
     CourseInstanceBaseMixin,
     CourseModuleBaseMixin,
 )
-from lib.protocols import SupportsGetObjectOrNone
+from lib.types import SupportsGetObjectOrNone
 from ..models import (
     LearningObject,
     Submission,

@@ -13,7 +13,7 @@ from django.views.generic.edit import FormMixin, FormView
 
 from authorization.views import AuthorizedResourceMixin
 from authorization.permissions import AccessModePermission, Permission
-from authorization.protocols import SupportsGetPermissions
+from authorization.types import SupportsGetPermissions
 from lib.models import UrlMixin
 
 

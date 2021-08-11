@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from course.models import CourseModule, LearningObjectCategory
 from exercise.models import LearningObject, CourseChapter, BaseExercise, \
     LTIExercise, StaticExercise, ExerciseWithAttachment
-from lib.protocols import SupportsGetFields
+from lib.types import SupportsGetFields
 from .course_forms import FieldsetModelForm
 
 from exercise.exercisecollection_models import ExerciseCollection

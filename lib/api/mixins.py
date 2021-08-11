@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Type, cast
 from rest_framework.request import Request
 from rest_framework.serializers import Serializer
 
-from lib.protocols import SupportsInitial, SupportsGetSerializerClass
+from lib.types import SupportsInitial, SupportsGetSerializerClass
 
 
 class ListSerializerMixin(SupportsGetSerializerClass):

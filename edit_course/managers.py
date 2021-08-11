@@ -1,9 +1,10 @@
+from typing import Union
+
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from exercise.models import LearningObject, CourseChapter, \
     BaseExercise, LTIExercise, StaticExercise, ExerciseWithAttachment
-from exercise.protocols import SupportsLearningObjects
 from course.models import LearningObjectCategory, CourseModule
 from .exercise_forms import CourseChapterForm, BaseExerciseForm, \
     LTIExerciseForm, ExerciseWithAttachmentForm, StaticExerciseForm, \
@@ -36,7 +37,7 @@ class ModelManager(object):
 
 class ExerciseContainerMixin:
 
-    def can_delete(self, obj: SupportsLearningObjects):
+    def can_delete(self, obj: Union[LearningObjectCategory, CourseModule]):
         return obj.learning_objects.count() == 0
 
 

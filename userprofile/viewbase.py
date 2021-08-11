@@ -1,5 +1,5 @@
 from authorization.permissions import ACCESS
-from lib.protocols import SupportsGetResourceObjects, SupportsNote
+from lib.types import SupportsGetResourceObjects, SupportsNote
 from lib.viewbase import BaseMixin, BaseTemplateView
 
 

@@ -2,7 +2,7 @@ from typing import Any
 
 from django.urls import reverse
 
-from lib.protocols import SupportsGetUrlKwargs
+from lib.types import SupportsGetUrlKwargs
 
 
 class UrlMixin(SupportsGetUrlKwargs):

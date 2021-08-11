@@ -7,14 +7,14 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS, Permission
-from authorization.protocols import SupportsGetPermissions
-from course.protocols import (
+from authorization.types import SupportsGetPermissions
+from course.types import (
     SupportsGetCourseInstanceObject,
     SupportsGetCourseModuleObject,
 )
 from exercise.cache.content import CachedContent
 from lib.helpers import remove_query_param_from_url, update_url_params
-from lib.protocols import (
+from lib.types import (
     SupportsGetAccessMode,
     SupportsHandleException,
     SupportsHandleNoPermission,

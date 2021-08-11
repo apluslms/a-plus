@@ -7,9 +7,9 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import Permission
-from authorization.protocols import SupportsGetPermissions
+from authorization.types import SupportsGetPermissions
 from course.viewbase import CourseModuleMixin
-from lib.protocols import (
+from lib.types import (
     SupportsGetCommonObjects,
     SupportsGetResourceObjects,
     SupportsNote,
@@ -27,7 +27,7 @@ from .models import (
     LearningObject,
     Submission,
 )
-from .protocols import (
+from .types import (
     SupportsGetExerciseObject,
     SupportsGetSubmissionObject,
 )

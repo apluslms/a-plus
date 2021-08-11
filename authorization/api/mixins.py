@@ -5,7 +5,7 @@ from django.http import Http404
 
 from rest_framework.request import Request
 
-from lib.protocols import SupportsInitial
+from lib.types import SupportsInitial
 from ..views import ResourceMixin
 
 
