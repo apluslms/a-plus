@@ -1,7 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -21,7 +20,6 @@ from .permissions import (
 )
 from .models import (
     LearningObject,
-    BaseExercise,
     Submission,
 )
 
@@ -40,23 +38,28 @@ class ExerciseBaseMixin(_ExerciseBaseMixinBase):
         ExerciseVisiblePermission,
     )
 
-    def get_permissions(self):
+    def get_permissions(self) -> List[Permission]:
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.exercise_permission_classes))
         return perms
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         self.exercise = self.get_exercise_object()
         self.note("exercise")
 
 
-class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
+@object_at_runtime
+class _ExerciseMixinBase:
+    def get_common_objects(self) -> None: ...
+
+
+class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin, _ExerciseMixinBase):
     exercise_permission_classes = ExerciseBaseMixin.exercise_permission_classes + (
         BaseExerciseAssistantPermission,
     )
 
-    def get_exercise_object(self):
+    def get_exercise_object(self) -> LearningObject:
         try:
             exercise_id = self.content.find_path(
                 self.module.id,
@@ -66,7 +69,7 @@ class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
         except (NoSuchContent, LearningObject.DoesNotExist):
             raise Http404("Learning object not found")
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
         self.now = timezone.now()
         cur, tree, prev, nex = self.content.find(self.exercise)
@@ -76,7 +79,7 @@ class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
         self.breadcrumb = tree[1:-1]
         self.note("now", "previous", "current", "next", "breadcrumb")
 
-    def get_summary_submissions(self, profile=None):
+    def get_summary_submissions(self, profile: Optional[User] = None) -> None:
         self.summary = UserExerciseSummary(
             self.exercise, profile or self.request.user
         )
@@ -97,7 +100,7 @@ class ExerciseModelMixin(ExerciseMixin):
         ModelVisiblePermission,
     )
 
-    def get_permissions(self):
+    def get_permissions(self) -> List[Permission]:
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.model_permission_classes))
         return perms
@@ -120,12 +123,12 @@ class SubmissionBaseMixin(_SubmissionBaseMixinBase):
         SubmissionVisiblePermission,
     )
 
-    def get_permissions(self):
+    def get_permissions(self) -> List[Permission]:
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.submission_permission_classes))
         return perms
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         self.submission = self.get_submission_object()
         self.note("submission")
@@ -133,14 +136,14 @@ class SubmissionBaseMixin(_SubmissionBaseMixinBase):
 
 class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
 
-    def get_submission_object(self):
+    def get_submission_object(self) -> Submission:
         return get_object_or_404(
             Submission,
             id=self.kwargs[self.submission_kw],
             exercise=self.exercise
         )
 
-    def get_summary_submissions(self):
+    def get_summary_submissions(self) -> None:
         if self.submission.is_submitter(self.request.user):
             profile = self.profile
         else:

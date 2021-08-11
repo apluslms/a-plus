@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, cast
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
@@ -44,14 +44,14 @@ EXERCISE_FIELDS = [
 
 @object_at_runtime
 class _LearningObjectMixinBase:
-    def get_fields(self, *names) -> List[forms.BoundField]: ...
+    def get_fields(self, *names: str) -> List[forms.BoundField]: ...
 
 
 class LearningObjectMixin(_LearningObjectMixinBase):
     fields: Dict[str, Any]
 
-    def init_fields(self, **kwargs):
-        self.lobject = kwargs.get('instance')
+    def init_fields(self, **kwargs: Any) -> None:
+        self.lobject = cast(LearningObject, kwargs.get('instance'))
         self.fields["category"].queryset = LearningObjectCategory.objects.filter(
             course_instance=self.lobject.course_instance)
         self.fields["course_module"].queryset = CourseModule.objects.filter(
@@ -61,14 +61,14 @@ class LearningObjectMixin(_LearningObjectMixinBase):
             .filter(course_module=self.lobject.course_module)
 
     @property
-    def remote_service_head(self):
+    def remote_service_head(self) -> bool:
         return True
 
-    def get_hierarchy_fieldset(self):
+    def get_hierarchy_fieldset(self) -> Dict[str, Any]:
         return { 'legend':_('HIERARCHY'), 'fields':self.get_fields('status',
             'audience', 'category','course_module','parent','order','url') }
 
-    def get_content_fieldset(self, *add):
+    def get_content_fieldset(self, *add: str) -> Dict[str, Any]:
         return { 'legend':_('CONTENT'), 'fields':self.get_fields('name',
             'description', *add) }
 

@@ -1,7 +1,5 @@
-from typing import List
+from typing import Any, List, Optional
 
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
@@ -11,7 +9,7 @@ from django.utils.translation import get_language, get_language_info
 from authorization.permissions import ACCESS, Permission
 from exercise.cache.content import CachedContent
 from lib.helpers import object_at_runtime, remove_query_param_from_url, update_url_params
-from lib.viewbase import BaseMixin, BaseTemplateView
+from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .cache.students import CachedStudent
 from .exceptions import TranslationNotFound
@@ -19,13 +17,13 @@ from .permissions import (
     CourseVisiblePermission,
     CourseModulePermission,
 )
-from .models import Course, CourseInstance, CourseModule, UserTagging
+from .models import Course, CourseInstance, CourseModule
 
 
 class CourseMixin(UserProfileMixin):
     course_kw = "course_slug"
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         self.course = get_object_or_404(
             Course,
@@ -41,7 +39,7 @@ class CourseBaseView(CourseMixin, BaseTemplateView):
 @object_at_runtime
 class _CourseInstanceBaseMixinBase:
     def get_access_mode(self) -> int: ...
-    def get_course_instance_object(self) -> CourseInstance: ...
+    def get_course_instance_object(self) -> Optional[CourseInstance]: ...
     def get_permissions(self) -> List[Permission]: ...
     def get_resource_objects(self) -> None: ...
     def note(self, *args: str) -> None: ...
@@ -55,12 +53,12 @@ class CourseInstanceBaseMixin(_CourseInstanceBaseMixinBase):
         CourseVisiblePermission,
     )
 
-    def get_permissions(self):
+    def get_permissions(self) -> List[Permission]:
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.course_permission_classes))
         return perms
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         user = self.request.user
         instance = self.get_course_instance_object()
@@ -94,7 +92,7 @@ class CourseInstanceBaseMixin(_CourseInstanceBaseMixinBase):
                 instance_def_language = instance_languages[0]
                 instance_languages = set(instance_languages)
 
-                languages = []
+                languages: List[str] = []
                 if self.user_course_data and self.user_course_data.language:
                     languages.append(self.user_course_data.language)
                 if is_real_user and user.userprofile.language:
@@ -121,7 +119,7 @@ class CourseInstanceBaseMixin(_CourseInstanceBaseMixinBase):
 
                 translation.activate(language)
 
-    def get_access_mode(self):
+    def get_access_mode(self) -> int:
         access_mode = super().get_access_mode()
 
         if hasattr(self, 'instance'):
@@ -142,23 +140,23 @@ class _CourseInstanceMixinBase:
 
 
 class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin, _CourseInstanceMixinBase):
-    def get_course_instance_object(self):
+    def get_course_instance_object(self) -> Optional[CourseInstance]:
         return get_object_or_404(
             CourseInstance,
             url=self.kwargs[self.instance_kw],
             course__url=self.kwargs[self.course_kw],
         )
 
-    def handle_exception(self, exc):
+    def handle_exception(self, exc: Exception) -> HttpResponse:
         if isinstance(exc, TranslationNotFound):
-            instance_languages = self.instance.language.strip("|").split("|")
+            instance_languages: List[Any] = self.instance.language.strip("|").split("|")
             url = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             for i, lang in enumerate(instance_languages):
                 instance_languages[i] = {"name": get_language_info(lang)['name'], "url": update_url_params(url, {'hl' : lang})}
             return render(self.request, '404.html', {'error_msg': str(exc), 'languages': instance_languages}, status=404)
         return super().handle_exception(exc)
 
-    def handle_no_permission(self):
+    def handle_no_permission(self) -> HttpResponse:
         if (self.request.user.is_authenticated
                 and not self.is_student
                 and not self.is_course_staff
@@ -180,7 +178,7 @@ class CourseInstanceBaseView(CourseInstanceMixin, BaseTemplateView):
 class EnrollableViewMixin(CourseInstanceMixin):
     access_mode = ACCESS.ENROLL
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         self.enrolled = self.is_student
         self.enrollable = (
             self.profile
@@ -191,7 +189,7 @@ class EnrollableViewMixin(CourseInstanceMixin):
 
 @object_at_runtime
 class _CourseModuleBaseMixinBase:
-    def get_course_module_object(self) -> CourseModule: ...
+    def get_course_module_object(self) -> Optional[CourseModule]: ...
     def get_permissions(self) -> List[Permission]: ...
     def get_resource_objects(self) -> None: ...
     def note(self, *args: str) -> None: ...
@@ -203,19 +201,19 @@ class CourseModuleBaseMixin(_CourseModuleBaseMixinBase):
         CourseModulePermission,
     )
 
-    def get_permissions(self):
+    def get_permissions(self) -> List[Permission]:
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.module_permissions_classes))
         return perms
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         self.module = self.get_course_module_object()
         self.note("module")
 
 
 class CourseModuleMixin(CourseModuleBaseMixin, CourseInstanceMixin):
-    def get_course_module_object(self):
+    def get_course_module_object(self) -> Optional[CourseModule]:
         return get_object_or_404(
             CourseModule,
             url=self.kwargs[self.module_kw],

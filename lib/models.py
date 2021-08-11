@@ -14,20 +14,20 @@ class UrlMixin(_UrlMixinBase):
     ABSOLUTE_URL_NAME: str
     EDIT_URL_NAME: str
 
-    def get_url(self, name, **add_kwargs):
+    def get_url(self, name: str, **add_kwargs: Any) -> str:
         kwargs = self.get_url_kwargs()
         kwargs.update(add_kwargs)
         return reverse(name, kwargs=kwargs)
 
-    def get_display_url(self):
+    def get_display_url(self) -> str:
         return self.get_absolute_url()
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         if not hasattr(self, 'ABSOLUTE_URL_NAME'):
             raise NotImplementedError("Model %r doesn't have absolute url" % self)
         return self.get_url(self.ABSOLUTE_URL_NAME)
 
-    def get_edit_url(self):
+    def get_edit_url(self) -> str:
         if not hasattr(self, 'EDIT_URL_NAME'):
             raise NotImplementedError("Model %r doesn't have absolute url" % self)
         return self.get_url(self.EDIT_URL_NAME)

@@ -1,10 +1,11 @@
-from typing import Any, Type, TypeVar
+from typing import Type, TypeVar
 
 from django.db.models import Model
 from django.http import Http404
 
 from authorization.api.mixins import ApiResourceMixin
 from authorization.permissions import ACCESS
+from course.models import CourseInstance, CourseModule
 from course.viewbase import (
     CourseInstanceBaseMixin,
     CourseModuleBaseMixin,
@@ -32,23 +33,23 @@ class ExerciseBaseResourceMixin(CourseInstanceBaseMixin,
                                 _ExerciseBaseResourceMixinBase):
     exercise_kw = 'exercise_id'
 
-    def get_exercise_object(self):
+    def get_exercise_object(self) -> LearningObject:
         exercise = self.get_object_or_none(self.exercise_kw, LearningObject)
         if not exercise:
             raise Http404("Learning object not found")
         return exercise.as_leaf_class()
 
-    def get_course_module_object(self):
+    def get_course_module_object(self) -> CourseModule:
         return self.exercise.course_module
 
-    def get_course_instance_object(self):
+    def get_course_instance_object(self) -> CourseInstance:
         return self.module.course_instance
 
 
 class ExerciseResourceMixin(ExerciseBaseResourceMixin, ApiResourceMixin):
     access_mode = ACCESS.ANONYMOUS # not really used, see get_access_mode() below
 
-    def get_access_mode(self):
+    def get_access_mode(self) -> int:
         # This method is defined here because some permissions expect view classes
         # to have this method. Access mode was not really intended to be used by
         # the API, though. Class CourseInstanceBaseMixin actually defines this
@@ -61,20 +62,20 @@ class SubmissionBaseResourceMixin(ExerciseBaseResourceMixin,
                                   SubmissionBaseMixin):
     submission_kw = 'submission_id'
 
-    def get_submission_object(self):
+    def get_submission_object(self) -> Submission:
         submission = self.get_object_or_none(self.submission_kw, Submission)
         if not submission:
             raise Http404("Submission not found")
         return submission
 
-    def get_exercise_object(self):
+    def get_exercise_object(self) -> LearningObject:
         return self.submission.exercise
 
 
 class SubmissionResourceMixin(SubmissionBaseResourceMixin, ApiResourceMixin):
     access_mode = ACCESS.ANONYMOUS # not really used, see get_access_mode() below
 
-    def get_access_mode(self):
+    def get_access_mode(self) -> int:
         # This method is defined here because some permissions expect view classes
         # to have this method. Access mode was not really intended to be used by
         # the API, though. Class CourseInstanceBaseMixin actually defines this

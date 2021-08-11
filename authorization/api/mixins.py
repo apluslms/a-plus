@@ -1,5 +1,6 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Type, TypeVar
 
+from django.db.models import Model
 from django.http import Http404
 
 from rest_framework.request import Request
@@ -16,7 +17,7 @@ class _ApiResourceMixinBase:
 class ApiResourceMixin(ResourceMixin, _ApiResourceMixinBase):
     kwargs: Dict[str, Any]
 
-    def initial(self, request, *args, **kwargs):
+    def initial(self, request: Request, *args: Any, **kwargs: Any) -> None:
         """
         Call .get_resource_objects before .initial()
         Call .get_common_objects() after .initial()
@@ -28,13 +29,14 @@ class ApiResourceMixin(ResourceMixin, _ApiResourceMixinBase):
         super().initial(request, *args, **kwargs)
         self.get_common_objects()
 
-    def get_member_object(self, key, name):
+    def get_member_object(self, key: str, name: str) -> Any:
         obj = getattr(self, key, None)
         if obj is None:
             raise Http404("%s not found." % (name,))
         return obj
 
-    def get_object_or_none(self, kwarg, model, field='pk', **extra):
+    TModel = TypeVar('TModel', bound=Model)
+    def get_object_or_none(self, kwarg: str, model: Type[TModel], field: str = 'pk', **extra: Any) -> Optional[TModel]:
         val = self.kwargs.get(kwarg, None)
         if val is None:
             return None

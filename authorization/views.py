@@ -1,14 +1,14 @@
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Type
 
 from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.messages import error as error_message
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 
 from lib.helpers import object_at_runtime
 from .exceptions import ValidationFailed
-from .permissions import NoPermission
+from .permissions import NoPermission, Permission
 
 
 @object_at_runtime
@@ -17,18 +17,18 @@ class _AuthDispatchBaseBase:
 
 
 class AuthDispatchBase(_AuthDispatchBaseBase):
-    def initialize_request(self, request, *args, **kwargs):
+    def initialize_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpRequest:
         return request
 
-    def validate_request(self, request, *args, **kwargs):
+    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
         pass
 
-    def handle_exception(self, exc):
+    def handle_exception(self, exc: Exception) -> HttpResponse:
         if isinstance(exc, ValidationFailed):
             return exc.response
         raise exc
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         """
         Hook to dispatch chain. This method is called before View.dispatch
         routes the http method call to actual handler (done by super().dispatch())
@@ -56,7 +56,7 @@ class _AuthenticationMixinBase:
 class AuthenticationMixin(AccessMixin, _AuthenticationMixinBase):
     request: HttpRequest
 
-    def perform_authentication(self, request):
+    def perform_authentication(self, request: HttpRequest) -> None:
         """
         Perform authentication on the incoming request.
         Note that if you override this and simply 'pass', then authentication
@@ -65,7 +65,7 @@ class AuthenticationMixin(AccessMixin, _AuthenticationMixinBase):
         """
         request.user
 
-    def handle_no_permission(self):
+    def handle_no_permission(self) -> HttpResponseRedirect:
         """
         Will be called by self.permission_denied() when user doesn't
         have permission.
@@ -89,7 +89,7 @@ class AuthenticationMixin(AccessMixin, _AuthenticationMixinBase):
                                     self.get_login_url(),
                                     self.get_redirect_field_name())
 
-    def validate_request(self, request, *args, **kwargs):
+    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
         self.perform_authentication(request)
         super().validate_request(request, *args, **kwargs)
 
@@ -108,23 +108,24 @@ class AuthorizationMixin(_AuthorizationMixinBase):
 
     This class has a lot of influence from django-rest-framework
     """
-    permission_classes = [NoPermission]
+    permission_classes: List[Type[Permission]] = [NoPermission]
+    permission_denied_message: Optional[str]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    def get_permissions(self):
+    def get_permissions(self) -> List[Permission]:
         """
         Instantiates and returns the list of permissions that this view requires.
         """
         return [Permission() for Permission in self.permission_classes]
 
-    def permission_denied(self, message=None):
+    def permission_denied(self, message: Optional[str] = None) -> None:
         if not self.permission_denied_message:
             self.permission_denied_message = message
         raise ValidationFailed(self.handle_no_permission())
 
-    def check_permissions(self, request):
+    def check_permissions(self, request: HttpRequest) -> None:
         """
         Check if the request should be permitted.
         Raises an appropriate exception if the request is not permitted.
@@ -134,7 +135,7 @@ class AuthorizationMixin(_AuthorizationMixinBase):
                 message = getattr(permission, 'message', None)
                 self.permission_denied(message)
 
-    def check_object_permissions(self, request, obj):
+    def check_object_permissions(self, request: HttpRequest, obj: Any) -> None:
         """
         Check if the request should be permitted for a given object.
         Raises an appropriate exception if the request is not permitted.
@@ -144,7 +145,7 @@ class AuthorizationMixin(_AuthorizationMixinBase):
                 message = getattr(permission, 'message', None)
                 self.permission_denied(message)
 
-    def validate_request(self, request, *args, **kwargs):
+    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
         self.check_permissions(request)
         super().validate_request(request, *args, **kwargs)
 
@@ -158,11 +159,11 @@ class _ResourceMixinBase:
 class ResourceMixin(_ResourceMixinBase):
     request: HttpRequest
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.__attr = []
+        self.__attr: List[str] = []
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         """
         Get the resource objects sufficient to determine the existance.
         Should raise Http404 if the request does not reach a resource.
@@ -170,7 +171,7 @@ class ResourceMixin(_ResourceMixinBase):
         """
         pass
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         """
         Once access is verified further objects may be created that
         are common for different HTTP methods, e.g. get and post.
@@ -178,7 +179,7 @@ class ResourceMixin(_ResourceMixinBase):
         """
         pass
 
-    def note(self, *args):
+    def note(self, *args: str) -> None:
         """
         The class attribute names given in argument list are marked
         "interesting" for the view. In a TemplateView these will be
@@ -186,17 +187,17 @@ class ResourceMixin(_ResourceMixinBase):
         """
         self.__attr.extend(args)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         """
         Add member variables recorded with .note() to context_data
         """
-        context = {"request": self.request}
+        context: Dict[str, Any] = {"request": self.request}
         for key in self.__attr:
             context[key] = getattr(self, key)
         context.update(kwargs)
         return super().get_context_data(**context)
 
-    def validate_request(self, request, *args, **kwargs):
+    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
         """
         Call .get_resource_objects before .validate_request()
         Call .get_common_objects() after .validate_request()

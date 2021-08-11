@@ -1,3 +1,5 @@
+from typing import Optional
+
 from authorization.api.mixins import ApiResourceMixin
 from authorization.permissions import ACCESS
 from ..models import (
@@ -14,7 +16,7 @@ class CourseResourceMixin(CourseInstanceBaseMixin, ApiResourceMixin):
     course_kw = 'course_id'
     access_mode = ACCESS.ANONYMOUS # not really used, see get_access_mode() below
 
-    def get_course_instance_object(self):
+    def get_course_instance_object(self) -> Optional[CourseInstance]:
         course_id = self.kwargs.get(self.course_kw, None)
         if course_id is None:
             return None
@@ -23,7 +25,7 @@ class CourseResourceMixin(CourseInstanceBaseMixin, ApiResourceMixin):
         except CourseInstance.DoesNotExist:
             return None
 
-    def get_access_mode(self):
+    def get_access_mode(self) -> int:
         # This method is defined here because some permissions expect view classes
         # to have this method. Access mode was not really intended to be used by
         # the API, though. Class CourseInstanceBaseMixin actually defines this
@@ -36,7 +38,7 @@ class CourseModuleResourceMixin(CourseModuleBaseMixin, ApiResourceMixin):
     instance: CourseInstance
     module_kw = 'exercisemodule_id'
 
-    def get_course_module_object(self):
+    def get_course_module_object(self) -> Optional[CourseModule]:
         module_id = self.kwargs.get(self.module_kw, None)
         if module_id is None:
             return None

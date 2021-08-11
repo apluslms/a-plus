@@ -2,8 +2,9 @@
 Defines base views for extending and mixing to higher level views.
 The structure was created for handling nested models.
 """
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Optional
 
+from django.forms import Form
 from django.http.request import HttpRequest
 from django.http.response import HttpResponseRedirect
 from django.utils.http import is_safe_url
@@ -13,6 +14,7 @@ from django.views.generic.edit import FormMixin, FormView
 from authorization.views import AuthorizedResourceMixin
 from authorization.permissions import AccessModePermission, Permission
 from lib.helpers import object_at_runtime
+from lib.models import UrlMixin
 
 
 @object_at_runtime
@@ -35,15 +37,15 @@ class BaseMixin(_BaseMixinBase):
     kwargs: Dict[str, Any]
     request: HttpRequest
 
-    def get_permissions(self):
+    def get_permissions(self) -> List[Permission]:
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.base_permission_classes))
         return perms
 
-    def get_access_mode(self):
+    def get_access_mode(self) -> int:
         return self.access_mode
 
-    def _get_kwarg(self, kw, **kwargs):
+    def _get_kwarg(self, kw: str, **kwargs: Any) -> Any:
         arg = self.kwargs.get(kw)
         if not arg:
             if "default" in kwargs:
@@ -63,11 +65,11 @@ class BaseView(BaseViewMixin, View):
 
 
 class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
-    template_name = None
-    ajax_template_name = None
+    template_name: Optional[str] = None
+    ajax_template_name: Optional[str] = None
     force_ajax_template = False
 
-    def get_template_names(self):
+    def get_template_names(self) -> List[str]:
         if self.force_ajax_template or self.request.is_ajax() or not self.template_name:
             if self.ajax_template_name:
                 return [self.ajax_template_name]
@@ -80,11 +82,11 @@ class BaseTemplateView(BaseTemplateMixin, BaseViewMixin, TemplateView):
 
 class BaseRedirectMixin(BaseMixin):
 
-    def redirect_kwarg(self, kw, backup=None):
+    def redirect_kwarg(self, kw: str, backup: Optional[UrlMixin] = None) -> HttpResponseRedirect:
         to = self.request.POST.get(kw, self.request.GET.get(kw, ""))
         return self.redirect(to, backup)
 
-    def redirect(self, to, backup=None):
+    def redirect(self, to: str, backup: Optional[UrlMixin] = None) -> HttpResponseRedirect:
         if not is_safe_url(url=to, allowed_hosts={self.request.get_host()}):
             if backup:
                 to = backup.get_absolute_url()
@@ -99,7 +101,7 @@ class BaseRedirectView(BaseRedirectMixin, BaseViewMixin, View):
 
 
 class BaseFormMixin(BaseRedirectMixin, BaseTemplateMixin, FormMixin):
-    def form_valid(self, form):
+    def form_valid(self, form: Form) -> HttpResponseRedirect:
         return self.redirect(self.get_success_url())
 
 

@@ -1,9 +1,13 @@
+from typing import Any, List, Optional, Tuple
+
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+from django.http.request import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
 
 from authorization.permissions import ACCESS
+from course.models import CourseInstance
 from course.viewbase import CourseInstanceMixin
 from exercise.cache.points import CachedPoints
 from lib.helpers import settings_text
@@ -19,14 +23,14 @@ class DiplomaMixin(CourseInstanceMixin):
     diploma_kw = 'coursediploma_id'
     userprofile_kw = 'userprofile_id'
 
-    def get_course_instance_object(self):
+    def get_course_instance_object(self) -> Optional[CourseInstance]:
         self.design = get_object_or_404(
             CourseDiplomaDesign,
             id=self.kwargs[self.diploma_kw],
         )
         return self.design.course
 
-    def get_profile_object(self):
+    def get_profile_object(self) -> UserProfile:
         return get_object_or_404(
             UserProfile,
             id=self.kwargs[self.userprofile_kw],
@@ -37,7 +41,7 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
     access_mode = ACCESS.ASSISTANT
     template_name = "diploma/list.html"
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
 
         students = self.instance.students.all()
@@ -49,7 +53,7 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
 
         point_limits = self.design.point_limits
         pad_points = self.design.pad_points
-        student_grades = []
+        student_grades: List[Tuple[UserProfile, int]] = []
         for profile in students:
             points = CachedPoints(self.instance, profile.user, self.content)
             student_grades.append((
@@ -66,7 +70,7 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
 class DiplomaCreateView(DiplomaMixin, BaseRedirectView):
     access_mode = ACCESS.ENROLLED
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         design = self.design
         profile = self.get_profile_object()
         if (profile != self.profile and not self.is_course_staff):
@@ -91,7 +95,7 @@ class DiplomaCreateView(DiplomaMixin, BaseRedirectView):
 
 class DiplomaPdfView(View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         diploma = get_object_or_404(StudentDiploma, hashkey=kwargs['diploma_hash'])
         response = HttpResponse(content_type='application/pdf')
         render_diploma(request, response, diploma)

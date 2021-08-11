@@ -4,7 +4,8 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.http.response import Http404, HttpResponse
+from django.db.models import QuerySet
+from django.http.response import Http404
 from django.urls import reverse
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -21,8 +22,8 @@ from lib.viewbase import (
     BaseFormView,
 )
 from authorization.permissions import ACCESS
-from course.models import CourseInstance, UserTag, UserTagging
-from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from course.models import UserTag, UserTagging
+from course.viewbase import CourseInstanceMixin
 from exercise.cache.content import CachedContent
 from exercise.cache.exercise import invalidate_instance
 from exercise.cache.hierarchy import NoSuchContent
@@ -113,7 +114,7 @@ class ModelBaseMixin(CourseInstanceMixin):
     model_kw = "model"
     id_kw = "id"
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         MANAGERS = {
             "category": CategoryManager,
@@ -131,7 +132,7 @@ class ModelBaseMixin(CourseInstanceMixin):
         # Should be fixed one day.
         self.note("model", "model_name")
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.instance.get_edit_url()
 
 
@@ -225,10 +226,10 @@ class UserTagMixin(CourseInstanceMixin, BaseTemplateMixin, BaseViewMixin):
     pk_url_kwarg = "tag_id"
     success_url_name = "course-tags"
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.instance.get_url(self.success_url_name)
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[UserTag]:
         return self.instance.usertags.all()
 
 
