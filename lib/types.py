@@ -37,7 +37,7 @@ class SupportsGetFields:
 @empty_at_runtime
 class SupportsGetObjectOrNone:
     TModel = TypeVar('TModel', bound=Model)
-    def get_object_or_none(self, kwarg: str, model: Type[TModel]) -> TModel: ...
+    def get_object_or_none(self, kwarg: str, model: Type[TModel], field: str = 'pk', **extra: Any) -> TModel: ...
 
 
 @empty_at_runtime
