@@ -13,16 +13,11 @@ from django.views.generic.edit import FormMixin, FormView
 
 from authorization.views import AuthorizedResourceMixin
 from authorization.permissions import AccessModePermission, Permission
-from lib.helpers import object_at_runtime
+from authorization.protocols import SupportsGetPermissions
 from lib.models import UrlMixin
 
 
-@object_at_runtime
-class _BaseMixinBase:
-    def get_permissions(self) -> List[Permission]: ...
-
-
-class BaseMixin(_BaseMixinBase):
+class BaseMixin(SupportsGetPermissions):
     """
     Extend to handle data and mixin with one of the views implementing
     get/post methods. Calling the super method is required when overriding

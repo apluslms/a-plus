@@ -1,16 +1,11 @@
-from typing import Any, Dict
+from typing import Any
 
 from django.urls import reverse
 
-from lib.helpers import object_at_runtime
+from lib.protocols import SupportsGetUrlKwargs
 
 
-@object_at_runtime
-class _UrlMixinBase:
-    def get_url_kwargs(self) -> Dict[str, Any]: ...
-
-
-class UrlMixin(_UrlMixinBase):
+class UrlMixin(SupportsGetUrlKwargs):
     ABSOLUTE_URL_NAME: str
     EDIT_URL_NAME: str
 

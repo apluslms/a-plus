@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from exercise.models import LearningObject, CourseChapter, \
     BaseExercise, LTIExercise, StaticExercise, ExerciseWithAttachment
+from exercise.protocols import SupportsLearningObjects
 from course.models import LearningObjectCategory, CourseModule
 from .exercise_forms import CourseChapterForm, BaseExerciseForm, \
     LTIExerciseForm, ExerciseWithAttachmentForm, StaticExerciseForm, \
@@ -33,9 +34,9 @@ class ModelManager(object):
         return True
 
 
-class ExerciseContainerMixin(object):
+class ExerciseContainerMixin:
 
-    def can_delete(self, obj):
+    def can_delete(self, obj: SupportsLearningObjects):
         return obj.learning_objects.count() == 0
 
 

@@ -3,15 +3,10 @@ from typing import Any, Dict, Optional, Type, cast
 from rest_framework.request import Request
 from rest_framework.serializers import Serializer
 
-from lib.helpers import object_at_runtime
+from lib.protocols import SupportsInitial, SupportsGetSerializerClass
 
 
-@object_at_runtime
-class _ListSerializerMixinBase:
-    def get_serializer_class(self) -> Type[Serializer]: ...
-
-
-class ListSerializerMixin(_ListSerializerMixinBase):
+class ListSerializerMixin(SupportsGetSerializerClass):
     action: str
     serializer_class: Optional[Type[Serializer]]
 
@@ -22,12 +17,7 @@ class ListSerializerMixin(_ListSerializerMixinBase):
         return super(ListSerializerMixin, self).get_serializer_class()
 
 
-@object_at_runtime
-class _MeUserMixinBase:
-    def initial(self, request: Request, *args: Any, **kwargs: Any) -> None: ...
-
-
-class MeUserMixin(_MeUserMixinBase):
+class MeUserMixin(SupportsInitial):
     kwargs: Dict[str, Any]
     me_user_url_kw = 'user_id'
     me_user_value = 'me'

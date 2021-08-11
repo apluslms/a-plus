@@ -6,17 +6,17 @@ from django.contrib.messages import error as error_message
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 
-from lib.helpers import object_at_runtime
+from lib.protocols import (
+    SupportsDispatch,
+    SupportsGetContextData,
+    SupportsHandleNoPermission,
+    SupportsValidateRequest,
+)
 from .exceptions import ValidationFailed
 from .permissions import NoPermission, Permission
 
 
-@object_at_runtime
-class _AuthDispatchBaseBase:
-    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse: ...
-
-
-class AuthDispatchBase(_AuthDispatchBaseBase):
+class AuthDispatchBase(SupportsDispatch):
     def initialize_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpRequest:
         return request
 
@@ -48,12 +48,7 @@ class AuthDispatchBase(_AuthDispatchBaseBase):
         return response
 
 
-@object_at_runtime
-class _AuthenticationMixinBase:
-    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None: ...
-
-
-class AuthenticationMixin(AccessMixin, _AuthenticationMixinBase):
+class AuthenticationMixin(AccessMixin, SupportsValidateRequest):
     request: HttpRequest
 
     def perform_authentication(self, request: HttpRequest) -> None:
@@ -94,13 +89,7 @@ class AuthenticationMixin(AccessMixin, _AuthenticationMixinBase):
         super().validate_request(request, *args, **kwargs)
 
 
-@object_at_runtime
-class _AuthorizationMixinBase:
-    def handle_no_permission(self) -> HttpResponse: ...
-    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None: ...
-
-
-class AuthorizationMixin(_AuthorizationMixinBase):
+class AuthorizationMixin(SupportsHandleNoPermission, SupportsValidateRequest):
     """
     Authorization mixin adds components to handle access control restrictions
     to different views.
@@ -150,13 +139,7 @@ class AuthorizationMixin(_AuthorizationMixinBase):
         super().validate_request(request, *args, **kwargs)
 
 
-@object_at_runtime
-class _ResourceMixinBase:
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]: ...
-    def validate_request(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None: ...
-
-
-class ResourceMixin(_ResourceMixinBase):
+class ResourceMixin(SupportsGetContextData, SupportsValidateRequest):
     request: HttpRequest
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

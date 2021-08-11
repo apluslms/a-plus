@@ -7,8 +7,20 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS, Permission
+from authorization.protocols import SupportsGetPermissions
+from course.protocols import (
+    SupportsGetCourseInstanceObject,
+    SupportsGetCourseModuleObject,
+)
 from exercise.cache.content import CachedContent
-from lib.helpers import object_at_runtime, remove_query_param_from_url, update_url_params
+from lib.helpers import remove_query_param_from_url, update_url_params
+from lib.protocols import (
+    SupportsGetAccessMode,
+    SupportsHandleException,
+    SupportsHandleNoPermission,
+    SupportsNote,
+    SupportsGetResourceObjects,
+)
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
 from .cache.students import CachedStudent
@@ -36,16 +48,13 @@ class CourseBaseView(CourseMixin, BaseTemplateView):
     pass
 
 
-@object_at_runtime
-class _CourseInstanceBaseMixinBase:
-    def get_access_mode(self) -> int: ...
-    def get_course_instance_object(self) -> Optional[CourseInstance]: ...
-    def get_permissions(self) -> List[Permission]: ...
-    def get_resource_objects(self) -> None: ...
-    def note(self, *args: str) -> None: ...
-
-
-class CourseInstanceBaseMixin(_CourseInstanceBaseMixinBase):
+class CourseInstanceBaseMixin(
+        SupportsGetAccessMode,
+        SupportsGetCourseInstanceObject,
+        SupportsGetPermissions,
+        SupportsGetResourceObjects,
+        SupportsNote,
+        ):
     request: HttpRequest
     course_kw = CourseMixin.course_kw
     instance_kw = "instance_slug"
@@ -133,13 +142,12 @@ class CourseInstanceBaseMixin(_CourseInstanceBaseMixinBase):
         return access_mode
 
 
-@object_at_runtime
-class _CourseInstanceMixinBase:
-    def handle_exception(self, exc: Exception) -> HttpResponse: ...
-    def handle_no_permission(self) -> HttpResponse: ...
-
-
-class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin, _CourseInstanceMixinBase):
+class CourseInstanceMixin(
+        CourseInstanceBaseMixin,
+        UserProfileMixin,
+        SupportsHandleException,
+        SupportsHandleNoPermission,
+        ):
     def get_course_instance_object(self) -> Optional[CourseInstance]:
         return get_object_or_404(
             CourseInstance,
@@ -187,15 +195,12 @@ class EnrollableViewMixin(CourseInstanceMixin):
         self.note('enrolled', 'enrollable')
 
 
-@object_at_runtime
-class _CourseModuleBaseMixinBase:
-    def get_course_module_object(self) -> Optional[CourseModule]: ...
-    def get_permissions(self) -> List[Permission]: ...
-    def get_resource_objects(self) -> None: ...
-    def note(self, *args: str) -> None: ...
-
-
-class CourseModuleBaseMixin(_CourseModuleBaseMixinBase):
+class CourseModuleBaseMixin(
+        SupportsGetCourseModuleObject,
+        SupportsGetPermissions,
+        SupportsGetResourceObjects,
+        SupportsNote
+        ):
     module_kw = "module_slug"
     module_permissions_classes = (
         CourseModulePermission,

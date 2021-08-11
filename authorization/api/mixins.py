@@ -5,16 +5,11 @@ from django.http import Http404
 
 from rest_framework.request import Request
 
-from lib.helpers import object_at_runtime
+from lib.protocols import SupportsInitial
 from ..views import ResourceMixin
 
 
-@object_at_runtime
-class _ApiResourceMixinBase:
-    def initial(self, request: Request, *args: Any, **kwargs: Any) -> None: ...
-
-
-class ApiResourceMixin(ResourceMixin, _ApiResourceMixinBase):
+class ApiResourceMixin(ResourceMixin, SupportsInitial):
     kwargs: Dict[str, Any]
 
     def initial(self, request: Request, *args: Any, **kwargs: Any) -> None:

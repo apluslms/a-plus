@@ -1,13 +1,12 @@
 import logging
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, cast
 
-from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
 from exercise.models import LearningObject, CourseChapter, BaseExercise, \
     LTIExercise, StaticExercise, ExerciseWithAttachment
-from lib.helpers import object_at_runtime
+from lib.protocols import SupportsGetFields
 from .course_forms import FieldsetModelForm
 
 from exercise.exercisecollection_models import ExerciseCollection
@@ -42,12 +41,7 @@ EXERCISE_FIELDS = [
 ]
 
 
-@object_at_runtime
-class _LearningObjectMixinBase:
-    def get_fields(self, *names: str) -> List[forms.BoundField]: ...
-
-
-class LearningObjectMixin(_LearningObjectMixinBase):
+class LearningObjectMixin(SupportsGetFields):
     fields: Dict[str, Any]
 
     def init_fields(self, **kwargs: Any) -> None:

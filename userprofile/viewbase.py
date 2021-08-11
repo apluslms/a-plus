@@ -1,15 +1,9 @@
 from authorization.permissions import ACCESS
-from lib.helpers import object_at_runtime
+from lib.protocols import SupportsGetResourceObjects, SupportsNote
 from lib.viewbase import BaseMixin, BaseTemplateView
 
 
-@object_at_runtime
-class _UserProfileMixinBase:
-    def get_resource_objects(self) -> None: ...
-    def note(self, *args: str) -> None: ...
-
-
-class UserProfileMixin(BaseMixin, _UserProfileMixinBase):
+class UserProfileMixin(BaseMixin, SupportsGetResourceObjects, SupportsNote):
     access_mode = ACCESS.STUDENT
     login_redirect = True
 

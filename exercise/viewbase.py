@@ -7,8 +7,13 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import Permission
+from authorization.protocols import SupportsGetPermissions
 from course.viewbase import CourseModuleMixin
-from lib.helpers import object_at_runtime
+from lib.protocols import (
+    SupportsGetCommonObjects,
+    SupportsGetResourceObjects,
+    SupportsNote,
+)
 from lib.viewbase import BaseTemplateView
 from .cache.hierarchy import NoSuchContent
 from .exercise_summary import UserExerciseSummary
@@ -22,17 +27,18 @@ from .models import (
     LearningObject,
     Submission,
 )
+from .protocols import (
+    SupportsGetExerciseObject,
+    SupportsGetSubmissionObject,
+)
 
 
-@object_at_runtime
-class _ExerciseBaseMixinBase:
-    def get_exercise_object(self) -> LearningObject: ...
-    def get_permissions(self) -> List[Permission]: ...
-    def get_resource_objects(self) -> None: ...
-    def note(self, *args: str) -> None: ...
-
-
-class ExerciseBaseMixin(_ExerciseBaseMixinBase):
+class ExerciseBaseMixin(
+        SupportsGetExerciseObject,
+        SupportsGetPermissions,
+        SupportsGetResourceObjects,
+        SupportsNote,
+        ):
     exercise_kw = "exercise_path"
     exercise_permission_classes = (
         ExerciseVisiblePermission,
@@ -49,12 +55,11 @@ class ExerciseBaseMixin(_ExerciseBaseMixinBase):
         self.note("exercise")
 
 
-@object_at_runtime
-class _ExerciseMixinBase:
-    def get_common_objects(self) -> None: ...
-
-
-class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin, _ExerciseMixinBase):
+class ExerciseMixin(
+        ExerciseBaseMixin,
+        CourseModuleMixin,
+        SupportsGetCommonObjects,
+        ):
     exercise_permission_classes = ExerciseBaseMixin.exercise_permission_classes + (
         BaseExerciseAssistantPermission,
     )
@@ -109,15 +114,12 @@ class ExerciseModelBaseView(ExerciseModelMixin, BaseTemplateView):
     pass
 
 
-@object_at_runtime
-class _SubmissionBaseMixinBase:
-    def get_permissions(self) -> List[Permission]: ...
-    def get_resource_objects(self) -> None: ...
-    def get_submission_object(self) -> Submission: ...
-    def note(self, *args: str) -> None: ...
-
-
-class SubmissionBaseMixin(_SubmissionBaseMixinBase):
+class SubmissionBaseMixin(
+        SupportsGetPermissions,
+        SupportsGetResourceObjects,
+        SupportsGetSubmissionObject,
+        SupportsNote,
+        ):
     submission_kw = "submission_id"
     submission_permission_classes = (
         SubmissionVisiblePermission,
