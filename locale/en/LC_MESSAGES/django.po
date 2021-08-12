@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-01 12:16+0300\n"
+"POT-Creation-Date: 2021-07-05 11:21+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -121,7 +121,7 @@ msgstr "Student"
 msgid "ASSISTANT"
 msgstr "Assistant"
 
-#: course/models.py
+#: course/models.py userprofile/templates/userprofile/teachers.html
 msgid "TEACHER"
 msgstr "Teacher"
 
@@ -861,6 +861,7 @@ msgstr "First name"
 #: course/templates/course/staff/participants.html
 #: exercise/templates/exercise/staff/user_results.html
 #: userprofile/templates/userprofile/profile.html
+#: userprofile/templates/userprofile/teachers.html
 msgid "EMAIL"
 msgstr "Email"
 
@@ -1674,7 +1675,7 @@ msgstr "Username \"{username}\" does not exist."
 msgid "REAL_CLASS"
 msgstr "Real class"
 
-#: exercise/admin.py
+#: exercise/admin.py userprofile/templates/userprofile/teachers.html
 msgid "COURSE_INSTANCE"
 msgstr "Course instance"
 
@@ -2023,7 +2024,8 @@ msgstr "Failed to load the resource."
 #: exercise/staff_views.py
 #, python-brace-format
 msgid "NO_LONGER_PARTICIPATING_IN_COURSE -- {status}"
-msgstr "This student is no longer participating in the course (status: {status})."
+msgstr ""
+"This student is no longer participating in the course (status: {status})."
 
 #: exercise/staff_views.py
 #, python-brace-format
@@ -3686,6 +3688,51 @@ msgstr "Organization"
 #, python-format
 msgid "BRAND_SUPPORT -- %(brand_name)s"
 msgstr "%(brand_name)s Support "
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "TEACHER_LIST"
+msgstr "Teacher list"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "LIST_ACTIVE_TEACHERS"
+msgstr "List active teachers"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "COURSE_DATE_RANGE"
+msgstr "Course date range"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_START"
+msgstr "Start of date range"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_END"
+msgstr "End of date range"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "INCLUDE_ASSISTANTS"
+msgstr "Include assistants"
+
+#: userprofile/templates/userprofile/teachers.html
+msgctxt "FORM"
+msgid "APPLY"
+msgstr "Apply"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "STARTING_TIME"
+msgstr "Starting time"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "ENDING_TIME"
+msgstr "Ending time"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "EXPORT_TABLE_DATA"
+msgstr "Export table data"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "EMAILS_ONLY"
+msgstr "Emails only"
 
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-01 12:16+0300\n"
+"POT-Creation-Date: 2021-07-05 11:21+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -122,7 +122,7 @@ msgstr "Opiskelija"
 msgid "ASSISTANT"
 msgstr "Assistentti"
 
-#: course/models.py
+#: course/models.py userprofile/templates/userprofile/teachers.html
 msgid "TEACHER"
 msgstr "Opettaja"
 
@@ -865,6 +865,7 @@ msgstr "Etunimi"
 #: course/templates/course/staff/participants.html
 #: exercise/templates/exercise/staff/user_results.html
 #: userprofile/templates/userprofile/profile.html
+#: userprofile/templates/userprofile/teachers.html
 msgid "EMAIL"
 msgstr "Sähköposti"
 
@@ -1677,7 +1678,7 @@ msgstr "Käyttäjätunnusta \"{username}\" ei ole olemassa."
 msgid "REAL_CLASS"
 msgstr "Oikea luokka"
 
-#: exercise/admin.py
+#: exercise/admin.py userprofile/templates/userprofile/teachers.html
 msgid "COURSE_INSTANCE"
 msgstr "Kurssikerta"
 
@@ -3696,6 +3697,51 @@ msgstr "Organisaatio"
 #, python-format
 msgid "BRAND_SUPPORT -- %(brand_name)s"
 msgstr "%(brand_name)s tuki "
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "TEACHER_LIST"
+msgstr "Opettajalista"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "LIST_ACTIVE_TEACHERS"
+msgstr "Listaa aktiiviset opettajat"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "COURSE_DATE_RANGE"
+msgstr "Kurssin aikaväli"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_START"
+msgstr "Aikavälin alku"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_END"
+msgstr "Aikavälin loppu"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "INCLUDE_ASSISTANTS"
+msgstr "Sisällytä assistentit"
+
+#: userprofile/templates/userprofile/teachers.html
+msgctxt "FORM"
+msgid "APPLY"
+msgstr "Hae"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "STARTING_TIME"
+msgstr "Alkamisaika"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "ENDING_TIME"
+msgstr "Päättymisaika"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "EXPORT_TABLE_DATA"
+msgstr "Vie taulukon tiedot"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "EMAILS_ONLY"
+msgstr "Vain sähköpostit"
 
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"

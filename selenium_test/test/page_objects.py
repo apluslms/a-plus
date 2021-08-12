@@ -1,3 +1,5 @@
+from enum import Enum
+
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -21,7 +23,7 @@ from locators import FirstPageLocators, \
     MyAjaxExerciseGraderLocators
 
 
-class CourseName:
+class CourseName(Enum):
     APLUS = 1
     HOOK = 2
 
@@ -135,6 +137,7 @@ class LoginPage(AbstractPage):
     studentUsername = "student_user"
     assistantUsername = "assistant_user"
     teacherUsername = "teacher_user"
+    superuserUsername = "user"
 
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
@@ -157,6 +160,9 @@ class LoginPage(AbstractPage):
 
     def loginAsTeacher(self, course=CourseName.APLUS):
         self.loginToCourse(course, self.teacherUsername, self.defaultPassword)
+
+    def loginAsSuperuser(self, course: CourseName = CourseName.APLUS) -> None:
+        self.loginToCourse(course, self.superuserUsername, self.defaultPassword)
 
     def signIn(self, username, password):
         self.getElement(LoginPageLocators.USERNAME_INPUT).send_keys(username)
