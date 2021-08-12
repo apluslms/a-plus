@@ -2263,7 +2263,7 @@ msgid "FILTER_VIEW"
 msgstr "Piilota näkymästä"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "SHOW_OLDER_ASSINGMENTS"
+msgid "SHOW_OLDER_ASSIGNMENTS"
 msgstr "Näytä vanhemmat tehtävät"
 
 #: exercise/templates/exercise/_user_results.html
@@ -2395,7 +2395,7 @@ msgid "RESULTS"
 msgstr "Tulokset"
 
 #: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBITTED_DATA"
+msgid "SUBMITTED_DATA"
 msgstr "Palautuksen tiedot"
 
 #: exercise/templates/exercise/staff/_assess_info.html
@@ -2797,7 +2797,7 @@ msgid "LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS"
 msgstr "Kurssille ilmoittautuminen vaaditaan LTI-palveluun pääsemiseksi."
 
 #: external_services/models.py
-msgid "URL_CANNOT_CONTAING_SCHEME_OR_DOMAIN"
+msgid "URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN"
 msgstr "Url ei voi sisältää skeema- tai verkkotunnusosaa."
 
 #: external_services/models.py
@@ -3071,7 +3071,7 @@ msgstr ""
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
-msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANISATION -- %(brand)s"
+msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANIZATION -- %(brand)s"
 msgstr ""
 "Tätä palvelua ylläpitävät eri toimijat samassa organisaatiossa meidän "
 "(%(brand)s) kanssamme. "

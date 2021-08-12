@@ -2,7 +2,8 @@
 {% if id %}
   <span data-group-id="{{ id }}"></span>
   {% blocktranslate trimmed with collaborators=collaborators %}
-    GROUP_SUBMITTING_WITH -- {{ collaborators }}{% endblocktranslate %}
+    GROUP_SUBMITTING_WITH -- {{ collaborators }}
+  {% endblocktranslate %}
   {{ avatars }}
 {% else %}
   <span data-group-id="0"></span>

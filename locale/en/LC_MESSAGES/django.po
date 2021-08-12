@@ -2265,7 +2265,7 @@ msgid "FILTER_VIEW"
 msgstr "Filter view"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "SHOW_OLDER_ASSINGMENTS"
+msgid "SHOW_OLDER_ASSIGNMENTS"
 msgstr "Show older assignments"
 
 #: exercise/templates/exercise/_user_results.html
@@ -2397,7 +2397,7 @@ msgid "RESULTS"
 msgstr "Results"
 
 #: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBITTED_DATA"
+msgid "SUBMITTED_DATA"
 msgstr "Submitted data"
 
 #: exercise/templates/exercise/staff/_assess_info.html
@@ -2798,7 +2798,7 @@ msgid "LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS"
 msgstr "Course enrollment required for accessing the LTI service."
 
 #: external_services/models.py
-msgid "URL_CANNOT_CONTAING_SCHEME_OR_DOMAIN"
+msgid "URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN"
 msgstr "Url can not contain scheme or domain part."
 
 #: external_services/models.py
@@ -3068,7 +3068,7 @@ msgstr ""
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
-msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANISATION -- %(brand)s"
+msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANIZATION -- %(brand)s"
 msgstr ""
 "This service is hosted within our organization, but it's not maintained by "
 "us (%(brand)s administrators)."

@@ -13,7 +13,7 @@ from lib.models import UrlMixin
 
 def validate_no_domain(value):
     if value and '://' in value:
-        raise ValidationError(_('URL_CANNOT_CONTAING_SCHEME_OR_DOMAIN'))
+        raise ValidationError(_('URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN'))
 
 
 class LinkService(ModelWithInheritance):
