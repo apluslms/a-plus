@@ -30,6 +30,7 @@ from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, UserTagForm, SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
+from lib.logging import SecurityLog
 
 
 class EditInstanceView(CourseInstanceMixin, BaseFormView):
@@ -47,6 +48,11 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         self.instance = form.save()
+        SecurityLog.logevent(self.request, "course-edit", "course: {}, teachers: {}, assistants: {}".format(
+            self.get_course_instance_object().course,
+            list(map(lambda x: str(x.user), form.instance.teachers.all())),
+            list(map(lambda x: str(x.user), form.instance.assistants.all()))
+        ))
         messages.success(self.request, _('SUCCESS_SAVING_CHANGES'))
         return super().form_valid(form)
 

@@ -36,6 +36,7 @@ from .viewbase import (
     SubmissionMixin,
     ExerciseMixin,
 )
+from lib.logging import SecurityLog
 
 
 logger = logging.getLogger('aplus.exercise')
@@ -137,6 +138,14 @@ class AssessSubmissionView(SubmissionMixin, BaseFormView):
 
         self.submission.set_points(form.cleaned_data["points"],
             self.exercise.max_points, no_penalties=True)
+        SecurityLog.logevent(self.request, "set-points",
+            "exercise: {}, submission ID: {}, submitter: {}, points: {}".format(
+                self.get_submission_object().exercise,
+                self.submission.id,
+                self.submission.submitters.first().user.username,
+                form.cleaned_data["points"]
+            )
+        )
         self.submission.grader = self.profile
         self.submission.assistant_feedback = assistant_feedback
         self.submission.feedback = feedback
