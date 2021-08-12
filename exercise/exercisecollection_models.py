@@ -21,10 +21,15 @@ class ExerciseCollection(BaseExercise):
     #  gets destroyed.
     target_category = models.ForeignKey(
         LearningObjectCategory,
+        verbose_name=_('LABEL_TARGET_CATEGORY'),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
     )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_EXERCISE_COLLECTION')
+        verbose_name_plural = _('MODEL_NAME_EXERCISE_COLLECTION_PLURAL')
 
 
     # Clearing possible sources for erronous functionality

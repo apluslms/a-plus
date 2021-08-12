@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.urls import reverse
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from exercise.exercise_models import BaseExercise
 from userprofile.models import UserProfile
@@ -19,10 +20,18 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
     default bounds, all of the submitters must have an allowing instance of
     SubmissionRuleDeviation subclass in order for the submission to be allowed.
     """
-    exercise = models.ForeignKey(BaseExercise, on_delete=models.CASCADE)
-    submitter = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    exercise = models.ForeignKey(BaseExercise,
+        verbose_name=_('LABEL_EXERCISE'),
+        on_delete=models.CASCADE,
+    )
+    submitter = models.ForeignKey(UserProfile,
+        verbose_name=_('LABEL_SUBMITTER'),
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_SUBMISSION_RULE_DEVIATION')
+        verbose_name_plural = _('MODEL_NAME_SUBMISSION_RULE_DEVIATION_PLURAL')
         abstract = True
         unique_together = ["exercise", "submitter"]
 
@@ -31,11 +40,17 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
 
 
 class DeadlineRuleDeviation(SubmissionRuleDeviation):
-    extra_minutes = models.IntegerField()
-    without_late_penalty = models.BooleanField(default=True)
+    extra_minutes = models.IntegerField(
+        verbose_name=_('LABEL_EXTRA_MINUTES'),
+    )
+    without_late_penalty = models.BooleanField(
+        verbose_name=_('LABEL_WITHOUT_LATE_PENALTY'),
+        default=True,
+    )
 
     class Meta(SubmissionRuleDeviation.Meta):
-        pass
+        verbose_name = _('MODEL_NAME_DEADLINE_RULE_DEVIATION')
+        verbose_name_plural = _('MODEL_NAME_DEADLINE_RULE_DEVIATION_PLURAL')
 
     def get_extra_time(self):
         return timedelta(minutes=self.extra_minutes)
@@ -48,7 +63,10 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
 
 
 class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
-    extra_submissions = models.IntegerField()
+    extra_submissions = models.IntegerField(
+        verbose_name=_('LABEL_EXTRA_SUBMISSIONS'),
+    )
 
     class Meta(SubmissionRuleDeviation.Meta):
-        pass
+        verbose_name = _('MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION')
+        verbose_name_plural = _('MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL')

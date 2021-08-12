@@ -70,10 +70,14 @@ class CourseModuleForm(FieldsetModelForm):
 
 class CourseInstanceForm(forms.ModelForm):
 
-    teachers = UsersSearchSelectField(queryset=UserProfile.objects.all(),
+    teachers = UsersSearchSelectField(
+        label=_('LABEL_TEACHERS'),
+        queryset=UserProfile.objects.all(),
         initial_queryset=UserProfile.objects.none(),
         required=False)
-    assistants = UsersSearchSelectField(queryset=UserProfile.objects.all(),
+    assistants = UsersSearchSelectField(
+        label=_('LABEL_ASSISTANTS'),
+        queryset=UserProfile.objects.all(),
         initial_queryset=UserProfile.objects.none(),
         required=False) # Not required because a course does not have to have any assistants.
 
@@ -157,16 +161,50 @@ class CourseContentForm(forms.ModelForm):
 
 
 class CloneInstanceForm(forms.Form):
-    url = forms.CharField(label=_('COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE'),
-        validators=[generate_url_key_validator()])
-    teachers = forms.BooleanField(label=_('TEACHERS'), required=False, initial=True)
-    assistants = forms.BooleanField(label=_('ASSISTANTS'), required=False, initial=True)
-    categories = forms.BooleanField(label=_('EXERCISE_CATEGORIES'), required=False, initial=True)
-    modules = forms.BooleanField(label=_('COURSE_MODULES'), required=False, initial=True)
-    chapters = forms.BooleanField(label=_('CONTENT_CHAPTERS'), required=False, initial=True)
-    exercises = forms.BooleanField(label=_('EXERCISES'), required=False, initial=True)
-    menuitems = forms.BooleanField(label=_('MENU_ITEMS'), required=False, initial=True)
-    usertags = forms.BooleanField(label=_('STUDENT_TAGS'), required=False, initial=True)
+    url = forms.CharField(
+        label=_('COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE'),
+        validators=[generate_url_key_validator()],
+    )
+    teachers = forms.BooleanField(
+        label=_('LABEL_TEACHERS'),
+        required=False,
+        initial=True,
+    )
+    assistants = forms.BooleanField(
+        label=_('LABEL_ASSISTANTS'),
+        required=False,
+        initial=True,
+    )
+    categories = forms.BooleanField(
+        label=_('LABEL_EXERCISE_CATEGORIES'),
+        required=False,
+        initial=True,
+    )
+    modules = forms.BooleanField(
+        label=_('LABEL_COURSE_MODULES'),
+        required=False,
+        initial=True,
+    )
+    chapters = forms.BooleanField(
+        label=_('LABEL_CHAPTERS'),
+        required=False,
+        initial=True,
+    )
+    exercises = forms.BooleanField(
+        label=_('LABEL_EXERCISES'),
+        required=False,
+        initial=True,
+    )
+    menuitems = forms.BooleanField(
+        label=_('LABEL_MENU_ITEMS'),
+        required=False,
+        initial=True,
+    )
+    usertags = forms.BooleanField(
+        label=_('LABEL_STUDENT_TAGS'),
+        required=False,
+        initial=True,
+    )
 
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
@@ -206,6 +244,12 @@ class UserTagForm(ColorTagForm):
             'visible_to_students',
             'color',
         ]
+        labels = {
+            'name': _('LABEL_NAME'),
+            'slug': _('LABEL_SLUG'),
+            'description': _('LABEL_DESCRIPTION'),
+            'color': _('LABEL_COLOR'),
+        }
 
     @classmethod
     def get_base_object(self, course_instance):

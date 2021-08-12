@@ -80,40 +80,89 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         ('EXTERNAL_USERS', 2, _('AUDIENCE_EXTERNAL_USERS')),
         ('REGISTERED_USERS', 3, _('AUDIENCE_REGISTERED_USERS')),
     ])
-    status = models.CharField(max_length=32,
-        choices=STATUS.choices, default=STATUS.READY)
-    audience = models.IntegerField(choices=AUDIENCE.choices,
-        default=AUDIENCE.COURSE_AUDIENCE)
-    category = models.ForeignKey(LearningObjectCategory, on_delete=models.CASCADE,
-            related_name="learning_objects")
-    course_module = models.ForeignKey(CourseModule, on_delete=models.CASCADE,
-            related_name="learning_objects")
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL,
-        blank=True, null=True, related_name='children')
-    order = models.IntegerField(default=1)
-    url = models.CharField(max_length=512,
+    status = models.CharField(
+        verbose_name=_('LABEL_STATUS'),
+        max_length=32,
+        choices=STATUS.choices, default=STATUS.READY,
+    )
+    audience = models.IntegerField(
+        verbose_name=_('LABEL_AUDIENCE'),
+        choices=AUDIENCE.choices,
+        default=AUDIENCE.COURSE_AUDIENCE,
+    )
+    category = models.ForeignKey(LearningObjectCategory,
+        verbose_name=_('LABEL_CATEGORY'),
+        on_delete=models.CASCADE,
+        related_name="learning_objects",
+    )
+    course_module = models.ForeignKey(CourseModule,
+        verbose_name=_('LABEL_COURSE_MODULE'),
+        on_delete=models.CASCADE,
+        related_name="learning_objects",
+    )
+    parent = models.ForeignKey('self',
+        verbose_name=_('LABEL_PARENT'),
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        related_name='children',
+    )
+    order = models.IntegerField(
+        verbose_name=_('LABEL_ORDER'),
+        default=1,
+    )
+    url = models.CharField(
+        verbose_name=_('LABEL_URL'),
+        max_length=512,
+        help_text=_('LEARNING_OBJECT_URL_IDENTIFIER_HELPTEXT'),
         validators=[generate_url_key_validator()],
-        help_text=_('LEARNING_OBJECT_URL_IDENTIFIER_HELPTEXT'))
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True,
-        help_text=_('LEARNING_OBJECT_DESCRIPTION_HELPTEXT'))
-    use_wide_column = models.BooleanField(default=False,
-        help_text=_('LEARNING_OBJECT_WIDE_COLUMN_HELPTEXT'))
+    )
+    name = models.CharField(
+        verbose_name=_('LABEL_NAME'),
+        max_length=255,
+    )
+    description = models.TextField(
+        verbose_name=_('LABEL_DESCRIPTION'),
+        blank=True,
+        help_text=_('LEARNING_OBJECT_DESCRIPTION_HELPTEXT'),
+    )
+    use_wide_column = models.BooleanField(
+        verbose_name=_('LABEL_USE_WIDE_COLUMN'),
+        default=False,
+        help_text=_('LEARNING_OBJECT_WIDE_COLUMN_HELPTEXT'),
+    )
 
-    service_url = models.CharField(max_length=4096, blank=True)
-    exercise_info = JSONField(blank=True)
-    model_answers = models.TextField(blank=True,
-        help_text=_('LEARNING_OBJECT_MODEL_ANSWER_URLS_HELPTEXT'))
-    templates = models.TextField(blank=True,
-        help_text=_('LEARNING_OBJECT_TEMPLATE_URLS_HELPTEXT'))
+    service_url = models.CharField(
+        verbose_name=_('LABEL_SERVICE_URL'),
+        max_length=4096,
+        blank=True,
+    )
+    exercise_info = JSONField(
+        verbose_name=_('LABEL_EXERCISE_INFO'),
+        blank=True,
+    )
+    model_answers = models.TextField(
+        verbose_name=_('LABEL_MODEL_ANSWERS'),
+        blank=True,
+        help_text=_('LEARNING_OBJECT_MODEL_ANSWER_URLS_HELPTEXT'),
+    )
+    templates = models.TextField(
+        verbose_name=_('LABEL_TEMPLATES'),
+        blank=True,
+        help_text=_('LEARNING_OBJECT_TEMPLATE_URLS_HELPTEXT'),
+    )
 
     # Keep this to support ExerciseWithAttachment
     # Maybe this should inject extra content to any exercise
-    content = models.TextField(blank=True)
+    content = models.TextField(
+        verbose_name=_('LABEL_CONTENT'),
+        blank=True,
+    )
 
     objects = LearningObjectManager()
 
     class Meta:
+        verbose_name = _('MODEL_NAME_LEARNING_OBJECT')
+        verbose_name_plural = _('MODEL_NAME_LEARNING_OBJECT_PLURAL')
         app_label = "exercise"
         ordering = ['course_module', 'order', 'id']
         unique_together = ['course_module', 'parent', 'url']
@@ -334,18 +383,38 @@ class LearningObjectDisplay(models.Model):
     """
     Records views of learning objects.
     """
-    learning_object = models.ForeignKey(LearningObject, on_delete=models.CASCADE)
-    profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    learning_object = models.ForeignKey(LearningObject,
+        verbose_name=_('LABEL_LEARNING_OBJECT'),
+        on_delete=models.CASCADE,
+    )
+    profile = models.ForeignKey(UserProfile,
+        verbose_name=_('LABEL_PROFILE'),
+        on_delete=models.CASCADE,
+    )
+    timestamp = models.DateTimeField(
+        verbose_name=_('LABEL_TIMESTAMP'),
+        auto_now_add=True,
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_LEARNING_OBJECT_DISPLAY')
+        verbose_name_plural = _('MODEL_NAME_LEARNING_OBJECT_DISPLAY_PLURAL')
 
 
 class CourseChapter(LearningObject):
     """
     Chapters can offer and organize learning material as one page chapters.
     """
-    generate_table_of_contents = models.BooleanField(default=False)
+    generate_table_of_contents = models.BooleanField(
+        verbose_name=_('LABEL_GENERATE_TOC'),
+        default=False,
+    )
 
     objects = models.Manager()
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_COURSE_CHAPTER')
+        verbose_name_plural = _('MODEL_NAME_COURSE_CHAPTER_PLURAL')
 
     def _is_empty(self):
         return not self.generate_table_of_contents
@@ -385,18 +454,45 @@ class BaseExercise(LearningObject):
         ('INVALID', 999, 'You cannot submit for an unspecified reason.'),
     ])
 
-    allow_assistant_viewing = models.BooleanField(default=True)
-    allow_assistant_grading = models.BooleanField(default=False)
-    min_group_size = models.PositiveIntegerField(default=1)
-    max_group_size = models.PositiveIntegerField(default=1)
-    max_submissions = models.PositiveIntegerField(default=10)
-    max_points = models.PositiveIntegerField(default=100)
-    points_to_pass = models.PositiveIntegerField(default=40)
-    difficulty = models.CharField(max_length=32, blank=True)
+    allow_assistant_viewing = models.BooleanField(
+        verbose_name=_('LABEL_ALLOW_ASSISTANT_VIEWING'),
+        default=True,
+    )
+    allow_assistant_grading = models.BooleanField(
+        verbose_name=_('LABEL_ALLOW_ASSISTANT_GRADING'),
+        default=False,
+    )
+    min_group_size = models.PositiveIntegerField(
+        verbose_name=_('LABEL_MIN_GROUP_SIZE'),
+        default=1,
+    )
+    max_group_size = models.PositiveIntegerField(
+        verbose_name=_('LABEL_MAX_GROUP_SIZE'),
+        default=1,
+    )
+    max_submissions = models.PositiveIntegerField(
+        verbose_name=_('LABEL_MAX_SUBMISSIONS'),
+        default=10,
+    )
+    max_points = models.PositiveIntegerField(
+        verbose_name=_('LABEL_MAX_POINTS'),
+        default=100,
+    )
+    points_to_pass = models.PositiveIntegerField(
+        verbose_name=_('LABEL_POINTS_TO_PASS'),
+        default=40,
+    )
+    difficulty = models.CharField(
+        verbose_name=_('LABEL_DIFFICULTY'),
+        max_length=32,
+        blank=True,
+    )
 
     objects = BaseExerciseManager()
 
     class Meta:
+        verbose_name = _('MODEL_NAME_BASE_EXERCISE')
+        verbose_name_plural = _('MODEL_NAME_BASE_EXERCISE_PLURAL')
         app_label = 'exercise'
 
     def clean(self):
@@ -835,19 +931,44 @@ class LTIExercise(BaseExercise):
     """
     Exercise launched by LTI or optionally amending A+ protocol with LTI data.
     """
-    lti_service = models.ForeignKey(LTIService, on_delete=models.CASCADE)
-    context_id = models.CharField(max_length=128, blank=True,
-        help_text=_('LTI_EXERCISE_CONTEXT_ID_HELPTEXT'))
-    resource_link_id = models.CharField(max_length=128, blank=True,
-        help_text=_('LTI_EXERCISE_RESOURCE_LINK_ID_HELPTEXT'))
-    resource_link_title = models.CharField(max_length=128, blank=True,
-        help_text=_('LTI_EXERCISE_RESOURCE_LINK_TITLE_HELPTEXT'))
-    aplus_get_and_post = models.BooleanField(default=False,
-        help_text=_('LTI_EXERCISE_APLUS_GET_AND_POST_HELPTEXT'))
-    open_in_iframe = models.BooleanField(default=False,
-        help_text=_('LTI_EXERCISE_OPEN_IN_IFRAME_HELPTEXT'))
+    lti_service = models.ForeignKey(LTIService,
+        verbose_name=_('LABEL_LTI_SERVICE'),
+        on_delete=models.CASCADE,
+    )
+    context_id = models.CharField(
+        verbose_name=_('LABEL_CONTEXT_ID'),
+        max_length=128,
+        blank=True,
+        help_text=_('LTI_EXERCISE_CONTEXT_ID_HELPTEXT'),
+    )
+    resource_link_id = models.CharField(
+        verbose_name=_('LABEL_RESOURCE_LINK_ID'),
+        max_length=128,
+        blank=True,
+        help_text=_('LTI_EXERCISE_RESOURCE_LINK_ID_HELPTEXT'),
+    )
+    resource_link_title = models.CharField(
+        verbose_name=_('LABEL_RESOURCE_LINK_TITLE'),
+        max_length=128,
+        blank=True,
+        help_text=_('LTI_EXERCISE_RESOURCE_LINK_TITLE_HELPTEXT'),
+    )
+    aplus_get_and_post = models.BooleanField(
+        verbose_name=_('LABEL_APLUS_GET_AND_POST'),
+        default=False,
+        help_text=_('LTI_EXERCISE_APLUS_GET_AND_POST_HELPTEXT'),
+    )
+    open_in_iframe = models.BooleanField(
+        verbose_name=_('LABEL_OPEN_IN_IFRAME'),
+        default=False,
+        help_text=_('LTI_EXERCISE_OPEN_IN_IFRAME_HELPTEXT'),
+    )
 
     objects = models.Manager()
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_LTI_EXERCISE')
+        verbose_name_plural = _('MODEL_NAME_LTI_EXERCISE_PLURAL')
 
     def clean(self):
         """
@@ -949,10 +1070,18 @@ class StaticExercise(BaseExercise):
 
     Should be deprecated as a contradiction to A+ ideology.
     """
-    exercise_page_content = models.TextField()
-    submission_page_content = models.TextField()
+    exercise_page_content = models.TextField(
+        verbose_name=_('LABEL_EXERCISE_PAGE_CONTENT'),
+    )
+    submission_page_content = models.TextField(
+        verbose_name=_('LABEL_SUBMISSION_PAGE_CONTENT'),
+    )
 
     objects = models.Manager()
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_STATIC_EXERCISE')
+        verbose_name_plural = _('MODEL_NAME_STATICE_EXERCISE_PLURAL')
 
     def load(self, request, students, url_name="exercise"):
         page = ExercisePage(self)
@@ -1000,14 +1129,22 @@ class ExerciseWithAttachment(BaseExercise):
 
     Could be deprecated as a contradiction to A+ purist ideology.
     """
-    files_to_submit = models.CharField(max_length=200, blank=True,
-        help_text=_('EXERCISE_WITH_ATTACHMENT_FILES_TO_SUBMIT_HELPTEXT'))
-    attachment = models.FileField(upload_to=build_upload_dir)
+    files_to_submit = models.CharField(
+        verbose_name=_('LABEL_FILES_TO_SUBMIT'),
+        max_length=200,
+        blank=True,
+        help_text=_('EXERCISE_WITH_ATTACHMENT_FILES_TO_SUBMIT_HELPTEXT'),
+    )
+    attachment = models.FileField(
+        verbose_name=_('LABEL_ATTACHMENT'),
+        upload_to=build_upload_dir,
+    )
 
     objects = models.Manager()
 
     class Meta:
-        verbose_name_plural = "exercises with attachment"
+        verbose_name = _('MODEL_NAME_EXERCISE_WITH_ATTACHMENT')
+        verbose_name_plural = _('MODEL_NAME_EXERCISE_WITH_ATTACHMENT_PLURAL')
 
     def get_files_to_submit(self):
         """

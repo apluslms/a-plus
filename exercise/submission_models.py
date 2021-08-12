@@ -128,39 +128,87 @@ class Submission(UrlMixin, models.Model):
         ('UNOFFICIAL', 'unofficial', _('STATUS_UNOFFICIAL')),
         # unofficial: graded after the deadline or after exceeding the submission limit
     ])
-    submission_time = models.DateTimeField(auto_now_add=True)
-    hash = models.CharField(max_length=32, default=get_random_string)
+    submission_time = models.DateTimeField(
+        verbose_name=_('LABEL_SUBMISSION_TIME'),
+        auto_now_add=True,
+    )
+    hash = models.CharField(
+        verbose_name=_('LABEL_HASH'),
+        max_length=32,
+        default=get_random_string,
+    )
 
     # Relations
     exercise = models.ForeignKey(exercise_models.BaseExercise,
+        verbose_name=_('LABEL_EXERCISE'),
         on_delete=models.CASCADE,
         related_name="submissions")
     submitters = models.ManyToManyField(UserProfile,
+        verbose_name=_('LABEL_SUBMITTERS'),
         related_name="submissions")
-    grader = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
-        related_name="graded_submissions", blank=True, null=True)
+    grader = models.ForeignKey(UserProfile,
+        verbose_name=_('LABEL_GRADER'),
+        on_delete=models.SET_NULL,
+        related_name="graded_submissions",
+        blank=True, null=True,
+    )
 
     # Grading and feedback
-    feedback = models.TextField(blank=True)
-    assistant_feedback = models.TextField(blank=True)
-    status = models.CharField(max_length=32,
-        choices=STATUS.choices, default=STATUS.INITIALIZED)
-    grade = models.IntegerField(default=0)
-    grading_time = models.DateTimeField(blank=True, null=True)
-    late_penalty_applied = PercentField(blank=True, null=True)
+    feedback = models.TextField(
+        verbose_name=_('LABEL_FEEDBACK'),
+        blank=True,
+    )
+    assistant_feedback = models.TextField(
+        verbose_name=_('LABEL_STAFF_FEEDBACK'),
+        blank=True,
+    )
+    status = models.CharField(
+        verbose_name=_('LABEL_STATUS'),
+        max_length=32,
+        choices=STATUS.choices, default=STATUS.INITIALIZED,
+    )
+    grade = models.IntegerField(
+        verbose_name=_('LABEL_GRADE'),
+        default=0,
+    )
+    grading_time = models.DateTimeField(
+        verbose_name=_('LABEL_GRADING_TIME'),
+        blank=True, null=True,
+    )
+    late_penalty_applied = PercentField(
+        verbose_name=_('LABEL_LATE_PENALTY_APPLIED'),
+        blank=True, null=True,
+    )
 
     # Points received from assessment, before scaled to grade
-    service_points = models.IntegerField(default=0)
-    service_max_points = models.IntegerField(default=0)
+    service_points = models.IntegerField(
+        verbose_name=_('LABEL_SERVICE_POINTS'),
+        default=0,
+    )
+    service_max_points = models.IntegerField(
+        verbose_name=_('LABEL_SERVICE_MAX_POINTS'),
+        default=0,
+    )
 
     # Additional data
-    submission_data = JSONField(blank=True)
-    grading_data = JSONField(blank=True)
-    meta_data = JSONField(blank=True)
+    submission_data = JSONField(
+        verbose_name=_('LABEL_SUBMISSION_DATA'),
+        blank=True,
+    )
+    grading_data = JSONField(
+        verbose_name=_('LABEL_GRADING_DATA'),
+        blank=True,
+    )
+    meta_data = JSONField(
+        verbose_name=_('LABEL_META_DATA'),
+        blank=True,
+    )
 
     objects = SubmissionManager()
 
     class Meta:
+        verbose_name = _('MODEL_NAME_SUBMISSION')
+        verbose_name_plural = _('MODEL_NAME_SUBMISSION_PLURAL')
         app_label = 'exercise'
         ordering = ['-id']
 
@@ -356,12 +404,24 @@ class SubmittedFile(UrlMixin, models.Model):
     stored in the database.
     """
     PASS_MIME = ( "image/jpeg", "image/png", "image/gif", "application/pdf" )
-    submission = models.ForeignKey(Submission, on_delete=models.CASCADE,
-        related_name="files")
-    param_name = models.CharField(max_length=128)
-    file_object = models.FileField(upload_to=build_upload_dir, max_length=255)
+    submission = models.ForeignKey(Submission,
+        verbose_name=_('LABEL_SUBMISSION'),
+        on_delete=models.CASCADE,
+        related_name="files",
+    )
+    param_name = models.CharField(
+        verbose_name=_('LABEL_PARAM_NAME'),
+        max_length=128,
+    )
+    file_object = models.FileField(
+        verbose_name=('LABEL_FILE_OBJECT'),
+        upload_to=build_upload_dir,
+        max_length=255,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_SUBMITTED_FILE')
+        verbose_name_plural = _('MODEL_NAME_SUBMITTED_FILE_PLURAL')
         app_label = 'exercise'
 
     @property

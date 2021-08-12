@@ -49,11 +49,26 @@ class Course(UrlMixin, models.Model):
     identification number. It also has a URL which is included in the addresses
     of pages under the course.
     """
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=255)
-    url = models.CharField(unique=True, max_length=255, blank=False,
+    name = models.CharField(
+        verbose_name=_('LABEL_NAME'),
+        max_length=255,
+    )
+    code = models.CharField(
+        verbose_name=_('LABEL_CODE'),
+        max_length=255,
+    )
+    url = models.CharField(
+        verbose_name=_('LABEL_URL'),
+        unique=True,
+        max_length=255,
+        blank=False,
+        help_text=_('COURSE_URL_IDENTIFIER_HELPTEXT'),
         validators=[generate_url_key_validator()],
-        help_text=_('COURSE_URL_IDENTIFIER_HELPTEXT'))
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_COURSE')
+        verbose_name_plural = _('MODEL_NAME_COURSE_PLURAL')
 
     def __str__(self):
         return "{} {}".format(self.code, self.name)
@@ -80,12 +95,23 @@ class StudentGroup(models.Model):
     """
     Stores a user group for a course instance.
     """
-    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE,
-        related_name='groups')
-    members = models.ManyToManyField(UserProfile, related_name='groups')
-    timestamp = models.DateTimeField(auto_now_add=True)
+    course_instance = models.ForeignKey('CourseInstance',
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name='groups',
+    )
+    members = models.ManyToManyField(UserProfile,
+        verbose_name=_('LABEL_MEMBERS'),
+        related_name='groups',
+    )
+    timestamp = models.DateTimeField(
+        verbose_name=_('LABEL_TIMESTAMP'),
+        auto_now_add=True,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_STUDENT_GROUP')
+        verbose_name_plural = _('MODEL_NAME_STUDENT_GROUP_PLURAL')
         ordering = ['course_instance','timestamp']
 
     @classmethod
@@ -132,21 +158,62 @@ class Enrollment(models.Model):
         ('BANNED', 3, _('BANNED')),
     ])
 
-    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE)
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    language = models.CharField(blank=True, default="", max_length=5)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    personal_code = models.CharField(max_length=10, blank=True, default='')
-    selected_group = models.ForeignKey(StudentGroup, on_delete=models.SET_NULL,
-        blank=True, null=True, default=None)
-    anon_name = models.CharField(max_length=50, blank=True, default='')
-    anon_id = models.CharField(max_length=50, blank=True, null=True, unique=True)
-    role = models.IntegerField(choices=ENROLLMENT_ROLE.choices,
-                               default=ENROLLMENT_ROLE.STUDENT)
-    status = models.IntegerField(choices=ENROLLMENT_STATUS.choices,
-                                 default=ENROLLMENT_STATUS.ACTIVE)
+    course_instance = models.ForeignKey('CourseInstance',
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+    )
+    user_profile = models.ForeignKey(UserProfile,
+        verbose_name=_('LABEL_USER_PROFILE'),
+        on_delete=models.CASCADE,
+    )
+    language = models.CharField(
+        verbose_name=_('LABEL_LANGUAGE'),
+        max_length=5,
+        blank=True,
+        default="",
+    )
+    timestamp = models.DateTimeField(
+        verbose_name=_('LABEL_TIMESTAMP'),
+        auto_now_add=True,
+    )
+    personal_code = models.CharField(
+        verbose_name=_('LABEL_PERSONAL_CODE'),
+        max_length=10,
+        blank=True,
+        default='',
+    )
+    selected_group = models.ForeignKey(StudentGroup,
+        verbose_name=_('LABEL_SELECTED_GROUP'),
+        on_delete=models.SET_NULL,
+        blank=True, null=True, default=None,
+    )
+    anon_name = models.CharField(
+        verbose_name=_('LABEL_ANON_NAME'),
+        max_length=50,
+        blank=True,
+        default='',
+    )
+    anon_id = models.CharField(
+        verbose_name=_('LABEL_ANON_ID'),
+        max_length=50,
+        unique=True,
+        blank=True,
+        null=True,
+    )
+    role = models.IntegerField(
+        verbose_name=_('LABEL_ROLE'),
+        choices=ENROLLMENT_ROLE.choices,
+        default=ENROLLMENT_ROLE.STUDENT,
+    )
+    status = models.IntegerField(
+        verbose_name=_('LABEL_STATUS'),
+        choices=ENROLLMENT_STATUS.choices,
+        default=ENROLLMENT_STATUS.ACTIVE,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_ENROLLMENT')
+        verbose_name_plural = _('MODEL_NAME_ENROLLMENT_PLURAL')
         unique_together = ("course_instance", "user_profile")
 
 def create_enrollment_code(sender, instance, created, **kwargs):
@@ -199,11 +266,19 @@ post_save.connect(pseudonymize, sender=Enrollment)
 
 
 class UserTag(UrlMixin, ColorTag):
-    course_instance = models.ForeignKey('CourseInstance', on_delete=models.CASCADE,
-        related_name="usertags")
-    visible_to_students = models.BooleanField(default=False)
+    course_instance = models.ForeignKey('CourseInstance',
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name="usertags",
+    )
+    visible_to_students = models.BooleanField(
+        verbose_name=_('LABEL_VISIBLE_TO_STUDENTS'),
+        default=False,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_USER_TAG')
+        verbose_name_plural = _('MODEL_NAME_USER_TAG_PLURAL')
         ordering = ['course_instance', 'name']
 
     def get_url_kwargs(self):
@@ -222,6 +297,8 @@ class UserTag(UrlMixin, ColorTag):
 
 class HardcodedUserTag(UserTag):
     class Meta:
+        verbose_name = _('MODEL_NAME_HARDCODED_USER_TAG')
+        verbose_name_plural = _('MODEL_NAME_HARDCODED_USER_TAG_PLURAL')
         proxy = True
 
     data_attrs = {
@@ -285,16 +362,22 @@ class UserTaggingManager(models.Manager):
 
 class UserTagging(models.Model):
     tag = models.ForeignKey(UserTag,
-                            on_delete=models.CASCADE,
-                            related_name="taggings")
+        verbose_name=_('LABEL_TAG'),
+        on_delete=models.CASCADE,
+        related_name="taggings",
+    )
     user = models.ForeignKey(UserProfile,
-                             on_delete=models.CASCADE,
-                             related_name="taggings",
-                             db_index=True)
+        verbose_name=_('LABEL_USER'),
+        on_delete=models.CASCADE,
+        related_name="taggings",
+        db_index=True,
+    )
     course_instance = models.ForeignKey('CourseInstance',
-                                        on_delete=models.CASCADE,
-                                        related_name="taggings",
-                                        db_index=True)
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name="taggings",
+        db_index=True,
+    )
     objects = UserTaggingManager()
 
     def __str__(self):
@@ -304,6 +387,8 @@ class UserTagging(models.Model):
         )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_USER_TAGGING')
+        verbose_name_plural = _('MODEL_NAME_USER_TAGGING_PLURAL')
         unique_together = ('tag', 'user', 'course_instance')
         index_together = (
             ('user', 'course_instance'),
@@ -406,39 +491,106 @@ class CourseInstance(UrlMixin, models.Model):
         ('HIDDEN', 3, _('NUMBERING_HIDDEN_ARABIC')),
     ])
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="instances")
-    instance_name = models.CharField(max_length=255)
-    url = models.CharField(max_length=255, blank=False,
+    course = models.ForeignKey(Course,
+        verbose_name=_('LABEL_COURSE'),
+        on_delete=models.CASCADE,
+        related_name="instances",
+    )
+    instance_name = models.CharField(
+        verbose_name=_('LABEL_INSTANCE_NAME'),
+        max_length=255,
+    )
+    url = models.CharField(
+        verbose_name=_('LABEL_URL'),
+        max_length=255,
+        blank=False,
+        help_text=_('COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT'),
         validators=[generate_url_key_validator()],
-        help_text=_('COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT'))
-    visible_to_students = models.BooleanField(default=True)
-    enrollment_audience = models.IntegerField(choices=ENROLLMENT_AUDIENCE.choices,
-                                              default=ENROLLMENT_AUDIENCE.INTERNAL_USERS)
-    view_content_to = models.IntegerField(choices=VIEW_ACCESS.choices,
-                                          default=VIEW_ACCESS.ENROLLED)
-    starting_time = models.DateTimeField()
-    ending_time = models.DateTimeField()
-    lifesupport_time = models.DateTimeField(blank=True, null=True)
-    archive_time = models.DateTimeField(blank=True, null=True)
-    enrollment_starting_time = models.DateTimeField(blank=True, null=True)
-    enrollment_ending_time = models.DateTimeField(blank=True, null=True)
-    image = models.ImageField(blank=True, null=True, upload_to=build_upload_dir)
-    language = models.CharField(max_length=255, blank=True, default="")
-    description = models.TextField(blank=True)
-    footer = models.TextField(blank=True)
-    index_mode = models.IntegerField(choices=INDEX_TYPE.choices, default=INDEX_TYPE.RESULTS,
-        help_text=_('COURSE_INSTANCE_INDEX_CONTENT_SELECTION_HELPTEXT'))
-    module_numbering = models.IntegerField(choices=CONTENT_NUMBERING.choices,
-                                           default=CONTENT_NUMBERING.ARABIC)
-    content_numbering = models.IntegerField(choices=CONTENT_NUMBERING.choices,
-                                            default=CONTENT_NUMBERING.ARABIC)
-    head_urls = models.TextField(blank=True,
-        help_text=_('COURSE_INSTANCE_EXTERNAL_CSS_AND_JS_FOR_ALL_PAGES_HELPTEXT'))
+    )
+    visible_to_students = models.BooleanField(
+        verbose_name=_('LABEL_VISIBLE_TO_STUDENTS'),
+        default=True,
+    )
+    enrollment_audience = models.IntegerField(
+        verbose_name=_('LABEL_ENROLLMENT_AUDIENCE'),
+        choices=ENROLLMENT_AUDIENCE.choices,
+        default=ENROLLMENT_AUDIENCE.INTERNAL_USERS,
+    )
+    view_content_to = models.IntegerField(
+        verbose_name=_('LABEL_VIEW_CONTENT_TO'),
+        choices=VIEW_ACCESS.choices,
+        default=VIEW_ACCESS.ENROLLED,
+    )
+    starting_time = models.DateTimeField(
+        verbose_name=_('LABEL_STARTING_TIME'),
+    )
+    ending_time = models.DateTimeField(
+        verbose_name=_('LABEL_ENDING_TIME'),
+    )
+    lifesupport_time = models.DateTimeField(
+        verbose_name=_('LABEL_LIFESUPPORT_TIME'),
+        blank=True, null=True,
+    )
+    archive_time = models.DateTimeField(
+        verbose_name=_('LABEL_ARCHIVE_TIME'),
+        blank=True, null=True,
+    )
+    enrollment_starting_time = models.DateTimeField(
+        verbose_name=_('LABEL_ENROLLMENT_STARTING_TIME'),
+        blank=True, null=True,
+    )
+    enrollment_ending_time = models.DateTimeField(
+        verbose_name=_('LABEL_ENROLLMENT_ENDING_TIME'),
+        blank=True, null=True,
+    )
+    image = models.ImageField(
+        verbose_name=_('LABEL_IMAGE'),
+        blank=True, null=True,
+        upload_to=build_upload_dir,
+    )
+    language = models.CharField(
+        verbose_name=_('LABEL_LANGUAGE'),
+        max_length=255,
+        blank=True,
+        default="",
+    )
+    description = models.TextField(
+        verbose_name=_('LABEL_DESCRIPTION'),
+        blank=True,
+    )
+    footer = models.TextField(
+        verbose_name=_('LABEL_FOOTER'),
+        blank=True,
+    )
+    index_mode = models.IntegerField(
+        verbose_name=_('LABEL_INDEX_MODE'),
+        choices=INDEX_TYPE.choices, default=INDEX_TYPE.RESULTS,
+        help_text=_('COURSE_INSTANCE_INDEX_CONTENT_SELECTION_HELPTEXT'),
+    )
+    module_numbering = models.IntegerField(
+        verbose_name=_('LABEL_MODULE_NUMBERING'),
+        choices=CONTENT_NUMBERING.choices,
+        default=CONTENT_NUMBERING.ARABIC,
+    )
+    content_numbering = models.IntegerField(
+        verbose_name=_('LABEL_CONTENT_NUMBERING'),
+        choices=CONTENT_NUMBERING.choices,
+        default=CONTENT_NUMBERING.ARABIC,
+    )
+    head_urls = models.TextField(
+        verbose_name=_('LABEL_HEAD_URLS'),
+        blank=True,
+        help_text=_('COURSE_INSTANCE_EXTERNAL_CSS_AND_JS_FOR_ALL_PAGES_HELPTEXT'),
+    )
     configure_url = models.URLField(blank=True)
     build_log_url = models.URLField(blank=True)
     last_modified = models.DateTimeField(auto_now=True, blank=True, null=True)
-    technical_error_emails = models.CharField(max_length=255, blank=True,
-        help_text=_('COURSE_INSTANCE_EXERCISE_ERROR_EMAIL_RECIPIENT_OVERRIDE_HELPTEXT'))
+    technical_error_emails = models.CharField(
+        verbose_name=_('LABEL_TECHNICAL_ERROR_EMAILS'),
+        max_length=255,
+        blank=True,
+        help_text=_('COURSE_INSTANCE_EXERCISE_ERROR_EMAIL_RECIPIENT_OVERRIDE_HELPTEXT'),
+    )
     plugins = GenericRelation(BasePlugin, object_id_field="container_pk",
                                       content_type_field="container_type")
     tabs = GenericRelation(BaseTab, object_id_field="container_pk",
@@ -452,6 +604,8 @@ class CourseInstance(UrlMixin, models.Model):
     objects = CourseInstanceManager()
 
     class Meta:
+        verbose_name = _('MODEL_NAME_COURSE_INSTANCE')
+        verbose_name_plural = _('MODEL_NAME_COURSE_INSTANCE_PLURAL')
         unique_together = ("course", "url")
 
     def __str__(self):
@@ -776,10 +930,23 @@ class CourseHook(models.Model):
         ("post-grading", "Post grading"),
     )
 
-    hook_url = models.URLField()
-    hook_type = models.CharField(max_length=12, choices=HOOK_CHOICES, default="post-grading")
-    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
-        related_name="course_hooks")
+    hook_url = models.URLField(
+        verbose_name=_('LABEL_HOOK_URL')
+    )
+    hook_type = models.CharField(
+        verbose_name=_('LABEL_HOOK_TYPE'),
+        max_length=12,
+        choices=HOOK_CHOICES, default="post-grading",
+    )
+    course_instance = models.ForeignKey(CourseInstance,
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name="course_hooks",
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_COURSE_HOOK')
+        verbose_name_plural = _('MODEL_NAME_COURSE_HOOK_PLURAL')
 
     def __str__(self):
         return "{} -> {}".format(self.course_instance, self.hook_url)
@@ -832,36 +999,75 @@ class CourseModule(UrlMixin, models.Model):
         ('HIDDEN', 'hidden', _('STATUS_HIDDEN')),
         ('MAINTENANCE', 'maintenance', _('STATUS_MAINTENANCE')),
     ])
-    status = models.CharField(max_length=32,
-        choices=STATUS.choices, default=STATUS.READY)
-    order = models.IntegerField(default=1)
-    name = models.CharField(max_length=255)
-    url = models.CharField(max_length=255,
-                       validators=[generate_url_key_validator()],
-                       help_text=_('MODULE_URL_IDENTIFIER_HELPTEXT'))
-    points_to_pass = models.PositiveIntegerField(default=0)
-    introduction = models.TextField(blank=True)
-    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
-        related_name="course_modules")
+    status = models.CharField(
+        verbose_name=_('LABEL_STATUS'),
+        max_length=32,
+        choices=STATUS.choices, default=STATUS.READY,
+    )
+    order = models.IntegerField(
+        verbose_name=_('LABEL_ORDER'),
+        default=1,
+    )
+    name = models.CharField(
+        verbose_name=_('LABEL_NAME'),
+        max_length=255,
+    )
+    url = models.CharField(
+        verbose_name=_('LABEL_URL'),
+        max_length=255,
+        help_text=_('MODULE_URL_IDENTIFIER_HELPTEXT'),
+        validators=[generate_url_key_validator()],
+    )
+    points_to_pass = models.PositiveIntegerField(
+        verbose_name=_('LABEL_POINTS_TO_PASS'),
+        default=0)
+    introduction = models.TextField(
+        verbose_name=_('LABEL_INTRODUCTION'),
+        blank=True,
+    )
+    course_instance = models.ForeignKey(CourseInstance,
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name="course_modules",
+    )
     reading_opening_time = models.DateTimeField(
-        verbose_name=_('MODULE_READING_OPENING_TIME_VERBOSE'), null=True, blank=True,
-        help_text=_('MODULE_READING_OPENING_TIME_HELPTEXT'))
-    opening_time = models.DateTimeField(default=timezone.now)
-    closing_time = models.DateTimeField(default=timezone.now)
+        verbose_name=_('LABEL_READING_OPENING_TIME'),
+        blank=True, null=True,
+        help_text=_('MODULE_READING_OPENING_TIME_HELPTEXT'),
+    )
+    opening_time = models.DateTimeField(
+        verbose_name=_('LABEL_EXERCISE_OPENING_TIME'),
+        default=timezone.now)
+    closing_time = models.DateTimeField(
+        verbose_name=_('LABEL_CLOSING_TIME'),
+        default=timezone.now,
+        help_text=_('MODULE_CLOSING_TIME_HELPTEXT'),
+    )
 
     # early_submissions_allowed= models.BooleanField(default=False)
     # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)
     # early_submission_bonus  = PercentField(default=0.1,
     #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
 
-    late_submissions_allowed = models.BooleanField(default=False)
-    late_submission_deadline = models.DateTimeField(default=timezone.now)
-    late_submission_penalty = PercentField(default=0.5,
-        help_text=_('MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT'))
+    late_submissions_allowed = models.BooleanField(
+        verbose_name=_('LABEL_LATE_SUBMISSIONS_ALLOWED'),
+        default=False,
+    )
+    late_submission_deadline = models.DateTimeField(
+        verbose_name=_('LABEL_LATE_SUBMISSION_DEADLINE'),
+        default=timezone.now,
+    )
+    late_submission_penalty = PercentField(
+        verbose_name=_('LABEL_LATE_SUBMISSION_PENALTY'),
+        default=0.5,
+        help_text=_('MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT'),
+    )
 
     objects = CourseModuleManager()
 
     class Meta:
+        verbose_name = _('MODEL_NAME_COURSE_MODULE')
+        verbose_name_plural = _('MODEL_NAME_COURSE_MODULE_PLURAL')
         unique_together = ("course_instance", "url")
         ordering = ['order', 'closing_time', 'id']
 
@@ -959,22 +1165,45 @@ class LearningObjectCategory(models.Model):
         ('NOTOTAL', 'nototal', _('STATUS_NO_TOTAL_POINTS')),
         ('HIDDEN', 'hidden', _('STATUS_HIDDEN')),
     ])
-    status = models.CharField(max_length=32,
-        choices=STATUS.choices, default=STATUS.READY)
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    points_to_pass = models.PositiveIntegerField(default=0)
-    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
-        related_name="categories")
-    confirm_the_level = models.BooleanField(default=False,
-        help_text=_('LEARNING_OBJECT_CATEGORY_LEVEL_CONFIRMATION_EXERCISE_HELPTEXT'))
-    accept_unofficial_submits = models.BooleanField(default=False,
-        help_text=_('LEARNING_OBJECT_CATEGORY_ACCEPT_UNOFFICIAL_SUBMISSIONS_HELPTEXT'))
+    status = models.CharField(
+        verbose_name=_('LABEL_STATUS'),
+        max_length=32,
+        choices=STATUS.choices, default=STATUS.READY,
+    )
+    name = models.CharField(
+        verbose_name=_('LABEL_NAME'),
+        max_length=255,
+    )
+    description = models.TextField(
+        verbose_name=_('LABEL_DESCRIPTION'),
+        blank=True,
+    )
+    points_to_pass = models.PositiveIntegerField(
+        verbose_name=_('LABEL_POINTS_TO_PASS'),
+        default=0,
+    )
+    course_instance = models.ForeignKey(CourseInstance,
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name="categories",
+    )
+    confirm_the_level = models.BooleanField(
+        verbose_name=_('LABEL_CONFIRM_THE_LEVEL'),
+        default=False,
+        help_text=_('LEARNING_OBJECT_CATEGORY_LEVEL_CONFIRMATION_EXERCISE_HELPTEXT'),
+    )
+    accept_unofficial_submits = models.BooleanField(
+        verbose_name=_('LABEL_ACCEPT_UNOFFICIAL_SUBMITS'),
+        default=False,
+        help_text=_('LEARNING_OBJECT_CATEGORY_ACCEPT_UNOFFICIAL_SUBMISSIONS_HELPTEXT'),
+    )
 
     #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
     #    blank=True, null=True)
 
     class Meta:
+        verbose_name = _('MODEL_NAME_LEARNING_OBJECT_CATEGORY')
+        verbose_name_plural = _('MODEL_NAME_LEARNING_OBJECT_CATEGORY_PLURAL')
         unique_together = ("name", "course_instance")
 
     def __str__(self):

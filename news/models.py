@@ -9,15 +9,34 @@ from lib.models import UrlMixin
 
 class News(models.Model, UrlMixin):
     AUDIENCE = CourseInstance.ENROLLMENT_AUDIENCE
-    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
-        related_name="news")
-    audience = models.IntegerField(choices=AUDIENCE.choices, default=AUDIENCE.ALL_USERS)
-    publish = models.DateTimeField(default=timezone.now)
-    title = models.CharField(max_length=255)
-    body = models.TextField()
-    pin = models.BooleanField(default=False)
+    course_instance = models.ForeignKey(CourseInstance,
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name="news",
+    )
+    audience = models.IntegerField(
+        verbose_name=_('LABEL_AUDIENCE'),
+        choices=AUDIENCE.choices, default=AUDIENCE.ALL_USERS,
+    )
+    publish = models.DateTimeField(
+        verbose_name=_('LABEL_PUBLISH'),
+        default=timezone.now,
+    )
+    title = models.CharField(
+        verbose_name=_('LABEL_TITLE'),
+        max_length=255,
+    )
+    body = models.TextField(
+        verbose_name=_('LABEL_BODY'),
+    )
+    pin = models.BooleanField(
+        verbose_name=_('LABEL_PIN'),
+        default=False,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_NEWS')
+        verbose_name_plural = _('MODEL_NAME_NEWS_PLURAL')
         ordering = ['course_instance', '-pin', '-publish']
 
     def __str__(self):

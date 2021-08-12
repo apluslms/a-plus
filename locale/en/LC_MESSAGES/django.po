@@ -17,24 +17,149 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/models.py
-msgid "OBJECT_ID"
+msgid "LABEL_CONTAINER_TYPE"
+msgstr "object type"
+
+#: apps/models.py
+msgid "LABEL_CONTAINER_PK"
 msgstr "object ID"
+
+#: apps/models.py
+msgid "MODEL_NAME_ABSTRACT_APP"
+msgstr "abstract app"
+
+#: apps/models.py
+msgid "MODEL_NAME_ABSTRACT_APP_PLURAL"
+msgstr "abstract apps"
+
+#: apps/models.py
+msgid "LABEL_LABEL"
+msgstr "label"
 
 #: apps/models.py
 msgid "TAB_LABEL_HELPTEXT"
 msgstr "Label is the word displayed on the tab."
 
+#: apps/models.py diploma/models.py news/models.py
+msgid "LABEL_TITLE"
+msgstr "title"
+
 #: apps/models.py
 msgid "TAB_TITLE_HELPTEXT"
 msgstr "Title is displayed on the top of the tab page."
+
+#: apps/models.py course/models.py exercise/exercise_models.py
+#: threshold/models.py
+msgid "LABEL_ORDER"
+msgstr "order"
+
+#: apps/models.py
+msgid "LABEL_OPENING_METHOD"
+msgstr "opening method"
 
 #: apps/models.py
 msgid "TAB_NO_CONTENT"
 msgstr "No content for this tab..."
 
 #: apps/models.py
+msgid "MODEL_NAME_BASE_TAB"
+msgstr "base tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_BASE_TAB_PLURAL"
+msgstr "base tabs"
+
+#: apps/models.py exercise/exercise_models.py
+msgid "LABEL_CONTENT"
+msgstr "content"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_TAB"
+msgstr "HTML tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_TAB_PLURAL"
+msgstr "HTML tabs"
+
+#: apps/models.py
+msgid "LABEL_CONTENT_URL"
+msgstr "content URL"
+
+#: apps/models.py
+msgid "LABEL_ELEMENT_ID"
+msgstr "element ID"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_EMBEDDED_TAB"
+msgstr "external embedded tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_EMBEDDED_TAB_PLURAL"
+msgstr "external embedded tabs"
+
+#: apps/models.py
+msgid "LABEL_WIDTH"
+msgstr "width"
+
+#: apps/models.py
+msgid "LABEL_HEIGHT"
+msgstr "height"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_TAB"
+msgstr "external iframe tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_TAB_PLURAL"
+msgstr "external iframe tabs"
+
+#: apps/models.py
+msgid "LABEL_VIEWS"
+msgstr "views"
+
+#: apps/models.py
 msgid "BASE_PLUGIN_MISSING_RENDER-METHOD"
 msgstr "Base plug-in does not have a render-method."
+
+#: apps/models.py
+msgid "MODEL_NAME_BASE_PLUGIN"
+msgstr "base plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_BASE_PLUGIN_PLURAL"
+msgstr "base plug-ins"
+
+#: apps/models.py
+msgid "LABEL_FEED_URL"
+msgstr "feed URLs"
+
+#: apps/models.py
+msgid "MODEL_NAME_RSS_PLUGIN"
+msgstr "RSS plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_RSS_PLUGIN_PLURAL"
+msgstr "RSS plug-ins"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_PLUGIN"
+msgstr "HTML plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_PLUGIN_PLURAL"
+msgstr "HTML plug-ins"
+
+#: apps/models.py exercise/exercise_models.py
+msgid "LABEL_SERVICE_URL"
+msgstr "service URL"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_PLUGIN"
+msgstr "external iframe plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_PLUGIN_PLURAL"
+msgstr "external iframe plug-ins"
 
 #: authorization/permissions.py
 msgid "ACCESS_ANYONE"
@@ -101,17 +226,59 @@ msgstr "The user is already in the group."
 msgid "ERROR_GROUP_ALREADY_EXISTS"
 msgstr "The group already exists."
 
+#: course/forms.py course/models.py
+msgid "LABEL_MEMBERS"
+msgstr "Members"
+
 #: course/forms.py
-msgid "USERS"
+msgid "LABEL_USERS"
 msgstr "Users"
+
+#: course/models.py diploma/models.py edit_course/course_forms.py
+#: exercise/exercise_models.py threshold/models.py
+msgid "LABEL_NAME"
+msgstr "Name"
+
+#: course/models.py
+msgid "LABEL_CODE"
+msgstr "code"
+
+#: course/models.py exercise/exercise_models.py external_services/models.py
+msgid "LABEL_URL"
+msgstr "URL"
 
 #: course/models.py
 msgid "COURSE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this course."
 
+#: course/models.py
+msgid "MODEL_NAME_COURSE"
+msgstr "course"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_PLURAL"
+msgstr "courses"
+
 #: course/models.py exercise/exercise_models.py
 msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Taken words include: {}"
+
+#: course/models.py external_services/models.py news/models.py
+#: notification/models.py threshold/models.py
+msgid "LABEL_COURSE_INSTANCE"
+msgstr "course instance"
+
+#: course/models.py exercise/exercise_models.py notification/models.py
+msgid "LABEL_TIMESTAMP"
+msgstr "timestamp"
+
+#: course/models.py
+msgid "MODEL_NAME_STUDENT_GROUP"
+msgstr "student group"
+
+#: course/models.py
+msgid "MODEL_NAME_STUDENT_GROUP_PLURAL"
+msgstr "student groups"
 
 #: course/models.py
 msgid "STUDENT"
@@ -138,6 +305,66 @@ msgid "BANNED"
 msgstr "Banned"
 
 #: course/models.py
+msgid "LABEL_USER_PROFILE"
+msgstr "user"
+
+#: course/models.py userprofile/models.py
+msgid "LABEL_LANGUAGE"
+msgstr "language"
+
+#: course/models.py
+msgid "LABEL_PERSONAL_CODE"
+msgstr "personal code"
+
+#: course/models.py
+msgid "LABEL_SELECTED_GROUP"
+msgstr "selected group"
+
+#: course/models.py
+msgid "LABEL_ANON_NAME"
+msgstr "anonymized name"
+
+#: course/models.py
+msgid "LABEL_ANON_ID"
+msgstr "anonymized ID"
+
+#: course/models.py
+msgid "LABEL_ROLE"
+msgstr "role"
+
+#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+msgid "LABEL_STATUS"
+msgstr "status"
+
+#: course/models.py
+msgid "MODEL_NAME_ENROLLMENT"
+msgstr "enrolment"
+
+#: course/models.py
+msgid "MODEL_NAME_ENROLLMENT_PLURAL"
+msgstr "enrolments"
+
+#: course/models.py
+msgid "LABEL_VISIBLE_TO_STUDENTS"
+msgstr "visible to students"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAG"
+msgstr "user tag"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAG_PLURAL"
+msgstr "user tags"
+
+#: course/models.py
+msgid "MODEL_NAME_HARDCODED_USER_TAG"
+msgstr "hardcoded user tag"
+
+#: course/models.py
+msgid "MODEL_NAME_HARDCODED_USER_TAG_PLURAL"
+msgstr "hardcoded user tags"
+
+#: course/models.py
 msgid "INTERNAL"
 msgstr "internal"
 
@@ -156,6 +383,22 @@ msgid "EXTERNAL_USER_DESCRIPTION"
 msgstr ""
 "The user profile doesn't have a student number, thus the user has logged in "
 "from a different organization or via social authentication"
+
+#: course/models.py
+msgid "LABEL_TAG"
+msgstr "tag"
+
+#: course/models.py userprofile/models.py
+msgid "LABEL_USER"
+msgstr "user"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAGGING"
+msgstr "user tagging"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAGGING_PLURAL"
+msgstr "user taggings"
 
 #: course/models.py
 msgid "INTERNAL_USERS"
@@ -217,13 +460,81 @@ msgstr "Roman"
 msgid "NUMBERING_HIDDEN_ARABIC"
 msgstr "Hidden arabic"
 
+#: course/models.py diploma/models.py
+msgid "LABEL_COURSE"
+msgstr "course"
+
+#: course/models.py
+msgid "LABEL_INSTANCE_NAME"
+msgstr "instance name"
+
 #: course/models.py
 msgid "COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this course instance."
 
 #: course/models.py
+msgid "LABEL_ENROLLMENT_AUDIENCE"
+msgstr "enrolment audience"
+
+#: course/models.py
+msgid "LABEL_VIEW_CONTENT_TO"
+msgstr "content visibility"
+
+#: course/models.py
+msgid "LABEL_STARTING_TIME"
+msgstr "starting time"
+
+#: course/models.py
+msgid "LABEL_ENDING_TIME"
+msgstr "ending time"
+
+#: course/models.py
+msgid "LABEL_LIFESUPPORT_TIME"
+msgstr "lifesupport time"
+
+#: course/models.py
+msgid "LABEL_ARCHIVE_TIME"
+msgstr "archival time"
+
+#: course/models.py
+msgid "LABEL_ENROLLMENT_STARTING_TIME"
+msgstr "enrolment starting time"
+
+#: course/models.py
+msgid "LABEL_ENROLLMENT_ENDING_TIME"
+msgstr "enrolment ending time"
+
+#: course/models.py
+msgid "LABEL_IMAGE"
+msgstr "image"
+
+#: course/models.py edit_course/course_forms.py exercise/exercise_models.py
+msgid "LABEL_DESCRIPTION"
+msgstr "Description"
+
+#: course/models.py
+msgid "LABEL_FOOTER"
+msgstr "footer"
+
+#: course/models.py
+msgid "LABEL_INDEX_MODE"
+msgstr "course front page"
+
+#: course/models.py
 msgid "COURSE_INSTANCE_INDEX_CONTENT_SELECTION_HELPTEXT"
 msgstr "Select content for the course index page."
+
+#: course/models.py
+msgid "LABEL_MODULE_NUMBERING"
+msgstr "module numbering"
+
+#: course/models.py
+msgid "LABEL_CONTENT_NUMBERING"
+msgstr "content numbering"
+
+#: course/models.py
+msgid "LABEL_HEAD_URLS"
+msgstr "head URLs"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_EXTERNAL_CSS_AND_JS_FOR_ALL_PAGES_HELPTEXT"
@@ -232,10 +543,22 @@ msgstr ""
 "Separate with white space."
 
 #: course/models.py
+msgid "LABEL_TECHNICAL_ERROR_EMAILS"
+msgstr "technical error emails"
+
+#: course/models.py
 msgid "COURSE_INSTANCE_EXERCISE_ERROR_EMAIL_RECIPIENT_OVERRIDE_HELPTEXT"
 msgstr ""
 "By default exercise errors are reported to teacher email addresses. Set this "
 "field as comma separated emails to override the recipients."
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_INSTANCE"
+msgstr "course instance"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_INSTANCE_PLURAL"
+msgstr "course instances"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}"
@@ -270,6 +593,22 @@ msgstr "Language code(s) missing from settings: "
 msgid "COURSE_INSTANCE_ERROR_LANGUAGE_MISSING_FROM_SETTINGS"
 msgstr "Language code missing from settings."
 
+#: course/models.py
+msgid "LABEL_HOOK_URL"
+msgstr "hook URL"
+
+#: course/models.py
+msgid "LABEL_HOOK_TYPE"
+msgstr "hook type"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_HOOK"
+msgstr "course hook"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_HOOK_PLURAL"
+msgstr "course hooks"
+
 #: course/models.py exercise/exercise_models.py exercise/submission_models.py
 msgid "STATUS_READY"
 msgstr "Ready"
@@ -290,9 +629,17 @@ msgstr "Maintenance"
 msgid "MODULE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this module."
 
+#: course/models.py exercise/exercise_models.py
+msgid "LABEL_POINTS_TO_PASS"
+msgstr "points to pass"
+
 #: course/models.py
-msgid "MODULE_READING_OPENING_TIME_VERBOSE"
-msgstr "Opening time for the reading material"
+msgid "LABEL_INTRODUCTION"
+msgstr "introduction"
+
+#: course/models.py
+msgid "LABEL_READING_OPENING_TIME"
+msgstr "opening time for the reading material"
 
 #: course/models.py
 msgid "MODULE_READING_OPENING_TIME_HELPTEXT"
@@ -300,8 +647,40 @@ msgstr ""
 "Leave empty if the reading material should not open before the exercises."
 
 #: course/models.py
+msgid "LABEL_EXERCISE_OPENING_TIME"
+msgstr "opening time for the assignments"
+
+#: course/models.py
+msgid "LABEL_CLOSING_TIME"
+msgstr "closing time"
+
+#: course/models.py
+msgid "MODULE_CLOSING_TIME_HELPTEXT"
+msgstr "The default closing time of the assignments in this module."
+
+#: course/models.py
+msgid "LABEL_LATE_SUBMISSIONS_ALLOWED"
+msgstr "late submissions allowed"
+
+#: course/models.py
+msgid "LABEL_LATE_SUBMISSION_DEADLINE"
+msgstr "late submission deadline"
+
+#: course/models.py
+msgid "LABEL_LATE_SUBMISSION_PENALTY"
+msgstr "late submission penalty"
+
+#: course/models.py
 msgid "MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT"
 msgstr "Multiplier of points to reduce, as decimal. 0.1 = 10%"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_MODULE"
+msgstr "course module"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_MODULE_PLURAL"
+msgstr "course modules"
 
 #: course/models.py
 msgid "MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME"
@@ -322,10 +701,18 @@ msgid "STATUS_NO_TOTAL_POINTS"
 msgstr "No total points"
 
 #: course/models.py
+msgid "LABEL_CONFIRM_THE_LEVEL"
+msgstr "confirm the level"
+
+#: course/models.py
 msgid "LEARNING_OBJECT_CATEGORY_LEVEL_CONFIRMATION_EXERCISE_HELPTEXT"
 msgstr ""
 "Once exercise is graded non zero it confirms all the points on the hierarchy "
 "level. Implemented as a mandatory feedback feature."
+
+#: course/models.py
+msgid "LABEL_ACCEPT_UNOFFICIAL_SUBMITS"
+msgstr "accept unofficial submissions"
 
 #: course/models.py
 msgid "LEARNING_OBJECT_CATEGORY_ACCEPT_UNOFFICIAL_SUBMISSIONS_HELPTEXT"
@@ -333,6 +720,14 @@ msgstr ""
 "Grade unofficial submissions after deadlines have passed or submission "
 "limits have been exceeded. The points are stored but not included in "
 "official records."
+
+#: course/models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_CATEGORY"
+msgstr "learning object category"
+
+#: course/models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_CATEGORY_PLURAL"
+msgstr "learning object categories"
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_PERMISSION_DENIED_MSG"
@@ -913,6 +1308,36 @@ msgstr "Only enrolled students can unenroll."
 msgid "NEW_STUDENT_GROUP_CREATED"
 msgstr "A new student group was created."
 
+#: deviations/forms.py threshold/models.py
+msgid "LABEL_MODULE"
+msgstr "Module"
+
+#: deviations/forms.py
+msgid "DEVIATION_MODULE_HELPTEXT"
+msgstr ""
+"List a module or modules here if you wish the deviation to be applied to all "
+"of the assignments in the module(s)."
+
+#: deviations/forms.py deviations/models.py exercise/submission_models.py
+msgid "LABEL_EXERCISE"
+msgstr "Assignment"
+
+#: deviations/forms.py
+msgid "DEVIATION_EXERCISE_HELPTEXT"
+msgstr ""
+"List the assignment or assignments to which the deviation should be applied "
+"to. If you have also listed a module or modules in the field above, the "
+"deviation will be applied to these assignments IN ADDITION to the listed "
+"module(s)."
+
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_SUBMITTER"
+msgstr "Submitter"
+
+#: deviations/forms.py
+msgid "LABEL_MINUTES"
+msgstr "Minutes"
+
 #: deviations/forms.py
 msgid "DEVIATION_EXTRA_MINUTES_HELPTEXT"
 msgstr ""
@@ -920,12 +1345,48 @@ msgstr ""
 "below."
 
 #: deviations/forms.py
+msgid "LABEL_NEW_DEADLINE"
+msgstr "New deadline"
+
+#: deviations/forms.py
 msgid "DEVIATION_NEW_DEADLINE_DATE_HELPTEXT"
 msgstr "New submission deadline in the future in format YYYY-MM-DD HH:MM."
 
-#: deviations/forms.py
-msgid "DEVIATION_NO_LATE_PENALTY_LABEL"
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Do not apply late penalty during extra time."
+
+#: deviations/models.py
+msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION"
+msgstr "submission rule deviation"
+
+#: deviations/models.py
+msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION_PLURAL"
+msgstr "submission rule deviations"
+
+#: deviations/models.py
+msgid "LABEL_EXTRA_MINUTES"
+msgstr "extra minutes"
+
+#: deviations/models.py
+msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION"
+msgstr "deadline rule deviation"
+
+#: deviations/models.py
+msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION_PLURAL"
+msgstr "deadline rule deviations"
+
+#: deviations/models.py
+msgid "LABEL_EXTRA_SUBMISSIONS"
+msgstr "extra submissions"
+
+#: deviations/models.py
+msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION"
+msgstr "max submissions rule deviation"
+
+#: deviations/models.py
+msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL"
+msgstr "max submissions rule deviations"
 
 #: deviations/templates/deviations/add_dl.html
 msgid "ADD_DEADLINE_DEVIATIONS"
@@ -992,6 +1453,99 @@ msgstr ""
 "Deadline deviation already exists for {user} in {exercise}!Remove it before "
 "trying to add a new one."
 
+#: diploma/models.py
+msgid "LABEL_AVAILABILTY"
+msgstr "availability"
+
+#: diploma/models.py
+msgid "LABEL_LOGO"
+msgstr "logo"
+
+#: diploma/models.py news/models.py
+msgid "LABEL_BODY"
+msgstr "body"
+
+#: diploma/models.py
+msgid "LABEL_DATE"
+msgstr "date"
+
+#: diploma/models.py
+msgid "LABEL_SIGNATURE_NAME"
+msgstr "signature name"
+
+#: diploma/models.py
+msgid "LABEL_SIGNATURE_TITLE"
+msgstr "signature title"
+
+#: diploma/models.py
+msgid "LABEL_SMALL_PRINT"
+msgstr "small print"
+
+#: diploma/models.py
+msgid "LABEL_POINT_LIMITS"
+msgstr "point limits"
+
+#: diploma/models.py
+msgid "DIPLOMA_POINT_LIMITS_HELPTEXT"
+msgstr ""
+"A list of length 5 where each element is the required points for n:th grade."
+"The element can be a list of 2-tuples \n"
+"[[difficulty_level_a, points], [difficulty_level_b, points]]."
+
+#: diploma/models.py
+msgid "LABEL_PAD_POINTS"
+msgstr "pad points"
+
+#: diploma/models.py
+msgid "DIPLOMA_PAD_POINTS_HELPTEXT"
+msgstr ""
+"If difficulty levels are used the lower level can be padded with higher "
+"level points."
+
+#: diploma/models.py
+msgid "LABEL_EXERCISES_TO_PASS"
+msgstr "assignments to pass"
+
+#: diploma/models.py
+msgid "LABEL_MODULES_TO_PASS"
+msgstr "modules to pass"
+
+#: diploma/models.py
+msgid "MODEL_NAME_COURSE_DIPLOMA_DESIGN"
+msgstr "course diploma design"
+
+#: diploma/models.py
+msgid "MODEL_NAME_COURSE_DIPLOMA_DESIGN_PLURAL"
+msgstr "course diploma designs"
+
+#: diploma/models.py
+msgid "LABEL_DESIGN"
+msgstr "design"
+
+#: diploma/models.py exercise/exercise_models.py
+msgid "LABEL_PROFILE"
+msgstr "user"
+
+#: diploma/models.py
+msgid "LABEL_CREATED"
+msgstr "created"
+
+#: diploma/models.py
+msgid "LABEL_HASHKEY"
+msgstr "hashkey"
+
+#: diploma/models.py exercise/submission_models.py
+msgid "LABEL_GRADE"
+msgstr "grade"
+
+#: diploma/models.py
+msgid "MODEL_NAME_STUDENT_DIPLOMA"
+msgstr "student diploma"
+
+#: diploma/models.py
+msgid "MODEL_NAME_STUDENT_DIPLOMA_PLURAL"
+msgstr "student diplomas"
+
 #: diploma/templates/diploma/_diploma_button.html
 msgid "GET_COURSE_DIPLOMA"
 msgstr "Get course diploma"
@@ -1037,6 +1591,14 @@ msgid "SCHEDULE"
 msgstr "Schedule"
 
 #: edit_course/course_forms.py
+msgid "LABEL_TEACHERS"
+msgstr "Teachers"
+
+#: edit_course/course_forms.py
+msgid "LABEL_ASSISTANTS"
+msgstr "Assistants"
+
+#: edit_course/course_forms.py
 msgid "COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE"
 msgstr "The URL identifier is locked while the course is visible to students."
 
@@ -1052,41 +1614,28 @@ msgstr "Removes possibility for students to return answers."
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
 msgstr "New URL identifier for the course instance:"
 
-#: edit_course/course_forms.py templates/support_channels.html
-msgid "TEACHERS"
-msgstr "Teachers"
+#: edit_course/course_forms.py
+msgid "LABEL_EXERCISE_CATEGORIES"
+msgstr "Assignment categories"
 
 #: edit_course/course_forms.py
-msgid "ASSISTANTS"
-msgstr "Assistants"
-
-#: edit_course/course_forms.py
-#: edit_course/templates/edit_course/edit_content.html
-msgid "EXERCISE_CATEGORIES"
-msgstr "Exercise categories"
-
-#: edit_course/course_forms.py
-#: edit_course/templates/edit_course/edit_content.html
-msgid "COURSE_MODULES"
+msgid "LABEL_COURSE_MODULES"
 msgstr "Course modules"
 
 #: edit_course/course_forms.py
-msgid "CONTENT_CHAPTERS"
-msgstr "Content chapters"
+msgid "LABEL_CHAPTERS"
+msgstr "Chapters"
 
 #: edit_course/course_forms.py
-msgid "EXERCISES"
-msgstr "Exercises"
+msgid "LABEL_EXERCISES"
+msgstr "Assignments"
 
 #: edit_course/course_forms.py
-#: external_services/templates/external_services/edit_menu.html
-#: external_services/templates/external_services/list_menu.html
-msgid "MENU_ITEMS"
+msgid "LABEL_MENU_ITEMS"
 msgstr "Menu items"
 
 #: edit_course/course_forms.py
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "STUDENT_TAGS"
+msgid "LABEL_STUDENT_TAGS"
 msgstr "Student tags"
 
 #: edit_course/course_forms.py
@@ -1101,6 +1650,14 @@ msgstr ""
 #: edit_course/course_forms.py
 msgid "ERROR_MODULES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES"
 msgstr "Can't clone chapters and exercises without cloning course modules."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SLUG"
+msgstr "Slug"
+
+#: edit_course/course_forms.py
+msgid "LABEL_COLOR"
+msgstr "Colour"
 
 #: edit_course/exercise_forms.py
 msgid "GRADING"
@@ -1728,6 +2285,22 @@ msgstr "Only external users"
 msgid "AUDIENCE_REGISTERED_USERS"
 msgstr "Only registered users"
 
+#: exercise/exercise_models.py news/models.py
+msgid "LABEL_AUDIENCE"
+msgstr "audience"
+
+#: exercise/exercise_models.py
+msgid "LABEL_CATEGORY"
+msgstr "category"
+
+#: exercise/exercise_models.py
+msgid "LABEL_COURSE_MODULE"
+msgstr "course module"
+
+#: exercise/exercise_models.py
+msgid "LABEL_PARENT"
+msgstr "parent"
+
 #: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this object."
@@ -1737,16 +2310,40 @@ msgid "LEARNING_OBJECT_DESCRIPTION_HELPTEXT"
 msgstr "Internal description is not presented on site."
 
 #: exercise/exercise_models.py
+msgid "LABEL_USE_WIDE_COLUMN"
+msgstr "use wide column"
+
+#: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_WIDE_COLUMN_HELPTEXT"
 msgstr "Remove the third info column for more space."
+
+#: exercise/exercise_models.py
+msgid "LABEL_EXERCISE_INFO"
+msgstr "assignment info"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MODEL_ANSWERS"
+msgstr "model answers"
 
 #: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_MODEL_ANSWER_URLS_HELPTEXT"
 msgstr "List model answer files as protected URL addresses."
 
 #: exercise/exercise_models.py
+msgid "LABEL_TEMPLATES"
+msgstr "templates"
+
+#: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_TEMPLATE_URLS_HELPTEXT"
 msgstr "List template files as protected URL addresses."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT"
+msgstr "learning object"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_PLURAL"
+msgstr "learning objects"
 
 #: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_ERROR_MODULE_AND_CATEGORY_MUST_HAVE_SAME_COURSE_INSTANCE"
@@ -1759,6 +2356,66 @@ msgstr "Cannot select parent from another course module."
 #: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_ERROR_PARENT_CANNOT_BE_SELF"
 msgstr "Cannot select self as a parent."
+
+#: exercise/exercise_models.py
+msgid "LABEL_LEARNING_OBJECT"
+msgstr "learning object"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY"
+msgstr "learning object display"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY_PLURAL"
+msgstr "learning object displays"
+
+#: exercise/exercise_models.py
+msgid "LABEL_GENERATE_TOC"
+msgstr "generate table of contents"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_COURSE_CHAPTER"
+msgstr "course chapter"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_COURSE_CHAPTER_PLURAL"
+msgstr "course chapters"
+
+#: exercise/exercise_models.py
+msgid "LABEL_ALLOW_ASSISTANT_VIEWING"
+msgstr "allow assistant viewing"
+
+#: exercise/exercise_models.py
+msgid "LABEL_ALLOW_ASSISTANT_GRADING"
+msgstr "allow assistant grading"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MIN_GROUP_SIZE"
+msgstr "min group size"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MAX_GROUP_SIZE"
+msgstr "max group size"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MAX_SUBMISSIONS"
+msgstr "max submissions"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MAX_POINTS"
+msgstr "max points"
+
+#: exercise/exercise_models.py threshold/models.py
+msgid "LABEL_DIFFICULTY"
+msgstr "difficulty"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE"
+msgstr "base assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
+msgstr "base assignments"
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_ERROR_POINTS_TO_PASS_GREATER_MAX_POINTS"
@@ -1865,16 +2522,36 @@ msgstr ""
 "please contact course staff."
 
 #: exercise/exercise_models.py
+msgid "LABEL_LTI_SERVICE"
+msgstr "LTI service"
+
+#: exercise/exercise_models.py
+msgid "LABEL_CONTEXT_ID"
+msgstr "LTI course key (context ID)"
+
+#: exercise/exercise_models.py
 msgid "LTI_EXERCISE_CONTEXT_ID_HELPTEXT"
 msgstr "Default: [hostname]/[course:url]/[instance:url]/"
+
+#: exercise/exercise_models.py
+msgid "LABEL_RESOURCE_LINK_ID"
+msgstr "LTI assignment key (resource link ID)"
 
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_RESOURCE_LINK_ID_HELPTEXT"
 msgstr "Default: [aplusexercise:id]"
 
 #: exercise/exercise_models.py
+msgid "LABEL_RESOURCE_LINK_TITLE"
+msgstr "link text (resource link title)"
+
+#: exercise/exercise_models.py
 msgid "LTI_EXERCISE_RESOURCE_LINK_TITLE_HELPTEXT"
 msgstr "Default: the menu label of the LTI service"
+
+#: exercise/exercise_models.py
+msgid "LABEL_APLUS_GET_AND_POST"
+msgstr "Aplus GET and POST"
 
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_APLUS_GET_AND_POST_HELPTEXT"
@@ -1882,9 +2559,21 @@ msgstr ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 
 #: exercise/exercise_models.py
+msgid "LABEL_OPEN_IN_IFRAME"
+msgstr "open in iframe"
+
+#: exercise/exercise_models.py
 msgid "LTI_EXERCISE_OPEN_IN_IFRAME_HELPTEXT"
 msgstr ""
 "Open the exercise in an iframe inside the A+ page instead of a new window."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI_EXERCISE"
+msgstr "LTI assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI_EXERCISE_PLURAL"
+msgstr "LTI assignments"
 
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_ERROR_SERVICE_URL_DOMAIN_MUST_MATCH_LTI_SERVICE"
@@ -1899,9 +2588,53 @@ msgstr ""
 "disabled."
 
 #: exercise/exercise_models.py
+msgid "LABEL_EXERCISE_PAGE_CONTENT"
+msgstr "assignment page content"
+
+#: exercise/exercise_models.py
+msgid "LABEL_SUBMISSION_PAGE_CONTENT"
+msgstr "submissions page content"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_STATIC_EXERCISE"
+msgstr "static assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_STATICE_EXERCISE_PLURAL"
+msgstr "static assignments"
+
+#: exercise/exercise_models.py
+msgid "LABEL_FILES_TO_SUBMIT"
+msgstr "files to submit"
+
+#: exercise/exercise_models.py
 msgid "EXERCISE_WITH_ATTACHMENT_FILES_TO_SUBMIT_HELPTEXT"
 msgstr ""
 "File names that user should submit, use pipe character to separate files"
+
+#: exercise/exercise_models.py
+msgid "LABEL_ATTACHMENT"
+msgstr "attachment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_EXERCISE_WITH_ATTACHMENT"
+msgstr "assignment with attachment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_EXERCISE_WITH_ATTACHMENT_PLURAL"
+msgstr "assignments with attachments"
+
+#: exercise/exercisecollection_models.py
+msgid "LABEL_TARGET_CATEGORY"
+msgstr "target category"
+
+#: exercise/exercisecollection_models.py
+msgid "MODEL_NAME_EXERCISE_COLLECTION"
+msgstr "exercise collection"
+
+#: exercise/exercisecollection_models.py
+msgid "MODEL_NAME_EXERCISE_COLLECTION_PLURAL"
+msgstr "exercise collections"
 
 #: exercise/forms.py
 msgid "SUBMISSION_ERROR_POINTS_GREATER_THAN_MAX_POINTS"
@@ -1912,14 +2645,26 @@ msgid "SUBMISSION_ERROR_POINTS_LOWER_THAN_ZERO"
 msgstr "Points lower than zero are not allowed."
 
 #: exercise/forms.py
+msgid "LABEL_POINTS"
+msgstr "Points"
+
+#: exercise/forms.py
 msgid "SUBMISSION_REVIEW_POINTS_OVERRIDE_HELPTEXT"
 msgstr ""
 "Possible penalties are not applied - the points are set as given. This will "
 "<em>override</em> grader points!"
 
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_STAFF_FEEDBACK"
+msgstr "Staff feedback"
+
 #: exercise/forms.py
 msgid "SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT"
 msgstr "HTML formatting is allowed. This will not override machine feedback."
+
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_FEEDBACK"
+msgstr "Feedback"
 
 #: exercise/forms.py
 msgid "SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT"
@@ -1932,6 +2677,26 @@ msgstr ""
 "The maximum points for this exercise is {max:d} and the given points is more "
 "than that."
 
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_SUBMISSION_TIME"
+msgstr "Submission time"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS"
+msgstr "Students"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS_BY_USER_ID"
+msgstr "Students by user ID"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS_BY_STUDENT_ID"
+msgstr "Students by student ID"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS_BY_EMAIL"
+msgstr "Students by email"
+
 #: exercise/forms.py
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ALL_STUDENT_FIELDS_BLANK"
 msgstr "One of the student fields must not be blank"
@@ -1939,6 +2704,10 @@ msgstr "One of the student fields must not be blank"
 #: exercise/forms.py
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ONLY_ONE_STUDENT_FIELD_CAN_BE_GIVEN"
 msgstr "Only one student field can be given"
+
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_SUBMITTERS"
+msgstr "Submitters"
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
@@ -2057,6 +2826,66 @@ msgstr "Rejected"
 #: exercise/submission_models.py
 msgid "STATUS_UNOFFICIAL"
 msgstr "No effect on grading"
+
+#: exercise/submission_models.py
+msgid "LABEL_HASH"
+msgstr "hash"
+
+#: exercise/submission_models.py
+msgid "LABEL_GRADER"
+msgstr "grader"
+
+#: exercise/submission_models.py
+msgid "LABEL_GRADING_TIME"
+msgstr "grading time"
+
+#: exercise/submission_models.py
+msgid "LABEL_LATE_PENALTY_APPLIED"
+msgstr "late penalty applied"
+
+#: exercise/submission_models.py
+msgid "LABEL_SERVICE_POINTS"
+msgstr "service points"
+
+#: exercise/submission_models.py
+msgid "LABEL_SERVICE_MAX_POINTS"
+msgstr "service max points"
+
+#: exercise/submission_models.py
+msgid "LABEL_SUBMISSION_DATA"
+msgstr "submission data"
+
+#: exercise/submission_models.py
+msgid "LABEL_GRADING_DATA"
+msgstr "grading data"
+
+#: exercise/submission_models.py
+msgid "LABEL_META_DATA"
+msgstr "meta data"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION"
+msgstr "submission"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION_PLURAL"
+msgstr "submissions"
+
+#: exercise/submission_models.py notification/models.py
+msgid "LABEL_SUBMISSION"
+msgstr "submission"
+
+#: exercise/submission_models.py
+msgid "LABEL_PARAM_NAME"
+msgstr "parameter name"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMITTED_FILE"
+msgstr "submitted file"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMITTED_FILE_PLURAL"
+msgstr "submitted files"
 
 #: exercise/templates/exercise/_category_points.html
 msgid "TOTAL_POINTS"
@@ -2834,9 +3663,17 @@ msgid "SERVICE_URL"
 msgstr "The service URL"
 
 #: external_services/models.py
+msgid "LABEL_DESTINATION_REGION"
+msgstr "destination region"
+
+#: external_services/models.py
 msgid "SERVICE_DESTINATION_REGION_HELPTEXT"
 msgstr ""
 "The geographical area of the destination. Will display correct user notice."
+
+#: external_services/models.py
+msgid "LABEL_PRIVACY_NOTICE_URL"
+msgstr "privacy notice URL"
 
 #: external_services/models.py
 msgid "SERVICE_PRIVACY_NOTICE_URL_HELPTEXT"
@@ -2845,8 +3682,16 @@ msgstr ""
 "organization!"
 
 #: external_services/models.py
+msgid "LABEL_MENU_LABEL"
+msgstr "menu label"
+
+#: external_services/models.py
 msgid "SERVICE_MENU_LABEL_HELPTEXT"
 msgstr "A default label to show in the course menu."
+
+#: external_services/models.py
+msgid "LABEL_MENU_ICON_CLASS"
+msgstr "menu icon class"
 
 #: external_services/models.py
 msgid "SERVICE_MENU_ICON_HELPTEXT"
@@ -2855,8 +3700,20 @@ msgstr ""
 "#glyphicons-glyphs"
 
 #: external_services/models.py
+msgid "LABEL_ENABLED"
+msgstr "enabled"
+
+#: external_services/models.py
 msgid "SERVICE_ENABLED_HELPTEXT"
 msgstr "If not enabled, the service is disabled for all course instances."
+
+#: external_services/models.py
+msgid "MODEL_NAME_LINK_SERVICE"
+msgstr "link service"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LINK_SERVICE_PLURAL"
+msgstr "link services"
 
 #: external_services/models.py
 msgid "SERVICE_ERROR_PRIVACY_NOTICE_URL_MANDATORY"
@@ -2875,6 +3732,10 @@ msgid "LTI_SERVICE_PUBLIC_YES_API"
 msgstr "Public service, allow API access"
 
 #: external_services/models.py
+msgid "LABEL_ACCESS_SETTINGS"
+msgstr "access settings"
+
+#: external_services/models.py
 msgid "LTI_SERVICE_ACCESS_SETTINGS_HELPTEXT"
 msgstr ""
 "Select whether to pass pseudonymised user data to the LTI service.<br>Public "
@@ -2883,12 +3744,28 @@ msgstr ""
 "privileges."
 
 #: external_services/models.py
+msgid "LABEL_CONSUMER_KEY"
+msgstr "consumer key"
+
+#: external_services/models.py
 msgid "LTI_SERVICE_CONSUMER_KEY_HELPTEXT"
 msgstr "The consumer key provided by the LTI service."
 
 #: external_services/models.py
+msgid "LABEL_CONSUMER_SECRET"
+msgstr "consumer secret"
+
+#: external_services/models.py
 msgid "LTI_SERVICE_CONSUMER_SECRET_HELPTEXT"
 msgstr "The consumer secret provided by the LTI service."
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI_SERVICE"
+msgstr "LTI service"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI_SERVICE_PLURAL"
+msgstr "LTI services"
 
 #: external_services/models.py
 msgid "MENU_ITEM_ACCESS_ALL"
@@ -2907,9 +3784,21 @@ msgid "MENU_ITEM_COURSE_INSTANCE_HELPTEXT"
 msgstr "A course where the menu item exists."
 
 #: external_services/models.py
+msgid "LABEL_ACCESS"
+msgstr "access"
+
+#: external_services/models.py
+msgid "LABEL_SERVICE"
+msgstr "service"
+
+#: external_services/models.py
 msgid "MENU_ITEM_SERVICE_HELPTEXT"
 msgstr ""
 "An external service to link to. These are configured by administrators."
+
+#: external_services/models.py
+msgid "LABEL_MENU_URL"
+msgstr "URL"
 
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_URL_HELPTEXT"
@@ -2921,6 +3810,10 @@ msgstr ""
 "case b: url starting with / is absolute within this service and relative to "
 "the course path otherwise.\n"
 "Note that URL entered here can not include scheme or domain."
+
+#: external_services/models.py
+msgid "LABEL_MENU_GROUP_LABEL"
+msgstr "menu group label"
 
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_GROUP_LABEL_HELPTEXT"
@@ -2937,8 +3830,20 @@ msgstr ""
 "getbootstrap.com/docs/3.4/components/#glyphicons"
 
 #: external_services/models.py
+msgid "LABEL_MENU_WEIGHT"
+msgstr "menu weight"
+
+#: external_services/models.py
 msgid "MENU_ITEM_MENU_WEIGHT_HELPTEXT"
 msgstr "Heavier menu entries are placed after lighter ones."
+
+#: external_services/models.py
+msgid "MODEL_NAME_MENU_ITEM"
+msgstr "menu item"
+
+#: external_services/models.py
+msgid "MODEL_NAME_MENU_ITEM_PLURAL"
+msgstr "menu items"
 
 #: external_services/models.py
 msgid "MENU_ITEM_ERROR_MENU_URL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED"
@@ -3172,6 +4077,22 @@ msgstr "Connecting to the course service failed with {code}!"
 msgid "URL_KEY_MAY_CONSIST_OF"
 msgstr "URL keys may consist of alphanumeric characters, hyphen and period."
 
+#: news/models.py
+msgid "LABEL_PUBLISH"
+msgstr "publish"
+
+#: news/models.py
+msgid "LABEL_PIN"
+msgstr "pin"
+
+#: news/models.py
+msgid "MODEL_NAME_NEWS"
+msgstr "news item"
+
+#: news/models.py
+msgid "MODEL_NAME_NEWS_PLURAL"
+msgstr "news items"
+
 #: news/templates/news/edit.html news/templates/news/list.html
 msgid "ADD_NEWS_ITEM"
 msgstr "Add news item"
@@ -3207,6 +4128,34 @@ msgstr "Published on"
 #: news/templates/news/user_news.html
 msgid "SHOW_OLDER"
 msgstr "Show older"
+
+#: notification/models.py
+msgid "LABEL_SUBJECT"
+msgstr "subject"
+
+#: notification/models.py
+msgid "LABEL_NOTIFICATION"
+msgstr "notification"
+
+#: notification/models.py
+msgid "LABEL_SENDER"
+msgstr "sender"
+
+#: notification/models.py
+msgid "LABEL_RECIPIENT"
+msgstr "recipient"
+
+#: notification/models.py
+msgid "LABEL_SEEN"
+msgstr "seen"
+
+#: notification/models.py
+msgid "MODEL_NAME_NOTIFICATION"
+msgstr "notification"
+
+#: notification/models.py
+msgid "MODEL_NAME_NOTIFICATION_PLURAL"
+msgstr "notifications"
 
 #: notification/templates/notification/_notification_messages.html
 msgid "YOU_HAVE"
@@ -3393,6 +4342,10 @@ msgid "AALTO_SPACE_APP"
 msgstr "Aalto Space app for room reservations"
 
 #: templates/support_channels.html
+msgid "TEACHERS"
+msgstr "Teachers"
+
+#: templates/support_channels.html
 msgid "DOCUMENTATION"
 msgstr "Documentation"
 
@@ -3577,12 +4530,80 @@ msgstr ""
 "\"noopener\"> %(email)s </a>"
 
 #: threshold/models.py
+msgid "LABEL_PASSED_MODULES"
+msgstr "passed modules"
+
+#: threshold/models.py
+msgid "LABEL_PASSED_CATEGORIES"
+msgstr "passed categories"
+
+#: threshold/models.py
+msgid "LABEL_PASSED_EXERCISES"
+msgstr "passed assignments"
+
+#: threshold/models.py
+msgid "LABEL_CONSUME_HARDER_POINTS"
+msgstr "consume harder points"
+
+#: threshold/models.py
 msgid "HARDER_POINTS_CONSUMED_BY_EASIER_DIFFICULTY_REQUIREMENTS"
 msgstr "Harder points are consumed by easier difficulty requirements."
 
 #: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD"
+msgstr "threshold"
+
+#: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD_PLURAL"
+msgstr "thresholds"
+
+#: threshold/models.py
+msgid "LABEL_THRESHOLD"
+msgstr "threshold"
+
+#: threshold/models.py
+msgid "LABEL_LIMIT"
+msgstr "limit"
+
+#: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD_POINTS"
+msgstr "threshold points"
+
+#: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD_POINTS_PLURAL"
+msgstr "threshold points"
+
+#: threshold/models.py
 msgid "POINTS -- {:d}"
 msgstr "{:d} points"
+
+#: threshold/models.py
+msgid "LABEL_NEGATIVE"
+msgstr "negative"
+
+#: threshold/models.py
+msgid "MODEL_NAME_COURSE_MODULE_REQUIREMENT"
+msgstr "course module requirement"
+
+#: threshold/models.py
+msgid "MODEL_NAME_COURSE_MODULE_REQUIREMENT_PLURAL"
+msgstr "course module requirements"
+
+#: userprofile/models.py
+msgid "LABEL_STUDENT_ID"
+msgstr "student ID"
+
+#: userprofile/models.py
+msgid "LABEL_ORGANIZATION"
+msgstr "organization"
+
+#: userprofile/models.py
+msgid "MODEL_NAME_USER_PROFILE"
+msgstr "user profile"
+
+#: userprofile/models.py
+msgid "MODEL_NAME_USER_PROFILE_PLURAL"
+msgstr "user profiles"
 
 #: userprofile/templates/userprofile/login.html
 #, python-format

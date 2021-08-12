@@ -35,12 +35,23 @@ class SubmissionCallbackForm(forms.Form):
 
 class SubmissionReviewForm(forms.Form):
 
-    points = forms.IntegerField(min_value=0,
-        help_text=_('SUBMISSION_REVIEW_POINTS_OVERRIDE_HELPTEXT'))
-    assistant_feedback = forms.CharField(required=False, widget=forms.Textarea,
-        help_text=_('SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT'))
-    feedback = forms.CharField(required=False, widget=forms.Textarea,
-        help_text=_('SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT'))
+    points = forms.IntegerField(
+        min_value=0,
+        label=_('LABEL_POINTS'),
+        help_text=_('SUBMISSION_REVIEW_POINTS_OVERRIDE_HELPTEXT'),
+    )
+    assistant_feedback = forms.CharField(
+        required=False,
+        widget=forms.Textarea,
+        label=_('LABEL_STAFF_FEEDBACK'),
+        help_text=_('SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT'),
+    )
+    feedback = forms.CharField(
+        required=False,
+        widget=forms.Textarea,
+        label=_('LABEL_FEEDBACK'),
+        help_text=_('SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT'),
+    )
 
     def __init__(self, *args, **kwargs):
         self.exercise = kwargs.pop('exercise')
@@ -63,24 +74,35 @@ class SubmissionReviewForm(forms.Form):
 class SubmissionCreateAndReviewForm(SubmissionReviewForm):
     STUDENT_FIELDS = ('students', 'students_by_user_id', 'students_by_student_id', 'students_by_email')
 
-    submission_time = forms.DateTimeField()
+    submission_time = forms.DateTimeField(
+        label=_('LABEL_SUBMISSION_TIME'),
+    )
     students = forms.ModelMultipleChoiceField(
-        queryset=UserProfile.objects.none(), required=False)
+        queryset=UserProfile.objects.none(),
+        required=False,
+        label=_('LABEL_STUDENTS'),
+    )
     students_by_user_id = forms.TypedMultipleChoiceField(
         empty_value=UserProfile.objects.none(),
         coerce=lambda user_id: User.objects.get(id=user_id).userprofile,
         choices=[],
-        required=False)
+        required=False,
+        label=_('LABEL_STUDENTS_BY_USER_ID'),
+    )
     students_by_student_id = forms.TypedMultipleChoiceField(
         empty_value=UserProfile.objects.none(),
         coerce=lambda student_id: UserProfile.get_by_student_id(student_id),
         choices=[],
-        required=False)
+        required=False,
+        label=_('LABEL_STUDENTS_BY_STUDENT_ID'),
+    )
     students_by_email = forms.TypedMultipleChoiceField(
         empty_value=UserProfile.objects.none(),
         coerce=lambda email: UserProfile.get_by_email(email),
         choices=[],
-        required=False)
+        required=False,
+        label=_('LABEL_STUDENTS_BY_EMAIL'),
+    )
 
     def __init__(self, *args, **kwargs):
         super(SubmissionCreateAndReviewForm, self).__init__(*args, **kwargs)
@@ -115,8 +137,11 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
 
 class EditSubmittersForm(forms.ModelForm):
 
-    submitters = UsersSearchSelectField(queryset=UserProfile.objects.none(),
-        initial_queryset=UserProfile.objects.none())
+    submitters = UsersSearchSelectField(
+        queryset=UserProfile.objects.none(),
+        initial_queryset=UserProfile.objects.none(),
+        label=_('LABEL_SUBMITTERS'),
+    )
 
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.get('instance').exercise.course_instance
