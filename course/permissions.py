@@ -1,6 +1,8 @@
 from django.http import Http404
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
+from lib.helpers import settings_text
 from authorization.permissions import (
     ACCESS,
     Permission,
@@ -87,11 +89,22 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
         audience = course.enrollment_audience
         external = user.userprofile.is_external
         EA = course.ENROLLMENT_AUDIENCE
+        institution_name = settings_text('BRAND_INSTITUTION_NAME')
         if audience == EA.INTERNAL_USERS and external:
-            self.error_msg(_('COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_INTERNAL'))
+            self.error_msg(
+                format_lazy(
+                    _('COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_INTERNAL -- {institution}'),
+                    institution=institution_name,
+                )
+            )
             return False
         elif audience == EA.EXTERNAL_USERS and not external:
-            self.error_msg(_('COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_EXTERNAL'))
+            self.error_msg(
+                format_lazy(
+                    _('COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_EXTERNAL -- {institution}'),
+                    institution=institution_name,
+                )
+            )
             return False
         return True
 

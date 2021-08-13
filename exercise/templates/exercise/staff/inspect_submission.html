@@ -57,16 +57,16 @@
         {% if exercise.can_regrade %}
         	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
         		{% csrf_token %}
-        		<input class="aplus-button--secondary aplus-button--md" type="submit" value="{% translate 'RE-SUBMIT_TO_SERVICE' %}" />
+        		<input class="aplus-button--secondary aplus-button--md" type="submit" value="{% translate 'RESUBMIT_TO_SERVICE' %}" />
         	</form>
         {% endif %}
         <p>
         {% if exercise.can_regrade %}
         	{% blocktranslate trimmed %}
-                RE-SUBMIT_TO_SERVICE_DESCRIPTION
+                RESUBMIT_TO_SERVICE_DESCRIPTION
             {% endblocktranslate %}
         {% else %}
-            {% translate "EXERCISE_OF_TYPE_CANNOT_BE_RE-SUBMITTED_TO_ASSESMENT_SERVICE" %}
+            {% translate "EXERCISE_OF_TYPE_CANNOT_BE_RESUBMITTED_TO_ASSESMENT_SERVICE" %}
         {% endif %}
         </p>
 

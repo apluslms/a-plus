@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 
 class CommonLocators:
     FORBIDDEN_PAGE = (By.XPATH, "//div[@class='page-header']/h1[contains(text(), '403 Forbidden')]")
-    PERMISSION_DENIED_ACCESS_MODE = (By.XPATH, "//main[@id='content']//div[@class='message'][contains(text(), 'Permission denied by access mode.')]")
+    PERMISSION_DENIED_ACCESS_MODE = (By.XPATH, "//main[@id='content']//div[@class='message'][contains(text(), 'Unfortunately you are not permitted to see this content')]")
 
 class LoginPageLocators(object):
     BANNER = (By.XPATH, "//*[@class='page-header']/h1[contains(text(), 'Log in to A+')]")
@@ -77,7 +77,7 @@ class SubmissionPageLocators(object):
     INSPECTION_LINKS = (By.XPATH, "//table//a[contains(@href, '/inspect/')]")
 
 class StudentFeedbackPageLocators(object):
-    ASSISTANT_FEEDBACK_LABEL = (By.XPATH, "//h4[text()='Assistant feedback']")
+    ASSISTANT_FEEDBACK_LABEL = (By.XPATH, "//h4[text()='Staff feedback']")
     ASSISTANT_FEEDBACK_TEXT = (By.XPATH, "//blockquote")
     FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise']")
 
