@@ -29,7 +29,6 @@
 	z-index: 2;
 }
 
-#table-heading th.student-name,
 #table-heading th.student-id,
 #table-heading th.total {
 	max-width: calc(8em + 26px);
@@ -40,7 +39,6 @@
 	width: min(12em, 14vw);
 }
 
-#table-heading th.student-name .form-control,
 #table-heading th.student-id .form-control,
 #table-heading th.total .form-control {
 	max-width: 8em;
@@ -78,10 +76,6 @@ tbody td.stick-on-scroll:nth-child(2) {
     left: min(calc(8em + 10px), calc(14vw + 26px));
 }
 
-#table-heading th.stick-on-scroll:nth-child(3),
-tbody td.stick-on-scroll:nth-child(3) {
-    left: min(calc(16em + 20px), calc(28vw + 52px));
-}
 
 table#table-points thead td div.ratio {
 	text-align: right;

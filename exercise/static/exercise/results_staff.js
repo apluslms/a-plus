@@ -175,13 +175,13 @@
      * The index of our "Tags" column (some operations depend on this)
      * TODO: make it better
      */
-    const TAGS_COL_ID = 11;
+    const TAGS_COL_ID = 4;
 
     /**
      * The index of our "Total" column (some operations depend on this)
      * TODO: make it better
      */
-    const TOTAL_COL_ID = 13;
+    const TOTAL_COL_ID = 16;
 
     /**
      * Holds the contents of summary rows which are recreated from this data
@@ -332,7 +332,7 @@
             let item = parseInt(_activeSummaryItems[i]) + 1;
 
             let header = (
-                '<th class="stick-on-scroll indicator-heading" colspan="3" ' +
+                '<th class="stick-on-scroll indicator-heading" colspan="2" ' +
                 'data-toggle="tooltip" data-container="body" title="' +
                 _(summaries[item]['TOOLTIP']) +
                 (summaries[item]['PERCENTAGE_TOOLTIP']
@@ -1116,17 +1116,6 @@
         });
     }
 
-    /**
-     * When SISU mode is enabled, show additional columns expected by
-     * SISU as csv import
-     * @param {*} dtVar DataTables element to be modified
-     * @param {*} sisumode State of the SISU checkbox (true/false)
-     */
-    function showSisuColumns(dtVar, sisumode) {
-        dtVar.columns('.sisu-only').visible(sisumode);
-        // force table to have correct width after column visibility changes
-        pointsTableRef.width("99%");
-    }
 
     /**
      * Loads new data on page load, and when "Show only official points" checkbox clicked
@@ -1178,18 +1167,25 @@
             let columns = [
                 {data: "UserID", title: "UserID", class: "always-hidden col-0", type: "num", searchable: false},
                 {data: "Email", title: "Email", class: "always-hidden col-1", type: "string", searchable: true},
-                {data: "LastName", title: _("Last name"), class: "student-name stick-on-scroll col-2", type: "html", render: renderParticipantLink},
-                {data: "FirstName", title: _("First name"), class: "student-name stick-on-scroll col-3", type: "html", render: renderParticipantLink},
-                {data: "StudentID", title: _("Student ID"), type: "string", class: "student-id stick-on-scroll col-4", render: renderParticipantLink},
-                {data: "Grade", title: _("Grade"), class: "sisu-only col-5", type: "string", defaultContent: ""},
-                {data: "Credits", title: _("Credits"), class: "sisu-only col-6", type: "string", defaultContent: ""},
-                {data: "AssessmentDate", title: _("Assessment date"), class: "sisu-only col-7", type: "string", defaultContent: ""},
-                {data: "CompletionLanguage", title: _("Completion language"), class:"sisu-only col-8", type: "string", defaultContent: ""},
-                {data: "Comment", title: _("Comment"), class: "sisu-only col-9", type: "string", defaultContent: ""},
-                {data: "Organization", title: _("Organization"), class: "col-10", type: "string"},
-                {data: "Tags", title: _("Tags"), class: "tags col-11", render: function(data) { return userTagsToHTML(data); }, type: "html" },
-                {data: "Count", title: "Count", class: "col-12", visible: false, defaultContent: 0, type: "num"},
-                {data: "Total", title: _("Total"), class: "points total col-13", defaultContent: 0, type: "num"}
+                {data: "StudentID", title: _("Student ID"), type: "string", class: "student-id stick-on-scroll col-2", render: renderParticipantLink},
+                {data: "Name", title: _("Student name"), class: "student-name stick-on-scroll col-3", type: "html", render: renderParticipantLink},
+                {data: "Tags", title: _("Tags"), class: "tags col-4", render: function(data) { return userTagsToHTML(data); }, type: "html" },
+                {data: "Organization", title: _("Organization"), class: "col-5", type: "string"},
+
+                // SISU columns. These are only visible in SISU CSV.
+                // Column headers must be exactly correct, and hence not translated.
+                {data: "StudentID", title: "studentNumber", type: "string", class: "always-hidden sisu stick-on-scroll col-6"},
+                {data: "Grade", title: "grade", class: "always-hidden sisu col-7", type: "string", defaultContent: ""},
+                {data: "Credits", title: "credits", class: "always-hidden sisu col-8", type: "string", defaultContent: ""},
+                {data: "AssessmentDate", title: "assessmentDate", class: "always-hidden sisu col-9", type: "string", defaultContent: ""},
+                {data: "CompletionLanguage", title: "completionLanguage", class:"always-hidden sisu col-10", type: "string", defaultContent: ""},
+                {data: "Comment", title: "comment", class: "always-hidden sisu col-11", type: "string", defaultContent: ""},
+                {data: "AdditionalInfo-fi", title: "additionalInfo-fi", class:"always-hidden sisu col-12", type: "string", defaultContent: ""},
+                {data: "AdditionalInfo-sv", title: "additionalInfo-sv", class:"always-hidden sisu col-13", type: "string", defaultContent: ""},
+                {data: "AdditionalInfo-en", title: "additionalInfo-en", class:"always-hidden sisu col-14", type: "string", defaultContent: ""},
+                
+                {data: "Count", title: "Count", class: "col-15", visible: false, defaultContent: 0, type: "num"},
+                {data: "Total", title: _("Total"), class: "points total col-16", defaultContent: 0, type: "num"}
             ];
 
             // Store exercises globally
@@ -1303,32 +1299,37 @@
             pageLanguageUrl = $('body').hasClass('lang-fi') ? 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Finnish.json' : '';
 
             /**
-             * Define common options for DataTables buttons (CSV, Copy, Excel), as they all use the
-             * same logic and export only visible columns.
+             * Removes HTML from Tags and Name columns.
              * The tags column needs special treatment as we need to replace 
              * the html tags with commas for exporting. Also Name column needs HTML cleanup.
              * The regexp takes any number of consecutive tags and converts them into a single comma.
              * After that, the first and last commas are sliced away.
              */
+            function removeHtmlFromColumns( data, row, column, node ) {
+                if (typeof(data) === "string") {
+                    // This is expected to be the Tags column
+                    if (data.includes("<span class=\"colortag")) return data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1);
+                    // The other HTML - rendered columns (name, studentID)
+                    // are just cleaned up of HTML
+                    else if (data.includes("<a href")) return data.replace( /<[^>]*>/g, '' );
+                    else return data;
+                }
+                else return data;
+                // When the next version of DataTables.Buttons is released, we can replace the above with:
+                // return column === 2 ?
+                // data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1) :
+                // column$.fn.dataTable.Buttons.stripData(data);
+            }
+
+            /**
+             * Define common options for DataTables buttons (CSV, Copy, Excel), as they all use the
+             * same logic and export only visible columns.
+             */
             var buttonCommon = {
                 exportOptions: {
                     columns: ':visible',
                     format: {
-                        body: function ( data, row, column, node ) {
-                            if (typeof(data) === "string") {
-                                // This is expected to be the Tags column
-                                if (data.includes("<span class=\"colortag")) return data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1);
-                                // The other HTML - rendered columns (name, studentID)
-                                // are just cleaned up of HTML
-                                else if (data.includes("<a href")) return data.replace( /<[^>]*>/g, '' );
-                                else return data;
-                            }
-                            else return data;
-                            // When the next version of DataTables.Buttons is released, we can replace the above with:
-                            // return column === 2 ?
-                            // data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1) :
-                            // column$.fn.dataTable.Buttons.stripData(data);
-                        }
+                        body: removeHtmlFromColumns
                     }
                 }
             }
@@ -1363,7 +1364,6 @@
                     }
                     // Make sure all hidden columns are hidden
                     dtVar.columns('.always-hidden').visible(false,false);
-                    showSisuColumns(dtVar, false);
                     changeDisplayMode(dm.DIFFICULTY);
                     // Add note in our custom div in DataTables DOM template
                     $(".dt-note").html(_('You can use &lt; and &gt; in points columns search fields.'));
@@ -1395,7 +1395,7 @@
                  * Note that we have a custom "dt-note" div that is used to display a note about
                  * using the < and > operators in number column search fields.
                  */
-                dom: "<'row'<'col-md-4 col-sm-6'l><'col-md-4 col-sm-6'B><'col-md-4 col-sm-12'f>>" +
+                dom: "<'row'<'col-md-3 col-sm-6'l><'col-md-5 col-sm-6'B><'col-md-4 col-sm-12'f>>" +
                         "<'row'<'col-sm-6'i><'col-sm-6 dt-note'>>" +
                         "<'row'<'#table-points-div.col-sm-12'tr>>" +
                         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -1403,6 +1403,15 @@
                  * Data export buttons
                  */
                  buttons: [
+                    $.extend( true, {}, {
+                        exportOptions: {
+                            columns: [ ':visible', '.sisu' ],
+                            format: {
+                                body: removeHtmlFromColumns
+                            }
+                        }}, {
+                        extend: 'csvHtml5', text: 'Sisu'
+                    } ),
                     $.extend( true, {}, buttonCommon, {
                         extend: 'csvHtml5'
                     } ),
@@ -1530,10 +1539,6 @@
                 // Make a dummy search with empty string so the newly added plugin is applied
                 dtVar.search('');
                 recalculateTableDebounced();
-            });
-
-            $('.sisuformat-checkbox').change(function() {
-                showSisuColumns(dtVar, $(this).prop('checked'));
             });
 
             /**

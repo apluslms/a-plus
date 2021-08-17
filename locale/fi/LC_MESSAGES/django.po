@@ -2650,10 +2650,6 @@ msgid "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS"
 msgstr "Näytä vain palauttaneet opiskelijat"
 
 #: exercise/templates/exercise/staff/results.html
-msgid "RESULTS_SISU_FORMAT"
-msgstr "SISU-muotoilu"
-
-#: exercise/templates/exercise/staff/results.html
 msgid "SUMMARIES"
 msgstr "Yhteenvedot"
 

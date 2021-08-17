@@ -56,8 +56,6 @@ def aggregate_points(request, profiles, taggings, exercises, aggregate, number):
             ('UserID', uid),
             ('Email', profile.user.email),
             ('StudentID', profile.student_id),
-            ('FirstName', profile.user.first_name),
-            ('LastName', profile.user.last_name),
             ('Name', profile.user.first_name + ' ' + profile.user.last_name),
             ('Tags', '|'.join(user_tags)),
             ('Organization', profile.organization),
