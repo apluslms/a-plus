@@ -4,12 +4,14 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
 from rest_framework_extensions.mixins import NestedViewSetMixin
+from django.db.models import Q
 
 from lib.viewbase import BaseMixin
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
+from news.models import News
 
 from ..models import (
     Enrollment,
@@ -406,3 +408,40 @@ class CourseStudentGroupsViewSet(NestedViewSetMixin,
     queryset = StudentGroup.objects.all()
     parent_lookup_map = {'course_id': 'course_instance.id'}
 
+class CourseNewsViewSet(NestedViewSetMixin,
+                        CourseResourceMixin,
+                        viewsets.ReadOnlyModelViewSet):
+    """
+    The `news` endpoint returns information about course news.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/news/`:
+        returns a list of all news items.
+
+    `GET /courses/<course_id>/news/<id>/`:
+        returns the details of a specific news.
+    """
+    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
+        OnlyEnrolledStudentOrCourseStaffPermission,
+    ]
+    serializer_class = CourseNewsSerializer
+    parent_lookup_map = {'course_id': 'course_instance.id'}
+
+    def get_queryset(self):
+        user = self.request.user
+        AUDIENCE = CourseInstance.ENROLLMENT_AUDIENCE
+        queryset = News.objects.all()
+        if not user.is_superuser and not self.instance.is_course_staff(user):
+            if user.userprofile.is_external:
+                return queryset.filter(
+                    Q(audience=AUDIENCE.ALL_USERS) |
+                    Q(audience=AUDIENCE.EXTERNAL_USERS)
+                )
+            else:
+                return queryset.filter(
+                    Q(audience=AUDIENCE.ALL_USERS) |
+                    Q(audience=AUDIENCE.INTERNAL_USERS)
+                )
+        return queryset

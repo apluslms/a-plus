@@ -62,6 +62,9 @@ with api.register(r'courses',
     courses.register(r'groups',
                      course.api.views.CourseStudentGroupsViewSet,
                      basename='course-groups')
+    courses.register(r'news',
+                     course.api.views.CourseNewsViewSet,
+                     basename='course-news')
 
 with api.register(r'exercises',
                   exercise.api.views.ExerciseViewSet,
