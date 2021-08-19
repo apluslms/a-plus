@@ -3310,6 +3310,10 @@ msgid "SUPPORT"
 msgstr "Tuki"
 
 #: templates/base.html
+msgid "FEEDBACK"
+msgstr "Palaute"
+
+#: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Lataus epäonnistui!"
 
