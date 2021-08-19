@@ -3309,6 +3309,10 @@ msgid "SUPPORT"
 msgstr "Support"
 
 #: templates/base.html
+msgid "FEEDBACK"
+msgstr "Feedback"
+
+#: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Loading failed!"
 
