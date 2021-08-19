@@ -23,6 +23,7 @@ __all__ = [
     'CourseUsertagSerializer',
     'CourseUsertaggingsSerializer',
     'TreeCourseModuleSerializer',
+    'CourseNewsSerializer',
 ]
 
 
@@ -78,6 +79,7 @@ class CourseSerializer(CourseBriefSerializer):
     results_data = NestedHyperlinkedIdentityField(view_name='api:course-resultsdata-list')
     groups = NestedHyperlinkedIdentityField(view_name='api:course-groups-list')
     my_groups = NestedHyperlinkedIdentityField(view_name='api:course-mygroups-list')
+    news = NestedHyperlinkedIdentityField(view_name='api:course-news-list')
 
     class Meta(CourseBriefSerializer.Meta):
         fields = (
@@ -99,6 +101,7 @@ class CourseSerializer(CourseBriefSerializer):
             'results_data',
             'groups',
             'my_groups',
+            'news',
         )
 
 
@@ -243,3 +246,12 @@ class TreeCourseModuleSerializer(serializers.Serializer):
             context=self.context
         )
         return serializer.data
+
+class CourseNewsSerializer(CourseNewsBriefSerializer):
+
+    class Meta(CourseNewsBriefSerializer.Meta):
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:course-news-detail',
+            }
+        }

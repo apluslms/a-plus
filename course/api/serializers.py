@@ -4,6 +4,7 @@ from rest_framework.reverse import reverse
 from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import AplusModelSerializer, AlwaysListSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserMinimalListField
+from news.models import News
 
 from ..models import (
     CourseInstance,
@@ -20,6 +21,7 @@ __all__ = [
     'StudentBriefSerializer',
     'CourseUsertagBriefSerializer',
     'CourseStudentGroupBriefSerializer',
+    'CourseNewsBriefSerializer',
 ]
 
 
@@ -120,3 +122,19 @@ class CourseStudentGroupBriefSerializer(AplusModelSerializer):
             }
         }
 
+class CourseNewsBriefSerializer(AplusModelSerializer):
+
+    class Meta(AplusModelSerializer.Meta):
+        model = News
+        fields = (
+            'title',
+            'audience',
+            'publish',
+            'body',
+            'pin',
+        )
+        extra_kwargs = {
+            'url': {
+                'view_name': 'api:course-news-detail',
+            }
+        }
