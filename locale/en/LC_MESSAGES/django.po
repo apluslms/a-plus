@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-05 11:21+0300\n"
+"POT-Creation-Date: 2021-08-11 17:34+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -17,24 +17,149 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/models.py
-msgid "OBJECT_ID"
+msgid "LABEL_CONTAINER_TYPE"
+msgstr "object type"
+
+#: apps/models.py
+msgid "LABEL_CONTAINER_PK"
 msgstr "object ID"
 
 #: apps/models.py
+msgid "MODEL_NAME_ABSTRACT_APP"
+msgstr "abstract app"
+
+#: apps/models.py
+msgid "MODEL_NAME_ABSTRACT_APP_PLURAL"
+msgstr "abstract apps"
+
+#: apps/models.py
+msgid "LABEL_LABEL"
+msgstr "label"
+
+#: apps/models.py
 msgid "TAB_LABEL_HELPTEXT"
-msgstr "Label is the word displayed on the tab."
+msgstr "The label is the word displayed on the tab."
+
+#: apps/models.py diploma/models.py news/models.py
+msgid "LABEL_TITLE"
+msgstr "title"
 
 #: apps/models.py
 msgid "TAB_TITLE_HELPTEXT"
-msgstr "Title is displayed on the top of the tab page."
+msgstr "The title is displayed on the top of the tab page."
+
+#: apps/models.py course/models.py exercise/exercise_models.py
+#: threshold/models.py
+msgid "LABEL_ORDER"
+msgstr "order"
+
+#: apps/models.py
+msgid "LABEL_OPENING_METHOD"
+msgstr "opening method"
 
 #: apps/models.py
 msgid "TAB_NO_CONTENT"
 msgstr "No content for this tab..."
 
 #: apps/models.py
+msgid "MODEL_NAME_BASE_TAB"
+msgstr "base tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_BASE_TAB_PLURAL"
+msgstr "base tabs"
+
+#: apps/models.py exercise/exercise_models.py
+msgid "LABEL_CONTENT"
+msgstr "content"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_TAB"
+msgstr "HTML tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_TAB_PLURAL"
+msgstr "HTML tabs"
+
+#: apps/models.py
+msgid "LABEL_CONTENT_URL"
+msgstr "content URL"
+
+#: apps/models.py
+msgid "LABEL_ELEMENT_ID"
+msgstr "element ID"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_EMBEDDED_TAB"
+msgstr "external embedded tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_EMBEDDED_TAB_PLURAL"
+msgstr "external embedded tabs"
+
+#: apps/models.py
+msgid "LABEL_WIDTH"
+msgstr "width"
+
+#: apps/models.py
+msgid "LABEL_HEIGHT"
+msgstr "height"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_TAB"
+msgstr "external iframe tab"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_TAB_PLURAL"
+msgstr "external iframe tabs"
+
+#: apps/models.py
+msgid "LABEL_VIEWS"
+msgstr "views"
+
+#: apps/models.py
 msgid "BASE_PLUGIN_MISSING_RENDER-METHOD"
 msgstr "Base plug-in does not have a render-method."
+
+#: apps/models.py
+msgid "MODEL_NAME_BASE_PLUGIN"
+msgstr "base plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_BASE_PLUGIN_PLURAL"
+msgstr "base plug-ins"
+
+#: apps/models.py
+msgid "LABEL_FEED_URL"
+msgstr "feed URLs"
+
+#: apps/models.py
+msgid "MODEL_NAME_RSS_PLUGIN"
+msgstr "RSS plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_RSS_PLUGIN_PLURAL"
+msgstr "RSS plug-ins"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_PLUGIN"
+msgstr "HTML plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_HTML_PLUGIN_PLURAL"
+msgstr "HTML plug-ins"
+
+#: apps/models.py exercise/exercise_models.py
+msgid "LABEL_SERVICE_URL"
+msgstr "service URL"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_PLUGIN"
+msgstr "external iframe plug-in"
+
+#: apps/models.py
+msgid "MODEL_NAME_EXTERNAL_IFRAME_PLUGIN_PLURAL"
+msgstr "external iframe plug-ins"
 
 #: authorization/permissions.py
 msgid "ACCESS_ANYONE"
@@ -46,27 +171,29 @@ msgstr "Any authenticated student"
 
 #: authorization/permissions.py
 msgid "ACCESS_ENROLLED_STUDENT"
-msgstr "Enrolled student of the course"
+msgstr "An enrolled student of the course"
 
 #: authorization/permissions.py
 msgid "ACCESS_COURSE_ASSISTANT"
-msgstr "Assistant of the course"
+msgstr "An assistant of the course"
 
 #: authorization/permissions.py
 msgid "ACCESS_GRADING"
-msgstr "Grading. Assistant if course has that option or teacher"
+msgstr ""
+"A member of the course staff with grading rights. An assistant (if allowed) "
+"or a teacher"
 
 #: authorization/permissions.py
 msgid "ACCESS_TEACHER"
-msgstr "Teacher of the course"
+msgstr "A teacher of the course"
 
 #: authorization/permissions.py
 msgid "ACCESS_SUPERUSER"
-msgstr "Superuser of the service"
+msgstr "A superuser of the service"
 
 #: authorization/permissions.py
 msgid "ACCESS_PERMISSION_DENIED_MSG"
-msgstr "Permission denied by access mode."
+msgstr "Unfortunately you are not permitted to see this content."
 
 #: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_TEACHERS"
@@ -101,17 +228,59 @@ msgstr "The user is already in the group."
 msgid "ERROR_GROUP_ALREADY_EXISTS"
 msgstr "The group already exists."
 
+#: course/forms.py course/models.py
+msgid "LABEL_MEMBERS"
+msgstr "Members"
+
 #: course/forms.py
-msgid "USERS"
+msgid "LABEL_USERS"
 msgstr "Users"
+
+#: course/models.py diploma/models.py edit_course/course_forms.py
+#: exercise/exercise_models.py threshold/models.py
+msgid "LABEL_NAME"
+msgstr "Name"
+
+#: course/models.py
+msgid "LABEL_CODE"
+msgstr "code"
+
+#: course/models.py exercise/exercise_models.py external_services/models.py
+msgid "LABEL_URL"
+msgstr "URL"
 
 #: course/models.py
 msgid "COURSE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this course."
 
+#: course/models.py
+msgid "MODEL_NAME_COURSE"
+msgstr "course"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_PLURAL"
+msgstr "courses"
+
 #: course/models.py exercise/exercise_models.py
 msgid "TAKEN_WORDS_INCLUDE -- {}"
-msgstr "Taken words include: {}"
+msgstr "Reserved words include: {}"
+
+#: course/models.py external_services/models.py news/models.py
+#: notification/models.py threshold/models.py
+msgid "LABEL_COURSE_INSTANCE"
+msgstr "course instance"
+
+#: course/models.py exercise/exercise_models.py notification/models.py
+msgid "LABEL_TIMESTAMP"
+msgstr "timestamp"
+
+#: course/models.py
+msgid "MODEL_NAME_STUDENT_GROUP"
+msgstr "student group"
+
+#: course/models.py
+msgid "MODEL_NAME_STUDENT_GROUP_PLURAL"
+msgstr "student groups"
 
 #: course/models.py
 msgid "STUDENT"
@@ -138,14 +307,72 @@ msgid "BANNED"
 msgstr "Banned"
 
 #: course/models.py
+msgid "LABEL_USER_PROFILE"
+msgstr "user"
+
+#: course/models.py userprofile/models.py
+msgid "LABEL_LANGUAGE"
+msgstr "language"
+
+#: course/models.py
+msgid "LABEL_PERSONAL_CODE"
+msgstr "personal code"
+
+#: course/models.py
+msgid "LABEL_SELECTED_GROUP"
+msgstr "selected group"
+
+#: course/models.py
+msgid "LABEL_ANON_NAME"
+msgstr "anonymized name"
+
+#: course/models.py
+msgid "LABEL_ANON_ID"
+msgstr "anonymized ID"
+
+#: course/models.py
+msgid "LABEL_ROLE"
+msgstr "role"
+
+#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+msgid "LABEL_STATUS"
+msgstr "status"
+
+#: course/models.py
+msgid "MODEL_NAME_ENROLLMENT"
+msgstr "enrolment"
+
+#: course/models.py
+msgid "MODEL_NAME_ENROLLMENT_PLURAL"
+msgstr "enrolments"
+
+#: course/models.py
+msgid "LABEL_VISIBLE_TO_STUDENTS"
+msgstr "visible to students"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAG"
+msgstr "user tag"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAG_PLURAL"
+msgstr "user tags"
+
+#: course/models.py
+msgid "MODEL_NAME_HARDCODED_USER_TAG"
+msgstr "hardcoded user tag"
+
+#: course/models.py
+msgid "MODEL_NAME_HARDCODED_USER_TAG_PLURAL"
+msgstr "hardcoded user tags"
+
+#: course/models.py
 msgid "INTERNAL"
 msgstr "internal"
 
 #: course/models.py
 msgid "INTERNAL_USER_DESCRIPTION"
-msgstr ""
-"The user profile contains a student number and has logged in via local "
-"organisation authentication"
+msgstr "The user has the local organization listed as their organization."
 
 #: course/models.py
 msgid "EXTERNAL"
@@ -154,8 +381,24 @@ msgstr "external"
 #: course/models.py
 msgid "EXTERNAL_USER_DESCRIPTION"
 msgstr ""
-"The user profile doesn't have a student number, thus the user has logged in "
-"from a different organization or via social authentication"
+"The user does not have the local organisation listed as their organization. "
+"The user has logged in through external authentication."
+
+#: course/models.py
+msgid "LABEL_TAG"
+msgstr "tag"
+
+#: course/models.py userprofile/models.py
+msgid "LABEL_USER"
+msgstr "user"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAGGING"
+msgstr "user tagging"
+
+#: course/models.py
+msgid "MODEL_NAME_USER_TAGGING_PLURAL"
+msgstr "user taggings"
 
 #: course/models.py
 msgid "INTERNAL_USERS"
@@ -175,7 +418,7 @@ msgstr "Enrolled students"
 
 #: course/models.py
 msgid "ENROLLMENT_AUDIENCE"
-msgstr "Enrollment audience"
+msgstr "Enrolment audience"
 
 #: course/models.py
 msgid "ALL_REGISTERED_USERS"
@@ -183,7 +426,7 @@ msgstr "All registered users"
 
 #: course/models.py
 msgid "PUBLIC"
-msgstr "Public to internet"
+msgstr "Public to the internet"
 
 #: course/models.py
 msgid "USER_RESULTS"
@@ -217,50 +460,130 @@ msgstr "Roman"
 msgid "NUMBERING_HIDDEN_ARABIC"
 msgstr "Hidden arabic"
 
+#: course/models.py diploma/models.py
+msgid "LABEL_COURSE"
+msgstr "course"
+
+#: course/models.py
+msgid "LABEL_INSTANCE_NAME"
+msgstr "instance name"
+
 #: course/models.py
 msgid "COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this course instance."
 
 #: course/models.py
+msgid "LABEL_ENROLLMENT_AUDIENCE"
+msgstr "enrolment audience"
+
+#: course/models.py
+msgid "LABEL_VIEW_CONTENT_TO"
+msgstr "content visibility"
+
+#: course/models.py
+msgid "LABEL_STARTING_TIME"
+msgstr "starting time"
+
+#: course/models.py
+msgid "LABEL_ENDING_TIME"
+msgstr "ending time"
+
+#: course/models.py
+msgid "LABEL_LIFESUPPORT_TIME"
+msgstr "lifesupport time"
+
+#: course/models.py
+msgid "LABEL_ARCHIVE_TIME"
+msgstr "archival time"
+
+#: course/models.py
+msgid "LABEL_ENROLLMENT_STARTING_TIME"
+msgstr "enrolment starting time"
+
+#: course/models.py
+msgid "LABEL_ENROLLMENT_ENDING_TIME"
+msgstr "enrolment ending time"
+
+#: course/models.py
+msgid "LABEL_IMAGE"
+msgstr "image"
+
+#: course/models.py edit_course/course_forms.py exercise/exercise_models.py
+msgid "LABEL_DESCRIPTION"
+msgstr "Description"
+
+#: course/models.py
+msgid "LABEL_FOOTER"
+msgstr "footer"
+
+#: course/models.py
+msgid "LABEL_INDEX_MODE"
+msgstr "course front page"
+
+#: course/models.py
 msgid "COURSE_INSTANCE_INDEX_CONTENT_SELECTION_HELPTEXT"
-msgstr "Select content for the course index page."
+msgstr "Select content for the course front page."
+
+#: course/models.py
+msgid "LABEL_MODULE_NUMBERING"
+msgstr "module numbering"
+
+#: course/models.py
+msgid "LABEL_CONTENT_NUMBERING"
+msgstr "content numbering"
+
+#: course/models.py
+msgid "LABEL_HEAD_URLS"
+msgstr "head URLs"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_EXTERNAL_CSS_AND_JS_FOR_ALL_PAGES_HELPTEXT"
 msgstr ""
 "External CSS and JS resources that are included on all course pages. "
-"Separate with white space."
+"Separate with whitespace."
+
+#: course/models.py
+msgid "LABEL_TECHNICAL_ERROR_EMAILS"
+msgstr "technical error emails"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_EXERCISE_ERROR_EMAIL_RECIPIENT_OVERRIDE_HELPTEXT"
 msgstr ""
-"By default exercise errors are reported to teacher email addresses. Set this "
-"field as comma separated emails to override the recipients."
+"By default assignment errors are reported to teacher email addresses. List "
+"emails here separated by commas to override the default recipients."
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_INSTANCE"
+msgstr "course instance"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_INSTANCE_PLURAL"
+msgstr "course instances"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}"
-msgstr "You cannot use word '{}' as an instance name."
+msgstr "You cannot use the word '{}' as an instance name."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_URL -- {}"
-msgstr "You cannot use word '{}' in the url."
+msgstr "You cannot use the word '{}' in the URL."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING"
-msgstr "Ending time must be later than starting time."
+msgstr "The ending time must be later than the starting time."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING"
-msgstr "Lifesupport time must be later than ending time."
+msgstr "The lifesupport time must be later than the ending time."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_ARCHIVE_TIME_AND_LIFESUPPORT_ONLY_ONE_SET"
 msgstr ""
-"Lifesupport time and archive time must be either both set or both unset."
+"Lifesupport time and archival time must be either both set or both unset."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_ARCHIVE_TIME_BEFORE_LIFESUPPORT"
-msgstr "Archive time must be later than lifesupport time."
+msgstr "The archival time must be later than the lifesupport time."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_LANGUAGE(S)_MISSING_FROM_SETTINGS"
@@ -269,6 +592,22 @@ msgstr "Language code(s) missing from settings: "
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_LANGUAGE_MISSING_FROM_SETTINGS"
 msgstr "Language code missing from settings."
+
+#: course/models.py
+msgid "LABEL_HOOK_URL"
+msgstr "hook URL"
+
+#: course/models.py
+msgid "LABEL_HOOK_TYPE"
+msgstr "hook type"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_HOOK"
+msgstr "course hook"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_HOOK_PLURAL"
+msgstr "course hooks"
 
 #: course/models.py exercise/exercise_models.py exercise/submission_models.py
 msgid "STATUS_READY"
@@ -290,53 +629,111 @@ msgstr "Maintenance"
 msgid "MODULE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this module."
 
+#: course/models.py exercise/exercise_models.py
+msgid "LABEL_POINTS_TO_PASS"
+msgstr "points to pass"
+
 #: course/models.py
-msgid "MODULE_READING_OPENING_TIME_VERBOSE"
-msgstr "Opening time for the reading material"
+msgid "LABEL_INTRODUCTION"
+msgstr "introduction"
+
+#: course/models.py
+msgid "LABEL_READING_OPENING_TIME"
+msgstr "opening time for the reading material"
 
 #: course/models.py
 msgid "MODULE_READING_OPENING_TIME_HELPTEXT"
 msgstr ""
-"Leave empty if the reading material should not open before the exercises."
+"Leave empty if the reading material should not open before the assignments."
+
+#: course/models.py
+msgid "LABEL_EXERCISE_OPENING_TIME"
+msgstr "opening time for the assignments"
+
+#: course/models.py
+msgid "LABEL_CLOSING_TIME"
+msgstr "closing time"
+
+#: course/models.py
+msgid "MODULE_CLOSING_TIME_HELPTEXT"
+msgstr "The default closing time of the assignments in this module."
+
+#: course/models.py
+msgid "LABEL_LATE_SUBMISSIONS_ALLOWED"
+msgstr "late submissions allowed"
+
+#: course/models.py
+msgid "LABEL_LATE_SUBMISSION_DEADLINE"
+msgstr "late submission deadline"
+
+#: course/models.py
+msgid "LABEL_LATE_SUBMISSION_PENALTY"
+msgstr "late submission penalty"
 
 #: course/models.py
 msgid "MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT"
-msgstr "Multiplier of points to reduce, as decimal. 0.1 = 10%"
+msgstr "Multiplier of points to reduce as a decimal (e.g. 0.1 = 10%)."
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_MODULE"
+msgstr "course module"
+
+#: course/models.py
+msgid "MODEL_NAME_COURSE_MODULE_PLURAL"
+msgstr "course modules"
 
 #: course/models.py
 msgid "MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME"
-msgstr "Opening time must be earlier than the closing time."
+msgstr "The opening time must be earlier than the closing time."
 
 #: course/models.py
 msgid "MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME"
-msgstr "Late submission deadline must be later than the closing time."
+msgstr "The late submission deadline must be later than the closing time."
 
 #: course/models.py
 msgid "MODULE_ERROR_READING_OPENING_TIME_AFTER_EXERCISE_OPENING"
 msgstr ""
-"Opening time of reading material must be earlier than the opening time of "
-"the exercises."
+"The opening time of reading material must be earlier than the opening time "
+"of the assignments."
 
 #: course/models.py
 msgid "STATUS_NO_TOTAL_POINTS"
 msgstr "No total points"
 
 #: course/models.py
+msgid "LABEL_CONFIRM_THE_LEVEL"
+msgstr "mandatory activity"
+
+#: course/models.py
 msgid "LEARNING_OBJECT_CATEGORY_LEVEL_CONFIRMATION_EXERCISE_HELPTEXT"
 msgstr ""
-"Once exercise is graded non zero it confirms all the points on the hierarchy "
-"level. Implemented as a mandatory feedback feature."
+"Students must get over zero points in an activity of this category before "
+"their other points in the same chapter/module become confirmed. Suggested "
+"usage: check this box for feedback activities that students must fill to "
+"receive points for a course component."
+
+#: course/models.py
+msgid "LABEL_ACCEPT_UNOFFICIAL_SUBMITS"
+msgstr "accept unofficial submissions"
 
 #: course/models.py
 msgid "LEARNING_OBJECT_CATEGORY_ACCEPT_UNOFFICIAL_SUBMISSIONS_HELPTEXT"
 msgstr ""
-"Grade unofficial submissions after deadlines have passed or submission "
-"limits have been exceeded. The points are stored but not included in "
-"official records."
+"Accept unofficial submissions after deadlines have passed or submission "
+"limits have been exceeded. These are graded and the feedback is displayed to "
+"the student. The points are stored but not included in official records."
+
+#: course/models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_CATEGORY"
+msgstr "learning object category"
+
+#: course/models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_CATEGORY_PLURAL"
+msgstr "learning object categories"
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Permission denied by course visibility"
+msgstr "Unfortunately you are not permitted to see this course."
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_ERROR_NOT_VISIBLE"
@@ -347,12 +744,16 @@ msgid "COURSE_VISIBILITY_ERROR_NOT_PUBLIC"
 msgstr "This course is not open for public."
 
 #: course/permissions.py
-msgid "COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_INTERNAL"
-msgstr "This course is only for internal students."
+#, python-brace-format
+msgid "COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_INTERNAL -- {institution}"
+msgstr ""
+"This course is only for students within {institution} (\"internal users\")."
 
 #: course/permissions.py
-msgid "COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_EXTERNAL"
-msgstr "This course is only for external students."
+#, python-brace-format
+msgid "COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_EXTERNAL -- {institution}"
+msgstr ""
+"This course is only for students outside {institution} (\"external users\")."
 
 #: course/permissions.py
 msgid "MODULE_PERMISSION_MSG_NOT_VISIBLE"
@@ -422,7 +823,7 @@ msgstr "Course materials"
 #: course/templates/course/_course_menu.html
 #: exercise/templates/exercise/results.html
 msgid "EXERCISE_RESULTS"
-msgstr "Exercise results"
+msgstr "Your points"
 
 #: course/templates/course/_course_menu.html
 msgid "FORM_A_GROUP"
@@ -481,31 +882,32 @@ msgstr "Edit course"
 #: course/templates/course/_course_menu.html
 #: course/templates/course/enroll.html
 msgid "ENROLLMENT"
-msgstr "Enrollment"
+msgstr "Enrolment"
 
 #: course/templates/course/_course_menu.html
 #: course/templates/course/course_base.html
 msgid "UNENROLL"
-msgstr "Unenroll"
+msgstr "Unenrol"
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"
-msgstr "In order to submit exercises you must enroll in the course."
+msgstr "In order to submit assignments you must enrol in the course."
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES_AND_SEE_MATERIAL"
 msgstr ""
-"In order to submit exercises and see material, you must enroll in the course."
+"In order to submit assignments and see material, you must enrol in the "
+"course."
 
 #: course/templates/course/_enroll_form.html
 #: exercise/templates/exercise/_warnings_overlay.html
 msgid "ENROLL"
-msgstr "Enroll"
+msgstr "Enrol"
 
 #: course/templates/course/_enroll_form.html
 #, python-format
 msgid "ENROLLMENT_OPEN_UNTIL -- %(end)s"
-msgstr "The course enrollment is open until %(end)s."
+msgstr "The course enrolment is open until %(end)s."
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLLMENT_HAS_ENDED"
@@ -519,19 +921,19 @@ msgstr "The course opens %(start)s."
 #: course/templates/course/_enroll_form.html
 msgid "ENROLLMENT_AND_CONTENT_EXPLORATION_NOT_ALLOWED"
 msgstr ""
-"Unfortunately, you may not enroll in this course and you may not explore the "
+"Unfortunately, you may not enrol in this course and you may not explore the "
 "contents either."
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLLMENT_NOT_ALLOWED_BUT_CAN_EXPLORE_CONTENT"
 msgstr ""
-"Unfortunately, you cannot enroll in this course, but you may explore the "
+"Unfortunately, you cannot enrol in this course, but you may explore the "
 "course material."
 
 #: course/templates/course/_enroll_form.html
 msgid "LOGIN_REQUIRED_FOR_SUBMISSIONS_BUT_CAN_EXPLORE_CONTENT"
 msgstr ""
-"Login is required to submit exercises, but you may anonymously explore the "
+"Login is required to submit assignments, but you may anonymously explore the "
 "course material."
 
 #: course/templates/course/_group_info.html
@@ -581,13 +983,13 @@ msgstr "This course has already ended."
 
 #: course/templates/course/course_base.html
 msgid "LATEST_COURSE_INSTANCE_CAN_BE_FOUND"
-msgstr "The latest version of the course can be found at:"
+msgstr "The latest instance of the course can be found at:"
 
 #: course/templates/course/course_base.html
 msgid "LANGUAGE_WARNING_BROWSING_IN_DIFFERENT_LANGUAGE_THAN_IN_PREFERENCES"
 msgstr ""
 "You are browsing this course in a different language than is set in your "
-"preferences."
+"account preferences."
 
 #: course/templates/course/course_base.html
 #, python-format
@@ -601,7 +1003,7 @@ msgstr "Set %(lang)s as course language"
 
 #: course/templates/course/course_base.html
 msgid "LANGUAGE_CAN_BE_CHANGED_FROM_PROFILE"
-msgstr "You can change the language from your profile."
+msgstr "You can change the language from your account page."
 
 #: course/templates/course/course_base.html
 msgid "BREADCRUMB"
@@ -609,11 +1011,11 @@ msgstr "Breadcrumb"
 
 #: course/templates/course/course_base.html
 msgid "UNENROLL_WARNING_DESCRIPTION"
-msgstr "You are about to unenroll from this course."
+msgstr "You are about to unenrol from this course."
 
 #: course/templates/course/course_base.html
 msgid "UNENROLL_WARNING_CANNOT_RE-ENROLL"
-msgstr "You cannot re-enroll in the course because enrollment is not open."
+msgstr "You cannot re-enrol in the course because enrolment is not open."
 
 #: course/templates/course/course_base.html
 msgid "PROCEED_CONFIRMATION"
@@ -647,12 +1049,12 @@ msgstr "You are already enrolled in this course."
 
 #: course/templates/course/enroll.html
 msgid "ENROLLMENT_TARGET_GROUP"
-msgstr "Enrollment target group"
+msgstr "Enrolment target group"
 
 #: course/templates/course/enroll.html
 #, python-format
 msgid "ENROLLMENT_OPEN_BETWEEN -- %(start)s, %(end)s"
-msgstr "Enrollment is open from %(start)s to %(end)s."
+msgstr "Enrolment is open from %(start)s to %(end)s."
 
 #: course/templates/course/enroll.html
 msgid "COURSE_VISIBILITY"
@@ -697,7 +1099,7 @@ msgstr "My courses"
 
 #: course/templates/course/index.html
 msgid "MY_COURSES_EMPTY"
-msgstr "You do not currently have any active courses."
+msgstr "You do not currently have any ongoing courses."
 
 #: course/templates/course/index.html
 msgid "ALL_ONGOING_COURSES"
@@ -709,7 +1111,7 @@ msgstr "See all courses"
 
 #: course/templates/course/index.html
 msgid "NO_ACTIVE_COURSES"
-msgstr "There are currently no active courses."
+msgstr "There are currently no ongoing courses."
 
 #: course/templates/course/module.html
 #: exercise/templates/exercise/_user_results.html
@@ -721,7 +1123,7 @@ msgstr "Late submissions are allowed until %(deadline)s. "
 #: exercise/templates/exercise/_user_results.html
 #, python-format
 msgid "LATE_SUBMISSION_POINTS_WORTH -- %(percent)s"
-msgstr "but points are only worth %(percent)s%%. "
+msgstr "However, points are only worth %(percent)s%%. "
 
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "UNTAG_MULTIPLE_USERS"
@@ -741,18 +1143,19 @@ msgstr "Remove all"
 #: course/templates/course/staff/enroll_students.html
 #: course/templates/course/staff/participants.html
 msgid "ENROLL_STUDENTS"
-msgstr "Enroll students"
+msgstr "Enrol students"
 
 #: course/templates/course/staff/enroll_students.html
 msgid "ENROLL_STUDENTS_MANUALLY_DESCRIPTION"
 msgstr ""
-"Teacher may manually enroll students in the course here. Enrollment time and "
-"audience restrictions do not apply here. If the course has an enrollment "
-"exercise, the manually enrolled students are not required to submit anything."
+"Teacher may manually enrol students in the course here. Enrolment time and "
+"audience restrictions do not apply here. If the course has an enrolment "
+"assignment, the manually enrolled students are not required to submit "
+"anything."
 
 #: course/templates/course/staff/enroll_students.html
 msgid "ENROLL_STUDENTS_IN_COURSE"
-msgstr "Enroll students in the course"
+msgstr "Enrol students in the course"
 
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/groups.html
@@ -799,15 +1202,18 @@ msgid "EDIT_GROUP_MEMBERS"
 msgstr "Edit group members"
 
 #: course/templates/course/staff/group_edit.html
+#: deviations/templates/deviations/add_dl.html
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
+#: edit_course/templates/edit_course/edit_model.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
 #: exercise/templates/exercise/staff/assess_submission.html
 #: exercise/templates/exercise/staff/edit_submitters.html
-#: userprofile/templates/userprofile/profile.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html userprofile/templates/userprofile/profile.html
 msgid "SAVE"
 msgstr "Save"
 
@@ -894,11 +1300,11 @@ msgstr "There are no course instances for this course."
 
 #: course/views.py
 msgid "ENROLLMENT_ERROR_CANNOT_ENROLL_OR_ALREADY_ENROLLED"
-msgstr "You cannot enroll, or have already enrolled, in this course."
+msgstr "You cannot enrol, or have already enrolled, in this course."
 
 #: course/views.py exercise/exercise_models.py
 msgid "ENROLLMENT_ERROR_ENROLLMENT_NOT_OPEN"
-msgstr "The enrollment is not open."
+msgstr "The enrolment is not open."
 
 #: course/views.py
 #, python-brace-format
@@ -907,11 +1313,41 @@ msgstr "Successfully unenrolled from course {course}."
 
 #: course/views.py
 msgid "UNENROLL_ERROR_ONLY_ENROLLED"
-msgstr "Only enrolled students can unenroll."
+msgstr "Only enrolled students can unenrol."
 
 #: course/views.py
 msgid "NEW_STUDENT_GROUP_CREATED"
 msgstr "A new student group was created."
+
+#: deviations/forms.py threshold/models.py
+msgid "LABEL_MODULE"
+msgstr "Module"
+
+#: deviations/forms.py
+msgid "DEVIATION_MODULE_HELPTEXT"
+msgstr ""
+"List a module or modules here if you wish the deviation to be applied to all "
+"of the assignments in the module(s)."
+
+#: deviations/forms.py deviations/models.py exercise/submission_models.py
+msgid "LABEL_EXERCISE"
+msgstr "Assignment"
+
+#: deviations/forms.py
+msgid "DEVIATION_EXERCISE_HELPTEXT"
+msgstr ""
+"List the assignment or assignments to which the deviation should be applied "
+"to. If you have also listed a module or modules in the field above, the "
+"deviation will be applied to these assignments IN ADDITION to the listed "
+"module(s)."
+
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_SUBMITTER"
+msgstr "Submitter"
+
+#: deviations/forms.py
+msgid "LABEL_MINUTES"
+msgstr "Minutes"
 
 #: deviations/forms.py
 msgid "DEVIATION_EXTRA_MINUTES_HELPTEXT"
@@ -920,12 +1356,48 @@ msgstr ""
 "below."
 
 #: deviations/forms.py
+msgid "LABEL_NEW_DEADLINE"
+msgstr "New deadline"
+
+#: deviations/forms.py
 msgid "DEVIATION_NEW_DEADLINE_DATE_HELPTEXT"
 msgstr "New submission deadline in the future in format YYYY-MM-DD HH:MM."
 
-#: deviations/forms.py
-msgid "DEVIATION_NO_LATE_PENALTY_LABEL"
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Do not apply late penalty during extra time."
+
+#: deviations/models.py
+msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION"
+msgstr "submission rule deviation"
+
+#: deviations/models.py
+msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION_PLURAL"
+msgstr "submission rule deviations"
+
+#: deviations/models.py
+msgid "LABEL_EXTRA_MINUTES"
+msgstr "extra minutes"
+
+#: deviations/models.py
+msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION"
+msgstr "deadline rule deviation"
+
+#: deviations/models.py
+msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION_PLURAL"
+msgstr "deadline rule deviations"
+
+#: deviations/models.py
+msgid "LABEL_EXTRA_SUBMISSIONS"
+msgstr "extra submissions"
+
+#: deviations/models.py
+msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION"
+msgstr "max submissions rule deviation"
+
+#: deviations/models.py
+msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL"
+msgstr "max submissions rule deviations"
 
 #: deviations/templates/deviations/add_dl.html
 msgid "ADD_DEADLINE_DEVIATIONS"
@@ -941,15 +1413,6 @@ msgstr "List deadline deviations"
 msgid "ADD_NEW_DEADLINE_DEVIATIONS"
 msgstr "Add new deadline deviations"
 
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/batch_assess.html
-#: edit_course/templates/edit_course/edit_model.html
-#: exercise/templates/exercise/model/_file_submit_form.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "SUBMIT"
-msgstr "Submit"
-
 #: deviations/templates/deviations/list_dl.html
 msgid "DEADLINE_DEVIATIONS"
 msgstr "Deadline deviations"
@@ -962,7 +1425,7 @@ msgstr "Submitter"
 #: edit_course/templates/edit_course/edit_content.html
 #: exercise/templates/exercise/_user_results.html
 msgid "EXERCISE"
-msgstr "Exercise"
+msgstr "Assignment"
 
 #: deviations/templates/deviations/list_dl.html
 msgid "EXTRA_MINUTES"
@@ -989,8 +1452,101 @@ msgstr "You have to provide either minutes or a date in the future."
 #, python-brace-format
 msgid "DEVIATION_WARNING_DEADLINE_DEVIATION_ALREADY_FOR -- {user}, {exercise}"
 msgstr ""
-"Deadline deviation already exists for {user} in {exercise}!Remove it before "
+"Deadline deviation already exists for {user} in {exercise}! Remove it before "
 "trying to add a new one."
+
+#: diploma/models.py
+msgid "LABEL_AVAILABILTY"
+msgstr "availability"
+
+#: diploma/models.py
+msgid "LABEL_LOGO"
+msgstr "logo"
+
+#: diploma/models.py news/models.py
+msgid "LABEL_BODY"
+msgstr "body"
+
+#: diploma/models.py
+msgid "LABEL_DATE"
+msgstr "date"
+
+#: diploma/models.py
+msgid "LABEL_SIGNATURE_NAME"
+msgstr "signature name"
+
+#: diploma/models.py
+msgid "LABEL_SIGNATURE_TITLE"
+msgstr "signature title"
+
+#: diploma/models.py
+msgid "LABEL_SMALL_PRINT"
+msgstr "small print"
+
+#: diploma/models.py
+msgid "LABEL_POINT_LIMITS"
+msgstr "point limits"
+
+#: diploma/models.py
+msgid "DIPLOMA_POINT_LIMITS_HELPTEXT"
+msgstr ""
+"A list of length 5 where each element is the required points for n:th grade."
+"The element can be a list of 2-tuples \n"
+"[[difficulty_level_a, points], [difficulty_level_b, points]]."
+
+#: diploma/models.py
+msgid "LABEL_PAD_POINTS"
+msgstr "pad points"
+
+#: diploma/models.py
+msgid "DIPLOMA_PAD_POINTS_HELPTEXT"
+msgstr ""
+"If difficulty levels are used, the lower level can be padded with higher "
+"level points."
+
+#: diploma/models.py
+msgid "LABEL_EXERCISES_TO_PASS"
+msgstr "assignments to pass"
+
+#: diploma/models.py
+msgid "LABEL_MODULES_TO_PASS"
+msgstr "modules to pass"
+
+#: diploma/models.py
+msgid "MODEL_NAME_COURSE_DIPLOMA_DESIGN"
+msgstr "course diploma design"
+
+#: diploma/models.py
+msgid "MODEL_NAME_COURSE_DIPLOMA_DESIGN_PLURAL"
+msgstr "course diploma designs"
+
+#: diploma/models.py
+msgid "LABEL_DESIGN"
+msgstr "design"
+
+#: diploma/models.py exercise/exercise_models.py
+msgid "LABEL_PROFILE"
+msgstr "user"
+
+#: diploma/models.py
+msgid "LABEL_CREATED"
+msgstr "created"
+
+#: diploma/models.py
+msgid "LABEL_HASHKEY"
+msgstr "hashkey"
+
+#: diploma/models.py exercise/submission_models.py
+msgid "LABEL_GRADE"
+msgstr "grade"
+
+#: diploma/models.py
+msgid "MODEL_NAME_STUDENT_DIPLOMA"
+msgstr "student diploma"
+
+#: diploma/models.py
+msgid "MODEL_NAME_STUDENT_DIPLOMA_PLURAL"
+msgstr "student diplomas"
 
 #: diploma/templates/diploma/_diploma_button.html
 msgid "GET_COURSE_DIPLOMA"
@@ -1037,56 +1593,51 @@ msgid "SCHEDULE"
 msgstr "Schedule"
 
 #: edit_course/course_forms.py
+msgid "LABEL_TEACHERS"
+msgstr "Teachers"
+
+#: edit_course/course_forms.py
+msgid "LABEL_ASSISTANTS"
+msgstr "Assistants"
+
+#: edit_course/course_forms.py
 msgid "COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE"
 msgstr "The URL identifier is locked while the course is visible to students."
 
 #: edit_course/course_forms.py
 msgid "COURSE_REMOVES_MODEL_ANSWER_VISIBILITY_STUDENTS"
-msgstr "Removes visibility of model answers for students."
+msgstr "Students will not be able to see model answers after this time."
 
 #: edit_course/course_forms.py
 msgid "COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS"
-msgstr "Removes possibility for students to return answers."
+msgstr "Students will not be able to submit answers after this time."
 
 #: edit_course/course_forms.py
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
 msgstr "New URL identifier for the course instance:"
 
-#: edit_course/course_forms.py templates/support_channels.html
-msgid "TEACHERS"
-msgstr "Teachers"
+#: edit_course/course_forms.py
+msgid "LABEL_EXERCISE_CATEGORIES"
+msgstr "Assignment categories"
 
 #: edit_course/course_forms.py
-msgid "ASSISTANTS"
-msgstr "Assistants"
-
-#: edit_course/course_forms.py
-#: edit_course/templates/edit_course/edit_content.html
-msgid "EXERCISE_CATEGORIES"
-msgstr "Exercise categories"
-
-#: edit_course/course_forms.py
-#: edit_course/templates/edit_course/edit_content.html
-msgid "COURSE_MODULES"
+msgid "LABEL_COURSE_MODULES"
 msgstr "Course modules"
 
 #: edit_course/course_forms.py
-msgid "CONTENT_CHAPTERS"
-msgstr "Content chapters"
+msgid "LABEL_CHAPTERS"
+msgstr "Chapters"
 
 #: edit_course/course_forms.py
-msgid "EXERCISES"
-msgstr "Exercises"
+msgid "LABEL_EXERCISES"
+msgstr "Assignments"
 
 #: edit_course/course_forms.py
-#: external_services/templates/external_services/edit_menu.html
-#: external_services/templates/external_services/list_menu.html
-msgid "MENU_ITEMS"
+msgid "LABEL_MENU_ITEMS"
 msgstr "Menu items"
 
 #: edit_course/course_forms.py
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "STUDENT_TAGS"
+msgid "LABEL_STUDENT_TAGS"
 msgstr "Student tags"
 
 #: edit_course/course_forms.py
@@ -1096,11 +1647,19 @@ msgstr "The URL is already taken."
 #: edit_course/course_forms.py
 msgid "ERROR_CATEGORIES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES"
 msgstr ""
-"Can't clone chapters and exercises without cloning exercise categories."
+"Can't clone chapters and assignments without cloning assignment categories."
 
 #: edit_course/course_forms.py
 msgid "ERROR_MODULES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES"
-msgstr "Can't clone chapters and exercises without cloning course modules."
+msgstr "Can't clone chapters and assignments without cloning course modules."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SLUG"
+msgstr "Slug"
+
+#: edit_course/course_forms.py
+msgid "LABEL_COLOR"
+msgstr "Colour"
 
 #: edit_course/exercise_forms.py
 msgid "GRADING"
@@ -1192,9 +1751,9 @@ msgid ""
 "{exercise_key}"
 msgstr ""
 "The site has no configuration for the LTI service '{lti_label}' used by the "
-"LTI exercise '{exercise_key}'. You may have misspelled the value for the "
+"LTI assignment '{exercise_key}'. You may have misspelled the value for the "
 "field 'lti' or the site administrator has not yet added the configuration "
-"for the LTI service. The exercise was not created/updated due to the error."
+"for the LTI service. The assignment was not created/updated due to the error."
 
 #: edit_course/operations/configure.py
 msgid "BUILD_LOG_ERROR_URL_BLANK"
@@ -1263,7 +1822,7 @@ msgstr "ExerciseCollection requires URL to target course instance."
 
 #: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}"
-msgstr "Course URL '{}' doesn't match service's hostname '{}'"
+msgstr "Course URL '{}' doesn't match service's domain name '{}'"
 
 #: edit_course/operations/configure.py
 msgid ""
@@ -1292,12 +1851,17 @@ msgid "BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- %(id)s"
 msgstr ""
 "<p><em>Use only if you know what you are doing!</em></p>\n"
 "<p>By submitting json to the form below you can try to create and assess "
-"multiple exercises for students automatically.</p>\n"
+"multiple assignments for students automatically.</p>\n"
 "<dl> <dt>XXXXX1 and XXXXX2</dt> <dd>the real student ids</dd> <dt>X1 "
 "(integer)</dt>\n"
-"<dd>the system userprofile id of the desired grader. Your userprofile id is "
-"<b>%(id)s.</b></dd>\n"
-"<dt>Z1 and Z2 (integers)</dt> <dd>the system exercise ids</dd> </dl>"
+"<dd>the system user ID of the desired grader. Your user ID is <b>%(id)s.</"
+"b></dd>\n"
+"<dt>Z1 and Z2 (integers)</dt> <dd>the system assignment IDs</dd> </dl>"
+
+#: edit_course/templates/edit_course/batch_assess.html
+#: exercise/templates/exercise/model/_file_submit_form.html
+msgid "SUBMIT"
+msgstr "Submit"
 
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_BY"
@@ -1362,12 +1926,20 @@ msgid "PREV_MODIFICATION_OF_COURSE_INSTANCE_TIME"
 msgstr "Previous modification of this course instance took place at"
 
 #: edit_course/templates/edit_course/edit_content.html
+msgid "EXERCISE_CATEGORIES"
+msgstr "Assignment categories"
+
+#: edit_course/templates/edit_course/edit_content.html
 msgid "EDIT_CATEGORY"
 msgstr "Edit category"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "ADD_NEW_CATEGORY"
 msgstr "Add new category"
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "COURSE_MODULES"
+msgstr "Course modules"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "EDIT_MODULE"
@@ -1380,19 +1952,19 @@ msgstr "View module"
 #: edit_course/templates/edit_course/edit_content.html
 #: exercise/templates/exercise/exercise_base.html
 msgid "EDIT_EXERCISE"
-msgstr "Edit exercise"
+msgstr "Edit assignment"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "EDIT_CONTENT_CHAPTER"
-msgstr "Edit content chapter"
+msgid "EDIT_CHAPTER"
+msgstr "Edit chapter"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "VIEW_EXERCISE"
-msgstr "View exercise"
+msgstr "View assignment"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "VIEW_CONTENT_CHAPTER"
-msgstr "View content chapter"
+msgid "VIEW_CHAPTER"
+msgstr "View chapter"
 
 #: edit_course/templates/edit_course/edit_content.html
 #: exercise/templates/exercise/_user_results.html
@@ -1408,30 +1980,30 @@ msgid "CHOOSE_LEARNING_OBJECT_TYPE"
 msgstr "Choose learning object type to add"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "CONTENT_CHAPTER"
-msgstr "Content chapter"
+msgid "CHAPTER"
+msgstr "Chapter"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "REMOTE_CONTENT_CHAPTER_DESCRIPTION"
+msgid "REMOTE_CHAPTER_DESCRIPTION"
 msgstr "A remote content page loaded in as a chapter."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "REMOTE_EXERCISE_PAGE_DESCRIPTION"
-msgstr "A remote exercise page loaded in for posting submissions."
+msgstr "A remote assignment page loaded in for posting submissions."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "LTI_EXERCISE"
-msgstr "LTI Exercise"
+msgstr "LTI Assignment"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "REMOTE_LTI_EXERCISE_PAGE_DESCRIPTION"
 msgstr ""
-"A remote exercise page loaded in for posting submissions including signed "
+"A remote assignment page loaded in for posting submissions including signed "
 "LTI course and student information."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "EXERCISE_WITH_ATTACHMENT"
-msgstr "Exercise with attachment"
+msgstr "Assignment with attachment"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "LOCAL_EXERCISE_WITH_ATTACHMENT_PAGE_DESCRIPTION"
@@ -1441,7 +2013,7 @@ msgstr ""
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "STATIC_EXERCISE"
-msgstr "Static exercise"
+msgstr "Static assignment"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "LOCAL_STATIC_EXERCISE_PAGE_DESCRIPTION"
@@ -1462,7 +2034,7 @@ msgstr "Renumerate learning objects ignoring modules"
 #: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/edit_index.html
 msgid "INDEX"
-msgstr "Index"
+msgstr "Front page"
 
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "MENU"
@@ -1478,7 +2050,7 @@ msgstr "Batch assess"
 
 #: edit_course/templates/edit_course/edit_index.html
 msgid "EDIT_COURSE_INDEX"
-msgstr "Edit course index"
+msgstr "Edit course front page"
 
 #: edit_course/templates/edit_course/edit_instance.html
 msgid "DETAILS"
@@ -1539,14 +2111,14 @@ msgstr "You are removing %(model)s <strong>%(name)s</strong>. Are you sure?"
 #, python-format
 msgid "REMOVE_EXERCISE_MODEL_CONFIRMATION_ALERT -- %(num)s"
 msgstr ""
-"If you remove this exercise, <strong>all the %(num)s submissions to the "
-"exercise will also be removed</strong>."
+"If you remove this assignment, <strong>all the %(num)s submissions to the "
+"assignment will also be removed</strong>."
 
 #: edit_course/templates/edit_course/remove_model.html
 #, python-format
 msgid "REMOVE_MODEL_MUST_BE_EMPTY -- %(model)s, %(name)s"
 msgstr ""
-"The %(model)s <strong>%(name)s</strong> is not empty. Contained exercises "
+"The %(model)s <strong>%(name)s</strong> is not empty. Contained assignments "
 "must be removed first."
 
 #: edit_course/templates/edit_course/signin_as_user.html
@@ -1592,6 +2164,10 @@ msgid "ADD_NEW_STUDENT_TAG"
 msgstr "Add new student tag"
 
 #: edit_course/templates/edit_course/usertag_list.html
+msgid "STUDENT_TAGS"
+msgstr "Student tags"
+
+#: edit_course/templates/edit_course/usertag_list.html
 msgid "TAG"
 msgstr "Tag"
 
@@ -1622,7 +2198,7 @@ msgstr "Add new user tagging"
 #: edit_course/views.py
 msgid "ERROR_EXERCISE_CATEGORY_MUST_EXIST_BEFORE_CREATEING_EXERCISES"
 msgstr ""
-"At least one exercise category must be created before creating exercises."
+"At least one assignment category must be created before creating assignments."
 
 #: edit_course/views.py
 #, python-brace-format
@@ -1664,7 +2240,7 @@ msgstr "Server returned error '{error!s}'."
 
 #: edit_course/views.py
 msgid "EXERCISE_CACHES_CLEARED"
-msgstr "Exercise caches have been cleared."
+msgstr "Assignment caches have been cleared."
 
 #: edit_course/views.py
 #, python-brace-format
@@ -1695,18 +2271,17 @@ msgstr ""
 msgid "ERROR_ALERT_EXERCISE_ASSESSMENT_SERVICE_MALFUNCTIONING"
 msgstr ""
 "<div class=\"alert alert-error\">\n"
-"<p>The exercise assessment service is malfunctioning. Staff has been "
-"notified.</p>\n"
+"<p>The assessment is malfunctioning. Staff has been notified.</p>\n"
 "<p>This submission is now marked as erroneous.</p>\n"
 "</div>"
 
 #: exercise/exercise_models.py
 msgid "ENROLLMENT_QUESTIONS"
-msgstr "Enrollment questions"
+msgstr "Enrolment questionnaire"
 
 #: exercise/exercise_models.py
 msgid "ENROLLMENT_QUESTIONS_FOR_EXTERNAL"
-msgstr "Enrollment questions for external students"
+msgstr "Enrolment questionnaire for external students"
 
 #: exercise/exercise_models.py
 msgid "HIDDEN_FROM_NOT_COURSE_STAFF"
@@ -1728,6 +2303,22 @@ msgstr "Only external users"
 msgid "AUDIENCE_REGISTERED_USERS"
 msgstr "Only registered users"
 
+#: exercise/exercise_models.py news/models.py
+msgid "LABEL_AUDIENCE"
+msgstr "audience"
+
+#: exercise/exercise_models.py
+msgid "LABEL_CATEGORY"
+msgstr "category"
+
+#: exercise/exercise_models.py
+msgid "LABEL_COURSE_MODULE"
+msgstr "course module"
+
+#: exercise/exercise_models.py
+msgid "LABEL_PARENT"
+msgstr "parent"
+
 #: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this object."
@@ -1737,16 +2328,40 @@ msgid "LEARNING_OBJECT_DESCRIPTION_HELPTEXT"
 msgstr "Internal description is not presented on site."
 
 #: exercise/exercise_models.py
+msgid "LABEL_USE_WIDE_COLUMN"
+msgstr "use wide column"
+
+#: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_WIDE_COLUMN_HELPTEXT"
 msgstr "Remove the third info column for more space."
+
+#: exercise/exercise_models.py
+msgid "LABEL_EXERCISE_INFO"
+msgstr "assignment info"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MODEL_ANSWERS"
+msgstr "model answers"
 
 #: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_MODEL_ANSWER_URLS_HELPTEXT"
 msgstr "List model answer files as protected URL addresses."
 
 #: exercise/exercise_models.py
+msgid "LABEL_TEMPLATES"
+msgstr "templates"
+
+#: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_TEMPLATE_URLS_HELPTEXT"
 msgstr "List template files as protected URL addresses."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT"
+msgstr "learning object"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_PLURAL"
+msgstr "learning objects"
 
 #: exercise/exercise_models.py
 msgid "LEARNING_OBJECT_ERROR_MODULE_AND_CATEGORY_MUST_HAVE_SAME_COURSE_INSTANCE"
@@ -1761,36 +2376,96 @@ msgid "LEARNING_OBJECT_ERROR_PARENT_CANNOT_BE_SELF"
 msgstr "Cannot select self as a parent."
 
 #: exercise/exercise_models.py
+msgid "LABEL_LEARNING_OBJECT"
+msgstr "learning object"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY"
+msgstr "learning object display"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY_PLURAL"
+msgstr "learning object displays"
+
+#: exercise/exercise_models.py
+msgid "LABEL_GENERATE_TOC"
+msgstr "generate table of contents"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_COURSE_CHAPTER"
+msgstr "course chapter"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_COURSE_CHAPTER_PLURAL"
+msgstr "course chapters"
+
+#: exercise/exercise_models.py
+msgid "LABEL_ALLOW_ASSISTANT_VIEWING"
+msgstr "allow assistant viewing"
+
+#: exercise/exercise_models.py
+msgid "LABEL_ALLOW_ASSISTANT_GRADING"
+msgstr "allow assistant grading"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MIN_GROUP_SIZE"
+msgstr "min group size"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MAX_GROUP_SIZE"
+msgstr "max group size"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MAX_SUBMISSIONS"
+msgstr "max submissions"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MAX_POINTS"
+msgstr "max points"
+
+#: exercise/exercise_models.py threshold/models.py
+msgid "LABEL_DIFFICULTY"
+msgstr "difficulty"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE"
+msgstr "base assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
+msgstr "base assignments"
+
+#: exercise/exercise_models.py
 msgid "EXERCISE_ERROR_POINTS_TO_PASS_GREATER_MAX_POINTS"
 msgstr "Points to pass cannot be greater than max_points."
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_ERROR_MIN_GROUP_SIZE_GREATER_MAX_SIZE"
-msgstr "Minimum group size cannot exceed maximum size."
+msgstr "The minimum group size cannot exceed the maximum size."
 
 #: exercise/exercise_models.py
 #, no-python-format, python-brace-format
 msgid "EXERCISE_TIMING_LATE -- {date}, {percent:d}"
 msgstr ""
-"Deadline for the exercise has passed. Late submissions are allowed until "
-"{date} but points are only worth {percent:d}% of normal."
+"The deadline for the assignment has passed. Late submissions are allowed "
+"until {date}, but points are only worth {percent:d}% of normal."
 
 #: exercise/exercise_models.py
 #, python-brace-format
 msgid "EXERCISE_TIMING_UNOFFICIAL -- {date}"
 msgstr ""
-"Deadline for the exercise has passed ({date}). You may still submit to "
+"The deadline for the assignment has passed ({date}). You may still submit to "
 "receive feedback, but your current grade will not change."
 
 #: exercise/exercise_models.py
 #, python-brace-format
 msgid "EXERCISE_TIMING_CLOSED_BEFORE -- {date}"
-msgstr "The exercise opens {date} for submissions."
+msgstr "The assignment opens at {date} for submissions."
 
 #: exercise/exercise_models.py
 #, python-brace-format
 msgid "EXERCISE_TIMING_CLOSED_AFTER -- {date}"
-msgstr "Deadline for the exercise has passed ({date})."
+msgstr "The deadline for the assignment has passed ({date})."
 
 #: exercise/exercise_models.py
 #, python-brace-format
@@ -1800,12 +2475,12 @@ msgstr "This course has been archived ({date})."
 #: exercise/exercise_models.py
 msgid "EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED"
 msgstr ""
-"You have used the allowed amount of submissions for this exercise. You may "
+"You have used the allowed amount of submissions for this assignment. You may "
 "still submit to receive feedback, but your current grade will not change."
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_MAX_SUBMISSIONS_USED"
-msgstr "You have used the allowed amount of submissions for this exercise."
+msgstr "You have used the allowed amount of submissions for this assignment."
 
 #: exercise/exercise_models.py
 msgid "CANNOT_ENROLL_IN_COURSE"
@@ -1813,15 +2488,15 @@ msgstr "You cannot enroll in the course."
 
 #: exercise/exercise_models.py
 msgid "STAFF_CAN_SUBMIT_WITHOUT_ENROLLING"
-msgstr "Staff can submit exercises without enrolling."
+msgstr "Staff can submit assignments without enrolling."
 
 #: exercise/exercise_models.py
 msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES"
-msgstr "You must enroll in the course to submit exercises."
+msgstr "You must enroll in the course to submit assignments."
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
-msgstr "Cannot submit exercise because of invalid JSON in POST data"
+msgstr "Cannot submit assignment because of invalid JSON in POST data"
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_WARNING_NO_GROUP_WITH_ID"
@@ -1829,13 +2504,13 @@ msgstr "No group found with the given ID"
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_WARNING_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG"
-msgstr "Group can only change between different exercises."
+msgstr "Group can only change between different assignments."
 
 #: exercise/exercise_models.py
 #, python-brace-format
 msgid ""
 "EXERCISE_WARNING_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}"
-msgstr "You have previously submitted this exercise {with_group}. {msg}"
+msgstr "You have previously submitted this assignment {with_group}. {msg}"
 
 #: exercise/exercise_models.py
 msgid "ALONE"
@@ -1851,30 +2526,50 @@ msgid ""
 "EXERCISE_WARNING_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- "
 "{collaborators}"
 msgstr ""
-"{collaborators} already submitted to this exercise in a different group."
+"{collaborators} already submitted to this assignment in a different group."
 
 #: exercise/exercise_models.py
 #, python-brace-format
 msgid "EXERCISE_WARNING_REQUIRES_GROUP_SIZE -- {size}"
-msgstr "This exercise must be submitted in groups of {size} students."
+msgstr "This assignment must be submitted in groups of {size} students."
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_WARNING_CANNOT_SUBMIT_UNKNOWN_REASON"
 msgstr ""
-"Cannot submit exercise due to unknown reason. If you think this is an error, "
-"please contact course staff."
+"Cannot submit assignment due to unknown reason. If you think this is an "
+"error, please contact course staff."
+
+#: exercise/exercise_models.py
+msgid "LABEL_LTI_SERVICE"
+msgstr "LTI service"
+
+#: exercise/exercise_models.py
+msgid "LABEL_CONTEXT_ID"
+msgstr "LTI course key (context ID)"
 
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_CONTEXT_ID_HELPTEXT"
-msgstr "Default: [hostname]/[course:url]/[instance:url]/"
+msgstr "Default: [domain name]/[course:url]/[instance:url]/"
+
+#: exercise/exercise_models.py
+msgid "LABEL_RESOURCE_LINK_ID"
+msgstr "LTI assignment key (resource link ID)"
 
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_RESOURCE_LINK_ID_HELPTEXT"
 msgstr "Default: [aplusexercise:id]"
 
 #: exercise/exercise_models.py
+msgid "LABEL_RESOURCE_LINK_TITLE"
+msgstr "link text (resource link title)"
+
+#: exercise/exercise_models.py
 msgid "LTI_EXERCISE_RESOURCE_LINK_TITLE_HELPTEXT"
 msgstr "Default: the menu label of the LTI service"
+
+#: exercise/exercise_models.py
+msgid "LABEL_APLUS_GET_AND_POST"
+msgstr "Aplus GET and POST"
 
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_APLUS_GET_AND_POST_HELPTEXT"
@@ -1882,9 +2577,21 @@ msgstr ""
 "Perform GET and POST from A+ to custom service URL with LTI data appended."
 
 #: exercise/exercise_models.py
+msgid "LABEL_OPEN_IN_IFRAME"
+msgstr "open in iframe"
+
+#: exercise/exercise_models.py
 msgid "LTI_EXERCISE_OPEN_IN_IFRAME_HELPTEXT"
 msgstr ""
-"Open the exercise in an iframe inside the A+ page instead of a new window."
+"Open the assignment in an iframe inside the A+ page instead of a new window."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI_EXERCISE"
+msgstr "LTI assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI_EXERCISE_PLURAL"
+msgstr "LTI assignments"
 
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_ERROR_SERVICE_URL_DOMAIN_MUST_MATCH_LTI_SERVICE"
@@ -1895,13 +2602,57 @@ msgstr ""
 #: exercise/exercise_models.py
 msgid "LTI_EXERCISE_ERROR_EXTERNAL_LTI_SERVICE_DISABLED"
 msgstr ""
-"The exercise can not be loaded because the external LTI service has been "
+"The assignment can not be loaded because the external LTI service has been "
 "disabled."
+
+#: exercise/exercise_models.py
+msgid "LABEL_EXERCISE_PAGE_CONTENT"
+msgstr "assignment page content"
+
+#: exercise/exercise_models.py
+msgid "LABEL_SUBMISSION_PAGE_CONTENT"
+msgstr "submissions page content"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_STATIC_EXERCISE"
+msgstr "static assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_STATICE_EXERCISE_PLURAL"
+msgstr "static assignments"
+
+#: exercise/exercise_models.py
+msgid "LABEL_FILES_TO_SUBMIT"
+msgstr "files to submit"
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_WITH_ATTACHMENT_FILES_TO_SUBMIT_HELPTEXT"
 msgstr ""
 "File names that user should submit, use pipe character to separate files"
+
+#: exercise/exercise_models.py
+msgid "LABEL_ATTACHMENT"
+msgstr "attachment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_EXERCISE_WITH_ATTACHMENT"
+msgstr "assignment with attachment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_EXERCISE_WITH_ATTACHMENT_PLURAL"
+msgstr "assignments with attachments"
+
+#: exercise/exercisecollection_models.py
+msgid "LABEL_TARGET_CATEGORY"
+msgstr "target category"
+
+#: exercise/exercisecollection_models.py
+msgid "MODEL_NAME_EXERCISE_COLLECTION"
+msgstr "exercise collection"
+
+#: exercise/exercisecollection_models.py
+msgid "MODEL_NAME_EXERCISE_COLLECTION_PLURAL"
+msgstr "exercise collections"
 
 #: exercise/forms.py
 msgid "SUBMISSION_ERROR_POINTS_GREATER_THAN_MAX_POINTS"
@@ -1912,14 +2663,26 @@ msgid "SUBMISSION_ERROR_POINTS_LOWER_THAN_ZERO"
 msgstr "Points lower than zero are not allowed."
 
 #: exercise/forms.py
+msgid "LABEL_POINTS"
+msgstr "Points"
+
+#: exercise/forms.py
 msgid "SUBMISSION_REVIEW_POINTS_OVERRIDE_HELPTEXT"
 msgstr ""
 "Possible penalties are not applied - the points are set as given. This will "
 "<em>override</em> grader points!"
 
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_STAFF_FEEDBACK"
+msgstr "Staff feedback"
+
 #: exercise/forms.py
 msgid "SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT"
 msgstr "HTML formatting is allowed. This will not override machine feedback."
+
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_FEEDBACK"
+msgstr "Feedback"
 
 #: exercise/forms.py
 msgid "SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT"
@@ -1929,8 +2692,28 @@ msgstr "HTML formatting is allowed. This WILL override machine feedback."
 #, python-brace-format
 msgid "SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}"
 msgstr ""
-"The maximum points for this exercise is {max:d} and the given points is more "
-"than that."
+"The maximum points for this assignment are {max:d} and the given points are "
+"more than that."
+
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_SUBMISSION_TIME"
+msgstr "Submission time"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS"
+msgstr "Students"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS_BY_USER_ID"
+msgstr "Students by user ID"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS_BY_STUDENT_ID"
+msgstr "Students by student ID"
+
+#: exercise/forms.py
+msgid "LABEL_STUDENTS_BY_EMAIL"
+msgstr "Students by email"
 
 #: exercise/forms.py
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ALL_STUDENT_FIELDS_BLANK"
@@ -1940,45 +2723,49 @@ msgstr "One of the student fields must not be blank"
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ONLY_ONE_STUDENT_FIELD_CAN_BE_GIVEN"
 msgstr "Only one student field can be given"
 
+#: exercise/forms.py exercise/submission_models.py
+msgid "LABEL_SUBMITTERS"
+msgstr "Submitters"
+
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Permission denied by exercise visibility"
+msgstr "Unfortunately you are not permitted to see this assignement."
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE"
-msgstr "The exercise is not currently visible."
+msgstr "The assignment is not currently visible."
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}"
-msgstr "The exercise opens for submissions in {}."
+msgstr "The assignment opens for submissions at {}."
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBLITY_ERROR_ONLY_RESISTERED_USERS"
-msgstr "The exercise is only for registered users."
+msgstr "The assignment is only for registered users."
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBLITY_ERROR_ONLY_INTERNAL_USERS"
-msgstr "The exercise is only for internal users."
+msgstr "The assignment is only for internal users."
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBLITY_ERROR_ONLY_EXTERNAL_USERS"
-msgstr "The exercise is only for external users."
+msgstr "The assignment is only for external users."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG"
-msgstr "Permission denied by exercise assistant permission"
+msgstr "Unfortunately assistants are not permitted to see this."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_ERROR_NO_ASSISTANT_VIEWING"
-msgstr "Assistant viewing is not allowed for this exercise."
+msgstr "Assistant viewing is not allowed for this assignment."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_NO_ASSISTANT_GRADING"
-msgstr "Assistant grading is not allowed for this exercise."
+msgstr "Assistant grading is not allowed for this assignment."
 
 #: exercise/permissions.py
 msgid "SUBMISSION_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Permission denied by submission visibility"
+msgstr "Unfortunately you are not permitted to see this submission."
 
 #: exercise/permissions.py
 msgid "SUBMISSION_VISIBILITY_ERROR_ONLY_SUBMITTER"
@@ -1986,15 +2773,15 @@ msgstr "Only the submitter shall pass."
 
 #: exercise/permissions.py
 msgid "EXERCISE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Permission denied by exercise model answer visibility"
+msgstr "Unfortunately you are not permitted to see this model answer."
 
 #: exercise/permissions.py
 msgid "EXERCISE_MODEL_ANSWER_VISIBILITY_ERROR_NOT_ALLOWED_VIEWING"
-msgstr "You are not allowed to view model answers for this exercise."
+msgstr "You are not allowed to view model answers for this assignment."
 
 #: exercise/protocol/aplus.py
 msgid "EXERCISE_SERVICE_ERROR_CONNECTION_FAILED"
-msgstr "Connecting to the exercise service failed!"
+msgstr "Connecting to the assignment service failed!"
 
 #: exercise/protocol/aplus.py
 msgid "ASSESSMENT_SERVICE_ERROR_CONNECTION_FAILED"
@@ -2006,12 +2793,12 @@ msgid ""
 "ASSESSMENT_SERVICE_ERROR_RESPONDED_INVALID_POINTS -- {points:d}, {max:d}, "
 "{exercise_max:d}"
 msgstr ""
-"Assessment service responded with invalid points. Points: {points:d}/{max:d} "
-"(exercise max {exercise_max:d})"
+"The assessment service responded with invalid points. Points: {points:d}/"
+"{max:d} (assignment max {exercise_max:d})"
 
 #: exercise/protocol/aplus.py
 msgid "ASSESSMENT_SERVICE_ERROR_RESPONDED_ERROR"
-msgstr "Assessment service responded with error."
+msgstr "The assessment service responded with an error."
 
 #: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
@@ -2058,7 +2845,68 @@ msgstr "Rejected"
 msgid "STATUS_UNOFFICIAL"
 msgstr "No effect on grading"
 
+#: exercise/submission_models.py
+msgid "LABEL_HASH"
+msgstr "hash"
+
+#: exercise/submission_models.py
+msgid "LABEL_GRADER"
+msgstr "grader"
+
+#: exercise/submission_models.py
+msgid "LABEL_GRADING_TIME"
+msgstr "grading time"
+
+#: exercise/submission_models.py
+msgid "LABEL_LATE_PENALTY_APPLIED"
+msgstr "late penalty applied"
+
+#: exercise/submission_models.py
+msgid "LABEL_SERVICE_POINTS"
+msgstr "service points"
+
+#: exercise/submission_models.py
+msgid "LABEL_SERVICE_MAX_POINTS"
+msgstr "service max points"
+
+#: exercise/submission_models.py
+msgid "LABEL_SUBMISSION_DATA"
+msgstr "submission data"
+
+#: exercise/submission_models.py
+msgid "LABEL_GRADING_DATA"
+msgstr "grading data"
+
+#: exercise/submission_models.py
+msgid "LABEL_META_DATA"
+msgstr "meta data"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION"
+msgstr "submission"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION_PLURAL"
+msgstr "submissions"
+
+#: exercise/submission_models.py notification/models.py
+msgid "LABEL_SUBMISSION"
+msgstr "submission"
+
+#: exercise/submission_models.py
+msgid "LABEL_PARAM_NAME"
+msgstr "parameter name"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMITTED_FILE"
+msgstr "submitted file"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMITTED_FILE_PLURAL"
+msgstr "submitted files"
+
 #: exercise/templates/exercise/_category_points.html
+#: exercise/templates/exercise/_exercisecollection.html
 msgid "TOTAL_POINTS"
 msgstr "Total points"
 
@@ -2088,7 +2936,7 @@ msgstr "Exercise info"
 
 #: exercise/templates/exercise/_exercise_info.html
 msgid "EXERCISE_CATEGORY"
-msgstr "Exercise category"
+msgstr "Assignment category"
 
 #: exercise/templates/exercise/_exercise_info.html
 msgid "YOUR_SUBMISSIONS"
@@ -2119,7 +2967,11 @@ msgstr "Total number of submitters"
 #: exercise/templates/exercise/_exercise_wait.html
 #: exercise/templates/exercise/exercise.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
-msgstr "Communication error with the exercise."
+msgstr ""
+"There was a problem loading the assignment. Try loading the page again "
+"later. The course staff has been notifed. If the problem persists for over a "
+"day and hasn't been addressed on the course news, please contact course "
+"staff."
 
 #: exercise/templates/exercise/_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
@@ -2132,16 +2984,12 @@ msgid "GRADING_SUBMISSION"
 msgstr "Grading submission..."
 
 #: exercise/templates/exercise/_exercisecollection.html
-msgid "CURRENT_SCORE"
-msgstr "Current score"
+msgid "CURRENT_POINTS"
+msgstr "Current points"
 
 #: exercise/templates/exercise/_exercisecollection.html
-msgid "TOTAL_SCORE"
-msgstr "Total score"
-
-#: exercise/templates/exercise/_exercisecollection.html
-msgid "SCORE_ON_THIS_COURSE"
-msgstr "Score on this course"
+msgid "POINTS_ON_THIS_COURSE"
+msgstr "Points on this course"
 
 #: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/staff/_submissions_table.html
@@ -2156,7 +3004,7 @@ msgstr "File not found"
 
 #: exercise/templates/exercise/_model_files.html
 msgid "EXERCISE_NO_MODEL_ANSWER"
-msgstr "No model answer has been supplied for this exercise."
+msgstr "No model answer has been supplied for this assignment."
 
 #: exercise/templates/exercise/_points_badge.html
 msgid "UNOFFICIAL_DESCRIPTION"
@@ -2211,8 +3059,8 @@ msgid "POINTS"
 msgstr "Points"
 
 #: exercise/templates/exercise/_points_progress.html
-msgid "REQUIRED"
-msgstr "Required"
+msgid "POINTS_TO_PASS"
+msgstr "Points to pass"
 
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMISSION_INFO"
@@ -2235,12 +3083,13 @@ msgstr "Posting submission..."
 #: exercise/templates/exercise/_submit_progress.html
 msgid "SUBMISSION_ERROR_ALERT_COMMUNICATION_ERROR_W_SERVICE"
 msgstr ""
-"There was a communication error with the exercise service, so no submission "
-"was consumed. You can try again."
+"There was an error sending the submission for grading, so no submission was "
+"consumed. You can try again. Make sure you're connected to the internet. "
+"Course staff have been informed if the problem is with the service."
 
 #: exercise/templates/exercise/_template_files.html
 msgid "EXERCISE_HAS_NO_TEMPLATE"
-msgstr "This exercise has no template."
+msgstr "This assignment has no template."
 
 #: exercise/templates/exercise/_text_stats.html
 #, python-format
@@ -2262,10 +3111,10 @@ msgstr ""
 
 #: exercise/templates/exercise/_user_results.html
 msgid "FILTER_VIEW"
-msgstr "Filter view"
+msgstr "Show"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "SHOW_OLDER_ASSINGMENTS"
+msgid "SHOW_OLDER_ASSIGNMENTS"
 msgstr "Show older assignments"
 
 #: exercise/templates/exercise/_user_results.html
@@ -2292,7 +3141,7 @@ msgstr "%(points)s points required to pass the module. "
 
 #: exercise/templates/exercise/_user_results.html
 msgid "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING"
-msgstr "There may be changes in the exercises before the module opens!"
+msgstr "There may be changes in the assignments before the module opens!"
 
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/staff/_assess_info.html
@@ -2311,7 +3160,7 @@ msgstr "Opens"
 
 #: exercise/templates/exercise/_warnings_overlay.html
 msgid "CANNOT_SUMBIT_EXERCISE_WARNING"
-msgstr "You cannot submit this exercise"
+msgstr "You cannot submit this assignment"
 
 #: exercise/templates/exercise/_warnings_overlay.html
 msgid "SHOW_ANYWAY"
@@ -2319,15 +3168,15 @@ msgstr "Show anyway"
 
 #: exercise/templates/exercise/_warnings_overlay.html
 msgid "ENROLLMENT_INFORMATION"
-msgstr "Enrollment information"
+msgstr "Enrolment information"
 
 #: exercise/templates/exercise/exercise.html
 msgid "LOADING_EXERCISE"
-msgstr "Loading exercise..."
+msgstr "Loading assignment..."
 
 #: exercise/templates/exercise/exercise_base.html
 msgid "EXERCISE_DESCRIPTION"
-msgstr "Exercise description"
+msgstr "Assignment description"
 
 #: exercise/templates/exercise/exercise_base.html
 #: exercise/templates/exercise/exercise_plain.html
@@ -2351,7 +3200,7 @@ msgstr "View all submissions"
 #: exercise/templates/exercise/exercise_plain.html
 msgid "OPEN_EXERCISE_IN_NEW_TAB"
 msgstr ""
-"Open this exercise in a new tab (recommended for keyboard and assistive "
+"Open this assignment in a new tab (recommended for keyboard and assistive "
 "technology users)"
 
 #: exercise/templates/exercise/exercise_plain.html
@@ -2397,7 +3246,7 @@ msgid "RESULTS"
 msgstr "Results"
 
 #: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBITTED_DATA"
+msgid "SUBMITTED_DATA"
 msgstr "Submitted data"
 
 #: exercise/templates/exercise/staff/_assess_info.html
@@ -2418,7 +3267,7 @@ msgstr "In total"
 
 #: exercise/templates/exercise/staff/_assess_info.html
 msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
-msgstr "Add one extra submission for the student in this exercise."
+msgstr "Add one extra submission for the student in this assignment."
 
 #: exercise/templates/exercise/staff/_assess_info.html
 msgid "SUBMITTED_FILES"
@@ -2578,11 +3427,11 @@ msgstr "Inspect SID "
 #: exercise/templates/exercise/submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "ASSISTANT_FEEDBACK"
-msgstr "Assistant feedback"
+msgstr "Staff feedback"
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NO_ASSISTANT_FEEDBACK_FOR_SUBMISSION"
-msgstr "No assistant feedback available for this submission."
+msgstr "No staff feedback available for this submission."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "ASSESS_SUBMISSION_AS_ASSISTANT"
@@ -2603,22 +3452,22 @@ msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
 msgstr "No grader feedback available for this submission."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "RE-SUBMIT_TO_SERVICE"
-msgstr "Re-submit to service"
+msgid "RESUBMIT_TO_SERVICE"
+msgstr "Resubmit to service"
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "RE-SUBMIT_TO_SERVICE_DESCRIPTION"
+msgid "RESUBMIT_TO_SERVICE_DESCRIPTION"
 msgstr ""
-"Click this button to re-submit this submission to the assessment service. "
+"Click this button to resubmit this submission to the assessment service. "
 "This is meant to be used only in situations where the assessment service has "
 "behaved incorrectly so that the grading data is incorrect or the status of "
-"the submission never became ready. Caution! Re-submitting overwrites the "
+"the submission never became ready. Caution! Resubmitting overwrites the "
 "current grading data. "
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "EXERCISE_OF_TYPE_CANNOT_BE_RE-SUBMITTED_TO_ASSESMENT_SERVICE"
+msgid "EXERCISE_OF_TYPE_CANNOT_BE_RESUBMITTED_TO_ASSESMENT_SERVICE"
 msgstr ""
-"Exercises of this type can not be re-submitted to the assessment service."
+"Assignments of this type can not be resubmitted to the assessment service."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "GRADER_ERRORS"
@@ -2630,7 +3479,7 @@ msgstr "Select modules: "
 
 #: exercise/templates/exercise/staff/results.html
 msgid "SELECT_EXERCISES"
-msgstr "Select exercises: "
+msgstr "Select assignments: "
 
 #: exercise/templates/exercise/staff/results.html
 msgid "OPTIONS"
@@ -2672,7 +3521,7 @@ msgstr "Total submissions"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_AVERAGE_SUBMISSIONS_PER_STUDENT_TOOLTIP"
 msgstr ""
-"How many submissions a single student has used on the exercise on average. "
+"How many submissions a single student has used on the assignment on average. "
 "Only accounts for students with one or more submissions."
 
 #: exercise/templates/exercise/staff/results.html
@@ -2681,7 +3530,7 @@ msgstr "Average submissions per student"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_MAXIMUM_SUBMISSIONS_TOOLTIP"
-msgstr "Maximum number of available submissions for the exercise."
+msgstr "Maximum number of available submissions for the assignment."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "MAXIMUM_SUBMISSIONS"
@@ -2689,7 +3538,7 @@ msgstr "Maximum submissions"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_STUDENTS_W_SUBMISSIONS_TOOLTIP"
-msgstr "Number of students that have one or more exercise submissions."
+msgstr "Number of students that have one or more assignment submissions."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "STUDENTS_W_SUBMISSIONS"
@@ -2698,7 +3547,7 @@ msgstr "Students with submissions"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_STUDENTS_W_MAX_POINTS_TOOLTIP"
 msgstr ""
-"Number of students that have received maximum points from the exercise."
+"Number of students that have received maximum points from the assignment."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "STUDENTS_W_MAX_POINTS"
@@ -2707,7 +3556,7 @@ msgstr "Students with max points"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_AVERAGE_POINTS_PER_STUDENT_TOOLTIP"
 msgstr ""
-"Average points received for the exercise per student. Only accounts for "
+"Average points received for the assignment per student. Only accounts for "
 "students with one or more submissions."
 
 #: exercise/templates/exercise/staff/results.html
@@ -2716,7 +3565,7 @@ msgstr "Average points per student"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_MAX_POINTS_TOOLTIP"
-msgstr "Maximum points for the exercise."
+msgstr "Maximum points for the assignment."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "MAX_POINTS"
@@ -2724,15 +3573,15 @@ msgstr "Maximum points"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_EXERCISES_BY_DIFFICULTY"
-msgstr "Show exercises by difficulty"
+msgstr "Show assignments by difficulty"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_EXERCISES_BY_MODULE"
-msgstr "Show exercises by module"
+msgstr "Show assignments by module"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_ALL_EXERCISES"
-msgstr "Show all exercises"
+msgstr "Show all assignments"
 
 #: exercise/templates/exercise/staff/submissions_summary.html
 msgid "SUBMISSIONS_SUMMARY"
@@ -2748,7 +3597,7 @@ msgstr "Files in this submission"
 
 #: exercise/templates/exercise/submission_plain.html
 msgid "RETURN_TO_EXERCISE"
-msgstr "Return to exercise"
+msgstr "Return to assignment"
 
 #: exercise/templates/exercise/submission_plain.html
 msgid "DATE"
@@ -2776,11 +3625,12 @@ msgstr "Excel compatible CSV"
 
 #: exercise/views.py
 msgid "EXERCISE_IN_MAINTENANCE_AND_HIDDEN_FROM_STUDENTS"
-msgstr "Exercise is in maintenance and content is hidden from students."
+msgstr ""
+"The assignment is in maintenance and the content is hidden from students."
 
 #: exercise/views.py
 msgid "EXERCISE_IN_MAINTENTANCE"
-msgstr "Unfortunately this exercise is currently under maintenance."
+msgstr "Unfortunately this assignment is currently under maintenance."
 
 #: exercise/views.py
 #, python-brace-format
@@ -2791,42 +3641,43 @@ msgstr ""
 
 #: exercise/views.py
 msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"
-msgstr "You need to sign in and enroll to submit exercises."
+msgstr "You need to sign in and enrol to submit exercises."
 
 #: external_services/lti.py
 msgid "LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS"
-msgstr "Course enrollment required for accessing the LTI service."
+msgstr "Course enrolment required for accessing the LTI service."
 
 #: external_services/models.py
-msgid "URL_CANNOT_CONTAING_SCHEME_OR_DOMAIN"
-msgstr "Url can not contain scheme or domain part."
+msgid "URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN"
+msgstr "The URL cannot contain scheme or domain part."
 
 #: external_services/models.py
 msgid "DESTINATION_INTERNAL_PRIVACY_NOTICE"
-msgstr "Destination is hosted internally. Link to internal privacy notice."
+msgstr "The destination is hosted internally. Link to internal privacy notice."
 
 #: external_services/models.py
 msgid "DESTINATION_ORGANIZATION_PRIVACY_NOTICE"
 msgstr ""
-"Destination is hosted in the same organization. Link to a privacy notice."
+"The destination is hosted within the same organization. Link to a privacy "
+"notice."
 
 #: external_services/models.py
 msgid "DESTINATION_EEA_PRIVACY_NOTICE"
 msgstr ""
-"Destination is hosted in the European Economic Area. Link to a privacy "
+"The destination is hosted in the European Economic Area. Link to a privacy "
 "notice."
 
 #: external_services/models.py
 msgid "DESTINATION_PRIVACYSHIELD_PRIVACY_NOTICE"
 msgstr ""
-"Destination is hosted outside of the European Economic Area and used to be "
-"certified under the now invalid EU-US Privacy Shield. Link to an extended "
+"The destination is hosted outside of the European Economic Area and used to "
+"be certified under the now invalid EU-US Privacy Shield. Link to an extended "
 "privacy notice."
 
 #: external_services/models.py
 msgid "DESTINATION_GLOBAL_PRIVACY_NOTICE"
 msgstr ""
-"Destination is hosted outside of the European Economic Area. Link to an "
+"The destination is hosted outside of the European Economic Area. Link to an "
 "extended privacy notice."
 
 #: external_services/models.py
@@ -2834,19 +3685,35 @@ msgid "SERVICE_URL"
 msgstr "The service URL"
 
 #: external_services/models.py
+msgid "LABEL_DESTINATION_REGION"
+msgstr "destination region"
+
+#: external_services/models.py
 msgid "SERVICE_DESTINATION_REGION_HELPTEXT"
 msgstr ""
 "The geographical area of the destination. Will display correct user notice."
 
 #: external_services/models.py
+msgid "LABEL_PRIVACY_NOTICE_URL"
+msgstr "privacy notice URL"
+
+#: external_services/models.py
 msgid "SERVICE_PRIVACY_NOTICE_URL_HELPTEXT"
 msgstr ""
 "A link to the service privacy notice. This is mandatory for services outside "
-"organization!"
+"the organization!"
+
+#: external_services/models.py
+msgid "LABEL_MENU_LABEL"
+msgstr "menu label"
 
 #: external_services/models.py
 msgid "SERVICE_MENU_LABEL_HELPTEXT"
 msgstr "A default label to show in the course menu."
+
+#: external_services/models.py
+msgid "LABEL_MENU_ICON_CLASS"
+msgstr "menu icon class"
 
 #: external_services/models.py
 msgid "SERVICE_MENU_ICON_HELPTEXT"
@@ -2855,12 +3722,25 @@ msgstr ""
 "#glyphicons-glyphs"
 
 #: external_services/models.py
+msgid "LABEL_ENABLED"
+msgstr "enabled"
+
+#: external_services/models.py
 msgid "SERVICE_ENABLED_HELPTEXT"
 msgstr "If not enabled, the service is disabled for all course instances."
 
 #: external_services/models.py
+msgid "MODEL_NAME_LINK_SERVICE"
+msgstr "link service"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LINK_SERVICE_PLURAL"
+msgstr "link services"
+
+#: external_services/models.py
 msgid "SERVICE_ERROR_PRIVACY_NOTICE_URL_MANDATORY"
-msgstr "Privacy notice URL is mandatory for services outside organization."
+msgstr ""
+"The privacy notice URL is mandatory for services outside the organization."
 
 #: external_services/models.py
 msgid "LTI_SERVICE_ANONYMOUS_NO_API"
@@ -2875,6 +3755,10 @@ msgid "LTI_SERVICE_PUBLIC_YES_API"
 msgstr "Public service, allow API access"
 
 #: external_services/models.py
+msgid "LABEL_ACCESS_SETTINGS"
+msgstr "access settings"
+
+#: external_services/models.py
 msgid "LTI_SERVICE_ACCESS_SETTINGS_HELPTEXT"
 msgstr ""
 "Select whether to pass pseudonymised user data to the LTI service.<br>Public "
@@ -2883,12 +3767,28 @@ msgstr ""
 "privileges."
 
 #: external_services/models.py
+msgid "LABEL_CONSUMER_KEY"
+msgstr "consumer key"
+
+#: external_services/models.py
 msgid "LTI_SERVICE_CONSUMER_KEY_HELPTEXT"
 msgstr "The consumer key provided by the LTI service."
 
 #: external_services/models.py
+msgid "LABEL_CONSUMER_SECRET"
+msgstr "consumer secret"
+
+#: external_services/models.py
 msgid "LTI_SERVICE_CONSUMER_SECRET_HELPTEXT"
 msgstr "The consumer secret provided by the LTI service."
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI_SERVICE"
+msgstr "LTI service"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI_SERVICE_PLURAL"
+msgstr "LTI services"
 
 #: external_services/models.py
 msgid "MENU_ITEM_ACCESS_ALL"
@@ -2907,20 +3807,36 @@ msgid "MENU_ITEM_COURSE_INSTANCE_HELPTEXT"
 msgstr "A course where the menu item exists."
 
 #: external_services/models.py
+msgid "LABEL_ACCESS"
+msgstr "access"
+
+#: external_services/models.py
+msgid "LABEL_SERVICE"
+msgstr "service"
+
+#: external_services/models.py
 msgid "MENU_ITEM_SERVICE_HELPTEXT"
 msgstr ""
 "An external service to link to. These are configured by administrators."
 
 #: external_services/models.py
+msgid "LABEL_MENU_URL"
+msgstr "URL"
+
+#: external_services/models.py
 msgid "MENU_ITEM_MENU_URL_HELPTEXT"
 msgstr ""
-"URL that is a) relative to the service URL or b) this course if no service "
-"is selected.\n"
-"Case a: url starting with / overwrites path in service url and extends it "
-"otherwise.\n"
-"case b: url starting with / is absolute within this service and relative to "
-"the course path otherwise.\n"
+"An URL that is a) relative to the service URL or b) this course if no "
+"service is selected.<br>\n"
+"Case a: An URL starting with '/' overwrites path in service URL and extends "
+"it otherwise.<br>\n"
+"Case b: An URL starting with '/' is absolute within this service and "
+"relative to the course path otherwise.<br>\n"
 "Note that URL entered here can not include scheme or domain."
+
+#: external_services/models.py
+msgid "LABEL_MENU_GROUP_LABEL"
+msgstr "menu group label"
 
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_GROUP_LABEL_HELPTEXT"
@@ -2937,22 +3853,34 @@ msgstr ""
 "getbootstrap.com/docs/3.4/components/#glyphicons"
 
 #: external_services/models.py
+msgid "LABEL_MENU_WEIGHT"
+msgstr "menu weight"
+
+#: external_services/models.py
 msgid "MENU_ITEM_MENU_WEIGHT_HELPTEXT"
 msgstr "Heavier menu entries are placed after lighter ones."
 
 #: external_services/models.py
+msgid "MODEL_NAME_MENU_ITEM"
+msgstr "menu item"
+
+#: external_services/models.py
+msgid "MODEL_NAME_MENU_ITEM_PLURAL"
+msgstr "menu items"
+
+#: external_services/models.py
 msgid "MENU_ITEM_ERROR_MENU_URL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED"
 msgstr ""
-"Relative URL is required when there is no preconfigured service selected."
+"A relative URL is required when there is no preconfigured service selected."
 
 #: external_services/models.py
 msgid "MENU_ITEM_ERROR_MENU_LABEL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED"
 msgstr ""
-"Menu label is required when there is no preconfigured service selected."
+"A menu label is required when there is no preconfigured service selected."
 
 #: external_services/permissions.py
 msgid "MENU_VISIBILTY_PERMISSION_DENIED_MSG"
-msgstr "Permission denied by menu visibility"
+msgstr "Unfortunately you are not permitted to use this link."
 
 #: external_services/permissions.py
 msgid "MENU_VISIBILITY_ERROR_ONLY_TEACHERS"
@@ -2964,7 +3892,7 @@ msgstr "The link is only for course staff."
 
 #: external_services/permissions.py
 msgid "NOT_LTI_SERVICE"
-msgstr "Not LTI service"
+msgstr "Not a LTI service"
 
 #: external_services/templates/external_services/_launch.html
 #, python-format
@@ -2974,15 +3902,15 @@ msgstr "You are leaving %(brand)s and entering %(name)s"
 #: external_services/templates/external_services/_launch.html
 #, python-format
 msgid "EXTERNAL_SERVICE_LAUNCH_EXERCISE_HOSTED_ON -- %(name)s"
-msgstr "This exercise is hosted on %(name)s"
+msgstr "This assignment is hosted on %(name)s"
 
 #: external_services/templates/external_services/_launch.html
 msgid "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_LOAD_EXERCISE_NEXT_TIME"
-msgstr "Don't show this and automatically load the exercise next time."
+msgstr "Don't show this and automatically load the assignment next time."
 
 #: external_services/templates/external_services/_launch.html
 msgid "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_OPEN_EXERCISE_NEXT_TIME"
-msgstr "Don't show this and automatically open the exercise next time."
+msgstr "Don't show this and automatically open the assignment next time."
 
 #: external_services/templates/external_services/_launch.html
 msgid "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_CONTINUE_TO_SERVICE_NEXT_TIME"
@@ -2991,16 +3919,16 @@ msgstr "Don't show this and automatically continue to the service next time."
 #: external_services/templates/external_services/_launch.html
 msgid "EXTERNAL_SERVICE_LAUNCH_CHOICE_SAVED_ON_DEVICE_AND_WHERE_TO_REMOVE"
 msgstr ""
-"This choice is saved on your device and you can remove it on your profile "
+"This choice is saved on your device and you can remove it on your account "
 "page."
 
 #: external_services/templates/external_services/_launch.html
 msgid "LOAD_THE_EXERCISE"
-msgstr "Load the exercise"
+msgstr "Load the assignment"
 
 #: external_services/templates/external_services/_launch.html
 msgid "OPEN_EXERCISE_IN_NEW_WINDOW"
-msgstr "Open the exercise in a new window"
+msgstr "Open the assignment in a new window"
 
 #: external_services/templates/external_services/_launch.html
 msgid "CONTINUE_TO_SERVICE"
@@ -3012,7 +3940,7 @@ msgstr "Show details"
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_NO_PERSONAL_DATA_SENT"
-msgstr "No personal data is send to this service."
+msgstr "No personal data is sent to this service."
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
@@ -3068,7 +3996,7 @@ msgstr ""
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
-msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANISATION -- %(brand)s"
+msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANIZATION -- %(brand)s"
 msgstr ""
 "This service is hosted within our organization, but it's not maintained by "
 "us (%(brand)s administrators)."
@@ -3118,6 +4046,11 @@ msgstr ""
 #: external_services/templates/external_services/edit_menu.html
 msgid "ADD_MENU_ITEM"
 msgstr "Add menu item"
+
+#: external_services/templates/external_services/edit_menu.html
+#: external_services/templates/external_services/list_menu.html
+msgid "MENU_ITEMS"
+msgstr "Menu items"
 
 #: external_services/templates/external_services/list_menu.html
 msgid "LINK"
@@ -3172,6 +4105,22 @@ msgstr "Connecting to the course service failed with {code}!"
 msgid "URL_KEY_MAY_CONSIST_OF"
 msgstr "URL keys may consist of alphanumeric characters, hyphen and period."
 
+#: news/models.py
+msgid "LABEL_PUBLISH"
+msgstr "publish"
+
+#: news/models.py
+msgid "LABEL_PIN"
+msgstr "pin"
+
+#: news/models.py
+msgid "MODEL_NAME_NEWS"
+msgstr "news item"
+
+#: news/models.py
+msgid "MODEL_NAME_NEWS_PLURAL"
+msgstr "news items"
+
 #: news/templates/news/edit.html news/templates/news/list.html
 msgid "ADD_NEWS_ITEM"
 msgstr "Add news item"
@@ -3207,6 +4156,34 @@ msgstr "Published on"
 #: news/templates/news/user_news.html
 msgid "SHOW_OLDER"
 msgstr "Show older"
+
+#: notification/models.py
+msgid "LABEL_SUBJECT"
+msgstr "subject"
+
+#: notification/models.py
+msgid "LABEL_NOTIFICATION"
+msgstr "notification"
+
+#: notification/models.py
+msgid "LABEL_SENDER"
+msgstr "sender"
+
+#: notification/models.py
+msgid "LABEL_RECIPIENT"
+msgstr "recipient"
+
+#: notification/models.py
+msgid "LABEL_SEEN"
+msgstr "seen"
+
+#: notification/models.py
+msgid "MODEL_NAME_NOTIFICATION"
+msgstr "notification"
+
+#: notification/models.py
+msgid "MODEL_NAME_NOTIFICATION_PLURAL"
+msgstr "notifications"
 
 #: notification/templates/notification/_notification_messages.html
 msgid "YOU_HAVE"
@@ -3270,7 +4247,7 @@ msgstr "Toggle navigation"
 
 #: templates/base.html userprofile/templates/userprofile/profile.html
 msgid "PROFILE"
-msgstr "Profile"
+msgstr "Account"
 
 #: templates/base.html
 msgid "LOG_OUT"
@@ -3349,20 +4326,40 @@ msgid "STUDIES"
 msgstr "Studies"
 
 #: templates/support_channels.html
+msgid "SUPPORT_STUDIES_LINK"
+msgstr "https://into.aalto.fi/display/enopinnot"
+
+#: templates/support_channels.html
 msgid "COURSE_CATALOGUE"
 msgstr "Course catalogue"
+
+#: templates/support_channels.html
+msgid "SUPPORT_STUDENT_SERVICES_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Student+services"
 
 #: templates/support_channels.html
 msgid "STUDENT_SERVICES"
 msgstr "Student services"
 
 #: templates/support_channels.html
+msgid "SUPPORT_SUPPORT_FOR_STUDYING_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Support+for+studying"
+
+#: templates/support_channels.html
 msgid "SUPPORT_FOR_STUDYING"
 msgstr "Support for studying"
 
 #: templates/support_channels.html
+msgid "SUPPORT_STUDY_SKILLS_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Study+skills"
+
+#: templates/support_channels.html
 msgid "STUDY_SKILLS"
 msgstr "Study skills"
+
+#: templates/support_channels.html
+msgid "SUPPORT_STARTING_POINT_OF_WELLBEING_LINK"
+msgstr "https://into.aalto.fi/display/enopisk/Starting+Point+of+Wellbeing"
 
 #: templates/support_channels.html
 msgid "STARTING_POINT_OF_WELLBEING"
@@ -3371,6 +4368,10 @@ msgstr "Starting Point of Wellbeing"
 #: templates/support_channels.html
 msgid "IT_SUPPORT"
 msgstr "IT support"
+
+#: templates/support_channels.html
+msgid "SUPPORT_IT_HELP_LINK"
+msgstr "https://www.aalto.fi/en/it-help"
 
 #: templates/support_channels.html
 msgid "IT_HELP"
@@ -3389,8 +4390,16 @@ msgid "DOWNLOAD_LICENSED_SOFTWARE"
 msgstr "Download licensed software"
 
 #: templates/support_channels.html
+msgid "SUPPORT_AALTO_SPACE_APP_LINK"
+msgstr "https://www.aalto.fi/en/services/aalto-space-mobile-application"
+
+#: templates/support_channels.html
 msgid "AALTO_SPACE_APP"
 msgstr "Aalto Space app for room reservations"
+
+#: templates/support_channels.html
+msgid "TEACHERS"
+msgstr "Teachers"
 
 #: templates/support_channels.html
 msgid "DOCUMENTATION"
@@ -3406,7 +4415,7 @@ msgstr "%(brand_long)s manual"
 msgid "MANUAL_DESCRIPTION -- %(brand_long)s, %(brand)s"
 msgstr ""
 "The %(brand_long)s manual contains detailed instructions on how to start "
-"authoring a course and how to use the various types of exercises available "
+"authoring a course and how to use the various types of assignments available "
 "for %(brand)s."
 
 #: templates/support_channels.html
@@ -3452,9 +4461,9 @@ msgstr ""
 #, python-format
 msgid "MANUAL_HAS_EXAMPLES_OF_EXERCISES -- %(brand_long)s"
 msgstr ""
-"Since the %(brand_long)s manual contains a wide variety of exercises, you "
+"Since the %(brand_long)s manual contains a wide variety of assignments, you "
 "can download the source code and use it as a source of knowledge for "
-"creating your own exercises. You may run the manual course in your own "
+"creating your own assignments. You may run the manual course in your own "
 "computer with the Docker containers."
 
 #: templates/support_channels.html
@@ -3471,7 +4480,9 @@ msgid "MICROSOFT_TEAMS_SUPPORT_DESCRIPTION -- %(brand)s"
 msgstr ""
 "Teachers can start a conversation with other users of %(brand)s or ask for "
 "support in the Microsoft Teams channel. However, if your matter contains "
-"private or sensitive information, you should contact us by email."
+"private or sensitive information, you should contact us by \n"
+"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
+"style=\"display: inline;\">email</a>."
 
 #: templates/support_channels.html
 msgid "REPORT_ISSUE_IN_GITHUB"
@@ -3482,7 +4493,9 @@ msgid "REPORT_ISSUE_IN_GITHUB_DESCRIPTION"
 msgstr ""
 "Teachers may report issues in GitHub, such as bugs in the application or "
 "ideas for new features. If you want to discuss with the support team more "
-"personally or in privacy, send us email."
+"personally or in privacy, contact us by \n"
+"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
+"style=\"display: inline;\">email</a>."
 
 #: templates/support_channels.html
 msgid "ANNOUNCEMENTS"
@@ -3577,12 +4590,80 @@ msgstr ""
 "\"noopener\"> %(email)s </a>"
 
 #: threshold/models.py
+msgid "LABEL_PASSED_MODULES"
+msgstr "passed modules"
+
+#: threshold/models.py
+msgid "LABEL_PASSED_CATEGORIES"
+msgstr "passed categories"
+
+#: threshold/models.py
+msgid "LABEL_PASSED_EXERCISES"
+msgstr "passed assignments"
+
+#: threshold/models.py
+msgid "LABEL_CONSUME_HARDER_POINTS"
+msgstr "consume harder points"
+
+#: threshold/models.py
 msgid "HARDER_POINTS_CONSUMED_BY_EASIER_DIFFICULTY_REQUIREMENTS"
 msgstr "Harder points are consumed by easier difficulty requirements."
 
 #: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD"
+msgstr "threshold"
+
+#: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD_PLURAL"
+msgstr "thresholds"
+
+#: threshold/models.py
+msgid "LABEL_THRESHOLD"
+msgstr "threshold"
+
+#: threshold/models.py
+msgid "LABEL_LIMIT"
+msgstr "limit"
+
+#: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD_POINTS"
+msgstr "threshold points"
+
+#: threshold/models.py
+msgid "MODEL_NAME_THRESHOLD_POINTS_PLURAL"
+msgstr "threshold points"
+
+#: threshold/models.py
 msgid "POINTS -- {:d}"
 msgstr "{:d} points"
+
+#: threshold/models.py
+msgid "LABEL_NEGATIVE"
+msgstr "negative"
+
+#: threshold/models.py
+msgid "MODEL_NAME_COURSE_MODULE_REQUIREMENT"
+msgstr "course module requirement"
+
+#: threshold/models.py
+msgid "MODEL_NAME_COURSE_MODULE_REQUIREMENT_PLURAL"
+msgstr "course module requirements"
+
+#: userprofile/models.py
+msgid "LABEL_STUDENT_ID"
+msgstr "student ID"
+
+#: userprofile/models.py
+msgid "LABEL_ORGANIZATION"
+msgstr "organization"
+
+#: userprofile/models.py
+msgid "MODEL_NAME_USER_PROFILE"
+msgstr "user profile"
+
+#: userprofile/models.py
+msgid "MODEL_NAME_USER_PROFILE_PLURAL"
+msgstr "user profiles"
 
 #: userprofile/templates/userprofile/login.html
 #, python-format
@@ -3719,20 +4800,20 @@ msgid "APPLY"
 msgstr "Apply"
 
 #: userprofile/templates/userprofile/teachers.html
-msgid "STARTING_TIME"
-msgstr "Starting time"
-
-#: userprofile/templates/userprofile/teachers.html
-msgid "ENDING_TIME"
-msgstr "Ending time"
-
-#: userprofile/templates/userprofile/teachers.html
 msgid "EXPORT_TABLE_DATA"
 msgstr "Export table data"
 
 #: userprofile/templates/userprofile/teachers.html
 msgid "EMAILS_ONLY"
 msgstr "Emails only"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "STARTING_TIME"
+msgstr "Starting time"
+
+#: userprofile/templates/userprofile/teachers.html
+msgid "ENDING_TIME"
+msgstr "Ending time"
 
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"

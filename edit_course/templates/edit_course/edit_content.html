@@ -107,13 +107,13 @@
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|editurl:'exercise' }}" role="button">
                       <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                      {% if lobject.is_submittable %}{% translate "EDIT_EXERCISE" %}{% else %}{% translate "EDIT_CONTENT_CHAPTER" %}{% endif %}
+                      {% if lobject.is_submittable %}{% translate "EDIT_EXERCISE" %}{% else %}{% translate "EDIT_CHAPTER" %}{% endif %}
                     </a>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|removeurl:'exercise' }}" role="button">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% translate "REMOVE" %}
                     </a>
                     <a class="btn btn-link btn-xs" href="{{ lobject|url }}">
-                      {% if lobject.is_submittable %}{% translate "VIEW_EXERCISE" %}{% else %}{% translate "VIEW_CONTENT_CHAPTER" %}{% endif %}
+                      {% if lobject.is_submittable %}{% translate "VIEW_EXERCISE" %}{% else %}{% translate "VIEW_CHAPTER" %}{% endif %}
                     </a>
                     {% if lobject.is_submittable %}
                     <a class="btn btn-link btn-xs" href="{{ lobject|url:'submission-list' }}">
@@ -143,8 +143,8 @@
                           <div class="modal-body">
                             <div class="list-group">
                               <a href="{{ module|createurl:'exercise,chapter' }}" class="list-group-item">
-                                <div><strong>{% translate "CONTENT_CHAPTER" %}</strong></div>
-                                {% translate "REMOTE_CONTENT_CHAPTER_DESCRIPTION" %}
+                                <div><strong>{% translate "CHAPTER" %}</strong></div>
+                                {% translate "REMOTE_CHAPTER_DESCRIPTION" %}
                               </a>
                               <a href="{{ module|createurl:'exercise' }}" class="list-group-item">
                                 <div><strong>{% translate "EXERCISE" %}</strong></div>

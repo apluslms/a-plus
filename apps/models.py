@@ -25,26 +25,46 @@ from inheritance.models import ModelWithInheritance
 class AbstractApp(ModelWithInheritance):
 
     # Generic foreign key implementation from Django contenttypes framework.
-    container_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    container_pk = models.TextField(_('OBJECT_ID'))
+    container_type = models.ForeignKey(ContentType,
+        verbose_name=_('LABEL_CONTAINER_TYPE'),
+        on_delete=models.CASCADE,
+    )
+    container_pk = models.TextField(
+        verbose_name=_('LABEL_CONTAINER_PK'),
+    )
     container = GenericForeignKey(ct_field="container_type", fk_field="container_pk")
 
     # Apps used to have an oembed reference which was removed in migration to Python 3
     # in favor of future implementations, for example LTI.
 
     class Meta:
+        verbose_name = _('MODEL_NAME_ABSTRACT_APP')
+        verbose_name_plural = _('MODEL_NAME_ABSTRACT_APP_PLURAL')
         abstract = True
 
 
 class BaseTab(AbstractApp):
-    label = models.CharField(max_length=12,
-        help_text=_('TAB_LABEL_HELPTEXT'))
-    title = models.CharField(max_length=64,
-        help_text=_('TAB_TITLE_HELPTEXT'))
-    order = models.IntegerField(default=100)
+    label = models.CharField(
+        verbose_name=_('LABEL_LABEL'),
+        max_length=12,
+        help_text=_('TAB_LABEL_HELPTEXT'),
+    )
+    title = models.CharField(
+        verbose_name=_('LABEL_TITLE'),
+        max_length=64,
+        help_text=_('TAB_TITLE_HELPTEXT'),
+    )
+    order = models.IntegerField(
+        verbose_name=_('LABEL_ORDER'),
+        default=100,
+    )
 
     # A Tab can be opened in a new window, in the same window?
-    opening_method = models.CharField(max_length=32, blank=True)
+    opening_method = models.CharField(
+        verbose_name=_('LABEL_OPENING_METHOD'),
+        max_length=32,
+        blank=True,
+    )
 
     def render(self):
         return _('TAB_NO_CONTENT')
@@ -65,22 +85,41 @@ class BaseTab(AbstractApp):
         return self.label
 
     class Meta:
+        verbose_name = _('MODEL_NAME_BASE_TAB')
+        verbose_name_plural = _('MODEL_NAME_BASE_TAB_PLURAL')
         ordering = ['order', 'id']
 
 
 class HTMLTab(BaseTab):
-    content = models.TextField()
+    content = models.TextField(
+        verbose_name=_('LABEL_CONTENT'),
+    )
 
     def render(self):
         return mark_safe(self.content)
 
+    class Meta:
+        verbose_name = _('MODEL_NAME_HTML_TAB')
+        verbose_name_plural = _('MODEL_NAME_HTML_TAB_PLURAL')
+
 
 class ExternalEmbeddedTab(BaseTab):
-    content_url = models.URLField(max_length=128)
-    element_id = models.CharField(max_length=32, blank=True)
+    content_url = models.URLField(
+        verbose_name=_('LABEL_CONTENT_URL'),
+        max_length=128,
+    )
+    element_id = models.CharField(
+        verbose_name=_('LABEL_ELEMENT_ID'),
+        max_length=32,
+        blank=True,
+    )
 
     def get_renderer_class(self):
         return TabRenderer
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_EXTERNAL_EMBEDDED_TAB')
+        verbose_name_plural = _('MODEL_NAME_EXTERNAL_EMBEDDED_TAB_PLURAL')
 
 
 class ExternalIFrameTab(BaseTab):
@@ -97,19 +136,37 @@ class ExternalIFrameTab(BaseTab):
     content html.
     """
 
-    content_url = models.URLField(max_length=255)
+    content_url = models.URLField(
+        verbose_name=_('LABEL_CONTENT_URL'),
+        max_length=255,
+    )
 
     # Desired width and height
-    width = models.IntegerField()
-    height = models.IntegerField()
+    width = models.IntegerField(
+        verbose_name=_('LABEL_WIDTH'),
+    )
+    height = models.IntegerField(
+        verbose_name=_('LABEL_HEIGHT'),
+    )
 
     def get_renderer_class(self):
         return ExternalIFrameTabRenderer
 
+    class Meta:
+        verbose_name = _('MODEL_NAME_EXTERNAL_IFRAME_TAB')
+        verbose_name_plural = _('MODEL_NAME_EXTERNAL_IFRAME_TAB_PLURAL')
+
 
 class BasePlugin(AbstractApp):
-    title = models.CharField(max_length=64)
-    views = models.CharField(max_length=255, blank=True)
+    title = models.CharField(
+        verbose_name=_('LABEL_TITLE'),
+        max_length=64
+    )
+    views = models.CharField(
+        verbose_name=_('LABEL_VIEWS'),
+        max_length=255,
+        blank=True,
+    )
 
     def render(self):
         leaf = self.as_leaf_class()
@@ -118,9 +175,17 @@ class BasePlugin(AbstractApp):
         else:
             return _('BASE_PLUGIN_MISSING_RENDER-METHOD')
 
+    class Meta:
+        verbose_name = _('MODEL_NAME_BASE_PLUGIN')
+        verbose_name_plural = _('MODEL_NAME_BASE_PLUGIN_PLURAL')
+
 
 class RSSPlugin(BasePlugin):
-    feed_url = models.URLField(max_length=256, blank=False)
+    feed_url = models.URLField(
+        verbose_name=_('LABEL_FEED_URL'),
+        max_length=256,
+        blank=False,
+    )
 
     def render(self):
         doc = feedparser.parse(self.feed_url)
@@ -142,12 +207,23 @@ class RSSPlugin(BasePlugin):
         })
         return out
 
+    class Meta:
+        verbose_name = _('MODEL_NAME_RSS_PLUGIN')
+        verbose_name_plural = _('MODEL_NAME_RSS_PLUGIN_PLURAL')
+
 
 class HTMLPlugin(BasePlugin):
-    content = models.TextField(blank=False)
+    content = models.TextField(
+        verbose_name=_('LABEL_CONTENT'),
+        blank=False,
+    )
 
     def render(self):
         return mark_safe(self.content)
+    
+    class Meta:
+        verbose_name = _('MODEL_NAME_HTML_PLUGIN')
+        verbose_name_plural = _('MODEL_NAME_HTML_PLUGIN_PLURAL')
 
 
 class ExternalIFramePlugin(BasePlugin):
@@ -168,11 +244,22 @@ class ExternalIFramePlugin(BasePlugin):
     available in the view.
     """
 
-    service_url = models.URLField(max_length=255)
+    service_url = models.URLField(
+        verbose_name=_('LABEL_SERVICE_URL'),
+        max_length=255,
+    )
 
     # Desired width and height
-    width = models.IntegerField()
-    height = models.IntegerField()
+    width = models.IntegerField(
+        verbose_name=_('LABEL_WIDTH'),
+    )
+    height = models.IntegerField(
+        verbose_name=_('LABEL_HEIGHT'),
+    )
 
     def get_renderer_class(self):
         return ExternalIFramePluginRenderer
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_EXTERNAL_IFRAME_PLUGIN')
+        verbose_name_plural = _('MODEL_NAME_EXTERNAL_IFRAME_PLUGIN_PLURAL')

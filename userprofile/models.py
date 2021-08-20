@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.functional import cached_property
+from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
 
@@ -35,13 +36,31 @@ class UserProfile(models.Model):
             return user.userprofile
         raise RuntimeError("Seeking user profile without authenticated user.")
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    language = models.CharField(max_length=5, blank=True, default='')
-    student_id = models.CharField(max_length=25, null=True, blank=True)
-    organization = models.CharField(max_length=80, blank=True)
+    user = models.OneToOneField(User,
+        verbose_name=_('LABEL_USER'),
+        on_delete=models.CASCADE,
+    )
+    language = models.CharField(
+        verbose_name=_('LABEL_LANGUAGE'),
+        max_length=5,
+        blank=True,
+        default='',
+    )
+    student_id = models.CharField(
+        verbose_name=_('LABEL_STUDENT_ID'),
+        max_length=25,
+        blank=True, null=True,
+    )
+    organization = models.CharField(
+        verbose_name=_('LABEL_ORGANIZATION'),
+        max_length=80,
+        blank=True,
+    )
     objects = UserProfileManager()
 
     class Meta:
+        verbose_name = _('MODEL_NAME_USER_PROFILE')
+        verbose_name_plural = _('MODEL_NAME_USER_PROFILE_PLURAL')
         ordering = ['id']
 
     def __str__(self):

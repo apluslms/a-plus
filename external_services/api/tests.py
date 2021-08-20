@@ -1104,7 +1104,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             msg_id='xxxx', # random, can not know beforehand
             code_major='failure',
             severity='status',
-            description='You have used the allowed amount of submissions for this exercise.',
+            description='You have used the allowed amount of submissions for this assignment.',
             msg_ref_id='sawye8fjvjfie734',
             operation_ref='replaceResult',
             extra_status='',
@@ -1239,7 +1239,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             msg_id='xxxx', # random, can not know beforehand
             code_major='failure',
             severity='status',
-            description='Deadline for the exercise has passed ({date}).'.format(
+            description='The deadline for the assignment has passed ({date}).'.format(
                 date=date_format(timezone.localtime(course_module.closing_time), "DATETIME_FORMAT")),
             msg_ref_id='vbxhsgsy764y3dg',
             operation_ref='replaceResult',

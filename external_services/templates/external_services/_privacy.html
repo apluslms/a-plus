@@ -65,7 +65,7 @@
 {% elif service.destination_region == service.DESTINATION_REGION.ORGANIZATION %}
 	<p><span>
 	{% blocktranslate trimmed with brand=brand %}
-		EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANISATION -- {{ brand }}
+		EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_ORGANIZATION -- {{ brand }}
 	{% endblocktranslate %}
 {% elif service.destination_region == service.DESTINATION_REGION.EEA %}
 	{% if service.sends_user_info and not service.is_anonymous %}

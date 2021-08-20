@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse
 from django.urls import reverse
-from django.utils.text import format_lazy
+from django.utils.text import format_lazy, capfirst
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy as ngettext
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, \
@@ -186,10 +186,10 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
             )
             return super().form_invalid(form)
         messages.success(self.request,
-            format_lazy(
+            capfirst(format_lazy(
                 _('SUCCESS_SAVING_MODEL -- {name}'),
                 name=self.model_name,
-            )
+            ))
         )
         return super().form_valid(form)
 

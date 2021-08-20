@@ -15,14 +15,30 @@ class Threshold(models.Model):
     """
     Course may set thresholds that signify module access or course grades.
     """
-    course_instance = models.ForeignKey(CourseInstance, on_delete=models.CASCADE,
+    course_instance = models.ForeignKey(CourseInstance,
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
         related_name="thresholds")
-    name = models.CharField(max_length=255)
-    passed_modules = models.ManyToManyField(CourseModule, blank=True)
-    passed_categories = models.ManyToManyField(LearningObjectCategory, blank=True)
-    passed_exercises = models.ManyToManyField(BaseExercise, blank=True)
-    consume_harder_points = models.BooleanField(default=False,
+    name = models.CharField(
+        verbose_name=_('LABEL_NAME'),
+        max_length=255)
+    passed_modules = models.ManyToManyField(CourseModule,
+        verbose_name=_('LABEL_PASSED_MODULES'),
+        blank=True)
+    passed_categories = models.ManyToManyField(LearningObjectCategory,
+        verbose_name=_('LABEL_PASSED_CATEGORIES'),
+        blank=True)
+    passed_exercises = models.ManyToManyField(BaseExercise,
+        verbose_name=_('LABEL_PASSED_EXERCISES'),
+        blank=True)
+    consume_harder_points = models.BooleanField(
+        verbose_name=_('LABEL_CONSUME_HARDER_POINTS'),
+        default=False,
         help_text=_('HARDER_POINTS_CONSUMED_BY_EASIER_DIFFICULTY_REQUIREMENTS'))
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_THRESHOLD')
+        verbose_name_plural = _('MODEL_NAME_THRESHOLD_PLURAL')
 
     def __str__(self):
         return self.name + " " + self.checks_str()
@@ -99,13 +115,27 @@ class Threshold(models.Model):
 
 
 class ThresholdPoints(models.Model):
-    threshold = models.ForeignKey(Threshold, on_delete=models.CASCADE,
-        related_name="points")
-    limit = models.PositiveIntegerField()
-    difficulty = models.CharField(max_length=32, blank=True)
-    order = models.PositiveIntegerField(default=1)
+    threshold = models.ForeignKey(Threshold,
+        verbose_name=_('LABEL_THRESHOLD'),
+        on_delete=models.CASCADE,
+        related_name="points",
+    )
+    limit = models.PositiveIntegerField(
+        verbose_name=_('LABEL_LIMIT'),
+    )
+    difficulty = models.CharField(
+        verbose_name=_('LABEL_DIFFICULTY'),
+        max_length=32,
+        blank=True,
+    )
+    order = models.PositiveIntegerField(
+        verbose_name=_('LABEL_ORDER'),
+        default=1,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_THRESHOLD_POINTS')
+        verbose_name_plural = _('MODEL_NAME_THRESHOLD_POINTS_PLURAL')
         ordering = ['threshold', 'order']
 
     def __str__(self):
@@ -118,10 +148,23 @@ class ThresholdPoints(models.Model):
 
 
 class CourseModuleRequirement(models.Model):
-    module = models.ForeignKey(CourseModule, on_delete=models.CASCADE,
-        related_name="requirements")
-    threshold = models.ForeignKey(Threshold, on_delete=models.CASCADE)
-    negative = models.BooleanField(default=False)
+    module = models.ForeignKey(CourseModule,
+        verbose_name=_('LABEL_MODULE'),
+        on_delete=models.CASCADE,
+        related_name="requirements",
+    )
+    threshold = models.ForeignKey(Threshold,
+        verbose_name=_('LABEL_THRESHOLD'),
+        on_delete=models.CASCADE,
+    )
+    negative = models.BooleanField(
+        verbose_name=_('LABEL_NEGATIVE'),
+        default=False,
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_COURSE_MODULE_REQUIREMENT')
+        verbose_name_plural = _('MODEL_NAME_COURSE_MODULE_REQUIREMENT_PLURAL')
 
     def __str__(self):
         if self.negative:

@@ -1,3 +1,5 @@
+import string
+
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -90,7 +92,16 @@ class MessageMixin(object):
                 "after calling it with it first. Fix your code by removing "
                 "the first method call and add replace=True to the second method call too."
             )
-            self.message = format_lazy('{}{}{}', self.message, delim, message)
+            msg_without_end_punctuation = (
+                self.message[0:-1] if self.message[-1] in string.punctuation
+                else self.message
+            )
+            self.message = format_lazy(
+                '{}{}{}',
+                msg_without_end_punctuation,
+                delim,
+                message,
+            )
 
 
 # Access mode

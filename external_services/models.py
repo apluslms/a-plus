@@ -13,7 +13,7 @@ from lib.models import UrlMixin
 
 def validate_no_domain(value):
     if value and '://' in value:
-        raise ValidationError(_('URL_CANNOT_CONTAING_SCHEME_OR_DOMAIN'))
+        raise ValidationError(_('URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN'))
 
 
 class LinkService(ModelWithInheritance):
@@ -28,33 +28,41 @@ class LinkService(ModelWithInheritance):
         ('GLOBAL', 6, _('DESTINATION_GLOBAL_PRIVACY_NOTICE')),
     ])
     url = models.CharField(
+        verbose_name=_('LABEL_URL'),
         max_length=256,
         help_text=_('SERVICE_URL')
     )
     destination_region = models.PositiveSmallIntegerField(
+        verbose_name=_('LABEL_DESTINATION_REGION'),
         choices=DESTINATION_REGION.choices,
         default=DESTINATION_REGION.GLOBAL,
         help_text=_('SERVICE_DESTINATION_REGION_HELPTEXT'),
     )
     privacy_notice_url = models.CharField(
+        verbose_name=_('LABEL_PRIVACY_NOTICE_URL'),
         max_length=512,
         blank=True,
         help_text=_('SERVICE_PRIVACY_NOTICE_URL_HELPTEXT'))
     menu_label = models.CharField(
+        verbose_name=_('LABEL_MENU_LABEL'),
         max_length=255,
         help_text=_('SERVICE_MENU_LABEL_HELPTEXT')
     )
     menu_icon_class = models.CharField(
+        verbose_name=_('LABEL_MENU_ICON_CLASS'),
         max_length=32,
         default="globe",
         help_text=_('SERVICE_MENU_ICON_HELPTEXT')
     )
     enabled = models.BooleanField(
+        verbose_name=_('LABEL_ENABLED'),
         default=True,
         help_text=_('SERVICE_ENABLED_HELPTEXT')
     )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_LINK_SERVICE')
+        verbose_name_plural = _('MODEL_NAME_LINK_SERVICE_PLURAL')
         ordering = ["menu_label"]
 
     def __str__(self):
@@ -111,18 +119,25 @@ class LTIService(LinkService):
         ('PUBLIC_API_YES', 10, _('LTI_SERVICE_PUBLIC_YES_API')),
     ])
     access_settings = models.IntegerField(
+        verbose_name=_('LABEL_ACCESS_SETTINGS'),
         choices=LTI_ACCESS.choices,
         default=LTI_ACCESS.ANON_API_NO,
         help_text=_('LTI_SERVICE_ACCESS_SETTINGS_HELPTEXT')
     )
     consumer_key = models.CharField(
+        verbose_name=_('LABEL_CONSUMER_KEY'),
         max_length=128,
         help_text=_('LTI_SERVICE_CONSUMER_KEY_HELPTEXT')
     )
     consumer_secret = models.CharField(
+        verbose_name=_('LABEL_CONSUMER_SECRET'),
         max_length=128,
         help_text=_('LTI_SERVICE_CONSUMER_SECRET_HELPTEXT')
     )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_LTI_SERVICE')
+        verbose_name_plural = _('MODEL_NAME_LTI_SERVICE_PLURAL')
 
     def __str__(self):
         out = "(LTI) {}: {}".format(self.menu_label, self.url)
@@ -168,53 +183,66 @@ class MenuItem(UrlMixin, models.Model):
     ])
     course_instance = models.ForeignKey(
         CourseInstance,
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
         on_delete=models.CASCADE,
         related_name="ext_services",
         help_text=_('MENU_ITEM_COURSE_INSTANCE_HELPTEXT')
     )
     access = models.IntegerField(
+        verbose_name=_('LABEL_ACCESS'),
         choices=ACCESS.choices,
         default=ACCESS.STUDENT,
     )
     service = models.ForeignKey(
         LinkService,
+        verbose_name=_('LABEL_SERVICE'),
         on_delete=models.CASCADE,
         blank=True,
         null=True,
         help_text=_('MENU_ITEM_SERVICE_HELPTEXT')
     )
     menu_url = models.CharField(
+        verbose_name=_('LABEL_MENU_URL'),
         max_length=256,
         blank=True,
         null=True,
+        help_text=_('MENU_ITEM_MENU_URL_HELPTEXT'""),
         validators=[validate_no_domain],
-        help_text=_('MENU_ITEM_MENU_URL_HELPTEXT'"")
     )
     menu_group_label = models.CharField(
+        verbose_name=_('LABEL_MENU_GROUP_LABEL'),
         max_length=255,
         blank=True,
         null=True,
-        help_text=_('MENU_ITEM_MENU_GROUP_LABEL_HELPTEXT')
+        help_text=_('MENU_ITEM_MENU_GROUP_LABEL_HELPTEXT'),
     )
     menu_label = models.CharField(
+        verbose_name=_('LABEL_MENU_LABEL'),
         max_length=255,
         blank=True,
         null=True,
-        help_text=_('MENU_ITEM_MENU_LINK_LABEL_HELPTEXT')
+        help_text=_('MENU_ITEM_MENU_LINK_LABEL_HELPTEXT'),
     )
     menu_icon_class = models.CharField(
+        verbose_name=_('LABEL_MENU_ICON_CLASS'),
         max_length=32,
         null=True,
         blank=True,
-        help_text=_('MENU_ITEM_MENU_ICON_CLASS_HELPTEXT')
+        help_text=_('MENU_ITEM_MENU_ICON_CLASS_HELPTEXT'),
     )
     menu_weight = models.IntegerField(
+        verbose_name=_('LABEL_MENU_WEIGHT'),
         default=0,
-        help_text=_('MENU_ITEM_MENU_WEIGHT_HELPTEXT')
+        help_text=_('MENU_ITEM_MENU_WEIGHT_HELPTEXT'),
     )
-    enabled = models.BooleanField(default=True)
+    enabled = models.BooleanField(
+        verbose_name=_('LABEL_ENABLED'),
+        default=True,
+    )
 
     class Meta:
+        verbose_name = _('MODEL_NAME_MENU_ITEM')
+        verbose_name_plural = _('MODEL_NAME_MENU_ITEM_PLURAL')
         ordering = ["course_instance", "menu_weight", "menu_label"]
 
     def __str__(self):

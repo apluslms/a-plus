@@ -88,7 +88,9 @@ class GroupSelectForm(forms.Form):
 class GroupEditForm(forms.ModelForm):
 
     members = UsersSearchSelectField(queryset=UserProfile.objects.none(),
-        initial_queryset=UserProfile.objects.none())
+        initial_queryset=UserProfile.objects.none(),
+        label=_('LABEL_MEMBERS'),
+    )
 
     def __init__(self, *args, **kwargs):
         course_instance = kwargs.get('instance').course_instance
@@ -111,7 +113,8 @@ class EnrollStudentsForm(forms.Form):
 
     user_profiles = UsersSearchSelectField(queryset=UserProfile.objects.all(),
         initial_queryset=UserProfile.objects.none(),
-        label=_('USERS'))
+        label=_('LABEL_USERS'),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
