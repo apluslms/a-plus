@@ -435,8 +435,11 @@ from r_django_essentials.conf import *
 update_settings_with_file(__name__,
                           environ.get('APLUS_LOCAL_SETTINGS', 'local_settings'),
                           quiet='APLUS_LOCAL_SETTINGS' in environ)
+
 update_settings_from_environment(__name__, 'DJANGO_') # FIXME: deprecated. was used with containers before, so keep it here for now.
-update_settings_from_environment(__name__, 'APLUS_')
+# Load settings from environment variables starting with ENV_SETTINGS_PREFIX (default APLUS_)
+ENV_SETTINGS_PREFIX = environ.get('ENV_SETTINGS_PREFIX', 'APLUS_')
+update_settings_from_environment(__name__, ENV_SETTINGS_PREFIX)
 update_secret_from_file(__name__, environ.get('APLUS_SECRET_KEY_FILE', 'secret_key'))
 
 # Complain if BASE_URL is not set
