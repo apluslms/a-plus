@@ -15,7 +15,12 @@
  #table-points-div {
 	max-height: calc(100vh - 12em);
 	max-width: 100vw;
+	margin-top: 6px;
 	overflow: scroll;
+}
+
+#table-points {
+	margin-top: 0 !important; /* To overwrite DataTable styling and improve scrolling; replaced with div margin */
 }
 
 #table-heading th {
@@ -25,7 +30,7 @@
 	background-color: white;
 	position: -webkit-sticky; /* Safari */
 	position: sticky;
-	top: 6px;
+	top: 0;
 	z-index: 2;
 }
 
