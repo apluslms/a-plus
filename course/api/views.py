@@ -147,12 +147,11 @@ class CourseStudentsViewSet(NestedViewSetMixin,
         returns the details of the current user.
 
     `DELETE /courses/<course_id>/students/<user_id>/`:
-        removes the enrollment.
+        removes the enrollment. Students cannot unenroll themselves.
 
     - URL parameters:
         - `status`: the new status for the enrollment. `REMOVED` and `BANNED`
-            are currently supported. Students can only remove (not ban)
-            themselves.
+            are currently supported.
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
@@ -171,6 +170,13 @@ class CourseStudentsViewSet(NestedViewSetMixin,
         return self.instance.students
 
     def destroy(self, request, *args, **kwargs):
+        if not self.is_course_staff:
+            return Response(
+                'Student self-unenrollment is not allowed. Contact course '
+                'staff if you wish to remove your enrollment.',
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         status_arg = self.request.GET.get('status')
         if status_arg not in Enrollment.ENROLLMENT_STATUS.keys():
             return Response(
@@ -184,11 +190,11 @@ class CourseStudentsViewSet(NestedViewSetMixin,
                 'Enrollments cannot be activated via this API',
                 status=status.HTTP_400_BAD_REQUEST
             )
-        if status_code != Enrollment.ENROLLMENT_STATUS.REMOVED and not self.is_course_staff:
-            return Response(
-                'Students can only unenroll themselves (status=REMOVED) via this API',
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # if status_code != Enrollment.ENROLLMENT_STATUS.REMOVED and not self.is_course_staff:
+        #     return Response(
+        #         'Students can only unenroll themselves (status=REMOVED) via this API',
+        #         status=status.HTTP_403_FORBIDDEN
+        #     )
 
         user = self.get_object().user
         enrollment = self.instance.get_enrollment_for(user)
