@@ -34,7 +34,7 @@
 #SHIBBOLETH_BODY_TEXT_FI = 'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuksella alla olevasta painikkeesta. FiTechin, avoimen yliopiston ja koulutusohjelmien opiskelijoiden sekä henkilökunnan täytyy kirjautua tästä.'
 #SHIBBOLETH_BUTTON_TEXT_FI = 'Kirjaudu Aalto-tunnuksella'
 #HAKA_TITLE_TEXT_FI = 'Haka-käyttäjät'
-#HAKA_BODY_TEXT_FI = 'Jos organisaatiosi on Haka-federaation jäsen, kirjaudu palveluun alla olevasta painikkeesta. FiTechin, avoimen yliopiston ja koulutusohjelmien opiskelijoiden sekä henkilökunnan täytyy kirjautua tästä.'
+#HAKA_BODY_TEXT_FI = 'Jos organisaatiosi on Haka-federaation jäsen, kirjaudu palveluun alla olevasta painikkeesta.'
 #HAKA_BUTTON_TEXT_FI = 'Kirjaudu Haka-tunnuksella'
 #MOOC_TITLE_TEXT_FI = 'Käyttäjät Aallon ulkopuolelta'
 #MOOC_BODY_TEXT_FI = 'Osa kursseistamme on avoinna kaikille. Kirjaudu sisään jonkin seuraavan palvelun käyttäjätunnuksellasi.'
