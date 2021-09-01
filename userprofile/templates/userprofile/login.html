@@ -162,11 +162,6 @@
 		</div>
 	</div>
 
-	{% url 'privacy_notice' as privacy_url %}
-	<p>
-		{% blocktranslate trimmed with url=privacy_url %}
-			READ_OUR_PRIVACY_NOTICE -- {{ url }}
-		{% endblocktranslate %}
-	</p>
+	<p>{{ user_data_info|safe }}</p>
 
 {% endblock %}

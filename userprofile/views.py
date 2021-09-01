@@ -9,7 +9,7 @@ from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.template.loader import TemplateDoesNotExist, get_template
-from django.urls import translate_url
+from django.urls import reverse, translate_url
 from django.utils.http import is_safe_url
 from django.utils.translation import (
     LANGUAGE_SESSION_KEY,
@@ -41,7 +41,6 @@ class CustomLoginView(LoginView):
         'shibboleth_login': 'shibboleth_login' in settings.INSTALLED_APPS,
         'haka_login': getattr(settings, 'HAKA_LOGIN', False),
         'mooc_login': 'social_django' in settings.INSTALLED_APPS,
-        'brand_name': settings_text('BRAND_NAME'),
     }
     if extra_context['haka_login'] and not extra_context['shibboleth_login']:
         logger.warning("Shibboleth login not enabled, but Haka login flag set as true.")
@@ -54,7 +53,9 @@ class CustomLoginView(LoginView):
         # that the language can be defined. There is no request in the code
         # in the class level, but there is a request when this method is called
         # (self.request).
+        brand_name = settings_text('BRAND_NAME')
         context.update({
+            'brand_name': brand_name,
             'shibboleth_title_text': settings_text('SHIBBOLETH_TITLE_TEXT'),
             'shibboleth_body_text': settings_text('SHIBBOLETH_BODY_TEXT'),
             'shibboleth_button_text': settings_text('SHIBBOLETH_BUTTON_TEXT'),
@@ -63,6 +64,10 @@ class CustomLoginView(LoginView):
             'haka_button_text': settings_text('HAKA_BUTTON_TEXT'),
             'mooc_title_text': settings_text('MOOC_TITLE_TEXT'),
             'mooc_body_text': settings_text('MOOC_BODY_TEXT'),
+            'user_data_info': settings_text('LOGIN_USER_DATA_INFO').format(
+                brand_name=brand_name,
+                privacy_url=reverse('privacy_notice'),
+            ),
         })
         return context
 

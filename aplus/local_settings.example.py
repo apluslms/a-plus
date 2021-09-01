@@ -28,6 +28,7 @@
 #MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Log in with your user account from one of the following services.'
 #INTERNAL_USER_LABEL = 'Aalto'
 #EXTERNAL_USER_LABEL = 'MOOC'
+#LOGIN_USER_DATA_INFO = 'Your personal data are stored in {brand_name}. For additional information, please see <a href="{privacy_url}">the privacy notice</a>.'
 
 #WELCOME_TEXT_FI = 'A+ <small>verkkopohjainen oppimisympäristö</small>'
 #SHIBBOLETH_TITLE_TEXT_FI = 'Aalto-yliopiston käyttäjät'
@@ -38,6 +39,7 @@
 #HAKA_BUTTON_TEXT_FI = 'Kirjaudu Haka-tunnuksella'
 #MOOC_TITLE_TEXT_FI = 'Käyttäjät Aallon ulkopuolelta'
 #MOOC_BODY_TEXT_FI = 'Osa kursseistamme on avoinna kaikille. Kirjaudu sisään jonkin seuraavan palvelun käyttäjätunnuksellasi.'
+#LOGIN_USER_DATA_INFO_FI = 'Henkilötietosi säilytetään {brand_name}-järjestelmässä. Katso lisätietoja <a href="{privacy_url}">tietosuojailmoituksesta</a>.'
 
 # Show red alert on top of all pages
 #SITEWIDE_ALERT_TEXT = "Maintenance on Monday"
