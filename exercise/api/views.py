@@ -379,7 +379,9 @@ class ExerciseSubmitterStatsViewSet(ListSerializerMixin,
     serializer_class = SubmitterStatsSerializer
 
     def get_queryset(self):
-        return self.instance.students
+        if self.action == 'list':
+            return self.instance.students
+        return self.instance.course_staff_and_students
 
 
 class SubmissionViewSet(mixins.RetrieveModelMixin,
@@ -515,4 +517,6 @@ class CoursePointsViewSet(ListSerializerMixin,
     serializer_class = UserPointsSerializer
 
     def get_queryset(self):
-        return self.instance.students
+        if self.action == 'list':
+            return self.instance.students
+        return self.instance.course_staff_and_students

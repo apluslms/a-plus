@@ -696,6 +696,13 @@ class CourseInstance(UrlMixin, models.Model):
             enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
             enrollment__course_instance=self)
 
+    @property
+    def course_staff_and_students(self):
+        return UserProfile.objects.filter(
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__course_instance=self
+        )
+
     def save(self, *args, **kwargs):
         """
         Saves the model.

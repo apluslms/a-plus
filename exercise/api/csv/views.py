@@ -67,7 +67,9 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
 
     def get_queryset(self):
-        return self.instance.students
+        if self.action == 'list':
+            return self.instance.students
+        return self.instance.course_staff_and_students
 
     def get_search_args(self, request):
         return {
@@ -169,7 +171,9 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
 
     def get_queryset(self):
-        return self.instance.students
+        if self.action == 'list':
+            return self.instance.students
+        return self.instance.course_staff_and_students
 
     def get_search_args(self, request):
         return {
@@ -238,7 +242,9 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
 
     def get_queryset(self):
-        return self.instance.students
+        if self.action == 'list':
+            return self.instance.students
+        return self.instance.course_staff_and_students
 
     def get_search_args(self, request):
         return {
