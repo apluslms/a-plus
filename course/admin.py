@@ -55,10 +55,6 @@ class CourseInstanceAdmin(admin.ModelAdmin):
         'instance_name',
         'course__name',
         'course__code',
-        'teachers__user__username',
-        'teachers__user__first_name',
-        'teachers__user__last_name',
-        'teachers__user__email',
     )
     list_display_links = ('instance_name',)
     list_display = (
