@@ -449,6 +449,10 @@ class CourseInstanceManager(models.Manager):
             enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
             enrollment__user_profile=user)
 
+    def get_active(self, user):
+        return self.filter(
+            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            enrollment__user_profile=user)
 
 def build_upload_dir(instance, filename):
     """
