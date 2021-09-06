@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-06 11:46+0300\n"
+"POT-Creation-Date: 2021-09-06 15:23+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -790,10 +790,11 @@ msgid "ENROLLMENTS_FAILED_WARNING_USERS_ALREADY_ENROLLED -- {users}"
 msgstr "The following users were already enrolled: {users}"
 
 #: course/staff_views.py
+#, python-brace-format
 msgid "ENROLLMENTS_FAILED_WARNING_COURSE_STAFF -- {users}"
 msgstr ""
-"The following users are course staff and cannot be enrolled as "
-"students: {users}"
+"The following users are course staff and cannot be enrolled as students: "
+"{users}"
 
 #: course/templates/course/_course_cards.html
 msgid "HIDDEN_FROM_STUDENTS"
