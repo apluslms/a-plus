@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-31 16:43+0300\n"
+"POT-Creation-Date: 2021-09-06 11:46+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -792,6 +792,12 @@ msgstr "Muutosten tallentaminen epäonnistui."
 #, python-brace-format
 msgid "ENROLLMENTS_FAILED_WARNING_USERS_ALREADY_ENROLLED -- {users}"
 msgstr "Seuraavat käyttäjät olivat jo ilmoittautuneet: {users}"
+
+#: course/staff_views.py
+msgid "ENROLLMENTS_FAILED_WARNING_COURSE_STAFF -- {users}"
+msgstr ""
+"Seuraavat käyttäjät ovat kurssin henkilökuntaa, eivätkä voi ilmoittautua "
+"opiskelijoiksi: {users}"
 
 #: course/templates/course/_course_cards.html
 msgid "HIDDEN_FROM_STUDENTS"

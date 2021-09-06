@@ -146,18 +146,32 @@ class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
     template_name = "course/staff/enroll_students.html"
 
     def form_valid(self, form):
-        failed_enrollments = []
+        failed_already_enrolled = []
+        failed_course_staff = []
         for profile in form.cleaned_data["user_profiles"]:
+            if self.instance.is_course_staff(profile.user):
+                # Course staff cannot be demoted into students by enrolling
+                # them via this view.
+                failed_course_staff.append(profile)
+                continue
             if not self.instance.enroll_student(profile.user):
                 # If the selected student was already enrolled,
                 # we can show a warning here.
-                failed_enrollments.append(profile)
-        if failed_enrollments:
+                failed_already_enrolled.append(profile)
+        if failed_already_enrolled:
             messages.warning(
                 self.request,
                 format_lazy(
                     _('ENROLLMENTS_FAILED_WARNING_USERS_ALREADY_ENROLLED -- {users}'),
-                    users='; '.join([profile.name_with_student_id for profile in failed_enrollments]),
+                    users='; '.join([profile.name_with_student_id for profile in failed_already_enrolled]),
+                ),
+            )
+        if failed_course_staff:
+            messages.warning(
+                self.request,
+                format_lazy(
+                    _('ENROLLMENTS_FAILED_WARNING_COURSE_STAFF -- {users}'),
+                    users='; '.join([profile.user.get_full_name() for profile in failed_course_staff]),
                 ),
             )
         return super().form_valid(form)
