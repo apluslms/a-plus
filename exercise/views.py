@@ -166,10 +166,14 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     messages.error(request, error)
 
                 # Enroll after succesfull enrollment exercise.
-                if self.exercise.status in (
-                    LearningObject.STATUS.ENROLLMENT,
-                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
-                ) and new_submission.status == Submission.STATUS.READY:
+                if (
+                    self.exercise.status in (
+                        LearningObject.STATUS.ENROLLMENT,
+                        LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                    )
+                    and new_submission.status == Submission.STATUS.READY
+                    and not self.is_course_staff
+                ):
                     self.instance.enroll_student(self.request.user)
                     message = render_to_string(
                         'exercise/_enrollment_success.html',
