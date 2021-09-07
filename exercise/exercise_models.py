@@ -16,7 +16,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import get_language, gettext_lazy as _
 
 from aplus.api import api_reverse
-from course.models import StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
+from course.models import Enrollment, StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService
 from inheritance.models import ModelWithInheritance
@@ -699,7 +699,7 @@ class BaseExercise(LearningObject):
                 return (self.SUBMIT_STATUS.CANNOT_ENROLL,
                         [_('CANNOT_ENROLL_IN_COURSE')],
                         students)
-        elif not enrollment:
+        elif not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
             if self.course_instance.is_course_staff(profile.user):
                 return (self.SUBMIT_STATUS.ALLOWED,
                         [_('STAFF_CAN_SUBMIT_WITHOUT_ENROLLING')],
