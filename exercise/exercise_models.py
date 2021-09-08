@@ -638,6 +638,10 @@ class BaseExercise(LearningObject):
         return self.max_submissions
 
     def one_has_submissions(self, students):
+        if len(students) == 1 and self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
+            enrollment = self.course_instance.get_enrollment_for(students[0].user)
+            if not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
+                return True, []
         if self.max_submissions == 0:
             return True, []
         submission_count = 0
@@ -658,6 +662,10 @@ class BaseExercise(LearningObject):
         return False, [_('EXERCISE_MAX_SUBMISSIONS_USED')]
 
     def no_submissions_left(self, students):
+        if len(students) == 1 and self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
+            enrollment = self.course_instance.get_enrollment_for(students[0].user)
+            if not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
+                return False
         if self.max_submissions == 0:
             return False
         for profile in students:
@@ -732,7 +740,7 @@ class BaseExercise(LearningObject):
                         return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
             except ValueError:
                 pass
-        elif enrollment and enrollment.selected_group:
+        elif enrollment and enrollment.status == Enrollment.ENROLLMENT_STATUS.ACTIVE and enrollment.selected_group:
             group = enrollment.selected_group
 
         if self.max_group_size > 1:
