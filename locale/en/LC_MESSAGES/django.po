@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 15:31+0300\n"
+"POT-Creation-Date: 2021-09-07 17:30+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1028,23 +1028,6 @@ msgstr "You cannot re-enrol in the course because enrolment is not open."
 msgid "PROCEED_CONFIRMATION"
 msgstr "Are you sure you want to proceed?"
 
-#: course/templates/course/course_base.html
-#: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Cancel"
-
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "COURSE_INSTANCES"
@@ -1142,6 +1125,23 @@ msgstr ""
 "Remove tagging <span id=\"tag-remove-modal-tagging\"></span> \n"
 "from <span id=\"tag-remove-modal-amount\"></span> users: <ul id=\"tag-remove-"
 "modal-users\"></ul> "
+
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/assess_submission.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Cancel"
 
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
@@ -1296,6 +1296,27 @@ msgstr "Status"
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "TAGS"
 msgstr "Tags"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
+msgstr "Remove student"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_BAN_TITLE"
+msgstr "Ban student"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_DESCRIPTION"
+msgstr ""
+"<p>Are you sure you want to remove this user from the course?</p><p>Removed "
+"users can re-enrol in the course, as long as the course enrolment is open."
+"</p>"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_BAN_DESCRIPTION"
+msgstr ""
+"<p>Are you sure you want to ban this user from the course?</p><p>Banned "
+"users cannot re-enrol in the course.</p>"
 
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"

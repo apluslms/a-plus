@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-06 15:23+0300\n"
+"POT-Creation-Date: 2021-09-07 17:30+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1032,23 +1032,6 @@ msgstr "Et voi ilmoittautua uudelleen, koska ilmoittautuminen ei ole avoinna."
 msgid "PROCEED_CONFIRMATION"
 msgstr "Haluatko varmasti jatkaa?"
 
-#: course/templates/course/course_base.html
-#: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Peruuta"
-
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "COURSE_INSTANCES"
@@ -1147,6 +1130,23 @@ msgstr ""
 "Poistetaan merkintä <span id=\"tag-remove-modal-tagging\"></span>\n"
 "<span id=\"tag-remove-modal-amount\"></span> käyttäjältä: <ul id=\"tag-"
 "remove-modal-users\"></ul> "
+
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/assess_submission.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Peruuta"
 
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
@@ -1301,6 +1301,27 @@ msgstr "Tila"
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "TAGS"
 msgstr "Merkinnät"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
+msgstr "Poista opiskelija"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_BAN_TITLE"
+msgstr "Estä opiskelija"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_DESCRIPTION"
+msgstr ""
+"<p>Haluatko varmasti poistaa tämän käyttäjän kurssilta?</p><p>Poistetut "
+"käyttäjät pystyvät ilmoittautumaan kurssille uudelleen ilmoittautumisen "
+"ollessa auki.</p>"
+
+#: course/templates/course/staff/participants.html
+msgid "ENROLLMENT_REMOVE_MODAL_BAN_DESCRIPTION"
+msgstr ""
+"<p>Haluatko varmasti estää tämän käyttäjän pääsyn kurssille?</p><p>Estetyt "
+"käyttäjät eivät pysty ilmoittautumaan kurssille uudelleen.</p>"
 
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"

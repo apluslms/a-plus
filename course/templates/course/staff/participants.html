@@ -73,6 +73,64 @@
     </table>
 
 </div>
+
+<div
+	class="modal"
+	id="enrollment-remove-modal"
+	tabindex="-1"
+	role="dialog"
+	aria-labelledby="enrollment-remove-modal-label"
+>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button
+					type="button"
+					class="close"
+					data-dismiss="modal"
+					aria-label="close"
+				>
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="enrollment-remove-modal-label">
+					<span id="enrollment-remove-modal-remove-title">
+						{% translate "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE" %}
+					</span>
+					<span id="enrollment-remove-modal-ban-title">
+						{% translate "ENROLLMENT_REMOVE_MODAL_BAN_TITLE" %}
+					</span>
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div id="enrollment-remove-modal-remove-description">
+					{% translate "ENROLLMENT_REMOVE_MODAL_REMOVE_DESCRIPTION" %}
+				</div>
+				<div id="enrollment-remove-modal-ban-description">
+					{% translate "ENROLLMENT_REMOVE_MODAL_BAN_DESCRIPTION" %}
+				</div>
+				<div>
+					<strong id="enrollment-remove-modal-user"></strong>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button
+					type="button"
+					class="aplus-button--secondary aplus-button--md"
+					data-dismiss="modal"
+				>
+					{% translate "CANCEL" %}
+				</button>
+				<button
+					type="button"
+					class="aplus-button--danger aplus-button--md"
+					data-dismiss="modal"
+					id="enrollment-remove-modal-button"
+				>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
 {% include 'course/staff/_tag_remove_modal.html' %}
 {% endblock %}
 

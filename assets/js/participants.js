@@ -52,17 +52,32 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     });
   };
 
-  var remove_participant = function (participant, row, status) {
-    $.ajax({
-      type: 'DELETE',
-      url: api_url + 'students/' + participant.user_id + '/?status=' + status,
-    }).done(function () {
-      participant.enrollment_status = status;
-      row.find('.status-container a').text(enrollment_statuses[status]);
-      row.find('.actions-container').empty();
-      refresh_filters();
-      refresh_numbers();
-    });
+  var confirm_remove_participant = function (participant, row, status, label) {
+    var remove_participant = function () {
+      $.ajax({
+        type: 'DELETE',
+        url: api_url + 'students/' + participant.user_id + '/?status=' + status,
+      }).done(function () {
+        participant.enrollment_status = status;
+        row.find('.status-container a').text(enrollment_statuses[status]);
+        row.find('.actions-container').empty();
+        refresh_filters();
+        refresh_numbers();
+      });
+    };
+
+    $('#enrollment-remove-modal-remove-title').toggle(status === 'REMOVED');
+    $('#enrollment-remove-modal-ban-title').toggle(status === 'BANNED');
+    $('#enrollment-remove-modal-remove-description').toggle(status === 'REMOVED');
+    $('#enrollment-remove-modal-ban-description').toggle(status === 'BANNED');
+    $('#enrollment-remove-modal-user').text(
+      participant.first_name + ' ' + participant.last_name + ' (' + (participant.id || participant.username) + ')'
+    );
+    $('#enrollment-remove-modal-button')
+      .text(label)
+      .off('click')
+      .on('click', remove_participant);
+    $('#enrollment-remove-modal').modal();
   };
 
   var get_row_action = function (label, icon, action) {
@@ -155,11 +170,11 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       deferredRowActions.push(function() {
         actionsColumn.append(
           get_row_action(_('Remove'), 'remove', function () {
-            remove_participant(participant, row, 'REMOVED');
+            confirm_remove_participant(participant, row, 'REMOVED', _('Remove'));
           })
         ).append(' ').append(
           get_row_action(_('Ban'), 'minus-sign', function () {
-            remove_participant(participant, row, 'BANNED');
+            confirm_remove_participant(participant, row, 'BANNED', _('Ban'));
           })
         );
       });
