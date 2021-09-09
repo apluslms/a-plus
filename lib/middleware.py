@@ -24,6 +24,7 @@ class LocaleMiddleware(MiddlewareMixin):
             language = request.user.userprofile.language
         else:
             language = translation.get_language_from_request(request)
+        language = language[:2]
         translation.activate(language)
         request.LANGUAGE_CODE = translation.get_language()
 

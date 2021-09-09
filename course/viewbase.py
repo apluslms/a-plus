@@ -109,6 +109,7 @@ class CourseInstanceBaseMixin(object):
                     else:
                         language = instance_def_language
 
+                language = language[:2]
                 # Override request.LANGUAGE_CODE. It is set in lib/middleware.py
                 # (class LocaleMiddleware) based on the userprofile.language.
                 # The middleware can not easily access the course context and
