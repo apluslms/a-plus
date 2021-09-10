@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from rest_framework import serializers, exceptions
 
 from lib.api.fields import NestedHyperlinkedIdentityField
@@ -5,8 +6,10 @@ from lib.api.serializers import AplusModelSerializer, NestedHyperlinkedIdentityF
 from exercise.api.full_serializers import TreeExerciseSerializer
 from exercise.api.serializers import ExerciseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
+from django.contrib.auth.models import User
 from ..models import (
     CourseInstance,
+    Course,
     CourseModule,
     UserTag,
     UserTagging,
@@ -19,6 +22,7 @@ from .serializers import *
 __all__ = [
     'CourseModuleSerializer',
     'CourseSerializer',
+    'CourseWriteSerializer',
     'CourseStudentGroupSerializer',
     'CourseUsertagSerializer',
     'CourseUsertaggingsSerializer',
@@ -104,6 +108,101 @@ class CourseSerializer(CourseBriefSerializer):
             'news',
         )
 
+
+class CourseWriteSerializer(AplusModelSerializer):
+    """
+    Serializer for creating and modifying course models using POST and PUT.
+    """
+    code = serializers.CharField()
+    name = serializers.CharField()
+    course_url = serializers.CharField()
+    teachers = serializers.ListSerializer(child=serializers.CharField())
+
+    class Meta(AplusModelSerializer.Meta):
+        model = CourseInstance
+        fields = (
+            'code',
+            'name',
+            'course_url',
+            'url',
+            'instance_name',
+            'language',
+            'starting_time',
+            'ending_time',
+            'visible_to_students',
+            'configure_url',
+            'teachers',
+        )
+
+    def set_teachers(self, course: CourseInstance, teachers: list) -> None:
+        users = []
+        for i in teachers:
+            userprofile: UserProfile = None
+            try:
+                user = User.objects.get(username=i)
+            except User.DoesNotExist:
+                # If user does not exist, create a new user.
+                # If external authentication (e.g. Shibboleth) is used, other
+                # attributes will be updated when user logs in for the first time.
+                user = User.objects.create_user(i)
+
+            userprofile = user.userprofile
+            users.append(userprofile)
+
+        course.set_teachers(users)
+
+    def validate(self, data: OrderedDict) -> OrderedDict:
+        # Take out fields that cannot be handled by standard serializer logic
+        self.code = data.pop('code')
+        self.name = data.pop('name')
+        self.course_url = data.pop('course_url')
+        self.teachers = data.pop('teachers')
+        data = super().validate(data)
+        return data
+
+    def create(self, validated_data: OrderedDict) -> CourseInstance:
+        course = Course.objects.filter(code=self.code).first()
+        if not course:
+            try:
+                course = Course.objects.create(
+                    code=self.code,
+                    name=self.name,
+                    url=self.course_url
+                )
+            except Exception as e:
+                raise serializers.ValidationError(f"Course creation failed: {e}.")
+
+        try:
+            instance = CourseInstance.objects.create(**validated_data, course=course)
+            self.set_teachers(instance, self.teachers)
+            return instance
+
+        except Exception as e:
+            raise serializers.ValidationError(f"Course instance creation failed: {e}.")
+
+    def update(self, instance: CourseInstance, validated_data: OrderedDict) -> CourseInstance:
+        instance.url = validated_data.get('url', instance.url)
+        instance.instance_name = validated_data.get('instance_name', instance.instance_name)
+        instance.language = validated_data.get('language', instance.language)
+        instance.starting_time = validated_data.get('starting_time', instance.starting_time)
+        instance.ending_time = validated_data.get('ending_time', instance.ending_time)
+        instance.visible_to_students = validated_data.get('visible_to_students', instance.visible_to_students)
+        instance.configure_url = validated_data.get('configure_url', instance.configure_url)
+        instance.save()
+        self.set_teachers(instance, self.teachers)
+        return instance
+
+    def to_representation(self, instance: CourseInstance) -> OrderedDict:
+        # Used for producing response to POST or PUT request.
+        # Need to temporarily remove fields not present in CourseInstance,
+        # otherwise the superclass to_representation call starts nagging
+        for i in ['code', 'name', 'course_url']:
+            self.fields.pop(i)
+        resp = super(CourseWriteSerializer, self).to_representation(instance)
+        resp['code'] = instance.course.code
+        resp['name'] = instance.course.name
+        resp['course_url'] = instance.course.url
+        return resp
 
 class CourseUsertagSerializer(CourseUsertagBriefSerializer):
     """
