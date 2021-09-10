@@ -4,12 +4,12 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
 from rest_framework_extensions.mixins import NestedViewSetMixin
+from rest_framework.permissions import IsAdminUser
 from django.db.models import Q
 
 from lib.viewbase import BaseMixin
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
-from userprofile.models import UserProfile
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 from news.models import News
 
@@ -38,7 +38,7 @@ from .full_serializers import *
 
 class CourseViewSet(ListSerializerMixin,
                     CourseResourceMixin,
-                    viewsets.ReadOnlyModelViewSet):
+                    viewsets.ModelViewSet):
     """
     The `courses` endpoint returns information about all course instances.
 
@@ -50,6 +50,32 @@ class CourseViewSet(ListSerializerMixin,
 
     `GET /courses/<course_id>/`:
         returns the details of a specific course.
+
+    `POST /courses/`:
+        creates a new course instance. Requires admin privileges. Following attributes can be given:
+
+    * `name`: Name of the course.
+    * `code`: Course code. If a course with this code does not exist, it will be created.
+    * `course_url`: URL slug for the course
+    * `instance_name`
+    * `url`: course instance URL. If this is not given, the URL will be generated from instance_name.
+    * `language`
+    * `starting_time`
+    * `ending_time`
+    * `visible_to_students`
+    * `configure_url`: the configuration URL for MOOC grader.
+    * `teachers`: list of teacher usernames on the course.
+      If given user does not exist, the user will be created.
+      Only the username of created user is set.
+      If user logs in using external authentication service such as Haka,
+      the other user attributes will be updated on first login.
+
+    `PUT /courses/<course_id>/`:
+        modifies the attributes of a specific course. Attributes that are modified:
+        `instance_name`, `url`, `language`, `starting_time`, `ending_time`,
+        `visible_to_students`, `configure_url`, `teachers`.
+        Only the course instance data can be modified. Course code, name, or URL
+        cannot be modified using this API. Requires admin privileges.
     """
     lookup_url_kwarg = 'course_id'
     lookup_value_regex = REGEX_INT
@@ -63,6 +89,19 @@ class CourseViewSet(ListSerializerMixin,
 
     def get_object(self):
         return self.get_member_object('instance', 'Course')
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            self.permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES
+        else:
+            self.permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [IsAdminUser]
+        return super().get_permissions()
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method =='PUT':
+            return CourseWriteSerializer
+        else:
+            return super().get_serializer_class()
 
 
 class CourseExercisesViewSet(NestedViewSetMixin,
