@@ -86,7 +86,9 @@
 			<div lang={{user_language}}>
 				<div class="alert alert-default">
 					<img class="language-icon" src="/static/images/uls.svg" alt="">
-					{% translate "LANGUAGE_WARNING_BROWSING_IN_DIFFERENT_LANGUAGE_THAN_IN_PREFERENCES" %}
+					{% blocktranslate trimmed with display_lang=query_language|language_name_translated pref_lang=user_language|language_name_translated %}
+						LANGUAGE_WARNING_BROWSING_IN_DIFFERENT_LANGUAGE_THAN_IN_PREFERENCES -- {{ display_lang }}, {{ pref_lang }}
+					{% endblocktranslate %}
 					{% if user_course_data %}
 						<div class="button-container">
 							<form action="{{ url_without_language }}">

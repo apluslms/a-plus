@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 17:30+0300\n"
+"POT-Creation-Date: 2021-09-13 16:29+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -993,10 +993,13 @@ msgid "LATEST_COURSE_INSTANCE_CAN_BE_FOUND"
 msgstr "The latest instance of the course can be found at:"
 
 #: course/templates/course/course_base.html
-msgid "LANGUAGE_WARNING_BROWSING_IN_DIFFERENT_LANGUAGE_THAN_IN_PREFERENCES"
+#, python-format
+msgid ""
+"LANGUAGE_WARNING_BROWSING_IN_DIFFERENT_LANGUAGE_THAN_IN_PREFERENCES -- "
+"%(display_lang)s, %(pref_lang)s"
 msgstr ""
-"You are browsing this course in a different language than is set in your "
-"account preferences."
+"You are browsing this course in a different language (%(display_lang)s) than "
+"is set in your account preferences (%(pref_lang)s)."
 
 #: course/templates/course/course_base.html
 #, python-format
