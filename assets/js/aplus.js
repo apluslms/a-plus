@@ -708,8 +708,16 @@ $(function() {
  * in the response.
  */
 (function (window) {
-  $(document).on("click", "a[href]", function (event) {
+  $(document).on("click mousedown contextmenu", "a[href]", function (event) {
     if (
+      // The click event is only triggered for the primary mouse button
+      // (usually left). The mousedown event is needed for the middle mouse
+      // button (which == 2), which usually opens the link in a new tab.
+      // The contextmenu event is triggered when the context menu is opened
+      // (mouse right click or context menu key on the keyboard).
+      // The link may be opened from the context menu too, thus the hl parameter
+      // should be copied.
+      (event.type != "mousedown" || event.which == 2) &&
       event.target.className != "dropdown-toggle" &&
       event.target.protocol === window.location.protocol &&
       event.target.host === window.location.host // hostname:port
