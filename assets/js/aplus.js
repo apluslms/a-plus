@@ -707,7 +707,7 @@ $(function() {
  * Note! The hl parameter is used to force translations to a certain language
  * in the response.
  */
-(function (window) {
+(function (window, document) {
   $(document).on("click mousedown contextmenu", "a[href]", function (event) {
     if (
       // The click event is only triggered for the primary mouse button
@@ -718,12 +718,12 @@ $(function() {
       // The link may be opened from the context menu too, thus the hl parameter
       // should be copied.
       (event.type != "mousedown" || event.which == 2) &&
-      event.target.className != "dropdown-toggle" &&
-      event.target.protocol === window.location.protocol &&
-      event.target.host === window.location.host // hostname:port
+      $(this).attr("data-toggle") != "dropdown" &&
+      this.protocol === window.location.protocol &&
+      this.host === window.location.host // hostname:port
     ) {
-      event.target.search = copyWindowHlParamToQuery(event.target.search, false);
+      this.search = copyWindowHlParamToQuery(this.search, false);
     }
   });
 
-})(window);
+})(window, document);
