@@ -702,19 +702,19 @@ $(function() {
 })(jQuery, window, document);
 
 /*
- * Listen to link click events and copy query parameters from current url
- * to the next
- * Note! Translation requires that at least 'hl' query parameter is copied
+ * Listen to link click events and copy the hl query parameter from
+ * the current url to the next.
+ * Note! The hl parameter is used to force translations to a certain language
+ * in the response.
  */
 (function (window) {
   $(document).on("click", "a[href]", function (event) {
     if (
       event.target.className != "dropdown-toggle" &&
       event.target.protocol === window.location.protocol &&
-      event.target.host === window.location.host && // hostname:port
-      (event.target.search === "" || event.target.search === "?") // no search
+      event.target.host === window.location.host // hostname:port
     ) {
-      event.target.search = window.location.search; // copy query params
+      event.target.search = copyWindowHlParamToQuery(event.target.search, false);
     }
   });
 
