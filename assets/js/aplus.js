@@ -19,6 +19,37 @@
 })(window, document);
 
 
+/**
+ * Copy the hl (language) query parameter from the window location to the given
+ * query string (type string, e.g., "?foo=bar").
+ * If override is true, override a potentially existing hl parameter
+ * in the query.
+ */
+function copyWindowHlParamToQuery(query, override) {
+	const windowParams = new URLSearchParams(window.location.search);
+	const queryParams = new URLSearchParams(query);
+	const windowhl = windowParams.get('hl');
+	if (windowhl !== null && (override || !queryParams.has('hl'))) {
+		queryParams.set('hl', windowhl);
+		return queryParams.toString(); // This does not include the question mark '?'.
+	}
+	return query;
+}
+
+/**
+ * Copy the hl (language) query parameter from the window location to the given
+ * URL (type string).
+ * If override is true, override a potentially existing hl parameter
+ * in the query.
+ */
+function copyWindowHlParamToUrl(url, override) {
+	const urlObj = new URL(url, window.location);
+	urlObj.search = copyWindowHlParamToQuery(urlObj.search, override);
+	// As an unintended side effect, this converts any relative URL to absolute.
+	return urlObj.href;
+}
+
+
 $(function() {
     "use strict";
 
@@ -600,8 +631,13 @@ $(function() {
 })(jQuery);
 
 /**
+ * Common setup for AJAX requests.
+ *
  * Add CSRF token on AJAX requests, copied from
  * https://docs.djangoproject.com/en/2.0/ref/csrf/#ajax
+ *
+ * Copy the language hl query parameter from the window location so that
+ * the server responds to AJAX requests in the same language.
  */
 (function($, document) {
     "use strict";
@@ -626,10 +662,15 @@ $(function() {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
+
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+
+            if (!this.crossDomain) {
+                this.url = copyWindowHlParamToUrl(this.url, false);
             }
         }
     });
