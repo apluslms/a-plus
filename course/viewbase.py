@@ -29,7 +29,7 @@ class CourseMixin(UserProfileMixin):
             Course,
             url=self._get_kwarg(self.course_kw)
         )
-        self.note("course", "is_teacher")
+        self.note("course")
 
 
 class CourseBaseView(CourseMixin, BaseTemplateView):
