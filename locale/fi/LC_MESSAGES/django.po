@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-13 16:29+0300\n"
+"POT-Creation-Date: 2021-09-14 16:14+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -2843,9 +2843,17 @@ msgid "ERROR_FAILED_TO_LOAD_RESOURCE"
 msgstr "Lataus epäonnistui."
 
 #: exercise/staff_views.py
+msgid "USER_NOT_ENROLLED"
+msgstr "Tämä henkilö ei ole ilmoittautunut kurssille."
+
+#: exercise/staff_views.py
 #, python-brace-format
 msgid "NO_LONGER_PARTICIPATING_IN_COURSE -- {status}"
 msgstr "Tämä opiskelija ei enää osallistu kurssille (tila: {status})."
+
+#: exercise/staff_views.py
+msgid "USER_IS_COURSE_STAFF"
+msgstr "Tämä henkilö kuuluu kurssin henkilökuntaan."
 
 #: exercise/staff_views.py
 #, python-brace-format

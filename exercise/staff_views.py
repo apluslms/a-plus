@@ -230,7 +230,9 @@ class UserResultsView(CourseInstanceBaseView):
     def get_common_objects(self):
         profile = self.student.userprofile
         enrollment = self.instance.get_enrollment_for(profile.user)
-        if enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
+        if not enrollment:
+            messages.warning(self.request, _("USER_NOT_ENROLLED"))
+        elif enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
             status_string = Enrollment.ENROLLMENT_STATUS[enrollment.status]
             messages.warning(
                 self.request,
@@ -238,7 +240,10 @@ class UserResultsView(CourseInstanceBaseView):
                     _("NO_LONGER_PARTICIPATING_IN_COURSE -- {status}"),
                     status=status_string
                 ),
-            ),
+            )
+        elif enrollment.role in (Enrollment.ENROLLMENT_ROLE.TEACHER, Enrollment.ENROLLMENT_ROLE.ASSISTANT):
+            messages.warning(self.request, _("USER_IS_COURSE_STAFF"))
+
         exercise = LearningObject.objects.find_enrollment_exercise(
             self.instance,
             profile
