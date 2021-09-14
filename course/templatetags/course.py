@@ -135,3 +135,9 @@ def enrollment_audience(enrollment_audience_val):
 def view_content_to(view_content_to_val):
     # convert "view content to" Enum value to the string description
     return CourseInstance.VIEW_ACCESS[view_content_to_val]
+
+
+@register.filter
+def is_banned_student(profile, course_instance):
+    return course_instance.is_banned(profile.user)
+

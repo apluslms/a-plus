@@ -31,7 +31,7 @@
 			{% endblocktranslate %}
 		{% endif %}
 	{% elif profile %}
-		{% if instance.view_content_to < 3 %}
+		{% if instance.view_content_to < 2 or instance.view_content_to == 2 and not profile|is_banned_student:instance %}
 			{% translate "ENROLLMENT_AND_CONTENT_EXPLORATION_NOT_ALLOWED" %}
 		{% else %}
 			{% translate "ENROLLMENT_NOT_ALLOWED_BUT_CAN_EXPLORE_CONTENT" %}

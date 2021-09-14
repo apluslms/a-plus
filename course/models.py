@@ -744,6 +744,17 @@ class CourseInstance(UrlMixin, models.Model):
             self.students.filter(id=user.userprofile.id).exists()
         )
 
+    def is_banned(self, user):
+        return (
+            user and
+            user.is_authenticated and
+            isinstance(user, User) and
+            self.all_students.filter(
+                enrollment__status=Enrollment.ENROLLMENT_STATUS.BANNED,
+                id=user.userprofile.id,
+            ).exists()
+        )
+
     def is_enrollable(self, user):
         if self.is_course_staff(user):
             # Allow course staff to enroll even if the course instance is hidden
