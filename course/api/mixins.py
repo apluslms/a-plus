@@ -1,3 +1,5 @@
+from django.http import Http404
+
 from authorization.api.mixins import ApiResourceMixin
 from authorization.permissions import ACCESS
 from ..models import (
@@ -21,7 +23,7 @@ class CourseResourceMixin(CourseInstanceBaseMixin, ApiResourceMixin):
         try:
             return CourseInstance.objects.get(id=course_id)
         except CourseInstance.DoesNotExist:
-            return None
+            raise Http404("Course not found")
 
     def get_access_mode(self):
         # This method is defined here because some permissions expect view classes
