@@ -125,7 +125,7 @@ class UsersSearchSelectField(SearchSelectField):
         in __init__. JavaScript code (ajax_search_select.js) uses the attribute.
         """
         return ", ".join((
-            obj.user.get_full_name(),
+            obj.user.get_full_name() or obj.user.get_username(),
             obj.student_id or "", # Avoid None values.
             obj.user.email or "",
         ))
