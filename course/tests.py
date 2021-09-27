@@ -24,7 +24,7 @@ class CourseTest(TestCase):
         self.grader.set_password("graderPassword")
         self.grader.save()
 
-        self.superuser = User(username="staff", is_staff=False, is_superuser=True)
+        self.superuser = User(username="staff", is_staff=True, is_superuser=True)
         self.superuser.set_password("staffPassword")
         self.superuser.save()
 
