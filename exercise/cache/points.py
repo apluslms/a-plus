@@ -1,4 +1,6 @@
 from copy import deepcopy
+from typing import Any, Dict
+
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
 
@@ -8,7 +10,7 @@ from ..models import LearningObject, Submission
 from .hierarchy import ContentMixin
 
 
-def has_more_points(submission, current_entry):
+def has_more_points(submission: Submission, current_entry: Dict[str, Any]) -> bool:
     # In case two submissions have the same number of points, the newer one wins.
     if submission.grade == current_entry['points']:
         return (

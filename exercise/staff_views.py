@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+from typing import Any, Dict
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -82,7 +83,7 @@ class ListSubmittersView(ExerciseBaseView):
     template_name = "exercise/staff/list_submitters.html"
     ajax_template_name = "exercise/staff/_submitters_table.html"
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
         if not self.exercise.is_submittable:
             raise Http404()
@@ -126,7 +127,7 @@ class InspectSubmitterView(ExerciseBaseView, BaseRedirectView):
     access_mode = ACCESS.ASSISTANT
     user_kw = 'user_id'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         user = get_object_or_404(
             User,
             id=self.kwargs[self.user_kw],
@@ -150,7 +151,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
     template_name = "exercise/staff/inspect_submission.html"
     form_class = SubmissionReviewForm
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
         self.get_summary_submissions()
         self.has_files = self.submission.files.count() > 0
@@ -180,16 +181,16 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             "mark_as_final": self.submission.force_exercise_points,
         }
 
-    def get_form_kwargs(self):
+    def get_form_kwargs(self) -> Dict[str, Any]:
         kwargs = super().get_form_kwargs()
         kwargs["exercise"] = self.exercise
         kwargs["help_texts_to_tooltips"] = True
         return kwargs
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         return self.submission.get_inspect_url()
 
-    def form_valid(self, form):
+    def form_valid(self, form: SubmissionReviewForm) -> HttpResponse:
         if not (self.is_teacher or self.exercise.allow_assistant_grading):
             messages.error(self.request, _('EXERCISE_ASSISTANT_PERMISSION_NO_ASSISTANT_GRADING'))
             raise PermissionDenied()
@@ -261,7 +262,7 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
     """
     access_mode = ACCESS.ASSISTANT
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         # Query submitters who have not been assessed yet.
         submitter = None
         submitters = (UserProfile.objects

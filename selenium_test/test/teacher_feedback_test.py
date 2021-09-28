@@ -9,7 +9,7 @@ class TeacherFeedbackTest(unittest.TestCase):
         self.driver = TestInitializer().getDefaultDriver(headless=True)
         TestInitializer().recreateDatabase()
 
-    def testStudentShouldGetFeedbackWithNotification(self):
+    def testStudentShouldGetFeedbackWithNotification(self) -> None:
         ASSISTANT_FEEDBACK_TEXT = "ASSISTANT_FEEDBACK"
         FEEDBACK_TEXT = "FEEDBACK"
         EXERCISE_NUMBER = "2"

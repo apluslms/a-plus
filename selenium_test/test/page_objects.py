@@ -1,6 +1,8 @@
 from enum import Enum
+from typing import Any
 
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -399,29 +401,35 @@ class StudentFeedbackPage(BasePage):
         return str(self.getElement(StudentFeedbackPageLocators.FEEDBACK_TEXT).text).strip()
 
 class InspectionPage(BasePage):
-    def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
+    def __init__(
+            self,
+            driver: WebDriver,
+            moduleId: str = "first-exercise-round",
+            exerciseId: str = "1",
+            submissionNumber: int = 1,
+            ) -> None:
         BasePage.__init__(self, driver)
         self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/inspect/", InspectionPageLocators.ASSESSMENT_BUTTON)
 
-    def clickAssessmentButton(self):
+    def clickAssessmentButton(self) -> None:
         self.getElement(InspectionPageLocators.ASSESSMENT_BUTTON).click()
 
-    def clickAssistantFeedbackToggle(self):
+    def clickAssistantFeedbackToggle(self) -> None:
         self.getElement(InspectionPageLocators.ASSISTANT_FEEDBACK_TOGGLE).click()
 
-    def clickGraderFeedbackToggle(self):
+    def clickGraderFeedbackToggle(self) -> None:
         self.getElement(InspectionPageLocators.GRADER_FEEDBACK_TOGGLE).click()
 
-    def setPoints(self, points):
+    def setPoints(self, points) -> None:
         self.clearAndSendKeys(InspectionPageLocators.POINTS_INPUT, points)
 
-    def setAssistantFeedback(self, text):
+    def setAssistantFeedback(self, text) -> None:
         self.clearAndSendKeys(InspectionPageLocators.ASSISTANT_FEEDBACK_INPUT, text)
 
-    def setFeedback(self, text):
+    def setFeedback(self, text) -> None:
         self.clearAndSendKeys(InspectionPageLocators.FEEDBACK_INPUT, text)
 
-    def submit(self):
+    def submit(self) -> None:
         self.clickThrough(InspectionPageLocators.SAVE_BUTTON)
         self.waitForPage()
 

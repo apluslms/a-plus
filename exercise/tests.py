@@ -513,7 +513,7 @@ class ExerciseTest(TestCase):
             self.late_submission_when_late_allowed.set_points(10, 10)
             self.assertEqual(80, self.late_submission_when_late_allowed.grade)
 
-    def test_forced_points(self):
+    def test_forced_points(self) -> None:
         self.submission.set_points(5, 10)
         self.submission.status = Submission.STATUS.READY
         self.submission.save()
@@ -723,7 +723,7 @@ class ExerciseTest(TestCase):
         response = self.client.get(self.submission_with_two_submitters.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
-    def test_exercise_staff_views(self):
+    def test_exercise_staff_views(self) -> None:
         self.other_instance = CourseInstance.objects.create(
             instance_name="Another",
             starting_time=self.today,

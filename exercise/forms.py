@@ -1,3 +1,5 @@
+from typing import Any
+
 from django import forms
 from django.contrib.auth.models import User
 from django.utils.text import format_lazy
@@ -58,7 +60,7 @@ class SubmissionReviewForm(forms.Form):
         help_text=_('SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT'),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.exercise = kwargs.pop('exercise')
         help_texts_to_tooltips = kwargs.pop('help_texts_to_tooltips', False)
         super(SubmissionReviewForm, self).__init__(*args, **kwargs)

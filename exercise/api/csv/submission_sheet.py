@@ -1,8 +1,13 @@
 from collections import OrderedDict
+from typing import List, TYPE_CHECKING
+
 from rest_framework.reverse import reverse
 
+if TYPE_CHECKING:
+    from ...models import Submission
 
-def filter_best_submissions(submissions):
+
+def filter_best_submissions(submissions: List['Submission']) -> List['Submission']:
     best = {}
     forced = {}
     eid = None

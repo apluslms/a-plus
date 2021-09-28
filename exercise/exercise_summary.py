@@ -1,5 +1,7 @@
 import itertools
+from typing import Optional
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 
@@ -15,7 +17,7 @@ class UserExerciseSummary(object):
     submissions and reference to the best submission. See the public methods
     for more.
     """
-    def __init__(self, exercise, user=None):
+    def __init__(self, exercise: BaseExercise, user: Optional[User] = None) -> None:
         self.exercise = exercise
         self.max_points = getattr(exercise, 'max_points', 0)
         self.difficulty = getattr(exercise, 'difficulty', '')
