@@ -23,6 +23,23 @@ ALLOWED_HOSTS = ["*"]
 # Can be used to identify users from home university by comparing this to
 # organization information received from Haka login.
 LOCAL_ORGANIZATION = 'aalto.fi'
+
+# Authentication and authentication library settings
+APLUS_AUTH = {
+    "PRIVATE_KEY": None,
+    "PUBLIC_KEY": None,
+}
+# List all trusted public keys with an alias
+ALIAS_TO_PUBLIC_KEY={
+    #"grader": <RSA public key of grader>
+    #"grader2": <RSA public key of grader2>
+}
+# A mapping of URLs to aliases
+URL_TO_ALIAS={
+    #"http://example.com": "grader"
+    #"http://grader.example.com": "grader2"
+    #"https://otherexample.com": "grader2"
+}
 ##########################################################################
 
 
@@ -128,6 +145,7 @@ INSTALLED_APPS = (
 
     'js_jquery_toggle',
     'django_colortag',
+    'aplus_auth',
 )
 
 # Different login options (may override in local_settings.py)

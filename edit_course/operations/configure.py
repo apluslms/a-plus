@@ -1,5 +1,4 @@
 import json
-import requests
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from typing import Any, Dict, List, Optional
@@ -15,6 +14,7 @@ from course.models import Course, CourseInstance, CourseModule, LearningObjectCa
 from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise, RevealRule
 from external_services.models import LTIService
+from lib import aplus_auth
 from lib.localization_syntax import format_localization
 from userprofile.models import UserProfile
 
@@ -335,7 +335,7 @@ def get_build_log(instance):
     if not instance.build_log_url:
         return {'error': _('BUILD_LOG_ERROR_URL_BLANK')}
     try:
-        response = requests.get(instance.build_log_url)
+        response = aplus_auth.get(instance.build_log_url)
     except Exception as e:
         return {
             'error': format_lazy(
@@ -365,7 +365,7 @@ def configure_content(instance, url):
         return [_('COURSE_CONFIG_URL_REQUIRED')]
     try:
         url = url.strip()
-        response = requests.get(url)
+        response = aplus_auth.get(url)
         response.raise_for_status()
     except Exception as e:
         return [format_lazy(

@@ -6,6 +6,26 @@
 #    ('Your Name', 'your_email@domain.com'),
 #)
 
+#from os import environ
+#APLUS_AUTH = {
+#    "PRIVATE_KEY": environ.get("PRIVATE_KEY"),
+#    "PUBLIC_KEY": environ.get("PUBLIC_KEY"),
+#}
+#ALIAS_TO_PUBLIC_KEY={
+#    "gitmanager": """-----BEGIN PUBLIC KEY-----
+#...
+#-----END PUBLIC KEY-----
+#""",
+#    "grader": """-----BEGIN PUBLIC KEY-----
+#...
+#-----END PUBLIC KEY-----
+#""",
+#}
+#URL_TO_ALIAS={
+#    "gitmanager.example.com": "gitmanager",
+#    "grader.example.com": "grader",
+#}
+
 # The organization this instance is deployed at.
 # Can be used to identify users from home university by comparing this to
 # organization information received from Haka login.
