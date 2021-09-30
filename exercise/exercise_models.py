@@ -20,6 +20,8 @@ from django.utils.text import format_lazy
 from django.utils.translation import get_language, gettext_lazy as _
 
 from aplus.api import api_reverse
+from authorization.models import JWTAccessible
+from authorization.object_permissions import register_jwt_accessible_class
 from course.models import Enrollment, StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService
@@ -438,7 +440,7 @@ class CourseChapter(LearningObject):
         return not self.generate_table_of_contents
 
 
-class BaseExerciseManager(models.Manager['BaseExercise']):
+class BaseExerciseManager(JWTAccessible["BaseExercise"], models.Manager['BaseExercise']):
 
     def get_queryset(self):
         return super().get_queryset().select_related(
@@ -449,6 +451,7 @@ class BaseExerciseManager(models.Manager['BaseExercise']):
         )
 
 
+@register_jwt_accessible_class("exercise")
 class BaseExercise(LearningObject):
     """
     The common parts for all exercises.

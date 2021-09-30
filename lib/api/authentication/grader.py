@@ -47,15 +47,20 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
         if token[0] == "s":
             submission = self.authenticate_submission_token(token[1:])
             payload.permissions.submissions.add(Permission.WRITE, id=submission.id)
+            permissions.submissions.add(Permission.WRITE, submission)
             exercise = submission.exercise
         elif token[0] == "e":
             exercise, user_id = self.authenticate_exercise_token(token[1:])
             perm_dict: Dict[str, Any] = {"exercise_id": exercise.id, "user_id": user_id}
             payload.permissions.submissions.add(Permission.CREATE, **perm_dict)
+            permissions.submissions.add_create(**perm_dict)
         else:
             raise AuthenticationFailed("Authentication token is invalid.")
 
-        payload.permissions.courses.add(Permission.WRITE, id=exercise.course_instance.course.id)
+        payload.permissions.courses.add(Permission.READ, id=exercise.course_instance.course.id)
+        payload.permissions.instances.add(Permission.READ, id=exercise.course_instance.id)
+        permissions.courses.add(Permission.READ, exercise.course_instance.course)
+        permissions.instances.add(Permission.READ, exercise.course_instance)
 
     def get_user(self, request: Request, id: str, payload: Payload) -> GraderUser:
         # check public key is allowed access

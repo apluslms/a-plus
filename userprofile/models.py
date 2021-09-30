@@ -10,6 +10,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
+from authorization.object_permissions import ObjectPermissions
+
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
@@ -144,16 +146,9 @@ post_save.connect(create_user_profile, sender=User)
 
 
 class GraderUser(AnonymousUser):
-    def __init__(self, username: str, submission: Submission = None, exercise: BaseExercise = None, user_id: int = None, **extra: Any):
+    def __init__(self, username: str, permissions: ObjectPermissions, **extra: Any):
         self.username = username
-        self.permissions = Permissions()
-        if submission:
-            self.permissions.add_submission(Permission.WRITE, id=submission.id)
-        if exercise:
-            if user_id:
-                self.permissions.add_submission(Permission.CREATE, exercise_id=exercise.id, user_id=user_id)
-            else:
-                self.permissions.add_submission(Permission.CREATE, exercise_id=exercise.id)
+        self.permissions = permissions
         self._extra = extra
 
     @property
@@ -173,7 +168,20 @@ class GraderUser(AnonymousUser):
 
 
 class LTIServiceUser(GraderUser):
-    def __init__(self, submission: Submission = None, exercise: BaseExercise = None, lti_service: Optional["LTIService"] = None, **kwargs: Any) -> None:
+    def __init__(self, submission: "Submission" = None,
+            exercise: "BaseExercise" = None,
+            lti_service: Optional["LTIService"] = None,
+            user_id: int = None,
+            **kwargs: Any,
+            ) -> None:
         """exercise and student_id must both be present if one is"""
         self.lti_service = lti_service
-        super().__init__("LTI", submission, exercise, **kwargs)
+        permissions = ObjectPermissions()
+        if submission:
+            permissions.submissions.add(Permission.WRITE, submission)
+        if exercise:
+            if user_id:
+                permissions.submissions.add_create(exercise=exercise, user_id=user_id)
+            else:
+                permissions.submissions.add_create(exercise=exercise)
+        super().__init__("LTI", permissions, **kwargs)

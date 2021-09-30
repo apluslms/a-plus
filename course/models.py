@@ -5,6 +5,7 @@ import string
 import urllib.request, urllib.parse
 from random import randint, choice
 
+from aplus_auth.payload import Permission
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
@@ -21,6 +22,8 @@ from django.utils.translation import gettext_lazy as _
 from django_colortag.models import ColorTag
 
 from apps.models import BaseTab, BasePlugin
+from authorization.models import JWTAccessible
+from authorization.object_permissions import register_jwt_accessible_class
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import (
@@ -43,6 +46,10 @@ with open(finders.find('pseudonym.json')) as json_file:
     DATA = json.load(json_file)
 
 
+class CourseManager(JWTAccessible["Course"], models.Manager): ...
+
+
+@register_jwt_accessible_class("course")
 class Course(UrlMixin, models.Model):
     """
     Course model represents a course in a university. A course has a name and an
@@ -65,6 +72,8 @@ class Course(UrlMixin, models.Model):
         help_text=_('COURSE_URL_IDENTIFIER_HELPTEXT'),
         validators=[generate_url_key_validator()],
     )
+
+    objects = CourseManager()
 
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE')
@@ -409,14 +418,14 @@ def get_course_staff_visibility_filter(user, prefix=None):
             & Q(**{f'{prefix}enrollment__user_profile': user})
         )
     elif isinstance(user, GraderUser):
-        courses = [o["id"] for _, o in user.permissions.courses if "id" in o]
-        instances = [o["id"] for _, o in user.permissions.instances if "id" in o]
+        courses = [o for _, o in user.permissions.courses]
+        instances = [o for _, o in user.permissions.instances]
         filter = Q(**{f'{prefix}course__in': courses}) | Q(**{f'{prefix}id__in': instances})
 
     return filter
 
 
-class CourseInstanceManager(models.Manager):
+class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
     """
     Helpers in CourseInstance.objects
     """
@@ -467,6 +476,7 @@ def build_upload_dir(instance, filename):
     )
 
 
+@register_jwt_accessible_class("instance")
 class CourseInstance(UrlMixin, models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have

@@ -1,0 +1,52 @@
+from typing import Any, Dict, Generic, Iterable, Optional, TypeVar
+from aplus_auth.payload import Payload, Permission
+
+from django.db.models import Manager
+from django.db.models.base import Model
+from django.db.models.query import QuerySet
+
+
+_ModelT = TypeVar("_ModelT", bound=Model)
+class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
+    """
+    Simple Manager base class to get an object from the A+ auth library JWT permission dict.
+
+    Note: not an actual model but a manager
+    """
+    def from_jwt_permission(
+            self,
+            payload: Payload,
+            permission: Permission,
+            kwargs: Dict[str, Any],
+            disable_permission_check = False,
+            ) -> Optional[Iterable[_ModelT]]:
+
+        if permission in (Permission.WRITE, Permission.READ):
+            instances = self.from_jwt_permission_dict(kwargs)
+            if disable_permission_check or all((
+                    self.has_access(payload, permission, instance)
+                    for instance in instances
+                    )):
+                return instances
+        elif permission == Permission.CREATE:
+            if disable_permission_check or self.has_create_access(payload, kwargs):
+                return []
+        return None
+
+    def from_jwt_permission_dict(self, perm: Dict[str, Any]) -> QuerySet[_ModelT]:
+        """
+        Return objects corresponding to a dictionary in a JWT payload's permission list.
+        """
+        return self.filter(**perm).all()
+
+    def has_create_access(self, payload: Payload, kwargs: Dict[str, Any]) -> bool:
+        """
+        Check that <payload> has create access to kwargs.
+        """
+        return False
+
+    def has_access(self, payload: Payload, permission: Permission, instance: _ModelT) -> bool:
+        """
+        Check that <payload> has <permission> access to <instance>.
+        """
+        return False

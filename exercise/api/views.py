@@ -106,7 +106,7 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
                 "authentication token"
             )
 
-        info = user.permissions.get_submission(Permission.CREATE, exercise_id=self.exercise.id)[1]
+        info = user.permissions.submissions.get_create(exercise=self.exercise)[1]
         if info is None:
             raise PermissionDenied(
                 "You are allowed only to create new submission to exercise "
@@ -424,8 +424,7 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
                 "authentication token"
             )
 
-        info = user.permissions.get_submission(Permission.WRITE, id=self.submission.id)[1]
-        if info is None:
+        if user.permissions.submissions.has(Permission.WRITE, self.submission):
             raise PermissionDenied(
                 "You are not allowed to grade other submissions than what "
                 "your grader authentication token is for"

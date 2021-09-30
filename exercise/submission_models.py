@@ -14,6 +14,8 @@ from django.utils.translation import get_language, gettext_lazy as _
 from mimetypes import guess_type
 from exercise.protocol.exercise_page import ExercisePage
 
+from authorization.models import JWTAccessible
+from authorization.object_permissions import register_jwt_accessible_class
 from lib.fields import JSONField, PercentField
 from lib.helpers import (
     get_random_string,
@@ -92,7 +94,7 @@ class SubmissionQuerySet(models.QuerySet):
         )
 
 
-class SubmissionManager(models.Manager):
+class SubmissionManager(JWTAccessible["Submission"], models.Manager):
     _queryset_class = SubmissionQuerySet
 
     def get_queryset(self):
@@ -186,6 +188,7 @@ class SubmissionManager(models.Manager):
         return enrollment_data
 
 
+@register_jwt_accessible_class("submission")
 class Submission(UrlMixin, models.Model):
     """
     A submission to some course exercise from one or more submitters.
