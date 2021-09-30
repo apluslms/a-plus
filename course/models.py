@@ -745,7 +745,7 @@ class CourseInstance(UrlMixin, models.Model):
                     self.teachers.filter(id=user.userprofile.id).exists()
                 ) or (
                     isinstance(user, GraderUser) and
-                    user.permissions.has_course(Permission.WRITE, id=self.course.id)
+                    (Permission.WRITE, self.course) in user.permissions.courses
                 )
             )
         )
