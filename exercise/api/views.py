@@ -22,6 +22,8 @@ from userprofile.models import UserProfile, GraderUser
 from userprofile.permissions import IsAdminOrUserObjIsSelf, GraderUserCanOnlyRead
 from course.permissions import (
     IsCourseAdminOrUserObjIsSelf,
+    JWTSubmissionCreatePermission,
+    JWTSubmissionWritePermission,
     OnlyCourseTeacherPermission,
 )
 from course.api.mixins import CourseResourceMixin
@@ -54,12 +56,6 @@ from .full_serializers import *
 from .custom_serializers import *
 
 
-GRADER_PERMISSION = api_settings.DEFAULT_PERMISSION_CLASSES + [
-    OnlyCourseTeacherPermission,
-]
-GRADER_PERMISSION = [p for p in GRADER_PERMISSION if p is not GraderUserCanOnlyRead]
-
-
 class ExerciseViewSet(mixins.RetrieveModelMixin,
                       ExerciseResourceMixin,
                       viewsets.GenericViewSet):
@@ -88,7 +84,7 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
         url_path='grader',
         url_name='grader',
         methods=['get', 'post'],
-        permission_classes = GRADER_PERMISSION,
+        get_permissions = lambda: [JWTSubmissionCreatePermission()],
         serializer_class = ExerciseGraderSerializer,
     )
     def grader_detail(self, request, *args, **kwargs):
@@ -406,7 +402,7 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
         url_path='grader',
         url_name='grader',
         methods=['get', 'post'],
-        permission_classes = GRADER_PERMISSION,
+        get_permissions = lambda: [JWTSubmissionWritePermission()],
         serializer_class = SubmissionGraderSerializer,
     )
     def grader_detail(self, request, *args, **kwargs):
