@@ -4,18 +4,36 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 
+
 logger = logging.getLogger('aplus.lib.email_messages')
+
+
+def email_course_instance(instance, subject, message, everyone=False) -> bool:
+    """
+    Sends an email to a course instance's technical support emails or teachers if technical support not set.
+    If everyone == True, sends emails to teachers anyway.
+    """
+    recipients = []
+    if instance.technical_error_emails:
+        recipients = instance.technical_error_emails.split(",")
+    if everyone or not recipients:
+        recipients = instance.teachers.exclude(user__email='').values_list("user__email", flat=True)
+
+    if not recipients:
+        raise ValueError("No recipients")
+
+    try:
+        return send_mail(subject, message, settings.SERVER_EMAIL, recipients, True) == 1
+    except:
+        logger.exception('Failed to send course instance emails.')
+        raise
 
 
 def email_course_error(request, exercise, message, exception=True):
     """
-    Sends error message to course teachers or technical support emails if set.
+    Sends error message to course instance's teachers or technical support emails if set.
     """
     instance = exercise.course_instance
-    if instance.technical_error_emails:
-        recipients = instance.technical_error_emails.split(",")
-    else:
-        recipients = (p.user.email for p in instance.teachers.all() if p.user.email)
 
     error_trace = "-"
     if exception:
@@ -32,8 +50,8 @@ def email_course_error(request, exercise, message, exception=True):
             instance.get_url('course-details')),
         error_trace=error_trace,
         request_fields=repr(request))
-    if recipients:
-        try:
-            send_mail(subject, body, settings.SERVER_EMAIL, recipients, True)
-        except Exception as e:
-            logger.exception('Failed to send error emails.')
+
+    try:
+        email_course_instance(instance, subject, body)
+    except:
+        pass

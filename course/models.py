@@ -2,10 +2,11 @@ import datetime
 import json
 import logging
 import string
+from typing import Any, Dict
 import urllib.request, urllib.parse
 from random import randint, choice
 
-from aplus_auth.payload import Permission
+from aplus_auth.payload import Payload, Permission
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
@@ -24,6 +25,7 @@ from django_colortag.models import ColorTag
 from apps.models import BaseTab, BasePlugin
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
+from lib.aplus_auth import url_to_audience
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import (
@@ -465,6 +467,19 @@ class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
         return self.filter(
             enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
             enrollment__user_profile=user)
+
+    def has_access(self, payload: Payload, permission: Permission, instance: "CourseInstance") -> bool:
+        try:
+            config_aud = url_to_audience(instance.configure_url)
+        except KeyError:
+            logger.warning(f"Could not find public key for configure_url {instance.configure_url}. Cannot authorize JWT instance access")
+            return False
+        else:
+            return config_aud == payload.iss
+
+    def has_create_access(self, payload: Payload, kwargs: Dict[str, Any]) -> bool:
+        return False
+
 
 def build_upload_dir(instance, filename):
     """

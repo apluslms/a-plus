@@ -1,4 +1,5 @@
 from rest_framework import filters, generics, permissions, viewsets, status, mixins
+from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -6,6 +7,9 @@ from rest_framework.reverse import reverse
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.permissions import IsAdminUser
 from django.db.models import Q
+from django.utils.text import format_lazy
+from django.utils.translation import gettext_lazy as _
+from lib.email_messages import email_course_instance
 
 from lib.viewbase import BaseMixin
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
@@ -13,6 +17,7 @@ from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 from news.models import News
 
+from edit_course.operations.configure import configure_content
 from ..models import (
     Enrollment,
     USERTAG_EXTERNAL,
@@ -28,6 +33,7 @@ from .mixins import (
     CourseModuleResourceMixin,
 )
 from ..permissions import (
+    JWTInstanceWritePermission,
     OnlyCourseTeacherPermission,
     IsCourseAdminOrUserObjIsSelf,
     OnlyEnrolledStudentOrCourseStaffPermission,
@@ -76,6 +82,11 @@ class CourseViewSet(ListSerializerMixin,
         `visible_to_students`, `configure_url`, `teachers`.
         Only the course instance data can be modified. Course code, name, or URL
         cannot be modified using this API. Requires admin privileges.
+
+    `POST /courses/<course_id>/notify_update/`:
+        triggers a course update and returns any errors. Following attributes can be given:
+
+    * `email_on_error`: whether to send an email to instance staff on error
     """
     lookup_url_kwarg = 'course_id'
     lookup_value_regex = REGEX_INT
@@ -102,6 +113,31 @@ class CourseViewSet(ListSerializerMixin,
             return CourseWriteSerializer
         else:
             return super().get_serializer_class()
+
+    # get_permissions lambda overwrites the normal version used for the above methods
+    @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
+    def notify_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            errors = configure_content(instance, instance.configure_url)
+        except Exception as e:
+            errors = [format_lazy(
+                _('COURSE_CONFIG_ERROR -- {error!s}'),
+                error=e,
+            )]
+
+        if errors and request.POST.get("email_on_error", True):
+            subject = f"Notified course update failed for {instance}" # TODO translate
+            message = "\n".join(str(e) for e in errors)
+            try:
+                success = email_course_instance(self.get_object(), subject, message)
+            except Exception as e:
+                errors.append("Failed to send error email: {e}")
+            else:
+                if not success:
+                    errors.append("Failed to send error email")
+
+        return Response(errors, status=500 if errors else 200)
 
 
 class CourseExercisesViewSet(NestedViewSetMixin,
