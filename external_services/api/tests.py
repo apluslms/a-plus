@@ -19,7 +19,7 @@ logging.disable(logging.CRITICAL)
 
 class LTIOutcomesBaseTest(APITestCase):
     OUTCOMES_API_URL = '/api/v2/lti-outcomes'
-    
+
     # XML for a request body
     BASE_OUTCOMES_REQUEST_XML = '''<?xml version="1.0" encoding="UTF-8"?>
 <imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
@@ -40,7 +40,7 @@ class LTIOutcomesBaseTest(APITestCase):
     </{operation}Request>
   </imsx_POXBody>
 </imsx_POXEnvelopeRequest>'''
-    
+
     # replaceResult requests and readResult responses must also include the result
     BASE_RESULT_XML = '''<result>
           <resultScore>
@@ -69,7 +69,7 @@ class LTIOutcomesBaseTest(APITestCase):
     {body}
   </imsx_POXBody>
 </imsx_POXEnvelopeResponse>'''
-    
+
     # assert method for comparing Outcomes response XML messages
     def assertLTIOutcomesResponseXMLEqual(self, got_xml, expected_xml, ignore_elems=None):
         try:
@@ -77,7 +77,7 @@ class LTIOutcomesBaseTest(APITestCase):
             expected_root = lxml.etree.fromstring(expected_xml.encode('utf-8'))
         except Exception as e:
             self.fail('XML parsing failed: ' + str(e))
-            
+
         ns = '{http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0}'
         for status_elem in ('imsx_codeMajor', 'imsx_severity', 'imsx_description',
                             'imsx_messageRefIdentifier', 'imsx_operationRefIdentifier',
@@ -89,17 +89,17 @@ class LTIOutcomesBaseTest(APITestCase):
             expected_val = expected_root.findtext(query)
             got_val = got_root.findtext(query)
             self.assertEqual(got_val, expected_val, status_elem + ' not equal')
-        
+
         query = '{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_version'.format(ns=ns)
         exp_version = expected_root.findtext(query)
         got_version = got_root.findtext(query)
         self.assertEqual(got_version, exp_version)
-        
+
         # random, can not know beforehand
         got_msg_id = got_root.findtext('{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_messageIdentifier'.format(ns=ns))
         self.assertNotEqual(got_msg_id, None)
         self.assertTrue(len(got_msg_id) > 0)
-        
+
         query = '{ns}imsx_POXBody'.format(ns=ns)
         exp_body = expected_root.find(query)
         got_body = got_root.find(query)
@@ -114,7 +114,7 @@ class LTIOutcomesBaseTest(APITestCase):
             exp_score = expected_root.findtext(query)
             got_score = got_root.findtext(query)
             self.assertEqual(got_score, exp_score)
-            
+
             query = '{ns}imsx_POXBody/{ns}readResultResponse/{ns}result/{ns}resultScore/{ns}language'.format(ns=ns)
             got_lang = got_root.findtext(query)
             self.assertEqual(got_lang, 'en') # specification requires "en"
@@ -130,7 +130,7 @@ class LTIOutcomesBaseTest(APITestCase):
 
 
 class LTIOutcomesTests(LTIOutcomesBaseTest):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.now = timezone.now()
@@ -141,7 +141,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         cls.student1_profile = UserProfile.objects.get(user=cls.student1)
         cls.student1_profile.student_id = '123456'
         cls.student1_profile.save()
-        
+
         cls.lti_service = LTIService.objects.create(
             url='http://localhost:8080/lti-launch', # fake URL
             consumer_key='apluskey',
@@ -192,9 +192,9 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             max_submissions=5,
             lti_service=cls.lti_service,
         )
-        cls.lti_user1 = LTIServiceUser(exercise=cls.lti_exercise, lti_service=cls.lti_service, student_id=cls.student1.id)
-        cls.lti_user2 = LTIServiceUser(exercise=cls.lti_exercise2, lti_service=cls.lti_service, student_id=cls.student1.id)
-    
+        cls.lti_user1 = LTIServiceUser(exercise=cls.lti_exercise, lti_service=cls.lti_service, user_id=cls.student1.id)
+        cls.lti_user2 = LTIServiceUser(exercise=cls.lti_exercise2, lti_service=cls.lti_service, user_id=cls.student1.id)
+
     def test_replaceResult(self):
         sourced_id = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
         req_xml = self.BASE_OUTCOMES_REQUEST_XML.format(
@@ -203,7 +203,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id,
             result=self.BASE_RESULT_XML.format(score='0.71'),
         )
-        
+
         # OAuth1 signature and body hash for the HTTP request Authorization header
         oauth_client = oauthlib.oauth1.Client(
             client_key=self.lti_service.consumer_key,
@@ -218,7 +218,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
                 'Content-Type': 'application/xml',
             },
         )
-        
+
         # make the test request
         response = self.client.post(self.OUTCOMES_API_URL, data=req_xml, content_type='application/xml',
                          HTTP_AUTHORIZATION=oa_headers['Authorization'],
@@ -227,7 +227,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         root = lxml.etree.fromstring(response_xml.encode('utf-8'))
         response_msg_id = root.findtext('{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_messageIdentifier'.format(
             ns='{http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0}'))
-        
+
         expected_response_xml = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id=response_msg_id, # random, can not know beforehand
             code_major='success',
@@ -238,12 +238,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='<replaceResultResponse/>',
         )
-        
+
         self.maxDiff = None
         self.assertXMLEqual(response_xml, expected_response_xml)
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
         # find the new submission in the database and check its points
         self.assertEqual(Submission.objects.count(), 1, 'there should be only one submission')
         submission = Submission.objects.first()
@@ -276,7 +276,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             },
         )
         submission1.submitters.set([self.student1_profile])
-        
+
         # second submission in the same exercise
         sourced_id2 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
         submission2 = Submission.objects.create(
@@ -291,7 +291,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             },
         )
         submission2.submitters.set([self.student1_profile])
-        
+
         # different exercise
         sourced_id3 = self.mk_sourced_id(self.lti_exercise2, enrollment=self.student1_enrollment)
         submission3 = Submission.objects.create(
@@ -306,7 +306,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             },
         )
         submission3.submitters.set([self.student1_profile])
-        
+
         # make the test request
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
             msg_id='84yfhdbwbnwuwe254',
@@ -317,7 +317,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
-        
+
         expected_response_xml1 = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxx', # random, can not know beforehand
             code_major='success',
@@ -332,7 +332,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         # compare XML without msg id
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        
+
         # readResult for the second exercise
         req_xml2 = self.BASE_OUTCOMES_REQUEST_XML.format(
             msg_id='jo8367tjhbcjsuiduo4',
@@ -343,7 +343,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         self.client.force_authenticate(user=self.lti_user2)
         response2 = self.client.post(self.OUTCOMES_API_URL, data=req_xml2, content_type='application/xml')
         response_xml2 = response2.content.decode('utf-8')
-        
+
         expected_response_xml2 = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxx', # random, can not know beforehand
             code_major='success',
@@ -357,7 +357,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         )
         # compare XML without msg id
         self.assertLTIOutcomesResponseXMLEqual(response_xml2, expected_response_xml2)
-        
+
     def test_readResult_no_result(self):
         # no submissions exist, readResult score is an empty string
         self.assertEqual(Submission.objects.count(), 0)
@@ -372,7 +372,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
-        
+
         expected_response_xml1 = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxx', # random, can not know beforehand
             code_major='success',
@@ -403,7 +403,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             },
         )
         submission1.submitters.set([self.student1_profile])
-        
+
         # make the test request
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
             msg_id='nvldoe837jslsurkg',
@@ -414,7 +414,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
-        
+
         expected_response_xml1 = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxx', # random, can not know beforehand
             code_major='unsupported',
@@ -428,11 +428,11 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         # compare XML without msg id
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
-        
+
         # check that the submission was not deleted
         self.assertEqual(Submission.objects.count(), 1)
         self.assertEqual(Submission.objects.first().pk, submission1.pk)
-        
+
     def test_replaceResult2(self):
         # make 2 requests and check that there are 2 new submissions
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -455,9 +455,9 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='<replaceResultResponse/>',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
-        
+
         # another replaceResult request
         sourced_id2 = sourced_id1
         req_xml2 = self.BASE_OUTCOMES_REQUEST_XML.format(
@@ -478,10 +478,10 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='<replaceResultResponse/>',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml2, expected_response_xml2)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
-        
+
         # check the submissions in the database
         self.assertEqual(Submission.objects.count(), 2)
         submission1 = Submission.objects.get(grade=88)
@@ -514,7 +514,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             operation='readResult',
             sourced_id=sourced_id1,
         )
-        
+
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_no_msgid, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -528,10 +528,10 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
-        
+
     def test_invalid_req_body_empty_msg_id(self):
         # invalid request body XML, empty messageIdentifier element
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -556,7 +556,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             operation='readResult',
             sourced_id=sourced_id1,
         )
-        
+
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_empty_msgid, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -570,10 +570,10 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_invalid_req_body_no_sourced_id(self):
         # invalid request body XML, no sourcedId element
         req_xml_no_sourced_id = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -594,7 +594,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             msgid='lghofudgw63yrjfhe6',
             operation='readResult',
         )
-        
+
         self.client.force_authenticate(user=LTIServiceUser()) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_no_sourced_id, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -608,10 +608,10 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_invalid_req_body_unknown_operation(self):
         # invalid request body XML, operation in the POXBody is unknown
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -637,7 +637,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id1,
             operation='retrieveResult', # fake operation
         )
-        
+
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_unknown_operation, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -651,10 +651,10 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     def test_invalid_req_body_unknown_operation2(self):
         # invalid request body XML, operation in the POXBody is unknown and does not end with "Request"
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -679,7 +679,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             msgid='arwt374ufjhdhne',
             sourced_id=sourced_id1,
         )
-        
+
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_unknown_operation, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -693,11 +693,11 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Submission.objects.count(), 0)
-    
+
     def test_invalid_req_body_no_score_in_replace(self):
         # invalid request body XML, replaceResultRequest with an empty score
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -729,7 +729,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             operation='replaceResult',
             sourced_id=sourced_id1,
         )
-        
+
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_no_score, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -743,12 +743,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
         # no submission was created
         self.assertEqual(Submission.objects.count(), 0)
-    
+
     def test_invalid_req_body_no_score_in_replace2(self):
         # invalid request body XML, replaceResultRequest with no score element
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -779,7 +779,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             operation='replaceResult',
             sourced_id=sourced_id1,
         )
-        
+
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_no_score, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -793,12 +793,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
         # no submission was created
         self.assertEqual(Submission.objects.count(), 0)
-    
+
     def test_invalid_req_body_bad_score(self):
         # invalid request body XML, replaceResultRequest with a score over 1
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -831,7 +831,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id1,
             score='1.01',
         )
-        
+
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_no_score, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -845,12 +845,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
         # no submission was created
         self.assertEqual(Submission.objects.count(), 0)
-        
+
     def test_invalid_oauth_req(self):
         # request has bad OAuth parameters and authentication fails
         sourced_id = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -860,7 +860,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id,
             result=self.BASE_RESULT_XML.format(score='0.92'),
         )
-        
+
         # OAuth1 signature and body hash for the HTTP request Authorization header
         oauth_client = oauthlib.oauth1.Client(
             client_key=self.lti_service.consumer_key,
@@ -875,13 +875,13 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
                 'Content-Type': 'application/xml',
             },
         )
-        
+
         # make the test request
         response = self.client.post(self.OUTCOMES_API_URL, data=req_xml, content_type='application/xml',
                          HTTP_AUTHORIZATION=oa_headers['Authorization'],
                          SERVER_NAME='aplus.local')
         response_xml = response.content.decode('utf-8')
-        
+
         expected_response_xml = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxxx', # random, can not know beforehand
             code_major='failure',
@@ -892,18 +892,18 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml, expected_response_xml)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        
+
         # check that no submission was made
         self.assertEqual(Submission.objects.count(), 0)
-    
+
     def test_invalid_oauth_and_XML(self):
         # OAuth credentials are invalid and the body XML causes ParseError
         req_xml = '''<?xml version="1.0" encoding="UTF-8"?>
 <imsx_POXEnvelopeRequest xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">'''
-        
+
         # OAuth1 signature and body hash for the HTTP request Authorization header
         oauth_client = oauthlib.oauth1.Client(
             client_key=self.lti_service.consumer_key,
@@ -918,13 +918,13 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
                 'Content-Type': 'application/xml',
             },
         )
-        
+
         # make the test request
         response = self.client.post(self.OUTCOMES_API_URL, data=req_xml, content_type='application/xml',
                          HTTP_AUTHORIZATION=oa_headers['Authorization'],
                          SERVER_NAME='aplus.local')
         response_xml = response.content.decode('utf-8')
-        
+
         expected_response_xml = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxxx', # random, can not know beforehand
             code_major='failure',
@@ -944,7 +944,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         # check that no submission was made
         self.assertEqual(Submission.objects.count(), 0)
-    
+
     def test_no_auth_header(self):
         # no HTTP Authorization header in the request, auth fails
         sourced_id = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -954,12 +954,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id,
             result=self.BASE_RESULT_XML.format(score='0.64'),
         )
-        
+
         # make the test request
         response = self.client.post(self.OUTCOMES_API_URL, data=req_xml, content_type='application/xml',
                          SERVER_NAME='aplus.local')
         response_xml = response.content.decode('utf-8')
-        
+
         expected_response_xml = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxxx', # random, can not know beforehand
             code_major='failure',
@@ -970,12 +970,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml, expected_response_xml)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         # check that no submission was made
         self.assertEqual(Submission.objects.count(), 0)
-    
+
     def test_nonce_reuse(self):
         # reuse the same nonce another time, authentication should fail
         sourced_id = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -985,7 +985,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id,
             result=self.BASE_RESULT_XML.format(score='0.64'),
         )
-        
+
         # OAuth1 signature and body hash for the HTTP request Authorization header
         oauth_client = oauthlib.oauth1.Client(
             client_key=self.lti_service.consumer_key,
@@ -1000,13 +1000,13 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
                 'Content-Type': 'application/xml',
             },
         )
-        
+
         # make the test request
         response = self.client.post(self.OUTCOMES_API_URL, data=req_xml, content_type='application/xml',
                 HTTP_AUTHORIZATION=oa_headers['Authorization'],
                 SERVER_NAME='aplus.local')
         response_xml = response.content.decode('utf-8')
-        
+
         expected_response_xml = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxxx', # random, can not know beforehand
             code_major='success',
@@ -1017,17 +1017,17 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='<replaceResultResponse/>',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml, expected_response_xml)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Submission.objects.count(), 1)
-        
+
         # send the same request again, the nonce check should fail
         response2 = self.client.post(self.OUTCOMES_API_URL, data=req_xml, content_type='application/xml',
                 HTTP_AUTHORIZATION=oa_headers['Authorization'],
                 SERVER_NAME='aplus.local')
         response_xml2 = response2.content.decode('utf-8')
-        
+
         expected_response_xml2 = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxxx', # random, can not know beforehand
             code_major='failure',
@@ -1038,12 +1038,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml2, expected_response_xml2)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
         # no second submission was created
         self.assertEqual(Submission.objects.count(), 1)
-    
+
     def test_invalid_req_XML(self):
         # LTI XML parser raises ParseError, wrong root element
         req_xml = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -1055,12 +1055,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
     </imsx_POXRequestHeaderInfo>
   </imsx_POXHeader>
 </POXEnvelopeRequest>'''
-        
+
         # make the test request
         self.client.force_authenticate(user=LTIServiceUser())
         response = self.client.post(self.OUTCOMES_API_URL, data=req_xml, content_type='application/xml')
         response_xml = response.content.decode('utf-8')
-        
+
         expected_response_xml = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxxx', # random, can not know beforehand
             code_major='failure',
@@ -1071,12 +1071,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml, expected_response_xml)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         # check that no submission was made
         self.assertEqual(Submission.objects.count(), 0)
-    
+
     def test_exceed_submission_limit(self):
         # student submits too many times. The exercise has limited the max submissions.
         # create the max number of submissions
@@ -1087,7 +1087,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
                 grade=40,
             )
             submission.submitters.set([self.student1_profile])
-        
+
         # try to make a new submission
         sourced_id1 = self.mk_sourced_id(self.lti_exercise2, enrollment=self.student1_enrollment)
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
@@ -1096,7 +1096,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id1,
             result=self.BASE_RESULT_XML.format(score='0.95'),
         )
-        
+
         self.client.force_authenticate(user=self.lti_user2) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
@@ -1110,14 +1110,14 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             extra_status='',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(Submission.objects.count(), self.lti_exercise2.max_submissions)
 
 
 class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.now = timezone.now()
@@ -1128,7 +1128,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
         cls.student1_profile = UserProfile.objects.get(user=cls.student1)
         cls.student1_profile.student_id = '123456'
         cls.student1_profile.save()
-        
+
         cls.lti_service = LTIService.objects.create(
             url='http://localhost:8080/lti-launch', # fake URL
             consumer_key='apluskey',
@@ -1147,7 +1147,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             starting_time=cls.year_before,
             ending_time=cls.year_after,
         )
-        
+
         cls.category = LearningObjectCategory.objects.create(
             name='LTI exercises',
             course_instance=cls.course_instance,
@@ -1170,7 +1170,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             max_submissions=5,
             lti_service=self.lti_service,
         )
-        
+
         # try to make a new submission
         sourced_id1 = '{}-{}'.format(lti_exercise.pk, 'ahdjdue73yrhdhsdy6we6') # fake sourced id since there is no enrollment
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
@@ -1179,7 +1179,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id1,
             result=self.BASE_RESULT_XML.format(score='0.76'),
         )
-        
+
         self.client.force_authenticate(user=LTIServiceUser(exercise=lti_exercise, lti_service=self.lti_service)) # skip OAuth credentials
         # authentication would also require a valid sourced id value, but authentication is skipped now
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
@@ -1194,7 +1194,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Submission.objects.count(), 0)
@@ -1220,7 +1220,7 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             max_submissions=5,
             lti_service=self.lti_service,
         )
-        
+
         # try to make a new submission
         sourced_id1 = self.mk_sourced_id(lti_exercise, enrollment=student1_enrollment)
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
@@ -1229,10 +1229,10 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             sourced_id=sourced_id1,
             result=self.BASE_RESULT_XML.format(score='0.76'),
         )
-        
+
         self.client.force_authenticate(user=LTIServiceUser(exercise=lti_exercise,
                                                            lti_service=self.lti_service,
-                                                           student_id=self.student1.id)) # skip OAuth credentials
+                                                           user_id=self.student1.id)) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
         expected_response_xml1 = self.BASE_OUTCOMES_RESPONSE_XML.format(
@@ -1246,14 +1246,14 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
             extra_status='',
             body='',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         self.assertEqual(Submission.objects.count(), 0)
 
 
 class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
-    
+
     @classmethod
     def setUpTestData(cls):
         cls.now = timezone.now()
@@ -1264,7 +1264,7 @@ class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
         cls.student1_profile = UserProfile.objects.get(user=cls.student1)
         cls.student1_profile.student_id = '123456'
         cls.student1_profile.save()
-        
+
         cls.lti_service = LTIService.objects.create(
             url='http://localhost:8080/lti-launch', # fake URL
             consumer_key='apluskey',
@@ -1315,7 +1315,7 @@ class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
             max_submissions=5,
             lti_service=cls.lti_service,
         )
-    
+
     def test_public_service_sourced_id(self):
         # make a replaceResult request
         sourced_id1 = self.mk_sourced_id(self.lti_exercise, user=self.student1)
@@ -1327,7 +1327,7 @@ class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
         )
         self.client.force_authenticate(user=LTIServiceUser(exercise=self.lti_exercise,
                                                            lti_service=self.lti_service,
-                                                           student_id=self.student1.id)) # skip OAuth credentials
+                                                           user_id=self.student1.id)) # skip OAuth credentials
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')
         expected_response_xml1 = self.BASE_OUTCOMES_RESPONSE_XML.format(
@@ -1340,9 +1340,9 @@ class LTIOutcomesPublicServiceTests(LTIOutcomesBaseTest):
             extra_status='',
             body='<replaceResultResponse/>',
         )
-        
+
         self.assertLTIOutcomesResponseXMLEqual(response_xml1, expected_response_xml1)
-        
+
         # check the submissions in the database
         self.assertEqual(Submission.objects.count(), 1)
         submission1 = Submission.objects.first()

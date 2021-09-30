@@ -1,132 +1,134 @@
 import logging
-from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.authentication import BaseAuthentication
-from django.conf import settings
+from typing import Any, Dict, List, Optional, Tuple
 
+from aplus_auth import settings as auth_settings
+from aplus_auth.payload import Payload, Permission
+from aplus_auth.auth import get_token_from_headers
+from aplus_auth.auth.django import ServiceAuthentication
+from django.conf import settings
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.request import Request
+
+from authorization.object_permissions import ObjectPermissions
 from lib.crypto import get_valid_message
-from lib.helpers import get_url_ip_address_list, get_remote_addr
 from exercise.models import BaseExercise, Submission
 from userprofile.models import GraderUser
 from . import GRADER_AUTH_TOKEN
 
-if settings.KUBERNETES_MODE:
-    from kubernetes import client as k8s_client, config as k8s_config
 
 logger = logging.getLogger('aplus.authentication')
 
 
-class GraderAuthentication(BaseAuthentication):
-    def authenticate(self, request):
-        """
-        Authenticate the request and return a two-tuple of (user, token).
-        """
-        token = request.GET.get(GRADER_AUTH_TOKEN, None)
+class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication):
+    allow_any_issuer = True
 
-        if token is None:
-            return None
+    def get_token(self, request: Request) -> Optional[str]:
+        token = get_token_from_headers(request.headers)
+        if token is not None:
+            return token
 
-        # Get user by token. May raise AuthenticationFailed
-        user = self.authenticate_credentials(token)
+        return None
 
-        # Make sure that remote address matches service address
-        ip = get_remote_addr(request)
-
-        if settings.KUBERNETES_MODE:
-            # Check k8s pod IPs first (request from k8s cluster)
-            auth_ok, error_str_k8s = self.authenticate_k8s(ip)
-            if not auth_ok:
-                # Otherwise, check service URL match (request from external sources)
-                auth_ok, error_str_ext = self.authenticate_service(user, ip)
-                if not auth_ok:
-                    logger.error(error_str_k8s)
-                    logger.error(error_str_ext)
-                    raise AuthenticationFailed("Client address does not match service address or grader pod IP addresses.")
+    def authenticate(self, request: Request) -> Optional[Tuple[GraderUser, Payload]]:
+        if self.get_token(request):
+            return super().authenticate(request)
         else:
-            auth_ok, error_str = self.authenticate_service(user, ip)
-            if not auth_ok:
-                logger.error(error_str)
-                raise AuthenticationFailed("Client address does not match service address.")
+            token = request.GET.get(GRADER_AUTH_TOKEN, None)
+            if token is None:
+                return None
 
-        # All good
-        return (user, token)
+            permissions = ObjectPermissions()
+            payload = Payload()
+            self.add_token_permissions(token, permissions, payload)
+            return GraderUser(token, permissions), payload
 
-    def authenticate_k8s(self, ip):
-        """
-        Check if IP in grader pod IPs. Return tuple (auth_ok, error_str)
-        """
-        k8s_config.load_incluster_config()
-        k8s_api = k8s_client.CoreV1Api()
-        grader_pods = k8s_api.list_namespaced_pod(settings.KUBERNETES_NAMESPACE, label_selector="app=grader")
-        grader_pod_ips = [pod.status.pod_ip for pod in grader_pods.items]
-
-        if ip not in grader_pod_ips:
-            err = "Request IP does not match grader pod IPs: {} not in {}".format(ip, grader_pod_ips)
-            return (False, err)
+    def add_token_permissions(self, token: str, permissions: ObjectPermissions, payload: Payload):
+        if token[0] == "s":
+            submission = self.authenticate_submission_token(token[1:])
+            payload.permissions.submissions.add(Permission.WRITE, id=submission.id)
+            exercise = submission.exercise
+        elif token[0] == "e":
+            exercise, user_id = self.authenticate_exercise_token(token[1:])
+            perm_dict: Dict[str, Any] = {"exercise_id": exercise.id, "user_id": user_id}
+            payload.permissions.submissions.add(Permission.CREATE, **perm_dict)
         else:
-            return (True, "")
+            raise AuthenticationFailed("Authentication token is invalid.")
 
-    def authenticate_service(self, user, ip):
-        """
-        Check if request IP matches the exercise service URL. Return tuple (auth_ok, error_str)
-        """
-        # TODO: we do not know the language, but we expect that all versions of service_url are within the same domain
-        service_url = user._exercise.as_leaf_class().get_service_url('en')
-        ips = get_url_ip_address_list(service_url)
-        if ip not in ips and ip != '127.0.0.1':
-            err = "Request IP does not match exercise service URL: {} not in {} ({})".format(ip, ips, service_url)
-            return (False, err)
-        else:
-            return (True, "")
+        payload.permissions.courses.add(Permission.WRITE, id=exercise.course_instance.course.id)
 
-    def authenticate_credentials(self, token):
+    def get_user(self, request: Request, id: str, payload: Payload) -> GraderUser:
+        # check public key is allowed access
+        if auth_settings().DISABLE_LOGIN_CHECKS:
+            if not settings.DEBUG:
+                logger.warn("!!! JWT login checks are disabled !!!")
+        elif id not in settings.ALIAS_TO_PUBLIC_KEY.values():
+            logger.info(f"Service not authorized: {id}")
+            raise AuthenticationFailed("ID not trusted")
+
+        permissions = ObjectPermissions.from_payload(payload)
+
+        tokens: List[str] = payload.get("tokens", []) # type: ignore
+        atoken = request.GET.get(GRADER_AUTH_TOKEN, None)
+        if atoken is not None:
+            tokens.append(atoken)
+
+        for token in tokens:
+            self.add_token_permissions(token, permissions, payload)
+
+        return GraderUser(id, permissions)
+
+    def authenticate_submission_token(self, submission_token) -> Submission:
         """
-        Resolve user from authentication token
+        Resolve submission from authentication token
 
         Args:
-            token: authentication token in correct format
+            submission_token: authentication token in correct format
 
         Raises:
             AuthenticationFailed if authentication failed
         """
-        token_type, token = token[0], token[1:]
-        if token_type == 's':
-            token_parts = token.split('.', 1)
-            if len(token_parts) != 2:
-                raise AuthenticationFailed("Authentication token isn't in correct format.")
+        token_parts = submission_token.split('.', 1)
+        if len(token_parts) != 2:
+            raise AuthenticationFailed("Submission token isn't in correct format.")
 
-            submission_id, submission_hash = token_parts
-            try:
-                submission_id = int(submission_id, 16)
-            except ValueError:
-                raise AuthenticationFailed("Authentication token isn't in correct format.")
+        submission_id, submission_hash = token_parts
+        try:
+            submission_id = int(submission_id, 16)
+        except ValueError:
+            raise AuthenticationFailed("Submission token isn't in correct format.")
 
-            try:
-                submission = Submission.objects.get(id=submission_id, hash=submission_hash)
-            except Submission.DoesNotExist:
-                raise AuthenticationFailed("No valid submission for authentication token.")
+        try:
+            submission = Submission.objects.get(id=submission_id, hash=submission_hash)
+        except Submission.DoesNotExist:
+            raise AuthenticationFailed("No valid submission for submission token.")
 
-            user = GraderUser.from_submission(submission)
+        return submission
 
-        elif token_type == 'e':
-            try:
-                identifier = get_valid_message(token)
-            except ValueError as e:
-                raise AuthenticationFailed("Authentication token is corrupted '{error!s}'.".format(error=e))
+    def authenticate_exercise_token(self, exercise_token) -> Tuple[BaseExercise, str]:
+        """
+        Resolve exercise from authentication token
 
-            identifier_parts = identifier.split('.', 1)
-            if len(identifier_parts) != 2:
-                raise AuthenticationFailed("Authentication token identifier "
-                                           "isn't in correct format.")
+        Args:
+            exercise_token: authentication token in correct format
 
-            student_id, exercise_id = identifier_parts
-            try:
-                exercise = BaseExercise.objects.get(id=exercise_id)
-            except BaseExercise.DoesNotExist:
-                raise AuthenticationFailed("No valid exercise for authentication token.")
+        Raises:
+            AuthenticationFailed if authentication failed
+        """
+        try:
+            identifier = get_valid_message(exercise_token)
+        except ValueError as e:
+            raise AuthenticationFailed("Exercise token is corrupted '{error!s}'.".format(error=e))
 
-            user = GraderUser.from_exercise(exercise, student_id)
+        identifier_parts = identifier.split('.', 1)
+        if len(identifier_parts) != 2:
+            raise AuthenticationFailed("Exercise token identifier "
+                                        "isn't in correct format.")
 
-        else:
-            raise AuthenticationFailed("Authentication token is invalid.")
+        user_id, exercise_id = identifier_parts
+        try:
+            exercise = BaseExercise.objects.get(id=exercise_id)
+        except BaseExercise.DoesNotExist:
+            raise AuthenticationFailed("No valid exercise for exercise token.")
 
-        return user
+        return exercise, user_id

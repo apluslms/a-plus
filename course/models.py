@@ -409,7 +409,10 @@ def get_course_staff_visibility_filter(user, prefix=None):
             & Q(**{f'{prefix}enrollment__user_profile': user})
         )
     elif isinstance(user, GraderUser):
-        filter = Q(**{f'{prefix}course': user._course})
+        courses = [o["id"] for _, o in user.permissions.courses if "id" in o]
+        instances = [o["id"] for _, o in user.permissions.instances if "id" in o]
+        filter = Q(**{f'{prefix}course__in': courses}) | Q(**{f'{prefix}id__in': instances})
+
     return filter
 
 
@@ -732,7 +735,7 @@ class CourseInstance(UrlMixin, models.Model):
                     self.teachers.filter(id=user.userprofile.id).exists()
                 ) or (
                     isinstance(user, GraderUser) and
-                    user._course == self.course
+                    user.permissions.has_course(Permission.WRITE, id=self.course.id)
                 )
             )
         )
