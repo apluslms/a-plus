@@ -2,6 +2,7 @@ import string
 
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import BasePermission as Permission
 
 from lib.helpers import Enum
 
@@ -9,8 +10,7 @@ from lib.helpers import Enum
 Base permission classes.
 
 These classes use same interface than ones in django-rest-framework and
-are usable with APIViews too. We define our superclass so we don't need to
-depend on django-rest-framework.
+are usable with APIViews too.
 """
 
 
@@ -29,23 +29,6 @@ class FilterBackend(object):
 
     def get_fields(self, view):
         return []
-
-
-class Permission(object):
-    """
-    Permission interface
-    """
-    def has_permission(self, request, view):
-        """
-        Return `True` if permission is granted, `False` otherwise.
-        """
-        return True
-
-    def has_object_permission(self, request, view, obj):
-        """
-        Return `True` if permission is granted, `False` otherwise.
-        """
-        return True
 
 
 class NoPermission(Permission):

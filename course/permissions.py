@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Type
 
+from aplus_auth.payload import Payload, Permission as AccessPermission
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.utils.text import format_lazy
@@ -14,14 +15,101 @@ from authorization.permissions import (
     FilterBackend,
 )
 from exercise.cache.points import CachedPoints
+from exercise.models import BaseExercise
+from exercise.submission_models import Submission
 from userprofile.models import UserProfile
 from .models import (
+    Course,
     CourseModule,
     CourseInstance,
 )
 
 
-class CourseVisiblePermission(ObjectVisibleBasePermission):
+class JWTObjectPermission(Permission):
+    obj_key: str
+    obj_type: Type[Any]
+    access_key: str
+    access_type: AccessPermission
+    id_key: str = "id"
+
+    def get_obj(self, request, view):
+        return getattr(view, self.obj_key)
+
+    def has_object_in_permissions(self, request, view, obj):
+        return request.auth.permissions.has(self.access_key, self.access_type, **{self.id_key: obj.id})
+
+    def has_permission(self, request, view):
+        return self.has_object_permission(request, view, self.get_obj(request, view))
+
+    def has_object_permission(self, request, view, obj):
+        if not hasattr(request, "auth") or not isinstance(request.auth, Payload):
+            return False
+        if not isinstance(obj, self.obj_type):
+            return True
+        return self.has_object_in_permissions(request, view, obj)
+
+class JWTCoursePermission(JWTObjectPermission):
+    obj_key = "course"
+    obj_type = Course
+    access_key = "courses"
+
+class JWTCourseWritePermission(JWTCoursePermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.WRITE
+
+class JWTCourseReadPermission(JWTCoursePermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.READ
+
+class JWTInstancePermission(JWTObjectPermission):
+    obj_key = "instance"
+    obj_type = CourseInstance
+    access_key = "instances"
+
+class JWTInstanceWritePermission(JWTInstancePermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.WRITE
+
+class JWTInstanceReadPermission(JWTInstancePermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.READ
+
+class JWTExercisePermission(JWTObjectPermission):
+    obj_key = "exercise"
+    obj_type = CourseInstance
+    access_key = "exercises"
+
+class JWTExerciseWritePermission(JWTExercisePermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.WRITE
+
+class JWTExerciseReadPermission(JWTExercisePermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.READ
+
+class JWTSubmissionPermission(JWTObjectPermission):
+    obj_key = "submission"
+    obj_type = Submission
+    access_key = "submissions"
+
+class JWTSubmissionReadPermission(JWTSubmissionPermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.READ
+
+class JWTSubmissionWritePermission(JWTSubmissionPermission):
+    message = _("SOMETHING_OR_OTHER")
+    access_type = AccessPermission.WRITE
+
+class JWTSubmissionCreatePermission(JWTObjectPermission):
+    message = _("SOMETHING_OR_OTHER")
+    obj_key = "exercise"
+    obj_type = BaseExercise
+    access_key = "submissions"
+    access_type = AccessPermission.CREATE
+    id_key: str = "exercise_id"
+
+
+class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
     message = _('COURSE_VISIBILITY_PERMISSION_DENIED_MSG')
     model = CourseInstance
     obj_var = 'instance'
@@ -110,6 +198,8 @@ class CourseVisiblePermission(ObjectVisibleBasePermission):
             )
             return False
         return True
+
+CourseVisiblePermission = CourseVisiblePermissionBase | JWTCourseReadPermission
 
 
 class EnrollInfoVisiblePermission(ObjectVisibleBasePermission):
