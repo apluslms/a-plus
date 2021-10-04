@@ -172,6 +172,15 @@ $(function() {
         addScreenReaderMessage(link, _('opens in a new tab'));
       });
     });
+
+    // Simple visibility toggling: add data-toggle="visibility" and
+    // data-target="<selector>" to toggle the visibility of all elements that
+    // match <selector>.
+    $(document).on('click', '[data-toggle="visibility"]', function (event) {
+      event.preventDefault();
+      const targetSelector = $(this).data('target');
+      $(targetSelector).toggleClass('hidden');
+    });
 });
 
 /**
