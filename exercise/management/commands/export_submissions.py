@@ -48,6 +48,18 @@ class Command(BaseCommand):
                  'This is the end index of the submissions. '
                  'By default, all submissions up to the last index are included.',
         )
+        parser.add_argument(
+            '-d',
+            '--include-deadline-deviations',
+            action='store_true',
+            help="If set, students' personal deadline deviations are included in the submissions CSV file.",
+        )
+        parser.add_argument(
+            '-m',
+            '--include-max-submission-deviations',
+            action='store_true',
+            help="If set, students' personal max submission attempt deviations are included in the submissions CSV file.",
+        )
 
     def handle(self, *args, **options):
         course_instance_ids = options['course_instance_id']
@@ -129,61 +141,63 @@ class Command(BaseCommand):
                 'id',
             )[submissions_slice]
 
-            # Fetch all deadline deviations in the course instances.
-            all_deadline_deviations_queryset = DeadlineRuleDeviation.objects.filter(
-                exercise__course_module__course_instance__id__in=course_instance_ids,
-            ).prefetch_related(
-                Prefetch(
-                    'exercise',
-                    queryset=BaseExercise.objects.select_related(
-                        'course_module',
-                    ).only(
-                        'id',
-                        'course_module__id',
-                        'course_module__closing_time',
-                        'course_module__course_instance__id',
-                        'course_module__course_instance__course__id',
-                    ),
-                ),
-                Prefetch(
-                    'submitter',
-                    queryset=UserProfile.objects.select_related('user').only('user__id'),
-                ),
-            ).only(
-                'exercise__id',
-                'exercise__course_module__closing_time',
-                'exercise__course_module__course_instance__id',
-                'submitter__user__id',
-                'extra_minutes',
-            )
-
             all_deadline_deviations = {}
-            for dl_dev in all_deadline_deviations_queryset:
-                all_deadline_deviations.setdefault(dl_dev.exercise.id, {})[dl_dev.submitter.user.id] = dl_dev.get_new_deadline()
+            if options['include_deadline_deviations']:
+                # Fetch all deadline deviations in the course instances.
+                all_deadline_deviations_queryset = DeadlineRuleDeviation.objects.filter(
+                    exercise__course_module__course_instance__id__in=course_instance_ids,
+                ).prefetch_related(
+                    Prefetch(
+                        'exercise',
+                        queryset=BaseExercise.objects.select_related(
+                            'course_module',
+                        ).only(
+                            'id',
+                            'course_module__id',
+                            'course_module__closing_time',
+                            'course_module__course_instance__id',
+                            'course_module__course_instance__course__id',
+                        ),
+                    ),
+                    Prefetch(
+                        'submitter',
+                        queryset=UserProfile.objects.select_related('user').only('user__id'),
+                    ),
+                ).only(
+                    'exercise__id',
+                    'exercise__course_module__closing_time',
+                    'exercise__course_module__course_instance__id',
+                    'submitter__user__id',
+                    'extra_minutes',
+                )
 
-            # Fetch all max submissions deviations in the course instances.
-            all_max_submissions_deviations_queryset = MaxSubmissionsRuleDeviation.objects.filter(
-                exercise__course_module__course_instance__id__in=course_instance_ids,
-            ).select_related(
-                'exercise',
-            ).prefetch_related(
-                Prefetch(
-                    'submitter',
-                    queryset=UserProfile.objects.select_related('user').only('user__id'),
-                ),
-            ).only(
-                'exercise__id',
-                'exercise__max_submissions',
-                'submitter__user__id',
-                'extra_submissions',
-            )
+                for dl_dev in all_deadline_deviations_queryset:
+                    all_deadline_deviations.setdefault(dl_dev.exercise.id, {})[dl_dev.submitter.user.id] = dl_dev.get_new_deadline()
 
             all_max_submissions_deviations = {}
-            for sbms_dev in all_max_submissions_deviations_queryset:
-                all_max_submissions_deviations.setdefault(
-                    sbms_dev.exercise.id,
-                    {},
-                )[sbms_dev.submitter.user.id] = sbms_dev.exercise.max_submissions + sbms_dev.extra_submissions
+            if options['include_max_submission_deviations']:
+                # Fetch all max submissions deviations in the course instances.
+                all_max_submissions_deviations_queryset = MaxSubmissionsRuleDeviation.objects.filter(
+                    exercise__course_module__course_instance__id__in=course_instance_ids,
+                ).select_related(
+                    'exercise',
+                ).prefetch_related(
+                    Prefetch(
+                        'submitter',
+                        queryset=UserProfile.objects.select_related('user').only('user__id'),
+                    ),
+                ).only(
+                    'exercise__id',
+                    'exercise__max_submissions',
+                    'submitter__user__id',
+                    'extra_submissions',
+                )
+
+                for sbms_dev in all_max_submissions_deviations_queryset:
+                    all_max_submissions_deviations.setdefault(
+                        sbms_dev.exercise.id,
+                        {},
+                    )[sbms_dev.submitter.user.id] = sbms_dev.exercise.max_submissions + sbms_dev.extra_submissions
 
         # Create the CSV output files.
         # One CSV file for all exercises.
@@ -198,6 +212,8 @@ class Command(BaseCommand):
                 submissions,
                 all_deadline_deviations,
                 all_max_submissions_deviations,
+                options['include_deadline_deviations'],
+                options['include_max_submission_deviations'],
             )
             self.stdout.write("Created the submission file: " + submission_file_path)
 
@@ -244,56 +260,67 @@ class Command(BaseCommand):
             submissions,
             all_deadline_deviations,
             all_max_submissions_deviations,
+            include_deadline_deviations=False,
+            include_max_submission_deviations=False,
     ):
+        fieldnames = [
+            'submission_id',
+            'submitter_user_ids',
+            'exercise_id',
+            'submission_time',
+            'grade',
+            'service_points',
+            'service_max_points',
+            'status',
+            'late_penalty_applied',
+            'grading_time',
+        ]
+        if include_max_submission_deviations:
+            fieldnames.insert(4, 'personal_max_submissions')
+        if include_deadline_deviations:
+            fieldnames.insert(4, 'personal_deadline')
+
         with open(submission_file_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=(
-                'submission_id',
-                'submitter_user_ids',
-                'exercise_id',
-                'submission_time',
-                'personal_deadline',
-                'personal_max_submissions',
-                'grade',
-                'service_points',
-                'service_max_points',
-                'status',
-                'late_penalty_applied',
-                'grading_time',
-            ))
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             for submission in submissions:
-                dl_deviations = all_deadline_deviations.get(submission.exercise.pk, {})
-                personal_deadline = None
-                for profile in submission.submitter_userprofiles:
-                    dl = dl_deviations.get(profile.user.id, None)
-                    if dl is not None and (
-                            personal_deadline is None
-                            or dl > personal_deadline
-                    ):
-                        personal_deadline = dl
-
-                max_submissions_deviations = all_max_submissions_deviations.get(submission.exercise.pk, {})
-                personal_max_submissions = None
-                for profile in submission.submitter_userprofiles:
-                    max_sbms = max_submissions_deviations.get(profile.user.id, None)
-                    if max_sbms is not None and (
-                            personal_max_submissions is None
-                            or max_sbms > personal_max_submissions
-                    ):
-                        personal_max_submissions = max_sbms
-
-                writer.writerow({
+                d = {
                     'submission_id': submission.pk,
                     'submitter_user_ids': '-'.join([str(profile.user.id) for profile in submission.submitter_userprofiles]),
                     'exercise_id': submission.exercise.pk,
                     'submission_time': submission.submission_time,
-                    'personal_deadline': personal_deadline,
-                    'personal_max_submissions': personal_max_submissions,
                     'grade': submission.grade,
                     'service_points': submission.service_points,
                     'service_max_points': submission.service_max_points,
                     'status': submission.status,
                     'late_penalty_applied': submission.late_penalty_applied,
                     'grading_time': submission.grading_time,
-                })
+                }
+                if include_deadline_deviations:
+                    dl_deviations = all_deadline_deviations.get(submission.exercise.pk, {})
+                    personal_deadline = None
+                    for profile in submission.submitter_userprofiles:
+                        dl = dl_deviations.get(profile.user.id, None)
+                        if dl is not None and (
+                                personal_deadline is None
+                                or dl > personal_deadline
+                        ):
+                            personal_deadline = dl
+
+                    d['personal_deadline'] = personal_deadline
+
+                if include_max_submission_deviations:
+                    max_submissions_deviations = all_max_submissions_deviations.get(submission.exercise.pk, {})
+                    personal_max_submissions = None
+                    for profile in submission.submitter_userprofiles:
+                        max_sbms = max_submissions_deviations.get(profile.user.id, None)
+                        if max_sbms is not None and (
+                                personal_max_submissions is None
+                                or max_sbms > personal_max_submissions
+                        ):
+                            personal_max_submissions = max_sbms
+
+                    d['personal_max_submissions'] = personal_max_submissions
+
+                writer.writerow(d)
 
