@@ -179,6 +179,10 @@ class Submission(UrlMixin, models.Model):
         verbose_name=_('LABEL_LATE_PENALTY_APPLIED'),
         blank=True, null=True,
     )
+    force_exercise_points = models.BooleanField(
+        verbose_name=_('LABEL_FORCE_EXERCISE_POINTS'),
+        default=False,
+    )
 
     # Points received from assessment, before scaled to grade
     service_points = models.IntegerField(
@@ -335,7 +339,7 @@ class Submission(UrlMixin, models.Model):
 
     def set_ready(self):
         self.grading_time = timezone.now()
-        if self.status != self.STATUS.UNOFFICIAL:
+        if self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points:
             self.status = self.STATUS.READY
 
         # Fire set hooks.

@@ -2911,6 +2911,10 @@ msgid "LABEL_LATE_PENALTY_APPLIED"
 msgstr "käytetty myöhästymissakko"
 
 #: exercise/submission_models.py
+msgid "LABEL_FORCE_EXERCISE_POINTS"
+msgstr "Pakota tehtävän pisteet"
+
+#: exercise/submission_models.py
 msgid "LABEL_SERVICE_POINTS"
 msgstr "palvelimen antamat pisteet"
 

@@ -9,6 +9,12 @@ from .hierarchy import ContentMixin
 
 
 def has_more_points(submission, current_entry):
+    # In case two submissions have the same number of points, the newer one wins.
+    if submission.grade == current_entry['points']:
+        return (
+            current_entry['submission_date'] is None
+            or submission.submission_time > current_entry['submission_date']
+        )
     return submission.grade >= current_entry['points']
 
 
@@ -40,10 +46,12 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'submission_count': 0,
                         'submissions': [],
                         'best_submission': None,
+                        'submission_date': None,
                         'points': 0,
                         'passed': entry['points_to_pass'] == 0,
                         'graded': False,
                         'unofficial': False, # TODO: this should be True, but we need to ensure nothing breaks when it's changed
+                        'forced_points': False,
                     })
                 r_augment(entry.get('children'))
         for module in modules:
@@ -113,23 +121,37 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 #    - current submission is unofficial AND
                 #    - current best is unofficial
                 #    - current submission has better grade
-                if (
-                    ready and (
-                        entry['unofficial'] or
-                        is_better_than(submission, entry)
-                    )
-                ) or (
-                    unofficial and
-                    not entry['graded'] and # NOTE: == entry['unofficial'], but before any submissions entry['unofficial'] is False
-                    is_better_than(submission, entry)
-                ):
+                if submission.force_exercise_points:
+                    # This submission is chosen as the best submission and no
+                    # further submissions are considered.
                     entry.update({
                         'best_submission': submission.id,
+                        'submission_date': submission.submission_time,
                         'points': submission.grade,
-                        'passed': ready and submission.grade >= entry['points_to_pass'],
-                        'graded': ready, # != unofficial
-                        'unofficial': unofficial,
+                        'passed': submission.grade >= entry['points_to_pass'],
+                        'graded': True,
+                        'unofficial': False,
+                        'forced_points': True,
                     })
+                if not entry.get('forced_points', False):
+                    if (
+                        ready and (
+                            entry['unofficial'] or
+                            is_better_than(submission, entry)
+                        )
+                    ) or (
+                        unofficial and
+                        not entry['graded'] and # NOTE: == entry['unofficial'], but before any submissions entry['unofficial'] is False
+                        is_better_than(submission, entry)
+                    ):
+                        entry.update({
+                            'best_submission': submission.id,
+                            'submission_date': submission.submission_time,
+                            'points': submission.grade,
+                            'passed': ready and submission.grade >= entry['points_to_pass'],
+                            'graded': ready, # != unofficial
+                            'unofficial': unofficial,
+                        })
                 if submission.notifications.count() > 0:
                     entry['notified'] = True
                     if submission.notifications.filter(seen=False).count() > 0:

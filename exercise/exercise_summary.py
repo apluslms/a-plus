@@ -26,6 +26,7 @@ class UserExerciseSummary(object):
         self.best_submission = None
         self.graded = False
         self.unofficial = False
+        self.forced_points = False
 
         if self.user and self.user.is_authenticated:
             self.submissions = list(exercise.get_submissions_for_student(
@@ -36,27 +37,46 @@ class UserExerciseSummary(object):
                     Submission.STATUS.REJECTED,
                 ):
                     self.submission_count += 1
-                    if (
-                        s.status == Submission.STATUS.READY and (
-                            self.best_submission is None
-                            or self.unofficial
-                            or s.grade > self.best_submission.grade
-                        )
-                    ):
+
+                    if s.force_exercise_points:
+                        # This submission is chosen as the best submission and
+                        # no further submissions are considered.
                         self.best_submission = s
                         self.unofficial = False
                         self.graded = True
-                    elif (
-                        s.status == Submission.STATUS.UNOFFICIAL and (
-                            not self.graded
-                            or (
-                                self.unofficial
-                                and s.grade > self.best_submission.grade
+                        self.forced_points = True
+                    if not self.forced_points:
+                        if (
+                            s.status == Submission.STATUS.READY and (
+                                self.best_submission is None
+                                or self.unofficial
+                                or s.grade > self.best_submission.grade
+                                or (
+                                    s.grade == self.best_submission.grade
+                                    and s.submission_time > self.best_submission.submission_time
+                                )
                             )
-                        )
-                    ):
-                        self.best_submission = s
-                        self.unofficial = True
+                        ):
+                            self.best_submission = s
+                            self.unofficial = False
+                            self.graded = True
+                        elif (
+                            s.status == Submission.STATUS.UNOFFICIAL and (
+                                not self.graded
+                                or (
+                                    self.unofficial
+                                    and (
+                                        s.grade > self.best_submission.grade
+                                        or (
+                                            s.grade == self.best_submission.grade
+                                            and s.submission_time > self.best_submission.submission_time
+                                        )
+                                    )
+                                )
+                            )
+                        ):
+                            self.best_submission = s
+                            self.unofficial = True
 
     def get_submission_count(self):
         return self.submission_count

@@ -513,6 +513,29 @@ class ExerciseTest(TestCase):
             self.late_submission_when_late_allowed.set_points(10, 10)
             self.assertEqual(80, self.late_submission_when_late_allowed.grade)
 
+    def test_forced_points(self):
+        self.submission.set_points(5, 10)
+        self.submission.status = Submission.STATUS.READY
+        self.submission.save()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 50)
+        forced_points_submission = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.userprofile,
+        )
+        forced_points_submission.submitters.add(self.user.userprofile)
+        forced_points_submission.set_points(1, 10)
+        forced_points_submission.save()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 50)
+        forced_points_submission.force_exercise_points = True
+        forced_points_submission.save()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 10)
+        forced_points_submission.delete()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 50)
+
     def test_submission_late_penalty_applied(self):
         self.submission.set_points(5, 10)
         self.late_submission.set_points(5, 10)

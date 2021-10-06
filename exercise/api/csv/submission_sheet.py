@@ -4,19 +4,27 @@ from rest_framework.reverse import reverse
 
 def filter_best_submissions(submissions):
     best = {}
+    forced = {}
     eid = None
 
     for i,s in enumerate(submissions):
         if s.exercise_id != eid:
             eid = s.exercise_id
             best[eid] = {}
+            forced[eid] = {}
 
         if s.status == 'ready':
             user = s.submitters.first()
             uid = user.id if user else 0
-            old = best[eid].get(uid)
-            if not old or s.grade >= old[1]:
+            if s.force_exercise_points:
+                # This submission is chosen as the best submission and no
+                # further submissions are considered.
                 best[eid][uid] = (i,s.grade)
+                forced[eid][uid] = True
+            if not forced[eid].get(uid):
+                old = best[eid].get(uid)
+                if not old or s.grade >= old[1]:
+                    best[eid][uid] = (i,s.grade)
 
     filtered = []
     for ebest in best.values():

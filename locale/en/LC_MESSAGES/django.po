@@ -2909,6 +2909,10 @@ msgid "LABEL_LATE_PENALTY_APPLIED"
 msgstr "late penalty applied"
 
 #: exercise/submission_models.py
+msgid "LABEL_FORCE_EXERCISE_POINTS"
+msgstr "Force exercise points"
+
+#: exercise/submission_models.py
 msgid "LABEL_SERVICE_POINTS"
 msgstr "service points"
 
