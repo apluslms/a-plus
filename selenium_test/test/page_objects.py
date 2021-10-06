@@ -17,7 +17,6 @@ from locators import FirstPageLocators, \
     StudentFeedbackPageLocators, \
     ExercisePageLocators, \
     InspectionPageLocators, \
-    AssessmentPageLocators, \
     MyFirstExerciseLocators, \
     FileUploadGraderLocators, \
     MyAjaxExerciseGraderLocators
@@ -402,37 +401,28 @@ class StudentFeedbackPage(BasePage):
 class InspectionPage(BasePage):
     def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/inspect/", InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
+        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/inspect/", InspectionPageLocators.ASSESSMENT_BUTTON)
 
-    def doesNotHaveFeedback(self):
-        return self.isElementVisible(InspectionPageLocators.NO_FEEDBACK_BANNER)
+    def clickAssessmentButton(self):
+        self.getElement(InspectionPageLocators.ASSESSMENT_BUTTON).click()
 
-    def clickAssessThisSubmissionLink(self):
-        self.clickThrough(InspectionPageLocators.ASSESS_THIS_SUBMISSION_LINK)
-        self.waitForPage()
+    def clickAssistantFeedbackToggle(self):
+        self.getElement(InspectionPageLocators.ASSISTANT_FEEDBACK_TOGGLE).click()
 
-    def getSubmitters(self):
-        return str(self.getElement(InspectionPageLocators.SUBMITTERS_TEXT).text)
-
-    def getGrade(self):
-        return str(self.getElement(InspectionPageLocators.GRADE_TEXT).text)
-
-class AssessmentPage(BasePage):
-    def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
-        BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/assess/", AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT)
+    def clickGraderFeedbackToggle(self):
+        self.getElement(InspectionPageLocators.GRADER_FEEDBACK_TOGGLE).click()
 
     def setPoints(self, points):
-        self.clearAndSendKeys(AssessmentPageLocators.POINTS_INPUT, points)
+        self.clearAndSendKeys(InspectionPageLocators.POINTS_INPUT, points)
 
     def setAssistantFeedback(self, text):
-        self.clearAndSendKeys(AssessmentPageLocators.ASSISTANT_FEEDBACK_INPUT, text)
+        self.clearAndSendKeys(InspectionPageLocators.ASSISTANT_FEEDBACK_INPUT, text)
 
     def setFeedback(self, text):
-        self.clearAndSendKeys(AssessmentPageLocators.FEEDBACK_INPUT, text)
+        self.clearAndSendKeys(InspectionPageLocators.FEEDBACK_INPUT, text)
 
     def submit(self):
-        self.clickThrough(AssessmentPageLocators.SAVE_BUTTON)
+        self.clickThrough(InspectionPageLocators.SAVE_BUTTON)
         self.waitForPage()
 
 
