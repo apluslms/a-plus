@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from course.api.serializers import CourseUsertagBriefSerializer
+from course.models import Enrollment
 from lib.api.serializers import AlwaysListSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
 from ..cache.points import CachedPoints
@@ -17,10 +18,12 @@ class UserToTagSerializer(AlwaysListSerializer, CourseUsertagBriefSerializer):
 
 class UserWithTagsSerializer(UserBriefSerializer):
     tags = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta(UserBriefSerializer.Meta):
         fields = UserBriefSerializer.Meta.fields + (
             'tags',
+            'role',
         )
 
     def get_tags(self, obj):
@@ -31,6 +34,17 @@ class UserWithTagsSerializer(UserBriefSerializer):
         )
         return ser.data
 
+    def get_role(self, obj):
+        view = self.context['view']
+        try:
+            enrollment = Enrollment.objects.get(
+                course_instance=view.instance,
+                user_profile=obj
+            )
+            return Enrollment.ENROLLMENT_ROLE[enrollment.role]
+        except Enrollment.DoesNotExist:
+            return ""
+        
 
 class ExercisePointsSerializer(serializers.Serializer):
 
