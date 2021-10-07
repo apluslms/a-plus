@@ -87,6 +87,13 @@ class CourseViewSet(ListSerializerMixin,
         triggers a course update and returns any errors. Following attributes can be given:
 
     * `email_on_error`: whether to send an email to instance staff on error
+
+    `POST /courses/<course_id>/send_mail/`:
+        sends an email to course instance's technical contacts (or teachers if
+        there are no technical contacts). Following attributes can be given:
+
+    * `subject`: email subject
+    * `message`: email body
     """
     lookup_url_kwarg = 'course_id'
     lookup_value_regex = REGEX_INT
@@ -138,6 +145,23 @@ class CourseViewSet(ListSerializerMixin,
                     errors.append("Failed to send error email")
 
         return Response(errors, status=500 if errors else 200)
+
+    # get_permissions lambda overwrites the normal version used for the above methods
+    @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
+    def send_mail(self, request, *args, **kwargs):
+        subject = request.POST.get("subject")
+        message = request.POST.get("message")
+        try:
+            success = email_course_instance(self.get_object(), subject, message)
+        except ValueError as e:
+            return Response(str(e))
+        except Exception as e:
+            return Response(str(e), status=500)
+        else:
+            if success:
+                return Response()
+            else:
+                return Response("Failed to send email")
 
 
 class CourseExercisesViewSet(NestedViewSetMixin,
