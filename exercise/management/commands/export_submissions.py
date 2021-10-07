@@ -60,6 +60,12 @@ class Command(BaseCommand):
             action='store_true',
             help="If set, students' personal max submission attempt deviations are included in the submissions CSV file.",
         )
+        parser.add_argument(
+            '-i',
+            '--include-student-ids',
+            action='store_true',
+            help="If set, submitters' student ids are included in the submissions CSV file.",
+        )
 
     def handle(self, *args, **options):
         course_instance_ids = options['course_instance_id']
@@ -121,12 +127,16 @@ class Command(BaseCommand):
 
         # Fetch all submissions for the exercises.
         if submission_file_path:
+            user_fields = ['user__id']
+            if options['include_student_ids']:
+                user_fields.append('student_id')
+
             submissions = Submission.objects.filter(
                 exercise__in=exercises,
             ).prefetch_related(
                 Prefetch(
                     'submitters',
-                    queryset=UserProfile.objects.select_related('user').only('user__id'),
+                    queryset=UserProfile.objects.select_related('user').only(*user_fields),
                     to_attr='submitter_userprofiles',
                 ),
             ).defer(
@@ -214,6 +224,7 @@ class Command(BaseCommand):
                 all_max_submissions_deviations,
                 options['include_deadline_deviations'],
                 options['include_max_submission_deviations'],
+                options['include_student_ids'],
             )
             self.stdout.write("Created the submission file: " + submission_file_path)
 
@@ -262,6 +273,7 @@ class Command(BaseCommand):
             all_max_submissions_deviations,
             include_deadline_deviations=False,
             include_max_submission_deviations=False,
+            include_student_ids=False,
     ):
         fieldnames = [
             'submission_id',
@@ -279,6 +291,8 @@ class Command(BaseCommand):
             fieldnames.insert(4, 'personal_max_submissions')
         if include_deadline_deviations:
             fieldnames.insert(4, 'personal_deadline')
+        if include_student_ids:
+            fieldnames.insert(2, 'student_ids')
 
         with open(submission_file_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -296,6 +310,9 @@ class Command(BaseCommand):
                     'late_penalty_applied': submission.late_penalty_applied,
                     'grading_time': submission.grading_time,
                 }
+                if include_student_ids:
+                    d['student_ids'] = '-'.join([str(profile.student_id) for profile in submission.submitter_userprofiles])
+
                 if include_deadline_deviations:
                     dl_deviations = all_deadline_deviations.get(submission.exercise.pk, {})
                     personal_deadline = None
