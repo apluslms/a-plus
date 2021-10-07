@@ -785,7 +785,8 @@ $(function() {
  * in the response.
  */
 (function (window, document) {
-  $(document).on("click mousedown contextmenu", "a[href]", function (event) {
+  // Ignore links whose href starts with a '#', or Bootstrap tabs will break
+  $(document).on("click mousedown contextmenu", 'a[href]:not([href^="#"])', function (event) {
     if (
       // The click event is only triggered for the primary mouse button
       // (usually left). The mousedown event is needed for the middle mouse
