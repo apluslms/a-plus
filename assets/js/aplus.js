@@ -236,30 +236,58 @@ $(function() {
 
     var copyTargetCounter = 0;
 
+    // Helper function that adds a button based on a configuration
+    function addButton(buttonContainer, buttonOptions) {
+      const button = $('<button class="aplus-button--secondary aplus-button--xs"></button>');
+      if (buttonOptions.action) {
+        button.on('click', buttonOptions.action);
+      }
+      if (buttonOptions.attrs) {
+        button.attr(buttonOptions.attrs);
+      }
+      if (buttonOptions.icon) {
+        const buttonContent = $('<span class="glyphicon" aria-hidden="true"></span>').addClass('glyphicon-' + buttonOptions.icon);
+        buttonContent.appendTo(button);
+        if (buttonOptions.toggle) {
+          button.on('click', function () {
+            buttonContent.toggleClass('glyphicon-check glyphicon-unchecked');
+          });
+        }
+      }
+      if (buttonOptions.text) {
+        const buttonText = $('<span></span>').text(buttonOptions.text);
+        buttonText.appendTo(button);
+      }
+      button.appendTo(buttonContainer);
+      buttonContainer.append(' ');
+    }
+
     $.fn.highlightCode = function(options) {
 
         return this.each(function() {
-            var codeBlock = $(this).clone();
-            var wrapper = $('<div></div>');
+            const codeBlock = $(this).clone();
+            const wrapper = $('<div></div>');
             wrapper.append(codeBlock);
             $(this).replaceWith(wrapper);
 
-            // Use $(element).highlightCode{noCopy: true} to prevent copy button
-            if (!options || !options.noCopy) {
-                var buttonContainer = $('<p></p>').prependTo(wrapper);
-                var copyButtonContent = $('<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>');
-                var copyButtonText = $('<span></span>').text('Copy to clipboard');
-                var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="aplus-button--secondary aplus-button--xs" id="copy-button-' + copyTargetCounter + '"></button>');
-                copyButtonContent.appendTo(copyButton);
-                copyButtonText.appendTo(copyButton);
-                copyButton.appendTo(buttonContainer);
+            const buttonContainer = $('<p></p>').prependTo(wrapper);
 
-                var hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
+            // Use $(element).highlightCode({noCopy: true}) to prevent copy button
+            if (!options || !options.noCopy) {
+                const hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
                 hiddenTextarea.appendTo(buttonContainer);
 
-                // clipboard.js cannot copy from invisible elements
-                copyButton.click(function() {
+                addButton(buttonContainer, {
+                  action: function() {
+                    // clipboard.js cannot copy from invisible elements
                     hiddenTextarea.show();
+                  },
+                  attrs: {
+                    'data-clipboard-target': '#clipboard-content-' + copyTargetCounter,
+                    'id': 'copy-button-' + copyTargetCounter
+                  },
+                  icon: 'copy',
+                  text: _('Copy to clipboard')
                 });
 
                 const clipboard = new Clipboard('#copy-button-' + copyTargetCounter);
@@ -271,19 +299,35 @@ $(function() {
                 });
 
                 copyTargetCounter += 1;
-
             }
 
             hljs.highlightBlock(codeBlock[0]);
 
             // Add line numbers.
-            var pre = $(codeBlock);
+            const pre = $(codeBlock);
             const lines = pre.html().split(/\r\n|\r|\n/g);
-            var list = $("<table/>").addClass("src");
+            const list = $("<table/>").addClass("src");
             for (var i = 1; i <= lines.length; i++) {
                 list.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
             }
             pre.html(list);
+
+            if (!options || !options.noWrap) {
+              addButton(buttonContainer, {
+                action: function() {
+                  list.toggleClass('no-wrap');
+                },
+                icon: 'check',
+                text: _('Word wrap'),
+                toggle: true
+              });
+            }
+
+            if (options && options.extraButtons) {
+              for (var i in options.extraButtons) {
+                addButton(buttonContainer, options.extraButtons[i]);
+              }
+            }
         });
     };
 })(jQuery);
