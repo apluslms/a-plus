@@ -1,0 +1,34 @@
+.course-sidebar-expander {
+	display: block;
+	border: none;
+	background-color: #f9f9f9;
+	box-shadow: inset -5px 0 5px rgba(0, 0, 0, 0.1);
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	width: 25px;
+	z-index: 1;
+	&:hover {
+		background-color: #eee;
+	}
+	span {
+		position: absolute;
+		top: 50%;
+		left: 3px;
+		margin-top: -8px;
+	}
+}
+
+.course-sidebar-collapser {
+	span {
+		width: 20px;
+		height: 20px;
+		margin: 0;
+		color: #54595d;
+		font-size: 16px;
+	}
+}
+
+.course-sidebar-button {
+	margin-left: 5px;
+}

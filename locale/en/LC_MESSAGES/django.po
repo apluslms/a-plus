@@ -981,6 +981,14 @@ msgid "COURSE_ARCHIVE"
 msgstr "Course archive"
 
 #: course/templates/course/course_base.html
+msgid "OPEN_SIDEBAR"
+msgstr "Open sidebar"
+
+#: course/templates/course/course_base.html
+msgid "CLOSE_SIDEBAR"
+msgstr "Close sidebar"
+
+#: course/templates/course/course_base.html
 msgid "READ_MORE"
 msgstr "Read more"
 

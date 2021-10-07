@@ -31,8 +31,15 @@
 {% endblock %}
 
 {% block content %}
-<div data-taggings="{{ get_taggings|join:' ' }}"  class="row">
-	<div class="col-sm-2 hidden-xs">
+<div data-taggings="{{ get_taggings|join:' ' }}" class="row">
+	<button
+		class="hidden hidden-xs course-sidebar-expander"
+		title="{% translate 'OPEN_SIDEBAR' %}"
+		aria-label="{% translate 'OPEN_SIDEBAR' %}"
+	>
+		<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+	</button>
+	<div class="col-sm-2 hidden-xs" id="course-sidebar">
 		<nav class="course-menu" id="main-course-menu" aria-labelledby="course-menu-heading">
 			<ul class="nav nav-pills nav-stacked">
 				{% include "course/_course_menu.html" %}

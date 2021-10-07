@@ -198,6 +198,12 @@ table.src tr td.src {
 #course-content a{
 	@include focus-with-background-and-color;
 }
+@media (min-width: 768px) {
+	#course-content.sidebar-collapsed {
+		width: 100%;
+		padding-left: 40px;
+	}
+}
 
 /* panels */
 .module-panel .panel-heading {

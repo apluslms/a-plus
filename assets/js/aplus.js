@@ -90,10 +90,11 @@ $(function() {
     // Keep the menu visible when scrolling
     const menuHeight = $('#main-course-menu').height() + 100;
     var menuFixed = false;
+    var sidebarCollapsed = false;
 
     var modifyMenu = function() {
         var menu = $('#main-course-menu');
-        if (!menuFixed && $(window).scrollTop() > menuHeight) {
+        if (!menuFixed && !sidebarCollapsed && $(window).scrollTop() > menuHeight) {
             var w = menu.width();
             menu.addClass('fixed');
             menu.css('width', "" + w + "px");
@@ -117,6 +118,29 @@ $(function() {
 
     $(window).on('scroll', modifyMenu);
     $(window).on('resize', updateMenu);
+
+    function setSidebarState(collapsed) {
+      sidebarCollapsed = collapsed;
+      $('#course-content').toggleClass('sidebar-collapsed', collapsed);
+      $('#course-sidebar').toggleClass('hidden', collapsed);
+      $('.course-sidebar-expander').toggleClass('hidden', !collapsed);
+      localStorage.setItem('sidebarCollapsed', collapsed);
+      if (!collapsed) {
+        modifyMenu();
+      }
+    };
+
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      setSidebarState(true);
+    }
+
+    $('.course-sidebar-collapser').on('click', function() {
+      setSidebarState(true);
+    });
+
+    $('.course-sidebar-expander').on('click', function() {
+      setSidebarState(false);
+    });
 
     /**
     * Warn about links that open in new windows.

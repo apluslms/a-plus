@@ -985,6 +985,14 @@ msgid "COURSE_ARCHIVE"
 msgstr "Kurssiarkisto"
 
 #: course/templates/course/course_base.html
+msgid "OPEN_SIDEBAR"
+msgstr "Avaa sivupalkki"
+
+#: course/templates/course/course_base.html
+msgid "CLOSE_SIDEBAR"
+msgstr "Sulje sivupalkki"
+
+#: course/templates/course/course_base.html
 msgid "READ_MORE"
 msgstr "Lue lisää"
 
