@@ -1,17 +1,24 @@
 import json
 import logging
 import time
+from typing import Any, Dict
+
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
-from django.db.models import F
-from django.http.response import JsonResponse, Http404
+from django.db.models import Count, F, Max, Q
+from django.db.models.expressions import Case, When
+from django.db.models.query_utils import FilteredRelation
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
+from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
+from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (
     Enrollment,
@@ -19,10 +26,11 @@ from course.models import (
     USERTAG_INTERNAL,
 )
 from deviations.models import MaxSubmissionsRuleDeviation
+from exercise.cache.points import CachedPoints
 from lib.helpers import settings_text, extract_form_errors
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
-from authorization.permissions import ACCESS
+from userprofile.models import UserProfile
 from .models import LearningObject
 from .forms import (
     SubmissionReviewForm,
@@ -66,13 +74,160 @@ class SubmissionsSummaryView(ExerciseBaseView):
     template_name = "exercise/staff/submissions_summary.html"
 
 
-class InspectSubmissionView(SubmissionBaseView):
+class ListSubmittersView(ExerciseBaseView):
+    """
+    Similar to ListSubmissionsView, but lists submitters instead of individual
+    submissions.
+    """
+    access_mode = ACCESS.ASSISTANT
+    template_name = "exercise/staff/list_submitters.html"
+    ajax_template_name = "exercise/staff/_submitters_table.html"
+
+    def get_common_objects(self) -> None:
+        super().get_common_objects()
+        if not self.exercise.is_submittable:
+            raise Http404()
+
+        # The points, submission counts and submission times are retrieved
+        # using a QuerySet instead of CachedPoints or UserExerciseSummary,
+        # because those are specific to a single student, and this page is
+        # supposed to list all students.
+        self.submitters = (UserProfile.objects
+            .filter(submissions__exercise=self.exercise)
+            .annotate(
+                filtered_submissions=FilteredRelation(
+                    'submissions',
+                    condition=~Q(submissions__status__in=(
+                        Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
+                    )),
+                ),
+                count_submissions=Count('filtered_submissions__id'),
+                count_assessed=Count(
+                    'filtered_submissions__id',
+                    filter=Q(filtered_submissions__grader__isnull=False)
+                ),
+                last_submission_time=Max('filtered_submissions__submission_time'),
+                best_points=Max('filtered_submissions__grade'),
+                forced_points=Max(
+                    'filtered_submissions__grade',
+                    filter=Q(filtered_submissions__force_exercise_points=True)
+                ),
+                final_points=Case(
+                    When(forced_points__isnull=True, then=F('best_points')),
+                    default=F('forced_points')
+                ),
+            ))
+        self.note('submitters')
+
+
+class InspectSubmitterView(ExerciseBaseView, BaseRedirectView):
+    """
+    Redirects to the inspect page of the user' best submission.
+    """
+    access_mode = ACCESS.ASSISTANT
+    user_kw = 'user_id'
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        user = get_object_or_404(
+            User,
+            id=self.kwargs[self.user_kw],
+        )
+
+        # Find the submitter's best submission using the cache.
+        cache = CachedPoints(self.instance, user, self.content)
+        ids = cache.submission_ids(exercise_id=self.exercise.id, best=True)
+        if not ids:
+            raise Http404()
+        del kwargs['user_id']
+        url = reverse(
+            'submission-inspect',
+            kwargs={'submission_id': ids[0], **kwargs},
+        )
+        return self.redirect(url)
+
+
+class InspectSubmissionView(SubmissionBaseView, BaseFormView):
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/inspect_submission.html"
+    form_class = SubmissionReviewForm
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
         self.get_summary_submissions()
+        self.has_files = self.submission.files.count() > 0
+
+        # Find out if there are other submissions that the user should be
+        # notified about (better submissions, later submissions or the final
+        # submission).
+        self.not_final = False
+        self.not_best = False
+        self.not_last = False
+        for submission in self.submissions:
+            if submission.id != self.submission.id:
+                if submission.force_exercise_points:
+                    self.not_final = True
+                if submission.grade > self.submission.grade:
+                    self.not_best = True
+                if submission.submission_time > self.submission.submission_time:
+                    self.not_last = True
+
+        self.note('has_files', 'not_final', 'not_best', 'not_last')
+
+    def get_initial(self):
+        return {
+            "points": self.submission.grade,
+            "assistant_feedback": self.submission.assistant_feedback,
+            "feedback": self.submission.feedback,
+            "mark_as_final": self.submission.force_exercise_points,
+        }
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs["exercise"] = self.exercise
+        kwargs["help_texts_to_tooltips"] = True
+        return kwargs
+
+    def get_success_url(self) -> str:
+        return self.submission.get_inspect_url()
+
+    def form_valid(self, form: SubmissionReviewForm) -> HttpResponse:
+        if not (self.is_teacher or self.exercise.allow_assistant_grading):
+            messages.error(self.request, _('EXERCISE_ASSISTANT_PERMISSION_NO_ASSISTANT_GRADING'))
+            raise PermissionDenied()
+
+        assistant_feedback = form.cleaned_data["assistant_feedback"]
+        feedback = form.cleaned_data["feedback"]
+
+        self.submission.set_points(form.cleaned_data["points"],
+            self.exercise.max_points, no_penalties=True)
+        SecurityLog.logevent(self.request, "set-points",
+            "exercise: {}, submission ID: {}, submitter: {}, points: {}".format(
+                self.get_submission_object().exercise,
+                self.submission.id,
+                self.submission.submitters.first().user.username,
+                form.cleaned_data["points"]
+            )
+        )
+        self.submission.force_exercise_points = form.cleaned_data["mark_as_final"]
+        self.submission.grader = self.profile
+        self.submission.assistant_feedback = assistant_feedback
+        self.submission.feedback = feedback
+        self.submission.set_ready()
+        self.submission.save()
+
+        # Set other submissions as not final if this one is final.
+        if self.submission.force_exercise_points:
+            other_submissions = (self.exercise.submissions
+                .filter(force_exercise_points=True)
+                .exclude(id=self.submission.id))
+            for submission in other_submissions:
+                submission.force_exercise_points = False
+                submission.save()
+
+        Notification.send(self.profile, self.submission)
+
+        messages.success(self.request, _('ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS'))
+        return super().form_valid(form)
 
 
 class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
@@ -100,69 +255,51 @@ class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
         return self.redirect(self.submission.get_inspect_url())
 
 
-
-class AssessSubmissionView(SubmissionMixin, BaseFormView):
+class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
     """
-    Allows manual assessing of a submission. Changing the grade or writing
-    feedback will send a notification to the submitters. Late submission
-    penalty is not applied to the grade.
+    Redirect to the inspect page of the best submission of the first submitter
+    whose submissions have not been assessed yet.
     """
-    access_mode = ACCESS.GRADING
-    template_name = "exercise/staff/assess_submission.html"
-    form_class = SubmissionReviewForm
+    access_mode = ACCESS.ASSISTANT
 
-    def get_initial(self):
-        return {
-            "points": self.submission.grade,
-            "feedback": self.submission.feedback,
-            "assistant_feedback": self.submission.assistant_feedback,
-        }
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["exercise"] = self.exercise
-        return kwargs
-
-    def get_success_url(self):
-        return self.submission.get_inspect_url()
-
-    def form_valid(self, form):
-        assistant_feedback = form.cleaned_data["assistant_feedback"]
-        feedback = form.cleaned_data["feedback"]
-
-        note = ""
-        if self.submission.assistant_feedback != assistant_feedback:
-            note = assistant_feedback
-        elif self.submission.feedback != feedback:
-            note = feedback
-
-        self.submission.set_points(form.cleaned_data["points"],
-            self.exercise.max_points, no_penalties=True)
-        SecurityLog.logevent(self.request, "set-points",
-            "exercise: {}, submission ID: {}, submitter: {}, points: {}".format(
-                self.get_submission_object().exercise,
-                self.submission.id,
-                self.submission.submitters.first().user.username,
-                form.cleaned_data["points"]
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        # Query submitters who have not been assessed yet.
+        submitter = None
+        submitters = (UserProfile.objects
+            .filter(submissions__exercise=self.exercise)
+            .annotate(
+                count_assessed=Count(
+                    'submissions__id',
+                    filter=(Q(submissions__grader__isnull=False)),
+                ),
             )
+            .filter(count_assessed=0)
+            .order_by('id'))
+
+        previous_user_id = request.GET.get('prev')
+        if previous_user_id:
+            # Find specifically the submitter AFTER the previously inspected one.
+            submitters_after = submitters.filter(id__gt=previous_user_id)
+            submitter = submitters_after.first()
+
+        if not submitter:
+            submitter = submitters.first()
+
+        if not submitter:
+            # There are no more unassessed submitters.
+            messages.success(request, _('ALL_SUBMITTERS_HAVE_BEEN_ASSESSED'))
+            return self.redirect(self.exercise.get_submission_list_url())
+
+        # Find the submitter's best submission using the cache.
+        cache = CachedPoints(self.instance, submitter.user, self.content)
+        ids = cache.submission_ids(exercise_id=self.exercise.id, best=True)
+        if not ids:
+            raise Http404()
+        url = reverse(
+            'submission-inspect',
+            kwargs={'submission_id': ids[0], **kwargs},
         )
-        self.submission.grader = self.profile
-        self.submission.assistant_feedback = assistant_feedback
-        self.submission.feedback = feedback
-        self.submission.set_ready()
-        self.submission.save()
-
-        #sub = _('Feedback to {name}').format(name=self.exercise)
-        #msg = _('<p>You have new personal feedback to exercise '
-        #        '<a href="{url}">{name}</a>.</p>{message}').format(
-        #    url=self.submission.get_absolute_url(),
-        #    name=self.exercise,
-        #    message=note,
-        #)
-        Notification.send(self.profile, self.submission)
-
-        messages.success(self.request, _('ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS'))
-        return super().form_valid(form)
+        return self.redirect(url)
 
 
 class FetchMetadataView(CourseInstanceMixin, BaseView):

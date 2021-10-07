@@ -35,36 +35,38 @@
 		{% endfor %}
 	</ul>
 </li>
+{% endif %}
 <li class="header">
-	<div class="row">
-		<div class="col-sm-10">
-			<h4 id="course-menu-heading">{% translate "COURSE" %}</h4>
-		</div>
-		<div class="col-sm hidden-xs">
-			<div class="dropdown h4">
-				<input type="image" src="{% static 'images/uls.svg' %}" alt="{% translate 'LANGUAGE' %}"
-					class="aplus-button--secondary aplus-button--xs" id="lang-dropdown-desktop" type="button"
-					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
-				<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown-desktop">
-					{% for language in instance.language|list_unselected %}
-					<li>
-						<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
-							{% csrf_token %}
-							<input name="next" type="hidden" value="{{ request.get_full_path }}" />
-							<input name="language" type="hidden" value="{{ language }}" />
-							<button type="submit" class="btn">{{ language|language_name_local }}</button>
-						</form>
-					</li>
-					{% endfor %}
-				</ul>
-			</div>
-		</div>
+	{% if instance.language|first == "|" %}
+	<div class="course-sidebar-button pull-right hidden-xs dropdown">
+		<input type="image" src="{% static 'images/uls.svg' %}" alt="{% translate 'LANGUAGE' %}"
+			class="aplus-button--secondary aplus-button--xs" id="lang-dropdown-desktop" type="button"
+			data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+		<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown-desktop">
+			{% for language in instance.language|list_unselected %}
+			<li>
+				<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
+					{% csrf_token %}
+					<input name="next" type="hidden" value="{{ request.get_full_path }}" />
+					<input name="language" type="hidden" value="{{ language }}" />
+					<button type="submit" class="btn">{{ language|language_name_local }}</button>
+				</form>
+			</li>
+			{% endfor %}
+		</ul>
 	</div>
-{% else %}
-<li class="header">
+	{% endif %}
+	<div class="course-sidebar-button pull-right hidden-xs">
+		<button
+			class="aplus-button--secondary aplus-button--xs course-sidebar-collapser"
+			title="{% translate "CLOSE_SIDEBAR" %}"
+			aria-label="{% translate "CLOSE_SIDEBAR" %}"
+		>
+			<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+		</button>
+	</div>
 	<h4 id="course-menu-heading">{% translate "COURSE" %}</h4>
 </li>
-{% endif %}
 
 <li class="menu-home">
 	<a href="{{ instance|url }}">

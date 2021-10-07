@@ -1,0 +1,38 @@
+{% load i18n %}
+
+<div class="modal" id="details-modal" tabindex="-1" role="dialog" aria-labelledby="details-modal-label">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="details-modal-label">
+					{% translate "SUBMISSION_DETAILS" %}
+				</h4>
+			</div>
+
+			<div class="modal-body">
+				<h4>{% translate "SUBMITTED_VALUES" %}</h4>
+				<dl>
+					{% for item in submission.submission_data %}
+					<dt>{{ item.0 }}</dt>
+					<dd>{{ item.1 }}</dd>
+					{% empty %}
+					<dt>{% translate "NO_VALUES" %}</dt>
+					{% endfor %}
+				</dl>
+
+				<h4>{% translate "GRADING_DATA" %}</h4>
+				<dl>
+					{% for item in submission.grading_data.items %}
+					<dt>{{ item.0 }}</dt>
+					<dd>{{ item.1 }}</dd>
+					{% empty %}
+					<dt>{% translate "NO_VALUES" %}</dt>
+					{% endfor %}
+				</dl>
+			</div>
+		</div>
+	</div>
+</div>

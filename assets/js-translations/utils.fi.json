@@ -1,4 +1,10 @@
 {
   "opens in a new tab":
-  "avautuu uudessa välilehdessä"
+  "avautuu uudessa välilehdessä",
+
+  "Copy to clipboard":
+  "Kopioi leikepöydälle",
+
+  "Word wrap":
+  "Rivitys"
 }

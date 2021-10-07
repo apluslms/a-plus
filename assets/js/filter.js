@@ -20,7 +20,7 @@ $(function() {
         this.timeout = null;
         if (this.element.prop("tagName") == "TABLE") {
             this.settings = $.extend({}, defaults, options);
-            var self = this;
+            const self = this;
 
             // translationsReady allows us to use the plugin multiple times on same page
             if (translationsReady) {
@@ -38,42 +38,77 @@ $(function() {
 
         init: function() {
             var columnCount = 0;
+            var columns = [];
             this.element.find('thead').find('tr').each(function() {
-                var count = $(this).find('th').length;
-                columnCount = count > columnCount ? count : columnCount;
+                const rowColumns = $(this).find('th');
+                if (rowColumns.length > columnCount) {
+                    columnCount = rowColumns.length;
+                    columns = rowColumns;
+                }
             });
 
-            var self = this;
-            var filterDelay = function(event) {
-                var input = $(this);
+            const self = this;
+            function filterDelay(event) {
+                const input = $(this);
                 clearTimeout(self.timeout);
                 self.timeout = setTimeout(function() {
                     self.filterColumn(input);
                 }, 500);
             };
 
+            function filterColumnWithOptions(event) {
+                const option = $(this);
+                $(this.form.elements).not(option).prop('checked', false);
+                const query = option.prop('checked') ? option.prop('value') : '';
+                const filter = [normalFilter, query, query, false];
+                self.filters[option.data('column')] = filter;
+                self.filterTable();
+            };
+
             this.filters = [];
-            var filterRow = $('<tr class="tableexport-ignore"></tr>');
+            const filterRow = $('<tr class="tableexport-ignore"></tr>');
             for (var i = 0; i < columnCount; i++) {
                 this.filters.push('');
-                var filterInput =
-                    $('<input type="text" data-column="' + i + '">')
-                    .on('keyup', filterDelay).on('change', filterDelay);
+                const filterType = $(columns[i]).data('filter-type');
+                if (filterType === 'none') {
+                    filterRow.append($('<td/>'));
+                    continue;
+                }
+                else if (filterType === 'options') {
+                    const filterForm = $('<form/>');
+                    const filterOptions = $(columns[i]).data('filter-options').trim().split('|');
+                    filterOptions.forEach(function(option) {
+                        const input = $('<input type="checkbox">')
+                            .attr('value', option)
+                            .data('column', i)
+                            .on('change', filterColumnWithOptions);
+                        const label = $('<label/>')
+                            .append(input)
+                            .append('&nbsp;' + option + '&nbsp;');
+                        filterForm.append(label);
+                    });
+                    const filterCell = $('<td/>').append(filterForm);
+                    filterRow.append(filterCell);
+                }
+                else {
+                    const filterInput =
+                        $('<input type="text" data-column="' + i + '">')
+                        .on('keyup', filterDelay).on('change', filterDelay);
 
-
-                var filterCell = $(
-                    '<td data-toggle="tooltip" title="'
-                    + _(
-                        "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200."
-                        + " Datetime comparison is available in format yyyy-mm-dd hh:mm"
-                        + " — e.g. >=0918-09-20 15:00."
-                        + " Regex is available — e.g. /^\\d+$/g."
-                        + " Use dot as decimal seperator — e.g. 2.1."
-                        )
-                    + '"></td>'
-                );
-                filterCell.append(filterInput);
-                filterRow.append(filterCell);
+                    const filterCell = $(
+                        '<td data-toggle="tooltip" title="'
+                        + _(
+                            "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200."
+                            + " Datetime comparison is available in format yyyy-mm-dd hh:mm"
+                            + " — e.g. >=0918-09-20 15:00."
+                            + " Regex is available — e.g. /^\\d+$/g."
+                            + " Use dot as decimal seperator — e.g. 2.1."
+                            )
+                        + '"></td>'
+                    );
+                    filterCell.append(filterInput);
+                    filterRow.append(filterCell);
+                }
             }
             this.element.find('thead').append(filterRow);
         },
@@ -87,48 +122,48 @@ $(function() {
 
             if (query.startsWith("<=")) {
                 isDate = checkForDate(query.slice(2));
-                var parsedQuery = (isDate)
+                const parsedQuery = (isDate)
                     ? Date.parse(query.slice(2))
                     : requireNumber(query.slice(2));
-                var filter = isDate ? lteFilterDate : lteFilter;
+                const filter = isDate ? lteFilterDate : lteFilter;
                 return [filter, parsedQuery, query, isDate];
             } else if (query.startsWith("<")) {
                 isDate = checkForDate(query.slice(1));
-                var parsedQuery = (isDate)
+                const parsedQuery = (isDate)
                     ? Date.parse(query.slice(1))
                     : requireNumber(query.slice(1));
-                var filter = isDate ? ltFilterDate : ltFilter;
+                const filter = isDate ? ltFilterDate : ltFilter;
                 return [filter, parsedQuery, query, isDate];
             } else if (query.startsWith(">=")) {
                 isDate = checkForDate(query.slice(2));
-                var parsedQuery = (isDate)
+                const parsedQuery = (isDate)
                     ? Date.parse(query.slice(2))
                     : requireNumber(query.slice(2));
-                var filter = isDate ? gteFilterDate : gteFilter;
+                const filter = isDate ? gteFilterDate : gteFilter;
                 return [filter, parsedQuery, query, isDate];
             } else if (query.startsWith(">")) {
                 isDate = checkForDate(query.slice(1));
-                var parsedQuery = (isDate)
+                const parsedQuery = (isDate)
                     ? Date.parse(query.slice(1))
                     : requireNumber(query.slice(1));
-                var filter = isDate ? gtFilterDate : gtFilter;
+                const filter = isDate ? gtFilterDate : gtFilter;
                 return [filter, parsedQuery, query, isDate];
             } else if (query.startsWith("==")) {
                 isDate = checkForDate(query.slice(2));
-                var parsedQuery = (isDate)
+                const parsedQuery = (isDate)
                     ? Date.parse(query.slice(2))
                     : query.slice(2);
-                var filter = isDate ? eFilterDate : eFilter;
+                const filter = isDate ? eFilterDate : eFilter;
                 return [filter, parsedQuery, query, isDate];
             } else if (query.startsWith("!=")) {
                 isDate = checkForDate(query.slice(2));
-                var parsedQuery = (isDate)
+                const parsedQuery = (isDate)
                     ? Date.parse(query.slice(2))
                     : query.slice(2);
-                var filter = isDate ? neFilterDate : neFilter;
+                const filter = isDate ? neFilterDate : neFilter;
                 return [filter, parsedQuery, query, isDate];
             } else if (query.match(/\//g) && query.match(/\//g).length >= 2) {
-                var parts = query.split('/');
+                const parts = query.split('/');
                 var regex = query;
                 var options = "";
 
@@ -212,7 +247,7 @@ $(function() {
                 }).show();
 
             // Add #selected-number to e.g. span tag to get count of rows after filter
-            var visibleRows = this.element.
+            const visibleRows = this.element.
                 find('tbody').
                 find('tr:visible').
                 not('.no-filtering').length;

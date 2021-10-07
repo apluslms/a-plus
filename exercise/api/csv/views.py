@@ -1,5 +1,8 @@
 from django.db.models.aggregates import Max, Count
+from django.db.models.expressions import Case, When, Q, F
+from django.db.models.query import QuerySet
 from rest_framework import mixins, permissions, viewsets
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
@@ -191,7 +194,7 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
-    def serialize_profiles(self, request, profiles):
+    def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
         entry, exercises = self.content.search_entries(**search_args)
         ids = [e['id'] for e in exercises if e['type'] == 'exercise']
@@ -201,7 +204,15 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
                 Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
             ))\
             .values('submitters__user_id','exercise_id')\
-            .annotate(total=Max('grade'),count=Count('id'))\
+            .annotate(
+                count=Count('id'),
+                best_points=Max('grade'),
+                forced_points=Max('grade', filter=Q(force_exercise_points=True)),
+                total=Case(
+                    When(forced_points__isnull=True, then=F('best_points')),
+                    default=F('forced_points')
+                ),
+            )\
             .order_by()
         data,fields = aggregate_sheet(request, profiles, self.instance.taggings.all(),
             exercises, aggr, entry['number'] if entry else "")
@@ -262,7 +273,7 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
-    def serialize_profiles(self, request, profiles):
+    def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
         entry, exercises = self.content.search_entries(**search_args)
         ids = [e['id'] for e in exercises if e['type'] == 'exercise']
@@ -273,7 +284,15 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
             .filter(exercise__in=ids, submitters__in=profiles)\
             .exclude(status__in=(exclude_list))\
             .values('submitters__user_id','exercise_id')\
-            .annotate(total=Max('grade'),count=Count('id'))\
+            .annotate(
+                count=Count('id'),
+                best_points=Max('grade'),
+                forced_points=Max('grade', filter=Q(force_exercise_points=True)),
+                total=Case(
+                    When(forced_points__isnull=True, then=F('best_points')),
+                    default=F('forced_points')
+                ),
+            )\
             .order_by()
         data,fields = aggregate_points(request, profiles, self.instance.taggings.all(),
             exercises, aggr, entry['number'] if entry else "")

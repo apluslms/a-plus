@@ -82,16 +82,13 @@ class StudentFeedbackPageLocators(object):
     FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise']")
 
 class InspectionPageLocators(object):
-    ASSESS_THIS_SUBMISSION_LINK = (By.XPATH, "//*a[contains(@href, '/aplus1/basic_instance/exercises/1/submissions/7/assess/')]")
-    NO_FEEDBACK_BANNER = (By.XPATH, "//div[@class='alert alert-info']")
-    SUBMITTERS_TEXT = (By.XPATH, "//div[@class='panel-body']/dl/dd[1]")
-    GRADE_TEXT = (By.XPATH, "//div[@class='panel-body']/dl/dd[4]")
-
-class AssessmentPageLocators(object):
+    ASSESSMENT_BUTTON = (By.XPATH, "//div[contains(@class, 'assessment-bar')]//button[contains(text(), 'Assessment')]")
+    ASSISTANT_FEEDBACK_TOGGLE = (By.XPATH, "//form[contains(@class, 'assessment-bar')]//button[contains(text(), 'Assistant feedback')]")
+    GRADER_FEEDBACK_TOGGLE = (By.XPATH, "//form[contains(@class, 'assessment-bar')]//button[contains(text(), 'Grader feedback')]")
     POINTS_INPUT = (By.XPATH, "//*[@id='id_points']")
     ASSISTANT_FEEDBACK_INPUT = (By.XPATH, "//*[@id='id_assistant_feedback']")
     FEEDBACK_INPUT = (By.XPATH, "//*[@id='id_feedback']")
-    SAVE_BUTTON = (By.XPATH, "//div[contains(@class, 'assistant-feedback')]//*[@type='submit']")
+    SAVE_BUTTON = (By.XPATH, "//form[contains(@class, 'assessment-bar')]//*[@type='submit']")
 
 class MyFirstExerciseLocators(object):
     MAIN_TITLE = (By.XPATH, "//*[@id='title'][contains(text(), 'My first exercise')]")

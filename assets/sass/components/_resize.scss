@@ -1,0 +1,53 @@
+@mixin enable-resize {
+	display: flex;
+	flex-direction: row;
+
+	.resize-handle {
+		// Appearance
+		width: 8px;
+		border-color: #ccc;
+		border-style: none solid;
+		border-width: 1px;
+		cursor: col-resize;
+
+		// Positioning (between parent and parent's next sibling)
+		display: block;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: 0;
+		transform: translate(50%);
+		z-index: 1;
+	}
+}
+
+@mixin disable-resize {
+	.resize-handle {
+		display: none;
+	}
+}
+
+// resizable-xs is always resizable regardless of screen size
+.resizable-xs {
+	@include enable-resize;
+}
+
+// resizable-sm, -md and -lg are only resizable when the screen is wide enough
+.resizable-sm, .resizable-md, .resizable-lg {
+	@include disable-resize;
+}
+@media (min-width: $screen-sm-min) {
+	.resizable-sm {
+		@include enable-resize;
+	}
+}
+@media (min-width: $screen-md-min) {
+	.resizable-md {
+		@include enable-resize;
+	}
+}
+@media (min-width: $screen-lg-min) {
+	.resizable-lg {
+		@include enable-resize;
+	}
+}

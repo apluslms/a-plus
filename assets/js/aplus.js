@@ -90,10 +90,11 @@ $(function() {
     // Keep the menu visible when scrolling
     const menuHeight = $('#main-course-menu').height() + 100;
     var menuFixed = false;
+    var sidebarCollapsed = false;
 
     var modifyMenu = function() {
         var menu = $('#main-course-menu');
-        if (!menuFixed && $(window).scrollTop() > menuHeight) {
+        if (!menuFixed && !sidebarCollapsed && $(window).scrollTop() > menuHeight) {
             var w = menu.width();
             menu.addClass('fixed');
             menu.css('width', "" + w + "px");
@@ -117,6 +118,29 @@ $(function() {
 
     $(window).on('scroll', modifyMenu);
     $(window).on('resize', updateMenu);
+
+    function setSidebarState(collapsed) {
+      sidebarCollapsed = collapsed;
+      $('#course-content').toggleClass('sidebar-collapsed', collapsed);
+      $('#course-sidebar').toggleClass('hidden', collapsed);
+      $('.course-sidebar-expander').toggleClass('hidden', !collapsed);
+      localStorage.setItem('sidebarCollapsed', collapsed);
+      if (!collapsed) {
+        modifyMenu();
+      }
+    };
+
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      setSidebarState(true);
+    }
+
+    $('.course-sidebar-collapser').on('click', function() {
+      setSidebarState(true);
+    });
+
+    $('.course-sidebar-expander').on('click', function() {
+      setSidebarState(false);
+    });
 
     /**
     * Warn about links that open in new windows.
@@ -147,6 +171,15 @@ $(function() {
         addExternalLinkIcon(link);
         addScreenReaderMessage(link, _('opens in a new tab'));
       });
+    });
+
+    // Simple visibility toggling: add data-toggle="visibility" and
+    // data-target="<selector>" to toggle the visibility of all elements that
+    // match <selector>.
+    $(document).on('click', '[data-toggle="visibility"]', function (event) {
+      event.preventDefault();
+      const targetSelector = $(this).data('target');
+      $(targetSelector).toggleClass('hidden');
     });
 });
 
@@ -212,30 +245,58 @@ $(function() {
 
     var copyTargetCounter = 0;
 
+    // Helper function that adds a button based on a configuration
+    function addButton(buttonContainer, buttonOptions) {
+      const button = $('<button class="aplus-button--secondary aplus-button--xs"></button>');
+      if (buttonOptions.action) {
+        button.on('click', buttonOptions.action);
+      }
+      if (buttonOptions.attrs) {
+        button.attr(buttonOptions.attrs);
+      }
+      if (buttonOptions.icon) {
+        const buttonContent = $('<span class="glyphicon" aria-hidden="true"></span>').addClass('glyphicon-' + buttonOptions.icon);
+        buttonContent.appendTo(button);
+        if (buttonOptions.toggle) {
+          button.on('click', function () {
+            buttonContent.toggleClass('glyphicon-check glyphicon-unchecked');
+          });
+        }
+      }
+      if (buttonOptions.text) {
+        const buttonText = $('<span></span>').text(buttonOptions.text);
+        buttonText.appendTo(button);
+      }
+      button.appendTo(buttonContainer);
+      buttonContainer.append(' ');
+    }
+
     $.fn.highlightCode = function(options) {
 
         return this.each(function() {
-            var codeBlock = $(this).clone();
-            var wrapper = $('<div></div>');
+            const codeBlock = $(this).clone();
+            const wrapper = $('<div></div>');
             wrapper.append(codeBlock);
             $(this).replaceWith(wrapper);
 
-            // Use $(element).highlightCode{noCopy: true} to prevent copy button
-            if (!options || !options.noCopy) {
-                var buttonContainer = $('<p></p>').prependTo(wrapper);
-                var copyButtonContent = $('<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>');
-                var copyButtonText = $('<span></span>').text('Copy to clipboard');
-                var copyButton = $('<button data-clipboard-target="#clipboard-content-' + copyTargetCounter + '" class="aplus-button--secondary aplus-button--xs" id="copy-button-' + copyTargetCounter + '"></button>');
-                copyButtonContent.appendTo(copyButton);
-                copyButtonText.appendTo(copyButton);
-                copyButton.appendTo(buttonContainer);
+            const buttonContainer = $('<p></p>').prependTo(wrapper);
 
-                var hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
+            // Use $(element).highlightCode({noCopy: true}) to prevent copy button
+            if (!options || !options.noCopy) {
+                const hiddenTextarea = $('<textarea id="clipboard-content-' + copyTargetCounter + '" style="display: none; width: 1px; height: 1px;"></textarea>').text(codeBlock.text());
                 hiddenTextarea.appendTo(buttonContainer);
 
-                // clipboard.js cannot copy from invisible elements
-                copyButton.click(function() {
+                addButton(buttonContainer, {
+                  action: function() {
+                    // clipboard.js cannot copy from invisible elements
                     hiddenTextarea.show();
+                  },
+                  attrs: {
+                    'data-clipboard-target': '#clipboard-content-' + copyTargetCounter,
+                    'id': 'copy-button-' + copyTargetCounter
+                  },
+                  icon: 'copy',
+                  text: _('Copy to clipboard')
                 });
 
                 const clipboard = new Clipboard('#copy-button-' + copyTargetCounter);
@@ -247,19 +308,35 @@ $(function() {
                 });
 
                 copyTargetCounter += 1;
-
             }
 
             hljs.highlightBlock(codeBlock[0]);
 
             // Add line numbers.
-            var pre = $(codeBlock);
+            const pre = $(codeBlock);
             const lines = pre.html().split(/\r\n|\r|\n/g);
-            var list = $("<table/>").addClass("src");
+            const list = $("<table/>").addClass("src");
             for (var i = 1; i <= lines.length; i++) {
                 list.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
             }
             pre.html(list);
+
+            if (!options || !options.noWrap) {
+              addButton(buttonContainer, {
+                action: function() {
+                  list.toggleClass('no-wrap');
+                },
+                icon: 'check',
+                text: _('Word wrap'),
+                toggle: true
+              });
+            }
+
+            if (options && options.extraButtons) {
+              for (var i in options.extraButtons) {
+                addButton(buttonContainer, options.extraButtons[i]);
+              }
+            }
         });
     };
 })(jQuery);
@@ -708,7 +785,8 @@ $(function() {
  * in the response.
  */
 (function (window, document) {
-  $(document).on("click mousedown contextmenu", "a[href]", function (event) {
+  // Ignore links whose href starts with a '#', or Bootstrap tabs will break
+  $(document).on("click mousedown contextmenu", 'a[href]:not([href^="#"])', function (event) {
     if (
       // The click event is only triggered for the primary mouse button
       // (usually left). The mousedown event is needed for the middle mouse

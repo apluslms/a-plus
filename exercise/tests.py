@@ -513,6 +513,29 @@ class ExerciseTest(TestCase):
             self.late_submission_when_late_allowed.set_points(10, 10)
             self.assertEqual(80, self.late_submission_when_late_allowed.grade)
 
+    def test_forced_points(self) -> None:
+        self.submission.set_points(5, 10)
+        self.submission.status = Submission.STATUS.READY
+        self.submission.save()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 50)
+        forced_points_submission = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.userprofile,
+        )
+        forced_points_submission.submitters.add(self.user.userprofile)
+        forced_points_submission.set_points(1, 10)
+        forced_points_submission.save()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 50)
+        forced_points_submission.force_exercise_points = True
+        forced_points_submission.save()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 10)
+        forced_points_submission.delete()
+        summary = UserExerciseSummary(self.base_exercise, self.user)
+        self.assertEqual(summary.get_points(), 50)
+
     def test_submission_late_penalty_applied(self):
         self.submission.set_points(5, 10)
         self.late_submission.set_points(5, 10)
@@ -700,7 +723,7 @@ class ExerciseTest(TestCase):
         response = self.client.get(self.submission_with_two_submitters.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
-    def test_exercise_staff_views(self):
+    def test_exercise_staff_views(self) -> None:
         self.other_instance = CourseInstance.objects.create(
             instance_name="Another",
             starting_time=self.today,
@@ -708,34 +731,46 @@ class ExerciseTest(TestCase):
             course=self.course,
             url="another"
         )
+        assessment_data = {
+            "points": 0,
+            "mark_as_final": False,
+            "assistant_feedback": "",
+            "feedback": "",
+        }
         self.other_instance.add_assistant(self.grader.userprofile)
         list_submissions_url = self.base_exercise.get_submission_list_url()
-        assess_submission_url = self.submission.get_url('submission-assess')
+        inspect_submission_url = self.submission.get_url('submission-inspect')
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 302)
 
         self.client.login(username="testUser", password="testPassword")
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 403)
-        response = self.client.get(assess_submission_url)
+        response = self.client.get(inspect_submission_url)
+        self.assertEqual(response.status_code, 403)
+        response = self.client.post(inspect_submission_url, assessment_data)
         self.assertEqual(response.status_code, 403)
 
         self.client.login(username="staff", password="staffPassword")
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 200)
-        response = self.client.get(assess_submission_url)
+        response = self.client.get(inspect_submission_url)
         self.assertEqual(response.status_code, 200)
+        response = self.client.post(inspect_submission_url, assessment_data)
+        self.assertEqual(response.status_code, 302)
 
         self.client.login(username="grader", password="graderPassword")
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 200)
-        response = self.client.get(assess_submission_url)
+        response = self.client.get(inspect_submission_url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(inspect_submission_url, assessment_data)
         self.assertEqual(response.status_code, 403)
 
         self.base_exercise.allow_assistant_grading = True
         self.base_exercise.save()
-        response = self.client.get(assess_submission_url)
-        self.assertEqual(response.status_code, 200)
+        response = self.client.post(inspect_submission_url, assessment_data)
+        self.assertEqual(response.status_code, 302)
 
         self.course_instance.clear_assistants()
         response = self.client.get(list_submissions_url)

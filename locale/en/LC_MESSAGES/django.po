@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-14 16:14+0300\n"
+"POT-Creation-Date: 2021-10-07 12:05+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -286,7 +286,7 @@ msgstr "student groups"
 msgid "STUDENT"
 msgstr "Student"
 
-#: course/models.py exercise/templates/exercise/staff/_submissions_table.html
+#: course/models.py
 msgid "ASSISTANT"
 msgstr "Assistant"
 
@@ -818,6 +818,10 @@ msgid "CHANGE_LANGUAGE"
 msgstr "Change language"
 
 #: course/templates/course/_course_menu.html
+msgid "CLOSE_SIDEBAR"
+msgstr "Close sidebar"
+
+#: course/templates/course/_course_menu.html
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "COURSE"
 msgstr "Course"
@@ -981,6 +985,10 @@ msgid "COURSE_ARCHIVE"
 msgstr "Course archive"
 
 #: course/templates/course/course_base.html
+msgid "OPEN_SIDEBAR"
+msgstr "Open sidebar"
+
+#: course/templates/course/course_base.html
 msgid "READ_MORE"
 msgstr "Read more"
 
@@ -1030,6 +1038,24 @@ msgstr "You cannot re-enrol in the course because enrolment is not open."
 #: course/templates/course/course_base.html
 msgid "PROCEED_CONFIRMATION"
 msgstr "Are you sure you want to proceed?"
+
+#: course/templates/course/course_base.html
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Cancel"
 
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
@@ -1130,23 +1156,6 @@ msgstr ""
 "modal-users\"></ul> "
 
 #: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: course/templates/course/staff/participants.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Cancel"
-
-#: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
 msgstr "Remove all"
 
@@ -1185,6 +1194,7 @@ msgstr "Confirm group removal"
 
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/groups.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "ID"
 msgstr "ID"
 
@@ -1201,7 +1211,7 @@ msgstr "Created"
 #: course/templates/course/staff/group_edit.html
 #: course/templates/course/staff/groups.html
 #: edit_course/templates/edit_course/usertag_list.html
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/inspect_submission.html
 #: external_services/templates/external_services/list_menu.html
 #: news/templates/news/list.html
 msgid "EDIT"
@@ -1220,7 +1230,6 @@ msgstr "Edit group members"
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: external_services/templates/external_services/edit_menu.html
 #: news/templates/news/edit.html userprofile/templates/userprofile/profile.html
@@ -1283,8 +1292,8 @@ msgstr "Email"
 
 #: course/templates/course/staff/participants.html
 #: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 #: exercise/templates/exercise/submission_plain.html
 #: templates/support_channels.html
 msgid "STATUS"
@@ -1312,8 +1321,8 @@ msgstr "Ban student"
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_DESCRIPTION"
 msgstr ""
 "<p>Are you sure you want to remove this user from the course?</p><p>Removed "
-"users can re-enrol in the course, as long as the course enrolment is open."
-"</p>"
+"users can re-enrol in the course, as long as the course enrolment is open.</"
+"p>"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_BAN_DESCRIPTION"
@@ -1449,6 +1458,7 @@ msgid "DEADLINE_DEVIATIONS"
 msgstr "Deadline deviations"
 
 #: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "SUBMITTER"
 msgstr "Submitter"
 
@@ -1601,8 +1611,9 @@ msgstr "Username"
 
 #: diploma/templates/diploma/list.html
 #: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "GRADE"
 msgstr "Grade"
 
@@ -1891,6 +1902,7 @@ msgstr ""
 
 #: edit_course/templates/edit_course/batch_assess.html
 #: exercise/templates/exercise/model/_file_submit_form.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "SUBMIT"
 msgstr "Submit"
 
@@ -2084,6 +2096,7 @@ msgid "EDIT_COURSE_INDEX"
 msgstr "Edit course front page"
 
 #: edit_course/templates/edit_course/edit_instance.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "DETAILS"
 msgstr "Details"
 
@@ -2287,8 +2300,8 @@ msgid "COURSE_INSTANCE"
 msgstr "Course instance"
 
 #: exercise/admin.py exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMITTERS"
 msgstr "Submitters"
 
@@ -2703,6 +2716,16 @@ msgstr ""
 "Possible penalties are not applied - the points are set as given. This will "
 "<em>override</em> grader points!"
 
+#: exercise/forms.py
+msgid "LABEL_MARK_AS_FINAL"
+msgstr "Mark as final"
+
+#: exercise/forms.py
+msgid "SUBMISSION_REVIEW_MARK_AS_FINAL_HELPTEXT"
+msgstr ""
+"If selected, this will be the student's final grade for this exercise. "
+"Otherwise, the best submission determines the final grade."
+
 #: exercise/forms.py exercise/submission_models.py
 msgid "LABEL_STAFF_FEEDBACK"
 msgstr "Staff feedback"
@@ -2711,9 +2734,9 @@ msgstr "Staff feedback"
 msgid "SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT"
 msgstr "HTML formatting is allowed. This will not override machine feedback."
 
-#: exercise/forms.py exercise/submission_models.py
-msgid "LABEL_FEEDBACK"
-msgstr "Feedback"
+#: exercise/forms.py exercise/templates/exercise/staff/_assessment_panel.html
+msgid "GRADER_FEEDBACK"
+msgstr "Grader feedback"
 
 #: exercise/forms.py
 msgid "SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT"
@@ -2790,7 +2813,7 @@ msgstr "Unfortunately assistants are not permitted to see this."
 msgid "EXERCISE_ASSISTANT_PERMISSION_ERROR_NO_ASSISTANT_VIEWING"
 msgstr "Assistant viewing is not allowed for this assignment."
 
-#: exercise/permissions.py
+#: exercise/permissions.py exercise/staff_views.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_NO_ASSISTANT_GRADING"
 msgstr "Assistant grading is not allowed for this assignment."
 
@@ -2834,6 +2857,10 @@ msgstr "The assessment service responded with an error."
 #: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "The review was saved successfully and the submitters were notified."
+
+#: exercise/staff_views.py
+msgid "ALL_SUBMITTERS_HAVE_BEEN_ASSESSED"
+msgstr "All submitters have been assessed."
 
 #: exercise/staff_views.py
 msgid "ERROR_FAILED_TO_LOAD_RESOURCE"
@@ -2893,12 +2920,20 @@ msgid "LABEL_GRADER"
 msgstr "grader"
 
 #: exercise/submission_models.py
+msgid "LABEL_FEEDBACK"
+msgstr "Feedback"
+
+#: exercise/submission_models.py
 msgid "LABEL_GRADING_TIME"
 msgstr "grading time"
 
 #: exercise/submission_models.py
 msgid "LABEL_LATE_PENALTY_APPLIED"
 msgstr "late penalty applied"
+
+#: exercise/submission_models.py
+msgid "LABEL_FORCE_EXERCISE_POINTS"
+msgstr "Force exercise points"
 
 #: exercise/submission_models.py
 msgid "LABEL_SERVICE_POINTS"
@@ -3032,12 +3067,14 @@ msgstr "Points on this course"
 
 #: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Download"
 
 #: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/_model_files.html
 #: exercise/templates/exercise/_template_files.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "FILE_NOT_FOUND"
 msgstr "File not found"
 
@@ -3110,7 +3147,6 @@ msgid "SUBMITTED_ON"
 msgstr "Submitted on"
 
 #: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 msgid "INCLUDES_LATE_PENALTY"
 msgstr "Includes late penalty"
 
@@ -3183,7 +3219,8 @@ msgid "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING"
 msgstr "There may be changes in the assignments before the module opens!"
 
 #: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSIONS"
 msgstr "Submissions"
 
@@ -3284,51 +3321,81 @@ msgstr "Your submission has been accepted for grading."
 msgid "RESULTS"
 msgstr "Results"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBMITTED_DATA"
-msgstr "Submitted data"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#, python-format
+msgid "ASSESSED_BY -- %(user)s, %(time)s"
+msgstr "Assessed by %(user)s, %(time)s"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBMISSION_TIME"
-msgstr "Submission time"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "NOT_ASSESSED_MANUALLY"
+msgstr "Not assessed manually"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "GRADING_TIME"
-msgstr "Grading time"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+msgid "REGRADE"
+msgstr "Regrade"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "GRADER_OUTPUT"
-msgstr "grader output"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "ASSESSMENT"
+msgstr "Assessment"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "IN_TOTAL"
-msgstr "In total"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Close"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
-msgstr "Add one extra submission for the student in this assignment."
+#: exercise/templates/exercise/staff/_assessment_panel.html templates/base.html
+msgid "LOADING"
+msgstr "Loading..."
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBMITTED_FILES"
-msgstr "Submitted files"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "GRADER_ERRORS"
+msgstr "Grader errors"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "NO_FILES"
-msgstr "No files"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "ASSISTANT_FEEDBACK"
+msgstr "Staff feedback"
 
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+msgid "RE-SUBMIT_TO_SERVICE"
+msgstr "Re-submit to service"
+
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+msgid "RE-SUBMIT_TO_SERVICE_DESCRIPTION"
+msgstr ""
+"Click this button to re-submit this submission to the assessment service. "
+"This is meant to be used only in situations where the assessment service has "
+"behaved incorrectly so that the grading data is incorrect or the status of "
+"the submission never became ready. Caution! Re-submitting overwrites the "
+"current grading data. "
+
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+msgid "SUBMISSION_DETAILS"
+msgstr "Submission details"
+
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMITTED_VALUES"
 msgstr "Submitted values"
 
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "NO_VALUES"
 msgstr "No values"
 
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "GRADING_DATA"
 msgstr "Grading data"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "START_MANUAL_ASSESSMENT"
+msgstr "Start manual assessment"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 #: exercise/templates/exercise/staff/submissions_summary.html
 msgid "SUMMARY"
 msgstr "Summary"
@@ -3346,16 +3413,38 @@ msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
 msgstr "%(count)s submissions"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+msgid "GROUP_BY_SUBMITTER"
+msgstr "Group by submitter"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "TIME"
 msgstr "Time"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Yes"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "No"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "ASSESSED_MANUALLY"
+msgstr "Assessed manually"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "INSPECT"
 msgstr "Inspect"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 #: exercise/templates/exercise/submission_plain.html
 #, python-format
 msgid "LATE_W_PENALTY -- %(percent)s"
@@ -3364,6 +3453,42 @@ msgstr "Late <small>-%(percent)s%%</small>"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NO_SUBMISSIONS"
 msgstr "No submissions"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_FINAL_TOOLTIP"
+msgstr "This submission determines the final grade for this exercise."
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "FINAL"
+msgstr "Final"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_ASSESSED_TOOLTIP"
+msgstr "This submission has been assessed manually by course staff."
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "ASSESSED"
+msgstr "Assessed"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SHOW_ALL_SUBMISSIONS"
+msgstr "Show all submissions"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "HIDE_OTHER_SUBMISSIONS"
+msgstr "Hide other submissions"
+
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "SHOW_INDIVIDUAL_SUBMISSIONS"
+msgstr "Show individual submissions"
+
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "LATEST_SUBMISSION_TIME"
+msgstr "Latest submission time"
+
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO_SUBMITTERS"
+msgstr "No submitters"
 
 #: exercise/templates/exercise/staff/analytics.html
 msgid "MODULE_SELECTION"
@@ -3416,11 +3541,10 @@ msgstr "< 90%% points"
 msgid "PROGRESS_LABEL_>=90%%_POINTS"
 msgstr ">= 90%% points"
 
-#: exercise/templates/exercise/staff/assess_submission.html
-msgid "ASSESS_SID"
-msgstr "Assess SID "
+#: exercise/templates/exercise/staff/edit_submitters.html
+msgid "EDIT_SUBMITTERS_SID"
+msgstr "Edit submitters SID "
 
-#: exercise/templates/exercise/staff/assess_submission.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/staff/list_submissions.html
@@ -3428,23 +3552,10 @@ msgstr "Assess SID "
 msgid "ALL_SUBMISSIONS"
 msgstr "All submissions"
 
-#: exercise/templates/exercise/staff/assess_submission.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSION_ID"
 msgstr "Submission ID"
-
-#: exercise/templates/exercise/staff/assess_submission.html
-msgid "ASSESS"
-msgstr "Assess"
-
-#: exercise/templates/exercise/staff/assess_submission.html
-msgid "ASSESSMENT"
-msgstr "Assessment"
-
-#: exercise/templates/exercise/staff/edit_submitters.html
-msgid "EDIT_SUBMITTERS_SID"
-msgstr "Edit submitters SID "
 
 #: exercise/templates/exercise/staff/edit_submitters.html
 msgid "EDIT_SUBMITTERS"
@@ -3463,54 +3574,28 @@ msgid "INSPECT_SID"
 msgstr "Inspect SID "
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "ASSISTANT_FEEDBACK"
-msgstr "Staff feedback"
+msgid "NOTE_FINAL_SUBMISSION"
+msgstr "There is another submission that is marked as final."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "NO_ASSISTANT_FEEDBACK_FOR_SUBMISSION"
-msgstr "No staff feedback available for this submission."
+msgid "NOTE_BETTER_SUBMISSIONS"
+msgstr "There are submissions with better grades submitted by this student."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "ASSESS_SUBMISSION_AS_ASSISTANT"
-msgstr "Assess this submission as an assistant"
+msgid "NOTE_LATER_SUBMISSIONS"
+msgstr "There are newer submissions submitted by this student."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "ASSESS_SUBMISSION_AS_TEACHER"
-msgstr "Assess this submission as a teacher"
+msgid "NEXT_UNASSESSED_SUBMITTER"
+msgstr "Next unassessed submitter"
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "GRADER_FEEDBACK"
-msgstr "Grader feedback"
+msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
+msgstr "Add one extra submission for the student in this exercise."
 
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
-msgstr "No grader feedback available for this submission."
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "RESUBMIT_TO_SERVICE"
-msgstr "Resubmit to service"
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "RESUBMIT_TO_SERVICE_DESCRIPTION"
-msgstr ""
-"Click this button to resubmit this submission to the assessment service. "
-"This is meant to be used only in situations where the assessment service has "
-"behaved incorrectly so that the grading data is incorrect or the status of "
-"the submission never became ready. Caution! Resubmitting overwrites the "
-"current grading data. "
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "EXERCISE_OF_TYPE_CANNOT_BE_RESUBMITTED_TO_ASSESMENT_SERVICE"
-msgstr ""
-"Assignments of this type can not be resubmitted to the assessment service."
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "GRADER_ERRORS"
-msgstr "Grader errors"
+#: exercise/templates/exercise/staff/list_submitters.html
+msgid "ALL_SUBMITTERS"
+msgstr "All submitters"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "SELECT_MODULES"
@@ -3633,6 +3718,11 @@ msgstr "Submission"
 #: exercise/templates/exercise/submission.html
 msgid "FILES_IN_SUBMISSION"
 msgstr "Files in this submission"
+
+#: exercise/templates/exercise/submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
+msgstr "No grader feedback available for this submission."
 
 #: exercise/templates/exercise/submission_plain.html
 msgid "RETURN_TO_EXERCISE"
@@ -4327,14 +4417,6 @@ msgstr "Feedback"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Loading failed!"
-
-#: templates/base.html
-msgid "LOADING"
-msgstr "Loading..."
-
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Close"
 
 #: templates/base.html
 msgid "SEARCH"

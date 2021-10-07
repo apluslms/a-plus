@@ -1,0 +1,96 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load static %}
+
+<div class="clearfix">
+	<div class="pull-right">
+		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
+			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			{% translate "START_MANUAL_ASSESSMENT" %}
+		</a>
+		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-summary' }}">
+			<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+			{% translate "SUMMARY" %}
+		</a>
+		<span class="dropdown">
+			<button
+				class="aplus-button--secondary aplus-button--xs dropdown-toggle"
+				type="button"
+				data-toggle="dropdown"
+				id="download-data"
+			>
+				{% translate "DOWNLOAD" %} <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-data">
+				{% get_format_info_list "json csv excel.csv" as formats %}
+				{% for format in formats %}
+				<li>
+					<a href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&amp;format={{ format.name }}">
+						{{ format.verbose_name }}
+					</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</span>
+	</div>
+	<p>
+		{% exercise_text_stats exercise %}
+		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-list' }}">
+		{% translate "SHOW_INDIVIDUAL_SUBMISSIONS" %}
+		</a>
+	</p>
+</div>
+
+<table class="table table-bordered filtered-table">
+	<thead>
+		<tr>
+			<th>{% translate "SUBMITTER" %}</th>
+			<th>{% translate "SUBMISSIONS" %}</th>
+			<th>{% translate "LATEST_SUBMISSION_TIME" %}</th>
+			<th>{% translate "GRADE" %}</th>
+			<th data-filter-type="options" data-filter-options="{% translate 'YES' %}|{% translate 'NO' %}">
+				{% translate "ASSESSED_MANUALLY" %}
+			</th>
+			<th data-filter-type="none">{% translate "INSPECT" %}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for submitter in submitters %}
+		{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path user_id=submitter.user_id as inspect_url %}
+		<tr>
+			<td>
+				{% profiles submitter instance is_teacher %}
+			</td>
+			<td>
+				{{ submitter.count_submissions }}
+			</td>
+			<td data-datetime="{{ submitter.last_submission_time|date:'Y-m-d H:i:s' }}">
+				{{ submitter.last_submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+			</td>
+			<td>
+				{{ submitter.final_points }}
+			</td>
+			<td>
+				{% if submitter.count_assessed > 0 %}
+					<span class="glyphicon glyphicon-ok"></span>
+					{% translate "YES" %}
+				{% else %}
+					<span class="glyphicon glyphicon-remove"></span>
+					{% translate "NO" %}
+				{% endif %}
+			</td>
+			<td>
+				<a href="{{ inspect_url }}" class="aplus-button--secondary aplus-button--xs">
+					<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+					{% translate "INSPECT" %}
+				</a>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td class="5">{% translate "NO_SUBMITTERS" %}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

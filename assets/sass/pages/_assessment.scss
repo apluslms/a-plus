@@ -1,0 +1,72 @@
+.assessment-panel {
+	& > .panel-heading {
+		position: sticky;
+		top: 0;
+		z-index: 10;
+		.assessment-bar {
+			display: flex;
+			// Assessment bar element spacing
+			& > * {
+				&:not(:last-child) {
+					margin-right: 10px;
+				}
+				&.assessment-bar-fill {
+					flex-grow: 1;
+				}
+				&:not(.assessment-bar-fill) {
+					flex-shrink: 0;
+				}
+			}
+			.assessment-bar-text {
+				align-self: center;
+			}
+			.form-group {
+				margin-bottom: 0;
+			}
+			textarea {
+				min-height: 80px;
+				resize: vertical;
+			}
+		}
+	}
+
+	& > .panel-body {
+		& > .row > * {
+			// Minimum width for resizable columns
+			min-width: 200px;
+			display: flex;
+			flex-direction: column;
+			padding-top: 15px;
+		}
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	.grader-container {
+		--sticky-top: 0;
+		flex-grow: 1;
+		.grader-tab.sticky {
+			// The assessment bar can change its size because of the resizable
+			// textarea, but the stickied grader feedback should never be obscured
+			// by it. Hence the --sticky-top variable, which is updated in
+			// Javascript with a ResizeObserver.
+			position: sticky;
+			top: calc(5px + var(--sticky-top, 0));
+			& > div {
+				max-height: calc(100vh - var(--sticky-top, 0));
+				display: flex;
+				flex-direction: column;
+			}
+		}
+	}
+
+	.nav-pills {
+		// Make the nav pills the same size as the dropdown menu in the left
+		// column, so the columns line up nicely.
+		margin-bottom: $form-group-margin-bottom;
+		& > li > a {
+			height: $input-height-base;
+			padding: $padding-base-vertical $padding-base-horizontal;
+		}
+	}
+}

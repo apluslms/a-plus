@@ -1,0 +1,77 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+<table id="submission-table" class="table table-condensed">
+	<thead>
+		<tr>
+			<th>{% translate "ID" %}</th>
+			<th>{% translate "TIME" %}</th>
+			<th>{% translate "STATUS" %}</th>
+			<th>{% translate "GRADE" %}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for s in submissions reversed %}
+		<tr
+			{% if s != submission %}
+			class="submissions-toggle hidden"
+			{% else %}
+			class="active"
+			{% endif %}
+		>
+			<td>
+				{{ forloop.counter }}
+			</td>
+			<td>
+				{% if s != submission %}
+				<a href="{{ s|url:'submission-inspect' }}">
+					{{ s.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+				</a>
+				{% else %}
+				{{ s.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+				{% endif %}
+				{% if s.late_penalty_applied %}
+				<span class="label label-warning">
+					{% blocktranslate trimmed with percent=s.late_penalty_applied|percent %}
+					LATE_W_PENALTY -- {{ percent }}
+					{% endblocktranslate %}
+				</span>
+				{% endif %}
+			</td>
+			<td>
+				{{ s.status|submission_status }}
+			</td>
+			<td>
+				<span class="badge {% if s.grade >= exercise.max_points %}badge-success{% elif s.grade >= exercise.points_to_pass %}badge-warning{% else %}badge-danger{% endif %}">
+					{{ s.grade }} / {{ exercise.max_points }}
+				</span>
+				{% if s == summary.best_submission %}
+				<span
+					class="label label-primary"
+					data-toggle="tooltip"
+					title="{% translate 'SUBMISSION_FINAL_TOOLTIP' %}"
+				>{% translate 'FINAL' %}</span>
+				{% endif %}
+				{% if s.grader %}
+				<span
+					class="label label-warning"
+					data-toggle="tooltip"
+					title="{% translate 'SUBMISSION_ASSESSED_TOOLTIP' %}"
+				>{% translate 'ASSESSED' %}</span>
+				{% endif %}
+			</td>
+		</tr>
+		{% endfor %}
+		{% if summary.submission_count > 1 %}
+		<tr>
+			<td colspan="5">
+				<button class="aplus-button--secondary aplus-button--xs" data-toggle="visibility" data-target=".submissions-toggle">
+					<span class="submissions-toggle">{% translate "SHOW_ALL_SUBMISSIONS" %}</span>
+					<span class="submissions-toggle hidden">{% translate "HIDE_OTHER_SUBMISSIONS" %}</span>
+				</button>
+			</td>
+		</tr>
+		{% endif %}
+	</tbody>
+</table>

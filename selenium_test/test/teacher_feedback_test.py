@@ -1,7 +1,7 @@
 import unittest
 
 from test_initializer import TestInitializer
-from page_objects import LoginPage, FileUploadGrader, AssessmentPage, SubmissionPage, HomePage, StudentFeedbackPage
+from page_objects import LoginPage, FileUploadGrader, InspectionPage, SubmissionPage, HomePage, StudentFeedbackPage
 
 
 class TeacherFeedbackTest(unittest.TestCase):
@@ -9,7 +9,7 @@ class TeacherFeedbackTest(unittest.TestCase):
         self.driver = TestInitializer().getDefaultDriver(headless=True)
         TestInitializer().recreateDatabase()
 
-    def testStudentShouldGetFeedbackWithNotification(self):
+    def testStudentShouldGetFeedbackWithNotification(self) -> None:
         ASSISTANT_FEEDBACK_TEXT = "ASSISTANT_FEEDBACK"
         FEEDBACK_TEXT = "FEEDBACK"
         EXERCISE_NUMBER = "2"
@@ -28,12 +28,14 @@ class TeacherFeedbackTest(unittest.TestCase):
         self.assertEqual(submissionPage.getSubmissionCount(), 1)
 
         # Assess exercise
-        assessmentPage = AssessmentPage(self.driver, exerciseId=EXERCISE_NUMBER, submissionNumber=SUBMISSION_NUMBER)
-        assessmentPage.setAssistantFeedback(ASSISTANT_FEEDBACK_TEXT)
-        assessmentPage.setFeedback(FEEDBACK_TEXT)
-        assessmentPage.setPoints(POINTS)
-        assessmentPage.submit()
-        assessmentPage.logout()
+        inspectionPage = InspectionPage(self.driver, exerciseId=EXERCISE_NUMBER, submissionNumber=SUBMISSION_NUMBER)
+        inspectionPage.clickAssessmentButton()
+        inspectionPage.setAssistantFeedback(ASSISTANT_FEEDBACK_TEXT)
+        inspectionPage.clickGraderFeedbackToggle()
+        inspectionPage.setFeedback(FEEDBACK_TEXT)
+        inspectionPage.setPoints(POINTS)
+        inspectionPage.submit()
+        inspectionPage.logout()
 
         # Check that student receives the correct assessment and a notification of it
         LoginPage(self.driver).loginAsStudent()

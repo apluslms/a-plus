@@ -1,0 +1,38 @@
+{% load i18n %}
+{% load course %}
+
+<div class="modal" id="resubmit-modal" tabindex="-1" role="dialog" aria-labelledby="resubmit-modal-label">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="resubmit-modal-label">
+					{% translate "RE-SUBMIT_TO_SERVICE" %}
+				</h4>
+			</div>
+
+			<div class="modal-body">
+				{% translate "RE-SUBMIT_TO_SERVICE_DESCRIPTION" %}
+			</div>
+
+			<div class="modal-footer">
+				<form method="post" action="{{ submission|url:'submission-re-submit' }}">
+					{% csrf_token %}
+					<input
+						class="aplus-button--secondary aplus-button--md"
+						type="button"
+						value="{% translate 'CANCEL' %}"
+						data-dismiss="modal"
+					/>
+					<input
+						class="aplus-button--default aplus-button--md"
+						type="submit"
+						value="{% translate 'REGRADE' %}"
+					/>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
