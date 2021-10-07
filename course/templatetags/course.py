@@ -8,6 +8,7 @@ from django.utils.translation import get_language
 from exercise.cache.content import CachedContent
 from course.models import CourseInstance, UserTagging
 from lib.localization_syntax import pick_localized
+from userprofile.models import UserProfile
 from ..cache.menu import CachedTopMenu
 
 
@@ -112,6 +113,8 @@ def avatars(profiles):
 
 @register.inclusion_tag("course/_profiles.html")
 def profiles(profiles, instance, is_teacher):
+    if isinstance(profiles, UserProfile):
+        profiles = [profiles]
     return {
         'instance': instance,
         'profiles': profiles,

@@ -1,0 +1,151 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load bootstrap %}
+
+<div class="panel panel-default assessment-panel">
+	<div class="panel-heading">
+		{# Heading: default mode #}
+		<div class="assessment-bar assessment-toggle{% if form.errors %} hidden{% endif %}">
+			<div class="assessment-bar-fill assessment-bar-text">
+				{% if submission.grader %}
+				<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+				{% blocktranslate trimmed with user=submission.grader.user.get_full_name time=submission.grading_time %}
+				ASSESSED_BY -- {{ user }}, {{ time }}
+				{% endblocktranslate %}
+				{% else %}
+				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+				{% translate 'NOT_ASSESSED_MANUALLY' %}
+				{% endif %}
+			</div>
+			<div>
+				<button
+					data-toggle="modal"
+					data-target="#details-modal"
+					class="aplus-button--secondary aplus-button--sm"
+				>{% translate 'DETAILS' %}</button>
+				<button
+					data-toggle="modal"
+					data-target="#resubmit-modal"
+					class="aplus-button--secondary aplus-button--sm"
+				>{% translate 'REGRADE' %}</button>
+				<button
+					data-toggle="visibility"
+					data-target=".assessment-toggle"
+					class="aplus-button--default aplus-button--sm"
+				>{% translate 'ASSESSMENT' %}</button>
+			</div>
+		</div>
+
+		{# Heading: assessment mode #}
+		<form class="assessment-bar assessment-toggle{% if not form.errors %} hidden{% endif %}" method="post">
+			{% csrf_token %}
+			<div class="assessment-bar-fill">
+				{{ form.assistant_feedback|bootstrap }}
+				{{ form.feedback|bootstrap }}
+			</div>
+			<div style="flex-basis: 200px">
+				{{ form.points|bootstrap }}
+				{{ form.mark_as_final|bootstrap }}
+			</div>
+			<div class="text-right">
+				<div>
+					<input
+						class="aplus-button--secondary aplus-button--sm"
+						data-toggle="visibility"
+						data-target=".assessment-toggle"
+						type="button"
+						value="{% translate 'CLOSE' %}"
+					/>
+					{% if is_teacher or is_assistant and exercise.allow_assistant_grading %}
+					<input
+						class="aplus-button--default aplus-button--sm"
+						type="submit"
+						value="{% translate 'SUBMIT' %}"
+					/>
+					{% endif %}
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<div class="panel-body">
+		<div class="row resizable-sm">
+			{# Body: left column (submitted files) #}
+			{% if has_files %}
+			<div class="col-sm-6">
+				<div class="form-group">
+					<select id="submitted-file-select" class="form-control" autocomplete="off">
+						{% for file in submission.files.all %}
+						<option value="{{ file.id }}" {% if forloop.first %}selected{% endif %}>{{ file.filename }}</option>
+						{% endfor %}
+					</select>
+				</div>
+
+				{% for file in submission.files.all %}
+				<div
+					class="submitted-file {% if not forloop.first %}hidden{% endif %}"
+					data-id="{{ file.id }}"
+					{% if file.exists %}data-url="{{ file.get_absolute_url }}"{% endif %}
+				>
+					{% if file.exists %}
+					<div class="submitted-file-progress">
+						<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%">
+							{% translate "LOADING" %}
+						</div>
+					</div>
+					<div class="submitted-file-data"></div>
+					{% endif %}
+					<div class="alert alert-danger submitted-file-error {% if file.exists %}hidden{% endif %}">
+						{% translate "FILE_NOT_FOUND" %}
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			{% endif %}
+
+			{# Body: right column (grader feedback, grader errors and assistant feedback) #}
+			<div
+				class="{% if has_files %}col-sm-6{% else %}col-sm-12{% endif %}"
+			>
+				{% get_grading_errors submission as grading_errors %}
+
+				<ul class="nav nav-pills grader-container-tabs" role="tablist">
+					{% if submission.feedback %}
+					<li role="presentation">
+						<a href="#grader-feedback" role="tab" data-toggle="pill">{% translate "GRADER_FEEDBACK" %}</a>
+					</li>
+					{% endif %}
+					{% if grading_errors %}
+					<li role="presentation">
+						<a href="#grader-errors" role="tab" data-toggle="pill">{% translate "GRADER_ERRORS" %}</a>
+					</li>
+					{% endif %}
+					{% if submission.assistant_feedback %}
+					<li role="presentation">
+						<a href="#assistant-feedback" role="tab" data-toggle="pill">{% translate "ASSISTANT_FEEDBACK" %}</a>
+					</li>
+					{% endif %}
+				</ul>
+
+				<div class="tab-content grader-container">
+					{% if submission.feedback %}
+					<div id="grader-feedback" role="tabpanel" class="grader-tab tab-pane">
+						{{ submission.feedback|safe }}
+					</div>
+					{% endif %}
+					{% if grading_errors %}
+					<div id="grader-errors" role="tabpanel" class="grader-tab tab-pane">
+						<pre>{{ grading_errors }}</pre>
+					</div>
+					{% endif %}
+					{% if submission.assistant_feedback %}
+					<div id="assistant-feedback" role="tabpanel" class="grader-tab tab-pane">
+						<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

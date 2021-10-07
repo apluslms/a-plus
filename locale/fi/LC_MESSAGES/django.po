@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-14 16:14+0300\n"
+"POT-Creation-Date: 2021-10-07 12:05+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -287,7 +287,7 @@ msgstr "opiskelijaryhmät"
 msgid "STUDENT"
 msgstr "Opiskelija"
 
-#: course/models.py exercise/templates/exercise/staff/_submissions_table.html
+#: course/models.py
 msgid "ASSISTANT"
 msgstr "Assistentti"
 
@@ -822,6 +822,10 @@ msgid "CHANGE_LANGUAGE"
 msgstr "Vaihda kieli"
 
 #: course/templates/course/_course_menu.html
+msgid "CLOSE_SIDEBAR"
+msgstr "Sulje sivupalkki"
+
+#: course/templates/course/_course_menu.html
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "COURSE"
 msgstr "Kurssi"
@@ -989,10 +993,6 @@ msgid "OPEN_SIDEBAR"
 msgstr "Avaa sivupalkki"
 
 #: course/templates/course/course_base.html
-msgid "CLOSE_SIDEBAR"
-msgstr "Sulje sivupalkki"
-
-#: course/templates/course/course_base.html
 msgid "READ_MORE"
 msgstr "Lue lisää"
 
@@ -1042,6 +1042,24 @@ msgstr "Et voi ilmoittautua uudelleen, koska ilmoittautuminen ei ole avoinna."
 #: course/templates/course/course_base.html
 msgid "PROCEED_CONFIRMATION"
 msgstr "Haluatko varmasti jatkaa?"
+
+#: course/templates/course/course_base.html
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Peruuta"
 
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
@@ -1143,23 +1161,6 @@ msgstr ""
 "remove-modal-users\"></ul> "
 
 #: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: course/templates/course/staff/participants.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Peruuta"
-
-#: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
 msgstr "Poista kaikki"
 
@@ -1198,6 +1199,7 @@ msgstr "Vahvista ryhmän poisto"
 
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/groups.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "ID"
 msgstr "ID"
 
@@ -1214,7 +1216,7 @@ msgstr "Luotu"
 #: course/templates/course/staff/group_edit.html
 #: course/templates/course/staff/groups.html
 #: edit_course/templates/edit_course/usertag_list.html
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/inspect_submission.html
 #: external_services/templates/external_services/list_menu.html
 #: news/templates/news/list.html
 msgid "EDIT"
@@ -1233,7 +1235,6 @@ msgstr "Muokkaa ryhmän jäseniä"
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/assess_submission.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: external_services/templates/external_services/edit_menu.html
 #: news/templates/news/edit.html userprofile/templates/userprofile/profile.html
@@ -1296,8 +1297,8 @@ msgstr "Sähköposti"
 
 #: course/templates/course/staff/participants.html
 #: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 #: exercise/templates/exercise/submission_plain.html
 #: templates/support_channels.html
 msgid "STATUS"
@@ -1461,6 +1462,7 @@ msgid "DEADLINE_DEVIATIONS"
 msgstr "Määräaikojen poikkeamat"
 
 #: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "SUBMITTER"
 msgstr "Palauttaja"
 
@@ -1613,8 +1615,9 @@ msgstr "Käyttäjätunnus"
 
 #: diploma/templates/diploma/list.html
 #: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "GRADE"
 msgstr "Arvosana"
 
@@ -1907,6 +1910,7 @@ msgstr ""
 
 #: edit_course/templates/edit_course/batch_assess.html
 #: exercise/templates/exercise/model/_file_submit_form.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "SUBMIT"
 msgstr "Lähetä"
 
@@ -2099,6 +2103,7 @@ msgid "EDIT_COURSE_INDEX"
 msgstr "Muokkaa kurssin etusivua"
 
 #: edit_course/templates/edit_course/edit_instance.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "DETAILS"
 msgstr "Tiedot"
 
@@ -2302,8 +2307,8 @@ msgid "COURSE_INSTANCE"
 msgstr "Kurssikerta"
 
 #: exercise/admin.py exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMITTERS"
 msgstr "Opiskelijat"
 
@@ -2716,6 +2721,17 @@ msgstr ""
 "Mahdollisia myöhästymisvähennyksiä ei tehdä automaattisesti. Pisteet "
 "<em>korvaavat</em> automaattisen arvioinnin tuloksen!"
 
+#: exercise/forms.py
+msgid "LABEL_MARK_AS_FINAL"
+msgstr "Merkitse lopulliseksi"
+
+#: exercise/forms.py
+msgid "SUBMISSION_REVIEW_MARK_AS_FINAL_HELPTEXT"
+msgstr ""
+"Jos valittu, tästä tulee tämän tehtävän lopullinen arvosana tälle "
+"opiskelijalle. Muussa tapauksessa parhaat pisteet saanut palautus määrittää "
+"lopullisen arvosanan."
+
 #: exercise/forms.py exercise/submission_models.py
 msgid "LABEL_STAFF_FEEDBACK"
 msgstr "Kurssihenkilökunnan palaute"
@@ -2724,9 +2740,9 @@ msgstr "Kurssihenkilökunnan palaute"
 msgid "SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT"
 msgstr "HTML-muotoilut sallitaan. Tämä ei korvaa automaattista palautetta."
 
-#: exercise/forms.py exercise/submission_models.py
-msgid "LABEL_FEEDBACK"
-msgstr "Palaute"
+#: exercise/forms.py exercise/templates/exercise/staff/_assessment_panel.html
+msgid "GRADER_FEEDBACK"
+msgstr "Automaattinen palaute"
 
 #: exercise/forms.py
 msgid "SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT"
@@ -2801,7 +2817,7 @@ msgstr "Valitettavasti assistenteilla ei ole oikeutta nähdä tätä."
 msgid "EXERCISE_ASSISTANT_PERMISSION_ERROR_NO_ASSISTANT_VIEWING"
 msgstr "Assistentti ei voi nähdä tätä tehtävää."
 
-#: exercise/permissions.py
+#: exercise/permissions.py exercise/staff_views.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_NO_ASSISTANT_GRADING"
 msgstr "Assistentti ei voi arvostella tätä tehtävää."
 
@@ -2845,6 +2861,10 @@ msgstr "Arviointipalvelussa tapahtui virhe."
 #: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
+
+#: exercise/staff_views.py
+msgid "ALL_SUBMITTERS_HAVE_BEEN_ASSESSED"
+msgstr "Kaikki palauttajat on arvosteltu."
 
 #: exercise/staff_views.py
 msgid "ERROR_FAILED_TO_LOAD_RESOURCE"
@@ -2901,6 +2921,10 @@ msgstr "tunniste (hash)"
 #: exercise/submission_models.py
 msgid "LABEL_GRADER"
 msgstr "arvostelija"
+
+#: exercise/submission_models.py
+msgid "LABEL_FEEDBACK"
+msgstr "Palaute"
 
 #: exercise/submission_models.py
 msgid "LABEL_GRADING_TIME"
@@ -3046,12 +3070,14 @@ msgstr "Pisteet tällä kurssilla"
 
 #: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Lataa"
 
 #: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/_model_files.html
 #: exercise/templates/exercise/_template_files.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "FILE_NOT_FOUND"
 msgstr "Tiedostoa ei löytynyt"
 
@@ -3125,7 +3151,6 @@ msgid "SUBMITTED_ON"
 msgstr "Palautushetki"
 
 #: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_assess_info.html
 msgid "INCLUDES_LATE_PENALTY"
 msgstr "Sisältää myöhästymissakon"
 
@@ -3200,7 +3225,8 @@ msgid "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING"
 msgstr "Tehtäviin saattaa tulla muutoksia ennen kierroksen avautumista!"
 
 #: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSIONS"
 msgstr "Palautukset"
 
@@ -3301,51 +3327,80 @@ msgstr "Palautuksesi on vastaanotettu arvostelua varten."
 msgid "RESULTS"
 msgstr "Tulokset"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBMITTED_DATA"
-msgstr "Palautuksen tiedot"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#, python-format
+msgid "ASSESSED_BY -- %(user)s, %(time)s"
+msgstr "Arvostellut %(user)s, %(time)s"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBMISSION_TIME"
-msgstr "Palautushetki"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "NOT_ASSESSED_MANUALLY"
+msgstr "Ei arvosteltu manuaalisesti"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "GRADING_TIME"
-msgstr "Arvosteluaika"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+msgid "REGRADE"
+msgstr "Arvostele uudelleen"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "GRADER_OUTPUT"
-msgstr "tarkistimelta"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "ASSESSMENT"
+msgstr "Arviointi"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "IN_TOTAL"
-msgstr "Kaikkiaan"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Sulje"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
-msgstr "Lisää yksi uusi palautuskerta tälle opiskelijalle tähän tehtävään."
+#: exercise/templates/exercise/staff/_assessment_panel.html templates/base.html
+msgid "LOADING"
+msgstr "Ladataan..."
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "SUBMITTED_FILES"
-msgstr "Palautetut tiedostot"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "GRADER_ERRORS"
+msgstr "Virheet tarkistimelta"
 
-#: exercise/templates/exercise/staff/_assess_info.html
-msgid "NO_FILES"
-msgstr "Ei tiedostoja"
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "ASSISTANT_FEEDBACK"
+msgstr "Kurssihenkilökunnan palaute"
 
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+msgid "RE-SUBMIT_TO_SERVICE"
+msgstr "Lähetä arvosteltavaksi uudelleen"
+
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+msgid "RE-SUBMIT_TO_SERVICE_DESCRIPTION"
+msgstr ""
+"Tällä painikkeella voi lähettää palautuksen uudelleen tehtäväpalveluun. "
+"Toiminto on tarkoitettu käytettäväksi, kun tehtäväpalvelu on toiminut "
+"väärin, ja arvostelu on virheellinen tai tila ei muuttunut valmiiksi. "
+"Huomaa, että vanha arvostelu korvautuu uudella."
+
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+msgid "SUBMISSION_DETAILS"
+msgstr "Palautuksen lisätiedot"
+
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMITTED_VALUES"
 msgstr "Vastaukset"
 
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "NO_VALUES"
 msgstr "Ei ole"
 
-#: exercise/templates/exercise/staff/_assess_info.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "GRADING_DATA"
 msgstr "Arvostelun tiedot"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "START_MANUAL_ASSESSMENT"
+msgstr "Aloita manuaalinen arvostelu"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 #: exercise/templates/exercise/staff/submissions_summary.html
 msgid "SUMMARY"
 msgstr "Yhteenveto"
@@ -3363,16 +3418,38 @@ msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
 msgstr "%(count)s palautusta"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+msgid "GROUP_BY_SUBMITTER"
+msgstr "Ryhmittele palauttajittain"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "TIME"
 msgstr "Aika"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Kyllä"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "Ei"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "ASSESSED_MANUALLY"
+msgstr "Arvosteltu manuaalisesti"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "INSPECT"
 msgstr "Tutki"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 #: exercise/templates/exercise/submission_plain.html
 #, python-format
 msgid "LATE_W_PENALTY -- %(percent)s"
@@ -3381,6 +3458,42 @@ msgstr "Myöhässä <small>-%(percent)s%%</small>"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NO_SUBMISSIONS"
 msgstr "Ei vielä palautuksia"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_FINAL_TOOLTIP"
+msgstr "Tämä palautus määrittää tehtävän lopullisen arvosanan."
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "FINAL"
+msgstr "Lopullinen"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_ASSESSED_TOOLTIP"
+msgstr "Kurssin henkilökunta on arvostellut tämän palautuksen manuaalisesti."
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "ASSESSED"
+msgstr "Arvosteltu"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SHOW_ALL_SUBMISSIONS"
+msgstr "Näytä kaikki palautukset"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "HIDE_OTHER_SUBMISSIONS"
+msgstr "Piilota muut palautukset"
+
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "SHOW_INDIVIDUAL_SUBMISSIONS"
+msgstr "Näytä yksittäiset palautukset"
+
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "LATEST_SUBMISSION_TIME"
+msgstr "Viimeisin palautusaika"
+
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO_SUBMITTERS"
+msgstr "Ei palauttajia"
 
 #: exercise/templates/exercise/staff/analytics.html
 msgid "MODULE_SELECTION"
@@ -3433,11 +3546,10 @@ msgstr "< 90%% pisteistä"
 msgid "PROGRESS_LABEL_>=90%%_POINTS"
 msgstr ">= 90%% pisteistä"
 
-#: exercise/templates/exercise/staff/assess_submission.html
-msgid "ASSESS_SID"
-msgstr "Arvioi SID "
+#: exercise/templates/exercise/staff/edit_submitters.html
+msgid "EDIT_SUBMITTERS_SID"
+msgstr "Muokkaa palauttajia SID "
 
-#: exercise/templates/exercise/staff/assess_submission.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/staff/list_submissions.html
@@ -3445,23 +3557,10 @@ msgstr "Arvioi SID "
 msgid "ALL_SUBMISSIONS"
 msgstr "Kaikki palautukset"
 
-#: exercise/templates/exercise/staff/assess_submission.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSION_ID"
 msgstr "Palautus ID"
-
-#: exercise/templates/exercise/staff/assess_submission.html
-msgid "ASSESS"
-msgstr "Arvioi"
-
-#: exercise/templates/exercise/staff/assess_submission.html
-msgid "ASSESSMENT"
-msgstr "Arviointi"
-
-#: exercise/templates/exercise/staff/edit_submitters.html
-msgid "EDIT_SUBMITTERS_SID"
-msgstr "Muokkaa palauttajia SID "
 
 #: exercise/templates/exercise/staff/edit_submitters.html
 msgid "EDIT_SUBMITTERS"
@@ -3480,54 +3579,29 @@ msgid "INSPECT_SID"
 msgstr "Tutki SID "
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "ASSISTANT_FEEDBACK"
-msgstr "Kurssihenkilökunnan palaute"
+msgid "NOTE_FINAL_SUBMISSION"
+msgstr "Toinen palautus on merkitty opiskelijan lopulliseksi palautukseksi."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "NO_ASSISTANT_FEEDBACK_FOR_SUBMISSION"
-msgstr "Kurssihenkilökunta ei ole antanut palautetta tästä palautuksesta."
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "ASSESS_SUBMISSION_AS_ASSISTANT"
-msgstr "Arvioi tämä palautus"
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "ASSESS_SUBMISSION_AS_TEACHER"
-msgstr "Arvioi tämä palautus"
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "GRADER_FEEDBACK"
-msgstr "Automaattinen palaute"
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
-msgstr "Tästä palautuksesta ei ole saatavilla automaattista palautetta."
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "RESUBMIT_TO_SERVICE"
-msgstr "Lähetä arvosteltavaksi uudelleen"
-
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "RESUBMIT_TO_SERVICE_DESCRIPTION"
+msgid "NOTE_BETTER_SUBMISSIONS"
 msgstr ""
-"Tällä painikkeella voi lähettää palautuksen uudelleen arviointipalveluun. "
-"Toiminto on tarkoitettu käytettäväksi, kun arviointipalvelu on toiminut "
-"väärin, ja arvostelu on virheellinen tai tila ei muuttunut valmiiksi. "
-"Huomaa, että vanha arvostelu korvautuu uudella."
+"Opiskelijalla on tätä palautusta paremman arvosanan saaneita palautuksia."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "EXERCISE_OF_TYPE_CANNOT_BE_RESUBMITTED_TO_ASSESMENT_SERVICE"
-msgstr ""
-"Tämän tyyppisiä tehtäviä ei voi lähettää arviointipalveluun uudelleen "
-"arvioitavaksi."
+msgid "NOTE_LATER_SUBMISSIONS"
+msgstr "Opiskelijalla on tätä palautusta uudempia palautuksia."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "GRADER_ERRORS"
-msgstr "Virheet tarkistimelta"
+msgid "NEXT_UNASSESSED_SUBMITTER"
+msgstr "Seuraava arvostelematon palauttaja"
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
+msgstr "Lisää yksi uusi palautuskerta tälle opiskelijalle tähän tehtävään."
+
+#: exercise/templates/exercise/staff/list_submitters.html
+msgid "ALL_SUBMITTERS"
+msgstr "Kaikki palauttajat"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "SELECT_MODULES"
@@ -3649,6 +3723,11 @@ msgstr "Palautus"
 #: exercise/templates/exercise/submission.html
 msgid "FILES_IN_SUBMISSION"
 msgstr "Tiedostot tässä palautuksessa"
+
+#: exercise/templates/exercise/submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
+msgstr "Tästä palautuksesta ei ole saatavilla palautetta."
 
 #: exercise/templates/exercise/submission_plain.html
 msgid "RETURN_TO_EXERCISE"
@@ -4352,14 +4431,6 @@ msgstr "Palaute"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Lataus epäonnistui!"
-
-#: templates/base.html
-msgid "LOADING"
-msgstr "Ladataan..."
-
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Sulje"
 
 #: templates/base.html
 msgid "SEARCH"

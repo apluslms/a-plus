@@ -40,22 +40,41 @@ class SubmissionReviewForm(forms.Form):
         label=_('LABEL_POINTS'),
         help_text=_('SUBMISSION_REVIEW_POINTS_OVERRIDE_HELPTEXT'),
     )
+    mark_as_final = forms.BooleanField(
+        required=False,
+        label=_('LABEL_MARK_AS_FINAL'),
+        help_text=_('SUBMISSION_REVIEW_MARK_AS_FINAL_HELPTEXT'),
+    )
     assistant_feedback = forms.CharField(
         required=False,
-        widget=forms.Textarea,
+        widget=forms.Textarea(attrs={ 'rows': None, 'cols': None }),
         label=_('LABEL_STAFF_FEEDBACK'),
         help_text=_('SUBMISSION_REVIEW_ASSISTANT_FEEDBACK_HELPTEXT'),
     )
     feedback = forms.CharField(
         required=False,
-        widget=forms.Textarea,
-        label=_('LABEL_FEEDBACK'),
+        widget=forms.Textarea(attrs={ 'rows': None, 'cols': None }),
+        label=_('GRADER_FEEDBACK'),
         help_text=_('SUBMISSION_REVIEW_FEEDBACK_OVERRIDE_HELPTEXT'),
     )
 
     def __init__(self, *args, **kwargs):
         self.exercise = kwargs.pop('exercise')
+        help_texts_to_tooltips = kwargs.pop('help_texts_to_tooltips', False)
         super(SubmissionReviewForm, self).__init__(*args, **kwargs)
+
+        if help_texts_to_tooltips:
+            # Turn the help texts into tooltips instead of static text blocks
+            for field in self.fields.values():
+                field.widget.attrs.update({
+                    'aria-label': field.help_text,
+                    'data-toggle': 'tooltip',
+                    'data-placement': 'bottom',
+                    'data-html': 'true',
+                    'data-trigger': 'hover',
+                    'title': field.help_text,
+                })
+                field.help_text = None
 
     def clean(self):
         super().clean()

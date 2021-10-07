@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
+{% load static %}
 
 {% block title %}{% translate "INSPECT_SID" %} {{ submission.id}} | {{ block.super }}{% endblock %}
 {% block view_tag %}inspect{% endblock %}
@@ -14,68 +15,89 @@
 {% endblock %}
 
 {% block columns %}
-<div class="col-md-5">
-    {% include "exercise/staff/_assess_info.html" %}
+
+{% if not_final or not_best or not_last %}
+<div class="col-md-12">
+	<div class="alert alert-warning">
+		{% if not_final %}
+		{% translate "NOTE_FINAL_SUBMISSION" %}
+		{% elif not_best %}
+		{% translate "NOTE_BETTER_SUBMISSIONS" %}
+		{% elif not_last %}
+		{% translate "NOTE_LATER_SUBMISSIONS" %}
+		{% endif %}
+	</div>
 </div>
-<div class="col-md-7">
-    <h3>{% translate "ASSISTANT_FEEDBACK" %}</h3>
-    <div class="well">
+{% endif %}
 
-        {% if submission.assistant_feedback %}
-        {{ submission.assistant_feedback|safe }}
-        {% else %}
-        <div class="alert alert-info">
-        	{% translate "NO_ASSISTANT_FEEDBACK_FOR_SUBMISSION" %}
-        </div>
-        {% endif %}
-
-        {% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
-        <hr/>
-        <p>
-            <a class="aplus-button--secondary aplus-button--md" href="{{ submission|url:'submission-assess' }}" role="button">
-                {% if submission.exercise.allow_assistant_grading %}
-            	    {% translate "ASSESS_SUBMISSION_AS_ASSISTANT" %}
-                {% else %}
-                    {% translate "ASSESS_SUBMISSION_AS_TEACHER" %}
-                {% endif %}
-            </a>
-        </p>
-        {% endif %}
-    </div>
-
-    <h3>{% translate "GRADER_FEEDBACK" %}</h3>
-    <div class="well">
-    	{% if submission.feedback %}
-            {{ submission.feedback|safe }}
-    	{% else %}
-            <div class="alert alert-info">
-        	    {% translate "NO_GRADER_FEEDBACK_FOR_SUBMISSION" %}
-            </div>
-    	{% endif %}
-
-        <hr/>
-        {% if exercise.can_regrade %}
-        	<form method="post" action="{{ submission|url:'submission-re-submit' }}">
-        		{% csrf_token %}
-        		<input class="aplus-button--secondary aplus-button--md" type="submit" value="{% translate 'RESUBMIT_TO_SERVICE' %}" />
-        	</form>
-        {% endif %}
-        <p>
-        {% if exercise.can_regrade %}
-        	{% blocktranslate trimmed %}
-                RESUBMIT_TO_SERVICE_DESCRIPTION
-            {% endblocktranslate %}
-        {% else %}
-            {% translate "EXERCISE_OF_TYPE_CANNOT_BE_RESUBMITTED_TO_ASSESMENT_SERVICE" %}
-        {% endif %}
-        </p>
-
-    </div>
-
-    {% get_grading_errors submission as errors %}
-    {% if errors %}
-        <h3>{% translate "GRADER_ERRORS" %}</h3>
-        <pre>{{ errors }}</pre>
-    {% endif %}
+{% if form.non_field_errors %}
+<div class="col-md-12">
+	<div class="alert alert-danger">
+		{% for error in form.non_field_errors %}
+			{{ error }}
+		{% endfor %}
+	</div>
 </div>
+{% endif %}
+
+<div class="col-md-12">
+	<div class="row">
+		<div class="col-md-3">
+			<span class="h4">{% translate "SUBMITTERS" %}</span>
+			{% if is_teacher %}
+			<a href="{{ submission|url:'submission-edit-submitters' }}" class="aplus-button--secondary aplus-button--xs">
+				{% translate "EDIT" %}
+			</a>
+			{% endif %}
+			{% profiles submission.submitters.all instance is_teacher %}
+		</div>
+
+		<div class="col-md-9">
+			<div>
+				{% with prev_id=submission.submitters.all.0.id %}
+				<a href="{{ exercise|url:'submission-next-unassessed' }}?prev={{ prev_id }}" class="pull-right">
+					{% translate "NEXT_UNASSESSED_SUBMITTER" %}
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+				{% endwith %}
+
+				<span class="h4">{% translate "SUBMISSIONS" %}</span>
+				<span class="badge">
+					{{ summary.submission_count }}
+					{% if exercise.max_submissions %}
+					/ {{ exercise|max_submissions:submission.submitters.first }}
+					{% endif %}
+				</span>
+				{% if exercise.max_submissions %}
+					{% if is_teacher or is_assistant and submission.exercise.allow_assistant_grading %}
+						<form
+							method="post"
+							action="{{ submission|url:'submission-increase-max' }}"
+							style="display:inline;"
+							title="{% translate 'ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE' %}"
+						>
+							{% csrf_token %}
+							<input class="aplus-button--secondary aplus-button--xs" type="submit" value="+1" />
+						</form>
+					{% endif %}
+				{% endif %}
+				{% include "exercise/staff/_submissions_table_compact.html" %}
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			{% include "exercise/staff/_assessment_panel.html" %}
+		</div>
+	</div>
+</div>
+{% include "exercise/staff/_submission_data_modal.html" %}
+{% include "exercise/staff/_resubmit_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/resize.js' %}"></script>
+<script src="{% static 'exercise/assessment.js' %}"></script>
 {% endblock %}

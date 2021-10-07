@@ -1,0 +1,17 @@
+{% extends "exercise/exercise_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% translate "ALL_SUBMITTERS" %} | {{ block.super }}{% endblock %}
+{% block view_tag %}all-submitters{% endblock %}
+
+{% block exercisebreadcrumblist %}
+{{ block.super }}
+<li class="active">{% translate "ALL_SUBMITTERS" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+    {% include "exercise/staff/_submitters_table.html" %}
+</div>
+{% endblock %}

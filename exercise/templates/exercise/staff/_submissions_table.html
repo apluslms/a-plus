@@ -6,11 +6,15 @@
 
 <div class="clearfix">
 	<div class="pull-right">
-		<a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ exercise|url:'submission-summary' }}">
+		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
+			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			{% translate "START_MANUAL_ASSESSMENT" %}
+		</a>
+		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-summary' }}">
 			<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
 			{% translate "SUMMARY" %}
 		</a>
-		<span class="dropdown pull-right">
+		<span class="dropdown">
 			<button
 				class="aplus-button--secondary aplus-button--xs dropdown-toggle"
 				type="button"
@@ -19,7 +23,7 @@
 			>
 				{% translate "DOWNLOAD" %} <span class="caret"></span>
 			</button>
-			<ul class="dropdown-menu" aria-labeledby="download-data">
+			<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-data">
 				{% get_format_info_list "json csv excel.csv" as formats %}
 				{% for format in formats %}
 				<li>
@@ -42,6 +46,9 @@
 			NUM_OF_SUBMISSIONS_DISPLAYED -- {{ count }}
 		{% endblocktranslate %}
 		{% endif %}
+		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submitter-list' }}">
+		{% translate "GROUP_BY_SUBMITTER" %}
+		</a>
 	</p>
 </div>
 <table class="table table-bordered{% if all or count < default_limit %} filtered-table{% endif %}">
@@ -51,7 +58,10 @@
 						<th>{% translate "TIME" %}</th>
 						<th>{% translate "STATUS" %}</th>
 						<th>{% translate "GRADE" %}</th>
-						<th>{% translate "INSPECT" %}</th>
+						<th data-filter-type="options" data-filter-options="{% translate 'YES' %}|{% translate 'NO' %}">
+								{% translate "ASSESSED_MANUALLY" %}
+						</th>
+						<th data-filter-type="none">{% translate "INSPECT" %}</th>
 				</tr>
 		</thead>
 		<tbody>
@@ -75,12 +85,18 @@
 						</td>
 						<td>
 								{{ submission.grade }}
-								{% if submission.assistant_feedback %}
-								<span class="label label-warning">{% translate "ASSISTANT" %}</span>
+						</td>
+						<td>
+								{% if submission.grader %}
+										<span class="glyphicon glyphicon-ok"></span>
+										{% translate "YES" %}
+								{% else %}
+										<span class="glyphicon glyphicon-remove"></span>
+										{% translate "NO" %}
 								{% endif %}
 						</td>
 						<td>
-								<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+								<a href="{{ submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--xs">
 										<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
 										{% translate "INSPECT" %}
 								</a>
