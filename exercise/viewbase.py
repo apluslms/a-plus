@@ -93,6 +93,12 @@ class ExerciseModelMixin(ExerciseMixin):
         perms.extend((Perm() for Perm in self.model_permission_classes))
         return perms
 
+    def get_exercise_object(self):
+        exercise = super().get_exercise_object()
+        if not exercise.is_submittable:
+            raise Http404("This learning object does not have a model answer.")
+        return exercise
+
 class ExerciseModelBaseView(ExerciseModelMixin, BaseTemplateView):
     pass
 
