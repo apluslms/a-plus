@@ -57,7 +57,7 @@
         if (key.indexOf("external_service_") != 0 || data === null) continue;
         const externalService = data.title;
         const li = $(
-          `<li aria-label=${externalService}>` +
+          `<li aria-label="${externalService}">` +
             (data.title === undefined ? key : externalService) +
             "</li>"
         );
