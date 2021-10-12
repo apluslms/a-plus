@@ -1,4 +1,19 @@
 (function ($) {
+  function escapeHtml(text) {
+    // Source: https://stackoverflow.com/a/4835406
+    // License: CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/#
+    // No changes made to the original code.
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+
+
   $(document).on("aplus:translation-ready", function () {
     function json_parse(data) {
       try {
@@ -55,10 +70,10 @@
         const key = ls.key(i);
         const data = json_parse(ls.getItem(key));
         if (key.indexOf("external_service_") != 0 || data === null) continue;
-        const externalService = data.title;
+        const externalService = escapeHtml(data.title);
         const li = $(
           `<li aria-label="${externalService}">` +
-            (data.title === undefined ? key : externalService) +
+            (data.title === undefined ? escapeHtml(key) : externalService) +
             "</li>"
         );
         li.addClass("list-group-item clearfix");
