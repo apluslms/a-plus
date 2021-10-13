@@ -23,14 +23,17 @@ Aalto University is currently running following combinations on Ubuntu 20.04 or 
 Table of contents
 -----------------
 
-* [Common system configuration](#common-system-configuration)
-* [The Application](#the-application)
-* [Common Shibboleth configuration](#common-shibboleth-configuration)
-* [Apache 2 configuration](#apache-2-configuration)
-  * [Shibboleth with Apache 2](#shibboleth-with-apache-2)
-* [NGINX configuration](#nginx-configuration)
-  * [Shibboleth with NGINX](#shibboleth-with-nginx)
-* [Final steps](#final-steps)
+- [A+ Deployment Instructions](#a-deployment-instructions)
+  - [Table of contents](#table-of-contents)
+  - [Common system configuration](#common-system-configuration)
+  - [The Application](#the-application)
+  - [Common Shibboleth configuration](#common-shibboleth-configuration)
+    - [Key generation](#key-generation)
+  - [Apache 2 configuration](#apache-2-configuration)
+    - [Shibboleth with Apache 2](#shibboleth-with-apache-2)
+  - [NGINX configuration](#nginx-configuration)
+    - [Shibboleth with NGINX](#shibboleth-with-nginx)
+  - [Final steps](#final-steps)
 
 
 Common system configuration
