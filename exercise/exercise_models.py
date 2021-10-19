@@ -737,8 +737,6 @@ class BaseExercise(LearningObject):
             enrollment = self.course_instance.get_enrollment_for(students[0].user)
             if not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
                 return True, []
-        if self.max_submissions == 0:
-            return True, []
         submission_count = 0
         for profile in students:
             # The students are in the same group, therefore, each student should
@@ -747,13 +745,18 @@ class BaseExercise(LearningObject):
             submission_count = self.get_submissions_for_student(profile, True).count()
             if submission_count < self.max_submissions_for_student(profile):
                 return True, []
+        # Even in situations where the student could otherwise make an infinite
+        # number of submissions, there is still a hard limit.
         max_unofficial_submissions = settings.MAX_UNOFFICIAL_SUBMISSIONS
-        if self.category.accept_unofficial_submits and \
-                (max_unofficial_submissions == 0 or submission_count < max_unofficial_submissions):
-            # Note: time is not checked here, but unofficial submissions are
-            # not allowed if the course archive time has passed.
-            # The caller must check the time limits too.
-            return True, [_('EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED')]
+        if max_unofficial_submissions == 0 or submission_count < max_unofficial_submissions:
+            if self.max_submissions == 0:
+                # If max_submissions is 0, the submission limit is "infinite".
+                return True, []
+            if self.category.accept_unofficial_submits:
+                # Note: time is not checked here, but unofficial submissions are
+                # not allowed if the course archive time has passed.
+                # The caller must check the time limits too.
+                return True, [_('EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED')]
         return False, [_('EXERCISE_MAX_SUBMISSIONS_USED')]
 
     def no_submissions_left(self, students):
