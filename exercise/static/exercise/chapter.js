@@ -778,7 +778,11 @@
 						var submission = url.match(/submissions\/\d+/)[0].split('/')[1];
 						url = '/api/v2/submissions/' + submission;
 						data_type = "json";
-					}
+					} else {
+            // Make sure the submit button is included when loading an exercise
+            // with delayed feedback
+            url = url + '?submit=true';
+          }
 
 					this.showLoader("load");
 					$.ajax(url, {dataType: data_type})

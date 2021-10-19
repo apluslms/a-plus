@@ -1,8 +1,11 @@
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.formats import date_format
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import ACCESS
@@ -20,7 +23,9 @@ from .models import (
     LearningObject,
     BaseExercise,
     Submission,
+    RevealRule,
 )
+from .reveal_states import ExerciseRevealState
 
 
 class ExerciseBaseMixin(object):
@@ -42,7 +47,50 @@ class ExerciseBaseMixin(object):
         self.note("exercise")
 
 
-class ExerciseMixin(ExerciseBaseMixin, CourseModuleMixin):
+class ExerciseRevealRuleMixin:
+    def get_resource_objects(self) -> None:
+        super().get_resource_objects()
+        self.get_feedback_visibility()
+        self.get_model_visibility()
+
+    def get_feedback_visibility(self) -> None:
+        self.feedback_revealed = True
+        self.feedback_hidden_description = None
+        if (
+            not self.is_course_staff
+            and isinstance(self.exercise, BaseExercise)
+            and isinstance(self.request.user, User)
+        ):
+            rule = self.exercise.active_submission_feedback_reveal_rule
+            state = ExerciseRevealState(self.exercise, self.request.user)
+            self.feedback_revealed = rule.is_revealed(state)
+            if rule.trigger in (
+                RevealRule.TRIGGER.TIME,
+                RevealRule.TRIGGER.DEADLINE,
+                RevealRule.TRIGGER.DEADLINE_ALL,
+            ):
+                reveal_time = rule.get_reveal_time(state)
+                formatted_time = date_format(timezone.localtime(reveal_time), "DATETIME_FORMAT")
+                self.feedback_hidden_description = format_lazy(
+                    _('RESULTS_WILL_BE_REVEALED -- {time}'),
+                    time=formatted_time,
+                )
+            else:
+                self.feedback_hidden_description = _('RESULTS_ARE_CURRENTLY_HIDDEN')
+        self.note("feedback_revealed", "feedback_hidden_description")
+
+    def get_model_visibility(self) -> None:
+        self.model_revealed = True
+        if (
+            not self.is_course_staff
+            and isinstance(self.exercise, BaseExercise)
+            and isinstance(self.request.user, User)
+        ):
+            self.model_revealed = self.exercise.can_show_model_solutions_to_student(self.request.user)
+        self.note("model_revealed")
+
+
+class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixin):
     exercise_permission_classes = ExerciseBaseMixin.exercise_permission_classes + (
         BaseExerciseAssistantPermission,
     )

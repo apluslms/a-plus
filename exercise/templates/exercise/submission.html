@@ -28,7 +28,11 @@
         <blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
     {% endif %}
 
-    {% if submission.feedback and submission.feedback.strip %}
+	{% if not feedback_revealed %}
+		<div class="exercise">
+			{{ submission_page.content|safe }}
+		</div>
+	{% elif submission.feedback and submission.feedback.strip %}
         <div id="exercise">
             {{ submission.feedback|safe }}
         </div>

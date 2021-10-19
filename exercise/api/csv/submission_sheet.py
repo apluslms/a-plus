@@ -1,13 +1,16 @@
 from collections import OrderedDict
-from typing import List, TYPE_CHECKING
+from typing import Any, Dict, Iterable, List, Set, Tuple
 
+from rest_framework.request import Request
 from rest_framework.reverse import reverse
 
-if TYPE_CHECKING:
-    from ...models import Submission
+from ...models import BaseExercise, Submission
 
 
-def filter_best_submissions(submissions: List['Submission']) -> List['Submission']:
+def filter_best_submissions(
+        submissions: Iterable[Submission],
+        revealed_ids: Set[int],
+        ) -> List[Submission]:
     best = {}
     forced = {}
     eid = None
@@ -21,15 +24,16 @@ def filter_best_submissions(submissions: List['Submission']) -> List['Submission
         if s.status == 'ready':
             user = s.submitters.first()
             uid = user.id if user else 0
+            grade = s.grade if eid in revealed_ids else 0
             if s.force_exercise_points:
                 # This submission is chosen as the best submission and no
                 # further submissions are considered.
-                best[eid][uid] = (i,s.grade)
+                best[eid][uid] = (i,grade)
                 forced[eid][uid] = True
             if not forced[eid].get(uid):
                 old = best[eid].get(uid)
-                if not old or s.grade >= old[1]:
-                    best[eid][uid] = (i,s.grade)
+                if not old or grade >= old[1] or s.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
+                    best[eid][uid] = (i,grade)
 
     filtered = []
     for ebest in best.values():
@@ -38,7 +42,11 @@ def filter_best_submissions(submissions: List['Submission']) -> List['Submission
     return filtered
 
 
-def submissions_sheet(request, submissions):
+def submissions_sheet(
+        request: Request,
+        submissions: Iterable[Submission],
+        revealed_ids: Set[int],
+        ) -> Tuple[List[Dict[str, Any]], List[str]]:
     DEFAULT_FIELDS = [
         'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
         'UserID', 'StudentID', 'Email', 'Status',
@@ -91,7 +99,7 @@ def submissions_sheet(request, submissions):
             ('StudentID', None),
             ('Email', None),
             ('Status', s.status),
-            ('Grade', s.grade),
+            ('Grade', s.grade if exercise.id in revealed_ids else 0),
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
             ('GraderEmail', grader),

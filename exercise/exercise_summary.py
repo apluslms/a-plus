@@ -52,11 +52,7 @@ class UserExerciseSummary(object):
                             s.status == Submission.STATUS.READY and (
                                 self.best_submission is None
                                 or self.unofficial
-                                or s.grade > self.best_submission.grade
-                                or (
-                                    s.grade == self.best_submission.grade
-                                    and s.submission_time > self.best_submission.submission_time
-                                )
+                                or self._is_better(s, self.best_submission)
                             )
                         ):
                             self.best_submission = s
@@ -67,18 +63,28 @@ class UserExerciseSummary(object):
                                 not self.graded
                                 or (
                                     self.unofficial
-                                    and (
-                                        s.grade > self.best_submission.grade
-                                        or (
-                                            s.grade == self.best_submission.grade
-                                            and s.submission_time > self.best_submission.submission_time
-                                        )
-                                    )
+                                    and self._is_better(s, self.best_submission)
                                 )
                             )
                         ):
                             self.best_submission = s
                             self.unofficial = True
+
+    def _is_better(self, submission1: Submission, submission2: Submission) -> bool:
+        """
+        Checks if `submission1` is better than `submission2`. This depends on
+        the grading mode of the exercise.
+        """
+        if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
+            return submission1.submission_time > submission2.submission_time
+        else: # defaults to GRADING_MODE.BEST handling
+            return (
+                submission1.grade > submission2.grade
+                or (
+                    submission1.grade == submission2.grade
+                    and submission1.submission_time > submission2.submission_time
+                )
+            )
 
     def get_submission_count(self):
         return self.submission_count

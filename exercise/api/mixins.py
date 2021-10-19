@@ -12,11 +12,13 @@ from ..models import (
 )
 from ..viewbase import (
     ExerciseBaseMixin,
+    ExerciseRevealRuleMixin,
     SubmissionBaseMixin,
 )
 
 
-class ExerciseBaseResourceMixin(CourseInstanceBaseMixin,
+class ExerciseBaseResourceMixin(ExerciseRevealRuleMixin,
+                                CourseInstanceBaseMixin,
                                 CourseModuleBaseMixin,
                                 ExerciseBaseMixin):
     exercise_kw = 'exercise_id'

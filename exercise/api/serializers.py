@@ -37,6 +37,7 @@ class ExerciseBriefSerializer(AplusModelSerializer):
 
 class SubmissionBriefSerializer(AplusModelSerializer):
     #display_name = serializers.CharField(source='__str__')
+    grade = serializers.SerializerMethodField()
 
     class Meta(AplusModelSerializer.Meta):
         model = Submission
@@ -50,6 +51,9 @@ class SubmissionBriefSerializer(AplusModelSerializer):
                 'lookup_map': 'exercise.api.views.SubmissionViewSet',
             }
         }
+
+    def get_grade(self, obj):
+        return obj.grade if self.context['view'].feedback_revealed else 0
 
 
 class SubmittedFileBriefSerializer(AplusModelSerializer):

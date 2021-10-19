@@ -1,12 +1,19 @@
 import logging
 import time
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
+from django.http.request import HttpRequest
 
 from lib.cache import CachedAbstract
 from lib.remote_page import RemotePageNotModified
 from ..protocol.aplus import load_exercise_page
+
+if TYPE_CHECKING:
+    from course.models import CourseInstance
+    from userprofile.models import UserProfile
+    from ..models import BaseExercise
 
 logger = logging.getLogger('aplus.cached')
 
@@ -25,16 +32,24 @@ class ExerciseCache(CachedAbstract):
     """ Exercise HTML content """
     KEY_PREFIX = "exercise"
 
-    def __init__(self, exercise, language, request, students, url_name, ordinal=None):
+    def __init__(
+            self,
+            exercise: 'BaseExercise',
+            language: str,
+            request: HttpRequest,
+            students: List['UserProfile'],
+            url_name: str,
+            ordinal: Optional[int] = None,
+            ) -> None:
         self.exercise = exercise
         self.load_args = [language, request, students, url_name, ordinal]
         super().__init__(exercise, modifiers=[language])
 
-    def _needs_generation(self, data):
+    def _needs_generation(self, data: Dict[str, Any]) -> bool:
         expires = data['expires'] if data else None
         return not expires or time.time() > expires
 
-    def _generate_data(self, exercise, data=None):
+    def _generate_data(self, exercise: 'BaseExercise', data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         try:
             page = exercise.load_page(
                 *self.load_args,
@@ -54,15 +69,15 @@ class ExerciseCache(CachedAbstract):
                 data['expires'] = e.expires
             return data
 
-    def head(self):
+    def head(self) -> str:
         return self.data['head']
 
-    def content(self):
+    def content(self) -> str:
         content = decompress(self.data['content']).decode('utf-8')
         return content
 
 
-def invalidate_instance(instance):
+def invalidate_instance(instance: 'CourseInstance') -> None:
     for module in instance.course_modules.all():
         for exercise in module.learning_objects.all():
             for language,_ in settings.LANGUAGES:

@@ -1,16 +1,25 @@
+import datetime
 import json
+from typing import Any, Dict, Optional, Tuple, Union
+
 from django import template
+from django.contrib.auth.models import User
 from django.db.models import Max, Min
+from django.template.context import Context
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.formats import date_format
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseModule
 from lib.errors import TagUsageError
+from lib.helpers import format_points as _format_points
 from ..cache.content import CachedContent
 from ..cache.points import CachedPoints
 from ..exercise_summary import UserExerciseSummary
 from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
+from ..reveal_states import ExerciseRevealState
 
 
 register = template.Library()
@@ -22,16 +31,16 @@ def _prepare_now(context):
     return context['now']
 
 
-def _prepare_context(context, student=None):
+def _prepare_context(context: Context, student: Optional[User] = None) -> CachedPoints:
     if not 'instance' in context:
         raise TagUsageError()
     instance = context['instance']
     _prepare_now(context)
     if not 'content' in context:
         context['content'] = CachedContent(instance)
-    def points(user, key):
+    def points(user: User, key: str) -> CachedPoints:
         if not key in context:
-            context[key] = CachedPoints(instance, user, context['content'])
+            context[key] = CachedPoints(instance, user, context['content'], context['is_course_staff'])
         return context[key]
     if student:
         return points(student, 'studentpoints')
@@ -61,7 +70,7 @@ def _is_accessible(context, entry, t):
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)
-def user_results(context, student=None):
+def user_results(context: Context, student: Optional[User] = None) -> Dict[str, Any]:
     values = _get_toc(context, student)
     values['total_json'] = json.dumps(values['total'])
     if student:
@@ -128,37 +137,60 @@ def submission_status(status):
     return Submission.STATUS[status]
 
 
-def _points_data(obj, classes=None):
+def _reveal_rule(exercise: BaseExercise, user: User) -> Tuple[bool, Optional[datetime.datetime]]:
+    rule = exercise.active_submission_feedback_reveal_rule
+    state = ExerciseRevealState(exercise, user)
+    is_revealed = rule.is_revealed(state)
+    reveal_time = rule.get_reveal_time(state)
+    return is_revealed, reveal_time
+
+
+def _points_data(
+        obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
+        user: User,
+        classes: Optional[str] = None,
+        is_staff: bool = False,
+        ) -> Dict[str, Any]:
+    reveal_time = None
+    is_revealed = is_staff
     if isinstance(obj, UserExerciseSummary):
         exercise = obj.exercise
+        if not is_staff:
+            is_revealed, reveal_time = _reveal_rule(exercise, user)
         data = {
-            'points': obj.get_points(),
+            'points': obj.get_points() if is_revealed else 0,
+            'formatted_points': _format_points(obj.get_points(), is_revealed, False),
             'max': exercise.max_points,
             'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
             'confirm_the_level': exercise.category.confirm_the_level,
-            'missing_points': obj.is_missing_points(),
-            'passed': obj.is_passed(),
-            'full_score': obj.is_full_points(),
+            'missing_points': obj.is_missing_points() if is_revealed else False,
+            'passed': obj.is_passed() if is_revealed else False,
+            'full_score': obj.is_full_points() if is_revealed else False,
             'submitted': obj.is_submitted(),
             'graded': obj.is_graded(),
             'official': not obj.is_unofficial(),
             'exercise_page': True,
+            'feedback_revealed': is_revealed,
         }
     elif isinstance(obj, Submission):
         exercise = obj.exercise
+        if not is_staff:
+            is_revealed, reveal_time = _reveal_rule(exercise, user)
         data = {
-            'points': obj.grade,
+            'points': obj.grade if is_revealed else 0,
+            'formatted_points': _format_points(obj.grade, is_revealed, False),
             'max': exercise.max_points,
             'difficulty': exercise.difficulty,
             'required': exercise.points_to_pass,
             'confirm_the_level': exercise.category.confirm_the_level,
-            'missing_points': obj.grade < exercise.points_to_pass,
-            'passed': obj.grade >= exercise.points_to_pass,
-            'full_score': obj.grade >= exercise.max_points,
+            'missing_points': (obj.grade < exercise.points_to_pass) if is_revealed else False,
+            'passed': (obj.grade >= exercise.points_to_pass) if is_revealed else False,
+            'full_score': (obj.grade >= exercise.max_points) if is_revealed else False,
             'submitted': True,
             'graded': obj.is_graded,
             'official': obj.status != Submission.STATUS.UNOFFICIAL,
+            'feedback_revealed': is_revealed,
         }
         if not obj.is_graded and (
                     not exercise.category.confirm_the_level
@@ -171,6 +203,7 @@ def _points_data(obj, classes=None):
         required = obj.get('points_to_pass', 0)
         data = {
             'points': points,
+            'formatted_points': obj.get('formatted_points', '0'),
             'max': max_points,
             'difficulty': obj.get('difficulty', ''),
             'required': required,
@@ -184,29 +217,56 @@ def _points_data(obj, classes=None):
             'unconfirmed': obj.get('unconfirmed', False),
             'official': not obj.get('unofficial', False),
             'confirmable_points': obj.get('confirmable_points', False),
+            'feedback_revealed': obj.get('feedback_revealed', True),
         }
+        reveal_time = obj.get('feedback_reveal_time')
     percentage = 0
     required_percentage = None
     if data['max'] > 0:
         percentage = int(round(100.0 * data['points'] / data['max']))
         if data['required']:
             required_percentage = int(round(100.0 * data['required'] / data['max']))
+    feedback_hidden_description = None
+    if not data.get('feedback_revealed'):
+        if isinstance(obj, dict) and obj.get('type') != 'exercise':
+            feedback_hidden_description = _('RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN')
+        elif reveal_time is not None:
+            formatted_time = date_format(timezone.localtime(reveal_time), "DATETIME_FORMAT")
+            feedback_hidden_description = format_lazy(
+                _('RESULTS_WILL_BE_REVEALED -- {time}'),
+                time=formatted_time,
+            )
+        else:
+            feedback_hidden_description = _('RESULTS_ARE_CURRENTLY_HIDDEN')
     data.update({
         'classes': classes,
         'percentage': percentage,
         'required_percentage': required_percentage,
+        'feedback_hidden_description': feedback_hidden_description,
     })
     return data
 
 
-@register.inclusion_tag("exercise/_points_progress.html")
-def points_progress(obj):
-    return _points_data(obj)
+@register.inclusion_tag("exercise/_points_progress.html", takes_context=True)
+def points_progress(
+        context: Context,
+        obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
+        ) -> Dict[str, Any]:
+    return _points_data(obj, context['request'].user, None, context['is_course_staff'])
 
 
-@register.inclusion_tag("exercise/_points_badge.html")
-def points_badge(obj, classes=None):
-    return _points_data(obj, classes)
+@register.inclusion_tag("exercise/_points_badge.html", takes_context=True)
+def points_badge(
+        context: Context,
+        obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
+        classes: Optional[str] = None,
+        ) -> Dict[str, Any]:
+    return _points_data(obj, context['request'].user, classes, context['is_course_staff'])
+
+
+@register.simple_tag
+def format_points(points: int, is_revealed: bool, is_container: bool) -> str:
+    return _format_points(points, is_revealed, is_container)
 
 
 @register.simple_tag(takes_context=True)

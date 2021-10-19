@@ -57,10 +57,10 @@
 	</thead>
 	<tbody>
 		{% for submitter in submitters %}
-		{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path user_id=submitter.user_id as inspect_url %}
+		{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path user_id=submitter.profile.user_id as inspect_url %}
 		<tr>
 			<td>
-				{% profiles submitter instance is_teacher %}
+				{% profiles submitter.profile instance is_teacher %}
 			</td>
 			<td>
 				{{ submitter.count_submissions }}

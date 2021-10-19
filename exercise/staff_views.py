@@ -8,8 +8,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
 from django.db.models import Count, F, Max, Q
-from django.db.models.expressions import Case, When
-from django.db.models.query_utils import FilteredRelation
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -87,36 +85,38 @@ class ListSubmittersView(ExerciseBaseView):
         super().get_common_objects()
         if not self.exercise.is_submittable:
             raise Http404()
+        self.submitters = []
 
         # The points, submission counts and submission times are retrieved
         # using a QuerySet instead of CachedPoints or UserExerciseSummary,
         # because those are specific to a single student, and this page is
         # supposed to list all students.
-        self.submitters = (UserProfile.objects
-            .filter(submissions__exercise=self.exercise)
+        submitter_summaries = (
+            self.exercise.submissions
+            .exclude(
+                status__in=(
+                    Submission.STATUS.UNOFFICIAL,
+                    Submission.STATUS.ERROR,
+                    Submission.STATUS.REJECTED
+                ),
+            )
+            .values('submitters__id')
             .annotate(
-                filtered_submissions=FilteredRelation(
-                    'submissions',
-                    condition=~Q(submissions__status__in=(
-                        Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
-                    )),
-                ),
-                count_submissions=Count('filtered_submissions__id'),
-                count_assessed=Count(
-                    'filtered_submissions__id',
-                    filter=Q(filtered_submissions__grader__isnull=False)
-                ),
-                last_submission_time=Max('filtered_submissions__submission_time'),
-                best_points=Max('filtered_submissions__grade'),
-                forced_points=Max(
-                    'filtered_submissions__grade',
-                    filter=Q(filtered_submissions__force_exercise_points=True)
-                ),
-                final_points=Case(
-                    When(forced_points__isnull=True, then=F('best_points')),
-                    default=F('forced_points')
-                ),
-            ))
+                count_submissions=Count('id'),
+                count_assessed=Count('id', filter=Q(grader__isnull=False)),
+                last_submission_time=Max('submission_time'),
+            )
+            .annotate_submitter_points('final_points')
+            .order_by()
+        )
+
+        # Get a dict of submitters, accessed by their id.
+        profiles = UserProfile.objects.filter(submissions__exercise=self.exercise).in_bulk()
+        # Add UserProfile instances to the dicts in submitter_summaries, so we can
+        # use the 'profiles' template tag.
+        for submitter_summary in submitter_summaries:
+            profile = profiles[submitter_summary['submitters__id']]
+            self.submitters.append({'profile': profile, **submitter_summary})
         self.note('submitters')
 
 

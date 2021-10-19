@@ -100,8 +100,11 @@ class SubmissionSerializer(SubmissionBriefSerializer):
     submitters = SubmitterLinks()
     submission_data = serializers.JSONField()
     files = SubmittedFileLinks()
+    grade = serializers.SerializerMethodField()
     grader = UserBriefSerializer()
-    grading_data = serializers.JSONField()
+    feedback = serializers.SerializerMethodField()
+    assistant_feedback = serializers.SerializerMethodField()
+    grading_data = serializers.SerializerMethodField()
 
     class Meta(SubmissionBriefSerializer.Meta):
         fields = (
@@ -119,6 +122,18 @@ class SubmissionSerializer(SubmissionBriefSerializer):
             'assistant_feedback',
             'grading_data',
         )
+
+    def get_grade(self, obj):
+        return obj.grade if self.context['view'].feedback_revealed else 0
+
+    def get_feedback(self, obj):
+        return obj.feedback if self.context['view'].feedback_revealed else None
+
+    def get_assistant_feedback(self, obj):
+        return obj.assistant_feedback if self.context['view'].feedback_revealed else None
+
+    def get_grading_data(self, obj):
+        return obj.grading_data if self.context['view'].feedback_revealed else None
 
 
 class SubmissionInGraderSerializer(SubmissionBriefSerializer):

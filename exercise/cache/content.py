@@ -1,3 +1,6 @@
+from typing import Any, Dict, List, Optional, Type, Union
+
+from django.db.models.base import Model
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
@@ -11,11 +14,11 @@ class CachedContent(ContentMixin, CachedAbstract):
     """ Course content hierarchy for template presentations """
     KEY_PREFIX = 'content'
 
-    def __init__(self, course_instance):
+    def __init__(self, course_instance: CourseInstance) -> None:
         self.instance = course_instance
         super().__init__(course_instance)
 
-    def _generate_data(self, instance, data=None):
+    def _generate_data(self, instance: CourseInstance, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """ Returns object that is cached into self.data """
         module_index = {}
         exercise_index = {}
@@ -30,7 +33,13 @@ class CachedContent(ContentMixin, CachedAbstract):
             'max_group_size': 1,
         }
 
-        def recursion(module, objects, parents, indexes, container):
+        def recursion(
+                module: Dict[str, Any],
+                objects: List[LearningObject],
+                parents: List[LearningObject],
+                indexes: List[int],
+                container: List[Dict[str, Any]]
+                ) -> None:
             """ Recursively travels exercises hierarchy """
             select = parents[-1].id if parents else None
             children = [o for o in objects if o.parent_id == select]
@@ -58,6 +67,9 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'opening_time': module['opening_time'],
                     'reading_opening_time': module['reading_opening_time'],
                     'closing_time': module['closing_time'],
+                    'late_allowed': module['late_allowed'],
+                    'late_time': module['late_time'],
+                    'late_percent': module['late_percent'],
                     'is_empty': o.is_empty(),
                     'points_to_pass': 0,
                     'difficulty': '',
@@ -118,7 +130,7 @@ class CachedContent(ContentMixin, CachedAbstract):
             i += 1
 
         # Augment submittable exercise parameters.
-        def add_to(target, exercise):
+        def add_to(target: Dict[str, Any], exercise: BaseExercise) -> None:
             target['exercise_count'] += 1
             target['max_points'] += exercise.max_points
             self._add_by_difficulty(
@@ -171,7 +183,11 @@ class CachedContent(ContentMixin, CachedAbstract):
         }
 
 
-def invalidate_content(sender, instance, **kwargs):
+def invalidate_content(
+        sender: Type[Model],
+        instance: Union[CourseInstance, CourseModule, LearningObject, LearningObjectCategory],
+        **kwargs: Any,
+        ) -> None:
     course = instance
     while hasattr(course, 'course_instance'):
         course = course.course_instance

@@ -1,5 +1,7 @@
+from typing import Any
+
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
 
@@ -37,7 +39,7 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
     access_mode = ACCESS.ASSISTANT
     template_name = "diploma/list.html"
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
 
         students = self.instance.students.all()
@@ -51,7 +53,7 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
         pad_points = self.design.pad_points
         student_grades = []
         for profile in students:
-            points = CachedPoints(self.instance, profile.user, self.content)
+            points = CachedPoints(self.instance, profile.user, self.content, self.is_course_staff)
             student_grades.append((
                 profile,
                 calculate_grade(points.total(), point_limits, pad_points),
@@ -66,13 +68,13 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
 class DiplomaCreateView(DiplomaMixin, BaseRedirectView):
     access_mode = ACCESS.ENROLLED
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         design = self.design
         profile = self.get_profile_object()
         if (profile != self.profile and not self.is_course_staff):
             raise PermissionDenied()
 
-        points = CachedPoints(self.instance, profile.user, self.content)
+        points = CachedPoints(self.instance, profile.user, self.content, self.is_course_staff)
         grade = assign_grade(points, design)
         if grade < 0:
             raise PermissionDenied()

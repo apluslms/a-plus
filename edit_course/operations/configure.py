@@ -2,6 +2,7 @@ import json
 import requests
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
+from typing import Any, Dict, List, Optional
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -11,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from exercise.exercisecollection_models import ExerciseCollection
-from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
+from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise, RevealRule
 from external_services.models import LTIService
 from lib.localization_syntax import format_localization
 from userprofile.models import UserProfile
@@ -103,8 +104,15 @@ def remove_newlines(value):
     return value.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
 
 
-def configure_learning_objects(category_map, module, config, parent,
-        seen, errors, n=0):
+def configure_learning_objects(
+        category_map: Dict[str, LearningObjectCategory],
+        module: CourseModule,
+        config: List[Dict[str, Any]],
+        parent: Optional[LearningObject],
+        seen: List[int],
+        errors: List[str],
+        n: int = 0,
+        ) -> int:
     if not isinstance(config, list):
         return n
     for o in config:
@@ -200,6 +208,48 @@ def configure_learning_objects(category_map, module, config, parent,
                         setattr(lobject, key, i)
             if "difficulty" in o:
                 lobject.difficulty = o["difficulty"]
+            for config_key, lobject_key in [
+                ("reveal_submission_feedback", "submission_feedback_reveal_rule"),
+                ("reveal_model_solutions", "model_solutions_reveal_rule"),
+            ]:
+                rule_config = o.get(config_key)
+                if not rule_config:
+                    continue
+                if not isinstance(rule_config, dict) or "trigger" not in rule_config:
+                    errors.append(format_lazy(_('REVEAL_RULE_ERROR_INVALID_JSON -- {key}'), key=config_key))
+                    continue
+                trigger = parse_choices(rule_config["trigger"], {
+                    "immediate": RevealRule.TRIGGER.IMMEDIATE,
+                    "manual": RevealRule.TRIGGER.MANUAL,
+                    "time": RevealRule.TRIGGER.TIME,
+                    "deadline": RevealRule.TRIGGER.DEADLINE,
+                    "deadline_all": RevealRule.TRIGGER.DEADLINE_ALL,
+                    "completion": RevealRule.TRIGGER.COMPLETION,
+                }, "trigger", errors)
+                rule = getattr(lobject, lobject_key)
+                if not rule:
+                    rule = RevealRule()
+                rule.trigger = trigger
+                if "time" in rule_config:
+                    rule.time = parse_date(rule_config["time"], errors)
+                if "delay_minutes" in rule_config:
+                    rule.delay_minutes = parse_int(rule_config["delay_minutes"], errors)
+                rule.save()
+                setattr(lobject, lobject_key, rule)
+            if "grading_mode" in o:
+                grading_mode = parse_choices(o["grading_mode"], {
+                    "best": BaseExercise.GRADING_MODE.BEST,
+                    "last": BaseExercise.GRADING_MODE.LAST,
+                }, "grading_mode", errors)
+                lobject.grading_mode = grading_mode
+            else:
+                # If not explicitly specified, grading mode is determined by
+                # the submission feedback reveal rule.
+                rule = lobject.submission_feedback_reveal_rule
+                if rule and rule.trigger != RevealRule.TRIGGER.IMMEDIATE:
+                    lobject.grading_mode = BaseExercise.GRADING_MODE.LAST
+                else:
+                    lobject.grading_mode = BaseExercise.GRADING_MODE.BEST
 
         if lobject_cls == CourseChapter:
             if "generate_table_of_contents" in o:

@@ -2,7 +2,7 @@ import itertools
 import logging
 import os
 import json
-from typing import Dict, List, cast
+from typing import IO, Dict, Iterable, List, Tuple, cast
 
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
@@ -10,9 +10,11 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
+from django.http.request import HttpRequest
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 from mimetypes import guess_type
+from exercise.protocol.exercise_page import ExercisePage
 
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
@@ -25,7 +27,70 @@ from . import exercise_models
 logger = logging.getLogger('aplus.exercise')
 
 
+class SubmissionQuerySet(models.QuerySet):
+    def annotate_submitter_points(
+            self,
+            field_name: str = 'total',
+            revealed_ids: Iterable[int] = None,
+            ) -> 'SubmissionQuerySet':
+        """
+        Annotates the total points earned by the submitter in the exercise to
+        the queryset. Chain after `values` and before `order_by` to ensure one
+        points row per submitter and exercise.
+
+        The result will be assigned to a field named by `field_name`.
+
+        Provide `revealed_ids`, if you want to hide unrevealed points from the
+        queryset.
+        """
+        # Building a case expression for calculating the total points. There
+        # are 4 cases:
+        # 1) If revealed_ids was provided, and the exercise id is not in it,
+        #    return 0.
+        # 2) If a submission has the force_exercise_points flag set to True,
+        #    return that submission's points.
+        # 3) If the grading_mode field of the exercise is set to LAST, return
+        #    the points of the latest submission.
+        # 4) In any other case, return the points of the best submission.
+        cases = []
+        if revealed_ids is not None:
+            cases.append(
+                models.When(
+                    ~models.Q(exercise__in=revealed_ids),
+                    then=0,
+                )
+            )
+        cases.append(
+            models.When(
+                forced_points__isnull=False,
+                then=models.F('forced_points'),
+            )
+        )
+        cases.append(
+            models.When(
+                exercise__grading_mode=exercise_models.BaseExercise.GRADING_MODE.LAST,
+                then=models.Subquery(
+                    self.filter(
+                        exercise=models.OuterRef('exercise_id'),
+                        submitters=models.OuterRef('submitters__id'),
+                    )
+                    .order_by('-submission_time')
+                    .values('grade')[:1]
+                ),
+            )
+        )
+        return (
+            self.alias(
+                forced_points=models.Max('grade', filter=models.Q(force_exercise_points=True)),
+            )
+            .annotate(**{
+                field_name: models.Case(*cases, default=models.Max('grade')),
+            })
+        )
+
+
 class SubmissionManager(models.Manager):
+    _queryset_class = SubmissionQuerySet
 
     def get_queryset(self):
         return super().get_queryset()\
@@ -260,11 +325,14 @@ class Submission(UrlMixin, models.Model):
                 data[key] = [value]
         return data
 
-    def load(self, request):
+    def load(self, request: HttpRequest, allow_submit: bool = True) -> ExercisePage:
         """
         Loads the submission page, i.e. the exercise form with the submitted
         answers filled in. Not the same as the graded form, which is stored in
         `feedback`.
+
+        The `allow_submit` argument determines if the submit button will be
+        shown on the page.
         """
         # Load the exercise page and parse its contents
         submitters = list(self.submitters.all())
@@ -318,7 +386,10 @@ class Submission(UrlMixin, models.Model):
         page.content = str(soup)
         return page
 
-    def get_post_parameters(self, request, url):
+    def get_post_parameters(
+            self,
+            request: HttpRequest, url: str
+            ) -> Tuple[Dict[str, List[str]], Dict[str, Tuple[str, IO]]]:
         """
         Produces submission data for POST as (data_dict, files_dict).
         """

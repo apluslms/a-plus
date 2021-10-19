@@ -21,7 +21,7 @@
 
 			<dt>{% translate "GRADE" %}</dt>
 			<dd>
-				{{ submission.grade }} / {{ exercise.max_points }}
+				{% format_points submission.grade feedback_revealed False %} / {{ exercise.max_points }}
 			</dd>
 
 			{% if submission.late_penalty_applied %}
