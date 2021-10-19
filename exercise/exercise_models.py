@@ -310,24 +310,28 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_submission_list_url(self):
         return self.get_url("submission-list")
 
-    def load(self, request, students, url_name="exercise"):
+    def load(self, request, students, url_name="exercise", ordinal=None):
         """
         Loads the learning object page.
+
+        Provide the `ordinal` parameter ONLY when viewing previous submissions.
+        In randomized exercises, it causes a specific submission's form to be
+        returned.
         """
         page = ExercisePage(self)
         if not self.service_url:
             return page
         language = get_language()
-        cache = ExerciseCache(self, language, request, students, url_name)
+        cache = ExerciseCache(self, language, request, students, url_name, ordinal)
         page.head = cache.head()
         page.content = cache.content()
         page.is_loaded = True
         return page
 
-    def load_page(self, language, request, students, url_name, last_modified=None):
+    def load_page(self, language, request, students, url_name, ordinal=None, last_modified=None):
         return load_exercise_page(
             request,
-            self.get_load_url(language, request, students, url_name),
+            self.get_load_url(language, request, students, url_name, ordinal),
             last_modified,
             self
         )
@@ -335,7 +339,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_service_url(self, language):
         return pick_localized(self.service_url, language)
 
-    def get_load_url(self, language, request, students, url_name="exercise"):
+    def get_load_url(self, language, request, students, url_name="exercise", ordinal=None):
         return update_url_params(self.get_service_url(language), {
             'lang': language,
         })
@@ -827,16 +831,18 @@ class BaseExercise(LearningObject):
             .filter(submissions__exercise=self) \
             .distinct().count()
 
-    def get_load_url(self, language, request, students, url_name="exercise"):
+    def get_load_url(self, language, request, students, url_name="exercise", ordinal=None):
         if self.id:
             if request.user.is_authenticated:
                 user = request.user
-                submission_count = self.get_submissions_for_student(
-                    user.userprofile, exclude_errors=True
-                ).count()
+                if ordinal is None:
+                    submission_count = self.get_submissions_for_student(
+                        user.userprofile, exclude_errors=True
+                    ).count()
+                    ordinal = submission_count + 1
             else:
                 user = None
-                submission_count = 0
+                ordinal = 1
             # Make grader async URL for the currently authenticated user.
             # The async handler will handle group selection at submission time.
             submission_url = update_url_params(
@@ -847,9 +853,9 @@ class BaseExercise(LearningObject):
             )
             return self._build_service_url(
                 language, request, students,
-                submission_count + 1, url_name, submission_url
+                ordinal, url_name, submission_url
             )
-        return super().get_load_url(language, request, students, url_name)
+        return super().get_load_url(language, request, students, url_name, ordinal)
 
     def grade(self, request, submission, no_penalties=False, url_name="exercise"):
         """
@@ -1044,8 +1050,8 @@ class LTIExercise(BaseExercise):
         except PermissionDenied:
             raise
 
-    def get_load_url(self, language, request, students, url_name="exercise"):
-        url = super().get_load_url(language, request, students, url_name)
+    def get_load_url(self, language, request, students, url_name="exercise", ordinal=None):
+        url = super().get_load_url(language, request, students, url_name, ordinal)
         if self.lti_service and students:
             lti = self._get_lti(students[0].user, [], request)
             return lti.sign_get_query(url)

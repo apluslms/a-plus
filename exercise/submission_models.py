@@ -2,7 +2,10 @@ import itertools
 import logging
 import os
 import json
+from typing import Dict, List, cast
 
+from bs4 import BeautifulSoup
+from bs4.element import NavigableString, Tag
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
@@ -242,16 +245,84 @@ class Submission(UrlMixin, models.Model):
                     param_name=key,
                 )
 
+    def submission_data_as_dict(self) -> Dict[str, List[str]]:
+        """
+        Returns `submission_data` transformed from a list into a dict.
+
+        Example: `[["field_1", "1"], ["field_2", "a"], ["field_2", "b"]]` is
+        transformed into `{"field_1": ["1"], "field_2": ["a", "b"]}`.
+        """
+        data: Dict[str, List[str]] = {}
+        for key, value in self.submission_data or {}:
+            if key in data:
+                data[key].append(value)
+            else:
+                data[key] = [value]
+        return data
+
+    def load(self, request):
+        """
+        Loads the submission page, i.e. the exercise form with the submitted
+        answers filled in. Not the same as the graded form, which is stored in
+        `feedback`.
+        """
+        # Load the exercise page and parse its contents
+        submitters = list(self.submitters.all())
+        page = self.exercise.as_leaf_class().load(
+            request,
+            submitters,
+            url_name='exercise',
+            ordinal=self.ordinal_number(),
+        )
+        soup = BeautifulSoup(page.content, 'html5lib')
+
+        data = self.submission_data_as_dict()
+
+        # Find all form elements on the exercise page and fill in the values
+
+        # The exercise content element may be identified by a number of
+        # different ids or classes
+        exercise_element = cast(Tag, soup.find(id=['exercise', 'aplus', 'chapter']))
+        if exercise_element is None:
+            exercise_element = cast(Tag, soup.find({'class': 'entry-content'}))
+        if exercise_element is not None:
+            field_elements = exercise_element.find_all(['input', 'select', 'textarea'])
+            for field_element in field_elements:
+                field_element = cast(Tag, field_element)
+                field_name = cast(str, field_element.get('name'))
+                if field_name not in data:
+                    continue
+                if field_element.name == 'input':
+                    if field_element.get('type') in ('radio', 'checkbox'):
+                        if field_element.get('value') in data[field_name]:
+                            field_element['checked'] = ''
+                        else:
+                            del field_element['checked']
+                    else:
+                        field_element['value'] = data[field_name][0]
+                elif field_element.name == 'select':
+                    for option_element in field_element.find_all('option'):
+                        option_element = cast(Tag, option_element)
+                        if option_element.get('value') in data[field_name]:
+                            option_element['selected'] = ''
+                        else:
+                            del option_element['selected']
+                elif field_element.name == 'textarea':
+                    string_content = NavigableString(data[field_name][0])
+                    field_element.contents = [string_content]
+
+            if not allow_submit:
+                for submit_element in exercise_element.find_all(['input', 'button'], type='submit'):
+                    cast(Tag, submit_element).decompose()
+
+        page.content = str(soup)
+        return page
+
     def get_post_parameters(self, request, url):
         """
         Produces submission data for POST as (data_dict, files_dict).
         """
-        self._data = {}
-        for (key, value) in self.submission_data or {}:
-            if key in self._data:
-                self._data[key].append(value)
-            else:
-                self._data[key] = [ value ]
+        self._data = self.submission_data_as_dict()
 
         self._files = {}
         for file in self.files.all().order_by("id"):

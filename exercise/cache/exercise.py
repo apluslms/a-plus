@@ -25,9 +25,9 @@ class ExerciseCache(CachedAbstract):
     """ Exercise HTML content """
     KEY_PREFIX = "exercise"
 
-    def __init__(self, exercise, language, request, students, url_name):
+    def __init__(self, exercise, language, request, students, url_name, ordinal=None):
         self.exercise = exercise
-        self.load_args = [language, request, students, url_name]
+        self.load_args = [language, request, students, url_name, ordinal]
         super().__init__(exercise, modifiers=[language])
 
     def _needs_generation(self, data):
