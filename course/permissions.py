@@ -1,4 +1,7 @@
+from typing import Any
+
 from django.http import Http404
+from django.http.request import HttpRequest
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -142,7 +145,7 @@ class CourseModulePermission(MessageMixin, Permission):
             return self.has_object_permission(request, view, module)
         return True
 
-    def has_object_permission(self, request, view, module):
+    def has_object_permission(self, request: HttpRequest, view: Any, module: CourseModule) -> bool:
 
         if not isinstance(module, CourseModule):
             return True
@@ -160,7 +163,7 @@ class CourseModulePermission(MessageMixin, Permission):
             return False
 
         if module.requirements.count() > 0:
-            points = CachedPoints(module.course_instance, request.user, view.content)
+            points = CachedPoints(module.course_instance, request.user, view.content, view.is_course_staff)
             return module.are_requirements_passed(points)
         return True
 

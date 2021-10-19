@@ -1709,8 +1709,20 @@ msgid "LABEL_COLOR"
 msgstr "Väri"
 
 #: edit_course/exercise_forms.py
+msgid "ERROR_REQUIRED_WITH_SELECTED_TRIGGER"
+msgstr "Pakollinen tämän paljastamisvaihtoehdon ollessa valittuna."
+
+#: edit_course/exercise_forms.py
 msgid "GRADING"
 msgstr "Arvostelu"
+
+#: edit_course/exercise_forms.py
+msgid "REVEAL_SUBMISSION_FEEDBACK"
+msgstr "Tehtävien palautteen paljastaminen"
+
+#: edit_course/exercise_forms.py
+msgid "REVEAL_MODEL_SOLUTIONS"
+msgstr "Malliratkaisujen paljastaminen"
 
 #: edit_course/managers.py
 msgid "CATEGORY_lowercase"
@@ -1801,6 +1813,12 @@ msgstr ""
 "tehtävä '{exercise_key}'. Olet mahdollisesti kirjoittanut väärin kentän "
 "'lti' arvon tai sivuston ylläpitäjä ei ole vielä lisännyt tämän LTI-palvelun "
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
+
+#: edit_course/operations/configure.py
+msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
+msgstr ""
+"Viallinen paljastamissäännön määrittely '{key}'. Täytyy olla JSON-objekti, "
+"jolla on 'trigger'-kenttä."
 
 #: edit_course/operations/configure.py
 msgid "BUILD_LOG_ERROR_URL_BLANK"
@@ -2486,6 +2504,31 @@ msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
 msgstr "perustehtävät"
 
 #: exercise/exercise_models.py
+msgid "GRADING_MODE_BEST"
+msgstr "Paras palautus"
+
+#: exercise/exercise_models.py
+msgid "GRADING_MODE_LAST"
+msgstr "Viimeinen palautus"
+
+#: exercise/exercise_models.py
+msgid "LABEL_SUBMISSION_FEEDBACK_REVEAL_RULE"
+msgstr "Tehtävien palautteen paljastamissääntö"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MODEL_SOLUTIONS_REVEAL_RULE"
+msgstr "Malliratkaisujen paljastamissääntö"
+
+#: exercise/exercise_models.py
+msgid "LABEL_GRADING_MODE"
+msgstr "Arvostelutapa"
+
+#: exercise/exercise_models.py
+msgid "BASE_EXERCISE_GRADING_MODE_HELPTEXT"
+msgstr ""
+"Valitse, mikä palautus määrittää lopullisen arvosanan tässä tehtävässä."
+
+#: exercise/exercise_models.py
 msgid "EXERCISE_ERROR_POINTS_TO_PASS_GREATER_MAX_POINTS"
 msgstr ""
 "'Läpäisyyn vaadittavat pisteet' ei voi olla suurempi kuin 'Enimmäispisteet'."
@@ -2858,6 +2901,54 @@ msgstr ""
 msgid "ASSESSMENT_SERVICE_ERROR_RESPONDED_ERROR"
 msgstr "Arviointipalvelussa tapahtui virhe."
 
+#: exercise/reveal_models.py
+msgid "TRIGGER_MANUAL"
+msgstr "Manuaalisesti"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_IMMEDIATE"
+msgstr "Heti"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_TIME"
+msgstr "Tiettynä ajankohtana"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_DEADLINE"
+msgstr "Määräajan ja henkilökohtaisten pidennyksien jälkeen"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_DEADLINE_ALL"
+msgstr "Määräajan ja kaikkien opiskelijoiden pidennyksien jälkeen"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_COMPLETION"
+msgstr "Kun tehtävä on valmis (täydet pisteet tai kaikki palautukset käytetty)"
+
+#: exercise/reveal_models.py
+msgid "LABEL_TRIGGER"
+msgstr "Milloin paljastetaan"
+
+#: exercise/reveal_models.py
+msgid "LABEL_DELAY_MINUTES"
+msgstr "Viive (minuuttia)"
+
+#: exercise/reveal_models.py
+msgid "LABEL_TIME"
+msgstr "Aika"
+
+#: exercise/reveal_models.py
+msgid "LABEL_CURRENTLY_REVEALED"
+msgstr "Paljastettu nyt"
+
+#: exercise/reveal_models.py
+msgid "MODEL_NAME_REVEAL_RULE"
+msgstr "Paljastamissääntö"
+
+#: exercise/reveal_models.py
+msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
+msgstr "Paljastamissäännöt"
+
 #: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
@@ -3130,6 +3221,11 @@ msgstr "Läpäisyyn vaaditaan %(points)s pistettä"
 #: exercise/templates/exercise/_points_badge.html
 msgid "REQUIRED_EXERCISES_NOT_PASSED"
 msgstr "Kaikkia pakollisia tehtäviä ei ole läpäisty"
+
+#: exercise/templates/exercise/_points_progress.html
+#: exercise/templatetags/exercise.py
+msgid "RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN"
+msgstr "Joidenkin tehtävien tulokset on tällä hetkellä piilotettu."
 
 #: exercise/templates/exercise/_points_progress.html
 #: exercise/templates/exercise/_user_results.html
@@ -3753,9 +3849,22 @@ msgstr "Viimeisimmät palautukset"
 msgid "NO_SUBMISSIONS_FOR_COURSE"
 msgstr "Ei vielä palautuksia tälle kurssille."
 
+#: exercise/templatetags/exercise.py exercise/viewbase.py
+#, python-brace-format
+msgid "RESULTS_WILL_BE_REVEALED -- {time}"
+msgstr "Tulokset paljastetaan {time}."
+
+#: exercise/templatetags/exercise.py exercise/viewbase.py
+msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
+msgstr "Tulokset on tällä hetkellä piilotettu."
+
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel-yhteensopiva CSV"
+
+#: exercise/views.py
+msgid "ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED"
+msgstr "Vain viimeinen palautuksesi vaikuttaa tehtävän arvosteluun."
 
 #: exercise/views.py
 msgid "EXERCISE_IN_MAINTENANCE_AND_HIDDEN_FROM_STUDENTS"
@@ -3771,6 +3880,10 @@ msgid "SUBMISSION_ERROR_MALFORMED_POST_DATA -- {error}"
 msgstr ""
 "Palautuksen tallentaminen epäonnistui virheellisen pyynnön takia. Palautusta "
 "ei ole huomioitu. Virhe: {error}"
+
+#: exercise/views.py
+msgid "YOUR_ANSWER_WAS_SUBMITTED_SUCCESSFULLY"
+msgstr "Vastauksesi lähetettiin onnistuneesti."
 
 #: exercise/views.py
 msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"

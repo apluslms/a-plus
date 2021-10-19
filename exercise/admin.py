@@ -8,6 +8,7 @@ from exercise.models import (
     ExerciseWithAttachment,
     Submission,
     SubmittedFile,
+    RevealRule,
 )
 from exercise.exercisecollection_models import ExerciseCollection
 
@@ -187,6 +188,20 @@ class ExerciseCollectionExerciseAdmin(admin.ModelAdmin):
     )
 
 
+class RevealRuleAdmin(admin.ModelAdmin):
+    search_fields = (
+        'trigger',
+    )
+    list_display_links = ('__str__',)
+    list_display = (
+        '__str__',
+        'trigger',
+        'delay_minutes',
+        'time',
+        'currently_revealed',
+    )
+
+
 admin.site.register(CourseChapter, CourseChapterAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
@@ -194,3 +209,4 @@ admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
 admin.site.register(Submission, SubmissionAdmin)
 admin.site.register(SubmittedFile, SubmittedFileAdmin)
 admin.site.register(ExerciseCollection, ExerciseCollectionAdmin)
+admin.site.register(RevealRule, RevealRuleAdmin)

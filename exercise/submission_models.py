@@ -2,14 +2,19 @@ import itertools
 import logging
 import os
 import json
+from typing import IO, Dict, Iterable, List, Tuple, cast
 
+from bs4 import BeautifulSoup
+from bs4.element import NavigableString, Tag
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
+from django.http.request import HttpRequest
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 from mimetypes import guess_type
+from exercise.protocol.exercise_page import ExercisePage
 
 from lib.fields import JSONField, PercentField
 from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
@@ -22,7 +27,70 @@ from . import exercise_models
 logger = logging.getLogger('aplus.exercise')
 
 
+class SubmissionQuerySet(models.QuerySet):
+    def annotate_submitter_points(
+            self,
+            field_name: str = 'total',
+            revealed_ids: Iterable[int] = None,
+            ) -> 'SubmissionQuerySet':
+        """
+        Annotates the total points earned by the submitter in the exercise to
+        the queryset. Chain after `values` and before `order_by` to ensure one
+        points row per submitter and exercise.
+
+        The result will be assigned to a field named by `field_name`.
+
+        Provide `revealed_ids`, if you want to hide unrevealed points from the
+        queryset.
+        """
+        # Building a case expression for calculating the total points. There
+        # are 4 cases:
+        # 1) If revealed_ids was provided, and the exercise id is not in it,
+        #    return 0.
+        # 2) If a submission has the force_exercise_points flag set to True,
+        #    return that submission's points.
+        # 3) If the grading_mode field of the exercise is set to LAST, return
+        #    the points of the latest submission.
+        # 4) In any other case, return the points of the best submission.
+        cases = []
+        if revealed_ids is not None:
+            cases.append(
+                models.When(
+                    ~models.Q(exercise__in=revealed_ids),
+                    then=0,
+                )
+            )
+        cases.append(
+            models.When(
+                forced_points__isnull=False,
+                then=models.F('forced_points'),
+            )
+        )
+        cases.append(
+            models.When(
+                exercise__grading_mode=exercise_models.BaseExercise.GRADING_MODE.LAST,
+                then=models.Subquery(
+                    self.filter(
+                        exercise=models.OuterRef('exercise_id'),
+                        submitters=models.OuterRef('submitters__id'),
+                    )
+                    .order_by('-submission_time')
+                    .values('grade')[:1]
+                ),
+            )
+        )
+        return (
+            self.alias(
+                forced_points=models.Max('grade', filter=models.Q(force_exercise_points=True)),
+            )
+            .annotate(**{
+                field_name: models.Case(*cases, default=models.Max('grade')),
+            })
+        )
+
+
 class SubmissionManager(models.Manager):
+    _queryset_class = SubmissionQuerySet
 
     def get_queryset(self):
         return super().get_queryset()\
@@ -242,16 +310,90 @@ class Submission(UrlMixin, models.Model):
                     param_name=key,
                 )
 
-    def get_post_parameters(self, request, url):
+    def submission_data_as_dict(self) -> Dict[str, List[str]]:
+        """
+        Returns `submission_data` transformed from a list into a dict.
+
+        Example: `[["field_1", "1"], ["field_2", "a"], ["field_2", "b"]]` is
+        transformed into `{"field_1": ["1"], "field_2": ["a", "b"]}`.
+        """
+        data: Dict[str, List[str]] = {}
+        for key, value in self.submission_data or {}:
+            if key in data:
+                data[key].append(value)
+            else:
+                data[key] = [value]
+        return data
+
+    def load(self, request: HttpRequest, allow_submit: bool = True) -> ExercisePage:
+        """
+        Loads the submission page, i.e. the exercise form with the submitted
+        answers filled in. Not the same as the graded form, which is stored in
+        `feedback`.
+
+        The `allow_submit` argument determines if the submit button will be
+        shown on the page.
+        """
+        # Load the exercise page and parse its contents
+        submitters = list(self.submitters.all())
+        page = self.exercise.as_leaf_class().load(
+            request,
+            submitters,
+            url_name='exercise',
+            ordinal=self.ordinal_number(),
+        )
+        soup = BeautifulSoup(page.content, 'html5lib')
+
+        data = self.submission_data_as_dict()
+
+        # Find all form elements on the exercise page and fill in the values
+
+        # The exercise content element may be identified by a number of
+        # different ids or classes
+        exercise_element = cast(Tag, soup.find(id=['exercise', 'aplus', 'chapter']))
+        if exercise_element is None:
+            exercise_element = cast(Tag, soup.find({'class': 'entry-content'}))
+        if exercise_element is not None:
+            field_elements = exercise_element.find_all(['input', 'select', 'textarea'])
+            for field_element in field_elements:
+                field_element = cast(Tag, field_element)
+                field_name = cast(str, field_element.get('name'))
+                if field_name not in data:
+                    continue
+                if field_element.name == 'input':
+                    if field_element.get('type') in ('radio', 'checkbox'):
+                        if field_element.get('value') in data[field_name]:
+                            field_element['checked'] = ''
+                        else:
+                            del field_element['checked']
+                    else:
+                        field_element['value'] = data[field_name][0]
+                elif field_element.name == 'select':
+                    for option_element in field_element.find_all('option'):
+                        option_element = cast(Tag, option_element)
+                        if option_element.get('value') in data[field_name]:
+                            option_element['selected'] = ''
+                        else:
+                            del option_element['selected']
+                elif field_element.name == 'textarea':
+                    string_content = NavigableString(data[field_name][0])
+                    field_element.contents = [string_content]
+
+            if not allow_submit:
+                for submit_element in exercise_element.find_all(['input', 'button'], type='submit'):
+                    cast(Tag, submit_element).decompose()
+
+        page.content = str(soup)
+        return page
+
+    def get_post_parameters(
+            self,
+            request: HttpRequest, url: str
+            ) -> Tuple[Dict[str, List[str]], Dict[str, Tuple[str, IO]]]:
         """
         Produces submission data for POST as (data_dict, files_dict).
         """
-        self._data = {}
-        for (key, value) in self.submission_data or {}:
-            if key in self._data:
-                self._data[key].append(value)
-            else:
-                self._data[key] = [ value ]
+        self._data = self.submission_data_as_dict()
 
         self._files = {}
         for file in self.files.all().order_by("id"):

@@ -1,9 +1,13 @@
+from typing import Any, Dict
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+
 from course.api.serializers import CourseUsertagBriefSerializer
 from course.models import Enrollment
 from lib.api.serializers import AlwaysListSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
+from userprofile.models import UserProfile
 from ..cache.points import CachedPoints
 from .full_serializers import SubmissionSerializer
 
@@ -100,10 +104,10 @@ class ExercisePointsSerializer(serializers.Serializer):
 
 class UserPointsSerializer(UserWithTagsSerializer):
 
-    def to_representation(self, obj):
+    def to_representation(self, obj: UserProfile) -> Dict[str, Any]:
         rep = super().to_representation(obj)
         view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.content)
+        points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
         modules = []
         for module in points.modules_flatted():
             module_data = {}
@@ -133,10 +137,10 @@ class UserPointsSerializer(UserWithTagsSerializer):
 
 class SubmitterStatsSerializer(UserWithTagsSerializer):
 
-    def to_representation(self, obj):
+    def to_representation(self, obj: UserProfile) -> Dict[str, Any]:
         rep = super().to_representation(obj)
         view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.content)
+        points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
         entry,_,_,_ = points.find(view.exercise)
         data = ExercisePointsSerializer(entry, context=self.context).data
         for key,value in data.items():

@@ -1704,8 +1704,20 @@ msgid "LABEL_COLOR"
 msgstr "Colour"
 
 #: edit_course/exercise_forms.py
+msgid "ERROR_REQUIRED_WITH_SELECTED_TRIGGER"
+msgstr "Required with the currently selected reveal option."
+
+#: edit_course/exercise_forms.py
 msgid "GRADING"
 msgstr "Grading"
+
+#: edit_course/exercise_forms.py
+msgid "REVEAL_SUBMISSION_FEEDBACK"
+msgstr "Reveal submission feedback"
+
+#: edit_course/exercise_forms.py
+msgid "REVEAL_MODEL_SOLUTIONS"
+msgstr "Reveal model solutions"
 
 #: edit_course/managers.py
 msgid "CATEGORY_lowercase"
@@ -1796,6 +1808,12 @@ msgstr ""
 "LTI assignment '{exercise_key}'. You may have misspelled the value for the "
 "field 'lti' or the site administrator has not yet added the configuration "
 "for the LTI service. The assignment was not created/updated due to the error."
+
+#: edit_course/operations/configure.py
+msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
+msgstr ""
+"Invalid reveal rule definition '{key}'. Must be a JSON object with a "
+"'trigger' field."
 
 #: edit_course/operations/configure.py
 msgid "BUILD_LOG_ERROR_URL_BLANK"
@@ -2480,6 +2498,31 @@ msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
 msgstr "base assignments"
 
 #: exercise/exercise_models.py
+msgid "GRADING_MODE_BEST"
+msgstr "Best submission"
+
+#: exercise/exercise_models.py
+msgid "GRADING_MODE_LAST"
+msgstr "Last submission"
+
+#: exercise/exercise_models.py
+msgid "LABEL_SUBMISSION_FEEDBACK_REVEAL_RULE"
+msgstr "Submission feedback reveal rule"
+
+#: exercise/exercise_models.py
+msgid "LABEL_MODEL_SOLUTIONS_REVEAL_RULE"
+msgstr "Model solutions reveal rule"
+
+#: exercise/exercise_models.py
+msgid "LABEL_GRADING_MODE"
+msgstr "Grading mode"
+
+#: exercise/exercise_models.py
+msgid "BASE_EXERCISE_GRADING_MODE_HELPTEXT"
+msgstr ""
+"Select which submission determines the final grade for this assignment."
+
+#: exercise/exercise_models.py
 msgid "EXERCISE_ERROR_POINTS_TO_PASS_GREATER_MAX_POINTS"
 msgstr "Points to pass cannot be greater than max_points."
 
@@ -2854,6 +2897,54 @@ msgstr ""
 msgid "ASSESSMENT_SERVICE_ERROR_RESPONDED_ERROR"
 msgstr "The assessment service responded with an error."
 
+#: exercise/reveal_models.py
+msgid "TRIGGER_MANUAL"
+msgstr "Manually"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_IMMEDIATE"
+msgstr "Immediately"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_TIME"
+msgstr "At a specific time"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_DEADLINE"
+msgstr "After deadline and personal extensions"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_DEADLINE_ALL"
+msgstr "After deadline and everyone's extensions"
+
+#: exercise/reveal_models.py
+msgid "TRIGGER_COMPLETION"
+msgstr "After completion (full points or all submissions used)"
+
+#: exercise/reveal_models.py
+msgid "LABEL_TRIGGER"
+msgstr "When revealed"
+
+#: exercise/reveal_models.py
+msgid "LABEL_DELAY_MINUTES"
+msgstr "Delay (minutes)"
+
+#: exercise/reveal_models.py
+msgid "LABEL_TIME"
+msgstr "Time"
+
+#: exercise/reveal_models.py
+msgid "LABEL_CURRENTLY_REVEALED"
+msgstr "Currently revealed"
+
+#: exercise/reveal_models.py
+msgid "MODEL_NAME_REVEAL_RULE"
+msgstr "Reveal rule"
+
+#: exercise/reveal_models.py
+msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
+msgstr "Reveal rules"
+
 #: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "The review was saved successfully and the submitters were notified."
@@ -3126,6 +3217,11 @@ msgstr "%(points)s points required to pass"
 #: exercise/templates/exercise/_points_badge.html
 msgid "REQUIRED_EXERCISES_NOT_PASSED"
 msgstr "Required exercises are not passed"
+
+#: exercise/templates/exercise/_points_progress.html
+#: exercise/templatetags/exercise.py
+msgid "RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN"
+msgstr "Results of some assignments are currently hidden."
 
 #: exercise/templates/exercise/_points_progress.html
 #: exercise/templates/exercise/_user_results.html
@@ -3748,9 +3844,22 @@ msgstr "Latest submissions"
 msgid "NO_SUBMISSIONS_FOR_COURSE"
 msgstr "No submissions for this course."
 
+#: exercise/templatetags/exercise.py exercise/viewbase.py
+#, python-brace-format
+msgid "RESULTS_WILL_BE_REVEALED -- {time}"
+msgstr "Results will be revealed {time}."
+
+#: exercise/templatetags/exercise.py exercise/viewbase.py
+msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
+msgstr "Results are currently hidden."
+
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel compatible CSV"
+
+#: exercise/views.py
+msgid "ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED"
+msgstr "Only your last submission will be graded."
 
 #: exercise/views.py
 msgid "EXERCISE_IN_MAINTENANCE_AND_HIDDEN_FROM_STUDENTS"
@@ -3767,6 +3876,10 @@ msgid "SUBMISSION_ERROR_MALFORMED_POST_DATA -- {error}"
 msgstr ""
 "The submission could not be saved due to malformed post data. The submission "
 "was not registered. Error: {error}"
+
+#: exercise/views.py
+msgid "YOUR_ANSWER_WAS_SUBMITTED_SUCCESSFULLY"
+msgstr "Your answer was submitted successfully."
 
 #: exercise/views.py
 msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"

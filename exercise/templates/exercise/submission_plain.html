@@ -87,7 +87,11 @@
 		{% endif %}
 
 		{% include "exercise/_submit_progress.html" %}
-		{% if submission.feedback and submission.feedback.strip %}
+		{% if not feedback_revealed %}
+		<div class="exercise-content">
+			{{ submission_page.content|safe }}
+		</div>
+		{% elif submission.feedback and submission.feedback.strip %}
 		<div class="exercise-content">
 			{{ submission.feedback|safe }}
 		</div>

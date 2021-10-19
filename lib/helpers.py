@@ -154,6 +154,25 @@ def get_remote_addr(request):
     return request.META.get('REMOTE_ADDR')
 
 
+def format_points(points: int, is_revealed: bool, is_container: bool) -> str:
+    """
+    Formats a number of points to be displayed in the UI. The formatting
+    depends on two parameters:
+
+    `is_revealed`: False if the points are for an exercise whose feedback is
+    hidden, or if the points are for a module/category that contains at least
+    one exercise whose feedback is hidden. Otherwise true.
+
+    `is_container`: False if the points are for an exercise or a submission.
+    Otherwise true.
+    """
+    if is_revealed:
+        return str(points)
+    if is_container:
+        return f'{points}+'
+    return '?'
+
+
 class Enum(object):
     """
     Represents constant enumeration.

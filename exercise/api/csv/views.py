@@ -1,7 +1,8 @@
-from django.db.models.aggregates import Max, Count
-from django.db.models.expressions import Case, When, Q, F
+from typing import Any, Dict, Iterable, Optional, Set, Union
+
+from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -9,17 +10,14 @@ from rest_framework_csv.renderers import CSVRenderer
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from lib.api.renderers import CSVExcelRenderer
-from lib.api.mixins import MeUserMixin, ListSerializerMixin
+from lib.api.mixins import MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from course.api.mixins import CourseResourceMixin
 from course.permissions import IsCourseAdminOrUserObjIsSelf
 from userprofile.models import UserProfile
 
-from ...cache.hierarchy import NoSuchContent
 from ...cache.points import CachedPoints
-from ...models import (
-    Submission,
-)
+from ...models import Submission
 from .submission_sheet import *
 from .aggregate_sheet import *
 from .aggregate_points import *
@@ -84,27 +82,52 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
             'best': request.GET.get('best') != 'no',
         }
 
-    def list(self, request, version=None, course_id=None):
+    def list(
+            self,
+            request: Request,
+            version: Optional[Union[int, str]] = None,
+            course_id: Optional[Union[int, str]] = None,
+            ) -> Response:
         profiles = self.filter_queryset(self.get_queryset())
         search_args = self.get_search_args(request)
+        # Here, CachedPoints is only used to find the exercises whose feedback
+        # is visible to the request user, and not the points for that user.
+        # Therefore it is okay to use CachedPoints, even though this view
+        # includes many users and CachedPoints includes only one.
+        points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
         ids = [e['id'] for e in self.content.search_exercises(**search_args)]
+        revealed_ids = get_revealed_exercise_ids(search_args, points)
         queryset = Submission.objects.filter(
             exercise_id__in=ids,
             submitters__in=profiles
         )
-        return self.serialize_submissions(request, queryset, best=search_args['best'])
+        return self.serialize_submissions(request, queryset, revealed_ids, best=search_args['best'])
 
-    def retrieve(self, request, version=None, course_id=None, user_id=None):
+    def retrieve(
+            self,
+            request: Request,
+            version: Optional[Union[int, str]] = None,
+            course_id: Optional[Union[int, str]] = None,
+            user_id: Optional[Union[int, str]] = None,
+            ) -> Response:
         profile = self.get_object()
-        points = CachedPoints(self.instance, profile.user, self.content)
-        ids = points.submission_ids(**self.get_search_args(request))
+        search_args = self.get_search_args(request)
+        points = CachedPoints(self.instance, profile.user, self.content, self.is_course_staff)
+        ids = points.submission_ids(**search_args)
+        revealed_ids = get_revealed_exercise_ids(search_args, points)
         queryset = Submission.objects.filter(id__in=ids)
-        return self.serialize_submissions(request, queryset)
+        return self.serialize_submissions(request, queryset, revealed_ids)
 
-    def serialize_submissions(self, request, queryset, best=False):
+    def serialize_submissions(
+            self,
+            request: Request,
+            queryset: QuerySet[Submission],
+            revealed_ids: Set[int],
+            best: bool = False
+            ) -> Response:
         submissions = list(queryset.order_by('exercise_id', 'id'))
         if best:
-            submissions = filter_best_submissions(submissions)
+            submissions = filter_best_submissions(submissions, revealed_ids)
 
         # Pick out a single field.
         field = request.GET.get('field')
@@ -117,7 +140,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
             vals = [submitted_field(s, field) for s in submissions]
             return Response([v for v in vals if v != ""])
 
-        data,fields = submissions_sheet(request, submissions)
+        data,fields = submissions_sheet(request, submissions, revealed_ids)
         self.renderer_fields = fields
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
@@ -198,22 +221,19 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
         search_args = self.get_search_args(request)
         entry, exercises = self.content.search_entries(**search_args)
         ids = [e['id'] for e in exercises if e['type'] == 'exercise']
-        aggr = Submission.objects\
-            .filter(exercise__in=ids, submitters__in=profiles)\
+        points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
+        revealed_ids = get_revealed_exercise_ids(search_args, points)
+        aggr = (
+            Submission.objects
+            .filter(exercise__in=ids, submitters__in=profiles)
             .exclude(status__in=(
                 Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
-            ))\
-            .values('submitters__user_id','exercise_id')\
-            .annotate(
-                count=Count('id'),
-                best_points=Max('grade'),
-                forced_points=Max('grade', filter=Q(force_exercise_points=True)),
-                total=Case(
-                    When(forced_points__isnull=True, then=F('best_points')),
-                    default=F('forced_points')
-                ),
-            )\
+            ))
+            .values('submitters__user_id', 'exercise_id')
+            .annotate(count=Count('id'))
+            .annotate_submitter_points('total', revealed_ids)
             .order_by()
+        )
         data,fields = aggregate_sheet(request, profiles, self.instance.taggings.all(),
             exercises, aggr, entry['number'] if entry else "")
         self.renderer_fields = fields
@@ -277,23 +297,20 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         search_args = self.get_search_args(request)
         entry, exercises = self.content.search_entries(**search_args)
         ids = [e['id'] for e in exercises if e['type'] == 'exercise']
+        points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
+        revealed_ids = get_revealed_exercise_ids(search_args, points)
         exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
         if(request.GET.get('show_unofficial') != 'true'):
             exclude_list.append(Submission.STATUS.UNOFFICIAL)
-        aggr = Submission.objects\
-            .filter(exercise__in=ids, submitters__in=profiles)\
-            .exclude(status__in=(exclude_list))\
-            .values('submitters__user_id','exercise_id')\
-            .annotate(
-                count=Count('id'),
-                best_points=Max('grade'),
-                forced_points=Max('grade', filter=Q(force_exercise_points=True)),
-                total=Case(
-                    When(forced_points__isnull=True, then=F('best_points')),
-                    default=F('forced_points')
-                ),
-            )\
+        aggr = (
+            Submission.objects
+            .filter(exercise__in=ids, submitters__in=profiles)
+            .exclude(status__in=(exclude_list))
+            .values('submitters__user_id', 'exercise_id')
+            .annotate(count=Count('id'))
+            .annotate_submitter_points('total', revealed_ids)
             .order_by()
+        )
         data,fields = aggregate_points(request, profiles, self.instance.taggings.all(),
             exercises, aggr, entry['number'] if entry else "")
         self.renderer_fields = fields
@@ -315,3 +332,17 @@ def int_or_none(value):
         except ValueError:
             pass
     return None
+
+
+def get_revealed_exercise_ids(search_args: Dict[str, Any], points: CachedPoints) -> Set[int]:
+    """
+    Helper function that returns the IDs of the exercises whose feedback has
+    been revealed.
+    """
+    _, exercises = points.search_entries(**search_args)
+    return {
+        e['id'] for e in exercises
+        if e['type'] == 'exercise'
+        and e['submittable']
+        and e['feedback_revealed']
+    }

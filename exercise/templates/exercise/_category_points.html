@@ -20,7 +20,7 @@
 <div class="well">
     <p>{{ entry.name|parse_localization }}</p>
     <p><strong class="h2">
-    	{{ entry.points }}
+    	{{ entry.formatted_points }}
     	<small>/ {{ entry.max_points }}</small>
     </strong></p>
     {% points_progress entry %}

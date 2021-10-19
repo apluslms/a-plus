@@ -84,7 +84,7 @@
 								{{ submission.status|submission_status }}
 						</td>
 						<td>
-								{{ submission.grade }}
+								{% format_points submission.grade feedback_revealed False %}
 						</td>
 						<td>
 								{% if submission.grader %}

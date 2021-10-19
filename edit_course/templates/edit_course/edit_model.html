@@ -98,4 +98,22 @@ $(function() {
 });
 </script>
 {% endif %}
+<script type="text/javascript">
+$(function() {
+	$("[data-trigger]").each(function() {
+		var trigger = $(this);
+		function update() {
+			var triggerValue = parseInt(trigger.val());
+			trigger.closest("fieldset").find("[data-visible-triggers]").each(function() {
+				var triggerInput = $(this);
+				var triggerValues = triggerInput.data("visible-triggers");
+				var visible = triggerValues.indexOf(triggerValue) > -1;
+				triggerInput.closest(".form-group").toggle(visible);
+			});
+		}
+		trigger.on("change", update);
+		update();
+	});
+});
+</script>
 {% endblock %}

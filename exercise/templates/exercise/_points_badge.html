@@ -32,9 +32,9 @@
 {% if difficulty %}
 <span class="difficulty">{{ difficulty }}</span>
 {% endif %}
-<span class="badge{% if submitted and official %} {% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
+<span class="badge{% if submitted and official %} {% if feedback_revealed %}{% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% endif %}"
         data-toggle="tooltip" data-placement="bottom"
-        title="{% if not official %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% elif passed %}{% if required > 0 %}{% translate 'PASSED' %}{% endif %}{% elif missing_points %}{% blocktranslate trimmed with points=required %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% elif submitted %}{% translate 'REQUIRED_EXERCISES_NOT_PASSED' %}{% endif %}">
-    {{ points }} / {{ max }}
+        title="{% if not feedback_revealed %}{{ feedback_hidden_description }}{% elif not official %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% elif passed %}{% if required > 0 %}{% translate 'PASSED' %}{% endif %}{% elif missing_points %}{% blocktranslate trimmed with points=required %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% elif submitted %}{% translate 'REQUIRED_EXERCISES_NOT_PASSED' %}{% endif %}">
+		{{ formatted_points }} / {{ max }}
 </span>
 {% endif %}

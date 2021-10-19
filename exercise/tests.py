@@ -19,9 +19,10 @@ from deviations.models import DeadlineRuleDeviation, \
     MaxSubmissionsRuleDeviation
 from exercise.exercise_summary import UserExerciseSummary
 from exercise.models import BaseExercise, StaticExercise, \
-    ExerciseWithAttachment, Submission, SubmittedFile, LearningObject
+    ExerciseWithAttachment, Submission, SubmittedFile, LearningObject, \
+    RevealRule
 from exercise.protocol.exercise_page import ExercisePage
-
+from exercise.reveal_states import ExerciseRevealState
 
 class ExerciseTest(TestCase):
     def setUp(self):
@@ -872,15 +873,10 @@ class ExerciseTest(TestCase):
             max_submissions=5,
         )
 
-        self.assertFalse(self.base_exercise.can_show_model_solutions) # module is open
-        self.assertFalse(self.base_exercise.can_show_model_solutions_to_student(self.user))
-        self.assertTrue(self.old_base_exercise.can_show_model_solutions) # module is closed
-        self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
-        self.assertFalse(self.base_exercise_with_late_submission_allowed.can_show_model_solutions) # module is open
-        self.assertFalse(self.base_exercise_with_late_submission_allowed.can_show_model_solutions_to_student(self.user))
-        self.assertFalse(base_exercise_with_late_open.can_show_model_solutions)
+        self.assertFalse(self.base_exercise.can_show_model_solutions_to_student(self.user)) # module is open
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user)) # module is closed
+        self.assertFalse(self.base_exercise_with_late_submission_allowed.can_show_model_solutions_to_student(self.user)) # module is open
         self.assertFalse(base_exercise_with_late_open.can_show_model_solutions_to_student(self.user))
-        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
 
         # The user has submitted alone and has no deadline extension.
@@ -889,15 +885,13 @@ class ExerciseTest(TestCase):
             exercise=self.old_base_exercise,
         )
         submission1.submitters.add(self.user.userprofile)
-        self.assertTrue(self.old_base_exercise.can_show_model_solutions) # module is closed
-        self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
+        self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user)) # module is closed
         # Add a deadline extension that is still active.
         deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             extra_minutes=1440, # One day
         )
-        self.assertTrue(self.old_base_exercise.can_show_model_solutions)
         self.assertFalse(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
         # Change the deadline extension so that it is not active anymore.
         self.old_course_module.closing_time = self.today - timedelta(hours=2)
@@ -908,7 +902,6 @@ class ExerciseTest(TestCase):
             submitter=self.user.userprofile,
             extra_minutes=10,
         )
-        self.assertTrue(self.old_base_exercise.can_show_model_solutions)
         self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
 
         # Group submission
@@ -916,7 +909,6 @@ class ExerciseTest(TestCase):
             exercise=base_exercise_with_late_closed,
         )
         submission2.submitters.add(self.user.userprofile, self.user2.userprofile)
-        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
         # Add a deadline extension to one group member. It affects all group members.
@@ -926,7 +918,6 @@ class ExerciseTest(TestCase):
             submitter=self.user.userprofile,
             extra_minutes=60*24*2,
         )
-        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
         self.assertFalse(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
         self.assertFalse(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
         # Change the deadline extension so that it is not active anymore.
@@ -936,6 +927,176 @@ class ExerciseTest(TestCase):
             submitter=self.user.userprofile,
             extra_minutes=10,
         )
-        self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions)
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
+
+    def test_reveal_rule(self):
+        reveal_rule = RevealRule.objects.create(
+            trigger=RevealRule.TRIGGER.MANUAL,
+        )
+
+        reveal_state = ExerciseRevealState(self.base_exercise, self.user)
+        old_reveal_state = ExerciseRevealState(self.old_base_exercise, self.user)
+
+        self.assertFalse(reveal_rule.is_revealed(reveal_state))
+        reveal_rule.currently_revealed = True
+        self.assertTrue(reveal_rule.is_revealed(reveal_state))
+
+        reveal_rule.currently_revealed = False
+        reveal_rule.trigger = RevealRule.TRIGGER.IMMEDIATE
+        self.assertTrue(reveal_rule.is_revealed(reveal_state))
+
+        reveal_rule.trigger = RevealRule.TRIGGER.TIME
+        self.assertFalse(reveal_rule.is_revealed(reveal_state))
+        reveal_rule.time = self.today
+        self.assertTrue(reveal_rule.is_revealed(reveal_state))
+        reveal_rule.time = self.tomorrow
+        self.assertFalse(reveal_rule.is_revealed(reveal_state))
+
+        # DEADLINE and DEADLINE_ALL should work similarly for these assertions
+        for trigger in [RevealRule.TRIGGER.DEADLINE, RevealRule.TRIGGER.DEADLINE_ALL]:
+            reveal_rule.trigger = trigger
+            self.assertFalse(reveal_rule.is_revealed(reveal_state))
+            self.assertEqual(reveal_rule.get_reveal_time(reveal_state), self.tomorrow)
+            self.assertTrue(reveal_rule.is_revealed(old_reveal_state))
+            self.assertEqual(reveal_rule.get_reveal_time(old_reveal_state), self.today)
+            reveal_rule.delay_minutes = 30
+            self.assertFalse(reveal_rule.is_revealed(old_reveal_state))
+            self.assertEqual(reveal_rule.get_reveal_time(old_reveal_state), self.today + timedelta(minutes=30))
+            reveal_rule.delay_minutes = 0
+
+        deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
+            exercise=self.old_base_exercise,
+            submitter=self.user.userprofile,
+            extra_minutes=30,
+        )
+        old_reveal_state_deviation = ExerciseRevealState(self.old_base_exercise, self.user)
+        user2_old_reveal_state_deviation = ExerciseRevealState(self.old_base_exercise, self.user2)
+
+        reveal_rule.trigger = RevealRule.TRIGGER.DEADLINE
+        self.assertFalse(reveal_rule.is_revealed(old_reveal_state_deviation))
+        self.assertEqual(reveal_rule.get_reveal_time(old_reveal_state_deviation), self.today + timedelta(minutes=30))
+        self.assertTrue(reveal_rule.is_revealed(user2_old_reveal_state_deviation))
+        self.assertEqual(reveal_rule.get_reveal_time(user2_old_reveal_state_deviation), self.today)
+        reveal_rule.trigger = RevealRule.TRIGGER.DEADLINE_ALL
+        self.assertFalse(reveal_rule.is_revealed(user2_old_reveal_state_deviation))
+        self.assertEqual(reveal_rule.get_reveal_time(user2_old_reveal_state_deviation), self.today + timedelta(minutes=30))
+
+        deadline_rule_deviation_old_base_exercise.delete()
+
+        completion_test_base_exercise = BaseExercise.objects.create(
+            name="completion test exercise",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="bcompletion",
+            max_submissions=2,
+            max_points=10,
+        )
+
+        reveal_rule.trigger = RevealRule.TRIGGER.COMPLETION
+        self.assertFalse(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+        submission = Submission.objects.create(
+            exercise=completion_test_base_exercise,
+            status=Submission.STATUS.READY,
+            grade=0,
+        )
+        submission.submitters.add(self.user.userprofile)
+        self.assertFalse(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+        submission2 = Submission.objects.create(
+            exercise=completion_test_base_exercise,
+            status=Submission.STATUS.READY,
+            grade=0,
+        )
+        submission2.submitters.add(self.user.userprofile)
+        self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+        submission.delete()
+        submission2.delete()
+
+        submission = Submission.objects.create(
+            exercise=completion_test_base_exercise,
+            status=Submission.STATUS.READY,
+            grade=10,
+        )
+        submission.submitters.add(self.user.userprofile)
+        self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+        self.assertFalse(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user2)))
+        submission.submitters.add(self.user2.userprofile)
+        self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+        self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user2)))
+        submission.delete()
+
+        completion_test_base_exercise.delete()
+
+    def test_annotate_submitter_points(self):
+        points_test_base_exercise_1 = BaseExercise.objects.create(
+            name="points test base exercise 1",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="bsubmitterpoints1",
+            max_submissions=3,
+            max_points=10,
+            grading_mode=BaseExercise.GRADING_MODE.BEST,
+        )
+        points_test_base_exercise_2 = BaseExercise.objects.create(
+            name="points test base exercise 2",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="bsubmitterpoints2",
+            max_submissions=3,
+            max_points=10,
+            grading_mode=BaseExercise.GRADING_MODE.LAST,
+        )
+
+        # Create test submissions, so that the final points:
+        # - for user 1 exercise 1 should be 5
+        # - for user 1 exercise 2 should be 6
+        # - for user 2 exercise 1 should be 3
+        # - for user 2 exercise 2 should be 1
+        for submission_data in [
+            {'exercise': points_test_base_exercise_1, 'grade': 5, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_1, 'grade': 10, 'status': Submission.STATUS.REJECTED, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_2, 'grade': 6, 'status': Submission.STATUS.READY, 'force_exercise_points': True},
+            {'exercise': points_test_base_exercise_2, 'grade': 10, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_2, 'grade': 0, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+        ]:
+            submission = Submission.objects.create(**submission_data)
+            submission.submitters.add(self.user.userprofile)
+        for submission_data in [
+            {'exercise': points_test_base_exercise_1, 'grade': 3, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_1, 'grade': 3, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_2, 'grade': 2, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_2, 'grade': 1, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_2, 'grade': 0, 'status': Submission.STATUS.UNOFFICIAL, 'force_exercise_points': False},
+        ]:
+            submission = Submission.objects.create(**submission_data)
+            submission.submitters.add(self.user2.userprofile)
+
+        points_rows = (
+            Submission.objects
+            .filter(exercise__in=(points_test_base_exercise_1, points_test_base_exercise_2))
+            .exclude(status__in=(
+                Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
+            ))
+            .values('submitters__user_id', 'exercise_id')
+            .annotate_submitter_points('total')
+            .order_by()
+        )
+
+        # There should be 4 rows (2 users * 2 exercises)
+        self.assertEqual(len(points_rows), 4)
+
+        # Collect the results into a dict and test that they match the expected
+        # values. This also checks that all expected results were returned,
+        # otherwise a KeyError is raised.
+        points_dict = {}
+        for row in points_rows:
+            points_dict[(row['submitters__user_id'], row['exercise_id'])] = row['total']
+        self.assertEqual(points_dict[(self.user.id, points_test_base_exercise_1.id)], 5)
+        self.assertEqual(points_dict[(self.user.id, points_test_base_exercise_2.id)], 6)
+        self.assertEqual(points_dict[(self.user2.id, points_test_base_exercise_1.id)], 3)
+        self.assertEqual(points_dict[(self.user2.id, points_test_base_exercise_2.id)], 1)
+
+        points_test_base_exercise_1.delete()
+        points_test_base_exercise_2.delete()

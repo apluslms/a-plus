@@ -1,10 +1,14 @@
 import datetime
 import json
+from typing import TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urlsplit
+
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.files.storage import default_storage
+from django.http.request import HttpRequest
 from django.urls import reverse
 from django.db import models
 from django.db.models import signals
@@ -39,6 +43,14 @@ from userprofile.models import UserProfile
 from .cache.exercise import ExerciseCache
 from .protocol.aplus import load_exercise_page, load_feedback_page
 from .protocol.exercise_page import ExercisePage
+from .reveal_models import RevealRule
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+
+    from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
+    from .submission_models import Submission
+
 
 
 class LearningObjectManager(models.Manager):
@@ -272,25 +284,6 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
 
-    @property
-    def can_show_model_solutions(self):
-        """Can model solutions be shown to students?
-        This method checks only the module deadline and ignores personal
-        deadline extensions.
-        """
-        return self.is_closed() and not self.course_instance.is_on_lifesupport() and not self.course_instance.is_archived()
-
-    def can_show_model_solutions_to_student(self, student):
-        """Can model solutions be shown to the given student (User)?
-        This method checks personal deadline extensions in addition to
-        the common module deadline.
-        """
-        # The old version of this method was defined in this LearningObject class
-        # even though only exercises could be submitted to and have model solutions.
-        # Class BaseExercise overrides this method since deadline deviations are
-        # defined only for them, not learning objects.
-        return student.is_authenticated and self.can_show_model_solutions
-
     def get_path(self):
         return "/".join([o.url for o in self.parent_list()])
 
@@ -310,24 +303,42 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_submission_list_url(self):
         return self.get_url("submission-list")
 
-    def load(self, request, students, url_name="exercise"):
+    def load(
+            self,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> ExercisePage:
         """
         Loads the learning object page.
+
+        Provide the `ordinal` parameter ONLY when viewing previous submissions.
+        In randomized exercises, it causes a specific submission's form to be
+        returned.
         """
         page = ExercisePage(self)
         if not self.service_url:
             return page
         language = get_language()
-        cache = ExerciseCache(self, language, request, students, url_name)
+        cache = ExerciseCache(self, language, request, students, url_name, ordinal)
         page.head = cache.head()
         page.content = cache.content()
         page.is_loaded = True
         return page
 
-    def load_page(self, language, request, students, url_name, last_modified=None):
+    def load_page(
+            self,
+            language: str,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str,
+            ordinal: Optional[int] = None,
+            last_modified: Optional[str] = None,
+            ) -> ExercisePage:
         return load_exercise_page(
             request,
-            self.get_load_url(language, request, students, url_name),
+            self.get_load_url(language, request, students, url_name, ordinal),
             last_modified,
             self
         )
@@ -335,7 +346,14 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_service_url(self, language):
         return pick_localized(self.service_url, language)
 
-    def get_load_url(self, language, request, students, url_name="exercise"):
+    def get_load_url(
+            self,
+            language: str,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> str:
         return update_url_params(self.get_service_url(language), {
             'lang': language,
         })
@@ -420,7 +438,7 @@ class CourseChapter(LearningObject):
         return not self.generate_table_of_contents
 
 
-class BaseExerciseManager(models.Manager):
+class BaseExerciseManager(models.Manager['BaseExercise']):
 
     def get_queryset(self):
         return super().get_queryset().select_related(
@@ -452,6 +470,11 @@ class BaseExercise(LearningObject):
         ('INVALID_GROUP', 4, 'The selected group is not acceptable.'),
         ('AMOUNT_EXCEEDED', 5, 'You have used the allowed amount of submissions.'),
         ('INVALID', 999, 'You cannot submit for an unspecified reason.'),
+    ])
+
+    GRADING_MODE = Enum([
+        ('BEST', 1, _('GRADING_MODE_BEST')),
+        ('LAST', 2, _('GRADING_MODE_LAST')),
     ])
 
     allow_assistant_viewing = models.BooleanField(
@@ -487,8 +510,34 @@ class BaseExercise(LearningObject):
         max_length=32,
         blank=True,
     )
+    submission_feedback_reveal_rule = models.OneToOneField(RevealRule,
+        verbose_name=_('LABEL_SUBMISSION_FEEDBACK_REVEAL_RULE'),
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+    )
+    model_solutions_reveal_rule = models.OneToOneField(RevealRule,
+        verbose_name=_('LABEL_MODEL_SOLUTIONS_REVEAL_RULE'),
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+    )
+    grading_mode = models.IntegerField(
+        verbose_name=_('LABEL_GRADING_MODE'),
+        choices=GRADING_MODE.choices,
+        default=GRADING_MODE.BEST,
+        help_text=_('BASE_EXERCISE_GRADING_MODE_HELPTEXT'),
+    )
 
     objects = BaseExerciseManager()
+
+    if TYPE_CHECKING:
+        id: models.AutoField
+        deadlineruledeviation_set: RelatedManager['DeadlineRuleDeviation']
+        maxsubmissionsruledeviation_set: RelatedManager['MaxSubmissionsRuleDeviation']
+        submissions: RelatedManager['Submission']
 
     class Meta:
         verbose_name = _('MODEL_NAME_BASE_EXERCISE')
@@ -511,6 +560,52 @@ class BaseExercise(LearningObject):
     @property
     def is_submittable(self):
         return True
+
+    @property
+    def default_submission_feedback_reveal_rule(self) -> RevealRule:
+        """
+        The reveal rule to be used when `submission_feedback_reveal_rule` has
+        not been assigned a value.
+        """
+        return RevealRule(
+            trigger=RevealRule.TRIGGER.IMMEDIATE,
+        )
+
+    @property
+    def active_submission_feedback_reveal_rule(self) -> RevealRule:
+        """
+        The reveal rule that should be used for determining submission feedback
+        visibility. Returns `submission_feedback_reveal_rule`, or
+        `default_submission_feedback_reveal_rule` if the former has not been
+        assigned a value.
+        """
+        return (
+            self.submission_feedback_reveal_rule
+            or self.default_submission_feedback_reveal_rule
+        )
+
+    @property
+    def default_model_solutions_reveal_rule(self) -> RevealRule:
+        """
+        The reveal rule to be used when `model_solutions_reveal_rule` has
+        not been assigned a value.
+        """
+        return RevealRule(
+            trigger=RevealRule.TRIGGER.DEADLINE,
+        )
+
+    @property
+    def active_model_solutions_reveal_rule(self) -> RevealRule:
+        """
+        The reveal rule that should be used for determining model solution
+        visibility. Returns `model_solutions_reveal_rule`, or
+        `default_model_solutions_reveal_rule` if the former has not been
+        assigned a value.
+        """
+        return (
+            self.model_solutions_reveal_rule
+            or self.default_model_solutions_reveal_rule
+        )
 
     def get_timing(self, students, when):
         module = self.course_module
@@ -637,13 +732,11 @@ class BaseExercise(LearningObject):
             return self.max_submissions + deviation.extra_submissions
         return self.max_submissions
 
-    def one_has_submissions(self, students):
+    def one_has_submissions(self, students: List[UserProfile]) -> Tuple[bool, List[str]]:
         if len(students) == 1 and self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
             enrollment = self.course_instance.get_enrollment_for(students[0].user)
             if not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
                 return True, []
-        if self.max_submissions == 0:
-            return True, []
         submission_count = 0
         for profile in students:
             # The students are in the same group, therefore, each student should
@@ -652,13 +745,18 @@ class BaseExercise(LearningObject):
             submission_count = self.get_submissions_for_student(profile, True).count()
             if submission_count < self.max_submissions_for_student(profile):
                 return True, []
+        # Even in situations where the student could otherwise make an infinite
+        # number of submissions, there is still a hard limit.
         max_unofficial_submissions = settings.MAX_UNOFFICIAL_SUBMISSIONS
-        if self.category.accept_unofficial_submits and \
-                (max_unofficial_submissions == 0 or submission_count < max_unofficial_submissions):
-            # Note: time is not checked here, but unofficial submissions are
-            # not allowed if the course archive time has passed.
-            # The caller must check the time limits too.
-            return True, [_('EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED')]
+        if max_unofficial_submissions == 0 or submission_count < max_unofficial_submissions:
+            if self.max_submissions == 0:
+                # If max_submissions is 0, the submission limit is "infinite".
+                return True, []
+            if self.category.accept_unofficial_submits:
+                # Note: time is not checked here, but unofficial submissions are
+                # not allowed if the course archive time has passed.
+                # The caller must check the time limits too.
+                return True, [_('EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED')]
         return False, [_('EXERCISE_MAX_SUBMISSIONS_USED')]
 
     def no_submissions_left(self, students):
@@ -827,16 +925,25 @@ class BaseExercise(LearningObject):
             .filter(submissions__exercise=self) \
             .distinct().count()
 
-    def get_load_url(self, language, request, students, url_name="exercise"):
+    def get_load_url(
+            self,
+            language: str,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> str:
         if self.id:
             if request.user.is_authenticated:
                 user = request.user
-                submission_count = self.get_submissions_for_student(
-                    user.userprofile, exclude_errors=True
-                ).count()
+                if ordinal is None:
+                    submission_count = self.get_submissions_for_student(
+                        user.userprofile, exclude_errors=True
+                    ).count()
+                    ordinal = submission_count + 1
             else:
                 user = None
-                submission_count = 0
+                ordinal = 1
             # Make grader async URL for the currently authenticated user.
             # The async handler will handle group selection at submission time.
             submission_url = update_url_params(
@@ -847,9 +954,9 @@ class BaseExercise(LearningObject):
             )
             return self._build_service_url(
                 language, request, students,
-                submission_count + 1, url_name, submission_url
+                ordinal, url_name, submission_url
             )
-        return super().get_load_url(language, request, students, url_name)
+        return super().get_load_url(language, request, students, url_name, ordinal)
 
     def grade(self, request, submission, no_penalties=False, url_name="exercise"):
         """
@@ -912,27 +1019,17 @@ class BaseExercise(LearningObject):
         can previous submissions be uploaded again for grading?"""
         return True
 
-    def can_show_model_solutions_to_student(self, student):
-        result = super().can_show_model_solutions_to_student(student)
-        if not result:
+    def can_show_model_solutions_to_student(self, student: User) -> bool:
+        if self.course_instance.is_course_staff(student):
+            return True
+        if self.course_instance.is_on_lifesupport() or self.course_instance.is_archived():
+            return False
+        if not student.is_authenticated:
             return False
 
-        submission = self.get_submissions_for_student(student.userprofile).first()
-        if submission:
-            # When the exercise uses group submissions, a deadline deviation
-            # may be granted to only one group member, but it affects the whole
-            # group. Therefore, we must check deadline deviations for all group
-            # members. All submissions to one exercise are made with the same group.
-            students = list(submission.submitters.all())
-        else:
-            students = [student.userprofile]
-
-        # Student may not view model solutions if he can still submit and gain
-        # points due to a personal deadline extension.
-        deviation = self.one_has_deadline_deviation(students)
-        if deviation:
-            return timezone.now() > deviation.get_new_deadline()
-        return True
+        from .reveal_states import ExerciseRevealState
+        state = ExerciseRevealState(self, student)
+        return self.active_model_solutions_reveal_rule.is_revealed(state)
 
 
 class LTIExercise(BaseExercise):
@@ -1044,8 +1141,15 @@ class LTIExercise(BaseExercise):
         except PermissionDenied:
             raise
 
-    def get_load_url(self, language, request, students, url_name="exercise"):
-        url = super().get_load_url(language, request, students, url_name)
+    def get_load_url(
+            self,
+            language: str,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> str:
+        url = super().get_load_url(language, request, students, url_name, ordinal)
         if self.lti_service and students:
             lti = self._get_lti(students[0].user, [], request)
             return lti.sign_get_query(url)

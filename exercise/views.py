@@ -1,6 +1,9 @@
+from typing import Any
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
+from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -17,7 +20,7 @@ from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
-from .models import LearningObject, LearningObjectDisplay
+from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
 from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, ExerciseModelBaseView, ExerciseTemplateBaseView
@@ -66,7 +69,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
         return access_mode
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         exercisecollection_data = None
         submission_allowed = False
         disable_submit = False
@@ -84,6 +87,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 SUBMIT_STATUS.NOT_ENROLLED,
             ]
             should_enroll = submission_status == SUBMIT_STATUS.NOT_ENROLLED
+            if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
+                messages.warning(request, _('ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED'))
 
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):
@@ -133,7 +138,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                            latest_enrollment_submission_data=all_enroll_data,
                            **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         # Stop submit trials for e.g. chapters.
         # However, allow posts from exercises switched to maintenance status.
         if not self.exercise.is_submittable:
@@ -185,6 +190,16 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 if not request.is_ajax() and "__r" not in request.GET:
                     return self.redirect(new_submission.get_absolute_url() +
                         ("?wait=1" if page.is_wait else ""))
+
+                # "grade" returns the submission feedback page. If feedback is
+                # hidden, display an ungraded page instead.
+                if not self.feedback_revealed:
+                    base_message = _('YOUR_ANSWER_WAS_SUBMITTED_SUCCESSFULLY')
+                    messages.success(
+                        request,
+                        f"{base_message} {self.feedback_hidden_description}",
+                    )
+                    page = new_submission.load(request)
 
             # Redirect non AJAX content page request back.
             if not request.is_ajax() and "__r" in request.GET:
@@ -335,6 +350,17 @@ class SubmissionView(SubmissionBaseView):
         self.note("page")
         #if not self.request.is_ajax():
         self.get_summary_submissions()
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        # When feedback is delayed, show a filled but ungraded form. The
+        # frontend may pass a 'submit' URL parameter, which determines if the
+        # submit button will be shown on the page (see chapter.js,
+        # loadLastSubmission).
+        if not self.feedback_revealed:
+            allow_submit = (request.GET.get('submit') == 'true')
+            submission_page = self.submission.load(request, allow_submit)
+            kwargs.update({'submission_page': submission_page})
+        return super().get(request, *args, **kwargs)
 
 
 class SubmissionPlainView(SubmissionView):
