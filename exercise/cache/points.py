@@ -175,30 +175,35 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 )
 
             # Augment exercise reveal rules.
-            def r_reveal_feedback(children: List[Dict[str, Any]]) -> None:
-                for entry in children:
-                    if entry['submittable']:
-                        exercise = BaseExercise.objects.get(id=entry['id'])
-                        rule = exercise.active_submission_feedback_reveal_rule
-                        state = ExerciseRevealState(entry)
-                        is_revealed = rule.is_revealed(state)
-                        reveal_time = rule.get_reveal_time(state)
-                        entry['feedback_revealed'] = is_revealed
-                        entry['feedback_reveal_time'] = reveal_time
-                        exercise_revealed[exercise.id] = is_revealed, reveal_time
-                        if (
-                            reveal_time is not None
-                            and reveal_time > timezone.now()
-                            and (
-                                data['invalidate_time'] is None
-                                or reveal_time < data['invalidate_time']
-                            )
-                        ):
-                            data['invalidate_time'] = reveal_time
-                    r_reveal_feedback(entry.get('children', []))
             if not self.is_staff:
-                for module in modules:
-                    r_reveal_feedback(module['children'])
+                for exercise in (
+                    BaseExercise.objects
+                    .filter(course_module__course_instance=instance)
+                    .prefetch_related('submission_feedback_reveal_rule')
+                    .only('id', 'submission_feedback_reveal_rule')
+                ):
+                    try:
+                        tree = self._by_idx(modules, exercise_index[exercise.id])
+                    except KeyError:
+                        self.dirty = True
+                        continue
+                    entry = tree[-1]
+                    rule = exercise.active_submission_feedback_reveal_rule
+                    state = ExerciseRevealState(entry)
+                    is_revealed = rule.is_revealed(state)
+                    reveal_time = rule.get_reveal_time(state)
+                    entry['feedback_revealed'] = is_revealed
+                    entry['feedback_reveal_time'] = reveal_time
+                    exercise_revealed[exercise.id] = is_revealed, reveal_time
+                    if (
+                        reveal_time is not None
+                        and reveal_time > timezone.now()
+                        and (
+                            data['invalidate_time'] is None
+                            or reveal_time < data['invalidate_time']
+                        )
+                    ):
+                        data['invalidate_time'] = reveal_time
 
             # Augment submission data.
             submissions = (
