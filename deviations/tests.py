@@ -72,5 +72,8 @@ class DeviationsTest(TestCase):
     def test_deadline_rule_deviation_new_deadline(self):
         self.assertEqual(self.two_days_from_now, self.deadline_rule_deviation.get_new_deadline())
 
+    def test_deadline_rule_deviation_new_deadline_with_normal_deadline(self):
+        self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_new_deadline(self.today))
+
     def test_deadline_rule_deviation_normal_deadline(self):
         self.assertEqual(self.tomorrow, self.deadline_rule_deviation.get_normal_deadline())

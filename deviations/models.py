@@ -1,4 +1,5 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
+from typing import Optional
 
 from django.urls import reverse
 from django.db import models
@@ -55,8 +56,17 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
     def get_extra_time(self):
         return timedelta(minutes=self.extra_minutes)
 
-    def get_new_deadline(self):
-        return self.get_normal_deadline() + self.get_extra_time()
+    def get_new_deadline(self, normal_deadline: Optional[datetime] = None) -> datetime:
+        """
+        Returns the new deadline after adding the extra time to the normal
+        deadline.
+
+        The `normal_deadline` argument can be provided if it is known by the
+        caller, to avoid querying it.
+        """
+        if normal_deadline is None:
+            normal_deadline = self.get_normal_deadline()
+        return normal_deadline + self.get_extra_time()
 
     def get_normal_deadline(self):
         return self.exercise.course_module.closing_time
