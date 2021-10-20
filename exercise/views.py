@@ -87,8 +87,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 SUBMIT_STATUS.NOT_ENROLLED,
             ]
             should_enroll = submission_status == SUBMIT_STATUS.NOT_ENROLLED
-            if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
-                messages.warning(request, _('ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED'))
 
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):
@@ -210,6 +208,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             page=page, students=students, submission=new_submission))
 
     def submission_check(self, error=False, request=None):
+        if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
+            # Add warning about the grading mode.
+            messages.warning(self.request, _('ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED'))
         if not self.profile:
             issue = _('SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES')
             messages.error(self.request, issue)
