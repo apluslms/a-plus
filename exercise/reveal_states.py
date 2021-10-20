@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, overload, Union
 
 from django.contrib.auth.models import User
 
+from deviations.models import DeadlineRuleDeviation
 from .exercise_models import BaseExercise
 
 
@@ -60,6 +61,9 @@ class ExerciseRevealState(BaseRevealState):
         else:
             self.cache = exercise
 
+        self.max_deviation_fetched: bool = False
+        self.max_deviation: Optional[DeadlineRuleDeviation] = None
+
     def get_points(self) -> Optional[int]:
         return self.cache['points']
 
@@ -84,12 +88,19 @@ class ExerciseRevealState(BaseRevealState):
 
     def get_latest_deadline(self) -> Optional[datetime.datetime]:
         deadlines = self._get_common_deadlines()
-        exercise = BaseExercise.objects.get(id=self.cache['id'])
-        # This is the only thing that we don't get from the cache.
-        # Caching this could be considered.
-        deviation = exercise.deadlineruledeviation_set.order_by('-extra_minutes').first()
-        if deviation is not None:
-            deadlines.append(deviation.get_new_deadline())
+        # This is the only thing that we don't get from CachedPoints. It is
+        # cached within this object, though, so it won't have to be fetched
+        # again if RevealRule.is_revealed and RevealRule.get_reveal_time are
+        # called separately.
+        if not self.max_deviation_fetched:
+            self.max_deviation = (
+                DeadlineRuleDeviation.objects
+                .filter(exercise_id=self.cache['id'])
+                .order_by('-extra_minutes').first()
+            )
+            self.max_deviation_fetched = True
+        if self.max_deviation is not None:
+            deadlines.append(self.max_deviation.get_new_deadline(self.cache['closing_time']))
         return max(deadlines)
 
     def _get_common_deadlines(self) -> List[datetime.datetime]:
