@@ -204,7 +204,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             submissions = (
                 user.userprofile.submissions.exclude_errors()
                 .filter(exercise__course_module__course_instance=instance)
-                .prefetch_related('exercise')
+                .prefetch_related('exercise', 'notifications')
                 .only('id', 'exercise', 'submission_time', 'status', 'grade', 'force_exercise_points')
             )
             for submission in submissions:
