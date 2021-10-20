@@ -793,15 +793,17 @@
               exercise.hideLoader();
 
               if (!exercise.active_element) {
-                var f = exercise.element.find(exercise.settings.response_selector)
-                .empty().append(
-                    $(data).filter(exercise.settings.exercise_selector).contents()
-                  );
+                const responseElement = exercise.element.find(exercise.settings.response_selector);
+                // Remove only the exercise content, not the alerts above it
+                responseElement.children().not('.alert').remove();
+                responseElement.append(
+                  $(data).filter(exercise.settings.exercise_selector).contents()
+                );
                 exercise.dom_element.dispatchEvent(
                   new CustomEvent("aplus:exercise-loaded",
                     {bubbles: true, detail: {type: exercise.exercise_type}}));
                 // TODO: remove magic constant (variable defined in group.js)
-                f.removeClass('group-augmented');
+                responseElement.removeClass('group-augmented');
                 exercise.bindFormEvents(exercise.element);
                 exercise.dom_element.dispatchEvent(
                   new CustomEvent("aplus:exercise-ready",
