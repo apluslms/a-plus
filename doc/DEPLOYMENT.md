@@ -67,6 +67,12 @@ Common system configuration
           | sudo tee /etc/tmpfiles.d/aplus.conf > /dev/null
         sudo systemd-tmpfiles --create
 
+ 1. Create RSA keys for [JWT authentication](AUTH.md)
+
+        # generate private key
+        openssl genrsa -out private.pem 2048
+        # extract public key
+        openssl rsa -in private.pem -out public.pem -pubout
 
 The Application
 ---------------
@@ -127,6 +133,9 @@ The Application
     Check `settings.py` and `local_settings.example.py`.
 
     Ensure that you use `DEBUG = False` in production (`local_setting.py`).
+
+    Fill the `APLUS_AUTH`, `ALIAS_TO_PUBLIC_KEY` and `URL_TO_ALIAS` settings.
+    Check `settings.py` and `local_settings.example.py`.
 
  1. Run Django deployment tasks
 
