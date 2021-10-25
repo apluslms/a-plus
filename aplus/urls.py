@@ -54,3 +54,11 @@ if settings.DEBUG:
     import django.views.static
     urlpatterns.insert(0, url(r'^media/(?P<path>.*)$', django.views.static.serve,
         { 'document_root': settings.MEDIA_ROOT }))
+
+
+if settings.ENABLE_DJANGO_DEBUG_TOOLBAR:
+    import debug_toolbar
+    urlpatterns.insert(
+        0,
+        path('__debug__/', include(debug_toolbar.urls)),
+    )
