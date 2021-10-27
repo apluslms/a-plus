@@ -14,4 +14,14 @@
 			color: #236aa7;
 		}
 	}
+
+	.navbar-text {
+		color: $gray;
+
+		@media (max-width: $grid-float-breakpoint-max) {
+			// Use the same layout as the navbar links.
+			padding: $nav-link-padding;
+			margin: 0;
+		}
+	}
 }
