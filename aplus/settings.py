@@ -217,6 +217,7 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.contrib.messages.context_processors.messages",
+                "lib.context_processors.aplus_version",
             ],
         },
     },

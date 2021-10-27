@@ -49,6 +49,12 @@
 		}
 	}
 
+	.navbar-brand + .navbar-text {
+		float: left;
+		font-size: $font-size-small;
+		color: $gray-lighter;
+	}
+
 	.navbar-toggle .badge {
 		position: absolute;
 		right: -10px;
