@@ -1,6 +1,7 @@
 .navbar-dropdown {
 	@extend .navbar-nav;
-	display: inline-block;
+	margin: 0;
+	float: left;
 }
 
 .topbar {
@@ -22,6 +23,11 @@
 
 		color: #ffffff;
 		background: transparent;
+	}
+
+	.navbar-dropdown > li.dropdown > a.dropdown-toggle {
+		padding-top: $navbar-padding-vertical;
+		padding-bottom: $navbar-padding-vertical;
 	}
 
 	a.navbar-brand:hover,
