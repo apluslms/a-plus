@@ -26,16 +26,24 @@ $(function () {
       $('.submitted-file').each(function () {
         const element = $(this);
         const fileId = element.data('id');
+        const fileViewable = element.data('viewable');
         const fileUrl = element.data('url');
         if (fileId == fileSelect.val()) {
           element.removeClass('hidden');
           // Load the file when selected from the menu
-          if (fileUrl && !loadedFiles.has(fileId)) {
+          if (fileUrl && fileViewable && !loadedFiles.has(fileId)) {
             loadedFiles.add(fileId);
             $.get(fileUrl, function (data) {
               const text = $("<pre/>").text(data);
               element.find('.submitted-file-data').html(text);
-              text.highlightCode();
+              const downloadButton = {
+                action: function() {
+                  window.location.href = fileUrl + '?download=yes';
+                },
+                icon: 'download-alt',
+                text: _('Download'),
+              };
+              text.highlightCode({extraButtons: [downloadButton]});
             })
             .fail(function () {
               element.find('.submitted-file-error').removeClass('hidden');

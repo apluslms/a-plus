@@ -86,15 +86,20 @@
 				<div
 					class="submitted-file {% if not forloop.first %}hidden{% endif %}"
 					data-id="{{ file.id }}"
+					{% if not file.is_passed %}data-viewable="true"{% endif %}
 					{% if file.exists %}data-url="{{ file.get_absolute_url }}"{% endif %}
 				>
 					{% if file.exists %}
-					<div class="submitted-file-progress">
-						<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%">
-							{% translate "LOADING" %}
+						{% if not file.is_passed %}
+						<div class="submitted-file-progress">
+							<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%">
+								{% translate "LOADING" %}
+							</div>
 						</div>
-					</div>
-					<div class="submitted-file-data"></div>
+						<div class="submitted-file-data"></div>
+						{% else %}
+							{% include "exercise/_file_link.html" %}
+						{% endif %}
 					{% endif %}
 					<div class="alert alert-danger submitted-file-error {% if file.exists %}hidden{% endif %}">
 						{% translate "FILE_NOT_FOUND" %}
