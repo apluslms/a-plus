@@ -303,6 +303,11 @@ collapsed due to narrow viewport) */
 .exercise-summary .navbar-nav>.open>a:hover {
     background-color: rgba(0,0,0,0.04);
 }
+@media (max-width: $grid-float-breakpoint-max) {
+	.exercise-summary .navbar-nav .open .dropdown-menu > li > a {
+		color: #555555;
+	}
+}
 .navbar-nav>li>a.file-modal {
     display: inline;
     padding: 0;
