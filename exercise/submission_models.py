@@ -549,7 +549,7 @@ class SubmittedFile(UrlMixin, models.Model):
     foreign key relation. The files are stored on the disk while models are
     stored in the database.
     """
-    PASS_MIME = ( "image/jpeg", "image/png", "image/gif", "application/pdf" )
+    PASS_MIME = ( "image/jpeg", "image/png", "image/gif", "application/pdf", "application/zip" )
     submission = models.ForeignKey(Submission,
         verbose_name=_('LABEL_SUBMISSION'),
         on_delete=models.CASCADE,
