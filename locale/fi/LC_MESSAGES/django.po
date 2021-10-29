@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 11:59+0300\n"
+"POT-Creation-Date: 2021-10-29 14:44+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -894,16 +894,6 @@ msgstr "Muokkaa kurssiuutisia"
 msgid "EDIT_COURSE"
 msgstr "Muokkaa kurssia"
 
-#: course/templates/course/_course_menu.html
-#: course/templates/course/enroll.html
-msgid "ENROLLMENT"
-msgstr "Ilmoittautuminen"
-
-#: course/templates/course/_course_menu.html
-#: course/templates/course/course_base.html
-msgid "UNENROLL"
-msgstr "Poista ilmoittautuminen"
-
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
@@ -1031,40 +1021,14 @@ msgstr "Voit muuttaa kielivalintaa käyttäjäasetuksissasi."
 msgid "BREADCRUMB"
 msgstr "Linkkipolku"
 
-#: course/templates/course/course_base.html
-msgid "UNENROLL_WARNING_DESCRIPTION"
-msgstr "Olet poistamassa ilmoittautumisen kurssilta."
-
-#: course/templates/course/course_base.html
-msgid "UNENROLL_WARNING_CANNOT_RE-ENROLL"
-msgstr "Et voi ilmoittautua uudelleen, koska ilmoittautuminen ei ole avoinna."
-
-#: course/templates/course/course_base.html
-msgid "PROCEED_CONFIRMATION"
-msgstr "Haluatko varmasti jatkaa?"
-
-#: course/templates/course/course_base.html
-#: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: course/templates/course/staff/participants.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Peruuta"
-
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "COURSE_INSTANCES"
 msgstr "Kurssikerrat"
+
+#: course/templates/course/enroll.html
+msgid "ENROLLMENT"
+msgstr "Ilmoittautuminen"
 
 #: course/templates/course/enroll.html
 msgid "ENROLLMENT_IS_ALREADY_ENROLLED"
@@ -1159,6 +1123,23 @@ msgstr ""
 "Poistetaan merkintä <span id=\"tag-remove-modal-tagging\"></span>\n"
 "<span id=\"tag-remove-modal-amount\"></span> käyttäjältä: <ul id=\"tag-"
 "remove-modal-users\"></ul> "
+
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Peruuta"
 
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
@@ -2469,6 +2450,14 @@ msgid "MODEL_NAME_COURSE_CHAPTER_PLURAL"
 msgstr "kurssiluvut"
 
 #: exercise/exercise_models.py
+msgid "GRADING_MODE_BEST"
+msgstr "Paras palautus"
+
+#: exercise/exercise_models.py
+msgid "GRADING_MODE_LAST"
+msgstr "Viimeinen palautus"
+
+#: exercise/exercise_models.py
 msgid "LABEL_ALLOW_ASSISTANT_VIEWING"
 msgstr "salli assistenttien tarkastelu"
 
@@ -2497,22 +2486,6 @@ msgid "LABEL_DIFFICULTY"
 msgstr "vaikeusaste"
 
 #: exercise/exercise_models.py
-msgid "MODEL_NAME_BASE_EXERCISE"
-msgstr "perustehtävä"
-
-#: exercise/exercise_models.py
-msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
-msgstr "perustehtävät"
-
-#: exercise/exercise_models.py
-msgid "GRADING_MODE_BEST"
-msgstr "Paras palautus"
-
-#: exercise/exercise_models.py
-msgid "GRADING_MODE_LAST"
-msgstr "Viimeinen palautus"
-
-#: exercise/exercise_models.py
 msgid "LABEL_SUBMISSION_FEEDBACK_REVEAL_RULE"
 msgstr "Tehtävien palautteen paljastamissääntö"
 
@@ -2528,6 +2501,14 @@ msgstr "Arvostelutapa"
 msgid "BASE_EXERCISE_GRADING_MODE_HELPTEXT"
 msgstr ""
 "Valitse, mikä palautus määrittää lopullisen arvosanan tässä tehtävässä."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE"
+msgstr "perustehtävä"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
+msgstr "perustehtävät"
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_ERROR_POINTS_TO_PASS_GREATER_MAX_POINTS"
@@ -3874,10 +3855,6 @@ msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel-yhteensopiva CSV"
 
 #: exercise/views.py
-msgid "ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED"
-msgstr "Vain viimeinen palautuksesi vaikuttaa tehtävän arvosteluun."
-
-#: exercise/views.py
 msgid "EXERCISE_IN_MAINTENANCE_AND_HIDDEN_FROM_STUDENTS"
 msgstr "Tehtävässä on huoltokatko, ja sisältö on piilotettu opiskelijoilta."
 
@@ -3895,6 +3872,10 @@ msgstr ""
 #: exercise/views.py
 msgid "YOUR_ANSWER_WAS_SUBMITTED_SUCCESSFULLY"
 msgstr "Vastauksesi lähetettiin onnistuneesti."
+
+#: exercise/views.py
+msgid "ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED"
+msgstr "Vain viimeinen palautuksesi vaikuttaa tehtävän arvosteluun."
 
 #: exercise/views.py
 msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"

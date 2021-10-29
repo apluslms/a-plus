@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 11:59+0300\n"
+"POT-Creation-Date: 2021-10-29 14:44+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -890,16 +890,6 @@ msgstr "Edit news"
 msgid "EDIT_COURSE"
 msgstr "Edit course"
 
-#: course/templates/course/_course_menu.html
-#: course/templates/course/enroll.html
-msgid "ENROLLMENT"
-msgstr "Enrolment"
-
-#: course/templates/course/_course_menu.html
-#: course/templates/course/course_base.html
-msgid "UNENROLL"
-msgstr "Unenrol"
-
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"
 msgstr "In order to submit assignments you must enrol in the course."
@@ -1027,40 +1017,14 @@ msgstr "You can change the language from your account page."
 msgid "BREADCRUMB"
 msgstr "Breadcrumb"
 
-#: course/templates/course/course_base.html
-msgid "UNENROLL_WARNING_DESCRIPTION"
-msgstr "You are about to unenrol from this course."
-
-#: course/templates/course/course_base.html
-msgid "UNENROLL_WARNING_CANNOT_RE-ENROLL"
-msgstr "You cannot re-enrol in the course because enrolment is not open."
-
-#: course/templates/course/course_base.html
-msgid "PROCEED_CONFIRMATION"
-msgstr "Are you sure you want to proceed?"
-
-#: course/templates/course/course_base.html
-#: course/templates/course/staff/_tag_remove_modal.html
-#: course/templates/course/staff/group_delete.html
-#: course/templates/course/staff/participants.html
-#: deviations/templates/deviations/add_dl.html
-#: edit_course/templates/edit_course/edit_model.html
-#: edit_course/templates/edit_course/remove_model.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: external_services/templates/external_services/edit_menu.html
-#: news/templates/news/edit.html
-msgid "CANCEL"
-msgstr "Cancel"
-
 #: course/templates/course/course_instances.html
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "COURSE_INSTANCES"
 msgstr "Course instances"
+
+#: course/templates/course/enroll.html
+msgid "ENROLLMENT"
+msgstr "Enrolment"
 
 #: course/templates/course/enroll.html
 msgid "ENROLLMENT_IS_ALREADY_ENROLLED"
@@ -1154,6 +1118,23 @@ msgstr ""
 "Remove tagging <span id=\"tag-remove-modal-tagging\"></span> \n"
 "from <span id=\"tag-remove-modal-amount\"></span> users: <ul id=\"tag-remove-"
 "modal-users\"></ul> "
+
+#: course/templates/course/staff/_tag_remove_modal.html
+#: course/templates/course/staff/group_delete.html
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/add_dl.html
+#: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: external_services/templates/external_services/edit_menu.html
+#: news/templates/news/edit.html
+msgid "CANCEL"
+msgstr "Cancel"
 
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "REMOVE_ALL"
@@ -2463,6 +2444,14 @@ msgid "MODEL_NAME_COURSE_CHAPTER_PLURAL"
 msgstr "course chapters"
 
 #: exercise/exercise_models.py
+msgid "GRADING_MODE_BEST"
+msgstr "Best submission"
+
+#: exercise/exercise_models.py
+msgid "GRADING_MODE_LAST"
+msgstr "Last submission"
+
+#: exercise/exercise_models.py
 msgid "LABEL_ALLOW_ASSISTANT_VIEWING"
 msgstr "allow assistant viewing"
 
@@ -2491,22 +2480,6 @@ msgid "LABEL_DIFFICULTY"
 msgstr "difficulty"
 
 #: exercise/exercise_models.py
-msgid "MODEL_NAME_BASE_EXERCISE"
-msgstr "base assignment"
-
-#: exercise/exercise_models.py
-msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
-msgstr "base assignments"
-
-#: exercise/exercise_models.py
-msgid "GRADING_MODE_BEST"
-msgstr "Best submission"
-
-#: exercise/exercise_models.py
-msgid "GRADING_MODE_LAST"
-msgstr "Last submission"
-
-#: exercise/exercise_models.py
 msgid "LABEL_SUBMISSION_FEEDBACK_REVEAL_RULE"
 msgstr "Submission feedback reveal rule"
 
@@ -2522,6 +2495,14 @@ msgstr "Grading mode"
 msgid "BASE_EXERCISE_GRADING_MODE_HELPTEXT"
 msgstr ""
 "Select which submission determines the final grade for this assignment."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE"
+msgstr "base assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_BASE_EXERCISE_PLURAL"
+msgstr "base assignments"
 
 #: exercise/exercise_models.py
 msgid "EXERCISE_ERROR_POINTS_TO_PASS_GREATER_MAX_POINTS"
@@ -3869,10 +3850,6 @@ msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel compatible CSV"
 
 #: exercise/views.py
-msgid "ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED"
-msgstr "Only your last submission will be graded."
-
-#: exercise/views.py
 msgid "EXERCISE_IN_MAINTENANCE_AND_HIDDEN_FROM_STUDENTS"
 msgstr ""
 "The assignment is in maintenance and the content is hidden from students."
@@ -3891,6 +3868,10 @@ msgstr ""
 #: exercise/views.py
 msgid "YOUR_ANSWER_WAS_SUBMITTED_SUCCESSFULLY"
 msgstr "Your answer was submitted successfully."
+
+#: exercise/views.py
+msgid "ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED"
+msgstr "Only your last submission will be graded."
 
 #: exercise/views.py
 msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"
