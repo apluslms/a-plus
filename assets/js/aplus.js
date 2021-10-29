@@ -472,7 +472,7 @@ $(function() {
                     if (settings.file) {
                         var text = $("<pre/>").text(data);
                         modal.aplusModal("content", {
-                            title: link.text(),
+                            title: link.data('modalTitle') || link.text(),
                             content: text,
                         });
                         text.highlightCode();

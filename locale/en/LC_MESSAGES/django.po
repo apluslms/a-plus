@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-07 12:05+0300\n"
+"POT-Creation-Date: 2021-10-29 11:59+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1810,6 +1810,7 @@ msgstr ""
 "for the LTI service. The assignment was not created/updated due to the error."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
 msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
 msgstr ""
 "Invalid reveal rule definition '{key}'. Must be a JSON object with a "
@@ -3157,10 +3158,20 @@ msgid "POINTS_ON_THIS_COURSE"
 msgstr "Points on this course"
 
 #: exercise/templates/exercise/_file_link.html
+#, python-format
+msgid "VIEW_FILE -- %(filename)s"
+msgstr "View the file %(filename)s"
+
+#: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Download"
+
+#: exercise/templates/exercise/_file_link.html
+#, python-format
+msgid "DOWNLOAD_FILE -- %(filename)s"
+msgstr "Download the file %(filename)s"
 
 #: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/_model_files.html

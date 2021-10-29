@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-07 12:05+0300\n"
+"POT-Creation-Date: 2021-10-29 11:59+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1815,6 +1815,7 @@ msgstr ""
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
 msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
 msgstr ""
 "Viallinen paljastamissäännön määrittely '{key}'. Täytyy olla JSON-objekti, "
@@ -3160,10 +3161,20 @@ msgid "POINTS_ON_THIS_COURSE"
 msgstr "Pisteet tällä kurssilla"
 
 #: exercise/templates/exercise/_file_link.html
+#, python-format
+msgid "VIEW_FILE -- %(filename)s"
+msgstr "Katsele tiedostoa %(filename)s"
+
+#: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Lataa"
+
+#: exercise/templates/exercise/_file_link.html
+#, python-format
+msgid "DOWNLOAD_FILE -- %(filename)s"
+msgstr "Lataa tiedosto %(filename)s"
 
 #: exercise/templates/exercise/_file_link.html
 #: exercise/templates/exercise/_model_files.html
