@@ -1,7 +1,8 @@
 FROM ubuntu:latest
 
-ARG GECKODRIVER_FILE=geckodriver-v0.29.1-linux64.tar.gz
-ARG GECKODRIVER_LINK=https://github.com/mozilla/geckodriver/releases/download/v0.29.1/$GECKODRIVER_FILE
+ARG GECKODRIVER_VERSION=0.30.0
+ARG GECKODRIVER_FILE=geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
+ARG GECKODRIVER_LINK=https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/${GECKODRIVER_FILE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
