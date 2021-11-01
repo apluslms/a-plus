@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
+from course.cache.students import invalidate_students
 from course.models import CourseInstance, UserTag, UserTagging
 from userprofile.models import UserProfile
 
@@ -26,16 +27,25 @@ class Command(BaseCommand):
         if options['set'] == 'set':
             if options.get('tag_id') is not None:
                 raise CommandError('You may not use the tag id argument with "set"!')
-            self.set_tags(instance, options['filename'])
+            tag_ids = self.set_tags(instance, options['filename'])
+            one_tag_id = tag_ids.pop()
         else:
             # setone command
             if options.get('tag_id') is None:
                 raise CommandError('You must supply the tag id argument with "setone"!')
             self.set_tagone(instance, options['tag_id'], options['filename'])
+            one_tag_id = options['tag_id']
+
+        # Clear the student cache so that the course participants page shows updated tags.
+        one_tag = UserTag.objects.filter(id=one_tag_id, course_instance=instance).first()
+        invalidate_students(UserTag, one_tag)
 
     def set_tags(self, instance, filename):
+        tag_ids = set()
         for tid,users in self.read_user_tag(filename).items():
             self.tag_users(instance, tid, users)
+            tag_ids.add(tid)
+        return tag_ids
 
     def set_tagone(self, instance, tid, filename):
         self.tag_users(instance, tid, self.read_user(filename))
