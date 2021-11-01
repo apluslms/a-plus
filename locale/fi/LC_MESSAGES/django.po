@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-29 14:44+0300\n"
+"POT-Creation-Date: 2021-11-01 14:59+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -3428,6 +3428,10 @@ msgstr "Ei arvosteltu manuaalisesti"
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "REGRADE"
 msgstr "Arvostele uudelleen"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "HELP"
+msgstr "Ohjeet"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "ASSESSMENT"

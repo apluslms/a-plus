@@ -24,11 +24,21 @@
 					data-target="#details-modal"
 					class="aplus-button--secondary aplus-button--sm"
 				>{% translate 'DETAILS' %}</button>
-				<button
-					data-toggle="modal"
-					data-target="#resubmit-modal"
-					class="aplus-button--secondary aplus-button--sm"
-				>{% translate 'REGRADE' %}</button>
+				<form method="post" action="{{ submission|url:'submission-re-submit' }}" style="display: inline-block">
+					{% csrf_token %}
+					<button
+						class="aplus-button--secondary aplus-button--sm aplus-button--left"
+						type="submit"
+					>
+						{% translate 'REGRADE' %}
+					</button><button
+						data-toggle="modal"
+						data-target="#resubmit-modal"
+						class="aplus-button--secondary aplus-button--sm aplus-button--right"
+						type="button"
+						title="{% translate 'HELP' %}"
+					>?</button>
+				</form>
 				<button
 					data-toggle="visibility"
 					data-target=".assessment-toggle"
