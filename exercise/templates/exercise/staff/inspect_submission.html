@@ -56,7 +56,7 @@
 			<div>
 				{% with prev_id=submission.submitters.all.0.id %}
 				<a href="{{ exercise|url:'submission-next-unassessed' }}?prev={{ prev_id }}" class="pull-right">
-					{% translate "NEXT_UNASSESSED_SUBMITTER" %}
+					{% translate "ASSESS_NEXT_SUBMITTER_MANUALLY" %}
 					<span aria-hidden="true">&raquo;</span>
 				</a>
 				{% endwith %}

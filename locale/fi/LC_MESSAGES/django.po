@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-01 14:59+0200\n"
+"POT-Creation-Date: 2021-11-02 11:04+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -2103,7 +2103,6 @@ msgid "EDIT_COURSE_INDEX"
 msgstr "Muokkaa kurssin etusivua"
 
 #: edit_course/templates/edit_course/edit_instance.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "DETAILS"
 msgstr "Tiedot"
 
@@ -3425,17 +3424,22 @@ msgid "NOT_ASSESSED_MANUALLY"
 msgstr "Ei arvosteltu manuaalisesti"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+msgid "SUBMISSION_DETAILS"
+msgstr "Palautuksen lisätiedot"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
-msgid "REGRADE"
-msgstr "Arvostele uudelleen"
+msgid "REGRADE_AUTOMATICALLY"
+msgstr "Lähetä uudelleenarviointiin"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "HELP"
 msgstr "Ohjeet"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
-msgid "ASSESSMENT"
-msgstr "Arviointi"
+msgid "ASSESS_MANUALLY"
+msgstr "Arvioi tämä"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
@@ -3469,10 +3473,6 @@ msgstr ""
 "Toiminto on tarkoitettu käytettäväksi, kun tehtäväpalvelu on toiminut "
 "väärin, ja arvostelu on virheellinen tai tila ei muuttunut valmiiksi. "
 "Huomaa, että vanha arvostelu korvautuu uudella."
-
-#: exercise/templates/exercise/staff/_submission_data_modal.html
-msgid "SUBMISSION_DETAILS"
-msgstr "Palautuksen lisätiedot"
 
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMITTED_VALUES"
@@ -3684,8 +3684,8 @@ msgid "NOTE_LATER_SUBMISSIONS"
 msgstr "Opiskelijalla on tätä palautusta uudempia palautuksia."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-msgid "NEXT_UNASSESSED_SUBMITTER"
-msgstr "Seuraava arvostelematon palauttaja"
+msgid "ASSESS_NEXT_SUBMITTER_MANUALLY"
+msgstr "Arvostele seuraava palauttaja manuaalisesti"
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"

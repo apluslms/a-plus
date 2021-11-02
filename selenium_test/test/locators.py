@@ -82,7 +82,7 @@ class StudentFeedbackPageLocators(object):
     FEEDBACK_TEXT = (By.XPATH, "//*[@id='exercise']")
 
 class InspectionPageLocators(object):
-    ASSESSMENT_BUTTON = (By.XPATH, "//div[contains(@class, 'assessment-bar')]//button[contains(text(), 'Assessment')]")
+    ASSESSMENT_BUTTON = (By.XPATH, "//div[contains(@class, 'assessment-bar')]//button[contains(text(), 'Assess manually')]")
     ASSISTANT_FEEDBACK_TOGGLE = (By.XPATH, "//form[contains(@class, 'assessment-bar')]//button[contains(text(), 'Assistant feedback')]")
     GRADER_FEEDBACK_TOGGLE = (By.XPATH, "//form[contains(@class, 'assessment-bar')]//button[contains(text(), 'Grader feedback')]")
     POINTS_INPUT = (By.XPATH, "//*[@id='id_points']")

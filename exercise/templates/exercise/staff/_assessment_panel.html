@@ -23,14 +23,14 @@
 					data-toggle="modal"
 					data-target="#details-modal"
 					class="aplus-button--secondary aplus-button--sm"
-				>{% translate 'DETAILS' %}</button>
+				>{% translate 'SUBMISSION_DETAILS' %}</button>
 				<form method="post" action="{{ submission|url:'submission-re-submit' }}" style="display: inline-block">
 					{% csrf_token %}
 					<button
 						class="aplus-button--secondary aplus-button--sm aplus-button--left"
 						type="submit"
 					>
-						{% translate 'REGRADE' %}
+						{% translate 'REGRADE_AUTOMATICALLY' %}
 					</button><button
 						data-toggle="modal"
 						data-target="#resubmit-modal"
@@ -43,7 +43,7 @@
 					data-toggle="visibility"
 					data-target=".assessment-toggle"
 					class="aplus-button--default aplus-button--sm"
-				>{% translate 'ASSESSMENT' %}</button>
+				>{% translate 'ASSESS_MANUALLY' %}</button>
 			</div>
 		</div>
 
