@@ -2,7 +2,7 @@ import itertools
 import logging
 import os
 import json
-from typing import IO, Dict, Iterable, List, Tuple, cast
+from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -472,6 +472,73 @@ class Submission(UrlMixin, models.Model):
 
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
+
+
+class SubmissionDraft(models.Model):
+    """
+    An incomplete submission that is saved automatically before the user
+    submits it. A user can have exactly one draft per exercise instead of
+    multiple. The one draft is continuously updated as the user types.
+    """
+    timestamp = models.DateTimeField(
+        verbose_name=_('LABEL_TIMESTAMP'),
+        auto_now=True,
+    )
+    exercise = models.ForeignKey(exercise_models.BaseExercise,
+        verbose_name=_('LABEL_EXERCISE'),
+        on_delete=models.CASCADE,
+        related_name='submission_drafts'
+    )
+    submitter = models.ForeignKey(UserProfile,
+        verbose_name=_('LABEL_SUBMITTER'),
+        on_delete=models.CASCADE,
+        related_name='submission_drafts'
+    )
+    submission_data = JSONField(
+        verbose_name=_('LABEL_SUBMISSION_DATA'),
+        blank=True,
+    )
+    # This flag is set to False when the student makes an actual submission.
+    # This way the draft doesn't have to be deleted and recreated every time
+    # the student makes a submission and then starts a new draft.
+    active = models.BooleanField(
+        verbose_name=_('LABEL_ACTIVE'),
+        default=True,
+    )
+
+    if TYPE_CHECKING:
+        objects: models.Manager['SubmissionDraft']
+        id: models.AutoField
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_SUBMISSION_DRAFT')
+        verbose_name_plural = _('MODEL_NAME_SUBMISSION_DRAFT_PLURAL')
+        app_label = 'exercise'
+        unique_together = ('exercise', 'submitter')
+
+    def load(self, request: HttpRequest) -> ExercisePage:
+        """
+        Loads the draft page, i.e. the exercise form with the user's
+        incomplete answers filled in.
+        """
+        enrollment = self.exercise.course_instance.get_enrollment_for(request.user)
+        if enrollment and enrollment.selected_group:
+            students = list(enrollment.selected_group.members.all())
+        else:
+            students = [request.user.userprofile]
+
+        page = self.exercise.as_leaf_class().load(
+            request,
+            students,
+            url_name='exercise',
+        )
+        if self.submission_data:
+            data = pairs_to_dict(self.submission_data)
+            # Format the timestamp so that it can be used in Javascript's Date constructor
+            timestamp = str(int(self.timestamp.timestamp() * 1000))
+            page.populate_form(field_values=data, data_values={'draft-timestamp': timestamp}, allow_submit=True)
+
+        return page
 
 
 def build_upload_dir(instance, filename):

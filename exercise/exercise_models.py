@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import Any, TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urlsplit
 
 from django.conf import settings
@@ -49,7 +49,7 @@ if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
     from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
-    from .submission_models import Submission
+    from .submission_models import Submission, SubmissionDraft
 
 
 
@@ -538,6 +538,7 @@ class BaseExercise(LearningObject):
         deadlineruledeviation_set: RelatedManager['DeadlineRuleDeviation']
         maxsubmissionsruledeviation_set: RelatedManager['MaxSubmissionsRuleDeviation']
         submissions: RelatedManager['Submission']
+        submission_drafts: RelatedManager['SubmissionDraft']
 
     class Meta:
         verbose_name = _('MODEL_NAME_BASE_EXERCISE')
@@ -1030,6 +1031,36 @@ class BaseExercise(LearningObject):
         from .reveal_states import ExerciseRevealState
         state = ExerciseRevealState(self, student)
         return self.active_model_solutions_reveal_rule.is_revealed(state)
+
+    def get_submission_draft(self, user_profile: UserProfile) -> Optional['SubmissionDraft']:
+        """
+        Returns the active submission draft for the user, if it exists.
+        """
+        return user_profile.submission_drafts.filter(
+            exercise=self,
+            active=True,
+        ).first()
+
+    def set_submission_draft(self, user_profile: UserProfile, submission_data: Any) -> None:
+        """
+        Creates a submission draft for the user, or updates an existing one.
+        """
+        user_profile.submission_drafts.update_or_create(
+            exercise=self,
+            defaults={
+                'active': True,
+                'submission_data': submission_data,
+            },
+        )
+
+    def unset_submission_draft(self, user_profile: UserProfile) -> None:
+        """
+        Deactivates the active submission draft for the user, if it exists.
+        """
+        user_profile.submission_drafts.filter(
+            exercise=self,
+            active=True,
+        ).update(active=False)
 
 
 class LTIExercise(BaseExercise):

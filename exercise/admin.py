@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from exercise.models import (
@@ -7,6 +9,7 @@ from exercise.models import (
     StaticExercise,
     ExerciseWithAttachment,
     Submission,
+    SubmissionDraft,
     SubmittedFile,
     RevealRule,
 )
@@ -132,6 +135,43 @@ class SubmissionAdmin(admin.ModelAdmin):
             .prefetch_related('submitters')
 
 
+class SubmissionDraftAdmin(admin.ModelAdmin):
+    search_fields = (
+        'id',
+        'exercise__name',
+        'exercise__course_module__course_instance__instance_name',
+        'submitter__student_id',
+        'submitter__user__username',
+        'submitter__user__first_name',
+        'submitter__user__last_name',
+        'submitter__user__email',
+    )
+    list_display_links = ('id',)
+    list_display = (
+        'id',
+        'exercise',
+        course_wrapper,
+        'submitter',
+        'active',
+        'timestamp',
+    )
+    list_filter = (
+        'active',
+        'timestamp',
+        'exercise__course_module__course_instance',
+    )
+    list_per_page = 500
+    raw_id_fields = ('submitter',)
+    readonly_fields = ('timestamp',)
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet[SubmissionDraft]:
+        return (
+            super().get_queryset(request)
+            .defer('submission_data')
+            .prefetch_related('exercise', 'submitter')
+        )
+
+
 class SubmittedFileAdmin(admin.ModelAdmin):
     search_fields = (
         'submission__exercise__name',
@@ -207,6 +247,7 @@ admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
 admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
 admin.site.register(Submission, SubmissionAdmin)
+admin.site.register(SubmissionDraft, SubmissionDraftAdmin)
 admin.site.register(SubmittedFile, SubmittedFileAdmin)
 admin.site.register(ExerciseCollection, ExerciseCollectionAdmin)
 admin.site.register(RevealRule, RevealRuleAdmin)
