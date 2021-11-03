@@ -510,7 +510,7 @@ def invalidate_submission_reveal(sender: Type[Model], instance: RevealRule, **kw
     course = exercise.course_instance
     submitters = UserProfile.objects.filter(submissions__exercise=exercise).distinct()
     for profile in submitters:
-        CachedPoints.invalidate(course, profile)
+        CachedPoints.invalidate(course, profile.user)
 
 # Automatically invalidate cached points when submissions change.
 post_save.connect(invalidate_content, sender=Submission)
