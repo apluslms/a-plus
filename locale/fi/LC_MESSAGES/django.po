@@ -271,7 +271,8 @@ msgstr "Varatut sanat: {}"
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "kurssikerta"
 
-#: course/models.py exercise/exercise_models.py notification/models.py
+#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+#: notification/models.py
 msgid "LABEL_TIMESTAMP"
 msgstr "aikaleima"
 
@@ -1365,7 +1366,7 @@ msgstr ""
 "Mikäli olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, "
 "poikkeamaa sovelletaan näihin tehtäviin kyseisten moduulien LISÄKSI."
 
-#: deviations/forms.py deviations/models.py
+#: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
 msgstr "Opiskelija"
 
@@ -3037,6 +3038,18 @@ msgstr "palautus"
 msgid "MODEL_NAME_SUBMISSION_PLURAL"
 msgstr "palautukset"
 
+#: exercise/submission_models.py
+msgid "LABEL_ACTIVE"
+msgstr "aktiivinen"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION_DRAFT"
+msgstr "palautusluonnos"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION_DRAFT_PLURAL"
+msgstr "palautusluonnokset"
+
 #: exercise/submission_models.py notification/models.py
 msgid "LABEL_SUBMISSION"
 msgstr "palautus"
@@ -3892,6 +3905,10 @@ msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"
 msgstr ""
 "Palauttaaksesi tehtäviä sinun pitää rekisteröityä ja ilmoittautua kurssin "
 "etusivulla."
+
+#: exercise/views.py
+msgid "DRAFT_WARNING_REMEMBER_TO_SUBMIT"
+msgstr "Tämä on luonnos. Muista lähettää vastauksesi arvosteltavaksi!"
 
 #: external_services/lti.py
 msgid "LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS"

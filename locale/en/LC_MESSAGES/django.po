@@ -270,7 +270,8 @@ msgstr "Reserved words include: {}"
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "course instance"
 
-#: course/models.py exercise/exercise_models.py notification/models.py
+#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+#: notification/models.py
 msgid "LABEL_TIMESTAMP"
 msgstr "timestamp"
 
@@ -1361,7 +1362,7 @@ msgstr ""
 "deviation will be applied to these assignments IN ADDITION to the listed "
 "module(s)."
 
-#: deviations/forms.py deviations/models.py
+#: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
 msgstr "Submitter"
 
@@ -3034,6 +3035,18 @@ msgstr "submission"
 msgid "MODEL_NAME_SUBMISSION_PLURAL"
 msgstr "submissions"
 
+#: exercise/submission_models.py
+msgid "LABEL_ACTIVE"
+msgstr "active"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION_DRAFT"
+msgstr "submission draft"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_SUBMISSION_DRAFT_PLURAL"
+msgstr "submission drafts"
+
 #: exercise/submission_models.py notification/models.py
 msgid "LABEL_SUBMISSION"
 msgstr "submission"
@@ -3886,6 +3899,10 @@ msgstr "Only your last submission will be graded."
 #: exercise/views.py
 msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"
 msgstr "You need to sign in and enrol to submit exercises."
+
+#: exercise/views.py
+msgid "DRAFT_WARNING_REMEMBER_TO_SUBMIT"
+msgstr "This is a draft. Remember to submit your answer for grading!"
 
 #: external_services/lti.py
 msgid "LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS"
