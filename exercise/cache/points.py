@@ -5,6 +5,7 @@ from typing import Any, Dict, Iterable, List, Optional, Type, Tuple, Union
 from django.contrib.auth.models import User
 from django.db.models.base import Model
 from django.db.models.aggregates import Max
+from django.db.models.expressions import Exists, OuterRef
 from django.db.models.query_utils import Q
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
@@ -229,8 +230,20 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     cls.objects.filter(
                         Q(exercise__course_module__course_instance=instance)
                         & (
+                            # Check that the owner of the deviation is the
+                            # current user, OR it belongs to some other
+                            # user who has submitted the deviation's exercise
+                            # WITH the current user.
                             Q(submitter=user.userprofile)
-                            | Q(exercise__submissions__submitters=user.userprofile)
+                            | Exists(
+                                # Note the two 'submitters' filters.
+                                Submission.objects.filter(
+                                    exercise=OuterRef('exercise'),
+                                    submitters=OuterRef('submitter'),
+                                ).filter(
+                                    submitters=user.userprofile,
+                                )
+                            )
                         )
                     )
                     .values('exercise')
