@@ -398,7 +398,7 @@
     },
 
     // Submit the formData to given url and then execute the callback.
-    submitAjax: function(url, formData, callback, retry) {
+    submitAjax: function(url, formData, callback) {
       var exercise = this;
       $.ajax(url, {
         type: "POST",
@@ -407,14 +407,6 @@
         processData: false,
         dataType: "html"
       }).fail(function(xhr, textStatus, errorThrown) {
-        // Retry a few times if submission is not successful
-        retry = retry || 0;
-        if (xhr.status !== 200 && retry < 5) {
-          setTimeout(
-            function() {
-              exercise.submitAjax(url, formData, callback, retry + 1);
-            }, 100);
-        }
         //$(form_element).find(":input").prop("disabled", false);
         //exercise.showLoader("error");
 
