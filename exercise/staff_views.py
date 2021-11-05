@@ -169,9 +169,14 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             if submission.id != self.submission.id:
                 if submission.force_exercise_points:
                     self.not_final = True
-                if submission.grade > self.submission.grade:
+                    # When not_final is True, the other variables are not needed. Stop the loop early.
+                    break
+                if ((submission.grade > self.submission.grade and submission.status != Submission.STATUS.UNOFFICIAL)
+                        or (self.submission.status == Submission.STATUS.UNOFFICIAL
+                            and submission.status != Submission.STATUS.UNOFFICIAL)):
                     self.not_best = True
-                if submission.submission_time > self.submission.submission_time:
+                if (submission.submission_time > self.submission.submission_time
+                        and submission.status != Submission.STATUS.UNOFFICIAL):
                     self.not_last = True
 
         self.note(
