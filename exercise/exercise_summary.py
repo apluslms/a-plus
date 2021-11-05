@@ -31,8 +31,15 @@ class UserExerciseSummary(object):
         self.forced_points = False
 
         if self.user and self.user.is_authenticated:
-            self.submissions = list(exercise.get_submissions_for_student(
-                user.userprofile))
+            self.submissions = list(
+                exercise.get_submissions_for_student(user.userprofile)
+                .select_related()
+                # parent is prefetched because there may be multiple ancestors,
+                # and they are needed for building the submission's URL.
+                # submission_feedback_reveal_rule is prefetched because
+                # nullable fields are not included in select_related().
+                .prefetch_related('exercise__parent', 'exercise__submission_feedback_reveal_rule')
+            )
             for s in self.submissions:
                 if not s.status in (
                     Submission.STATUS.ERROR,
