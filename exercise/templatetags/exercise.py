@@ -358,3 +358,29 @@ def get_format_info(format):
 @register.simple_tag
 def get_format_info_list(formats):
     return [get_format_info(format) for format in formats.split()]
+
+@register.simple_tag
+def get_regrade_info(index):
+    regrade_infos = {
+        'all' : {
+            'name': 'all',
+            'verbose_name': 'All',
+        },
+        'incomplete': {
+            'name': 'incomplete',
+            'verbose_name': 'Incomplete',
+        },
+        'simulated': {
+            'name': 'simulated',
+            'verbose_name': 'Simulated',
+        },
+    }
+    try:
+        return regrade_infos[index]
+    except KeyError as e:
+        raise RuntimeError('Invalid format: \'{}\''.format(index)) from e
+
+
+@register.simple_tag
+def get_regrade_info_list(options):
+    return [get_regrade_info(index) for index in options.split()]

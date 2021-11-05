@@ -367,12 +367,19 @@ class Submission(UrlMixin, models.Model):
             )
 
         students = list(self.submitters.all())
-        if self.is_submitter(request.user):
+        if request and self.is_submitter(request.user):
             user = request.user
         else:
             user = students[0].user if students else None
-        self.exercise.as_leaf_class().modify_post_parameters(
-            self._data, self._files, user, students, request, url)
+
+        # When running mass regrade, we do not have applicable request, and in such case
+        # it is set to None. Therefore, in mass regrade cases we are not modifying post
+        # parameters. This means that submissions with file attachments or LTI interaction
+        # are not properly covered. TODO: Check what is appropriate way of handling this.
+        if request:
+            self.exercise.as_leaf_class().modify_post_parameters(
+                self._data, self._files, user, students, request, url)
+
         return (self._data, self._files)
 
     def clean_post_parameters(self):

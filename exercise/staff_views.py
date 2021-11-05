@@ -16,6 +16,8 @@ from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
+from celery.result import AsyncResult
+
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (
@@ -35,6 +37,7 @@ from .forms import (
     SubmissionCreateAndReviewForm,
     EditSubmittersForm,
 )
+from .tasks import regrade_exercises
 from .submission_models import Submission
 from .viewbase import (
     ExerciseBaseView,
@@ -64,7 +67,25 @@ class ListSubmissionsView(ExerciseBaseView):
         self.all = self.request.GET.get('all', None)
         self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
         self.submissions = qs if self.all else qs[:self.default_limit]
-        self.note("all", "all_url", "submissions", "default_limit")
+        self.regrade_progress = ""
+        
+        # For the time being only admins can start mass regrade.
+        # This condition may be loosened later on
+        if self.request.user.is_superuser:
+            self.allow_regrade = True
+        else:
+            self.allow_regrade = False
+
+        if self.exercise.regrade_task:
+            result = AsyncResult(self.exercise.regrade_task)
+            if result.state == 'FAILURE':
+                # Ensure that database does not have reference to stale Celery task
+                self.exercise.regrade_task = ''
+                self.exercise.save()
+            elif result.state == "PROGRESS":
+                self.regrade_progress = f"Regrading {int(result.info.get('current') * 100 / result.info.get('total'))}%"
+            result.forget()
+        self.note("all", "all_url", "submissions", "default_limit", "regrade_progress", "allow_regrade")
 
 
 class SubmissionsSummaryView(ExerciseBaseView):
@@ -269,6 +290,28 @@ class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
         deviation.granter = request.user.userprofile
         deviation.save()
         return self.redirect(self.submission.get_inspect_url())
+
+
+class RegradeView(ExerciseBaseView, BaseRedirectView):
+    # For the time being only superusers have access.
+    # Later this will be loosened to ACCESS.TEACHER or ACCESS.ASSISTANT.
+    access_mode = ACCESS.SUPERUSER
+    template_name = "exercise/staff/regrade_submissions.html"
+
+    def get_common_objects(self) -> None:
+        self.regrade_type = self.request.GET.get('regrade', None)
+
+        if self.exercise.regrade_task:
+            self.result = AsyncResult(self.exercise.regrade_task)
+            self.note("result")
+        else:
+            job = regrade_exercises.delay(
+                self.exercise.id,
+                self.request.build_absolute_uri('/'),
+                self.regrade_type,
+            )
+            self.exercise.regrade_task = job
+            self.exercise.save()
 
 
 class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):

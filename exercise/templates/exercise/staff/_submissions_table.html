@@ -6,6 +6,35 @@
 
 <div class="clearfix">
 	<div class="pull-right">
+		{% if allow_regrade %}
+			{% if not regrade_progress %}
+				<span class="dropdown">
+					<button
+						class="aplus-button--secondary aplus-button--xs dropdown-toggle"
+						type="button"
+						data-toggle="dropdown"
+						id="regrade"
+					>
+						Regrade <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-data">
+						{% get_regrade_info_list "all incomplete simulated" as options %}
+						{% for index in options %}
+						<li>
+							<a href="{{ exercise|url:'submission-regrade' }}?regrade={{ index.name }}" class="page-modal">
+								{{ index.verbose_name }}
+							</a>
+						</li>
+						{% endfor %}
+					</ul>
+				</span>
+			{% else %}
+				<a class="aplus-button--secondary aplus-button--xs page-modal" href="{{ exercise|url:'submission-regrade' }}" class="page-modal">
+					<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+					{{ regrade_progress }}
+				</a>
+			{% endif %}
+		{% endif %}
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
 			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 			{% translate "START_MANUAL_ASSESSMENT" %}

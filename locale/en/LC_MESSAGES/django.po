@@ -2659,6 +2659,10 @@ msgstr ""
 "Select which submission determines the final grade for this assignment."
 
 #: exercise/exercise_models.py
+msgid "LABEL_REGRADE_TASK"
+msgstr "Identifier to regrade task in Celery"
+
+#: exercise/exercise_models.py
 msgid "MODEL_NAME_BASE_EXERCISE"
 msgstr "base assignment"
 

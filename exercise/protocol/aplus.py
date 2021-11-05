@@ -52,7 +52,7 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
         if exercise.course_instance.visible_to_students:
             msg = "Failed to request {}".format(url)
             logger.exception(msg)
-            email_course_error(request, exercise, msg)
+            if request: email_course_error(request, exercise, msg)
 
     if page.is_loaded:
         submission.feedback = page.clean_content
@@ -88,8 +88,11 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                             " (exercise max {:d}): {}".format(
                                 page.points, page.max_points,
                                 exercise.max_points, exercise.service_url)
-                        logger.error(msg, extra={"request": request})
-                        email_course_error(request, exercise, msg)
+                        if request:
+                            logger.error(msg, extra={"request": request})
+                            email_course_error(request, exercise, msg)
+                        else:
+                            logger.error(msg)
             else:
                 pass
                 # Hide unnecessary system wide messages when grader works as expected.

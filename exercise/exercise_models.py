@@ -533,6 +533,11 @@ class BaseExercise(LearningObject):
         default=GRADING_MODE.BEST,
         help_text=_('BASE_EXERCISE_GRADING_MODE_HELPTEXT'),
     )
+    regrade_task = models.CharField(
+        verbose_name = _('LABEL_REGRADE_TASK'),
+        max_length=128,
+        blank=True,
+    )
 
     objects = BaseExerciseManager()
 
@@ -962,9 +967,12 @@ class BaseExercise(LearningObject):
             )
         return super().get_load_url(language, request, students, url_name, ordinal)
 
-    def grade(self, request, submission, no_penalties=False, url_name="exercise"):
+    def grade(self, request, submission, uri_prefix=None, no_penalties=False, url_name="exercise"):
         """
         Loads the exercise feedback page.
+        Note: request may be None if grading is initated by async Celery task,
+        i.e., for mass regrade. In such cases uri_prefix is used to compose
+        absolute URI for the grader.
         """
         # Get the language from the submission
         language = submission.lang or self.course_module.course_instance.default_language
@@ -977,7 +985,7 @@ class BaseExercise(LearningObject):
         )
         url = self._build_service_url(
             language, request, submission.submitters.all(),
-            submission.ordinal_number(), url_name, submission_url
+            submission.ordinal_number(), url_name, submission_url, uri_prefix
         )
         try:
             return load_feedback_page(
@@ -997,7 +1005,7 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def _build_service_url(self, language, request, students, ordinal_number, url_name, submission_url):
+    def _build_service_url(self, language, request, students, ordinal_number, url_name, submission_url, uri_prefix=None):
         """
         Generates complete URL with added parameters to the exercise service.
         """
@@ -1005,13 +1013,13 @@ class BaseExercise(LearningObject):
         auri = (
             settings.OVERRIDE_SUBMISSION_HOST + submission_url
             if settings.OVERRIDE_SUBMISSION_HOST
-            else request.build_absolute_uri(submission_url)
+            else request.build_absolute_uri(submission_url) if request else uri_prefix + submission_url
         )
         return update_url_params(self.get_service_url(language), {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
             "submission_url": auri,
-            "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
+            "post_url": request.build_absolute_uri(str(self.get_url(url_name))) if request else uri_prefix + submission_url,
             "uid": uid_str,
             "ordinal_number": ordinal_number,
             "lang": language,

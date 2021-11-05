@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load static %}
+
+<div class="col-md-12">
+    {% if result %}
+        Mass regrade in progress: state: {{ result.state }} -- info: {{ result.info }}
+    {% else %}
+        Starting mass regrade, reload this page to see progress
+    {% endif %}
+</div>

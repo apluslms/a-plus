@@ -2666,6 +2666,10 @@ msgstr ""
 "Valitse, mikä palautus määrittää lopullisen arvosanan tässä tehtävässä."
 
 #: exercise/exercise_models.py
+msgid "LABEL_REGRADE_TASK"
+msgstr "Uudelleenarviointi-tehtävän Celery-tunniste"
+
+#: exercise/exercise_models.py
 msgid "MODEL_NAME_BASE_EXERCISE"
 msgstr "perustehtävä"
 
