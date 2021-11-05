@@ -156,6 +156,9 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         self.get_summary_submissions()
         self.has_files = self.submission.files.count() > 0
 
+        self.lowest_visible_index = self.index - 10
+        self.highest_visible_index = self.index + 10
+
         # Find out if there are other submissions that the user should be
         # notified about (better submissions, later submissions or the final
         # submission).
@@ -171,7 +174,14 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
                 if submission.submission_time > self.submission.submission_time:
                     self.not_last = True
 
-        self.note('has_files', 'not_final', 'not_best', 'not_last')
+        self.note(
+            'has_files',
+            'lowest_visible_index',
+            'highest_visible_index',
+            'not_final',
+            'not_best',
+            'not_last',
+        )
 
     def get_initial(self):
         return {

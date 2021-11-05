@@ -14,9 +14,9 @@
 	<tbody>
 		{% for s in submissions reversed %}
 		<tr
-			{% if s != submission %}
+			{% if forloop.counter < lowest_visible_index or forloop.counter > highest_visible_index %}
 			class="submissions-toggle hidden"
-			{% else %}
+			{% elif forloop.counter == index %}
 			class="active"
 			{% endif %}
 		>
@@ -24,7 +24,7 @@
 				{{ forloop.counter }}
 			</td>
 			<td>
-				{% if s != submission %}
+				{% if forloop.counter != index %}
 				<a href="{{ s|url:'submission-inspect' }}">
 					{{ s.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
 				</a>
