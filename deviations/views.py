@@ -18,8 +18,15 @@ class ListDeadlinesView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.deviations = DeadlineRuleDeviation.objects.filter(
-            exercise__course_module__course_instance=self.instance)
+        self.deviations = (
+            DeadlineRuleDeviation.objects.filter(
+                exercise__course_module__course_instance=self.instance
+            )
+            .select_related()
+            # parent is prefetched because there may be multiple ancestors, and
+            # they are needed for building the deviation's URL.
+            .prefetch_related('exercise__parent')
+        )
         self.note("deviations")
 
 
