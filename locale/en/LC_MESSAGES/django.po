@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-02 11:04+0200\n"
+"POT-Creation-Date: 2021-11-05 11:06+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -3165,6 +3165,7 @@ msgid "EXERCISE_NO_MODEL_ANSWER"
 msgstr "No model answer has been supplied for this assignment."
 
 #: exercise/templates/exercise/_points_badge.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "UNOFFICIAL_DESCRIPTION"
 msgstr "Submitted after deadline or exceeded submission limit"
 
@@ -3196,11 +3197,13 @@ msgid "NOT_SUBMITTED"
 msgstr "Not submitted"
 
 #: exercise/templates/exercise/_points_badge.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "PASSED"
 msgstr "Passed"
 
 #: exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/exercise_plain.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 #, python-format
 msgid "POINTS_REQUIRED_TO_PASS -- %(points)s"
 msgstr "%(points)s points required to pass"
