@@ -201,6 +201,11 @@ INSTALLED_APPS = (
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 
+##########################################################################¨
+# Student Information System plugin settings
+#SIS_PLUGIN_MODULE = 'course.sis_test'
+#SIS_PLUGIN_CLASS = 'SisTest'
+
 ##########################################################################
 
 MIDDLEWARE = [

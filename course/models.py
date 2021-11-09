@@ -636,6 +636,13 @@ class CourseInstance(UrlMixin, models.Model):
     tabs = GenericRelation(BaseTab, object_id_field="container_pk",
                                    content_type_field="container_type")
 
+    sis_id = models.CharField(
+        verbose_name=_('LABEL_SIS_IDENTIFIER'),
+        max_length=255,
+        blank=True,
+        default="",
+    )
+
     # usertags from course.models.UserTag
     # taggings from course.models.UserTagging
     # categories from course.models.LearningObjectCategory

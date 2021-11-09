@@ -585,6 +585,10 @@ msgstr ""
 "oletusvastaanottajat."
 
 #: course/models.py
+msgid "LABEL_SIS_IDENTIFIER"
+msgstr "Opintotietojärjestelmän kurssin tunniste"
+
+#: course/models.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "kurssikerta"
 
@@ -1733,6 +1737,10 @@ msgstr "Valikon linkit"
 #: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS"
 msgstr "Opiskelijamerkinnät"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SIS_INSTANCE"
+msgstr "Kurssi-instanssi opintotietojärjestelmässä"
 
 #: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"

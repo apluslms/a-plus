@@ -485,3 +485,27 @@ Final steps
     * `local_templates/support_channels_en.html`
     * `local_templates/support_channels_fi.html`
 
+Integration with Student Information System
+-------------------------------------------
+
+A+ can be integrated with the organisation's Student Information System (SIS,
+a system that manages information on courses and its participants).
+For example, Aalto University, along with a few other Finnish universities
+use "SISU" for this purpose. The integration with the organisation-specific
+SIS system is done using a SIS plugin. For example, Aalto's SISU plugin
+can be found in [GitHub](https://github.com/apluslms/aalto-sisu).
+
+If a SIS plugin is used, and after it is installed, two variables need to
+be set in local settings to enable it in A+, as in the following example:
+
+    SIS_PLUGIN_MODULE = 'course.sis_test'
+    SIS_PLUGIN_CLASS = 'SisTest'
+
+Variable `SIS_PLUGIN_MODULE` specifies the Python module path name of the plugin,
+and `SIS_PLUGIN_CLASS` is the name of the class implementing the generic
+SIS interface. The proper values for these, along with the plugin installation
+instructions, should be described in the plugin's documentation. See the
+[Aalto SISU plugin](https://github.com/apluslms/aalto-sisu) and its README file
+ for an example. In addition to these parameters, a plugin may have its own
+ plugin-specific additional parameters, as should be described in the plugin
+ installation instructions.

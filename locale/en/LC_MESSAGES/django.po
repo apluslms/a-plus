@@ -583,6 +583,10 @@ msgstr ""
 "emails here separated by commas to override the default recipients."
 
 #: course/models.py
+msgid "LABEL_SIS_IDENTIFIER"
+msgstr "Course identifier in the student info system"
+
+#: course/models.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "course instance"
 
@@ -1727,6 +1731,10 @@ msgstr "Menu items"
 #: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS"
 msgstr "Student tags"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SIS_INSTANCE"
+msgstr "Course instance in Student Information System"
 
 #: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"

@@ -93,6 +93,10 @@
 ## Haka
 #HAKA_LOGIN = True
 
+# Student Information System plugin settings
+#SIS_PLUGIN_MODULE = 'course.sis_test'
+#SIS_PLUGIN_CLASS = 'SisTest'
+
 ## Database
 #DATABASES = {
 #    'default': {
