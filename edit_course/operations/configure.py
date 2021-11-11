@@ -626,9 +626,11 @@ def configure_content(instance, url):
                 nn = configure_learning_objects(category_map, module, m["children"],
                     None, seen_objects, errors, nn)
 
-        for module in list(instance.course_modules.all()):
-            for lobject in list(module.learning_objects.all()):
-                if not lobject.id in seen_objects:
+        for module in instance.course_modules.all():
+            # cache invalidation uses the parent when learning object is saved:
+            # prefetch parent so that it wont be fetched after the it was deleted
+            for lobject in module.learning_objects.all().prefetch_related('parent'):
+                if lobject.id not in seen_objects:
                     exercise = lobject.as_leaf_class()
                     if (
                         not isinstance(exercise, BaseExercise)
@@ -638,8 +640,9 @@ def configure_content(instance, url):
                     else:
                         lobject.status = LearningObject.STATUS.HIDDEN
                         lobject.order = 9999
-                        lobject.save()
-            if not module.id in seen_modules:
+                        # .parent may have been deleted: only save status and order
+                        lobject.save(update_fields=["status", "order"])
+            if module.id not in seen_modules:
                 if module.learning_objects.count() == 0:
                     module.delete()
                 else:
