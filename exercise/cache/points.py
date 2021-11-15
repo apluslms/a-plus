@@ -22,27 +22,50 @@ from .content import CachedContent
 from .hierarchy import ContentMixin
 
 
-def has_more_points(submission: Submission, current_entry: Dict[str, Any]) -> bool:
-    if submission.grade == current_entry['points']:
-        return is_newer(submission, current_entry)
-    return submission.grade >= current_entry['points']
+def has_more_points(submission: Submission, current_entry: Dict[str, Any], is_staff: bool) -> bool:
+    key = '_staff_points' if is_staff else '_student_points'
+    if submission.grade == current_entry[key]:
+        return is_newer(submission, current_entry, is_staff)
+    return submission.grade >= current_entry[key]
 
 
-def is_newer(submission: Submission, current_entry: Dict[str, Any]) -> bool:
+def is_newer(submission: Submission, current_entry: Dict[str, Any], is_staff: bool) -> bool:
+    key = '_staff_best_submission_date' if is_staff else '_student_best_submission_date'
     return (
-        current_entry['submission_date'] is None
-        or submission.submission_time >= current_entry['submission_date']
+        current_entry[key] is None
+        or submission.submission_time >= current_entry[key]
     )
 
 
 class CachedPoints(ContentMixin, CachedAbstract):
+    """
+    Extends `CachedContent` to include data about a user's submissions and
+    points in the course's exercises.
+
+    Note that the `data` returned by this is dependent on the `is_staff`
+    parameter. When `is_staff` is `False`, reveal rules are respected and
+    exercise results are hidden when the reveal rule does not evaluate to true.
+    When `is_staff` is `True`, reveal rules are ignored and the results are
+    always revealed.
+    """
     KEY_PREFIX = 'points'
 
-    @classmethod
-    def invalidate(cls, course_instance: CourseInstance, user: User) -> None:
-        # Invalidate both the staff cache and the non-staff cache
-        super().invalidate(course_instance, user, modifiers=[str(False)])
-        super().invalidate(course_instance, user, modifiers=[str(True)])
+    # Store a mapping of keys that are prefixed, so the unprefix method doesn't
+    # have to parse each key and can instead compare them to this mapping.
+    prefixed_keys = {}
+    for key in [
+        'best_submission',
+        'best_submission_date',
+        'points',
+        'formatted_points',
+        'passed',
+        'feedback_revealed',
+        'feedback_reveal_time',
+        'points_by_difficulty',
+        'unconfirmed_points_by_difficulty',
+    ]:
+        prefixed_keys['_staff_' + key] = (True, key)
+        prefixed_keys['_student_' + key] = (False, key)
 
     def __init__(
             self,
@@ -54,8 +77,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
         self.content = content
         self.instance = course_instance
         self.user = user
-        self.is_staff = is_staff
-        super().__init__(course_instance, user, modifiers=[str(is_staff)])
+        super().__init__(course_instance, user)
+        self._unprefix(self.data, is_staff)
 
     def _needs_generation(self, data: Dict[str, Any]) -> bool:
         return (
@@ -88,46 +111,69 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     entry.update({
                         'submission_count': 0,
                         'submissions': [],
-                        'best_submission': None,
-                        'submission_date': None,
-                        'points': 0,
-                        'formatted_points': '0',
-                        'passed': entry['points_to_pass'] == 0,
                         'graded': False,
                         'unofficial': False, # TODO: this should be True, but we need to ensure nothing breaks when it's changed
                         'forced_points': False,
                         'personal_deadline': None,
                         'personal_max_submissions': None,
-                        'feedback_revealed': True,
-                        'feedback_reveal_time': None,
+                        '_staff_best_submission': None,
+                        '_staff_best_submission_date': None,
+                        '_staff_points': 0,
+                        '_staff_formatted_points': format_points(0, True, False),
+                        '_staff_passed': entry['points_to_pass'] == 0,
+                        '_staff_feedback_revealed': True,
+                        '_staff_feedback_reveal_time': None,
+                        # Exercises are displayed as unrevealed until reveal rules are evaluated
+                        '_student_best_submission': None,
+                        '_student_best_submission_date': None,
+                        '_student_points': 0,
+                        '_student_formatted_points': format_points(0, False, False),
+                        '_student_passed': entry['points_to_pass'] == 0,
+                        '_student_feedback_revealed': False,
+                        '_student_feedback_reveal_time': None,
                     })
                 r_augment(entry.get('children'))
         for module in modules:
             module.update({
                 'submission_count': 0,
-                'points': 0,
-                'formatted_points': '0',
-                'points_by_difficulty': {},
-                'unconfirmed_points_by_difficulty': {},
-                'passed': module['points_to_pass'] == 0,
-                'feedback_revealed': True,
+                '_staff_points': 0,
+                '_staff_formatted_points': format_points(0, True, True),
+                '_staff_points_by_difficulty': {},
+                '_staff_unconfirmed_points_by_difficulty': {},
+                '_staff_passed': module['points_to_pass'] == 0,
+                '_staff_feedback_revealed': True,
+                '_student_points': 0,
+                '_student_formatted_points': format_points(0, True, True),
+                '_student_points_by_difficulty': {},
+                '_student_unconfirmed_points_by_difficulty': {},
+                '_student_passed': module['points_to_pass'] == 0,
+                '_student_feedback_revealed': False,
             })
             r_augment(module['children'])
         for entry in categories.values():
             entry.update({
                 'submission_count': 0,
-                'points': 0,
-                'formatted_points': '0',
-                'points_by_difficulty': {},
-                'unconfirmed_points_by_difficulty': {},
-                'passed': entry['points_to_pass'] == 0,
-                'feedback_revealed': True,
+                '_staff_points': 0,
+                '_staff_formatted_points': format_points(0, True, True),
+                '_staff_points_by_difficulty': {},
+                '_staff_unconfirmed_points_by_difficulty': {},
+                '_staff_passed': entry['points_to_pass'] == 0,
+                '_staff_feedback_revealed': True,
+                '_student_points': 0,
+                '_student_formatted_points': format_points(0, True, True),
+                '_student_points_by_difficulty': {},
+                '_student_unconfirmed_points_by_difficulty': {},
+                '_student_passed': entry['points_to_pass'] == 0,
+                '_student_feedback_revealed': False,
             })
         total.update({
             'submission_count': 0,
-            'points': 0,
-            'points_by_difficulty': {},
-            'unconfirmed_points_by_difficulty': {},
+            '_staff_points': 0,
+            '_staff_points_by_difficulty': {},
+            '_staff_unconfirmed_points_by_difficulty': {},
+            '_student_points': 0,
+            '_student_points_by_difficulty': {},
+            '_student_unconfirmed_points_by_difficulty': {},
         })
 
         if user.is_authenticated:
@@ -146,6 +192,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     continue
                 entry = tree[-1]
                 ready = submission.status == Submission.STATUS.READY
+                staff_passed = submission.grade >= entry['points_to_pass']
+                staff_formatted_points = format_points(submission.grade, True, False)
                 unofficial = submission.status == Submission.STATUS.UNOFFICIAL
                 if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
                     entry['submission_count'] += 1
@@ -156,14 +204,22 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'points_to_pass': entry['points_to_pass'],
                     'confirm_the_level': entry.get('confirm_the_level', False),
                     'submission_count': 1, # to fool points badge
-                    'points': submission.grade,
-                    'formatted_points': format_points(submission.grade, True, False),
                     'graded': submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
-                    'passed': (submission.grade >= entry['points_to_pass']),
                     'submission_status': submission.status if not submission.is_graded else False,
                     'unofficial': unofficial,
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
+                    '_staff_points': submission.grade,
+                    '_staff_formatted_points': staff_formatted_points,
+                    '_staff_passed': staff_passed,
+                    '_staff_feedback_revealed': True,
+                    '_staff_feedback_reveal_time': None,
+                    # Submissions are displayed as unrevealed until reveal rules are evaluated
+                    '_student_points': 0,
+                    '_student_formatted_points': format_points(0, False, False),
+                    '_student_passed': entry['points_to_pass'] == 0,
+                    '_student_feedback_revealed': False,
+                    '_student_feedback_reveal_time': None,
                 })
                 # TODO: implement way to select algorithm for the best
                 if submission.exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
@@ -184,35 +240,53 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     # This submission is chosen as the best submission and no
                     # further submissions are considered.
                     entry.update({
-                        'best_submission': submission.id,
-                        'submission_date': submission.submission_time,
-                        'points': submission.grade,
-                        'formatted_points': format_points(submission.grade, True, False),
-                        'passed': (ready and submission.grade >= entry['points_to_pass']),
                         'graded': True,
                         'unofficial': False,
                         'forced_points': True,
+                        '_staff_best_submission': submission.id,
+                        '_staff_best_submission_date': submission.submission_time,
+                        '_staff_points': submission.grade,
+                        '_staff_formatted_points': staff_formatted_points,
+                        '_staff_passed': staff_passed,
                     })
                 if not entry.get('forced_points', False):
                     if (
                         ready and (
                             entry['unofficial'] or
-                            is_better_than(submission, entry)
+                            is_better_than(submission, entry, True)
                         )
                     ) or (
                         unofficial and
                         not entry['graded'] and # NOTE: == entry['unofficial'], but before any submissions entry['unofficial'] is False
-                        is_better_than(submission, entry)
+                        is_better_than(submission, entry, True)
                     ):
                         entry.update({
-                            'best_submission': submission.id,
-                            'submission_date': submission.submission_time,
-                            'points': submission.grade,
-                            'formatted_points': format_points(submission.grade, True, False),
-                            'passed': (ready and submission.grade >= entry['points_to_pass']),
                             'graded': ready, # != unofficial
                             'unofficial': unofficial,
+                            '_staff_best_submission': submission.id,
+                            '_staff_best_submission_date': submission.submission_time,
+                            '_staff_points': submission.grade,
+                            '_staff_formatted_points': staff_formatted_points,
+                            '_staff_passed': staff_passed,
                         })
+
+                # For student data, the best submission is the last one that is
+                # not unofficial.
+                if (
+                    ready and (
+                        entry['unofficial'] or
+                        is_newer(submission, entry, False)
+                    )
+                ) or (
+                    unofficial and
+                    not entry['graded'] and
+                    is_newer(submission, entry, False)
+                ):
+                    entry.update({
+                        '_student_best_submission': submission.id,
+                        '_student_best_submission_date': submission.submission_time,
+                    })
+
                 if submission.notifications.count() > 0:
                     entry['notified'] = True
                     if submission.notifications.filter(seen=False).count() > 0:
@@ -274,50 +348,61 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 )
 
             # Augment exercise reveal rules.
-            if not self.is_staff:
-                for exercise in (
-                    BaseExercise.objects
-                    .filter(course_module__course_instance=instance)
-                    .prefetch_related('submission_feedback_reveal_rule')
-                    .only('id', 'submission_feedback_reveal_rule')
-                ):
-                    try:
-                        tree = self._by_idx(modules, exercise_index[exercise.id])
-                    except KeyError:
-                        self.dirty = True
-                        continue
-                    entry = tree[-1]
-                    rule = exercise.active_submission_feedback_reveal_rule
-                    state = ExerciseRevealState(entry)
-                    is_revealed = rule.is_revealed(state)
-                    reveal_time = rule.get_reveal_time(state)
+            for exercise in (
+                BaseExercise.objects
+                .filter(course_module__course_instance=instance)
+                .prefetch_related('submission_feedback_reveal_rule')
+                .only('id', 'submission_feedback_reveal_rule')
+            ):
+                try:
+                    tree = self._by_idx(modules, exercise_index[exercise.id])
+                except KeyError:
+                    self.dirty = True
+                    continue
+                entry = tree[-1]
+                rule = exercise.active_submission_feedback_reveal_rule
 
+                # Evaluate the reveal rule using the real (staff) values.
+                entry_copy = dict(entry)
+                del entry_copy['submissions'] # Not needed by the reveal rule and we don't want to unprefix them.
+                self._unprefix(entry_copy, True)
+                state = ExerciseRevealState(entry_copy)
+                is_revealed = rule.is_revealed(state)
+                reveal_time = rule.get_reveal_time(state)
+
+                entry.update({
+                    '_student_feedback_revealed': is_revealed,
+                    '_student_feedback_reveal_time': reveal_time,
+                })
+                if is_revealed:
                     entry.update({
-                        'points': entry['points'] if is_revealed else 0,
-                        'formatted_points': format_points(entry['points'], is_revealed, False),
-                        'passed': entry['passed'] if is_revealed else False,
-                        'feedback_revealed': is_revealed,
-                        'feedback_reveal_time': reveal_time,
+                        '_student_best_submission': entry['_staff_best_submission'],
+                        '_student_points': entry['_staff_points'],
+                        '_student_formatted_points': entry['_staff_formatted_points'],
+                        '_student_passed': entry['_staff_passed'],
                     })
 
-                    for submission in entry['submissions']:
+                for submission in entry['submissions']:
+                    submission.update({
+                        '_student_feedback_revealed': is_revealed,
+                        '_student_feedback_reveal_time': reveal_time,
+                    })
+                    if is_revealed:
                         submission.update({
-                            'points': submission['points'] if is_revealed else 0,
-                            'formatted_points': format_points(submission['points'], is_revealed, False),
-                            'passed': submission['passed'] if is_revealed else False,
-                            'feedback_revealed': is_revealed,
-                            'feedback_reveal_time': reveal_time,
+                            '_student_points': submission['_staff_points'],
+                            '_student_formatted_points': submission['_staff_formatted_points'],
+                            '_student_passed': submission['_staff_passed'],
                         })
 
-                    if (
-                        reveal_time is not None
-                        and reveal_time > timezone.now()
-                        and (
-                            data['invalidate_time'] is None
-                            or reveal_time < data['invalidate_time']
-                        )
-                    ):
-                        data['invalidate_time'] = reveal_time
+                if (
+                    reveal_time is not None
+                    and reveal_time > timezone.now()
+                    and (
+                        data['invalidate_time'] is None
+                        or reveal_time < data['invalidate_time']
+                    )
+                ):
+                    data['invalidate_time'] = reveal_time
 
         # Confirm points.
         def r_check(parent: Dict[str, Any], children: List[Dict[str, Any]]) -> None:
@@ -325,7 +410,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 if (
                     entry['submittable']
                     and entry['confirm_the_level']
-                    and entry['passed']
+                    and entry['_staff_passed'] # Delayed feedback is not considered here
                 ):
                     parent.pop('unconfirmed', None)
                     for child in parent.get('children', []):
@@ -338,7 +423,14 @@ class CachedPoints(ContentMixin, CachedAbstract):
         # Collect points and check limits.
         def add_to(target: Dict[str, Any], entry: Dict[str, Any]) -> None:
             target['submission_count'] += entry['submission_count']
-            target['feedback_revealed'] = target.get('feedback_revealed', False) and entry['feedback_revealed']
+            target['_staff_feedback_revealed'] = (
+                target.get('_staff_feedback_revealed', False)
+                and entry['_staff_feedback_revealed']
+            )
+            target['_student_feedback_revealed'] = (
+                target.get('_student_feedback_revealed', False)
+                and entry['_student_feedback_revealed']
+            )
             # NOTE: entry can be only ready or unofficial (exercise level
             # points are only copied, only if submission is in ready or
             # unofficial state)
@@ -347,72 +439,140 @@ class CachedPoints(ContentMixin, CachedAbstract):
             # thus, all points are now ready..
             elif entry.get('unconfirmed', False):
                 self._add_by_difficulty(
-                    target['unconfirmed_points_by_difficulty'],
+                    target['_staff_unconfirmed_points_by_difficulty'],
                     entry['difficulty'],
-                    entry['points']
+                    entry['_staff_points']
+                )
+                self._add_by_difficulty(
+                    target['_student_unconfirmed_points_by_difficulty'],
+                    entry['difficulty'],
+                    entry['_student_points']
                 )
             # and finally, only remaining points are official (not unofficial & not unconfirmed)
             else:
-                target['points'] += entry['points']
-                target['formatted_points'] = format_points(
-                    target['points'],
-                    target['feedback_revealed'],
+                target['_staff_points'] += entry['_staff_points']
+                target['_student_points'] += entry['_student_points']
+                target['_staff_formatted_points'] = format_points(
+                    target['_staff_points'],
+                    target['_staff_feedback_revealed'],
+                    True,
+                )
+                target['_student_formatted_points'] = format_points(
+                    target['_student_points'],
+                    target['_student_feedback_revealed'],
                     True,
                 )
                 self._add_by_difficulty(
-                    target['points_by_difficulty'],
+                    target['_staff_points_by_difficulty'],
                     entry['difficulty'],
-                    entry['points']
+                    entry['_staff_points']
+                )
+                self._add_by_difficulty(
+                    target['_student_points_by_difficulty'],
+                    entry['difficulty'],
+                    entry['_student_points']
                 )
         def r_collect(
                 module: Dict[str, Any],
                 parent: Dict[str, Any],
                 children: List[Dict[str, Any]],
-                ) -> Tuple[bool, bool]:
-            passed = True
-            is_revealed = True
+                ) -> Tuple[bool, bool, bool, bool]:
+            staff_passed = True
+            student_passed = True
+            staff_is_revealed = True
+            student_is_revealed = True
             max_points = 0
             submissions = 0
-            points = 0
+            staff_points = 0
+            student_points = 0
             confirm_entry = None
             for entry in children:
                 if entry['submittable']:
                     if entry['confirm_the_level']:
                         confirm_entry = entry
                     else:
-                        passed = passed and entry['passed']
-                        is_revealed = is_revealed and entry['feedback_revealed']
+                        staff_passed = staff_passed and entry['_staff_passed']
+                        student_passed = student_passed and entry['_student_passed']
+                        staff_is_revealed = staff_is_revealed and entry['_staff_feedback_revealed']
+                        student_is_revealed = student_is_revealed and entry['_student_feedback_revealed']
                         max_points += entry['max_points']
                         submissions += entry['submission_count']
                         if entry['graded']:
-                            points += entry['points']
+                            staff_points += entry['_staff_points']
+                            student_points += entry['_student_points']
                             add_to(module, entry)
                             add_to(categories[entry['category_id']], entry)
                             add_to(total, entry)
-                r_passed, r_is_revealed = r_collect(module, entry, entry.get('children', []))
-                passed = r_passed and passed
-                is_revealed = r_is_revealed and is_revealed
+                staff_r_passed, staff_r_is_revealed, student_r_passed, student_r_is_revealed = (
+                    r_collect(module, entry, entry.get('children', []))
+                )
+                staff_passed = staff_r_passed and staff_passed
+                student_passed = student_r_passed and student_passed
+                staff_is_revealed = staff_r_is_revealed and staff_is_revealed
+                student_is_revealed = student_r_is_revealed and student_is_revealed
             if confirm_entry and submissions > 0:
                 confirm_entry['confirmable_points'] = True
             if parent and not parent['submittable']:
                 parent['max_points'] = max_points
                 parent['submission_count'] = submissions
-                parent['points'] = points
-                parent['formatted_points'] = format_points(points, is_revealed, True)
-            return passed, is_revealed
+                parent['_staff_points'] = staff_points
+                parent['_student_points'] = student_points
+                parent['_staff_formatted_points'] = format_points(staff_points, staff_is_revealed, True)
+                parent['_student_formatted_points'] = format_points(student_points, student_is_revealed, True)
+            return staff_passed, staff_is_revealed, student_passed, student_is_revealed
         for module in modules:
-            passed, _ = r_collect(module, None, module['children'])
-            module['passed'] = (
-                passed
-                and module['points'] >= module['points_to_pass']
+            staff_passed, _, student_passed, _ = r_collect(module, None, module['children'])
+            module['_staff_passed'] = (
+                staff_passed
+                and module['_staff_points'] >= module['points_to_pass']
+            )
+            module['_student_passed'] = (
+                student_passed
+                and module['_student_points'] >= module['points_to_pass']
             )
         for category in categories.values():
-            category['passed'] = (
-                category['points'] >= category['points_to_pass']
+            category['_staff_passed'] = (
+                category['_staff_points'] >= category['points_to_pass']
+            )
+            category['_student_passed'] = (
+                category['_student_points'] >= category['points_to_pass']
             )
 
         data['points_created'] = timezone.now()
         return data
+
+    def _unprefix(self, data: Dict[str, Any], is_staff: bool) -> None:
+        """
+        Traverses the input dict recursively and removes the prefixed keys,
+        keeping only the staff values or student values depending on the
+        `is_staff` parameter.
+
+        E.g. `{"_staff_points": 10, "_student_points": 0}` becomes
+        `{"points": 10}` when `is_staff` is `True`.
+        """
+        prefixed_keys = CachedPoints.prefixed_keys
+        for key, value in list(data.items()):
+            if isinstance(value, dict):
+                self._unprefix(value, is_staff)
+            elif isinstance(value, list):
+                self._unprefix_list(value, is_staff)
+            if isinstance(key, str):
+                if key in prefixed_keys:
+                    del data[key]
+                    is_staff_key, unprefixed_key = prefixed_keys[key]
+                    if is_staff_key == is_staff:
+                        data[unprefixed_key] = value
+
+    def _unprefix_list(self, data: List[Any], is_staff: bool) -> None:
+        """
+        Traverses the input list recursively and calls calls `_unprefix` for
+        the dicts within the list.
+        """
+        for item in data:
+            if isinstance(item, dict):
+                self._unprefix(item, is_staff)
+            elif isinstance(item, list):
+                self._unprefix_list(item, is_staff)
 
     def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
         return self.data['points_created'], super().created()
