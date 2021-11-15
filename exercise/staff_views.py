@@ -134,7 +134,7 @@ class InspectSubmitterView(ExerciseBaseView, BaseRedirectView):
         )
 
         # Find the submitter's best submission using the cache.
-        cache = CachedPoints(self.instance, user, self.content)
+        cache = CachedPoints(self.instance, user, self.content, True)
         ids = cache.submission_ids(exercise_id=self.exercise.id, best=True)
         if not ids:
             raise Http404()
@@ -306,7 +306,7 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
             return self.redirect(self.exercise.get_submission_list_url())
 
         # Find the submitter's best submission using the cache.
-        cache = CachedPoints(self.instance, submitter.user, self.content)
+        cache = CachedPoints(self.instance, submitter.user, self.content, True)
         ids = cache.submission_ids(exercise_id=self.exercise.id, best=True)
         if not ids:
             raise Http404()
