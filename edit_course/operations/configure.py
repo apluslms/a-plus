@@ -363,6 +363,15 @@ def configure_content(instance, url):
     """
     if not url:
         return [_('COURSE_CONFIG_URL_REQUIRED')]
+
+    # save the url before fetching config. The JWT system requires this to be
+    # set, so that A+ knows which service to trust to have access to the course
+    # instance. The aplus config url might need access to the course instance.
+    # The other service might also need to have access to the course instance
+    # before it can be configured from the url.
+    instance.configure_url = url
+    instance.save()
+
     try:
         url = url.strip()
         response = aplus_auth.get(url)
@@ -372,9 +381,6 @@ def configure_content(instance, url):
             _('COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}'),
             error=e,
         )]
-
-    instance.configure_url = url
-    instance.save()
 
     try:
         config = json.loads(response.text)
