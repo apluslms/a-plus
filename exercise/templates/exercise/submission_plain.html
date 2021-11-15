@@ -53,8 +53,8 @@
 					{% endif %}
 				</td>
 				<td class="points-badge">
-					<span class="hidden">{% points_badge summary %}</span>
-					{% points_badge submission %}
+					<span class="hidden">{% points_badge summary is_revealed=feedback_revealed %}</span>
+					{% points_badge submission is_revealed=feedback_revealed %}
 				</td>
 				{% if submission.files.exists %}
 				<td>

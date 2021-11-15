@@ -53,7 +53,7 @@
 									<a href="{{ submission|url }}">
 											{{ forloop.revcounter }}.
 											{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-											{% points_badge submission %}
+											{% points_badge submission is_revealed=feedback_revealed %}
 									</a>
 							</li>
 							{% empty %}

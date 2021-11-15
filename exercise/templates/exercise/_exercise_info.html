@@ -6,7 +6,7 @@
     {% if exercise.category.confirm_the_level %}
     <p>{% translate "CURRENT_STATUS" %}</p>
     <p class="exercise-info-points">
-      {% points_badge summary %}
+      {% points_badge summary is_revealed=feedback_revealed %}
     </p>
     {% else %}
     <p>{% translate "EARNED_POINTS" %}</p>
@@ -21,7 +21,7 @@
             {% endif %}
         </small>
     </strong></p>
-    {% points_progress summary %}
+    {% points_progress summary is_revealed=feedback_revealed %}
     {% endif %}
 </div>
 
