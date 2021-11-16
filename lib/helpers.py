@@ -6,6 +6,8 @@ from cachetools import cached, TTLCache
 from collections import OrderedDict
 from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit, urlunsplit
 from PIL import Image
+from typing import Any, Dict, Iterable, List
+
 from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
 from django.utils.deprecation import RemovedInNextVersionWarning
@@ -68,6 +70,28 @@ def query_dict_to_list_of_tuples(query_dict):
         for val in query_dict.getlist(key):
             list_of_tuples.append((key, val))
     return list_of_tuples
+
+
+# Any is used here because Python's type hints can't ensure that the input
+# iterable's 1st and 2nd item match the keys and values of the output dict,
+# respectively.
+def pairs_to_dict(pairs: Iterable[Iterable[Any]]) -> Dict[Any, List[Any]]:
+    """
+    Transforms the provided key-value-pairs into a dict. Each key may appear
+    multiple times, which is why the output dict's values are lists. This can
+    be used to turn the result of `query_dict_to_list_of_tuples` back into a
+    dict (not a QueryDict).
+
+    Example: `[["field_1", "1"], ["field_2", "a"], ["field_2", "b"]]` is
+    transformed into `{"field_1": ["1"], "field_2": ["a", "b"]}`.
+    """
+    data: Dict[str, List[str]] = {}
+    for key, value in pairs:
+        if key in data:
+            data[key].append(value)
+        else:
+            data[key] = [value]
+    return data
 
 
 def url_with_query_in_data(url: str, data: dict = {}):
