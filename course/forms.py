@@ -5,6 +5,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from aplus.api import api_reverse
+from exercise.models import SubmissionDraft
 from lib.fields import UsersSearchSelectField
 from .models import Enrollment, StudentGroup
 from userprofile.models import UserProfile
@@ -78,10 +79,16 @@ class GroupSelectForm(forms.Form):
                     self.add_error('group', 'Invalid group id')
         return self.cleaned_data
 
-    def save(self):
+    def save(self) -> Enrollment:
         enrollment = self.instance.get_enrollment_for(self.profile.user)
         enrollment.selected_group = self.selected_group
         enrollment.save()
+        # Deactivate all drafts when changing groups.
+        SubmissionDraft.objects.filter(
+            exercise__course_module__course_instance=self.instance,
+            submitter=self.profile,
+            active=True,
+        ).update(active=False)
         return enrollment
 
 

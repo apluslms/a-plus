@@ -133,6 +133,7 @@
   var defaults = {
     quiz_attr: "data-aplus-quiz",
     ajax_attr: "data-aplus-ajax",
+    autosave_attr: "data-aplus-autosave",
     message_selector: ".progress-bar",
     content_element: '<div class="exercise-content"></div>',
     content_selector: '.exercise-content',
@@ -179,6 +180,9 @@
 
       // Do not mess up events in an Ajax exercise.
       this.ajax = (this.element.attr(this.settings.ajax_attr) !== undefined);
+
+      // Enable AplusAutosave for this exercise.
+      this.autosave = (this.element.attr(this.settings.autosave_attr) !== undefined);
 
       // Check if the exercise is an active element.
       this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);
@@ -291,8 +295,17 @@
         exercise.update(input_form);
         exercise.loadLastSubmission(input_form);
         if (!onlyThis) exercise.chapter.nextExercise();
-       } else {
-        $.ajax(this.url, {dataType: "html"})
+      } else {
+        var loadUrl = this.url;
+        if (this.quiz) {
+          // return the last submission if it exists.
+          loadUrl += "&submission=true";
+        }
+        if (this.autosave) {
+          // return the active submission draft if it exists.
+          loadUrl += "&draft=true";
+        }
+        $.ajax(loadUrl, {dataType: "html"})
           .fail(function(jqXHR, textStatus, errorThrown) {
             if (jqXHR.status == 403) {
               exercise.hideLoader();
@@ -310,7 +323,7 @@
           .done(function(data) {
             exercise.hideLoader();
             exercise.update($(data));
-            if (exercise.quiz || exercise.active_element) {
+            if (exercise.active_element) {
               exercise.loadLastSubmission($(data));
             } else {
               exercise.renderMath();
@@ -387,6 +400,9 @@
             event.preventDefault();
             exercise.submit(this);
           });
+          if (exercise.autosave) {
+            forms.aplusAutoSave();
+          }
         }
       }
 
@@ -770,10 +786,6 @@
             var submission = url.match(/submissions\/\d+/)[0].split('/')[1];
             url = '/api/v2/submissions/' + submission;
             data_type = "json";
-          } else {
-            // Make sure the submit button is included when loading an exercise
-            // with delayed feedback
-            url = url + '?submit=true';
           }
 
           this.showLoader("load");

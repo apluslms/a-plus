@@ -2,10 +2,8 @@ import itertools
 import logging
 import os
 import json
-from typing import IO, Dict, Iterable, List, Tuple, cast
+from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
 
-from bs4 import BeautifulSoup
-from bs4.element import NavigableString, Tag
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
@@ -17,8 +15,13 @@ from mimetypes import guess_type
 from exercise.protocol.exercise_page import ExercisePage
 
 from lib.fields import JSONField, PercentField
-from lib.helpers import get_random_string, query_dict_to_list_of_tuples, \
-    safe_file_name, Enum
+from lib.helpers import (
+    get_random_string,
+    query_dict_to_list_of_tuples,
+    pairs_to_dict,
+    safe_file_name,
+    Enum,
+)
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
 from . import exercise_models
@@ -310,21 +313,6 @@ class Submission(UrlMixin, models.Model):
                     param_name=key,
                 )
 
-    def submission_data_as_dict(self) -> Dict[str, List[str]]:
-        """
-        Returns `submission_data` transformed from a list into a dict.
-
-        Example: `[["field_1", "1"], ["field_2", "a"], ["field_2", "b"]]` is
-        transformed into `{"field_1": ["1"], "field_2": ["a", "b"]}`.
-        """
-        data: Dict[str, List[str]] = {}
-        for key, value in self.submission_data or {}:
-            if key in data:
-                data[key].append(value)
-            else:
-                data[key] = [value]
-        return data
-
     def load(self, request: HttpRequest, allow_submit: bool = True) -> ExercisePage:
         """
         Loads the submission page, i.e. the exercise form with the submitted
@@ -342,48 +330,10 @@ class Submission(UrlMixin, models.Model):
             url_name='exercise',
             ordinal=self.ordinal_number(),
         )
-        soup = BeautifulSoup(page.content, 'html5lib')
+        if self.submission_data:
+            data = pairs_to_dict(self.submission_data)
+            page.populate_form(field_values=data, allow_submit=allow_submit)
 
-        data = self.submission_data_as_dict()
-
-        # Find all form elements on the exercise page and fill in the values
-
-        # The exercise content element may be identified by a number of
-        # different ids or classes
-        exercise_element = cast(Tag, soup.find(id=['exercise', 'aplus', 'chapter']))
-        if exercise_element is None:
-            exercise_element = cast(Tag, soup.find({'class': 'entry-content'}))
-        if exercise_element is not None:
-            field_elements = exercise_element.find_all(['input', 'select', 'textarea'])
-            for field_element in field_elements:
-                field_element = cast(Tag, field_element)
-                field_name = cast(str, field_element.get('name'))
-                if field_name not in data:
-                    continue
-                if field_element.name == 'input':
-                    if field_element.get('type') in ('radio', 'checkbox'):
-                        if field_element.get('value') in data[field_name]:
-                            field_element['checked'] = ''
-                        else:
-                            del field_element['checked']
-                    else:
-                        field_element['value'] = data[field_name][0]
-                elif field_element.name == 'select':
-                    for option_element in field_element.find_all('option'):
-                        option_element = cast(Tag, option_element)
-                        if option_element.get('value') in data[field_name]:
-                            option_element['selected'] = ''
-                        else:
-                            del option_element['selected']
-                elif field_element.name == 'textarea':
-                    string_content = NavigableString(data[field_name][0])
-                    field_element.contents = [string_content]
-
-            if not allow_submit:
-                for submit_element in exercise_element.find_all(['input', 'button'], type='submit'):
-                    cast(Tag, submit_element).decompose()
-
-        page.content = str(soup)
         return page
 
     def get_post_parameters(
@@ -393,7 +343,10 @@ class Submission(UrlMixin, models.Model):
         """
         Produces submission data for POST as (data_dict, files_dict).
         """
-        self._data = self.submission_data_as_dict()
+        if self.submission_data:
+            self._data = pairs_to_dict(self.submission_data)
+        else:
+            self._data = {}
 
         self._files = {}
         for file in self.files.all().order_by("id"):
@@ -519,6 +472,73 @@ class Submission(UrlMixin, models.Model):
 
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
+
+
+class SubmissionDraft(models.Model):
+    """
+    An incomplete submission that is saved automatically before the user
+    submits it. A user can have exactly one draft per exercise instead of
+    multiple. The one draft is continuously updated as the user types.
+    """
+    timestamp = models.DateTimeField(
+        verbose_name=_('LABEL_TIMESTAMP'),
+        auto_now=True,
+    )
+    exercise = models.ForeignKey(exercise_models.BaseExercise,
+        verbose_name=_('LABEL_EXERCISE'),
+        on_delete=models.CASCADE,
+        related_name='submission_drafts'
+    )
+    submitter = models.ForeignKey(UserProfile,
+        verbose_name=_('LABEL_SUBMITTER'),
+        on_delete=models.CASCADE,
+        related_name='submission_drafts'
+    )
+    submission_data = JSONField(
+        verbose_name=_('LABEL_SUBMISSION_DATA'),
+        blank=True,
+    )
+    # This flag is set to False when the student makes an actual submission.
+    # This way the draft doesn't have to be deleted and recreated every time
+    # the student makes a submission and then starts a new draft.
+    active = models.BooleanField(
+        verbose_name=_('LABEL_ACTIVE'),
+        default=True,
+    )
+
+    if TYPE_CHECKING:
+        objects: models.Manager['SubmissionDraft']
+        id: models.AutoField
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_SUBMISSION_DRAFT')
+        verbose_name_plural = _('MODEL_NAME_SUBMISSION_DRAFT_PLURAL')
+        app_label = 'exercise'
+        unique_together = ('exercise', 'submitter')
+
+    def load(self, request: HttpRequest) -> ExercisePage:
+        """
+        Loads the draft page, i.e. the exercise form with the user's
+        incomplete answers filled in.
+        """
+        enrollment = self.exercise.course_instance.get_enrollment_for(request.user)
+        if enrollment and enrollment.selected_group:
+            students = list(enrollment.selected_group.members.all())
+        else:
+            students = [request.user.userprofile]
+
+        page = self.exercise.as_leaf_class().load(
+            request,
+            students,
+            url_name='exercise',
+        )
+        if self.submission_data:
+            data = pairs_to_dict(self.submission_data)
+            # Format the timestamp so that it can be used in Javascript's Date constructor
+            timestamp = str(int(self.timestamp.timestamp() * 1000))
+            page.populate_form(field_values=data, data_values={'draft-timestamp': timestamp}, allow_submit=True)
+
+        return page
 
 
 def build_upload_dir(instance, filename):

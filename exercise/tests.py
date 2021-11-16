@@ -1100,3 +1100,50 @@ class ExerciseTest(TestCase):
 
         points_test_base_exercise_1.delete()
         points_test_base_exercise_2.delete()
+
+    def test_submission_draft(self):
+        # Initial state, there are no drafts
+        draft1 = self.base_exercise.get_submission_draft(self.user.userprofile)
+        self.assertIsNone(draft1)
+        draft2 = self.base_exercise.get_submission_draft(self.user2.userprofile)
+        self.assertIsNone(draft2)
+
+        # User 1 creates a draft
+        self.base_exercise.set_submission_draft(self.user.userprofile, [["key", "value1"]])
+        self.assertEqual(len(self.base_exercise.submission_drafts.all()), 1)
+        draft1 = self.base_exercise.get_submission_draft(self.user.userprofile)
+        self.assertEqual(draft1.submission_data, [["key", "value1"]])
+        draft2 = self.base_exercise.get_submission_draft(self.user2.userprofile)
+        self.assertIsNone(draft2)
+
+        # User 2 creates a draft
+        self.base_exercise.set_submission_draft(self.user2.userprofile, [["key", "value2"]])
+        self.assertEqual(len(self.base_exercise.submission_drafts.all()), 2)
+        draft1 = self.base_exercise.get_submission_draft(self.user.userprofile)
+        self.assertEqual(draft1.submission_data, [["key", "value1"]])
+        draft2 = self.base_exercise.get_submission_draft(self.user2.userprofile)
+        self.assertEqual(draft2.submission_data, [["key", "value2"]])
+
+        # User 1 draft is updated
+        self.base_exercise.set_submission_draft(self.user.userprofile, [["key", "value3"]])
+        self.assertEqual(len(self.base_exercise.submission_drafts.all()), 2) # No new draft should be created
+        draft1 = self.base_exercise.get_submission_draft(self.user.userprofile)
+        self.assertEqual(draft1.submission_data, [["key", "value3"]])
+        draft2 = self.base_exercise.get_submission_draft(self.user2.userprofile)
+        self.assertEqual(draft2.submission_data, [["key", "value2"]])
+
+        # User 1 draft is deactvated
+        self.base_exercise.unset_submission_draft(self.user.userprofile)
+        self.assertEqual(len(self.base_exercise.submission_drafts.all()), 2) # The draft still exists but is inactive
+        draft1 = self.base_exercise.get_submission_draft(self.user.userprofile)
+        self.assertIsNone(draft1)
+        draft2 = self.base_exercise.get_submission_draft(self.user2.userprofile)
+        self.assertEqual(draft2.submission_data, [["key", "value2"]])
+
+        # User 1 creates a new draft
+        self.base_exercise.set_submission_draft(self.user.userprofile, [["key", "value4"]])
+        self.assertEqual(len(self.base_exercise.submission_drafts.all()), 2) # The original draft should be reused
+        draft1 = self.base_exercise.get_submission_draft(self.user.userprofile)
+        self.assertEqual(draft1.submission_data, [["key", "value4"]])
+        draft2 = self.base_exercise.get_submission_draft(self.user2.userprofile)
+        self.assertEqual(draft2.submission_data, [["key", "value2"]])

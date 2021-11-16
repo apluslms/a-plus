@@ -1,4 +1,13 @@
 {
   "An exercise will be published here once the round opens for submissions.":
-  "Tässä julkaistaan tehtävä kierroksen avautuessa."
+  "Tässä julkaistaan tehtävä kierroksen avautuessa.",
+
+  "Saving draft...":
+  "Tallennetaan luonnosta...",
+
+  "Failed to save draft":
+  "Luonnoksen tallentaminen epäonnistui",
+
+  "Draft saved":
+  "Luonnos tallennettu"
 }

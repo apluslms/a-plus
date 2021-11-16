@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.urls import reverse
@@ -6,6 +8,11 @@ from django.db.models.signals import post_save
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+
+    from exercise.models import Submission, SubmissionDraft
 
 
 class UserProfileManager(models.Manager):
@@ -57,6 +64,12 @@ class UserProfile(models.Model):
         blank=True,
     )
     objects = UserProfileManager()
+
+    if TYPE_CHECKING:
+        id: models.AutoField
+        submissions: RelatedManager['Submission']
+        graded_submissions: RelatedManager['Submission']
+        submission_drafts: RelatedManager['SubmissionDraft']
 
     class Meta:
         verbose_name = _('MODEL_NAME_USER_PROFILE')
