@@ -126,15 +126,19 @@ class CourseViewSet(ListSerializerMixin,
     def notify_update(self, request, *args, **kwargs):
         instance = self.get_object()
         try:
-            errors = configure_content(instance, instance.configure_url)
+            success, errors = configure_content(instance, instance.configure_url)
         except Exception as e:
+            success = False
             errors = [format_lazy(
                 _('COURSE_CONFIG_ERROR -- {error!s}'),
                 error=e,
             )]
 
         if errors and request.POST.get("email_on_error", True):
-            subject = f"Notified course update failed for {instance}" # TODO translate
+            if success:
+                subject = f"Notified course update warnings for {instance}" # TODO translate
+            else:
+                subject = f"Notified course update failed for {instance}" # TODO translate
             message = "\n".join(str(e) for e in errors)
             try:
                 success = email_course_instance(self.get_object(), subject, message)

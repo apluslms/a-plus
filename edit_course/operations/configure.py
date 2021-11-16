@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from django.db import transaction
 from django.conf import settings
@@ -357,12 +357,12 @@ def get_build_log(instance):
     return data
 
 
-def configure_content(instance, url):
+def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[str]]:
     """
     Configures course content by trusted remote URL.
     """
     if not url:
-        return [_('COURSE_CONFIG_URL_REQUIRED')]
+        return False, [_('COURSE_CONFIG_URL_REQUIRED')]
 
     # save the url before fetching config. The JWT system requires this to be
     # set, so that A+ knows which service to trust to have access to the course
@@ -377,7 +377,7 @@ def configure_content(instance, url):
         response = aplus_auth.get(url)
         response.raise_for_status()
     except Exception as e:
-        return [format_lazy(
+        return False, [format_lazy(
             _('COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}'),
             error=e,
         )]
@@ -385,13 +385,13 @@ def configure_content(instance, url):
     try:
         config = json.loads(response.text)
     except Exception as e:
-        return [format_lazy(
+        return False, [format_lazy(
             _('COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}'),
             error=e,
         )]
 
     if not isinstance(config, dict):
-        return [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
+        return False, [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
 
     errors = config.get('errors', [])
     if not isinstance(errors, list):
@@ -399,7 +399,7 @@ def configure_content(instance, url):
 
     if not config.get('success', True):
         errors.insert(0, _("COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"))
-        return errors
+        return False, errors
 
     # wrap everything in a transaction to make sure invalid configuration isn't saved
     with transaction.atomic():
@@ -509,10 +509,12 @@ def configure_content(instance, url):
 
         if not "categories" in config or not isinstance(config["categories"], dict):
             errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
-            return errors
+            transaction.set_rollback(True)
+            return False, errors
         if not "modules" in config or not isinstance(config["modules"], list):
             errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
-            return errors
+            transaction.set_rollback(True)
+            return False, errors
 
         # Configure learning object categories.
         category_map = {}
@@ -660,7 +662,7 @@ def configure_content(instance, url):
             if category.learning_objects.count() == 0:
                 category.delete()
 
-    return errors
+    return True, errors
 
 
 def get_target_category(category, course_url):
