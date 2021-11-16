@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from django.conf import settings
 from django.contrib import messages
@@ -18,12 +18,21 @@ from django.db import DatabaseError
 from authorization.permissions import ACCESS
 from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
+from lib.helpers import query_dict_to_list_of_tuples
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
+from userprofile.models import UserProfile
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
-from .submission_models import SubmittedFile, Submission
-from .viewbase import ExerciseBaseView, SubmissionBaseView, SubmissionMixin, ExerciseModelBaseView, ExerciseTemplateBaseView
+from .submission_models import SubmittedFile, Submission, SubmissionDraft
+from .viewbase import (
+    ExerciseBaseView,
+    SubmissionBaseView,
+    SubmissionDraftBaseView,
+    SubmissionMixin,
+    ExerciseModelBaseView,
+    ExerciseTemplateBaseView,
+)
 
 from .exercisecollection_models import ExerciseCollection
 from .exercise_summary import UserExerciseSummary
@@ -115,8 +124,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             self.toc = self.content.children_hierarchy(self.exercise)
             self.note("toc")
 
-        page = self.exercise.as_leaf_class().load(request, students,
-            url_name=self.post_url_name)
+        page = self.get_page(request, students)
 
         if self.profile:
             LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
@@ -163,6 +171,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     _('ERROR_SUBMISSION_SAVING_FAILED')
                 )
             else:
+                # Deactivate the current draft if it exists.
+                self.exercise.unset_submission_draft(self.profile)
+
                 page = self.exercise.grade(request, new_submission,
                     url_name=self.post_url_name)
                 for error in page.errors:
@@ -227,6 +238,56 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             submission_status == self.exercise.SUBMIT_STATUS.ALLOWED
         )
         return submission_status, submission_allowed, issues, students
+
+    def get_page(self, request: HttpRequest, students: List[UserProfile]) -> ExercisePage:
+        """
+        Determines which page should be displayed for this exercise:
+        1) If the `draft` URL parameter is `true`, and there is an active
+        submission draft, return the draft page.
+        2) If the `submission` URL parameter is `true`, and there is a last
+        submission, return the submission page.
+        3) Otherwise, return the blank exercise page.
+        """
+        if self.exercise.is_submittable:
+            # return_draft defaults to False
+            # Could be changed to True to load the draft on the standalone
+            # exercise page. However, that would require extra work since the
+            # data-aplus-exercise and data-aplus-quiz attributes are not
+            # present on the standalone quiz page.
+            return_draft = request.GET.get('draft') == 'true'
+            # return_submission defaults to False
+            return_submission = request.GET.get('submission') == 'true'
+
+            # Try to load the draft page, if requested
+            if return_draft:
+                draft = self.exercise.get_submission_draft(self.profile)
+                if draft:
+                    messages.warning(request, _('DRAFT_WARNING_REMEMBER_TO_SUBMIT'))
+                    return draft.load(request)
+
+            # Try to load the latest submission, if requested and if a draft was not found
+            if return_submission:
+                submission = (
+                    self.exercise.get_submissions_for_student(self.profile)
+                    .order_by("-submission_time")
+                    .first()
+                )
+                if submission:
+                    if self.feedback_revealed:
+                        page = ExercisePage(self.exercise)
+                        page.content = submission.feedback
+                        page.is_loaded = True
+                        return page
+                    else:
+                        # If feedback is not revealed, return the submission page without feedback
+                        return submission.load(request)
+
+        # In every other case, load a blank exercise page
+        return self.exercise.as_leaf_class().load(
+            request,
+            students,
+            url_name=self.post_url_name,
+        )
 
 
     def _load_exercisecollection(self, request, submission_disabled):
@@ -353,13 +414,11 @@ class SubmissionView(SubmissionBaseView):
         self.get_summary_submissions()
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        # When feedback is delayed, show a filled but ungraded form. The
-        # frontend may pass a 'submit' URL parameter, which determines if the
-        # submit button will be shown on the page (see chapter.js,
-        # loadLastSubmission).
         if not self.feedback_revealed:
-            allow_submit = (request.GET.get('submit') == 'true')
-            submission_page = self.submission.load(request, allow_submit)
+            # When feedback is delayed, show a filled but ungraded form.
+            # False is passed in the allow_submit parameter to hide the submit
+            # button on the submission page.
+            submission_page = self.submission.load(request, False)
             kwargs.update({'submission_page': submission_page})
         return super().get(request, *args, **kwargs)
 
@@ -416,3 +475,20 @@ class SubmittedFileView(SubmissionMixin, BaseView):
 
         return HttpResponse(bytedata.decode('utf-8', 'ignore'),
             content_type='text/plain; charset="UTF-8"')
+
+
+class SubmissionDraftView(SubmissionDraftBaseView):
+    """
+    A POST-only view that updates the user's existing draft or creates a new
+    draft with the provided form values.
+    """
+    access_mode = ACCESS.ENROLLED
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """
+        Updates the request user's existing draft or creates a new draft.
+        """
+        submission_data_list = query_dict_to_list_of_tuples(request.POST)
+        self.exercise.set_submission_draft(self.profile, submission_data_list)
+        # Simple OK response
+        return HttpResponse()

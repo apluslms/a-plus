@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseModuleMixin
-from lib.viewbase import BaseTemplateView
+from lib.viewbase import BaseTemplateView, BaseView
 from .cache.hierarchy import NoSuchContent
 from .exercise_summary import UserExerciseSummary
 from .permissions import (
@@ -190,4 +190,7 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
 
 
 class SubmissionBaseView(SubmissionMixin, BaseTemplateView):
+    pass
+
+class SubmissionDraftBaseView(ExerciseMixin, BaseView):
     pass
