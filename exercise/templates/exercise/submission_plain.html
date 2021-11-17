@@ -81,7 +81,7 @@
 
 		<div id="exercise-all">
 
-		{% if submission.assistant_feedback %}
+		{% if feedback_revealed and submission.assistant_feedback %}
 		<h4>{% translate "ASSISTANT_FEEDBACK" %}</h4>
 		<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
 		{% endif %}
