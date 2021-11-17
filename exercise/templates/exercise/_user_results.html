@@ -4,15 +4,15 @@
 
 {% if categories|len_listed > 1 %}
 <p class="filter-categories">
-  <small>{% translate "FILTER_VIEW" %}:</small>
-  {% for entry in categories %}
-  {% if entry|is_listed %}
-  <button class="aplus-button--secondary aplus-button--xs" data-category="{{ entry.id }}">
-    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-    {{ entry.name|parse_localization }}
-  </button>
-  {% endif %}
-  {% endfor %}
+	<small>{% translate "FILTER_VIEW" %}:</small>
+	{% for entry in categories %}
+	{% if entry|is_listed %}
+	<button class="aplus-button--secondary aplus-button--xs" data-category="{{ entry.id }}">
+		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+		{{ entry.name|parse_localization }}
+	</button>
+	{% endif %}
+	{% endfor %}
 </p>
 {% endif %}
 
@@ -29,170 +29,170 @@
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
 <div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
-  <a class="panel-heading{% if not accessible or not open and after_open %} collapsed{% endif %}"
-    role="button" href="#module{{ module.id }}" data-toggle="collapse"
-    aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
-    <h3 class="panel-title">
-      {% points_badge module "pull-right" %}
-      {% if not accessible %}
-      <span class="badge pull-right">
-        {% translate "OPENS ON" %} {{ module.opening_time }}
-      </span>
-      {% elif not after_open %}
-      <span class="badge pull-right">
-        {% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
-      </span>
-      <span class="badge badge-info pull-right">
-        {% translate "OPEN_FOR_READING" %}
-      </span>
-      {% endif %}
-      {% if module.requirements|length > 0 %}
-      <span class="badge pull-right">
-        {% translate "REQUIRES" %}:
-        {% for requirement in module.requirements %}{{ requirement }}{% endfor %}
-      </span>
-      {% endif %}
-      <span class="caret" aria-hidden="true"></span>
-      {{ module.name|parse_localization }}
-    </h3>
-  </a>
-  <div class="collapse{% if accessible and not after_open or open %} in{% endif %}" id="module{{ module.id }}">
-  <div class="panel-body">
-    <p>
-      {{ module.opening_time }} &ndash; {{ module.closing_time }}
+	<a class="panel-heading{% if not accessible or not open and after_open %} collapsed{% endif %}"
+		role="button" href="#module{{ module.id }}" data-toggle="collapse"
+		aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
+		<h3 class="panel-title">
+			{% points_badge module "pull-right" %}
+			{% if not accessible %}
+			<span class="badge pull-right">
+				{% translate "OPENS ON" %} {{ module.opening_time }}
+			</span>
+			{% elif not after_open %}
+			<span class="badge pull-right">
+				{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
+			</span>
+			<span class="badge badge-info pull-right">
+				{% translate "OPEN_FOR_READING" %}
+			</span>
+			{% endif %}
+			{% if module.requirements|length > 0 %}
+			<span class="badge pull-right">
+				{% translate "REQUIRES" %}:
+				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
+			</span>
+			{% endif %}
+			<span class="caret" aria-hidden="true"></span>
+			{{ module.name|parse_localization }}
+		</h3>
+	</a>
+	<div class="collapse{% if accessible and not after_open or open %} in{% endif %}" id="module{{ module.id }}">
+	<div class="panel-body">
+		<p>
+			{{ module.opening_time }} &ndash; {{ module.closing_time }}
 
-      {% if module.late_allowed and module.late_percent > 0 %}
-      <br />
-      <em>
-        {% blocktranslate trimmed with deadline=module.late_time|date:"DATETIME_FORMAT" %}
-          LATE_SUBMISSIONS_ALLOWED_UNTIL -- {{ deadline }}
-        {% endblocktranslate %}
-        {% if module.late_percent != 100 %}
-          {% blocktranslate trimmed with percent=module.late_percent %}
-            LATE_SUBMISSION_POINTS_WORTH -- {{ percent }}
-          {% endblocktranslate %}
-        {% endif %}
-      </em>
-      {% endif %}
+			{% if module.late_allowed and module.late_percent > 0 %}
+			<br />
+			<em>
+				{% blocktranslate trimmed with deadline=module.late_time|date:"DATETIME_FORMAT" %}
+					LATE_SUBMISSIONS_ALLOWED_UNTIL -- {{ deadline }}
+				{% endblocktranslate %}
+				{% if module.late_percent != 100 %}
+					{% blocktranslate trimmed with percent=module.late_percent %}
+						LATE_SUBMISSION_POINTS_WORTH -- {{ percent }}
+					{% endblocktranslate %}
+				{% endif %}
+			</em>
+			{% endif %}
 
-      {% if module.points_to_pass > 0 %}
-        <br />
-        {% blocktranslate trimmed with points=module.points_to_pass %}
-          POINTS_REQUIRED_TO_PASS_MODULE -- {{ points }}
-        {% endblocktranslate %}
-      {% endif %}
-    </p>
+			{% if module.points_to_pass > 0 %}
+				<br />
+				{% blocktranslate trimmed with points=module.points_to_pass %}
+					POINTS_REQUIRED_TO_PASS_MODULE -- {{ points }}
+				{% endblocktranslate %}
+			{% endif %}
+		</p>
 
-    {% points_progress module %}
-    {{ module.introduction|safe }}
-  </div>
-  {% if not exercise_accessible and not is_course_staff %}
-  <div class="alert alert-warning clearfix site-message">
-    {% translate "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING" %}
-  </div>
-  {% endif %}
-  {% if module.children|length > 0 %}
-  <table class="table table-striped table-condensed results-table">
-    <tbody>
-      <tr class="category-row">
-        <th>{% translate "EXERCISE" %}</th>
-        <th>{% translate "CATEGORY_capitalized" %}</th>
-        <th>{% translate "SUBMISSIONS" %}</th>
-        <th>{% translate "POINTS" %}</th>
-        {% if is_course_staff %}
-        <th>{% translate "COURSE_STAFF" %}</th>
-        {% endif %}
-      </tr>
-      {% for entry in module.flatted %}
+		{% points_progress module %}
+		{{ module.introduction|safe }}
+	</div>
+	{% if not exercise_accessible and not is_course_staff %}
+	<div class="alert alert-warning clearfix site-message">
+		{% translate "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING" %}
+	</div>
+	{% endif %}
+	{% if module.children|length > 0 %}
+	<table class="table table-striped table-condensed results-table">
+		<tbody>
+			<tr class="category-row">
+				<th>{% translate "EXERCISE" %}</th>
+				<th>{% translate "CATEGORY_capitalized" %}</th>
+				<th>{% translate "SUBMISSIONS" %}</th>
+				<th>{% translate "POINTS" %}</th>
+				{% if is_course_staff %}
+				<th>{% translate "COURSE_STAFF" %}</th>
+				{% endif %}
+			</tr>
+			{% for entry in module.flatted %}
 
-      {% if entry.submittable and entry|is_visible %}
-      <tr data-category="{{ entry.category_id }}">
-        <td>
-          {% if exercise_accessible or is_course_staff %}
-          <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
-          {% else %}
-          {{ entry.name|parse_localization }}
-          {% endif %}
-        </td>
-        <td>
-          <small>{{ entry.category|parse_localization }}</small>
-        </td>
-        <td class="submissions-dropdown dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
-            <span class="badge">
-              {% if entry.notified %}
-              <span class="glyphicon glyphicon-comment{% if entry.unseen %} red{% endif %}"></span>
-              {% endif %}
-              {{ entry.submission_count }}
-              {% if entry.max_submissions > 0 %}
-              / {{ entry.personal_max_submissions|default_if_none:entry.max_submissions }}
-              {% endif %}
-            </span><b class="caret"></b>
-          </a>
-          <ul class="dropdown-menu">
-            {% for submission in entry.submissions %}
-            <li>
-              <a href="{{ submission.url }}" class="page-modal">
-                {{ forloop.revcounter }}.
-                {{ submission.date }}
-                {% points_badge submission %}
-              </a>
-            </li>
-            {% empty %}
-            <li>
-              <a href="#" class="page-modal">{% translate "NO_SUBMISSIONS_YET" %}</a>
-            </li>
-            {% endfor %}
-          </ul>
-        </td>
-        <td>
-          {% points_badge entry %}
-        </td>
-        {% if is_course_staff %}
-        <td>
-          {% if not accessible %}
-          <a href="{{ entry.link }}">
-            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-            {% translate "EARLY_ACCESS" %}
-          </a>
-          {% else %}
-          {% exercise_text_stats entry.id %}
-          {% endif %}
-          <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ entry.submissions_link }}">
-            <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-            {% translate "VIEW_SUBMISSIONS" %}
-          </a>
-        </td>
-        {% endif %}
-      </tr>
+			{% if entry.submittable and entry|is_visible %}
+			<tr data-category="{{ entry.category_id }}">
+				<td>
+					{% if exercise_accessible or is_course_staff %}
+					<a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
+					{% else %}
+					{{ entry.name|parse_localization }}
+					{% endif %}
+				</td>
+				<td>
+					<small>{{ entry.category|parse_localization }}</small>
+				</td>
+				<td class="submissions-dropdown dropdown">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+						<span class="badge">
+							{% if entry.notified %}
+							<span class="glyphicon glyphicon-comment{% if entry.unseen %} red{% endif %}"></span>
+							{% endif %}
+							{{ entry.submission_count }}
+							{% if entry.max_submissions > 0 %}
+							/ {{ entry.personal_max_submissions|default_if_none:entry.max_submissions }}
+							{% endif %}
+						</span><b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						{% for submission in entry.submissions %}
+						<li>
+							<a href="{{ submission.url }}" class="page-modal">
+								{{ forloop.revcounter }}.
+								{{ submission.date }}
+								{% points_badge submission %}
+							</a>
+						</li>
+						{% empty %}
+						<li>
+							<a href="#" class="page-modal">{% translate "NO_SUBMISSIONS_YET" %}</a>
+						</li>
+						{% endfor %}
+					</ul>
+				</td>
+				<td>
+					{% points_badge entry %}
+				</td>
+				{% if is_course_staff %}
+				<td>
+					{% if not accessible %}
+					<a href="{{ entry.link }}">
+						<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+						{% translate "EARLY_ACCESS" %}
+					</a>
+					{% else %}
+					{% exercise_text_stats entry.id %}
+					{% endif %}
+					<a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ entry.submissions_link }}">
+						<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+						{% translate "VIEW_SUBMISSIONS" %}
+					</a>
+				</td>
+				{% endif %}
+			</tr>
 
-      {% elif entry.type == 'exercise' and entry|is_visible %}
-      <tr>
-        <td colspan="4">
-          {% if accessible %}
-          <strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
-          {% else %}
-          <strong>{{ entry.name|parse_localization }}</strong>
-          {% endif %}
-        </td>
-        {% if is_course_staff %}
-        <td>
-          {% if not accessible %}
-          <a href="{{ entry.link }}">
-            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-            {% translate "EARLY_ACCESS" %}
-          </a>
-          {% endif %}
-        </td>
-        {% endif %}
-      </tr>
-      {% endif %}
+			{% elif entry.type == 'exercise' and entry|is_visible %}
+			<tr>
+				<td colspan="4">
+					{% if accessible %}
+					<strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
+					{% else %}
+					<strong>{{ entry.name|parse_localization }}</strong>
+					{% endif %}
+				</td>
+				{% if is_course_staff %}
+				<td>
+					{% if not accessible %}
+					<a href="{{ entry.link }}">
+						<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+						{% translate "EARLY_ACCESS" %}
+					</a>
+					{% endif %}
+				</td>
+				{% endif %}
+			</tr>
+			{% endif %}
 
-      {% endfor %}
-    </tbody>
-  </table>
-  {% endif %}
-  </div>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	</div>
 </div>
 {% endwith %}
 {% endif %}
@@ -202,38 +202,38 @@
 var aplusPointsTotal = {{ total_json|safe }};
 
 $(function() {
-  var limit = 2;
-  var expired = $(".module-expired");
-  if (expired.length > limit) {
-    expired.slice(0, expired.length - limit).hide();
-    $("#toggle-expired").removeClass("hide")
-    .find("button").on("click", function(event) {
-      event.preventDefault();
-      $(".module-expired:hidden").show();
-      $(this).parent().hide();
-    });
-  }
+	var limit = 2;
+	var expired = $(".module-expired");
+	if (expired.length > limit) {
+		expired.slice(0, expired.length - limit).hide();
+		$("#toggle-expired").removeClass("hide")
+		.find("button").on("click", function(event) {
+			event.preventDefault();
+			$(".module-expired:hidden").show();
+			$(this).parent().hide();
+		});
+	}
 
-  $('.filter-categories button').on("click", function(event) {
-    var button = $(this);
-    var id = button.attr("data-category");
-    if (button.hasClass("active")) {
-      button.removeClass("active")
-      .find("span").removeClass("glyphicon-unchecked").addClass("glyphicon-check");
-      $('.module-panel tr[data-category="' + id + '"]').removeClass("hide");
-    } else {
-      button.addClass("active")
-      .find("span").removeClass("glyphicon-check").addClass("glyphicon-unchecked");
-      $('.module-panel tr[data-category="' + id + '"]').addClass("hide");
-    }
-    $('.module-panel').each(function(index, panel) {
-      var mod = $(panel);
-      if (mod.find("tr:not(.hide)").length > 0) {
-        mod.removeClass("hide");
-      } else {
-        mod.addClass("hide");
-      }
-    });
-  });
+	$('.filter-categories button').on("click", function(event) {
+		var button = $(this);
+		var id = button.attr("data-category");
+		if (button.hasClass("active")) {
+			button.removeClass("active")
+			.find("span").removeClass("glyphicon-unchecked").addClass("glyphicon-check");
+			$('.module-panel tr[data-category="' + id + '"]').removeClass("hide");
+		} else {
+			button.addClass("active")
+			.find("span").removeClass("glyphicon-check").addClass("glyphicon-unchecked");
+			$('.module-panel tr[data-category="' + id + '"]').addClass("hide");
+		}
+		$('.module-panel').each(function(index, panel) {
+			var mod = $(panel);
+			if (mod.find("tr:not(.hide)").length > 0) {
+				mod.removeClass("hide");
+			} else {
+				mod.addClass("hide");
+			}
+		});
+	});
 });
 </script>
