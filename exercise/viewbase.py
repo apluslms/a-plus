@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -12,6 +14,7 @@ from authorization.permissions import ACCESS
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView, BaseView
 from .cache.hierarchy import NoSuchContent
+from .cache.points import CachedPoints
 from .exercise_summary import UserExerciseSummary
 from .permissions import (
     ExerciseVisiblePermission,
@@ -105,8 +108,9 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
         except (NoSuchContent, LearningObject.DoesNotExist):
             raise Http404("Learning object not found")
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
+        self.get_cached_points()
         self.now = timezone.now()
         cur, tree, prev, nex = self.content.find(self.exercise)
         self.previous = prev
@@ -115,12 +119,18 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
         self.breadcrumb = tree[1:-1]
         self.note("now", "previous", "current", "next", "breadcrumb")
 
-    def get_summary_submissions(self, profile=None):
+    def get_summary_submissions(self, user: Optional[User] = None) -> None:
         self.summary = UserExerciseSummary(
-            self.exercise, profile or self.request.user
+            self.exercise, user or self.request.user
         )
         self.submissions = self.summary.get_submissions()
         self.note("summary", "submissions")
+
+    def get_cached_points(self, user: Optional[User] = None) -> None:
+        cache = CachedPoints(self.instance, user or self.request.user, self.content, self.is_course_staff)
+        entry, _, _, _ = cache.find(self.exercise)
+        self.cached_points = entry
+        self.note("cached_points")
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
@@ -164,10 +174,14 @@ class SubmissionBaseMixin(object):
 
     # get_submission_object
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         self.submission = self.get_submission_object()
-        self.note("submission")
+        if self.submission.is_submitter(self.request.user):
+            self.submitter = self.profile
+        else:
+            self.submitter = self.submission.submitters.first()
+        self.note("submission", "submitter")
 
 
 class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
@@ -179,14 +193,13 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
             exercise=self.exercise
         )
 
-    def get_summary_submissions(self):
-        if self.submission.is_submitter(self.request.user):
-            profile = self.profile
-        else:
-            profile = self.submission.submitters.first()
-        super().get_summary_submissions(profile.user)
+    def get_summary_submissions(self, user: Optional[User] = None) -> None:
+        super().get_summary_submissions(user or self.submitter.user)
         self.index = len(self.submissions) - list(self.submissions).index(self.submission)
         self.note("index")
+
+    def get_cached_points(self, user: Optional[User] = None) -> None:
+        super().get_cached_points(user or self.submitter.user)
 
 
 class SubmissionBaseView(SubmissionMixin, BaseTemplateView):

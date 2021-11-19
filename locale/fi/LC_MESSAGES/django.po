@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-05 15:45+0200\n"
+"POT-Creation-Date: 2021-11-17 13:26+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -3114,6 +3114,11 @@ msgstr "Määräaika"
 
 #: exercise/templates/exercise/_exercise_info.html
 #: exercise/templates/exercise/exercise_plain.html
+msgid "EXTENDED_DEADLINE"
+msgstr "Pidennetty määräaika"
+
+#: exercise/templates/exercise/_exercise_info.html
+#: exercise/templates/exercise/exercise_plain.html
 msgid "LATE_SUBMISSION_DEADLINE"
 msgstr "Myöhästyneiden palautuksien määräaika"
 
@@ -3386,6 +3391,10 @@ msgid "OPEN_EXERCISE_IN_NEW_TAB"
 msgstr ""
 "Avaa tämä tehtävä uudessa välilehdessä (suositellaan näppäimistön ja "
 "avustavan teknologian käyttäjille)"
+
+#: exercise/templates/exercise/exercise_plain.html
+msgid "PENALTY_AFTER -- %(penalty)s, %(deadline)s"
+msgstr "-%(penalty)s%% pistevähennys alkaen %(deadline)s"
 
 #: exercise/templates/exercise/exercise_plain.html
 msgid "TO_BE_SUBMITTED_ALONE"

@@ -123,11 +123,6 @@ def latest_submissions(context):
 
 
 @register.filter
-def max_submissions(exercise, user_profile):
-    return exercise.max_submissions_for_student(user_profile)
-
-
-@register.filter
 def percent(decimal):
     return int(decimal * 100)
 

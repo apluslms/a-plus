@@ -81,6 +81,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
         total = data['total']
         data['invalidate_time'] = None
 
+        exercises = BaseExercise.objects.filter(course_module__course_instance=instance)
+
         # Augment submission parameters.
         def r_augment(children: List[Dict[str, Any]]) -> None:
             for entry in children:
@@ -97,6 +99,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'unofficial': False, # TODO: this should be True, but we need to ensure nothing breaks when it's changed
                         'forced_points': False,
                         'personal_deadline': None,
+                        'personal_deadline_has_penalty': None,
                         'personal_max_submissions': None,
                         'feedback_revealed': True,
                         'feedback_reveal_time': None,
@@ -219,65 +222,33 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         entry['unseen'] = True
 
             # Augment deviation data.
-            def get_max_deviations(
-                    cls: Type[SubmissionRuleDeviation],
-                    field: str,
-                    ) -> Iterable[Tuple[Dict[str, Any], int]]:
-                # This function gets the maximum deviation of the given type
-                # for the current user, and returns the corresponding cache
-                # item as well as the deviation value.
-                results = (
-                    cls.objects.filter(
-                        Q(exercise__course_module__course_instance=instance)
-                        & (
-                            # Check that the owner of the deviation is the
-                            # current user, OR it belongs to some other
-                            # user who has submitted the deviation's exercise
-                            # WITH the current user.
-                            Q(submitter=user.userprofile)
-                            | Exists(
-                                # Note the two 'submitters' filters.
-                                Submission.objects.filter(
-                                    exercise=OuterRef('exercise'),
-                                    submitters=OuterRef('submitter'),
-                                ).filter(
-                                    submitters=user.userprofile,
-                                )
-                            )
-                        )
-                    )
-                    .values('exercise')
-                    .annotate(max_deviation=Max(field))
-                )
-
-                for result in results:
-                    try:
-                        tree = self._by_idx(modules, exercise_index[result['exercise']])
-                    except KeyError:
-                        self.dirty = True
-                        continue
-                    entry = tree[-1]
-                    yield entry, result['max_deviation']
-
-            for entry, extra_minutes in (
-                get_max_deviations(DeadlineRuleDeviation, 'extra_minutes')
-            ):
+            for deviation in DeadlineRuleDeviation.objects.get_max_deviations(user.userprofile, exercises):
+                try:
+                    tree = self._by_idx(modules, exercise_index[deviation.exercise.id])
+                except KeyError:
+                    self.dirty = True
+                    continue
+                entry = tree[-1]
                 entry['personal_deadline'] = (
-                    entry['closing_time'] + datetime.timedelta(minutes=extra_minutes)
+                    entry['closing_time'] + datetime.timedelta(minutes=deviation.extra_minutes)
                 )
+                entry['personal_deadline_has_penalty'] = not deviation.without_late_penalty
 
-            for entry, extra_submissions in (
-                get_max_deviations(MaxSubmissionsRuleDeviation, 'extra_submissions')
-            ):
+            for deviation in MaxSubmissionsRuleDeviation.objects.get_max_deviations(user.userprofile, exercises):
+                try:
+                    tree = self._by_idx(modules, exercise_index[deviation.exercise.id])
+                except KeyError:
+                    self.dirty = True
+                    continue
+                entry = tree[-1]
                 entry['personal_max_submissions'] = (
-                    entry['max_submissions'] + extra_submissions
+                    entry['max_submissions'] + deviation.extra_submissions
                 )
 
             # Augment exercise reveal rules.
             if not self.is_staff:
                 for exercise in (
-                    BaseExercise.objects
-                    .filter(course_module__course_instance=instance)
+                    exercises
                     .prefetch_related('submission_feedback_reveal_rule')
                     .only('id', 'submission_feedback_reveal_rule')
                 ):

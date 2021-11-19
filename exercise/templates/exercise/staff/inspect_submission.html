@@ -65,7 +65,7 @@
 				<span class="badge">
 					{{ summary.submission_count }}
 					{% if exercise.max_submissions %}
-					/ {{ exercise|max_submissions:submission.submitters.first }}
+					/ {{ cached_points.personal_max_submissions|default_if_none:exercise.max_submissions }}
 					{% endif %}
 				</span>
 				{% if exercise.max_submissions %}

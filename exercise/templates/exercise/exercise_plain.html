@@ -71,7 +71,7 @@
 										<span class="badge">
 											{{ summary.get_submission_count }}
 											{% if exercise.max_submissions %}
-												/ {{ exercise|max_submissions:profile }}
+												/ {{ cached_points.personal_max_submissions|default_if_none:exercise.max_submissions }}
 											{% endif %}
 										</span>
 										<b class="caret"></b>
@@ -108,7 +108,15 @@
 												{% endif %}
 												<li>
 													<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-													{% if exercise.is_late_submission_open %}
+													{% if cached_points.personal_deadline %}
+														{% translate "EXTENDED_DEADLINE" %}
+														{{ cached_points.personal_deadline }}
+														{% if module.late_submission_penalty > 0 and cached_points.personal_deadline_has_penalty %}
+														({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}
+															PENALTY_AFTER -- {{ penalty }}, {{ deadline }}
+														{% endblocktranslate %})
+														{% endif %}
+													{% elif exercise.is_late_submission_open %}
 														{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
 														{% if module.late_submission_penalty > 0 %}
 														(-{{ module.late_submission_penalty|percent }}%)
