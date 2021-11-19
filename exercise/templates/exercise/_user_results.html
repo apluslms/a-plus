@@ -125,7 +125,7 @@
               {% endif %}
               {{ entry.submission_count }}
               {% if entry.max_submissions > 0 %}
-              / {{ entry.max_submissions }}
+              / {{ entry.personal_max_submissions|default_if_none:entry.max_submissions }}
               {% endif %}
             </span><b class="caret"></b>
           </a>

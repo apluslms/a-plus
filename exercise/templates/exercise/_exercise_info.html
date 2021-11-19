@@ -41,7 +41,7 @@
             <dd class="exercise-info-submissions">
             	{{ summary.get_submission_count }}
             	{% if exercise.max_submissions %}
-            	/ {{ exercise|max_submissions:profile }}
+            	/ {{ cached_points.personal_max_submissions|default_if_none:exercise.max_submissions }}
             	{% endif %}
             </dd>
 
@@ -52,6 +52,16 @@
 
             <dt>{% translate "DEADLINE" %}</dt>
             <dd class="exercise-info-deadline">{{ exercise.course_module.closing_time }}</dd>
+
+						{% if cached_points.personal_deadline %}
+						<dt>{% translate "EXTENDED_DEADLINE" %}</dt>
+						<dd class="exercise-info-extended-deadline">
+							{{ cached_points.personal_deadline }}
+							{% if module.late_submission_penalty > 0 and cached_points.personal_deadline_has_penalty %}
+                (-{{ exercise.course_module.late_submission_penalty|percent }}%)
+              {% endif %}
+						</dd>
+						{% endif %}
 
             {% if exercise.course_module.late_submissions_allowed %}
             <dt>{% translate "LATE_SUBMISSION_DEADLINE" %}</dt>
