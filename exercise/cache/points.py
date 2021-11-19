@@ -19,16 +19,18 @@ from .content import CachedContent
 from .hierarchy import ContentMixin
 
 
-def has_more_points(submission: Submission, current_entry: Dict[str, Any]) -> bool:
-    if submission.grade == current_entry['points']:
-        return is_newer(submission, current_entry)
-    return submission.grade >= current_entry['points']
+def has_more_points(submission: Submission, current_best_submission: Optional[Submission]) -> bool:
+    if current_best_submission is None:
+        return True
+    if submission.grade == current_best_submission.grade:
+        return is_newer(submission, current_best_submission)
+    return submission.grade >= current_best_submission.grade
 
 
-def is_newer(submission: Submission, current_entry: Dict[str, Any]) -> bool:
+def is_newer(submission: Submission, current_best_submission: Optional[Submission]) -> bool:
     return (
-        current_entry['submission_date'] is None
-        or submission.submission_time >= current_entry['submission_date']
+        current_best_submission is None
+        or submission.submission_time >= current_best_submission.submission_time
     )
 
 
@@ -152,7 +154,6 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'submission_count': 0,
                         'submissions': [],
                         'best_submission': None,
-                        'submission_date': None,
                         'points': 0,
                         'formatted_points': '0',
                         'passed': entry['points_to_pass'] == 0,
@@ -195,6 +196,9 @@ class CachedPoints(ContentMixin, CachedAbstract):
         })
 
         if is_authenticated:
+            # Keep track of the final and last submission of each exercise.
+            final_submissions = {}
+            last_submissions = {}
             # Augment submission data.
             for submission in submissions:
                 try:
@@ -203,6 +207,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     self.dirty = True
                     continue
                 entry = tree[-1]
+                current_final_submission = final_submissions.get(entry['id'])
+                current_last_submission = last_submissions.get(entry['id'])
                 ready = submission.status == Submission.STATUS.READY
                 unofficial = submission.status == Submission.STATUS.UNOFFICIAL
                 if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
@@ -222,28 +228,29 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'unofficial': unofficial,
                     'date': submission.submission_time,
                     'url': submission.get_url('submission-plain'),
+                    'feedback_revealed': True,
+                    'feedback_reveal_time': None,
                 })
-                # TODO: implement way to select algorithm for the best
                 if submission.exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
                     is_better_than = has_more_points
                 elif submission.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
                     is_better_than = is_newer
                 else:
                     is_better_than = has_more_points
-                # Update best submission if one of these is true
+                # Update best submission if exercise points are not forced, and
+                # one of these is true:
                 # 1) current submission in ready (thus is not unofficial) AND
                 #    a) current best is an unofficial OR
-                #    b) current submission has better grade
+                #    b) current submission is better depending on grading mode
                 # 2) All of:
                 #    - current submission is unofficial AND
                 #    - current best is unofficial
-                #    - current submission has better grade
+                #    - current submission is better depending on grading mode
                 if submission.force_exercise_points:
-                    # This submission is chosen as the best submission and no
+                    # This submission is chosen as the final submission and no
                     # further submissions are considered.
                     entry.update({
                         'best_submission': submission.id,
-                        'submission_date': submission.submission_time,
                         'points': submission.grade,
                         'formatted_points': format_points(submission.grade, True, False),
                         'passed': (ready and submission.grade >= entry['points_to_pass']),
@@ -251,26 +258,41 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'unofficial': False,
                         'forced_points': True,
                     })
+                    final_submissions[entry['id']] = submission
                 if not entry.get('forced_points', False):
                     if (
                         ready and (
                             entry['unofficial'] or
-                            is_better_than(submission, entry)
+                            is_better_than(submission, current_final_submission)
                         )
                     ) or (
                         unofficial and
                         not entry['graded'] and # NOTE: == entry['unofficial'], but before any submissions entry['unofficial'] is False
-                        is_better_than(submission, entry)
+                        is_better_than(submission, current_final_submission)
                     ):
                         entry.update({
                             'best_submission': submission.id,
-                            'submission_date': submission.submission_time,
                             'points': submission.grade,
                             'formatted_points': format_points(submission.grade, True, False),
                             'passed': (ready and submission.grade >= entry['points_to_pass']),
                             'graded': ready, # != unofficial
                             'unofficial': unofficial,
                         })
+                        final_submissions[entry['id']] = submission
+                # Update last submission based on the same logic as best
+                # submission, except only compare submission times regardless
+                # of grading mode.
+                if (
+                    ready and (
+                        entry['unofficial'] or
+                        is_newer(submission, current_last_submission)
+                    ) or (
+                        unofficial and
+                        not entry['graded'] and
+                        is_newer(submission, current_final_submission)
+                    )
+                ):
+                    last_submissions[entry['id']] = submission
                 if submission.notifications.count() > 0:
                     entry['notified'] = True
                     if submission.notifications.filter(seen=False).count() > 0:
@@ -321,6 +343,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'feedback_revealed': is_revealed,
                         'feedback_reveal_time': reveal_time,
                     })
+                    if not is_revealed:
+                        # Revert the best submission to the last one.
+                        last_submission = last_submissions.get(entry['id'])
+                        entry['best_submission'] = last_submission.id if last_submission else None
 
                     for submission in entry['submissions']:
                         submission.update({
