@@ -4,9 +4,6 @@ from typing import Any, Dict, Iterable, List, Optional, Type, Tuple, Union
 
 from django.contrib.auth.models import User
 from django.db.models.base import Model
-from django.db.models.aggregates import Max
-from django.db.models.expressions import Exists, OuterRef
-from django.db.models.query_utils import Q
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
 
@@ -36,13 +33,17 @@ def is_newer(submission: Submission, current_entry: Dict[str, Any]) -> bool:
 
 
 class CachedPoints(ContentMixin, CachedAbstract):
-    KEY_PREFIX = 'points'
+    """
+    Extends `CachedContent` to include data about a user's submissions and
+    points in the course's exercises.
 
-    @classmethod
-    def invalidate(cls, course_instance: CourseInstance, user: User) -> None:
-        # Invalidate both the staff cache and the non-staff cache
-        super().invalidate(course_instance, user, modifiers=[str(False)])
-        super().invalidate(course_instance, user, modifiers=[str(True)])
+    Note that the `data` returned by this is dependent on the `is_staff`
+    parameter. When `is_staff` is `False`, reveal rules are respected and
+    exercise results are hidden when the reveal rule does not evaluate to true.
+    When `is_staff` is `True`, reveal rules are ignored and the results are
+    always revealed.
+    """
+    KEY_PREFIX = 'points'
 
     def __init__(
             self,
@@ -54,8 +55,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
         self.content = content
         self.instance = course_instance
         self.user = user
-        self.is_staff = is_staff
-        super().__init__(course_instance, user, modifiers=[str(is_staff)])
+        super().__init__(course_instance, user)
+        self._extract_tuples(self.data, 0 if is_staff else 1)
 
     def _needs_generation(self, data: Dict[str, Any]) -> bool:
         return (
@@ -73,6 +74,68 @@ class CachedPoints(ContentMixin, CachedAbstract):
             user: User,
             data: Optional[Dict[str, Any]] = None,
             ) -> Dict[str, Any]:
+        # Perform all database queries before generating the cache.
+        exercises = list(
+            BaseExercise.objects
+            .filter(course_module__course_instance=instance)
+            .select_related('submission_feedback_reveal_rule')
+            .only('id', 'submission_feedback_reveal_rule')
+        )
+        if user.is_authenticated:
+            submissions = list(
+                user.userprofile.submissions.exclude_errors()
+                .filter(exercise__course_module__course_instance=instance)
+                .select_related()
+                .prefetch_related('exercise__parent', 'notifications')
+                .only('id', 'exercise', 'submission_time', 'status', 'grade', 'force_exercise_points')
+            )
+            deadline_deviations = list(
+                DeadlineRuleDeviation.objects
+                .get_max_deviations(user.userprofile, exercises)
+            )
+            submission_deviations = list(
+                MaxSubmissionsRuleDeviation.objects
+                .get_max_deviations(user.userprofile, exercises)
+            )
+        else:
+            submissions = []
+            deadline_deviations = []
+            submission_deviations = []
+
+        # Generate the staff and student version of the cache, and merge them.
+        generate_args = (user.is_authenticated, exercises, submissions, deadline_deviations, submission_deviations)
+        staff_data = self._generate_data_internal(True, *generate_args)
+        student_data = self._generate_data_internal(False, *generate_args)
+        self._pack_tuples(staff_data, student_data) # Now staff_data is the final, combined data.
+
+        # Pick the lowest invalidate_time if it is duplicated.
+        invalidate_time = staff_data['invalidate_time']
+        if isinstance(invalidate_time, tuple):
+            if invalidate_time[0] is not None:
+                if invalidate_time[1] is not None:
+                    staff_data['invalidate_time'] = min(invalidate_time)
+                else:
+                    staff_data['invalidate_time'] = invalidate_time[0]
+            else:
+                staff_data['invalidate_time'] = invalidate_time[1]
+
+        staff_data['points_created'] = timezone.now()
+        return staff_data
+
+    def _generate_data_internal(
+            self,
+            is_staff: bool,
+            is_authenticated: bool,
+            exercises: Iterable[BaseExercise],
+            submissions: Iterable[Submission],
+            deadline_deviations: Iterable[DeadlineRuleDeviation],
+            submission_deviations: Iterable[MaxSubmissionsRuleDeviation],
+            ) -> Dict[str, Any]:
+        """
+        Handles the generation of one version of the cache (staff or student).
+        All source data is prefetched by `_generate_data` and provided as
+        arguments to this method.
+        """
         data = deepcopy(self.content.data)
         module_index = data['module_index']
         exercise_index = data['exercise_index']
@@ -80,8 +143,6 @@ class CachedPoints(ContentMixin, CachedAbstract):
         categories = data['categories']
         total = data['total']
         data['invalidate_time'] = None
-
-        exercises = BaseExercise.objects.filter(course_module__course_instance=instance)
 
         # Augment submission parameters.
         def r_augment(children: List[Dict[str, Any]]) -> None:
@@ -133,14 +194,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
             'unconfirmed_points_by_difficulty': {},
         })
 
-        if user.is_authenticated:
+        if is_authenticated:
             # Augment submission data.
-            submissions = (
-                user.userprofile.submissions.exclude_errors()
-                .filter(exercise__course_module__course_instance=instance)
-                .prefetch_related('exercise', 'notifications')
-                .only('id', 'exercise', 'submission_time', 'status', 'grade', 'force_exercise_points')
-            )
             for submission in submissions:
                 try:
                     tree = self._by_idx(modules, exercise_index[submission.exercise.id])
@@ -222,7 +277,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         entry['unseen'] = True
 
             # Augment deviation data.
-            for deviation in DeadlineRuleDeviation.objects.get_max_deviations(user.userprofile, exercises):
+            for deviation in deadline_deviations:
                 try:
                     tree = self._by_idx(modules, exercise_index[deviation.exercise.id])
                 except KeyError:
@@ -234,7 +289,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 )
                 entry['personal_deadline_has_penalty'] = not deviation.without_late_penalty
 
-            for deviation in MaxSubmissionsRuleDeviation.objects.get_max_deviations(user.userprofile, exercises):
+            for deviation in submission_deviations:
                 try:
                     tree = self._by_idx(modules, exercise_index[deviation.exercise.id])
                 except KeyError:
@@ -246,12 +301,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 )
 
             # Augment exercise reveal rules.
-            if not self.is_staff:
-                for exercise in (
-                    exercises
-                    .prefetch_related('submission_feedback_reveal_rule')
-                    .only('id', 'submission_feedback_reveal_rule')
-                ):
+            if not is_staff:
+                for exercise in exercises:
                     try:
                         tree = self._by_idx(modules, exercise_index[exercise.id])
                     except KeyError:
@@ -382,7 +433,6 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 category['points'] >= category['points_to_pass']
             )
 
-        data['points_created'] = timezone.now()
         return data
 
     def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
@@ -414,6 +464,44 @@ class CachedPoints(ContentMixin, CachedAbstract):
             for entry in exercises:
                 submissions.extend(s['id'] for s in entry.get('submissions', []))
         return submissions
+
+    def _pack_tuples(self, value1, value2, parent_container=None, parent_key=None):
+        """
+        Compare two data structures, and when conflicting values are found,
+        pack them into a tuple. `value1` is modified in this operation.
+
+        Example: when called with `value1={"key1": "a", "key2": "b"}` and
+        `value2={"key1": "a", "key2": "c"}`, `value1` will become
+        `{"key1": "a", "key2": ("b", "c")}`.
+        """
+        if isinstance(value1, dict):
+            for key, inner_value1 in value1.items():
+                inner_value2 = value2[key]
+                self._pack_tuples(inner_value1, inner_value2, value1, key)
+        elif isinstance(value1, list):
+            for index, inner_value1 in enumerate(value1):
+                inner_value2 = value2[index]
+                self._pack_tuples(inner_value1, inner_value2, value1, index)
+        else:
+            if value1 != value2:
+                parent_container[parent_key] = (value1, value2)
+
+    def _extract_tuples(self, value, tuple_index, parent_container=None, parent_key=None):
+        """
+        Find tuples within a data structure, and replace them with the value
+        at `tuple_index` in the tuple. `value` is modified in this operation.
+
+        Example: when called with `value={"key1": "a", "key2": ("b", "c")}` and
+        `tuple_index=0`, `value` will become `{"key1": "a", "key2": "b"}`.
+        """
+        if isinstance(value, dict):
+            for key, inner_value in value.items():
+                self._extract_tuples(inner_value, tuple_index, value, key)
+        elif isinstance(value, list):
+            for index, inner_value in enumerate(value):
+                self._extract_tuples(inner_value, tuple_index, value, index)
+        elif isinstance(value, tuple):
+            parent_container[parent_key] = value[tuple_index]
 
 
 def invalidate_content(sender: Type[Model], instance: Submission, **kwargs: Any) -> None:
