@@ -145,12 +145,17 @@ def _points_data(
         user: User,
         classes: Optional[str] = None,
         is_staff: bool = False,
+        known_revealed: Optional[bool] = None,
         ) -> Dict[str, Any]:
     reveal_time = None
-    is_revealed = is_staff
+    is_revealed = None
+    if known_revealed is not None:
+        is_revealed = known_revealed
+    elif is_staff:
+        is_revealed = True
     if isinstance(obj, UserExerciseSummary):
         exercise = obj.exercise
-        if not is_staff:
+        if is_revealed is None:
             is_revealed, reveal_time = _reveal_rule(exercise, user)
         data = {
             'points': obj.get_points() if is_revealed else 0,
@@ -170,7 +175,7 @@ def _points_data(
         }
     elif isinstance(obj, Submission):
         exercise = obj.exercise
-        if not is_staff:
+        if is_revealed is None:
             is_revealed, reveal_time = _reveal_rule(exercise, user)
         data = {
             'points': obj.grade if is_revealed else 0,
@@ -246,8 +251,9 @@ def _points_data(
 def points_progress(
         context: Context,
         obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
+        is_revealed: Optional[bool] = None,
         ) -> Dict[str, Any]:
-    return _points_data(obj, context['request'].user, None, context['is_course_staff'])
+    return _points_data(obj, context['request'].user, None, context['is_course_staff'], is_revealed)
 
 
 @register.inclusion_tag("exercise/_points_badge.html", takes_context=True)
@@ -255,8 +261,9 @@ def points_badge(
         context: Context,
         obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
         classes: Optional[str] = None,
+        is_revealed: Optional[bool] = None,
         ) -> Dict[str, Any]:
-    return _points_data(obj, context['request'].user, classes, context['is_course_staff'])
+    return _points_data(obj, context['request'].user, classes, context['is_course_staff'], is_revealed)
 
 
 @register.simple_tag

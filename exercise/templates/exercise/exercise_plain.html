@@ -60,7 +60,7 @@
 										{% if not exercise.category.confirm_the_level %}
 											{% translate "POINTS" %}
 										{% endif %}
-										{% points_badge summary %}
+										{% points_badge summary is_revealed=feedback_revealed %}
 									</span>
 								</a>
 							</li>
@@ -83,7 +83,7 @@
 											<a href="{{ submission|url:'submission-plain' }}">
 												{{ forloop.revcounter }}.
 												{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-												{% points_badge submission %}
+												{% points_badge submission is_revealed=feedback_revealed %}
 											</a>
 										</li>
 									{% empty %}
