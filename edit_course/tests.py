@@ -1,3 +1,5 @@
+from datetime import datetime
+from django.test import override_settings
 from course.models import CourseInstance
 from exercise.models import BaseExercise
 from lib.testdata import CourseTestCase
@@ -109,6 +111,46 @@ class CourseCloneTest(CourseTestCase):
     def _as_class(self, items):
         return [a.as_leaf_class().__class__ for a in items]
 
+    @override_settings(SIS_PLUGIN_MODULE = 'course.sis_test')
+    @override_settings(SIS_PLUGIN_CLASS = 'SisTest')
+    def test_clone_from_sis(self):
+        instance = CourseInstance.objects.get(id=1)
+
+        url = instance.get_url('course-clone')
+        self.client.login(username='testTeacher', password='testPassword')
+
+        # Full clone
+        response = self.client.post(url, {
+            'url': 'sis-test',
+            'teachers': True,
+            'assistants': True,
+            'categories': True,
+            'modules': True,
+            'chapters': True,
+            'exercises': True,
+            'menuitems': True,
+            'usertags': True,
+            'sis': '123',
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "alert alert-danger")
+        self.assertContains(response, "alert alert-success")
+
+        # The asserted values are coming from in sis_test.py
+        sis_instance = CourseInstance.objects.get(course=instance.course, url="sis-test")
+        self.assertFalse(sis_instance.visible_to_students)
+        self.assertEqual(
+            list(a.user.username for a in sis_instance.teachers.all()),
+            [ "testTeacher", "teacher-A" ]
+        )
+        self.assertEqual(
+            sis_instance.starting_time,
+            datetime.fromisoformat("2022-05-31 21:00:00+00:00")
+        )
+        self.assertEqual(
+            sis_instance.ending_time,
+            datetime.fromisoformat("2022-08-19 21:00:00+00:00")
+        )
 
 class BatchAssessTest(CourseTestCase):
 

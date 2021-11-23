@@ -1,8 +1,9 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.urls import reverse
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.utils import timezone
 
@@ -31,10 +32,16 @@ class CourseTest(TestCase):
         self.user1 = User(username="testUser1")
         self.user1.set_password("testPassword")
         self.user1.save()
+        self.user1.userprofile.student_id = '333333'
+        self.user1.userprofile.organization = settings.LOCAL_ORGANIZATION
+        self.user1.userprofile.save()
 
         self.user2 = User(username="testUser2")
         self.user2.set_password("testPassword")
         self.user2.save()
+        self.user2.userprofile.student_id = '555555'
+        self.user2.userprofile.organization = settings.LOCAL_ORGANIZATION
+        self.user2.userprofile.save()
 
         self.course = Course.objects.create(
             name="test course",
@@ -60,7 +67,8 @@ class CourseTest(TestCase):
             starting_time=self.today,
             ending_time=self.tomorrow,
             course=self.course,
-            url="T-00.1000_d1"
+            url="T-00.1000_d1",
+            sis_id=123
         )
 
         self.future_course_instance = CourseInstance.objects.create(
@@ -375,6 +383,22 @@ class CourseTest(TestCase):
                 'instance_slug': self.current_course_instance.url,
             }),
             {'user_profiles': [self.user1.id, self.user2.id]}
+        )
+        self.assertTrue(self.current_course_instance.is_student(self.user1))
+        self.assertTrue(self.current_course_instance.is_student(self.user2))
+
+    @override_settings(SIS_PLUGIN_MODULE = 'course.sis_test')
+    @override_settings(SIS_PLUGIN_CLASS = 'SisTest')
+    def test_student_enroll_from_sis(self):
+        self.assertFalse(self.current_course_instance.is_student(self.user1))
+        self.assertFalse(self.current_course_instance.is_student(self.user2))
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.post(
+            reverse("enroll-students", kwargs={
+                'course_slug': self.course.url,
+                'instance_slug': self.current_course_instance.url,
+            }),
+            {'user_profiles': [ ], 'sis': '123'}
         )
         self.assertTrue(self.current_course_instance.is_student(self.user1))
         self.assertTrue(self.current_course_instance.is_student(self.user2))
