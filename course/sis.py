@@ -43,6 +43,21 @@ class StudentInfoSystem:
         """
         return {}
 
+    def get_participants(self, id: str) -> List[str]:
+        """
+        Get participating students from the SIS system.
+
+        Parameters
+        ----------
+        id
+            SIS identifier of the course instance
+
+        Returns
+        -------
+        List of student identifiers.
+        """
+        return []
+
 
 def get_sis_configuration() -> StudentInfoSystem:
     '''

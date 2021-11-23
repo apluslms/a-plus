@@ -125,8 +125,15 @@ class EnrollStudentsForm(forms.Form):
     user_profiles = UsersSearchSelectField(queryset=UserProfile.objects.all(),
         initial_queryset=UserProfile.objects.none(),
         label=_('LABEL_USERS'),
+        required=False,
     )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.instance = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
         self.fields['user_profiles'].widget.search_api_url = api_reverse("user-list")
+        if self.instance.sis_id:
+            self.fields['sis'] = forms.BooleanField(
+                required=False,
+                label=_('LABEL_ENROLL_FROM_SIS'),
+            )

@@ -222,6 +222,10 @@ class Enrollment(models.Model):
         choices=ENROLLMENT_STATUS.choices,
         default=ENROLLMENT_STATUS.ACTIVE,
     )
+    from_sis = models.BooleanField(
+        verbose_name=_('LABEL_FROM_SIS'),
+        default=False,
+    )
 
     class Meta:
         verbose_name = _('MODEL_NAME_ENROLLMENT')
@@ -818,7 +822,7 @@ class CourseInstance(UrlMixin, models.Model):
             return True
         return False
 
-    def enroll_student(self, user):
+    def enroll_student(self, user, from_sis=False):
         # Return value False indicates whether that the user was already enrolled.
         if user and user.is_authenticated:
             try:
@@ -830,9 +834,13 @@ class CourseInstance(UrlMixin, models.Model):
                     enrollment.role == Enrollment.ENROLLMENT_ROLE.STUDENT
                     and enrollment.status == Enrollment.ENROLLMENT_STATUS.ACTIVE
                 ):
+                    if not enrollment.from_sis and from_sis:
+                        enrollment.from_sis = from_sis
+                        enrollment.save()
                     return False
                 enrollment.role = Enrollment.ENROLLMENT_ROLE.STUDENT
                 enrollment.status = Enrollment.ENROLLMENT_STATUS.ACTIVE
+                enrollment.from_sis = from_sis
                 enrollment.save()
                 return True
             except Enrollment.DoesNotExist:
@@ -841,9 +849,56 @@ class CourseInstance(UrlMixin, models.Model):
                     user_profile=user.userprofile,
                     role=Enrollment.ENROLLMENT_ROLE.STUDENT,
                     status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                    from_sis=from_sis,
                 )
                 return True
         return False
+
+    def enroll_from_sis(self) -> int:
+        """
+        Enroll students based on the participants information in Student Info System.
+        If student has removed herself in SIS, she will also be marked as removed in A+.
+
+        Returns
+        -------
+        Number of students enrolled based on this call. -1 if there was problem accessing SIS.
+        """
+        from .sis import get_sis_configuration, StudentInfoSystem
+        from .cache.menu import invalidate_content
+        
+        sis: StudentInfoSystem = get_sis_configuration()
+        if not sis:
+            return -1
+
+        count = 0
+        try:
+            participants = sis.get_participants(self.sis_id)
+        except Exception as e:
+            logger.exception(f"Error in getting participants from SIS.")
+            return -1
+
+        for i in participants:
+            try:
+                profile = UserProfile.get_by_student_id(i)
+                if self.enroll_student(profile.user, from_sis=True):
+                    count = count + 1
+
+            except UserProfile.DoesNotExist:
+                # This is a common scenario, if the user has enrolled in SIS, but not
+                # yet logged in to A+, then the user profile does not exist yet.
+                pass
+
+        # Remove SIS-enrolled students who are not anymore in SIS participants,
+        # for example, because they have first enrolled in SIS, but then
+        # unenrolled themselves.
+        students = self.all_students.filter(enrollment__from_sis=True)
+        to_remove = students.exclude(student_id__in=participants)
+        qs = Enrollment.objects.filter(user_profile__in=to_remove, course_instance=self)
+        qs.update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
+        for e in qs:
+            invalidate_content(Enrollment, e)
+        
+        return count
 
     def set_users_with_role(self, users, role, remove_others_with_role=False):
         # This method is used for adding or replacing (depending on the last

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-08 12:23+0200\n"
+"POT-Creation-Date: 2021-12-14 10:49+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -266,6 +266,10 @@ msgstr "Jäsenet"
 msgid "LABEL_USERS"
 msgstr "Käyttäjät"
 
+#: course/forms.py
+msgid "LABEL_ENROLL_FROM_SIS"
+msgstr "Lisää osallistujia opintotietojärjestelmästä"
+
 #: course/models.py diploma/models.py edit_course/course_forms.py
 #: exercise/exercise_models.py threshold/models.py
 msgid "LABEL_NAME"
@@ -368,6 +372,10 @@ msgstr "rooli"
 #: course/models.py exercise/exercise_models.py exercise/submission_models.py
 msgid "LABEL_STATUS"
 msgstr "tila"
+
+#: course/models.py
+msgid "LABEL_FROM_SIS"
+msgstr "opintotietojärjestelmästä"
 
 #: course/models.py
 msgid "MODEL_NAME_ENROLLMENT"
@@ -837,6 +845,17 @@ msgstr "Muutokset tallennettiin onnistuneesti."
 #: course/staff_views.py edit_course/views.py exercise/staff_views.py
 msgid "FAILURE_SAVING_CHANGES"
 msgstr "Muutosten tallentaminen epäonnistui."
+
+#: course/staff_views.py
+#, python-brace-format
+msgid "STUDENT_ENROLLED_FROM_SIS -- {count}"
+msgid_plural "STUDENTS_ENROLLED_FROM_SIS -- {count}"
+msgstr[0] "{count} opiskelija on lisätty opintotietojärjestelmästä."
+msgstr[1] "{count} opiskelijaa on lisätty opintotietojärjestelmästä."
+
+#: course/staff_views.py
+msgid "COULD_NOT_ACCESS_SIS"
+msgstr "Ilmoittautumisia ei voitu hakea opintotietojärjestelmästä."
 
 #: course/staff_views.py
 #, python-brace-format
