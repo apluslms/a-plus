@@ -71,7 +71,7 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
             logger.info(f"Service not authorized: {id}")
             raise AuthenticationFailed("ID not trusted")
 
-        permissions = ObjectPermissions.from_payload(payload)
+        permissions = ObjectPermissions.from_payload(GraderUser(id, ObjectPermissions()), payload)
 
         tokens: List[str] = payload.get("tokens", []) # type: ignore
         atoken = request.GET.get(GRADER_AUTH_TOKEN, None)

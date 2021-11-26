@@ -7,6 +7,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from authorization.models import JWTAccessible
 from lib.aplus_auth import audience_to_alias
+from lib.typing import AnyUser
 
 if TYPE_CHECKING:
     from course.models import Course, CourseInstance
@@ -45,6 +46,7 @@ def register_jwt_accessible_class(cls, type_id = None): # type: ignore
 
 
 def _get_objects_from_permission(
+        user: AnyUser,
         payload: Payload,
         type: str,
         permission: Permission,
@@ -62,15 +64,16 @@ def _get_objects_from_permission(
         logger.info(f"Missing jwt class for type {type}")
         raise AuthenticationFailed(f"No {permission} access to {type} with {kwargs}")
 
-    items = cls.from_jwt_permission(payload, permission, kwargs, auth_settings().DISABLE_LOGIN_CHECKS)
+    items = cls.from_jwt_permission(user, payload, permission, kwargs, auth_settings().DISABLE_LOGIN_CHECKS)
     if items is None:
-        logger.info(f"{audience_to_alias(payload.iss)}\n tried to get WRITE access to {type} with {kwargs}")
+        logger.info(f"{audience_to_alias(payload.iss)}\n tried to get {permission} access to {type} with {kwargs}")
         raise AuthenticationFailed(f"No {permission} access to {type} with {kwargs}")
 
     return items
 
 
 def _get_objects_from_permissions(
+        user: AnyUser,
         payload: Payload,
         permission_items: PermissionItemList
         ) -> Tuple[
@@ -81,13 +84,13 @@ def _get_objects_from_permissions(
         list(
             (permission, obj)
             for type, permission, kwargs in permission_items
-            for obj in _get_objects_from_permission(payload, type, permission, kwargs)
             if permission == Permission.CREATE
+            for obj in _get_objects_from_permission(user, payload, type, permission, kwargs)
         ), list(
             (permission, obj)
             for type, permission, kwargs in permission_items
-            for obj in _get_objects_from_permission(payload, type, permission, kwargs)
             if permission != Permission.CREATE
+            for obj in _get_objects_from_permission(user, payload, type, permission, kwargs)
         )
     )
 
@@ -136,9 +139,9 @@ class ObjectPermissionList(Generic[_objT]):
             return self.has(item)
 
     @staticmethod
-    def from_payload(payload: Payload, permission_items: PermissionItemList):
+    def from_payload(user: AnyUser, payload: Payload, permission_items: PermissionItemList):
         perms = ObjectPermissionList()
-        perms.creates, perms.instances = _get_objects_from_permissions(payload, permission_items)
+        perms.creates, perms.instances = _get_objects_from_permissions(user, payload, permission_items)
         return perms
 
 class ObjectPermissions:
@@ -151,13 +154,13 @@ class ObjectPermissions:
         self.submissions: ObjectPermissionList["Submission"] = ObjectPermissionList()
 
     @staticmethod
-    def from_payload(payload: Payload):
+    def from_payload(user: AnyUser, payload: Payload):
         """
         Extracts object from JWT payload's permissions and checks access.
         Raise AuthenticationFailed if user has no access.
         """
         perms = ObjectPermissions()
-        perms.courses = ObjectPermissionList.from_payload(payload, payload.permissions.courses)
-        perms.instances = ObjectPermissionList.from_payload(payload, payload.permissions.instances)
-        perms.submissions = ObjectPermissionList.from_payload(payload, payload.permissions.submissions)
+        perms.courses = ObjectPermissionList.from_payload(user, payload, payload.permissions.courses)
+        perms.instances = ObjectPermissionList.from_payload(user, payload, payload.permissions.instances)
+        perms.submissions = ObjectPermissionList.from_payload(user, payload, payload.permissions.submissions)
         return perms

@@ -5,6 +5,8 @@ from django.db.models import Manager
 from django.db.models.base import Model
 from django.db.models.query import QuerySet
 
+from lib.typing import AnyUser
+
 
 _ModelT = TypeVar("_ModelT", bound=Model)
 class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
@@ -15,6 +17,7 @@ class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
     """
     def from_jwt_permission(
             self,
+            user: AnyUser,
             payload: Payload,
             permission: Permission,
             kwargs: Dict[str, Any],
@@ -23,13 +26,13 @@ class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
 
         if permission in (Permission.WRITE, Permission.READ):
             instances = self.from_jwt_permission_dict(kwargs)
-            if disable_permission_check or all((
-                    self.has_access(payload, permission, instance)
-                    for instance in instances
-                    )):
+            if disable_permission_check or all(
+                        self.has_access(user, payload, permission, obj)
+                        for obj in instances
+                    ):
                 return instances
         elif permission == Permission.CREATE:
-            if disable_permission_check or self.has_create_access(payload, kwargs):
+            if disable_permission_check or self.has_create_access(user, payload, kwargs):
                 return []
         return None
 
@@ -39,13 +42,13 @@ class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
         """
         return self.filter(**perm).all()
 
-    def has_create_access(self, payload: Payload, kwargs: Dict[str, Any]) -> bool:
+    def has_create_access(self, user: AnyUser, payload: Payload, kwargs: Dict[str, Any]) -> bool:
         """
         Check that <payload> has create access to kwargs.
         """
         return False
 
-    def has_access(self, payload: Payload, permission: Permission, instance: _ModelT) -> bool:
+    def has_access(self, user: AnyUser, payload: Payload, permission: Permission, instance: _ModelT) -> bool:
         """
         Check that <payload> has <permission> access to <instance>.
         """

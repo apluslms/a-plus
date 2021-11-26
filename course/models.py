@@ -38,6 +38,7 @@ from lib.helpers import (
 )
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
+from lib.typing import AnyUser
 from lib.validators import generate_url_key_validator
 from userprofile.models import User, UserProfile, GraderUser
 
@@ -468,14 +469,21 @@ class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
             enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
             enrollment__user_profile=user)
 
-    def has_access(self, payload: Payload, permission: Permission, instance: "CourseInstance") -> bool:
-        try:
-            config_aud = url_to_audience(instance.configure_url)
-        except KeyError:
-            logger.warning(f"Could not find public key for configure_url {instance.configure_url}. Cannot authorize JWT instance access")
-            return False
-        else:
-            return config_aud == payload.iss
+    def has_access(self, user: AnyUser, payload: Payload, permission: Permission, instance: "CourseInstance") -> bool:
+        # a normal user
+        if user.is_authenticated and not user.is_anonymous:
+            return instance.is_teacher(user)
+        # a grader user
+        elif user.is_authenticated and user.is_anonymous:
+            try:
+                config_aud = url_to_audience(instance.configure_url)
+            except KeyError:
+                logger.warning(f"Could not find public key for configure_url {instance.configure_url}. Cannot authorize JWT instance access")
+                return False
+            else:
+                return config_aud == user.username
+
+        return False
 
     def has_create_access(self, payload: Payload, kwargs: Dict[str, Any]) -> bool:
         return False
