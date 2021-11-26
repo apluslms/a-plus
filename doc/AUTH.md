@@ -25,7 +25,8 @@ The payload has the following fields:
     iss, string
         The public key of the party who signed this token.
     sub, string
-        The public key of the party who made the HTTP request.
+        The party who made the HTTP request. This is either the public key of
+        the requester, or "user:<id>" for normal A+ users.
     aud, string
         The public key of the party who the HTTP request is sent to.
     exp, JSON numeric value
