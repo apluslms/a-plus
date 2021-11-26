@@ -383,7 +383,16 @@ def configure_content(instance, url):
             error=e,
         )]
 
-    errors = []
+    if not isinstance(config, dict):
+        return [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
+
+    errors = config.get('errors', [])
+    if not isinstance(errors, list):
+        errors = [str(errors)]
+
+    if not config.get('success', True):
+        errors.insert(0, _("COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"))
+        return errors
 
     # Configure course instance attributes.
     if "start" in config:

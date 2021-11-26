@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-17 13:26+0200\n"
+"POT-Creation-Date: 2021-11-26 11:59+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1828,6 +1828,18 @@ msgid "COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}"
 msgstr "JSON parser raised error '{error!s}'. Configuration of course aborted."
 
 #: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_INVALID_JSON"
+msgstr ""
+"Invalid configuration JSON received from the service (JSON must define an "
+"object)."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"
+msgstr ""
+"The service failed to export course configurations. The configurations may "
+"be invalid (for example, check the syntax of YAML files)."
+
+#: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
 msgstr "Assistants must be given as a student ID array."
 
@@ -3387,6 +3399,7 @@ msgstr ""
 "technology users)"
 
 #: exercise/templates/exercise/exercise_plain.html
+#, python-format
 msgid "PENALTY_AFTER -- %(penalty)s, %(deadline)s"
 msgstr "-%(penalty)s%% penalty after %(deadline)s"
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-17 13:26+0200\n"
+"POT-Creation-Date: 2021-11-26 11:59+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1834,6 +1834,18 @@ msgstr ""
 "JSON-jäsentäjä tuotti virheen '{error!s}'. Asetusten päivitys keskeytettiin."
 
 #: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_INVALID_JSON"
+msgstr ""
+"Palvelu palautti epäkelvon JSON-datan (JSONin täytyy määritellä avain-arvo-"
+"pareja)."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"
+msgstr ""
+"Palvelu epäonnistui viemään kurssin asetukset. Asetukset saattavat olla "
+"epäkelpoja (esim. tarkista kurssin YAML-tiedostojen syntaksi)."
+
+#: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
 msgstr "Assistentit tulee antaa opiskelijanumero-taulukkona."
 
@@ -3393,6 +3405,7 @@ msgstr ""
 "avustavan teknologian käyttäjille)"
 
 #: exercise/templates/exercise/exercise_plain.html
+#, python-format
 msgid "PENALTY_AFTER -- %(penalty)s, %(deadline)s"
 msgstr "-%(penalty)s%% pistevähennys alkaen %(deadline)s"
 
