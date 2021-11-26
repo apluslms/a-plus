@@ -2,7 +2,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, Generic, Iterable, List, Optional, Tuple, Type, TypeVar, Union, overload
 
 from aplus_auth import settings as auth_settings
-from aplus_auth.payload import Payload, Permission, PermissionItem, PermissionItemList
+from aplus_auth.payload import Payload, Permission, PermissionItem, PermissionItemList, Permissions
 from rest_framework.exceptions import AuthenticationFailed
 
 from authorization.models import JWTAccessible
@@ -164,3 +164,16 @@ class ObjectPermissions:
         perms.instances = ObjectPermissionList.from_payload(user, payload, payload.permissions.instances)
         perms.submissions = ObjectPermissionList.from_payload(user, payload, payload.permissions.submissions)
         return perms
+
+    def to_payload_permissions(self) -> Permissions:
+        permissions = Permissions()
+        for target, source in [
+                    (permissions.courses, self.courses),
+                    (permissions.instances, self.instances),
+                    (permissions.submissions, self.submissions),
+                ]:
+            for permission, obj in source.instances:
+                target.add(permission, id=obj.id)
+            for permission, kwargs in source.creates:
+                target.add(permission, **kwargs)
+        return permissions

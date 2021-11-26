@@ -47,12 +47,34 @@ class RemoteAuthenticationView(RemoteAuthenticator, APIView):
         else:
             return self.expiration_time
 
-    def get(self, request: Request, *, payload: Optional[Payload] = None, **kwargs: Any):
+    def get(self,
+            request: Request,
+            *,
+            payload: Optional[Payload] = None,
+            permissions: Optional[ObjectPermissions] = None,
+            **kwargs: Any,
+            ):
         if payload is None:
             payload = request.auth
 
         if not isinstance(payload, Payload):
             return Response("Missing payload", status=500)
+
+        if permissions is None:
+            if hasattr(request.user, "permissions"):
+                permissions = request.user.permissions
+            else:
+                return Response("User is missing permissions attribute", status=500)
+
+        if not isinstance(permissions, ObjectPermissions):
+            return Response("Missing permissions", status=500)
+
+        # If the object doesn't exist yet, the permissions are "ok" but it
+        # might come to existence, in which case the signed token would
+        # give access to it without the permissions necessarily being there.
+        # This makes sure that the permission dicts cannot refer to some other
+        # object that has not been created yet.
+        payload.permissions = permissions.to_payload_permissions()
 
         try:
             return Response(self.get_token(request, payload), content_type="text/html")
@@ -68,8 +90,10 @@ class RemoteAuthenticationView(RemoteAuthenticator, APIView):
             try:
                 # request.auth has already been authorized but the payload in
                 # POST is not, so we need to check the permissions
-                ObjectPermissions.from_payload(request.user, payload)
+                permissions = ObjectPermissions.from_payload(request.user, payload)
             except AuthenticationFailed as e:
                 return Response(str(e), status=403)
+        else:
+            permissions = request.user.permissions
 
-        return self.get(request, payload=payload, **kwargs)
+        return self.get(request, payload=payload, permissions=permissions, **kwargs)
