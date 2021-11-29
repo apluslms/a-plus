@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, Generic, Itera
 
 from aplus_auth import settings as auth_settings
 from aplus_auth.payload import Payload, Permission, PermissionItem, PermissionItemList, Permissions
+from django.utils.text import format_lazy
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import AuthenticationFailed
 
 from authorization.models import JWTAccessible
@@ -62,12 +64,22 @@ def _get_objects_from_permission(
     if cls is None:
         # Fail by default
         logger.info(f"Missing jwt class for type {type}")
-        raise AuthenticationFailed(f"No {permission} access to {type} with {kwargs}")
+        raise AuthenticationFailed(format_lazy(
+            _("NO_JWT_PERMISSION -- {permission}, {type}, {kwargs}"),
+            permission=permission,
+            type=type,
+            kwargs=kwargs
+        ))
 
     items = cls.from_jwt_permission(user, payload, permission, kwargs, auth_settings().DISABLE_LOGIN_CHECKS)
     if items is None:
         logger.info(f"{audience_to_alias(payload.iss)}\n tried to get {permission} access to {type} with {kwargs}")
-        raise AuthenticationFailed(f"No {permission} access to {type} with {kwargs}")
+        raise AuthenticationFailed(format_lazy(
+            _("NO_JWT_PERMISSION -- {permission}, {type}, {kwargs}"),
+            permission=permission,
+            type=type,
+            kwargs=kwargs
+        ))
 
     return items
 

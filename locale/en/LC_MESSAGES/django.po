@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-26 11:59+0200\n"
+"POT-Creation-Date: 2021-11-29 15:29+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -161,6 +161,11 @@ msgstr "external iframe plug-in"
 msgid "MODEL_NAME_EXTERNAL_IFRAME_PLUGIN_PLURAL"
 msgstr "external iframe plug-ins"
 
+#: authorization/object_permissions.py
+#, python-brace-format
+msgid "NO_JWT_PERMISSION -- {permission}, {type}, {kwargs}"
+msgstr "No {permission} access to {type} with {kwargs}"
+
 #: authorization/permissions.py
 msgid "ACCESS_ANYONE"
 msgstr "Any user authenticated or not"
@@ -210,6 +215,30 @@ msgstr "Only enrolled students shall pass."
 #: course/admin.py external_services/templates/external_services/list_menu.html
 msgid "URL"
 msgstr "URL"
+
+#: course/api/views.py
+msgid "COURSE_CONFIG_ERROR -- {error!s}"
+msgstr ""
+"Course configuration failed with error '{error!s}'. Configuration of course "
+"aborted."
+
+#: course/api/views.py
+#, python-brace-format
+msgid "COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"
+msgstr "Notified course update warnings for {instance}"
+
+#: course/api/views.py
+#, python-brace-format
+msgid "COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"
+msgstr "Notified course update failed for {instance}"
+
+#: course/api/views.py
+msgid "ERROR_EMAIL_FAILED"
+msgstr "Failed to send error email"
+
+#: course/api/views.py
+msgid "SEND_EMAIL_FAILED"
+msgstr "Failed to send email"
 
 #: course/forms.py
 #, python-brace-format
@@ -731,6 +760,22 @@ msgstr "learning object category"
 #: course/models.py
 msgid "MODEL_NAME_LEARNING_OBJECT_CATEGORY_PLURAL"
 msgstr "learning object categories"
+
+#: course/permissions.py
+msgid "NO_JWT_COURSE_PERMISSION"
+msgstr "No permission to access course"
+
+#: course/permissions.py
+msgid "NO_JWT_INSTANCE_PERMISSION"
+msgstr "No permission to access course instance"
+
+#: course/permissions.py
+msgid "NO_JWT_EXERCISE_PERMISSION"
+msgstr "No permission to access exercise"
+
+#: course/permissions.py
+msgid "NO_JWT_SUBMISSION_PERMISSION"
+msgstr "No permission to access submission"
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_PERMISSION_DENIED_MSG"
@@ -1867,6 +1912,24 @@ msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
 msgstr "Module requires a key."
 
 #: edit_course/operations/configure.py
+#, fuzzy, python-brace-format
+#| msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
+msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
+msgstr "Publishing responded with status {response.status_code}"
+
+#: edit_course/operations/configure.py
+#, python-brace-format
+msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
+msgstr ""
+"Failed to load publish response JSON: {e}:\n"
+"{text}"
+
+#: edit_course/operations/configure.py
+#, python-brace-format
+msgid "PUBLISHED_WITH_ERRORS -- {publish_url}"
+msgstr "Publishing changes ({publish_url}) failed:"
+
+#: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_CATEGORY"
 msgstr "ExerciseCollection requires collection_category."
 
@@ -2286,8 +2349,20 @@ msgid "COURSE_INSTANCE_CLONED"
 msgstr "Course instance is now cloned."
 
 #: edit_course/views.py
+msgid "CONFIGURED_WITH_WARNINGS"
+msgstr "Configuring was successful with warnings:"
+
+#: edit_course/views.py
 msgid "COURSE_CONTENT_CONFIGURED"
 msgstr "Course content configured."
+
+#: edit_course/views.py
+msgid "CONFIGURED_WITH_ERRORS"
+msgstr "Configuring failed with errors:"
+
+#: edit_course/views.py
+msgid "CONFIGURE_FAILED"
+msgstr "Configuring failed!"
 
 #: edit_course/views.py
 msgid "ERROR_SERVER_RETURNED_ERROR -- {error!s}"

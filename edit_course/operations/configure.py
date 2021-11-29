@@ -671,13 +671,20 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                 publish_errors = [str(e)]
             else:
                 if response.status_code != 200:
-                    publish_errors = [f"Publishing responded with status {response.status_code}"]
+                    publish_errors = [format_lazy(
+                        _("PUBLISH_RESPONSE_NON_200 -- {status_code}"),
+                        status_code=response.status_code
+                    )]
 
                 if response.text:
                     try:
                         publish_errors = json.loads(response.text)
                     except Exception as e:
-                        publish_errors = [f"Failed to load publish response JSON: {e}:\n{response.text}"]
+                        publish_errors = [format_lazy(
+                            _("PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"),
+                            e=e,
+                            text=response.text
+                        )]
                     else:
                         if isinstance(publish_errors, dict):
                             success = publish_errors.get("success", True)
@@ -690,7 +697,10 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
 
             if publish_errors:
                 if not success:
-                    errors.append(f"Publishing changes ({config['publish_url']}) failed:")
+                    errors.append(format_lazy(
+                        _("PUBLISHED_WITH_ERRORS -- {publish_url}"),
+                        publish_url=config['publish_url']
+                    ))
                 errors.extend(str(e) for e in publish_errors)
 
             if not success:

@@ -136,17 +136,17 @@ class CourseViewSet(ListSerializerMixin,
 
         if errors and request.POST.get("email_on_error", True):
             if success:
-                subject = f"Notified course update warnings for {instance}" # TODO translate
+                subject = format_lazy(_("COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"), instance=instance)
             else:
-                subject = f"Notified course update failed for {instance}" # TODO translate
+                subject = format_lazy(_("COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"), instance=instance)
             message = "\n".join(str(e) for e in errors)
             try:
-                success = email_course_instance(self.get_object(), subject, message)
+                success = email_course_instance(self.get_object(), str(subject), message)
             except Exception as e:
-                errors.append("Failed to send error email: {e}")
+                errors.append(_("ERROR_EMAIL_FAILED") + f": {e}")
             else:
                 if not success:
-                    errors.append("Failed to send error email")
+                    errors.append(_("ERROR_EMAIL_FAILED"))
 
         return Response(errors, status=500 if errors else 200)
 
@@ -165,7 +165,7 @@ class CourseViewSet(ListSerializerMixin,
             if success:
                 return Response()
             else:
-                return Response("Failed to send email")
+                return Response(_("SEND_EMAIL_FAILED"))
 
 
 class CourseExercisesViewSet(NestedViewSetMixin,

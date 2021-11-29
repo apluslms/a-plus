@@ -54,11 +54,11 @@ class JWTCoursePermission(JWTObjectPermission):
     access_key = "courses"
 
 class JWTCourseWritePermission(JWTCoursePermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_COURSE_PERMISSION")
     access_type = AccessPermission.WRITE
 
 class JWTCourseReadPermission(JWTCoursePermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_COURSE_PERMISSION")
     access_type = AccessPermission.READ
 
 class JWTInstancePermission(JWTObjectPermission):
@@ -67,11 +67,11 @@ class JWTInstancePermission(JWTObjectPermission):
     access_key = "instances"
 
 class JWTInstanceWritePermission(JWTInstancePermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_INSTANCE_PERMISSION")
     access_type = AccessPermission.WRITE
 
 class JWTInstanceReadPermission(JWTInstancePermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_INSTANCE_PERMISSION")
     access_type = AccessPermission.READ
 
 class JWTExercisePermission(JWTObjectPermission):
@@ -80,11 +80,11 @@ class JWTExercisePermission(JWTObjectPermission):
     access_key = "exercises"
 
 class JWTExerciseWritePermission(JWTExercisePermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_EXERCISE_PERMISSION")
     access_type = AccessPermission.WRITE
 
 class JWTExerciseReadPermission(JWTExercisePermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_EXERCISE_PERMISSION")
     access_type = AccessPermission.READ
 
 class JWTSubmissionPermission(JWTObjectPermission):
@@ -93,15 +93,15 @@ class JWTSubmissionPermission(JWTObjectPermission):
     access_key = "submissions"
 
 class JWTSubmissionReadPermission(JWTSubmissionPermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_SUBMISSION_PERMISSION")
     access_type = AccessPermission.READ
 
 class JWTSubmissionWritePermission(JWTSubmissionPermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_SUBMISSION_PERMISSION")
     access_type = AccessPermission.WRITE
 
 class JWTSubmissionCreatePermission(JWTObjectPermission):
-    message = _("SOMETHING_OR_OTHER")
+    message = _("NO_JWT_SUBMISSION_PERMISSION")
     obj_key = "exercise"
     obj_type = BaseExercise
     access_key = "submissions"

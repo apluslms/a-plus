@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-26 11:59+0200\n"
+"POT-Creation-Date: 2021-11-29 15:29+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -162,6 +162,11 @@ msgstr "ulkoinen iframe-liitännäinen"
 msgid "MODEL_NAME_EXTERNAL_IFRAME_PLUGIN_PLURAL"
 msgstr "ulkoiset iframe-liitännäiset"
 
+#: authorization/object_permissions.py
+#, python-brace-format
+msgid "NO_JWT_PERMISSION -- {permission}, {type}, {kwargs}"
+msgstr "Ei {permission} oikeutta tyyppiin {type}, jolla {kwargs}"
+
 #: authorization/permissions.py
 msgid "ACCESS_ANYONE"
 msgstr "Kuka tahansa kirjautunut tai kirjautumaton käyttäjä"
@@ -211,6 +216,30 @@ msgstr "Vain ilmoittautuneille."
 #: course/admin.py external_services/templates/external_services/list_menu.html
 msgid "URL"
 msgstr "URL"
+
+#: course/api/views.py
+msgid "COURSE_CONFIG_ERROR -- {error!s}"
+msgstr ""
+"Kurssin sisältöasetusten päivitys epäonnistui virheellä '{error!s}'. "
+"Asetusten päivitys keskeytettiin."
+
+#: course/api/views.py
+#, python-brace-format
+msgid "COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"
+msgstr "Kurssipäivitys varoitukset kurssikerralle {instance}"
+
+#: course/api/views.py
+#, python-brace-format
+msgid "COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"
+msgstr "Kurssipäivitys virheet kurssikerralle {instance}"
+
+#: course/api/views.py
+msgid "ERROR_EMAIL_FAILED"
+msgstr "Virhe sähköpostin lähetys epäonnistui"
+
+#: course/api/views.py
+msgid "SEND_EMAIL_FAILED"
+msgstr "Sähköpostin lähetys epäonnistui"
 
 #: course/forms.py
 #, python-brace-format
@@ -733,6 +762,22 @@ msgstr "oppimissisältökategoria"
 #: course/models.py
 msgid "MODEL_NAME_LEARNING_OBJECT_CATEGORY_PLURAL"
 msgstr "oppimissisältökategoriat"
+
+#: course/permissions.py
+msgid "NO_JWT_COURSE_PERMISSION"
+msgstr "Ei oikeutta kurssiin"
+
+#: course/permissions.py
+msgid "NO_JWT_INSTANCE_PERMISSION"
+msgstr "Ei oikeutta kurssikertaan"
+
+#: course/permissions.py
+msgid "NO_JWT_EXERCISE_PERMISSION"
+msgstr "Ei oikeutta tehtävään"
+
+#: course/permissions.py
+msgid "NO_JWT_SUBMISSION_PERMISSION"
+msgstr "Ei oikeutta palautukseen"
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_PERMISSION_DENIED_MSG"
@@ -1873,6 +1918,23 @@ msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
 msgstr "Moduuli vaatii avaimen."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
+msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
+msgstr "Julkaiseminen palautti statuksen {status_code}"
+
+#: edit_course/operations/configure.py
+#, python-brace-format
+msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
+msgstr ""
+"Julkaisun vastaus JSONin lataus epäonnistui: {e}:\n"
+"{text}"
+
+#: edit_course/operations/configure.py
+#, python-brace-format
+msgid "PUBLISHED_WITH_ERRORS -- {publish_url}"
+msgstr "Asetusten muuttaminen ({publish_url}) epäonnistui:"
+
+#: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_CATEGORY"
 msgstr "Tehtäväkokoelma tarvitsee collection_category:n."
 
@@ -2293,8 +2355,20 @@ msgid "COURSE_INSTANCE_CLONED"
 msgstr "Kurssikerta on nyt kopioitu."
 
 #: edit_course/views.py
+msgid "CONFIGURED_WITH_WARNINGS"
+msgstr "Asetusten muuttaminen onnistui varoituksilla:"
+
+#: edit_course/views.py
 msgid "COURSE_CONTENT_CONFIGURED"
 msgstr "Kurssin sisältöasetukset on päivitetty."
+
+#: edit_course/views.py
+msgid "CONFIGURED_WITH_ERRORS"
+msgstr "Asetusten muuttaminen epäonnistui virheillä:"
+
+#: edit_course/views.py
+msgid "CONFIGURE_FAILED"
+msgstr "Asetusten muuttaminen epäonnistui!"
 
 #: edit_course/views.py
 msgid "ERROR_SERVER_RETURNED_ERROR -- {error!s}"
