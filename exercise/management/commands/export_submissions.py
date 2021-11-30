@@ -286,6 +286,7 @@ class Command(BaseCommand):
             'status',
             'late_penalty_applied',
             'grading_time',
+            'marked_as_final',
         ]
         if include_max_submission_deviations:
             fieldnames.insert(4, 'personal_max_submissions')
@@ -309,6 +310,7 @@ class Command(BaseCommand):
                     'status': submission.status,
                     'late_penalty_applied': submission.late_penalty_applied,
                     'grading_time': submission.grading_time,
+                    'marked_as_final': submission.force_exercise_points,
                 }
                 if include_student_ids:
                     d['student_ids'] = '-'.join([str(profile.student_id) for profile in submission.submitter_userprofiles])
