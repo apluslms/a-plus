@@ -512,3 +512,25 @@ instructions, should be described in the plugin's documentation. See the
 for an example. In addition to these parameters, a plugin may have its own
 plugin-specific additional parameters, as should be described in the plugin
 installation instructions.
+
+There is an option to periodically update enrollment information from SIS using
+Celery and Redis. Redis can be installed from
+[dockerhub](https://hub.docker.com/_/redis) as a dedicated container. For local
+testing, for example, the following can be added to docker-compose.yml:
+
+    redis:
+      image: redis:latest
+      command: redis-server --save 60 1 --loglevel warning
+      expose:
+        - 6379
+
+Periodic updates can be enabled by setting variable `SIS_ENROLL_SCHEDULE` in
+the Django settings. For example, the following activates periodic enrollment every
+night at 1:00. More information about configuring periodic tasks can be found in
+the [Celery documentation](https://docs.celeryproject.org/en/stable/userguide/periodic-tasks.html).
+
+    from celery.schedules import crontab
+    SIS_ENROLL_SCHEDULE = crontab(hour=1, minute=0)
+
+If this variable is not set, enrollments are not done automatically,
+but can still be triggered manually by the teacher if SIS is in use.

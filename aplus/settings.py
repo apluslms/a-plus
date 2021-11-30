@@ -206,7 +206,23 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 #SIS_PLUGIN_MODULE = 'course.sis_test'
 #SIS_PLUGIN_CLASS = 'SisTest'
 
+# Set up schedule for periodic student enrollment check for active
+# courses with SIS linkage
+# See https://docs.celeryproject.org/en/stable/userguide/periodic-tasks.html
+# For example:
+# from celery.schedules import crontab
+# SIS_ENROLL_SCHEDULE = 10.0  -- every 10 seconds
+# SIS_ENROLL_SCHEDULE = crontab(hour=1, minute=0) -- every night at 1:00
+# If variable is not set, no automatic enrollment takes place
+
 ##########################################################################
+
+## Celery
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

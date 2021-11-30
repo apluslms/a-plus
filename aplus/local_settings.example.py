@@ -97,6 +97,14 @@
 #SIS_PLUGIN_MODULE = 'course.sis_test'
 #SIS_PLUGIN_CLASS = 'SisTest'
 
+# Set up schedule for periodic student enrollment check for active
+# courses with SIS linkage
+# See https://docs.celeryproject.org/en/stable/userguide/periodic-tasks.html
+# For example:
+# from celery.schedules import crontab
+# SIS_ENROLL_SCHEDULE = 10.0  -- every 10 seconds
+# SIS_ENROLL_SCHEDULE = crontab(hour=1, minute=0) -- every night at 1:00
+
 ## Database
 #DATABASES = {
 #    'default': {
