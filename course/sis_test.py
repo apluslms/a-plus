@@ -1,7 +1,12 @@
+import json
+import logging
 from typing import List, Tuple
+from django.conf import settings
 from course.sis import StudentInfoSystem
 
-data = [
+logger = logging.getLogger('aplus.course')
+
+origdata = [
     {
         "code": "TEST-A1111",
         "id": "1",
@@ -38,19 +43,31 @@ class SisTest(StudentInfoSystem):
 
     SIS_PLUGIN_MODULE = 'course.sis_test'
     SIS_PLUGIN_CLASS = 'SisTest'
+
+    By using optional SIS_TEST_FILE setting, one can specify a file from which the SIS
+    configuration is read, overriding the default setup above.
     '''
 
+    def __init__(self):
+        self.data = origdata
+        if hasattr(settings, 'SIS_TEST_FILE'):
+            try:
+                with open(settings.SIS_TEST_FILE, "r") as f:
+                    self.data = json.load(f)
+            except Exception as error:
+                logger.exception("File read error.")
+
     def get_instances(self, course: str) -> List[Tuple[str, str]]:
-        selected = list(filter(lambda d: d['code'] == course, data))
+        selected = list(filter(lambda d: d['code'] == course, self.data))
         ret = list(map(lambda k: (k['id'], k['instance']), selected))
         return ret
 
     def get_course_data(self, id: str) -> dict:
-        selected = next(filter(lambda d: d['id'] == id, data), None)
+        selected = next(filter(lambda d: d['id'] == id, self.data), None)
         return selected
 
     def get_participants(self, id: str) -> List[str]:
-        selected = next(filter(lambda d: d['id'] == id, data), None)
+        selected = next(filter(lambda d: d['id'] == id, self.data), None)
         if selected:
             return selected['participants']
         else:
