@@ -1,8 +1,8 @@
 import csv
 import sys
 
-from django.core.management.base import BaseCommand
-from django.db.models import Prefetch
+from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Prefetch, Q
 
 from course.models import CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
@@ -16,9 +16,16 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             'course_instance_id',
-            nargs='+',
+            nargs='*',
             type=int,
             help='Course instance id (from model CourseInstance) whose data is exported',
+        )
+        parser.add_argument(
+            '-f',
+            '--include-exercises-file',
+            help='Include only exercises (and their submissions) whose BaseExercise ids '
+                 'are listed in the given file (comma separated). '
+                 'The parameter "course_instance_id" may not be used with this option.',
         )
         parser.add_argument(
             '-e',
@@ -72,6 +79,19 @@ class Command(BaseCommand):
             action='store_true',
             help="If set, submitters' user ids are excluded from the submissions CSV (included by default).",
         )
+        parser.add_argument(
+            '-x',
+            '--exclude-exercises-file',
+            help='Exclude these exercises. This should be used with the "course_instance_id" parameter. '
+                 'The BaseExercise ids are defined as a comma-separated list in the given file.',
+        )
+
+    def parse_comma_list_file(self, file_path):
+        try:
+            with open(file_path, 'r') as f:
+                return [val.strip() for val in f.read().split(',')]
+        except OSError as e:
+            raise CommandError(f'Error in reading the file "{file_path}".') from e
 
     def handle(self, *args, **options):
         course_instance_ids = options['course_instance_id']
@@ -96,9 +116,31 @@ class Command(BaseCommand):
             sys.exit(2)
         submissions_slice = slice(limit_submissions_start, limit_submissions_end)
 
+        exercise_filters = {}
+        if course_instance_ids:
+            exercise_filters = {
+                'course_module__course_instance__pk__in': course_instance_ids,
+            }
+
+        if options['include_exercises_file']:
+            exercise_filters['pk__in'] = self.parse_comma_list_file(options['include_exercises_file'])
+
+        if not exercise_filters:
+            raise CommandError(
+                'Either the "course_instance_id" parameter '
+                'or the "include_exercises_file" option must be specified.',
+            )
+        elif len(exercise_filters) > 1:
+            raise CommandError('Only one of "course_instance_id" or "include_exercises_file" may be specified.')
+
+        exercise_q_filters = []
+        if options['exclude_exercises_file']:
+            exercise_q_filters.append(~Q(pk__in=self.parse_comma_list_file(options['exclude_exercises_file'])))
+
         # Fetch all exercises from the given course instances.
         exercises = BaseExercise.objects.filter(
-            course_module__course_instance__pk__in=course_instance_ids,
+            *exercise_q_filters,
+            **exercise_filters,
         ).select_related(
             'category',
         ).prefetch_related(
@@ -163,6 +205,7 @@ class Command(BaseCommand):
             all_deadline_deviations = {}
             if options['include_deadline_deviations']:
                 # Fetch all deadline deviations in the course instances.
+                # TODO: this does not use the "include_exercises_file" or "exclude_exercises_file" options at all.
                 all_deadline_deviations_queryset = DeadlineRuleDeviation.objects.filter(
                     exercise__course_module__course_instance__id__in=course_instance_ids,
                 ).prefetch_related(
@@ -196,6 +239,7 @@ class Command(BaseCommand):
             all_max_submissions_deviations = {}
             if options['include_max_submission_deviations']:
                 # Fetch all max submissions deviations in the course instances.
+                # TODO: this does not use the "include_exercises_file" or "exclude_exercises_file" options at all.
                 all_max_submissions_deviations_queryset = MaxSubmissionsRuleDeviation.objects.filter(
                     exercise__course_module__course_instance__id__in=course_instance_ids,
                 ).select_related(
