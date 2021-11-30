@@ -66,6 +66,12 @@ class Command(BaseCommand):
             action='store_true',
             help="If set, submitters' student ids are included in the submissions CSV file.",
         )
+        parser.add_argument(
+            '-u',
+            '--exclude-user-ids',
+            action='store_true',
+            help="If set, submitters' user ids are excluded from the submissions CSV (included by default).",
+        )
 
     def handle(self, *args, **options):
         course_instance_ids = options['course_instance_id']
@@ -133,13 +139,16 @@ class Command(BaseCommand):
 
             submissions = Submission.objects.filter(
                 exercise__in=exercises,
-            ).prefetch_related(
-                Prefetch(
-                    'submitters',
-                    queryset=UserProfile.objects.select_related('user').only(*user_fields),
-                    to_attr='submitter_userprofiles',
-                ),
-            ).defer(
+            )
+            if not options['exclude_user_ids'] or options['include_student_ids']:
+                submissions = submissions.prefetch_related(
+                    Prefetch(
+                        'submitters',
+                        queryset=UserProfile.objects.select_related('user').only(*user_fields),
+                        to_attr='submitter_userprofiles',
+                    ),
+                )
+            submissions = submissions.defer(
                 'hash',
                 'grader',
                 'feedback',
@@ -225,6 +234,7 @@ class Command(BaseCommand):
                 options['include_deadline_deviations'],
                 options['include_max_submission_deviations'],
                 options['include_student_ids'],
+                not options['exclude_user_ids'],
             )
             self.stdout.write("Created the submission file: " + submission_file_path)
 
@@ -274,10 +284,10 @@ class Command(BaseCommand):
             include_deadline_deviations=False,
             include_max_submission_deviations=False,
             include_student_ids=False,
+            include_user_ids=True,
     ):
         fieldnames = [
             'submission_id',
-            'submitter_user_ids',
             'exercise_id',
             'submission_time',
             'grade',
@@ -288,12 +298,14 @@ class Command(BaseCommand):
             'grading_time',
             'marked_as_final',
         ]
-        if include_max_submission_deviations:
-            fieldnames.insert(4, 'personal_max_submissions')
-        if include_deadline_deviations:
-            fieldnames.insert(4, 'personal_deadline')
+        if include_user_ids:
+            fieldnames.insert(2, 'submitter_user_ids')
         if include_student_ids:
             fieldnames.insert(2, 'student_ids')
+        if include_max_submission_deviations:
+            fieldnames.append('personal_max_submissions')
+        if include_deadline_deviations:
+            fieldnames.append('personal_deadline')
 
         with open(submission_file_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -301,7 +313,6 @@ class Command(BaseCommand):
             for submission in submissions:
                 d = {
                     'submission_id': submission.pk,
-                    'submitter_user_ids': '-'.join([str(profile.user.id) for profile in submission.submitter_userprofiles]),
                     'exercise_id': submission.exercise.pk,
                     'submission_time': submission.submission_time,
                     'grade': submission.grade,
@@ -312,6 +323,8 @@ class Command(BaseCommand):
                     'grading_time': submission.grading_time,
                     'marked_as_final': submission.force_exercise_points,
                 }
+                if include_user_ids:
+                    d['submitter_user_ids'] = '-'.join([str(profile.user.id) for profile in submission.submitter_userprofiles])
                 if include_student_ids:
                     d['student_ids'] = '-'.join([str(profile.student_id) for profile in submission.submitter_userprofiles])
 
