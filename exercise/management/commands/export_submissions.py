@@ -198,7 +198,7 @@ class Command(BaseCommand):
                 submission_filters['submitters__user_id__in'] = include_user_ids
 
             user_fields = ['user__id']
-            if options['include_student_ids']:
+            if options['include_student_ids'] or options['submission_results_format']:
                 user_fields.append('student_id')
 
             submissions = Submission.objects.filter(
@@ -311,6 +311,8 @@ class Command(BaseCommand):
                 self.write_results_csv(
                     submission_file_path,
                     submissions,
+                    options['include_student_ids'],
+                    not options['exclude_user_ids'],
                 )
             else:
                 self.write_submission_csv(
@@ -326,18 +328,21 @@ class Command(BaseCommand):
             self.stdout.write("Created the submission file: " + submission_file_path)
 
 
-    def write_results_csv(self, csv_file_path, submissions):
+    def write_results_csv(self, csv_file_path, submissions, include_student_ids=True, include_user_ids=True):
         # submissions is an iterable of dictionaries, one dict per exercise per submitter.
         with open(csv_file_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=(
+            fieldnames = [
                 'exercise_id',
-                'user_id',
-                'student_id',
                 'num_submissions',
                 'final_points',
                 'first_timestamp',
                 'last_timestamp',
-            ))
+            ]
+            if include_student_ids:
+                fieldnames.insert(1, 'student_id')
+            if include_user_ids:
+                fieldnames.insert(1, 'user_id')
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             for submission in submissions:
                 writer.writerow({
