@@ -2,7 +2,7 @@ import csv
 import sys
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Prefetch, Q
+from django.db.models import Count, Max, Min, Prefetch, Q
 
 from course.models import CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
@@ -38,6 +38,14 @@ class Command(BaseCommand):
             '--submission-output-file',
             help='Submissions are written to this CSV file. The file is created or overwritten. '
                  'If you do not set any value, then no submission file is written.',
+        )
+        parser.add_argument(
+            '-o',
+            '--submission-results-format',
+            action='store_true',
+            help="If set, changes the format of the output submissions CSV file. "
+                 "The output contains only aggregate results, one row per exercise per student: "
+                 "final grade, number of submissions, timestamps of the first and last submissions.",
         )
         parser.add_argument(
             '-b',
@@ -204,17 +212,32 @@ class Command(BaseCommand):
                         to_attr='submitter_userprofiles',
                     ),
                 )
-            submissions = submissions.defer(
-                'hash',
-                'grader',
-                'feedback',
-                'assistant_feedback',
-                'submission_data',
-                'grading_data',
-                'meta_data',
-            ).order_by(
-                'id',
-            )[submissions_slice]
+            if options['submission_results_format']:
+                # Aggregate exercise results.
+                submissions = submissions.exclude(status__in=(
+                    Submission.STATUS.UNOFFICIAL,
+                    Submission.STATUS.ERROR,
+                    Submission.STATUS.REJECTED,
+                )).values(
+                    'submitters__user_id',
+                    'exercise_id',
+                    'submitters__student_id',
+                ).annotate(
+                    count=Count('id'),
+                    first_timestamp=Min('submission_time'),
+                    last_timestamp=Max('submission_time'),
+                ).annotate_submitter_points('total')
+            else:
+                submissions = submissions.defer(
+                    'hash',
+                    'grader',
+                    'feedback',
+                    'assistant_feedback',
+                    'submission_data',
+                    'grading_data',
+                    'meta_data',
+                )
+            submissions = submissions.order_by()[submissions_slice]
 
             all_deadline_deviations = {}
             if options['include_deadline_deviations']:
@@ -284,17 +307,48 @@ class Command(BaseCommand):
 
         # One CSV file for all submissions.
         if submission_file_path:
-            self.write_submission_csv(
-                submission_file_path,
-                submissions,
-                all_deadline_deviations,
-                all_max_submissions_deviations,
-                options['include_deadline_deviations'],
-                options['include_max_submission_deviations'],
-                options['include_student_ids'],
-                not options['exclude_user_ids'],
-            )
+            if options['submission_results_format']:
+                self.write_results_csv(
+                    submission_file_path,
+                    submissions,
+                )
+            else:
+                self.write_submission_csv(
+                    submission_file_path,
+                    submissions,
+                    all_deadline_deviations,
+                    all_max_submissions_deviations,
+                    options['include_deadline_deviations'],
+                    options['include_max_submission_deviations'],
+                    options['include_student_ids'],
+                    not options['exclude_user_ids'],
+                )
             self.stdout.write("Created the submission file: " + submission_file_path)
+
+
+    def write_results_csv(self, csv_file_path, submissions):
+        # submissions is an iterable of dictionaries, one dict per exercise per submitter.
+        with open(csv_file_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=(
+                'exercise_id',
+                'user_id',
+                'student_id',
+                'num_submissions',
+                'final_points',
+                'first_timestamp',
+                'last_timestamp',
+            ))
+            writer.writeheader()
+            for submission in submissions:
+                writer.writerow({
+                    'exercise_id': submission['exercise_id'],
+                    'user_id': submission['submitters__user_id'],
+                    'student_id': submission['submitters__student_id'],
+                    'num_submissions': submission['count'],
+                    'final_points': submission['total'],
+                    'first_timestamp': submission['first_timestamp'],
+                    'last_timestamp': submission['last_timestamp'],
+                })
 
 
     def write_exercise_csv(self, exercise_file_path, exercises):
