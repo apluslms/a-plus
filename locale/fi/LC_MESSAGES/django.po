@@ -597,6 +597,14 @@ msgid "LABEL_SIS_IDENTIFIER"
 msgstr "Opintotietojärjestelmän kurssin tunniste"
 
 #: course/models.py
+msgid "LABEL_SIS_ENROLL"
+msgstr "Ilmoittautumiset opintotietojärjestelmästä"
+
+#: course/models.py
+msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
+msgstr "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava opintotietojärjestelmän kautta"
+
+#: course/models.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "kurssikerta"
 
@@ -962,6 +970,10 @@ msgstr "Muokkaa kurssiuutisia"
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "EDIT_COURSE"
 msgstr "Muokkaa kurssia"
+
+#: course/templates/course/_enroll_form.html
+msgid "ENROLL_THROUGH_SIS"
+msgstr "Sinun täytyy ilmoittautua tälle kurssille opintotietojärjestelmässä."
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"

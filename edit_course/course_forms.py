@@ -114,6 +114,7 @@ class CourseInstanceForm(forms.ModelForm):
             'teachers',
             'assistants',
             'technical_error_emails',
+            'sis_enroll',
         ]
         widgets = {
             'starting_time': DateTimeLocalInput,
@@ -137,6 +138,10 @@ class CourseInstanceForm(forms.ModelForm):
             self.fields["url"].help_text = _('COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE')
             self.fields["lifesupport_time"].help_text = _('COURSE_REMOVES_MODEL_ANSWER_VISIBILITY_STUDENTS')
             self.fields["archive_time"].help_text = _('COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS')
+        
+        # If course is not connected to SIS system, disable the enroll checkbox
+        if not self.instance.sis_id:
+            self.fields['sis_enroll'].disabled = True
 
     def clean_url(self):
         if self.instance and self.instance.visible_to_students:

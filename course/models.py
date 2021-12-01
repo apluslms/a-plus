@@ -647,6 +647,12 @@ class CourseInstance(UrlMixin, models.Model):
         default="",
     )
 
+    sis_enroll = models.BooleanField(
+        verbose_name=_('LABEL_SIS_ENROLL'),
+        default=False,
+        help_text=_('COURSE_INSTANCE_SIS_ENROLL_HELP')
+    )
+
     # usertags from course.models.UserTag
     # taggings from course.models.UserTagging
     # categories from course.models.LearningObjectCategory

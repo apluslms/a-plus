@@ -5,24 +5,28 @@
 	<div class="alert alert-info">
 	{% if enrollable %}
 		{% if instance.is_enrollment_open %}
-			<form method="post" action="{{ instance|url:'enroll' }}">
-				{% csrf_token %}
-				{% if instance.view_content_to > 1 %}
-					{% translate "ENROLL_TO_SUBMIT_EXERCISES" %}
-				{% else %}
-					{% translate "ENROLL_TO_SUBMIT_EXERCISES_AND_SEE_MATERIAL" %}
-				{% endif %}
-				<input type="submit" value="{% translate 'ENROLL' %}" class="aplus-button--default aplus-button--md">
-				{% if instance.enrollment_ending_time %}
-					<div>
-						<small>
-							{% blocktranslate trimmed with end=instance.enrollment_ending_time %}
-								ENROLLMENT_OPEN_UNTIL -- {{ end }}
-							{% endblocktranslate %}
-						</small>
-					</div>
-				{% endif %}
-			</form>
+			{% if instance.sis_enroll and not profile.is_external %}
+				{% translate "ENROLL_THROUGH_SIS" %}
+			{% else %}
+				<form method="post" action="{{ instance|url:'enroll' }}">
+					{% csrf_token %}
+					{% if instance.view_content_to > 1 %}
+						{% translate "ENROLL_TO_SUBMIT_EXERCISES" %}
+					{% else %}
+						{% translate "ENROLL_TO_SUBMIT_EXERCISES_AND_SEE_MATERIAL" %}
+					{% endif %}
+					<input type="submit" value="{% translate 'ENROLL' %}" class="aplus-button--default aplus-button--md">
+					{% if instance.enrollment_ending_time %}
+						<div>
+							<small>
+								{% blocktranslate trimmed with end=instance.enrollment_ending_time %}
+									ENROLLMENT_OPEN_UNTIL -- {{ end }}
+								{% endblocktranslate %}
+							</small>
+						</div>
+					{% endif %}
+				</form>
+			{% endif %}
 		{% elif instance.has_enrollment_closed %}
 			{% translate "ENROLLMENT_HAS_ENDED" %}
 		{% else %}

@@ -25,6 +25,7 @@ def enroll():
     courses = CourseInstance.objects.filter(
         ending_time__gt=now,
         starting_time__lt=now,
+        sis_enroll=True,
     )
     for i in courses:
         i.enroll_from_sis()
