@@ -85,6 +85,12 @@ class Command(BaseCommand):
             help='Exclude these exercises. This should be used with the "course_instance_id" parameter. '
                  'The BaseExercise ids are defined as a comma-separated list in the given file.',
         )
+        parser.add_argument(
+            '-r',
+            '--include-users-file',
+            help="Include submissions only from these users whose User ids "
+                 "are listed in the given file (comma separated).",
+        )
 
     def parse_comma_list_file(self, file_path):
         try:
@@ -118,9 +124,7 @@ class Command(BaseCommand):
 
         exercise_filters = {}
         if course_instance_ids:
-            exercise_filters = {
-                'course_module__course_instance__pk__in': course_instance_ids,
-            }
+            exercise_filters['course_module__course_instance__pk__in'] = course_instance_ids
 
         if options['include_exercises_file']:
             exercise_filters['pk__in'] = self.parse_comma_list_file(options['include_exercises_file'])
@@ -175,14 +179,24 @@ class Command(BaseCommand):
 
         # Fetch all submissions for the exercises.
         if submission_file_path:
+            include_user_ids = None
+            if options['include_users_file']:
+                include_user_ids = self.parse_comma_list_file(options['include_users_file'])
+
+            submission_filters = {
+                'exercise__in': exercises,
+            }
+            if include_user_ids:
+                submission_filters['submitters__user_id__in'] = include_user_ids
+
             user_fields = ['user__id']
             if options['include_student_ids']:
                 user_fields.append('student_id')
 
             submissions = Submission.objects.filter(
-                exercise__in=exercises,
+                **submission_filters,
             )
-            if not options['exclude_user_ids'] or options['include_student_ids']:
+            if not options['exclude_user_ids'] or options['include_student_ids'] or include_user_ids:
                 submissions = submissions.prefetch_related(
                     Prefetch(
                         'submitters',
