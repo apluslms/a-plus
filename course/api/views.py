@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from lib.email_messages import email_course_instance
 
 from lib.viewbase import BaseMixin
+from lib.api.filters import FieldValuesFilter
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.permissions import IsAdminOrUserObjIsSelf
@@ -266,8 +267,10 @@ class CourseStudentsViewSet(NestedViewSetMixin,
     filter_backends = (
         IsCourseAdminOrUserObjIsSelf,
         filters.SearchFilter,
+        FieldValuesFilter,
     )
     search_fields = ['user__first_name', 'user__last_name', 'student_id', 'user__email']
+    field_values_map = {'id': 'id', 'student_id': 'student_id', 'email': 'user__email'}
     lookup_field = 'user_id' # UserPofile.user.id
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
