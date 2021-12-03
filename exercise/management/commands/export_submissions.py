@@ -103,7 +103,7 @@ class Command(BaseCommand):
     def parse_comma_list_file(self, file_path):
         try:
             with open(file_path, 'r') as f:
-                return [val.strip() for val in f.read().split(',')]
+                return [val.strip() for val in f.read().split(',') if val.strip()]
         except OSError as e:
             raise CommandError(f'Error in reading the file "{file_path}".') from e
 
