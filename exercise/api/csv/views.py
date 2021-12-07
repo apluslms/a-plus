@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable, Optional, Set, Union
+from typing import Any, Dict, Optional, Set, Union
 
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
@@ -11,16 +11,16 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from lib.api.renderers import CSVExcelRenderer
 from lib.api.mixins import MeUserMixin
-from lib.api.constants import REGEX_INT, REGEX_INT_ME
+from lib.api.constants import REGEX_INT_ME
 from course.api.mixins import CourseResourceMixin
 from course.permissions import IsCourseAdminOrUserObjIsSelf
 from userprofile.models import UserProfile
 
 from ...cache.points import CachedPoints
 from ...models import Submission
-from .submission_sheet import *
-from .aggregate_sheet import *
-from .aggregate_points import *
+from .submission_sheet import filter_best_submissions, submissions_sheet
+from .aggregate_sheet import aggregate_sheet
+from .aggregate_points import aggregate_points
 
 
 class CourseSubmissionDataViewSet(NestedViewSetMixin,
@@ -51,6 +51,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     - `module_id`: id of the course module
     - `exercise_id`: id of the exercise
     - `best`: "yes" or "no"; "no" includes all different submissions from same submitters
+    - `field`: return submission data only for the given field, e.g., "field_0"
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
@@ -133,7 +134,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         field = request.GET.get('field')
         if field:
             def submitted_field(submission, name):
-                for key,val in submission.submission_data:
+                for key,val in (submission.submission_data or []):
                     if key == name:
                         return val
                 return ""
@@ -234,8 +235,13 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
             .annotate_submitter_points('total', revealed_ids)
             .order_by()
         )
-        data,fields = aggregate_sheet(request, profiles, self.instance.taggings.all(),
-            exercises, aggr, entry['number'] if entry else "")
+        data,fields = aggregate_sheet(
+            profiles,
+            self.instance.taggings.all(),
+            exercises,
+            aggr,
+            entry['number'] if entry else "",
+        )
         self.renderer_fields = fields
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
@@ -252,10 +258,26 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
                                CourseResourceMixin,
                                viewsets.ReadOnlyModelViewSet):
     """
-    List aggregate submission data as data sheet.
-    Following GET parameters may be used to filter submissions:
-    category_id, module_id, exercise_id,
-    filter (N.N where first module id, then optional exercise ids)
+    The `resultsdata` endpoint returns the students' points in the course
+    in CSV format.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/resultsdata/`:
+        returns the points of all users as CSV.
+
+    `GET /courses/<course_id>/resultsdata/<user_id>`:
+        returns the points of a specific user as CSV.
+
+    All operations support the following URL parameters for filtering:
+
+    - `filter`: the exercise number as a string, including module and chapter numbers
+        (format N.N.N)
+    - `category_id`: id of the exercise category
+    - `module_id`: id of the course module
+    - `exercise_id`: id of the exercise
+    - `show_unofficial`: if "true", unofficial submissions are included in the results
     """
     # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
@@ -295,7 +317,7 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
 
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
-        entry, exercises = self.content.search_entries(**search_args)
+        _, exercises = self.content.search_entries(**search_args)
         ids = [e['id'] for e in exercises if e['type'] == 'exercise']
         points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
@@ -311,8 +333,12 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
             .annotate_submitter_points('total', revealed_ids)
             .order_by()
         )
-        data,fields = aggregate_points(request, profiles, self.instance.taggings.all(),
-            exercises, aggr, entry['number'] if entry else "")
+        data,fields = aggregate_points(
+            profiles,
+            self.instance.taggings.all(),
+            exercises,
+            aggr,
+        )
         self.renderer_fields = fields
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):

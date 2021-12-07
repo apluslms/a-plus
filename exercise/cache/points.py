@@ -483,6 +483,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             exercise_id: Optional[int] = None,
             filter_for_assistant: bool = False,
             best: bool = True,
+            raise_404=True,
             ) -> List[int]:
         exercises = self.search_exercises(
             number=number,
@@ -490,6 +491,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             module_id=module_id,
             exercise_id=exercise_id,
             filter_for_assistant=filter_for_assistant,
+            raise_404=raise_404,
         )
         submissions = []
         if best:

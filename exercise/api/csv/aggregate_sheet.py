@@ -1,41 +1,56 @@
 from collections import OrderedDict
-import json
-
-from ...cache.points import CachedPoints
 
 
-def aggregate_sheet(request, profiles, taggings, exercises, aggregate, number):
+def aggregate_sheet(profiles, taggings, exercises, aggregate, number):
     DEFAULT_FIELDS = [
       'UserID', 'StudentID', 'Email', 'Tags',
     ]
     OBJECT_FIELDS = [
       '{} Count', '{} Total', '{} Ratio',
     ]
+    # Count: number of submissions. Total: (best) points. Ratio: float between 0-1, the percentage of points / max_points.
 
     d = 1 + (len(number.split('.')) if number else 0)
+    # If the number parameter is not given, all modules in the course are included.
+    # If the number is given, the children below that level are included.
+    # Example: number = "1" (module 1), d = 2, the output includes chapters in the fields: 1.1, 1.2, 1.3, ...
+    # (The exercises are aggregated under their parent chapters.)
     exercise_map = {}
     exercise_max = {}
     exercise_fields = []
     exercise_nums = []
     num = None
     for e in exercises:
-        if len(e['number'].split('.')) == d:
-            num = e['number']
+        level = len(e['number'].split('.'))
+        enum = '.'.join(e['number'].split('.')[:d])
+        # num needs to be checked here because in some cases, the exercises list
+        # is missing parents for some exercises. Especially when search
+        # entries are filtered with the filter_for_assistant parameter.
+        if level == d or (level > d and num != enum):
+            # Object in the level to include. If this object has children,
+            # the variables are initialized here. The children come after
+            # the parent in the exercises list.
+            # The children enter the next if branch since their level is higher.
+            num = e['number'] if level == d else enum
             exercise_nums.append(num)
             exercise_max[num] = 0
             for n in OBJECT_FIELDS:
-                exercise_fields.append(n.format(e['number']))
+                exercise_fields.append(n.format(num))
             if e['type'] == 'exercise':
                 exercise_map[e['id']] = num
                 exercise_max[num] += e['max_points']
-        elif e['type'] == 'exercise':
+        elif level > d:
+            # Child object of the previous parent.
+            # Parent comes before its children in the exercises list.
             exercise_map[e['id']] = num
             exercise_max[num] += e['max_points']
 
     agg = {}
     for row in aggregate:
         uid = row['submitters__user_id']
-        num = exercise_map[row['exercise_id']]
+        num = exercise_map.get(row['exercise_id'], None)
+        if num is None:
+            continue
         user_row = agg.get(uid, {})
         values = user_row.get(num, [0,0])
         values[0] += row['count']

@@ -8,18 +8,16 @@ from collections import OrderedDict
 # where xx is the exercise id, yy the submission count and zz the exercise points.
 # For convenience, we also return the total submission count and points for student
 
-def aggregate_points(request, profiles, taggings, exercises, aggregate, number):
+def aggregate_points(profiles, taggings, exercises, aggregate):
     DEFAULT_FIELDS = [
-      'UserID', 'StudentID', 'Email', 'FirstName', 'LastName', 'Tags',
+        'UserID', 'StudentID', 'Email', 'Name', 'Tags', 'Organization', 'Count', 'Total',
     ]
     OBJECT_FIELDS = [
-      '{} Count', '{} Total',
+        '{} Count', '{} Total',
     ]
 
-    d = 1 + (len(number.split('.')) if number else 0)
     exercise_fields = []
 
-    num = None
     for e in exercises:
         if e['type'] == 'exercise':
             for n in OBJECT_FIELDS:
