@@ -10,10 +10,10 @@ from collections import OrderedDict
 
 def aggregate_points(profiles, taggings, exercises, aggregate):
     DEFAULT_FIELDS = [
-      'UserID', 'StudentID', 'Email', 'FirstName', 'LastName', 'Tags',
+        'UserID', 'StudentID', 'Email', 'Name', 'Tags', 'Organization', 'Count', 'Total',
     ]
     OBJECT_FIELDS = [
-      '{} Count', '{} Total',
+        '{} Count', '{} Total',
     ]
 
     exercise_fields = []
