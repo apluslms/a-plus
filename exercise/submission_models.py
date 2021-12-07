@@ -55,14 +55,21 @@ class SubmissionQuerySet(models.QuerySet):
         # 3) If the grading_mode field of the exercise is set to LAST, return
         #    the points of the latest submission.
         # 4) In any other case, return the points of the best submission.
+        force_zero = False
         cases = []
         if revealed_ids is not None:
-            cases.append(
-                models.When(
-                    ~models.Q(exercise__in=revealed_ids),
-                    then=0,
+            # revealed_ids may be an empty set.
+            if revealed_ids:
+                # This When clause crashes if the revealed_ids set is empty.
+                cases.append(
+                    models.When(
+                        ~models.Q(exercise__in=revealed_ids),
+                        then=0,
+                    )
                 )
-            )
+            else:
+                # No exercise is revealed, thus always return grade zero.
+                force_zero = True
         cases.append(
             models.When(
                 forced_points__isnull=False,
@@ -87,7 +94,7 @@ class SubmissionQuerySet(models.QuerySet):
                 forced_points=models.Max('grade', filter=models.Q(force_exercise_points=True)),
             )
             .annotate(**{
-                field_name: models.Case(*cases, default=models.Max('grade')),
+                field_name: models.Case(*cases, default=models.Max('grade') if not force_zero else 0),
             })
         )
 
