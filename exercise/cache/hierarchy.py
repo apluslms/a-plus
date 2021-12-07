@@ -204,6 +204,8 @@ class ContentMixin(object):
                     raise Http404()
                 raise
             tree = self._by_idx(self.modules(), idx)
+            if not entry:
+                entry = tree[-1]
         else:
             tree = [{ 'type': 'all', 'children': self.modules() }]
         exercises = []

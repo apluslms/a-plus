@@ -11,13 +11,22 @@ def aggregate_sheet(profiles, taggings, exercises, aggregate, number):
     # Count: number of submissions. Total: (best) points. Ratio: float between 0-1, the percentage of points / max_points.
 
     d = 1 + (len(number.split('.')) if number else 0)
+    # If the number parameter is not given, all modules in the course are included.
+    # If the number is given, the children below that level are included.
+    # Example: number = "1" (module 1), d = 2, the output includes chapters in the fields: 1.1, 1.2, 1.3, ...
+    # (The exercises are aggregated under their parent chapters.)
     exercise_map = {}
     exercise_max = {}
     exercise_fields = []
     exercise_nums = []
     num = None
     for e in exercises:
-        if len(e['number'].split('.')) == d:
+        level = len(e['number'].split('.'))
+        if level == d:
+            # Object in the level to include. If this object has children,
+            # the variables are initialized here. The children come after
+            # the parent in the exercises list.
+            # The children enter the next if branch since their level is higher.
             num = e['number']
             exercise_nums.append(num)
             exercise_max[num] = 0
@@ -26,14 +35,18 @@ def aggregate_sheet(profiles, taggings, exercises, aggregate, number):
             if e['type'] == 'exercise':
                 exercise_map[e['id']] = num
                 exercise_max[num] += e['max_points']
-        elif e['type'] == 'exercise':
+        elif level > d:
+            # Child object of the previous parent.
+            # Parent comes before its children in the exercises list.
             exercise_map[e['id']] = num
             exercise_max[num] += e['max_points']
 
     agg = {}
     for row in aggregate:
         uid = row['submitters__user_id']
-        num = exercise_map[row['exercise_id']]
+        num = exercise_map.get(row['exercise_id'], None)
+        if num is None:
+            continue
         user_row = agg.get(uid, {})
         values = user_row.get(num, [0,0])
         values[0] += row['count']
