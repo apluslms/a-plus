@@ -258,10 +258,26 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
                                CourseResourceMixin,
                                viewsets.ReadOnlyModelViewSet):
     """
-    List aggregate submission data as data sheet.
-    Following GET parameters may be used to filter submissions:
-    category_id, module_id, exercise_id,
-    filter (N.N where first module id, then optional exercise ids)
+    The `resultsdata` endpoint returns the students' points in the course
+    in CSV format.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/resultsdata/`:
+        returns the points of all users as CSV.
+
+    `GET /courses/<course_id>/resultsdata/<user_id>`:
+        returns the points of a specific user as CSV.
+
+    All operations support the following URL parameters for filtering:
+
+    - `filter`: the exercise number as a string, including module and chapter numbers
+        (format N.N.N)
+    - `category_id`: id of the exercise category
+    - `module_id`: id of the course module
+    - `exercise_id`: id of the exercise
+    - `show_unofficial`: if "true", unofficial submissions are included in the results
     """
     # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
