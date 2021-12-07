@@ -51,6 +51,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
     - `module_id`: id of the course module
     - `exercise_id`: id of the exercise
     - `best`: "yes" or "no"; "no" includes all different submissions from same submitters
+    - `field`: return submission data only for the given field, e.g., "field_0"
     """
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
         IsCourseAdminOrUserObjIsSelf,
@@ -133,7 +134,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         field = request.GET.get('field')
         if field:
             def submitted_field(submission, name):
-                for key,val in submission.submission_data:
+                for key,val in (submission.submission_data or []):
                     if key == name:
                         return val
                 return ""
