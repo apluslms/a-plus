@@ -1,16 +1,14 @@
 from collections import OrderedDict
-import json
-
-from ...cache.points import CachedPoints
 
 
-def aggregate_sheet(request, profiles, taggings, exercises, aggregate, number):
+def aggregate_sheet(profiles, taggings, exercises, aggregate, number):
     DEFAULT_FIELDS = [
       'UserID', 'StudentID', 'Email', 'Tags',
     ]
     OBJECT_FIELDS = [
       '{} Count', '{} Total', '{} Ratio',
     ]
+    # Count: number of submissions. Total: (best) points. Ratio: float between 0-1, the percentage of points / max_points.
 
     d = 1 + (len(number.split('.')) if number else 0)
     exercise_map = {}
