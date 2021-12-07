@@ -1,3 +1,4 @@
+from django.http.response import Http404
 from course.models import CourseModule, LearningObjectCategory
 from ..models import LearningObject
 
@@ -150,7 +151,7 @@ class ContentMixin(object):
                     hit = s
                     search = hit['children']
                     break
-            if not hit:
+            else:
                 raise NoSuchContent()
         return hit
 
@@ -176,7 +177,8 @@ class ContentMixin(object):
         return [e for e in entries if e['type'] == 'exercise']
 
     def search_entries(self, number=None, category_id=None, module_id=None,
-                       exercise_id=None, filter_for_assistant=False, best=False):
+                       exercise_id=None, filter_for_assistant=False, best=False,
+                       raise_404=True):
         entry = None
         if number:
             try:
@@ -186,14 +188,21 @@ class ContentMixin(object):
                 elif entry['type'] == 'exercise':
                     exercise_id = entry['id']
             except NoSuchContent:
-                pass
+                if raise_404:
+                    raise Http404()
+                raise
         search = None
         if not exercise_id is None:
             search = { 'type': 'exercise', 'id': int(exercise_id) }
         elif not module_id is None:
             search = { 'type': 'module', 'id': int(module_id) }
         if search:
-            idx = self._model_idx(search)
+            try:
+                idx = self._model_idx(search)
+            except NoSuchContent:
+                if raise_404:
+                    raise Http404()
+                raise
             tree = self._by_idx(self.modules(), idx)
         else:
             tree = [{ 'type': 'all', 'children': self.modules() }]
