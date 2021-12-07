@@ -22,16 +22,20 @@ def aggregate_sheet(profiles, taggings, exercises, aggregate, number):
     num = None
     for e in exercises:
         level = len(e['number'].split('.'))
-        if level == d:
+        enum = '.'.join(e['number'].split('.')[:d])
+        # num needs to be checked here because in some cases, the exercises list
+        # is missing parents for some exercises. Especially when search
+        # entries are filtered with the filter_for_assistant parameter.
+        if level == d or (level > d and num != enum):
             # Object in the level to include. If this object has children,
             # the variables are initialized here. The children come after
             # the parent in the exercises list.
             # The children enter the next if branch since their level is higher.
-            num = e['number']
+            num = e['number'] if level == d else enum
             exercise_nums.append(num)
             exercise_max[num] = 0
             for n in OBJECT_FIELDS:
-                exercise_fields.append(n.format(e['number']))
+                exercise_fields.append(n.format(num))
             if e['type'] == 'exercise':
                 exercise_map[e['id']] = num
                 exercise_max[num] += e['max_points']
