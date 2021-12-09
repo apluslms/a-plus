@@ -28,9 +28,14 @@ class Command(BaseCommand):
         if not conf_url:
             raise CommandError("There is no configuration url for {}. Use --url=<url> to set one.".format(instance))
 
-        errors = configure_content(instance, conf_url)
-        if errors:
+        success, errors = configure_content(instance, conf_url)
+        if success:
+            if errors:
+                self.stdout.write(self.style.WARNING("\n".join((str(e) for e in errors))))
+            else:
+                self.stdout.write(self.style.SUCCESS("Course update done!"))
+        elif errors:
             self.stdout.write(self.style.ERROR("\n".join((str(e) for e in errors))))
             raise CommandError("Configuration failed!")
         else:
-            self.stdout.write(self.style.SUCCESS("Course update done!"))
+            self.stdout.write(self.style.ERROR("Failed to update"))

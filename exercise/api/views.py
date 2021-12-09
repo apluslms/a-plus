@@ -1,3 +1,4 @@
+from aplus_auth.payload import Permission
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse
@@ -21,6 +22,8 @@ from userprofile.models import UserProfile, GraderUser
 from userprofile.permissions import IsAdminOrUserObjIsSelf, GraderUserCanOnlyRead
 from course.permissions import (
     IsCourseAdminOrUserObjIsSelf,
+    JWTSubmissionCreatePermission,
+    JWTSubmissionWritePermission,
     OnlyCourseTeacherPermission,
 )
 from course.api.mixins import CourseResourceMixin
@@ -53,12 +56,6 @@ from .full_serializers import *
 from .custom_serializers import *
 
 
-GRADER_PERMISSION = api_settings.DEFAULT_PERMISSION_CLASSES + [
-    OnlyCourseTeacherPermission,
-]
-GRADER_PERMISSION = [p for p in GRADER_PERMISSION if p is not GraderUserCanOnlyRead]
-
-
 class ExerciseViewSet(mixins.RetrieveModelMixin,
                       ExerciseResourceMixin,
                       viewsets.GenericViewSet):
@@ -87,7 +84,7 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
         url_path='grader',
         url_name='grader',
         methods=['get', 'post'],
-        permission_classes = GRADER_PERMISSION,
+        get_permissions = lambda: [JWTSubmissionCreatePermission()],
         serializer_class = ExerciseGraderSerializer,
     )
     def grader_detail(self, request, *args, **kwargs):
@@ -105,45 +102,37 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
                 "authentication token"
             )
 
-        # compare exercise linked to grader token with exercise defined in url
-        exercise = user._exercise
-        if exercise != self.exercise:
+        info = user.permissions.submissions.get_create(exercise=self.exercise)[1]
+        if info is None:
             raise PermissionDenied(
                 "You are allowed only to create new submission to exercise "
                 "that your grader atuhentication token is for."
             )
 
         # resolve submiting user from grader token
-        student_id = user._extra.get('student_id', None)
-        if not student_id and student_id != 0:
+        user_id = info.get("user_id")
+        if not user_id and user_id != 0:
             raise PermissionDenied(
                 "There is no user_id stored in your grader authentication token, "
                 "so it can't be used to create new submission."
             )
         try:
-            student = UserProfile.objects.get(user_id=student_id)
+            student = UserProfile.objects.get(user_id=user_id)
         except UserProfile.DoesNotExist:
             raise PermissionDenied(
                 "User_id in your grader authentication token doesn't really exist, "
                 "so you can't create new submission with your grader token."
             )
 
-        # make sure this was not submission token (after above check this should ever trigger)
-        if user._submission is not None:
-            raise PermissionDenied(
-                "This grader authentication token is for specific submission, "
-                "thus you can't create new submission with it."
-            )
-
         # find out if student can submit new exercise and if ok create submission template
-        status, errors, students = exercise.check_submission_allowed(student)
-        if status != exercise.SUBMIT_STATUS.ALLOWED:
+        status, errors, students = self.exercise.check_submission_allowed(student)
+        if status != self.exercise.SUBMIT_STATUS.ALLOWED:
             return Response({'success': False, 'errors': errors})
-        submission = Submission.objects.create(exercise=exercise)
+        submission = Submission.objects.create(exercise=self.exercise)
         submission.submitters.set(students)
 
         # grade and update submission with data
-        return Response(_post_async_submission(request, exercise, submission, errors))
+        return Response(_post_async_submission(request, self.exercise, submission, errors))
 
 
 class ExerciseSubmissionsViewSet(NestedViewSetMixin,
@@ -413,7 +402,7 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
         url_path='grader',
         url_name='grader',
         methods=['get', 'post'],
-        permission_classes = GRADER_PERMISSION,
+        get_permissions = lambda: [JWTSubmissionWritePermission()],
         serializer_class = SubmissionGraderSerializer,
     )
     def grader_detail(self, request, *args, **kwargs):
@@ -431,17 +420,13 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
                 "authentication token"
             )
 
-        exercise = user._exercise
-        submission = user._submission
-
-        # compare submission linked to grader token to submission in url
-        if submission != self.submission:
+        if user.permissions.submissions.has(Permission.WRITE, self.submission):
             raise PermissionDenied(
                 "You are not allowed to grade other submissions than what "
                 "your grader authentication token is for"
             )
 
-        return Response(_post_async_submission(request, exercise, submission))
+        return Response(_post_async_submission(request, self.submission.exercise, self.submission))
 
 
 class SubmissionFileViewSet(NestedViewSetMixin,

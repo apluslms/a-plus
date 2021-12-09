@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
+from aplus_auth.payload import Permission, Permissions
 from django.conf import settings
 from django.contrib.auth.models import User, AnonymousUser
 from django.urls import reverse
@@ -9,11 +10,13 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
+from authorization.object_permissions import ObjectPermissions
+
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
-    from exercise.models import Submission, SubmissionDraft
-
+    from exercise.models import BaseExercise, Submission, SubmissionDraft
+    from external_services.models import LTIService
 
 class UserProfileManager(models.Manager):
 
@@ -143,18 +146,9 @@ post_save.connect(create_user_profile, sender=User)
 
 
 class GraderUser(AnonymousUser):
-    @classmethod
-    def from_submission(cls, submission):
-        return cls(submission=submission)
-
-    @classmethod
-    def from_exercise(cls, exercise, student_id):
-        return cls(exercise=exercise, student_id=student_id)
-
-    def __init__(self, submission=None, exercise=None, **extra):
-        self._submission = submission
-        if exercise:
-            self._exercise = exercise
+    def __init__(self, username: str, permissions: ObjectPermissions, **extra: Any):
+        self.username = username
+        self.permissions = permissions
         self._extra = extra
 
     @property
@@ -172,20 +166,22 @@ class GraderUser(AnonymousUser):
         """Compatibilty with User.userprofile"""
         return self
 
-    @cached_property
-    def _exercise(self):
-        return self._submission.exercise
-
-    @cached_property
-    def _course_instance(self):
-        return self._exercise.course_module.course_instance
-
-    @cached_property
-    def _course(self):
-        return self._course_instance.course
-
 
 class LTIServiceUser(GraderUser):
-    def __init__(self, submission=None, exercise=None, lti_service=None, **kwargs):
+    def __init__(self, submission: "Submission" = None,
+            exercise: "BaseExercise" = None,
+            lti_service: Optional["LTIService"] = None,
+            user_id: int = None,
+            **kwargs: Any,
+            ) -> None:
+        """exercise and student_id must both be present if one is"""
         self.lti_service = lti_service
-        super().__init__(submission=submission, exercise=exercise, **kwargs)
+        permissions = ObjectPermissions()
+        if submission:
+            permissions.submissions.add(Permission.WRITE, submission)
+        if exercise:
+            if user_id:
+                permissions.submissions.add_create(exercise=exercise, user_id=user_id)
+            else:
+                permissions.submissions.add_create(exercise=exercise)
+        super().__init__("LTI", permissions, **kwargs)

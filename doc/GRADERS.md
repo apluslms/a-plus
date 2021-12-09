@@ -4,6 +4,15 @@ A+ grader service protocols
 The philosophy of A+ is to integrate external grader services into the course environment.
 The graders should be stateless and need only to worry about grading a submission.
 
+## Authentication and Authorization
+
+Every incoming and outgoing request must either have a A+-provided grading
+token as a GET parameter (included in the `submission_url` below) or a JWT
+authentication token attached in the Authorization header:
+
+    Authorization: bearer <token>
+
+For more information on the JWT token, see [AUTH](AUTH.md).
 
 ## BaseExercise (A+ HTTP protocol)
 

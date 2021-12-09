@@ -9,6 +9,7 @@ import course.api.views
 import exercise.api.views
 import exercise.api.csv.views
 import external_services.api.views
+import authorization.api.views
 
 
 class AplusRouter(ExtendedDefaultRouter):
@@ -86,6 +87,7 @@ with api.register(r'submissions',
 urlpatterns = [
     url(r'^', include((api.urls, 'api'), namespace='api')),
 
+    url(r"^get-token", authorization.api.views.RemoteAuthenticationView.as_view(), name="get-token"),
     url(r'^me', userprofile.api.views.MeDetail.as_view()),
     url(r'^lti-outcomes', external_services.api.views.LTIExerciseBasicOutcomesView.as_view(), name='lti-outcomes'),
 ]

@@ -14,7 +14,7 @@ Note that you will need to have admin rights to install these correctly.
 Alternatively, you can have comparable software which enable you to use the commands `docker`, `docker-compose` and `drone`.
 
 If you are going to use Django translations, you must install the GNU **gettext** utilities
-- [gettext Ubuntu](https://packages.ubuntu.com/search?keywords=gettext). 
+- [gettext Ubuntu](https://packages.ubuntu.com/search?keywords=gettext).
 - [gettext Windows](https://mlocati.github.io/articles/gettext-iconv-windows.html)
 
 ## Running A+ in a container
@@ -261,3 +261,16 @@ If you have added new strings with new string keys, make sure that the keys are 
    ```
 
 The final step can also be used to ensure that the translations work, when the code is run in a container and mounted to `/srv/`.
+
+## Enabling/disabling JWT permission checks
+
+JWT permission checks are disabled when aplus-auth's `DISABLE_LOGIN_CHECKS`
+setting is true. This should be the case automatically when `DEBUG` is true,
+unless you have overridden the default aplus-auth library settings.
+
+When JWT permission checks are enabled, you'll need to configure the auth
+settings. See [DEPLOYMENT](DEPLOYMENT.md) for more information.
+(RSA keys, `APLUS_AUTH`, `ALIAS_TO_PUBLIC_KEY` and `URL_TO_ALIAS`)
+
+For more information, see the [aplus-auth](https://github.com/lainets/aplus-auth)
+settings.

@@ -4,11 +4,14 @@ import re
 import requests
 import time
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse, urljoin
+
 from django.conf import settings
 from django.utils.http import parse_http_date_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
-from urllib.parse import urlparse, urljoin
+
+from lib.aplus_auth import post as aplus_post, get as aplus_get
 
 
 logger = logging.getLogger('aplus.remote_page')
@@ -44,8 +47,9 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
                 request_time = time.time()
                 if post:
                     logger.info("POST %s", url)
-                    response = requests.post(
+                    response = aplus_post(
                         url,
+                        payload={},
                         data=data,
                         files=files,
                         timeout=settings.EXERCISE_HTTP_TIMEOUT
@@ -55,8 +59,9 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
                     headers = {}
                     if stamp:
                         headers['If-Modified-Since'] = stamp
-                    response = requests.get(
+                    response = aplus_get(
                         url,
+                        payload={},
                         timeout=settings.EXERCISE_HTTP_TIMEOUT,
                         headers=headers
                     )

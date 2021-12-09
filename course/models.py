@@ -2,9 +2,11 @@ import datetime
 import json
 import logging
 import string
+from typing import Any, Dict
 import urllib.request, urllib.parse
 from random import randint, choice
 
+from aplus_auth.payload import Payload, Permission
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
@@ -21,6 +23,9 @@ from django.utils.translation import gettext_lazy as _
 from django_colortag.models import ColorTag
 
 from apps.models import BaseTab, BasePlugin
+from authorization.models import JWTAccessible
+from authorization.object_permissions import register_jwt_accessible_class
+from lib.aplus_auth import url_to_audience
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import (
@@ -33,6 +38,7 @@ from lib.helpers import (
 )
 from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
+from lib.typing import AnyUser
 from lib.validators import generate_url_key_validator
 from userprofile.models import User, UserProfile, GraderUser
 
@@ -43,6 +49,10 @@ with open(finders.find('pseudonym.json')) as json_file:
     DATA = json.load(json_file)
 
 
+class CourseManager(JWTAccessible["Course"], models.Manager): ...
+
+
+@register_jwt_accessible_class("course")
 class Course(UrlMixin, models.Model):
     """
     Course model represents a course in a university. A course has a name and an
@@ -65,6 +75,8 @@ class Course(UrlMixin, models.Model):
         help_text=_('COURSE_URL_IDENTIFIER_HELPTEXT'),
         validators=[generate_url_key_validator()],
     )
+
+    objects = CourseManager()
 
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE')
@@ -409,11 +421,14 @@ def get_course_staff_visibility_filter(user, prefix=None):
             & Q(**{f'{prefix}enrollment__user_profile': user})
         )
     elif isinstance(user, GraderUser):
-        filter = Q(**{f'{prefix}course': user._course})
+        courses = [o for _, o in user.permissions.courses]
+        instances = [o for _, o in user.permissions.instances]
+        filter = Q(**{f'{prefix}course__in': courses}) | Q(**{f'{prefix}id__in': instances})
+
     return filter
 
 
-class CourseInstanceManager(models.Manager):
+class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
     """
     Helpers in CourseInstance.objects
     """
@@ -454,6 +469,26 @@ class CourseInstanceManager(models.Manager):
             enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
             enrollment__user_profile=user)
 
+    def has_access(self, user: AnyUser, payload: Payload, permission: Permission, instance: "CourseInstance") -> bool:
+        # a normal user
+        if user.is_authenticated and not user.is_anonymous:
+            return instance.is_teacher(user)
+        # a grader user
+        elif user.is_authenticated and user.is_anonymous:
+            try:
+                config_aud = url_to_audience(instance.configure_url)
+            except KeyError:
+                logger.warning(f"Could not find public key for configure_url {instance.configure_url}. Cannot authorize JWT instance access")
+                return False
+            else:
+                return config_aud == user.username
+
+        return False
+
+    def has_create_access(self, payload: Payload, kwargs: Dict[str, Any]) -> bool:
+        return False
+
+
 def build_upload_dir(instance, filename):
     """
     Returns the path to a directory where the instance image should be saved.
@@ -464,6 +499,7 @@ def build_upload_dir(instance, filename):
     )
 
 
+@register_jwt_accessible_class("instance")
 class CourseInstance(UrlMixin, models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have
@@ -732,7 +768,7 @@ class CourseInstance(UrlMixin, models.Model):
                     self.teachers.filter(id=user.userprofile.id).exists()
                 ) or (
                     isinstance(user, GraderUser) and
-                    user._course == self.course
+                    (Permission.WRITE, self.course) in user.permissions.courses
                 )
             )
         )

@@ -1,9 +1,9 @@
 import json
-import requests
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
+from django.db import transaction
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
@@ -14,6 +14,7 @@ from course.models import Course, CourseInstance, CourseModule, LearningObjectCa
 from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise, RevealRule
 from external_services.models import LTIService
+from lib import aplus_auth
 from lib.localization_syntax import format_localization
 from userprofile.models import UserProfile
 
@@ -334,7 +335,7 @@ def get_build_log(instance):
     if not instance.build_log_url:
         return {'error': _('BUILD_LOG_ERROR_URL_BLANK')}
     try:
-        response = requests.get(instance.build_log_url)
+        response = aplus_auth.get(instance.build_log_url)
     except Exception as e:
         return {
             'error': format_lazy(
@@ -356,35 +357,41 @@ def get_build_log(instance):
     return data
 
 
-def configure_content(instance, url):
+def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[str]]:
     """
     Configures course content by trusted remote URL.
     """
     if not url:
-        return [_('COURSE_CONFIG_URL_REQUIRED')]
-    try:
-        url = url.strip()
-        response = requests.get(url)
-        response.raise_for_status()
-    except Exception as e:
-        return [format_lazy(
-            _('COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}'),
-            error=e,
-        )]
+        return False, [_('COURSE_CONFIG_URL_REQUIRED')]
 
+    # save the url before fetching config. The JWT system requires this to be
+    # set, so that A+ knows which service to trust to have access to the course
+    # instance. The aplus config url might need access to the course instance.
+    # The other service might also need to have access to the course instance
+    # before it can be configured from the url.
     instance.configure_url = url
     instance.save()
 
     try:
+        url = url.strip()
+        response = aplus_auth.get(url)
+        response.raise_for_status()
+    except Exception as e:
+        return False, [format_lazy(
+            _('COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}'),
+            error=e,
+        )]
+
+    try:
         config = json.loads(response.text)
     except Exception as e:
-        return [format_lazy(
+        return False, [format_lazy(
             _('COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}'),
             error=e,
         )]
 
     if not isinstance(config, dict):
-        return [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
+        return False, [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
 
     errors = config.get('errors', [])
     if not isinstance(errors, list):
@@ -392,263 +399,315 @@ def configure_content(instance, url):
 
     if not config.get('success', True):
         errors.insert(0, _("COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"))
-        return errors
+        return False, errors
 
-    # Configure course instance attributes.
-    if "start" in config:
-        dt = parse_date(config["start"], errors)
-        if dt:
-            instance.starting_time = dt
-    if "end" in config:
-        dt = parse_date(config["end"], errors)
-        if dt:
-            instance.ending_time = dt
-    if "enrollment_start" in config:
-        instance.enrollment_starting_time = parse_date(config["enrollment_start"], errors, allow_null=True)
-    if "enrollment_end" in config:
-        instance.enrollment_ending_time = parse_date(config["enrollment_end"], errors, allow_null=True)
-    if "lifesupport_time" in config:
-        instance.lifesupport_time = parse_date(config["lifesupport_time"], errors, allow_null=True)
-    if "archive_time" in config:
-        instance.archive_time = parse_date(config["archive_time"], errors, allow_null=True)
-    if "enrollment_audience" in config:
-        enroll_audience = parse_choices(config["enrollment_audience"], {
-                'internal': CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
-                'external': CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS,
-                'all': CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS,
-            }, "enrollment_audience", errors)
-        if enroll_audience is not None:
-            instance.enrollment_audience = enroll_audience
-    if "view_content_to" in config:
-        view_content_to = parse_choices(config["view_content_to"], {
-                'enrolled': CourseInstance.VIEW_ACCESS.ENROLLED,
-                'enrollment_audience': CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
-                'all_registered': CourseInstance.VIEW_ACCESS.ALL_REGISTERED,
-                'public': CourseInstance.VIEW_ACCESS.PUBLIC,
-            }, "view_content_to", errors)
-        if view_content_to is not None:
-            instance.view_content_to = view_content_to
-    if "index_mode" in config:
-        index_mode = parse_choices(config["index_mode"], {
-                'results': CourseInstance.INDEX_TYPE.RESULTS,
-                'toc': CourseInstance.INDEX_TYPE.TOC,
-                'last': CourseInstance.INDEX_TYPE.LAST,
-                'experimental': CourseInstance.INDEX_TYPE.EXPERIMENT,
-            }, "index_mode", errors)
-        if index_mode is not None:
-            instance.index_mode = index_mode
-
-    numbering_choices = {
-        'none': CourseInstance.CONTENT_NUMBERING.NONE,
-        'arabic': CourseInstance.CONTENT_NUMBERING.ARABIC,
-        'roman': CourseInstance.CONTENT_NUMBERING.ROMAN,
-        'hidden': CourseInstance.CONTENT_NUMBERING.HIDDEN,
-    }
-    if "content_numbering" in config:
-        numbering = parse_choices(config["content_numbering"], numbering_choices,
-            "content_numbering", errors)
-        if numbering is not None:
-            instance.content_numbering = numbering
-    if "module_numbering" in config:
-        numbering = parse_choices(config["module_numbering"], numbering_choices,
-            "module_numbering", errors)
-        if numbering is not None:
-            instance.module_numbering = numbering
-    if "course_description" in config:
-        # Course index.yaml files have previously used the field "description"
-        # for a hidden description, so we use "course_description" for
-        # the visible description.
-        instance.description = str(config["course_description"])
-    if "course_footer" in config:
-        instance.footer = str(config["course_footer"])
-    if "lang" in config:
-        langs = config["lang"]
-        if isinstance(langs, list):
-            langs = [lang for lang in langs if instance.is_valid_language(lang)]
-            if langs:
-               instance.language = "|{}|".format("|".join(langs))
-        elif instance.is_valid_language(langs):
-            instance.language = str(langs)[:5]
-    if "contact" in config:
-        instance.technical_error_emails = str(config["contact"])
-    if "head_urls" in config:
-        head_urls = config["head_urls"]
-        instance.head_urls = "\n".join(head_urls) if isinstance(head_urls, list) else str(head_urls)
-    if "assistants" in config:
-        if not isinstance(config["assistants"], list):
-            errors.append(_('COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY'))
-        else:
-            assistants = []
-            for sid in config["assistants"]:
-                try:
-                    profile = UserProfile.get_by_student_id(student_id=sid)
-                except UserProfile.DoesNotExist as err:
-                    errors.append(
-                        format_lazy(
-                            _('COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}'),
-                            id=sid,
-                        )
-                    )
-                else:
-                    assistants.append(profile)
-            instance.set_assistants(assistants)
-    instance.build_log_url = str(config['build_log_url']) if 'build_log_url' in config else ''
-    # configure_url excluded from validation because the default Django URL
-    # validation does not accept dotless domain names such as "grader"
-    instance.full_clean(exclude=['configure_url', 'build_log_url'])
-    instance.save()
-
-    if not "categories" in config or not isinstance(config["categories"], dict):
-        errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
-        return errors
-    if not "modules" in config or not isinstance(config["modules"], list):
-        errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
-        return errors
-
-    # Configure learning object categories.
-    category_map = {}
-    seen = []
-    for key, c in config.get("categories", {}).items():
-        if not "name" in c:
-            errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
-            continue
-        try:
-            category = instance.categories.get(name=format_localization(c["name"]))
-        except LearningObjectCategory.DoesNotExist:
-            category = LearningObjectCategory(course_instance=instance,
-                name=format_localization(c["name"]))
-        if "status" in c:
-            category.status = str(c["status"])
-        if "description" in c:
-            category.description = str(c["description"])
-        if "points_to_pass" in c:
-            i = parse_int(c["points_to_pass"], errors)
-            if not i is None:
-                category.points_to_pass = i
-        for field in [
-            "confirm_the_level",
-            "accept_unofficial_submits",
-        ]:
-            if field in c:
-                setattr(category, field, parse_bool(c[field]))
-        category.full_clean()
-        category.save()
-        category_map[key] = category
-        seen.append(category.id)
-
-    for category in instance.categories.all():
-        if not category.id in seen:
-            category.status = LearningObjectCategory.STATUS.HIDDEN
-            category.save()
-
-    # Configure course modules.
-    seen_modules = []
-    seen_objects = []
-    nn = 0
-    n = 0
-    for m in config.get("modules", []):
-        if not "key" in m:
-            errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
-            continue
-        try:
-            module = instance.course_modules.get(url=str(m["key"]))
-        except CourseModule.DoesNotExist:
-            module = CourseModule(course_instance=instance, url=str(m["key"]))
-
-        if "order" in m:
-            module.order = parse_int(m["order"], errors)
-        else:
-            n += 1
-            module.order = n
-
-        if "title" in m:
-            module.name = format_localization(m["title"])
-        elif "name" in m:
-            module.name = format_localization(m["name"])
-        if not module.name:
-            module.name = "-"
-        if "status" in m:
-            module.status = str(m["status"])
-        if "points_to_pass" in m:
-            i = parse_int(m["points_to_pass"], errors)
-            if not i is None:
-                module.points_to_pass = i
-        if "introduction" in m:
-            module.introduction = str(m["introduction"])
-
-        if "open" in m:
-            dt = parse_date(m["open"], errors)
+    # wrap everything in a transaction to make sure invalid configuration isn't saved
+    with transaction.atomic():
+        # Configure course instance attributes.
+        if "start" in config:
+            dt = parse_date(config["start"], errors)
             if dt:
-                module.opening_time = dt
-        if not module.opening_time:
-            module.opening_time = instance.starting_time
-
-        if "close" in m:
-            dt = parse_date(m["close"], errors)
+                instance.starting_time = dt
+        if "end" in config:
+            dt = parse_date(config["end"], errors)
             if dt:
-                module.closing_time = dt
-        elif "duration" in m:
-            dt = parse_duration(module.opening_time, m["duration"], errors)
-            if dt:
-                module.closing_time = dt
-        if not module.closing_time:
-            module.closing_time = instance.ending_time
+                instance.ending_time = dt
+        if "enrollment_start" in config:
+            instance.enrollment_starting_time = parse_date(config["enrollment_start"], errors, allow_null=True)
+        if "enrollment_end" in config:
+            instance.enrollment_ending_time = parse_date(config["enrollment_end"], errors, allow_null=True)
+        if "lifesupport_time" in config:
+            instance.lifesupport_time = parse_date(config["lifesupport_time"], errors, allow_null=True)
+        if "archive_time" in config:
+            instance.archive_time = parse_date(config["archive_time"], errors, allow_null=True)
+        if "enrollment_audience" in config:
+            enroll_audience = parse_choices(config["enrollment_audience"], {
+                    'internal': CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
+                    'external': CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS,
+                    'all': CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS,
+                }, "enrollment_audience", errors)
+            if enroll_audience is not None:
+                instance.enrollment_audience = enroll_audience
+        if "view_content_to" in config:
+            view_content_to = parse_choices(config["view_content_to"], {
+                    'enrolled': CourseInstance.VIEW_ACCESS.ENROLLED,
+                    'enrollment_audience': CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
+                    'all_registered': CourseInstance.VIEW_ACCESS.ALL_REGISTERED,
+                    'public': CourseInstance.VIEW_ACCESS.PUBLIC,
+                }, "view_content_to", errors)
+            if view_content_to is not None:
+                instance.view_content_to = view_content_to
+        if "index_mode" in config:
+            index_mode = parse_choices(config["index_mode"], {
+                    'results': CourseInstance.INDEX_TYPE.RESULTS,
+                    'toc': CourseInstance.INDEX_TYPE.TOC,
+                    'last': CourseInstance.INDEX_TYPE.LAST,
+                    'experimental': CourseInstance.INDEX_TYPE.EXPERIMENT,
+                }, "index_mode", errors)
+            if index_mode is not None:
+                instance.index_mode = index_mode
 
-        if "read-open" in m:
-            module.reading_opening_time = parse_date(m["read-open"], errors, allow_null=True)
-
-        if "late_close" in m:
-            dt = parse_date(m["late_close"], errors)
-            if dt:
-                module.late_submission_deadline = dt
-                module.late_submissions_allowed = True
-        elif "late_duration" in m:
-            dt = parse_duration(module.closing_time, m["late_duration"], errors)
-            if dt:
-                module.late_submission_deadline = dt
-                module.late_submissions_allowed = True
-        if "late_penalty" in m:
-            f = parse_float(m["late_penalty"], errors)
-            if not f is None:
-                module.late_submission_penalty = f
-
-        module.full_clean()
-        module.save()
-        seen_modules.append(module.id)
-
-        if not ("numerate_ignoring_modules" in config \
-                and parse_bool(config["numerate_ignoring_modules"])):
-            nn = 0
-        if "children" in m:
-            nn = configure_learning_objects(category_map, module, m["children"],
-                None, seen_objects, errors, nn)
-
-    for module in list(instance.course_modules.all()):
-        for lobject in list(module.learning_objects.all()):
-            if not lobject.id in seen_objects:
-                exercise = lobject.as_leaf_class()
-                if (
-                    not isinstance(exercise, BaseExercise)
-                    or exercise.submissions.count() == 0
-                ):
-                    exercise.delete()
-                else:
-                    lobject.status = LearningObject.STATUS.HIDDEN
-                    lobject.order = 9999
-                    lobject.save()
-        if not module.id in seen_modules:
-            if module.learning_objects.count() == 0:
-                module.delete()
+        numbering_choices = {
+            'none': CourseInstance.CONTENT_NUMBERING.NONE,
+            'arabic': CourseInstance.CONTENT_NUMBERING.ARABIC,
+            'roman': CourseInstance.CONTENT_NUMBERING.ROMAN,
+            'hidden': CourseInstance.CONTENT_NUMBERING.HIDDEN,
+        }
+        if "content_numbering" in config:
+            numbering = parse_choices(config["content_numbering"], numbering_choices,
+                "content_numbering", errors)
+            if numbering is not None:
+                instance.content_numbering = numbering
+        if "module_numbering" in config:
+            numbering = parse_choices(config["module_numbering"], numbering_choices,
+                "module_numbering", errors)
+            if numbering is not None:
+                instance.module_numbering = numbering
+        if "course_description" in config:
+            # Course index.yaml files have previously used the field "description"
+            # for a hidden description, so we use "course_description" for
+            # the visible description.
+            instance.description = str(config["course_description"])
+        if "course_footer" in config:
+            instance.footer = str(config["course_footer"])
+        if "lang" in config:
+            langs = config["lang"]
+            if isinstance(langs, list):
+                langs = [lang for lang in langs if instance.is_valid_language(lang)]
+                if langs:
+                    instance.language = "|{}|".format("|".join(langs))
+            elif instance.is_valid_language(langs):
+                instance.language = str(langs)[:5]
+        if "contact" in config:
+            instance.technical_error_emails = str(config["contact"])
+        if "head_urls" in config:
+            head_urls = config["head_urls"]
+            instance.head_urls = "\n".join(head_urls) if isinstance(head_urls, list) else str(head_urls)
+        if "assistants" in config:
+            if not isinstance(config["assistants"], list):
+                errors.append(_('COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY'))
             else:
-                module.status = CourseModule.STATUS.HIDDEN
-                module.save()
+                assistants = []
+                for sid in config["assistants"]:
+                    try:
+                        profile = UserProfile.get_by_student_id(student_id=sid)
+                    except UserProfile.DoesNotExist as err:
+                        errors.append(
+                            format_lazy(
+                                _('COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}'),
+                                id=sid,
+                            )
+                        )
+                    else:
+                        assistants.append(profile)
+                instance.set_assistants(assistants)
+        instance.build_log_url = str(config['build_log_url']) if 'build_log_url' in config else ''
+        # configure_url excluded from validation because the default Django URL
+        # validation does not accept dotless domain names such as "grader"
+        instance.full_clean(exclude=['configure_url', 'build_log_url'])
+        instance.save()
 
-    # Clean up obsolete categories.
-    for category in instance.categories.filter(status=LearningObjectCategory.STATUS.HIDDEN):
-        if category.learning_objects.count() == 0:
-            category.delete()
+        if not "categories" in config or not isinstance(config["categories"], dict):
+            errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
+            transaction.set_rollback(True)
+            return False, errors
+        if not "modules" in config or not isinstance(config["modules"], list):
+            errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
+            transaction.set_rollback(True)
+            return False, errors
 
-    return errors
+        # Configure learning object categories.
+        category_map = {}
+        seen = []
+        for key, c in config.get("categories", {}).items():
+            if not "name" in c:
+                errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
+                continue
+            try:
+                category = instance.categories.get(name=format_localization(c["name"]))
+            except LearningObjectCategory.DoesNotExist:
+                category = LearningObjectCategory(course_instance=instance,
+                    name=format_localization(c["name"]))
+            if "status" in c:
+                category.status = str(c["status"])
+            if "description" in c:
+                category.description = str(c["description"])
+            if "points_to_pass" in c:
+                i = parse_int(c["points_to_pass"], errors)
+                if not i is None:
+                    category.points_to_pass = i
+            for field in [
+                "confirm_the_level",
+                "accept_unofficial_submits",
+            ]:
+                if field in c:
+                    setattr(category, field, parse_bool(c[field]))
+            category.full_clean()
+            category.save()
+            category_map[key] = category
+            seen.append(category.id)
+
+        for category in instance.categories.all():
+            if not category.id in seen:
+                category.status = LearningObjectCategory.STATUS.HIDDEN
+                category.save()
+
+        # Configure course modules.
+        seen_modules = []
+        seen_objects = []
+        nn = 0
+        n = 0
+        for m in config.get("modules", []):
+            if not "key" in m:
+                errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
+                continue
+            try:
+                module = instance.course_modules.get(url=str(m["key"]))
+            except CourseModule.DoesNotExist:
+                module = CourseModule(course_instance=instance, url=str(m["key"]))
+
+            if "order" in m:
+                module.order = parse_int(m["order"], errors)
+            else:
+                n += 1
+                module.order = n
+
+            if "title" in m:
+                module.name = format_localization(m["title"])
+            elif "name" in m:
+                module.name = format_localization(m["name"])
+            if not module.name:
+                module.name = "-"
+            if "status" in m:
+                module.status = str(m["status"])
+            if "points_to_pass" in m:
+                i = parse_int(m["points_to_pass"], errors)
+                if not i is None:
+                    module.points_to_pass = i
+            if "introduction" in m:
+                module.introduction = str(m["introduction"])
+
+            if "open" in m:
+                dt = parse_date(m["open"], errors)
+                if dt:
+                    module.opening_time = dt
+            if not module.opening_time:
+                module.opening_time = instance.starting_time
+
+            if "close" in m:
+                dt = parse_date(m["close"], errors)
+                if dt:
+                    module.closing_time = dt
+            elif "duration" in m:
+                dt = parse_duration(module.opening_time, m["duration"], errors)
+                if dt:
+                    module.closing_time = dt
+            if not module.closing_time:
+                module.closing_time = instance.ending_time
+
+            if "read-open" in m:
+                module.reading_opening_time = parse_date(m["read-open"], errors, allow_null=True)
+
+            if "late_close" in m:
+                dt = parse_date(m["late_close"], errors)
+                if dt:
+                    module.late_submission_deadline = dt
+                    module.late_submissions_allowed = True
+            elif "late_duration" in m:
+                dt = parse_duration(module.closing_time, m["late_duration"], errors)
+                if dt:
+                    module.late_submission_deadline = dt
+                    module.late_submissions_allowed = True
+            if "late_penalty" in m:
+                f = parse_float(m["late_penalty"], errors)
+                if not f is None:
+                    module.late_submission_penalty = f
+
+            module.full_clean()
+            module.save()
+            seen_modules.append(module.id)
+
+            if not ("numerate_ignoring_modules" in config \
+                    and parse_bool(config["numerate_ignoring_modules"])):
+                nn = 0
+            if "children" in m:
+                nn = configure_learning_objects(category_map, module, m["children"],
+                    None, seen_objects, errors, nn)
+
+        for module in instance.course_modules.all():
+            # cache invalidation uses the parent when learning object is saved:
+            # prefetch parent so that it wont be fetched after the it was deleted
+            for lobject in module.learning_objects.all().prefetch_related('parent'):
+                if lobject.id not in seen_objects:
+                    exercise = lobject.as_leaf_class()
+                    if (
+                        not isinstance(exercise, BaseExercise)
+                        or exercise.submissions.count() == 0
+                    ):
+                        exercise.delete()
+                    else:
+                        lobject.status = LearningObject.STATUS.HIDDEN
+                        lobject.order = 9999
+                        # .parent may have been deleted: only save status and order
+                        lobject.save(update_fields=["status", "order"])
+            if module.id not in seen_modules:
+                if module.learning_objects.count() == 0:
+                    module.delete()
+                else:
+                    module.status = CourseModule.STATUS.HIDDEN
+                    module.save()
+
+        # Clean up obsolete categories.
+        for category in instance.categories.filter(status=LearningObjectCategory.STATUS.HIDDEN):
+            if category.learning_objects.count() == 0:
+                category.delete()
+
+        if "publish_url" in config:
+            success = False
+            publish_errors = []
+            try:
+                response = aplus_auth.get(config["publish_url"])
+            except ConnectionError as e:
+                publish_errors = [str(e)]
+            else:
+                if response.status_code != 200:
+                    publish_errors = [format_lazy(
+                        _("PUBLISH_RESPONSE_NON_200 -- {status_code}"),
+                        status_code=response.status_code
+                    )]
+
+                if response.text:
+                    try:
+                        publish_errors = json.loads(response.text)
+                    except Exception as e:
+                        publish_errors = [format_lazy(
+                            _("PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"),
+                            e=e,
+                            text=response.text
+                        )]
+                    else:
+                        if isinstance(publish_errors, dict):
+                            success = publish_errors.get("success", True)
+                            publish_errors = publish_errors.get("errors", [])
+
+                        if isinstance(publish_errors, list):
+                            publish_errors = (str(e) for e in publish_errors)
+                        else:
+                            publish_errors = [str(publish_errors)]
+
+            if publish_errors:
+                if not success:
+                    errors.append(format_lazy(
+                        _("PUBLISHED_WITH_ERRORS -- {publish_url}"),
+                        publish_url=config['publish_url']
+                    ))
+                errors.extend(str(e) for e in publish_errors)
+
+            if not success:
+                transaction.set_rollback(True)
+                return False, errors
+
+    return True, errors
 
 
 def get_target_category(category, course_url):
