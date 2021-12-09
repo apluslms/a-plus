@@ -178,7 +178,7 @@ class SubmissionBaseMixin(object):
         super().get_resource_objects()
         self.submission = self.get_submission_object()
         if self.submission.is_submitter(self.request.user):
-            self.submitter = self.profile
+            self.submitter = self.request.user.userprofile
         else:
             self.submitter = self.submission.submitters.first()
         self.note("submission", "submitter")
