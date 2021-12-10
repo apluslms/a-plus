@@ -368,6 +368,7 @@ class ExerciseModelView(ExerciseModelBaseView):
         for url,name in self.exercise.get_models():
             try:
                 response = request_for_response(url)
+                response.encoding = "UTF-8"
             except RemotePageNotFound:
                 self.models.append({'name': name})
             else:
@@ -391,6 +392,7 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
         for url,name in self.exercise.get_templates():
             try:
                 response = request_for_response(url)
+                response.encoding = "UTF-8"
             except RemotePageNotFound as error:
                 self.templates.append({'name': name})
             else:
