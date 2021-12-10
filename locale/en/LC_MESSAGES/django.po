@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-29 15:29+0200\n"
+"POT-Creation-Date: 2021-12-07 18:09+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1434,6 +1434,14 @@ msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Do not apply late penalty during extra time."
 
 #: deviations/models.py
+msgid "LABEL_GRANTER"
+msgstr "Granter"
+
+#: deviations/models.py
+msgid "LABEL_GRANT_TIME"
+msgstr "Grant time"
+
+#: deviations/models.py
 msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION"
 msgstr "submission rule deviation"
 
@@ -1503,9 +1511,21 @@ msgid "WITHOUT_LATE_PENALTY"
 msgstr "Without late penalty"
 
 #: deviations/templates/deviations/list_dl.html
+msgid "GRANTER"
+msgstr "Granter"
+
+#: deviations/templates/deviations/list_dl.html
+msgid "GRANT_TIME"
+msgstr "Grant time"
+
+#: deviations/templates/deviations/list_dl.html
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "ACTIONS"
 msgstr "Actions"
+
+#: deviations/templates/deviations/list_dl.html
+msgid "UNKNOWN"
+msgstr "Unknown"
 
 #: deviations/templates/deviations/list_dl.html
 msgid "NO_DEADLINE_DEVIATIONS"
