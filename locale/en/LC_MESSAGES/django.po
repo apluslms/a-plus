@@ -225,12 +225,12 @@ msgstr ""
 #: course/api/views.py
 #, python-brace-format
 msgid "COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"
-msgstr "Notified course update warnings for {instance}"
+msgstr "{instance} - warnings about course update"
 
 #: course/api/views.py
 #, python-brace-format
 msgid "COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"
-msgstr "Notified course update failed for {instance}"
+msgstr "{instance} - course update failed"
 
 #: course/api/views.py
 msgid "ERROR_EMAIL_FAILED"
@@ -1921,7 +1921,7 @@ msgstr "Publishing responded with status {response.status_code}"
 #, python-brace-format
 msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
 msgstr ""
-"Failed to load publish response JSON: {e}:\n"
+"Failed to load publishing response JSON: {e}:\n"
 "{text}"
 
 #: edit_course/operations/configure.py

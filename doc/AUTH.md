@@ -1,14 +1,17 @@
 # Authorization and Authentication protocol
 
 Every request A+ makes to graders and other services contain a JWT
-authentication/authorization token. Any request to A+ that requires
-authentication must also contain a JWT. This does not include submission
-grading, as then it includes a token in the GET parameters. Though, this token
-can be sent as part of the JWT's tokens field.
+authentication/authorization token. Any request to A+ by graders that requires
+authentication must also contain one of the following tokens:
+1. JWT in the HTTP Authorization header (new preferred method).
+1. Exercise/submission token in the GET query parameters.
+   A+ supplies this token to the exercise service as part of the `submission_url` parameter in the grader protocol.
+   Using this token is the old method and not recommended any longer.
+   This token can also be sent as part of the `tokens` field of the JWT.
 
 The JWT is delivered in the Authorization header:
 
-    Authorization: bearer <JWT>
+    Authorization: Bearer <JWT>
 
 The [aplus-auth][aplus-auth-git] python library can be used to
 handle the nitty-gritty of this specification.
@@ -28,7 +31,7 @@ The payload has the following fields:
         The party who made the HTTP request. This is either the public key of
         the requester, or "user:<id>" for normal A+ users.
     aud, string
-        The public key of the party who the HTTP request is sent to.
+        The public key of the party whom the HTTP request is sent to.
     exp, JSON numeric value
         The expiration time of the token (seconds since epoch).
     permissions, list of permissions (see below)
@@ -116,7 +119,7 @@ in `configure_url`.
 
 ## X <-> A+ communication
 
-Both X and A+ need to know each other public keys. When one makes a request to
+Both X and A+ need to know each other's public keys. When one makes a request to
 the other, they construct the approriate JWT with the appropriate permission
 claims and sign it with their own private key.
 

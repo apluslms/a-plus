@@ -126,9 +126,8 @@ class CourseViewSet(ListSerializerMixin,
     # get_permissions lambda overwrites the normal version used for the above methods
     @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
     def notify_update(self, request, *args, **kwargs):
-        instance = self.get_object()
         try:
-            success, errors = configure_content(instance, instance.configure_url)
+            success, errors = configure_content(self.instance, self.instance.configure_url)
         except Exception as e:
             success = False
             errors = [format_lazy(
@@ -138,12 +137,12 @@ class CourseViewSet(ListSerializerMixin,
 
         if errors and request.POST.get("email_on_error", True):
             if success:
-                subject = format_lazy(_("COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"), instance=instance)
+                subject = format_lazy(_("COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"), instance=self.instance)
             else:
-                subject = format_lazy(_("COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"), instance=instance)
+                subject = format_lazy(_("COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"), instance=self.instance)
             message = "\n".join(str(e) for e in errors)
             try:
-                success = email_course_instance(self.get_object(), str(subject), message)
+                success = email_course_instance(self.instance, str(subject), message)
             except Exception as e:
                 errors.append(_("ERROR_EMAIL_FAILED") + f": {e}")
             else:
@@ -161,7 +160,7 @@ class CourseViewSet(ListSerializerMixin,
         subject = request.POST.get("subject")
         message = request.POST.get("message")
         try:
-            success = email_course_instance(self.get_object(), subject, message)
+            success = email_course_instance(self.instance, subject, message)
         except ValueError as e:
             return Response(str(e))
         except Exception as e:
