@@ -10,7 +10,7 @@ Every incoming and outgoing request must either have a A+-provided grading
 token as a GET parameter (included in the `submission_url` below) or a JWT
 authentication token attached in the Authorization header:
 
-    Authorization: bearer <token>
+    Authorization: Bearer <token>
 
 For more information on the JWT token, see [AUTH](AUTH.md).
 

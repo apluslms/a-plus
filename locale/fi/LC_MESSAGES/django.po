@@ -226,16 +226,16 @@ msgstr ""
 #: course/api/views.py
 #, python-brace-format
 msgid "COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"
-msgstr "Kurssipäivitys varoitukset kurssikerralle {instance}"
+msgstr "{instance} - kurssipäivityksen varoitukset"
 
 #: course/api/views.py
 #, python-brace-format
 msgid "COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"
-msgstr "Kurssipäivitys virheet kurssikerralle {instance}"
+msgstr "{instance} - kurssipäivitys epäonnistui"
 
 #: course/api/views.py
 msgid "ERROR_EMAIL_FAILED"
-msgstr "Virhe sähköpostin lähetys epäonnistui"
+msgstr "Virhesähköpostin lähetys epäonnistui"
 
 #: course/api/views.py
 msgid "SEND_EMAIL_FAILED"
@@ -1946,7 +1946,7 @@ msgstr "Julkaiseminen palautti statuksen {status_code}"
 #, python-brace-format
 msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
 msgstr ""
-"Julkaisun vastaus JSONin lataus epäonnistui: {e}:\n"
+"Julkaisun vastaus-JSONin lataus epäonnistui: {e}:\n"
 "{text}"
 
 #: edit_course/operations/configure.py

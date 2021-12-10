@@ -39,3 +39,4 @@ class Command(BaseCommand):
             raise CommandError("Configuration failed!")
         else:
             self.stdout.write(self.style.ERROR("Failed to update"))
+            raise CommandError("Configuration failed!")

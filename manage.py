@@ -11,6 +11,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, sighandler)
     if "test" in sys.argv:
         os.environ.setdefault("APLUS_BASE_URL", "http://localhost")
+        os.environ.setdefault("APLUS_LOCAL_SETTINGS", "aplus/local_settings.test.py")
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "aplus.settings")
 
     from django.core.management import execute_from_command_line

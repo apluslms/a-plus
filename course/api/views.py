@@ -84,13 +84,15 @@ class CourseViewSet(ListSerializerMixin,
         cannot be modified using this API. Requires admin privileges.
 
     `POST /courses/<course_id>/notify_update/`:
-        triggers a course update and returns any errors. Following attributes can be given:
+        triggers a course update and returns JSON {errors: <error list>, success: <bool>}.
+        Following attributes can be given:
 
     * `email_on_error`: whether to send an email to instance staff on error
 
     `POST /courses/<course_id>/send_mail/`:
         sends an email to course instance's technical contacts (or teachers if
-        there are no technical contacts). Following attributes can be given:
+        there are no technical contacts). Empty response on success, otherwise
+        returns the error. Following attributes can be given:
 
     * `subject`: email subject
     * `message`: email body
@@ -124,9 +126,8 @@ class CourseViewSet(ListSerializerMixin,
     # get_permissions lambda overwrites the normal version used for the above methods
     @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
     def notify_update(self, request, *args, **kwargs):
-        instance = self.get_object()
         try:
-            success, errors = configure_content(instance, instance.configure_url)
+            success, errors = configure_content(self.instance, self.instance.configure_url)
         except Exception as e:
             success = False
             errors = [format_lazy(
@@ -136,19 +137,22 @@ class CourseViewSet(ListSerializerMixin,
 
         if errors and request.POST.get("email_on_error", True):
             if success:
-                subject = format_lazy(_("COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"), instance=instance)
+                subject = format_lazy(_("COURSE_UPDATE_WARNINGS_SUBJECT -- {instance}"), instance=self.instance)
             else:
-                subject = format_lazy(_("COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"), instance=instance)
+                subject = format_lazy(_("COURSE_UPDATE_ERRORS_SUBJECT -- {instance}"), instance=self.instance)
             message = "\n".join(str(e) for e in errors)
             try:
-                success = email_course_instance(self.get_object(), str(subject), message)
+                success = email_course_instance(self.instance, str(subject), message)
             except Exception as e:
                 errors.append(_("ERROR_EMAIL_FAILED") + f": {e}")
             else:
                 if not success:
                     errors.append(_("ERROR_EMAIL_FAILED"))
 
-        return Response(errors, status=500 if errors else 200)
+        return Response({
+            "errors": errors,
+            "success": success
+        })
 
     # get_permissions lambda overwrites the normal version used for the above methods
     @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
@@ -156,11 +160,11 @@ class CourseViewSet(ListSerializerMixin,
         subject = request.POST.get("subject")
         message = request.POST.get("message")
         try:
-            success = email_course_instance(self.get_object(), subject, message)
+            success = email_course_instance(self.instance, subject, message)
         except ValueError as e:
             return Response(str(e))
         except Exception as e:
-            return Response(str(e), status=500)
+            return Response(str(e))
         else:
             if success:
                 return Response()
