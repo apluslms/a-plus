@@ -132,4 +132,4 @@ permissions as what would be sent to Y and has Y's information in either the
 `turl` or `taud` field.
 
 
-[aplus-auth-git]: https://github.com/lainets/aplus-auth
+[aplus-auth-git]: https://github.com/apluslms/aplus-auth

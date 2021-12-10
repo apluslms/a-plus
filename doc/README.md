@@ -272,5 +272,5 @@ When JWT permission checks are enabled, you'll need to configure the auth
 settings. See [DEPLOYMENT](DEPLOYMENT.md) for more information.
 (RSA keys, `APLUS_AUTH`, `ALIAS_TO_PUBLIC_KEY` and `URL_TO_ALIAS`)
 
-For more information, see the [aplus-auth](https://github.com/lainets/aplus-auth)
+For more information, see the [aplus-auth](https://github.com/apluslms/aplus-auth)
 settings.
