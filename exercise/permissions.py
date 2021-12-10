@@ -10,7 +10,7 @@ from authorization.permissions import (
     FilterBackend,
 )
 from course.permissions import JWTExerciseReadPermission, JWTSubmissionReadPermission
-from userprofile.models import UserProfile
+from userprofile.models import GraderUser
 from .models import (
     LearningObject,
     BaseExercise,
@@ -32,7 +32,7 @@ class ExerciseVisiblePermissionBase(ObjectVisibleBasePermission):
             return True
 
         user = request.user
-        if not isinstance(user, User):
+        if isinstance(user, GraderUser):
             return False
 
         if exercise.status == LearningObject.STATUS.HIDDEN:
