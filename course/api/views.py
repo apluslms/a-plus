@@ -84,13 +84,15 @@ class CourseViewSet(ListSerializerMixin,
         cannot be modified using this API. Requires admin privileges.
 
     `POST /courses/<course_id>/notify_update/`:
-        triggers a course update and returns any errors. Following attributes can be given:
+        triggers a course update and returns JSON {errors: <error list>, success: <bool>}.
+        Following attributes can be given:
 
     * `email_on_error`: whether to send an email to instance staff on error
 
     `POST /courses/<course_id>/send_mail/`:
         sends an email to course instance's technical contacts (or teachers if
-        there are no technical contacts). Following attributes can be given:
+        there are no technical contacts). Empty response on success, otherwise
+        returns the error. Following attributes can be given:
 
     * `subject`: email subject
     * `message`: email body
@@ -148,7 +150,10 @@ class CourseViewSet(ListSerializerMixin,
                 if not success:
                     errors.append(_("ERROR_EMAIL_FAILED"))
 
-        return Response(errors, status=500 if errors else 200)
+        return Response({
+            "errors": errors,
+            "success": success
+        })
 
     # get_permissions lambda overwrites the normal version used for the above methods
     @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
@@ -160,7 +165,7 @@ class CourseViewSet(ListSerializerMixin,
         except ValueError as e:
             return Response(str(e))
         except Exception as e:
-            return Response(str(e), status=500)
+            return Response(str(e))
         else:
             if success:
                 return Response()
