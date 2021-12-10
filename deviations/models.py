@@ -86,6 +86,19 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
         verbose_name=_('LABEL_SUBMITTER'),
         on_delete=models.CASCADE,
     )
+    granter = models.ForeignKey(UserProfile,
+        verbose_name=_('LABEL_GRANTER'),
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+    )
+    grant_time = models.DateTimeField(
+        verbose_name=_('LABEL_GRANT_TIME'),
+        auto_now=True,
+        blank=True,
+        null=True,
+    )
 
     if TYPE_CHECKING:
         id: models.AutoField

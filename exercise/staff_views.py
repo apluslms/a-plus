@@ -264,9 +264,9 @@ class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
             submitter=self.submission.submitters.first(),
             defaults={'extra_submissions': 0}
         )
-        MaxSubmissionsRuleDeviation.objects\
-            .filter(id=deviation.id)\
-            .update(extra_submissions=(F('extra_submissions') + 1))
+        deviation.extra_submissions += 1
+        deviation.granter = request.user.userprofile
+        deviation.save()
         return self.redirect(self.submission.get_inspect_url())
 
 

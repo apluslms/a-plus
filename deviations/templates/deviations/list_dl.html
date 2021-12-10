@@ -28,14 +28,19 @@
 			<th>{% translate "EXERCISE" %}</th>
 			<th>{% translate "EXTRA_MINUTES" %}</th>
 			<th>{% translate "WITHOUT_LATE_PENALTY" %}</th>
+			<th>{% translate "GRANTER" %}</th>
+			<th>{% translate "GRANT_TIME" %}</th>
 			<th>{% translate "ACTIONS" %}</th>
 		</tr>
+		{% translate "UNKNOWN" as unknown %}
 		{% for deviation in deviations %}
 		<tr>
 			<td>{{ deviation.submitter }}</td>
 			<td>{{ deviation.exercise }}</td>
 			<td>{{ deviation.extra_minutes }}</td>
 			<td>{{ deviation.without_late_penalty }}</td>
+			<td>{{ deviation.granter|default_if_none:unknown }}</td>
+			<td>{{ deviation.grant_time|default_if_none:unknown }}</td>
 			<td>
 				<form method="post" action="{{ deviation|url:'deviations-remove-dl' }}">
 					{% csrf_token %}

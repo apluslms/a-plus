@@ -12,6 +12,10 @@ from userprofile.models import User
 
 class DeviationsTest(TestCase):
     def setUp(self):
+        self.teacher = User(username="staff", is_staff=True)
+        self.teacher.set_password("staffPassword")
+        self.teacher.save()
+
         self.user = User(username="testUser", first_name="First", last_name="Last")
         self.user.set_password("testPassword")
         self.user.save()
@@ -78,18 +82,21 @@ class DeviationsTest(TestCase):
         self.deadline_rule_deviation_u1_e1 = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=1440, # One day
         )
 
         self.deadline_rule_deviation_u1_e2 = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment_2,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=2880, # Two days
         )
 
         self.deadline_rule_deviation_u2_e1 = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment,
             submitter=self.user_2.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=4320, # Three days
         )
 

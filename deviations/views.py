@@ -77,6 +77,7 @@ class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
             deviation = DeadlineRuleDeviation.objects.create(
                 exercise=exercise,
                 submitter=profile,
+                granter=self.request.user.userprofile,
                 extra_minutes=minutes,
                 without_late_penalty=without_late_penalty,
             )

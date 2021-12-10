@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-29 15:29+0200\n"
+"POT-Creation-Date: 2021-12-07 18:09+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1438,6 +1438,14 @@ msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 
 #: deviations/models.py
+msgid "LABEL_GRANTER"
+msgstr "Myöntäjä"
+
+#: deviations/models.py
+msgid "LABEL_GRANT_TIME"
+msgstr "Myöntämisaika"
+
+#: deviations/models.py
 msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION"
 msgstr "palautussäännön poikkeama"
 
@@ -1507,9 +1515,21 @@ msgid "WITHOUT_LATE_PENALTY"
 msgstr "Ilman myöhästymissakkoa"
 
 #: deviations/templates/deviations/list_dl.html
+msgid "GRANTER"
+msgstr "Myöntäjä"
+
+#: deviations/templates/deviations/list_dl.html
+msgid "GRANT_TIME"
+msgstr "Myöntämisaika"
+
+#: deviations/templates/deviations/list_dl.html
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "ACTIONS"
 msgstr "Toiminnot"
+
+#: deviations/templates/deviations/list_dl.html
+msgid "UNKNOWN"
+msgstr "Tuntematon"
 
 #: deviations/templates/deviations/list_dl.html
 msgid "NO_DEADLINE_DEVIATIONS"

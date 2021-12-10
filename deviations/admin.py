@@ -16,9 +16,12 @@ class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
         'submitter',
         'exercise',
         'extra_minutes',
+        'granter',
+        'grant_time',
     )
     list_filter = ('exercise__course_module__course_instance',)
-    raw_id_fields = ('submitter',)
+    raw_id_fields = ('submitter','granter')
+    readonly_fields = ('grant_time',)
 
 
 class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
@@ -30,7 +33,15 @@ class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
         'submitter__user__email',
         'exercise__name',
     )
-    raw_id_fields = ('submitter',)
+    list_display = (
+        'submitter',
+        'exercise',
+        'extra_submissions',
+        'granter',
+        'grant_time',
+    )
+    raw_id_fields = ('submitter','granter')
+    readonly_fields = ('grant_time',)
 
 
 admin.site.register(DeadlineRuleDeviation, DeadlineRuleDeviationAdmin)

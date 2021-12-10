@@ -256,6 +256,7 @@ class ExerciseTest(TestCase):
         self.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=1440  # One day
         )
 
@@ -415,6 +416,7 @@ class ExerciseTest(TestCase):
         deviation = MaxSubmissionsRuleDeviation.objects.create(
             exercise=self.base_exercise,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_submissions=3
         )
         self.assertTrue(self.base_exercise.one_has_submissions([self.user.userprofile])[0])
@@ -424,6 +426,7 @@ class ExerciseTest(TestCase):
         deviation = DeadlineRuleDeviation.objects.create(
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=10*24*60
         )
         self.assertTrue(self.old_base_exercise.one_has_access([self.user.userprofile])[0])
@@ -557,6 +560,7 @@ class ExerciseTest(TestCase):
         deviation = DeadlineRuleDeviation.objects.create(
             exercise=self.base_exercise_with_late_submission_allowed,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=10*24*60,
             without_late_penalty=True
         )
@@ -890,6 +894,7 @@ class ExerciseTest(TestCase):
         deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=1440, # One day
         )
         self.assertFalse(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
@@ -900,6 +905,7 @@ class ExerciseTest(TestCase):
         deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=10,
         )
         self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
@@ -916,6 +922,7 @@ class ExerciseTest(TestCase):
         deadline_rule_deviation_ex_late_closed = DeadlineRuleDeviation.objects.create(
             exercise=base_exercise_with_late_closed,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=60*24*2,
         )
         self.assertFalse(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
@@ -925,6 +932,7 @@ class ExerciseTest(TestCase):
         deadline_rule_deviation_ex_late_closed = DeadlineRuleDeviation.objects.create(
             exercise=base_exercise_with_late_closed,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=10,
         )
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
@@ -968,6 +976,7 @@ class ExerciseTest(TestCase):
         deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
             extra_minutes=30,
         )
         old_reveal_state_deviation = ExerciseRevealState(self.old_base_exercise, self.user)
