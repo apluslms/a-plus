@@ -1,3 +1,4 @@
+from typing import Set
 from django.test import TestCase
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -87,3 +88,27 @@ class UserProfileAPITest(TestCase):
             'first_name':'Superb',
             'last_name':'Student',
             'email':'test@aplus.com'})
+
+    def test_field_values_filter(self):
+        client = APIClient()
+        client.force_authenticate(user=self.superuser)
+
+        # Helper function that checks that the response contains the expected user ids (and no others)
+        def check_response(url: str, expected_ids: Set[int]) -> None:
+            response = client.get(url)
+            ids = {u['id'] for u in response.data['results']}
+            self.assertSetEqual(ids, expected_ids)
+
+        # Check that all individual field filters work (id, student_id, email)
+        check_response('/api/v2/users/?field=id&values=1,2,3,4', {1, 2, 3, 4})
+        check_response('/api/v2/users/?field=student_id&values=12345X,67890Y', {1, 2})
+        check_response('/api/v2/users/?field=email&values=teacher@aplus.com,superuser@aplus.com', {3, 4})
+
+        # Check that partial matches are not returned
+        check_response('/api/v2/users/?field=student_id&values=123,67890Y', {2})
+
+        # Check that unmatched values don't cause errors
+        check_response('/api/v2/users/?field=id&values=1,999', {1})
+
+        # Check that an empty or missing values list returns an empty result
+        check_response('/api/v2/users/?field=email', set())

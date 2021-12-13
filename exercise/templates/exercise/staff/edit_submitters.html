@@ -47,12 +47,11 @@
 
 {% block scripts %}
 {{ block.super }}
-<script src="{% static 'js/ajax_search_select.js' %}"></script>
 <script>
 $(function() {
   $('#group-select a.select').on('click', function(event) {
     event.preventDefault();
-    $('select.search-select-ajax').aplusSearchSelectAjax(
+    $('.search-select-ajax').aplusSearchSelectAjax(
       {},
       $(this).attr("data-profiles").split(",").slice(0,-1)
     );

@@ -1,3 +1,5 @@
+from typing import Any
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -118,14 +120,14 @@ class CourseInstanceForm(forms.ModelForm):
             'enrollment_ending_time': DateTimeLocalInput,
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields['teachers'].initial = self.instance.teachers.all()
         self.fields['teachers'].initial_queryset = self.instance.teachers.all()
-        self.fields['teachers'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
+        self.fields['teachers'].widget.search_api_url = api_reverse("user-list")
         self.fields['assistants'].initial = self.instance.assistants.all()
         self.fields['assistants'].initial_queryset = self.instance.assistants.all()
-        self.fields['assistants'].widget.attrs["data-search-api-url"] = api_reverse("user-list")
+        self.fields['assistants'].widget.search_api_url = api_reverse("user-list")
         if self.instance and self.instance.visible_to_students:
             self.fields["url"].widget.attrs["readonly"] = "true"
             self.fields["url"].help_text = _('COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE')
@@ -276,9 +278,9 @@ class SelectUsersForm(forms.Form):
     user = UsersSearchSelectField(queryset=UserProfile.objects.none(),
         initial_queryset=UserProfile.objects.none())
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         course_instance = kwargs.pop('instance')
         super(SelectUsersForm, self).__init__(*args, **kwargs)
-        self.fields['user'].widget.attrs["data-search-api-url"] = api_reverse(
+        self.fields['user'].widget.search_api_url = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
         self.fields['user'].queryset = course_instance.get_student_profiles()

@@ -5,10 +5,6 @@
 {% load editcourse %}
 {% load static %}
 
-{% block scripts %}
-{{ block.super }}
-<script src="{% static 'js/ajax_search_select.js' %}"></script>
-{% endblock scripts %}
 {% block editbreadcrumblist %}
 {{ block.super }}
 <li class="active">{% translate "DETAILS" %}</li>

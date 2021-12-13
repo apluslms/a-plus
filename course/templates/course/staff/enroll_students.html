@@ -4,10 +4,6 @@
 {% load bootstrap %}
 {% load static %}
 
-{% block scripts %}
-{{ block.super }}
-<script src="{% static 'js/ajax_search_select.js' %}"></script>
-{% endblock scripts %}
 {% block title %}{% translate "ENROLL_STUDENTS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}participants,enroll-students{% endblock %}
 
