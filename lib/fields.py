@@ -1,9 +1,12 @@
 import json
+from typing import Any
 
 from django import forms
 from django.core import exceptions
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from .widgets import SearchSelect
 
 
 class PercentField(models.FloatField):
@@ -50,7 +53,13 @@ class SearchSelectField(forms.ModelMultipleChoiceField):
     code (assets/js/ajax_search_select.js).
     """
 
-    def __init__(self, queryset, initial_queryset, *args, **kwargs):
+    def __init__(
+            self,
+            queryset: models.QuerySet,
+            initial_queryset: models.QuerySet,
+            *args: Any,
+            **kwargs: Any,
+            ) -> None:
         """
         The queryset argument is used for validating the user input.
         The initial_queryset argument is new to this class and it is used
@@ -63,9 +72,10 @@ class SearchSelectField(forms.ModelMultipleChoiceField):
         choices and the input is validated using queryset, which should be
         "bigger" than initial_queryset.
         """
+        if not 'widget' in kwargs:
+            kwargs['widget'] = SearchSelect(ajax=True)
         super().__init__(queryset, *args, **kwargs)
         self.initial_queryset = initial_queryset
-        self.widget.attrs["class"] = "search-select-ajax"
 
     def _set_queryset(self, queryset):
         # This method was copied from the super class ModelChoiceField.
@@ -109,26 +119,28 @@ class UsersSearchSelectField(SearchSelectField):
     to this field must be of type UserProfile, not User, and likewise,
     the corresponding model field must be a ManyToManyField to UserProfile.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         # to_field_name: use User IDs in the HTML widget since the queryset
         # is attached to UserProfiles.
         # to_field_name affects both the value attributes in the HTML form and
         # the validation of the user's input.
         kwargs['to_field_name'] = 'user_id' # userprofile.user.id
+        if not 'widget' in kwargs:
+            # Create a search select widget specialized for users.
+            kwargs['widget'] = SearchSelect(
+                ajax=True,
+                display_fields=['full_name', 'student_id', 'email'],
+                clipboard_fields=['student_id', 'email'],
+                field_sources={
+                    'full_name': 'user.get_full_name',
+                    'email': 'user.email',
+                },
+                field_labels={
+                    'student_id': _('CLIPBOARD_STUDENT_IDS'),
+                    'email': _('CLIPBOARD_EMAIL_ADDRESSES'),
+                },
+            )
         super().__init__(*args, **kwargs)
-        self.widget.attrs["data-key-parameter-list"] = "full_name,student_id,email"
-
-    def label_from_instance(self, obj):
-        """Render one user profile for the HTML widget of this field.
-
-        The same format is used in the attribute "data-key-parameter-list" defined
-        in __init__. JavaScript code (ajax_search_select.js) uses the attribute.
-        """
-        return ", ".join((
-            obj.user.get_full_name() or obj.user.get_username(),
-            obj.student_id or "", # Avoid None values.
-            obj.user.email or "",
-        ))
 
 
 class JSONField(models.TextField):

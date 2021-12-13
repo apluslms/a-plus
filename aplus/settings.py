@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.humanize',
     'django.contrib.sitemaps',
+    'django.forms',
 
     # 3rd party applications
     'bootstrapform',
@@ -240,6 +241,7 @@ TEMPLATES = [
         },
     },
 ]
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 FILE_UPLOAD_HANDLERS = (
     #"django.core.files.uploadhandler.MemoryFileUploadHandler",

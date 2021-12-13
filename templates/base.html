@@ -60,6 +60,7 @@
 	<script src="{% static 'js/polyfill-find.js' %}"></script>
 	<script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
 	<script src="{% static 'js/aplus.js' %}"></script>
+	{{ form.media.js }}
 
 	{% block scripts %}
 	{# Put all additional scripts inside this block. #}
@@ -277,24 +278,6 @@
 				</div>
 				<div class="modal-body"></div>
 			</div>
-		</div>
-	</div>
-	<div id="search-select-widget" class="hide">
-		<ul class="list-inline search-selected">
-			<li><button type="button"><span class="name">None</span> <span
-						aria-label="{% translate 'REMOVE' %}">&times;</span></button></li>
-		</ul>
-		<div class="input-group">
-			<span class="input-group-btn dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-				<button class="btn btn-default" data-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
-					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-				</button>
-				<ul class="dropdown-menu search-options">
-					<li class="not-found"><a>{% translate "NO_MATCHES" %}</a></li>
-				</ul>
-			</span>
-			<input type="text" aria-label="{% translate 'SEARCH_FOR' %}" class="form-control"
-				placeholder="{% translate 'SEARCH_FOR' %}" />
 		</div>
 	</div>
 	{% if not is_course_staff %}{% tracking_html %}{% endif %}

@@ -1,3 +1,5 @@
+from typing import Any
+
 from django import forms
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.utils.safestring import mark_safe
@@ -99,11 +101,13 @@ class GroupEditForm(forms.ModelForm):
         label=_('LABEL_MEMBERS'),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         course_instance = kwargs.get('instance').course_instance
         super().__init__(*args, **kwargs)
-        self.fields['members'].widget.attrs["data-search-api-url"] = api_reverse(
-            "course-students-list", kwargs={'course_id': course_instance.id})
+        self.fields['members'].widget.search_api_url = api_reverse(
+            "course-students-list",
+            kwargs={'course_id': course_instance.id},
+        )
         self.fields["members"].queryset = course_instance.get_student_profiles()
         # Course staff may use this form for modifying and creating student groups.
         # If an existing group is being modified, its current members must be
@@ -123,7 +127,6 @@ class EnrollStudentsForm(forms.Form):
         label=_('LABEL_USERS'),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.fields['user_profiles'].widget.attrs["data-search-api-url"] = api_reverse(
-            "user-list")
+        self.fields['user_profiles'].widget.search_api_url = api_reverse("user-list")

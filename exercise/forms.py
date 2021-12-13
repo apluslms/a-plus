@@ -164,12 +164,13 @@ class EditSubmittersForm(forms.ModelForm):
         label=_('LABEL_SUBMITTERS'),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         course_instance = kwargs.get('instance').exercise.course_instance
         super().__init__(*args, **kwargs)
-        self.fields['submitters'].widget.attrs["data-search-api-url"] = api_reverse(
+        self.fields['submitters'].widget.search_api_url = api_reverse(
             "course-students-list",
-            kwargs={'course_id': course_instance.id})
+            kwargs={'course_id': course_instance.id},
+        )
         self.fields['submitters'].queryset = course_instance.get_student_profiles()
         self.fields['submitters'].initial_queryset = self.instance.submitters.all()
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-07 18:09+0200\n"
+"POT-Creation-Date: 2021-12-08 12:23+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1216,7 +1216,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_list.html
 #: external_services/templates/external_services/list_menu.html
-#: news/templates/news/list.html templates/base.html
+#: news/templates/news/list.html templates/ajax_search_select.html
 msgid "REMOVE"
 msgstr "Poista"
 
@@ -4479,6 +4479,14 @@ msgid "ERROR_NUMBER_MUST_BE_BETWEEN_0_AND_1"
 msgstr "Numeron on oltava välillä 0.0 - 1.0"
 
 #: lib/fields.py
+msgid "CLIPBOARD_STUDENT_IDS"
+msgstr "Opiskelijanumerot"
+
+#: lib/fields.py
+msgid "CLIPBOARD_EMAIL_ADDRESSES"
+msgstr "Sähköpostiosoitteet"
+
+#: lib/fields.py
 msgid "ERROR_ENTER_VALID_JSON"
 msgstr "Syötä kelvollista JSON:ia."
 
@@ -4616,6 +4624,26 @@ msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa. Ole "
 "ystävällinen, ja yritä uudelleen."
 
+#: templates/ajax_search_select.html
+msgid "SEARCH"
+msgstr "Hae"
+
+#: templates/ajax_search_select.html
+msgid "IMPORT_LIST"
+msgstr "Tuo lista"
+
+#: templates/ajax_search_select.html
+msgid "NO_MATCHES"
+msgstr "Ei osumia"
+
+#: templates/ajax_search_select.html
+msgid "SEARCH_OR_PASTE"
+msgstr "Kirjoita hakusana tai liitä lista"
+
+#: templates/ajax_search_select.html
+msgid "COPY_SELECTION"
+msgstr "Kopioi nykyinen valinta"
+
 #: templates/base.html
 msgid "SKIP_MAIN_NAVIGATION"
 msgstr "Ohita päävalikko"
@@ -4679,18 +4707,6 @@ msgstr "Palaute"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Lataus epäonnistui!"
-
-#: templates/base.html
-msgid "SEARCH"
-msgstr "Hae"
-
-#: templates/base.html
-msgid "NO_MATCHES"
-msgstr "Ei osumia"
-
-#: templates/base.html
-msgid "SEARCH_FOR"
-msgstr "Etsi..."
 
 #: templates/support_channels.html
 msgid "STUDENTS"

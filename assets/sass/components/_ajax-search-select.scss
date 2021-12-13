@@ -1,0 +1,8 @@
+.search-select, .search-select-ajax {
+	.input-group-btn > .btn-group {
+		// Override this rule in Bootstrap's _input-groups.scss:
+		// .input-group-btn:last-child > .btn-group { z-index: 2; }
+		// It causes dropdown menus to appear behind other fields.
+		z-index: auto;
+	}
+}
