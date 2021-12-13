@@ -7,6 +7,7 @@ from aplus.api import api_reverse
 from course.models import LearningObjectCategory, Course, CourseModule, CourseInstance, UserTag
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
+from lib.widgets import DateTimeLocalInput
 from userprofile.models import UserProfile
 
 
@@ -58,6 +59,12 @@ class CourseModuleForm(FieldsetModelForm):
             'late_submission_deadline',
             'late_submission_penalty'
         ]
+        widgets = {
+            'opening_time': DateTimeLocalInput,
+            'reading_opening_time': DateTimeLocalInput,
+            'closing_time': DateTimeLocalInput,
+            'late_submission_deadline': DateTimeLocalInput,
+        }
 
     def get_fieldsets(self):
         return [
@@ -102,6 +109,14 @@ class CourseInstanceForm(forms.ModelForm):
             'assistants',
             'technical_error_emails',
         ]
+        widgets = {
+            'starting_time': DateTimeLocalInput,
+            'ending_time': DateTimeLocalInput,
+            'lifesupport_time': DateTimeLocalInput,
+            'archive_time': DateTimeLocalInput,
+            'enrollment_starting_time': DateTimeLocalInput,
+            'enrollment_ending_time': DateTimeLocalInput,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

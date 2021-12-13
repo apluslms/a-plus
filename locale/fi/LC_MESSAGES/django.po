@@ -1431,7 +1431,7 @@ msgstr "Uusi määräaika"
 
 #: deviations/forms.py
 msgid "DEVIATION_NEW_DEADLINE_DATE_HELPTEXT"
-msgstr "Uusi määräaika formaatissa YYYY-MM-DD HH:MM."
+msgstr "Uusi määräaika."
 
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_WITHOUT_LATE_PENALTY"
