@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from exercise.models import BaseExercise
 from userprofile.models import UserProfile
 from course.models import CourseModule
+from lib.widgets import DateTimeLocalInput
 
 
 class DeadlineRuleDeviationForm(forms.Form):
@@ -32,9 +33,9 @@ class DeadlineRuleDeviationForm(forms.Form):
     )
     new_date = forms.DateTimeField(
         required=False,
-        input_formats=['%Y-%m-%d %H:%M'],
         label=_('LABEL_NEW_DEADLINE'),
         help_text=_('DEVIATION_NEW_DEADLINE_DATE_HELPTEXT'),
+        widget=DateTimeLocalInput,
     )
     without_late_penalty = forms.BooleanField(
         required=False,

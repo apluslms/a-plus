@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from course.models import CourseModule, LearningObjectCategory
 from exercise.models import LearningObject, CourseChapter, BaseExercise, \
     LTIExercise, StaticExercise, ExerciseWithAttachment, RevealRule
+from lib.widgets import DateTimeLocalInput
 from .course_forms import FieldsetModelForm
 
 from exercise.exercisecollection_models import ExerciseCollection
@@ -94,6 +95,7 @@ class RevealRuleForm(FieldsetModelForm):
     class Meta:
         model = RevealRule
         fields = ['trigger', 'delay_minutes', 'time', 'currently_revealed']
+        widgets = {'time': DateTimeLocalInput}
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)

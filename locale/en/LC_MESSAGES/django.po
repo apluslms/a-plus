@@ -1427,7 +1427,7 @@ msgstr "New deadline"
 
 #: deviations/forms.py
 msgid "DEVIATION_NEW_DEADLINE_DATE_HELPTEXT"
-msgstr "New submission deadline in the future in format YYYY-MM-DD HH:MM."
+msgstr "New submission deadline."
 
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_WITHOUT_LATE_PENALTY"
