@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from typing import Any, Dict, List, Optional, Tuple
 
+from aplus_auth.payload import Permission, Permissions
 from django.db import transaction
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -335,7 +336,9 @@ def get_build_log(instance):
     if not instance.build_log_url:
         return {'error': _('BUILD_LOG_ERROR_URL_BLANK')}
     try:
-        response = aplus_auth.get(instance.build_log_url)
+        permissions = Permissions()
+        permissions.instances.add(Permission.READ, id=instance.id)
+        response = aplus_auth.get(instance.build_log_url, permissions=permissions)
     except Exception as e:
         return {
             'error': format_lazy(
@@ -374,7 +377,9 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
 
     try:
         url = url.strip()
-        response = aplus_auth.get(url)
+        permissions = Permissions()
+        permissions.instances.add(Permission.READ, id=instance.id)
+        response = aplus_auth.get(url, permissions=permissions)
         response.raise_for_status()
     except Exception as e:
         return False, [format_lazy(
@@ -666,7 +671,9 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
             success = False
             publish_errors = []
             try:
-                response = aplus_auth.get(config["publish_url"])
+                permissions = Permissions()
+                permissions.instances.add(Permission.WRITE, id=instance.id)
+                response = aplus_auth.get(config["publish_url"], permissions=permissions)
             except ConnectionError as e:
                 publish_errors = [str(e)]
             else:
