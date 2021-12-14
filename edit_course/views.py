@@ -331,6 +331,7 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
             clone_chapters=form.cleaned_data['chapters'],
             clone_exercises=form.cleaned_data['exercises'],
             clone_menuitems=form.cleaned_data['menuitems'],
+            siskey=form.cleaned_data.get('sis'),
         )
         messages.success(self.request, _('COURSE_INSTANCE_CLONED'))
         return self.redirect(instance.get_url('course-details'))

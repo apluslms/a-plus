@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-08 12:23+0200\n"
+"POT-Creation-Date: 2021-12-14 10:49+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -265,6 +265,10 @@ msgstr "Members"
 msgid "LABEL_USERS"
 msgstr "Users"
 
+#: course/forms.py
+msgid "LABEL_ENROLL_FROM_SIS"
+msgstr "Enrol participants from Student Information System"
+
 #: course/models.py diploma/models.py edit_course/course_forms.py
 #: exercise/exercise_models.py threshold/models.py
 msgid "LABEL_NAME"
@@ -367,6 +371,10 @@ msgstr "role"
 #: course/models.py exercise/exercise_models.py exercise/submission_models.py
 msgid "LABEL_STATUS"
 msgstr "status"
+
+#: course/models.py
+msgid "LABEL_FROM_SIS"
+msgstr "from SIS"
 
 #: course/models.py
 msgid "MODEL_NAME_ENROLLMENT"
@@ -581,6 +589,10 @@ msgid "COURSE_INSTANCE_EXERCISE_ERROR_EMAIL_RECIPIENT_OVERRIDE_HELPTEXT"
 msgstr ""
 "By default assignment errors are reported to teacher email addresses. List "
 "emails here separated by commas to override the default recipients."
+
+#: course/models.py
+msgid "LABEL_SIS_IDENTIFIER"
+msgstr "Course identifier in the student info system"
 
 #: course/models.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
@@ -829,6 +841,17 @@ msgstr "Changes were saved succesfully."
 #: course/staff_views.py edit_course/views.py exercise/staff_views.py
 msgid "FAILURE_SAVING_CHANGES"
 msgstr "Failed to save changes."
+
+#: course/staff_views.py
+#, python-brace-format
+msgid "STUDENT_ENROLLED_FROM_SIS -- {count}"
+msgid_plural "STUDENTS_ENROLLED_FROM_SIS -- {count}"
+msgstr[0] "{count} student has been enrolled from SIS."
+msgstr[1] "{count} students have been enrolled from SIS."
+
+#: course/staff_views.py
+msgid "COULD_NOT_ACCESS_SIS"
+msgstr "Could not access SIS enrollments."
 
 #: course/staff_views.py
 #, python-brace-format
@@ -1727,6 +1750,10 @@ msgstr "Menu items"
 #: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS"
 msgstr "Student tags"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SIS_INSTANCE"
+msgstr "Course instance in Student Information System"
 
 #: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"

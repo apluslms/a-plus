@@ -1,4 +1,5 @@
 from typing import Any
+import logging
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -11,7 +12,10 @@ from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from lib.widgets import DateTimeLocalInput
 from userprofile.models import UserProfile
+from course.sis import get_sis_configuration, StudentInfoSystem
 
+
+logger = logging.getLogger("aplus.course")
 
 class FieldsetModelForm(forms.ModelForm):
 
@@ -223,9 +227,29 @@ class CloneInstanceForm(forms.Form):
         initial=True,
     )
 
+    def set_sis_selector(self) -> None:
+        sis: StudentInfoSystem = get_sis_configuration()
+        if not sis:
+            # Student Info System not configured
+            return
+        
+        try:
+            instances = sis.get_instances(self.instance.course.code)
+
+            # If there are no SIS instances by this course code, don't show menu
+            if instances:
+                options = [('none', '---------')] + instances
+                self.fields['sis'] = forms.ChoiceField(
+                        choices=options,
+                        label=_('LABEL_SIS_INSTANCE'),
+                )
+        except Exception as e:
+            logger.exception("Error getting instances from SIS.")
+
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
+        self.set_sis_selector()
 
     def clean_url(self):
         url = self.cleaned_data['url']

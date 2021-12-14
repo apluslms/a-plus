@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy as ngettext
 
 from authorization.permissions import ACCESS
 from lib.helpers import settings_text
@@ -145,7 +146,29 @@ class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
     form_class = EnrollStudentsForm
     template_name = "course/staff/enroll_students.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
+
     def form_valid(self, form):
+        if (self.instance.sis_id and form.cleaned_data["sis"]):
+            count = self.instance.enroll_from_sis()
+            if count >= 0:
+                messages.info(
+                    self.request,
+                    format_lazy(
+                        ngettext(
+                            'STUDENT_ENROLLED_FROM_SIS -- {count}',
+                            'STUDENTS_ENROLLED_FROM_SIS -- {count}',
+                            count
+                        ),
+                        count=count,
+                    )
+                )
+            else:
+                messages.warning(self.request, _('COULD_NOT_ACCESS_SIS'))
+
         failed_already_enrolled = []
         failed_course_staff = []
         for profile in form.cleaned_data["user_profiles"]:
