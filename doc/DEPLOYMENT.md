@@ -34,6 +34,7 @@ Table of contents
   - [NGINX configuration](#nginx-configuration)
     - [Shibboleth with NGINX](#shibboleth-with-nginx)
   - [Final steps](#final-steps)
+  - [Integration with Student Information System](#integration-with-student-information-system)
 
 
 Common system configuration
@@ -494,6 +495,8 @@ For example, Aalto University, along with a few other Finnish universities
 use "SISU" for this purpose. The integration with the organisation-specific
 SIS system is done using a SIS plugin. For example, Aalto's SISU plugin
 can be found in [GitHub](https://github.com/apluslms/aalto-sisu).
+The plugin must implement
+[the interface `StudentInfoSystem`](../course/sis.py).
 
 If a SIS plugin is used, and after it is installed, two variables need to
 be set in local settings to enable it in A+, as in the following example:
@@ -506,6 +509,6 @@ and `SIS_PLUGIN_CLASS` is the name of the class implementing the generic
 SIS interface. The proper values for these, along with the plugin installation
 instructions, should be described in the plugin's documentation. See the
 [Aalto SISU plugin](https://github.com/apluslms/aalto-sisu) and its README file
- for an example. In addition to these parameters, a plugin may have its own
- plugin-specific additional parameters, as should be described in the plugin
- installation instructions.
+for an example. In addition to these parameters, a plugin may have its own
+plugin-specific additional parameters, as should be described in the plugin
+installation instructions.
