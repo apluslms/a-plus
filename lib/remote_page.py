@@ -1,11 +1,14 @@
+from bs4 import BeautifulSoup
 import logging
 import posixpath
 import re
 import requests
+from requests.models import Response
 import time
-from bs4 import BeautifulSoup
+from typing import Optional
 from urllib.parse import urlparse, urljoin
 
+from aplus_auth.payload import Permission, Permissions
 from django.conf import settings
 from django.utils.http import parse_http_date_safe
 from django.utils.text import format_lazy
@@ -38,7 +41,20 @@ def parse_expires(response):
     return parse_http_date_safe(response.headers.get("Expires", "")) or 0
 
 
-def request_for_response(url, post=False, data=None, files=None, stamp=None):
+def request_for_response(url,
+        post=False,
+        data=None,
+        files=None,
+        stamp=None,
+        instance_id: Optional[int]=None
+        ) -> Response:
+    permissions = Permissions()
+    if instance_id is not None:
+        if post:
+            permissions.instances.add(Permission.WRITE, id=instance_id)
+        else:
+            permissions.instances.add(Permission.READ, id=instance_id)
+
     try:
         last_retry = len(settings.EXERCISE_HTTP_RETRIES) - 1
         n = 0
@@ -49,7 +65,7 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
                     logger.info("POST %s", url)
                     response = aplus_post(
                         url,
-                        payload={},
+                        permissions=permissions,
                         data=data,
                         files=files,
                         timeout=settings.EXERCISE_HTTP_TIMEOUT
@@ -61,7 +77,7 @@ def request_for_response(url, post=False, data=None, files=None, stamp=None):
                         headers['If-Modified-Since'] = stamp
                     response = aplus_get(
                         url,
-                        payload={},
+                        permissions=permissions,
                         timeout=settings.EXERCISE_HTTP_TIMEOUT,
                         headers=headers
                     )
@@ -97,9 +113,16 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self, url, post=False, data=None, files=None, stamp=None):
+    def __init__(self,
+            url,
+            post=False,
+            data=None,
+            files=None,
+            stamp=None,
+            instance_id: Optional[int] = None,
+            ) -> None:
         self.url = urlparse(url)
-        self.response = request_for_response(url, post, data, files, stamp)
+        self.response = request_for_response(url, post, data, files, stamp, instance_id)
         self.response.encoding = "utf-8"
         self.soup = BeautifulSoup(self.response.text, 'html5lib')
 

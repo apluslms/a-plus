@@ -20,7 +20,7 @@ def load_exercise_page(request, url, last_modified, exercise):
     try:
         parse_page_content(
             page,
-            RemotePage(url, stamp=last_modified),
+            RemotePage(url, instance_id=exercise.course_instance.id, stamp=last_modified),
             exercise
         )
     except RemotePageException:

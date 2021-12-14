@@ -364,10 +364,12 @@ class ExerciseModelView(ExerciseModelBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.get_summary_submissions()
+
+        id = self.exercise.course_instance.id
         self.models = []
         for url,name in self.exercise.get_models():
             try:
-                response = request_for_response(url)
+                response = request_for_response(url, instance_id=id)
                 response.encoding = "UTF-8"
             except RemotePageNotFound:
                 self.models.append({'name': name})
@@ -388,10 +390,12 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.get_summary_submissions()
+
+        id = self.exercise.course_instance.id
         self.templates = []
         for url,name in self.exercise.get_templates():
             try:
-                response = request_for_response(url)
+                response = request_for_response(url, instance_id=id)
                 response.encoding = "UTF-8"
             except RemotePageNotFound as error:
                 self.templates.append({'name': name})
