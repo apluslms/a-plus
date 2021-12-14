@@ -1127,13 +1127,19 @@ class LTIExercise(BaseExercise):
                 # Save only the URL path in the database without the domain
                 self.service_url = uri._replace(scheme='', netloc='').geturl()
 
-    def load(self, request, students, url_name="exercise"):
+    def load(
+            self,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> ExercisePage:
         if not self.lti_service.enabled:
             messages.error(request, _('LTI_EXERCISE_ERROR_EXTERNAL_LTI_SERVICE_DISABLED'))
             raise PermissionDenied("The LTI service is disabled.")
 
         if self.aplus_get_and_post:
-            return super().load(request, students, url_name=url_name)
+            return super().load(request, students, url_name=url_name, ordinal=ordinal)
 
         if not students:
             return ExercisePage(self)
@@ -1229,7 +1235,13 @@ class StaticExercise(BaseExercise):
         verbose_name = _('MODEL_NAME_STATIC_EXERCISE')
         verbose_name_plural = _('MODEL_NAME_STATICE_EXERCISE_PLURAL')
 
-    def load(self, request, students, url_name="exercise"):
+    def load(
+            self,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> ExercisePage:
         page = ExercisePage(self)
         page.content = self.exercise_page_content
         return page
@@ -1302,7 +1314,13 @@ class ExerciseWithAttachment(BaseExercise):
             files = self.files_to_submit.split("|")
             return [filename.strip() for filename in files]
 
-    def load(self, request, students, url_name="exercise"):
+    def load(
+            self,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> ExercisePage:
         page = ExercisePage(self)
         page.content = self.content
 
