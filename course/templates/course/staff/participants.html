@@ -51,21 +51,21 @@
         {% endif %}
     </p>
 
-    <table class="table table-condensed">
+    <table class="table table-condensed filtered-table ordered-table">
         <thead>
             <tr>
                 {% if is_teacher %}
-                <th>
+                <th data-filter-type="none" data-order-disable="true">
                     <input type="checkbox" id="students-select-all" name="students" value="all" >
                 </th>
                 {% endif %}
-                <th><a href="#" class="order-toggle" id="order-id">{% trans "STUDENT_ID" %} <span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span></a></th>
-                <th><a href="#" class="order-toggle" id="order-last">{% trans "LAST_NAME" %} </a></th>
-                <th><a href="#" class="order-toggle" id="order-first">{% trans "FIRST_NAME" %} </a></th>
+                <th>{% trans "STUDENT_ID" %}</th>
+                <th>{% trans "LAST_NAME" %}</th>
+                <th>{% trans "FIRST_NAME" %}</th>
                 <th>{% trans "EMAIL" %}</th>
-								<th>{% trans "STATUS" %}</th>
-                <th>{% trans "TAGS" %}</th>
-								<th></th>
+				<th data-filter-type="none" data-order-disable="true">{% trans "STATUS" %}</th>
+                <th data-filter-type="none" data-order-disable="true">{% trans "TAGS" %}</th>
+				<th data-filter-type="none" data-order-disable="true"></th>
             </tr>
         </thead>
         <tbody id="participants">

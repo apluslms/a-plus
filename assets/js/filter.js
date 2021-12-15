@@ -1,11 +1,11 @@
 $(function() {
     "use strict";
 
-    $('.filtered-table').aplusTableFilter();
+    $('.filtered-table, .ordered-table').aplusTableFilter();
 });
 
 /**
- * Table row filter.
+ * Table utilities: filtering and ordering.
  */
 (function($, document, undefined) {
     "use strict";
@@ -16,6 +16,8 @@ $(function() {
 
     function AplusTableFilter(element, options) {
         this.element = $(element);
+        this.enable_filter = this.element.hasClass('filtered-table');
+        this.enable_order = this.element.hasClass('ordered-table');
         this.filters = null;
         this.timeout = null;
         if (this.element.prop("tagName") == "TABLE") {
@@ -37,16 +39,6 @@ $(function() {
     $.extend(AplusTableFilter.prototype, {
 
         init: function() {
-            var columnCount = 0;
-            var columns = [];
-            this.element.find('thead').find('tr').each(function() {
-                const rowColumns = $(this).find('th');
-                if (rowColumns.length > columnCount) {
-                    columnCount = rowColumns.length;
-                    columns = rowColumns;
-                }
-            });
-
             const self = this;
             function filterDelay(event) {
                 const input = $(this);
@@ -65,52 +57,79 @@ $(function() {
                 self.filterTable();
             };
 
-            this.filters = [];
-            const filterRow = $('<tr class="tableexport-ignore"></tr>');
-            for (var i = 0; i < columnCount; i++) {
-                this.filters.push('');
-                const filterType = $(columns[i]).data('filter-type');
-                if (filterType === 'none') {
-                    filterRow.append($('<td/>'));
-                    continue;
-                }
-                else if (filterType === 'options') {
-                    const filterForm = $('<form/>');
-                    const filterOptions = $(columns[i]).data('filter-options').trim().split('|');
-                    filterOptions.forEach(function(option) {
-                        const input = $('<input type="checkbox">')
-                            .attr('value', option)
-                            .data('column', i)
-                            .on('change', filterColumnWithOptions);
-                        const label = $('<label/>')
-                            .append(input)
-                            .append('&nbsp;' + option + '&nbsp;');
-                        filterForm.append(label);
-                    });
-                    const filterCell = $('<td/>').append(filterForm);
-                    filterRow.append(filterCell);
-                }
-                else {
-                    const filterInput =
-                        $('<input type="text" data-column="' + i + '">')
-                        .on('keyup', filterDelay).on('change', filterDelay);
+            function orderColumn(event) {
+                event.preventDefault();
+                self.element.find('thead > tr > th > a > .order-marker').remove();
+                $(this).append(
+                    $('<span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span>')
+                );
+                self.orderTable($(this).data('column'));
+            };
 
-                    const filterCell = $(
-                        '<td data-toggle="tooltip" title="'
-                        + _(
-                            "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200."
-                            + " Datetime comparison is available in format yyyy-mm-dd hh:mm"
-                            + " — e.g. >=0918-09-20 15:00."
-                            + " Regex is available — e.g. /^\\d+$/g."
-                            + " Use dot as decimal seperator — e.g. 2.1."
-                            )
-                        + '"></td>'
-                    );
-                    filterCell.append(filterInput);
-                    filterRow.append(filterCell);
-                }
+            let filterRow = undefined;
+            if (this.enable_filter) {
+                this.filters = [];
+                filterRow = $('<tr class="tableexport-ignore"></tr>')
+                    .appendTo(this.element.find('thead'));
             }
-            this.element.find('thead').append(filterRow);
+
+            this.element.find('thead > tr > th').each(function(i) {
+                const column = $(this);
+
+                if (self.enable_filter) {
+                    self.filters.push('');
+                    const filterType = column.data('filter-type');
+                    if (filterType === 'none') {
+                        filterRow.append($('<td/>'));
+                    }
+                    else if (filterType === 'options') {
+                        const filterForm = $('<form/>');
+                        const filterOptions = column.data('filter-options').trim().split('|');
+                        filterOptions.forEach(function(option) {
+                            const input = $('<input type="checkbox">')
+                                .attr('value', option)
+                                .data('column', i)
+                                .on('change', filterColumnWithOptions);
+                            const label = $('<label/>')
+                                .append(input)
+                                .append('&nbsp;' + option + '&nbsp;');
+                            filterForm.append(label);
+                        });
+                        const filterCell = $('<td/>').append(filterForm);
+                        filterRow.append(filterCell);
+                    }
+                    else {
+                        const filterInput =
+                            $('<input type="text" class="form-control" data-column="' + i + '">')
+                            .attr({
+                              'placeholder': _('Filter'),
+                              'aria-label': _('Filter')
+                            })
+                            .on('keyup', filterDelay).on('change', filterDelay);
+
+                        const filterCell = $(
+                            '<td data-toggle="tooltip" title="'
+                            + _(
+                                "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200."
+                                + " Datetime comparison is available in format yyyy-mm-dd hh:mm"
+                                + " — e.g. >=0918-09-20 15:00."
+                                + " Regex is available — e.g. /^\\d+$/g."
+                                + " Use dot as decimal seperator — e.g. 2.1."
+                                )
+                            + '"></td>'
+                        );
+                        filterCell.append(filterInput);
+                        filterRow.append(filterCell);
+                    }
+                }
+
+                if (self.enable_order && !column.data('order-disable')) {
+                    column.wrapInner(
+                        $('<a href="#" data-column="' + i + '"></a>')
+                        .on('click', orderColumn)
+                    );
+                }
+            });
         },
 
         filterGetType: function(query) {
@@ -209,7 +228,7 @@ $(function() {
             } else {
                 input.off('hide.bs.popover');
                 input.popover("destroy")
-                    .removeAttr("class title data-original-title");
+                    .removeAttr("title data-original-title");
             }
             this.filterTable();
         },
@@ -254,6 +273,31 @@ $(function() {
             if ($("#selected-number").length) {
                 $("#selected-number").text(visibleRows);
             }
+        },
+
+        orderTable: function(index) {
+            const rows = this.element.find('tbody > tr');
+            const sorted = rows.sort(function (aRow, bRow) {
+                const aCell = $(aRow).find('td').eq(index);
+                const bCell = $(bRow).find('td').eq(index);
+                const aDate = aCell.data('datetime');
+                const bDate = bCell.data('datetime');
+                if (aDate && bDate) {
+                    return aDate.localeCompare(bDate);
+                }
+                const aText = aCell.text().trim();
+                const bText = bCell.text().trim();
+                const aNumber = Number(aText);
+                const bNumber = Number(bText);
+                if (!isNaN(aNumber) && !isNaN(bNumber)) {
+                    return aNumber - bNumber;
+                }
+                return aText.localeCompare(bText);
+            });
+            // Don't remove the rows before appending them again. It's useless
+            // because append() already moves nodes instead of cloning, and
+            // removing the nodes causes them to lose their event handlers.
+            this.element.find('tbody').append(sorted);
         },
     });
 

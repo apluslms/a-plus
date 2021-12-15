@@ -51,17 +51,21 @@
 		</a>
 	</p>
 </div>
-<table class="table table-bordered{% if all or count < default_limit %} filtered-table{% endif %}">
+<table class="table table-bordered{% if all or count < default_limit %} filtered-table ordered-table{% endif %}">
 		<thead>
 				<tr>
 						<th>{% translate "SUBMITTERS" %}</th>
 						<th>{% translate "TIME" %}</th>
 						<th>{% translate "STATUS" %}</th>
 						<th>{% translate "GRADE" %}</th>
-						<th data-filter-type="options" data-filter-options="{% translate 'YES' %}|{% translate 'NO' %}">
+						<th
+							data-filter-type="options"
+							data-filter-options="{% translate 'YES' %}|{% translate 'NO' %}"
+							data-order-disable="true"
+						>
 								{% translate "ASSESSED_MANUALLY" %}
 						</th>
-						<th data-filter-type="none">{% translate "INSPECT" %}</th>
+						<th data-filter-type="none" data-order-disable="true">{% translate "INSPECT" %}</th>
 				</tr>
 		</thead>
 		<tbody>
