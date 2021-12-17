@@ -1,11 +1,32 @@
 $(function() {
     "use strict";
 
-    $('.filtered-table, .ordered-table').aplusTableFilter();
+    $('.filtered-table, .ordered-table, .grouped-table').aplusTableFilter();
 });
 
 /**
- * Table utilities: filtering and ordering.
+ * Table utilities: filtering, ordering and grouping.
+ *
+ * Use these classes on the `table` element to enable these features:
+ * - `filtered-table`
+ * - `ordered-table`
+ * - `grouped-table`
+ *
+ * Use these attributes on `th` elements:
+ * - `data-filter-type`:
+ *   - `none`: Disable filtering for this column.
+ *   - `options`: This column is filtered using a series of check boxes instead
+ *     of a text field.
+ *   - unspecified or any other value: This column is filtered using a text
+ *     field.
+ * - `data-filter-options`: The options for filtering this column when
+ *   `data-filter-type` is `options`, separated by pipes (`|`).
+ * - `data-order-disable`: If true, ordering is disabled for this column.
+ *
+ * Use these attributes on `tr` elements:
+ * - `data-group-parent`: Indicates that this is the parent row of a group.
+ * - `data-group-child`: Indicates that this is a child row of a group.
+ *
  */
 (function($, document, undefined) {
     "use strict";
@@ -18,6 +39,7 @@ $(function() {
         this.element = $(element);
         this.enable_filter = this.element.hasClass('filtered-table');
         this.enable_order = this.element.hasClass('ordered-table');
+        this.enable_group = this.element.hasClass('grouped-table');
         this.filters = null;
         this.timeout = null;
         if (this.element.prop("tagName") == "TABLE") {
@@ -65,6 +87,54 @@ $(function() {
                 );
                 self.orderTable($(this).data('column'));
             };
+
+            function expandRow(event) {
+                const button = $(this);
+                const expanded = !button.data('group-expanded');
+                const groupId = button.closest('tr').data('group-parent');
+                self.element
+                    .find('tbody > tr[data-group-child="' + groupId + '"]')
+                    .toggleClass('hidden-group', !expanded);
+                self.updateExpandButton(button, expanded);
+            };
+
+            function expandAllRows(event) {
+                const button = $(this);
+                const expanded = !button.data('group-expanded');
+                self.element
+                    .find('tbody > tr[data-group-child]')
+                    .toggleClass('hidden-group', !expanded);
+                self.updateExpandButton(button, expanded);
+                self.updateExpandButton(self.element.find('tbody > tr > td:first-child > button'), expanded);
+            };
+
+            if (self.enable_group) {
+                const parentRows = this.element.find('tbody > tr[data-group-parent]').each(function() {
+                    // Add expand buttons to group parent rows
+                    const expandButton = $('<button></button>')
+                        .addClass('aplus-button--secondary aplus-button--xs')
+                        .on('click', expandRow);
+                    $(this).prepend($('<td></td>').append(expandButton));
+                    self.updateExpandButton(expandButton, false);
+                });
+
+                if (parentRows.length > 0) {
+                    // Add "expand all" button to header
+                    const expandButton = $('<button></button>')
+                        .addClass('aplus-button--secondary aplus-button--xs')
+                        .on('click', expandAllRows);
+                    this.element.find('thead > tr').prepend(
+                        $('<th data-filter-type="none" data-order-disable="true"></th>')
+                            .append(expandButton)
+                    );
+                    this.updateExpandButton(expandButton, false);
+
+                    // Add empty cells to rows that don't have an expand button
+                    this.element
+                        .find('tbody > tr:not([data-group-parent])')
+                        .prepend('<td></td>');
+                }
+            }
 
             let filterRow = undefined;
             if (this.enable_filter) {
@@ -235,11 +305,12 @@ $(function() {
 
         filterTable: function() {
             const self = this;
+            const visibleGroupIds = new Set();
             this.element
                 .find('tbody')
                 .find('tr')
                 .not('.no-filtering')
-                .hide()
+                .addClass('hidden-filter')
                 .filter(function() {
                     var pass = true;
                     $(this).find('td').each(function(i) {
@@ -262,8 +333,24 @@ $(function() {
                             return false;
                         }
                     });
+                    if (pass) {
+                        const groupId = $(this).data('group-child');
+                        if (groupId) {
+                            visibleGroupIds.add($(this).data('group-child'));
+                        }
+                    }
                     return pass;
-                }).show();
+                }).removeClass('hidden-filter');
+
+            if (visibleGroupIds.size > 0) {
+                // Show parent rows that have children that are not hidden
+                const parentRows = this.element.find('tbody > tr[data-group-parent]');
+                parentRows.each(function() {
+                    if (visibleGroupIds.has($(this).data('group-parent'))) {
+                        $(this).removeClass('hidden-filter');
+                    }
+                });
+            }
 
             // Add #selected-number to e.g. span tag to get count of rows after filter
             const visibleRows = this.element.
@@ -276,8 +363,7 @@ $(function() {
         },
 
         orderTable: function(index) {
-            const rows = this.element.find('tbody > tr');
-            const sorted = rows.sort(function (aRow, bRow) {
+            function compareRows(aRow, bRow) {
                 const aCell = $(aRow).find('td').eq(index);
                 const bCell = $(bRow).find('td').eq(index);
                 const aDate = aCell.data('datetime');
@@ -293,11 +379,38 @@ $(function() {
                     return aNumber - bNumber;
                 }
                 return aText.localeCompare(bText);
-            });
+            }
+
+            // Order the top-level rows first.
             // Don't remove the rows before appending them again. It's useless
             // because append() already moves nodes instead of cloning, and
             // removing the nodes causes them to lose their event handlers.
-            this.element.find('tbody').append(sorted);
+            const rows = this.element.find('tbody > tr:not([data-group-child])');
+            this.element.find('tbody').append(rows.sort(compareRows));
+
+            // Then order each group's child rows (if the table is grouped).
+            if (this.enable_group) {
+                const parentRows = this.element.find('tbody > tr[data-group-parent]');
+                const self = this;
+                parentRows.each(function() {
+                    const groupId = $(this).data('group-parent');
+                    const childRows = self.element.find('tbody > tr[data-group-child="' + groupId + '"]');
+                    $(this).after(childRows.sort(compareRows));
+                });
+            }
+        },
+
+        updateExpandButton: function(button, expanded) {
+            const label = expanded ? '-' : '+';
+            const tooltip = expanded ? _('Collapse') : _('Expand');
+            button
+                .data('group-expanded', expanded)
+                .text(label)
+                .attr({
+                    'aria-expanded': expanded,
+                    'title': tooltip,
+                    'aria-label': tooltip
+                });
         },
     });
 
