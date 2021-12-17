@@ -42,17 +42,21 @@
 	</p>
 </div>
 
-<table class="table table-bordered filtered-table">
+<table class="table table-bordered filtered-table ordered-table">
 	<thead>
 		<tr>
 			<th>{% translate "SUBMITTER" %}</th>
 			<th>{% translate "SUBMISSIONS" %}</th>
 			<th>{% translate "LATEST_SUBMISSION_TIME" %}</th>
 			<th>{% translate "GRADE" %}</th>
-			<th data-filter-type="options" data-filter-options="{% translate 'YES' %}|{% translate 'NO' %}">
+			<th
+				data-filter-type="options"
+				data-filter-options="{% translate 'YES' %}|{% translate 'NO' %}"
+				data-order-disable="true"
+			>
 				{% translate "ASSESSED_MANUALLY" %}
 			</th>
-			<th data-filter-type="none">{% translate "INSPECT" %}</th>
+			<th data-filter-type="none" data-order-disable="true">{% translate "INSPECT" %}</th>
 		</tr>
 	</thead>
 	<tbody>

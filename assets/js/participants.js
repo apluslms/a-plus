@@ -136,18 +136,12 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     }
     $('<td></td>')
       .append(link.clone().text(participant.id))
-      .addClass('order-id')
-      .attr({ 'data-order-by': participant.id })
       .appendTo(row);
     $('<td></td>')
       .append(link.clone().text(participant.last_name))
-      .addClass('order-last')
-      .attr({ 'data-order-by': participant.last_name })
       .appendTo(row);
     $('<td></td>')
       .append(link.clone().text(participant.first_name))
-      .addClass('order-first')
-      .attr({ 'data-order-by': participant.first_name })
       .appendTo(row);
     $('<td></td>').append(
       link.clone().text(participant.email || participant.username)
@@ -218,27 +212,6 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       });
     });
   }
-
-  $('a.order-toggle').on('click', function(event) {
-    event.preventDefault();
-
-    $('.order-marker').remove();
-    $(this).append($('<span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span>'));
-    const order_by_class = '.' + $(this).attr('id');
-
-    const $sortedParticipants = get_participants().sort(function (a, b) {
-      const $a = $(a);
-      const $b = $(b);
-      return $a.children(order_by_class).attr('data-order-by')
-               .localeCompare(
-                 $b.children(order_by_class).attr('data-order-by')
-               );
-    });
-    // Don't remove the participant nodes before appending them again.
-    // It's useless because append() already moves nodes instead of cloning,
-    // and removing the nodes causes them to lose their event handlers.
-    $('#participants').append($sortedParticipants);
-  });
 
   $('.filter-users button').on('click', function(event) {
     event.preventDefault();

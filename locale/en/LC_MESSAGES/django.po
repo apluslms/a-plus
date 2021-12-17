@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 10:49+0200\n"
+"POT-Creation-Date: 2021-12-15 12:21+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1542,6 +1542,18 @@ msgid "EXTRA_MINUTES"
 msgstr "Extra minutes"
 
 #: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Yes"
+
+#: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "No"
+
+#: deviations/templates/deviations/list_dl.html
 msgid "WITHOUT_LATE_PENALTY"
 msgstr "Without late penalty"
 
@@ -1561,6 +1573,11 @@ msgstr "Actions"
 #: deviations/templates/deviations/list_dl.html
 msgid "UNKNOWN"
 msgstr "Unknown"
+
+#: deviations/templates/deviations/list_dl.html
+#, python-format
+msgid "NUM_OF_EXERCISES -- %(count)s"
+msgstr "%(count)s assignments"
 
 #: deviations/templates/deviations/list_dl.html
 msgid "NO_DEADLINE_DEVIATIONS"
@@ -3683,16 +3700,6 @@ msgstr "Group by submitter"
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "TIME"
 msgstr "Time"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "YES"
-msgstr "Yes"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "NO"
-msgstr "No"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html

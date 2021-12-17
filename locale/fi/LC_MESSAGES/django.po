@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-14 10:49+0200\n"
+"POT-Creation-Date: 2021-12-15 12:21+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1546,6 +1546,18 @@ msgid "EXTRA_MINUTES"
 msgstr "Ylimääräiset minuutit"
 
 #: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Kyllä"
+
+#: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "Ei"
+
+#: deviations/templates/deviations/list_dl.html
 msgid "WITHOUT_LATE_PENALTY"
 msgstr "Ilman myöhästymissakkoa"
 
@@ -1565,6 +1577,11 @@ msgstr "Toiminnot"
 #: deviations/templates/deviations/list_dl.html
 msgid "UNKNOWN"
 msgstr "Tuntematon"
+
+#: deviations/templates/deviations/list_dl.html
+#, python-format
+msgid "NUM_OF_EXERCISES -- %(count)s"
+msgstr "%(count)s tehtävää"
 
 #: deviations/templates/deviations/list_dl.html
 msgid "NO_DEADLINE_DEVIATIONS"
@@ -3687,16 +3704,6 @@ msgstr "Ryhmittele palauttajittain"
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "TIME"
 msgstr "Aika"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "YES"
-msgstr "Kyllä"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "NO"
-msgstr "Ei"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html

@@ -20,6 +20,15 @@
   "There might be something wrong with the filter. Some comparison operators only accept numbers. If you are using datetime, make sure the format is correct. If you are using regex, make sure it is correct.":
   "Suodattimissa voi olla virhe. Jotkut vertailuoperaattorit hyväksyvät vain numeroita. Mikäli vertailet aikaa, varmista että formaatti on oikea. Mikäli käytät regexiä, niin varmista että se on oikein.",
 
+  "Filter":
+  "Suodatus",
+
+  "Collapse":
+  "Supista",
+
+  "Expand":
+  "Laajenna",
+
   "Total":
   "Yhteensä",
 

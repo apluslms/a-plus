@@ -1,0 +1,12 @@
+table {
+	// There are two separate classes for hiding rows in the table, because
+	// there are two reasons a row might be hidden: filtering and grouping.
+	// Having separate classes makes it easier to toggle these states
+	// separately in Javascript code (see table.js).
+	&.filtered-table .hidden-filter {
+		display: none !important;
+	}
+	&.grouped-table .hidden-group {
+		display: none !important;
+	}
+}
