@@ -1,7 +1,7 @@
 $(function() {
     "use strict";
 
-    $('.filtered-table, .ordered-table, .grouped-table').aplusTableFilter();
+    $('.filtered-table, .ordered-table, .grouped-table').aplusTable();
 });
 
 /**
@@ -31,11 +31,11 @@ $(function() {
 (function($, document, undefined) {
     "use strict";
 
-    const pluginName = "aplusTableFilter";
+    const pluginName = "aplusTable";
     var defaults = {};
     var translationsReady = false;
 
-    function AplusTableFilter(element, options) {
+    function AplusTable(element, options) {
         this.element = $(element);
         this.enable_filter = this.element.hasClass('filtered-table');
         this.enable_order = this.element.hasClass('ordered-table');
@@ -58,7 +58,7 @@ $(function() {
         }
     }
 
-    $.extend(AplusTableFilter.prototype, {
+    $.extend(AplusTable.prototype, {
 
         init: function() {
             const self = this;
@@ -480,7 +480,7 @@ $(function() {
 
     $.fn[pluginName] = function(options) {
         return this.each(function() {
-            $.data(this, "plugin_" + pluginName, new AplusTableFilter(this, options));
+            $.data(this, "plugin_" + pluginName, new AplusTable(this, options));
         });
     };
 
