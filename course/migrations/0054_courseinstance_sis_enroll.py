@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='courseinstance',
             name='sis_enroll',
-            field=models.BooleanField(default='False', help_text='COURSE_INSTANCE_SIS_ENROLL_HELP', verbose_name='LABEL_SIS_ENROLL'),
+            field=models.BooleanField(default=False, help_text='COURSE_INSTANCE_SIS_ENROLL_HELP', verbose_name='LABEL_SIS_ENROLL'),
         ),
     ]
