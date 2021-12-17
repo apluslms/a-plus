@@ -14,63 +14,63 @@
 {% block columns %}
 <div class="col-md-12">
 
-    {% if is_teacher %}
-    <p>
-      <a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'enroll-students' }}">
-        <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-          {% translate "ENROLL_STUDENTS" %}
-      </a>
-    </p>
-    {% endif %}
-    <p class="filter-users">
-      <small>{% trans "FILTER_USERS_BY_TAG" %}:</small>
-      {% for tag in tags %}
-      <button class="btn btn-default btn-xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
-        <span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
-        {{ tag.name }}
-      </button>
-      {% endfor %}
-      <small>{% trans "FILTER_USERS_BY_STATUS" %}:</small>
-      {% for status_code, status_label in enrollment_statuses.items %}
-      <button class="btn btn-default btn-xs filter-status" data-status="{{ status_code }}">
-				{% if status_code == 'ACTIVE' %}
-        	<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-				{% else %}
-					<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
-        {% endif %}
-        {{ status_label }}
-      </button>
-      {% endfor %}
-    </p>
+	{% if is_teacher %}
+	<p>
+		<a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'enroll-students' }}">
+			<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+			{% translate "ENROLL_STUDENTS" %}
+		</a>
+	</p>
+	{% endif %}
+	<p class="filter-users">
+		<small>{% trans "FILTER_USERS_BY_TAG" %}:</small>
+		{% for tag in tags %}
+		<button class="btn btn-default btn-xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
+			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			{{ tag.name }}
+		</button>
+		{% endfor %}
+		<small>{% trans "FILTER_USERS_BY_STATUS" %}:</small>
+		{% for status_code, status_label in enrollment_statuses.items %}
+		<button class="btn btn-default btn-xs filter-status" data-status="{{ status_code }}">
+			{% if status_code == 'ACTIVE' %}
+			<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+			{% else %}
+			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			{% endif %}
+			{{ status_label }}
+		</button>
+		{% endfor %}
+	</p>
 
-    <p>
-        {% trans "NUMBER_OF_ENROLLED_STUDENTS" %} <strong id="active-participants-number"></strong>
-				({% trans "REMOVED_STUDENTS" %} <strong id="inactive-participants-number"></strong>)
-        {% if is_teacher %}
-        {% translate "OF_WHICH_SELECTED" %} <strong id="selected-number">0</strong>
-        {% endif %}
-    </p>
+	<p>
+		{% trans "NUMBER_OF_ENROLLED_STUDENTS" %} <strong id="active-participants-number"></strong>
+		({% trans "REMOVED_STUDENTS" %} <strong id="inactive-participants-number"></strong>)
+		{% if is_teacher %}
+		{% translate "OF_WHICH_SELECTED" %} <strong id="selected-number">0</strong>
+		{% endif %}
+	</p>
 
-    <table class="table table-condensed filtered-table ordered-table">
-        <thead>
-            <tr>
-                {% if is_teacher %}
-                <th data-filter-type="none" data-order-disable="true">
-                    <input type="checkbox" id="students-select-all" name="students" value="all" >
-                </th>
-                {% endif %}
-                <th>{% trans "STUDENT_ID" %}</th>
-                <th>{% trans "LAST_NAME" %}</th>
-                <th>{% trans "FIRST_NAME" %}</th>
-                <th>{% trans "EMAIL" %}</th>
+	<table class="table table-condensed filtered-table ordered-table">
+		<thead>
+			<tr>
+				{% if is_teacher %}
+				<th data-filter-type="none" data-order-disable="true">
+					<input type="checkbox" id="students-select-all" name="students" value="all" >
+				</th>
+				{% endif %}
+				<th>{% trans "STUDENT_ID" %}</th>
+				<th>{% trans "LAST_NAME" %}</th>
+				<th>{% trans "FIRST_NAME" %}</th>
+				<th>{% trans "EMAIL" %}</th>
 				<th data-filter-type="none" data-order-disable="true">{% trans "STATUS" %}</th>
-                <th data-filter-type="none" data-order-disable="true">{% trans "TAGS" %}</th>
+				<th data-filter-type="none" data-order-disable="true">{% trans "TAGS" %}</th>
 				<th data-filter-type="none" data-order-disable="true"></th>
-            </tr>
-        </thead>
-        <tbody id="participants">
-        </tbody>
-    </table>
+			</tr>
+		</thead>
+		<tbody id="participants">
+		</tbody>
+	</table>
 
 </div>
 
@@ -146,13 +146,13 @@
 <script src="{% static 'js/participants.js' %}"></script>
 <script src="{% static 'course/usertagdropdown.js' %}"></script>
 <script>
- $(function () {
-     const participants = {{ participants|escape_slashes|safe }};
-     const api_url = "{% url 'api:course-detail' 2 instance.id %}";
-     const is_teacher = {{ is_teacher|yesno:"true,false" }};
-		 const enrollment_statuses = {{ enrollment_statuses_json|escape_slashes|safe }};
-     participants_list(participants, api_url, is_teacher, enrollment_statuses);
- });
+$(function () {
+	const participants = {{ participants|escape_slashes|safe }};
+	const api_url = "{% url 'api:course-detail' 2 instance.id %}";
+	const is_teacher = {{ is_teacher|yesno:"true,false" }};
+	const enrollment_statuses = {{ enrollment_statuses_json|escape_slashes|safe }};
+	participants_list(participants, api_url, is_teacher, enrollment_statuses);
+});
 </script>
 
 {% endblock %}
