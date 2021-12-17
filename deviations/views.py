@@ -1,5 +1,9 @@
+from itertools import groupby
+from typing import Iterable, List, Optional, Tuple
+
 from django.contrib import messages
 from django.db import IntegrityError
+from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -16,9 +20,38 @@ class ListDeadlinesView(CourseInstanceBaseView):
     access_mode = ACCESS.TEACHER
     template_name = "deviations/list_dl.html"
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
-        self.deviations = (
+
+        self.deviation_groups = self.get_deviation_groups()
+        self.note("deviation_groups")
+
+    def get_deviation_groups(self) -> Iterable[Tuple[List[DeadlineRuleDeviation], bool, Optional[str]]]:
+        """
+        Get all deviations in this course, grouped by user and module.
+
+        Grouping condition: deviations can be grouped if the user has been
+        granted the same deviation (same values for `extra_minutes` and
+        `without_late_penalty`) for all exercises in the module.
+
+        The returned tuples contain the following values:
+        1. List of deviations with the same user and module.
+        2. Boolean representing whether the deviations in the list can be
+        displayed as a group (i.e. the grouping condition is satisfied).
+        3. An id that uniquely identifies the group of deviations.
+        """
+        # Find the number of exercises in each module.
+        exercise_counts = (
+            BaseExercise.objects.filter(
+                course_module__course_instance=self.instance
+            )
+            .order_by()
+            .values('course_module_id')
+            .annotate(count=models.Count('*'))
+        )
+        exercise_count_by_module = {row['course_module_id']: row['count'] for row in exercise_counts}
+
+        all_deviations = (
             DeadlineRuleDeviation.objects.filter(
                 exercise__course_module__course_instance=self.instance
             )
@@ -26,8 +59,38 @@ class ListDeadlinesView(CourseInstanceBaseView):
             # parent is prefetched because there may be multiple ancestors, and
             # they are needed for building the deviation's URL.
             .prefetch_related('exercise__parent')
+            .order_by('submitter', 'exercise__course_module')
         )
-        self.note("deviations")
+
+        deviation_groups = groupby(
+            all_deviations,
+            lambda obj: (obj.submitter, obj.exercise.course_module),
+        )
+        for (submitter, module), deviations_iter in deviation_groups:
+            deviations = list(deviations_iter)
+            can_group = True
+            if len(deviations) < 2:
+                # Group must have at least 2 deviations.
+                can_group = False
+            else:
+                group_exercises = set()
+                for deviation in deviations:
+                    if (
+                        deviation.extra_minutes != deviations[0].extra_minutes
+                        or deviation.without_late_penalty != deviations[0].without_late_penalty
+                    ):
+                        # These values must be equal within a group.
+                        can_group = False
+                        break
+                    group_exercises.add(deviation.exercise.id)
+                else:
+                    if len(group_exercises) != exercise_count_by_module[module.id]:
+                        # The number of exercises that have deviations doesn't
+                        # match the number of exercises in the module, so there
+                        # are some exercises that don't have a deviation.
+                        can_group = False
+            group_id = f"{deviations[0].submitter.id}.{module.id}" if can_group else None
+            yield (deviations, can_group, group_id)
 
 
 class AddDeadlinesView(CourseInstanceMixin, BaseFormView):
