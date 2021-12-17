@@ -595,6 +595,14 @@ msgid "LABEL_SIS_IDENTIFIER"
 msgstr "Course identifier in the student info system"
 
 #: course/models.py
+msgid "LABEL_SIS_ENROLL"
+msgstr "Enrol from SIS"
+
+#: course/models.py
+msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
+msgstr "When enabled, students from local organization must enrol through SIS."
+
+#: course/models.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "course instance"
 
@@ -958,6 +966,10 @@ msgstr "Edit news"
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "EDIT_COURSE"
 msgstr "Edit course"
+
+#: course/templates/course/_enroll_form.html
+msgid "ENROLL_THROUGH_SIS"
+msgstr "You must enrol on this course through Student Information System."
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"
