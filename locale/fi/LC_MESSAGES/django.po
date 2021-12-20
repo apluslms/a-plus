@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-15 12:21+0200\n"
+"POT-Creation-Date: 2021-12-20 11:32+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -602,7 +602,9 @@ msgstr "Ilmoittautumiset opintotietojärjestelmästä"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
-msgstr "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava opintotietojärjestelmän kautta"
+msgstr ""
+"Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
+"opintotietojärjestelmän kautta"
 
 #: course/models.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
