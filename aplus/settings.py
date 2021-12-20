@@ -370,10 +370,6 @@ REST_FRAMEWORK = {
 OVERRIDE_SUBMISSION_HOST = None
 REMOTE_PAGE_HOSTS_MAP = None
 
-# Kubernetes deployment specific settings, unused otherwise
-KUBERNETES_MODE = False
-KUBERNETES_NAMESPACE = "default"
-
 # Maximum submissions limit for exercises that allow unofficial submissions.
 # The exercise-specific max submissions limit may then be exceeded, however,
 # this limit will prevent students from spamming massive amounts of submissions.
