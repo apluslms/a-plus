@@ -232,7 +232,8 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
 
         # Set other submissions as not final if this one is final.
         if self.submission.force_exercise_points:
-            other_submissions = (self.exercise.submissions
+            other_submissions = (self.exercise
+                .get_submissions_for_student(self.submission.submitters.first())
                 .filter(force_exercise_points=True)
                 .exclude(id=self.submission.id))
             for submission in other_submissions:
