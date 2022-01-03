@@ -1,12 +1,13 @@
-from bs4 import BeautifulSoup
 import logging
 import posixpath
 import re
-import requests
-from requests.models import Response
 import time
 from typing import Optional
 from urllib.parse import urlparse, urljoin
+
+from bs4 import BeautifulSoup
+import requests
+from requests.models import Response
 
 from aplus_auth.payload import Permission, Permissions
 from django.conf import settings
