@@ -58,7 +58,7 @@ class RemoteAuthenticationView(RemoteAuthenticator, APIView):
             payload = request.auth
 
         if not isinstance(payload, Payload):
-            return Response("Missing payload", status=500)
+            return Response("Missing payload", status=400)
 
         if permissions is None:
             if hasattr(request.user, "permissions"):
