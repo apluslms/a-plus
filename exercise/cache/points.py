@@ -483,6 +483,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             exercise_id: Optional[int] = None,
             filter_for_assistant: bool = False,
             best: bool = True,
+            fallback_to_last: bool = False,
             raise_404=True,
             ) -> List[int]:
         exercises = self.search_exercises(
@@ -499,6 +500,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 sid = entry.get('best_submission', None)
                 if not sid is None:
                     submissions.append(sid)
+                elif fallback_to_last:
+                    entry_submissions = entry.get('submissions', [])
+                    if entry_submissions:
+                        submissions.append(entry_submissions[0]['id']) # Last submission is first in the cache
         else:
             for entry in exercises:
                 submissions.extend(s['id'] for s in entry.get('submissions', []))
