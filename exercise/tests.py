@@ -587,15 +587,22 @@ class ExerciseTest(TestCase):
         self.learning_object_category.accept_unofficial_submits = True
         self.learning_object_category.save()
 
+        self.submission_when_late_allowed.set_error()
+        self.late_late_submission_when_late_allowed.set_error()
+        self.submission_when_late_allowed.save()
+        self.late_late_submission_when_late_allowed.save()
+
         self.late_submission_when_late_allowed.set_points(10, 10)
         self.late_submission_when_late_allowed.set_ready()
         self.late_submission_when_late_allowed.save()
         self.assertEqual(self.late_submission_when_late_allowed.grade, 100)
         self.assertEqual(self.late_submission_when_late_allowed.status, Submission.STATUS.UNOFFICIAL)
         summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
-        self.assertEqual(summary.get_submission_count(), 3)
+        self.assertEqual(summary.get_submission_count(), 1)
         self.assertEqual(summary.get_points(), 0) # unofficial points are not shown here
         self.assertFalse(summary.is_graded())
+        # 3 submissions:
+        # initialized, unofficial, initialized
         self.assertTrue(summary.is_unofficial())
 
         self.submission_when_late_allowed.set_points(5, 10)
@@ -604,6 +611,7 @@ class ExerciseTest(TestCase):
         self.assertEqual(self.submission_when_late_allowed.grade, 50)
         self.assertEqual(self.submission_when_late_allowed.status, Submission.STATUS.READY)
         summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
+        self.assertEqual(summary.get_submission_count(), 2)
         self.assertEqual(summary.get_points(), 50)
         self.assertTrue(summary.is_graded())
         self.assertFalse(summary.is_unofficial())
@@ -618,6 +626,7 @@ class ExerciseTest(TestCase):
         sub.set_points(10, 10)
         sub.save()
         summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
+        self.assertEqual(summary.get_submission_count(), 3)
         self.assertEqual(summary.get_points(), 50)
         self.assertTrue(summary.is_graded())
         self.assertFalse(summary.is_unofficial())

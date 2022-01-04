@@ -141,10 +141,13 @@ class CachedPointsTest(CourseTestCase):
 
     def test_accumulation(self):
         self.submission2.set_points(2,2)
+        self.submission2.set_error()
         self.submission2.save()
         c = CachedContent(self.instance)
         p = CachedPoints(self.instance, self.student, c)
         entry,tree,_,_ = p.find(self.exercise)
+        # 2 submissions:
+        # ready 50, initialized 100
         self.assertTrue(entry['graded'])
         self.assertTrue(entry['passed'])
         self.assertEqual(entry['points'], 50)
@@ -164,7 +167,7 @@ class CachedPointsTest(CourseTestCase):
         self.submission2.save()
         p = CachedPoints(self.instance, self.student, c)
         total = p.total()
-        self.assertEqual(total['submission_count'], 2)
+        self.assertEqual(total['submission_count'], 3)
         self.assertEqual(total['points'], 100)
         self.assertEqual(total['points_by_difficulty'].get('',0), 100)
 

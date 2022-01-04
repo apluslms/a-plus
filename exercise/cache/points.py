@@ -335,7 +335,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'best_submission': submission.id,
                         'points': submission.grade,
                         'formatted_points': format_points(submission.grade, True, False),
-                        'passed': (ready and submission.grade >= entry['points_to_pass']),
+                        'passed': (not unofficial and submission.grade >= entry['points_to_pass']),
                         'graded': True,
                         'unofficial': False,
                         'forced_points': True,
@@ -343,7 +343,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     final_submission = submission
                 if not entry.get('forced_points', False):
                     if (
-                        ready and (
+                        not unofficial and (
                             entry['unofficial'] or
                             is_better_than(submission, final_submission)
                         )
@@ -356,14 +356,14 @@ class CachedPoints(ContentMixin, CachedAbstract):
                             'best_submission': submission.id,
                             'points': submission.grade,
                             'formatted_points': format_points(submission.grade, True, False),
-                            'passed': (ready and submission.grade >= entry['points_to_pass']),
-                            'graded': ready, # != unofficial
+                            'passed': (not unofficial and submission.grade >= entry['points_to_pass']),
+                            'graded': not unofficial,
                             'unofficial': unofficial,
                         })
                         final_submission = submission
                 # Update last_submission to be the last submission, or the last
                 # official submission if there are any official submissions.
-                # Note that the submissions are ordered by descendng time.
+                # Note that the submissions are ordered by descending time.
                 if last_submission is None or (
                     last_submission.status == Submission.STATUS.UNOFFICIAL
                     and not unofficial
