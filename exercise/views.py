@@ -259,14 +259,14 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             return_submission = request.GET.get('submission') == 'true'
 
             # Try to load the draft page, if requested
-            if return_draft:
+            if return_draft and self.profile:
                 draft = self.exercise.get_submission_draft(self.profile)
                 if draft:
                     messages.warning(request, _('DRAFT_WARNING_REMEMBER_TO_SUBMIT'))
                     return draft.load(request)
 
             # Try to load the latest submission, if requested and if a draft was not found
-            if return_submission:
+            if return_submission and self.profile:
                 submission = (
                     self.exercise.get_submissions_for_student(self.profile)
                     .order_by("-submission_time")
