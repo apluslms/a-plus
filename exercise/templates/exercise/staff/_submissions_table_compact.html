@@ -56,11 +56,19 @@
 				</span>
 
 				{% if s == summary.best_submission %}
-				<span
-					class="label label-primary"
-					data-toggle="tooltip"
-					title="{% translate 'SUBMISSION_FINAL_TOOLTIP' %}"
-				>{% translate 'FINAL' %}</span>
+					{% if s.force_exercise_points %}
+					<span
+						class="label label-primary"
+						data-toggle="tooltip"
+						title="{% translate 'SUBMISSION_FINAL_TOOLTIP' %}"
+					>{% translate 'FINAL' %}</span>
+					{% else %}
+					<span
+						class="glyphicon glyphicon-star"
+						data-toggle="tooltip"
+						title="{% translate 'SUBMISSION_CHOSEN_TOOLTIP' %}"
+					></span>
+					{% endif %}
 				{% endif %}
 				{% if s.grader %}
 				<span

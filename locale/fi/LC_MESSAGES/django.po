@@ -3095,6 +3095,10 @@ msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
 msgstr "Paljastamissäännöt"
 
 #: exercise/staff_views.py
+msgid "GRADING_MODE_TITLE -- {}"
+msgstr "Arvostelutapa: {}"
+
+#: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
 
@@ -3737,6 +3741,10 @@ msgstr "Nro"
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_FINAL_TOOLTIP"
 msgstr "Tämä palautus määrittää tehtävän lopullisen arvosanan."
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_CHOSEN_TOOLTIP"
+msgstr "Tällä hetkellä tämä palautus määrittäisi tehtävän arvosanan."
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "FINAL"

@@ -81,6 +81,9 @@
 						</form>
 					{% endif %}
 				{% endif %}
+				{% if not submission.force_exercise_points %}
+					{{ grading_mode_text }}
+				{% endif %}
 				{% include "exercise/staff/_submissions_table_compact.html" %}
 			</div>
 		</div>

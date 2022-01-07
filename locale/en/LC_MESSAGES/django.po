@@ -3090,6 +3090,10 @@ msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
 msgstr "Reveal rules"
 
 #: exercise/staff_views.py
+msgid "GRADING_MODE_TITLE -- {}"
+msgstr "Grading mode: {}"
+
+#: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "The review was saved successfully and the submitters were notified."
 
@@ -3731,6 +3735,10 @@ msgstr "No."
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_FINAL_TOOLTIP"
 msgstr "This submission determines the final grade for this exercise."
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_CHOSEN_TOOLTIP"
+msgstr "At the moment this submission would determine the grade for the exercise."
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "FINAL"

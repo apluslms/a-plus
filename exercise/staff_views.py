@@ -42,6 +42,7 @@ from .viewbase import (
     SubmissionMixin,
     ExerciseMixin,
 )
+from .exercise_models import BaseExercise
 from lib.logging import SecurityLog
 
 
@@ -179,6 +180,14 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
                         and submission.status != Submission.STATUS.UNOFFICIAL):
                     self.not_last = True
 
+        if self.exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
+            mode = _('GRADING_MODE_BEST')
+        elif self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
+            mode = _('GRADING_MODE_LAST')
+        else:
+            logger.warning("Missing description for grading mode.")
+        self.grading_mode_text = format_lazy(_('GRADING_MODE_TITLE -- {}'), mode)
+
         self.note(
             'has_files',
             'lowest_visible_index',
@@ -186,6 +195,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             'not_final',
             'not_best',
             'not_last',
+            'grading_mode_text',
         )
 
     def get_initial(self):
