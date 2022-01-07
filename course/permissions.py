@@ -226,7 +226,7 @@ class EnrollInfoVisiblePermission(ObjectVisibleBasePermission):
         return True
 
 
-class CourseModulePermission(MessageMixin, Permission):
+class CourseModulePermissionBase(MessageMixin, Permission):
     message = _('MODULE_PERMISSION_MSG_NOT_VISIBLE')
 
     def has_permission(self, request, view):
@@ -256,6 +256,8 @@ class CourseModulePermission(MessageMixin, Permission):
             points = CachedPoints(module.course_instance, request.user, view.content, view.is_course_staff)
             return module.are_requirements_passed(points)
         return True
+
+CourseModulePermission = CourseModulePermissionBase | JWTInstanceReadPermission
 
 
 class OnlyCourseTeacherPermission(Permission):
