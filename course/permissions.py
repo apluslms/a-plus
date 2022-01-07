@@ -76,7 +76,7 @@ class JWTInstanceReadPermission(JWTInstancePermission):
 
 class JWTExercisePermission(JWTObjectPermission):
     obj_key = "exercise"
-    obj_type = CourseInstance
+    obj_type = BaseExercise
     access_key = "exercises"
 
 class JWTExerciseWritePermission(JWTExercisePermission):
