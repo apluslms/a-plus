@@ -85,7 +85,10 @@ class RemoteAuthenticationView(RemoteAuthenticator, APIView):
         payload = request.auth
         if not isinstance(payload, Payload):
             data = dict(request.data)
-            payload = Payload(**data)
+            try:
+                payload = Payload(**data)
+            except ValueError as e:
+                return Response(str(e), status=400)
             payload.iss = f"user:{request.user.username}"
             try:
                 # request.auth has already been authorized but the payload in
