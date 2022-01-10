@@ -163,6 +163,7 @@ class ObjectPermissions:
     def __init__(self):
         self.courses: ObjectPermissionList["Course"] = ObjectPermissionList()
         self.instances: ObjectPermissionList["CourseInstance"] = ObjectPermissionList()
+        self.exercises: ObjectPermissionList["BaseExercise"] = ObjectPermissionList()
         self.submissions: ObjectPermissionList["Submission"] = ObjectPermissionList()
 
     @staticmethod
@@ -174,6 +175,7 @@ class ObjectPermissions:
         perms = ObjectPermissions()
         perms.courses = ObjectPermissionList.from_payload(user, payload, payload.permissions.courses)
         perms.instances = ObjectPermissionList.from_payload(user, payload, payload.permissions.instances)
+        perms.exercises = ObjectPermissionList.from_payload(user, payload, payload.permissions.exercises)
         perms.submissions = ObjectPermissionList.from_payload(user, payload, payload.permissions.submissions)
         return perms
 
@@ -182,6 +184,7 @@ class ObjectPermissions:
         for target, source in [
                     (permissions.courses, self.courses),
                     (permissions.instances, self.instances),
+                    (permissions.exercises, self.exercises),
                     (permissions.submissions, self.submissions),
                 ]:
             for permission, obj in source.instances:

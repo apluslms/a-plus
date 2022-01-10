@@ -17,7 +17,7 @@ from authorization.permissions import (
 from exercise.cache.points import CachedPoints
 from exercise.models import BaseExercise
 from exercise.submission_models import Submission
-from userprofile.models import UserProfile
+from userprofile.models import GraderUser, UserProfile
 from .models import (
     Course,
     CourseModule,
@@ -130,6 +130,9 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
         """
         # NOTE: course is actually course instance
 
+        if isinstance(request.user, GraderUser):
+            return False
+
         # Course is always visible to staff members
         if view.is_course_staff:
             return True
@@ -236,6 +239,8 @@ class CourseModulePermissionBase(MessageMixin, Permission):
         return True
 
     def has_object_permission(self, request: HttpRequest, view: Any, module: CourseModule) -> bool:
+        if isinstance(request.user, GraderUser):
+            return False
 
         if not isinstance(module, CourseModule):
             return True
