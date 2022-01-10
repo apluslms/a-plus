@@ -105,6 +105,9 @@ class SubmissionVisiblePermissionBase(ObjectVisibleBasePermission):
     obj_var = 'submission'
 
     def is_object_visible(self, request, view, submission):
+        if isinstance(request.user, GraderUser):
+            return False
+
         if not isinstance(request.user, User) or not (view.is_teacher or
                 (view.is_assistant and submission.exercise.allow_assistant_viewing) or
                 submission.is_submitter(request.user)):
