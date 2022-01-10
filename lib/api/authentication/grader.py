@@ -54,6 +54,9 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
             perm_dict: Dict[str, Any] = {"exercise_id": exercise.id, "user_id": user_id}
             payload.permissions.submissions.add(Permission.CREATE, **perm_dict)
             permissions.submissions.add_create(**perm_dict)
+
+            payload.permissions.exercises.add(Permission.READ, id=exercise.id)
+            permissions.exercises.add(Permission.READ, {"id": exercise.id})
         else:
             raise AuthenticationFailed("Authentication token is invalid.")
 
