@@ -37,6 +37,7 @@ class SubmissionQuerySet(models.QuerySet):
             self,
             field_name: str = 'total',
             revealed_ids: Iterable[int] = None,
+            include_unofficial: bool = False,
             ) -> 'SubmissionQuerySet':
         """
         Annotates the total points earned by the submitter in the exercise to
@@ -47,6 +48,9 @@ class SubmissionQuerySet(models.QuerySet):
 
         Provide `revealed_ids`, if you want to hide unrevealed points from the
         queryset.
+
+        If `include_unofficial` is `False`, only the submissions with status
+        `READY` are included. Otherwise, `READY` and `UNOFFICIAL` are included.
         """
         # Building a case expression for calculating the total points. There
         # are 4 cases:
@@ -57,8 +61,14 @@ class SubmissionQuerySet(models.QuerySet):
         # 3) If the grading_mode field of the exercise is set to LAST, return
         #    the points of the latest submission.
         # 4) In any other case, return the points of the best submission.
+        # If none of the submissions are in an expected status (READY or
+        # UNOFFICIAL, depending on the include_unofficial parameter, return 0).
         force_zero = False
         cases = []
+        if include_unofficial:
+            statuses = (Submission.STATUS.READY, Submission.STATUS.UNOFFICIAL)
+        else:
+            statuses = (Submission.STATUS.READY,)
         if revealed_ids is not None:
             # revealed_ids may be an empty set.
             if revealed_ids:
@@ -85,6 +95,7 @@ class SubmissionQuerySet(models.QuerySet):
                     self.filter(
                         exercise=models.OuterRef('exercise_id'),
                         submitters=models.OuterRef('submitters__id'),
+                        status__in=statuses,
                     )
                     .order_by('-submission_time')
                     .values('grade')[:1]
@@ -96,7 +107,20 @@ class SubmissionQuerySet(models.QuerySet):
                 forced_points=models.Max('grade', filter=models.Q(force_exercise_points=True)),
             )
             .annotate(**{
-                field_name: models.Case(*cases, default=models.Max('grade') if not force_zero else 0),
+                # Coalesce ensures that 0 is returned instead of None, if none
+                # of the submissions are in an expected status.
+                field_name: models.functions.Coalesce(
+                    models.Case(
+                        *cases,
+                        default=models.Max(
+                            'grade',
+                            filter=models.Q(
+                                status__in=statuses,
+                            ),
+                        ),
+                    ),
+                    0,
+                ) if not force_zero else models.Value(0),
             })
         )
 

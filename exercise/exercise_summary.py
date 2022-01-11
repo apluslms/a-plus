@@ -56,7 +56,7 @@ class UserExerciseSummary(object):
                         self.forced_points = True
                     if not self.forced_points:
                         if (
-                            s.status != Submission.STATUS.UNOFFICIAL and (
+                            s.status == Submission.STATUS.READY and (
                                 self.best_submission is None
                                 or self.unofficial
                                 or self._is_better(s, self.best_submission)

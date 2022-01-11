@@ -1059,7 +1059,7 @@ class ExerciseTest(TestCase):
         # Create test submissions, so that the final points:
         # - for user 1 exercise 1 should be 5
         # - for user 1 exercise 2 should be 6
-        # - for user 2 exercise 1 should be 3
+        # - for user 2 exercise 1 should be 0
         # - for user 2 exercise 2 should be 1
         for submission_data in [
             {'exercise': points_test_base_exercise_1, 'grade': 5, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
@@ -1072,9 +1072,9 @@ class ExerciseTest(TestCase):
             submission = Submission.objects.create(**submission_data)
             submission.submitters.add(self.user.userprofile)
         for submission_data in [
-            {'exercise': points_test_base_exercise_1, 'grade': 3, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_1, 'grade': 3, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.INITIALIZED, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.INITIALIZED, 'force_exercise_points': False},
+            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.INITIALIZED, 'force_exercise_points': False},
             {'exercise': points_test_base_exercise_2, 'grade': 2, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
             {'exercise': points_test_base_exercise_2, 'grade': 1, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
             {'exercise': points_test_base_exercise_2, 'grade': 0, 'status': Submission.STATUS.UNOFFICIAL, 'force_exercise_points': False},
@@ -1085,9 +1085,6 @@ class ExerciseTest(TestCase):
         points_rows = (
             Submission.objects
             .filter(exercise__in=(points_test_base_exercise_1, points_test_base_exercise_2))
-            .exclude(status__in=(
-                Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
-            ))
             .values('submitters__user_id', 'exercise_id')
             .annotate_submitter_points('total')
             .order_by()
@@ -1104,8 +1101,31 @@ class ExerciseTest(TestCase):
             points_dict[(row['submitters__user_id'], row['exercise_id'])] = row['total']
         self.assertEqual(points_dict[(self.user.id, points_test_base_exercise_1.id)], 5)
         self.assertEqual(points_dict[(self.user.id, points_test_base_exercise_2.id)], 6)
-        self.assertEqual(points_dict[(self.user2.id, points_test_base_exercise_1.id)], 3)
+        self.assertEqual(points_dict[(self.user2.id, points_test_base_exercise_1.id)], 0)
         self.assertEqual(points_dict[(self.user2.id, points_test_base_exercise_2.id)], 1)
+
+        # Test with one exercise and submitter, and include_unofficial=True.
+        points_rows_unofficial = (
+            Submission.objects
+            .filter(exercise=points_test_base_exercise_2, submitters=self.user2.userprofile)
+            .values('submitters__user_id', 'exercise_id')
+            .annotate_submitter_points('total', include_unofficial=True)
+            .order_by()
+        )
+        self.assertEqual(len(points_rows_unofficial), 1)
+        self.assertEqual(points_rows_unofficial[0]['total'], 0)
+
+        # Test with no revealed exercises (all points should be 0).
+        points_rows_unrevealed = (
+            Submission.objects
+            .filter(exercise__in=(points_test_base_exercise_1, points_test_base_exercise_2))
+            .values('submitters__user_id', 'exercise_id')
+            .annotate_submitter_points('total', revealed_ids=())
+            .order_by()
+        )
+        self.assertEqual(len(points_rows_unrevealed), 4)
+        for row in points_rows_unrevealed:
+            self.assertEqual(row['total'], 0)
 
         points_test_base_exercise_1.delete()
         points_test_base_exercise_2.delete()

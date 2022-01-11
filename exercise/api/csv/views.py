@@ -322,7 +322,8 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
-        if(request.GET.get('show_unofficial') != 'true'):
+        show_unofficial = request.GET.get('show_unofficial') == 'true'
+        if not show_unofficial:
             exclude_list.append(Submission.STATUS.UNOFFICIAL)
         aggr = (
             Submission.objects
@@ -330,7 +331,7 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
             .exclude(status__in=(exclude_list))
             .values('submitters__user_id', 'exercise_id')
             .annotate(count=Count('id'))
-            .annotate_submitter_points('total', revealed_ids)
+            .annotate_submitter_points('total', revealed_ids, show_unofficial)
             .order_by()
         )
         data,fields = aggregate_points(
