@@ -25,23 +25,32 @@ ALLOWED_HOSTS = ["*"]
 LOCAL_ORGANIZATION = 'aalto.fi'
 
 # Authentication and authentication library settings
-APLUS_AUTH = {
+# see https://pypi.org/project/aplus-auth/ for explanations
+APLUS_AUTH_LOCAL = {
+    #"UID": "...", # set to "aplus" below, can be changed
     "PRIVATE_KEY": None,
     "PUBLIC_KEY": None,
-}
-# List all trusted public keys with an alias
-ALIAS_TO_PUBLIC_KEY={
-    #"grader": <RSA public key of grader>
-    #"grader2": <RSA public key of grader2>
-}
-# A mapping of URLs to aliases
-URL_TO_ALIAS={
-    #"http://example.com": "grader"
-    #"http://grader.example.com": "grader2"
-    #"https://otherexample.com": "grader2"
+    "TRUSTING_REMOTES": {
+        #"http://example.com": "grader"
+        #"http://grader.example.com": "grader2"
+        #"https://otherexample.com": "grader2"
+        #"onemoreexample.com": "gitmanager"
+    },
+    #"DEFAULT_AUD_UID": "...", # set to "unknown" below, can be changed
+    "UID_TO_KEY": {
+        #"grader": <RSA public key of grader>
+        #"grader2": <RSA public key of grader2>,
+        #"gitmanager": <RSA public key of gitmanager>,
+    },
+    #"DISABLE_JWT_SIGNING": False,
+    #"DISABLE_LOGIN_CHECKS": False,
 }
 ##########################################################################
 
+APLUS_AUTH = {
+    "UID": "aplus",
+    "DEFAULT_AUD_UID": "unknown",
+}
 
 # Content (may override in local_settings.py)
 #
@@ -510,6 +519,8 @@ if 'shibboleth_login' in INSTALLED_APPS:
 if 'social_django' in INSTALLED_APPS:
     SOCIAL_AUTH = True
     AUTHENTICATION_BACKENDS += ('social_core.backends.google.GoogleOAuth2',)
+
+APLUS_AUTH.update(APLUS_AUTH_LOCAL)
 
 
 

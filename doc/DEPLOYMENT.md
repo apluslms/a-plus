@@ -135,8 +135,7 @@ The Application
 
     Ensure that you use `DEBUG = False` in production (`local_setting.py`).
 
-    Fill the `APLUS_AUTH`, `ALIAS_TO_PUBLIC_KEY` and `URL_TO_ALIAS` settings.
-    Check `settings.py` and `local_settings.example.py`.
+    Fill the `APLUS_AUTH` settings. Check `settings.py` and `local_settings.example.py`.
 
  1. Run Django deployment tasks
 

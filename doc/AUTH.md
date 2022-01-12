@@ -26,12 +26,12 @@ The JWT follows the specification [RFC7519](https://datatracker.ietf.org/doc/htm
 The payload has the following fields:
 
     iss, string
-        The public key of the party who signed this token.
+        The UID of the party who signed this token.
     sub, string
-        The party who made the HTTP request. This is either the public key of
+        The party who made the HTTP request. This is either the UID of
         the requester, or "user:<id>" for normal A+ users.
     aud, string
-        The public key of the party whom the HTTP request is sent to.
+        The UID of the party whom the HTTP request is sent to.
     exp, JSON numeric value
         The expiration time of the token (seconds since epoch).
     permissions, list of permissions (see below)
@@ -44,18 +44,18 @@ Additionally, there are two special fields used when asking an authority
 (generally A+) to sign a token for them:
 
     taud, string
-        The public key of the party who is to be the audience of the new token.
+        The UID of the party who is to be the audience of the new token.
     turl, string
         The URL of the party who is to be the audience of the new token. This
-        requires the authority to know what the public key of said URL is.
+        requires the authority to know what the UID of said URL is.
 
 ## JWT verification
 
 A receiver should reject a request if
 
-- the aud does not match the receiver's public key
-- the receiver does not recognize the issuer public key
-- the signature cannot be verified using the issuer public key
+- the aud does not match the receiver's UID
+- the receiver does not recognize the issuer UID
+- the signature cannot be verified using the issuer UID
 - any of the permission claims is invalid: a claim is invalid if
     - the issuer does not have the authority to authorize the claim, and
     - the receiver cannot verify the claim themselves (either does not
@@ -113,8 +113,8 @@ from this general rule, see [below](#How-to-get-permissions).
 
 The only type of claim that A+ currently verifies (and possibly accepts) is
 "instance" with READ or WRITE permission. For this, the requester needs to be
-set as the `configure_url` of the instance. The `URL_TO_ALIAS` and
-`ALIAS_TO_PUBLIC_KEY` settings are used to determine the public key of the URL
+set as the `configure_url` of the instance. The `APLUS_AUTH.TRUSTING_REMOTES` and
+`APLUS_AUTH.UID_TO_KEY` settings are used to determine the UID of the URL
 in `configure_url`.
 
 ## X <-> A+ communication
