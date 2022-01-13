@@ -130,15 +130,6 @@ class CourseInstanceBaseMixin(object):
 
         return access_mode
 
-
-class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
-    def get_course_instance_object(self):
-        return get_object_or_404(
-            CourseInstance,
-            url=self.kwargs[self.instance_kw],
-            course__url=self.kwargs[self.course_kw],
-        )
-
     def handle_exception(self, exc):
         if isinstance(exc, TranslationNotFound):
             instance_languages = self.instance.language.strip("|").split("|")
@@ -147,6 +138,14 @@ class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
                 instance_languages[i] = {"name": get_language_info(lang)['name'], "url": update_url_params(url, {'hl' : lang})}
             return render(self.request, '404.html', {'error_msg': str(exc), 'languages': instance_languages}, status=404)
         return super().handle_exception(exc)
+
+class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
+    def get_course_instance_object(self):
+        return get_object_or_404(
+            CourseInstance,
+            url=self.kwargs[self.instance_kw],
+            course__url=self.kwargs[self.course_kw],
+        )
 
     def handle_no_permission(self):
         if (self.request.user.is_authenticated
