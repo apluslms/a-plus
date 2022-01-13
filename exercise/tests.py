@@ -23,6 +23,7 @@ from exercise.models import BaseExercise, StaticExercise, \
     RevealRule
 from exercise.protocol.exercise_page import ExercisePage
 from exercise.reveal_states import ExerciseRevealState
+from lib.helpers import build_aplus_url
 
 class ExerciseTest(TestCase):
     def setUp(self):
@@ -447,11 +448,10 @@ class ExerciseTest(TestCase):
         self.assertEqual("/Course-Url/T-00.1000_d1/test-module/a1/", self.exercise_with_attachment.get_absolute_url())
 
     def test_base_exercise_async_url(self):
-        request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
         language = 'en'
         # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
-        split_base_exercise_service_url = self.base_exercise._build_service_url(language, request, [self.user.userprofile], 1, 'exercise', 'service').split("?")
-        split_static_exercise_service_url = self.static_exercise._build_service_url(language, request, [self.user.userprofile], 1, 'exercise', 'service').split("?")
+        split_base_exercise_service_url = self.base_exercise._build_service_url(language, [self.user.userprofile], 1, 'exercise', 'service').split("?")
+        split_static_exercise_service_url = self.static_exercise._build_service_url(language, [self.user.userprofile], 1, 'exercise', 'service').split("?")
         self.assertEqual("", split_base_exercise_service_url[0])
         self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
         # a quick hack to check whether the parameters are URL encoded
@@ -461,9 +461,10 @@ class ExerciseTest(TestCase):
         base_exercise_url_params = urllib.parse.parse_qs(split_base_exercise_service_url[1])
         static_exercise_url_params = urllib.parse.parse_qs(split_static_exercise_service_url[1])
         self.assertEqual(['100'], base_exercise_url_params['max_points'])
-        self.assertEqual('http://localhost:8001/service', base_exercise_url_params['submission_url'][0][:40])
+        expected = build_aplus_url("service")
+        self.assertEqual(expected, base_exercise_url_params['submission_url'][0][:40])
         self.assertEqual(['50'], static_exercise_url_params['max_points'])
-        self.assertEqual(['http://localhost:8001/service'], static_exercise_url_params['submission_url'])
+        self.assertEqual([expected], static_exercise_url_params['submission_url'])
 
     def test_static_exercise_load(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')

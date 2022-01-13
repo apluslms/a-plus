@@ -37,6 +37,7 @@ from lib.helpers import (
     update_url_params,
     safe_file_name,
     roman_numeral,
+    build_aplus_url,
 )
 from lib.models import UrlMixin
 from lib.localization_syntax import pick_localized
@@ -958,12 +959,12 @@ class BaseExercise(LearningObject):
                 get_graderauth_exercise_params(self, user),
             )
             return self._build_service_url(
-                language, request, students,
+                language, students,
                 ordinal, url_name, submission_url
             )
         return super().get_load_url(language, request, students, url_name, ordinal)
 
-    def grade(self, request, submission, no_penalties=False, url_name="exercise"):
+    def grade(self, submission, request=None, no_penalties=False, url_name="exercise"):
         """
         Loads the exercise feedback page.
         """
@@ -977,7 +978,7 @@ class BaseExercise(LearningObject):
             get_graderauth_submission_params(submission),
         )
         url = self._build_service_url(
-            language, request, submission.submitters.all(),
+            language, submission.submitters.all(),
             submission.ordinal_number(), url_name, submission_url
         )
         try:
@@ -998,21 +999,16 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def _build_service_url(self, language, request, students, ordinal_number, url_name, submission_url):
+    def _build_service_url(self, language, students, ordinal_number, url_name, submission_url):
         """
         Generates complete URL with added parameters to the exercise service.
         """
         uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
-        auri = (
-            settings.OVERRIDE_SUBMISSION_HOST + submission_url
-            if settings.OVERRIDE_SUBMISSION_HOST
-            else request.build_absolute_uri(submission_url)
-        )
         return update_url_params(self.get_service_url(language), {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
-            "submission_url": auri,
-            "post_url": request.build_absolute_uri(str(self.get_url(url_name))),
+            "submission_url": build_aplus_url(submission_url),
+            "post_url": build_aplus_url(str(self.get_url(url_name)), user_url=True),
             "uid": uid_str,
             "ordinal_number": ordinal_number,
             "lang": language,
@@ -1247,7 +1243,7 @@ class StaticExercise(BaseExercise):
         page.content = self.exercise_page_content
         return page
 
-    def grade(self, request, submission, no_penalties=False, url_name="exercise"):
+    def grade(self, submission, request=None, no_penalties=False, url_name="exercise"):
         page = ExercisePage(self)
         page.content = self.submission_page_content
         page.is_accepted = True

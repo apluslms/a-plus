@@ -4,7 +4,7 @@ import functools
 import warnings
 from cachetools import cached, TTLCache
 from collections import OrderedDict
-from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit, urlunparse, urlunsplit, urlparse
 from PIL import Image
 from typing import Any, Dict, Iterable, List
 
@@ -118,6 +118,24 @@ def remove_query_param_from_url(url, param):
     query = parse_qs(url.query, keep_blank_values=True)
     query.pop(param, None)
     return urlunsplit(url._replace(query=urlencode(query, True)))
+
+
+def build_aplus_url(url: str, user_url: bool=False) -> str:
+    """
+    Enforce that the given URL is a full absolute URL that always uses
+    the network location from the configured BASE_URL. In some installations, particularly
+    local docker environments, separate SERVICE_BASE_URL is used to distinguish the
+    docker internal network addresses from user-facing address (typically localhost).
+    Optional argument 'user_url' tells which one the caller is interested in.
+    Takes URL as a parameter, returns (possibly) modified URL.
+    """
+    baseurl = settings.BASE_URL
+    if not user_url and hasattr(settings, 'SERVICE_BASE_URL'):
+        baseurl = settings.SERVICE_BASE_URL
+    parsed = urlparse(url)
+    baseparsed = urlparse(baseurl)
+    parsed = parsed._replace(scheme=baseparsed.scheme, netloc=baseparsed.netloc)
+    return urlunparse(parsed)
 
 
 FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-0123456789"

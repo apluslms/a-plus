@@ -3,6 +3,7 @@ import traceback
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
+from .helpers import build_aplus_url
 
 
 logger = logging.getLogger('aplus.lib.email_messages')
@@ -39,17 +40,22 @@ def email_course_error(request, exercise, message, exception=True):
     if exception:
         error_trace = traceback.format_exc()
 
+    if request:
+        request_fields = repr(request)
+    else:
+        request_fields = "No request available"
+
     subject = settings.EXERCISE_ERROR_SUBJECT.format(
         course=instance.course.code,
         exercise=str(exercise))
     body = settings.EXERCISE_ERROR_DESCRIPTION.format(
         message=message,
-        exercise_url=request.build_absolute_uri(
-            exercise.get_absolute_url()),
-        course_edit_url=request.build_absolute_uri(
-            instance.get_url('course-details')),
+        exercise_url=build_aplus_url(
+            exercise.get_absolute_url(), user_url=True),
+        course_edit_url=build_aplus_url(
+            instance.get_url('course-details'), user_url=True),
         error_trace=error_trace,
-        request_fields=repr(request))
+        request_fields=request_fields)
 
     try:
         email_course_instance(instance, subject, body)

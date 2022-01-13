@@ -97,8 +97,9 @@ class ExerciseCollection(BaseExercise):
 
 
     # Used when staff forces regrading
-    def grade(self, request, submission):
-        self.check_submission(request.user, forced=True)
+    def grade(self, submission, request=None):
+        user = list(submission.submitters.all())[0]
+        self.check_submission(user, forced=True)
 
 
     # Updates submission for ExerciseCollection
