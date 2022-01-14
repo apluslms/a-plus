@@ -72,7 +72,7 @@
 			</td>
 		</tr>
 		{% endfor %}
-		{% if summary.submission_count > 1 %}
+		{% if summary.submission_count > highest_visible_index or lowest_visible_index > 1 %}
 		<tr>
 			<td colspan="5">
 				<button class="aplus-button--secondary aplus-button--xs" data-toggle="visibility" data-target=".submissions-toggle">
