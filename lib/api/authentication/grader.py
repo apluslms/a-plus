@@ -46,9 +46,18 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
     def add_token_permissions(self, token: str, permissions: ObjectPermissions, payload: Payload):
         if token[0] == "s":
             submission = self.authenticate_submission_token(token[1:])
+            payload.permissions.submissions.add(Permission.READ, id=submission.id)
+            permissions.submissions.add(Permission.READ, submission)
             payload.permissions.submissions.add(Permission.WRITE, id=submission.id)
             permissions.submissions.add(Permission.WRITE, submission)
             exercise = submission.exercise
+
+            # MOOC-jutut needs this but it doesn't seem correct to give exercise read
+            # permissions here. It might not _actually_ even need this but the way
+            # the permissions system works, accessing the submission also requires
+            # access to the exercise.
+            payload.permissions.exercises.add(Permission.READ, id=exercise.id)
+            permissions.exercises.add(Permission.READ, {"id": exercise.id})
         elif token[0] == "e":
             exercise, user_id = self.authenticate_exercise_token(token[1:])
             perm_dict: Dict[str, Any] = {"exercise_id": exercise.id, "user_id": user_id}
@@ -60,6 +69,8 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
         else:
             raise AuthenticationFailed("Authentication token is invalid.")
 
+        # Same problem as above with the exercises. We need access to these to
+        # access the submissions/exercises
         payload.permissions.courses.add(Permission.READ, id=exercise.course_instance.course.id)
         payload.permissions.instances.add(Permission.READ, id=exercise.course_instance.id)
         permissions.courses.add(Permission.READ, exercise.course_instance.course)
