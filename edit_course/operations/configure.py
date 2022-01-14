@@ -379,6 +379,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
         url = url.strip()
         permissions = Permissions()
         permissions.instances.add(Permission.READ, id=instance.id)
+        permissions.instances.add(Permission.WRITE, id=instance.id)
         response = aplus_get(url, permissions=permissions)
         response.raise_for_status()
     except Exception as e:
@@ -672,6 +673,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
             publish_errors = []
             try:
                 permissions = Permissions()
+                permissions.instances.add(Permission.READ, id=instance.id)
                 permissions.instances.add(Permission.WRITE, id=instance.id)
                 response = aplus_get(config["publish_url"], permissions=permissions)
             except ConnectionError as e:
