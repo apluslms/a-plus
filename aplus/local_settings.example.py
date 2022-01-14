@@ -7,11 +7,16 @@
 #)
 
 #from os import environ
-#APLUS_AUTH = {
+# Authentication and authentication library settings
+# see https://pypi.org/project/aplus-auth/ for explanations
+#APLUS_AUTH_LOCAL = {
 #    "PRIVATE_KEY": environ.get("PRIVATE_KEY"),
 #    "PUBLIC_KEY": environ.get("PUBLIC_KEY"),
-#}
-#ALIAS_TO_PUBLIC_KEY={
+#    "TRUSTING_REMOTES": {
+#       "gitmanager.example.com": "gitmanager",
+#       "grader.example.com": "grader",
+#    },
+#    "UID_TO_KEY": {
 #    "gitmanager": """-----BEGIN PUBLIC KEY-----
 #...
 #-----END PUBLIC KEY-----
@@ -20,10 +25,9 @@
 #...
 #-----END PUBLIC KEY-----
 #""",
-#}
-#URL_TO_ALIAS={
-#    "gitmanager.example.com": "gitmanager",
-#    "grader.example.com": "grader",
+#    },
+#    #"DISABLE_JWT_SIGNING": False,
+#    #"DISABLE_LOGIN_CHECKS": False,
 #}
 
 # The organization this instance is deployed at.

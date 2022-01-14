@@ -1,4 +1,4 @@
-APLUS_AUTH = {
+APLUS_AUTH_LOCAL = {
     "PRIVATE_KEY":
 """-----BEGIN RSA PRIVATE KEY-----
 MIIEoQIBAAKCAQB0nl4VielEAH5Y73tiVppj5pX3jwQDcrxSZM5XcftGo4myDfwz
@@ -41,8 +41,11 @@ AgMBAAE=
 """,
     "DISABLE_JWT_SIGNING": False,
     "DISABLE_LOGIN_CHECKS": False,
-}
-ALIAS_TO_PUBLIC_KEY={
+    "TRUSTING_REMOTES": {
+        "grader.invalid": "grader",
+    },
+    "DEFAULT_AUD_UID": "unknown",
+    "UID_TO_KEY": {
     "grader":
 """-----BEGIN PUBLIC KEY-----
 MIIBITANBgkqhkiG9w0BAQEFAAOCAQ4AMIIBCQKCAQB+V3cCuSQU5zRzZj4hbRaH
@@ -54,7 +57,5 @@ fyLPdx57n9xg6KGO10H/dJvrXTL+aRIuPyvtn3onYJDNg0/6ujCMnMYaRFHhbfHj
 AgMBAAE=
 -----END PUBLIC KEY-----
 """,
-}
-URL_TO_ALIAS={
-    "grader.invalid": "grader",
+    },
 }

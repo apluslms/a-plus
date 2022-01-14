@@ -81,9 +81,6 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
         if auth_settings().DISABLE_LOGIN_CHECKS:
             if not settings.DEBUG:
                 logger.warn("!!! JWT login checks are disabled !!!")
-        elif id not in settings.ALIAS_TO_PUBLIC_KEY.values():
-            logger.info(f"Service not authorized: {id}")
-            raise AuthenticationFailed("ID not trusted")
 
         permissions = ObjectPermissions.from_payload(GraderUser(id, ObjectPermissions()), payload)
 

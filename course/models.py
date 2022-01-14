@@ -7,6 +7,7 @@ import urllib.request, urllib.parse
 from random import randint, choice
 
 from aplus_auth.payload import Payload, Permission
+from aplus_auth import settings as auth_settings
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
@@ -25,7 +26,6 @@ from django_colortag.models import ColorTag
 from apps.models import BaseTab, BasePlugin
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
-from lib.aplus_auth import url_to_audience
 from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import (
@@ -479,13 +479,12 @@ class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
             return instance.is_teacher(user)
         # a grader user
         elif user.is_authenticated and user.is_anonymous:
-            try:
-                config_aud = url_to_audience(instance.configure_url)
-            except KeyError:
+            config_uid = auth_settings().get_uid_for_url(instance.configure_url)
+            if config_uid is None:
                 logger.warning(f"Could not find public key for configure_url {instance.configure_url}. Cannot authorize JWT instance access")
                 return False
             else:
-                return config_aud == user.username
+                return config_uid == user.username
 
         return False
 
@@ -871,7 +870,7 @@ class CourseInstance(UrlMixin, models.Model):
         """
         from .sis import get_sis_configuration, StudentInfoSystem
         from .cache.menu import invalidate_content
-        
+
         sis: StudentInfoSystem = get_sis_configuration()
         if not sis:
             return -1
@@ -903,7 +902,7 @@ class CourseInstance(UrlMixin, models.Model):
         qs.update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
         for e in qs:
             invalidate_content(Enrollment, e)
-        
+
         return count
 
     def set_users_with_role(self, users, role, remove_others_with_role=False):

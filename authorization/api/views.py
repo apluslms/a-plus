@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from authorization.object_permissions import ObjectPermissions
-from lib.aplus_auth import url_to_audience
 
 
 class RemoteAuthenticationView(RemoteAuthenticator, APIView):
@@ -34,9 +33,6 @@ class RemoteAuthenticationView(RemoteAuthenticator, APIView):
     POST allows you to specify the payload fields in the POST parameters.
     """
     permission_classes = [IsAuthenticated]
-
-    def get_audience(self, alias: str) -> str:
-        return url_to_audience(alias)
 
     def get_expiration_time(self, request: Request, payload: Payload):
         if payload.exp is not None:

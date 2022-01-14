@@ -15,7 +15,7 @@ from django.utils.http import parse_http_date_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from lib.aplus_auth import post as aplus_post, get as aplus_get
+from aplus_auth.requests import post as aplus_post, get as aplus_get
 
 
 logger = logging.getLogger('aplus.remote_page')

@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import AuthenticationFailed
 
 from authorization.models import JWTAccessible
-from lib.aplus_auth import audience_to_alias
 from lib.typing import AnyUser
 
 if TYPE_CHECKING:
@@ -73,7 +72,7 @@ def _get_objects_from_permission(
 
     items = cls.from_jwt_permission(user, payload, permission, kwargs, auth_settings().DISABLE_LOGIN_CHECKS)
     if items is None:
-        logger.info(f"{audience_to_alias(payload.iss)}\n tried to get {permission} access to {type} with {kwargs}")
+        logger.info(f"{payload.sub} (signed by {payload.iss}) tried to get {permission} access to {type} with {kwargs}")
         raise AuthenticationFailed(format_lazy(
             _("NO_JWT_PERMISSION -- {permission}, {type}, {kwargs}"),
             permission=permission,

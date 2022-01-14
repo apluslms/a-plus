@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 from typing import Any, Dict, List, Optional, Tuple
 
 from aplus_auth.payload import Permission, Permissions
+from aplus_auth.requests import get as aplus_get
 from django.db import transaction
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,7 +16,6 @@ from course.models import Course, CourseInstance, CourseModule, LearningObjectCa
 from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise, RevealRule
 from external_services.models import LTIService
-from lib import aplus_auth
 from lib.localization_syntax import format_localization
 from userprofile.models import UserProfile
 
@@ -338,7 +338,7 @@ def get_build_log(instance):
     try:
         permissions = Permissions()
         permissions.instances.add(Permission.READ, id=instance.id)
-        response = aplus_auth.get(instance.build_log_url, permissions=permissions)
+        response = aplus_get(instance.build_log_url, permissions=permissions)
     except Exception as e:
         return {
             'error': format_lazy(
@@ -379,7 +379,8 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
         url = url.strip()
         permissions = Permissions()
         permissions.instances.add(Permission.READ, id=instance.id)
-        response = aplus_auth.get(url, permissions=permissions)
+        permissions.instances.add(Permission.WRITE, id=instance.id)
+        response = aplus_get(url, permissions=permissions)
         response.raise_for_status()
     except Exception as e:
         return False, [format_lazy(
@@ -672,8 +673,9 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
             publish_errors = []
             try:
                 permissions = Permissions()
+                permissions.instances.add(Permission.READ, id=instance.id)
                 permissions.instances.add(Permission.WRITE, id=instance.id)
-                response = aplus_auth.get(config["publish_url"], permissions=permissions)
+                response = aplus_get(config["publish_url"], permissions=permissions)
             except ConnectionError as e:
                 publish_errors = [str(e)]
             else:
