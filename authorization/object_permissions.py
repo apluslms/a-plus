@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, Generic, Itera
 
 from aplus_auth import settings as auth_settings
 from aplus_auth.payload import Payload, Permission, PermissionItem, PermissionItemList, Permissions
+from django.db import models
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import AuthenticationFailed
@@ -21,17 +22,18 @@ logger = logging.getLogger('aplus.authentication')
 _jwt_accessible_managers: Dict[str, JWTAccessible] = {}
 
 
+TModel = TypeVar("TModel", bound=models.Model)
 @overload
-def register_jwt_accessible_class(type_id: str) -> Callable[[Type[Any]], Type[Any]]: ...
+def register_jwt_accessible_class(type_id: str) -> Callable[[Type[TModel]], Type[TModel]]: ...
 @overload
-def register_jwt_accessible_class(cls: Type[Any], type_id: str) -> Type[Any]: ...
+def register_jwt_accessible_class(cls: Type[TModel], type_id: str) -> Type[TModel]: ...
 def register_jwt_accessible_class(cls, type_id = None): # type: ignore
     """
     a decorator to register a model to be accessible through JWT
 
     cls.objects must inherit JWTAccessible
     """
-    def wrapper(cls: Type[Any]) -> Type[Any]:
+    def wrapper(cls: Type[TModel]) -> Type[TModel]:
         global _jwt_accessible_managers
         if not isinstance(cls.objects, JWTAccessible):
             raise TypeError(f"{cls} does not have a JWTAccessible manager")
