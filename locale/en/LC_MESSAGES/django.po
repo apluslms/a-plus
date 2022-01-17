@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-23 11:24+0200\n"
+"POT-Creation-Date: 2022-01-17 16:17+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -2605,11 +2605,11 @@ msgstr "course chapter"
 msgid "MODEL_NAME_COURSE_CHAPTER_PLURAL"
 msgstr "course chapters"
 
-#: exercise/exercise_models.py
+#: exercise/exercise_models.py exercise/staff_views.py
 msgid "GRADING_MODE_BEST"
 msgstr "Best submission"
 
-#: exercise/exercise_models.py
+#: exercise/exercise_models.py exercise/staff_views.py
 msgid "GRADING_MODE_LAST"
 msgstr "Last submission"
 
@@ -3737,12 +3737,13 @@ msgid "SUBMISSION_FINAL_TOOLTIP"
 msgstr "This submission determines the final grade for this exercise."
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "SUBMISSION_CHOSEN_TOOLTIP"
-msgstr "At the moment this submission would determine the grade for the exercise."
-
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "FINAL"
 msgstr "Final"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_CHOSEN_TOOLTIP"
+msgstr ""
+"At the moment this submission would determine the grade for the exercise."
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_ASSESSED_TOOLTIP"

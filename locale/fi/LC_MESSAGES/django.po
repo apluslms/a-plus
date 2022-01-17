@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-23 11:24+0200\n"
+"POT-Creation-Date: 2022-01-17 16:17+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -2612,11 +2612,11 @@ msgstr "kurssiluku"
 msgid "MODEL_NAME_COURSE_CHAPTER_PLURAL"
 msgstr "kurssiluvut"
 
-#: exercise/exercise_models.py
+#: exercise/exercise_models.py exercise/staff_views.py
 msgid "GRADING_MODE_BEST"
 msgstr "Paras palautus"
 
-#: exercise/exercise_models.py
+#: exercise/exercise_models.py exercise/staff_views.py
 msgid "GRADING_MODE_LAST"
 msgstr "Viimeinen palautus"
 
@@ -3743,12 +3743,12 @@ msgid "SUBMISSION_FINAL_TOOLTIP"
 msgstr "Tämä palautus määrittää tehtävän lopullisen arvosanan."
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "SUBMISSION_CHOSEN_TOOLTIP"
-msgstr "Tällä hetkellä tämä palautus määrittäisi tehtävän arvosanan."
-
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "FINAL"
 msgstr "Lopullinen"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "SUBMISSION_CHOSEN_TOOLTIP"
+msgstr "Tällä hetkellä tämä palautus määrittäisi tehtävän arvosanan."
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_ASSESSED_TOOLTIP"
