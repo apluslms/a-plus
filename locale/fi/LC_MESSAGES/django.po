@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-19 13:21+0200\n"
+"POT-Creation-Date: 2022-01-19 14:32+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1448,26 +1448,25 @@ msgstr "Luotiin uusi opiskelijaryhmä."
 msgid "LABEL_MODULE"
 msgstr "Moduuli"
 
-#: deviations/forms.py
-msgid "DEVIATION_MODULE_HELPTEXT"
-msgstr ""
-"Ilmoita tässä moduuli tai moduulit, mikäli haluat, että poikkeamaa "
-"sovelletaan kaikkiin moduulin tehtäviin."
-
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_EXERCISE"
 msgstr "Tehtävä"
 
 #: deviations/forms.py
-msgid "DEVIATION_EXERCISE_HELPTEXT"
-msgstr ""
-"Ilmoita tässä tehtävä tai tehtävät, johon haluat poikkeamaa sovellettavan. "
-"Mikäli olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, "
-"poikkeamaa sovelletaan näihin tehtäviin kyseisten moduulien LISÄKSI."
+msgid "LABEL_SUBMITTER_TAG"
+msgstr "Opiskelijamerkintä"
 
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
 msgstr "Opiskelija"
+
+#: deviations/forms.py
+msgid "EXERCISES_AND_MODULES_MISSING"
+msgstr "Valitse tehtävät tai moduulit."
+
+#: deviations/forms.py
+msgid "SUBMITTERS_AND_TAGS_MISSING"
+msgstr "Valitse opiskelijat tai merkinnät."
 
 #: deviations/forms.py
 msgid "LABEL_MINUTES"
@@ -1492,12 +1491,39 @@ msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 
 #: deviations/forms.py
+msgid "DEVIATION_MODULE_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä moduuli tai moduulit, mikäli haluat, että poikkeamaa "
+"sovelletaan kaikkiin moduulin tehtäviin."
+
+#: deviations/forms.py
+msgid "DEVIATION_EXERCISE_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä tehtävä tai tehtävät, johon haluat poikkeamaa sovellettavan. "
+"Mikäli olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, "
+"poikkeamaa sovelletaan näihin tehtäviin kyseisten moduulien LISÄKSI."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_TAG_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä merkintä tai merkinnät, mikäli haluat, että poikkeama "
+"myönnetään kaikille opiskelijoille, joilla on jokin merkinnöistä."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä opiskelija tai opiskelijat, joille haluat myöntää poikkeaman. "
+"Mikäli olet ilmoittanut myös opiskelijamerkintä-kentässä merkinnän tai "
+"merkintöjä, poikkeama myönnetään näille opiskelijoille niiden LISÄKSI, "
+"joilla on kyseiset merkinnät."
+
+#: deviations/forms.py
 msgid "MINUTES_AND_DATE_MISSING"
 msgstr "Syötä joko minuutit tai uusi määräaika."
 
-#: deviations/forms.py
-msgid "EXERCISES_AND_MODULES_MISSING_ADD"
-msgstr "Valitse tehtävät tai moduulit lisätäksesi niille poikkeamia."
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_EXTRA_SUBMISSIONS"
+msgstr "Ylimääräisiä palautuskertoja"
 
 #: deviations/forms.py
 msgid "DEVIATION_MODULE_REMOVE_HELPTEXT"
@@ -1508,17 +1534,23 @@ msgstr ""
 #: deviations/forms.py
 msgid "DEVIATION_EXERCISE_REMOVE_HELPTEXT"
 msgstr ""
-"Ilmoita tässä tehtävä tai tehtävät, joista haluat poistaa poikkeamat. "
-"Mikäli olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, "
-"poikkeamat poistetaan näistä tehtävistä kyseisten moduulien LISÄKSI."
+"Ilmoita tässä tehtävä tai tehtävät, joista haluat poistaa poikkeamat. Mikäli "
+"olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, poikkeamat "
+"poistetaan näistä tehtävistä kyseisten moduulien LISÄKSI."
 
 #: deviations/forms.py
-msgid "EXERCISES_AND_MODULES_MISSING_REMOVE"
-msgstr "Valitse tehtävät tai moduulit poistaaksesi niiltä poikkeamia."
+msgid "DEVIATION_SUBMITTER_TAG_REMOVE_HELPTEXT"
+msgstr ""
+"Ilmoita tässä merkintä tai merkinnät, mikäli haluat, että poikkeama "
+"poistetaan kaikilta opiskelijoilta, joilla on jokin merkinnöistä."
 
-#: deviations/forms.py deviations/models.py
-msgid "LABEL_EXTRA_SUBMISSIONS"
-msgstr "Ylimääräisiä palautuskertoja"
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_REMOVE_HELPTEXT"
+msgstr ""
+"Ilmoita tässä opiskelija tai opiskelijat, joilta haluat poistaa poikkeamat. "
+"Mikäli olet ilmoittanut myös opiskelijamerkintä-kentässä merkinnän tai "
+"merkintöjä, poikkeamat poistetaan näiltä opikselijoilta niiden LISÄKSI, "
+"joilla on kyseiset merkinnät."
 
 #: deviations/models.py
 msgid "LABEL_GRANTER"

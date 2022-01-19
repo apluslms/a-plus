@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-19 13:21+0200\n"
+"POT-Creation-Date: 2022-01-19 14:32+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1441,27 +1441,25 @@ msgstr "A new student group was created."
 msgid "LABEL_MODULE"
 msgstr "Module"
 
-#: deviations/forms.py
-msgid "DEVIATION_MODULE_HELPTEXT"
-msgstr ""
-"List a module or modules here if you wish the deviation to be applied to all "
-"of the assignments in the module(s)."
-
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_EXERCISE"
 msgstr "Assignment"
 
 #: deviations/forms.py
-msgid "DEVIATION_EXERCISE_HELPTEXT"
-msgstr ""
-"List the assignment or assignments to which the deviation should be applied "
-"to. If you have also listed a module or modules in the field above, the "
-"deviation will be applied to these assignments IN ADDITION to the listed "
-"module(s)."
+msgid "LABEL_SUBMITTER_TAG"
+msgstr "Submitter tag"
 
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
 msgstr "Submitter"
+
+#: deviations/forms.py
+msgid "EXERCISES_AND_MODULES_MISSING"
+msgstr "You need to define exercises or modules."
+
+#: deviations/forms.py
+msgid "SUBMITTERS_AND_TAGS_MISSING"
+msgstr "You have to define submitters or tags."
 
 #: deviations/forms.py
 msgid "LABEL_MINUTES"
@@ -1486,12 +1484,39 @@ msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Do not apply late penalty during extra time."
 
 #: deviations/forms.py
+msgid "DEVIATION_MODULE_ADD_HELPTEXT"
+msgstr ""
+"List a module or modules here if you wish the deviation to be applied to all "
+"of the assignments in the module(s)."
+
+#: deviations/forms.py
+msgid "DEVIATION_EXERCISE_ADD_HELPTEXT"
+msgstr ""
+"List the assignment or assignments to which the deviation should be applied. "
+"If you have also listed a module or modules in the field above, the "
+"deviation will be applied to these assignments IN ADDITION to the listed "
+"module(s)."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_TAG_ADD_HELPTEXT"
+msgstr ""
+"List a tag or tags here if you wish the deviation to be granted to all "
+"students with one of the listed tags."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_ADD_HELPTEXT"
+msgstr ""
+"List the student or students to whom the deviation should be granted. If you "
+"have also listed a tag or tags in the field above, the deviation will be "
+"granted to these students IN ADDITION to the ones with the tags."
+
+#: deviations/forms.py
 msgid "MINUTES_AND_DATE_MISSING"
 msgstr "You have to provide either minutes or a date in the future."
 
-#: deviations/forms.py
-msgid "EXERCISES_AND_MODULES_MISSING_ADD"
-msgstr "You need to define exercises or modules to add deviations."
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_EXTRA_SUBMISSIONS"
+msgstr "Extra submissions"
 
 #: deviations/forms.py
 msgid "DEVIATION_MODULE_REMOVE_HELPTEXT"
@@ -1508,12 +1533,17 @@ msgstr ""
 "module(s)."
 
 #: deviations/forms.py
-msgid "EXERCISES_AND_MODULES_MISSING_REMOVE"
-msgstr "You need to define exercises or modules to remove deviations."
+msgid "DEVIATION_SUBMITTER_TAG_REMOVE_HELPTEXT"
+msgstr ""
+"List a tag or tags here if you wish to remove the deviations from all "
+"of the students with one of the listed tags."
 
-#: deviations/forms.py deviations/models.py
-msgid "LABEL_EXTRA_SUBMISSIONS"
-msgstr "Extra submissions"
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_REMOVE_HELPTEXT"
+msgstr ""
+"List the student or students from whom the deviations should be removed. If "
+"you have also listed a tag or tags in the field above, the deviations will "
+"be removed from these students IN ADDITION to the ones with the tags."
 
 #: deviations/models.py
 msgid "LABEL_GRANTER"

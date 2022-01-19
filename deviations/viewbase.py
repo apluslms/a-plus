@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _, ngettext
 
-from course.models import CourseModule
+from course.models import CourseModule, UserTag
 from course.viewbase import CourseInstanceMixin, CourseInstanceBaseView
 from deviations.models import SubmissionRuleDeviation
 from lib.viewbase import BaseFormView, BaseRedirectView
@@ -42,7 +42,12 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
         return kwargs
 
     def form_valid(self, form: forms.BaseForm) -> HttpResponse:
-        existing_deviations = get_existing_deviations(self.deviation_model, form.cleaned_data)
+        exercises = get_exercises(form.cleaned_data)
+        submitters = get_submitters(form.cleaned_data)
+        existing_deviations = self.deviation_model.objects.filter(
+            exercise__in=exercises,
+            submitter__in=submitters,
+        )
 
         if existing_deviations:
             # Some deviations already existed. Use OverrideDeviationsView to
@@ -52,11 +57,8 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
             self.request.session[self.session_key] = self.serialize_session_data(form.cleaned_data)
         else:
             self.success_url = self.deviation_model.get_list_url(self.instance)
-            for exercise in BaseExercise.objects.filter(
-                models.Q(id__in=form.cleaned_data['exercise'])
-                | models.Q(course_module__in=form.cleaned_data['module'])
-            ):
-                for submitter in form.cleaned_data['submitter']:
+            for exercise in exercises:
+                for submitter in submitters:
                     new_deviation = self.deviation_model(
                         exercise=exercise,
                         submitter=submitter,
@@ -73,7 +75,7 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
         the session cache.
         """
         result = {}
-        for key in ('exercise', 'module', 'submitter'):
+        for key in ('exercise', 'module', 'submitter', 'submitter_tag'):
             result[key] = [i.id for i in form_data.get(key, [])]
         return result
 
@@ -93,9 +95,14 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.session_data = self.deserialize_session_data(self.request.session[self.session_key])
-        self.existing_deviations = get_existing_deviations(self.deviation_model, self.session_data)
+        self.exercises = get_exercises(self.session_data)
+        self.submitters = get_submitters(self.session_data)
+        self.existing_deviations = self.deviation_model.objects.filter(
+            exercise__in=self.exercises,
+            submitter__in=self.submitters,
+        )
         self.deviation_groups = get_deviation_groups(self.existing_deviations)
-        self.note("session_data", "existing_deviations", "deviation_groups")
+        self.note("session_data", "exercises", "submitters", "existing_deviations", "deviation_groups")
 
     def form_valid(self, form: forms.BaseForm) -> HttpResponse:
         override_deviations = set()
@@ -116,11 +123,8 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
 
         existing_deviations = {(d.submitter_id, d.exercise_id): d for d in self.existing_deviations}
 
-        for exercise in BaseExercise.objects.filter(
-            models.Q(id__in=self.session_data['exercise'])
-            | models.Q(course_module__in=self.session_data['module'])
-        ):
-            for submitter in self.session_data['submitter']:
+        for exercise in self.exercises:
+            for submitter in self.submitters:
                 existing_deviation = existing_deviations.get((submitter.id, exercise.id))
                 if existing_deviation is not None:
                     if (submitter.id, exercise.id) in override_deviations:
@@ -146,7 +150,8 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
         result = {
             'exercise': BaseExercise.objects.filter(id__in=session_data.get('exercise', [])),
             'module': CourseModule.objects.filter(id__in=session_data.get('module', [])),
-            'submitter': UserProfile.objects.filter(id__in=session_data.get('submitter', []))
+            'submitter': UserProfile.objects.filter(id__in=session_data.get('submitter', [])),
+            'submitter_tag': UserTag.objects.filter(id__in=session_data.get('submitter_tag', [])),
         }
         return result
 
@@ -181,7 +186,11 @@ class RemoveDeviationsView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form: forms.BaseForm) -> HttpResponse:
         number_of_removed = 0
-        for deviation in get_existing_deviations(self.deviation_model, form.cleaned_data):
+        deviations = self.deviation_model.objects.filter(
+            exercise__in=get_exercises(form.cleaned_data),
+            submitter__in=get_submitters(form.cleaned_data),
+        )
+        for deviation in deviations:
             deviation.delete()
             number_of_removed += 1
         if number_of_removed == 0:
@@ -264,18 +273,23 @@ def get_deviation_groups(
         yield (deviations, can_group, group_id)
 
 
-def get_existing_deviations(
-        deviation_model: Type[SubmissionRuleDeviation],
-        form_data: Dict[str, Any]
-        ) -> models.QuerySet[SubmissionRuleDeviation]:
+def get_exercises(form_data: Dict[str, Any]) -> models.QuerySet[BaseExercise]:
     """
-    Get the deviations that match the input form's `exercise`, `module` and
-    `submitter` fields.
+    Get the exercises that match the input form's `exercise` and `module`
+    fields.
     """
-    return deviation_model.objects.filter(
-        (
-            models.Q(exercise__in=form_data.get("exercise", []))
-            | models.Q(exercise__course_module__in=form_data.get("module", []))
-        )
-        & models.Q(submitter__in=form_data["submitter"])
+    return BaseExercise.objects.filter(
+        models.Q(id__in=form_data.get('exercise', []))
+        | models.Q(course_module__in=form_data.get('module', []))
+    )
+
+
+def get_submitters(form_data: Dict[str, Any]) -> models.QuerySet[UserProfile]:
+    """
+    Get the submitters that match the input form's `submitter` and
+    `submitter_tag` fields.
+    """
+    return UserProfile.objects.filter(
+        models.Q(id__in=form_data.get('submitter', []))
+        | models.Q(taggings__tag__in=form_data.get('submitter_tag', []))
     )
