@@ -153,6 +153,9 @@ iframe {
 #main-course-menu.fixed {
     position: fixed;
     top: 20px;
+    bottom: 50px;
+    max-height: 100%;
+    overflow: auto;
 }
 .course-menu .advert-thumbnail {
     margin-top: 4em;
