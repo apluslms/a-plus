@@ -89,6 +89,11 @@ class DeadlineRuleDeviationForm(BaseDeviationForm):
         initial=True,
         label=_('LABEL_WITHOUT_LATE_PENALTY'),
     )
+    without_late_submission_approval = forms.BooleanField(
+        required=False,
+        initial=False,
+        label=_('LABEL_WITHOUT_LATE_APPROVAL'),
+    )
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -114,6 +119,11 @@ class MaxSubmissionRuleDeviationForm(BaseDeviationForm):
         label=_('LABEL_EXTRA_SUBMISSIONS'),
     )
 
+    without_unofficial_submission_approval = forms.BooleanField(
+        required=False,
+        initial=False,
+        label=_('LABEL_WITHOUT_UNOFFICIAL_APPROVAL'),
+    )
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.fields['module'].help_text = _('DEVIATION_MODULE_ADD_HELPTEXT')

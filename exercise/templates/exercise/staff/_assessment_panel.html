@@ -19,7 +19,24 @@
 				{% endif %}
 			</div>
 			<div>
-				<button
+				<form method="post" style="display: inline-block">
+					{% csrf_token %}
+					<button
+						data-toggle="modal"
+						data-target="#submission-approval-modal"
+						class="aplus-button--secondary aplus-button--sm aplus-button--left"
+						type="button"
+					>
+					{% translate 'APPROVE_SUBMISSION' %}					
+					</button><button
+						data-toggle="modal"
+						data-target="#approval-help-modal"
+						class="aplus-button--secondary aplus-button--sm aplus-button--right"
+						type="button"
+						title="{% translate 'HELP' %}"
+					>?</button>
+				</form>
+					<button
 					data-toggle="modal"
 					data-target="#details-modal"
 					class="aplus-button--secondary aplus-button--sm"

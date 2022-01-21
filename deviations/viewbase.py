@@ -1,4 +1,5 @@
 from itertools import groupby
+from lib2to3.pytree import convert
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Type
 
 from django.db import models
@@ -8,6 +9,10 @@ from django import forms
 from django.shortcuts import get_object_or_404
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _, ngettext
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+import datetime
+
 
 from course.models import CourseModule, UserTag
 from course.viewbase import CourseInstanceMixin, CourseInstanceBaseView
@@ -16,6 +21,9 @@ from lib.viewbase import BaseFormView, BaseRedirectView
 from authorization.permissions import ACCESS
 from exercise.models import BaseExercise
 from userprofile.models import UserProfile
+from exercise.submission_models import Submission
+
+from .forms import DeadlineRuleDeviationForm, MaxSubmissionRuleDeviationForm
 
 
 class ListDeviationsView(CourseInstanceBaseView):
@@ -48,7 +56,12 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
             exercise__in=exercises,
             submitter__in=submitters,
         )
+        if isinstance(form, DeadlineRuleDeviationForm ) and not form.cleaned_data.get("without_late_submission_approval"):
+            approve_late_submissions(submitters, exercises, form.cleaned_data)
 
+        elif isinstance(form, MaxSubmissionRuleDeviationForm ) and not form.cleaned_data.get("without_unofficial_submission_approval"):
+            approve_unofficial_submissions(submitters, exercises, form.cleaned_data)
+        
         if existing_deviations:
             # Some deviations already existed. Use OverrideDeviationsView to
             # confirm which ones the user wants to override. Store the form
@@ -297,3 +310,36 @@ def get_submitters(form_data: Dict[str, Any]) -> models.QuerySet[UserProfile]:
         models.Q(id__in=form_data.get('submitter', []))
         | models.Q(taggings__tag__in=form_data.get('submitter_tag', []))
     )
+
+def approve_late_submissions(submitters, exercises, form_data):
+    minutes = form_data.get('minutes')
+    new_date = form_data.get('new_date')
+    for submitter in submitters:
+        for exercise in exercises:        
+            submissions = exercise.get_submissions_for_student(submitter, exclude_errors=True)
+            for submission in submissions:
+                new_deadline = None
+                if new_date:
+                    string_date = str(new_date)[:16]
+                    new_deadline = timezone.make_aware(
+                        parse_datetime(string_date),
+                        timezone.get_current_timezone())
+                else:
+                   new_deadline = submission.submission_time + datetime.timedelta(minutes=minutes)
+
+                if submission.late_penalty_applied is not None and submission.submission_time <= new_deadline:
+                    submission.convert_penalized_submission()
+                    submission.save()
+
+def approve_unofficial_submissions(submitters, exercises, form_data):
+    extra_submissions = form_data.get('extra_submissions')
+    for submitter in submitters:
+        for exercise in exercises:
+            converted_counter = extra_submissions        
+            submissions_unordered = exercise.get_submissions_for_student(submitter, exclude_errors=True)
+            submissions = [submission for submission in reversed(submissions_unordered)] #reverse the order to get older submission first
+            for submission in submissions:
+                if submission.status == Submission.STATUS.UNOFFICIAL and converted_counter > 0:
+                    submission.convert_penalized_submission()
+                    submission.save()
+                    converted_counter -= 1

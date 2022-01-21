@@ -406,6 +406,16 @@ class Submission(UrlMixin, models.Model):
         del self._files
         del self._data
 
+    def convert_penalized_submission(self):
+        """
+        Removes penalty and Sets the points for this submission object based on original score.
+        Then this will set the status of submission to ready
+
+        The method is used to convert late or unofficial submission to fully graded one.
+        """
+        self.set_points(self.service_points, self.service_max_points, no_penalties=True)
+        self.set_ready(convert_operation=True)
+        
     def set_points(self, points, max_points, no_penalties=False):
         """
         Sets the points and maximum points for this submissions. If the given
@@ -467,9 +477,9 @@ class Submission(UrlMixin, models.Model):
     def set_waiting(self):
         self.status = self.STATUS.WAITING
 
-    def set_ready(self):
+    def set_ready(self, convert_operation=False):
         self.grading_time = timezone.now()
-        if self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points:
+        if (self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points) or convert_operation:
             self.status = self.STATUS.READY
 
         # Fire set hooks.

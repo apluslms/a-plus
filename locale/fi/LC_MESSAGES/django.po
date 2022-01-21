@@ -3722,6 +3722,10 @@ msgid "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING"
 msgstr "Tehtäviin saattaa tulla muutoksia ennen kierroksen avautumista!"
 
 #: exercise/templates/exercise/_user_results.html
+msgid "CONVERT_SUBMISSION_BY_MODULE"
+msgstr "Convert Late Submissions in Finnish"
+
+#: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSIONS"
@@ -3847,6 +3851,10 @@ msgstr "Palautuksen lisätiedot"
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "REGRADE_AUTOMATICALLY"
 msgstr "Lähetä uudelleenarviointiin"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "CONVERT_SUBMISSION"
+msgstr "Convert Submission(FI)"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "HELP"

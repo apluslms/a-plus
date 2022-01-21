@@ -1,0 +1,79 @@
+{% load i18n %}
+{% load course %}
+
+<div class="modal" id="submission-approval-modal" tabindex="-1" role="dialog" aria-labelledby="resubmit-modal-label">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="resubmit-modal-label">
+					{% translate 'LATE_SUBMISSION_APPROVAL_CONFIRMATION_HEADER' %}
+				</h4>
+			</div>
+
+			<div class="modal-body">
+                <p>{% translate 'LATE_SUBMISSION_APPROVAL_CONFIRMATION_TEXT' %}</p>
+                <p>{{submission.submitters.all.0.name_with_student_id}}</p>
+                <dl>
+                <dt>{% translate 'LATE_SUBMISSION_APPROVAL_CONFIRMATION_TEXT_DETAIL' %}</dt>
+                <dd>Module: {{ module.name|parse_localization }}</dd>
+                <dd>Exercise: {{ exercise.name|parse_localization }}</dd>
+                <dd>Submission ID & Time: {{ submission.id }} - {{ submission.submission_time }}</dd>
+                </dl>		
+                <br>
+                <button onclick="OpenMultipleConversionform();" name = "approve-multiple" class="aplus-button--secondary aplus-button--xs">{% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_BUTTON' %}</button>
+                <br>
+                <br>
+                <form method="post" id="convert-module-form" action="{% url 'submission-conversion-module' course_slug=course.url instance_slug=instance.url %}" style="display: none">
+                    {% csrf_token %}
+                    <input type="hidden" id="module_id" name="module_id" value="{{ module.id }}"> 
+                    <input type="hidden" id="user_id" name="user_id" value="{{ submission.submitters.all.0.id }}">
+                    <input type="hidden" id="exercise_id" name="exercise_id" value="{{ exercise.id }}"> 
+                    <p>{% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_SCOPE' %}</p>
+                    <input type="radio" id="single-exercise" name="approve-scope" value="single-exercise">
+                    <label for="single-exercise">{% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_EXERCISE' %}</label><br>
+                    <input type="radio" id="whole-module" name="approve-scope" value="whole-module">
+                    <label for="whole-module">{% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_MODULE' %}</label><br>
+
+                    <br><p>{% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_TYPE' %}</p>
+                    <input type="radio" id="isLate" name="approve-type" value="isLate">
+                    <label for="isLate"> {% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_LATE' %}</label><br>
+                    <input type="radio" id="isUnofficial" name="approve-type" value="isUnofficial">
+                    <label for="isUnofficial"> {% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_UNOFFICIAL' %}</label><br>
+                    <input type="radio" id="isAll" name="approve-type" value="isAll">
+                    <label for="isAll"> {% translate 'LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_ALL' %}</label><br>
+                    <button
+                        class="aplus-button--default aplus-button--sm"
+                        type="submit"
+                    >
+                    {% translate 'APPROVE_MULTIPLE_SUBMISSIONS' %}
+                </button>
+                </form>
+                <form method="post" id="convert-singular-form" action="{{ submission|url:'submission-conversion' }}" style="display: inline-block">
+					{% csrf_token %}
+					<button
+						class="aplus-button--default aplus-button--sm"
+						type="submit"
+					>
+						{% translate 'APPROVE_SUBMISSION' %}
+					</button>
+				</form>			
+            </div>
+		</div>
+	</div>
+</div>
+<script>
+function OpenMultipleConversionform(){
+  moduleform = document.getElementById('convert-module-form')
+  singularform  = document.getElementById('convert-singular-form')
+  if (moduleform.style.display === "none") {
+    document.getElementById('convert-module-form').style.display = 'inline-block';
+    document.getElementById('convert-singular-form').style.display = 'none';
+  } else {
+    document.getElementById('convert-module-form').style.display = 'none';
+    document.getElementById('convert-singular-form').style.display = 'inline-block';
+  }
+}
+</script>

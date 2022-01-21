@@ -1475,6 +1475,10 @@ msgid "LABEL_NEW_DEADLINE"
 msgstr "New deadline"
 
 #: deviations/forms.py
+msgid "LABEL_WITHOUT_LATE_APPROVAL"
+msgstr "Add deviation without approving viable late submission(s)"
+
+#: deviations/forms.py
 msgid "DEVIATION_NEW_DEADLINE_DATE_HELPTEXT"
 msgstr "New submission deadline."
 
@@ -1516,6 +1520,10 @@ msgstr "You have to provide either the extra time or a date in the future."
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_EXTRA_SUBMISSIONS"
 msgstr "Extra submissions"
+
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_WITHOUT_UNOFFICIAL_APPROVAL"
+msgstr "Add deviation without approving viable unofficial submission(s)"
 
 #: deviations/forms.py
 msgid "DEVIATION_MODULE_REMOVE_HELPTEXT"
@@ -3711,6 +3719,61 @@ msgstr "%(points)s points required to pass the module. "
 msgid "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING"
 msgstr "There may be changes in the assignments before the module opens!"
 
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "APPROVE_MULTIPLE_SUBMISSIONS"
+msgstr "Approve Multiple Submissions"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_CONFIRMATION_HEADER"
+msgstr "Approve Late Submissions"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_CONFIRMATION_TEXT"
+msgstr "Approve Late/Unofficial Submission(s) for Student with name and id:"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_CONFIRMATION_TEXT_DETAIL"
+msgstr "Submission Detail"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_BUTTON"
+msgstr "Approve Multiple Submissions"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_SCOPE"
+msgstr "Select the scope of submissions approval"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_EXERCISE"
+msgstr "Approve submissions in this exercise only"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_MODULE"
+msgstr "Approve submissions in all exercises in this module"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_TYPE"
+msgstr "Select the type of submissions you want to approve"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_LATE"
+msgstr "Approve late submissions"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_UNOFFICIAL"
+msgstr "Approve unofficial submissions"
+
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "LATE_SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_ALL"
+msgstr "Approve late and unofficial submissions"
+
+#: exercise/templates/exercise/_late_submission_approval_help_modal.html
+msgid "SUBMISSION_APPROVAL_HELP"
+msgstr "Approve Late and Unofficial Submissions"
+#: exercise/templates/exercise/_late_submission_approval_help_modal.html
+msgid "SUBMISSION_APPROVAL_DESCRIPTION"
+msgstr "This feature allows you to approve late and unofficial submission. By approving you would remove late penalty of a given submission and will change it's status to ready. The change is irreversible."
+
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 #: exercise/templates/exercise/staff/inspect_submission.html
@@ -3837,6 +3900,11 @@ msgstr "Submission details"
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "REGRADE_AUTOMATICALLY"
 msgstr "Regrade automatically"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/_late_submission_approval_modal.html
+msgid "APPROVE_SUBMISSION"
+msgstr "Approve submission"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "HELP"

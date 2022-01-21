@@ -571,6 +571,13 @@ class ExerciseTest(TestCase):
         deviation.save()
         self.late_late_submission_when_late_allowed.set_points(5, 10)
         self.assertAlmostEqual(self.late_late_submission_when_late_allowed.late_penalty_applied, 0.2)
+    
+    def test_submission_late_conversion(self):
+        convert_submission_url = self.late_submission.get_url('submission-conversion')
+        response = self.client.get(convert_submission_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(self.late_submission.late_penalty_applied is None)
+        
 
     def test_early_submission(self):
         self.course_module_with_late_submissions_allowed.opening_time = self.tomorrow

@@ -55,6 +55,10 @@ urlpatterns = [
     url(EXERCISE_URL_PREFIX + r'submitters/next-unassessed/$',
         staff_views.NextUnassessedSubmitterView.as_view(),
         name="submission-next-unassessed"),
+    url(SUBMISSION_URL_PREFIX + r'convert/$',
+        staff_views.SubmissionConversionView.as_view(),
+        name="submission-conversion"
+    ),
     url(SUBMISSION_URL_PREFIX + r'inspect/$',
         staff_views.InspectSubmissionView.as_view(),
         name="submission-inspect"),
@@ -79,7 +83,9 @@ urlpatterns = [
     url(EDIT_URL_PREFIX + r'fetch-metadata/$',
         staff_views.FetchMetadataView.as_view(),
         name="exercise-metadata"),
-
+    url(EDIT_URL_PREFIX+r'convert/module/$',
+        staff_views.SubmissionConversionByModuleView.as_view(),
+        name="submission-conversion-module"),
     url(EXERCISE_URL_PREFIX + r'plain/$',
         views.ExercisePlainView.as_view(),
         name="exercise-plain"),

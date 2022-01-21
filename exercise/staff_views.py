@@ -19,12 +19,14 @@ from django.utils.translation import gettext_lazy as _
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (
+    CourseModule,
     Enrollment,
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
 )
 from deviations.models import MaxSubmissionsRuleDeviation
 from exercise.cache.points import CachedPoints
+from exercise.exercise_models import BaseExercise
 from lib.helpers import settings_text, extract_form_errors
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
@@ -530,3 +532,73 @@ class EditSubmittersView(SubmissionMixin, BaseFormView):
     def form_invalid(self, form):
         messages.error(self.request, _('FAILURE_SAVING_CHANGES'))
         return super().form_invalid(form)
+
+class SubmissionConversionView(SubmissionMixin, BaseRedirectView):
+    """
+    A POST-only view that updates a student's late or unofficial submission
+    to normal submission. Changed the status and remove the penalty
+    """
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.submission = self.get_submission_object()
+        self.submission.convert_penalized_submission()
+        self.submission.save()        
+        return self.redirect(self.submission.get_inspect_url())
+
+
+class SubmissionConversionByModuleView(CourseInstanceMixin, BaseRedirectView):
+    """
+    A POST-only view that by module bulks updates a student's late or unofficial submission
+    to normal submission. Changed the status and remove the penalty
+    """
+
+    user_kw = 'user_id'
+    module_kw = 'module_id'
+    access_mode = ACCESS.ASSISTANT
+
+    def get_course_module_object(self):
+        return get_object_or_404(
+            CourseModule,
+            id=self.kwargs[self.module_kw],
+            course_instance=self.instance
+        )
+    
+    def get_resource_objects(self):
+        self.kwargs[self.user_kw] = self.request.POST[self.user_kw],
+        self.kwargs[self.user_kw] = self.kwargs[self.user_kw][0]
+        self.kwargs[self.module_kw] = self.request.POST[self.module_kw]  
+        super().get_resource_objects()
+
+        #getting module and user by id.
+        self.module = get_object_or_404(
+                        CourseModule,
+                        id=self.kwargs[self.module_kw])
+
+        self.student = get_object_or_404(
+            User,
+            id=self.kwargs[self.user_kw],
+        )
+    
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        approve_scope = self.request.POST["approve-scope"]
+        approve_type = self.request.POST["approve-type"]
+        is_scope_exercise = approve_scope == "single-exercise"
+        exercise_id = self.request.POST["exercise_id"]
+        is_late = False if approve_type == "isUnofficial" else True
+        is_unofficial = False if approve_type == "isLate" else True
+
+        profile = self.student.userprofile
+        exercises = []
+        if is_scope_exercise:
+            exercises = BaseExercise.objects.filter(id=exercise_id)
+        else:
+            exercises = BaseExercise.objects.filter(course_module=self.module)
+        
+        for exercise in exercises:
+            submissions = exercise.get_submissions_for_student(self.student.userprofile, exclude_errors=True)
+            for submission in submissions:
+                if ((is_unofficial and submission.status == Submission.STATUS.UNOFFICIAL) or (is_late and submission.late_penalty_applied is not None)):
+                    submission.convert_penalized_submission()
+                    submission.save()
+
+        link = reverse('user-results', kwargs={'user_id': profile.id, **self.instance.get_url_kwargs()})
+        return self.redirect(link)

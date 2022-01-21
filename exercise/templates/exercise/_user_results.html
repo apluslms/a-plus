@@ -85,6 +85,11 @@
 
 		{% points_progress module %}
 		{{ module.introduction|safe }}
+		
+		{% if module.late_allowed and module.late_percent > 0 %}
+
+		{% endif %}
+		
 	</div>
 	{% if not exercise_accessible and not is_course_staff %}
 	<div class="alert alert-warning clearfix site-message">
