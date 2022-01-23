@@ -1,0 +1,43 @@
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+<div class="modal fade" id="regrade-modal" tabindex="-1" role="dialog" aria-labelledby="regrade-modal-label">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="regrade-modal-label">{% translate "REGRADE" %} {{ exercise }}</h4>
+			</div>
+			<div class="modal-body">
+			{% if resultinfo %}
+				<p>{{ resultinfo }}</p>
+			{% else %}
+				<form method="post" action="{{ exercise|url:'submission-mass-regrade' }}">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="regrade">{% translate "REGRADE_DESCRIPTION" %}</label>
+						<div class="col-xs-12 col-sm-8">
+							<select name="regrade_type" class="form-control" id="regrade">
+								{% get_regrade_info_list "all incomplete" as options %}
+								{% for index in options %}
+									<option value="{{ index.name }}">
+										{{ index.verbose_name }}
+									</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div class="col-xs-offset-0 col-xs-6 col-sm-4">
+							<button type="submit"
+								class="aplus-button--default aplus-button--md btn-block">{% translate "START_REGRADE" %}</button>
+						</div>
+					</div>
+				</form>
+				<br/>
+			{% endif %}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="aplus-button--default aplus-button--md" data-dismiss="modal">{% translate "CLOSE" %}</button>
+			</div>
+		</div>
+	</div>
+</div>

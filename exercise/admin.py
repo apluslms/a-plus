@@ -12,6 +12,7 @@ from exercise.models import (
     SubmissionDraft,
     SubmittedFile,
     RevealRule,
+    ExerciseTask,
 )
 from exercise.exercisecollection_models import ExerciseCollection
 
@@ -241,6 +242,12 @@ class RevealRuleAdmin(admin.ModelAdmin):
         'currently_revealed',
     )
 
+class ExerciseTaskAdmin(admin.ModelAdmin):
+    list_display = (
+        'exercise',
+        'task_type',
+        'task_id',
+    )
 
 admin.site.register(CourseChapter, CourseChapterAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
@@ -251,3 +258,4 @@ admin.site.register(SubmissionDraft, SubmissionDraftAdmin)
 admin.site.register(SubmittedFile, SubmittedFileAdmin)
 admin.site.register(ExerciseCollection, ExerciseCollectionAdmin)
 admin.site.register(RevealRule, RevealRuleAdmin)
+admin.site.register(ExerciseTask, ExerciseTaskAdmin)

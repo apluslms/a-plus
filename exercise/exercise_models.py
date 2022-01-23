@@ -1358,3 +1358,34 @@ def _clear_cache(sender, instance, **kwargs):
 
 post_delete.connect(_delete_file, ExerciseWithAttachment)
 post_save.connect(_clear_cache, LearningObject)
+
+
+class ExerciseTask(models.Model):
+    """
+    Asynchronous background tasks related to exercises.
+    The task queue is implemented with Celery.
+    For the time being this means ongoing mass regrade runs.
+    """
+    TASK_TYPE = Enum([
+        ('REGRADE', 'regrade', _('REGRADE')),
+    ])
+    exercise = models.ForeignKey('BaseExercise',
+        verbose_name=_('LABEL_EXERCISE'),
+        on_delete=models.CASCADE,
+    )
+    task_type = models.CharField(
+        verbose_name=_('LABEL_TASK_TYPE'),
+        max_length=32,
+        choices=TASK_TYPE.choices,
+        default=TASK_TYPE.REGRADE,
+    )
+    task_id = models.CharField(
+        verbose_name=_('LABEL_TASK_ID'),
+        max_length=128,
+        blank=False,
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_EXERCISE_TASK')
+        verbose_name_plural = _('MODEL_NAME_EXERCISE_TASK_PLURAL')
+        constraints = [models.UniqueConstraint(fields=['exercise', 'task_type'], name='one_task_type_per_exercise')]

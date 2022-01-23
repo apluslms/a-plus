@@ -5,6 +5,12 @@
 
 <div class="clearfix">
 	<div class="pull-right">
+		{% if allow_regrade %}
+			<button type="button" class="aplus-button--secondary aplus-button--xs" data-toggle="modal" data-target="#regrade-modal">
+				{{ regrade_button }}
+			</button>
+		{% endif %}
+
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
 			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
 			{% translate "START_MANUAL_ASSESSMENT" %}
@@ -98,3 +104,5 @@
 		{% endfor %}
 	</tbody>
 </table>
+
+{% include "exercise/staff/_regrade_submissions.html" %}

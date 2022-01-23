@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-20 18:41+0200\n"
+"POT-Creation-Date: 2022-02-07 22:28+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1441,7 +1441,8 @@ msgstr "A new student group was created."
 msgid "LABEL_MODULE"
 msgstr "Module"
 
-#: deviations/forms.py deviations/models.py exercise/submission_models.py
+#: deviations/forms.py deviations/models.py exercise/exercise_models.py
+#: exercise/submission_models.py
 msgid "LABEL_EXERCISE"
 msgstr "Assignment"
 
@@ -1581,6 +1582,7 @@ msgstr "max submissions rule deviations"
 
 #: deviations/templates/deviations/_remove_modal.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_regrade_submissions.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 #: templates/base.html
@@ -3065,6 +3067,28 @@ msgstr "assignment with attachment"
 msgid "MODEL_NAME_EXERCISE_WITH_ATTACHMENT_PLURAL"
 msgstr "assignments with attachments"
 
+#: exercise/exercise_models.py
+#: exercise/templates/exercise/staff/_regrade_submissions.html
+#: exercise/viewbase.py
+msgid "REGRADE"
+msgstr "Regrade"
+
+#: exercise/exercise_models.py
+msgid "LABEL_TASK_TYPE"
+msgstr "Task type"
+
+#: exercise/exercise_models.py
+msgid "LABEL_TASK_ID"
+msgstr "Task ID"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_EXERCISE_TASK"
+msgstr "Assignment background task"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_EXERCISE_TASK_PLURAL"
+msgstr "Assignment background tasks"
+
 #: exercise/exercisecollection_models.py
 msgid "LABEL_TARGET_CATEGORY"
 msgstr "target category"
@@ -3288,6 +3312,14 @@ msgstr "Grading mode: {}"
 #: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "The review was saved successfully and the submitters were notified."
+
+#: exercise/staff_views.py
+msgid "NEW_REGRADE_TASK_CREATED"
+msgstr "New regrade task created."
+
+#: exercise/staff_views.py
+msgid "REGRADE_ALREADY_RUNNING"
+msgstr "Regrade task is already running."
 
 #: exercise/staff_views.py
 msgid "ALL_SUBMITTERS_HAVE_BEEN_ASSESSED"
@@ -3828,6 +3860,14 @@ msgstr "Grader errors"
 msgid "ASSISTANT_FEEDBACK"
 msgstr "Staff feedback"
 
+#: exercise/templates/exercise/staff/_regrade_submissions.html
+msgid "REGRADE_DESCRIPTION"
+msgstr "Regrade all or incomplete submissions for this assignment."
+
+#: exercise/templates/exercise/staff/_regrade_submissions.html
+msgid "START_REGRADE"
+msgstr "Start regrading"
+
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "RE-SUBMIT_TO_SERVICE"
 msgstr "Re-submit to service"
@@ -3959,6 +3999,7 @@ msgstr "Module selection"
 
 #: exercise/templates/exercise/staff/analytics.html
 #: exercise/templates/exercise/staff/results.html
+#: exercise/templatetags/exercise.py
 msgid "ALL"
 msgstr "All"
 
@@ -4224,6 +4265,28 @@ msgstr "Results are currently hidden."
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel compatible CSV"
+
+#: exercise/templatetags/exercise.py
+msgid "INCOMPLETE"
+msgstr "Incomplete"
+
+#: exercise/viewbase.py
+#, python-brace-format
+msgid "REGRADING_PCT -- {percent}"
+msgstr "Regrading {percent}%"
+
+#: exercise/viewbase.py
+#, python-brace-format
+msgid "REGRADING_PROGRESS -- {current}, {total}"
+msgstr "Regrading, done {current} / {total}."
+
+#: exercise/viewbase.py
+msgid "REGRADING"
+msgstr "Regrading"
+
+#: exercise/viewbase.py
+msgid "STARTING_REGRADE"
+msgstr "Starting regrade."
 
 #: exercise/views.py
 msgid "EXERCISE_IN_MAINTENANCE_AND_HIDDEN_FROM_STUDENTS"
