@@ -84,38 +84,41 @@
 			{# Body: left column (submitted files) #}
 			{% if has_files %}
 			<div class="col-sm-6">
-				<div class="form-group">
-					<select id="submitted-file-select" class="form-control" autocomplete="off">
-						{% for file in submission.files.all %}
-						<option value="{{ file.id }}" {% if forloop.first %}selected{% endif %}>{{ file.filename }}</option>
-						{% endfor %}
-					</select>
-				</div>
+				<ul class="nav nav-tabs" role="tablist">
+					{% for file in submission.files.all %}
+					<li class="nav-item {% if forloop.first %}active{% endif %}" role="presentation">
+						<a class="nav-link" href="#{{ file.id }}" role="tab" data-toggle="tab">{{ file.filename }}</a>
+					</li>
+					{% endfor %}
+				</ul>
 
-				{% for file in submission.files.all %}
-				<div
-					class="submitted-file {% if not forloop.first %}hidden{% endif %}"
-					data-id="{{ file.id }}"
-					{% if not file.is_passed %}data-viewable="true"{% endif %}
-					{% if file.exists %}data-url="{{ file.get_absolute_url }}"{% endif %}
-				>
-					{% if file.exists %}
-						{% if not file.is_passed %}
-						<div class="submitted-file-progress">
-							<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%">
-								{% translate "LOADING" %}
+				<div class="tab-content">
+					{% for file in submission.files.all %}
+					<div
+						id="{{ file.id }}"
+						role="tabpanel"
+						class="submitted-file tab-pane {% if forloop.first %}active{% endif %}"
+						{% if not file.is_passed %}data-viewable="true"{% endif %}
+						{% if file.exists %}data-url="{{ file.get_absolute_url }}"{% endif %}
+					>
+						{% if file.exists %}
+							{% if not file.is_passed %}
+							<div class="submitted-file-progress">
+								<div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%">
+									{% translate "LOADING" %}
+								</div>
 							</div>
-						</div>
-						<div class="submitted-file-data"></div>
-						{% else %}
-							{% include "exercise/_file_link.html" %}
+							<div class="submitted-file-data"></div>
+							{% else %}
+								{% include "exercise/_file_link.html" %}
+							{% endif %}
 						{% endif %}
-					{% endif %}
-					<div class="alert alert-danger submitted-file-error {% if file.exists %}hidden{% endif %}">
-						{% translate "FILE_NOT_FOUND" %}
+						<div class="alert alert-danger submitted-file-error {% if file.exists %}hidden{% endif %}">
+							{% translate "FILE_NOT_FOUND" %}
+						</div>
 					</div>
+					{% endfor %}
 				</div>
-				{% endfor %}
 			</div>
 			{% endif %}
 
