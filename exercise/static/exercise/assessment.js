@@ -19,46 +19,35 @@ $(function () {
     label1.after(feedbackToggleButton.clone().text(label2.text())).after(' | ');
     label2.before(feedbackToggleButton.clone().text(label1.text())).before(' | ');
 
-    // Change the displayed file with the dropdown menu
+    // Load the submitted files
     const loadedFiles = new Set();
-    const fileSelect = $('#submitted-file-select');
-    function updateFile() {
-      $('.submitted-file').each(function () {
-        const element = $(this);
-        const fileId = element.data('id');
-        const fileViewable = element.data('viewable');
-        const fileUrl = element.data('url');
-        if (fileId == fileSelect.val()) {
-          element.removeClass('hidden');
-          // Load the file when selected from the menu
-          if (fileUrl && fileViewable && !loadedFiles.has(fileId)) {
-            loadedFiles.add(fileId);
-            $.get(fileUrl, function (data) {
-              const text = $("<pre/>").text(data);
-              element.find('.submitted-file-data').html(text);
-              const downloadButton = {
-                action: function() {
-                  window.location.href = fileUrl + '?download=yes';
-                },
-                icon: 'download-alt',
-                text: _('Download'),
-              };
-              text.highlightCode({extraButtons: [downloadButton]});
-            })
-            .fail(function () {
-              element.find('.submitted-file-error').removeClass('hidden');
-            })
-            .always(function () {
-              element.find('.submitted-file-progress').addClass('hidden');
-            });
-          }
-        } else {
-          element.addClass('hidden');
-        }
-      });
-    }
-    updateFile();
-    fileSelect.on('change', updateFile);
+    $('.submitted-file').each(function () {
+      const element = $(this);
+      const fileId = element.attr('id');
+      const fileViewable = element.data('viewable');
+      const fileUrl = element.data('url');
+      if (fileUrl && fileViewable && !loadedFiles.has(fileId)) {
+        loadedFiles.add(fileId);
+        $.get(fileUrl, function (data) {
+          const text = $("<pre/>").text(data);
+          element.find('.submitted-file-data').html(text);
+          const downloadButton = {
+            action: function() {
+              window.location.href = fileUrl + '?download=yes';
+            },
+            icon: 'download-alt',
+            text: _('Download'),
+          };
+          text.highlightCode({extraButtons: [downloadButton]});
+        })
+        .fail(function () {
+          element.find('.submitted-file-error').removeClass('hidden');
+        })
+        .always(function () {
+          element.find('.submitted-file-progress').addClass('hidden');
+        });
+      }
+    });
 
     // The "sticky" feature is enabled if ResizeObserver is available and there
     // are submitted files (= there are two columns)
