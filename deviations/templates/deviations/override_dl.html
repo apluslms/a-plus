@@ -101,7 +101,7 @@
 							{{ deviation.submitter.name_with_student_id }}
 						</a>
 					</td>
-					<td>{{ deviation.exercise }}</td>
+					<td>{{ deviation.exercise.hierarchical_name }}</td>
 					<td>{{ deviation.extra_minutes }}</td>
 					<td>{{ new_deviation_minutes }}</td>
 					<td data-datetime="{{ deviation.get_new_deadline|date:'Y-m-d H:i:s' }}">
