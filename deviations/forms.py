@@ -94,7 +94,7 @@ class RemoveDeviationForm(forms.Form):
         label=_('LABEL_EXERCISE'),
         help_text=_('DEVIATION_EXERCISE_REMOVE_HELPTEXT'),
     )
-    submitter = forms.ModelMultipleChoiceField(
+    submitter = UsersSearchSelectField(
         queryset=UserProfile.objects.none(),
         initial_queryset=UserProfile.objects.none(),
         required=True,
@@ -140,7 +140,7 @@ class MaxSubmissionRuleDeviationForm(forms.Form):
         label=_('LABEL_EXERCISE'),
         help_text=_('DEVIATION_EXERCISE_HELPTEXT'),
     )
-    submitter = forms.ModelMultipleChoiceField(
+    submitter = UsersSearchSelectField(
         queryset=UserProfile.objects.none(),
         initial_queryset=UserProfile.objects.none(),
         required=True,
