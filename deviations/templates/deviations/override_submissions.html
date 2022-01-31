@@ -1,0 +1,83 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load bootstrap %}
+
+{% block edittitle %}{% translate "ADD_SUBMISSION_DEVIATIONS" %}{% endblock %}
+{% block view_tag %}edit-course,deviations{% endblock %}
+{% block coursecontent %}
+<br />
+<div class="alert alert-warning clearfix site-message" role="alert">
+	{% translate "SOME_DEVIATIONS_ALREADY_EXISTED_WARNING" %}
+</div>
+<form method="post" class="form-horizontal">
+	{% csrf_token %}
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h3 class="panel-title">{% translate "SELECT_DEVIATIONS_TO_BE_OVERRIDDEN" %}</h3>
+		</div>
+		<table class="table table-striped table-bordered table-condensed filtered-table ordered-table grouped-table">
+			<thead>
+				<tr>
+					<th>{% translate "SUBMITTER" %}</th>
+					<th>{% translate "EXERCISE" %}</th>
+					<th>{% translate "EXTRA_SUBMISSIONS" %} ({% translate "OVERRIDE_BEFORE" %})</th>
+					<th>{% translate "EXTRA_SUBMISSIONS" %} ({% translate "OVERRIDE_AFTER" %})</th>
+					<th data-filter-type="none" data-order-disable="true" data-group-checkbox="true">{% translate "OVERRIDE" %}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% translate "UNKNOWN" as unknown %}
+				{% for deviations, can_group, group_id in deviation_groups %}
+				{% if can_group %}
+				<tr data-group-parent="{{ group_id }}">
+					<td>
+						<a href="{{ deviations.0.submitter|url:instance }}">
+							{{ deviations.0.submitter.name_with_student_id }}
+						</a>
+					</td>
+					<td>
+						{{ deviations.0.exercise.course_module }}
+						<strong>
+							({% blocktranslate trimmed with count=deviations|length %}
+							NUM_OF_EXERCISES -- {{ count }}
+							{% endblocktranslate %})
+						</strong>
+					</td>
+					<td>{{ deviations.0.extra_submissions }}</td>
+					<td>{{ session_data.extra_submissions }}</td>
+					<td>
+						<input type="checkbox" checked>
+					</td>
+				</tr>
+				{% endif %}
+				{% for deviation in deviations %}
+				<tr {% if can_group %}data-group-child="{{ group_id }}" class="hidden-group info"{% endif %}>
+					<td>
+						<a href="{{ deviation.submitter|url:instance }}">
+							{{ deviation.submitter.name_with_student_id }}
+						</a>
+					</td>
+					<td>{{ deviation.exercise }}</td>
+					<td>{{ deviation.extra_submissions }}</td>
+					<td>{{ session_data.extra_submissions }}</td>
+					<td>
+						<input type="checkbox" name="override" value="{{ deviation.submitter.id }}.{{ deviation.exercise.id }}" checked>
+					</td>
+				</tr>
+				{% endfor %}
+				{% empty %}
+				<tr>
+					<td colspan="5">{% translate "NO_SUBMISSION_DEVIATIONS" %}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class="form-group">
+		<div class="col-sm-10">
+			<button type="submit" class="aplus-button--default aplus-button--md">{% translate "SAVE" %}</button>
+		</div>
+	</div>
+</form>
+{% endblock %}

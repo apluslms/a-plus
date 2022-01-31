@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load course %}
+
+<div class="modal" id="remove-selected-modal" tabindex="-1" role="dialog" aria-labelledby="remove-selected-modal-label">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="remove-selected-modal-label">
+					{% translate "REMOVE_SELECTED_DEVIATIONS" %}
+				</h4>
+			</div>
+
+			<div class="modal-body">
+				<p id="remove-selected-hidden-warning" class="alert alert-warning">
+					{% translate "SOME_DEVIATIONS_ARE_HIDDEN_WARNING" %}
+				</p>
+				<p id="remove-selected-no-selection-warning" class="alert alert-warning">
+					{% translate "NO_DEVIATIONS_SELECTED_WARNING" %}
+				</p>
+				<p id="remove-selected-confirmation"></p>
+			</div>
+
+			<div class="modal-footer">
+				<input
+					class="aplus-button--secondary aplus-button--md"
+					type="button"
+					value="{% translate 'CANCEL' %}"
+					data-dismiss="modal"
+				/>
+				<input
+					id="remove-selected-submit-button"
+					class="aplus-button--danger aplus-button--md"
+					type="submit"
+					value="{% translate 'REMOVE' %}"
+					formaction="{{ remove_url }}"
+				/>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(function() {
+		const modal = $("#remove-selected-modal");
+		const form = modal.closest("form");
+		modal.on('shown.bs.modal', function() {
+			const hiddenSelected = form.find('tr.hidden-filter input[name="id"]:checked');
+			$("#remove-selected-hidden-warning").toggleClass("hidden", hiddenSelected.length === 0);
+
+			const selected = form.find('input[name="id"]:checked');
+			$("#remove-selected-no-selection-warning").toggleClass("hidden", selected.length > 0);
+			$("#remove-selected-confirmation")
+			.toggleClass("hidden", selected.length === 0)
+			.text(
+				_("Are you sure you want to remove the selected deviation? |||| Are you sure you want to remove the %{smart_count} selected deviations?",
+				{ smart_count: selected.length })
+			);
+			$("#remove-selected-submit-button").prop("disabled", selected.length === 0);
+		});
+	});
+</script>

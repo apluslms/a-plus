@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-17 16:17+0200\n"
+"POT-Creation-Date: 2022-01-19 13:21+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -967,6 +967,16 @@ msgstr "Edit news"
 msgid "EDIT_COURSE"
 msgstr "Edit course"
 
+#: course/templates/course/_course_menu.html
+#: deviations/templates/deviations/list_dl.html
+msgid "DEADLINE_DEVIATIONS"
+msgstr "Deadline deviations"
+
+#: course/templates/course/_course_menu.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "SUBMISSION_DEVIATIONS"
+msgstr "Submission deviations"
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
 msgstr "You must enrol on this course through Student Information System."
@@ -1203,7 +1213,11 @@ msgstr ""
 #: course/templates/course/staff/_tag_remove_modal.html
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/_remove_modal.html
 #: deviations/templates/deviations/add_dl.html
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/remove_dl.html
+#: deviations/templates/deviations/remove_submissions.html
 #: edit_course/templates/edit_course/edit_model.html
 #: edit_course/templates/edit_course/remove_model.html
 #: edit_course/templates/edit_course/usertag_add.html
@@ -1240,7 +1254,7 @@ msgstr "Enrol students in the course"
 
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/groups.html
-#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/_remove_modal.html
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/remove_model.html
 #: edit_course/templates/edit_course/usertag_delete.html
@@ -1284,6 +1298,9 @@ msgstr "Edit group members"
 
 #: course/templates/course/staff/group_edit.html
 #: deviations/templates/deviations/add_dl.html
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
@@ -1468,6 +1485,36 @@ msgstr "New submission deadline."
 msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Do not apply late penalty during extra time."
 
+#: deviations/forms.py
+msgid "MINUTES_AND_DATE_MISSING"
+msgstr "You have to provide either minutes or a date in the future."
+
+#: deviations/forms.py
+msgid "EXERCISES_AND_MODULES_MISSING_ADD"
+msgstr "You need to define exercises or modules to add deviations."
+
+#: deviations/forms.py
+msgid "DEVIATION_MODULE_REMOVE_HELPTEXT"
+msgstr ""
+"List a module or modules here if you wish to remove the deviations from all "
+"of the assignments in the module(s)."
+
+#: deviations/forms.py
+msgid "DEVIATION_EXERCISE_REMOVE_HELPTEXT"
+msgstr ""
+"List the assignment or assignments from which deviations should be removed. "
+"If you have also listed a module or modules in the field above, the "
+"deviations will be removed from these assignments IN ADDITION to the listed "
+"module(s)."
+
+#: deviations/forms.py
+msgid "EXERCISES_AND_MODULES_MISSING_REMOVE"
+msgstr "You need to define exercises or modules to remove deviations."
+
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_EXTRA_SUBMISSIONS"
+msgstr "Extra submissions"
+
 #: deviations/models.py
 msgid "LABEL_GRANTER"
 msgstr "Granter"
@@ -1497,10 +1544,6 @@ msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION_PLURAL"
 msgstr "deadline rule deviations"
 
 #: deviations/models.py
-msgid "LABEL_EXTRA_SUBMISSIONS"
-msgstr "extra submissions"
-
-#: deviations/models.py
 msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION"
 msgstr "max submissions rule deviation"
 
@@ -1508,12 +1551,40 @@ msgstr "max submissions rule deviation"
 msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL"
 msgstr "max submissions rule deviations"
 
+#: deviations/templates/deviations/_remove_modal.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Close"
+
+#: deviations/templates/deviations/_remove_modal.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "REMOVE_SELECTED_DEVIATIONS"
+msgstr "Remote selected deviations"
+
+#: deviations/templates/deviations/_remove_modal.html
+msgid "SOME_DEVIATIONS_ARE_HIDDEN_WARNING"
+msgstr ""
+"Some of the selected deviations are currently hidden due to filtering. Clear "
+"the filter to see the hidden deviations and ensure you have selected only "
+"the deviations you want to delete."
+
+#: deviations/templates/deviations/_remove_modal.html
+msgid "NO_DEVIATIONS_SELECTED_WARNING"
+msgstr ""
+"No deviations were selected. Select one or more deviations to delete them."
+
 #: deviations/templates/deviations/add_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "ADD_DEADLINE_DEVIATIONS"
 msgstr "Add deadline deviations"
 
 #: deviations/templates/deviations/add_dl.html
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/remove_dl.html
 msgid "LIST_DEADLINE_DEVIATIONS"
 msgstr "List deadline deviations"
 
@@ -1522,77 +1593,176 @@ msgstr "List deadline deviations"
 msgid "ADD_NEW_DEADLINE_DEVIATIONS"
 msgstr "Add new deadline deviations"
 
-#: deviations/templates/deviations/list_dl.html
-msgid "DEADLINE_DEVIATIONS"
-msgstr "Deadline deviations"
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "ADD_SUBMISSION_DEVIATIONS"
+msgstr "Add submission deviations"
+
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/remove_submissions.html
+msgid "LIST_SUBMISSION_DEVIATIONS"
+msgstr "List submission deviations"
+
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "ADD_NEW_SUBMISSION_DEVIATIONS"
+msgstr "Add new submission deviations"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/remove_dl.html
+msgid "REMOVE_DEADLINE_DEVIATIONS"
+msgstr "Remove deadline deviations"
+
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "SUBMITTER"
 msgstr "Submitter"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #: edit_course/templates/edit_course/edit_content.html
 #: exercise/templates/exercise/_user_results.html
 msgid "EXERCISE"
 msgstr "Assignment"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "EXTRA_MINUTES"
 msgstr "Extra minutes"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/_exercise_info.html
+#: exercise/templates/exercise/exercise_plain.html
+msgid "DEADLINE"
+msgstr "Deadline"
+
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "YES"
 msgstr "Yes"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "NO"
 msgstr "No"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "WITHOUT_LATE_PENALTY"
 msgstr "Without late penalty"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
 msgid "GRANTER"
 msgstr "Granter"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
 msgid "GRANT_TIME"
 msgstr "Grant time"
 
 #: deviations/templates/deviations/list_dl.html
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "ACTIONS"
-msgstr "Actions"
+#: deviations/templates/deviations/list_submissions.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+msgid "SELECT"
+msgstr "Select"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 msgid "UNKNOWN"
 msgstr "Unknown"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #, python-format
 msgid "NUM_OF_EXERCISES -- %(count)s"
 msgstr "%(count)s assignments"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "NO_DEADLINE_DEVIATIONS"
 msgstr "No deadline deviations."
 
-#: deviations/views.py
-msgid "DEVIATION_WARNING_MUST_PROVIDE_MINUTES_OR_FUTURE_DATE"
-msgstr "You have to provide either minutes or a date in the future."
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/remove_submissions.html
+msgid "REMOVE_SUBMISSION_DEVIATIONS"
+msgstr "Remove submission deviations"
 
-#: deviations/views.py
-#, python-brace-format
-msgid "DEVIATION_WARNING_DEADLINE_DEVIATION_ALREADY_FOR -- {user}, {exercise}"
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "EXTRA_SUBMISSIONS"
+msgstr "Extra submissions"
+
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "NO_SUBMISSION_DEVIATIONS"
+msgstr "No submission deviations"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "SOME_DEVIATIONS_ALREADY_EXISTED_WARNING"
 msgstr ""
-"Deadline deviation already exists for {user} in {exercise}! Remove it before "
-"trying to add a new one."
+"Some of the deviations already existed. Please select the deviations you "
+"want to override."
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "SELECT_DEVIATIONS_TO_BE_OVERRIDDEN"
+msgstr "Select deviations to be overridden"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "OVERRIDE_BEFORE"
+msgstr "before"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "OVERRIDE_AFTER"
+msgstr "after"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "OVERRIDE"
+msgstr "Override"
+
+#: deviations/templates/deviations/remove_dl.html
+#: deviations/templates/deviations/remove_submissions.html
+#: edit_course/templates/edit_course/batch_assess.html
+#: exercise/templates/exercise/model/_file_submit_form.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "SUBMIT"
+msgstr "Submit"
+
+#: deviations/viewbase.py
+#, python-brace-format
+msgid "INVALID_EXERCISE_OR_SUBMITTER_ID -- {id}"
+msgstr "Invalid assignment or submitter id: {id}"
+
+#: deviations/viewbase.py
+msgid "NOTHING_REMOVED"
+msgstr "Nothing removed."
+
+#: deviations/viewbase.py
+#, python-brace-format
+msgid "REMOVED_DEVIATION -- {count}"
+msgid_plural "REMOVED_DEVIATIONS -- {count}"
+msgstr[0] "Removed {count} deviation."
+msgstr[1] "Removed {count} deviations."
 
 #: diploma/models.py
 msgid "LABEL_AVAILABILTY"
@@ -2051,12 +2221,6 @@ msgstr ""
 "b></dd>\n"
 "<dt>Z1 and Z2 (integers)</dt> <dd>the system assignment IDs</dd> </dl>"
 
-#: edit_course/templates/edit_course/batch_assess.html
-#: exercise/templates/exercise/model/_file_submit_form.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-msgid "SUBMIT"
-msgstr "Submit"
-
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_BY"
 msgstr "Build initated by"
@@ -2235,10 +2399,6 @@ msgid "MENU"
 msgstr "Menu"
 
 #: edit_course/templates/edit_course/edit_course_base.html
-msgid "DEVIATIONS"
-msgstr "Deviations"
-
-#: edit_course/templates/edit_course/edit_course_base.html
 msgid "BATCH_ASSESS"
 msgstr "Batch assess"
 
@@ -2376,6 +2536,10 @@ msgstr "Description"
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "VISIBLE_TO_STUDENTS"
 msgstr "Visible to students"
+
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "ACTIONS"
+msgstr "Actions"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "TAG_STUDENTS"
@@ -3273,11 +3437,6 @@ msgstr "Points required to pass"
 
 #: exercise/templates/exercise/_exercise_info.html
 #: exercise/templates/exercise/exercise_plain.html
-msgid "DEADLINE"
-msgstr "Deadline"
-
-#: exercise/templates/exercise/_exercise_info.html
-#: exercise/templates/exercise/exercise_plain.html
 msgid "EXTENDED_DEADLINE"
 msgstr "Extended deadline"
 
@@ -3627,13 +3786,6 @@ msgstr "Help"
 msgid "ASSESS_MANUALLY"
 msgstr "Assess manually"
 
-#: exercise/templates/exercise/staff/_assessment_panel.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/_submission_data_modal.html
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Close"
-
 #: exercise/templates/exercise/staff/_assessment_panel.html templates/base.html
 msgid "LOADING"
 msgstr "Loading..."
@@ -3847,10 +3999,6 @@ msgstr "Edit submitters"
 #: exercise/templates/exercise/staff/edit_submitters.html
 msgid "QUICK_SELECT_GROUP"
 msgstr "Quick select a group"
-
-#: exercise/templates/exercise/staff/edit_submitters.html
-msgid "SELECT"
-msgstr "Select"
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "INSPECT_SID"

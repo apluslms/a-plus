@@ -141,5 +141,8 @@
   "Vieritä erikseen",
 
   "Download":
-  "Lataa"
+  "Lataa",
+
+  "Are you sure you want to remove the selected deviation? |||| Are you sure you want to remove the %{smart_count} selected deviations?":
+  "Haluatko varmasti poistaa valitun poikkeaman? |||| Haluatko varmasti poistaa valitut %{smart_count} poikkeamaa?"
 }
