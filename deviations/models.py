@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Generic, Iterable, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, Generic, Iterable, Optional, TypeVar, Union
 
-from django.urls import reverse
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from course.models import CourseInstance
 from exercise.exercise_models import BaseExercise
 from exercise.submission_models import Submission
 from userprofile.models import UserProfile
@@ -112,6 +112,33 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
     def get_url_kwargs(self):
         return dict(deviation_id=self.id, **self.exercise.course_instance.get_url_kwargs())
 
+    def update_by_form(self, form_data: Dict[str, Any]) -> None:
+        """
+        Update the deviation's attributes based on a provided set of form
+        values.
+        """
+        raise NotImplementedError()
+
+    def is_groupable(self, other: 'SubmissionRuleDeviation') -> bool:
+        """
+        Whether this deviation can be grouped with another deviation in tables.
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def get_list_url(cls, instance: CourseInstance) -> str:
+        """
+        Get the URL of the deviation list page for deviations of this type.
+        """
+        raise NotImplementedError()
+
+    @classmethod
+    def get_override_url(cls, instance: CourseInstance) -> str:
+        """
+        Get the URL of the deviation override page for deviations of this type.
+        """
+        raise NotImplementedError()
+
 
 class DeadlineRuleDeviationManager(SubmissionRuleDeviationManager['DeadlineRuleDeviation']):
     max_order_by = "-extra_minutes"
@@ -150,6 +177,30 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
     def get_normal_deadline(self):
         return self.exercise.course_module.closing_time
 
+    def update_by_form(self, form_data: Dict[str, Any]) -> None:
+        minutes = form_data.get('minutes')
+        new_date = form_data.get('new_date')
+        if new_date:
+            minutes = self.exercise.delta_in_minutes_from_closing_to_date(new_date)
+        else:
+            minutes = int(minutes)
+        self.extra_minutes = minutes
+        self.without_late_penalty = bool(form_data.get('without_late_penalty'))
+
+    def is_groupable(self, other: 'DeadlineRuleDeviation') -> bool:
+        return (
+            self.extra_minutes == other.extra_minutes
+            and self.without_late_penalty == other.without_late_penalty
+        )
+
+    @classmethod
+    def get_list_url(cls, instance: CourseInstance) -> str:
+        return instance.get_url('deviations-list-dl')
+
+    @classmethod
+    def get_override_url(cls, instance: CourseInstance) -> str:
+        return instance.get_url('deviations-override-dl')
+
 
 class MaxSubmissionsRuleDeviationManager(SubmissionRuleDeviationManager['MaxSubmissionsRuleDeviation']):
     max_order_by = "-extra_submissions"
@@ -165,3 +216,17 @@ class MaxSubmissionsRuleDeviation(SubmissionRuleDeviation):
     class Meta(SubmissionRuleDeviation.Meta):
         verbose_name = _('MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION')
         verbose_name_plural = _('MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL')
+
+    def update_by_form(self, form_data: Dict[str, Any]) -> None:
+        self.extra_submissions = int(form_data['extra_submissions'])
+
+    def is_groupable(self, other: 'MaxSubmissionsRuleDeviation') -> bool:
+        return self.extra_submissions == other.extra_submissions
+
+    @classmethod
+    def get_list_url(cls, instance: CourseInstance) -> str:
+        return instance.get_url('deviations-list-submissions')
+
+    @classmethod
+    def get_override_url(cls, instance: CourseInstance) -> str:
+        return instance.get_url('deviations-override-submissions')
