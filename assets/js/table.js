@@ -22,6 +22,8 @@ $(function() {
  * - `data-filter-options`: The options for filtering this column when
  *   `data-filter-type` is `options`, separated by pipes (`|`).
  * - `data-order-disable`: If true, ordering is disabled for this column.
+ * - `data-group-checkbox`: If true, the checkbox in this column on parent rows
+ *   will match the checkboxes of child rows.
  *
  * Use these attributes on `tr` elements:
  * - `data-group-parent`: Indicates that this is the parent row of a group.
@@ -89,6 +91,7 @@ $(function() {
       };
 
       function expandRow(event) {
+        event.preventDefault();
         const button = $(this);
         const expanded = !button.data('group-expanded');
         const groupId = button.closest('tr').data('group-parent');
@@ -99,6 +102,7 @@ $(function() {
       };
 
       function expandAllRows(event) {
+        event.preventDefault();
         const button = $(this);
         const expanded = !button.data('group-expanded');
         self.element
@@ -198,6 +202,28 @@ $(function() {
             $('<a href="#" data-column="' + i + '"></a>')
             .on('click', orderColumn)
           );
+        }
+
+        if (self.enable_group && column.data('group-checkbox')) {
+          // Synchronized checkboxes:
+          // Parent checkbox will be checked if all children are checked,
+          // unchecked if all children are unchecked, and indeterminate if some
+          // but not all children are checked.
+          self.findCheckBoxes('parent', null, i).on('click', function() {
+            const groupId = $(this).closest('tr').data('group-parent');
+            self.findCheckBoxes('child', groupId, i).prop('checked', $(this).prop('checked'));
+          });
+          self.findCheckBoxes('child', null, i).on('click', function() {
+            const groupId = $(this).closest('tr').data('group-child');
+            const checkboxes = self.findCheckBoxes('child', groupId, i);
+            const allCount = checkboxes.length;
+            const checkedCount = checkboxes.filter(':checked').length;
+            const props = {
+              checked: checkedCount === allCount,
+              indeterminate: checkedCount > 0 && checkedCount < allCount,
+            };
+            self.findCheckBoxes('parent', groupId, i).prop(props);
+          });
         }
       });
     },
@@ -411,6 +437,17 @@ $(function() {
           'title': tooltip,
           'aria-label': tooltip
         });
+    },
+
+    findCheckBoxes: function(type, groupId, columnIndex) {
+      // Builds a jQuery selector like 'tbody > tr[data-group-parent="1.1"] > td:nth-child(9) > input[type="checkbox"]'
+      // Note that nth-child uses 1-based indexing.
+      let selector = 'tbody > tr[data-group-' + type;
+      if (groupId) {
+        selector += '="' + groupId + '"';
+      }
+      selector += '] > td:nth-child(' + (columnIndex + 1) + ') > input[type="checkbox"]';
+      return this.element.find(selector);
     },
   });
 

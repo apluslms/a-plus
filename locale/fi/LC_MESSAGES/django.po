@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-17 16:17+0200\n"
+"POT-Creation-Date: 2022-01-20 18:41+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -973,6 +973,16 @@ msgstr "Muokkaa kurssiuutisia"
 msgid "EDIT_COURSE"
 msgstr "Muokkaa kurssia"
 
+#: course/templates/course/_course_menu.html
+#: deviations/templates/deviations/list_dl.html
+msgid "DEADLINE_DEVIATIONS"
+msgstr "Määräaikojen poikkeamat"
+
+#: course/templates/course/_course_menu.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "SUBMISSION_DEVIATIONS"
+msgstr "Palautuskertojen poikkeamat"
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
 msgstr "Sinun täytyy ilmoittautua tälle kurssille opintotietojärjestelmässä."
@@ -1210,7 +1220,11 @@ msgstr ""
 #: course/templates/course/staff/_tag_remove_modal.html
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/_remove_modal.html
 #: deviations/templates/deviations/add_dl.html
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/remove_dl.html
+#: deviations/templates/deviations/remove_submissions.html
 #: edit_course/templates/edit_course/edit_model.html
 #: edit_course/templates/edit_course/remove_model.html
 #: edit_course/templates/edit_course/usertag_add.html
@@ -1247,7 +1261,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/groups.html
-#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/_remove_modal.html
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/remove_model.html
 #: edit_course/templates/edit_course/usertag_delete.html
@@ -1291,6 +1305,9 @@ msgstr "Muokkaa ryhmän jäseniä"
 
 #: course/templates/course/staff/group_edit.html
 #: deviations/templates/deviations/add_dl.html
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
@@ -1431,36 +1448,35 @@ msgstr "Luotiin uusi opiskelijaryhmä."
 msgid "LABEL_MODULE"
 msgstr "Moduuli"
 
-#: deviations/forms.py
-msgid "DEVIATION_MODULE_HELPTEXT"
-msgstr ""
-"Ilmoita tässä moduuli tai moduulit, mikäli haluat, että poikkeamaa "
-"sovelletaan kaikkiin moduulin tehtäviin."
-
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_EXERCISE"
 msgstr "Tehtävä"
 
 #: deviations/forms.py
-msgid "DEVIATION_EXERCISE_HELPTEXT"
-msgstr ""
-"Ilmoita tässä tehtävä tai tehtävät, johon haluat poikkeamaa sovellettavan. "
-"Mikäli olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, "
-"poikkeamaa sovelletaan näihin tehtäviin kyseisten moduulien LISÄKSI."
+msgid "LABEL_SUBMITTER_TAG"
+msgstr "Opiskelijamerkintä"
 
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
 msgstr "Opiskelija"
 
 #: deviations/forms.py
+msgid "EXERCISES_AND_MODULES_MISSING"
+msgstr "Valitse tehtävät tai moduulit."
+
+#: deviations/forms.py
+msgid "SUBMITTERS_AND_TAGS_MISSING"
+msgstr "Valitse opiskelijat tai merkinnät."
+
+#: deviations/forms.py
 msgid "LABEL_MINUTES"
-msgstr "Minuutit"
+msgstr "Ylimääräistä palautusaikaa"
 
 #: deviations/forms.py
 msgid "DEVIATION_EXTRA_MINUTES_HELPTEXT"
 msgstr ""
-"Annettu ylimääräinen palautusaika minuuteissa. Jätä tyhjäksi mikäli ilmoitat "
-"ajan alempana."
+"Annettu ylimääräinen palautusaika. Jätä tyhjäksi mikäli ilmoitat määräajan "
+"alempana."
 
 #: deviations/forms.py
 msgid "LABEL_NEW_DEADLINE"
@@ -1473,6 +1489,68 @@ msgstr "Uusi määräaika."
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
+
+#: deviations/forms.py
+msgid "DEVIATION_MODULE_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä moduuli tai moduulit, mikäli haluat, että poikkeamaa "
+"sovelletaan kaikkiin moduulin tehtäviin."
+
+#: deviations/forms.py
+msgid "DEVIATION_EXERCISE_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä tehtävä tai tehtävät, johon haluat poikkeamaa sovellettavan. "
+"Mikäli olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, "
+"poikkeamaa sovelletaan näihin tehtäviin kyseisten moduulien LISÄKSI."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_TAG_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä merkintä tai merkinnät, mikäli haluat, että poikkeama "
+"myönnetään kaikille opiskelijoille, joilla on jokin merkinnöistä."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_ADD_HELPTEXT"
+msgstr ""
+"Ilmoita tässä opiskelija tai opiskelijat, joille haluat myöntää poikkeaman. "
+"Mikäli olet ilmoittanut myös opiskelijamerkintä-kentässä merkinnän tai "
+"merkintöjä, poikkeama myönnetään näille opiskelijoille niiden LISÄKSI, "
+"joilla on kyseiset merkinnät."
+
+#: deviations/forms.py
+msgid "MINUTES_AND_DATE_MISSING"
+msgstr "Syötä joko ylimääräinen palautusaika tai uusi määräaika."
+
+#: deviations/forms.py deviations/models.py
+msgid "LABEL_EXTRA_SUBMISSIONS"
+msgstr "Ylimääräisiä palautuskertoja"
+
+#: deviations/forms.py
+msgid "DEVIATION_MODULE_REMOVE_HELPTEXT"
+msgstr ""
+"Ilmoita tässä moduuli tai moduulit, mikäli haluat, että poikkeamat "
+"poistetaan kaikista moduulin tehtävistä."
+
+#: deviations/forms.py
+msgid "DEVIATION_EXERCISE_REMOVE_HELPTEXT"
+msgstr ""
+"Ilmoita tässä tehtävä tai tehtävät, joista haluat poistaa poikkeamat. Mikäli "
+"olet ilmoittanut myös moduuli-kentässä moduulin tai moduuleja, poikkeamat "
+"poistetaan näistä tehtävistä kyseisten moduulien LISÄKSI."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_TAG_REMOVE_HELPTEXT"
+msgstr ""
+"Ilmoita tässä merkintä tai merkinnät, mikäli haluat, että poikkeama "
+"poistetaan kaikilta opiskelijoilta, joilla on jokin merkinnöistä."
+
+#: deviations/forms.py
+msgid "DEVIATION_SUBMITTER_REMOVE_HELPTEXT"
+msgstr ""
+"Ilmoita tässä opiskelija tai opiskelijat, joilta haluat poistaa poikkeamat. "
+"Mikäli olet ilmoittanut myös opiskelijamerkintä-kentässä merkinnän tai "
+"merkintöjä, poikkeamat poistetaan näiltä opikselijoilta niiden LISÄKSI, "
+"joilla on kyseiset merkinnät."
 
 #: deviations/models.py
 msgid "LABEL_GRANTER"
@@ -1503,10 +1581,6 @@ msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION_PLURAL"
 msgstr "määräaikojen poikkeamat"
 
 #: deviations/models.py
-msgid "LABEL_EXTRA_SUBMISSIONS"
-msgstr "ylimääräisiä palautuskertoja"
-
-#: deviations/models.py
 msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION"
 msgstr "enimmäispalautuskertojen poikkeama"
 
@@ -1514,12 +1588,40 @@ msgstr "enimmäispalautuskertojen poikkeama"
 msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL"
 msgstr "enimmäispalautuskertojen poikkeamat"
 
+#: deviations/templates/deviations/_remove_modal.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Sulje"
+
+#: deviations/templates/deviations/_remove_modal.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "REMOVE_SELECTED_DEVIATIONS"
+msgstr "Poista valitut poikkeamat"
+
+#: deviations/templates/deviations/_remove_modal.html
+msgid "SOME_DEVIATIONS_ARE_HIDDEN_WARNING"
+msgstr ""
+"Jotkut valituista poikkeamista ovat tällä hetkellä poissa näkyvistä "
+"suodatuksen takia. Tyhjennä suodatus nähdäksesi poikkeamat ja "
+"varmistaaksesi, että olet valinnut vain ne poikkeamat, jotka haluat poistaa."
+
+#: deviations/templates/deviations/_remove_modal.html
+msgid "NO_DEVIATIONS_SELECTED_WARNING"
+msgstr ""
+"Ei valittuja poikkeamia. Valitse yksi tai useampi poikkeama poistaaksesi ne."
+
 #: deviations/templates/deviations/add_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "ADD_DEADLINE_DEVIATIONS"
 msgstr "Lisää määräaikojen poikkeamia"
 
 #: deviations/templates/deviations/add_dl.html
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/remove_dl.html
 msgid "LIST_DEADLINE_DEVIATIONS"
 msgstr "Listaa määräaikojen poikkeamat"
 
@@ -1528,77 +1630,176 @@ msgstr "Listaa määräaikojen poikkeamat"
 msgid "ADD_NEW_DEADLINE_DEVIATIONS"
 msgstr "Lisää uusia määräaikojen poikkeamia"
 
-#: deviations/templates/deviations/list_dl.html
-msgid "DEADLINE_DEVIATIONS"
-msgstr "Määräaikojen poikkeamat"
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "ADD_SUBMISSION_DEVIATIONS"
+msgstr "Lisää palautuskertojen poikkeamia"
+
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/remove_submissions.html
+msgid "LIST_SUBMISSION_DEVIATIONS"
+msgstr "Listaa palautuskertojen poikkeamat"
+
+#: deviations/templates/deviations/add_submissions.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "ADD_NEW_SUBMISSION_DEVIATIONS"
+msgstr "Lisää uusia palautuskertojen poikkeamia"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/remove_dl.html
+msgid "REMOVE_DEADLINE_DEVIATIONS"
+msgstr "Poista määräaikojen poikkeamia"
+
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "SUBMITTER"
 msgstr "Palauttaja"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #: edit_course/templates/edit_course/edit_content.html
 #: exercise/templates/exercise/_user_results.html
 msgid "EXERCISE"
 msgstr "Tehtävä"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "EXTRA_MINUTES"
 msgstr "Ylimääräiset minuutit"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/_exercise_info.html
+#: exercise/templates/exercise/exercise_plain.html
+msgid "DEADLINE"
+msgstr "Määräaika"
+
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "YES"
 msgstr "Kyllä"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "NO"
 msgstr "Ei"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "WITHOUT_LATE_PENALTY"
 msgstr "Ilman myöhästymissakkoa"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
 msgid "GRANTER"
 msgstr "Myöntäjä"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
 msgid "GRANT_TIME"
 msgstr "Myöntämisaika"
 
 #: deviations/templates/deviations/list_dl.html
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "ACTIONS"
-msgstr "Toiminnot"
+#: deviations/templates/deviations/list_submissions.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+msgid "SELECT"
+msgstr "Valitse"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 msgid "UNKNOWN"
 msgstr "Tuntematon"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
 #, python-format
 msgid "NUM_OF_EXERCISES -- %(count)s"
 msgstr "%(count)s tehtävää"
 
 #: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
 msgid "NO_DEADLINE_DEVIATIONS"
 msgstr "Ei yhtään määräajan poikkeamaa."
 
-#: deviations/views.py
-msgid "DEVIATION_WARNING_MUST_PROVIDE_MINUTES_OR_FUTURE_DATE"
-msgstr "Sinun on määriteltävä joko minuutit tai päivämäärä."
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/remove_submissions.html
+msgid "REMOVE_SUBMISSION_DEVIATIONS"
+msgstr "Poista palautuskertojen poikkeamia"
 
-#: deviations/views.py
-#, python-brace-format
-msgid "DEVIATION_WARNING_DEADLINE_DEVIATION_ALREADY_FOR -- {user}, {exercise}"
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "EXTRA_SUBMISSIONS"
+msgstr "Ylimääräiset palautuskerrat"
+
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "NO_SUBMISSION_DEVIATIONS"
+msgstr "Ei palautuskertojen poikkeamia"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "SOME_DEVIATIONS_ALREADY_EXISTED_WARNING"
 msgstr ""
-"Määräajan poikkeama on jo olemassa opiskelijalle {user} tehtävässä "
-"{exercise}! Poista se ennen uuden muutokse lisäämistä."
+"Jotkin poikkeamat olivat jo olemassa. Valitse ne poikkeamat jotka haluat "
+"ylikirjoittaa."
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "SELECT_DEVIATIONS_TO_BE_OVERRIDDEN"
+msgstr "Valitse ylikirjoitettavat poikkeamat"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "OVERRIDE_BEFORE"
+msgstr "ennen"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "OVERRIDE_AFTER"
+msgstr "jälkeen"
+
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+msgid "OVERRIDE"
+msgstr "Ylikirjoita"
+
+#: deviations/templates/deviations/remove_dl.html
+#: deviations/templates/deviations/remove_submissions.html
+#: edit_course/templates/edit_course/batch_assess.html
+#: exercise/templates/exercise/model/_file_submit_form.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "SUBMIT"
+msgstr "Lähetä"
+
+#: deviations/viewbase.py
+#, python-brace-format
+msgid "INVALID_EXERCISE_OR_SUBMITTER_ID -- {id}"
+msgstr "Virheellinen tehtävän tai palauttajan id: {id}"
+
+#: deviations/viewbase.py
+msgid "NOTHING_REMOVED"
+msgstr "Mitään ei poistettu."
+
+#: deviations/viewbase.py
+#, python-brace-format
+msgid "REMOVED_DEVIATION -- {count}"
+msgid_plural "REMOVED_DEVIATIONS -- {count}"
+msgstr[0] "Poistettu {count} poikkeama."
+msgstr[1] "Poistettu {count} poikkeamaa."
 
 #: diploma/models.py
 msgid "LABEL_AVAILABILTY"
@@ -2060,12 +2261,6 @@ msgstr ""
 "b>.</dd>\n"
 "<dt>Z1 ja Z2 (integers)</dt> <dd>tehtävien IDt</dd> </dl>"
 
-#: edit_course/templates/edit_course/batch_assess.html
-#: exercise/templates/exercise/model/_file_submit_form.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-msgid "SUBMIT"
-msgstr "Lähetä"
-
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_BY"
 msgstr "Käännoksen aloitti"
@@ -2243,10 +2438,6 @@ msgid "MENU"
 msgstr "Valikko"
 
 #: edit_course/templates/edit_course/edit_course_base.html
-msgid "DEVIATIONS"
-msgstr "Määräaikojen poikkeamat"
-
-#: edit_course/templates/edit_course/edit_course_base.html
 msgid "BATCH_ASSESS"
 msgstr "Joukkoarviointi"
 
@@ -2384,6 +2575,10 @@ msgstr "Kuvaus"
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "VISIBLE_TO_STUDENTS"
 msgstr "Näkyy opiskelijoille"
+
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "ACTIONS"
+msgstr "Toiminnot"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "TAG_STUDENTS"
@@ -3277,11 +3472,6 @@ msgstr "Pistevaatimus"
 
 #: exercise/templates/exercise/_exercise_info.html
 #: exercise/templates/exercise/exercise_plain.html
-msgid "DEADLINE"
-msgstr "Määräaika"
-
-#: exercise/templates/exercise/_exercise_info.html
-#: exercise/templates/exercise/exercise_plain.html
 msgid "EXTENDED_DEADLINE"
 msgstr "Pidennetty määräaika"
 
@@ -3634,13 +3824,6 @@ msgstr "Ohjeet"
 msgid "ASSESS_MANUALLY"
 msgstr "Arvioi tämä"
 
-#: exercise/templates/exercise/staff/_assessment_panel.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/_submission_data_modal.html
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Sulje"
-
 #: exercise/templates/exercise/staff/_assessment_panel.html templates/base.html
 msgid "LOADING"
 msgstr "Ladataan..."
@@ -3852,10 +4035,6 @@ msgstr "Muokkaa palauttajia"
 #: exercise/templates/exercise/staff/edit_submitters.html
 msgid "QUICK_SELECT_GROUP"
 msgstr "Ryhmän pikavalinta"
-
-#: exercise/templates/exercise/staff/edit_submitters.html
-msgid "SELECT"
-msgstr "Valitse"
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "INSPECT_SID"
@@ -4539,6 +4718,18 @@ msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille
 #: lib/fields.py
 msgid "ERROR_NUMBER_MUST_BE_BETWEEN_0_AND_1"
 msgstr "Numeron on oltava välillä 0.0 - 1.0"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_DAYS"
+msgstr "vuorokaudet"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_HOURS"
+msgstr "tunnit"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_MINUTES"
+msgstr "minuutit"
 
 #: lib/fields.py
 msgid "CLIPBOARD_STUDENT_IDS"

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from django import forms
 from django.template import Variable
@@ -21,6 +21,53 @@ class DateTimeLocalInput(forms.DateTimeInput):
         if attrs is not None:
             default_attrs.update(attrs)
         super().__init__(attrs=default_attrs, format='%Y-%m-%dT%H:%M')
+
+
+class DurationInput(forms.MultiWidget):
+    """
+    A widget for entering a duration of time.
+
+    Renders as a row of text boxes, one for each given unit of time (e.g. days,
+    hours and minutes).
+
+    Use with `lib.fields.DurationField`.
+    """
+    units: List[Tuple[str, int]]
+
+    def __init__(self, units: List[Tuple[str, int]], attrs: Optional[Dict[str, Any]] = None) -> None:
+        self.units = units
+        widgets = [forms.NumberInput({'placeholder': name}) for name, factor in self.units]
+        default_attrs = {'class': 'duration-input'}
+        if attrs is not None:
+            default_attrs.update(attrs)
+        super().__init__(widgets, default_attrs)
+
+    def decompress(self, value: Optional[int]) -> List[Optional[int]]:
+        """
+        Converts the given minute value into the different units.
+        """
+        if value is None:
+            return [None] * len(self.units)
+        remainder = value
+        unit_values = []
+        for name, factor in self.units:
+            unit_values.append(remainder // factor)
+            remainder = remainder % factor
+        return unit_values
+
+    def value_from_datadict(self, data: Dict[str, Any], files: Dict[str, List[Any]], name: str) -> Any:
+        """
+        Extract every individual unit's value from a submitted data dictionary.
+
+        If instead of different units, a single value is submitted (i.e.
+        request was probably not made using a HTML form), use that as the base
+        unit and set every other unit to None.
+        """
+        if name in data:
+            value = [None] * len(self.units)
+            value[-1] = data[name]
+            return value
+        return super().value_from_datadict(data, files, name)
 
 
 class SearchSelect(forms.SelectMultiple):

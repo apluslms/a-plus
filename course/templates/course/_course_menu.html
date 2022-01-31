@@ -187,6 +187,18 @@
 		{% translate "EDIT_COURSE" %}
 	</a>
 </li>
+<li class="menu-deadline-deviations">
+	<a href="{{ instance|url:'deviations-list-dl' }}">
+		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+		{% translate "DEADLINE_DEVIATIONS" %}
+	</a>
+</li>
+<li class="menu-submission-deviations">
+	<a href="{{ instance|url:'deviations-list-submissions' }}">
+		<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+		{% translate "SUBMISSION_DEVIATIONS" %}
+	</a>
+</li>
 {% endif %}
 
 {% for group in course_menu.staff_link_groups %}

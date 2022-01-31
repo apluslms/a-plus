@@ -1,0 +1,29 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load bootstrap %}
+
+{% block title %}{% translate "ADD_SUBMISSION_DEVIATIONS" %} | {{ block.super }}{% endblock %}
+{% block view_tag %}submission-deviations{% endblock %}
+
+{% block breadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'deviations-list-submissions' }}">{% translate "LIST_SUBMISSION_DEVIATIONS" %}</a></li>
+<li class="active">{% translate "ADD_NEW_SUBMISSION_DEVIATIONS" %}</li>
+{% endblock %}
+
+{% block columns %}
+<div class="col-md-12">
+	<form method="post" class="well form-horizontal">
+		{% csrf_token %}
+		<legend>{% translate "ADD_SUBMISSION_DEVIATIONS" %}</legend>
+		{{ form|bootstrap_horizontal }}
+		<div class="form-group">
+			<div class="col-sm-10 col-sm-offset-2">
+				<button type="submit" class="aplus-button--default aplus-button--md">{% translate "SAVE" %}</button>
+				<a href="{{ instance|url:'deviations-list-submissions' }}" class="aplus-button--secondary aplus-button--md">{% translate "CANCEL" %}</a>
+			</div>
+		</div>
+	</form>
+</div>
+{% endblock %}

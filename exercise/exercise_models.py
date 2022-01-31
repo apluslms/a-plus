@@ -15,6 +15,7 @@ from django.db.models import signals
 from django.db.models.signals import post_delete, post_save
 from django.template import loader
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.formats import date_format
 from django.utils.text import format_lazy
 from django.utils.translation import get_language, gettext_lazy as _
@@ -651,7 +652,7 @@ class BaseExercise(LearningObject):
         # -> convert future_date to same format as module_close
         string_date = str(future_date)[:16]
         converted = timezone.make_aware(
-                datetime.datetime.strptime(string_date, '%Y-%m-%d %H:%M'),
+                parse_datetime(string_date),
                 timezone.get_current_timezone())
         delta = converted - module_close
         return delta.days * 24 * 60 + delta.seconds // 60
