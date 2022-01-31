@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-19 14:32+0200\n"
+"POT-Creation-Date: 2022-01-20 18:41+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1463,13 +1463,11 @@ msgstr "You have to define submitters or tags."
 
 #: deviations/forms.py
 msgid "LABEL_MINUTES"
-msgstr "Minutes"
+msgstr "Extra time"
 
 #: deviations/forms.py
 msgid "DEVIATION_EXTRA_MINUTES_HELPTEXT"
-msgstr ""
-"Amount of extra time given in minutes. Leave blank if you fill in the date "
-"below."
+msgstr "Amount of extra time given. Leave blank if you fill in the date below."
 
 #: deviations/forms.py
 msgid "LABEL_NEW_DEADLINE"
@@ -1512,7 +1510,7 @@ msgstr ""
 
 #: deviations/forms.py
 msgid "MINUTES_AND_DATE_MISSING"
-msgstr "You have to provide either minutes or a date in the future."
+msgstr "You have to provide either the extra time or a date in the future."
 
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_EXTRA_SUBMISSIONS"
@@ -1535,8 +1533,8 @@ msgstr ""
 #: deviations/forms.py
 msgid "DEVIATION_SUBMITTER_TAG_REMOVE_HELPTEXT"
 msgstr ""
-"List a tag or tags here if you wish to remove the deviations from all "
-"of the students with one of the listed tags."
+"List a tag or tags here if you wish to remove the deviations from all of the "
+"students with one of the listed tags."
 
 #: deviations/forms.py
 msgid "DEVIATION_SUBMITTER_REMOVE_HELPTEXT"
@@ -4703,6 +4701,18 @@ msgstr "You need to be enrolled to access an anonymous service."
 #: lib/fields.py
 msgid "ERROR_NUMBER_MUST_BE_BETWEEN_0_AND_1"
 msgstr "The number must be between 0.0 and 1.0"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_DAYS"
+msgstr "days"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_HOURS"
+msgstr "hours"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_MINUTES"
+msgstr "minutes"
 
 #: lib/fields.py
 msgid "CLIPBOARD_STUDENT_IDS"

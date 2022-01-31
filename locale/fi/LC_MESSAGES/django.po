@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-19 14:32+0200\n"
+"POT-Creation-Date: 2022-01-20 18:41+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1470,13 +1470,13 @@ msgstr "Valitse opiskelijat tai merkinnät."
 
 #: deviations/forms.py
 msgid "LABEL_MINUTES"
-msgstr "Minuutit"
+msgstr "Ylimääräistä palautusaikaa"
 
 #: deviations/forms.py
 msgid "DEVIATION_EXTRA_MINUTES_HELPTEXT"
 msgstr ""
-"Annettu ylimääräinen palautusaika minuuteissa. Jätä tyhjäksi mikäli ilmoitat "
-"ajan alempana."
+"Annettu ylimääräinen palautusaika. Jätä tyhjäksi mikäli ilmoitat määräajan "
+"alempana."
 
 #: deviations/forms.py
 msgid "LABEL_NEW_DEADLINE"
@@ -1519,7 +1519,7 @@ msgstr ""
 
 #: deviations/forms.py
 msgid "MINUTES_AND_DATE_MISSING"
-msgstr "Syötä joko minuutit tai uusi määräaika."
+msgstr "Syötä joko ylimääräinen palautusaika tai uusi määräaika."
 
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_EXTRA_SUBMISSIONS"
@@ -4718,6 +4718,18 @@ msgstr "Päästäksesi anonyymiin palveluun, sinun on ilmoittauduttava kurssille
 #: lib/fields.py
 msgid "ERROR_NUMBER_MUST_BE_BETWEEN_0_AND_1"
 msgstr "Numeron on oltava välillä 0.0 - 1.0"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_DAYS"
+msgstr "vuorokaudet"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_HOURS"
+msgstr "tunnit"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_MINUTES"
+msgstr "minuutit"
 
 #: lib/fields.py
 msgid "CLIPBOARD_STUDENT_IDS"

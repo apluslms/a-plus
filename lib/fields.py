@@ -1,12 +1,12 @@
 import json
-from typing import Any
+from typing import Any, List, Optional, Tuple
 
 from django import forms
-from django.core import exceptions
+from django.core import exceptions, validators
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from .widgets import SearchSelect
+from .widgets import DurationInput, SearchSelect
 
 
 class PercentField(models.FloatField):
@@ -20,6 +20,57 @@ class PercentField(models.FloatField):
                 _('ERROR_NUMBER_MUST_BE_BETWEEN_0_AND_1')
             )
         return value
+
+
+class DurationField(forms.MultiValueField):
+    """
+    A field for entering a duration of time.
+
+    Uses the `lib.widgets.DurationInput` widget, which renders as a row of text
+    boxes, one for each given unit of time. The units of time are, by default,
+    days, hours and minutes, but they can also be customized by passing a list
+    of tuples where the first item is the name of the unit and the second item
+    is its factor relative to minutes (e.g. 60 for hours).
+    """
+    DAYS = (_('DURATION_UNIT_DAYS'), 60 * 24)
+    HOURS = (_('DURATION_UNIT_HOURS'), 60)
+    MINUTES = (_('DURATION_UNIT_MINUTES'), 1)
+
+    # Default units
+    units: List[Tuple[str, int]] = [DAYS, HOURS, MINUTES]
+
+    def __init__(
+            self,
+            units: List[Tuple[str, int]] = None,
+            min_value: Optional[int] = None,
+            max_value: Optional[int] = None,
+            *args: Any,
+            **kwargs: Any,
+            ) -> None:
+        if units is not None:
+            self.units = units
+        self.max_value = max_value
+        self.min_value = min_value
+        fields = [forms.IntegerField() for name, factor in self.units]
+        super().__init__(fields, widget=DurationInput(self.units), *args, **kwargs)
+
+        if max_value is not None:
+            self.validators.append(validators.MaxValueValidator(max_value))
+        if min_value is not None:
+            self.validators.append(validators.MinValueValidator(min_value))
+
+    def compress(self, data_list: List[Optional[int]]) -> Optional[int]:
+        """
+        Convert the values given in different units into minutes.
+        """
+        total_minutes = None
+        for value, (name, factor) in zip(data_list, self.units):
+            if value is None:
+                continue
+            if total_minutes is None:
+                total_minutes = 0
+            total_minutes += value * factor
+        return total_minutes
 
 
 class SearchSelectField(forms.ModelMultipleChoiceField):

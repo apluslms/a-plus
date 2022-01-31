@@ -7,7 +7,7 @@ from aplus.api import api_reverse
 from exercise.models import BaseExercise
 from userprofile.models import UserProfile
 from course.models import CourseModule, UserTag
-from lib.fields import UsersSearchSelectField, SearchSelect
+from lib.fields import DurationField, UsersSearchSelectField, SearchSelect
 from lib.widgets import DateTimeLocalInput
 
 
@@ -72,7 +72,7 @@ class BaseDeviationForm(forms.Form):
 
 
 class DeadlineRuleDeviationForm(BaseDeviationForm):
-    minutes = forms.IntegerField(
+    minutes = DurationField(
         required=False,
         min_value=1,
         label=_('LABEL_MINUTES'),
