@@ -903,6 +903,7 @@ class CourseInstance(UrlMixin, models.Model):
         for e in qs:
             invalidate_content(Enrollment, e)
 
+        logger.info(f"{self}: enrolled {count} students from SIS")
         return count
 
     def set_users_with_role(self, users, role, remove_others_with_role=False):
