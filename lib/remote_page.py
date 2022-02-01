@@ -175,6 +175,8 @@ class RemotePage:
 
     def element_or_body(self, search_attributes):
         element = self.select_element_or_body(search_attributes)
+        if element.get('id') == 'exercise':
+            del element['id']
         return str(element) if element else ""
 
     def clean_element_or_body(self, search_attributes):
