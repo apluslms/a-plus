@@ -1,23 +1,24 @@
 {
   "name": "aplus-translate-js",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "main": "main.js",
   "scripts": {
-    "build": "sh -c \"node_modules/browserify/bin/cmd.js main.js -s _ -t [ babelify --presets [ \\\"env\\\" ] ] -o ../../assets/js/translate.js && node_modules/uglify-es/bin/uglifyjs ../../assets/js/translate.js --compress --mangle -o ../../assets/js/translate.min.js --source-map \\\"url='/static/js/translate.min.js.map'\\\"\" && sed -i s!../../assets!/static! ../../assets/js/translate.min.js.map",
+    "build": "sh -c \"node_modules/browserify/bin/cmd.js main.js -s _ -t [ babelify --presets [ @babel/preset-env ] ] -o ../../assets/js/translate.js && node_modules/uglify-js/bin/uglifyjs ../../assets/js/translate.js --compress --mangle -o ../../assets/js/translate.min.js --source-map \\\"url='/static/js/translate.min.js.map'\\\"\" && sed -i s!../../assets!/static! ../../assets/js/translate.min.js.map",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "GPL-3.0-only",
   "dependencies": {
-    "node-polyglot": "^2.4.0"
+    "node-polyglot": "^2.4.2"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "babelify": "^8.0.0",
-    "browserify": "^16.5.2",
+    "@babel/core": "^7.16.12",
+    "@babel/preset-env": "^7.16.11",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
     "lodash": "^4.17.21",
-    "uglify-es": "^3.3.9"
+    "uglify-js": "^3.15.0"
   }
 }
