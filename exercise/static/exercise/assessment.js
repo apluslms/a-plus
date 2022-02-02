@@ -23,7 +23,7 @@ $(function () {
     const loadedFiles = new Set();
     $('.submitted-file').each(function () {
       const element = $(this);
-      const fileId = element.attr('id');
+      const fileId = element.data('id');
       const fileViewable = element.data('viewable');
       const fileUrl = element.data('url');
       if (fileUrl && fileViewable && !loadedFiles.has(fileId)) {
