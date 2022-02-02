@@ -87,7 +87,7 @@
 				<ul class="nav nav-tabs" role="tablist">
 					{% for file in submission.files.all %}
 					<li class="nav-item {% if forloop.first %}active{% endif %}" role="presentation">
-						<a class="nav-link" href="#{{ file.id }}" role="tab" data-toggle="tab">{{ file.filename }}</a>
+						<a class="nav-link" href="#file-{{ file.id }}" role="tab" aria-controls="file-{{ file.id }}" data-toggle="tab">{{ file.filename }}</a>
 					</li>
 					{% endfor %}
 				</ul>
@@ -95,7 +95,8 @@
 				<div class="tab-content">
 					{% for file in submission.files.all %}
 					<div
-						id="{{ file.id }}"
+						id="file-{{ file.id }}"
+						data-id="{{ file.id }}"
 						role="tabpanel"
 						class="submitted-file tab-pane {% if forloop.first %}active{% endif %}"
 						{% if not file.is_passed %}data-viewable="true"{% endif %}
