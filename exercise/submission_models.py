@@ -4,6 +4,7 @@ import os
 import json
 from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
 
+from binaryornot.check import is_binary
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
@@ -642,7 +643,7 @@ class SubmittedFile(UrlMixin, models.Model):
         return guess_type(self.file_object.path)[0]
 
     def is_passed(self):
-        return self.get_mime() in SubmittedFile.PASS_MIME
+        return is_binary(self.file_object.path)
 
 
     ABSOLUTE_URL_NAME = "submission-file"
