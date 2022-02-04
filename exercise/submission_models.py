@@ -1,7 +1,8 @@
 import itertools
-import logging
-import os
 import json
+import logging
+from mimetypes import guess_type
+import os
 from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
 
 from binaryornot.check import is_binary
@@ -12,7 +13,6 @@ from django.db.models.signals import post_delete
 from django.http.request import HttpRequest
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
-from mimetypes import guess_type
 from exercise.protocol.exercise_page import ExercisePage
 
 from authorization.models import JWTAccessible
@@ -604,7 +604,6 @@ class SubmittedFile(UrlMixin, models.Model):
     foreign key relation. The files are stored on the disk while models are
     stored in the database.
     """
-    PASS_MIME = ( "image/jpeg", "image/png", "image/gif", "application/pdf", "application/zip" )
     submission = models.ForeignKey(Submission,
         verbose_name=_('LABEL_SUBMISSION'),
         on_delete=models.CASCADE,
