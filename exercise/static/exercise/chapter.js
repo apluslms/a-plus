@@ -234,7 +234,7 @@
 
       var label = $("<label>");
       label.attr("class", "control-label");
-      label.attr("for", id + "_input");
+      label.attr("for", id + "_input_id");
       label.html(title);
 
       var form_field;
