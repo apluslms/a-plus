@@ -238,7 +238,11 @@ def get_deviation_groups(
 
     ordered_deviations = (
         all_deviations
-        .select_related()
+        .select_related(
+            'submitter', 'submitter__user',
+            'granter', 'granter__user',
+            'exercise', 'exercise__course_module',
+        )
         # parent is prefetched because there may be multiple ancestors, and
         # they are needed for building the deviation's URL.
         .prefetch_related('exercise__parent')
