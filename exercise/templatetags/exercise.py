@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Tuple, Union
 
 from django import template
 from django.contrib.auth.models import User
-from django.db.models import Max, Min
+from django.db import models
 from django.template.context import Context
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -75,6 +75,16 @@ def user_results(context: Context, student: Optional[User] = None) -> Dict[str, 
     values['total_json'] = json.dumps(values['total'])
     if student:
         values['is_course_staff'] = False
+    if values['is_course_staff']:
+        instance = context['instance']
+        values['student_count'] = instance.students.count()
+        counts = (instance.students
+            .values('submissions__exercise_id')
+            .annotate(count=models.Count('submissions__submitters', distinct=True))
+            .filter(submissions__exercise__course_module__course_instance=instance)
+            .order_by()
+        )
+        values['exercise_submitter_counts'] = {row['submissions__exercise_id']: row['count'] for row in counts}
     return values
 
 
@@ -314,7 +324,7 @@ def get_grading_errors(submission):
 
 
 @register.inclusion_tag("exercise/_text_stats.html", takes_context=True)
-def exercise_text_stats(context, exercise):
+def exercise_text_stats(context: Context, exercise: Union[int, BaseExercise]) -> Dict[str, Any]:
     if not 'instance' in context:
         raise TagUsageError()
     instance = context['instance']
@@ -324,7 +334,10 @@ def exercise_text_stats(context, exercise):
     total = context['student_count']
 
     if isinstance(exercise, int):
-        num = instance.students.filter(submissions__exercise_id=exercise).distinct().count()
+        if 'exercise_submitter_counts' in context:
+            num = context['exercise_submitter_counts'].get(exercise, 0)
+        else:
+            num = instance.students.filter(submissions__exercise_id=exercise).distinct().count()
     else:
         num = exercise.number_of_submitters() if exercise else 0
     return {
