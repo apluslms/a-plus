@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional, Type, Union
 
+from django.db.models import Prefetch
 from django.db.models.base import Model
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
@@ -98,7 +99,15 @@ class CachedContent(ContentMixin, CachedAbstract):
 
         # Collect each module.
         i = 0
-        for module in instance.course_modules.all():
+        for module in instance.course_modules.prefetch_related(
+            'requirements',
+            'requirements__threshold__passed_modules',
+            'requirements__threshold__passed_categories',
+            'requirements__threshold__passed_exercises',
+            'requirements__threshold__passed_exercises__parent',
+            'requirements__threshold__points',
+            Prefetch('learning_objects', LearningObject.objects.all()),
+        ):
             entry = {
                 'type': 'module',
                 'id': module.id,
