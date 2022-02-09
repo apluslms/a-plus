@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import string
-from typing import Any, Dict
+from typing import Any, Dict, List
 import urllib.request, urllib.parse
 from random import randint, choice
 
@@ -354,12 +354,20 @@ class UserTaggingManager(models.Manager):
             .select_related('tag')
         return [t.tag for t in ts]
 
-    def get_all(self, profile, course_instance):
-        qs = (self.filter(user=profile,
-                          course_instance=course_instance)
-              .select_related('tag'))
+    def get_all(self, profile: UserProfile, course_instance: 'CourseInstance') -> List[UserTag]:
+        # Check if taggings for the course instance were prefetched
+        if hasattr(profile, 'instance_taggings'):
+            taggings = profile.instance_taggings
+        else:
+            taggings = (
+                self.filter(
+                    user=profile,
+                    course_instance=course_instance
+                )
+                .select_related('tag')
+            )
         tags = [USERTAG_EXTERNAL if profile.is_external else USERTAG_INTERNAL]
-        tags.extend(t.tag for t in qs.all())
+        tags.extend(t.tag for t in taggings)
         return tags
 
     def set(self, profile, tag):

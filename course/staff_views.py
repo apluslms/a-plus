@@ -1,5 +1,8 @@
 import json
+from typing import Any, Dict, List
+
 from django.contrib import messages
+from django.db import models
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.text import format_lazy
@@ -9,6 +12,7 @@ from django.utils.translation import ngettext_lazy as ngettext
 from authorization.permissions import ACCESS
 from lib.helpers import settings_text
 from lib.viewbase import BaseFormView, BaseTemplateView, BaseRedirectMixin
+from userprofile.models import UserProfile
 from .cache.students import CachedStudent
 from .forms import EnrollStudentsForm, GroupEditForm
 from .models import (
@@ -43,7 +47,7 @@ class ParticipantsView(CourseInstanceBaseView):
             'internal_user_label', 'external_user_label',
         )
 
-    def _get_students_with_tags(self):
+    def _get_students_with_tags(self) -> List[Dict[str, Any]]:
         ci = self.instance
         fake = '10' * 32
         link = (reverse('user-results',
@@ -56,11 +60,11 @@ class ParticipantsView(CourseInstanceBaseView):
             for k in Enrollment.ENROLLMENT_STATUS.keys()
         }
 
-        participants = ci.all_students.all()
+        participants = ci.all_students.prefetch_tags(ci)
         data = []
         for participant in participants:
             user_id = participant.user.id
-            user_tags = CachedStudent(ci, user_id).data
+            user_tags = CachedStudent(ci, participant.user).data
             user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags['tag_slugs'] if slug in tags)
             data.append({
                 'id': participant.student_id or '',
@@ -82,9 +86,13 @@ class GroupsView(CourseInstanceBaseView):
     access_mode = ACCESS.ASSISTANT
     template_name = "course/staff/groups.html"
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
-        self.groups = list(self.instance.groups.all())
+        self.groups = list(
+            self.instance.groups.prefetch_related(
+                models.Prefetch('members', UserProfile.objects.prefetch_tags(self.instance)),
+            )
+        )
         self.note('groups')
 
 
@@ -128,9 +136,12 @@ class GroupsDeleteView(CourseInstanceMixin, BaseRedirectMixin, BaseTemplateView)
     group_kw = "group_id"
     template_name = "course/staff/group_delete.html"
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
-        self.group = get_object_or_404(StudentGroup,
+        self.group = get_object_or_404(
+            StudentGroup.objects.prefetch_related(
+                models.Prefetch('members', UserProfile.objects.prefetch_tags(self.instance))
+            ),
             course_instance=self.instance,
             id=self._get_kwarg(self.group_kw),
         )
