@@ -174,7 +174,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 # Deactivate the current draft if it exists.
                 self.exercise.unset_submission_draft(self.profile)
 
-                page = self.exercise.grade(request, new_submission,
+                page = self.exercise.grade(new_submission,
+                    request,
                     url_name=self.post_url_name)
                 for error in page.errors:
                     messages.error(request, error)

@@ -35,12 +35,15 @@ from .forms import (
     SubmissionCreateAndReviewForm,
     EditSubmittersForm,
 )
+from .tasks import regrade_exercises
 from .submission_models import Submission
+from .exercise_models import ExerciseTask
 from .viewbase import (
     ExerciseBaseView,
     SubmissionBaseView,
     SubmissionMixin,
     ExerciseMixin,
+    ExerciseListBaseView,
 )
 from .exercise_models import BaseExercise
 from lib.logging import SecurityLog
@@ -49,7 +52,7 @@ from lib.logging import SecurityLog
 logger = logging.getLogger('aplus.exercise')
 
 
-class ListSubmissionsView(ExerciseBaseView):
+class ListSubmissionsView(ExerciseListBaseView):
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/list_submissions.html"
     ajax_template_name = "exercise/staff/_submissions_table.html"
@@ -73,7 +76,7 @@ class SubmissionsSummaryView(ExerciseBaseView):
     template_name = "exercise/staff/submissions_summary.html"
 
 
-class ListSubmittersView(ExerciseBaseView):
+class ListSubmittersView(ExerciseListBaseView):
     """
     Similar to ListSubmissionsView, but lists submitters instead of individual
     submissions.
@@ -260,7 +263,7 @@ class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
     access_mode = ACCESS.ASSISTANT
 
     def post(self, request, *args, **kwargs):
-        page = self.exercise.grade(request, self.submission)
+        page = self.exercise.grade(self.submission, request)
         for error in page.errors:
             messages.error(request, error)
         return self.redirect(self.submission.get_inspect_url())
@@ -279,6 +282,37 @@ class IncreaseSubmissionMaxView(SubmissionMixin, BaseRedirectView):
         deviation.granter = request.user.userprofile
         deviation.save()
         return self.redirect(self.submission.get_inspect_url())
+
+
+class StartRegradeView(ExerciseBaseView, BaseRedirectView):
+    access_mode = ACCESS.TEACHER
+
+    def post(self, request, *args, **kwargs):
+        regrade_type = request.POST.get('regrade_type')
+        if regrade_type not in ['all', 'incomplete']:
+            logger.debug("Invalid regrade_type")
+            return self.redirect(self.exercise.get_url('submission-list'))
+
+        # If there already was regrade ongoing, continue with that and don't start again
+        if not ExerciseTask.objects.filter(
+            exercise=self.exercise,
+            task_type=ExerciseTask.TASK_TYPE.REGRADE
+        ).exists():
+            task, created = ExerciseTask.objects.get_or_create(
+                exercise=self.exercise,
+                task_type=ExerciseTask.TASK_TYPE.REGRADE,
+            )
+            if created:
+                result = regrade_exercises.delay(self.exercise.id, regrade_type)
+                task.task_id = result.id
+                task.save()
+                messages.info(request, _("NEW_REGRADE_TASK_CREATED"))
+            else:
+                messages.warning(request, _("REGRADE_ALREADY_RUNNING"))
+        else:
+            messages.warning(request, _("REGRADE_ALREADY_RUNNING"))
+
+        return self.redirect(self.exercise.get_url('submission-list'))
 
 
 class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):

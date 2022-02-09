@@ -292,7 +292,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                 }
                 status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             else:
-                page = self.exercise.grade(request, new_submission)
+                page = self.exercise.grade(new_submission, request)
 
                 # Enroll after succesfully submitting to the enrollment exercise.
                 if self.exercise.status in (

@@ -392,7 +392,7 @@ class Submission(UrlMixin, models.Model):
             )
 
         students = list(self.submitters.all())
-        if self.is_submitter(request.user):
+        if request and self.is_submitter(request.user):
             user = request.user
         else:
             user = students[0].user if students else None

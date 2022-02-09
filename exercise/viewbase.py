@@ -28,7 +28,9 @@ from .models import (
     Submission,
     RevealRule,
 )
+from .exercise_models import ExerciseTask
 from .reveal_states import ExerciseRevealState
+from .tasks import regrade_exercises
 
 
 class ExerciseBaseMixin(object):
@@ -207,3 +209,42 @@ class SubmissionBaseView(SubmissionMixin, BaseTemplateView):
 
 class SubmissionDraftBaseView(ExerciseMixin, BaseView):
     pass
+
+
+class ExerciseListBaseView(ExerciseBaseView):
+    '''
+    Common base class for ListSubmissionView and ListSubmittersView.
+    Presently just for common mass regrade implementation.
+    '''
+    def get_common_objects(self):
+        super().get_common_objects()
+
+        # Regrade button text changes dynamically if regrade is ongoing.
+        # For now only teachers (and admins) can start mass regrade.
+        self.regrade_button = _('REGRADE')
+        self.resultinfo = ""
+        self.allow_regrade = self.instance.is_teacher(self.request.user)
+
+        try:
+            task = ExerciseTask.objects.get(
+                exercise=self.exercise,
+                task_type=ExerciseTask.TASK_TYPE.REGRADE
+            )
+            result = regrade_exercises.AsyncResult(task.task_id)
+            if result.state == 'PROGRESS':
+                self.regrade_button = format_lazy(_('REGRADING_PCT -- {percent}'),
+                    percent=int(result.info.get('current') * 100 / result.info.get('total')))
+                self.resultinfo = format_lazy(_('REGRADING_PROGRESS -- {current}, {total}'),
+                    current=result.info.get('current'), total=result.info.get('total'))
+            elif result.state == 'PENDING':
+                self.regrade_button = _('REGRADING')
+                self.resultinfo = _('STARTING_REGRADE')
+            else:
+                # Ensure that database does not have reference to stale Celery task
+                task.delete()
+            result.forget()
+
+        except ExerciseTask.DoesNotExist:
+            pass
+
+        self.note("regrade_button", "allow_regrade", "resultinfo")
