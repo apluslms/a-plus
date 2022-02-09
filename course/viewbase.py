@@ -140,9 +140,9 @@ class CourseInstanceBaseMixin(object):
         return super().handle_exception(exc)
 
 class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
-    def get_course_instance_object(self):
+    def get_course_instance_object(self) -> CourseInstance:
         return get_object_or_404(
-            CourseInstance,
+            CourseInstance.objects.prefetch_related('tabs'),
             url=self.kwargs[self.instance_kw],
             course__url=self.kwargs[self.course_kw],
         )

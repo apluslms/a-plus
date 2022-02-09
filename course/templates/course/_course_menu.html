@@ -118,11 +118,12 @@
 {% endfor %}
 {% endfor %}
 
-{% if instance.tabs.exists %}
+{% for tab in instance.tabs.all %}
+{% if forloop.first %}
 <li class="header">
 	<h4>{% translate "APPS" %}</h4>
 </li>
-{% for tab in instance.tabs.all %}
+{% endif %}
 <li class="menu-tab{{ tab.id }}">
 	<a href="{% url 'apps-tab' course_slug=course.url instance_slug=instance.url tab_id=tab.id %}">
 		<span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
@@ -130,7 +131,6 @@
 	</a>
 </li>
 {% endfor %}
-{% endif %}
 
 {% if is_course_staff %}
 <li class="header">
