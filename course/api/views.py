@@ -6,9 +6,10 @@ from rest_framework.settings import api_settings
 from rest_framework.reverse import reverse
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.permissions import IsAdminUser
-from django.db.models import Q
+from django.db.models import Prefetch, Q, QuerySet
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+from exercise.exercise_models import BaseExercise
 from lib.email_messages import email_course_instance
 
 from lib.viewbase import BaseMixin
@@ -195,10 +196,15 @@ class CourseExercisesViewSet(NestedViewSetMixin,
     parent_lookup_map = {'course_id': 'course_instance.id'}
     serializer_class = CourseModuleSerializer
 
-    def get_queryset(self):
-        return ( CourseModule.objects
-                 .get_visible(self.request.user)
-                 .all() )
+    def get_queryset(self) -> QuerySet[CourseModule]:
+        return (
+            CourseModule.objects
+            .get_visible(self.request.user)
+            .prefetch_related(
+                Prefetch('learning_objects', BaseExercise.objects.all(), 'exercises')
+            )
+            .all()
+        )
 
     def get_object(self):
         return self.get_member_object('module', 'Exercise module')
