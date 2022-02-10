@@ -510,7 +510,7 @@ class EditSubmittersView(SubmissionMixin, BaseFormView):
     form_class = EditSubmittersForm
 
     def get_common_objects(self) -> None:
-        self.groups = self.instance.groups.prefetch_related(
+        self.groups = self.instance.groups.prefetch_related(None).prefetch_related(
             Prefetch('members', UserProfile.objects.prefetch_tags(self.instance)),
         )
         self.note('groups')

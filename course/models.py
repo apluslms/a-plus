@@ -103,6 +103,11 @@ class Course(UrlMixin, models.Model):
         return dict(course_slug=self.url)
 
 
+class StudentGroupManager(models.Manager):
+    def get_queryset(self) -> models.QuerySet['StudentGroup']:
+        return super().get_queryset().prefetch_related('members')
+
+
 class StudentGroup(models.Model):
     """
     Stores a user group for a course instance.
@@ -120,6 +125,8 @@ class StudentGroup(models.Model):
         verbose_name=_('LABEL_TIMESTAMP'),
         auto_now_add=True,
     )
+
+    objects = StudentGroupManager()
 
     class Meta:
         verbose_name = _('MODEL_NAME_STUDENT_GROUP')

@@ -89,7 +89,7 @@ class GroupsView(CourseInstanceBaseView):
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.groups = list(
-            self.instance.groups.prefetch_related(
+            self.instance.groups.prefetch_related(None).prefetch_related(
                 models.Prefetch('members', UserProfile.objects.prefetch_tags(self.instance)),
             )
         )
@@ -139,7 +139,7 @@ class GroupsDeleteView(CourseInstanceMixin, BaseRedirectMixin, BaseTemplateView)
     def get_resource_objects(self) -> None:
         super().get_resource_objects()
         self.group = get_object_or_404(
-            StudentGroup.objects.prefetch_related(
+            StudentGroup.objects.prefetch_related(None).prefetch_related(
                 models.Prefetch('members', UserProfile.objects.prefetch_tags(self.instance))
             ),
             course_instance=self.instance,
