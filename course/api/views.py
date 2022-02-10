@@ -429,13 +429,17 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
     lookup_field = 'id'
     lookup_url_kwarg = 'usertag_id'
     serializer_class = CourseUsertaggingsSerializer
-    queryset = ( UserTagging.objects
-                 .select_related('tag', 'user', 'user__user')
-                 .only('tag__id', 'tag__course_instance', 'tag__name', 'tag__slug',
-                       'user__user__id', 'user__user__email', 'user__user__username', 'user__student_id',
-                       'course_instance__id')
-                 .order_by('user__user__id')
-                 .all() )
+    queryset = (
+        UserTagging.objects
+        .select_related('tag', 'user', 'user__user')
+        .only('tag__id', 'tag__course_instance', 'tag__name', 'tag__slug',
+            'user__user__id', 'user__user__email', 'user__user__username', 'user__student_id',
+            'user__user__first_name', 'user__user__last_name', 'user__organization',
+            'course_instance__id'
+        )
+        .order_by('user__user__id')
+        .all()
+    )
     parent_lookup_map = {'course_id': 'course_instance_id'}
 
     def get_serializer_context(self):
@@ -500,10 +504,13 @@ class CourseOwnStudentGroupsViewSet(NestedViewSetMixin,
     serializer_class = CourseStudentGroupBriefSerializer
     parent_lookup_map = {'course_id': 'course_instance.id'}
 
-    def get_queryset(self):
-        return StudentGroup.objects.filter(
-            course_instance=self.instance,
-            members=self.request.user.userprofile,
+    def get_queryset(self) -> QuerySet[StudentGroup]:
+        return (
+            StudentGroup.objects.filter(
+                course_instance=self.instance,
+                members=self.request.user.userprofile,
+            )
+            .select_related('course_instance')
         )
 
 
@@ -527,7 +534,10 @@ class CourseStudentGroupsViewSet(NestedViewSetMixin,
         OnlyCourseTeacherPermission,
     ]
     serializer_class = CourseStudentGroupSerializer
-    queryset = StudentGroup.objects.all()
+    queryset = (
+        StudentGroup.objects
+        .select_related('course_instance')
+    )
     parent_lookup_map = {'course_id': 'course_instance.id'}
 
 class CourseNewsViewSet(NestedViewSetMixin,
@@ -551,10 +561,10 @@ class CourseNewsViewSet(NestedViewSetMixin,
     serializer_class = CourseNewsSerializer
     parent_lookup_map = {'course_id': 'course_instance.id'}
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[News]:
         user = self.request.user
         AUDIENCE = CourseInstance.ENROLLMENT_AUDIENCE
-        queryset = News.objects.all()
+        queryset = News.objects.select_related('course_instance')
         if not user.is_superuser and not self.instance.is_course_staff(user):
             if user.userprofile.is_external:
                 return queryset.filter(
