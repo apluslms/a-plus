@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, Set, Union
 
 from django.db.models.aggregates import Count
-from django.db.models.query import QuerySet
+from django.db.models.query import Prefetch, QuerySet
 from rest_framework import viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ from course.permissions import IsCourseAdminOrUserObjIsSelf
 from userprofile.models import UserProfile
 
 from ...cache.points import CachedPoints
-from ...models import Submission
+from ...models import BaseExercise, Submission
 from .submission_sheet import filter_best_submissions, submissions_sheet
 from .aggregate_sheet import aggregate_sheet
 from .aggregate_points import aggregate_points
@@ -101,7 +101,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         queryset = Submission.objects.filter(
             exercise_id__in=ids,
             submitters__in=profiles
-        )
+        ).prefetch_related(Prefetch('exercise', BaseExercise.objects.all()), 'notifications', 'files')
         return self.serialize_submissions(request, queryset, revealed_ids, best=search_args['best'])
 
     def retrieve(
@@ -116,7 +116,9 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         points = CachedPoints(self.instance, profile.user, self.content, self.is_course_staff)
         ids = points.submission_ids(**search_args)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
-        queryset = Submission.objects.filter(id__in=ids)
+        queryset = Submission.objects.filter(
+            id__in=ids
+        ).prefetch_related(Prefetch('exercise', BaseExercise.objects.all()), 'notifications', 'files')
         return self.serialize_submissions(request, queryset, revealed_ids)
 
     def serialize_submissions(

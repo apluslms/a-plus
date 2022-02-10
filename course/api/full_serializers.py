@@ -46,10 +46,13 @@ class CourseModuleSerializer(AplusModelSerializer):
             'exercises',
         )
 
-    def get_exercises(self, obj):
+    def get_exercises(self, obj: CourseModule) -> OrderedDict:
         # List only exercises derived from BaseExercise, thus no Chapter texts (/exercise/<id> returns 404 for those)
-        exercises = BaseExercise.objects.filter(course_module=obj).all()
-        # FIXME: populating learning_object.parent_list() creates subqueries -> get exercise list and data from cache
+        # Check if the exercises were prefetched in the view
+        if hasattr(obj, 'exercises'):
+            exercises = obj.exercises
+        else:
+            exercises = BaseExercise.objects.filter(course_module=obj).all()
         serializer = ExerciseBriefSerializer(instance=exercises, many=True, context=self.context)
         return serializer.data
 

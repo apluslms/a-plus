@@ -15,13 +15,30 @@ from authorization.object_permissions import ObjectPermissions
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
 
+    from course.models import CourseInstance
     from exercise.models import BaseExercise, Submission, SubmissionDraft
     from external_services.models import LTIService
 
+
+class UserProfileQuerySet(models.QuerySet['UserProfile']):
+    def prefetch_tags(self, instance: 'CourseInstance', to_attr: str = 'instance_taggings') -> 'UserProfileQuerySet':
+        return self.prefetch_related(
+            models.Prefetch(
+                'taggings',
+                instance.taggings.select_related('tag'),
+                to_attr,
+            ),
+        )
+
+
 class UserProfileManager(models.Manager):
+    _queryset_class = UserProfileQuerySet
 
     def get_queryset(self):
         return super().get_queryset().select_related("user")
+
+    def prefetch_tags(self, instance: 'CourseInstance', to_attr: str = 'instance_taggings') -> UserProfileQuerySet:
+        return self.all().prefetch_tags(instance, to_attr)
 
 
 class UserProfile(models.Model):

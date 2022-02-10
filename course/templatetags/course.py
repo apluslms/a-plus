@@ -1,6 +1,9 @@
 from datetime import timedelta
+from typing import Any, Dict, List, Union
+
 from django import template
 from django.conf import settings
+from django.db import models
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
@@ -112,9 +115,16 @@ def avatars(profiles):
 
 
 @register.inclusion_tag("course/_profiles.html")
-def profiles(profiles, instance, is_teacher):
+def profiles(
+        profiles: Union[UserProfile, List[UserProfile], models.QuerySet[UserProfile]],
+        instance: CourseInstance,
+        is_teacher: bool
+        ) -> Dict[str, Any]:
     if isinstance(profiles, UserProfile):
         profiles = [profiles]
+    elif isinstance(profiles, models.QuerySet):
+        # Avoid re-fetching the queryset
+        profiles = list(profiles)
     return {
         'instance': instance,
         'profiles': profiles,

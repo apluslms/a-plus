@@ -3,6 +3,7 @@ from typing import Optional
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -13,6 +14,8 @@ from django.utils.translation import gettext_lazy as _
 from authorization.permissions import ACCESS
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView, BaseView
+from userprofile.models import UserProfile
+
 from .cache.hierarchy import NoSuchContent
 from .cache.points import CachedPoints
 from .exercise_summary import UserExerciseSummary
@@ -188,9 +191,11 @@ class SubmissionBaseMixin(object):
 
 class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
 
-    def get_submission_object(self):
+    def get_submission_object(self) -> Submission:
         return get_object_or_404(
-            Submission,
+            Submission.objects.prefetch_related(None).prefetch_related(
+                models.Prefetch('submitters', UserProfile.objects.prefetch_tags(self.instance))
+            ),
             id=self.kwargs[self.submission_kw],
             exercise=self.exercise
         )

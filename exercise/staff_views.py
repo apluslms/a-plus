@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
-from django.db.models import Count, F, Max, Q
+from django.db.models import Count, F, Max, Prefetch, Q
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -58,13 +58,18 @@ class ListSubmissionsView(ExerciseListBaseView):
     ajax_template_name = "exercise/staff/_submissions_table.html"
     default_limit = 50
 
-    def get_common_objects(self):
+    def get_common_objects(self) -> None:
         super().get_common_objects()
         if not self.exercise.is_submittable:
             raise Http404()
-        qs = self.exercise.submissions\
-            .defer("feedback", "submission_data", "grading_data")\
-            .prefetch_related('submitters').all()
+        qs = (
+            self.exercise.submissions
+            .defer("feedback", "submission_data", "grading_data")
+            .prefetch_related(None)
+            .prefetch_related(
+                Prefetch('submitters', UserProfile.objects.prefetch_tags(self.instance)),
+            )
+        )
         self.all = self.request.GET.get('all', None)
         self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
         self.submissions = qs if self.all else qs[:self.default_limit]
@@ -115,7 +120,12 @@ class ListSubmittersView(ExerciseListBaseView):
         )
 
         # Get a dict of submitters, accessed by their id.
-        profiles = UserProfile.objects.filter(submissions__exercise=self.exercise).in_bulk()
+        profiles = (
+            UserProfile.objects
+            .filter(submissions__exercise=self.exercise)
+            .prefetch_tags(self.instance)
+            .in_bulk()
+        )
         # Add UserProfile instances to the dicts in submitter_summaries, so we can
         # use the 'profiles' template tag.
         for submitter_summary in submitter_summaries:
@@ -499,8 +509,10 @@ class EditSubmittersView(SubmissionMixin, BaseFormView):
     template_name = "exercise/staff/edit_submitters.html"
     form_class = EditSubmittersForm
 
-    def get_common_objects(self):
-        self.groups = self.instance.groups.all()
+    def get_common_objects(self) -> None:
+        self.groups = self.instance.groups.prefetch_related(None).prefetch_related(
+            Prefetch('members', UserProfile.objects.prefetch_tags(self.instance)),
+        )
         self.note('groups')
 
     def get_form_kwargs(self):

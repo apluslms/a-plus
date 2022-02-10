@@ -3,7 +3,7 @@ import html
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
-from django.db import IntegrityError
+from django.db import models, IntegrityError
 from django.http.response import Http404, HttpResponse
 from django.urls import reverse
 from django.utils.text import format_lazy, capfirst
@@ -73,21 +73,27 @@ class EditContentView(EditInstanceView):
     template_name = "edit_course/edit_content.html"
     form_class = CourseContentForm
 
-    def get_common_objects(self):
-        self.modules = list(self.instance.course_modules.all())
+    def get_common_objects(self) -> None:
+        self.modules = list(
+            self.instance.course_modules.prefetch_related(
+                models.Prefetch('learning_objects', LearningObject.objects.all()),
+            ),
+        )
         for module in self.modules:
+            learning_objects = {lobject.id: lobject.as_leaf_class() for lobject in module.learning_objects.all()}
             module.flat_objects = []
             try:
                 for entry in self.content.flat_module(module, enclosed=False):
                     if entry['type'] != 'level':
-                        try:
-                            module.flat_objects.append(
-                                LearningObject.objects.get(id=entry['id']).as_leaf_class())
-                        except LearningObject.DoesNotExist:
-                            continue
+                        learning_object = learning_objects.get(entry['id'])
+                        if learning_object:
+                            module.flat_objects.append(learning_object)
             except NoSuchContent:
                 continue
-        self.note('modules')
+        self.categories = self.instance.categories.annotate(
+            count_lobjects=models.Count('learning_objects')
+        )
+        self.note('modules', 'categories')
 
     def get_success_url(self):
         return self.instance.get_url('course-edit')
