@@ -643,7 +643,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
         for module in instance.course_modules.all():
             # cache invalidation uses the parent when learning object is saved:
             # prefetch parent so that it wont be fetched after the it was deleted
-            for lobject in module.learning_objects.all().prefetch_related('parent'):
+            for lobject in module.learning_objects.all():
                 if lobject.id not in seen_objects:
                     exercise = lobject.as_leaf_class()
                     if (

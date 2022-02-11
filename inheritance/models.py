@@ -1,24 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.query import QuerySet
+
+from model_utils.managers import InheritanceManager
 
 
-class SubclassingQuerySet(QuerySet):
-    def __getitem__(self, k):
-        result = super(SubclassingQuerySet, self).__getitem__(k)
-        if isinstance(result, models.Model) :
-            return result.as_leaf_class()
-        else :
-            return result
-
-    def __iter__(self):
-        for item in super(SubclassingQuerySet, self).__iter__():
-            yield item.as_leaf_class()
-
-
-class LeafManager(models.Manager):
+class ModelWithInheritanceManager(InheritanceManager):
     def get_queryset(self):
-        return SubclassingQuerySet(self.model)
+        return super().get_queryset().select_related('content_type').select_subclasses()
 
 
 class ModelWithInheritance(models.Model):
@@ -27,11 +15,8 @@ class ModelWithInheritance(models.Model):
     It contains fields that are shared among all types.
     """
 
-    objects                 = models.Manager()
+    objects                 = ModelWithInheritanceManager()
 
-    # This ModelManager may be used for retrieving the exercises as instances of their leaf classes.
-    # Alternatively each exercise may be fetched individually as leaf instance by calling the as_leaf_class method.
-    leaf_objects            = LeafManager()
     content_type            = models.ForeignKey(ContentType,
                                                 on_delete=models.CASCADE,
                                                 editable=False,

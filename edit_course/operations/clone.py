@@ -20,7 +20,7 @@ def clone_learning_objects(
     Clones learning objects recursively.
     """
     for lobject in list(a.as_leaf_class() for a in objects):
-        children = list(lobject.children.all())
+        children = list(lobject.children.defer(None))
 
         # The user can choose to import just chapters or just exercises. If
         # this learning object is not of a requested type, skip it and reparent
@@ -153,7 +153,7 @@ def clone(
 
     if clone_modules:
         for module in modules:
-            objects = list(module.learning_objects.filter(parent__isnull=True))
+            objects = list(module.learning_objects.filter(parent__isnull=True).defer(None))
 
             # Save as new module.
             module.id = None

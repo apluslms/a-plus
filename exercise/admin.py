@@ -21,7 +21,7 @@ def real_class(obj):
     """
     Returns the leaf class name of an exercise.
     """
-    return obj.as_leaf_class().__class__.__name__
+    return obj.content_type.model_class().__name__
 
 
 def course_wrapper(obj):

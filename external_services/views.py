@@ -3,6 +3,7 @@ Provides LTI access to external services with current course and user identity.
 """
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -14,7 +15,7 @@ from course.templatetags.course import parse_localization
 from lib.viewbase import BaseFormView, BaseRedirectView
 from .forms import MenuItemForm
 from .lti import LTIRequest
-from .models import MenuItem
+from .models import MenuItem, LinkService
 from .permissions import MenuVisiblePermission, LTIServicePermission
 
 class ExternalLinkView(CourseInstanceBaseView):
@@ -104,7 +105,9 @@ class ListMenuItemsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.menu_items = self.instance.ext_services.all()
+        self.menu_items = self.instance.ext_services.prefetch_related(
+            models.Prefetch('service', LinkService.objects.all()),
+        )
         self.note("menu_items")
 
 
