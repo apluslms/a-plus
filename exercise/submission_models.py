@@ -17,7 +17,7 @@ from exercise.protocol.exercise_page import ExercisePage
 
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
-from lib.fields import JSONField, PercentField
+from lib.fields import DefaultForeignKey, JSONField, PercentField
 from lib.helpers import (
     get_random_string,
     query_dict_to_list_of_tuples,
@@ -245,7 +245,7 @@ class Submission(UrlMixin, models.Model):
     )
 
     # Relations
-    exercise = models.ForeignKey(exercise_models.BaseExercise,
+    exercise = DefaultForeignKey(exercise_models.BaseExercise,
         verbose_name=_('LABEL_EXERCISE'),
         on_delete=models.CASCADE,
         related_name="submissions")
@@ -519,7 +519,7 @@ class SubmissionDraft(models.Model):
         verbose_name=_('LABEL_TIMESTAMP'),
         auto_now=True,
     )
-    exercise = models.ForeignKey(exercise_models.BaseExercise,
+    exercise = DefaultForeignKey(exercise_models.BaseExercise,
         verbose_name=_('LABEL_EXERCISE'),
         on_delete=models.CASCADE,
         related_name='submission_drafts'

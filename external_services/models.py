@@ -7,6 +7,7 @@ from urllib.parse import urljoin, urlsplit
 
 from course.models import CourseInstance
 from inheritance.models import ModelWithInheritance
+from lib.fields import DefaultForeignKey
 from lib.helpers import Enum
 from lib.models import UrlMixin
 
@@ -193,7 +194,7 @@ class MenuItem(UrlMixin, models.Model):
         choices=ACCESS.choices,
         default=ACCESS.STUDENT,
     )
-    service = models.ForeignKey(
+    service = DefaultForeignKey(
         LinkService,
         verbose_name=_('LABEL_SERVICE'),
         on_delete=models.CASCADE,

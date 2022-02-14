@@ -8,6 +8,7 @@ from course.models import CourseInstance
 from exercise.exercise_models import BaseExercise
 from exercise.submission_models import Submission
 from userprofile.models import UserProfile
+from lib.fields import DefaultForeignKey
 from lib.models import UrlMixin
 
 
@@ -78,7 +79,7 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
     default bounds, all of the submitters must have an allowing instance of
     SubmissionRuleDeviation subclass in order for the submission to be allowed.
     """
-    exercise = models.ForeignKey(BaseExercise,
+    exercise = DefaultForeignKey(BaseExercise,
         verbose_name=_('LABEL_EXERCISE'),
         on_delete=models.CASCADE,
     )

@@ -101,7 +101,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         queryset = Submission.objects.filter(
             exercise_id__in=ids,
             submitters__in=profiles
-        ).prefetch_related(Prefetch('exercise', BaseExercise.objects.all()), 'notifications', 'files')
+        ).prefetch_related('exercise', 'notifications', 'files')
         return self.serialize_submissions(request, queryset, revealed_ids, best=search_args['best'])
 
     def retrieve(
@@ -118,7 +118,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         queryset = Submission.objects.filter(
             id__in=ids
-        ).prefetch_related(Prefetch('exercise', BaseExercise.objects.all()), 'notifications', 'files')
+        ).prefetch_related('exercise', 'notifications', 'files')
         return self.serialize_submissions(request, queryset, revealed_ids)
 
     def serialize_submissions(

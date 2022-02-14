@@ -105,9 +105,7 @@ class ListMenuItemsView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.menu_items = self.instance.ext_services.prefetch_related(
-            models.Prefetch('service', LinkService.objects.all()),
-        )
+        self.menu_items = self.instance.ext_services.prefetch_related('service')
         self.note("menu_items")
 
 

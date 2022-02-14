@@ -31,7 +31,7 @@ from lib.api.authentication import (
     get_graderauth_submission_params,
     get_graderauth_exercise_params,
 )
-from lib.fields import JSONField
+from lib.fields import DefaultForeignKey, DefaultOneToOneField, JSONField
 from lib.helpers import (
     Enum,
     update_url_params,
@@ -67,18 +67,7 @@ class LearningObjectManager(ModelWithInheritanceManager):
                 'course_module__course_instance__course',
                 'category',
             )
-            .prefetch_related(
-                models.Prefetch(
-                    'parent',
-                    super().get_queryset()
-                    .defer('description')
-                    .select_related(
-                        'course_module',
-                        'course_module__course_instance',
-                        'course_module__course_instance__course',
-                    )
-                )
-            )
+            .prefetch_related('parent')
         )
 
     def find_enrollment_exercise(self, course_instance, profile):
@@ -132,7 +121,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         on_delete=models.CASCADE,
         related_name="learning_objects",
     )
-    parent = models.ForeignKey('self',
+    parent = DefaultForeignKey('self',
         verbose_name=_('LABEL_PARENT'),
         on_delete=models.SET_NULL,
         blank=True, null=True,
@@ -421,7 +410,7 @@ class LearningObjectDisplay(models.Model):
     """
     Records views of learning objects.
     """
-    learning_object = models.ForeignKey(LearningObject,
+    learning_object = DefaultForeignKey(LearningObject,
         verbose_name=_('LABEL_LEARNING_OBJECT'),
         on_delete=models.CASCADE,
     )
@@ -522,14 +511,14 @@ class BaseExercise(LearningObject):
         max_length=32,
         blank=True,
     )
-    submission_feedback_reveal_rule = models.OneToOneField(RevealRule,
+    submission_feedback_reveal_rule = DefaultOneToOneField(RevealRule,
         verbose_name=_('LABEL_SUBMISSION_FEEDBACK_REVEAL_RULE'),
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,
         null=True,
     )
-    model_solutions_reveal_rule = models.OneToOneField(RevealRule,
+    model_solutions_reveal_rule = DefaultOneToOneField(RevealRule,
         verbose_name=_('LABEL_MODEL_SOLUTIONS_REVEAL_RULE'),
         on_delete=models.SET_NULL,
         related_name='+',
@@ -1074,7 +1063,7 @@ class LTIExercise(BaseExercise):
     """
     Exercise launched by LTI or optionally amending A+ protocol with LTI data.
     """
-    lti_service = models.ForeignKey(LTIService,
+    lti_service = DefaultForeignKey(LTIService,
         verbose_name=_('LABEL_LTI_SERVICE'),
         on_delete=models.CASCADE,
     )
@@ -1370,7 +1359,7 @@ class ExerciseTask(models.Model):
     TASK_TYPE = Enum([
         ('REGRADE', 'regrade', _('REGRADE')),
     ])
-    exercise = models.ForeignKey('BaseExercise',
+    exercise = DefaultForeignKey('BaseExercise',
         verbose_name=_('LABEL_EXERCISE'),
         on_delete=models.CASCADE,
     )
