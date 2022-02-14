@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Tuple
 from django import forms
 from django.core import exceptions, validators
 from django.db import models
+from django.db.models.fields import related_descriptors
 from django.utils.translation import gettext_lazy as _
 
 from .widgets import DurationInput, SearchSelect
@@ -252,3 +253,49 @@ class JSONFormField(forms.CharField):
 
     def prepare_value(self, value):
         return JSONField.print_json(value)
+
+
+# Overridden versions of Django's related descriptors.
+# Used by `DefaultForeignKey` and `DefaultOneToOneField`.
+
+
+class DefaultForwardManyToOneDescriptor(related_descriptors.ForwardManyToOneDescriptor):
+    def get_queryset(self, **hints):
+        return self.field.remote_field.model.objects.db_manager(hints=hints).all()
+
+
+class DefaultForwardOneToOneDescriptor(related_descriptors.ForwardOneToOneDescriptor):
+    def get_queryset(self, **hints):
+        return self.field.remote_field.model.objects.db_manager(hints=hints).all()
+
+
+class DefaultReverseOneToOneDescriptor(related_descriptors.ReverseOneToOneDescriptor):
+    def get_queryset(self, **hints):
+        return self.related.related_model.objects.db_manager(hints=hints).all()
+
+
+class DefaultForeignKey(models.ForeignKey):
+    """
+    A `ForeignKey` that uses `objects` to access the related object.
+
+    Django's `ForeignKey` uses the related model's base manager (which is
+    usually `django.db.models.manager.Manager`) when accessing the related
+    object. This means custom managers are not used. When using
+    `DefaultForeignKey`, the related model's default manager (usually
+    `objects`) is used when accessing the related object.
+    """
+    forward_related_accessor_class = DefaultForwardManyToOneDescriptor
+
+
+class DefaultOneToOneField(models.OneToOneField):
+    """
+    A `OneToOneField` that uses `objects` to access the related object.
+
+    Django's `OneToOneField` uses the related model's base manager (which is
+    usually `django.db.models.manager.Manager`) when accessing the related
+    object. This means custom managers are not used. When using
+    `DefaultOneToOneField`, the related model's default manager (usually
+    `objects`) is used when accessing the related object.
+    """
+    related_accessor_class = DefaultReverseOneToOneDescriptor
+    forward_related_accessor_class = DefaultForwardOneToOneDescriptor

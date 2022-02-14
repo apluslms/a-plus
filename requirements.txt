@@ -31,3 +31,4 @@ aplus-auth ~= 0.2.0
 celery >= 5.2.1, < 6
 redis >= 4
 binaryornot ~= 0.4.4
+django-model-utils ~= 4.2.0

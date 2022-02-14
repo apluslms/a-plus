@@ -76,7 +76,6 @@ def build_plugin_renderers(plugins,
 
         renderers = []
         for p in plugins:
-            p = p.as_leaf_class()
             if hasattr(p, "get_renderer_class"):
                 renderers.append(p.get_renderer_class()(p, view_name, context))
             else:

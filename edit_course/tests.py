@@ -83,8 +83,8 @@ class CourseCloneTest(CourseTestCase):
                 self._as_class(new_modules[i].learning_objects.all())
             )
 
-        old_exercise = old_modules[1].learning_objects.first().as_leaf_class()
-        new_exercise = new_modules[1].learning_objects.first().as_leaf_class()
+        old_exercise = old_modules[1].learning_objects.first()
+        new_exercise = new_modules[1].learning_objects.first()
         self.assertTrue(old_exercise.submissions.count() > 0)
         self.assertEqual(new_exercise.submissions.count(), 0)
 
@@ -109,7 +109,7 @@ class CourseCloneTest(CourseTestCase):
         return [a.name for a in items]
 
     def _as_class(self, items):
-        return [a.as_leaf_class().__class__ for a in items]
+        return [a.__class__ for a in items]
 
     @override_settings(SIS_PLUGIN_MODULE = 'course.sis_test')
     @override_settings(SIS_PLUGIN_CLASS = 'SisTest')

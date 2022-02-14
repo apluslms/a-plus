@@ -62,9 +62,6 @@ class ExerciseManager(ModelManager):
     instance_field = "course_module__course_instance"
     name = _('LEARNING_OBJECT')
 
-    def get_object(self, instance, object_id):
-        obj = super().get_object(instance, object_id)
-        return obj.as_leaf_class()
 
     def new_object(self, instance, parent_id, type):
         CLASSES = {

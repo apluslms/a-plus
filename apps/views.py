@@ -14,7 +14,7 @@ class TabView(CourseInstanceBaseView):
         self.tab_object = get_object_or_404(
             BaseTab,
             id=self._get_kwarg(self.tab_kw),
-        ).as_leaf_class()
+        )
         self.container = self.tab_object.container
 
         if isinstance(self.container, CourseInstance):

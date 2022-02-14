@@ -35,4 +35,4 @@ class LTIServicePermission(Permission):
 
     def has_object_permission(self, request, view, obj):
         return (obj.service
-            and isinstance(obj.service.as_leaf_class(), LTIService))
+            and isinstance(obj.service, LTIService))

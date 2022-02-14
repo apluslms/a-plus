@@ -284,7 +284,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                         return submission.load(request)
 
         # In every other case, load a blank exercise page
-        return self.exercise.as_leaf_class().load(
+        return self.exercise.load(
             request,
             students,
             url_name=self.post_url_name,

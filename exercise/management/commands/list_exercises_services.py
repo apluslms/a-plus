@@ -67,8 +67,7 @@ class Command(BaseCommand):
 
             service_urls = parse_localized(lo.service_url)
             if content_types[cid] == 'LTIExercise':
-                ltie = lo.as_leaf_class()
-                urls = [ltie.get_service_url(lang) for lang, url in service_urls]
+                urls = [lo.get_service_url(lang) for lang, url in service_urls]
             else:
                 urls = [url for lang, url in service_urls]
             domains = set(urlsplit(url).netloc for url in urls)

@@ -26,12 +26,12 @@ from authorization.object_permissions import register_jwt_accessible_class
 from course.models import Enrollment, StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService
-from inheritance.models import ModelWithInheritance
+from inheritance.models import ModelWithInheritance, ModelWithInheritanceManager
 from lib.api.authentication import (
     get_graderauth_submission_params,
     get_graderauth_exercise_params,
 )
-from lib.fields import JSONField
+from lib.fields import DefaultForeignKey, DefaultOneToOneField, JSONField
 from lib.helpers import (
     Enum,
     update_url_params,
@@ -56,14 +56,19 @@ if TYPE_CHECKING:
     from .submission_models import Submission, SubmissionDraft
 
 
-
-class LearningObjectManager(models.Manager):
-
+class LearningObjectManager(ModelWithInheritanceManager):
     def get_queryset(self):
-        return super().get_queryset()\
-            .defer('description')\
-            .select_related('course_module', 'course_module__course_instance',
-                'course_module__course_instance__course', 'category')
+        return (
+            super().get_queryset()
+            .defer('description')
+            .select_related(
+                'course_module',
+                'course_module__course_instance',
+                'course_module__course_instance__course',
+                'category',
+            )
+            .prefetch_related('parent')
+        )
 
     def find_enrollment_exercise(self, course_instance, profile):
         exercise = None
@@ -116,7 +121,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         on_delete=models.CASCADE,
         related_name="learning_objects",
     )
-    parent = models.ForeignKey('self',
+    parent = DefaultForeignKey('self',
         verbose_name=_('LABEL_PARENT'),
         on_delete=models.SET_NULL,
         blank=True, null=True,
@@ -405,7 +410,7 @@ class LearningObjectDisplay(models.Model):
     """
     Records views of learning objects.
     """
-    learning_object = models.ForeignKey(LearningObject,
+    learning_object = DefaultForeignKey(LearningObject,
         verbose_name=_('LABEL_LEARNING_OBJECT'),
         on_delete=models.CASCADE,
     )
@@ -432,8 +437,6 @@ class CourseChapter(LearningObject):
         default=False,
     )
 
-    objects = models.Manager()
-
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE_CHAPTER')
         verbose_name_plural = _('MODEL_NAME_COURSE_CHAPTER_PLURAL')
@@ -442,15 +445,8 @@ class CourseChapter(LearningObject):
         return not self.generate_table_of_contents
 
 
-class BaseExerciseManager(JWTAccessible["BaseExercise"], models.Manager['BaseExercise']):
-
-    def get_queryset(self):
-        return super().get_queryset().select_related(
-            'category',
-            'course_module',
-            'course_module__course_instance',
-            'course_module__course_instance__course',
-        )
+class BaseExerciseManager(JWTAccessible["BaseExercise"], LearningObjectManager):
+    pass
 
 
 @register_jwt_accessible_class("exercise")
@@ -515,14 +511,14 @@ class BaseExercise(LearningObject):
         max_length=32,
         blank=True,
     )
-    submission_feedback_reveal_rule = models.OneToOneField(RevealRule,
+    submission_feedback_reveal_rule = DefaultOneToOneField(RevealRule,
         verbose_name=_('LABEL_SUBMISSION_FEEDBACK_REVEAL_RULE'),
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,
         null=True,
     )
-    model_solutions_reveal_rule = models.OneToOneField(RevealRule,
+    model_solutions_reveal_rule = DefaultOneToOneField(RevealRule,
         verbose_name=_('LABEL_MODEL_SOLUTIONS_REVEAL_RULE'),
         on_delete=models.SET_NULL,
         related_name='+',
@@ -1067,7 +1063,7 @@ class LTIExercise(BaseExercise):
     """
     Exercise launched by LTI or optionally amending A+ protocol with LTI data.
     """
-    lti_service = models.ForeignKey(LTIService,
+    lti_service = DefaultForeignKey(LTIService,
         verbose_name=_('LABEL_LTI_SERVICE'),
         on_delete=models.CASCADE,
     )
@@ -1099,8 +1095,6 @@ class LTIExercise(BaseExercise):
         default=False,
         help_text=_('LTI_EXERCISE_OPEN_IN_IFRAME_HELPTEXT'),
     )
-
-    objects = models.Manager()
 
     class Meta:
         verbose_name = _('MODEL_NAME_LTI_EXERCISE')
@@ -1226,8 +1220,6 @@ class StaticExercise(BaseExercise):
         verbose_name=_('LABEL_SUBMISSION_PAGE_CONTENT'),
     )
 
-    objects = models.Manager()
-
     class Meta:
         verbose_name = _('MODEL_NAME_STATIC_EXERCISE')
         verbose_name_plural = _('MODEL_NAME_STATICE_EXERCISE_PLURAL')
@@ -1294,8 +1286,6 @@ class ExerciseWithAttachment(BaseExercise):
         verbose_name=_('LABEL_ATTACHMENT'),
         upload_to=build_upload_dir,
     )
-
-    objects = models.Manager()
 
     class Meta:
         verbose_name = _('MODEL_NAME_EXERCISE_WITH_ATTACHMENT')
@@ -1369,7 +1359,7 @@ class ExerciseTask(models.Model):
     TASK_TYPE = Enum([
         ('REGRADE', 'regrade', _('REGRADE')),
     ])
-    exercise = models.ForeignKey('BaseExercise',
+    exercise = DefaultForeignKey('BaseExercise',
         verbose_name=_('LABEL_EXERCISE'),
         on_delete=models.CASCADE,
     )
