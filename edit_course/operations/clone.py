@@ -19,7 +19,7 @@ def clone_learning_objects(
     """
     Clones learning objects recursively.
     """
-    for lobject in list(a.as_leaf_class() for a in objects):
+    for lobject in objects:
         children = list(lobject.children.defer(None))
 
         # The user can choose to import just chapters or just exercises. If

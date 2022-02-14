@@ -456,7 +456,6 @@ class UserResultsView(CourseInstanceBaseView):
             profile
         )
         if exercise:
-            exercise = exercise.as_leaf_class()
             submissions = exercise.get_submissions_for_student(profile)
         else:
             submissions = []

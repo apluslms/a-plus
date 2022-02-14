@@ -27,7 +27,7 @@ class ExerciseBaseResourceMixin(ExerciseRevealRuleMixin,
         exercise = self.get_object_or_none(self.exercise_kw, LearningObject)
         if not exercise:
             raise Http404("Learning object not found")
-        return exercise.as_leaf_class()
+        return exercise
 
     def get_course_module_object(self):
         return self.exercise.course_module

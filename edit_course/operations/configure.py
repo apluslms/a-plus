@@ -138,8 +138,6 @@ def configure_learning_objects(
             course_module=module,
             url=str(o["key"])
         ).defer(None).first()
-        if not lobject is None:
-            lobject = lobject.as_leaf_class()
 
         # Select exercise class.
         lobject_cls = (
@@ -645,12 +643,11 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
             # prefetch parent so that it wont be fetched after the it was deleted
             for lobject in module.learning_objects.all():
                 if lobject.id not in seen_objects:
-                    exercise = lobject.as_leaf_class()
                     if (
-                        not isinstance(exercise, BaseExercise)
-                        or exercise.submissions.count() == 0
+                        not isinstance(lobject, BaseExercise)
+                        or lobject.submissions.count() == 0
                     ):
-                        exercise.delete()
+                        lobject.delete()
                     else:
                         lobject.status = LearningObject.STATUS.HIDDEN
                         lobject.order = 9999

@@ -40,7 +40,7 @@ class ExternalLinkView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.service = service = self.menu_item.service.as_leaf_class()
+        self.service = service = self.menu_item.service
         self.service_label = self.menu_item.label
         url = urlsplit(self.menu_item.final_url)
         self.url = url._replace(query='', fragment='').geturl()
@@ -79,7 +79,7 @@ class LTILoginView(CourseInstanceBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.service = self.menu_item.service.as_leaf_class()
+        self.service = self.menu_item.service
         try:
             lti = LTIRequest(
                 self.service,

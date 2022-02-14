@@ -78,7 +78,7 @@ class EditContentView(EditInstanceView):
             self.instance.course_modules.prefetch_related('learning_objects'),
         )
         for module in self.modules:
-            learning_objects = {lobject.id: lobject.as_leaf_class() for lobject in module.learning_objects.all()}
+            learning_objects = {lobject.id: lobject for lobject in module.learning_objects.all()}
             module.flat_objects = []
             try:
                 for entry in self.content.flat_module(module, enclosed=False):
