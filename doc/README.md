@@ -274,3 +274,51 @@ settings. See [DEPLOYMENT](DEPLOYMENT.md) for more information.
 
 For more information, see the [aplus-auth](https://github.com/apluslms/aplus-auth)
 settings.
+
+## Model inheritance
+
+All models in A+ that use [multi-table inheritance](https://docs.djangoproject.com/en/4.0/topics/db/models/#multi-table-inheritance)
+inherit from the `ModelWithInheritance` model. This model's default manager is
+`ModelWithInheritanceManager`, which inherits from `InheritanceManager`
+provided by the [django-model-utils](https://django-model-utils.readthedocs.io/en/latest/)
+library.
+
+When constructing querysets using the `InheritanceManager.select_subclasses`
+method, the queryset will always return objects as their actual subclasses,
+a.k.a. their "leaf classes". For example, when querying for `LearningObject`s,
+the resulting objects will be of type `CourseChapter`, `BaseExercise`,
+`LTIExercise`, or whatever their actual subclasses are. Using standard Django
+querysets (without `InheritanceManager`), the resulting objects will all be of
+type `LearningObject`.
+
+`select_subclasses` is called in `ModelWithInheritanceManager.get_queryset`,
+ensuring that objects are _almost_ always returned as their actual subclasses
+without needing to call `select_subclasses` in queries. There are two
+exceptions to this rule:
+
+1. Accessing a **single related object**, via `OneToOneField` or `ForeignKey`
+   (e.g. `Submission.exercise`), uses the related model's **base manager**
+   (which is usually Django's `Manager` class) instead of its
+   **default manager** (which is accessed via `objects`).
+   
+   To work around this limitation, there are two custom relationship field
+   classes, `DefaultOneToOneField` and `DefaultForeignKey`, which use the
+   default manager, and thus ensure that the related object is always returned
+   as its actual subclass. These custom field classes are currently used in
+   all relationships that reference an inherited model.
+
+   Discussion about this issue: https://github.com/jazzband/django-model-utils/issues/11
+
+2. `select_related` will not fetch the related objects as their actual
+   subclasses. In the following snippet, the `exercise` variable will not be an
+   instance of its actual subclass, which could be e.g. `LTIExercise`.
+
+   ```python
+   submissions = Submission.objects.select_related('exercise')
+   for submission in submissions:
+       exercise = submission.exercise
+   ```
+
+   If you want to ensure the `exercise` is an instance of its actual subclass,
+   omit the `select_related` call, or use `prefetch_related` instead, or call
+   the `as_leaf_class` method on the `exercise`.
