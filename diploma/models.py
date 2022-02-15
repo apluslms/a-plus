@@ -115,9 +115,9 @@ class StudentDiploma(UrlMixin, models.Model):
         verbose_name = _('MODEL_NAME_STUDENT_DIPLOMA')
         verbose_name_plural = _('MODEL_NAME_STUDENT_DIPLOMA_PLURAL')
 
-    def generate_hashkey(self):
+    def generate_hashkey(self) -> None:
         key = None
-        while not key or StudentDiploma.objects.filter(hashkey=key).count() > 0:
+        while not key or StudentDiploma.objects.filter(hashkey=key).exists():
             m = hashlib.md5("{:d}-{:d}-{:f}".format(
                 self.design.id,
                 self.profile.id,

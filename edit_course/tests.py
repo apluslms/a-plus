@@ -85,8 +85,8 @@ class CourseCloneTest(CourseTestCase):
 
         old_exercise = old_modules[1].learning_objects.first()
         new_exercise = new_modules[1].learning_objects.first()
-        self.assertTrue(old_exercise.submissions.count() > 0)
-        self.assertEqual(new_exercise.submissions.count(), 0)
+        self.assertTrue(old_exercise.submissions.exists())
+        self.assertFalse(new_exercise.submissions.exists())
 
         # Check the partial clone
         new_instance_2 = CourseInstance.objects.get(course=instance.course, url="another2")

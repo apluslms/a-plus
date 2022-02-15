@@ -645,7 +645,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                 if lobject.id not in seen_objects:
                     if (
                         not isinstance(lobject, BaseExercise)
-                        or lobject.submissions.count() == 0
+                        or not lobject.submissions.exists()
                     ):
                         lobject.delete()
                     else:
@@ -654,7 +654,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                         # .parent may have been deleted: only save status and order
                         lobject.save(update_fields=["status", "order"])
             if module.id not in seen_modules:
-                if module.learning_objects.count() == 0:
+                if not module.learning_objects.exists():
                     module.delete()
                 else:
                     module.status = CourseModule.STATUS.HIDDEN
@@ -662,7 +662,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
 
         # Clean up obsolete categories.
         for category in instance.categories.filter(status=LearningObjectCategory.STATUS.HIDDEN):
-            if category.learning_objects.count() == 0:
+            if not category.learning_objects.exists():
                 category.delete()
 
         if "publish_url" in config:

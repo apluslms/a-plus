@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -35,8 +37,8 @@ class ModelManager(object):
 
 class ExerciseContainerMixin(object):
 
-    def can_delete(self, obj):
-        return obj.learning_objects.count() == 0
+    def can_delete(self, obj: Any) -> bool:
+        return not obj.learning_objects.exists()
 
 
 class CategoryManager(ExerciseContainerMixin, ModelManager):

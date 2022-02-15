@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
@@ -148,8 +149,8 @@ class ExerciseCollection(BaseExercise):
 
 
     # Check if user has a submission for this exercise
-    def is_submitted(self, user):
-        return self.get_submissions_for_student(user.userprofile).count() > 0
+    def is_submitted(self, user: User) -> bool:
+        return self.get_submissions_for_student(user.userprofile).exists()
 
 
     # Property to access max_points in target category

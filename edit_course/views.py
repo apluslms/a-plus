@@ -150,7 +150,7 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
     parent_kw = "parent_id"
     type_kw = "type"
 
-    def get_resource_objects(self):
+    def get_resource_objects(self) -> None:
         super().get_resource_objects()
         object_id = self._get_kwarg(self.id_kw, default=None)
         if object_id:
@@ -164,7 +164,7 @@ class ModelEditView(ModelBaseMixin, BaseFormView):
                 self._get_kwarg(self.parent_kw, default=None),
                 self._get_kwarg(self.type_kw, default=None)
             )
-            if self.instance.categories.count() == 0:
+            if not self.instance.categories.exists():
                 messages.error(self.request,
                     _('ERROR_EXERCISE_CATEGORY_MUST_EXIST_BEFORE_CREATEING_EXERCISES'))
         self.note("object")

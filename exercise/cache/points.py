@@ -369,9 +369,9 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     and not unofficial
                 ):
                     last_submission = submission
-                if submission.notifications.count() > 0:
+                if submission.notifications.exists():
                     entry['notified'] = True
-                    if submission.notifications.filter(seen=False).count() > 0:
+                    if submission.notifications.filter(seen=False).exists():
                         entry['unseen'] = True
             # All submissions of all exercises have been iterated. Check the
             # reveal rule of the last exercise (if there was one).
