@@ -168,7 +168,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.get_summary_submissions()
-        self.has_files = self.submission.files.exists()
+        self.files = list(self.submission.files.all())
 
         self.lowest_visible_index = self.index - 10
         self.highest_visible_index = self.index + 10
@@ -202,7 +202,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         self.grading_mode_text = format_lazy(_('GRADING_MODE_TITLE -- {}'), mode)
 
         self.note(
-            'has_files',
+            'files',
             'lowest_visible_index',
             'highest_visible_index',
             'not_final',

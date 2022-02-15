@@ -82,10 +82,10 @@
 	<div class="panel-body">
 		<div class="row resizable-sm">
 			{# Body: left column (submitted files) #}
-			{% if has_files %}
+			{% if files %}
 			<div class="col-sm-6">
 				<ul class="nav nav-tabs" role="tablist">
-					{% for file in submission.files.all %}
+					{% for file in files %}
 					<li class="nav-item {% if forloop.first %}active{% endif %}" role="presentation">
 						<a class="nav-link" href="#file-{{ file.id }}" role="tab" aria-controls="file-{{ file.id }}" data-toggle="tab">{{ file.filename }}</a>
 					</li>
@@ -93,7 +93,7 @@
 				</ul>
 
 				<div class="tab-content">
-					{% for file in submission.files.all %}
+					{% for file in files %}
 					<div
 						id="file-{{ file.id }}"
 						data-id="{{ file.id }}"
@@ -125,7 +125,7 @@
 
 			{# Body: right column (grader feedback, grader errors and assistant feedback) #}
 			<div
-				class="{% if has_files %}col-sm-6{% else %}col-sm-12{% endif %}"
+				class="{% if files %}col-sm-6{% else %}col-sm-12{% endif %}"
 			>
 				{% get_grading_errors submission as grading_errors %}
 
