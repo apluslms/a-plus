@@ -1,6 +1,7 @@
 import datetime
 import icalendar
 from urllib.parse import unquote
+from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
@@ -95,11 +96,11 @@ class CourseInstancesView(UserProfileView):
     access_mode = ACCESS.ANONYMOUS
     template_name = "course/course_instances.html"
 
-    def get_common_objects(self, **kwargs):
+    def get_common_objects(self, **kwargs: Any) -> None:
         course = get_object_or_404(Course, url=self.kwargs['course_slug'])
         self.instances = []
         self.msg = ""
-        if CourseInstance.objects.filter(course=course).count() > 0:
+        if CourseInstance.objects.filter(course=course).exists():
             self.instances = CourseInstance.objects.get_visible(self.request.user).filter(course=course).order_by('-starting_time')
             self.msg = _('COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS')
         else:

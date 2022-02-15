@@ -168,7 +168,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.get_summary_submissions()
-        self.has_files = self.submission.files.count() > 0
+        self.has_files = self.submission.files.exists()
 
         self.lowest_visible_index = self.index - 10
         self.highest_visible_index = self.index + 10

@@ -62,13 +62,13 @@ class Notification(UrlMixin, models.Model):
         )
 
     @classmethod
-    def send(cls, sender, submission):
+    def send(cls, sender: UserProfile, submission: Submission) -> None:
         for recipient in submission.submitters.all():
-            if Notification.objects.filter(
+            if not Notification.objects.filter(
                 submission=submission,
                 recipient=recipient,
                 seen=False,
-            ).count() == 0:
+            ).exists():
                 notification = Notification(
                     sender=sender,
                     recipient=recipient,

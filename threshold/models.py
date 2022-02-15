@@ -1,3 +1,5 @@
+from typing import Dict
+
 from django.db import models
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -79,8 +81,8 @@ class Threshold(models.Model):
                     d_points[key] = value
         return self._are_points_passed(total["points"], d_points)
 
-    def _are_points_passed(self, points, points_by_difficulty):
-        if self.points.count() == 0:
+    def _are_points_passed(self, points: int, points_by_difficulty: Dict[str, int]) -> bool:
+        if not self.points.exists():
             return True
         d_points = points_by_difficulty.copy()
         ds,ls = zip(*list((p.difficulty,p.limit) for p in self.points.all()))

@@ -126,10 +126,10 @@ class UserExerciseSummary(object):
     def is_unofficial(self):
         return self.unofficial
 
-    def get_group(self):
+    def get_group(self) -> Optional[StudentGroup]:
         if self.submission_count > 0:
             s = self.submissions[0]
-            if s.submitters.count() > 0:
+            if s.submitters.exists():
                 return StudentGroup.get_exact(
                     self.exercise.course_instance,
                     s.submitters.all()
