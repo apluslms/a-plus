@@ -1593,7 +1593,7 @@ msgstr "Close"
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 msgid "REMOVE_SELECTED_DEVIATIONS"
-msgstr "Remote selected deviations"
+msgstr "Remove selected deviations"
 
 #: deviations/templates/deviations/_remove_modal.html
 msgid "SOME_DEVIATIONS_ARE_HIDDEN_WARNING"
