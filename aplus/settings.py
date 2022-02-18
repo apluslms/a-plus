@@ -158,6 +158,12 @@ INSTALLED_APPS = (
     'aplus_auth',
 )
 
+# Sitemap settings
+##########################################################################
+
+# A course is considered recent or upcoming if it was/is open within this delta (in days) from now.
+SITEMAP_DELTA_DAYS_RECENT_OR_UPCOMING = 180
+
 # Different login options (may override in local_settings.py)
 ##########################################################################
 
