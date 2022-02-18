@@ -375,8 +375,7 @@ REST_FRAMEWORK = {
 }
 
 
-# Test environment url fixes are implemented using these. Typically not required for production
-OVERRIDE_SUBMISSION_HOST = None
+# Test environment url fixes. Typically not required for production.
 REMOTE_PAGE_HOSTS_MAP = None
 
 # Maximum submissions limit for exercises that allow unofficial submissions.
