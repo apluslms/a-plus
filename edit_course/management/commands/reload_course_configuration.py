@@ -12,6 +12,9 @@ class Command(BaseCommand):
                             help="Path component of the course to be reconfigured from it's configuration url (default: 'def/current')")
         parser.add_argument('-u', '--url',
                             help="Replace current configuration url with this one")
+        parser.add_argument('--no-reload',
+                            action='store_true',
+                            help="If set, do not reload the course configuration. Only set a new url with --url")
 
     def handle(self, *args, **options):
         path = options['path'].strip().strip('/')
@@ -27,6 +30,11 @@ class Command(BaseCommand):
         conf_url = options['url'] or instance.configure_url
         if not conf_url:
             raise CommandError("There is no configuration url for {}. Use --url=<url> to set one.".format(instance))
+        elif options['no_reload']:
+            instance.configure_url = conf_url
+            instance.save()
+            self.stdout.write(self.style.SUCCESS(f"Set new configure url for {instance}: {conf_url}"))
+            return
 
         success, errors = configure_content(instance, conf_url)
         if success:
