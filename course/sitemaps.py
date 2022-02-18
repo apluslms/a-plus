@@ -2,6 +2,7 @@ from django.contrib import sitemaps
 from django.urls.base import reverse
 from django.utils import timezone
 
+from lib.sitemaps import AplusSitemap
 from .models import CourseInstance, CourseModule
 
 
@@ -19,31 +20,27 @@ class CourseStaticViewSitemap(sitemaps.Sitemap):
         return reverse(item)
 
 
-class InstanceSitemap(sitemaps.Sitemap):
-    priority = 1.0
+class InstanceSitemap(AplusSitemap):
     changefreq = 'daily'
+    base_priority = 0.4
 
     def items(self):
         return CourseInstance.objects.filter(
             view_content_to=CourseInstance.VIEW_ACCESS.PUBLIC,
+            visible_to_students=True,
         )
 
-    def location(self, item):
-        return item.get_display_url()
 
-
-class ModuleSitemap(sitemaps.Sitemap):
-    priority = 0.2
+class ModuleSitemap(AplusSitemap):
     changefreq = 'daily'
+    base_priority = 0.2
 
     def items(self):
         return CourseModule.objects.filter(
             course_instance__view_content_to=CourseInstance.VIEW_ACCESS.PUBLIC,
+            course_instance__visible_to_students=True,
             opening_time__lte=timezone.now(),
         )
-
-    def location(self, item):
-        return item.get_display_url()
 
 
 all_sitemaps = {
