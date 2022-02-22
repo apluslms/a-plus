@@ -6,6 +6,7 @@ from lib.api.serializers import (
     CompositeListSerializer,
     AplusSerializerMeta,
     AplusModelSerializerBase,
+    StatisticsSerializer,
 )
 from course.api.serializers import CourseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
@@ -24,6 +25,7 @@ __all__ = [
     'SubmissionSerializer',
     'SubmissionGraderSerializer',
     'TreeExerciseSerializer',
+    'ExerciseStatisticsSerializer',
 ]
 
 
@@ -49,6 +51,7 @@ class ExerciseSerializer(ExerciseBriefSerializer):
             'user_id': lambda o=None: 'me',
         },
     )
+    statistics = NestedHyperlinkedIdentityField(view_name='exercise-statistics')
 
     def get_post_url(self, obj):
         # FIXME: obj should implement .get_post_url() and that should be used here
@@ -69,6 +72,7 @@ class ExerciseSerializer(ExerciseBriefSerializer):
             'submissions',
             'my_submissions',
             'my_stats',
+            'statistics',
         )
 
 
@@ -187,3 +191,7 @@ class TreeExerciseSerializer(serializers.Serializer):
             context=self.context
         )
         return serializer.data
+
+
+class ExerciseStatisticsSerializer(StatisticsSerializer):
+    exercise_id = serializers.IntegerField(read_only=True)

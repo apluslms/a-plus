@@ -173,3 +173,10 @@ class AplusModelSerializer(AplusModelSerializerBase):
             'id',
             'url',
         )
+
+
+class StatisticsSerializer(serializers.Serializer):
+    starttime = serializers.DateTimeField(allow_null=True)
+    endtime = serializers.DateTimeField(allow_null=True)
+    submission_count = serializers.IntegerField(read_only=True)
+    submitters = serializers.IntegerField(read_only=True)

@@ -2,7 +2,11 @@ from typing import OrderedDict
 from rest_framework import serializers, exceptions
 
 from lib.api.fields import NestedHyperlinkedIdentityField
-from lib.api.serializers import AplusModelSerializer, NestedHyperlinkedIdentityFieldWithQuery
+from lib.api.serializers import (
+    AplusModelSerializer,
+    NestedHyperlinkedIdentityFieldWithQuery,
+    StatisticsSerializer,
+)
 from exercise.api.full_serializers import TreeExerciseSerializer
 from exercise.api.serializers import ExerciseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
@@ -28,6 +32,7 @@ __all__ = [
     'CourseUsertaggingsSerializer',
     'TreeCourseModuleSerializer',
     'CourseNewsSerializer',
+    'CourseStatisticsSerializer',
 ]
 
 
@@ -87,6 +92,7 @@ class CourseSerializer(CourseBriefSerializer):
     groups = NestedHyperlinkedIdentityField(view_name='api:course-groups-list')
     my_groups = NestedHyperlinkedIdentityField(view_name='api:course-mygroups-list')
     news = NestedHyperlinkedIdentityField(view_name='api:course-news-list')
+    statistics = NestedHyperlinkedIdentityField(view_name='course-statistics')
 
     class Meta(CourseBriefSerializer.Meta):
         fields = (
@@ -109,6 +115,7 @@ class CourseSerializer(CourseBriefSerializer):
             'groups',
             'my_groups',
             'news',
+            'statistics',
         )
 
 
@@ -357,3 +364,7 @@ class CourseNewsSerializer(CourseNewsBriefSerializer):
                 'view_name': 'api:course-news-detail',
             }
         }
+
+
+class CourseStatisticsSerializer(StatisticsSerializer):
+    course_id = serializers.IntegerField(read_only=True)

@@ -16,6 +16,7 @@ from lib.viewbase import BaseMixin
 from lib.api.filters import FieldValuesFilter
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
+from lib.api.statistics import BaseStatisticsView
 from userprofile.permissions import IsAdminOrUserObjIsSelf
 from news.models import News
 
@@ -577,3 +578,40 @@ class CourseNewsViewSet(NestedViewSetMixin,
                     Q(audience=AUDIENCE.INTERNAL_USERS)
                 )
         return queryset
+
+
+class CourseStatisticsView(BaseStatisticsView):
+    """
+    Returns submission statistics for a course, over a given time window.
+
+    Returns the following attributes:
+
+    - `submission_count`: total number of submissions.
+    - `submitters`: number of users submitting.
+
+    Operations
+    ----------
+
+    `GET /courses/<course_id>/statistics/`:
+        returns the statistics for the given course.
+
+    - URL parameters:
+        - `endtime`: date and time in ISO 8601 format indicating the end point
+          of time window we are interested in. Default: now.
+        - `starttime`: date and time in ISO 8601 format indicating the start point
+          of time window we are interested in. Default: one day before endtime
+    """
+
+    serializer_class = CourseStatisticsSerializer
+
+    def get_queryset(self) -> QuerySet:
+        queryset = super().get_queryset()
+        course_id = self.kwargs['course_id']
+        return queryset.filter(
+            exercise__course_module__course_instance=course_id,
+        )
+
+    def get_object(self):
+        obj = super().get_object()
+        obj.update({ 'course_id': self.kwargs['course_id'] })
+        return obj
