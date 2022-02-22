@@ -12,10 +12,12 @@ from rest_framework.decorators import action
 from rest_framework.settings import api_settings
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from django.db import DatabaseError
+from django.db.models import QuerySet
 
 from authorization.permissions import ACCESS
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
+from lib.api.statistics import BaseStatisticsView
 from userprofile.models import UserProfile, GraderUser
 from course.permissions import (
     IsCourseAdminOrUserObjIsSelf,
@@ -499,3 +501,40 @@ class CoursePointsViewSet(ListSerializerMixin,
         if self.action == 'list':
             return self.instance.students
         return self.instance.course_staff_and_students
+
+
+class ExerciseStatisticsView(BaseStatisticsView):
+    """
+    Returns submission statistics for an exercise, over a given time window.
+
+    Returns the following attributes:
+
+    - `submission_count`: total number of submissions.
+    - `submitters`: number of users submitting.
+
+    Operations
+    ----------
+
+    `GET /exercises/<exercise_id>/statistics/`:
+        returns the statistics for the given exercise.
+
+    - URL parameters:
+        - `endtime`: date and time in ISO 8601 format indicating the end point
+          of time window we are interested in. Default: now.
+        - `starttime`: date and time in ISO 8601 format indicating the start point
+          of time window we are interested in. Default: one day before endtime
+    """
+
+    serializer_class = ExerciseStatisticsSerializer
+
+    def get_queryset(self) -> QuerySet:
+        queryset = super().get_queryset()
+        exercise_id = self.kwargs['exercise_id']
+        return queryset.filter(
+            exercise=exercise_id,
+        )
+
+    def get_object(self):
+        obj = super().get_object()
+        obj.update({ 'exercise_id': self.kwargs['exercise_id'] })
+        return obj
