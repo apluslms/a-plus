@@ -79,9 +79,9 @@ def user_results(context: Context, student: Optional[User] = None) -> Dict[str, 
         instance = context['instance']
         values['student_count'] = instance.students.count()
         counts = (instance.students
+            .filter(submissions__exercise__course_module__course_instance=instance)
             .values('submissions__exercise_id')
             .annotate(count=models.Count('submissions__submitters', distinct=True))
-            .filter(submissions__exercise__course_module__course_instance=instance)
             .order_by()
         )
         values['exercise_submitter_counts'] = {row['submissions__exercise_id']: row['count'] for row in counts}
