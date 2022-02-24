@@ -1,7 +1,7 @@
 from typing import Optional
 
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.http import Http404
@@ -201,12 +201,19 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
         )
 
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
+        if not (user or self.submitter):
+            # The submission has no submitters.
+            # Use AnonymousUser in the UserExerciseSummary
+            # so that it does not pick submissions from request.user (the teacher).
+            user = AnonymousUser()
+            self.index = 0
         super().get_summary_submissions(user or self.submitter.user)
-        self.index = len(self.submissions) - list(self.submissions).index(self.submission)
+        if self.submissions:
+            self.index = len(self.submissions) - list(self.submissions).index(self.submission)
         self.note("index")
 
     def get_cached_points(self, user: Optional[User] = None) -> None:
-        super().get_cached_points(user or self.submitter.user)
+        super().get_cached_points(user or (self.submitter.user if self.submitter else None))
 
 
 class SubmissionBaseView(SubmissionMixin, BaseTemplateView):
