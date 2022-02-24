@@ -6,7 +6,6 @@ from django import template
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.context import Context
-from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.text import format_lazy

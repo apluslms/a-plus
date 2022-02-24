@@ -1,8 +1,6 @@
 from typing import Optional
 
-from django.contrib import messages
 from django.contrib.auth.models import AnonymousUser, User
-from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
