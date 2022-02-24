@@ -102,13 +102,6 @@ class ListSubmittersView(ExerciseListBaseView):
         # supposed to list all students.
         submitter_summaries = (
             self.exercise.submissions
-            .exclude(
-                status__in=(
-                    Submission.STATUS.UNOFFICIAL,
-                    Submission.STATUS.ERROR,
-                    Submission.STATUS.REJECTED
-                ),
-            )
             .values('submitters__id')
             .annotate(
                 count_submissions=Count('id'),
