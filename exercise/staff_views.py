@@ -122,8 +122,11 @@ class ListSubmittersView(ExerciseListBaseView):
         # Add UserProfile instances to the dicts in submitter_summaries, so we can
         # use the 'profiles' template tag.
         for submitter_summary in submitter_summaries:
-            profile = profiles[submitter_summary['submitters__id']]
-            self.submitters.append({'profile': profile, **submitter_summary})
+            submitter_id = submitter_summary.get('submitters__id')
+            # Avoid crashing if there are submissions with no submitters.
+            if submitter_id is not None:
+                profile = profiles[submitter_id]
+                self.submitters.append({'profile': profile, **submitter_summary})
         self.note('submitters')
 
 
