@@ -441,7 +441,11 @@
             exercise.quizSubmission("error");
           } else {
             /* TODO: migrate to overlay */
-            exercise.chapter.modalError(exercise.chapter.messages.error);
+            if (xhr.status === 413) {
+              exercise.chapter.modalError(_('Submitted file is too large'));
+            } else {
+              exercise.chapter.modalError(exercise.chapter.messages.error);
+            }
           }
         }
       }).done(function (data) {
