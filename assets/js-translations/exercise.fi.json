@@ -9,5 +9,8 @@
   "Luonnoksen tallentaminen epäonnistui",
 
   "Draft saved":
-  "Luonnos tallennettu"
+  "Luonnos tallennettu",
+
+  "Submitted file is too large":
+  "Palautettu tiedosto on liian suuri"
 }
