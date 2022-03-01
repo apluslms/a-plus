@@ -1,6 +1,7 @@
 import os
 import celery
 import datetime
+from time import sleep
 
 from django.conf import settings
 
@@ -29,3 +30,5 @@ def enroll():
     )
     for i in courses:
         i.enroll_from_sis()
+        if settings.SIS_ENROLL_DELAY:
+            sleep(settings.SIS_ENROLL_DELAY)

@@ -109,6 +109,9 @@
 # SIS_ENROLL_SCHEDULE = 10.0  -- every 10 seconds
 # SIS_ENROLL_SCHEDULE = crontab(hour=1, minute=0) -- every night at 1:00
 
+# Delay in seconds between outgoing SIS enrollment requests (None for no delay)
+# SIS_ENROLL_DELAY = 15
+
 ## Database
 #DATABASES = {
 #    'default': {

@@ -224,6 +224,9 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 # SIS_ENROLL_SCHEDULE = crontab(hour=1, minute=0) -- every night at 1:00
 # If variable is not set, no automatic enrollment takes place
 
+# Delay in seconds between outgoing SIS enrollment requests (None for no delay)
+SIS_ENROLL_DELAY = 15
+
 ##########################################################################
 
 ## Celery
