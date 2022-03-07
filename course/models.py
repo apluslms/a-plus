@@ -4,21 +4,18 @@ import logging
 import string
 from typing import Any, Dict, List
 import urllib.request, urllib.parse
-from random import randint, choice
+from random import choice
 
 from aplus_auth.payload import Payload, Permission
 from aplus_auth import settings as auth_settings
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 from django.db import models
-from django.db.models import F, Q, Count
+from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.utils import timezone
-from django.utils.functional import cached_property
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django_colortag.models import ColorTag
@@ -26,7 +23,6 @@ from django_colortag.models import ColorTag
 from apps.models import BaseTab, BasePlugin
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
-from lib.email_messages import email_course_error
 from lib.fields import PercentField
 from lib.helpers import (
     Enum,
@@ -36,7 +32,6 @@ from lib.helpers import (
     safe_file_name,
     url_with_query_in_data
 )
-from lib.remote_page import RemotePage, RemotePageException
 from lib.models import UrlMixin
 from lib.typing import AnyUser
 from lib.validators import generate_url_key_validator
