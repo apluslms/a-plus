@@ -318,6 +318,7 @@ Following instructions expect that the applocation is installed under `/srv/aplu
 
 This guide bases on NGINX module [nginx-http-shibboleth](https://github.com/nginx-shib/nginx-http-shibboleth).
 This module uses fastcgi and shibboleth scripts to provide similar integration as Apache 2 plugin.
+As of March 2022, the latest version of [libnginx-mod-http-headers-more-filter](https://packages.ubuntu.com/focal/libnginx-mod-http-headers-more-filter) is only compatible up to NGINX version 1.18.0 and needs to be built manually for more recent versions of NGINX.
 
  1. Starting from Ubuntu Bionic or NGINX 1.11 we can use dynamic modules
 
@@ -326,11 +327,12 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
 
         # edit /etc/apt/sources.list if necessary, make sure to enable the
         # -updates repository to get the latest version
-        apt-get install build-essential devscripts libnginx-mod-http-headers-more-filter
+        apt-get install build-essential devscripts
         apt-get source nginx
         apt-get build-dep nginx
-
+        
         git clone https://github.com/nginx-shib/nginx-http-shibboleth.git
+        git clone https://github.com/openresty/headers-more-nginx-module
 
         pushd nginx-1.*/
         # The module has to be configured using the same arguments as nginx
@@ -338,17 +340,31 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
           sed 's/configure arguments: //')
         eval $(echo ./configure \
           --add-dynamic-module=../nginx-http-shibboleth \
+          --add-dynamic-module=../headers-more-nginx-module \
           $NGINX_CONFIGURE_FLAGS)
         make modules -j$(nproc)
-        chmod 644 objs/ngx_http_shibboleth_module.so
+
         mkdir -p /usr/local/lib/nginx/modules
-        cp objs/ngx_http_shibboleth_module.so /usr/local/lib/nginx/modules
+        chmod 644 \
+          objs/ngx_http_shibboleth_module.so \
+          objs/ngx_http_headers_more_filter_module.so
+        cp objs/ngx_http_shibboleth_module.so \
+          objs/ngx_http_headers_more_filter_module.so \
+          /usr/local/lib/nginx/modules
+
+        mkdir -p /etc/nginx/modules-available
         echo "load_module /usr/local/lib/nginx/modules/ngx_http_shibboleth_module.so;" > \
           /etc/nginx/modules-available/50-mod-http-shibboleth.conf
-        ln -s ../modules-available/50-mod-http-shibboleth.conf /etc/nginx/modules-enabled/50-mod-http-shibboleth.conf
+        echo "load_module /usr/local/lib/nginx/modules/ngx_http_headers_more_filter_module.so;" > \
+          /etc/nginx/modules-available/50-mod-http-headers-more.conf
+        ln -s ../modules-available/50-mod-http-shibboleth.conf \
+          /etc/nginx/modules-enabled/50-mod-http-shibboleth.conf
+        ln -s ../modules-available/50-mod-http-headers-more.conf \
+          /etc/nginx/modules-enabled/50-mod-http-headers-more.conf
         systemctl restart nginx
 
- 1. **Obsolete:** With Ubuntu xenial or before NGINX 1.11
+    <details>
+    <summary><b>Obsolete:</b> With Ubuntu xenial or before NGINX 1.11</summary>
 
     With Ubuntu xenial (16.04) and before NGINX 1.11, dynamic modules are not supported, so you need to rebuild the whole NGINX package.
 
@@ -399,6 +415,7 @@ This module uses fastcgi and shibboleth scripts to provide similar integration a
                 $(ls nginx-full_*shib*_amd64.deb | sort | tail -n1)
 
         exit # exit sudo session
+    </details>
 
  1. Get NGINX supporting files
 
