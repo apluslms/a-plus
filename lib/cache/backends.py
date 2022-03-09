@@ -2,11 +2,6 @@ import pickle
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.core.cache.backends.locmem import LocMemCache as _LocMemCache
 
-try:
-    from django.utils.synch import RWLock
-except ImportError:
-    class RWLock: pass
-
 
 class LocMemCache(_LocMemCache):
     def __init__(self, name, params):
@@ -25,8 +20,6 @@ class LocMemCache(_LocMemCache):
         self.validate_key(key)
         pickled = pickle.dumps(value, self.pickle_protocol)
         lock = self._lock
-        if isinstance(lock, RWLock):
-            lock = lock.writer()
         with lock:
             if self._has_expired(key):
                 return self._set(key, pickled, timeout)

@@ -1,10 +1,10 @@
-from collections import OrderedDict
 from functools import partial
 from urllib.parse import urlencode
 
 from django.db.models import Manager
 from rest_framework import serializers
 from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.utils.field_mapping import get_nested_relation_kwargs
 from rest_framework.fields import get_attribute
 
 from .fields import NestedHyperlinkedIdentityField, NestedHyperlinkedRelatedField

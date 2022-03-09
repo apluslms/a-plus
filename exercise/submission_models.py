@@ -7,7 +7,6 @@ from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
 
 from binaryornot.check import is_binary
 from django.conf import settings
-from django.core.files.storage import default_storage
 from django.db import models, DatabaseError
 from django.db.models.signals import post_delete
 from django.http.request import HttpRequest

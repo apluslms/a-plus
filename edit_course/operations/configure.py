@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
+from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise, RevealRule
 from external_services.models import LTIService
