@@ -296,4 +296,4 @@ def get_submitters(form_data: Dict[str, Any]) -> models.QuerySet[UserProfile]:
     return UserProfile.objects.filter(
         models.Q(id__in=form_data.get('submitter', []))
         | models.Q(taggings__tag__in=form_data.get('submitter_tag', []))
-    )
+    ).distinct()
