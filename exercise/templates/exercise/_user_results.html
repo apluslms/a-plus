@@ -100,7 +100,7 @@
 				<th>{% translate "SUBMISSIONS" %}</th>
 				<th>{% translate "POINTS" %}</th>
 				{% if is_course_staff %}
-				<th>{% translate "COURSE_STAFF" %}</th>
+				<th colspan="2">{% translate "COURSE_STAFF" %}</th>
 				{% endif %}
 			</tr>
 			{% for entry in module.flatted %}
@@ -150,6 +150,15 @@
 				</td>
 				{% if is_course_staff %}
 				<td>
+					{% if entry.submissions and student.id %}
+					{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=entry.get_path user_id=student.id as inspect_url %}
+					<a href="{{ inspect_url }}" class="aplus-button--secondary aplus-button--xs">
+						<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+						{% translate "INSPECT" %}
+					</a>
+					{% endif %}
+				</td>
+				<td>
 					{% if not accessible %}
 					<a href="{{ entry.link }}">
 						<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
@@ -158,7 +167,7 @@
 					{% else %}
 					{% exercise_text_stats entry.id %}
 					{% endif %}
-					<a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ entry.submissions_link }}">
+					<a class="aplus-button--secondary aplus-button--xs" href="{{ entry.submissions_link }}">
 						<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
 						{% translate "VIEW_SUBMISSIONS" %}
 					</a>
@@ -168,7 +177,7 @@
 
 			{% elif entry.type == 'exercise' and entry|is_visible %}
 			<tr>
-				<td colspan="4">
+				<td colspan="5">
 					{% if accessible %}
 					<strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
 					{% else %}

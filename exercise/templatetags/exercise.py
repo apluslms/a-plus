@@ -72,8 +72,6 @@ def _is_accessible(context, entry, t):
 def user_results(context: Context, student: Optional[User] = None) -> Dict[str, Any]:
     values = _get_toc(context, student)
     values['total_json'] = json.dumps(values['total'])
-    if student:
-        values['is_course_staff'] = False
     if values['is_course_staff']:
         instance = context['instance']
         values['student_count'] = instance.students.count()
