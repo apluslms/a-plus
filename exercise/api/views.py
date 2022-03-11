@@ -1,5 +1,4 @@
 from aplus_auth.payload import Permission
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse
 from django.utils import timezone
@@ -7,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from wsgiref.util import FileWrapper
 from rest_framework import mixins, permissions, viewsets
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.decorators import action
@@ -19,12 +17,10 @@ from authorization.permissions import ACCESS
 from lib.api.mixins import MeUserMixin, ListSerializerMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from userprofile.models import UserProfile, GraderUser
-from userprofile.permissions import IsAdminOrUserObjIsSelf, GraderUserCanOnlyRead
 from course.permissions import (
     IsCourseAdminOrUserObjIsSelf,
     JWTSubmissionCreatePermission,
     JWTSubmissionWritePermission,
-    OnlyCourseTeacherPermission,
 )
 from course.api.mixins import CourseResourceMixin
 from course.api.serializers import StudentBriefSerializer
@@ -34,11 +30,9 @@ from ..models import (
     Submission,
     SubmittedFile,
     BaseExercise,
-    SubmissionManager,
     LearningObject,
 )
 from ..permissions import (
-    SubmissionVisiblePermission,
     SubmissionVisibleFilter,
     SubmittedFileVisiblePermission,
 )

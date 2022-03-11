@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, Set, Union
 
 from django.db.models.aggregates import Count
-from django.db.models.query import Prefetch, QuerySet
+from django.db.models.query import QuerySet
 from rest_framework import viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ from course.permissions import IsCourseAdminOrUserObjIsSelf
 from userprofile.models import UserProfile
 
 from ...cache.points import CachedPoints
-from ...models import BaseExercise, Submission
+from ...models import Submission
 from .submission_sheet import filter_best_submissions, submissions_sheet
 from .aggregate_sheet import aggregate_sheet
 from .aggregate_points import aggregate_points
