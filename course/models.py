@@ -516,9 +516,11 @@ def build_upload_dir(instance, filename):
 class CourseInstance(UrlMixin, models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have
-    several instances either at the same time or during different years. All instances
-    have the same teacher, but teaching assistants and students are connected to individual
-    instances.
+    several instances either at the same time or during different years.
+    Teachers, assistants, and students are set to each instance separately via Enrollments.
+    Each instance may have different teachers and assistants.
+    (Before A+ v1.10, teachers were set for Courses and shared
+    for all CourseInstances of the Course.)
     """
     ENROLLMENT_AUDIENCE = Enum([
         ('INTERNAL_USERS', 1, _('INTERNAL_USERS')),
