@@ -1,4 +1,6 @@
 import logging
+from typing import TYPE_CHECKING
+
 from django.contrib import messages
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -6,6 +8,10 @@ from django.utils.translation import gettext_lazy as _
 from lib.email_messages import email_course_error
 from lib.remote_page import RemotePage, RemotePageException
 from .exercise_page import ExercisePage
+
+
+if TYPE_CHECKING:
+    from exercise.models import LearningObject
 
 
 logger = logging.getLogger("aplus.protocol")
@@ -109,7 +115,11 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
     return page
 
 
-def parse_page_content(page, remote_page, exercise):
+def parse_page_content(
+        page: ExercisePage,
+        remote_page: RemotePage,
+        exercise: 'LearningObject',
+        ) -> None:
     """
     Parses exercise page elements.
     """
@@ -160,7 +170,7 @@ def parse_page_content(page, remote_page, exercise):
         {'id':'chapter'},
         {'class':'entry-content'},
     )
-    page.content = remote_page.element_or_body(element_selectors)
-    page.clean_content = remote_page.clean_element_or_body(element_selectors)
+    id_attrs_to_remove = ('exercise', 'chapter', 'aplus')
+    page.content, page.clean_content = remote_page.element_or_body(element_selectors, id_attrs_to_remove)
     page.last_modified = remote_page.last_modified()
     page.expires = remote_page.expires()

@@ -2,10 +2,10 @@ import logging
 import posixpath
 import re
 import time
-from typing import Optional
+from typing import Mapping, Optional, Sequence, Tuple
 from urllib.parse import urlparse, urljoin
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 import requests
 from requests.models import Response
 
@@ -164,7 +164,10 @@ class RemotePage:
                 self.soup.head.find_all(True, search_attribute))
         return ""
 
-    def select_element_or_body(self, search_attributes):
+    def select_element_or_body(
+            self,
+            search_attributes: Sequence[Mapping[str, str]],
+            ) -> Optional[Tag]:
         if self.soup:
             for attr in search_attributes:
                 element = self.soup.find(**attr)
@@ -173,21 +176,39 @@ class RemotePage:
             return self.soup.body
         return None
 
-    def element_or_body(self, search_attributes):
-        element = self.select_element_or_body(search_attributes)
-        if element.get('id') == 'exercise':
-            del element['id']
-        return str(element) if element else ""
-
-    def clean_element_or_body(self, search_attributes):
+    def element_or_body(
+            self,
+            search_attributes: Sequence[Mapping[str, str]],
+            id_attrs_to_remove: Optional[Sequence[str]] = None,
+            ) -> Tuple[str, str]:
+        result = clean_result = ''
         element = self.select_element_or_body(search_attributes)
         if element:
-            for once in element.find_all(True, {'data-aplus-once':True}):
-                once.extract()
-        return str(element) if element else ""
+            self._remove_id_attr(element, id_attrs_to_remove)
+            result = str(element)
+            clean_result = self._clean_element(element)
+        return result, clean_result
 
-    def body(self):
-        return self.element_or_body([])
+    def _clean_element(self, element: Tag) -> str:
+        for once in element.find_all(True, {'data-aplus-once':True}):
+            once.decompose()
+        return str(element)
+
+    def _remove_id_attr(
+            self,
+            element: Tag,
+            id_values_to_remove: Optional[Sequence[str]],
+            ) -> None:
+        """Remove the id attribute from the element
+        if the id value is one of the values given in id_values_to_remove.
+        """
+        if not id_values_to_remove:
+            return
+        if element.get('id') in id_values_to_remove:
+            del element['id']
+
+    def body(self) -> Optional[Tag]:
+        return self.soup.body if self.soup else None
 
     def fix_relative_urls(self):
         url = self.base_address()
