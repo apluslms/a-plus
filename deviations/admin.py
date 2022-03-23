@@ -1,6 +1,11 @@
 from django.contrib import admin
 
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
+from lib.admin_helpers import RecentCourseInstanceListFilter
+
+
+class DeviationRecentCourseInstanceListFilter(RecentCourseInstanceListFilter):
+    course_instance_query = 'exercise__course_module__course_instance'
 
 
 class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
@@ -19,8 +24,14 @@ class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
         'granter',
         'grant_time',
     )
-    list_filter = ('exercise__course_module__course_instance',)
-    raw_id_fields = ('submitter','granter')
+    list_filter = (
+        DeviationRecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'exercise',
+        'submitter',
+        'granter',
+    )
     readonly_fields = ('grant_time',)
 
 
@@ -40,7 +51,14 @@ class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
         'granter',
         'grant_time',
     )
-    raw_id_fields = ('submitter','granter')
+    list_filter = (
+        DeviationRecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'exercise',
+        'submitter',
+        'granter',
+    )
     readonly_fields = ('grant_time',)
 
 

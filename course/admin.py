@@ -12,7 +12,7 @@ from course.models import (
     UserTag,
     UserTagging,
 )
-from userprofile.models import UserProfile
+from lib.admin_helpers import RecentCourseInstanceListFilter
 
 
 def instance_url(instance):
@@ -28,26 +28,18 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
         'code',
+        'url',
     )
-    list_display_links = ('id',)
+    list_display_links = (
+        'id',
+        'name',
+    )
     list_display = (
         'id',
         'name',
         'code',
         'url',
     )
-    # list_editable = (
-    #     'name',
-    #     'code',
-    # )
-
-    def get_queryset(self,
-        request):
-        if not request.user.is_superuser:
-            profile = UserProfile.get_by_request(request)
-            return CourseInstance.objects.get_teaching(profile)
-        else:
-            return self.model.objects.filter()
 
 
 class CourseInstanceAdmin(admin.ModelAdmin):
@@ -71,14 +63,12 @@ class CourseInstanceAdmin(admin.ModelAdmin):
         'starting_time',
         'ending_time',
     )
+    raw_id_fields = ('course',)
 
-    def get_queryset(self,
-        request):
-        if not request.user.is_superuser:
-            profile = UserProfile.get_by_request(request)
-            return self.model.objects.where_staff_includes(profile)
-        else:
-            return self.model.objects.all()
+    def get_queryset(self, request):
+        if request.user.is_superuser:
+            return super().get_queryset(request)
+        return CourseInstance.objects.get_teaching(request.user.userprofile)
 
 
 class EnrollmentAdmin(admin.ModelAdmin):
@@ -100,8 +90,14 @@ class EnrollmentAdmin(admin.ModelAdmin):
         'status',
         'timestamp',
     )
-    list_filter = ('course_instance',)
-    raw_id_fields = ('user_profile',)
+    list_filter = (
+        RecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'course_instance',
+        'selected_group',
+        'user_profile',
+    )
     readonly_fields = ('timestamp',)
 
 
@@ -121,10 +117,11 @@ class CourseModuleAdmin(admin.ModelAdmin):
         instance_url,
     )
     list_filter = (
-        'course_instance',
+        RecentCourseInstanceListFilter,
         'opening_time',
         'closing_time',
     )
+    raw_id_fields = ('course_instance',)
 
 
 class LearningObjectCategoryAdmin(admin.ModelAdmin):
@@ -139,11 +136,14 @@ class LearningObjectCategoryAdmin(admin.ModelAdmin):
         'course_instance',
         'name',
     )
-    list_filter = ('course_instance',)
+    list_filter = (
+        RecentCourseInstanceListFilter,
+    )
     ordering = (
         'course_instance',
         'id',
     )
+    raw_id_fields = ('course_instance',)
 
 
 class StudentGroupAdmin(admin.ModelAdmin):
@@ -157,7 +157,26 @@ class StudentGroupAdmin(admin.ModelAdmin):
         'members__user__last_name',
         'members__user__email',
     )
-    raw_id_fields = ('members',)
+    list_display = (
+        'course_instance',
+        'members_string',
+        'timestamp',
+    )
+    list_display_links = ('members_string',)
+    list_filter = (
+        RecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'course_instance',
+        'members',
+    )
+    readonly_fields = ('timestamp',)
+
+    @admin.display(description=_('LABEL_MEMBERS'))
+    def members_string(self, obj):
+        return ", ".join(
+            str(p) for p in obj.members.all()
+        )
 
 
 class UserTagAdmin(admin.ModelAdmin):
@@ -166,6 +185,22 @@ class UserTagAdmin(admin.ModelAdmin):
         'course_instance__instance_name',
         'course_instance__course__name',
         'course_instance__course__code'
+    )
+    list_display = (
+        'course_instance',
+        'name',
+        'slug',
+        'visible_to_students',
+    )
+    list_display_links = (
+        'name',
+        'slug',
+    )
+    list_filter = (
+        RecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'course_instance',
     )
 
 
@@ -181,7 +216,23 @@ class UserTaggingAdmin(admin.ModelAdmin):
         'user__user__last_name',
         'user__user__email',
     )
-    raw_id_fields = ('user',)
+    list_display = (
+        'course_instance',
+        'tag',
+        'user',
+    )
+    list_display_links = (
+        'tag',
+        'user',
+    )
+    list_filter = (
+        RecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'course_instance',
+        'tag',
+        'user',
+    )
 
 
 class CourseHookAdmin(admin.ModelAdmin):
@@ -191,6 +242,7 @@ class CourseHookAdmin(admin.ModelAdmin):
         'course_instance__course__name',
         'course_instance__course__code',
     )
+    raw_id_fields = ('course_instance',)
 
 
 admin.site.register(Course, CourseAdmin)

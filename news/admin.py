@@ -1,11 +1,14 @@
 from django.contrib import admin
 
+from lib.admin_helpers import RecentCourseInstanceListFilter
 from .models import News
 
 
 class NewsAdmin(admin.ModelAdmin):
     search_fields = (
         "course_instance__instance_name",
+        "course_instance__course__code",
+        "course_instance__course__name",
         "title",
     )
     list_display_links = ("title",)
@@ -16,7 +19,11 @@ class NewsAdmin(admin.ModelAdmin):
         "audience",
         "pin",
     )
-    list_filter = ("course_instance",)
+    list_filter = (
+        RecentCourseInstanceListFilter,
+        "publish",
+    )
+    raw_id_fields = ("course_instance",)
 
 
 admin.site.register(News, NewsAdmin)

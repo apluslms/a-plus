@@ -1,3 +1,5 @@
+from typing import Optional, Sequence, Tuple
+
 from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
@@ -8,13 +10,16 @@ from exercise.models import (
     BaseExercise,
     StaticExercise,
     ExerciseWithAttachment,
+    LTIExercise,
     Submission,
     SubmissionDraft,
     SubmittedFile,
     RevealRule,
     ExerciseTask,
+    LearningObjectDisplay,
 )
 from exercise.exercisecollection_models import ExerciseCollection
+from lib.admin_helpers import RecentCourseInstanceListFilter
 
 
 def real_class(obj):
@@ -48,22 +53,70 @@ course_wrapper.short_description = _('COURSE_INSTANCE')
 submitters_wrapper.short_description = _('SUBMITTERS')
 
 
+class GradeListFilter(admin.SimpleListFilter):
+    title = _('LABEL_GRADE')
+    parameter_name = 'grade'
+
+    def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin) -> Sequence[Tuple[str, str]]:
+        return [
+            ('grade__exact=0', '0'),
+            ('grade__exact=1', '1'),
+            ('grade__exact=2', '2'),
+            ('grade__lt=10', '< 10'),
+            ('grade__gte=10', '>= 10'),
+            ('grade__lt=20', '< 20'),
+            ('grade__gte=20', '>= 20'),
+            ('grade__lt=50', '< 50'),
+            ('grade__gte=50', '>= 50'),
+            ('grade__lt=100', '< 100'),
+            ('grade__gte=100', '>= 100'),
+            ('grade__lt=150', '< 150'),
+            ('grade__gte=150', '>= 150'),
+            ('grade__lt=200', '< 200'),
+            ('grade__gte=200', '>= 200'),
+        ]
+
+    def queryset(self, request: HttpRequest, queryset: QuerySet) -> Optional[QuerySet]:
+        lookup = self.value()
+        if not lookup:
+            return
+        lookup = lookup.split('=', 1)
+        q = {lookup[0]: lookup[1]}
+        return queryset.filter(**q)
+
+
+class SubmissionRecentCourseInstanceListFilter(RecentCourseInstanceListFilter):
+    course_instance_query = 'exercise__course_module__course_instance'
+
+class LearningObjectRecentCourseInstanceListFilter(RecentCourseInstanceListFilter):
+    course_instance_query = 'course_module__course_instance'
+
+
 class CourseChapterAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
         'category__name',
         'course_module__name',
         'course_module__course_instance__instance_name',
+        'course_module__course_instance__course__code',
+        'course_module__course_instance__course__name',
     )
     list_display_links = ('__str__',)
     list_display = (
         'course_instance',
+        'course_module',
         '__str__',
         'service_url',
     )
     list_filter = (
-        'course_module__course_instance',
+        'course_module__opening_time',
+        'course_module__closing_time',
+        LearningObjectRecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'category',
         'course_module',
+        'parent',
     )
 
 
@@ -73,29 +126,32 @@ class BaseExerciseAdmin(admin.ModelAdmin):
         'category__name',
         'course_module__name',
         'course_module__course_instance__instance_name',
+        'course_module__course_instance__course__code',
+        'course_module__course_instance__course__name',
     )
     list_display_links = ('__str__',)
     list_display = (
         'course_instance',
+        'course_module',
         '__str__',
         'max_points',
         real_class,
     )
     list_filter = (
-        'course_module__course_instance',
+        'course_module__opening_time',
+        'course_module__closing_time',
+        LearningObjectRecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'category',
         'course_module',
+        'parent',
+        'submission_feedback_reveal_rule',
+        'model_solutions_reveal_rule',
     )
 
 
 class SubmissionAdmin(admin.ModelAdmin):
-    search_fields = (
-        'exercise__name',
-        'submitters__student_id',
-        'submitters__user__username',
-        'submitters__user__first_name',
-        'submitters__user__last_name',
-        'submitters__user__email',
-    )
     list_display_links = ('id',)
     list_display = (
         'id',
@@ -108,9 +164,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'status',
-        'grade',
         'submission_time',
-        'exercise__course_module__course_instance',
+        SubmissionRecentCourseInstanceListFilter,
+        GradeListFilter,
     )
     search_fields = (
         'id',
@@ -122,10 +178,11 @@ class SubmissionAdmin(admin.ModelAdmin):
         'submitters__user__last_name',
         'submitters__user__email',
     )
-    list_per_page = 500
+    list_per_page = 300
     raw_id_fields = (
         'submitters',
         'grader',
+        'exercise',
     )
     readonly_fields = ('submission_time',)
 
@@ -159,10 +216,13 @@ class SubmissionDraftAdmin(admin.ModelAdmin):
     list_filter = (
         'active',
         'timestamp',
-        'exercise__course_module__course_instance',
+        SubmissionRecentCourseInstanceListFilter,
     )
-    list_per_page = 500
-    raw_id_fields = ('submitter',)
+    list_per_page = 300
+    raw_id_fields = (
+        'submitter',
+        'exercise',
+    )
     readonly_fields = ('timestamp',)
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[SubmissionDraft]:
@@ -182,6 +242,7 @@ class SubmittedFileAdmin(admin.ModelAdmin):
         'submission__submitters__user__last_name',
         'submission__submitters__user__email',
     )
+    raw_id_fields = ('submission',)
 
 
 class StaticExerciseAdmin(admin.ModelAdmin):
@@ -191,6 +252,13 @@ class StaticExerciseAdmin(admin.ModelAdmin):
         'course_module__name',
         'course_module__course_instance__instance_name',
     )
+    raw_id_fields = (
+        'category',
+        'course_module',
+        'parent',
+        'submission_feedback_reveal_rule',
+        'model_solutions_reveal_rule',
+    )
 
 
 class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
@@ -199,6 +267,37 @@ class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
         'category__name',
         'course_module__name',
         'course_module__course_instance__instance_name',
+    )
+    raw_id_fields = ('course_module',)
+
+
+class LTIExerciseAdmin(admin.ModelAdmin):
+    search_fields = (
+        'name',
+        'category__name',
+        'course_module__name',
+        'course_module__course_instance__instance_name',
+        'course_module__course_instance__course__code',
+        'course_module__course_instance__course__name',
+    )
+    list_display_links = ('__str__',)
+    list_display = (
+        'course_instance',
+        'course_module',
+        '__str__',
+        'max_points',
+        real_class,
+    )
+    list_filter = (
+        LearningObjectRecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'category',
+        'course_module',
+        'lti_service',
+        'parent',
+        'submission_feedback_reveal_rule',
+        'model_solutions_reveal_rule',
     )
 
 
@@ -249,13 +348,37 @@ class ExerciseTaskAdmin(admin.ModelAdmin):
         'task_id',
     )
 
+
+class LearningObjectDisplayAdmin(admin.ModelAdmin):
+    search_fields = (
+        'learning_object__name',
+        'learning_object__category__name',
+        'learning_object__course_module__name',
+        'learning_object__course_module__course_instance__instance_name',
+        'learning_object__course_module__course_instance__course__code',
+        'learning_object__course_module__course_instance__course__name',
+    )
+    list_display = (
+        'learning_object',
+        'profile',
+        'timestamp',
+    )
+    raw_id_fields = (
+        'learning_object',
+        'profile',
+    )
+    readonly_fields = ('timestamp',)
+
+
 admin.site.register(CourseChapter, CourseChapterAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
 admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
+admin.site.register(LTIExercise, LTIExerciseAdmin)
 admin.site.register(Submission, SubmissionAdmin)
 admin.site.register(SubmissionDraft, SubmissionDraftAdmin)
 admin.site.register(SubmittedFile, SubmittedFileAdmin)
 admin.site.register(ExerciseCollection, ExerciseCollectionAdmin)
 admin.site.register(RevealRule, RevealRuleAdmin)
 admin.site.register(ExerciseTask, ExerciseTaskAdmin)
+admin.site.register(LearningObjectDisplay, LearningObjectDisplayAdmin)
