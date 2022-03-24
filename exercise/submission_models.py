@@ -613,7 +613,7 @@ class SubmittedFile(UrlMixin, models.Model):
         max_length=128,
     )
     file_object = models.FileField(
-        verbose_name=('LABEL_FILE_OBJECT'),
+        verbose_name=_('LABEL_FILE_OBJECT'),
         upload_to=build_upload_dir,
         max_length=255,
     )

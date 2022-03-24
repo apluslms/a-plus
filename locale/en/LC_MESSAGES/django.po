@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-07 22:28+0200\n"
+"POT-Creation-Date: 2022-03-24 13:36+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -216,6 +216,10 @@ msgstr "Only enrolled students shall pass."
 msgid "URL"
 msgstr "URL"
 
+#: course/admin.py course/forms.py course/models.py
+msgid "LABEL_MEMBERS"
+msgstr "Members"
+
 #: course/api/views.py
 msgid "COURSE_CONFIG_ERROR -- {error!s}"
 msgstr ""
@@ -257,10 +261,6 @@ msgstr "The user is already in the group."
 msgid "ERROR_GROUP_ALREADY_EXISTS"
 msgstr "The group already exists."
 
-#: course/forms.py course/models.py
-msgid "LABEL_MEMBERS"
-msgstr "Members"
-
 #: course/forms.py
 msgid "LABEL_USERS"
 msgstr "Users"
@@ -299,7 +299,7 @@ msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Reserved words include: {}"
 
 #: course/models.py external_services/models.py news/models.py
-#: notification/models.py threshold/models.py
+#: notification/models.py threshold/admin.py threshold/models.py
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "course instance"
 
@@ -426,7 +426,7 @@ msgstr ""
 msgid "LABEL_TAG"
 msgstr "tag"
 
-#: course/models.py userprofile/models.py
+#: course/models.py userprofile/admin.py userprofile/models.py
 msgid "LABEL_USER"
 msgstr "user"
 
@@ -602,7 +602,7 @@ msgstr "Enrol from SIS"
 msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
 msgstr "When enabled, students from local organization must enrol through SIS."
 
-#: course/models.py
+#: course/models.py lib/admin_helpers.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "course instance"
 
@@ -1875,7 +1875,7 @@ msgstr "created"
 msgid "LABEL_HASHKEY"
 msgstr "hashkey"
 
-#: diploma/models.py exercise/submission_models.py
+#: diploma/models.py exercise/admin.py exercise/submission_models.py
 msgid "LABEL_GRADE"
 msgstr "grade"
 
@@ -3447,6 +3447,10 @@ msgid "LABEL_PARAM_NAME"
 msgstr "parameter name"
 
 #: exercise/submission_models.py
+msgid "LABEL_FILE_OBJECT"
+msgstr "file"
+
+#: exercise/submission_models.py
 msgid "MODEL_NAME_SUBMITTED_FILE"
 msgstr "submitted file"
 
@@ -3723,6 +3727,14 @@ msgstr "Submissions"
 msgid "NO_SUBMISSIONS_YET"
 msgstr "No submissions yet"
 
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "INSPECT"
+msgstr "Inspect"
+
 #: exercise/templates/exercise/_user_toc.html
 msgid "OPENS"
 msgstr "Opens"
@@ -3929,13 +3941,6 @@ msgstr "Time"
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "ASSESSED_MANUALLY"
 msgstr "Assessed manually"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "INSPECT"
-msgstr "Inspect"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html

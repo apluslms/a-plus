@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-07 22:28+0200\n"
+"POT-Creation-Date: 2022-03-24 13:36+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -217,6 +217,10 @@ msgstr "Vain ilmoittautuneille."
 msgid "URL"
 msgstr "URL"
 
+#: course/admin.py course/forms.py course/models.py
+msgid "LABEL_MEMBERS"
+msgstr "Jäsenet"
+
 #: course/api/views.py
 msgid "COURSE_CONFIG_ERROR -- {error!s}"
 msgstr ""
@@ -258,10 +262,6 @@ msgstr "Käyttäjä on jo tässä ryhmässä."
 msgid "ERROR_GROUP_ALREADY_EXISTS"
 msgstr "Tämä ryhmä on jo olemassa."
 
-#: course/forms.py course/models.py
-msgid "LABEL_MEMBERS"
-msgstr "Jäsenet"
-
 #: course/forms.py
 msgid "LABEL_USERS"
 msgstr "Käyttäjät"
@@ -300,7 +300,7 @@ msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Varatut sanat: {}"
 
 #: course/models.py external_services/models.py news/models.py
-#: notification/models.py threshold/models.py
+#: notification/models.py threshold/admin.py threshold/models.py
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "kurssikerta"
 
@@ -427,7 +427,7 @@ msgstr ""
 msgid "LABEL_TAG"
 msgstr "merkintä"
 
-#: course/models.py userprofile/models.py
+#: course/models.py userprofile/admin.py userprofile/models.py
 msgid "LABEL_USER"
 msgstr "käyttäjä"
 
@@ -606,7 +606,7 @@ msgstr ""
 "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
 "opintotietojärjestelmän kautta"
 
-#: course/models.py
+#: course/models.py lib/admin_helpers.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "kurssikerta"
 
@@ -1884,7 +1884,7 @@ msgstr "luotu"
 msgid "LABEL_HASHKEY"
 msgstr "tunniste (hashkey)"
 
-#: diploma/models.py exercise/submission_models.py
+#: diploma/models.py exercise/admin.py exercise/submission_models.py
 msgid "LABEL_GRADE"
 msgstr "arvosana"
 
@@ -3454,6 +3454,10 @@ msgid "LABEL_PARAM_NAME"
 msgstr "parametrin nimi"
 
 #: exercise/submission_models.py
+msgid "LABEL_FILE_OBJECT"
+msgstr "tiedosto"
+
+#: exercise/submission_models.py
 msgid "MODEL_NAME_SUBMITTED_FILE"
 msgstr "palautettu tiedosto"
 
@@ -3733,6 +3737,14 @@ msgstr "Palautukset"
 msgid "NO_SUBMISSIONS_YET"
 msgstr "Ei vielä palautuksia"
 
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "INSPECT"
+msgstr "Tutki"
+
 #: exercise/templates/exercise/_user_toc.html
 msgid "OPENS"
 msgstr "Avautuu"
@@ -3938,13 +3950,6 @@ msgstr "Aika"
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "ASSESSED_MANUALLY"
 msgstr "Arvosteltu manuaalisesti"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "INSPECT"
-msgstr "Tutki"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
