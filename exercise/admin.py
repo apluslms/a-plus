@@ -91,6 +91,9 @@ class SubmissionRecentCourseInstanceListFilter(RecentCourseInstanceListFilter):
 class LearningObjectRecentCourseInstanceListFilter(RecentCourseInstanceListFilter):
     course_instance_query = 'course_module__course_instance'
 
+class SubmittedFileRecentCourseInstanceListFilter(RecentCourseInstanceListFilter):
+    course_instance_query = 'submission__exercise__course_module__course_instance'
+
 
 class CourseChapterAdmin(admin.ModelAdmin):
     search_fields = (
@@ -204,7 +207,10 @@ class SubmissionDraftAdmin(admin.ModelAdmin):
         'submitter__user__last_name',
         'submitter__user__email',
     )
-    list_display_links = ('id',)
+    list_display_links = (
+        'id',
+        'exercise',
+    )
     list_display = (
         'id',
         'exercise',
@@ -242,7 +248,34 @@ class SubmittedFileAdmin(admin.ModelAdmin):
         'submission__submitters__user__last_name',
         'submission__submitters__user__email',
     )
+    list_display = (
+        'get_course_instance',
+        'get_exercise',
+        'submission',
+        'get_submitters',
+        'param_name',
+    )
+    list_display_links = (
+        'submission',
+        'get_submitters',
+        'param_name',
+    )
+    list_filter = (
+        SubmittedFileRecentCourseInstanceListFilter,
+    )
     raw_id_fields = ('submission',)
+
+    @admin.display(description=_('LABEL_COURSE_INSTANCE'))
+    def get_course_instance(self, obj):
+        return str(obj.submission.exercise.course_module.course_instance)
+
+    @admin.display(description=_('LABEL_EXERCISE'))
+    def get_exercise(self, obj):
+        return str(obj.submission.exercise)
+
+    @admin.display(description=_('LABEL_SUBMITTERS'))
+    def get_submitters(self, obj):
+        return ', '.join(str(s) for s in obj.submission.submitters.all())
 
 
 class StaticExerciseAdmin(admin.ModelAdmin):
@@ -251,6 +284,15 @@ class StaticExerciseAdmin(admin.ModelAdmin):
         'category__name',
         'course_module__name',
         'course_module__course_instance__instance_name',
+    )
+    list_display = (
+        'course_instance',
+        'course_module',
+        '__str__',
+        'max_points',
+    )
+    list_display_links = (
+        '__str__',
     )
     raw_id_fields = (
         'category',
@@ -268,7 +310,22 @@ class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
         'course_module__name',
         'course_module__course_instance__instance_name',
     )
-    raw_id_fields = ('course_module',)
+    list_display = (
+        'course_instance',
+        'course_module',
+        '__str__',
+        'max_points',
+    )
+    list_display_links = (
+        '__str__',
+    )
+    raw_id_fields = (
+        'course_module',
+        'category',
+        'parent',
+        'submission_feedback_reveal_rule',
+        'model_solutions_reveal_rule',
+    )
 
 
 class LTIExerciseAdmin(admin.ModelAdmin):
@@ -342,11 +399,27 @@ class RevealRuleAdmin(admin.ModelAdmin):
     )
 
 class ExerciseTaskAdmin(admin.ModelAdmin):
+    search_fields = (
+        'task_id',
+        'exercise__name',
+        'exercise__course_module__course_instance__instance_name',
+        'exercise__course_module__course_instance__course__code',
+        'exercise__course_module__course_instance__course__name',
+    )
     list_display = (
+        'get_course',
         'exercise',
         'task_type',
         'task_id',
     )
+    list_display_links = (
+        'task_type',
+        'task_id',
+    )
+    raw_id_fields = ('exercise',)
+
+    def get_course(self, obj):
+        return str(obj.exercise.course_module.course_instance)
 
 
 class LearningObjectDisplayAdmin(admin.ModelAdmin):
