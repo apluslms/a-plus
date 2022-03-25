@@ -24,6 +24,9 @@ ALLOWED_HOSTS = ["*"]
 # organization information received from Haka login.
 LOCAL_ORGANIZATION = 'aalto.fi'
 
+# Scheme and host for course materials, e.g., "https://<gitmanager_host>".
+GITMANAGER_URL = None
+
 # Authentication and authentication library settings
 # see https://pypi.org/project/aplus-auth/ for explanations
 APLUS_AUTH_LOCAL = {
@@ -276,6 +279,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.contrib.messages.context_processors.messages",
                 "lib.context_processors.aplus_version",
+                "lib.context_processors.gitmanager_enabled",
             ],
         },
     },

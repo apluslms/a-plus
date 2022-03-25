@@ -506,9 +506,9 @@ msgstr "Hidden arabic"
 msgid "LABEL_COURSE"
 msgstr "course"
 
-#: course/models.py
+#: course/models.py edit_course/course_forms.py
 msgid "LABEL_INSTANCE_NAME"
-msgstr "instance name"
+msgstr "Instance name"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT"
@@ -1786,6 +1786,7 @@ msgstr "Override"
 #: deviations/templates/deviations/remove_dl.html
 #: deviations/templates/deviations/remove_submissions.html
 #: edit_course/templates/edit_course/batch_assess.html
+#: edit_course/templates/edit_course/edit_gitmanager.html
 #: exercise/templates/exercise/model/_file_submit_form.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "SUBMIT"
@@ -1966,48 +1967,178 @@ msgstr "Students will not be able to submit answers after this time."
 
 #: edit_course/course_forms.py
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
-msgstr "New URL identifier for the course instance:"
+msgstr "New URL identifier for the course instance"
 
 #: edit_course/course_forms.py
-msgid "LABEL_EXERCISE_CATEGORIES"
-msgstr "Assignment categories"
+msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE_HELPTEXT"
+msgstr ""
+"This identifier will be used in the web address for the new course instance."
 
 #: edit_course/course_forms.py
-msgid "LABEL_COURSE_MODULES"
-msgstr "Course modules"
+msgid "LABEL_INSTANCE_NAME_HELPTEXT"
+msgstr "This name will be displayed on the front page below the course name."
 
 #: edit_course/course_forms.py
-msgid "LABEL_CHAPTERS"
-msgstr "Chapters"
+msgid "LABEL_TEACHERS_HELPTEXT"
+msgstr "Copy teachers from this course instance."
 
 #: edit_course/course_forms.py
-msgid "LABEL_EXERCISES"
-msgstr "Assignments"
+msgid "LABEL_ASSISTANTS_HELPTEXT"
+msgstr "Copy assistants from this course instance."
 
 #: edit_course/course_forms.py
 msgid "LABEL_MENU_ITEMS"
 msgstr "Menu items"
 
 #: edit_course/course_forms.py
+msgid "LABEL_MENU_ITEMS_HELPTEXT"
+msgstr "Copy menu items from this course instance."
+
+#: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS"
 msgstr "Student tags"
+
+#: edit_course/course_forms.py
+msgid "LABEL_STUDENT_TAGS_HELPTEXT"
+msgstr "Copy student tags from this course instance."
+
+#: edit_course/course_forms.py
+msgid "LABEL_YEAR"
+msgstr "Year"
+
+#: edit_course/course_forms.py
+msgid "LABEL_YEAR_HELPTEXT"
+msgstr ""
+"The year on which the course instance starts. This becomes a part of the "
+"course key in Git manager."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SEMESTER_OR_MONTH"
+msgstr "Semester / month"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SEMESTER_OR_MONTH_HELPTEXT"
+msgstr ""
+"The semester when the course is running or the starting month. This becomes "
+"a part of the course key in Git manager."
+
+#: edit_course/course_forms.py
+msgid "LABEL_AUTUMN"
+msgstr "autumn"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SPRING"
+msgstr "spring"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SUMMER"
+msgstr "summer"
+
+#: edit_course/course_forms.py
+msgid "LABEL_JANUARY"
+msgstr "January"
+
+#: edit_course/course_forms.py
+msgid "LABEL_FEBRUARY"
+msgstr "February"
+
+#: edit_course/course_forms.py
+msgid "LABEL_MARCH"
+msgstr "March"
+
+#: edit_course/course_forms.py
+msgid "LABEL_APRIL"
+msgstr "April"
+
+#: edit_course/course_forms.py
+msgid "LABEL_MAY"
+msgstr "May"
+
+#: edit_course/course_forms.py
+msgid "LABEL_JUNE"
+msgstr "June"
+
+#: edit_course/course_forms.py
+msgid "LABEL_JULY"
+msgstr "July"
+
+#: edit_course/course_forms.py
+msgid "LABEL_AUGUST"
+msgstr "August"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SEPTEMBER"
+msgstr "September"
+
+#: edit_course/course_forms.py
+msgid "LABEL_OCTOBER"
+msgstr "October"
+
+#: edit_course/course_forms.py
+msgid "LABEL_NOVEMBER"
+msgstr "November"
+
+#: edit_course/course_forms.py
+msgid "LABEL_DECEMBER"
+msgstr "December"
+
+#: edit_course/course_forms.py
+msgid "LABEL_TEST"
+msgstr "test"
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_AUTOMATICALLY"
+msgstr "Update automatically"
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_AUTOMATICALLY_HELPTEXT"
+msgstr ""
+"Update the course settings and materials automatically on Git push events. "
+"This affects the main platform and the grader. If this is disabled, the "
+"teacher would need to manually import the course from Git manager in the "
+"Edit course section after changing the structure of the course."
+
+#: edit_course/course_forms.py
+msgid "LABEL_EMAIL_ON_ERROR"
+msgstr "Email on error"
+
+#: edit_course/course_forms.py
+msgid "LABEL_EMAIL_ON_ERROR_HELPTEXT"
+msgstr "Email the course staff if the course build fails on Git push events."
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_ORIGIN"
+msgstr "Git origin"
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_ORIGIN_HELPTEXT"
+msgstr ""
+"The git address of the repository for the course materials. This address is "
+"used in the 'git clone' command. Note: do not copy the address of the web "
+"page in GitLab. Copy the 'Clone with SSH' address, for example, git@version."
+"aalto.fi:course/aplus-manual.git"
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_BRANCH"
+msgstr "Git branch"
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_BRANCH_HELPTEXT"
+msgstr ""
+"The name of the git branch that you have created in the course git "
+"repository, for example, 'master' or '2022spring'."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SIS_INSTANCE"
 msgstr "Course instance in Student Information System"
 
 #: edit_course/course_forms.py
+msgid "LABEL_SIS_INSTANCE_HELPTEXT"
+msgstr "Select the course instance in the Student Information System."
+
+#: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"
 msgstr "The URL is already taken."
-
-#: edit_course/course_forms.py
-msgid "ERROR_CATEGORIES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES"
-msgstr ""
-"Can't clone chapters and assignments without cloning assignment categories."
-
-#: edit_course/course_forms.py
-msgid "ERROR_MODULES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES"
-msgstr "Can't clone chapters and assignments without cloning course modules."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SLUG"
@@ -2016,6 +2147,65 @@ msgstr "Slug"
 #: edit_course/course_forms.py
 msgid "LABEL_COLOR"
 msgstr "Colour"
+
+#: edit_course/course_forms.py
+msgid "LABEL_KEY"
+msgstr "Key"
+
+#: edit_course/course_forms.py
+msgid "LABEL_KEY_HELPTEXT"
+msgstr ""
+"The unique course key in Git manager. This key is part of the web addresses "
+"of the course in Git manager, for example, the addresses of the static files "
+"in the course git repository."
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_HOOK"
+msgstr "Update hook"
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_HOOK_HELPTEXT"
+msgstr ""
+"Unused, leave empty. (Send update notifications to this web address on Git "
+"push events.)"
+
+#: edit_course/course_forms.py
+msgid "LABEL_ID"
+msgstr "Id"
+
+#: edit_course/course_forms.py
+msgid "LABEL_ID_HELPTEXT"
+msgstr "Course instance id in the database."
+
+#: edit_course/course_forms.py
+msgid "LABEL_APLUS_CONFIGURATION_JSON"
+msgstr "Configuration JSON"
+
+#: edit_course/course_forms.py
+msgid "LABEL_APLUS_CONFIGURATION_JSON_HELPTEXT"
+msgstr "The course materials are imported from this web address."
+
+#: edit_course/course_forms.py
+msgid "LABEL_HOOK"
+msgstr "Hook"
+
+#: edit_course/course_forms.py
+msgid "LABEL_HOOK_HELPTEXT"
+msgstr ""
+"The webhook target for the course. You must copy this to the webhook "
+"settings of the course project in GitLab."
+
+#: edit_course/course_forms.py
+msgid "LABEL_WEBHOOK_SECRET"
+msgstr "Webhook secret"
+
+#: edit_course/course_forms.py
+msgid "LABEL_WEBHOOK_SECRET_HELPTEXT"
+msgstr ""
+"The secret token used in Git push notifications. You must copy this to the "
+"webhook settings of the course project in GitLab. The secret token prevents "
+"unauthorized access to triggering new course builds. Protect it like a "
+"password!"
 
 #: edit_course/exercise_forms.py
 msgid "ERROR_REQUIRED_WITH_SELECTED_TRIGGER"
@@ -2431,6 +2621,11 @@ msgid "RENUMERATE_LEARNING_OBJECTS_IGNORING_MODULES"
 msgstr "Renumerate learning objects ignoring modules"
 
 #: edit_course/templates/edit_course/edit_course_base.html
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "GITMANAGER"
+msgstr "Git manager"
+
+#: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/edit_index.html
 msgid "INDEX"
 msgstr "Front page"
@@ -2442,6 +2637,18 @@ msgstr "Menu"
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "BATCH_ASSESS"
 msgstr "Batch assess"
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "EDIT_GITMANAGER"
+msgstr "Edit Git manager settings"
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "EDIT_GITMANAGER_DESCRIPTION"
+msgstr "This action will update the course instance settings on Git manager."
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "UPDATING_GITMANAGER"
+msgstr "Updating Git manager..."
 
 #: edit_course/templates/edit_course/edit_index.html
 msgid "EDIT_COURSE_INDEX"
@@ -2614,6 +2821,14 @@ msgstr "New submissions stored."
 #: edit_course/views.py
 msgid "COURSE_INSTANCE_CLONED"
 msgstr "Course instance is now cloned."
+
+#: edit_course/views.py
+msgid "GITMANAGER_ERROR"
+msgstr "Git manager error: "
+
+#: edit_course/views.py
+msgid "GITMANAGER_UPDATED"
+msgstr "Git manager is now updated."
 
 #: edit_course/views.py
 msgid "CONFIGURED_WITH_WARNINGS"

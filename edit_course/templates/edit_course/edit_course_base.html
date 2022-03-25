@@ -17,6 +17,13 @@
 
     <nav aria-label="{% translate 'EDIT_COURSE' %}">
     <ul class="nav nav-tabs">
+        {% if GITMANAGER_ENABLED %}
+        <li role="presentation" class="menu-gitmanager-details">
+            <a href="{{ instance|url:'gitmanager-details' }}">
+                {% translate "GITMANAGER" %}
+            </a>
+        </li>
+        {% endif %}
         <li role="presentation" class="menu-course-clone">
             <a href="{{ instance|url:'course-clone' }}">
                 {% translate "INSTANCES" %}

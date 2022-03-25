@@ -1,5 +1,10 @@
 import html
+import urllib.parse
 
+from aplus_auth.payload import Permission, Permissions
+from aplus_auth.requests import post as aplus_post
+from aplus_auth.requests import put as aplus_put
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
@@ -28,7 +33,7 @@ from exercise.cache.exercise import invalidate_instance
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
-    CourseContentForm, CloneInstanceForm, UserTagForm, SelectUsersForm
+    CourseContentForm, CloneInstanceForm, GitmanagerForm, UserTagForm, SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 from lib.logging import SecurityLog
 
@@ -324,21 +329,97 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         from .operations.clone import clone
-        instance = clone(
+        new_instance = clone(
             instance=self.instance,
             url=form.cleaned_data['url'],
+            name=form.cleaned_data['instance_name'],
             clone_teachers=form.cleaned_data['teachers'],
             clone_assistants=form.cleaned_data['assistants'],
             clone_usertags=form.cleaned_data['usertags'],
-            clone_categories=form.cleaned_data['categories'],
-            clone_modules=form.cleaned_data['modules'],
-            clone_chapters=form.cleaned_data['chapters'],
-            clone_exercises=form.cleaned_data['exercises'],
             clone_menuitems=form.cleaned_data['menuitems'],
             siskey=form.cleaned_data.get('sis'),
         )
+
+        if not all([settings.GITMANAGER_URL, form.cleaned_data.get('git_origin'), form.cleaned_data.get('git_branch')]):
+            # Do not create a new entry in Git manager
+            messages.success(self.request, _('COURSE_INSTANCE_CLONED'))
+            return self.redirect(new_instance.get_url('course-details'))
+
+        key = "{}_{}{}".format(self.course.code, form.cleaned_data['key_year'], form.cleaned_data['key_month'])
+
+        data = {
+            "key": key,
+            "remote_id": new_instance.id,
+            "update_automatically": form.cleaned_data['update_automatically'],
+            "email_on_error": form.cleaned_data['email_on_error'],
+            "git_origin": form.cleaned_data['git_origin'],
+            "git_branch": form.cleaned_data['git_branch'],
+        }
+
+        permissions = Permissions()
+        permissions.instances.add(Permission.WRITE, id=new_instance.id)
+        gitmanager_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"api/gitmanager/{key}/")
+
+        try:
+            response = aplus_post(gitmanager_url, permissions=permissions, data=data)
+            if response.status_code == 200:
+                new_instance.configure_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"{key}/aplus-json")
+                new_instance.save()
+                gitmanager_hook_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"gitmanager/{key}/hook")
+                response = aplus_post(gitmanager_hook_url, permissions=permissions, data={"key": key})
+            if response.status_code != 200:
+                messages.error(self.request, _('GITMANAGER_ERROR') + response.text)
+        except Exception as e:
+            messages.error(self.request, str(e))
+
         messages.success(self.request, _('COURSE_INSTANCE_CLONED'))
-        return self.redirect(instance.get_url('course-details'))
+        return self.redirect(new_instance.get_url('course-details'))
+
+
+class EditGitmanagerView(CourseInstanceMixin, BaseFormView):
+    access_mode = ACCESS.TEACHER
+    template_name = "edit_course/edit_gitmanager.html"
+    form_class = GitmanagerForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["instance"] = self.instance
+        return kwargs
+
+    def form_valid(self, form):
+        data = {
+            "key": form.cleaned_data['key'],
+            "remote_id": form.cleaned_data['remote_id'],
+            "update_automatically": form.cleaned_data['update_automatically'],
+            "email_on_error": form.cleaned_data['email_on_error'],
+            "git_origin": form.cleaned_data['git_origin'],
+            "git_branch": form.cleaned_data['git_branch'],
+            "update_hook": form.cleaned_data['update_hook'],
+            "webhook_secret": form.cleaned_data['webhook_secret'],
+        }
+
+        permissions = Permissions()
+        permissions.instances.add(Permission.WRITE, id=self.instance.id)
+        gitmanager_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"api/gitmanager/id/{self.instance.id}")
+
+        try:
+            response = aplus_put(gitmanager_url, permissions=permissions, data=data)
+            if response.status_code == 404:
+                del data['webhook_secret']
+                response = aplus_post(gitmanager_url, permissions=permissions, data=data)
+            if response.status_code == 200:
+                key = form.cleaned_data['key']
+                self.instance.configure_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"{key}/aplus-json")
+                self.instance.save()
+                gitmanager_hook_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"gitmanager/{key}/hook")
+                response = aplus_post(gitmanager_hook_url, permissions=permissions, data={"key": key})
+                messages.success(self.request, _('GITMANAGER_UPDATED'))
+            if response.status_code != 200:
+                messages.error(self.request, _('GITMANAGER_ERROR') + response.text)
+        except Exception as e:
+            messages.error(self.request, str(e))
+
+        return self.redirect(self.instance.get_url('gitmanager-details'))
 
 
 class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):

@@ -507,9 +507,9 @@ msgstr "piilotettu arabialainen"
 msgid "LABEL_COURSE"
 msgstr "kurssi"
 
-#: course/models.py
+#: course/models.py edit_course/course_forms.py
 msgid "LABEL_INSTANCE_NAME"
-msgstr "kurssikerran nimi"
+msgstr "Kurssikerran nimi"
 
 #: course/models.py
 msgid "COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT"
@@ -1795,6 +1795,7 @@ msgstr "Ylikirjoita"
 #: deviations/templates/deviations/remove_dl.html
 #: deviations/templates/deviations/remove_submissions.html
 #: edit_course/templates/edit_course/batch_assess.html
+#: edit_course/templates/edit_course/edit_gitmanager.html
 #: exercise/templates/exercise/model/_file_submit_form.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "SUBMIT"
@@ -1977,47 +1978,179 @@ msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista
 
 #: edit_course/course_forms.py
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
-msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle:"
+msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle"
 
 #: edit_course/course_forms.py
-msgid "LABEL_EXERCISE_CATEGORIES"
-msgstr "Tehtäväkategoriat"
+msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE_HELPTEXT"
+msgstr "Tätä tunnistetta käytetään uuden kurssikerran verkko-osoitteessa."
 
 #: edit_course/course_forms.py
-msgid "LABEL_COURSE_MODULES"
-msgstr "Kurssimoduulit"
+msgid "LABEL_INSTANCE_NAME_HELPTEXT"
+msgstr "Tämä nimi näytetään etusivulla kurssin nimen alapuolella."
 
 #: edit_course/course_forms.py
-msgid "LABEL_CHAPTERS"
-msgstr "Luvut"
+msgid "LABEL_TEACHERS_HELPTEXT"
+msgstr "Kopioi opettajat tästä kurssikerrasta."
 
 #: edit_course/course_forms.py
-msgid "LABEL_EXERCISES"
-msgstr "Tehtävät"
+msgid "LABEL_ASSISTANTS_HELPTEXT"
+msgstr "Kopioi assistentit tästä kurssikerrasta."
 
 #: edit_course/course_forms.py
 msgid "LABEL_MENU_ITEMS"
 msgstr "Valikon linkit"
 
 #: edit_course/course_forms.py
+msgid "LABEL_MENU_ITEMS_HELPTEXT"
+msgstr "Kopioi valikon linkit tästä kurssikerrasta."
+
+#: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS"
 msgstr "Opiskelijamerkinnät"
+
+#: edit_course/course_forms.py
+msgid "LABEL_STUDENT_TAGS_HELPTEXT"
+msgstr "Kopioi opiskelijamerkinnät tästä kurssikerrasta."
+
+#: edit_course/course_forms.py
+msgid "LABEL_YEAR"
+msgstr "Vuosi"
+
+#: edit_course/course_forms.py
+msgid "LABEL_YEAR_HELPTEXT"
+msgstr ""
+"Vuosi, jolloin kurssikerta alkaa. Tästä tulee osa kurssin avainta Git "
+"managerissa."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SEMESTER_OR_MONTH"
+msgstr "Lukukausi / kuukausi"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SEMESTER_OR_MONTH_HELPTEXT"
+msgstr ""
+"Lukukausi, jolloin kurssi on käynnissä tai aloituskuukausi. Tästä tulee osa "
+"kurssin avainta Git managerissa."
+
+#: edit_course/course_forms.py
+msgid "LABEL_AUTUMN"
+msgstr "syksy"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SPRING"
+msgstr "kevät"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SUMMER"
+msgstr "kesä"
+
+#: edit_course/course_forms.py
+msgid "LABEL_JANUARY"
+msgstr "tammikuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_FEBRUARY"
+msgstr "helmikuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_MARCH"
+msgstr "maaliskuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_APRIL"
+msgstr "huhtikuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_MAY"
+msgstr "toukokuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_JUNE"
+msgstr "kesäkuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_JULY"
+msgstr "heinäkuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_AUGUST"
+msgstr "elokuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SEPTEMBER"
+msgstr "syyskuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_OCTOBER"
+msgstr "lokakuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_NOVEMBER"
+msgstr "marraskuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_DECEMBER"
+msgstr "joulukuu"
+
+#: edit_course/course_forms.py
+msgid "LABEL_TEST"
+msgstr "test"
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_AUTOMATICALLY"
+msgstr "Päivitä automaattisesti"
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_AUTOMATICALLY_HELPTEXT"
+msgstr ""
+"Päivitä kurssiasetukset ja -materiaalit automaattisesti Gittiin "
+"työnnettäessä. Tämä vaikuttaa pääalustaan ja graderiin. Jos tämä ei ole "
+"käytössä, opettajan on tuotava kurssi manuaalisesti Git Managerista Muokkaa "
+"kurssia -sivulla kurssin rakenteen muuttamisen jälkeen."
+
+#: edit_course/course_forms.py
+msgid "LABEL_EMAIL_ON_ERROR"
+msgstr "Lähetä sähköpostia virhetilanteessa"
+
+#: edit_course/course_forms.py
+msgid "LABEL_EMAIL_ON_ERROR_HELPTEXT"
+msgstr ""
+"Lähetä kurssihenkilökunnalle sähköpostia, jos kurssin kääntäminen "
+"epäonnistuu Gittiin työnnettäessä."
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_ORIGIN"
+msgstr "Git origin"
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_ORIGIN_HELPTEXT"
+msgstr ""
+"Kurssimateriaalien repositoryn git-osoite. Tätä osoitetta käytetään 'git "
+"clone' -komennossa. Huomautus: älä kopioi verkkosivun osoitetta GitLabissa. "
+"Kopioi 'Clone with SSH' -osoite, esimerkiksi git@version.aalto.fi:course/"
+"aplus-manual.git"
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_BRANCH"
+msgstr "Git branch"
+
+#: edit_course/course_forms.py
+msgid "LABEL_GIT_BRANCH_HELPTEXT"
+msgstr ""
+"Kurssin git-repositoryyn luomasi git-haaran nimi, esimerkiksi 'master' tai "
+"'2022spring'."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SIS_INSTANCE"
 msgstr "Kurssi-instanssi opintotietojärjestelmässä"
 
 #: edit_course/course_forms.py
+msgid "LABEL_SIS_INSTANCE_HELPTEXT"
+msgstr "Valitse kurssikerta opintotietojärjestelmässä."
+
+#: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"
 msgstr "URL on jo käytössä."
-
-#: edit_course/course_forms.py
-msgid "ERROR_CATEGORIES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES"
-msgstr "Lukuja ja tehtäviä ei voi kopioida ilman tehtäväkategorioita."
-
-#: edit_course/course_forms.py
-msgid "ERROR_MODULES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES"
-msgstr "Lukuja ja tehtäviä ei voi kopioida ilman kurssimoduuleja."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SLUG"
@@ -2026,6 +2159,65 @@ msgstr "Tunniste"
 #: edit_course/course_forms.py
 msgid "LABEL_COLOR"
 msgstr "Väri"
+
+#: edit_course/course_forms.py
+msgid "LABEL_KEY"
+msgstr "Avain"
+
+#: edit_course/course_forms.py
+msgid "LABEL_KEY_HELPTEXT"
+msgstr ""
+"Uniikki kurssiavain Git Managerissa. Tämä avain on osa kurssin verkko-"
+"osoitteita Git Managerissa, esimerkiksi kurssin git-repositoryssa olevien "
+"staattisten tiedostojen osoitteita."
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_HOOK"
+msgstr "Update hook"
+
+#: edit_course/course_forms.py
+msgid "LABEL_UPDATE_HOOK_HELPTEXT"
+msgstr ""
+"Käyttämätön, jätä tyhjäksi. (Lähetä päivitysilmoitukset tähän verkko-"
+"osoitteeseen Gittiin työnnettäessä.)"
+
+#: edit_course/course_forms.py
+msgid "LABEL_ID"
+msgstr "Id"
+
+#: edit_course/course_forms.py
+msgid "LABEL_ID_HELPTEXT"
+msgstr "Kurssikerran id tietokannassa."
+
+#: edit_course/course_forms.py
+msgid "LABEL_APLUS_CONFIGURATION_JSON"
+msgstr "Kurssiasetusten JSON"
+
+#: edit_course/course_forms.py
+msgid "LABEL_APLUS_CONFIGURATION_JSON_HELPTEXT"
+msgstr "Kurssimateriaalit tuodaan tästä verkko-osoitteesta."
+
+#: edit_course/course_forms.py
+msgid "LABEL_HOOK"
+msgstr "Hook"
+
+#: edit_course/course_forms.py
+msgid "LABEL_HOOK_HELPTEXT"
+msgstr ""
+"Kurssin webhook-kohde. Sinun on kopioitava tämä kurssiprojektin webhook-"
+"asetuksiin GitLabissa."
+
+#: edit_course/course_forms.py
+msgid "LABEL_WEBHOOK_SECRET"
+msgstr "Webhook secret"
+
+#: edit_course/course_forms.py
+msgid "LABEL_WEBHOOK_SECRET_HELPTEXT"
+msgstr ""
+"Git push -ilmoituksissa käytetty salainen tunnus. Sinun on kopioitava tämä "
+"kurssiprojektin webhook-asetuksiin GitLabissa. Salainen tunnus estää "
+"luvattoman pääsyn käynnistämään kurssin kääntämisen. Suojaa sitä kuin "
+"salasanaa!"
 
 #: edit_course/exercise_forms.py
 msgid "ERROR_REQUIRED_WITH_SELECTED_TRIGGER"
@@ -2443,6 +2635,11 @@ msgid "RENUMERATE_LEARNING_OBJECTS_IGNORING_MODULES"
 msgstr "Numeroi oppimissisällöt uudelleen huomioimatta moduuleita"
 
 #: edit_course/templates/edit_course/edit_course_base.html
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "GITMANAGER"
+msgstr "Git manager"
+
+#: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/edit_index.html
 msgid "INDEX"
 msgstr "Etusivu"
@@ -2454,6 +2651,18 @@ msgstr "Valikko"
 #: edit_course/templates/edit_course/edit_course_base.html
 msgid "BATCH_ASSESS"
 msgstr "Joukkoarviointi"
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "EDIT_GITMANAGER"
+msgstr "Muokkaa Git managerin asetuksia"
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "EDIT_GITMANAGER_DESCRIPTION"
+msgstr "Tämä toiminto päivittää kurssikerran asetuksia Git managerissa."
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "UPDATING_GITMANAGER"
+msgstr "Päivitetään Git manageria..."
 
 #: edit_course/templates/edit_course/edit_index.html
 msgid "EDIT_COURSE_INDEX"
@@ -2626,6 +2835,14 @@ msgstr "Uudet palautukset tallennettiin."
 #: edit_course/views.py
 msgid "COURSE_INSTANCE_CLONED"
 msgstr "Kurssikerta on nyt kopioitu."
+
+#: edit_course/views.py
+msgid "GITMANAGER_ERROR"
+msgstr "Git manager virhe: "
+
+#: edit_course/views.py
+msgid "GITMANAGER_UPDATED"
+msgstr "Git manager on nyt päivitetty."
 
 #: edit_course/views.py
 msgid "CONFIGURED_WITH_WARNINGS"

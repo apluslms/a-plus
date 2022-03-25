@@ -1,0 +1,43 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load bootstrap %}
+{% load editcourse %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li class="active">{% translate "GITMANAGER" %}</li>
+{% endblock %}
+{% block view_tag %}edit-course,gitmanager-details{% endblock %}
+
+{% block coursecontent %}
+<br />
+<form id="gitmanager-form" method="post" class="well">
+    {% csrf_token %}
+    <legend>{% translate "EDIT_GITMANAGER" %}</legend>
+    <p>
+        {% translate "EDIT_GITMANAGER_DESCRIPTION" %}
+    </p>
+    {{ form|bootstrap }}
+    <button type="submit" class="aplus-button--default aplus-button--md">
+        {% translate "SUBMIT" %}
+    </button>
+    <div class="hidden progress">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
+        {% translate "UPDATING_GITMANAGER" %}
+      </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+$(function() {
+    var form = $("#gitmanager-form");
+    form.on("submit", function(event) {
+        form.find('[type="submit"]').attr("disabled", true);
+        form.find('.progress').removeClass("hidden");
+    });
+});
+</script>
+{% endblock %}
