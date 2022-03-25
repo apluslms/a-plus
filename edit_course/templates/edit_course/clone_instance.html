@@ -41,15 +41,13 @@
     {% csrf_token %}
     <legend>{% translate "CLONE_COURSE" %}</legend>
     <p>
-        {% blocktranslate trimmed %}
-          CLONE_COURSE_AND_DATA_INTO_NEW_INSTANCE_DESCRIPTION
-        {% endblocktranslate %}
+        {% translate "CLONE_COURSE_AND_DATA_INTO_NEW_INSTANCE_DESCRIPTION" %}
     </p>
     {{ form|bootstrap }}
-    <button type="submit" class="aplus-button--secondary aplus-button--md">
+    <button type="submit" class="aplus-button--default aplus-button--md">
         {% translate "CLONE_INTO_NEW_INSTANCE" %}
     </button>
-    <div class="hide progress">
+    <div class="hidden progress">
       <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
         {% translate "CLONING_COURSE" %}
       </div>
@@ -64,7 +62,7 @@ $(function() {
     var form = $("#clone-form");
     form.on("submit", function(event) {
         form.find('[type="submit"]').attr("disabled", true);
-        form.find('.progress').removeClass("hide");
+        form.find('.progress').removeClass("hidden");
     });
 });
 </script>

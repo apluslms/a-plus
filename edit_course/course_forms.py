@@ -1,8 +1,13 @@
-from typing import Any
 import logging
+from typing import Any
+import urllib.parse
 
+from aplus_auth.payload import Permission, Permissions
+from aplus_auth.requests import get as aplus_get
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_colortag.forms import ColorTagForm
 
@@ -138,7 +143,7 @@ class CourseInstanceForm(forms.ModelForm):
             self.fields["url"].help_text = _('COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE')
             self.fields["lifesupport_time"].help_text = _('COURSE_REMOVES_MODEL_ANSWER_VISIBILITY_STUDENTS')
             self.fields["archive_time"].help_text = _('COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS')
-        
+
         # If course is not connected to SIS system, disable the enroll checkbox
         if not self.instance.sis_id:
             self.fields['sis_enroll'].disabled = True
@@ -189,55 +194,100 @@ class CourseContentForm(forms.ModelForm):
 class CloneInstanceForm(forms.Form):
     url = forms.CharField(
         label=_('COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE'),
+        help_text=_('COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE_HELPTEXT'),
+        max_length=255,
         validators=[generate_url_key_validator()],
+    )
+    instance_name = forms.CharField(
+        label=_('LABEL_INSTANCE_NAME'),
+        help_text=_('LABEL_INSTANCE_NAME_HELPTEXT'),
+        max_length=255,
     )
     teachers = forms.BooleanField(
         label=_('LABEL_TEACHERS'),
+        help_text=_('LABEL_TEACHERS_HELPTEXT'),
         required=False,
         initial=True,
     )
     assistants = forms.BooleanField(
         label=_('LABEL_ASSISTANTS'),
-        required=False,
-        initial=True,
-    )
-    categories = forms.BooleanField(
-        label=_('LABEL_EXERCISE_CATEGORIES'),
-        required=False,
-        initial=True,
-    )
-    modules = forms.BooleanField(
-        label=_('LABEL_COURSE_MODULES'),
-        required=False,
-        initial=True,
-    )
-    chapters = forms.BooleanField(
-        label=_('LABEL_CHAPTERS'),
-        required=False,
-        initial=True,
-    )
-    exercises = forms.BooleanField(
-        label=_('LABEL_EXERCISES'),
+        help_text=_('LABEL_ASSISTANTS_HELPTEXT'),
         required=False,
         initial=True,
     )
     menuitems = forms.BooleanField(
         label=_('LABEL_MENU_ITEMS'),
+        help_text=_('LABEL_MENU_ITEMS_HELPTEXT'),
         required=False,
         initial=True,
     )
     usertags = forms.BooleanField(
         label=_('LABEL_STUDENT_TAGS'),
+        help_text=_('LABEL_STUDENT_TAGS_HELPTEXT'),
         required=False,
         initial=True,
     )
+    if settings.GITMANAGER_URL:
+        key_year = forms.IntegerField(
+            label=_('LABEL_YEAR'),
+            help_text=_('LABEL_YEAR_HELPTEXT'),
+            widget=forms.Select(choices=[
+                (year, year) for year in range(timezone.now().year, timezone.now().year + 5)
+            ]),
+        )
+        key_month = forms.CharField(
+            label=_('LABEL_SEMESTER_OR_MONTH'),
+            help_text=_('LABEL_SEMESTER_OR_MONTH_HELPTEXT'),
+            widget=forms.Select(choices=[
+                ('Autumn', _('LABEL_AUTUMN')),
+                ('Spring', _('LABEL_SPRING')),
+                ('Summer', _('LABEL_SUMMER')),
+                ('January', _('LABEL_JANUARY')),
+                ('February', _('LABEL_FEBRUARY')),
+                ('March', _('LABEL_MARCH')),
+                ('April', _('LABEL_APRIL')),
+                ('May', _('LABEL_MAY')),
+                ('June', _('LABEL_JUNE')),
+                ('July', _('LABEL_JULY')),
+                ('August', _('LABEL_AUGUST')),
+                ('September', _('LABEL_SEPTEMBER')),
+                ('October', _('LABEL_OCTOBER')),
+                ('November', _('LABEL_NOVEMBER')),
+                ('December', _('LABEL_DECEMBER')),
+                ('Test', _('LABEL_TEST')),
+            ]),
+        )
+        update_automatically = forms.BooleanField(
+            label=_('LABEL_UPDATE_AUTOMATICALLY'),
+            help_text=_('LABEL_UPDATE_AUTOMATICALLY_HELPTEXT'),
+            required=False,
+            initial=True,
+        )
+        email_on_error = forms.BooleanField(
+            label=_('LABEL_EMAIL_ON_ERROR'),
+            help_text=_('LABEL_EMAIL_ON_ERROR_HELPTEXT'),
+            required=False,
+            initial=True,
+        )
+        git_origin = forms.CharField(
+            label=_('LABEL_GIT_ORIGIN'),
+            help_text=_('LABEL_GIT_ORIGIN_HELPTEXT'),
+            max_length=255,
+            required=False,
+        )
+        git_branch = forms.CharField(
+            label=_('LABEL_GIT_BRANCH'),
+            help_text=_('LABEL_GIT_BRANCH_HELPTEXT'),
+            max_length=40,
+            required=False,
+        )
 
     def set_sis_selector(self) -> None:
         sis: StudentInfoSystem = get_sis_configuration()
         if not sis:
             # Student Info System not configured
             return
-        
+
         try:
             instances = sis.get_instances(self.instance.course.code)
 
@@ -247,14 +297,29 @@ class CloneInstanceForm(forms.Form):
                 self.fields['sis'] = forms.ChoiceField(
                         choices=options,
                         label=_('LABEL_SIS_INSTANCE'),
+                        help_text=_('LABEL_SIS_INSTANCE_HELPTEXT'),
                 )
         except Exception as e:
             logger.exception("Error getting instances from SIS.")
 
+    def set_initial_git_origin(self) -> None:
+        permissions = Permissions()
+        permissions.instances.add(Permission.READ, id=self.instance.id)
+        gitmanager_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"api/gitmanager/id/{self.instance.id}")
+        try:
+            response = aplus_get(gitmanager_url, permissions=permissions)
+            if response.status_code == 200:
+                data = response.json()
+                self.fields['git_origin'].initial = data.get('git_origin')
+        except Exception:
+            pass
+
     def __init__(self, *args, **kwargs):
         self.instance = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
+        self.fields['instance_name'].initial = self.instance.instance_name
         self.set_sis_selector()
+        self.set_initial_git_origin()
 
     def clean_url(self):
         url = self.cleaned_data['url']
@@ -262,21 +327,6 @@ class CloneInstanceForm(forms.Form):
                 course=self.instance.course, url=url).exists():
             raise ValidationError(_('ERROR_URL_ALREADY_TAKEN'))
         return url
-
-    def clean(self):
-        errors = {}
-        if self.cleaned_data['chapters'] or self.cleaned_data['exercises']:
-            if not self.cleaned_data['categories']:
-                errors['categories'] = _(
-                    'ERROR_CATEGORIES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES'
-                )
-            if not self.cleaned_data['modules']:
-                errors['modules'] = _(
-                    'ERROR_MODULES_NEED_CLONING_TO_CLONE_CHAPTERS_AND_EXERCISES'
-                )
-
-        if errors:
-            raise ValidationError(errors)
 
 
 class UserTagForm(ColorTagForm):
@@ -303,6 +353,7 @@ class UserTagForm(ColorTagForm):
         obj.course_instance = course_instance
         return obj
 
+
 class SelectUsersForm(forms.Form):
     user = UsersSearchSelectField(queryset=UserProfile.objects.none(),
         initial_queryset=UserProfile.objects.none())
@@ -313,3 +364,93 @@ class SelectUsersForm(forms.Form):
         self.fields['user'].widget.search_api_url = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
         self.fields['user'].queryset = course_instance.get_student_profiles()
+
+
+class GitmanagerForm(forms.Form):
+    key = forms.SlugField(
+        label=_('LABEL_KEY'),
+        help_text=_('LABEL_KEY_HELPTEXT'),
+    )
+    update_automatically = forms.BooleanField(
+        label=_('LABEL_UPDATE_AUTOMATICALLY'),
+        help_text=_('LABEL_UPDATE_AUTOMATICALLY_HELPTEXT'),
+        required=False,
+    )
+    email_on_error = forms.BooleanField(
+        label=_('LABEL_EMAIL_ON_ERROR'),
+        help_text=_('LABEL_EMAIL_ON_ERROR_HELPTEXT'),
+        required=False,
+    )
+    git_origin = forms.CharField(
+        label=_('LABEL_GIT_ORIGIN'),
+        help_text=_('LABEL_GIT_ORIGIN_HELPTEXT'),
+        max_length=255,
+    )
+    git_branch = forms.CharField(
+        label=_('LABEL_GIT_BRANCH'),
+        help_text=_('LABEL_GIT_BRANCH_HELPTEXT'),
+        max_length=40,
+    )
+    update_hook = forms.URLField(
+        label=_('LABEL_UPDATE_HOOK'),
+        help_text=_('LABEL_UPDATE_HOOK_HELPTEXT'),
+        required=False,
+    )
+    remote_id = forms.IntegerField(
+        label=_('LABEL_ID'),
+        help_text=_('LABEL_ID_HELPTEXT'),
+        required=False,
+        disabled=True,
+    )
+    # forms.CharField because forms.URLField validation fails for docker container addresses
+    aplus_json_url = forms.CharField(
+        label=_('LABEL_APLUS_CONFIGURATION_JSON'),
+        help_text=_('LABEL_APLUS_CONFIGURATION_JSON_HELPTEXT'),
+        required=False,
+        disabled=True,
+    )
+    # forms.CharField because forms.URLField validation fails for docker container addresses
+    hook = forms.CharField(
+        label=_('LABEL_HOOK'),
+        help_text=_('LABEL_HOOK_HELPTEXT'),
+        required=False,
+        disabled=True,
+    )
+    webhook_secret = forms.CharField(
+        label=_('LABEL_WEBHOOK_SECRET'),
+        help_text=_('LABEL_WEBHOOK_SECRET_HELPTEXT'),
+        max_length=64,
+        required=False,
+        disabled=True,
+    )
+
+    def set_initial_values(self):
+        self.fields['remote_id'].initial = self.instance.id
+        self.fields['aplus_json_url'].initial = self.instance.configure_url
+        self.fields['update_automatically'].initial = True
+        self.fields['email_on_error'].initial = True
+        permissions = Permissions()
+        permissions.instances.add(Permission.READ, id=self.instance.id)
+        # Write access is needed to retrieve the webhook secret
+        permissions.instances.add(Permission.WRITE, id=self.instance.id)
+        gitmanager_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"api/gitmanager/id/{self.instance.id}")
+        try:
+            response = aplus_get(gitmanager_url, permissions=permissions)
+            if response.status_code == 200:
+                data = response.json()
+                key = data.get('key')
+                self.fields['key'].initial = key
+                self.fields['update_automatically'].initial = data.get('update_automatically')
+                self.fields['email_on_error'].initial = data.get('email_on_error')
+                self.fields['git_origin'].initial = data.get('git_origin')
+                self.fields['git_branch'].initial = data.get('git_branch')
+                self.fields['update_hook'].initial = data.get('update_hook')
+                self.fields['webhook_secret'].initial = data.get('webhook_secret')
+                self.fields['hook'].initial = urllib.parse.urljoin(settings.GITMANAGER_URL, f"gitmanager/{key}/hook")
+        except Exception:
+            pass
+
+    def __init__(self, *args, **kwargs):
+        self.instance = kwargs.pop('instance')
+        super().__init__(*args, **kwargs)
+        self.set_initial_values()

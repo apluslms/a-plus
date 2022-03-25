@@ -12,11 +12,10 @@ class CourseCloneTest(CourseTestCase):
         instance = CourseInstance.objects.get(id=1)
         instance.add_assistant(self.user.userprofile)
         instance_url = instance.url
-        instance_str = str(instance)
+        course_name = instance.course.name
         visible = instance.visible_to_students
         teacher_names = self._as_id(instance.teachers.all())
         assistant_names = self._as_id(instance.assistants.all())
-        module_names = self._as_names(instance.course_modules.all())
 
         url = instance.get_url('course-clone')
         self.client.login(username='testTeacher', password='testPassword')
@@ -24,14 +23,13 @@ class CourseCloneTest(CourseTestCase):
         # Full clone
         response = self.client.post(url, {
             'url': 'another1',
+            'instance_name': 'instance1',
             'teachers': True,
             'assistants': True,
-            'categories': True,
-            'modules': True,
-            'chapters': True,
-            'exercises': True,
             'menuitems': True,
             'usertags': True,
+            'key_year': 2022,
+            'key_month': 'Test',
         }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "alert alert-danger")
@@ -40,14 +38,13 @@ class CourseCloneTest(CourseTestCase):
         # Partial clone
         response = self.client.post(url, {
             'url': 'another2',
+            'instance_name': 'instance2',
             'teachers': True,
             'assistants': False,
-            'categories': False,
-            'modules': True,
-            'chapters': False,
-            'exercises': False,
             'menuitems': False,
             'usertags': False,
+            'key_year': 2022,
+            'key_month': 'Test',
         }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "alert alert-danger")
@@ -55,52 +52,26 @@ class CourseCloneTest(CourseTestCase):
 
         instance = CourseInstance.objects.get(id=1)
         self.assertEqual(instance.url, instance_url)
-        self.assertEqual(str(instance), instance_str)
+        self.assertEqual(instance.course.name, course_name)
         self.assertEqual(instance.visible_to_students, visible)
         self.assertEqual(self._as_id(instance.teachers.all()), teacher_names)
         self.assertEqual(self._as_id(instance.assistants.all()), assistant_names)
-        self.assertEqual(self._as_names(instance.course_modules.all()), module_names)
 
         # Check the full clone
         new_instance_1 = CourseInstance.objects.get(course=instance.course, url="another1")
-        self.assertEqual(str(new_instance_1), instance_str)
+        self.assertEqual(new_instance_1.course.name, course_name)
+        self.assertEqual(new_instance_1.instance_name, "instance1")
         self.assertFalse(new_instance_1.visible_to_students)
         self.assertEqual(self._as_id(new_instance_1.teachers.all()), teacher_names)
         self.assertEqual(self._as_id(new_instance_1.assistants.all()), assistant_names)
-        self.assertEqual(self._as_names(new_instance_1.course_modules.all()), module_names)
-
-        old_modules = list(instance.course_modules.all())
-        new_modules = list(new_instance_1.course_modules.all())
-        self.assertEqual(len(old_modules), len(new_modules))
-        for i in range(len(old_modules)):
-            self.assertEqual(old_modules[i].url, new_modules[i].url)
-            self.assertEqual(
-                self._as_names(old_modules[i].learning_objects.all()),
-                self._as_names(new_modules[i].learning_objects.all())
-            )
-            self.assertEqual(
-                self._as_class(old_modules[i].learning_objects.all()),
-                self._as_class(new_modules[i].learning_objects.all())
-            )
-
-        old_exercise = old_modules[1].learning_objects.first()
-        new_exercise = new_modules[1].learning_objects.first()
-        self.assertTrue(old_exercise.submissions.exists())
-        self.assertFalse(new_exercise.submissions.exists())
 
         # Check the partial clone
         new_instance_2 = CourseInstance.objects.get(course=instance.course, url="another2")
-        self.assertEqual(str(new_instance_2), instance_str)
+        self.assertEqual(new_instance_2.course.name, course_name)
+        self.assertEqual(new_instance_2.instance_name, "instance2")
         self.assertFalse(new_instance_2.visible_to_students)
         self.assertEqual(self._as_id(new_instance_2.teachers.all()), teacher_names)
         self.assertEqual(new_instance_2.assistants.count(), 0)
-        self.assertEqual(self._as_names(new_instance_2.course_modules.all()), module_names)
-
-        new_modules = list(new_instance_2.course_modules.all())
-        self.assertEqual(len(old_modules), len(new_modules))
-        for i in range(len(old_modules)):
-            self.assertEqual(old_modules[i].url, new_modules[i].url)
-            self.assertEqual(new_modules[i].learning_objects.count(), 0)
 
     def _as_id(self, items):
         return [a.id for a in items]
@@ -122,14 +93,13 @@ class CourseCloneTest(CourseTestCase):
         # Full clone
         response = self.client.post(url, {
             'url': 'sis-test',
+            'instance_name': 'sis-instance',
             'teachers': True,
             'assistants': True,
-            'categories': True,
-            'modules': True,
-            'chapters': True,
-            'exercises': True,
             'menuitems': True,
             'usertags': True,
+            'key_year': 2022,
+            'key_month': 'Test',
             'sis': '123',
         }, follow=True)
         self.assertEqual(response.status_code, 200)

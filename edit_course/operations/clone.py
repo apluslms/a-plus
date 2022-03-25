@@ -8,51 +8,6 @@ from course.sis import get_sis_configuration, StudentInfoSystem
 
 logger = logging.getLogger("aplus.course")
 
-def clone_learning_objects(
-        category_map,
-        module,
-        objects,
-        parent,
-        clone_chapters,
-        clone_exercises,
-):
-    """
-    Clones learning objects recursively.
-    """
-    for lobject in objects:
-        children = list(lobject.children.defer(None))
-
-        # The user can choose to import just chapters or just exercises. If
-        # this learning object is not of a requested type, skip it and reparent
-        # its children.
-        cloned = False
-        if (
-            (isinstance(lobject, CourseChapter) and clone_chapters) or
-            (isinstance(lobject, BaseExercise) and clone_exercises)
-        ):
-            # Save as new learning object.
-            lobject.id = None
-            lobject.modelwithinheritance_ptr_id = None
-            if hasattr(lobject, "learningobject_ptr_id"):
-                lobject.learningobject_ptr_id = None
-            if hasattr(lobject, "baseexercise_ptr_id"):
-                lobject.baseexercise_ptr_id = None
-            lobject.category = category_map[lobject.category.id]
-            lobject.course_module = module
-            lobject.parent = parent
-            lobject.save()
-            cloned = True
-
-        clone_learning_objects(
-            category_map,
-            module,
-            children,
-            lobject if cloned else parent,
-            clone_chapters,
-            clone_exercises,
-        )
-
-
 def set_sis(instance: CourseInstance, id: str) -> None:
     """
     Set teachers, starting time and ending based on Student Information System.
@@ -98,13 +53,10 @@ def set_sis(instance: CourseInstance, id: str) -> None:
 def clone(
         instance,
         url,
+        name,
         clone_teachers,
         clone_assistants,
         clone_usertags,
-        clone_categories,
-        clone_modules,
-        clone_chapters,
-        clone_exercises,
         clone_menuitems,
         siskey,
 ):
@@ -114,14 +66,14 @@ def clone(
     teachers = list(instance.teachers.all())
     assistants = list(instance.assistants.all())
     usertags = list(instance.usertags.all())
-    categories = list(instance.categories.all())
-    modules = list(instance.course_modules.all())
     menuitems = list(instance.ext_services.all())
 
     # Save as new course instance.
     instance.id = None
     instance.visible_to_students = False
+    instance.configure_url = ""
     instance.url = url
+    instance.instance_name = name
     instance.save()
 
     if clone_teachers:
@@ -138,36 +90,6 @@ def clone(
             usertag.id = None
             usertag.course_instance = instance
             usertag.save()
-
-    category_map = {}
-    if clone_categories:
-        for category in categories:
-            old_id = category.id
-
-            # Save as new category.
-            category.id = None
-            category.course_instance = instance
-            category.save()
-
-            category_map[old_id] = category
-
-    if clone_modules:
-        for module in modules:
-            objects = list(module.learning_objects.filter(parent__isnull=True).defer(None))
-
-            # Save as new module.
-            module.id = None
-            module.course_instance = instance
-            module.save()
-
-            clone_learning_objects(
-                category_map,
-                module,
-                objects,
-                None,
-                clone_chapters,
-                clone_exercises,
-            )
 
     if clone_menuitems:
         for menuitem in menuitems:
