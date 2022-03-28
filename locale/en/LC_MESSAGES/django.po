@@ -341,6 +341,10 @@ msgid "BANNED"
 msgstr "Banned"
 
 #: course/models.py
+msgid "PENDING"
+msgstr "Pending"
+
+#: course/models.py
 msgid "LABEL_USER_PROFILE"
 msgstr "user"
 
@@ -1334,11 +1338,11 @@ msgstr "Filter users by status"
 
 #: course/templates/course/staff/participants.html
 msgid "NUMBER_OF_ENROLLED_STUDENTS"
-msgstr "Number of enrolled students"
+msgstr "Number of active students"
 
 #: course/templates/course/staff/participants.html
 msgid "REMOVED_STUDENTS"
-msgstr "removed students"
+msgstr "inactive students"
 
 #: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"

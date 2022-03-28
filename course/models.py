@@ -170,6 +170,7 @@ class Enrollment(models.Model):
         ('ACTIVE', 1, _('ACTIVE')),
         ('REMOVED', 2, _('REMOVED')),
         ('BANNED', 3, _('BANNED')),
+        ('PENDING', 4, _('PENDING')),
     ])
 
     course_instance = models.ForeignKey('CourseInstance',
@@ -461,9 +462,11 @@ class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
         return self.all()
 
     def get_enrolled(self, user):
+        # Also "PENDING" enrollments should show as own courses (e.g. in front page, course menu)
         return self.filter(
+            Q(enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE)
+            | Q(enrollment__status=Enrollment.ENROLLMENT_STATUS.PENDING),
             enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT,
-            enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
             enrollment__user_profile=user)
 
     def get_assisting(self, user):
@@ -839,8 +842,12 @@ class CourseInstance(UrlMixin, models.Model):
             return True
         return False
 
-    def enroll_student(self, user, from_sis=False):
+    def enroll_student(self, user, from_sis=False, use_pending=False):
         # Return value False indicates whether that the user was already enrolled.
+        if use_pending:
+            status = Enrollment.ENROLLMENT_STATUS.PENDING
+        else:
+            status = Enrollment.ENROLLMENT_STATUS.ACTIVE
         if user and user.is_authenticated:
             try:
                 enrollment = Enrollment.objects.get(
@@ -849,14 +856,23 @@ class CourseInstance(UrlMixin, models.Model):
                 )
                 if (
                     enrollment.role == Enrollment.ENROLLMENT_ROLE.STUDENT
-                    and enrollment.status == Enrollment.ENROLLMENT_STATUS.ACTIVE
+                    and enrollment.status in (
+                        Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                        Enrollment.ENROLLMENT_STATUS.PENDING,
+                    )
                 ):
+                    if (enrollment.status == Enrollment.ENROLLMENT_STATUS.PENDING and not use_pending):
+                        enrollment.status = Enrollment.ENROLLMENT_STATUS.ACTIVE
+                        enrollment.save()
+
                     if not enrollment.from_sis and from_sis:
                         enrollment.from_sis = from_sis
                         enrollment.save()
+
                     return False
+
                 enrollment.role = Enrollment.ENROLLMENT_ROLE.STUDENT
-                enrollment.status = Enrollment.ENROLLMENT_STATUS.ACTIVE
+                enrollment.status = status
                 enrollment.from_sis = from_sis
                 enrollment.save()
                 return True
@@ -865,7 +881,7 @@ class CourseInstance(UrlMixin, models.Model):
                     course_instance=self,
                     user_profile=user.userprofile,
                     role=Enrollment.ENROLLMENT_ROLE.STUDENT,
-                    status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                    status=status,
                     from_sis=from_sis,
                 )
                 return True
@@ -894,10 +910,13 @@ class CourseInstance(UrlMixin, models.Model):
             logger.exception(f"Error in getting participants from SIS.")
             return -1
 
+        from exercise.models import LearningObject
+        use_pending = bool(LearningObject.objects.find_enrollment_exercise(self, False))
+
         for i in participants:
             try:
                 profile = UserProfile.get_by_student_id(i)
-                if self.enroll_student(profile.user, from_sis=True):
+                if self.enroll_student(profile.user, from_sis=True, use_pending=use_pending):
                     count = count + 1
 
             except UserProfile.DoesNotExist:

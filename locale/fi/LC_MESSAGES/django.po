@@ -342,6 +342,10 @@ msgid "BANNED"
 msgstr "Estetty"
 
 #: course/models.py
+msgid "PENDING"
+msgstr "Odottava"
+
+#: course/models.py
 msgid "LABEL_USER_PROFILE"
 msgstr "käyttäjä"
 
@@ -1341,11 +1345,11 @@ msgstr "Suodata listaa tilan perusteella"
 
 #: course/templates/course/staff/participants.html
 msgid "NUMBER_OF_ENROLLED_STUDENTS"
-msgstr "Ilmoittautuneiden opiskelijoiden määrä"
+msgstr "Aktiivisten opiskelijoiden määrä"
 
 #: course/templates/course/staff/participants.html
 msgid "REMOVED_STUDENTS"
-msgstr "poistettuja opiskelijoita"
+msgstr "ei-aktiivisia opiskelijoita"
 
 #: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"

@@ -135,7 +135,7 @@ class LastInstanceView(CourseMixin, BaseRedirectView):
     def get(self, request, *args, **kwargs):
         return self.redirect(self.course_instance.url)
 
-class InstanceView(EnrollableViewMixin, BaseTemplateView):
+class InstanceView(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
     access_mode = ACCESS.STUDENT
     # ACCESS.STUDENT requires users to log in, but the access mode is dropped
     # in public courses. CourseVisiblePermission has more restrictions as well.
@@ -153,6 +153,17 @@ class InstanceView(EnrollableViewMixin, BaseTemplateView):
             messages.info(request, html.escape(lti_msg))
 
         later_instance = None
+
+        # PENDING student has enrolled, but not yet responded to the enrollment questionnaire.
+        if request.user.is_authenticated:
+            enrollment = self.user_course_data
+            if enrollment and enrollment.status == Enrollment.ENROLLMENT_STATUS.PENDING:
+                exercise = LearningObject.objects.find_enrollment_exercise(
+                    self.instance, self.profile.is_external)
+                # For PENDING student, it should not be possible for exercise to be null,
+                # but better be careful. In that case, proceeding to the course seems OK.
+                if exercise:
+                    return self.redirect(exercise.get_absolute_url())
 
         if self.instance.is_past:
             try:
@@ -186,8 +197,9 @@ class Enroll(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
 
         # Support enrollment questionnaires.
         exercise = LearningObject.objects.find_enrollment_exercise(
-            self.instance, self.profile)
+            self.instance, self.profile.is_external)
         if exercise:
+            self.instance.enroll_student(self.request.user, from_sis=False, use_pending=True)
             return self.redirect(exercise.get_absolute_url())
 
         self.instance.enroll_student(self.request.user)
