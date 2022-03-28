@@ -449,7 +449,7 @@ class UserResultsView(CourseInstanceBaseView):
 
         exercise = LearningObject.objects.find_enrollment_exercise(
             self.instance,
-            profile
+            profile.is_external,
         )
         if exercise:
             submissions = exercise.get_submissions_for_student(profile)

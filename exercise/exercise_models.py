@@ -69,9 +69,9 @@ class LearningObjectManager(ModelWithInheritanceManager):
             .prefetch_related('parent')
         )
 
-    def find_enrollment_exercise(self, course_instance, profile):
+    def find_enrollment_exercise(self, course_instance, is_external):
         exercise = None
-        if profile.is_external:
+        if is_external:
             exercise = self.filter(
                 course_module__course_instance=course_instance,
                 status='enrollment_ext'
