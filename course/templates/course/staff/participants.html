@@ -45,7 +45,9 @@
 
 	<p>
 		{% trans "NUMBER_OF_ENROLLED_STUDENTS" %} <strong id="active-participants-number"></strong>
-		({% trans "REMOVED_STUDENTS" %} <strong id="inactive-participants-number"></strong>)
+		({% trans "PENDING_STUDENTS" %} <strong id="pending-participants-number"></strong>,
+		{% trans "REMOVED_STUDENTS" %} <strong id="removed-participants-number"></strong>,
+		{% trans "BANNED_STUDENTS" %} <strong id="banned-participants-number"></strong>).
 		{% if is_teacher %}
 		{% translate "OF_WHICH_SELECTED" %} <strong id="selected-number">0</strong>
 		{% endif %}

@@ -1345,15 +1345,23 @@ msgstr "Suodata listaa tilan perusteella"
 
 #: course/templates/course/staff/participants.html
 msgid "NUMBER_OF_ENROLLED_STUDENTS"
-msgstr "Aktiivisten opiskelijoiden määrä"
+msgstr "Ilmoittautuneita aktiivisia opiskelijoita:"
+
+#: course/templates/course/staff/participants.html
+msgid "PENDING_STUDENTS"
+msgstr "Odottavia:"
 
 #: course/templates/course/staff/participants.html
 msgid "REMOVED_STUDENTS"
-msgstr "ei-aktiivisia opiskelijoita"
+msgstr "Poistettuja:"
+
+#: course/templates/course/staff/participants.html
+msgid "BANNED_STUDENTS"
+msgstr "Estettyjä:"
 
 #: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"
-msgstr "joista valittuna"
+msgstr "Tällä hetkellä valittuja:"
 
 #: course/templates/course/staff/participants.html
 #: diploma/templates/diploma/list.html
