@@ -95,56 +95,54 @@
 							</li>
 							{% if not exercise.category.confirm_the_level %}
 								<li class="navbar-text">
-									{% if not exercise.is_closed %}
-										<small>
-											<ul>
-												{% if exercise.points_to_pass > 0 %}
-													<li>
-														<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
-														{% blocktranslate trimmed with points=exercise.points_to_pass %}
-															POINTS_REQUIRED_TO_PASS -- {{ points }}
-														{% endblocktranslate %}
-													</li>
+									<small>
+										<ul>
+											{% if exercise.points_to_pass > 0 %}
+												<li>
+													<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+													{% blocktranslate trimmed with points=exercise.points_to_pass %}
+														POINTS_REQUIRED_TO_PASS -- {{ points }}
+													{% endblocktranslate %}
+												</li>
+											{% endif %}
+											<li>
+												<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+												{% if cached_points.personal_deadline %}
+													{% translate "EXTENDED_DEADLINE" %}
+													{{ cached_points.personal_deadline }}
+													{% if module.late_submission_penalty > 0 and cached_points.personal_deadline_has_penalty %}
+													({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}
+														PENALTY_AFTER -- {{ penalty }}, {{ deadline }}
+													{% endblocktranslate %})
+													{% endif %}
+												{% elif exercise.is_late_submission_open %}
+													{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
+													{% if module.late_submission_penalty > 0 %}
+													(-{{ module.late_submission_penalty|percent }}%)
+													{% endif %}
+												{% else %}
+													{% translate "DEADLINE" %}
+													{{ module.closing_time }}
 												{% endif %}
-												<li>
-													<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-													{% if cached_points.personal_deadline %}
-														{% translate "EXTENDED_DEADLINE" %}
-														{{ cached_points.personal_deadline }}
-														{% if module.late_submission_penalty > 0 and cached_points.personal_deadline_has_penalty %}
-														({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}
-															PENALTY_AFTER -- {{ penalty }}, {{ deadline }}
-														{% endblocktranslate %})
-														{% endif %}
-													{% elif exercise.is_late_submission_open %}
-														{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
-														{% if module.late_submission_penalty > 0 %}
-														(-{{ module.late_submission_penalty|percent }}%)
-														{% endif %}
+											</li>
+											<li>
+												<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+												{% if exercise.min_group_size == 1 %}
+													{% if exercise.max_group_size == 1 %}
+														{% translate "TO_BE_SUBMITTED_ALONE" %}
+													{% elif exercise.max_group_size == 2 %}
+														{% blocktranslate trimmed with size=2 %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ size }}{% endblocktranslate %}
 													{% else %}
-														{% translate "DEADLINE" %}
-														{{ module.closing_time }}
+														{% blocktranslate trimmed with min=2 max=exercise.max_group_size %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
 													{% endif %}
-												</li>
-												<li>
-													<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-													{% if exercise.min_group_size == 1 %}
-														{% if exercise.max_group_size == 1 %}
-															{% translate "TO_BE_SUBMITTED_ALONE" %}
-														{% elif exercise.max_group_size == 2 %}
-															{% blocktranslate trimmed with size=2 %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ size }}{% endblocktranslate %}
-														{% else %}
-															{% blocktranslate trimmed with min=2 max=exercise.max_group_size %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
-														{% endif %}
-													{% elif exercise.min_group_size == exercise.max_group_size %}
-														{% blocktranslate trimmed with size=exercise.min_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ size }}{% endblocktranslate %}
-													{% else %}
-														{% blocktranslate trimmed with min=exercise.min_group_size max=exercise.max_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
-													{% endif %}
-												</li>
-											</ul>
-										</small>
-									{% endif %}
+												{% elif exercise.min_group_size == exercise.max_group_size %}
+													{% blocktranslate trimmed with size=exercise.min_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ size }}{% endblocktranslate %}
+												{% else %}
+													{% blocktranslate trimmed with min=exercise.min_group_size max=exercise.max_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
+												{% endif %}
+											</li>
+										</ul>
+									</small>
 								</li>
 							{% endif %}
 						</ul>
