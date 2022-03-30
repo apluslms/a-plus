@@ -107,12 +107,13 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
   };
 
   var refresh_numbers = function () {
-    var activeNumber = participants.filter(function (participant) {
-      return participant.enrollment_status === 'ACTIVE';
-    }).length;
-    var inactiveNumber = participants.length - activeNumber;
-    $('#active-participants-number').text(activeNumber);
-    $('#inactive-participants-number').text(inactiveNumber);
+    const counts = participants.reduce(function (acc, curr) {
+      return acc[curr.enrollment_status] ? ++acc[curr.enrollment_status] : acc[curr.enrollment_status] = 1, acc
+    }, {})
+    $('#active-participants-number').text(counts['ACTIVE'] || 0);
+    $('#pending-participants-number').text(counts['PENDING'] || 0);
+    $('#removed-participants-number').text(counts['REMOVED'] || 0);
+    $('#banned-participants-number').text(counts['BANNED'] || 0);
   };
 
   get_participants().remove();

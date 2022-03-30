@@ -1338,15 +1338,23 @@ msgstr "Filter users by status"
 
 #: course/templates/course/staff/participants.html
 msgid "NUMBER_OF_ENROLLED_STUDENTS"
-msgstr "Number of active students"
+msgstr "Enrolled active students:"
+
+#: course/templates/course/staff/participants.html
+msgid "PENDING_STUDENTS"
+msgstr "Pending:"
 
 #: course/templates/course/staff/participants.html
 msgid "REMOVED_STUDENTS"
-msgstr "inactive students"
+msgstr "Removed:"
+
+#: course/templates/course/staff/participants.html
+msgid "BANNED_STUDENTS"
+msgstr "Banned:"
 
 #: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"
-msgstr "of which selected"
+msgstr "Currently selected:"
 
 #: course/templates/course/staff/participants.html
 #: diploma/templates/diploma/list.html
