@@ -225,7 +225,11 @@ def get_deviation_groups(
     3. An id that uniquely identifies the group of deviations.
     """
     # Find the number of exercises in each module.
-    course_instances = all_deviations.values_list('exercise__course_module__course_instance', flat=True)
+    course_instances = (
+        all_deviations
+        .values_list('exercise__course_module__course_instance', flat=True)
+        .distinct()
+    )
     exercise_counts = (
         BaseExercise.objects.filter(
             course_module__course_instance__in=course_instances
