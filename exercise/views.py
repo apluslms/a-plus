@@ -158,6 +158,10 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             self.submission_check(True, request)
         )
         if submission_allowed:
+            if self.check_duplicate_submission():
+                messages.error(request,
+                _('ERROR_SUBMISSION_SAVING_FAILED')
+                )
             try:
                 new_submission = Submission.objects.create_from_post(
                     self.exercise, students, request)
@@ -348,6 +352,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
         return loaded_content
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
     
@@ -367,6 +372,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
         return new_hash in old_hashes #old hashes could also be set to speed up computing time
 >>>>>>> 71300be6... complete backend
+=======
+    
+    def check_duplicate_submission():
+        return False
+>>>>>>> bc9e7e58... feat: add hash storage
 
 class ExercisePlainView(ExerciseView):
     raise_exception=True

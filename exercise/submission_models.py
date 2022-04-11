@@ -156,6 +156,7 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             meta_data_dict['lang'] = get_language()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         #create Hash
         dhash = hashlib.md5()
@@ -168,6 +169,11 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
 
 
 >>>>>>> 71300be6... complete backend
+=======
+        #create and store hash
+        meta_data_dict["submission_hash"] = "HASH"
+
+>>>>>>> bc9e7e58... feat: add hash storage
         try:
             new_submission = Submission.objects.create(
                 exercise=exercise,
