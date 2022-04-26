@@ -24,7 +24,7 @@
 </p>
 
 {% for module in modules %}
-{% if module|is_visible %}
+{% if module|is_visible or is_teacher %}
 {% with open=module|exercises_open:now after_open=module|has_opened:now %}
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
@@ -51,6 +51,9 @@
 				{% translate "REQUIRES" %}:
 				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 			</span>
+			{% endif %}
+			{% if not module|is_visible and is_teacher %}
+			<span class="label label-danger pull-right">{% translate "HIDDEN_capitalized" %}</span>
 			{% endif %}
 			<span class="caret" aria-hidden="true"></span>
 			{{ module.name|parse_localization }}
@@ -100,12 +103,12 @@
 				<th>{% translate "SUBMISSIONS" %}</th>
 				<th>{% translate "POINTS" %}</th>
 				{% if is_course_staff %}
-				<th colspan="2">{% translate "COURSE_STAFF" %}</th>
+				<th colspan="3">{% translate "COURSE_STAFF" %}</th>
 				{% endif %}
 			</tr>
 			{% for entry in module.flatted %}
 
-			{% if entry.submittable and entry|is_visible %}
+			{% if entry.submittable and entry|is_visible or entry.submittable and is_teacher %}
 			<tr data-category="{{ entry.category_id }}">
 				<td>
 					{% if exercise_accessible or is_course_staff %}
@@ -172,10 +175,15 @@
 						{% translate "VIEW_SUBMISSIONS" %}
 					</a>
 				</td>
+				<td>
+					{% if not entry|is_visible and is_teacher %}
+					<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
+					{% endif %}
+				</td>
 				{% endif %}
 			</tr>
 
-			{% elif entry.type == 'exercise' and entry|is_visible %}
+			{% elif entry.type == 'exercise' and entry|is_visible or entry.type == 'exercise' and is_teacher %}
 			<tr>
 				<td colspan="5">
 					{% if accessible %}
@@ -191,6 +199,11 @@
 						<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
 						{% translate "EARLY_ACCESS" %}
 					</a>
+					{% endif %}
+				</td>
+				<td>
+					{% if not entry|is_visible and is_teacher %}
+					<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
 					{% endif %}
 				</td>
 				{% endif %}
