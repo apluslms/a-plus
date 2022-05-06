@@ -124,6 +124,15 @@ class SubmissionQuerySet(models.QuerySet):
             })
         )
 
+    def defer_text_fields(self):
+        return self.defer(
+            'feedback',
+            'assistant_feedback',
+            'grading_data',
+            'submission_data',
+            'meta_data',
+        )
+
 
 class SubmissionManager(JWTAccessible["Submission"], models.Manager):
     _queryset_class = SubmissionQuerySet
@@ -405,6 +414,17 @@ class Submission(UrlMixin, models.Model):
         del self._files
         del self._data
 
+    def approve_penalized_submission(self):
+        """
+        Remove the late penalty and set the status to ready for this submission.
+
+        The points of this submission are reset based on the original service points.
+        This method is used to approve a late or unofficial submission as
+        a normal, graded submission.
+        """
+        self.set_points(self.service_points, self.service_max_points, no_penalties=True)
+        self.set_ready(approve_unofficial=True)
+
     def set_points(self, points, max_points, no_penalties=False):
         """
         Sets the points and maximum points for this submissions. If the given
@@ -466,9 +486,9 @@ class Submission(UrlMixin, models.Model):
     def set_waiting(self):
         self.status = self.STATUS.WAITING
 
-    def set_ready(self):
+    def set_ready(self, approve_unofficial=False):
         self.grading_time = timezone.now()
-        if self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points:
+        if self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points or approve_unofficial:
             self.status = self.STATUS.READY
 
         # Fire set hooks.
@@ -498,6 +518,12 @@ class Submission(UrlMixin, models.Model):
         except AttributeError:
             # Handle cases where database includes null or non dictionary json
             return None
+
+    @property
+    def is_approvable(self):
+        """Is this submission late or unofficial so that it could be approved?"""
+        return (self.late_penalty_applied is not None
+            or self.status == self.STATUS.UNOFFICIAL)
 
     ABSOLUTE_URL_NAME = "submission"
 

@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-06 12:03+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
-"Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
+"Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: English<>\n"
 "Language: en_GB\n"
 "MIME-Version: 1.0\n"
@@ -1586,6 +1586,7 @@ msgstr "max submissions rule deviations"
 
 #: deviations/templates/deviations/_remove_modal.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
 #: exercise/templates/exercise/staff/_regrade_submissions.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 #: exercise/templates/exercise/staff/_submission_data_modal.html
@@ -3357,6 +3358,25 @@ msgstr ""
 msgid "NEW_SUBMISSION_STORED"
 msgstr "New submission stored."
 
+#: exercise/staff_views.py
+#, python-brace-format
+msgid "SUBMISSION_APPROVAL_SUCCESS -- {points}, {max_points}"
+msgstr ""
+"The submission was successfully approved. The new grade is {points}/"
+"{max_points}."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_APPROVAL_ASSISTANT_PERMISSION_DENIED_MSG"
+msgstr ""
+"Some of the targeted assignments do not allow assistants to grade them."
+
+#: exercise/staff_views.py
+#, python-brace-format
+msgid "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS -- {count}"
+msgid_plural "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS_PLURAL -- {count}"
+msgstr[0] "{count} late or unofficial submission was successfully approved."
+msgstr[1] "{count} late or unofficial submissions were successfully approved."
+
 #: exercise/submission_models.py
 msgid "STATUS_INITIALIZED"
 msgstr "Initialized"
@@ -3848,6 +3868,10 @@ msgid "NOT_ASSESSED_MANUALLY"
 msgstr "Not assessed manually"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "APPROVE_SUBMISSION"
+msgstr "Approve submission"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMISSION_DETAILS"
 msgstr "Submission details"
@@ -3878,6 +3902,65 @@ msgstr "Grader errors"
 #: exercise/templates/exercise/submission_plain.html
 msgid "ASSISTANT_FEEDBACK"
 msgstr "Staff feedback"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_TITLE"
+msgstr "Approve Late and Unofficial Submissions"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_DESCRIPTION"
+msgstr ""
+"You may approve late and/or unofficial submissions. Normally, late "
+"submissions suffer a points penalty and unofficial submissions do not affect "
+"the grading at all. Approving removes the late penalty of a given submission "
+"and changes it to a normal, graded submission (with the status \"ready\"). "
+"The change is irreversible."
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_CONFIRMATION_TEXT"
+msgstr "Approve late and/or unofficial submission(s) for the student:"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_BUTTON"
+msgstr "Toggle approving a single or multiple submissions"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_SCOPE"
+msgstr "Select the scope of submission approval."
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#, python-format
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_EXERCISE -- %(exercise)s"
+msgstr "Approve all submissions in this assignment only: %(exercise)s"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#, python-format
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_MODULE -- %(module)s"
+msgstr "Approve all submissions in all assignments in this module: %(module)s"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_TYPE"
+msgstr "Select the type of submissions to be approved."
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_LATE"
+msgstr "Approve only late submissions"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_UNOFFICIAL"
+msgstr "Approve only unofficial submissions"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_ALL"
+msgstr "Approve late and unofficial submissions"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "APPROVE_MULTIPLE_SUBMISSIONS"
+msgstr "Approve multiple submissions"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "APPROVE_THIS_SUBMISSION"
+msgstr "Approve this submission"
 
 #: exercise/templates/exercise/staff/_regrade_submissions.html
 msgid "REGRADE_DESCRIPTION"

@@ -1,0 +1,97 @@
+{% load i18n %}
+{% load course %}
+
+<div class="modal" id="submission-approval-modal" tabindex="-1" role="dialog"
+	aria-labelledby="submission-approval-modal-label"
+>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="{% translate 'CLOSE' %}">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="submission-approval-modal-label">
+					{% translate 'SUBMISSION_APPROVAL_TITLE' %}
+				</h4>
+			</div>
+
+			<div class="modal-body">
+				<p>{% translate 'SUBMISSION_APPROVAL_DESCRIPTION' %}</p>
+				<p>{% translate 'SUBMISSION_APPROVAL_CONFIRMATION_TEXT' %}</p>
+				<p>{{ submitter.name_with_student_id }}</p>
+				<button
+					id="submission-approval-multiple-toggle"
+					class="aplus-button--secondary aplus-button--xs"
+				>
+					{% translate 'SUBMISSION_APPROVAL_APPROVE_MULTIPLE_BUTTON' %}
+				</button>
+				<br>
+				<br>
+
+				<form
+					method="post"
+					id="approve-module-form"
+					action="{% url 'submission-approve-module' course_slug=course.url instance_slug=instance.url %}"
+					style="display: none"
+				>
+					{% csrf_token %}
+					<input type="hidden" name="user_id" value="{{ submitter.id }}">
+					<input type="hidden" name="submission_id" value="{{ submission.id }}">
+					<p>{% translate 'SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_SCOPE' %}</p>
+					<label>
+						<input type="radio" name="approve-scope" value="single-exercise" checked>
+						{% blocktranslate trimmed with exercise=exercise|parse_localization %}
+							SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_EXERCISE -- {{ exercise }}
+						{% endblocktranslate %}
+					</label>
+					<br>
+					<label>
+						<input type="radio" name="approve-scope" value="whole-module">
+						{% blocktranslate trimmed with module=module|parse_localization %}
+							SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_MODULE -- {{ module }}
+						{% endblocktranslate %}
+					</label>
+					<br>
+
+					<p>{% translate 'SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_TYPE' %}</p>
+					<label>
+						<input type="radio" name="approve-type" value="only-late">
+						{% translate 'SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_LATE' %}
+					</label>
+					<br>
+					<label>
+						<input type="radio" name="approve-type" value="only-unofficial">
+						{% translate 'SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_UNOFFICIAL' %}
+					</label>
+					<br>
+					<label>
+						<input type="radio" name="approve-type" value="all" checked>
+						{% translate 'SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_ALL' %}
+					</label>
+					<br>
+					<button class="aplus-button--default aplus-button--sm" type="submit">
+						{% translate 'APPROVE_MULTIPLE_SUBMISSIONS' %}
+					</button>
+				</form>
+				<form
+					method="post"
+					id="approve-singular-form"
+					action="{{ submission|url:'submission-approve' }}"
+					style="display: inline-block"
+				>
+					{% csrf_token %}
+					<button class="aplus-button--default aplus-button--sm" type="submit">
+						{% translate 'APPROVE_THIS_SUBMISSION' %}
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	$('#submission-approval-multiple-toggle').click(function() {
+		/* One form is visible at a time and the button switches between them. */
+		$('#approve-module-form').toggle();
+		$('#approve-singular-form').toggle();
+	});
+</script>

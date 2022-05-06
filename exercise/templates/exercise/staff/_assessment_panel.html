@@ -19,6 +19,18 @@
 				{% endif %}
 			</div>
 			<div>
+				{% if is_teacher or exercise.allow_assistant_grading %}
+					{% if submission.is_approvable  %}
+						<button
+							data-toggle="modal"
+							data-target="#submission-approval-modal"
+							class="aplus-button--secondary aplus-button--sm"
+							type="button"
+						>
+							{% translate 'APPROVE_SUBMISSION' %}
+						</button>
+					{% endif %}
+				{% endif %}
 				<button
 					data-toggle="modal"
 					data-target="#details-modal"

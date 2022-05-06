@@ -1,24 +1,23 @@
-import json
 import logging
-import time
 from typing import Any, Dict
 
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
-from django.db.models import Count, F, Max, Prefetch, Q
+from django.db.models import Count, Max, Prefetch, Q
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.text import format_lazy
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from course.models import (
+    CourseModule,
     Enrollment,
     USERTAG_EXTERNAL,
     USERTAG_INTERNAL,
@@ -29,15 +28,13 @@ from lib.helpers import settings_text, extract_form_errors
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from userprofile.models import UserProfile
-from .models import LearningObject
+from .models import BaseExercise, ExerciseTask, LearningObject, Submission
 from .forms import (
     SubmissionReviewForm,
     SubmissionCreateAndReviewForm,
     EditSubmittersForm,
 )
 from .tasks import regrade_exercises
-from .submission_models import Submission
-from .exercise_models import ExerciseTask
 from .viewbase import (
     ExerciseBaseView,
     SubmissionBaseView,
@@ -45,7 +42,6 @@ from .viewbase import (
     ExerciseMixin,
     ExerciseListBaseView,
 )
-from .exercise_models import BaseExercise
 from lib.logging import SecurityLog
 
 
@@ -526,3 +522,102 @@ class EditSubmittersView(SubmissionMixin, BaseFormView):
     def form_invalid(self, form):
         messages.error(self.request, _('FAILURE_SAVING_CHANGES'))
         return super().form_invalid(form)
+
+
+class SubmissionApprovalView(SubmissionMixin, BaseRedirectView):
+    """
+    A POST-only view that approves a student's late or unofficial submission
+    as a normal, graded submission. The late penalty of the submission is
+    removed and the submission status is changed to ready.
+    """
+    access_mode = ACCESS.GRADING
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.submission.approve_penalized_submission()
+        self.submission.save()
+        messages.success(self.request, format_lazy(
+            _('SUBMISSION_APPROVAL_SUCCESS -- {points}, {max_points}'),
+            points=self.submission.grade,
+            max_points=self.submission.exercise.max_points,
+        ))
+        return self.redirect(self.submission.get_inspect_url())
+
+
+class SubmissionApprovalByModuleView(CourseInstanceMixin, BaseRedirectView):
+    """
+    A POST-only view that approves a student's late or unofficial submissions
+    as normal, graded submissions in a whole module or exercise.
+    """
+    user_kw = 'user_id'
+    submission_kw = 'submission_id'
+    access_mode = ACCESS.ASSISTANT
+
+    def get_resource_objects(self):
+        super().get_resource_objects()
+
+        self.student = get_object_or_404(
+            User,
+            id=self.request.POST.get(self.user_kw),
+        )
+        self.submission = get_object_or_404(
+            Submission,
+            id=self.request.POST.get(self.submission_kw),
+        )
+        self.exercise = self.submission.exercise
+        self.module = self.exercise.course_module
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        approve_scope = self.request.POST.get('approve-scope')
+        approve_type = self.request.POST.get('approve-type')
+
+        if approve_scope == 'single-exercise':
+            exercise_filter = {'exercise': self.exercise}
+            disallow_assistant_grading = not self.exercise.allow_assistant_grading
+        else:
+            exercise_filter = {'exercise__course_module': self.module}
+            disallow_assistant_grading = (BaseExercise.objects
+                .filter(
+                    course_module=self.module,
+                    allow_assistant_grading=False,
+                )
+                .exists())
+
+        if self.is_assistant and disallow_assistant_grading:
+            return self.permission_denied(
+                message=_('SUBMISSION_APPROVAL_ASSISTANT_PERMISSION_DENIED_MSG'),
+            )
+
+        submissions = (self.student.userprofile.submissions
+            .exclude_errors()
+            .defer_text_fields()
+            .filter(**exercise_filter)
+        )
+        if approve_type == 'only-late':
+            submissions = submissions.filter(
+                late_penalty_applied__isnull=False,
+            ).exclude(
+                status=Submission.STATUS.UNOFFICIAL,
+            )
+        elif approve_type == 'only-unofficial':
+            submissions = submissions.filter(status=Submission.STATUS.UNOFFICIAL)
+        else:
+            # Both late and unofficial submissions.
+            # Exclude normal submissions since there are usually many of those.
+            submissions = submissions.filter(
+                Q(late_penalty_applied__isnull=False)
+                | Q(status=Submission.STATUS.UNOFFICIAL),
+            )
+
+        count = 0
+        for submission in submissions:
+            submission.approve_penalized_submission()
+            submission.save()
+            count += 1
+
+        messages.success(self.request, ngettext(
+            'SUBMISSION_APPROVAL_MULTIPLE_SUCCESS -- {count}',
+            'SUBMISSION_APPROVAL_MULTIPLE_SUCCESS_PLURAL -- {count}',
+            count,
+            ).format(count=count),
+        )
+        return self.redirect(self.submission.get_inspect_url())

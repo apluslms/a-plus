@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-06 12:03+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
-"Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
+"Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
@@ -1595,6 +1595,7 @@ msgstr "enimmäispalautuskertojen poikkeamat"
 
 #: deviations/templates/deviations/_remove_modal.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
 #: exercise/templates/exercise/staff/_regrade_submissions.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 #: exercise/templates/exercise/staff/_submission_data_modal.html
@@ -3365,6 +3366,23 @@ msgstr ""
 msgid "NEW_SUBMISSION_STORED"
 msgstr "Uusi palautus on lisätty."
 
+#: exercise/staff_views.py
+#, python-brace-format
+msgid "SUBMISSION_APPROVAL_SUCCESS -- {points}, {max_points}"
+msgstr ""
+"Palautuksen hyväksyntä onnistui. Uudet pisteet ovat {points}/{max_points}."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_APPROVAL_ASSISTANT_PERMISSION_DENIED_MSG"
+msgstr "Kaikki valitut tehtävät eivät salli assistentin arvostelevan niitä."
+
+#: exercise/staff_views.py
+#, python-brace-format
+msgid "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS -- {count}"
+msgid_plural "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS_PLURAL -- {count}"
+msgstr[0] "{count} myöhästynyt tai epävirallinen palautus hyväksyttiin."
+msgstr[1] "{count} myöhästynyttä tai epävirallista palautusta hyväksyttiin."
+
 #: exercise/submission_models.py
 msgid "STATUS_INITIALIZED"
 msgstr "Vastaanotettu"
@@ -3859,6 +3877,10 @@ msgid "NOT_ASSESSED_MANUALLY"
 msgstr "Ei arvosteltu manuaalisesti"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "APPROVE_SUBMISSION"
+msgstr "Hyväksy pisteytetyksi"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMISSION_DETAILS"
 msgstr "Palautuksen lisätiedot"
@@ -3889,6 +3911,68 @@ msgstr "Virheet tarkistimelta"
 #: exercise/templates/exercise/submission_plain.html
 msgid "ASSISTANT_FEEDBACK"
 msgstr "Kurssihenkilökunnan palaute"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_TITLE"
+msgstr "Hyväksy myöhästyneet ja epäviralliset palautukset pisteytetyiksi"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_DESCRIPTION"
+msgstr ""
+"Voit hyväksyä myöhästyneet ja/tai epäviralliset palautukset pisteytetyiksi. "
+"Tavallisesti myöhästyneet palautukset menettävät pisteitä sakon takia ja "
+"epäviralliset palautukset eivät vaikuta ollenkaan arviointiin. Hyväksyminen "
+"poistaa myöhästymissakon ja muuttaa palautukset tavalliseksi, pisteytetyksi "
+"palautukseksi (tilassa \"valmis\"). Hyväksyntää ei voi peruuttaa."
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_CONFIRMATION_TEXT"
+msgstr ""
+"Hyväksy seuraavan opiskelijan myöhästyneitä ja/tai epävirallisia palautuksia "
+"pisteytetyiksi:"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_BUTTON"
+msgstr "Vaihda yhden tai usean palautuksen hyväksynnän välillä"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_SCOPE"
+msgstr "Valitse hyväksyttävien palautusten laajuus."
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#, python-format
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_EXERCISE -- %(exercise)s"
+msgstr "Hyväksy kaikki palautukset tässä tehtävässä: %(exercise)s"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#, python-format
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SCOPE_MODULE -- %(module)s"
+msgstr ""
+"Hyväksy kaikki palautukset kaikissa tehtävissä tässä moduulissa: %(module)s"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_TYPE"
+msgstr "Valitse hyväksyttävien palautusten tyyppi."
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_LATE"
+msgstr "Hyväksy vain myöhästyneet palautukset"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_UNOFFICIAL"
+msgstr "Hyväksy vain epäviralliset palautukset"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "SUBMISSION_APPROVAL_APPROVE_MULTIPLE_TYPE_ALL"
+msgstr "Hyväksy myöhästyneet ja epäviralliset palautukset"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "APPROVE_MULTIPLE_SUBMISSIONS"
+msgstr "Hyväksy useita palautuksia pisteytetyiksi"
+
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+msgid "APPROVE_THIS_SUBMISSION"
+msgstr "Hyväksy tämä palautus pisteytetyksi"
 
 #: exercise/templates/exercise/staff/_regrade_submissions.html
 msgid "REGRADE_DESCRIPTION"
