@@ -181,7 +181,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         'submitters__user__last_name',
         'submitters__user__email',
     )
-    list_per_page = 300
+    list_per_page = 100
     raw_id_fields = (
         'submitters',
         'grader',
@@ -190,10 +190,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     readonly_fields = ('submission_time',)
 
     def get_queryset(self, request):
-        return super().get_queryset(request)\
-            .defer('feedback', 'assistant_feedback',
-                'submission_data', 'grading_data')\
-            .prefetch_related('submitters')
+        return super().get_queryset(request).prefetch_related('submitters')
 
 
 class SubmissionDraftAdmin(admin.ModelAdmin):
