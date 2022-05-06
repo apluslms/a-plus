@@ -70,7 +70,8 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
                 exercises,
                 submitters,
                 form.cleaned_data,
-            )#TODO
+            )
+            #TODO success message to the user?
 
         return super().form_valid(form)
 
@@ -165,13 +166,13 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
                     new_deviation.save()
 
         del self.request.session[self.session_key]
-        #TODO approve late/unofficial submissions
         submission_count = self.approve_submissions(
             self.exercises,
             self.submitters,
             self.session_data,
             excluded_deviations,
         )
+        #TODO success message to the user?
         return super().form_valid(form)
 
     def deserialize_session_data(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -402,29 +403,7 @@ def approve_unofficial_submissions(
         extra_submissions: int = 0,
         ) -> int:
     #TODO fix this function
-    # Fetch submissions that exceeded the max submissions limit of the exercise and have status UNOFFICIAL.
-    # submissions = (Submission.objects
-    #     .exclude_errors()
-    #     .defer_text_fields()
-    #     .filter(
-    #         exercise__in=exercises,
-    #         submitters__in=submitters,
-    #     )
-    #     .annotate(rank=models.Window(#Window disallowed in filter()
-    #         DenseRank(),
-    #         partition_by=[models.F('exercise'), models.F('submitters')],
-    #         order_by=models.F('submission_time').asc(),
-    #     ))
-    #     .filter(
-    #         status=Submission.STATUS.UNOFFICIAL,
-    #         rank__gt=models.F('exercise__max_submissions'),
-    #         rank__lte=models.F('exercise__max_submissions') + extra_submissions,
-    #         #exercise__in=exercises,
-    #         #submitters__in=submitters,
-    #     )
-    #     .order_by('exercise', 'submitters', 'submission_time')
-    # )
-
+    # Find exercises in which students have exceeded the max submissions limit.
     submission_counts = (Submission.objects
         .filter(
             exercise__in=exercises,
@@ -444,29 +423,27 @@ def approve_unofficial_submissions(
     for c in submission_counts:
         if c['count'] > c['max_submissions']:
             exercise_submitter_pairs.add((c['exercise'], c['submitters']))
-    # fetch submissions for exercise_submitter_pairs and check if some submissions should be approved
-    # (over max submissions and within extra submissions, status unofficial)
+    # Fetch submissions for exercise_submitter_pairs and check if some submissions should be approved
+    # (over max submissions and within extra submissions, status unofficial).
+    #TODO
 
     submissions = (Submission.objects
         .exclude_errors()
         .defer_text_fields()
         .filter(
-            exercise__in=exercises,
+            exercise__in=exercises,#TODO use exercise_submitter_pairs
+            # should there be a separate query for each pair since we don't want to query unused pairs?
+            # not all students have exceeding submissions in each exercise.
             submitters__in=submitters,
         )
         .order_by('exercise', 'submitters', 'submission_time')
     )
-    #TODO itertools groupby ??
+
     submission_count = 0
     for submission in submissions:
-        # groupby? get one student's submissions in one exercise
+        #TODO
         # count the number of submissions and approve unofficial submissions above the exercise.max_submissions
         # (extra_submissions define how many are approved)
-        submission_count += 1
-
-    ######################################### old below
-    submission_count = 0
-    for submission in submissions:
         may_approve = True
         for submitter in submission.submitters.all():
             if excluded_deviations and (submitter.id, submission.exercise_id) in excluded_deviations:
