@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-24 13:36+0200\n"
+"POT-Creation-Date: 2022-05-06 12:03+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -299,8 +299,8 @@ msgstr "kurssit"
 msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Varatut sanat: {}"
 
-#: course/models.py external_services/models.py news/models.py
-#: notification/models.py threshold/admin.py threshold/models.py
+#: course/models.py exercise/admin.py external_services/models.py
+#: news/models.py notification/models.py threshold/admin.py threshold/models.py
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "kurssikerta"
 
@@ -1452,8 +1452,8 @@ msgstr "Luotiin uusi opiskelijaryhmä."
 msgid "LABEL_MODULE"
 msgstr "Moduuli"
 
-#: deviations/forms.py deviations/models.py exercise/exercise_models.py
-#: exercise/submission_models.py
+#: deviations/forms.py deviations/models.py exercise/admin.py
+#: exercise/exercise_models.py exercise/submission_models.py
 msgid "LABEL_EXERCISE"
 msgstr "Tehtävä"
 
@@ -2676,6 +2676,10 @@ msgstr "Kurssikerta"
 msgid "SUBMITTERS"
 msgstr "Opiskelijat"
 
+#: exercise/admin.py exercise/forms.py exercise/submission_models.py
+msgid "LABEL_SUBMITTERS"
+msgstr "Palauttajat"
+
 #: exercise/api/views.py exercise/views.py
 msgid "ERROR_SUBMISSION_SAVING_FAILED"
 msgstr "Palautuksen tallentaminen epäonnistui. Palautusta ei ole huomioitu."
@@ -3191,10 +3195,6 @@ msgstr "Ainakin yksi opiskelijakentistä tulee antaa"
 #: exercise/forms.py
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ONLY_ONE_STUDENT_FIELD_CAN_BE_GIVEN"
 msgstr "Voidaan antaa vain yksi opiskelijakenttä"
-
-#: exercise/forms.py exercise/submission_models.py
-msgid "LABEL_SUBMITTERS"
-msgstr "Palauttajat"
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
@@ -3719,6 +3719,10 @@ msgstr "Lukumateriaali avoinna"
 #: exercise/templates/exercise/_user_toc.html
 msgid "REQUIRES"
 msgstr "Vaaditaan"
+
+#: exercise/templates/exercise/_user_results.html templates/base.html
+msgid "HIDDEN_capitalized"
+msgstr "Piilotettu"
 
 #: exercise/templates/exercise/_user_results.html
 #, python-format
@@ -4976,10 +4980,6 @@ msgstr "Ohita päävalikko"
 #: templates/base.html
 msgid "MAIN"
 msgstr "Päävalikko"
-
-#: templates/base.html
-msgid "HIDDEN_capitalized"
-msgstr "Piilotettu"
 
 #: templates/base.html
 msgid "SELECT_COURSE"

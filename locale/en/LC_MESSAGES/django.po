@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-24 13:36+0200\n"
+"POT-Creation-Date: 2022-05-06 12:03+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Ella Anttila <ella.anttila@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -298,8 +298,8 @@ msgstr "courses"
 msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Reserved words include: {}"
 
-#: course/models.py external_services/models.py news/models.py
-#: notification/models.py threshold/admin.py threshold/models.py
+#: course/models.py exercise/admin.py external_services/models.py
+#: news/models.py notification/models.py threshold/admin.py threshold/models.py
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "course instance"
 
@@ -1445,8 +1445,8 @@ msgstr "A new student group was created."
 msgid "LABEL_MODULE"
 msgstr "Module"
 
-#: deviations/forms.py deviations/models.py exercise/exercise_models.py
-#: exercise/submission_models.py
+#: deviations/forms.py deviations/models.py exercise/admin.py
+#: exercise/exercise_models.py exercise/submission_models.py
 msgid "LABEL_EXERCISE"
 msgstr "Assignment"
 
@@ -2192,10 +2192,9 @@ msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
 msgstr "Module requires a key."
 
 #: edit_course/operations/configure.py
-#, fuzzy, python-brace-format
-#| msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
+#, python-brace-format
 msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
-msgstr "Publishing responded with status {response.status_code}"
+msgstr "Publishing responded with status {status_code}"
 
 #: edit_course/operations/configure.py
 #, python-brace-format
@@ -2665,6 +2664,10 @@ msgstr "Course instance"
 msgid "SUBMITTERS"
 msgstr "Submitters"
 
+#: exercise/admin.py exercise/forms.py exercise/submission_models.py
+msgid "LABEL_SUBMITTERS"
+msgstr "Submitters"
+
 #: exercise/api/views.py exercise/views.py
 msgid "ERROR_SUBMISSION_SAVING_FAILED"
 msgstr ""
@@ -3130,7 +3133,7 @@ msgstr "Mark as final"
 #: exercise/forms.py
 msgid "SUBMISSION_REVIEW_MARK_AS_FINAL_HELPTEXT"
 msgstr ""
-"If selected, this will be the student's final grade for this exercise. "
+"If selected, this will be the student's final grade for this assignment. "
 "Otherwise, the best submission determines the final grade."
 
 #: exercise/forms.py exercise/submission_models.py
@@ -3183,10 +3186,6 @@ msgstr "One of the student fields must not be blank"
 #: exercise/forms.py
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ONLY_ONE_STUDENT_FIELD_CAN_BE_GIVEN"
 msgstr "Only one student field can be given"
-
-#: exercise/forms.py exercise/submission_models.py
-msgid "LABEL_SUBMITTERS"
-msgstr "Submitters"
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
@@ -3710,6 +3709,10 @@ msgstr "Open for reading"
 msgid "REQUIRES"
 msgstr "Requires"
 
+#: exercise/templates/exercise/_user_results.html templates/base.html
+msgid "HIDDEN_capitalized"
+msgstr "Hidden"
+
 #: exercise/templates/exercise/_user_results.html
 #, python-format
 msgid "POINTS_REQUIRED_TO_PASS_MODULE -- %(points)s"
@@ -4100,7 +4103,7 @@ msgstr "Assess next submitter manually"
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
-msgstr "Add one extra submission for the student in this exercise."
+msgstr "Add one extra submission for the student in this assignment."
 
 #: exercise/templates/exercise/staff/list_submitters.html
 msgid "ALL_SUBMITTERS"
@@ -4958,10 +4961,6 @@ msgstr "Skip main navigation"
 #: templates/base.html
 msgid "MAIN"
 msgstr "Main"
-
-#: templates/base.html
-msgid "HIDDEN_capitalized"
-msgstr "Hidden"
 
 #: templates/base.html
 msgid "SELECT_COURSE"
