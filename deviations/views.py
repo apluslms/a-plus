@@ -1,7 +1,10 @@
-from typing import Any, Dict
+from typing import AbstractSet, Any, Dict, Optional, Tuple
 
+from django.db import models
 from django.utils.dateparse import parse_datetime
 
+from exercise.models import BaseExercise
+from userprofile.models import UserProfile
 from .forms import (
     DeadlineRuleDeviationForm,
     RemoveDeviationForm,
@@ -9,6 +12,8 @@ from .forms import (
 )
 from .viewbase import (
     AddDeviationsView,
+    approve_late_submissions,
+    approve_unofficial_submissions,
     ListDeviationsView,
     OverrideDeviationsView,
     RemoveDeviationsByIDView,
@@ -37,6 +42,21 @@ class AddDeadlinesView(AddDeviationsView):
         })
         return result
 
+    def approve_submissions(
+            self,
+            exercises: models.QuerySet[BaseExercise],
+            submitters: models.QuerySet[UserProfile],
+            form_data: Dict[str, Any],
+            ) -> Optional[int]:
+        if form_data.get('approve_late_submissions', False):
+            return approve_late_submissions(
+                exercises,
+                submitters,
+                extra_minutes=form_data.get('minutes'),#TODO int or datetime?
+                new_deadline=form_data.get('new_date'),
+            )
+        return None
+
 
 class OverrideDeadlinesView(OverrideDeviationsView):
     template_name = "deviations/override_dl.html"
@@ -51,6 +71,21 @@ class OverrideDeadlinesView(OverrideDeviationsView):
             'without_late_penalty': session_data['without_late_penalty'],
         })
         return result
+
+    def approve_submissions(
+            self,
+            exercises: models.QuerySet[BaseExercise],
+            submitters: models.QuerySet[UserProfile],
+            form_data: Dict[str, Any],
+            excluded_deviations: AbstractSet[Tuple[int, int]],
+            ) -> int:
+        return approve_late_submissions(
+            exercises,
+            submitters,
+            excluded_deviations=excluded_deviations,
+            extra_minutes=form_data.get('minutes'),
+            new_deadline=form_data.get('new_date'),
+        )
 
 
 class RemoveDeadlinesByIDView(RemoveDeviationsByIDView):
@@ -79,6 +114,20 @@ class AddSubmissionsView(AddDeviationsView):
         result['extra_submissions'] = form_data['extra_submissions']
         return result
 
+    def approve_submissions(
+            self,
+            exercises: models.QuerySet[BaseExercise],
+            submitters: models.QuerySet[UserProfile],
+            form_data: Dict[str, Any],
+            ) -> Optional[int]:
+        if form_data.get('approve_unofficial_submissions', False):
+            return approve_unofficial_submissions(
+                exercises,
+                submitters,
+                extra_submissions=form_data['extra_submissions'],
+            )
+        return None
+
 
 class OverrideSubmissionsView(OverrideDeviationsView):
     template_name = "deviations/override_submissions.html"
@@ -89,6 +138,20 @@ class OverrideSubmissionsView(OverrideDeviationsView):
         result = super().deserialize_session_data(session_data)
         result['extra_submissions'] = session_data['extra_submissions']
         return result
+
+    def approve_submissions(
+            self,
+            exercises: models.QuerySet[BaseExercise],
+            submitters: models.QuerySet[UserProfile],
+            form_data: Dict[str, Any],
+            excluded_deviations: AbstractSet[Tuple[int, int]],
+            ) -> int:
+        return approve_unofficial_submissions(
+            exercises,
+            submitters,
+            excluded_deviations=excluded_deviations,
+            extra_submissions=form_data['extra_submissions'],
+        )
 
 
 class RemoveSubmissionsByIDView(RemoveDeviationsByIDView):
