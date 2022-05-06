@@ -1487,6 +1487,12 @@ msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Do not apply late penalty during extra time."
 
 #: deviations/forms.py
+msgid "LABEL_APPROVE_LATE_SUBMISSIONS"
+msgstr ""
+"Approve existing late and/or unofficial submissions that are covered by the "
+"new personal deadline."
+
+#: deviations/forms.py
 msgid "DEVIATION_MODULE_ADD_HELPTEXT"
 msgstr ""
 "List a module or modules here if you wish the deviation to be applied to all "
@@ -1520,6 +1526,12 @@ msgstr "You have to provide either the extra time or a date in the future."
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_EXTRA_SUBMISSIONS"
 msgstr "Extra submissions"
+
+#: deviations/forms.py
+msgid "LABEL_APPROVE_UNOFFICIAL_SUBMISSIONS"
+msgstr ""
+"Approve existing unofficial submissions that are covered by the new personal "
+"submission attempt limit."
 
 #: deviations/forms.py
 msgid "DEVIATION_MODULE_REMOVE_HELPTEXT"

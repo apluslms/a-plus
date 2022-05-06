@@ -1496,6 +1496,12 @@ msgid "LABEL_WITHOUT_LATE_PENALTY"
 msgstr "Älä käytä myöhästymissakkoa ylimääräisen palautusajan aikana."
 
 #: deviations/forms.py
+msgid "LABEL_APPROVE_LATE_SUBMISSIONS"
+msgstr ""
+"Hyväksy olemassaolevat myöhästyneet ja/tai epäviralliset palautukset, jotka "
+"tehtiin uuden henkilökohtaisen määräajan sisällä."
+
+#: deviations/forms.py
 msgid "DEVIATION_MODULE_ADD_HELPTEXT"
 msgstr ""
 "Ilmoita tässä moduuli tai moduulit, mikäli haluat, että poikkeamaa "
@@ -1529,6 +1535,12 @@ msgstr "Syötä joko ylimääräinen palautusaika tai uusi määräaika."
 #: deviations/forms.py deviations/models.py
 msgid "LABEL_EXTRA_SUBMISSIONS"
 msgstr "Ylimääräisiä palautuskertoja"
+
+#: deviations/forms.py
+msgid "LABEL_APPROVE_UNOFFICIAL_SUBMISSIONS"
+msgstr ""
+"Hyväksy olemassaolevat epäviralliset palautukset, jotka tehtiin uuden "
+"henkilökohtaisen palautuskertarajan sisällä."
 
 #: deviations/forms.py
 msgid "DEVIATION_MODULE_REMOVE_HELPTEXT"

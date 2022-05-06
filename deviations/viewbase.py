@@ -1,11 +1,11 @@
+import datetime
 from itertools import groupby
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type
+from typing import AbstractSet, Any, Dict, Iterable, List, Optional, Tuple, Type
 
 from django.db import models
 from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 from django import forms
-from django.shortcuts import get_object_or_404
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _, ngettext
 
@@ -14,7 +14,7 @@ from course.viewbase import CourseInstanceMixin, CourseInstanceBaseView
 from deviations.models import SubmissionRuleDeviation
 from lib.viewbase import BaseFormView, BaseRedirectView
 from authorization.permissions import ACCESS
-from exercise.models import BaseExercise
+from exercise.models import BaseExercise, Submission
 from userprofile.models import UserProfile
 
 
@@ -66,6 +66,12 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
                     )
                     new_deviation.update_by_form(form.cleaned_data)
                     new_deviation.save()
+            submission_count = self.approve_submissions(
+                exercises,
+                submitters,
+                form.cleaned_data,
+            )
+            #TODO success message to the user?
 
         return super().form_valid(form)
 
@@ -78,6 +84,21 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
         for key in ('exercise', 'module', 'submitter', 'submitter_tag'):
             result[key] = [i.id for i in form_data.get(key, [])]
         return result
+
+    def approve_submissions(
+            self,
+            exercises: models.QuerySet[BaseExercise],
+            submitters: models.QuerySet[UserProfile],
+            form_data: Dict[str, Any],
+            ) -> Optional[int]:
+        """Approve existing late and/or unofficial submissions
+        that are covered by the new deviations.
+
+        If the form_data disables the approval, then no submissions are changed
+        and this method returns None.
+        Otherwise, return the number of approved submissions.
+        """
+        raise NotImplementedError("Child classes must override the method approve_submissions().")
 
 
 class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
@@ -123,14 +144,18 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
 
         existing_deviations = {(d.submitter_id, d.exercise_id): d for d in self.existing_deviations}
 
+        excluded_deviations = set()
         for exercise in self.exercises:
             for submitter in self.submitters:
-                existing_deviation = existing_deviations.get((submitter.id, exercise.id))
+                deviation_pair = (submitter.id, exercise.id)
+                existing_deviation = existing_deviations.get(deviation_pair)
                 if existing_deviation is not None:
-                    if (submitter.id, exercise.id) in override_deviations:
+                    if deviation_pair in override_deviations:
                         existing_deviation.granter = self.request.user.userprofile
                         existing_deviation.update_by_form(self.session_data)
                         existing_deviation.save()
+                    else:
+                        excluded_deviations.add(deviation_pair)
                 else:
                     new_deviation = self.deviation_model(
                         exercise=exercise,
@@ -141,6 +166,13 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
                     new_deviation.save()
 
         del self.request.session[self.session_key]
+        submission_count = self.approve_submissions(
+            self.exercises,
+            self.submitters,
+            self.session_data,
+            excluded_deviations,
+        )
+        #TODO success message to the user?
         return super().form_valid(form)
 
     def deserialize_session_data(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -154,6 +186,20 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
             'submitter_tag': UserTag.objects.filter(id__in=session_data.get('submitter_tag', [])),
         }
         return result
+
+    def approve_submissions(
+            self,
+            exercises: models.QuerySet[BaseExercise],
+            submitters: models.QuerySet[UserProfile],
+            form_data: Dict[str, Any],
+            excluded_deviations: AbstractSet[Tuple[int, int]],
+            ) -> int:
+        """Approve existing late and/or unofficial submissions
+        that are covered by the new deviations.
+
+        Return the number of approved submissions.
+        """
+        raise NotImplementedError("Child classes must override the method approve_submissions().")
 
 
 class RemoveDeviationsByIDView(CourseInstanceMixin, BaseRedirectView):
@@ -196,7 +242,7 @@ class RemoveDeviationsView(CourseInstanceMixin, BaseFormView):
         if number_of_removed == 0:
             messages.warning(self.request, _("NOTHING_REMOVED"))
         else:
-            message = format_lazy(
+            message = format_lazy(#TODO the string is not lazy
                 ngettext(
                     'REMOVED_DEVIATION -- {count}',
                     'REMOVED_DEVIATIONS -- {count}',
@@ -301,3 +347,111 @@ def get_submitters(form_data: Dict[str, Any]) -> models.QuerySet[UserProfile]:
         models.Q(id__in=form_data.get('submitter', []))
         | models.Q(taggings__tag__in=form_data.get('submitter_tag', []))
     ).distinct()
+
+
+def approve_late_submissions(
+        exercises: models.QuerySet[BaseExercise],
+        submitters: models.QuerySet[UserProfile],
+        excluded_deviations: Optional[AbstractSet[Tuple[int, int]]] = None,
+        extra_minutes: Optional[int] = None,
+        new_deadline: Optional[datetime.datetime] = None,
+        ) -> int:
+    exercises_by_module = {}
+    for exercise in exercises:
+        exercises_by_module.setdefault(exercise.course_module_id, []).append(exercise)
+
+    for module_id, exercise_list in exercises_by_module.items():
+        if extra_minutes is not None:
+            dl = exercise_list[0].course_module.closing_time + datetime.timedelta(minutes=extra_minutes)
+        else:
+            dl = new_deadline
+        submissions = (Submission.objects
+            .exclude_errors()
+            .defer_text_fields()
+            .filter(
+                # Late submissions do not have any late penalty when late submissions are disallowed,
+                # but unofficial submissions are allowed.
+                # The submission becomes then unofficial without any late penalty.
+                # Note: the exercise max_submissions limit is not checked here.
+                # Some of the unofficial submissions may have exceeded the submission attempt limit.
+                # Those submissions are approved here as well with the assumption that
+                # the teacher intended that when he/she added new deadline deviations.
+                models.Q(status=Submission.STATUS.UNOFFICIAL) | models.Q(late_penalty_applied__isnull=False),
+                exercise__in=exercise_list,
+                submitters__in=submitters,
+                submission_time__lte=dl,
+            ))
+        submission_count = 0
+        for submission in submissions:
+            may_approve = True
+            for submitter in submission.submitters.all():
+                if excluded_deviations and (submitter.id, submission.exercise_id) in excluded_deviations:
+                    may_approve = False
+                    break
+            if may_approve:
+                submission.approve_penalized_submission()
+                submission.save()
+                submission_count += 1
+
+    return submission_count
+
+
+def approve_unofficial_submissions(
+        exercises: models.QuerySet[BaseExercise],
+        submitters: models.QuerySet[UserProfile],
+        excluded_deviations: Optional[AbstractSet[Tuple[int, int]]] = None,
+        extra_submissions: int = 0,
+        ) -> int:
+    #TODO fix this function
+    # Find exercises in which students have exceeded the max submissions limit.
+    submission_counts = (Submission.objects
+        .filter(
+            exercise__in=exercises,
+            submitters__in=submitters,
+        )
+        .values(
+            'exercise',
+            'submitters',
+        )
+        .annotate(
+            count=models.Count('id'),
+            max_submissions=models.F('exercise__max_submissions'),
+        )
+        .order_by()
+    )
+    exercise_submitter_pairs = set()
+    for c in submission_counts:
+        if c['count'] > c['max_submissions']:
+            exercise_submitter_pairs.add((c['exercise'], c['submitters']))
+    # Fetch submissions for exercise_submitter_pairs and check if some submissions should be approved
+    # (over max submissions and within extra submissions, status unofficial).
+    #TODO
+
+    submissions = (Submission.objects
+        .exclude_errors()
+        .defer_text_fields()
+        .filter(
+            exercise__in=exercises,#TODO use exercise_submitter_pairs
+            # should there be a separate query for each pair since we don't want to query unused pairs?
+            # not all students have exceeding submissions in each exercise.
+            submitters__in=submitters,
+        )
+        .order_by('exercise', 'submitters', 'submission_time')
+    )
+
+    submission_count = 0
+    for submission in submissions:
+        #TODO
+        # count the number of submissions and approve unofficial submissions above the exercise.max_submissions
+        # (extra_submissions define how many are approved)
+        may_approve = True
+        for submitter in submission.submitters.all():
+            if excluded_deviations and (submitter.id, submission.exercise_id) in excluded_deviations:
+                may_approve = False
+                break
+        if may_approve:
+            submission.approve_penalized_submission()
+            submission.save()
+            submission_count += 1
+
+    return submission_count
