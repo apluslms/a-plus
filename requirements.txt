@@ -7,7 +7,7 @@ django-settingsdict ~= 1.1.1
 djangorestframework ~= 3.12.2
 djangorestframework-csv ~= 2.1.0
 -e git+https://github.com/apluslms/drf-extensions.git@reimplement_nested_routes_v5#egg=drf_extensions==0.7.1
-git+https://github.com/apluslms/django-essentials.git@1.4.0#egg=django-essentials==1.4.0
+git+https://github.com/apluslms/django-essentials.git@1.5.0#egg=django-essentials==1.5.0
 git+https://github.com/apluslms/js-jquery-toggle.git@1.1.0#egg=js-jquery-toggle-django==1.1.0&subdirectory=django
 git+https://github.com/apluslms/django-colortag.git@2.3.0#egg=django-colortag==2.3.0
 feedparser ~= 6.0.2
