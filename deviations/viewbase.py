@@ -196,14 +196,11 @@ class RemoveDeviationsView(CourseInstanceMixin, BaseFormView):
         if number_of_removed == 0:
             messages.warning(self.request, _("NOTHING_REMOVED"))
         else:
-            message = format_lazy(
-                ngettext(
-                    'REMOVED_DEVIATION -- {count}',
-                    'REMOVED_DEVIATIONS -- {count}',
-                    number_of_removed
-                ),
-                count=number_of_removed,
-            )
+            message = ngettext(
+                'REMOVED_DEVIATION -- {count}',
+                'REMOVED_DEVIATIONS -- {count}',
+                number_of_removed,
+            ).format(count=number_of_removed)
             messages.info(self.request, message)
         return super().form_valid(form)
 
