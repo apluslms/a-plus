@@ -237,6 +237,24 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 SIS_ENROLL_DELAY = 15
 
 ##########################################################################
+# Settings related automatic retries of unfinished grading tasks
+
+# Number of seconds after which a submission can be resent to grader, if not completed
+# If set to None, retries are disabled.
+SUBMISSION_EXPIRY_TIMEOUT = 30 * 60
+
+# List of services with automatic grading where retries are allowed
+# Network location is sufficient, e.g. "localhost:8080" or "grader.cs.aalto.fi"
+SUBMISSION_RETRY_SERVICES = []
+
+# Number of unresponded retries beyond which we move to recovery state.
+# In recovery state there likely is more persistent problem with the grader
+# or network that needs fixing.
+# In recovery state A+ periodically probes the state of the grader, sending only one
+# grading request out every SUBMISSION_EXPIRY_TIMEOUT seconds.
+# We do not want to congest the potentially broken system unnecessarily with several
+# requests in this case.
+GRADER_STABLE_THRESHOLD = 5
 
 ## Celery
 CELERY_ACCEPT_CONTENT = ['json']

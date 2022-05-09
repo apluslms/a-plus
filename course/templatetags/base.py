@@ -3,8 +3,9 @@ from datetime import datetime
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext_lazy as _
 from lib.helpers import remove_query_param_from_url, settings_text, update_url_params
+from exercise.submission_models import PendingSubmissionManager
 
 
 register = template.Library()
@@ -44,6 +45,9 @@ def site_alert():
     if message:
         return mark_safe('<div class="alert alert-danger">{}</div>'
                          .format(pick_localized(message)))
+    if not PendingSubmissionManager.is_grader_stable():
+        # Prefer configured alert text, if one is set
+        return mark_safe('<div class="alert alert-danger">{}</div>'.format(_('GRADER_PROBLEMS_ALERT')))
     return ''
 
 
