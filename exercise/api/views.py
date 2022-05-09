@@ -23,6 +23,7 @@ from course.permissions import (
     IsCourseAdminOrUserObjIsSelf,
     JWTSubmissionCreatePermission,
     JWTSubmissionWritePermission,
+    OnlyCourseStaffPermission,
 )
 from course.api.mixins import CourseResourceMixin
 from course.api.serializers import StudentBriefSerializer
@@ -88,7 +89,7 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
         if request.method in permissions.SAFE_METHODS:
             return self.retrieve(request, *args, **kwargs)
 
-        ## submit and grade new ssubmission
+        ## submit and grade new submission
 
         # Onyl grader is allowed to post to this resource
         user = request.user
@@ -386,6 +387,9 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
 
     `GET /submissions/<submission_id>/grader/`:
         used by automatic graders when grading a submission.
+
+    `GET /submissions/<submission_id>/re-submit/`:
+        resubmits a submission for grading.
     """
     lookup_field = 'id'
     lookup_url_kwarg = 'submission_id'
@@ -423,6 +427,48 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
             )
 
         return Response(_post_async_submission(request, self.submission.exercise, self.submission))
+
+    @action(
+        detail=True,
+        url_path='re-submit',
+        url_name='re-submit',
+        get_permissions = lambda: [OnlyCourseStaffPermission()],
+        methods=['post'],
+    )
+    def resubmit(self, request, *args, **kwargs):
+        if not self.submission.exercise.is_submittable:
+            return self.http_method_not_allowed(request, *args, **kwargs)
+
+        data = None
+
+        page = self.submission.exercise.grade(self.submission, request)
+
+        # Enroll after succesfully resubmitting to the enrollment exercise.
+        if (self.submission.exercise.status in (
+                    LearningObject.STATUS.ENROLLMENT,
+                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                ) and self.submission.status == Submission.STATUS.READY
+                and page.is_loaded and page.is_accepted
+                ):
+            submitter = self.submission.submitters.first().user
+            if not (
+                    self.instance.is_student(submitter)
+                    or self.instance.is_course_staff(submitter)
+                    or self.instance.is_banned(submitter)
+                    ):
+                self.instance.enroll_student(submitter)
+
+        headers = {
+            'Location': reverse(
+                'api:submission-detail',
+                kwargs={'submission_id': self.submission.id},
+                request=request,
+            ),
+        }
+        if page.errors:
+            data = {'errors': page.errors}
+
+        return Response(data, status=status.HTTP_200_OK, headers=headers)
 
 
 class SubmissionFileViewSet(NestedViewSetMixin,
