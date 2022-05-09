@@ -145,6 +145,13 @@ class UserProfile(models.Model):
         kwargs = dict(user_id=self.user.id, **instance.get_url_kwargs())
         return reverse('user-results', kwargs=kwargs)
 
+    def regenerate_api_token(self):
+        # FIXME: implement support for more than 1 token
+        token, created = Token.objects.get_or_create(user=self.user)
+        if not created:
+            token.delete()
+            Token.objects.create(user=self.user)
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     """

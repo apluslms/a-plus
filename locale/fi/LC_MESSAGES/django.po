@@ -5524,6 +5524,14 @@ msgid "COPY"
 msgstr "Kopioi"
 
 #: userprofile/templates/userprofile/profile.html
+msgid "REGENERATE_API_ACCESS_TOKEN"
+msgstr "Generoi uusi API-käyttöoikeustietue"
+
+#: userprofile/templates/userprofile/profile.html
+msgid "REGENERATE"
+msgstr "Uudelleengeneroi"
+
+#: userprofile/templates/userprofile/profile.html
 msgid "AUTOMATIC_REDIRECTIONS"
 msgstr "Automaattiset uudelleenohjaukset"
 

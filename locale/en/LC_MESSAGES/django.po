@@ -5505,6 +5505,14 @@ msgid "COPY"
 msgstr "Copy"
 
 #: userprofile/templates/userprofile/profile.html
+msgid "REGENERATE_API_ACCESS_TOKEN"
+msgstr "Generate a new API Access Token"
+
+#: userprofile/templates/userprofile/profile.html
+msgid "REGENERATE"
+msgstr "Regenerate"
+
+#: userprofile/templates/userprofile/profile.html
 msgid "AUTOMATIC_REDIRECTIONS"
 msgstr "Automatic redirections"
 
