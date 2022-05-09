@@ -1429,6 +1429,12 @@ msgstr ""
 "<p>Are you sure you want to ban this user from the course?</p><p>Banned "
 "users cannot re-enrol in the course.</p>"
 
+#: course/templatetags/base.py
+msgid "GRADER_PROBLEMS_ALERT"
+msgstr ""
+"Automatic grading has currently issues. "
+"You may experience delay in receiving feedback."
+
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"
 msgstr "The course instances of this course are not visible to students."

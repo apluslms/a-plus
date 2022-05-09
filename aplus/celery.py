@@ -2,10 +2,14 @@ import os
 import celery
 import datetime
 from datetime import timedelta
+import logging
+from dateutil.relativedelta import relativedelta
 from time import sleep
 
 from django.conf import settings
 
+
+logger = logging.getLogger('aplus.celery')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'aplus.settings')
 
 app = celery.Celery('aplus')
@@ -16,6 +20,12 @@ app.autodiscover_tasks()
 def setup_periodic_tasks(sender, **kwargs):
     if hasattr(settings, 'SIS_ENROLL_SCHEDULE'):
         sender.add_periodic_task(settings.SIS_ENROLL_SCHEDULE, enroll.s(), name='enroll')
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    if settings.SUBMISSION_EXPIRY_TIMEOUT:
+        # Run timed check twice in timeout period, for more timely retries
+        sender.add_periodic_task(settings.SUBMISSION_EXPIRY_TIMEOUT/2, retry_submissions.s(), name='retry_submissions')
 
 @app.task
 def enroll():
@@ -34,3 +44,26 @@ def enroll():
         i.enroll_from_sis()
         if settings.SIS_ENROLL_DELAY:
             sleep(settings.SIS_ENROLL_DELAY)
+
+@app.task
+def retry_submissions():
+    from exercise.submission_models import PendingSubmission, PendingSubmissionManager
+
+    # Recovery state: only send one grading request to probe the state of grader
+    # We pick the one with most attempts, so that total_retries comes down more quickly
+    # when things are back to normal, and we can return to normal state
+    if not PendingSubmissionManager.is_grader_stable:
+        pending = PendingSubmission.objects.order_by('-num_retries').first()
+        logging.info(f"Recovery state: retrying expired submission {pending.submission}")
+        pending.submission.exercise.grade(pending.submission)
+        return
+
+    # Stable state: retry all expired submissions
+    expiry_time = datetime.datetime.now(datetime.timezone.utc) - relativedelta(seconds=settings.SUBMISSION_EXPIRY_TIMEOUT)
+    expired = PendingSubmission.objects.filter(submission_time__lt=expiry_time)
+
+    for pending in expired:
+        if pending.submission.exercise.can_regrade:
+            logger.info(f"Retrying expired submission {pending.submission}")
+            pending.submission.exercise.grade(pending.submission)
+            sleep(0.5)  # Delay 500 ms to avoid choking grader

@@ -17,6 +17,7 @@ from exercise.models import (
     RevealRule,
     ExerciseTask,
     LearningObjectDisplay,
+    PendingSubmission,
 )
 from exercise.exercisecollection_models import ExerciseCollection
 from lib.admin_helpers import RecentCourseInstanceListFilter
@@ -440,6 +441,14 @@ class LearningObjectDisplayAdmin(admin.ModelAdmin):
     readonly_fields = ('timestamp',)
 
 
+class PendingSubmissionAdmin(admin.ModelAdmin):
+    list_display = (
+        'submission',
+        'submission_time',
+        'num_retries',
+    )
+
+
 admin.site.register(CourseChapter, CourseChapterAdmin)
 admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
@@ -452,3 +461,4 @@ admin.site.register(ExerciseCollection, ExerciseCollectionAdmin)
 admin.site.register(RevealRule, RevealRuleAdmin)
 admin.site.register(ExerciseTask, ExerciseTaskAdmin)
 admin.site.register(LearningObjectDisplay, LearningObjectDisplayAdmin)
+admin.site.register(PendingSubmission, PendingSubmissionAdmin)

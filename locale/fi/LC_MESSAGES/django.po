@@ -1437,6 +1437,12 @@ msgstr ""
 "<p>Haluatko varmasti estää tämän käyttäjän pääsyn kurssille?</p><p>Estetyt "
 "käyttäjät eivät pysty ilmoittautumaan kurssille uudelleen.</p>"
 
+#: course/templatetags/base.py
+msgid "GRADER_PROBLEMS_ALERT"
+msgstr ""
+"Automaattisessa arvioinnissa on tällä hetkellä ongelmia. "
+"Palautteen saamisessa saattaa esiintyä viivettä."
+
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"
 msgstr "Kurssikerrat eivät ole opiskelijoiden nähtävissä."

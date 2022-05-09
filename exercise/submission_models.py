@@ -4,16 +4,18 @@ import logging
 from mimetypes import guess_type
 import os
 from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
+from urllib.parse import urlparse
 
 from binaryornot.check import is_binary
 from django.conf import settings
 from django.db import models, DatabaseError
+from django.db.models import F
 from django.db.models.signals import post_delete
 from django.http.request import HttpRequest
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
-from exercise.protocol.exercise_page import ExercisePage
 
+from exercise.protocol.exercise_page import ExercisePage
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
 from lib.fields import DefaultForeignKey, JSONField, PercentField
@@ -26,6 +28,7 @@ from lib.helpers import (
 )
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
+from aplus.celery import retry_submissions
 from . import exercise_models
 
 
@@ -565,9 +568,11 @@ class Submission(UrlMixin, models.Model):
 
     def set_waiting(self):
         self.status = self.STATUS.WAITING
+        self.mark_pending()
 
     def set_ready(self, approve_unofficial=False):
         self.grading_time = timezone.now()
+        self.clear_pending()
         if self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points or approve_unofficial:
             self.status = self.STATUS.READY
 
@@ -581,11 +586,18 @@ class Submission(UrlMixin, models.Model):
                 "site": settings.BASE_URL,
             })
 
+        if not PendingSubmissionManager.is_grader_stable:
+            # We have a successful grading task in the recovery state. It may be a sign that problems
+            # have been resolved, so immediately retry the next pending submission, to speed up recovery
+            retry_submissions()
+
     def set_rejected(self):
         self.status = self.STATUS.REJECTED
+        self.clear_pending()
 
     def set_error(self):
         self.status = self.STATUS.ERROR
+        self.clear_pending()
 
     @property
     def is_graded(self):
@@ -612,6 +624,22 @@ class Submission(UrlMixin, models.Model):
 
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
+
+    def mark_pending(self):
+        grading_host = urlparse(self.exercise.service_url).netloc
+        if grading_host in settings.SUBMISSION_RETRY_SERVICES:
+            pending, created = PendingSubmission.objects.get_or_create(submission=self)
+            if not created:
+                pending.num_retries = F('num_retries') + 1
+            pending.submission_time = timezone.now()
+            pending.save()
+
+    def clear_pending(self):
+        try:
+            pending = PendingSubmission.objects.get(submission=self)
+            pending.delete()
+        except PendingSubmission.DoesNotExist:
+            pass
 
 
 class SubmissionDraft(models.Model):
