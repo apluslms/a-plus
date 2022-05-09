@@ -9,22 +9,22 @@
 
 {% block js-translations %}
 <link
-    data-translation
+	data-translation
 	rel="prefetch"
-    as="fetch"
-    crossorigin="anonymous"
-    type="application/json, */*;"
-    hreflang="fi"
-    href="{{ STATIC_URL }}js-translations/profile.fi.json"
+	as="fetch"
+	crossorigin="anonymous"
+	type="application/json, */*;"
+	hreflang="fi"
+	href="{{ STATIC_URL }}js-translations/profile.fi.json"
 >
 <link
-    data-translation
+	data-translation
 	rel="prefetch"
-    as="fetch"
-    crossorigin="anonymous"
-    type="application/json, */*;"
-    hreflang="fi"
-    href="{{ STATIC_URL }}js-translations/copy-to-clipboard.fi.json"
+	as="fetch"
+	crossorigin="anonymous"
+	type="application/json, */*;"
+	hreflang="fi"
+	href="{{ STATIC_URL }}js-translations/copy-to-clipboard.fi.json"
 >
 {% endblock %}
 
@@ -79,8 +79,18 @@
 				<button data-toggle="tooltip" data-placement="bottom"
 					title="{% translate 'COPY_API_ACCESS_TOKEN' %}" aria-label="{% translate 'COPY_API_ACCESS_TOKEN' %}"
 					class="aplus-button--secondary aplus-button--md js-copy" type="button"><span
-						class="glyphicon glyphicon-copy"></span><span class="">{% translate "COPY" %}</span></button>
+						class="glyphicon glyphicon-copy" aria-hidden="true"></span><span class="">{% translate "COPY" %}</span></button>
 			</span>
+		</div>
+		<div>
+			<form action="{% url 'regenerate-access-token' %}" method="post" class="form">{% csrf_token %}
+				<div class="form-group">
+					<button type="submit" data-toggle="tooltip" data-placement="bottom"
+						title="{% translate 'REGENERATE_API_ACCESS_TOKEN' %}" aria-label="{% translate 'REGENERATE_API_ACCESS_TOKEN' %}"
+						class="aplus-button--secondary aplus-button--md"><span
+							class="glyphicon glyphicon-refresh" aria-hidden="true"></span><span class="">{% translate "REGENERATE" %}</span></button>
+				</div>
+			</form>
 		</div>
 		<br>
 		<div>

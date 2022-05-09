@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from urllib.parse import unquote
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
@@ -18,6 +19,7 @@ from django.utils.translation import (
 )
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
+from django.views.decorators.http import require_POST
 
 from authorization.permissions import ACCESS
 from course.models import CourseInstance
@@ -73,7 +75,7 @@ class CustomLoginView(LoginView):
 
 
 def set_user_language(request):
-    """"Overrides set_language function from  django.views.i18n."""
+    """Overrides set_language function from django.views.i18n."""
     LANGUAGE_PARAMETER = 'language'
 
     next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
@@ -109,6 +111,14 @@ def set_user_language(request):
                     domain=settings.LANGUAGE_COOKIE_DOMAIN,
                 )
     return response
+
+
+@login_required
+@require_POST
+def regenerate_access_token(request):
+    """Regenerates the API access token."""
+    request.user.userprofile.regenerate_api_token()
+    return HttpResponseRedirect(reverse('profile'))
 
 
 def try_get_template(name):
