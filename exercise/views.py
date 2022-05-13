@@ -382,6 +382,23 @@ class ExerciseModelView(ExerciseModelBaseView):
                 })
         self.note('models')
 
+    def get(self, request, *args, **kwargs):
+        if request.GET.get("download", False):
+            request_name = request.GET.get("name")
+            for model in self.models:
+                name = model['name']
+                if (name == request_name):
+                    data = model['content']
+            if data is None:
+                return HttpResponseNotFound()
+
+            response = HttpResponse(data,
+                content_type="text/plain")
+            response["Content-Disposition"] = 'attachment; filename="{}"'\
+                .format(request_name)
+            return response
+
+        return super().get(request, *args, **kwargs)
 
 class ExerciseTemplateView(ExerciseTemplateBaseView):
     template_name = "exercise/template.html"
@@ -408,6 +425,23 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
                 })
         self.note('templates')
 
+    def get(self, request, *args, **kwargs):
+        if request.GET.get("download", False):
+            request_name = request.GET.get("name")
+            for template in self.templates:
+                name = template['name']
+                if (name == request_name):
+                    data = template['content']
+            if data is None:
+                return HttpResponseNotFound()
+
+            response = HttpResponse(data,
+                content_type="text/plain")
+            response["Content-Disposition"] = 'attachment; filename="{}"'\
+                .format(request_name)
+            return response
+
+        return super().get(request, *args, **kwargs)
 
 class SubmissionView(SubmissionBaseView):
     template_name = "exercise/submission.html"

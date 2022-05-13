@@ -331,6 +331,18 @@ $(function() {
               });
             }
 
+            if (codeBlock.find('.pre-content')) {
+              const preContent = codeBlock.find('.pre-content').prevObject;
+              addButton(buttonContainer, {
+                action: function() {
+                  const url = preContent.attr("data-self-link");
+                  window.location.href = url + "&download=yes";
+                },
+                icon: 'download-alt',
+                text: _('Download'),
+              });
+            }
+
             if (options && options.extraButtons) {
               for (var i in options.extraButtons) {
                 addButton(buttonContainer, options.extraButtons[i]);
