@@ -1,0 +1,46 @@
+{% load i18n %}
+<div
+	class="modal"
+	id="duplicate-submission-modal"
+	tabindex="-1"
+	role="dialog"
+	aria-labelledby="duplicate-submission-modal-label"
+>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button
+					type="button"
+					class="close"
+					data-dismiss="modal"
+					aria-label="{% translate "CLOSE" %}"
+				>
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<h4 class="modal-title" id="duplicate-submission-modal-label">
+					{% translate "DUPLICATE_SUBMISSION_TITLE" %}
+				</h4>
+			</div>
+			<div class="modal-body">
+				{% translate "DUPLICATE_SUBMISSION" %}
+			</div>
+			<div class="modal-footer">
+				<button
+					type="button"
+					class="aplus-button--secondary aplus-button--md"
+					data-dismiss="modal"
+				>
+					{% translate "CANCEL" %}
+				</button>
+				<button
+					type="button"
+					class="aplus-button--default aplus-button--md"
+					data-dismiss="modal"
+					id="duplicate-submission-modal-button"
+				>
+					{% translate "SUBMIT" %}
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

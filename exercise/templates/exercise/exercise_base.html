@@ -56,7 +56,7 @@
 					<ul class="dropdown-menu">
 							{% for submission in submissions %}
 							<li>
-									<a href="{{ submission|url }}">
+									<a href="{{ submission|url }}" data-hash="{{ submission.meta_data.hash }}">
 											{{ forloop.revcounter }}.
 											{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
 											{% points_badge submission is_revealed=feedback_revealed %}
