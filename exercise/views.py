@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 from django.db import DatabaseError
 
+from exercise.cache.points import CachedPoints
 from authorization.permissions import ACCESS
 from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
@@ -37,7 +38,8 @@ from .viewbase import (
 from .exercisecollection_models import ExerciseCollection
 from .exercise_summary import UserExerciseSummary
 from django.urls import reverse
-
+import hashlib
+import json
 
 class TableOfContentsView(CourseInstanceBaseView):
     template_name = "exercise/toc.html"
@@ -89,7 +91,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
         if self.exercise.is_submittable:
             SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
-            submission_status, submission_allowed, issues, students = self.submission_check()
+            submission_status, submission_allowed, issues, students = self.submission_check(request=request)
             self.get_summary_submissions()
             disable_submit = submission_status in [
                 SUBMIT_STATUS.CANNOT_ENROLL,
@@ -220,6 +222,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             page=page, students=students, submission=new_submission))
 
     def submission_check(self, error=False, request=None):
+        if self.check_duplicate_submission(self.exercise, request.FILES):
+            messages.warning(self.request, _('DUPLICATE_SUBMISSION'))
+
         if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
             # Add warning about the grading mode.
             messages.warning(self.request, _('ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED'))
@@ -342,7 +347,26 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             }
 
         return loaded_content
+<<<<<<< HEAD
 
+=======
+    
+    def check_duplicate_submission(self, exercise, files):
+        #get existing hash from
+        cache = CachedPoints(self.instance, self.request.user, self.content, True)
+        exercises, *d = cache.find(exercise)
+        submissions = exercises["submissions"]
+        old_hashes = [s.get("submission_hash") for s in submissions] #get from cache
+        #create and store hash
+        dhash = hashlib.md5()
+        files_encoded = json.dumps(files, sort_keys=True, default=str).encode()
+        exercise_encoded = json.dumps(exercise, sort_keys=True, default=str).encode()
+        dhash.update(exercise_encoded)
+        dhash.update(files_encoded)
+        new_hash = dhash.hexdigest()
+
+        return new_hash in old_hashes #old hashes could also be set to speed up computing time
+>>>>>>> 71300be6... complete backend
 
 class ExercisePlainView(ExerciseView):
     raise_exception=True

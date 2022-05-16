@@ -4416,6 +4416,10 @@ msgid "ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED"
 msgstr "Only your last submission will be graded."
 
 #: exercise/views.py
+msgid "DUPLICATE_SUBMISSION"
+msgstr "You are submitting a duplicate submission that is identical with a submission that you have previously submitted."
+
+#: exercise/views.py
 msgid "SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES"
 msgstr "You need to sign in and enrol to submit exercises."
 
