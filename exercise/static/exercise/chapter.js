@@ -579,31 +579,41 @@
           });
         });
       } else {
-        var exercise = this;
-        if (exercise.quiz) {
-          exercise.quizSubmission("submit");
-        } else {
-          /* TODO: migrate to overlay */
-          chapter.openModal(chapter.messages.submit);
-        }
-        var url = $(form_element).attr("action");
-        var formData = new FormData(form_element);
-
-        exercise.submitAjax(url, formData, function(data) {
-          //$(form_element).find(":input").prop("disabled", false);
-          //exercise.hideLoader();
-          var input = $(data);
+        // Callback for submitting an exercise
+        const submitCallback = function(exercise, hash) {
           if (exercise.quiz) {
-            exercise.quizSubmission("success");
-            exercise.update(input);
-            exercise.renderMath();
-            exercise.dom_element.dispatchEvent(
-              new CustomEvent("aplus:submission-finished",
-                {bubbles: true, detail: {type: exercise.exercise_type}}));
+            exercise.quizSubmission("submit");
           } else {
-            exercise.updateSubmission(input);
+            /* TODO: migrate to overlay */
+            chapter.openModal(chapter.messages.submit);
           }
-        });
+          var url = $(form_element).attr("action");
+          var formData = new FormData(form_element);
+          const aplusJsonString = formData.get('__aplus__');
+          if (aplusJsonString) {
+            const aplusDict = JSON.parse(aplusJsonString);
+            aplusDict["hash"] = hash;
+            formData.set('__aplus__', JSON.stringify(aplusDict));
+          } else {
+            formData.set('__aplus__', JSON.stringify({hash: hash}));
+          }
+          exercise.submitAjax(url, formData, function(data) {
+            //$(form_element).find(":input").prop("disabled", false);
+            //exercise.hideLoader();
+            var input = $(data);
+            if (exercise.quiz) {
+              exercise.quizSubmission("success");
+              exercise.update(input);
+              exercise.renderMath();
+              exercise.dom_element.dispatchEvent(
+                new CustomEvent("aplus:submission-finished",
+                  {bubbles: true, detail: {type: exercise.exercise_type}}));
+            } else {
+              exercise.updateSubmission(input);
+            }
+          });
+        };
+        duplicateCheck(this, form_element, submitCallback);
       }
     },
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-05 19:54+0300\n"
+"POT-Creation-Date: 2022-08-09 19:38+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1228,6 +1228,7 @@ msgstr ""
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: external_services/templates/external_services/edit_menu.html
@@ -1593,6 +1594,7 @@ msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL"
 msgstr "max submissions rule deviations"
 
 #: deviations/templates/deviations/_remove_modal.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_late_submission_approval_modal.html
 #: exercise/templates/exercise/staff/_regrade_submissions.html
@@ -1787,6 +1789,7 @@ msgstr "Override"
 #: deviations/templates/deviations/remove_submissions.html
 #: edit_course/templates/edit_course/batch_assess.html
 #: edit_course/templates/edit_course/edit_gitmanager.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
 #: exercise/templates/exercise/model/_file_submit_form.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "SUBMIT"
@@ -2441,7 +2444,9 @@ msgstr "Batch create and assess submissions"
 
 #: edit_course/templates/edit_course/batch_assess.html
 #, python-format
-msgid "BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- %(id)s, %(exercises_api_url)s"
+msgid ""
+"BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- %(id)s, "
+"%(exercises_api_url)s"
 msgstr ""
 "<p><em>Use only if you know what you are doing!</em></p>\n"
 "<p>By submitting json to the form below you can try to create and assess "
@@ -2450,11 +2455,11 @@ msgstr ""
 "(integer)</dt>\n"
 "<dd>the system user ID of the desired grader. Your user ID is <b>%(id)s.</"
 "b></dd>\n"
-"<dt>Z1 and Z2 (integers)</dt> <dd>the system assignment IDs. "
-"You can find the assignment IDs from the <a href='%(exercises_api_url)s'>course exercises API</a>. "
-"Alternatively, take a look at the web address of the <b>Edit assignment</b> "
-"button under <b>Edit course -> Content</b>. "
-"The <b>Edit assignment</b> address includes a number after the course keys.</dd> </dl>"
+"<dt>Z1 and Z2 (integers)</dt> <dd>the system assignment IDs. You can find "
+"the assignment IDs from the <a href='%(exercises_api_url)s'>course exercises "
+"API</a>. Alternatively, take a look at the web address of the <b>Edit "
+"assignment</b> button under <b>Edit course -> Content</b>. The <b>Edit "
+"assignment</b> address includes a number after the course keys.</dd> </dl>"
 
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_BY"
@@ -3692,6 +3697,16 @@ msgstr "submitted files"
 #: exercise/templates/exercise/_exercisecollection.html
 msgid "TOTAL_POINTS"
 msgstr "Total points"
+
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+msgid "DUPLICATE_SUBMISSION_TITLE"
+msgstr "Identical submission"
+
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+msgid "DUPLICATE_SUBMISSION"
+msgstr ""
+"This submission is identical to the previous submission <span data-dup-"
+"submission></span>. Are you sure you want to submit it?"
 
 #: exercise/templates/exercise/_enrollment_success.html
 msgid "COURSE_ENROLLMENT_SUCCESSFUL"

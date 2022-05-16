@@ -58,6 +58,8 @@
 
 {% include "exercise/_exercise_wait.html" %}
 
+{% include "exercise/_duplicate_submission_modal.html" %}
+
 <div id="loading-indicator" class="hide progress"
   data-msg-load="{% translate 'LOADING_EXERCISE' %}"
   data-msg-submit="{% translate 'POSTING_SUBMISSION' %}"
@@ -68,11 +70,13 @@
 
 {% block scripts %}
 {{ block.super }}
+<script src="{% static 'js/md5.min.js' %}"></script>
 <script src="{% static 'js/external_launcher.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/external_services.css' %}">
 <script src="{% static 'exercise/poll.js' %}"></script>
 <script src="{% static 'exercise/group.js' %}"></script>
 <script src="{% static 'exercise/autosave.js' %}"></script>
+<script src="{% static 'exercise/duplicate_check.js' %}"></script>
 <script src="{% static 'exercise/chapter.js' %}"></script>
 <script
     src="{% static 'exercise/language_link.js' %}"

@@ -1,0 +1,15 @@
+{
+  "name": "aplus-blueimp-md5",
+  "description": "blueimp-md5 for A+",
+  "repository": ".",
+  "license": "MIT",
+  "version": "1.0.0",
+  "dependencies": {
+    "blueimp-md5": "^2.19.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "install": "./install.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
