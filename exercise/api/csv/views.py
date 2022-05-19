@@ -317,6 +317,17 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
+    def get_aggr(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
+        return (
+            Submission.objects
+            .filter(exercise__in=ids, submitters__in=profiles)
+            .exclude(status__in=(exclude_list))
+            .values('submitters__user_id', 'exercise_id')
+            .annotate(count=Count('id'))
+            .annotate_submitter_points('total', revealed_ids, show_unofficial)
+            .order_by()
+        )
+
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
         _, exercises = self.content.search_entries(**search_args)
@@ -327,15 +338,7 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         show_unofficial = request.GET.get('show_unofficial') == 'true'
         if not show_unofficial:
             exclude_list.append(Submission.STATUS.UNOFFICIAL)
-        aggr = (
-            Submission.objects
-            .filter(exercise__in=ids, submitters__in=profiles)
-            .exclude(status__in=(exclude_list))
-            .values('submitters__user_id', 'exercise_id')
-            .annotate(count=Count('id'))
-            .annotate_submitter_points('total', revealed_ids, show_unofficial)
-            .order_by()
-        )
+        aggr = self.get_aggr(ids, profiles, exclude_list, revealed_ids, show_unofficial)
         data,fields = aggregate_points(
             profiles,
             self.instance.taggings.all(),
@@ -353,6 +356,21 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         context['header'] = getattr(self, 'renderer_fields', None)
         return context
 
+class CourseResultsDataViewSetBest(CourseResultsDataViewSet):
+    """
+    This is only temporary experiment to fix resultdata endpoints performance problems.
+    External applications should not use this API endpoint.
+    """
+    def get_aggr(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
+        return (
+            Submission.objects
+            .filter(exercise__in=ids, submitters__in=profiles)
+            .exclude(status__in=(exclude_list))
+            .values('submitters__user_id', 'exercise_id')
+            .annotate(count=Count('id'))
+            .annotate_submitter_points_best('total', revealed_ids, show_unofficial)
+            .order_by()
+        )
 
 def int_or_none(value):
     if not value is None:

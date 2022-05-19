@@ -23,6 +23,7 @@
      * TODO: slip in the format parameter in a more elegant fashion
      */
     var pointsUrl = currentScript.data("pointsUrl") + '?format=json';
+    var pointsBestUrl = currentScript.data("pointsBestUrl") + '?format=json';
 
     /**
      * Stores the exercise data loaded via ajax call
@@ -1121,7 +1122,7 @@
      * Loads new data on page load, and when "Show only official points" checkbox clicked
      * @param {*} show_unofficial
      */
-    function loadStudentData(show_unofficial) {
+    function loadStudentData(show_unofficial, show_latest) {
         // Destroy old data table if it exists
         // Also multiselects and event handlers that will be recreated
         if(dtApi !== undefined) {
@@ -1134,10 +1135,12 @@
             $('.filter-users button').off('click');
             $('#difficulty-exercises').tab('show');
         }
-        if(show_unofficial) pointsUrl = pointsUrl + "&show_unofficial=true";
+        var pUrl = pointsBestUrl;
+        if(show_latest) pUrl = pointsUrl;
+        if(show_unofficial) pUrl = pUrl + "&show_unofficial=true";
         $.when(
             $.ajax(exercisesUrl),
-            $.ajax(pointsUrl),
+            $.ajax(pUrl),
             $.ajax(usertagsUrl)
         ).done(function(exerciseJson, pointsJson, userTags) {
             userTags[0].results.forEach(function(entry) {
@@ -1571,11 +1574,15 @@
      * data from backend. This is because the frontend logic is already very complex.
      */
     $('input.official-checkbox').change(function(){
-        loadStudentData(!$(this).prop('checked'));
+        loadStudentData(!$(this).prop('checked'), !$('input.latestsubs-checkbox').prop('checked'));
+    });
+
+    $('input.latestsubs-checkbox').change(function(){
+        loadStudentData(!$('input.official-checkbox').prop('checked'), !$(this).prop('checked'));
     });
 
     $(document).on("aplus:translation-ready", function() {
-        loadStudentData(false);
+        loadStudentData(false, false);
     });
 
 })(jQuery, document, window);

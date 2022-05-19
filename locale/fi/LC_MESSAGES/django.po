@@ -4447,6 +4447,10 @@ msgid "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS"
 msgstr "Näytä vain palauttaneet opiskelijat"
 
 #: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_SHOW_LATEST_SUBMISSION_POINTS"
+msgstr "Ohita vain viimeisen palautuksen huomioiva arviointisääntö"
+
+#: exercise/templates/exercise/staff/results.html
 msgid "SUMMARIES"
 msgstr "Yhteenvedot"
 
