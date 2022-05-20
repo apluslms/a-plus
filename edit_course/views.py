@@ -391,23 +391,3 @@ class BuildLogView(CourseInstanceMixin, BaseTemplateView):
         context = super().get_context_data(*args, **kwargs)
         context.update(get_build_log(self.instance))
         return context
-
-
-class SignInAsUser(BaseRedirectMixin, BaseTemplateView):
-    access_mode = ACCESS.SUPERUSER
-    template_name = "edit_course/signin_as_user.html"
-
-    def post(self, request, *args, **kwargs):
-        username = request.POST.get('username', None)
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            messages.error(request,
-                format_lazy(
-                    _('ERROR_USERNAME_DOESNT_EXIST -- {username}'),
-                    username=html.escape(username),
-                )
-            )
-            return self.redirect(reverse('signin-as-user'))
-        auth_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-        return self.redirect("/")

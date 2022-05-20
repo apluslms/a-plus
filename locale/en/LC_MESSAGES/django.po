@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 12:03+0300\n"
+"POT-Creation-Date: 2022-05-20 11:15+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
-"Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
+"Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
 "Language: en_GB\n"
 "MIME-Version: 1.0\n"
@@ -1914,7 +1914,6 @@ msgid "FILTER_USERS"
 msgstr "Filter users"
 
 #: diploma/templates/diploma/list.html
-#: edit_course/templates/edit_course/signin_as_user.html
 #: userprofile/templates/userprofile/login.html
 #: userprofile/templates/userprofile/profile.html
 msgid "USERNAME"
@@ -2516,20 +2515,6 @@ msgid "REMOVE_MODEL_MUST_BE_EMPTY -- %(model)s, %(name)s"
 msgstr ""
 "The %(model)s <strong>%(name)s</strong> is not empty. Contained assignments "
 "must be removed first."
-
-#: edit_course/templates/edit_course/signin_as_user.html
-msgid "SIGN_IN_AS_GIVEN_USER"
-msgstr "Sign in as given user"
-
-#: edit_course/templates/edit_course/signin_as_user.html
-msgid "SIGN_IN_AS_GIVEN_USER_DESCRIPTION_AND_WARNING"
-msgstr ""
-"For debugging purposes, superusers may sign in here as any user. Consider "
-"your actions!"
-
-#: edit_course/templates/edit_course/signin_as_user.html
-msgid "CHANGE_MY_SESSION"
-msgstr "Change my session"
 
 #: edit_course/templates/edit_course/usertag_add.html
 msgid "ADD_NEW_USER_TAG"
