@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 12:03+0300\n"
+"POT-Creation-Date: 2022-05-20 11:15+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
-"Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
+"Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
@@ -1923,7 +1923,6 @@ msgid "FILTER_USERS"
 msgstr "Suodata listaa"
 
 #: diploma/templates/diploma/list.html
-#: edit_course/templates/edit_course/signin_as_user.html
 #: userprofile/templates/userprofile/login.html
 #: userprofile/templates/userprofile/profile.html
 msgid "USERNAME"
@@ -2528,20 +2527,6 @@ msgid "REMOVE_MODEL_MUST_BE_EMPTY -- %(model)s, %(name)s"
 msgstr ""
 "Tämä %(model)s <strong>%(name)s</strong> ei ole tyhjä. Sen sisältämät "
 "tehtävät pitää poistaa ensin."
-
-#: edit_course/templates/edit_course/signin_as_user.html
-msgid "SIGN_IN_AS_GIVEN_USER"
-msgstr "Kirjaudu jonain käyttäjänä"
-
-#: edit_course/templates/edit_course/signin_as_user.html
-msgid "SIGN_IN_AS_GIVEN_USER_DESCRIPTION_AND_WARNING"
-msgstr ""
-"Debuggaus-syistä pääkäyttäjät voivat kirjautua tänne minä tähänsa "
-"käyttäjänä. Mieti mitä teet!"
-
-#: edit_course/templates/edit_course/signin_as_user.html
-msgid "CHANGE_MY_SESSION"
-msgstr "Vaihda sessiotani"
 
 #: edit_course/templates/edit_course/usertag_add.html
 msgid "ADD_NEW_USER_TAG"
