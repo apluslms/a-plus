@@ -331,12 +331,16 @@ $(function() {
               });
             }
 
-            if (codeBlock.find('.pre-content')) {
-              const preContent = codeBlock.find('.pre-content').prevObject;
+            if (!options || !options.noDownload) {
               addButton(buttonContainer, {
                 action: function() {
-                  const url = preContent.attr("data-self-link");
-                  window.location.href = url + "&download=yes";
+                  const url = pre.data('url');
+                  if (url) {
+                    // Add the query parameter "download" to the URL and redirect the window there.
+                    window.location.href = url + (url.indexOf('?') === -1 ? '?' : '&') + 'download=yes';
+                  } else {
+                    console.error("Download button clicked, but there is no data-url set on the downloadable pre content. Can not download.");
+                  }
                 },
                 icon: 'download-alt',
                 text: _('Download'),

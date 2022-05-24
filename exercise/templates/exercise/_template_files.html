@@ -7,7 +7,7 @@
 			{{ entry.content|safe }}
 		{% else %}
 			<h4>{{ entry.name|parse_localization }}</h4>
-			<pre class="hljs pre-content" data-self-link="{{ exercise|url:'exercise-template' }}?name={{ entry.name }}">{{ entry.content }}</pre>
+			<pre class="hljs" data-url="{{ exercise|url:'exercise-template' }}?name={{ entry.name }}">{{ entry.content }}</pre>
 		{% endif %}
 	{% else %}
 		<h4>{{ entry.name|parse_localization }}</h4>

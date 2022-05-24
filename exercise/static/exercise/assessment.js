@@ -30,15 +30,9 @@ $(function () {
         loadedFiles.add(fileId);
         $.get(fileUrl, function (data) {
           const text = $("<pre/>").text(data);
+          text.attr('data-url', fileUrl);
           element.find('.submitted-file-data').html(text);
-          const downloadButton = {
-            action: function() {
-              window.location.href = fileUrl + '?download=yes';
-            },
-            icon: 'download-alt',
-            text: _('Download'),
-          };
-          text.highlightCode({extraButtons: [downloadButton]});
+          text.highlightCode();
         })
         .fail(function () {
           element.find('.submitted-file-error').removeClass('hidden');
