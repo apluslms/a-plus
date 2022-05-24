@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from django.conf import settings
 from django.contrib import messages
@@ -18,7 +18,7 @@ from django.db import DatabaseError
 from authorization.permissions import ACCESS
 from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
-from lib.helpers import query_dict_to_list_of_tuples
+from lib.helpers import query_dict_to_list_of_tuples, safe_file_name
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
@@ -357,6 +357,13 @@ class ExercisePlainView(ExerciseView):
         return super().dispatch(request, *args, **kwargs)
 
 
+def _find_name(name: str, objects: Sequence[Dict[str, Any]]) -> Tuple[str, Optional[str]]:
+    for obj in objects:
+        if not name or obj['name'] == name:
+            return safe_file_name(obj['name']), obj.get('content', '')
+    return safe_file_name(name), None
+
+
 class ExerciseModelView(ExerciseModelBaseView):
     template_name = "exercise/model.html"
     ajax_template_name = "exercise/_model_files.html"
@@ -382,6 +389,17 @@ class ExerciseModelView(ExerciseModelBaseView):
                 })
         self.note('models')
 
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('download', False):
+            requested_name, data = _find_name(request.GET.get('name', ''), self.models)
+            if data is None:
+                return HttpResponseNotFound(f"The file {requested_name} does not exist.")
+
+            response = HttpResponse(data, content_type='text/plain')
+            response['Content-Disposition'] = f'attachment; filename="{requested_name}"'
+            return response
+
+        return super().get(request, *args, **kwargs)
 
 class ExerciseTemplateView(ExerciseTemplateBaseView):
     template_name = "exercise/template.html"
@@ -407,6 +425,18 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
                     'html': 'text/html' in response.headers.get('Content-Type'),
                 })
         self.note('templates')
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('download', False):
+            requested_name, data = _find_name(request.GET.get('name', ''), self.templates)
+            if data is None:
+                return HttpResponseNotFound(f"The file {requested_name} does not exist.")
+
+            response = HttpResponse(data, content_type='text/plain')
+            response['Content-Disposition'] = f'attachment; filename="{requested_name}"'
+            return response
+
+        return super().get(request, *args, **kwargs)
 
 
 class SubmissionView(SubmissionBaseView):

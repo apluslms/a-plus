@@ -368,11 +368,11 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
     def get_models(self):
         entries = pick_localized(self.model_answers, get_language())
-        return [(url,url.split('/')[-1]) for url in entries.split()]
+        return [(url,url.split('/')[-1].split('?', 1)[0]) for url in entries.split()]
 
     def get_templates(self):
         entries = pick_localized(self.templates, get_language())
-        return [(url,url.split('/')[-1]) for url in entries.split()]
+        return [(url,url.split('/')[-1].split('?', 1)[0]) for url in entries.split()]
 
     def get_form_spec_keys(self, include_static_fields=False):
         """Return the keys of the form fields of this exercise.

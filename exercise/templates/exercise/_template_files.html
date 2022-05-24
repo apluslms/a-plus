@@ -1,13 +1,13 @@
 {% load i18n %}
 {% load course %}
-<p>{{ current.name|parse_localization }}</p>
+<p>{{ current.name|parse_localization }}</p>
 {% for entry in templates %}
 	{% if entry.content %}
 		{% if entry.html %}
 			{{ entry.content|safe }}
 		{% else %}
 			<h4>{{ entry.name|parse_localization }}</h4>
-			<pre class="hljs">{{ entry.content }}</pre>
+			<pre class="hljs" data-url="{{ exercise|url:'exercise-template' }}?name={{ entry.name }}">{{ entry.content }}</pre>
 		{% endif %}
 	{% else %}
 		<h4>{{ entry.name|parse_localization }}</h4>
