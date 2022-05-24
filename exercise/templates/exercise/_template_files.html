@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load course %}
-<p>{{ current.name|parse_localization }}</p>
+<p>{{ current.name|parse_localization }}</p>
 {% for entry in templates %}
 	{% if entry.content %}
 		{% if entry.html %}
