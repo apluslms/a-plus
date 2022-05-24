@@ -2639,11 +2639,6 @@ msgstr "Server returned error '{error!s}'."
 msgid "EXERCISE_CACHES_CLEARED"
 msgstr "Assignment caches have been cleared."
 
-#: edit_course/views.py
-#, python-brace-format
-msgid "ERROR_USERNAME_DOESNT_EXIST -- {username}"
-msgstr "Username \"{username}\" does not exist."
-
 #: exercise/admin.py
 msgid "REAL_CLASS"
 msgstr "Real class"
