@@ -81,6 +81,15 @@
 			</li>
 			{% endif %}
 			{% endif %}
+			{% if is_course_staff or is_student %}
+				{% if exercise.templates %}
+					<li class="menu-template">
+						<a href="{{ exercise|url:'exercise-template' }}">
+							{% translate "EXERCISE_TEMPLATE" %}
+						</a>
+					</li>
+				{% endif %}
+			{% endif %}
 			{% if is_course_staff %}
 			<li>
 					<p class="navbar-text navbar-btn">
