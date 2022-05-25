@@ -486,6 +486,7 @@ $(function() {
                 $.get(url, function(data) {
                     if (settings.file) {
                         var text = $("<pre/>").text(data);
+                        text.attr('data-url', url);
                         modal.aplusModal("content", {
                             title: link.data('modalTitle') || link.text(),
                             content: text,
