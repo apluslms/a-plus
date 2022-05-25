@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-20 11:15+0300\n"
+"POT-Creation-Date: 2022-05-25 14:53+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -3785,6 +3785,11 @@ msgid "MODEL_ANSWER"
 msgstr "Model answer"
 
 #: exercise/templates/exercise/exercise_base.html
+#: exercise/templates/exercise/template.html
+msgid "EXERCISE_TEMPLATE"
+msgstr "Exercise template"
+
+#: exercise/templates/exercise/exercise_base.html
 msgid "INSPECT_SUBMISSION"
 msgstr "Inspect submission"
 
@@ -4323,10 +4328,6 @@ msgstr "Date"
 #: exercise/templates/exercise/submission_plain.html
 msgid "FILES"
 msgstr "Files"
-
-#: exercise/templates/exercise/template.html
-msgid "EXERCISE_TEMPLATE"
-msgstr "Exercise template"
 
 #: exercise/templatetags/exercise.py
 msgid "LATEST_SUBMISSIONS"

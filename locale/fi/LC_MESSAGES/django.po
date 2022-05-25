@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-20 11:15+0300\n"
+"POT-Creation-Date: 2022-05-25 14:53+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -3794,6 +3794,11 @@ msgid "MODEL_ANSWER"
 msgstr "Esimerkkiratkaisu"
 
 #: exercise/templates/exercise/exercise_base.html
+#: exercise/templates/exercise/template.html
+msgid "EXERCISE_TEMPLATE"
+msgstr "Pohjatiedosto"
+
+#: exercise/templates/exercise/exercise_base.html
 msgid "INSPECT_SUBMISSION"
 msgstr "Tutki palautusta"
 
@@ -4334,10 +4339,6 @@ msgstr "Päiväys"
 #: exercise/templates/exercise/submission_plain.html
 msgid "FILES"
 msgstr "Tiedostot"
-
-#: exercise/templates/exercise/template.html
-msgid "EXERCISE_TEMPLATE"
-msgstr "Pohjatiedosto"
 
 #: exercise/templatetags/exercise.py
 msgid "LATEST_SUBMISSIONS"
