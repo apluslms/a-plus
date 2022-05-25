@@ -1,5 +1,5 @@
-A+ ![Build status](http://plustest.cs.hut.fi/buildStatus/icon?job=A-plus-test-MASTER)
-=====================================================================================
+A+
+==
 
 "We present a design and open source implementation for a service oriented e-learning system, which utilizes external services for supporting a wide range of learning content and also offers a REST API for external clients to fetch information stored in the system."
 
@@ -12,7 +12,7 @@ The system has since been developed by various contributors at Aalto University,
 Requirements
 ------------
 
-A+ is a Django 2.2 and Python 3.5+ application which has been run in production using Postgresql database, Apache 2 (or Nginx) and uwsgi.
+A+ is a Django 3.2 and Python 3.8+ application which has been run in production using Postgresql database, Apache 2 (or Nginx) and uwsgi.
 See [doc/DEPLOYMENT.md](doc/DEPLOYMENT.md) for further deployment instructions.
 Consider using `virtualenv` and `pip3 install -r requirements.txt`.
 Create `local_settings.py` and override necessary Django settings from `aplus/settings.py`.
