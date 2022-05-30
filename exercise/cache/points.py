@@ -318,14 +318,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     'url': submission.get_url('submission-plain'),
                     'feedback_revealed': True,
                     'feedback_reveal_time': None,
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-                    'submission_hash' : submission.meta_data.get('submission_hash', None),
->>>>>>> 71300be6... complete backend
-=======
-                    'hash' : submission.meta_data.get('submission_hash', None),
->>>>>>> bc9e7e58... feat: add hash storage
+                    'submission_hash' : submission.meta_data.get('submission_hash', None), #Duplicate Check: We insert the submission hash to Cache
                 })
                 # Update best submission if exercise points are not forced, and
                 # one of these is true:

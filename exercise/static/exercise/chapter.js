@@ -579,31 +579,68 @@
           });
         });
       } else {
-        var exercise = this;
-        if (exercise.quiz) {
-          exercise.quizSubmission("submit");
-        } else {
-          /* TODO: migrate to overlay */
-          chapter.openModal(chapter.messages.submit);
-        }
-        var url = $(form_element).attr("action");
-        var formData = new FormData(form_element);
-
-        exercise.submitAjax(url, formData, function(data) {
-          //$(form_element).find(":input").prop("disabled", false);
-          //exercise.hideLoader();
-          var input = $(data);
+         //submitcallback() is a wrapper for the code for submitting the submission
+         //This function is called when submission is deemed NOT a duplicate or when a user confirm that they want
+         //To submit the submission even though a duplicate hash is detected.
+        var submitcallback = function(exercise) {
           if (exercise.quiz) {
-            exercise.quizSubmission("success");
-            exercise.update(input);
-            exercise.renderMath();
-            exercise.dom_element.dispatchEvent(
-              new CustomEvent("aplus:submission-finished",
-                {bubbles: true, detail: {type: exercise.exercise_type}}));
+            exercise.quizSubmission("submit");
           } else {
-            exercise.updateSubmission(input);
+            /* TODO: migrate to overlay */
+            chapter.openModal(chapter.messages.submit);
           }
-        });
+          var url = $(form_element).attr("action");
+          var formData = new FormData(form_element);
+
+          exercise.submitAjax(url, formData, function(data) {
+            //$(form_element).find(":input").prop("disabled", false);
+            //exercise.hideLoader();
+            var input = $(data);
+            if (exercise.quiz) {
+              exercise.quizSubmission("success");
+              exercise.update(input);
+              exercise.renderMath();
+              exercise.dom_element.dispatchEvent(
+                new CustomEvent("aplus:submission-finished",
+                  {bubbles: true, detail: {type: exercise.exercise_type}}));
+            } else {
+              exercise.updateSubmission(input);
+            }
+          });
+      } ;
+
+        //The code for duplicate check
+        //first, we retrieve all the hashes of the previous submissions. The hashes are rendered in the HTML 
+        //You could run the  line 613-622 on browser console to see what each line does. Open a exerise page then submit a quizz.
+
+        var isDuplicate = true;
+        let hashes = new Set()
+        let datahash_elem = Object.entries($("[data-hash]"))
+        for (var elem of datahash_elem){
+          try{
+            hashes.add(elem[1].dataset["hash"]); //we put the old hashes on a set
+          } catch(error){
+          }    
+        }
+
+        //we then compute the new hash for the current submission. We use md5 hashing
+        var formData = new FormData(form_element);
+        let formDataJsonString = JSON.stringify(formData, Object.keys(formData).sort()); //Matching the hasing format in backend 
+        var strHash = md5(formDataJsonString);    // TTD: Find out the behaviour when a user submitting a file (rather than a quiz), adjustment in hashing is possibly needed
+
+        //we check wheteher the newly created hash is already present on the hashes set.
+        isDuplicate = hashes.has(strHash);
+        console.log(strHash)
+        isDuplicate = true;
+
+        //Check wether the submission is deemed duplicate: yes => open a submission confimation dialagoue modal (Not created yet)
+        //                                                 No  => Submit the submission as per usual
+        if (isDuplicate) {
+          console.log("Duplicate Submission Detected")
+          chapter.openModal(_('DUPLICATE_SUBMISSION'));
+        } else {
+          submitcallback(this)  //submitCallback() contains the code for submitting this submission. 
+        }                       //Call submitCallback() also wheen user completed the submission confirmation modal.
       }
     },
 

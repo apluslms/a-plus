@@ -17,6 +17,7 @@ from exercise.protocol.exercise_page import ExercisePage
 
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
+from lib import helpers
 from lib.fields import DefaultForeignKey, JSONField, PercentField
 from lib.helpers import (
     get_random_string,
@@ -155,25 +156,10 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
         if 'lang' not in meta_data_dict:
             meta_data_dict['lang'] = get_language()
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        #create Hash
-        dhash = hashlib.md5()
-        files_encoded = json.dumps(request.FILES, sort_keys=True, default=str).encode()
-        exercise_encoded = json.dumps(exercise, sort_keys=True, default=str).encode()
-        dhash.update(exercise_encoded)
-        dhash.update(files_encoded)
-        new_hash = dhash.hexdigest()
-        meta_data_dict["submission_hash"] =new_hash
+        #create Hash for the new submission
+        new_hash = helpers.get_hash(submission_data_list, request.FILES)
+        meta_data_dict["submission_hash"] = new_hash
 
-
->>>>>>> 71300be6... complete backend
-=======
-        #create and store hash
-        meta_data_dict["submission_hash"] = "HASH"
-
->>>>>>> bc9e7e58... feat: add hash storage
         try:
             new_submission = Submission.objects.create(
                 exercise=exercise,

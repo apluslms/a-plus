@@ -158,10 +158,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             self.submission_check(True, request)
         )
         if submission_allowed:
-            if self.check_duplicate_submission():
-                messages.error(request,
-                _('ERROR_SUBMISSION_SAVING_FAILED')
-                )
             try:
                 new_submission = Submission.objects.create_from_post(
                     self.exercise, students, request)
@@ -226,9 +222,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             page=page, students=students, submission=new_submission))
 
     def submission_check(self, error=False, request=None):
-        if self.check_duplicate_submission(self.exercise, request.FILES):
-            messages.warning(self.request, _('DUPLICATE_SUBMISSION'))
-
         if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
             # Add warning about the grading mode.
             messages.warning(self.request, _('ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED'))
@@ -351,32 +344,31 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             }
 
         return loaded_content
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
     
-    def check_duplicate_submission(self, exercise, files):
-        #get existing hash from
-        cache = CachedPoints(self.instance, self.request.user, self.content, True)
-        exercises, *d = cache.find(exercise)
-        submissions = exercises["submissions"]
-        old_hashes = [s.get("submission_hash") for s in submissions] #get from cache
-        #create and store hash
-        dhash = hashlib.md5()
-        files_encoded = json.dumps(files, sort_keys=True, default=str).encode()
-        exercise_encoded = json.dumps(exercise, sort_keys=True, default=str).encode()
-        dhash.update(exercise_encoded)
-        dhash.update(files_encoded)
-        new_hash = dhash.hexdigest()
+    #This code is unused. Kept as this is the original backend code for duplicate check
+    #Before we migrate the duplicate check to FE
+    # def check_duplicate_submission(self, exercise, request):
+    #     # if request.method != "POST" :
+    #     #     return False #no duplicate check on request other than POST, assume no duplicate.
+    #     # #get existing hash from
+    #     # cache = CachedPoints(self.instance, self.request.user, self.content, True)
+    #     # exercises, *d = cache.find(exercise)
+    #     # submissions = exercises["submissions"]
+    #     # old_hashes = {s.get("submission_hash") for s in submissions} #get from cache
+    #     # #create and compare hash
+    #     # submission_data = submission_data_list = [
+    #     #         (key, value) for (key, value) in query_dict_to_list_of_tuples(request.POST)
+    #     #         if key != '__aplus__'
+    #     # ]
+    #     # dhash = hashlib.md5()
+    #     # files_encoded = json.dumps(request.FILES, sort_keys=True, default=str).encode()
+    #     # exercise_encoded = json.dumps(submission_data, sort_keys=True, default=str).encode()
+    #     # dhash.update(exercise_encoded)
+    #     # dhash.update(files_encoded)
+    #     # new_hash = dhash.hexdigest()
 
-        return new_hash in old_hashes #old hashes could also be set to speed up computing time
->>>>>>> 71300be6... complete backend
-=======
-    
-    def check_duplicate_submission():
-        return False
->>>>>>> bc9e7e58... feat: add hash storage
+    #     # return new_hash in old_hashes 
+    #     return False
 
 class ExercisePlainView(ExerciseView):
     raise_exception=True

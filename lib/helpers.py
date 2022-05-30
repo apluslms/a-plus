@@ -12,6 +12,9 @@ from django.conf import settings
 from django.utils.crypto import get_random_string as django_get_random_string
 from django.utils.deprecation import RemovedInNextVersionWarning
 from django.utils.translation import get_language
+import hashlib
+import json
+
 
 
 def deprecated(message):
@@ -54,6 +57,19 @@ def get_random_string(length=32, choices=None):
         choices = string.ascii_letters + string.digits
     return django_get_random_string(length=length, allowed_chars=choices)
 
+def get_hash(*params):
+    """
+    This function creates a hash of the given params.
+
+    @param length: The params that want to be hashed.
+    @return: Single hash that represent all the params given, a string
+    """
+    dhash = hashlib.md5()
+    for p in params:
+        param_encoded = json.dumps(p, sort_keys=True, default=str).encode()
+        dhash.update(param_encoded)
+    new_hash = dhash.hexdigest()
+    return new_hash
 
 def query_dict_to_list_of_tuples(query_dict):
     """
