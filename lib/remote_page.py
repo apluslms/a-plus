@@ -237,6 +237,16 @@ class RemotePage:
         # URLs /plain, /info, /info/model, /info/template.
         exercise_info = re.compile(r'/((plain)|(info(/model|/template)?))/?(#.+)?$')
 
+        # If Gitmanager is in use, fix relative static URLs to that host
+        if settings.GITMANAGER_URL:
+            gmurl = urlparse(settings.GITMANAGER_URL)
+            if settings.REMOTE_PAGE_HOSTS_MAP:
+                domain = settings.REMOTE_PAGE_HOSTS_MAP.get(gmurl.netloc, gmurl.netloc)
+                gmurl = gmurl._replace(netloc=domain)
+            staticurl = url._replace(scheme=gmurl.scheme, netloc=gmurl.netloc)
+        else:
+            staticurl = url
+
         for element in self.soup.find_all(tag_name, {attr_name:True}):
             value = element[attr_name]
             if not value:
@@ -312,15 +322,16 @@ class RemotePage:
 
                 # url points to the exercise service, e.g., MOOC-Grader.
                 # This fixes links to static files (such as images) in RST chapters.
-                # The image URL must be absolute and refer to the grader server
-                # instead of the A+ server. A relative URL with only path
-                # "/static/course/image.png" would target the A+ server when
-                # it is included in the A+ page. The value should be a relative
+                # The image URL must be absolute and refer to the server with static content
+                # instead of the A+ server. Traditionally this has been the grader server, but
+                # recently gitmanager is used. If GITMANAGER_URL is specified, we assume gitmanager.
+                # A relative URL with only path "/static/course/image.png" would target the A+ server
+                # when it is included in the A+ page. The value should be a relative
                 # path in the course build directory so that it becomes the full
                 # correct URL to the target file.
                 # E.g., urljoin('http://localhost:8080/static/default/module1/chapter.html', "../_images/image.png")
                 # -> 'http://localhost:8080/static/default/_images/image.png'
-                element[attr_name] = urljoin(url.geturl(), value)
+                element[attr_name] = urljoin(staticurl.geturl(), value)
 
     def find_and_replace(self, attr_name, list_of_attributes):
         l = len(list_of_attributes)
