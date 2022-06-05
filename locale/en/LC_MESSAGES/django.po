@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-25 14:53+0300\n"
+"POT-Creation-Date: 2022-06-05 19:54+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -4433,8 +4433,14 @@ msgid "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS"
 msgstr "Show only students with submissions"
 
 #: exercise/templates/exercise/staff/results.html
-msgid "RESULTS_SHOW_LATEST_SUBMISSION_POINTS"
-msgstr "Ignore last-only grading rule in exercises"
+msgid "RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP"
+msgstr ""
+"If this is checked, the points shown ignore the grading mode &quot;"
+"last&quot; even if it has been enabled for some assignment."
+
+#: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_IGNORE_GRADING_MODE_LAST"
+msgstr "Ignore last-only grading mode in assignments"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "SUMMARIES"

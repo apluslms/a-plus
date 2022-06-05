@@ -1122,7 +1122,7 @@
      * Loads new data on page load, and when "Show only official points" checkbox clicked
      * @param {*} show_unofficial
      */
-    function loadStudentData(show_unofficial, show_latest) {
+    function loadStudentData(show_unofficial, ignore_last_grading_mode) {
         // Destroy old data table if it exists
         // Also multiselects and event handlers that will be recreated
         if(dtApi !== undefined) {
@@ -1135,9 +1135,9 @@
             $('.filter-users button').off('click');
             $('#difficulty-exercises').tab('show');
         }
-        var pUrl = pointsBestUrl;
-        if(show_latest) pUrl = pointsUrl;
-        if(show_unofficial) pUrl = pUrl + "&show_unofficial=true";
+        let pUrl = pointsBestUrl;
+        if (!ignore_last_grading_mode) pUrl = pointsUrl;
+        if (show_unofficial) pUrl = pUrl + "&show_unofficial=true";
         $.when(
             $.ajax(exercisesUrl),
             $.ajax(pUrl),
@@ -1574,15 +1574,15 @@
      * data from backend. This is because the frontend logic is already very complex.
      */
     $('input.official-checkbox').change(function(){
-        loadStudentData(!$(this).prop('checked'), !$('input.latestsubs-checkbox').prop('checked'));
+        loadStudentData(!$(this).prop('checked'), $('#ignore-last-mode-checkbox').prop('checked'));
     });
 
-    $('input.latestsubs-checkbox').change(function(){
-        loadStudentData(!$('input.official-checkbox').prop('checked'), !$(this).prop('checked'));
+    $('#ignore-last-mode-checkbox').change(function(){
+        loadStudentData(!$('input.official-checkbox').prop('checked'), $(this).prop('checked'));
     });
 
     $(document).on("aplus:translation-ready", function() {
-        loadStudentData(false, false);
+        loadStudentData(false, true);
     });
 
 })(jQuery, document, window);

@@ -124,7 +124,7 @@ class SubmissionQuerySet(models.QuerySet):
             })
         )
 
-    def annotate_submitter_points_best(
+    def annotate_best_submitter_points(
             self,
             field_name: str = 'total',
             revealed_ids: Iterable[int] = None,
@@ -142,6 +142,11 @@ class SubmissionQuerySet(models.QuerySet):
 
         If `include_unofficial` is `False`, only the submissions with status
         `READY` are included. Otherwise, `READY` and `UNOFFICIAL` are included.
+
+        This method performs better than `annotate_submitter_points()`, but
+        this method ignores the exercise grading mode LAST. This method assumes
+        that exercise grading mode BEST is always used. This is a hacky and
+        temporary workaround for database performance issues.
         """
         # Building a case expression for calculating the total points. There
         # are 3 cases:
