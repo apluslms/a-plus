@@ -23,6 +23,7 @@
      * TODO: slip in the format parameter in a more elegant fashion
      */
     var pointsUrl = currentScript.data("pointsUrl") + '?format=json';
+    var pointsBestUrl = currentScript.data("pointsBestUrl") + '?format=json';
 
     /**
      * Stores the exercise data loaded via ajax call
@@ -485,7 +486,7 @@
                                  */
                                 var totalSubs = dtVar.column(exIdx - 1, {search: 'applied'}).data().sum();
 
-                                /**  
+                                /**
                                  * Calculate a sum of total points column
                                  * (excluding rows filtered out by searching for string/tag).
                                  */
@@ -855,7 +856,7 @@
                 }
             }
             /**
-             * Calculate percentages of total for the summary columns 
+             * Calculate percentages of total for the summary columns
              */
             const componentCols = dtVar.columns('.' + dmRev[_displayMode]);
             for(var c in componentCols[0]) {
@@ -1121,7 +1122,7 @@
      * Loads new data on page load, and when "Show only official points" checkbox clicked
      * @param {*} show_unofficial
      */
-    function loadStudentData(show_unofficial) {
+    function loadStudentData(show_unofficial, ignore_last_grading_mode) {
         // Destroy old data table if it exists
         // Also multiselects and event handlers that will be recreated
         if(dtApi !== undefined) {
@@ -1134,10 +1135,12 @@
             $('.filter-users button').off('click');
             $('#difficulty-exercises').tab('show');
         }
-        if(show_unofficial) pointsUrl = pointsUrl + "&show_unofficial=true";
+        let pUrl = pointsBestUrl;
+        if (!ignore_last_grading_mode) pUrl = pointsUrl;
+        if (show_unofficial) pUrl = pUrl + "&show_unofficial=true";
         $.when(
             $.ajax(exercisesUrl),
-            $.ajax(pointsUrl),
+            $.ajax(pUrl),
             $.ajax(usertagsUrl)
         ).done(function(exerciseJson, pointsJson, userTags) {
             userTags[0].results.forEach(function(entry) {
@@ -1152,7 +1155,7 @@
 
             /**
              * Builds HTML link to user profile for a table row, to be used as
-             * renderer attribute in table setup 
+             * renderer attribute in table setup
              * @param {*} data content shown in the table cell.
              * @param {*} type not used
              * @param {*} row results item currently being processed
@@ -1183,7 +1186,7 @@
                 {data: "AdditionalInfo-fi", title: "additionalInfo-fi", class:"always-hidden sisu col-12", type: "string", defaultContent: ""},
                 {data: "AdditionalInfo-sv", title: "additionalInfo-sv", class:"always-hidden sisu col-13", type: "string", defaultContent: ""},
                 {data: "AdditionalInfo-en", title: "additionalInfo-en", class:"always-hidden sisu col-14", type: "string", defaultContent: ""},
-                
+
                 {data: "Count", title: "Count", class: "col-15", visible: false, defaultContent: 0, type: "num"},
                 {data: "Total", title: _("Total"), class: "points total col-16", defaultContent: 0, type: "num"}
             ];
@@ -1300,7 +1303,7 @@
 
             /**
              * Removes HTML from Tags and Name columns.
-             * The tags column needs special treatment as we need to replace 
+             * The tags column needs special treatment as we need to replace
              * the html tags with commas for exporting. Also Name column needs HTML cleanup.
              * The regexp takes any number of consecutive tags and converts them into a single comma.
              * After that, the first and last commas are sliced away.
@@ -1571,11 +1574,15 @@
      * data from backend. This is because the frontend logic is already very complex.
      */
     $('input.official-checkbox').change(function(){
-        loadStudentData(!$(this).prop('checked'));
+        loadStudentData(!$(this).prop('checked'), $('#ignore-last-mode-checkbox').prop('checked'));
+    });
+
+    $('#ignore-last-mode-checkbox').change(function(){
+        loadStudentData(!$('input.official-checkbox').prop('checked'), $(this).prop('checked'));
     });
 
     $(document).on("aplus:translation-ready", function() {
-        loadStudentData(false);
+        loadStudentData(false, true);
     });
 
 })(jQuery, document, window);

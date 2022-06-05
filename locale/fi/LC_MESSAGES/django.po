@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-25 14:53+0300\n"
+"POT-Creation-Date: 2022-06-05 19:54+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -4445,6 +4445,16 @@ msgstr "Näytä vain viralliset pisteet"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS"
 msgstr "Näytä vain palauttaneet opiskelijat"
+
+#: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP"
+msgstr ""
+"Jos tämä on valittuna, näytetyt pisteet eivät huomioi arvostelutapaa &quot;"
+"vain viimeinen palautus&quot;, vaikka se olisi jossain tehtävässä asetettuna."
+
+#: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_IGNORE_GRADING_MODE_LAST"
+msgstr "Älä huomioi \"vain viimeisen palautuksen\" arvostelutapaa"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "SUMMARIES"

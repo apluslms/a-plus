@@ -33,6 +33,7 @@
 	data-exercises-url="{% url 'api:course-exercises-list' version=2 course_id=instance.id %}"
 	data-usertags-url="{% url 'api:course-usertags-list' version=2 course_id=instance.id %}"
 	data-points-url="{% url 'api:course-resultsdata-list' version=2 course_id=instance.id %}"
+	data-points-best-url="{% url 'api:course-resultsdata-best-list' version=2 course_id=instance.id %}"
 	defer>
 </script>
 
@@ -105,6 +106,11 @@
 				title="{% translate 'RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS' %}">
 				<input type="checkbox" class="withsubs-checkbox" value="withsubs">
 				{% translate "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS" %}
+			</label>
+			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
+				title="{% translate 'RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP' %}">
+				<input type="checkbox" id="ignore-last-mode-checkbox" value="ignorelastmode" checked autocomplete="off">
+				{% translate "RESULTS_IGNORE_GRADING_MODE_LAST" %}
 			</label>
 		</div>
 
