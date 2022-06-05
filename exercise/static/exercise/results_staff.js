@@ -486,7 +486,7 @@
                                  */
                                 var totalSubs = dtVar.column(exIdx - 1, {search: 'applied'}).data().sum();
 
-                                /**  
+                                /**
                                  * Calculate a sum of total points column
                                  * (excluding rows filtered out by searching for string/tag).
                                  */
@@ -856,7 +856,7 @@
                 }
             }
             /**
-             * Calculate percentages of total for the summary columns 
+             * Calculate percentages of total for the summary columns
              */
             const componentCols = dtVar.columns('.' + dmRev[_displayMode]);
             for(var c in componentCols[0]) {
@@ -1155,7 +1155,7 @@
 
             /**
              * Builds HTML link to user profile for a table row, to be used as
-             * renderer attribute in table setup 
+             * renderer attribute in table setup
              * @param {*} data content shown in the table cell.
              * @param {*} type not used
              * @param {*} row results item currently being processed
@@ -1186,7 +1186,7 @@
                 {data: "AdditionalInfo-fi", title: "additionalInfo-fi", class:"always-hidden sisu col-12", type: "string", defaultContent: ""},
                 {data: "AdditionalInfo-sv", title: "additionalInfo-sv", class:"always-hidden sisu col-13", type: "string", defaultContent: ""},
                 {data: "AdditionalInfo-en", title: "additionalInfo-en", class:"always-hidden sisu col-14", type: "string", defaultContent: ""},
-                
+
                 {data: "Count", title: "Count", class: "col-15", visible: false, defaultContent: 0, type: "num"},
                 {data: "Total", title: _("Total"), class: "points total col-16", defaultContent: 0, type: "num"}
             ];
@@ -1303,7 +1303,7 @@
 
             /**
              * Removes HTML from Tags and Name columns.
-             * The tags column needs special treatment as we need to replace 
+             * The tags column needs special treatment as we need to replace
              * the html tags with commas for exporting. Also Name column needs HTML cleanup.
              * The regexp takes any number of consecutive tags and converts them into a single comma.
              * After that, the first and last commas are sliced away.
