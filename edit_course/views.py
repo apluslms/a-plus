@@ -25,6 +25,7 @@ from lib.viewbase import (
     BaseRedirectView,
     BaseFormView,
 )
+from aplus.api import api_reverse
 from authorization.permissions import ACCESS
 from course.models import CourseInstance, UserTag, UserTagging
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -315,6 +316,12 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
         else:
             messages.success(request, _('NEW_SUBMISSIONS_STORED'))
         return self.render_to_response(self.get_context_data())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        exercises_api_url = api_reverse("course-exercises-list", kwargs={'course_id': self.instance.id})
+        context.update({'exercises_api_url': exercises_api_url})
+        return context
 
 
 class CloneInstanceView(CourseInstanceMixin, BaseFormView):

@@ -2441,7 +2441,7 @@ msgstr "Batch create and assess submissions"
 
 #: edit_course/templates/edit_course/batch_assess.html
 #, python-format
-msgid "BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- %(id)s"
+msgid "BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- %(id)s, %(exercises_api_url)s"
 msgstr ""
 "<p><em>Use only if you know what you are doing!</em></p>\n"
 "<p>By submitting json to the form below you can try to create and assess "
@@ -2450,7 +2450,11 @@ msgstr ""
 "(integer)</dt>\n"
 "<dd>the system user ID of the desired grader. Your user ID is <b>%(id)s.</"
 "b></dd>\n"
-"<dt>Z1 and Z2 (integers)</dt> <dd>the system assignment IDs</dd> </dl>"
+"<dt>Z1 and Z2 (integers)</dt> <dd>the system assignment IDs. "
+"You can find the assignment IDs from the <a href='%(exercises_api_url)s'>course exercises API</a>. "
+"Alternatively, take a look at the web address of the <b>Edit assignment</b> "
+"button under <b>Edit course -> Content</b>. "
+"The <b>Edit assignment</b> address includes a number after the course keys.</dd> </dl>"
 
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_BY"

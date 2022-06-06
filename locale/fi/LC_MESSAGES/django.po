@@ -2456,16 +2456,20 @@ msgstr "Luo ja arvostele palautusjoukkoja"
 
 #: edit_course/templates/edit_course/batch_assess.html
 #, python-format
-msgid "BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- %(id)s"
+msgid "BATCH_CREATE_AND_ASSESS_JSON_FORM_INSTRUCTIONS -- %(id)s, %(exercises_api_url)s"
 msgstr ""
 "<p><em>Käytä vain jos tiedät, mitä olet tekemässä!</em></p>\n"
 "<p>Lähettämällä tämän voit yrittää luoda ja arvostella useita tehtäviä "
 "automaattisesti.</p>\n"
 "<dl> <dt>XXXXX1 ja XXXXX2</dt> <dd>oikeat opiskelijanumerot</dd> <dt>X1 "
-"(integer)</dt>\n"
+"(kokonaisluku)</dt>\n"
 "<dd>Toivotun arvostelijan userprofile id. Sinun userprofile id on <b>%(id)s</"
 "b>.</dd>\n"
-"<dt>Z1 ja Z2 (integers)</dt> <dd>tehtävien IDt</dd> </dl>"
+"<dt>Z1 ja Z2 (kokonaislukuja)</dt> <dd>tehtävien ID:t. "
+"Löydät tehtävien ID:t <a href='%(exercises_api_url)s'>kurssitehtävien API:sta</a>. "
+"Vaihtoehtoisesti tarkista tehtävän ID <b>Muokkaa tehtävää</b> -napin verkko-osoitteesta, "
+"joka löytyy osiosta <b>Muokkaa kurssia -> Sisältö</b>. "
+"<b>Muokkaa tehtävää</b> -sivun verkko-osoite sisältää numeron kurssiavainten jälkeen.</dd> </dl>"
 
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_BY"
