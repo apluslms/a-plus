@@ -11,13 +11,14 @@ from exercise.cache.content import CachedContent
 from lib.helpers import remove_query_param_from_url, update_url_params
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
+from exercise.models import LearningObject
 from .cache.students import CachedStudent
 from .exceptions import TranslationNotFound
 from .permissions import (
     CourseVisiblePermission,
     CourseModulePermission,
 )
-from .models import Course, CourseInstance, CourseModule, UserTagging
+from .models import Course, CourseInstance, CourseModule, UserTagging, Enrollment
 
 
 class CourseMixin(UserProfileMixin):
@@ -158,6 +159,15 @@ class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
             # - the user is signed in but not enrolled or staff
             # - the page is not a teacher page (e.g. edit course)
             # - the course is visible only to enrolled students
+            #
+            # If SIS enrollment is applied and course requires enrollment questionnaire,
+            # redirect to the questionnaire instead.
+            enrollment = self.user_course_data
+            if enrollment and enrollment.status == Enrollment.ENROLLMENT_STATUS.PENDING:
+                exercise = LearningObject.objects.find_enrollment_exercise(
+                    self.instance, self.profile.is_external)
+                if exercise:
+                    return self.redirect(exercise.get_absolute_url())
             return redirect(self.instance.get_url('enroll'))
         return super().handle_no_permission()
 
