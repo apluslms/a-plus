@@ -5363,8 +5363,7 @@ msgstr ""
 "Opiskelijat saavat tukea kurssin sisäisissä asioissa kurssin "
 "henkilökunnalta. Jos kurssin oppimateriaalissa on teknisiä ongelmia, ota "
 "yhteyttä kurssin henkilökuntaan. Tarkista henkilökunnan yhteystiedot kurssin "
-"verkkosivuilta. Yleensä sähköposti <strong>ei</strong> ole ensisijainen "
-"keskustelu- tai neuvontakanava kurssin asioissa."
+"verkkosivuilta."
 
 #: templates/support_channels.html
 msgid "STUDIES"
@@ -5447,190 +5446,27 @@ msgid "TEACHERS"
 msgstr "Opettajat"
 
 #: templates/support_channels.html
-msgid "DOCUMENTATION"
-msgstr "Dokumentaatio"
-
-#: templates/support_channels.html
 #, python-format
 msgid "MANUAL -- %(brand_long)s"
 msgstr "%(brand_long)s-opas"
 
 #: templates/support_channels.html
 #, python-format
-msgid "MANUAL_DESCRIPTION -- %(brand_long)s, %(brand)s"
+msgid "MANUAL_DESCRIPTION"
 msgstr ""
-"%(brand_long)s-opas sisältää yksityiskohtaisia ohjeita kurssin kehittämiseen "
-"ja kuinka erilaisia %(brand)s-alustan tehtävätyyppejä käytetään."
+"kurssien ja tehtävien kehittäjille"
 
 #: templates/support_channels.html
 msgid "A+_LMS_PROJECT_WEBSITE"
-msgstr "A+-oppimisalustaprojektin verkkosivut"
-
-#: templates/support_channels.html
-msgid "A+_LMS_PROJECT_WEBSITE_DESCRIPTION"
-msgstr ""
-"A+-oppimisalustaprojektin verkkosivut antavat yleiskuvan projektista ja "
-"siihen liittyvistä komponenteista. Siellä on myös pika-aloitusopas. "
-"Sivustolla on linkkejä alustakehittäjien tekniseen dokumentaatioon."
-
-#: templates/support_channels.html
-msgid "REQUEST_NEW_COURSE_INSTANCE"
-msgstr "Tilaa uusi kurssikerta palvelimelle"
-
-#: templates/support_channels.html
-#, python-format
-msgid "INSTRUCTIONS_AT -- %(institution)s"
-msgstr "Instituution %(institution)s ohjeet"
+msgstr "Tietoja A+ - projektista"
 
 #: templates/support_channels.html
 msgid "CONTACT_SUPPORT_BY_EMAIL"
 msgstr "Ota yhteyttä tukeen sähköpostilla:"
 
 #: templates/support_channels.html
-msgid "DOWNLOAD_COURSE_TEMPLATES"
-msgstr "Lataa kurssipohja"
-
-#: templates/support_channels.html
-msgid "APLUS_COURSE_TEMPLATE"
-msgstr "Aplus-kurssipohja"
-
-#: templates/support_channels.html
-#, python-format
-msgid "COURSE_TEMPLATE_DESCRIPTION -- %(brand_long)s"
-msgstr ""
-"%(brand_long)s-kurssipohja tarjoaa minimaalisen kurssin rakenteen uuden "
-"kurssin aloittamista varten."
-
-#: templates/support_channels.html
-#, python-format
-msgid "MANUAL_HAS_EXAMPLES_OF_EXERCISES -- %(brand_long)s"
-msgstr ""
-"Voit ladata %(brand_long)s-käsikirjan lähdekoodin ja opetella kurssin "
-"kehittämistä sen avulla. Voit ajaa kurssin ympäristöä omalla tietokoneellasi "
-"Docker-konttien avulla."
-
-#: templates/support_channels.html
-msgid "COMMUNITY"
-msgstr "Yhteisö"
-
-#: templates/support_channels.html
-msgid "MICROSOFT_TEAMS"
-msgstr "Microsoft Teams"
-
-#: templates/support_channels.html
-#, python-format
-msgid "MICROSOFT_TEAMS_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr ""
-"Opettajat voivat keskustella muiden %(brand)s-opettajien ja -kehittäjien "
-"kanssa tai pyytää apua Microsoft Teams -kanavalla. Jos asiasi sisältää "
-"yksityistä tai sensitiivistä tietoa, ota yhteyttä tukeen \n"
-"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
-"style=\"display: inline;\">sähköpostilla</a>."
-
-#: templates/support_channels.html
-msgid "REPORT_ISSUE_IN_GITHUB"
-msgstr "Ilmoita ongelmasta GitHubissa"
-
-#: templates/support_channels.html
-msgid "REPORT_ISSUE_IN_GITHUB_DESCRIPTION"
-msgstr ""
-"Opettajat voivat ilmoittaa ohjelmointivirheistä tai toivoa uusia "
-"ominaisuuksia GitHubissa. Jos haluat keskustella tukitiimin kanssa "
-"henkilökohtaisesti tai yksityisesti, ota yhteyttä \n"
-"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
-"style=\"display: inline;\">sähköpostilla</a>."
-
-#: templates/support_channels.html
-msgid "ANNOUNCEMENTS"
-msgstr "Ilmoitukset"
-
-#: templates/support_channels.html
-#, python-format
-msgid "ANNOUNCEMENTS_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr ""
-"Pysy ajan tasalla %(brand)s-alustan ja siihen liittyvien palvelujen "
-"uutisista."
-
-#: templates/support_channels.html
-msgid "CHECK_STATUS_OF_SERVERS"
-msgstr "Tarkista palvelintemme tila."
-
-#: templates/support_channels.html
-msgid "CURRENT_DEVELOPMENT"
-msgstr "Nykyinen kehitys"
-
-#: templates/support_channels.html
-#, python-format
-msgid "CURRENT_DEVELOPMENT_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr "Seuraa %(brand)s-alustan ja palvelujen kehitystä."
-
-#: templates/support_channels.html
-#, python-format
-msgid "OTHER_SERVERS_THAT_USE -- %(brand)s"
-msgstr "Muut %(brand)s-alustaa käyttävät palvelimet"
-
-#: templates/support_channels.html
-msgid "EXAM_SERVER_FOR_EXAM_STUDIO"
-msgstr "Tenttipalvelin EXAM-studiotenteille"
-
-#: templates/support_channels.html
-#, python-format
-msgid "EXAM_SERVER_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr "Lue kuinka %(brand)s-alustaa käytetään tenteissä."
-
-#: templates/support_channels.html
-msgid "TESTING_ENVIRONMENT"
-msgstr "Testausympäristö"
-
-#: templates/support_channels.html
-msgid "TESTING_ENVIRONMENT_SUPPORT_DESCRIPTION"
-msgstr ""
-"Aallon opettajat voivat käyttää testausympäristöämme kurssien testaamiseen "
-"ennen niiden julkaisemista tuotannossa."
-
-#: templates/support_channels.html
-msgid "LEARNING"
-msgstr "Oppiminen"
-
-#: templates/support_channels.html
-msgid "ACCESSIBLE_TEACHING"
-msgstr "Saavutettava opetus"
-
-#: templates/support_channels.html
-msgid "ACCESSIBLE_TEACHING_SUPPORT_DESCRIPTION"
-msgstr "Opi kuinka luodaan saavutettavaa sisältöä kaikille oppijoille."
-
-#: templates/support_channels.html
-msgid "WATCH_WEBINAR_RECORDINGS"
-msgstr "Katso meidän webinaariemme tallenteet."
-
-#: templates/support_channels.html
-msgid "WATCH_WEBINAR_RECORDINGS_SUPPORT_DESCRIPTION"
-msgstr ""
-"Webinaarit sisältävät EDIT-tiimin järjestämiä esityksiä A+-alustasta ja "
-"siihen liittyvistä palveluista."
-
-#: templates/support_channels.html
-msgid "INTRO_TO_A+_ÄLYOPPI_WEBINAR_IN_FINNISH"
-msgstr "Johdatus A+-alustaan &mdash; ÄlyOppi-webinaari suomeksi"
-
-#: templates/support_channels.html
-msgid "ÄLYOPPI_WEBINARS_AVAILABLE_AT_PROJECT_WEBSITE"
-msgstr ""
-"ÄlyOppi-webinaarit ovat saatavilla <a target=\"_blank\" rel=\"noopener\" "
-"href=\"https://www.aalto.fi/fi/aalto-yliopisto/alyoppi-menneet-webinaarit"
-"\">projektin verkkosivulla</a>."
-
-#: templates/support_channels.html
-msgid "CANT_FIND_WHAT_LOOKING_FOR"
-msgstr "Etkö löydä etsimääsi?"
-
-#: templates/support_channels.html
-#, python-format
-msgid "SEND_US_EMAIL -- %(email)s"
-msgstr ""
-"Lähetä meille sähköpostia osoitteeseen <a href=\"mailto:%(email)s\" target="
-"\"_blank\" rel=\"noopener\">%(email)s</a>"
+msgid "GIVE_FEEDBACK"
+msgstr "Anna palautetta tai ilmoita ongelmasta"
 
 #: threshold/models.py
 msgid "LABEL_PASSED_MODULES"

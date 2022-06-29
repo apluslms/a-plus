@@ -5,126 +5,18 @@
 {% brand_name_long as brand_long %}
 {% brand_institution_name as institution %}
 
-<section class="frontpage frontpage-section" aria-labelledby="students-title">
-	<h2 id="students-title">
-		{% translate "STUDENTS" %}
-	</h2>
-	<p>
-		{% blocktranslate trimmed %}
-		CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS
-		{% endblocktranslate %}
-	</p>
+<section class="frontpage frontpage-section" aria-label="{% translate "SUPPORT" %}">
 	<div class="cards">
-		<div class="card frontpage">
+		<section class="widecard frontpage" aria-label="{% translate "TEACHERS" %}">
 			<div class="card-body">
-				<h3>{% translate "STUDIES" %}</h3>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="{% translate 'SUPPORT_STUDIES_LINK' %}">
-						{% translate "STUDIES" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://courses.aalto.fi">
-						{% translate "COURSE_CATALOGUE" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="{% translate 'SUPPORT_STUDENT_SERVICES_LINK' %}">
-						{% translate "STUDENT_SERVICES" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="{% translate 'SUPPORT_SUPPORT_FOR_STUDYING_LINK' %}">
-						{% translate "SUPPORT_FOR_STUDYING" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="{% translate 'SUPPORT_STUDY_SKILLS_LINK' %}">
-						{% translate "STUDY_SKILLS" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="{% translate 'SUPPORT_STARTING_POINT_OF_WELLBEING_LINK' %}">
-						{% translate "STARTING_POINT_OF_WELLBEING" %}
-					</a>
-				</p>
-			</div>
-		</div>
-
-		<div class="card frontpage">
-			<div class="card-body">
-				<h3>{% translate "IT_SUPPORT" %}</h3>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="{% translate 'SUPPORT_IT_HELP_LINK' %}">
-						{% translate "IT_HELP" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://vdi.aalto.fi/">
-						{% translate "VIRTUAL_DESKTOPS" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://computers.aalto.fi/">
-						{% translate "AVAILABLE_CLASSROOM_COMPUTERS" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://download.aalto.fi">
-						{% translate "DOWNLOAD_LICENSED_SOFTWARE" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="{% translate 'SUPPORT_AALTO_SPACE_APP_LINK' %}">
-						{% translate "AALTO_SPACE_APP" %}
-					</a>
-				</p>
-			</div>
-		</div>
-	</div>
-</section>
-<hr>
-<section class="frontpage frontpage-section" aria-labelledby="teachers-title">
-	<h2 id="teachers-title">
-		{% translate "TEACHERS" %}
-	</h2>
-	<div class="cards">
-		<div class="card frontpage">
-			<div class="card-body">
-				<h3>{% translate "DOCUMENTATION" %}</h3>
+				<h2>{% translate "TEACHERS" %}</h2>
 				<p class="card-text">
 					<a target="_blank" rel="noopener" href="https://plus.cs.aalto.fi/aplus-manual/master/">
 						{% blocktranslate trimmed %}
 							MANUAL -- {{ brand_long }}
 						{% endblocktranslate %}
 					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						MANUAL_DESCRIPTION -- {{ brand_long }}, {{ brand }}
-					{% endblocktranslate %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://apluslms.github.io/">{% translate "A+_LMS_PROJECT_WEBSITE" %}</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						A+_LMS_PROJECT_WEBSITE_DESCRIPTION
-					{% endblocktranslate %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener"
-						href="https://wiki.aalto.fi/display/EDIT/Requests+for+course+instances">
-						{% translate "REQUEST_NEW_COURSE_INSTANCE" %}
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener"
-						href="https://wiki.aalto.fi/display/EDIT/Instructions+and+support+for+teachers+and+TAs+at+CS+department">
-						{% blocktranslate trimmed %}
-							INSTRUCTIONS_AT -- {{ institution }}
-						{% endblocktranslate %}
-					</a>
+					{% translate "MANUAL_DESCRIPTION" %}
 				</p>
 				<p class="card-text">
 					{% translate "CONTACT_SUPPORT_BY_EMAIL" %}
@@ -132,169 +24,24 @@
 						aplusguru@cs.aalto.fi
 					</a>
 				</p>
+				<p class="card-text">
+					<a target="_blank" rel="noopener" href="https://link.webropol.com/s/aplus-feedback">
+						{% translate "GIVE_FEEDBACK" %}
+					</a>
+				</p>
 			</div>
-		</div>
-
-		<div class="card frontpage">
+		</section>
+		<section class="widecard frontpage" aria-label="{% translate "STUDENTS" %}">
 			<div class="card-body">
-				<h3>{% translate "DOWNLOAD_COURSE_TEMPLATES" %}</h3>
+				<h2>{% translate "STUDENTS" %}</h2>
 				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://github.com/apluslms/aplus-course-template">
-						{% translate "APLUS_COURSE_TEMPLATE" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						COURSE_TEMPLATE_DESCRIPTION -- {{ brand_long }}
-					{% endblocktranslate %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://github.com/apluslms/aplus-manual">
-						{% blocktranslate trimmed %}
-							MANUAL -- {{ brand_long }}
-						{% endblocktranslate %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						MANUAL_HAS_EXAMPLES_OF_EXERCISES -- {{ brand_long }}
-					{% endblocktranslate %}
+					{% translate "CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS" %}
 				</p>
 			</div>
-		</div>
-
-		<div class="card frontpage">
-			<div class="card-body">
-				<h3>{% translate "COMMUNITY" %}</h3>
-				<p class="card-text">
-					<a target="_blank" rel="noopener"
-						href="https://teams.microsoft.com/l/team/19%3a147685e6a8fc409295188befeec77113%40thread.skype/conversations?groupId=b78ab778-8838-4180-940d-b9183ddc3a7c&tenantId=ae1a7724-4041-4462-a6dc-538cb199707e">
-						{% translate "MICROSOFT_TEAMS" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						MICROSOFT_TEAMS_SUPPORT_DESCRIPTION -- {{ brand }}
-					{% endblocktranslate %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://github.com/apluslms/a-plus/issues">
-						{% translate "REPORT_ISSUE_IN_GITHUB" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						REPORT_ISSUE_IN_GITHUB_DESCRIPTION
-					{% endblocktranslate %}
-				</p>
-			</div>
-		</div>
-
-		<div class="card frontpage">
-			<div class="card-body">
-				<h3>{% translate "NEWS" %}</h3>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/EDIT#EDIT-News">
-						{% translate "ANNOUNCEMENTS" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						ANNOUNCEMENTS_SUPPORT_DESCRIPTION -- {{ brand }}
-					{% endblocktranslate %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://status.cs.aalto.fi/d/r0N6S9jik/main?orgId=1">
-						{% translate "STATUS" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% translate "CHECK_STATUS_OF_SERVERS" %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/Roadmap+2020-2024">
-						{% translate "CURRENT_DEVELOPMENT" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						CURRENT_DEVELOPMENT_SUPPORT_DESCRIPTION -- {{ brand }}
-					{% endblocktranslate %}
-				</p>
-			</div>
-		</div>
-
-		<div class="card frontpage">
-			<div class="card-body">
-				<h3>{% blocktranslate trimmed %}OTHER_SERVERS_THAT_USE -- {{ brand }}{% endblocktranslate %}</h3>
-				<p class="card-text">
-					<a target="_blank" rel="noopener"
-						href="https://wiki.aalto.fi/display/EDIT/Exam+studio+exam+with+Aplus+exercises">
-						{% translate "EXAM_SERVER_FOR_EXAM_STUDIO" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						EXAM_SERVER_SUPPORT_DESCRIPTION -- {{ brand }}
-					{% endblocktranslate %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://minus.cs.aalto.fi/">
-						{% translate "TESTING_ENVIRONMENT" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						TESTING_ENVIRONMENT_SUPPORT_DESCRIPTION
-					{% endblocktranslate %}
-				</p>
-			</div>
-		</div>
-
-		<div class="card frontpage">
-			<div class="card-body">
-				<h3>{% translate "LEARNING" %}</h3>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://wiki.aalto.fi/display/EDIT/Accessible+Teaching">
-						{% translate "ACCESSIBLE_TEACHING" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% translate "ACCESSIBLE_TEACHING_SUPPORT_DESCRIPTION" %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener"
-						href="https://aalto.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=%2253f1b55a-0cb3-4c71-8302-abbf00c1a6d2%22">
-						{% translate "WATCH_WEBINAR_RECORDINGS" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% translate "WATCH_WEBINAR_RECORDINGS_SUPPORT_DESCRIPTION" %}
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=2DG4feWn_Ws">
-						{% translate "INTRO_TO_A+_ÄLYOPPI_WEBINAR_IN_FINNISH" %}
-					</a>
-				</p>
-				<p class="card-text">
-					{% blocktranslate trimmed %}
-						ÄLYOPPI_WEBINARS_AVAILABLE_AT_PROJECT_WEBSITE
-					{% endblocktranslate %}
-				</p>
-			</div>
-		</div>
+		</section>
 	</div>
 </section>
-<section class="text-center">
-	<div>
-		<img alt="" class="img-responsive center-block" src="{% static 'images/search-clipart.png' %}" />
-	</div>
-	<div>
-		<h3>{% translate "CANT_FIND_WHAT_LOOKING_FOR" %}</h3>
-		<p>
-			{% blocktranslate trimmed with email="aplusguru@cs.aalto.fi" %}
-				SEND_US_EMAIL -- {{ email }}
-			{% endblocktranslate %}
-		</p>
-	</div>
+
+<section class="text-center" aria-label="{% translate "A+_LMS_PROJECT_WEBSITE" %}">
+	<a target="_blank" rel="noopener" href="https://apluslms.github.io/">{% translate "A+_LMS_PROJECT_WEBSITE" %}</a>
 </section>
