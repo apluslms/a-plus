@@ -12,7 +12,7 @@ from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_BODY, \
 import json
 
 from aplus.api import api_reverse
-from lib.helpers import update_url_params
+from lib.helpers import build_aplus_url, update_url_params
 from course.models import Enrollment
 
 
@@ -73,7 +73,7 @@ class LTIRequest(object):
 
         if service.api_access:
             self.parameters.update({
-                'custom_context_api': settings.BASE_URL + api_reverse("course-detail", kwargs={'course_id': instance.id}),
+                'custom_context_api': build_aplus_url(api_reverse("course-detail", kwargs={'course_id': instance.id})),
                 'custom_context_api_id': str(instance.id),
                 'custom_user_api_token': user.userprofile.api_token,
             })
