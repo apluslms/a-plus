@@ -66,6 +66,20 @@
 			@include focus-with-outline-only;
 		}
 	}
+	.widecard {
+		display: flex;
+		flex-direction: column;
+		width: 47%;
+		border: solid 1px #ccc;
+		border-radius: 4px;
+		margin: 8px;
+		margin-bottom: 20px;
+		padding: 4px;
+
+		@media (max-width: $grid-float-breakpoint-max) {
+			width: 100%;
+		}
+	}
 	.advert-card {
 		position: relative;
 		background-color: #d9edf7;

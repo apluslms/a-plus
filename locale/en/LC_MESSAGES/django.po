@@ -5339,8 +5339,7 @@ msgid "CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS"
 msgstr ""
 "Students should contact the course staff for further assistance on course "
 "matters. If there are technical issues in the course materials, contact the "
-"course staff. Check the course page for the contact information. Typically, "
-"email is <strong>not</strong> the primary discussion channel in courses."
+"course staff. Check the course page for the contact information."
 
 #: templates/support_channels.html
 msgid "STUDIES"
@@ -5423,192 +5422,27 @@ msgid "TEACHERS"
 msgstr "Teachers"
 
 #: templates/support_channels.html
-msgid "DOCUMENTATION"
-msgstr "Documentation"
-
-#: templates/support_channels.html
 #, python-format
 msgid "MANUAL -- %(brand_long)s"
 msgstr "%(brand_long)s manual"
 
 #: templates/support_channels.html
 #, python-format
-msgid "MANUAL_DESCRIPTION -- %(brand_long)s, %(brand)s"
+msgid "MANUAL_DESCRIPTION"
 msgstr ""
-"The %(brand_long)s manual contains detailed instructions on how to start "
-"authoring a course and how to use the various types of assignments available "
-"for %(brand)s."
+"for course and assignment authors"
 
 #: templates/support_channels.html
 msgid "A+_LMS_PROJECT_WEBSITE"
-msgstr "A+ LMS project website"
-
-#: templates/support_channels.html
-msgid "A+_LMS_PROJECT_WEBSITE_DESCRIPTION"
-msgstr ""
-"The A+ LMS website provides an overview of the project and all the "
-"associated services as well as a quick start guide. It also contains links "
-"to technical documentation for platform developers."
-
-#: templates/support_channels.html
-msgid "REQUEST_NEW_COURSE_INSTANCE"
-msgstr "Request a new course instance in the server"
-
-#: templates/support_channels.html
-#, python-format
-msgid "INSTRUCTIONS_AT -- %(institution)s"
-msgstr "Instructions at %(institution)s"
+msgstr "About the A+ project"
 
 #: templates/support_channels.html
 msgid "CONTACT_SUPPORT_BY_EMAIL"
 msgstr "Contact support by email:"
 
 #: templates/support_channels.html
-msgid "DOWNLOAD_COURSE_TEMPLATES"
-msgstr "Download course templates"
-
-#: templates/support_channels.html
-msgid "APLUS_COURSE_TEMPLATE"
-msgstr "Aplus course template"
-
-#: templates/support_channels.html
-#, python-format
-msgid "COURSE_TEMPLATE_DESCRIPTION -- %(brand_long)s"
-msgstr ""
-"The %(brand_long)s course template provides you with the minimum structure "
-"to start authoring your course."
-
-#: templates/support_channels.html
-#, python-format
-msgid "MANUAL_HAS_EXAMPLES_OF_EXERCISES -- %(brand_long)s"
-msgstr ""
-"Since the %(brand_long)s manual contains a wide variety of assignments, you "
-"can download the source code and use it as a source of knowledge for "
-"creating your own assignments. You may run the manual course in your own "
-"computer with the Docker containers."
-
-#: templates/support_channels.html
-msgid "COMMUNITY"
-msgstr "Community"
-
-#: templates/support_channels.html
-msgid "MICROSOFT_TEAMS"
-msgstr "Microsoft Teams"
-
-#: templates/support_channels.html
-#, python-format
-msgid "MICROSOFT_TEAMS_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr ""
-"Teachers can start a conversation with other users of %(brand)s or ask for "
-"support in the Microsoft Teams channel. However, if your matter contains "
-"private or sensitive information, you should contact us by \n"
-"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
-"style=\"display: inline;\">email</a>."
-
-#: templates/support_channels.html
-msgid "REPORT_ISSUE_IN_GITHUB"
-msgstr "Report an issue in GitHub"
-
-#: templates/support_channels.html
-msgid "REPORT_ISSUE_IN_GITHUB_DESCRIPTION"
-msgstr ""
-"Teachers may report issues in GitHub, such as bugs in the application or "
-"ideas for new features. If you want to discuss with the support team more "
-"personally or in privacy, contact us by \n"
-"<a rel=\"noopener\" href=\"mailto:aplusguru@cs.aalto.fi\" \n"
-"style=\"display: inline;\">email</a>."
-
-#: templates/support_channels.html
-msgid "ANNOUNCEMENTS"
-msgstr "Announcements"
-
-#: templates/support_channels.html
-#, python-format
-msgid "ANNOUNCEMENTS_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr ""
-"Keep yourself updated with information about %(brand)s and all the "
-"associated services."
-
-#: templates/support_channels.html
-msgid "CHECK_STATUS_OF_SERVERS"
-msgstr "Check the status of our servers."
-
-#: templates/support_channels.html
-msgid "CURRENT_DEVELOPMENT"
-msgstr "Current development"
-
-#: templates/support_channels.html
-#, python-format
-msgid "CURRENT_DEVELOPMENT_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr "Follow the current development of %(brand)s and its related services."
-
-#: templates/support_channels.html
-#, python-format
-msgid "OTHER_SERVERS_THAT_USE -- %(brand)s"
-msgstr "Other servers that use %(brand)s"
-
-#: templates/support_channels.html
-msgid "EXAM_SERVER_FOR_EXAM_STUDIO"
-msgstr "Exam server for the EXAM studio"
-
-#: templates/support_channels.html
-#, python-format
-msgid "EXAM_SERVER_SUPPORT_DESCRIPTION -- %(brand)s"
-msgstr "Find out more about how to use %(brand)s to conduct examinations."
-
-#: templates/support_channels.html
-msgid "TESTING_ENVIRONMENT"
-msgstr "Testing environment"
-
-#: templates/support_channels.html
-msgid "TESTING_ENVIRONMENT_SUPPORT_DESCRIPTION"
-msgstr ""
-"Aalto teachers may use our testing environment to test courses before "
-"publishing them in production."
-
-#: templates/support_channels.html
-msgid "LEARNING"
-msgstr "Learning"
-
-#: templates/support_channels.html
-msgid "ACCESSIBLE_TEACHING"
-msgstr "Accessible teaching"
-
-#: templates/support_channels.html
-msgid "ACCESSIBLE_TEACHING_SUPPORT_DESCRIPTION"
-msgstr "Learn how to create accessible content for learners."
-
-#: templates/support_channels.html
-msgid "WATCH_WEBINAR_RECORDINGS"
-msgstr "Watch recordings of our webinars."
-
-#: templates/support_channels.html
-msgid "WATCH_WEBINAR_RECORDINGS_SUPPORT_DESCRIPTION"
-msgstr ""
-"The webinars contains some talks organized by the EDIT team concerning A+ "
-"and its related services."
-
-#: templates/support_channels.html
-msgid "INTRO_TO_A+_ÄLYOPPI_WEBINAR_IN_FINNISH"
-msgstr "Introduction to A+ &mdash; ÄlyOppi webinar in Finnish"
-
-#: templates/support_channels.html
-msgid "ÄLYOPPI_WEBINARS_AVAILABLE_AT_PROJECT_WEBSITE"
-msgstr ""
-"ÄlyOppi webinars are available at <a target=\"_blank\" rel=\"noopener\" href="
-"\"https://www.aalto.fi/en/aalto-university/alyoppi-past-webinars\"> the "
-"project website </a>."
-
-#: templates/support_channels.html
-msgid "CANT_FIND_WHAT_LOOKING_FOR"
-msgstr "Can't find what you're looking for?"
-
-#: templates/support_channels.html
-#, python-format
-msgid "SEND_US_EMAIL -- %(email)s"
-msgstr ""
-"Send us an email to <a href=\"mailto:%(email)s\" target=\"_blank\" rel="
-"\"noopener\"> %(email)s </a>"
+msgid "GIVE_FEEDBACK"
+msgstr "Give feedback or report an issue"
 
 #: threshold/models.py
 msgid "LABEL_PASSED_MODULES"
