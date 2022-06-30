@@ -67,7 +67,7 @@ E.g. {% static 'js/external_launcher.js' ‰}
 			<div class="collapse well" id="extserv-more-{{ form_id }}">
 				<p>{{ service.method }} {{ url }}</p>
 				<table class="card card-block table">
-					{% for name, value in parameters|dictsort:"0.lower" %}
+					{% for name, value in parameters|dictsort:0 %}
 						<tr><th>{{ name }}</th><td>{{ value }}</td></tr>
 					{% endfor %}
 				</table>
