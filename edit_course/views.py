@@ -383,6 +383,8 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
             messages.error(self.request, str(e))
 
         messages.success(self.request, _('COURSE_INSTANCE_CLONED'))
+        messages.info(self.request, _('COURSE_INSTANCE_BUILD_DURATION_INFO'))
+        messages.info(self.request, _('COURSE_INSTANCE_WEBHOOK_INFO'))
         return self.redirect(new_instance.get_url('course-details'))
 
 

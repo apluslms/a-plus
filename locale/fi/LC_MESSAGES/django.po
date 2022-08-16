@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-16 09:52+0300\n"
+"POT-Creation-Date: 2022-08-18 13:37+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -610,11 +610,11 @@ msgstr "Opintotietojärjestelmän kurssin tunniste"
 msgid "LABEL_SIS_ENROLL"
 msgstr "Ilmoittautumiset opintotietojärjestelmästä"
 
-#: course/models.py edit_course/course_forms.py
+#: course/models.py
 msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
 msgstr ""
 "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
-"opintotietojärjestelmän kautta"
+"opintotietojärjestelmän kautta."
 
 #: course/models.py lib/admin_helpers.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
@@ -2026,9 +2026,7 @@ msgstr "Vuosi"
 
 #: edit_course/course_forms.py
 msgid "LABEL_YEAR_HELPTEXT"
-msgstr ""
-"Vuosi, jolloin kurssikerta alkaa. Tästä tulee osa kurssin avainta Git "
-"managerissa."
+msgstr "Vuosi, jolloin kurssikerta alkaa."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SEMESTER_OR_MONTH"
@@ -2036,9 +2034,7 @@ msgstr "Lukukausi / kuukausi"
 
 #: edit_course/course_forms.py
 msgid "LABEL_SEMESTER_OR_MONTH_HELPTEXT"
-msgstr ""
-"Lukukausi, jolloin kurssi on käynnissä tai aloituskuukausi. Tästä tulee osa "
-"kurssin avainta Git managerissa."
+msgstr "Lukukausi, jolloin kurssi on käynnissä tai aloituskuukausi."
 
 #: edit_course/course_forms.py
 msgid "LABEL_AUTUMN"
@@ -2102,7 +2098,7 @@ msgstr "joulukuu"
 
 #: edit_course/course_forms.py
 msgid "LABEL_TEST"
-msgstr "test"
+msgstr "testi"
 
 #: edit_course/course_forms.py
 msgid "LABEL_UPDATE_AUTOMATICALLY"
@@ -2114,7 +2110,9 @@ msgstr ""
 "Päivitä kurssiasetukset ja -materiaalit automaattisesti Gittiin "
 "työnnettäessä. Tämä vaikuttaa pääalustaan ja graderiin. Jos tämä ei ole "
 "käytössä, opettajan on tuotava kurssi manuaalisesti Git Managerista Muokkaa "
-"kurssia -sivulla kurssin rakenteen muuttamisen jälkeen."
+"kurssia -sivulla kurssin rakenteen muuttamisen jälkeen. Kurssi ei mene "
+"rikki, jos kurssin kääntäminen epäonnistuu, koska silloin käytetään "
+"edellistä versiota."
 
 #: edit_course/course_forms.py
 msgid "LABEL_EMAIL_ON_ERROR"
@@ -2150,11 +2148,21 @@ msgstr ""
 
 #: edit_course/course_forms.py
 msgid "LABEL_SIS_INSTANCE"
-msgstr "Kurssi-instanssi opintotietojärjestelmässä"
+msgstr "Kurssikerta opintotietojärjestelmässä (Sisu)"
 
 #: edit_course/course_forms.py
 msgid "LABEL_SIS_INSTANCE_HELPTEXT"
-msgstr "Valitse kurssikerta opintotietojärjestelmässä."
+msgstr ""
+"Kurssikerta, jonka kautta opiskelijat ilmoittautuvat. Valikossa näkyvät "
+"kurssikerran alkamis- ja päättymisajat sekä ilmoittautumistyyppi (esim. "
+"kurssille osallistuminen tai tenttiin ilmoittautuminen)."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SIS_ENROLL_HELPTEXT"
+msgstr ""
+"Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
+"opintotietojärjestelmän kautta. Tätä valintaa sovelletaan vain, jos valitset "
+"ensin yllä olevasta valikosta kurssikerran."
 
 #: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"
@@ -2478,7 +2486,7 @@ msgstr ""
 "<dt>Z1 ja Z2 (kokonaislukuja)</dt> <dd>tehtävien ID:t. Löydät tehtävien ID:t "
 "<a href='%(exercises_api_url)s'>kurssitehtävien API:sta</a>. "
 "Vaihtoehtoisesti tarkista tehtävän ID <b>Muokkaa tehtävää</b> -napin verkko-"
-"osoitteesta, joka löytyy osiosta <b>Muokkaa kurssia -> Sisältö</b>. "
+"osoitteesta, joka löytyy osiosta <b>Muokkaa kurssia &#8594; Sisältö</b>. "
 "<b>Muokkaa tehtävää</b> -sivun verkko-osoite sisältää numeron kurssiavainten "
 "jälkeen.</dd> </dl>"
 
@@ -2509,19 +2517,19 @@ msgstr "piilotettu"
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE"
-msgstr "Kopioi kurssi"
+msgstr "Luo uusi kurssikerta"
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE_AND_DATA_INTO_NEW_INSTANCE_DESCRIPTION"
-msgstr "Tämä toiminto kopioi kurssin sekä valitut tiedot uuteen kurssikertaan."
+msgstr "Tämä toiminto luo uuden kurssikerran ja kopioi valitut tiedot siihen."
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_INTO_NEW_INSTANCE"
-msgstr "Kopioi uudeksi kurssikerraksi"
+msgstr "Luo uusi kurssikerta"
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONING_COURSE"
-msgstr "Kopioidaan kurssia..."
+msgstr "Luodaan kurssikertaa..."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "IMPORT_AND_OVERRIDE_CONTENT_CONFIG_URL"
@@ -2854,6 +2862,20 @@ msgstr "Kurssikerta on nyt kopioitu."
 #: edit_course/views.py
 msgid "GITMANAGER_ERROR"
 msgstr "Git manager virhe: "
+
+#: edit_course/views.py
+msgid "COURSE_INSTANCE_BUILD_DURATION_INFO"
+msgstr ""
+"Kurssi on tyhjä, kunnes kääntäminen on suoritettu. Tämä voi kestää useita "
+"minuutteja. Tarkista käännösloki kohdasta <b>Muokkaa kurssia &#8594; Sisältö "
+"&#8594; Hae uusin käännösloki</b>."
+
+#: edit_course/views.py
+msgid "COURSE_INSTANCE_WEBHOOK_INFO"
+msgstr ""
+"Muista kopioida Webhook secret kurssiprojektin webhook-asetuksiin "
+"GitLabissa. Löydät Webhook secretin osiosta <b>Muokkaa kurssia &#8594; Git "
+"manager</b>."
 
 #: edit_course/views.py
 msgid "GITMANAGER_UPDATED"

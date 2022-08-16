@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-16 09:52+0300\n"
+"POT-Creation-Date: 2022-08-18 13:37+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -608,7 +608,7 @@ msgstr "Course identifier in the student info system"
 msgid "LABEL_SIS_ENROLL"
 msgstr "Enrol from SIS"
 
-#: course/models.py edit_course/course_forms.py
+#: course/models.py
 msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
 msgstr "When enabled, students from local organization must enrol through SIS."
 
@@ -2016,9 +2016,7 @@ msgstr "Year"
 
 #: edit_course/course_forms.py
 msgid "LABEL_YEAR_HELPTEXT"
-msgstr ""
-"The year on which the course instance starts. This becomes a part of the "
-"course key in Git manager."
+msgstr "The year on which the course instance starts."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SEMESTER_OR_MONTH"
@@ -2026,9 +2024,7 @@ msgstr "Semester / month"
 
 #: edit_course/course_forms.py
 msgid "LABEL_SEMESTER_OR_MONTH_HELPTEXT"
-msgstr ""
-"The semester when the course is running or the starting month. This becomes "
-"a part of the course key in Git manager."
+msgstr "The semester when the course is running or the starting month."
 
 #: edit_course/course_forms.py
 msgid "LABEL_AUTUMN"
@@ -2104,7 +2100,9 @@ msgstr ""
 "Update the course settings and materials automatically on Git push events. "
 "This affects the main platform and the grader. If this is disabled, the "
 "teacher would need to manually import the course from Git manager in the "
-"Edit course section after changing the structure of the course."
+"Edit course section after changing the structure of the course. The course "
+"will not be broken if the course build fails in Git manager, because in that "
+"case, the previous version is used."
 
 #: edit_course/course_forms.py
 msgid "LABEL_EMAIL_ON_ERROR"
@@ -2138,11 +2136,21 @@ msgstr ""
 
 #: edit_course/course_forms.py
 msgid "LABEL_SIS_INSTANCE"
-msgstr "Course instance in Student Information System"
+msgstr "Course instance in Student Information System (SIS)"
 
 #: edit_course/course_forms.py
 msgid "LABEL_SIS_INSTANCE_HELPTEXT"
-msgstr "Select the course instance in the Student Information System."
+msgstr ""
+"Course instance from which students are enrolled. The menu shows the start "
+"and ending times of the course instance, along with the enrolment type (e.g. "
+"course participation or exam enrolment)."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SIS_ENROLL_HELPTEXT"
+msgstr ""
+"When enabled, students from local organization must enrol through SIS. This "
+"option only applies if you first select a course instance from the dropdown "
+"above."
 
 #: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"
@@ -2463,7 +2471,7 @@ msgstr ""
 "<dt>Z1 and Z2 (integers)</dt> <dd>the system assignment IDs. You can find "
 "the assignment IDs from the <a href='%(exercises_api_url)s'>course exercises "
 "API</a>. Alternatively, take a look at the web address of the <b>Edit "
-"assignment</b> button under <b>Edit course -> Content</b>. The <b>Edit "
+"assignment</b> button under <b>Edit course &#8594; Content</b>. The <b>Edit "
 "assignment</b> address includes a number after the course keys.</dd> </dl>"
 
 #: edit_course/templates/edit_course/build_log.html
@@ -2493,20 +2501,21 @@ msgstr "hidden"
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE"
-msgstr "Clone course"
+msgstr "Create new course instance"
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE_AND_DATA_INTO_NEW_INSTANCE_DESCRIPTION"
 msgstr ""
-"This action will clone the course and the selected data into a new instance. "
+"This action creates a new course instance and copies the selected data into "
+"it."
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_INTO_NEW_INSTANCE"
-msgstr "Clone into new instance"
+msgstr "Create new instance"
 
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONING_COURSE"
-msgstr "Cloning course..."
+msgstr "Creating course instance..."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "IMPORT_AND_OVERRIDE_CONTENT_CONFIG_URL"
@@ -2839,6 +2848,20 @@ msgstr "Course instance is now cloned."
 #: edit_course/views.py
 msgid "GITMANAGER_ERROR"
 msgstr "Git manager error: "
+
+#: edit_course/views.py
+msgid "COURSE_INSTANCE_BUILD_DURATION_INFO"
+msgstr ""
+"The course will appear empty until the build is complete. This can take "
+"several minutes. Check the build log at <b>Edit course &#8594; Content "
+"&#8594; Retrieve latest build log</b>."
+
+#: edit_course/views.py
+msgid "COURSE_INSTANCE_WEBHOOK_INFO"
+msgstr ""
+"Remember to copy the Webhook secret to the webhook settings of the course "
+"project in GitLab. You can find the Webhook secret in the section <b>Edit "
+"course &#8594; Git manager</b>."
 
 #: edit_course/views.py
 msgid "GITMANAGER_UPDATED"
