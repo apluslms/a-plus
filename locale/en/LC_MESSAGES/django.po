@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-09 19:38+0300\n"
+"POT-Creation-Date: 2022-08-16 09:52+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -543,6 +543,12 @@ msgid "LABEL_ENROLLMENT_STARTING_TIME"
 msgstr "enrolment starting time"
 
 #: course/models.py
+msgid "COURSE_INSTANCE_ENROLLMENT_TIME_HELPTEXT"
+msgstr ""
+"This setting does not affect students from the local organization when "
+"enrolment is handled through SIS."
+
+#: course/models.py
 msgid "LABEL_ENROLLMENT_ENDING_TIME"
 msgstr "enrolment ending time"
 
@@ -598,11 +604,11 @@ msgstr ""
 msgid "LABEL_SIS_IDENTIFIER"
 msgstr "Course identifier in the student info system"
 
-#: course/models.py
+#: course/models.py edit_course/course_forms.py
 msgid "LABEL_SIS_ENROLL"
 msgstr "Enrol from SIS"
 
-#: course/models.py
+#: course/models.py edit_course/course_forms.py
 msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
 msgstr "When enabled, students from local organization must enrol through SIS."
 
@@ -1386,7 +1392,6 @@ msgstr "Email"
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 #: exercise/templates/exercise/submission_plain.html
-#: templates/support_channels.html
 msgid "STATUS"
 msgstr "Status"
 
@@ -5150,7 +5155,7 @@ msgstr "news items"
 msgid "ADD_NEWS_ITEM"
 msgstr "Add news item"
 
-#: news/templates/news/list.html templates/support_channels.html
+#: news/templates/news/list.html
 msgid "NEWS"
 msgstr "News"
 
@@ -5318,7 +5323,7 @@ msgstr "Privacy Notice"
 msgid "ACCESSIBILITY_STATEMENT"
 msgstr "Accessibility Statement"
 
-#: templates/base.html
+#: templates/base.html templates/support_channels.html
 msgid "SUPPORT"
 msgstr "Support"
 
@@ -5329,6 +5334,27 @@ msgstr "Feedback"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Loading failed!"
+
+#: templates/support_channels.html
+msgid "TEACHERS"
+msgstr "Teachers"
+
+#: templates/support_channels.html
+#, python-format
+msgid "MANUAL -- %(brand_long)s"
+msgstr "%(brand_long)s manual"
+
+#: templates/support_channels.html
+msgid "MANUAL_DESCRIPTION"
+msgstr "for course and assignment authors"
+
+#: templates/support_channels.html
+msgid "CONTACT_SUPPORT_BY_EMAIL"
+msgstr "Contact support by email:"
+
+#: templates/support_channels.html
+msgid "GIVE_FEEDBACK"
+msgstr "Give feedback or report an issue"
 
 #: templates/support_channels.html
 msgid "STUDENTS"
@@ -5342,107 +5368,8 @@ msgstr ""
 "course staff. Check the course page for the contact information."
 
 #: templates/support_channels.html
-msgid "STUDIES"
-msgstr "Studies"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STUDIES_LINK"
-msgstr "https://into.aalto.fi/display/enopinnot"
-
-#: templates/support_channels.html
-msgid "COURSE_CATALOGUE"
-msgstr "Course catalogue"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STUDENT_SERVICES_LINK"
-msgstr "https://into.aalto.fi/display/enopisk/Student+services"
-
-#: templates/support_channels.html
-msgid "STUDENT_SERVICES"
-msgstr "Student services"
-
-#: templates/support_channels.html
-msgid "SUPPORT_SUPPORT_FOR_STUDYING_LINK"
-msgstr "https://into.aalto.fi/display/enopisk/Support+for+studying"
-
-#: templates/support_channels.html
-msgid "SUPPORT_FOR_STUDYING"
-msgstr "Support for studying"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STUDY_SKILLS_LINK"
-msgstr "https://into.aalto.fi/display/enopisk/Study+skills"
-
-#: templates/support_channels.html
-msgid "STUDY_SKILLS"
-msgstr "Study skills"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STARTING_POINT_OF_WELLBEING_LINK"
-msgstr "https://into.aalto.fi/display/enopisk/Starting+Point+of+Wellbeing"
-
-#: templates/support_channels.html
-msgid "STARTING_POINT_OF_WELLBEING"
-msgstr "Starting Point of Wellbeing"
-
-#: templates/support_channels.html
-msgid "IT_SUPPORT"
-msgstr "IT support"
-
-#: templates/support_channels.html
-msgid "SUPPORT_IT_HELP_LINK"
-msgstr "https://www.aalto.fi/en/it-help"
-
-#: templates/support_channels.html
-msgid "IT_HELP"
-msgstr "IT help"
-
-#: templates/support_channels.html
-msgid "VIRTUAL_DESKTOPS"
-msgstr "Virtual desktops (VDI)"
-
-#: templates/support_channels.html
-msgid "AVAILABLE_CLASSROOM_COMPUTERS"
-msgstr "Available classroom computers"
-
-#: templates/support_channels.html
-msgid "DOWNLOAD_LICENSED_SOFTWARE"
-msgstr "Download licensed software"
-
-#: templates/support_channels.html
-msgid "SUPPORT_AALTO_SPACE_APP_LINK"
-msgstr "https://www.aalto.fi/en/services/aalto-space-mobile-application"
-
-#: templates/support_channels.html
-msgid "AALTO_SPACE_APP"
-msgstr "Aalto Space app for room reservations"
-
-#: templates/support_channels.html
-msgid "TEACHERS"
-msgstr "Teachers"
-
-#: templates/support_channels.html
-#, python-format
-msgid "MANUAL -- %(brand_long)s"
-msgstr "%(brand_long)s manual"
-
-#: templates/support_channels.html
-#, python-format
-msgid "MANUAL_DESCRIPTION"
-msgstr ""
-"for course and assignment authors"
-
-#: templates/support_channels.html
 msgid "A+_LMS_PROJECT_WEBSITE"
 msgstr "About the A+ project"
-
-#: templates/support_channels.html
-msgid "CONTACT_SUPPORT_BY_EMAIL"
-msgstr "Contact support by email:"
-
-#: templates/support_channels.html
-msgid "GIVE_FEEDBACK"
-msgstr "Give feedback or report an issue"
 
 #: threshold/models.py
 msgid "LABEL_PASSED_MODULES"

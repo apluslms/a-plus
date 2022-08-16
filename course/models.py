@@ -596,10 +596,12 @@ class CourseInstance(UrlMixin, models.Model):
     enrollment_starting_time = models.DateTimeField(
         verbose_name=_('LABEL_ENROLLMENT_STARTING_TIME'),
         blank=True, null=True,
+        help_text=_('COURSE_INSTANCE_ENROLLMENT_TIME_HELPTEXT'),
     )
     enrollment_ending_time = models.DateTimeField(
         verbose_name=_('LABEL_ENROLLMENT_ENDING_TIME'),
         blank=True, null=True,
+        help_text=_('COURSE_INSTANCE_ENROLLMENT_TIME_HELPTEXT'),
     )
     image = models.ImageField(
         verbose_name=_('LABEL_IMAGE'),

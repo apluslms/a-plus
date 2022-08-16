@@ -8,7 +8,7 @@ from course.sis import get_sis_configuration, StudentInfoSystem
 
 logger = logging.getLogger("aplus.course")
 
-def set_sis(instance: CourseInstance, id: str) -> None:
+def set_sis(instance: CourseInstance, id: str, enroll: bool) -> None:
     """
     Set teachers, starting time and ending based on Student Information System.
 
@@ -19,6 +19,10 @@ def set_sis(instance: CourseInstance, id: str) -> None:
 
     id
         Course realisation identifier used by the SIS system
+
+    enroll
+        Boolean value indicating whether or not students
+        from the local organization must enroll through SIS
     """
     sis: StudentInfoSystem = get_sis_configuration()
     if not sis:
@@ -35,6 +39,7 @@ def set_sis(instance: CourseInstance, id: str) -> None:
         instance.ending_time = coursedata['ending_time']
 
     instance.sis_id = id
+    instance.sis_enroll = enroll
     instance.save()
 
     if coursedata['teachers']:
@@ -51,6 +56,7 @@ def set_sis(instance: CourseInstance, id: str) -> None:
 
 @transaction.atomic
 def clone(
+        cloner,
         instance,
         url,
         name,
@@ -59,6 +65,7 @@ def clone(
         clone_usertags,
         clone_menuitems,
         siskey,
+        sisenroll,
 ):
     """
     Clones the course instance and returns the new saved instance.
@@ -78,12 +85,14 @@ def clone(
 
     if clone_teachers:
         instance.set_teachers(teachers)
+    # The cloned course instance has at least one teacher, which is the cloning user
+    instance.add_teacher(cloner)
 
     if clone_assistants:
         instance.set_assistants(assistants)
 
     if siskey and siskey != 'none':
-        set_sis(instance, siskey)
+        set_sis(instance, siskey, sisenroll)
 
     if clone_usertags:
         for usertag in usertags:
