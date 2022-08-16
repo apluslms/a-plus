@@ -301,7 +301,7 @@ class CloneInstanceForm(forms.Form):
                 )
                 self.fields['sis_enroll'] = forms.BooleanField(
                     label=_('LABEL_SIS_ENROLL'),
-                    help_text=_('COURSE_INSTANCE_SIS_ENROLL_HELP'),
+                    help_text=_('LABEL_SIS_ENROLL_HELPTEXT'),
                     required=False,
                     initial=False,
                 )
