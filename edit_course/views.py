@@ -37,6 +37,7 @@ from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, GitmanagerForm, UserTagForm, SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 from lib.logging import SecurityLog
+from userprofile.models import UserProfile
 
 
 class EditInstanceView(CourseInstanceMixin, BaseFormView):
@@ -337,6 +338,7 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
     def form_valid(self, form):
         from .operations.clone import clone
         new_instance = clone(
+            cloner=UserProfile.get_by_request(self.request),
             instance=self.instance,
             url=form.cleaned_data['url'],
             name=form.cleaned_data['instance_name'],
@@ -345,6 +347,7 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
             clone_usertags=form.cleaned_data['usertags'],
             clone_menuitems=form.cleaned_data['menuitems'],
             siskey=form.cleaned_data.get('sis'),
+            sisenroll=form.cleaned_data.get('sis_enroll'),
         )
 
         if not all([settings.GITMANAGER_URL, form.cleaned_data.get('git_origin'), form.cleaned_data.get('git_branch')]):

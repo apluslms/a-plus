@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-09 19:38+0300\n"
+"POT-Creation-Date: 2022-08-16 09:52+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -544,6 +544,12 @@ msgid "LABEL_ENROLLMENT_STARTING_TIME"
 msgstr "ilmoittautumisen avautumisaika"
 
 #: course/models.py
+msgid "COURSE_INSTANCE_ENROLLMENT_TIME_HELPTEXT"
+msgstr ""
+"Tämä asetus ei vaikuta paikallisiin opiskelijoihin, kun ilmoittautuminen "
+"tehdään opintotietojärjestelmän kautta."
+
+#: course/models.py
 msgid "LABEL_ENROLLMENT_ENDING_TIME"
 msgstr "ilmoittautumisen päättymisaika"
 
@@ -600,11 +606,11 @@ msgstr ""
 msgid "LABEL_SIS_IDENTIFIER"
 msgstr "Opintotietojärjestelmän kurssin tunniste"
 
-#: course/models.py
+#: course/models.py edit_course/course_forms.py
 msgid "LABEL_SIS_ENROLL"
 msgstr "Ilmoittautumiset opintotietojärjestelmästä"
 
-#: course/models.py
+#: course/models.py edit_course/course_forms.py
 msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
 msgstr ""
 "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
@@ -1393,7 +1399,6 @@ msgstr "Sähköposti"
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 #: exercise/templates/exercise/submission_plain.html
-#: templates/support_channels.html
 msgid "STATUS"
 msgstr "Tila"
 
@@ -5173,7 +5178,7 @@ msgstr "uutiset"
 msgid "ADD_NEWS_ITEM"
 msgstr "Lisää uutinen"
 
-#: news/templates/news/list.html templates/support_channels.html
+#: news/templates/news/list.html
 msgid "NEWS"
 msgstr "Uutiset"
 
@@ -5341,7 +5346,7 @@ msgstr "Tietosuojailmoitus"
 msgid "ACCESSIBILITY_STATEMENT"
 msgstr "Saavutettavuusseloste"
 
-#: templates/base.html
+#: templates/base.html templates/support_channels.html
 msgid "SUPPORT"
 msgstr "Tuki"
 
@@ -5352,6 +5357,27 @@ msgstr "Palaute"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Lataus epäonnistui!"
+
+#: templates/support_channels.html
+msgid "TEACHERS"
+msgstr "Opettajat"
+
+#: templates/support_channels.html
+#, python-format
+msgid "MANUAL -- %(brand_long)s"
+msgstr "%(brand_long)s-opas"
+
+#: templates/support_channels.html
+msgid "MANUAL_DESCRIPTION"
+msgstr "kurssien ja tehtävien kehittäjille"
+
+#: templates/support_channels.html
+msgid "CONTACT_SUPPORT_BY_EMAIL"
+msgstr "Ota yhteyttä tukeen sähköpostilla:"
+
+#: templates/support_channels.html
+msgid "GIVE_FEEDBACK"
+msgstr "Anna palautetta tai ilmoita ongelmasta"
 
 #: templates/support_channels.html
 msgid "STUDENTS"
@@ -5366,107 +5392,8 @@ msgstr ""
 "verkkosivuilta."
 
 #: templates/support_channels.html
-msgid "STUDIES"
-msgstr "Opinnot"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STUDIES_LINK"
-msgstr "https://into.aalto.fi/display/fiopinnot"
-
-#: templates/support_channels.html
-msgid "COURSE_CATALOGUE"
-msgstr "Kurssiluettelo"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STUDENT_SERVICES_LINK"
-msgstr "https://into.aalto.fi/display/fiopisk/Opiskelijan+palvelut"
-
-#: templates/support_channels.html
-msgid "STUDENT_SERVICES"
-msgstr "Opiskelijapalvelut"
-
-#: templates/support_channels.html
-msgid "SUPPORT_SUPPORT_FOR_STUDYING_LINK"
-msgstr "https://into.aalto.fi/display/fiopisk/Tukea+opiskeluun"
-
-#: templates/support_channels.html
-msgid "SUPPORT_FOR_STUDYING"
-msgstr "Opiskelun tuki"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STUDY_SKILLS_LINK"
-msgstr "https://into.aalto.fi/display/fiopisk/Opiskelutaidot"
-
-#: templates/support_channels.html
-msgid "STUDY_SKILLS"
-msgstr "Opiskelutaidot"
-
-#: templates/support_channels.html
-msgid "SUPPORT_STARTING_POINT_OF_WELLBEING_LINK"
-msgstr "https://into.aalto.fi/display/fiopisk/Starting+Point+of+Wellbeing"
-
-#: templates/support_channels.html
-msgid "STARTING_POINT_OF_WELLBEING"
-msgstr "Starting Point of Wellbeing - opiskelijan hyvinvointi"
-
-#: templates/support_channels.html
-msgid "IT_SUPPORT"
-msgstr "IT-tuki"
-
-#: templates/support_channels.html
-msgid "SUPPORT_IT_HELP_LINK"
-msgstr "https://www.aalto.fi/fi/it-help"
-
-#: templates/support_channels.html
-msgid "IT_HELP"
-msgstr "IT-ohjeet"
-
-#: templates/support_channels.html
-msgid "VIRTUAL_DESKTOPS"
-msgstr "Virtuaaliset pöytätietokoneet (VDI)"
-
-#: templates/support_channels.html
-msgid "AVAILABLE_CLASSROOM_COMPUTERS"
-msgstr "Vapaat tietokoneet luokkahuoneissa"
-
-#: templates/support_channels.html
-msgid "DOWNLOAD_LICENSED_SOFTWARE"
-msgstr "Lataa lisensoituja ohjelmistoja"
-
-#: templates/support_channels.html
-msgid "SUPPORT_AALTO_SPACE_APP_LINK"
-msgstr "https://www.aalto.fi/fi/palvelut/aalto-space-mobiilisovellus"
-
-#: templates/support_channels.html
-msgid "AALTO_SPACE_APP"
-msgstr "Aalto Space -sovellus huonevarauksiin"
-
-#: templates/support_channels.html
-msgid "TEACHERS"
-msgstr "Opettajat"
-
-#: templates/support_channels.html
-#, python-format
-msgid "MANUAL -- %(brand_long)s"
-msgstr "%(brand_long)s-opas"
-
-#: templates/support_channels.html
-#, python-format
-msgid "MANUAL_DESCRIPTION"
-msgstr ""
-"kurssien ja tehtävien kehittäjille"
-
-#: templates/support_channels.html
 msgid "A+_LMS_PROJECT_WEBSITE"
 msgstr "Tietoja A+ - projektista"
-
-#: templates/support_channels.html
-msgid "CONTACT_SUPPORT_BY_EMAIL"
-msgstr "Ota yhteyttä tukeen sähköpostilla:"
-
-#: templates/support_channels.html
-msgid "GIVE_FEEDBACK"
-msgstr "Anna palautetta tai ilmoita ongelmasta"
 
 #: threshold/models.py
 msgid "LABEL_PASSED_MODULES"

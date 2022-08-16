@@ -291,13 +291,19 @@ class CloneInstanceForm(forms.Form):
         try:
             instances = sis.get_instances(self.instance.course.code)
 
-            # If there are no SIS instances by this course code, don't show menu
+            # If there are no SIS instances by this course code, don't show menu or checkbox
             if instances:
                 options = [('none', '---------')] + instances
                 self.fields['sis'] = forms.ChoiceField(
                         choices=options,
                         label=_('LABEL_SIS_INSTANCE'),
                         help_text=_('LABEL_SIS_INSTANCE_HELPTEXT'),
+                )
+                self.fields['sis_enroll'] = forms.BooleanField(
+                    label=_('LABEL_SIS_ENROLL'),
+                    help_text=_('COURSE_INSTANCE_SIS_ENROLL_HELP'),
+                    required=False,
+                    initial=False,
                 )
         except Exception as e:
             logger.exception("Error getting instances from SIS.")
