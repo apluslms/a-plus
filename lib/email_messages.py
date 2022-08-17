@@ -1,9 +1,10 @@
 import logging
 import traceback
 from django.conf import settings
-from django.core.mail import send_mail
-from django.urls import reverse
-from .helpers import build_aplus_url
+from django.core.mail import send_mail, send_mass_mail
+
+from .helpers import Enum, build_aplus_url
+from course.models import CourseInstance
 
 
 logger = logging.getLogger('aplus.lib.email_messages')
@@ -61,3 +62,30 @@ def email_course_error(request, exercise, message, exception=True):
         email_course_instance(instance, subject, body)
     except:
         pass
+
+
+def email_course_students(
+        instance: CourseInstance,
+        subject: str,
+        message: str,
+        audience: Enum = CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS,
+        ) -> int:
+    """
+    Sends an email to students on the course. Audience parameter controls whether the mail goes
+    to all (default), just internal, or just external students.
+    Returns number of emails sent, or -1 in case of error.
+    """
+    students = instance.students
+    if audience == CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
+        students = students.filter(organization=settings.LOCAL_ORGANIZATION)
+    elif audience == CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS:
+        students = students.exclude(organization=settings.LOCAL_ORGANIZATION)
+
+    recipients = students.exclude(user__email='').values_list("user__email", flat=True)
+    emails = tuple(map(lambda x: (subject, message, settings.SERVER_EMAIL, [x]), recipients))
+
+    try:
+        return send_mass_mail(emails)
+    except:
+        logger.exception('Failed to send course instance emails.')
+        return -1

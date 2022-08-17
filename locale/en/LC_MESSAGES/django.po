@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-19 08:42+0300\n"
+"POT-Creation-Date: 2022-09-14 21:50+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1432,8 +1432,8 @@ msgstr ""
 #: course/templatetags/base.py
 msgid "GRADER_PROBLEMS_ALERT"
 msgstr ""
-"Automatic grading has currently issues. "
-"You may experience delay in receiving feedback."
+"Automatic grading has currently issues. You may experience delay in "
+"receiving feedback."
 
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"
@@ -5179,6 +5179,10 @@ msgstr "Connecting to the course service failed with {code}!"
 msgid "URL_KEY_MAY_CONSIST_OF"
 msgstr "URL keys may consist of alphanumeric characters, hyphen and period."
 
+#: news/forms.py
+msgid "SEND_EMAIL_TO_STUDENTS"
+msgstr "Send email to students"
+
 #: news/models.py
 msgid "LABEL_PUBLISH"
 msgstr "publish"
@@ -5230,6 +5234,10 @@ msgstr "Published on"
 #: news/templates/news/user_news.html
 msgid "SHOW_OLDER"
 msgstr "Show older"
+
+#: news/views.py
+msgid "FAILED_TO_SEND_EMAIL"
+msgstr "Sending email failed."
 
 #: notification/models.py
 msgid "LABEL_SUBJECT"
