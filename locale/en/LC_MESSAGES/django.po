@@ -3698,6 +3698,18 @@ msgstr "submitted file"
 msgid "MODEL_NAME_SUBMITTED_FILE_PLURAL"
 msgstr "submitted files"
 
+#: exercise/submission_models.py
+msgid "LABEL_NUMBER_OF_RETRIES"
+msgstr "Number of retries"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_PENDING_SUBMISSION"
+msgstr "Pending submission"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_PENDING_SUBMISSION_PLURAL"
+msgstr "Pending submissions"
+
 #: exercise/templates/exercise/_category_points.html
 #: exercise/templates/exercise/_exercisecollection.html
 msgid "TOTAL_POINTS"

@@ -766,3 +766,30 @@ def _delete_file(sender, instance, **kwargs):
     """
     instance.file_object.delete(save=False)
 post_delete.connect(_delete_file, SubmittedFile)
+
+
+class PendingSubmissionManager(models.Manager):
+
+    def is_grader_stable():
+        total_retries = PendingSubmission.objects.aggregate(sum=models.Sum('num_retries'))['sum']
+        return not (total_retries and total_retries > settings.GRADER_STABLE_THRESHOLD)
+
+
+class PendingSubmission(models.Model):
+    submission = models.OneToOneField(Submission,
+        verbose_name=_('LABEL_SUBMISSION'),
+        on_delete=models.CASCADE,
+    )
+    submission_time = models.DateTimeField(
+        verbose_name=_('LABEL_SUBMISSION_TIME'),
+        null=True,  # to make usage with get_or_create easier
+    )
+    num_retries = models.PositiveIntegerField(
+        verbose_name=_('LABEL_NUMBER_OF_RETRIES'),
+        default=0,
+    )
+    objects = PendingSubmissionManager()
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_PENDING_SUBMISSION')
+        verbose_name_plural = _('MODEL_NAME_PENDING_SUBMISSION_PLURAL')
