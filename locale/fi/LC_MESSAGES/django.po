@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-19 08:42+0300\n"
+"POT-Creation-Date: 2022-09-14 21:50+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1440,8 +1440,8 @@ msgstr ""
 #: course/templatetags/base.py
 msgid "GRADER_PROBLEMS_ALERT"
 msgstr ""
-"Automaattisessa arvioinnissa on tällä hetkellä ongelmia. "
-"Palautteen saamisessa saattaa esiintyä viivettä."
+"Automaattisessa arvioinnissa on tällä hetkellä ongelmia. Palautteen "
+"saamisessa saattaa esiintyä viivettä."
 
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"
@@ -5202,6 +5202,10 @@ msgid "URL_KEY_MAY_CONSIST_OF"
 msgstr ""
 "URL-avaimet voivat sisältää kirjaimia, numeroita, yhdysmerkin ja pisteen."
 
+#: news/forms.py
+msgid "SEND_EMAIL_TO_STUDENTS"
+msgstr "Lähetä sähköpostia opiskelijoille"
+
 #: news/models.py
 msgid "LABEL_PUBLISH"
 msgstr "julkaise"
@@ -5253,6 +5257,10 @@ msgstr "Julkaisu"
 #: news/templates/news/user_news.html
 msgid "SHOW_OLDER"
 msgstr "Näytä aiemmat"
+
+#: news/views.py
+msgid "FAILED_TO_SEND_EMAIL"
+msgstr "Sähköpostin lähettäminen epäonnistui."
 
 #: notification/models.py
 msgid "LABEL_SUBJECT"

@@ -1,10 +1,14 @@
+from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseFormView, BaseRedirectView
+from lib.email_messages import email_course_students
 from .forms import NewsForm
 from .models import News
 
@@ -47,6 +51,15 @@ class EditNewsView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         form.save()
+        if form.cleaned_data['email']:
+            subject = f"[{settings.BRAND_NAME} course news] {self.instance.course.code}: {self.news_item.title}"
+            if email_course_students(
+                self.instance,
+                subject,
+                self.news_item.body,
+                self.news_item.audience,
+            ) < 0:
+                messages.error(self.request, _('FAILED_TO_SEND_EMAIL'))
         return super().form_valid(form)
 
 
