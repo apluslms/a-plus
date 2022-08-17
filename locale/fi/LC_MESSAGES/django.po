@@ -3707,6 +3707,18 @@ msgstr "palautettu tiedosto"
 msgid "MODEL_NAME_SUBMITTED_FILE_PLURAL"
 msgstr "palautetut tiedostot"
 
+#: exercise/submission_models.py
+msgid "LABEL_NUMBER_OF_RETRIES"
+msgstr "Uudelleenyritysten määrä"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_PENDING_SUBMISSION"
+msgstr "Keskeneräinen palautus"
+
+#: exercise/submission_models.py
+msgid "MODEL_NAME_PENDING_SUBMISSION_PLURAL"
+msgstr "Keskeneräiset palautukset"
+
 #: exercise/templates/exercise/_category_points.html
 #: exercise/templates/exercise/_exercisecollection.html
 msgid "TOTAL_POINTS"
