@@ -60,7 +60,7 @@ function duplicateCheck(exercise, form_element, submitCallback) {
       }
     };
     readNextFile();
-  } else if (exercise.quiz) {
+  } else {
     const hash = md5(hashThis);
     openDuplicateModalOrSubmit(exercise, hashes, hash, submitCallback);
   }
