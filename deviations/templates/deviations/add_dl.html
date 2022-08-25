@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block columns %}
+
 <div class="col-md-12">
 	<form method="post" class="well form-horizontal">
 		{% csrf_token %}
@@ -20,10 +21,27 @@
 		{{ form|bootstrap_horizontal }}
 		<div class="form-group">
 			<div class="col-sm-10 col-sm-offset-2">
-				<button type="submit" class="aplus-button--default aplus-button--md">{% translate "SAVE" %}</button>
+				<button id="save-button" type="submit" class="aplus-button--default aplus-button--md">{% translate "SAVE" %}</button>
 				<a href="{{ instance|url:'deviations-list-dl' }}" class="aplus-button--secondary aplus-button--md" role="button">{% translate "CANCEL" %}</a>
 			</div>
 		</div>
 	</form>
 </div>
+<script>
+	$( document ).ready(function() {
+		let cachedHtml = localStorage.getItem("submitters") ? localStorage.getItem("submitters") : "";
+
+		//append the cached html to the submitters. If no cached data empty string is pushed resulting in no change
+		$("#id_submitter_wrapper > ul").append(cachedHtml)
+		localStorage.setItem("submitters", "");
+
+		//bind an event to the save button which stores the most recent values of the input to localStorage
+		$('#save-button').click(
+			function () {
+				//cache the list of submitters
+				localStorage.setItem("submitters", $("#id_submitter_wrapper > ul").html());
+			}
+		);
+	});
+</script>
 {% endblock %}
