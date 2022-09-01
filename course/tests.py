@@ -402,3 +402,62 @@ class CourseTest(TestCase):
         )
         self.assertTrue(self.current_course_instance.is_student(self.user1))
         self.assertTrue(self.current_course_instance.is_student(self.user2))
+
+    def test_last_instance_view_hidden_module(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="111111",
+            url="last_instance_view",
+        )
+
+        older_instance = CourseInstance.objects.create(
+            instance_name="older instance",
+            starting_time=self.today,
+            ending_time=self.tomorrow,
+            course=course,
+            url="expected",
+        )
+        # Add a ready module to the older course instance.
+        older_module = CourseModule.objects.create(
+            name="older module",
+            url="older-module",
+            points_to_pass=10,
+            course_instance=older_instance,
+            opening_time=self.today,
+            closing_time=self.tomorrow,
+            status=CourseModule.STATUS.READY,
+        )
+
+        newer_instance = CourseInstance.objects.create(
+            instance_name="newer instance",
+            starting_time=self.yesterday,
+            ending_time=self.tomorrow,
+            course=course,
+            url="invalid",
+        )
+        # Add a hidden module to the newer course instance.
+        newer_module = CourseModule.objects.create(
+            name="newer module",
+            url="newer-module",
+            points_to_pass=10,
+            course_instance=newer_instance,
+            opening_time=self.yesterday,
+            closing_time=self.tomorrow,
+            status=CourseModule.STATUS.HIDDEN,
+        )
+
+
+        response = self.client.get('/last_instance_view/', follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        # The redirect should point to the older instance with a visible module.
+        self.assertEqual(response.context['next'] , '/last_instance_view/expected/')
+
+    def test_last_instance_view_not_yet_open_module(self):
+        self.current_course_instance.enroll_student(self.user1)
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/Course-Url/', follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/Course-Url/T-00.1000_d1/')
