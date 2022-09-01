@@ -119,7 +119,8 @@ class LastInstanceView(CourseMixin, BaseRedirectView):
         latest_visible = None
         latest_hidden = None
         for instance in course_instances:
-            if instance.visible_to_students:
+            any_modules_ready = CourseModule.objects.filter(course_instance=instance).filter(status=CourseModule.STATUS.READY).exists()
+            if instance.visible_to_students and any_modules_ready:
                 latest_visible = instance
                 break
             else:
