@@ -26,15 +26,12 @@ function duplicateCheck(exercise, form_element, submitCallback) {
   }
 
   // Compute a hash for the current submission
-  const formData = new FormData(form_element);
-  const formProps = Object.fromEntries(formData);
+  const formAsArray = $(form_element).serializeArray();
   // Grader language shouldn't affect the hash
-  if (formProps.hasOwnProperty('__grader_lang')) {
-    delete formProps['__grader_lang'];
-  }
-  let hashThis = JSON.stringify(formProps, Object.keys(formProps).sort());
+  const formAsArray2 = formAsArray.filter(function(f) { return f.name !== '__grader_lang'; });
+  let hashThis = JSON.stringify(formAsArray2);
 
-  // File contents are not included in formProps, so we read the files separately
+  // File contents are not included in the JSON string, so we read the files separately
   const inputFileElements = form_element.querySelectorAll('input[type=file]');
   if (inputFileElements.length > 0) {
     const reader = new FileReader();
@@ -49,7 +46,7 @@ function duplicateCheck(exercise, form_element, submitCallback) {
       reader.readAsText(file);
     };
     reader.onload = function() {
-      // Concatenate file contents with formProps JSON string
+      // Concatenate file contents with the JSON string
       hashThis += reader.result;
       if (index < inputFileElements.length) {
         // More to do, start loading the next file
