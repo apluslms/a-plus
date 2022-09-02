@@ -140,6 +140,9 @@ $(function() {
         self.paste($(this).data("field"));
       });
 
+      //access the inner id of the hidden select, and set it as the input's id, so that
+      //the label refers to the input and clicking the label focuses the input
+      this.element.find('input')[0].id = this.inner_element[0].id
       this.inner_element.removeAttr('required');
     },
 
