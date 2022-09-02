@@ -32,6 +32,16 @@
 					<dt>{% translate "NO_VALUES" %}</dt>
 					{% endfor %}
 				</dl>
+
+				<h4>{% translate "LABEL_META_DATA"|capfirst %}</h4>
+				<dl>
+					{% for key, value in submission.meta_data.items %}
+						<dt>{{ key }}</dt>
+						<dd>{{ value }}</dd>
+					{% empty %}
+						<dt>{% translate "NO_VALUES" %}</dt>
+					{% endfor %}
+				</dl>
 			</div>
 		</div>
 	</div>
