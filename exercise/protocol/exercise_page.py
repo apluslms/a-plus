@@ -43,6 +43,7 @@ class ExercisePage:
             field_values: Optional[Dict[str, List[str]]] = None,
             data_values: Optional[Dict[str, str]] = None,
             allow_submit: bool = True,
+            feedback_revealed: bool = True,
         ) -> None:
         """
         Populates the provided values into the exercise form by manipulating
@@ -55,14 +56,19 @@ class ExercisePage:
         exercise_element = self._find_exercise_element(soup)
         if exercise_element is None:
             return
+        if field_values is None:
+            field_values = {}
 
         # Most likely there is only one form
         for form_element in exercise_element.find_all('form'):
-            if field_values is not None:
-                self._populate_fields(form_element, field_values)
+            force_disable_submit = self._populate_fields(
+                form_element,
+                field_values,
+                feedback_revealed,
+            )
             if data_values is not None:
                 self._populate_data(form_element, data_values)
-            if not allow_submit:
+            if not allow_submit or force_disable_submit:
                 self._remove_submit_button(form_element)
         self.content = str(exercise_element)
 
@@ -81,17 +87,31 @@ class ExercisePage:
 
         return exercise_element
 
-    def _populate_fields(self, form_element: Tag, field_values: Dict[str, List[str]]) -> None:
+    def _populate_fields(
+            self,
+            form_element: Tag,
+            field_values: Dict[str, List[str]],
+            feedback_revealed: bool,
+        ) -> bool:
         """
         Inserts the provided values into the form input elements inside the
         exercise element.
         """
+        force_disable_submit = False
         # Find all form elements on the exercise page and fill in the values
         field_elements = form_element.find_all(['input', 'select', 'textarea'])
         for field_element in field_elements:
             field_element = cast(Tag, field_element)
             field_name = cast(str, field_element.get('name'))
             if field_name not in field_values:
+                disable_file_input_field = (
+                    feedback_revealed is False
+                    and field_element.name == 'input'
+                    and field_element.get('type') == 'file'
+                )
+                if disable_file_input_field:
+                    field_element['disabled'] = ''
+                    force_disable_submit = True
                 continue
             if field_element.name == 'input':
                 if field_element.get('type') in ('radio', 'checkbox'):
@@ -111,6 +131,8 @@ class ExercisePage:
             elif field_element.name == 'textarea':
                 string_content = NavigableString(field_values[field_name][0])
                 field_element.contents = [string_content]
+
+        return force_disable_submit
 
     def _populate_data(self, form_element: Tag, data_values: Dict[str, str]) -> None:
         """

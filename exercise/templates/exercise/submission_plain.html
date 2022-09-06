@@ -88,6 +88,9 @@
 
 		{% include "exercise/_submit_progress.html" %}
 		{% if not feedback_revealed %}
+		<div class="alert alert-success">
+			{% translate "SUBMISSION_ACCEPTED_FOR_GRADING" %}
+		</div>
 		<div class="exercise-content">
 			{{ submission_page.content|safe }}
 		</div>

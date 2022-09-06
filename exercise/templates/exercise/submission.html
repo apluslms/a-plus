@@ -11,41 +11,44 @@
 {% endblock %}
 
 {% block exercisecontent %}
-    {% if submission.files.all %}
-    <h4>{% translate "FILES_IN_SUBMISSION" %}</h4>
-    <ul class="list-unstyled">
-        {% for file in submission.files.all %}
-        <li>
-        	<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-        	{% include "exercise/_file_link.html" %}
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+	{% if submission.files.all %}
+	<h4>{% translate "FILES_IN_SUBMISSION" %}</h4>
+	<ul class="list-unstyled">
+		{% for file in submission.files.all %}
+		<li>
+			<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+			{% include "exercise/_file_link.html" %}
+		</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
 
-    {% if feedback_revealed and submission.assistant_feedback %}
-        <h4>{% translate "ASSISTANT_FEEDBACK" %}</h4>
-        <blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
-    {% endif %}
+	{% if feedback_revealed and submission.assistant_feedback %}
+		<h4>{% translate "ASSISTANT_FEEDBACK" %}</h4>
+		<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>
+	{% endif %}
 
 	{% if not feedback_revealed %}
-		<div class="exercise">
-			{{ submission_page.content|safe }}
-		</div>
+	<div class="alert alert-success">
+		{% translate "SUBMISSION_ACCEPTED_FOR_GRADING" %}
+	</div>
+	<div class="exercise">
+		{{ submission_page.content|safe }}
+	</div>
 	{% elif submission.feedback and submission.feedback.strip %}
-        <div id="exercise">
-            {{ submission.feedback|safe }}
-        </div>
-    {% elif submission.status == "waiting" %}
-        <div class="alert alert-info">
-			{% translate "SUBMISSION_ACCEPTED_FOR_GRADING" %}
-		</div>
-    {% else %}
-        <div class="alert alert-info">
-            {% translate "NO_GRADER_FEEDBACK_FOR_SUBMISSION" %}
-        </div>
-    {% endif %}
-    {% include "exercise/_exercise_wait.html" %}
+	<div id="exercise">
+		{{ submission.feedback|safe }}
+	</div>
+	{% elif submission.status == "waiting" %}
+	<div class="alert alert-info">
+		{% translate "SUBMISSION_ACCEPTED_FOR_GRADING" %}
+	</div>
+	{% else %}
+	<div class="alert alert-info">
+		{% translate "NO_GRADER_FEEDBACK_FOR_SUBMISSION" %}
+	</div>
+	{% endif %}
+	{% include "exercise/_exercise_wait.html" %}
 
 {% endblock %}
 
