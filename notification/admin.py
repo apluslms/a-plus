@@ -25,7 +25,11 @@ class NotificationAdmin(admin.ModelAdmin):
         'submission',
         'seen',
     )
-    list_display_links = ('subject',)
+    list_display_links = (
+        'course_instance',
+        'sender',
+        'subject',
+    )
     list_filter = (
         'seen',
         'timestamp',
