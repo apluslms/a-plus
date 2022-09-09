@@ -104,10 +104,7 @@
     },
 
     renderMath: function() {
-      if (typeof window.MathJax === "undefined") {
-        return;
-      }
-      window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, this.modalElement.get(0)]);
+      this.modalElement.aplusTypesetMath();
     },
   });
 
@@ -859,10 +856,7 @@
     },
 
     renderMath: function() {
-      if (typeof window.MathJax === "undefined") {
-        return;
-      }
-      window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, this.element.get(0)]);
+      this.element.aplusTypesetMath();
     },
   });
 

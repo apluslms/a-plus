@@ -503,7 +503,7 @@ $(function() {
                         modal.trigger("opened.aplus.modal");
                         // render math in the modal
                         if (typeof window.MathJax !== "undefined") {
-                            window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, modal.get(0)]);
+                          modal.aplusTypesetMath();
                         }
                     }
                 }).fail(function() {
@@ -520,6 +520,30 @@ $(function() {
             }
         });
     };
+})(jQuery, window);
+
+
+(function($, window) {
+  "use strict";
+
+  const pluginName = "aplusTypesetMath";
+  $.fn[pluginName] = function() {
+    if (typeof window.MathJax === "undefined") {
+      return;
+    }
+    switch (window.MathJax.version[0]) {
+      case "2":
+        window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub, this.get()]);
+        break;
+      case "3":
+        window.MathJax.typesetPromise(this.get()).catch((err) =>
+          console.error(err)
+        );
+        break;
+      default:
+        console.error("Unsupported version of MathJax, use 2.x or 3.x!");
+    }
+  };
 })(jQuery, window);
 
 /**
