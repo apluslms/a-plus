@@ -995,7 +995,11 @@ msgstr "Palautuskertojen poikkeamat"
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
-msgstr "Sinun täytyy ilmoittautua tälle kurssille opintotietojärjestelmässä."
+msgstr ""
+"Sinun täytyy ilmoittautua tälle kurssille opintotietojärjestelmässä. Jos "
+"rekisteröidyit juuri äskettäin, huomaa, että uudet ilmoittautumiset "
+"aktivoituvat viiveellä. Ilmoittautumiset haetaan opintotietojärjestelmästä "
+"tyypillisesti kerran tunnissa."
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"

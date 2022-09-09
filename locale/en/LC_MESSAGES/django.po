@@ -989,7 +989,10 @@ msgstr "Submission deviations"
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
-msgstr "You must enrol on this course through Student Information System."
+msgstr ""
+"You must enrol on this course through Student Information System. If you "
+"registered just now, note that there is a delay before new enrolments become "
+"active. Enrolments are fetched from SIS typically once an hour."
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_TO_SUBMIT_EXERCISES"
