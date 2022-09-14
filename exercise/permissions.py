@@ -39,7 +39,13 @@ class ExerciseVisiblePermissionBase(ObjectVisibleBasePermission):
             self.error_msg(_('EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE'))
             return False
 
-        if exercise.is_submittable and not exercise.course_module.have_exercises_been_opened():
+        if (
+            exercise.is_submittable
+            and not exercise.course_module.have_exercises_been_opened()
+            and not exercise.status in (
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                )):
             self.error_msg(
                 format_lazy(
                     _('EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}'),
