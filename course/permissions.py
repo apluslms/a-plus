@@ -15,7 +15,7 @@ from authorization.permissions import (
     FilterBackend,
 )
 from exercise.cache.points import CachedPoints
-from exercise.models import BaseExercise
+from exercise.models import BaseExercise, LearningObject
 from exercise.submission_models import Submission
 from userprofile.models import GraderUser, UserProfile
 from .models import (
@@ -247,6 +247,13 @@ class CourseModulePermissionBase(MessageMixin, Permission):
 
         if module.status == CourseModule.STATUS.HIDDEN:
             return False
+
+        # Enrollment questionnaires are not affected by the module opening time.
+        if hasattr(view, 'exercise') and view.exercise.status in (
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+                ):
+            return True
 
         if not module.is_after_open():
             # FIXME: use format from django settings

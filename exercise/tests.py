@@ -1184,3 +1184,80 @@ class ExerciseTest(TestCase):
         self.assertEqual(draft1.submission_data, [["key", "value4"]])
         draft2 = self.base_exercise.get_submission_draft(self.user2.userprofile)
         self.assertEqual(draft2.submission_data, [["key", "value2"]])
+
+    def test_enrollment_questionaire_opening_time(self):
+        course_module = self.enrollment_exercise.course_module
+        course_module.closing_time = self.two_days_from_now
+
+        # Course and enrollment are open.
+        self.course_instance.starting_time = self.yesterday
+        self.course_instance.enrollment_starting_time = self.yesterday
+        self.course_instance.save()
+        course_module.opening_time = self.yesterday
+        course_module.save()
+        self.assertEqual(
+            self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED,
+        )
+
+        # Only enrollment isn't open.
+        self.course_instance.enrollment_starting_time = self.tomorrow
+        self.course_instance.save()
+        self.assertEqual(
+            self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.CANNOT_ENROLL,
+        )
+
+        # Enrollment is open but the module is not.
+        self.course_instance.enrollment_starting_time = self.yesterday
+        self.course_instance.save()
+        course_module.starting_time = self.tomorrow
+        course_module.save()
+        self.assertEqual(
+            self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED,
+        )
+
+        # Course isn't open but enrollment is. Module is open.
+        self.course_instance.enrollment_starting_time = self.yesterday
+        self.course_instance.starting_time = self.tomorrow
+        self.course_instance.save()
+        course_module.starting_time = self.yesterday
+        course_module.save()
+        self.assertEqual(
+            self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED,
+        )
+
+        # Course isn't open but enrollment is. Module is closed.
+        self.course_instance.enrollment_starting_time = self.yesterday
+        self.course_instance.starting_time = self.tomorrow
+        self.course_instance.save()
+        course_module.starting_time = self.tomorrow
+        course_module.save()
+        self.assertEqual(
+            self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.ALLOWED,
+        )
+
+        # Course, enrollment and module are closed.
+        self.course_instance.enrollment_starting_time = self.tomorrow
+        self.course_instance.starting_time = self.tomorrow
+        self.course_instance.save()
+        course_module.starting_time = self.tomorrow
+        course_module.save()
+        self.assertEqual(
+            self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.CANNOT_ENROLL,
+        )
+
+        # Course and enrollment are closed. Module is open.
+        self.course_instance.enrollment_starting_time = self.tomorrow
+        self.course_instance.starting_time = self.tomorrow
+        self.course_instance.save()
+        course_module.starting_time = self.yesterday
+        course_module.save()
+        self.assertEqual(
+            self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
+            BaseExercise.SUBMIT_STATUS.CANNOT_ENROLL,
+        )
