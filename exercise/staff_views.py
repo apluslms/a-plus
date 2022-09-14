@@ -245,6 +245,10 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         self.submission.set_ready()
         self.submission.save()
 
+        # TODO: is it a ugly that this function may also call save() for the same submission?
+        # (because "defines_grade" may be altered)
+        self.submission.check_defining_submission()
+
         # Set other submissions as not final if this one is final.
         if self.submission.force_exercise_points:
             other_submissions = (self.exercise

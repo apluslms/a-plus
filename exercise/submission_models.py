@@ -380,6 +380,10 @@ class Submission(UrlMixin, models.Model):
         verbose_name=_('LABEL_FORCE_EXERCISE_POINTS'),
         default=False,
     )
+    defines_grade = models.BooleanField(
+        verbose_name="Defines grade for this exercise",
+        default=False,
+    )
 
     # Points received from assessment, before scaled to grade
     service_points = models.IntegerField(
@@ -570,6 +574,33 @@ class Submission(UrlMixin, models.Model):
 
         # Finally check that the grade is in bounds after all the math.
         assert 0 <= self.grade <= self.exercise.max_points
+
+        self.check_defining_submission()
+
+
+    def check_defining_submission(self) -> bool:
+        from .exercise_summary import UserExerciseSummary
+
+        if self.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+            return
+
+        for student in self.submitters.all():
+            try:
+                earlier_best = self.exercise.get_submissions_for_student(student).get(defines_grade=True)
+            except (Submission.DoesNotExist):
+                # first valid submission for this exercise
+                print("--PS: no earlier best")
+                self.defines_grade = True
+                continue
+
+            best = UserExerciseSummary(self.exercise, student.user).best_submission
+            print(f"--PS: earlier_best: {earlier_best}   best: {best}")
+            if best != earlier_best:
+                earlier_best.defines_grade = False
+                best.defines_grade = True
+                earlier_best.save()
+                best.save()
+
 
     def scale_grade_to(self, percentage):
         percentage = float(percentage)/100

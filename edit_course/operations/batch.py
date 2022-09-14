@@ -81,4 +81,8 @@ def create_submissions(instance, admin_profile, json_text):
             sub.set_ready()
             sub.save()
 
+            # TODO: is it a ugly that this function may also call save() for the same submission?
+            # (because "defines_grade" may be altered)
+            sub.check_defining_submission()
+
     return errors

@@ -62,6 +62,9 @@ with api.register(r'courses',
     courses.register(r'bestresultsdata',
                      exercise.api.csv.views.CourseBestResultsDataViewSet,
                      basename='course-resultsdata-best')
+    courses.register(r'quickresults',
+                     exercise.api.csv.views.CourseQuickResultsViewSet,
+                     basename='course-quickresults')
     courses.register(r'mygroups',
                      course.api.views.CourseOwnStudentGroupsViewSet,
                      basename='course-mygroups')
