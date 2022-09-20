@@ -167,7 +167,7 @@ class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
                 exercise = LearningObject.objects.find_enrollment_exercise(
                     self.instance, self.profile.is_external)
                 if exercise:
-                    return self.redirect(exercise.get_absolute_url())
+                    return redirect(exercise.get_absolute_url())
             return redirect(self.instance.get_url('enroll'))
         return super().handle_no_permission()
 
