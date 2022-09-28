@@ -27,15 +27,22 @@ class SubmissionRuleDeviationManager(models.Manager[TModel], Generic[TModel]):
         be granted to the submitter directly, or to some other submitter in
         their group.
         """
-        deviations = (
+        deviations_self = (
+            self.filter(
+                exercise__in=exercises,
+                submitter=submitter,
+            )
+            .select_related('exercise')
+        )
+        deviations_group = (
             self.filter(
                 models.Q(exercise__in=exercises)
+                & ~models.Q(submitter=submitter)
                 & (
-                    # Check that the owner of the deviation is the user, or
+                    # Check that the owner of the deviation is
                     # some other user who has submitted the deviation's
                     # exercise with the user.
-                    models.Q(submitter=submitter)
-                    | models.Exists(
+                    models.Exists(
                         # Note the two 'submitters' filters.
                         Submission.objects.filter(
                             exercise=models.OuterRef('exercise'),
@@ -47,9 +54,13 @@ class SubmissionRuleDeviationManager(models.Manager[TModel], Generic[TModel]):
                 )
             )
             .select_related('exercise')
-            .order_by('exercise', self.max_order_by)
         )
 
+        deviations = (
+            deviations_self
+            .union(deviations_group)
+            .order_by('exercise', self.max_order_by)
+        )
         previous_exercise_id = None
         for deviation in deviations:
             if deviation.exercise.id == previous_exercise_id:
