@@ -35,7 +35,7 @@
 					style="display: none"
 				>
 					{% csrf_token %}
-					<input type="hidden" name="user_id" value="{{ submitter.id }}">
+					<input type="hidden" name="user_id" value="{{ submitter.user.id }}">
 					<input type="hidden" name="submission_id" value="{{ submission.id }}">
 					<p>{% translate 'SUBMISSION_APPROVAL_APPROVE_MULTIPLE_SELECT_SCOPE' %}</p>
 					<label>
