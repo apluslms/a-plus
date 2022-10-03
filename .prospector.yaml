@@ -1,0 +1,33 @@
+inherits:
+  - default
+ignore-paths:
+  - venv_aplus
+  - aplus/local_settings.example.py
+  - aplus/local_settings.test.py
+  - aplus/secret_key.py
+  - src/drf-extensions
+
+pycodestyle:
+  options:
+    max-line-length: 119
+
+pylint:
+  enable:
+    - trailing-whitespace
+  disable:
+    - consider-using-f-string
+    - import-error
+    - protected-access
+    - django-not-configured
+    - relative-beyond-top-level
+  options:
+    additional-builtins:
+      - exec_git
+      - exec_manage
+      - exec_pg
+      - exec_user
+      - exec_venv
+
+pyflakes:
+  disable:
+    - F821
