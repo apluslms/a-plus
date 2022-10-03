@@ -5,3 +5,4 @@ selenium
 pyvirtualdisplay
 nose
 django-debug-toolbar >= 3.2.2, < 4
+prospector
