@@ -126,19 +126,22 @@ class SearchSelect(forms.SelectMultiple):
         context = super().get_context(name, value, attrs)
         # Keep the attributes of this widget and the inner widget and separate.
         context['inner_widget'] = context['widget']
+        inner_id = context['inner_widget']['attrs']['id']
         context['widget'] = {
             'attrs': {
-                'id': context['inner_widget']['attrs']['id'] + '_wrapper',
+                'id': inner_id + '_wrapper',
                 'class': 'search-select-ajax' if self.ajax else 'search-select',
                 'data-display-fields': ','.join(self.display_fields),
                 'data-clipboard-fields': ','.join(self.clipboard_fields),
                 'data-search-api-url': self.search_api_url or '',
-            }
+            },
+            'input_id': inner_id,
         }
         context['clipboard_options'] = [
             {'field': field, 'label': self.field_labels.get(field, field)}
             for field in self.clipboard_fields
         ]
+        context['inner_widget']['attrs']['id'] = inner_id + '_select'
         return context
 
     def create_option(self, name: str, value: Any, *args: Any, **kwargs: Any) -> Dict[str, Any]:
